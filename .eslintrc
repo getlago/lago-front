@@ -1,0 +1,47 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "extends": [
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:jsx-a11y/recommended",
+
+    // prettier config will turn rules off according to prettier, it should always be at the end
+    "prettier"
+  ],
+  "plugins": ["import", "@typescript-eslint"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-console": 2,
+    "@typescript-eslint/no-explicit-any": 2,
+    "@typescript-eslint/no-non-null-assertion": 2,
+    "react/react-in-jsx-scope": 0,
+    "no-shadow": "off", // replaced by ts-eslint rule below
+    "@typescript-eslint/no-shadow": "error",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "error",
+    "newline-after-var": ["warn"],
+    "import/order": [
+      2,
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "unknown",
+          "sibling",
+          "parent",
+          "index"
+        ],
+        "newlines-between": "always"
+      }
+    ],
+    "react/display-name": 1
+  }
+}

@@ -1,0 +1,25 @@
+{
+    "include": ["**/*.tsx", "**/*.ts"],
+    "compilerOptions": {
+      "lib": ["es6", "dom", "esnext"],
+      "outDir": "./dist",
+      "target": "es5",
+      "module": "esnext",
+      "jsx": "react-jsx",
+      "strict": true,
+      "forceConsistentCasingInFileNames": true,
+      "skipLibCheck": true,
+      "sourceMap": true,
+      "resolveJsonModule": true,
+      "allowSyntheticDefaultImports": true,
+      "baseUrl": "src",
+      "esModuleInterop": true,
+      "paths": {
+        "~/*": ["*"]
+      },
+      "moduleResolution": "node"
+    },
+    "exclude": ["node_modules"],
+    "allowUmdGlobalAccess": true
+  }
+  
