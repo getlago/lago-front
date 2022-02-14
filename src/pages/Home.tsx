@@ -4,8 +4,8 @@ const Home = () => {
   return (
     <div>
       <h1>Home</h1>
-      <Link to="/test">Go to test2</Link>
-      <Link to="/">Back</Link>
+      <Link to="/">Go to test2</Link>
+      <Link to="/test2">Back</Link>
       <Outlet />
     </div>
   )

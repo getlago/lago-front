@@ -1,8 +1,11 @@
-import { BrowserRouter, Routes, useRoutes } from 'react-router-dom'
-import { routes } from '~/core/router'
+import { BrowserRouter, useRoutes } from 'react-router-dom'
+import { routes, formatRoute } from '~/core/router'
 
 const RouteWrapper = () => {
-  let element = useRoutes(routes)
+  const loggedIn = false
+  const formattedRoutes = routes.map((route) => formatRoute(route, loggedIn))
+
+  let element = useRoutes(formattedRoutes)
   return element
 }
 
