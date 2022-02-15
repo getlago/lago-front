@@ -4,8 +4,13 @@ const Home = () => {
   return (
     <div>
       <h1>Home</h1>
-      <Link to="/">Go to test2</Link>
-      <Link to="/test2">Back</Link>
+      <div>
+        <Link to="/">Go to test2</Link>
+      </div>
+      <div>
+        <Link to="/test2">Back</Link>
+      </div>
+
       <Outlet />
     </div>
   )

@@ -1,10 +1,7 @@
-import { createTheme } from '@mui/material/styles'
-// import type {} from '@material-ui/lab/themeAugmentation'
+import { createTheme, alpha } from '@mui/material/styles'
 
 import { palette } from './colorsPalette'
 // import MuiButton from './buttons'
-
-// import { LagoZIndex } from '../../material-ui-theme'
 
 export const MAX_WIDTH = 1600
 export const NAV_HEIGHT = 72
@@ -22,10 +19,6 @@ const typographyCaption = {
   lineHeight: '20px',
   fontWeight: 400,
 }
-
-// interface LagoTheme extends Omit<Theme, 'zIndex'> {
-//   zIndex: LagoZIndex
-// }
 
 export const theme = createTheme({
   spacing: 4, // Base 4 --> [0, 4, 8, 12, 16...], only following indexes are authorized: 1,2,3,4,5,6,8,10,12
@@ -370,6 +363,189 @@ export const theme = createTheme({
         },
       },
     },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          height: '40px',
+          minWidth: '80px',
+          padding: '6px 12px',
+          fontSize: '16px',
+          '&.button-icon-only': {
+            padding: '12px',
+            minWidth: 'unset',
+            width: '40px',
+          },
+        },
+        sizeSmall: {
+          '&.button-icon-only': {
+            width: '24px',
+            height: '24px',
+            padding: '4px',
+            borderRadius: '8px',
+          },
+        },
+        sizeLarge: {
+          height: '48px',
+          padding: '10px 12px',
+          '&.button-icon-only': {
+            padding: '12px',
+            minWidth: 'unset',
+            width: '48px',
+          },
+        },
+        endIcon: {
+          marginLeft: '8px',
+          marginRight: 0,
+        },
+        startIcon: {
+          marginLeft: 0,
+          marginRight: '8px',
+        },
+        text: {
+          padding: '6px 12px',
+          '&.MuiButton-root.Mui-focusVisible': {
+            boxShadow: `0px 0px 0px 4px ${palette.primary[200]}`,
+            outline: 'none',
+          },
+          color: palette.grey[600],
+          '&:hover': {
+            backgroundColor: palette.grey[200],
+          },
+          '&:active': {
+            backgroundColor: palette.grey[300],
+          },
+          '&$disabled': {
+            color: palette.grey[400],
+          },
+          '&.button-danger': {
+            '&:hover': {
+              backgroundColor: palette.error[100],
+            },
+            '&:active': {
+              backgroundColor: palette.error[200],
+            },
+            '&$disabled': {
+              color: palette.grey[400],
+            },
+            color: palette.error.main,
+          },
+          '&.button-quaternary-light': {
+            color: palette.common.white,
+            '&:hover': {
+              backgroundColor: alpha(palette.grey[100], 0.1),
+            },
+            '&:active': {
+              backgroundColor: alpha(palette.grey[100], 0.2),
+            },
+          },
+          '&.button-quaternary-dark': {
+            color: palette.grey[700],
+            '&:hover': {
+              backgroundColor: alpha(palette.grey[700], 0.1),
+            },
+            '&:active': {
+              backgroundColor: alpha(palette.grey[700], 0.2),
+            },
+          },
+        },
+        outlined: {
+          padding: '5px 11px',
+          color: palette.grey[600],
+          '&.MuiButton-root.Mui-focusVisible': {
+            boxShadow: `0px 0px 0px 4px ${palette.primary[200]}`,
+            outline: 'none',
+          },
+          border: `1px solid ${palette.grey[500]}`,
+          '&:hover': {
+            backgroundColor: palette.grey[200],
+          },
+          '&:active': {
+            backgroundColor: palette.grey[300],
+          },
+          '&$disabled': {
+            color: palette.grey[400],
+            backgroundColor: palette.grey[100],
+            border: 'none',
+            padding: '6px 12px',
+          },
+          '&.button-danger': {
+            '&:hover': {
+              backgroundColor: palette.error[100],
+            },
+            '&:active': {
+              backgroundColor: palette.error[200],
+            },
+            '&$disabled': {
+              color: palette.grey[400],
+              backgroundColor: palette.grey[100],
+              border: 'none',
+            },
+            color: palette.error.main,
+            border: `1px solid ${palette.error[500]}`,
+          },
+        },
+        contained: {
+          '&.MuiButton-root.Mui-focusVisible': {
+            boxShadow: `0px 0px 0px 4px ${palette.primary[200]}`,
+            outline: 'none',
+          },
+          color: palette.primary.main,
+          backgroundColor: palette.grey[200],
+          '&:hover': {
+            backgroundColor: palette.grey[300],
+          },
+          '&:active': {
+            backgroundColor: palette.grey[400],
+          },
+          '&$disabled': {
+            color: palette.grey[400],
+            backgroundColor: palette.grey[100],
+          },
+          '&.button-danger': {
+            color: palette.error.main,
+            backgroundColor: palette.error[100],
+            '&:hover': {
+              backgroundColor: palette.error[200],
+            },
+            '&:active': {
+              backgroundColor: palette.error[300],
+            },
+            '&$disabled': {
+              color: palette.grey[400],
+              backgroundColor: palette.grey[100],
+            },
+          },
+        },
+        containedPrimary: {
+          color: palette.common.white,
+          backgroundColor: palette.primary.main,
+          '&:hover': {
+            backgroundColor: palette.primary[700],
+          },
+          '&:active': {
+            backgroundColor: palette.primary[800],
+          },
+          '&$disabled': {
+            color: palette.grey[400],
+            backgroundColor: palette.grey[100],
+          },
+          '&.button-danger': {
+            '&:hover': {
+              backgroundColor: palette.error[700],
+            },
+            '&:active': {
+              backgroundColor: palette.error[800],
+            },
+            '&$disabled': {
+              color: palette.grey[400],
+              backgroundColor: palette.grey[100],
+            },
+            color: palette.common.white,
+            backgroundColor: palette.error.main,
+          },
+        },
+      },
+    },
   },
   /** ------------  OVERRIDES ------------ */
   // overrides: {
@@ -448,12 +624,12 @@ export const theme = createTheme({
     '0px 6px 8px 0px rgba(25, 33, 46, 0.12)',
     '0px 10px 16px 0px rgba(25, 33, 46, 0.1)',
     '0px 16px 24px 0px rgba(25, 33, 46, 0.1)',
-    // Next one (shadows[5]) is only used as bottom divider
-    `0px -1px 0px 0px ${palette.divider} inset`,
+    // Next one (shadows[5]) is only used as top divider
+    `0px 1px 0px 0px ${palette.divider} inset`,
     // Next one (shadows[6]) is only used as right divider
     `-1px 0px 0px 0px ${palette.divider} inset`,
-    // Next one (shadows[7]) is only used as top divider
-    `0px 1px 0px 0px ${palette.divider} inset`,
+    // Next one (shadows[7]) is only used as bottom divider
+    `0px -1px 0px 0px ${palette.divider} inset`,
     // Next one (shadows[8]) is only used as left divider
     `1px 0px 0px 0px ${palette.divider} inset`,
     // The following are not used but needs to be set for MUI - Those are the default values

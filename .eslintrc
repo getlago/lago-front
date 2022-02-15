@@ -30,15 +30,7 @@
     "import/order": [
       2,
       {
-        "groups": [
-          "builtin",
-          "external",
-          "internal",
-          "unknown",
-          "sibling",
-          "parent",
-          "index"
-        ],
+        "groups": ["builtin", "external", "internal", "unknown", "sibling", "parent", "index"],
         "newlines-between": "always"
       }
     ],

@@ -1,5 +1,6 @@
 import type { RouteObject } from 'react-router-dom'
 import { Navigate } from 'react-router-dom'
+
 import Home from '~/pages/Home'
 import Test from '~/pages/Test'
 import Test2 from '~/pages/Test2'
@@ -38,7 +39,7 @@ export const formatRoute: (route: CustomRouteObject, loggedIn: boolean) => Route
   loggedIn
 ) => {
   return {
-    path: route.path,
+    ...(route.path ? { path: route.path } : { index: true }),
     element: route.private && !loggedIn ? <Navigate to="/" /> : route.element,
     ...(route.children
       ? { children: route.children.map((child: CustomRouteObject) => formatRoute(child, loggedIn)) }
