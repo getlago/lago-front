@@ -53,6 +53,7 @@ declare module '@mui/material/styles' {
     button: React.CSSProperties
     note: React.CSSProperties
     button: React.CSSProperties
+    caption: React.CSSProperties
   }
 
   // allow configuration using `createTheme`
@@ -65,6 +66,7 @@ declare module '@mui/material/styles' {
     button: React.CSSProperties
     note: React.CSSProperties
     button: React.CSSProperties
+    caption: React.CSSProperties
   }
 }
 
@@ -110,7 +112,7 @@ declare module '@mui/material/Typography' {
     subtitle2: false
     body1: false
     body2: false
-    caption: false
+    caption: true
     overline: false
   }
 }

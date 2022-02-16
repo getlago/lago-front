@@ -1,0 +1,48 @@
+{
+  "projects": {
+    "project_6177d3aa12af7100ce4becb3": {
+      "text_6177d3ac4893e000cebf3bce": "Lago documentation",
+      "text_6177d3ac4893e000cebf3bcf": "Join our Slack community",
+      "text_6177d3ac4893e000cebf3bd0": "Contact us by email",
+      "text_6177d3ac4893e000cebf3bd2": "Help and contact"
+    },
+    "project_620bc4d45f16c800e2324b82": {
+      "text_620bc4d4269a55014d493f12": "Welcome to Lago",
+      "text_620bc4d4269a55014d493fc9": "Nice to see you here, let’s start by creating your account.",
+      "text_620bc4d4269a55014d493f26": "Organization name",
+      "text_620bc4d4269a55014d493f65": "Banco",
+      "text_620bc4d4269a55014d493f3e": "Email address",
+      "text_620bc4d4269a55014d493f77": "jane@banco.com",
+      "text_620bc4d4269a55014d493f53": "Set your password",
+      "text_620bc4d4269a55014d493f9a": "••••••••",
+      "text_620bc4d4269a55014d493fb5": "Sign up",
+      "text_620bc4d4269a55014d493fd4": "By signing up, you agree to our Terms of Service and Privacy Policy.\nAlready have an account? Log in",
+      "text_620bc4d4269a55014d493f57": "One lowecase character",
+      "text_620bc4d4269a55014d493fa0": "One special character",
+      "text_620bc4d4269a55014d493f7b": "One uppercase character",
+      "text_620bc4d4269a55014d493fac": "8 character minimum",
+      "text_620bc4d4269a55014d493f8d": "One number",
+      "text_620bc4d4269a55014d493fbe": "Your password is secure and you're all set!",
+      "text_620bc4d4269a55014d493faf": "Show password",
+      "text_620bc4d4269a55014d493fc1": "Hide password",
+      "text_620bc4d4269a55014d493f08": "Log In",
+      "text_620bc4d4269a55014d493f81": "Hi there, welcome back to Lago",
+      "text_620bc4d4269a55014d493f1e": "Email address",
+      "text_620bc4d4269a55014d493f49": "jane@banco.com",
+      "text_620bc4d4269a55014d493f32": "Password",
+      "text_620bc4d4269a55014d493f5b": "••••••••",
+      "text_620bc4d4269a55014d493f6d": "Log In",
+      "text_620bc4d4269a55014d493f93": "Forgot your password? We’ve got your back\nDon’t have an account? Sign up",
+      "text_620bc4d4269a55014d493f98": "Please fill this input to move forward",
+      "text_620bc4d4269a55014d493fb3": "Please fill this input to move forward",
+      "text_620bc4d4269a55014d493f8f": "Show password",
+      "text_620bc4d4269a55014d493f9e": "Hide password",
+      "text_620bc4d4269a55014d493fb7": "Sorry, that email and password combination is incorrect.",
+      "text_620bc4d4269a55014d493fc3": "This value is not an email address, please enter a valid email.",
+      "text_620bc4d4269a55014d493f16": "Reset your password",
+      "text_620bc4d4269a55014d493f42": "Fear not, we got your back. To reset your password please contact us, we’ll reset it manually and share you all the instructions to follow.",
+      "text_620bc4d4269a55014d493f2a": "Return to login"
+    }
+  },
+  "exported_at": "2022-02-16T18:28:36.437Z"
+}
