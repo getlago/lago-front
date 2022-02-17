@@ -1,12 +1,16 @@
-import { Suspense } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { BrowserRouter, useRoutes } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material'
 import styled from 'styled-components'
+import { ApolloClient, NormalizedCacheObject, ApolloProvider } from '@apollo/client'
 
 import { routes, formatRoute } from '~/core/router'
+import { initializeApolloClient } from '~/core/apolloClient'
 import { I18nProvider, LocaleEnum } from '~/core/I18nContext'
 import { Icon } from '~/components/designSystem'
 import { theme } from '~/styles'
+import { UserIdentifier } from '~/components/UserIdentifier'
+import { ToastContainer } from '~/components/designSystem/Toasts'
 import { inputGlobalStyles } from '~/styles/globalStyle'
 
 const RouteWrapper = () => {
@@ -28,12 +32,32 @@ const RouteWrapper = () => {
 }
 
 const App = () => {
+  const [client, setClient] = useState<ApolloClient<NormalizedCacheObject> | null>(null)
+
+  useEffect(() => {
+    async function initApolloClient() {
+      const apolloClient = await initializeApolloClient()
+
+      setClient(apolloClient)
+    }
+    // eslint-disable-next-line no-console
+    initApolloClient().catch((err) => console.error(err))
+  }, [])
+
+  if (!client) return null
+
   return (
     <BrowserRouter basename="/">
-      <ThemeProvider theme={theme}>
-        <I18nProvider locale={LocaleEnum.en}>{inputGlobalStyles}</I18nProvider>
-        <RouteWrapper />
-      </ThemeProvider>
+      <ApolloProvider client={client}>
+        <ThemeProvider theme={theme}>
+          <I18nProvider locale={LocaleEnum.en}>
+            {inputGlobalStyles}
+            <RouteWrapper />
+            <UserIdentifier />
+            <ToastContainer />
+          </I18nProvider>
+        </ThemeProvider>
+      </ApolloProvider>
     </BrowserRouter>
   )
 }

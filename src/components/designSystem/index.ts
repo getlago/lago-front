@@ -1,3 +1,6 @@
+export * from './Alert'
 export * from './Button'
 export * from './Icon'
+export * from './Toasts'
+export * from './Tooltip'
 export * from './Typography'

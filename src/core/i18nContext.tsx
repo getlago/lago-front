@@ -75,7 +75,6 @@ export const I18nProvider = ({ locale, children }: I18nProviderProps) => {
   // Translate function that will be used in pages/component to get translations
   const translate = useCallback(
     (key: string, data?: Record<string, any>, plural = 0) => {
-      console.log('zut')
       if (!translations || Object.keys(translations).length === 0) {
         return ''
       }
