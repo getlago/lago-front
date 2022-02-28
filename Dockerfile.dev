@@ -1,0 +1,8 @@
+FROM node:14-alpine
+
+WORKDIR /app
+
+RUN apk add --no-cache bash
+RUN yarn
+
+CMD ["./start.dev.sh"]
