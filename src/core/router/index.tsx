@@ -2,7 +2,11 @@ import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
 import { Navigate } from 'react-router-dom'
 
-const Login = lazy(() => import(/* webpackChunkName: 'login' */ '~/pages/Login'))
+const Login = lazy(() => import(/* webpackChunkName: 'login' */ '~/pages/auth/Login'))
+const SignUp = lazy(() => import(/* webpackChunkName: 'sign-up' */ '~/pages/auth/SignUp'))
+const ForgotPassword = lazy(
+  () => import(/* webpackChunkName: 'forgot-password' */ '~/pages/auth/ForgotPassword')
+)
 
 import Home from '~/pages/Home'
 import Test from '~/pages/Test'
@@ -17,12 +21,15 @@ interface CustomRouteObject extends SimpleRoute {
 }
 
 export const LOGIN_ROUTE = '/login'
+export const FORGOT_PASSWORD_ROUTE = '/forgot-password'
+export const SIGN_UP_ROUTE = '/sign-up'
 export const HOME_ROUTE = '/'
 
 export const routes: CustomRouteObject[] = [
   {
     path: HOME_ROUTE,
     element: <Home />,
+    private: true,
     children: [
       {
         index: true,
@@ -42,6 +49,16 @@ export const routes: CustomRouteObject[] = [
   {
     path: LOGIN_ROUTE,
     element: <Login />,
+    onlyPublic: true,
+  },
+  {
+    path: FORGOT_PASSWORD_ROUTE,
+    element: <ForgotPassword />,
+    onlyPublic: true,
+  },
+  {
+    path: SIGN_UP_ROUTE,
+    element: <SignUp />,
     onlyPublic: true,
   },
 ]

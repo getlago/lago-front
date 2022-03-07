@@ -95,10 +95,10 @@ const Container = styled.div<{ $severity: TSeverity }>`
   border-radius: 12px;
   overflow: hidden;
   max-height: 300px;
-  margin-top: ${theme.spacing(4)}px;
+  margin-top: ${theme.spacing(4)};
   animation: enter 250ms cubic-bezier(0.4, 0, 0.2, 1) 1;
   width: fit-content;
-  padding: ${theme.spacing(3)}px ${theme.spacing(4)}px;
+  padding: ${theme.spacing(3)} ${theme.spacing(4)};
   max-width: 360px;
 
   &.toast-closing {
@@ -136,7 +136,7 @@ const Container = styled.div<{ $severity: TSeverity }>`
     }
     100% {
       transform: translateX(0);
-      margin-top: ${theme.spacing(4)}px;
+      margin-top: ${theme.spacing(4)};
       max-height: 300px;
     }
   }
@@ -144,7 +144,7 @@ const Container = styled.div<{ $severity: TSeverity }>`
 
 const Message = styled(Typography)`
   && {
-    margin-right: ${theme.spacing(4)}px;
+    margin-right: ${theme.spacing(4)};
     flex: 1;
   }
 `

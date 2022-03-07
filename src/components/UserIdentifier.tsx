@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 
 import { addToast, updateCurrentUserInfosVar, resetCurrentUserInfosVar } from '~/core/apolloClient'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
-// import { useUserIdentifierQuery } from '~/generated/graphql'
+import { useUserIdentifierQuery } from '~/generated/graphql'
 
 gql`
   fragment CurrentUser on User {
@@ -11,22 +11,16 @@ gql`
     email
   }
 
-  # query UserIdentifier {
-  #   me: getLoggedUser {
-  #     ...CurrentUser
-  #   }
-  # }
+  query UserIdentifier {
+    me: currentUser {
+      ...CurrentUser
+    }
+  }
 `
 
 export const UserIdentifier = () => {
   const { isAuthenticated } = useIsAuthenticated()
-  const { data, refetch } = {
-    data: { me: { id: 'Machin', email: 'morgane@gmail.com' } },
-    refetch: () => {
-      console.log('refetch')
-    },
-  }
-  // const { data, refetch } = useUserIdentifierQuery()
+  const { data, refetch } = useUserIdentifierQuery()
   // If for some reason we constantly get null on the meQuery, avoid inifnite refetch
   const refetchCountRef = useRef<number>(0)
 

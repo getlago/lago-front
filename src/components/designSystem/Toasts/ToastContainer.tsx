@@ -57,7 +57,7 @@ const Container = styled.div`
   position: fixed;
   bottom: 0;
   left: 0;
-  margin-bottom: ${theme.spacing(4)}px;
-  margin-left: ${theme.spacing(4)}px;
+  margin-bottom: ${theme.spacing(4)};
+  margin-left: ${theme.spacing(4)};
   z-index: ${theme.zIndex.toast};
 `
