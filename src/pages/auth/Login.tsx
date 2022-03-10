@@ -2,15 +2,15 @@ import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { object, string } from 'yup'
 import { useFormik } from 'formik'
-import { Link } from 'react-router-dom'
 
 import { theme } from '~/styles'
-import Logo from '~/public/images/logo/lago-logo.svg'
 import { Typography, Button, Alert } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
-import { useLoginUserMutation } from '~/generated/graphql'
+import { useLoginUserMutation, Lago_Api_Error } from '~/generated/graphql'
 import { onLogIn } from '~/core/apolloClient'
 import { TextInputField } from '~/components/form'
+import { FORGOT_PASSWORD_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
+import { Page, Title, Subtitle, StyledLogo, Card } from '~/styles/auth'
 
 gql`
   mutation loginUser($input: LoginUserInput!) {
@@ -40,7 +40,7 @@ const Login = () => {
     },
     validationSchema: object().shape({
       email: string()
-        .email('text_618e691cc485410141d5988b')
+        .email('text_620bc4d4269a55014d493fc3')
         .required('text_620bc4d4269a55014d493f98'),
       password: string().required('text_620bc4d4269a55014d493fb3'),
     }),
@@ -58,11 +58,6 @@ const Login = () => {
     },
   })
 
-  // {!!loginError?.graphQLErrors &&
-  //   (loginError?.graphQLErrors[0] as LagoGQLError)?.code === LagoError.WrongLoginCombo && (
-  //     <ErrorAlert type="danger">{translate('text_6183dbff7cbe92012be6aaf9')}</ErrorAlert>
-  //   )} TODO
-
   return (
     <Page>
       <Card>
@@ -70,9 +65,12 @@ const Login = () => {
         <Title variant="headline">{translate('text_620bc4d4269a55014d493f08')}</Title>
         <Subtitle>{translate('text_620bc4d4269a55014d493f81')}</Subtitle>
 
-        {!!loginError?.graphQLErrors && loginError?.graphQLErrors[0] && (
-          <ErrorAlert type="danger">{translate('text_620bc4d4269a55014d493fb7')}</ErrorAlert>
-        )}
+        {!!loginError?.graphQLErrors &&
+          loginError?.graphQLErrors[0] &&
+          loginError?.graphQLErrors[0]?.extensions?.code ===
+            Lago_Api_Error.IncorrectLoginOrPassword && (
+            <ErrorAlert type="danger">{translate('text_620bc4d4269a55014d493fb7')}</ErrorAlert>
+          )}
 
         <EmailInput
           name="email"
@@ -95,40 +93,19 @@ const Login = () => {
           {translate('text_620bc4d4269a55014d493f6d')}
         </SubmitButton>
 
-        <ForgotPassword to="TODO">{translate('text_620bc4d4269a55014d493f93')}</ForgotPassword>
+        <ForgotPassword
+          variant="caption"
+          html={translate('text_620bc4d4269a55014d493f93', {
+            linkForgetPassword: FORGOT_PASSWORD_ROUTE,
+            linkSignUp: SIGN_UP_ROUTE,
+          })}
+        />
       </Card>
     </Page>
   )
 }
 
 export default Login
-
-const Page = styled.div`
-  box-sizing: border-box;
-  background-color: ${theme.palette.grey[100]};
-  min-height: 100vh;
-  padding: ${theme.spacing(20)};
-`
-
-const Card = styled.div`
-  margin: 0 auto;
-  background-color: ${theme.palette.background.paper};
-  border-radius: 12px;
-  box-shadow: 0px 6px 8px 0px #19212e1f; // TODO
-  padding: ${theme.spacing(10)};
-  max-width: 576px;
-`
-
-const StyledLogo = styled(Logo)`
-  margin-bottom: ${theme.spacing(12)};
-`
-
-const Title = styled(Typography)`
-  margin-bottom: ${theme.spacing(3)};
-`
-const Subtitle = styled(Typography)`
-  margin-bottom: ${theme.spacing(8)};
-`
 
 const EmailInput = styled(TextInputField)`
   && {
@@ -148,10 +125,11 @@ const SubmitButton = styled(Button)`
   }
 `
 
-const ForgotPassword = styled(Link)`
+const ForgotPassword = styled(Typography)`
   && {
     margin: auto;
     text-align: center;
+    text-align: left;
   }
 `
 

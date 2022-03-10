@@ -27,7 +27,7 @@ export const theme = createTheme({
     // There's only one real breakpoint, so only use md
     values: {
       xs: 0,
-      sm: 0,
+      sm: 608,
       md: 776,
       lg: MAX_WIDTH,
       xl: MAX_WIDTH,
@@ -95,7 +95,7 @@ export const theme = createTheme({
           '& .MuiInputAdornment-positionEnd': {
             marginRight: '12px',
             '& .svg-icon': {
-              padding: '0 4px 0 0',
+              padding: '0 0 0 0',
             },
           },
         },

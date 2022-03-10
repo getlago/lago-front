@@ -16,7 +16,7 @@
       "text_620bc4d4269a55014d493f53": "Set your password",
       "text_620bc4d4269a55014d493f9a": "••••••••",
       "text_620bc4d4269a55014d493fb5": "Sign up",
-      "text_620bc4d4269a55014d493fd4": "By signing up, you agree to our Terms of Service and Privacy Policy.\nAlready have an account? Log in",
+      "text_620bc4d4269a55014d493fd4": "\"By signing up, you agree to our <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/terms-of-service\">Terms of Service</a> and <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/privacy-policy\">Privacy Policy</a>.\nAlready have an account? <a data-text=\"Log in\" href=\"{{link}}\">-</a>\"",
       "text_620bc4d4269a55014d493f57": "One lowecase character",
       "text_620bc4d4269a55014d493fa0": "One special character",
       "text_620bc4d4269a55014d493f7b": "One uppercase character",
@@ -32,7 +32,7 @@
       "text_620bc4d4269a55014d493f32": "Password",
       "text_620bc4d4269a55014d493f5b": "••••••••",
       "text_620bc4d4269a55014d493f6d": "Log In",
-      "text_620bc4d4269a55014d493f93": "Forgot your password? We’ve got your back\nDon’t have an account? Sign up",
+      "text_620bc4d4269a55014d493f93": "Forgot your password? <a data-text=\"We’ve got your back\" href=\"{{linkForgetPassword}}\">-</a>\nDon’t have an account? <a data-text=\"Sign up\" href=\"{{linkSignUp}}\">-</a>",
       "text_620bc4d4269a55014d493f98": "Please fill this input to move forward",
       "text_620bc4d4269a55014d493fb3": "Please fill this input to move forward",
       "text_620bc4d4269a55014d493f8f": "Show password",
@@ -44,5 +44,5 @@
       "text_620bc4d4269a55014d493f2a": "Return to login"
     }
   },
-  "exported_at": "2022-02-16T18:28:36.437Z"
+  "exported_at": "2022-03-08T17:32:27.156Z"
 }

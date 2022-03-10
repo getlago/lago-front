@@ -12,10 +12,11 @@ import { theme } from '~/styles'
 import { UserIdentifier } from '~/components/UserIdentifier'
 import { ToastContainer } from '~/components/designSystem/Toasts'
 import { inputGlobalStyles } from '~/styles/globalStyle'
+import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 
 const RouteWrapper = () => {
-  const loggedIn = false
-  const formattedRoutes = routes.map((route) => formatRoute(route, loggedIn))
+  const { isAuthenticated } = useIsAuthenticated()
+  const formattedRoutes = routes.map((route) => formatRoute(route, isAuthenticated))
   let element = useRoutes(formattedRoutes)
 
   return (
