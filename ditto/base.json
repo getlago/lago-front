@@ -42,7 +42,17 @@
       "text_620bc4d4269a55014d493f16": "Reset your password",
       "text_620bc4d4269a55014d493f42": "Fear not, we got your back. To reset your password please contact us, we’ll reset it manually and share you all the instructions to follow.",
       "text_620bc4d4269a55014d493f2a": "Return to login"
+    },
+    "project_6227a2e6da6f5200e76ec9c2": {
+      "text_6227a2e847fcd700e9038937": "Banco",
+      "text_6227a2e847fcd700e903893b": "B",
+      "text_6227a2e847fcd700e903893f": "API keys",
+      "text_6227a2e847fcd700e9038943": "API key",
+      "text_6227a2e847fcd700e9038947": "API key is used for authentication in the Lago API.",
+      "text_6227a2e847fcd700e903894b": "••••••••••••••••••••••••••••58=",
+      "text_6227a2e847fcd700e903894f": "Copy",
+      "text_6227a2e847fcd700e9038952": "API key copy to clipboard"
     }
   },
-  "exported_at": "2022-03-08T17:32:27.156Z"
+  "exported_at": "2022-03-08T18:41:59.452Z"
 }

@@ -101,15 +101,18 @@ export type User = {
   createdAt: Scalars['ISO8601DateTime'];
   email?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
+  organizations?: Maybe<Array<Organization>>;
   updatedAt: Scalars['ISO8601DateTime'];
 };
 
-export type CurrentUserFragment = { __typename?: 'User', id: string, email?: string | null };
+export type CurrentOrganizationFragment = { __typename?: 'Organization', id: string, name: string, apiKey: string };
+
+export type CurrentUserFragment = { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, apiKey: string }> | null };
 
 export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null } };
+export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, apiKey: string }> | null } };
 
 export type LoginUserMutationVariables = Exact<{
   input: LoginUserInput;
@@ -123,14 +126,24 @@ export type SignupMutationVariables = Exact<{
 }>;
 
 
-export type SignupMutation = { __typename?: 'Mutation', registerUser?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, email?: string | null }, organization: { __typename?: 'Organization', id: string, name: string } } | null };
+export type SignupMutation = { __typename?: 'Mutation', registerUser?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, apiKey: string }> | null }, organization: { __typename?: 'Organization', id: string, name: string } } | null };
 
+export const CurrentOrganizationFragmentDoc = gql`
+    fragment CurrentOrganization on Organization {
+  id
+  name
+  apiKey
+}
+    `;
 export const CurrentUserFragmentDoc = gql`
     fragment CurrentUser on User {
   id
   email
+  organizations {
+    ...CurrentOrganization
+  }
 }
-    `;
+    ${CurrentOrganizationFragmentDoc}`;
 export const UserIdentifierDocument = gql`
     query UserIdentifier {
   me: currentUser {
