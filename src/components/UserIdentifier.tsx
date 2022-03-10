@@ -6,9 +6,18 @@ import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useUserIdentifierQuery } from '~/generated/graphql'
 
 gql`
+  fragment CurrentOrganization on Organization {
+    id
+    name
+    apiKey
+  }
+
   fragment CurrentUser on User {
     id
     email
+    organizations {
+      ...CurrentOrganization
+    }
   }
 
   query UserIdentifier {

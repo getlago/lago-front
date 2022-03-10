@@ -46,6 +46,7 @@ import Google from '~/public/icons/google.svg'
 import Handle from '~/public/icons/handle.svg'
 import Hashtag from '~/public/icons/hashtag.svg'
 import InfoCircle from '~/public/icons/info-circle.svg'
+import Key from '~/public/icons/key.svg'
 import KeyboardEnter from '~/public/icons/keyboard-enter.svg'
 import Lock from '~/public/icons/lock.svg'
 import Logout from '~/public/icons/log-out.svg'
@@ -141,6 +142,7 @@ export const ALL_ICONS = {
   handle: Handle,
   hashtag: Hashtag,
   'info-circle': InfoCircle,
+  key: Key,
   'keyboard-enter': KeyboardEnter,
   lock: Lock,
   logout: Logout,

@@ -34,6 +34,16 @@ export const inputGlobalStyles = (
           color: palette.info.main,
         },
       },
+      button: {
+        padding: '6px 12px',
+        height: '40px',
+        border: 'none',
+        borderRadius: '12px',
+        cursor: 'pointer',
+        '&:focus, &:active': {
+          outline: 'none',
+        },
+      },
     }}
   />
 )

@@ -68,7 +68,7 @@ export const initializeApolloClient = async () => {
       if (graphQLErrors) {
         // @ts-expect-error
         graphQLErrors.forEach(({ message, locations, path, extensions }: LagoGQLError) => {
-          const isUnauthorized = extensions.code === Lago_Api_Error.Unauthorized
+          const isUnauthorized = extensions && extensions.code === Lago_Api_Error.Unauthorized
 
           if (isUnauthorized && globalApolloClient) {
             logOut(globalApolloClient)

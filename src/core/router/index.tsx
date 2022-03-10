@@ -7,8 +7,10 @@ const SignUp = lazy(() => import(/* webpackChunkName: 'sign-up' */ '~/pages/auth
 const ForgotPassword = lazy(
   () => import(/* webpackChunkName: 'forgot-password' */ '~/pages/auth/ForgotPassword')
 )
+const ApiKeys = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/ApiKeys'))
 
-import Home from '~/pages/Home'
+const SideNavLayout = lazy(() => import(/* webpackChunkName: 'home' */ '~/layouts/SideNavLayout'))
+
 import Test from '~/pages/Test'
 import Test2 from '~/pages/Test2'
 
@@ -24,11 +26,12 @@ export const LOGIN_ROUTE = '/login'
 export const FORGOT_PASSWORD_ROUTE = '/forgot-password'
 export const SIGN_UP_ROUTE = '/sign-up'
 export const HOME_ROUTE = '/'
+export const API_KEYS_ROUTE = '/api-keys'
 
 export const routes: CustomRouteObject[] = [
   {
     path: HOME_ROUTE,
-    element: <Home />,
+    element: <SideNavLayout />,
     private: true,
     children: [
       {
@@ -36,9 +39,9 @@ export const routes: CustomRouteObject[] = [
         element: <Test />,
       },
       {
-        path: '/test2',
+        path: API_KEYS_ROUTE,
         private: true,
-        element: <Test2 />,
+        element: <ApiKeys />,
       },
       {
         path: '/test3',
