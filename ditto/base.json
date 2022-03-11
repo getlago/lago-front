@@ -16,7 +16,7 @@
       "text_620bc4d4269a55014d493f53": "Set your password",
       "text_620bc4d4269a55014d493f9a": "••••••••",
       "text_620bc4d4269a55014d493fb5": "Sign up",
-      "text_620bc4d4269a55014d493fd4": "\"By signing up, you agree to our <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/terms-of-service\">Terms of Service</a> and <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/privacy-policy\">Privacy Policy</a>.\nAlready have an account? <a data-text=\"Log in\" href=\"{{link}}\">-</a>\"",
+      "text_620bc4d4269a55014d493fd4": "By signing up, you agree to our <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/terms-of-service\">Terms of Service</a> and <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/privacy-policy\">Privacy Policy</a>.\nAlready have an account? <a data-text=\"Log in\" href=\"{{link}}\">-</a>",
       "text_620bc4d4269a55014d493f57": "One lowecase character",
       "text_620bc4d4269a55014d493fa0": "One special character",
       "text_620bc4d4269a55014d493f7b": "One uppercase character",
@@ -54,5 +54,5 @@
       "text_6227a2e847fcd700e9038952": "API key copy to clipboard"
     }
   },
-  "exported_at": "2022-03-08T18:41:59.452Z"
+  "exported_at": "2022-03-11T15:18:15.114Z"
 }
