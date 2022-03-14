@@ -45,7 +45,7 @@ const Subtitle = styled(Typography)`
 `
 
 const StyledTextInput = styled(TextInput)`
-  width: 244px;
+  width: 358px;
   margin-right: ${theme.spacing(3)};
 `
 
