@@ -11,6 +11,7 @@ import { onLogIn } from '~/core/apolloClient'
 import { TextInputField } from '~/components/form'
 import { FORGOT_PASSWORD_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import { Page, Title, Subtitle, StyledLogo, Card } from '~/styles/auth'
+import { useShortcuts } from '~/hooks/ui/useShortcuts'
 
 gql`
   mutation loginUser($input: LoginUserInput!) {
@@ -26,7 +27,7 @@ gql`
 const Login = () => {
   const { translate } = useI18nContext()
   const [login, { error: loginError }] = useLoginUserMutation({
-    context: { silentError: true },
+    context: { silentErrorCodes: [Lago_Api_Error.IncorrectLoginOrPassword] },
     onCompleted(res) {
       if (!!res?.loginUser) {
         onLogIn(res.loginUser.token, res.loginUser.user)
@@ -57,6 +58,13 @@ const Login = () => {
       })
     },
   })
+
+  useShortcuts([
+    {
+      keys: ['Enter'],
+      action: formikProps.submitForm,
+    },
+  ])
 
   return (
     <Page>

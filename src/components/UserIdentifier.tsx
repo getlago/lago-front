@@ -44,8 +44,7 @@ export const UserIdentifier = () => {
       } else {
         addToast({
           severity: 'danger',
-          // i18n-key cp:user-identifier:error
-          translateKey: 'cp:user-identifier:error',
+          translateKey: 'text_622f7a3dc32ce100c46a5154',
         })
       }
     } else {

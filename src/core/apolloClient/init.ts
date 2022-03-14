@@ -63,7 +63,7 @@ export const initializeApolloClient = async () => {
   const links = [
     initialLink.concat(timeoutLink),
     onError(({ graphQLErrors, networkError, operation, forward }) => {
-      const { silentError = false } = operation.getContext()
+      const { silentError = false, silentErrorCodes = [] } = operation.getContext()
 
       if (graphQLErrors) {
         // @ts-expect-error
@@ -75,11 +75,12 @@ export const initializeApolloClient = async () => {
           }
 
           !silentError &&
+            !silentErrorCodes.includes(extensions.code) &&
             !isUnauthorized &&
             message !== 'PersistedQueryNotFound' &&
             addToast({
               severity: 'danger',
-              translateKey: /* getGQLErrorsKey(code) */ 'TODO', // TODO
+              translateKey: 'text_622f7a3dc32ce100c46a5154',
             })
 
           // eslint-disable-next-line no-console
@@ -91,11 +92,10 @@ export const initializeApolloClient = async () => {
         })
       }
 
-      if (networkError && !silentError) {
+      if (networkError) {
         addToast({
           severity: 'danger',
-          // i18n-key apollo-client:network:error
-          translateKey: 'apollo-client:network:error',
+          translateKey: 'text_622f7a3dc32ce100c46a5154',
         })
         // eslint-disable-next-line no-console
         console.warn(`[Network error]: ${JSON.stringify(networkError)}`)

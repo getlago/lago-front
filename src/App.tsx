@@ -13,6 +13,7 @@ import { UserIdentifier } from '~/components/UserIdentifier'
 import { ToastContainer } from '~/components/designSystem/Toasts'
 import { inputGlobalStyles } from '~/styles/globalStyle'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
+import { ErrorBoundary } from '~/components/ErrorBoundary'
 
 const RouteWrapper = () => {
   const { isAuthenticated } = useIsAuthenticated()
@@ -53,7 +54,9 @@ const App = () => {
         <ThemeProvider theme={theme}>
           <I18nProvider locale={LocaleEnum.en}>
             {inputGlobalStyles}
-            <RouteWrapper />
+            <ErrorBoundary>
+              <RouteWrapper />
+            </ErrorBoundary>
             <UserIdentifier />
             <ToastContainer />
           </I18nProvider>
