@@ -1,5 +1,5 @@
-import { gql } from '@apollo/client'
 import { useState, useMemo, useEffect } from 'react'
+import { gql } from '@apollo/client'
 import { object, string } from 'yup'
 import styled from 'styled-components'
 
@@ -9,8 +9,9 @@ import { useI18nContext } from '~/core/I18nContext'
 import { theme } from '~/styles'
 import { TextInput } from '~/components/form'
 import { LOGIN_ROUTE } from '~/core/router'
-import { useSignupMutation, CurrentUserFragmentDoc } from '~/generated/graphql'
+import { useSignupMutation, CurrentUserFragmentDoc, Lago_Api_Error } from '~/generated/graphql'
 import { onLogIn } from '~/core/apolloClient'
+import { useShortcuts } from '~/hooks/ui/useShortcuts'
 
 gql`
   mutation signup($input: RegisterUserInput!) {
@@ -52,7 +53,8 @@ const PASSWORD_VALIDATION = [
 
 const SignUp = () => {
   const { translate } = useI18nContext()
-  const [signUp] = useSignupMutation({
+  const [signUp, { error: signUpError }] = useSignupMutation({
+    context: { silentErrorCodes: [Lago_Api_Error.UserAlreadyExists] },
     onCompleted(res) {
       if (!!res?.registerUser) {
         onLogIn(res.registerUser.token, res.registerUser.user)
@@ -80,6 +82,13 @@ const SignUp = () => {
       }),
     []
   )
+  const onSignUp = async () => {
+    await signUp({
+      variables: {
+        input: formFields,
+      },
+    })
+  }
 
   useEffect(() => {
     validationSchema
@@ -94,12 +103,31 @@ const SignUp = () => {
       })
   }, [formFields, validationSchema])
 
+  useShortcuts([
+    {
+      keys: ['Enter'],
+      disabled: errors.length > 0,
+      action: onSignUp,
+    },
+  ])
+
   return (
     <Page>
       <Card>
         <StyledLogo height={24} />
         <Title variant="headline">{translate('text_620bc4d4269a55014d493f12')}</Title>
         <Subtitle>{translate('text_620bc4d4269a55014d493fc9')}</Subtitle>
+
+        {!!signUpError?.graphQLErrors &&
+          signUpError?.graphQLErrors[0] &&
+          signUpError?.graphQLErrors[0]?.extensions?.code === Lago_Api_Error.UserAlreadyExists && (
+            <ErrorAlert type="danger">
+              <Typography
+                variant="inherit"
+                html={translate('text_622f7a3dc32ce100c46a5131', { link: LOGIN_ROUTE })}
+              />
+            </ErrorAlert>
+          )}
 
         <Input
           name="organizationName"
@@ -156,18 +184,7 @@ const SignUp = () => {
           </PasswordValidation>
         </PasswordBlock>
 
-        <SubmitButton
-          disabled={errors.length > 0}
-          fullWidth
-          size="large"
-          onClick={async () =>
-            await signUp({
-              variables: {
-                input: formFields,
-              },
-            })
-          }
-        >
+        <SubmitButton disabled={errors.length > 0} fullWidth size="large" onClick={onSignUp}>
           {translate('text_620bc4d4269a55014d493fb5')}
         </SubmitButton>
 
@@ -221,6 +238,10 @@ const SubmitButton = styled(Button)`
   && {
     margin-bottom: ${theme.spacing(8)};
   }
+`
+
+const ErrorAlert = styled(Alert)`
+  margin-bottom: ${theme.spacing(8)};
 `
 
 export default SignUp
