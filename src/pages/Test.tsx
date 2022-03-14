@@ -4,7 +4,7 @@ import { Button } from '~/components/designSystem'
 import { theme } from '~/styles'
 
 const Test = () => {
-  const onClick = () => console.log('Coucou')
+  const onClick = () => {}
 
   return (
     <div>
