@@ -5,10 +5,9 @@ WORKDIR /app
 COPY . .
 
 ARG API_URL
-ARG APP_DOMAIN
 
 ENV API_URL $API_URL
-ENV APP_DOMAIN $APP_DOMAIN
+ENV NODE_ENV "production"
 
 RUN yarn && yarn build && npm prune --production
 
