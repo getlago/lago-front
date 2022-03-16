@@ -64,7 +64,7 @@ const SideNav = () => {
       >
         <Drawer className="drawer" $open={open}>
           <Header className="header">
-            {/* <Popper
+            <Popper
               PopperProps={{ placement: 'bottom-start' }}
               minWidth={320}
               maxHeight={`calc(100vh - 64px - 16px)`}
@@ -75,7 +75,7 @@ const SideNav = () => {
                   icon={
                     <Avatar
                       variant="company"
-                      identifier={companyName}
+                      identifier={companyName || ''}
                       size="small"
                       initials={(companyName ?? 'Lago')[0]}
                     />
@@ -99,7 +99,7 @@ const SideNav = () => {
                   </Logout>
                 </StyledMenuPopper>
               )}
-            </Popper> */}
+            </Popper>
           </Header>
           <Nav className="nav">
             <TabsButtons>
