@@ -9,7 +9,7 @@ import { theme } from '~/styles'
 const ApiKeys = () => {
   const { currentOrganization } = useCurrentUserInfosVar()
   const { translate } = useI18nContext()
-  const apiKey = currentOrganization?.apiKey.replace(/.(?=.{3,}$)/g, '•')
+  const apiKey = currentOrganization?.apiKey.substring(5).replace(/.(?=.{3,}$)/g, '•')
 
   return (
     <Page>
@@ -45,7 +45,7 @@ const Subtitle = styled(Typography)`
 `
 
 const StyledTextInput = styled(TextInput)`
-  width: 358px;
+  width: 320px;
   margin-right: ${theme.spacing(3)};
 `
 

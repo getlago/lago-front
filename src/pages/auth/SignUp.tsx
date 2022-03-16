@@ -123,7 +123,7 @@ const SignUp = () => {
           signUpError?.graphQLErrors[0]?.extensions?.code === Lago_Api_Error.UserAlreadyExists && (
             <ErrorAlert type="danger">
               <Typography
-                variant="inherit"
+                color="inherit"
                 html={translate('text_622f7a3dc32ce100c46a5131', { link: LOGIN_ROUTE })}
               />
             </ErrorAlert>
