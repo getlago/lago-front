@@ -7,7 +7,6 @@ COPY . .
 ARG API_URL
 
 ENV API_URL $API_URL
-ENV NODE_ENV "production"
 
 RUN yarn && yarn build && npm prune --production
 
