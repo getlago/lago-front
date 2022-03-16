@@ -39,51 +39,51 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2.3.4
-    # - name: Extract branch name
-    #   shell: bash
-    #   run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-    #   id: extract_branch
-    # - name: Configure AWS Credentials
-    #   uses: aws-actions/configure-aws-credentials@v1
-    #   with:
-    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #     aws-region: us-east-1
-    # - name: Login to Amazon ECR
-    #   id: login-ecr
-    #   uses: aws-actions/amazon-ecr-login@v1
-    # - name: Replace Variables in values.yaml
-    #   env:
-    #     ECR_REPOSITORY: ${{ steps.login-ecr.outputs.registry }}/lago-front-staging
-    #     BRANCH: ${{ steps.extract_branch.outputs.branch }}
-    #   run: |
-    #     sudo apt update && sudo apt install -y gettext
-    #     envsubst < ./porter/values.yaml > ./porter/env_values.yaml
-    # - name: Install and Configure kubectl
-    #   run: |
-    #     VERSION=$(curl --silent https://storage.googleapis.com/kubernetes-release/release/stable.txt)
-    #     curl https://storage.googleapis.com/kubernetes-release/release/$VERSION/bin/linux/amd64/kubectl \
-    #         --progress-bar \
-    #         --location \
-    #         --remote-name
-    #     chmod +x kubectl
-    #     mv kubectl /usr/local/bin/
-    #     echo "${{ secrets.KUBE_STAGING_CONFIG }}" | base64 -d > kubeconfig.yaml
-    # - name: Install and Configure Helm
-    #   run: |
-    #     curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
-    #     sudo apt-get install apt-transport-https --yes
-    #     echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
-    #     sudo apt-get update
-    #     sudo apt-get install helm
-    # - name: Get Helm deployment
-    #   id: helm_deployment
-    #   run: echo "::set-output name=deployment::$(helm --kubeconfig ./kubeconfig.yaml list -f ${{ steps.extract_branch.outputs.branch }}-front -o=json | jq '.[0].name')"
-    # - name: Delete Porter app
-    #   if: ${{ steps.helm_deployment.outputs.deployment != 'null' }}
-    #   run: |
-    #     helm --kubeconfig ./kubeconfig.yaml uninstall ${{ steps.extract_branch.outputs.branch }}-app
-    # - name: Create Porter app
-    #   uses: porter-dev/porter-cli-action@v0.1.0
-    #   with:
-    #     command: create web --app ${{ steps.extract_branch.outputs.branch}}-app --source registry --values ./porter/env_values.yaml --image ${{ steps.login-ecr.outputs.registry }}/lago-front-staging:${{ steps.extract_branch.outputs.branch }}
+    - name: Extract branch name
+      shell: bash
+      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      id: extract_branch
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+    - name: Replace Variables in values.yaml
+      env:
+        ECR_REPOSITORY: ${{ steps.login-ecr.outputs.registry }}/lago-front-staging
+        BRANCH: ${{ steps.extract_branch.outputs.branch }}
+      run: |
+        sudo apt update && sudo apt install -y gettext
+        envsubst < ./porter/values.yaml > ./porter/env_values.yaml
+    - name: Install and Configure kubectl
+      run: |
+        VERSION=$(curl --silent https://storage.googleapis.com/kubernetes-release/release/stable.txt)
+        curl https://storage.googleapis.com/kubernetes-release/release/$VERSION/bin/linux/amd64/kubectl \
+            --progress-bar \
+            --location \
+            --remote-name
+        chmod +x kubectl
+        mv kubectl /usr/local/bin/
+        echo "${{ secrets.KUBE_STAGING_CONFIG }}" | base64 -d > kubeconfig.yaml
+    - name: Install and Configure Helm
+      run: |
+        curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
+        sudo apt-get install apt-transport-https --yes
+        echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+        sudo apt-get update
+        sudo apt-get install helm
+    - name: Get Helm deployment
+      id: helm_deployment
+      run: echo "::set-output name=deployment::$(helm --kubeconfig ./kubeconfig.yaml list -f ${{ steps.extract_branch.outputs.branch }}-front -o=json | jq '.[0].name')"
+    - name: Delete Porter app
+      if: ${{ steps.helm_deployment.outputs.deployment != 'null' }}
+      run: |
+        helm --kubeconfig ./kubeconfig.yaml uninstall ${{ steps.extract_branch.outputs.branch }}-app
+    - name: Create Porter app
+      uses: porter-dev/porter-cli-action@v0.1.0
+      with:
+        command: create web --app ${{ steps.extract_branch.outputs.branch}}-app --source registry --values ./porter/env_values.yaml --image ${{ steps.login-ecr.outputs.registry }}/lago-front-staging:${{ steps.extract_branch.outputs.branch }}
