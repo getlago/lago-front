@@ -32,20 +32,13 @@ const config = {
       },
       {
         test: /\.svg$/,
-        exclude: /node_modules/,
+        include: path.resolve(__dirname, 'src'),
         use: [
           {
             loader: '@svgr/webpack',
             options: {
               svgoConfig: {
-                plugins: [
-                  {
-                    prefixIds: {
-                      prefixIds: false,
-                      prefixClassNames: false,
-                    },
-                  },
-                ],
+                pluggins: [{ prefixIds: false, prefixClassNames: false }],
               },
             },
           },
