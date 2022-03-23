@@ -5,5 +5,9 @@ projects:
     id: 6177d3aa12af7100ce4becb3
   - name: '⚙️ [WIP] - Settings - API KEY'
     id: 6227a2e6da6f5200e76ec9c2
+  - name: ⛵️Documentation asset
+    id: 623b3ac9459a5d00df324533
+  - name: "\U0001F44D [Ready for dev] - Billable metrics - Create a billable metric"
+    id: 623b42fddc2f2c017440cb5b
 format: flat
 variants: true
