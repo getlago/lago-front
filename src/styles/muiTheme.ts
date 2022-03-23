@@ -297,6 +297,18 @@ export const theme = createTheme({
         },
       },
     },
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          '&.MuiTypography-additionalColor-disabled': {
+            color: palette.text.disabled,
+          },
+          '&.MuiTypography-additionalColor-contrast': {
+            color: palette.common.white,
+          },
+        },
+      },
+    },
     MuiAccordion: {
       styleOverrides: {
         root: {
@@ -552,21 +564,6 @@ export const theme = createTheme({
       },
     },
   },
-  /** ------------  OVERRIDES ------------ */
-  // overrides: {
-  //   /** ------ BUTTONS ------ */
-  //   // MuiButton,
-  //   MuiTypography: {
-  //     root: {
-  //       '&.MuiTypography-additionalColor-disabled': {
-  //         color: palette.text.disabled,
-  //       },
-  //       '&.MuiTypography-additionalColor-contrast': {
-  //         color: palette.common.white,
-  //       },
-  //     },
-  //   },
-  // },
   typography: {
     fontFamily: 'Inter, Arial , Verdana , Helvetica , sans-serif',
     headline: {
