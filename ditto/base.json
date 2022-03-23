@@ -54,7 +54,31 @@
       "text_6227a2e847fcd700e903894b": "••••••••••••••••••••••••••••58=",
       "text_6227a2e847fcd700e903894f": "Copy",
       "text_6227a2e847fcd700e9038952": "API key copy to clipboard"
+    },
+    "project_623b3ac9459a5d00df324533": {
+      "text_623b3acb8ee4e000ba87d082": "No options",
+      "text_623b3acb8ee4e000ba87d084": "Doing some science, we’re loading your preview ..."
+    },
+    "project_623b42fddc2f2c017440cb5b": {
+      "text_623b42ff8ee4e000ba87d0ae": "Add a billable metric",
+      "text_623b42ff8ee4e000ba87d0b0": "Add a billable metric",
+      "text_623b42ff8ee4e000ba87d0b2": "Test this snippet in your code",
+      "text_623b42ff8ee4e000ba87d0b4": "Base metric used to measure usage, and act as a foundation of pricing",
+      "text_623b42ff8ee4e000ba87d0b6": "Node",
+      "text_623b42ff8ee4e000ba87d0b8": "How should we name it? ",
+      "text_623b42ff8ee4e000ba87d0be": "Name",
+      "text_623b42ff8ee4e000ba87d0c0": "Code",
+      "text_623b42ff8ee4e000ba87d0c2": "Type a name",
+      "text_623b42ff8ee4e000ba87d0c4": "Type a code",
+      "text_623b42ff8ee4e000ba87d0c6": "Copy",
+      "text_623b42ff8ee4e000ba87d0c8": "Description (optional)",
+      "text_623b42ff8ee4e000ba87d0ca": "Explain the goal of this billable metric …",
+      "text_623b42ff8ee4e000ba87d0cc": "How should we measure it? ",
+      "text_623b42ff8ee4e000ba87d0ce": "Aggregation type",
+      "text_623b42ff8ee4e000ba87d0d0": "Search or select an aggregation type",
+      "text_623b42ff8ee4e000ba87d0d2": "How we should aggregate events per customer",
+      "text_623b42ff8ee4e000ba87d0d4": "Add billable metric"
     }
   },
-  "exported_at": "2022-03-14T17:31:35.660Z"
+  "exported_at": "2022-03-23T15:56:59.592Z"
 }

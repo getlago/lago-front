@@ -19,7 +19,6 @@ const sanitize = (dirty: string, options: sanitizeHtml.IOptions | undefined) => 
   __html: sanitizeHtml(dirty, { ...defaultSanitizerOptions, ...options }),
 })
 
-//   type Variant = 'headline' | 'subhead' | 'bodyHl' | 'body' | 'captionHl' | 'caption' | 'note'
 type Color = MuiTypographyProps['color'] | 'disabled' | 'contrast'
 interface TypographyProps extends Omit<MuiTypographyProps, 'color'> {
   className?: string
@@ -128,7 +127,9 @@ export const Typography = memo(
           subhead: 'div',
           caption: 'div',
           note: 'div',
+          captionCode: 'code',
         }}
+        $code={variant === 'captionCode'}
         component={component}
         {...props}
       >
@@ -143,6 +144,6 @@ export const Typography = memo(
 
 Typography.displayName = 'Typography'
 
-const StyledMuiTypography = styled(MuiTypography)<{ component?: unknown }>`
-  white-space: pre-line;
+const StyledMuiTypography = styled(MuiTypography)<{ component?: unknown; $code?: boolean }>`
+  white-space: ${({ $code }) => ($code ? 'pre' : 'pre-line')};
 `

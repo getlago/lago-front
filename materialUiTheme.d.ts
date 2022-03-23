@@ -50,6 +50,7 @@ declare module '@mui/material/styles' {
     bodyHl: React.CSSProperties
     body: React.CSSProperties
     captionHl: React.CSSProperties
+    captionCode: React.CSSProperties
     button: React.CSSProperties
     note: React.CSSProperties
     button: React.CSSProperties
@@ -63,6 +64,7 @@ declare module '@mui/material/styles' {
     bodyHl: React.CSSProperties
     body: React.CSSProperties
     captionHl: React.CSSProperties
+    captionCode: React.CSSProperties
     button: React.CSSProperties
     note: React.CSSProperties
     button: React.CSSProperties
@@ -99,6 +101,7 @@ declare module '@mui/material/Typography' {
     bodyHl: true
     body: true
     captionHl: true
+    captionCode: true
     button: true
     note: true
     button: true

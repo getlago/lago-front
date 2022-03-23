@@ -342,6 +342,11 @@ export const theme = createTheme({
         listbox: {
           padding: 0,
         },
+        root: {
+          '.MuiOutlinedInput-root': {
+            padding: '0 14px 0 0 !important',
+          },
+        },
         option: {
           paddingLeft: 0,
           paddingRight: 0,
@@ -574,6 +579,12 @@ export const theme = createTheme({
       fontSize: '20px',
       lineHeight: '28px',
       fontWeight: 600,
+    },
+    captionCode: {
+      fontFamily: 'IBM Plex Mono, monospace',
+      fontWeight: 400,
+      fontSize: '14px',
+      lineHeight: '20px',
     },
     h2: undefined,
     bodyHl: {
