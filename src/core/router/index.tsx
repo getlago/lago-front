@@ -8,6 +8,9 @@ const ForgotPassword = lazy(
   () => import(/* webpackChunkName: 'forgot-password' */ '~/pages/auth/ForgotPassword')
 )
 const ApiKeys = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/ApiKeys'))
+const BillableMetricsList = lazy(
+  () => import(/* webpackChunkName: 'billable-metrics' */ '~/pages/BillableMetricsList')
+)
 
 const SideNavLayout = lazy(() => import(/* webpackChunkName: 'home' */ '~/layouts/SideNavLayout'))
 
@@ -27,6 +30,7 @@ export const FORGOT_PASSWORD_ROUTE = '/forgot-password'
 export const SIGN_UP_ROUTE = '/sign-up'
 export const HOME_ROUTE = '/'
 export const API_KEYS_ROUTE = '/api-keys'
+export const BILLABLE_METRICS_ROUTE = '/billable-metrics'
 
 export const routes: CustomRouteObject[] = [
   {
@@ -35,13 +39,18 @@ export const routes: CustomRouteObject[] = [
     private: true,
     children: [
       {
-        index: true,
-        element: <Test />,
-      },
-      {
         path: API_KEYS_ROUTE,
         private: true,
         element: <ApiKeys />,
+      },
+      {
+        path: BILLABLE_METRICS_ROUTE,
+        private: true,
+        element: <BillableMetricsList />,
+      },
+      {
+        index: true,
+        element: <Test />,
       },
       {
         path: '/test3',

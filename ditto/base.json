@@ -77,8 +77,32 @@
       "text_623b42ff8ee4e000ba87d0ce": "Aggregation type",
       "text_623b42ff8ee4e000ba87d0d0": "Search or select an aggregation type",
       "text_623b42ff8ee4e000ba87d0d2": "How we should aggregate events per customer",
-      "text_623b42ff8ee4e000ba87d0d4": "Add billable metric"
+      "text_623b42ff8ee4e000ba87d0d4": "Add billable metric",
+      "text_623b497ad05b960101be3438": "Billable metrics",
+      "text_623b497ad05b960101be343a": "Add a billable metric",
+      "text_623b497ad05b960101be343c": "Banco",
+      "text_623b497ad05b960101be343e": "Metric name",
+      "text_623b497ad05b960101be3440": "Creation date",
+      "text_623b497ad05b960101be3442": "B",
+      "text_623b497ad05b960101be3444": "Log out",
+      "text_623b497ad05b960101be3446": "ATM withdrawals",
+      "text_623b497ad05b960101be3448": "Billable metrics",
+      "text_623b497ad05b960101be344a": "2022/03/18",
+      "text_623b497ad05b960101be344c": "atm_withdrawals",
+      "text_623b497ad05b960101be344e": "Products",
+      "text_623b497ad05b960101be3450": "ATM withdrawals",
+      "text_623b497ad05b960101be3452": "2022/03/18",
+      "text_623b497ad05b960101be3454": "Price plans",
+      "text_623b497ad05b960101be3456": "atm_withdrawals",
+      "text_623b497ad05b960101be3458": "Customers",
+      "text_623b497ad05b960101be345a": "API key",
+      "text_623b53fea66c76017eaebb70": "Add your first billable metrics",
+      "text_623b53fea66c76017eaebb78": "A billable base metric is used to measure usage, and act as a foundation of pricing. \r\nE.g., API calls for an API product",
+      "text_623b53fea66c76017eaebb7c": "Add a billable metric",
+      "text_623b53fea66c76017eaebb6e": "Something went wrong",
+      "text_623b53fea66c76017eaebb76": "Please refresh the page or contact us if the error persists.",
+      "text_623b53fea66c76017eaebb7a": "Refresh the page"
     }
   },
-  "exported_at": "2022-03-23T15:56:59.592Z"
+  "exported_at": "2022-03-23T17:09:57.088Z"
 }

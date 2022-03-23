@@ -65,6 +65,7 @@ import Play from '~/public/icons/play.svg'
 import Plug from '~/public/icons/plug.svg'
 import Plus from '~/public/icons/plus.svg'
 import Processing from '~/public/icons/processing.svg'
+import Pulse from '~/public/icons/pulse.svg'
 import Push from '~/public/icons/push.svg'
 import QuestionCircle from '~/public/icons/question-circle.svg'
 import Reload from '~/public/icons/reload.svg'
@@ -161,6 +162,7 @@ export const ALL_ICONS = {
   plug: Plug,
   plus: Plus,
   processing: Processing,
+  pulse: Pulse,
   push: Push,
   'question-circle': QuestionCircle,
   reload: Reload,

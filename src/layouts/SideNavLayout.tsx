@@ -7,9 +7,9 @@ import { useNavigate, useLocation } from 'react-router-dom'
 
 import { useI18nContext } from '~/core/I18nContext'
 import { logOut, useCurrentUserInfosVar } from '~/core/apolloClient'
-import { Avatar, Button, TabButton, Popper, IconName, Typography } from '~/components/designSystem'
+import { Avatar, Button, TabButton, Popper, IconName } from '~/components/designSystem'
 import { theme } from '~/styles'
-import { API_KEYS_ROUTE } from '~/core/router'
+import { API_KEYS_ROUTE, BILLABLE_METRICS_ROUTE } from '~/core/router'
 import { MenuPopper } from '~/styles/designSystem'
 
 const NAV_WIDTH = 240
@@ -23,7 +23,7 @@ interface TabProps {
 
 const SideNav = () => {
   const client = useApolloClient()
-  const { user, currentOrganization } = useCurrentUserInfosVar()
+  const { currentOrganization } = useCurrentUserInfosVar()
   const { translate } = useI18nContext()
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
@@ -31,6 +31,11 @@ const SideNav = () => {
   const { pathname } = location
   const companyName = currentOrganization?.name
   const tabs: TabProps[] = [
+    {
+      title: translate('text_623b497ad05b960101be3448'),
+      icon: 'pulse',
+      link: BILLABLE_METRICS_ROUTE,
+    },
     {
       title: translate('text_6227a2e847fcd700e9038943'),
       icon: 'key' as IconName,
@@ -85,15 +90,11 @@ const SideNav = () => {
             >
               {() => (
                 <StyledMenuPopper>
-                  <MenuInfos>
-                    <Email variant="captionHl">{user?.email}</Email>
-                  </MenuInfos>
-
                   <Logout>
                     <TabButton
                       key="menu-logout"
                       icon="logout"
-                      title={translate('Logout TODO trad')}
+                      title={translate('text_623b497ad05b960101be3444')}
                       onClick={() => logOut(client)}
                     />
                   </Logout>
@@ -217,22 +218,6 @@ const TabsButtons = styled.div`
     &:not(:last-child) {
       margin-bottom: ${theme.spacing(1)};
     }
-  }
-`
-
-const Email = styled(Typography)`
-  && {
-    margin: 0 ${theme.spacing(3)};
-  }
-`
-
-const MenuInfos = styled.div`
-  padding: ${theme.spacing(4)} ${theme.spacing(2)} ${theme.spacing(2)};
-  flex: 1;
-  overflow: auto;
-
-  > :first-child {
-    margin-bottom: ${theme.spacing(2)};
   }
 `
 
