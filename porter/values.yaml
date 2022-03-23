@@ -51,7 +51,7 @@ ingress:
   porter_hosts: []
   provider: aws
   tls: true
-  wildcard: false
+  wildcard: true
 namespace: default
 nodeSelector: {}
 pvc:
