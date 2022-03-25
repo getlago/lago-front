@@ -11,6 +11,9 @@ const ApiKeys = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/Ap
 const BillableMetricsList = lazy(
   () => import(/* webpackChunkName: 'billable-metrics' */ '~/pages/BillableMetricsList')
 )
+const CreateBillableMetric = lazy(
+  () => import(/* webpackChunkName: 'create-billable-metrics' */ '~/pages/CreateBillableMetric')
+)
 
 const SideNavLayout = lazy(() => import(/* webpackChunkName: 'home' */ '~/layouts/SideNavLayout'))
 
@@ -31,6 +34,7 @@ export const SIGN_UP_ROUTE = '/sign-up'
 export const HOME_ROUTE = '/'
 export const API_KEYS_ROUTE = '/api-keys'
 export const BILLABLE_METRICS_ROUTE = '/billable-metrics'
+export const CREATE_BILLABLE_METRICS_ROUTE = '/create/billable-metrics'
 
 export const routes: CustomRouteObject[] = [
   {
@@ -57,6 +61,11 @@ export const routes: CustomRouteObject[] = [
         element: <Test2 />,
       },
     ],
+  },
+  {
+    path: CREATE_BILLABLE_METRICS_ROUTE,
+    private: true,
+    element: <CreateBillableMetric />,
   },
   {
     path: LOGIN_ROUTE,

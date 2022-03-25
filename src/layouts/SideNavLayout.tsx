@@ -36,11 +36,6 @@ const SideNav = () => {
       icon: 'pulse',
       link: BILLABLE_METRICS_ROUTE,
     },
-    {
-      title: translate('text_6227a2e847fcd700e9038943'),
-      icon: 'key' as IconName,
-      link: API_KEYS_ROUTE,
-    },
   ]
   const activeTabIndex = tabs.findIndex((tab) => pathname.includes(tab.link))
   const contentRef = useRef<HTMLDivElement>(null)
@@ -123,6 +118,18 @@ const SideNav = () => {
                 )
               })}
             </TabsButtons>
+            <ApiKeyButton
+              active={pathname.includes(API_KEYS_ROUTE)}
+              onClick={() => {
+                navigate(API_KEYS_ROUTE)
+                setOpen(false)
+                const element = document.activeElement as HTMLElement
+
+                element.blur && element.blur()
+              }}
+              icon="key"
+              title={translate('text_6227a2e847fcd700e9038943')}
+            />
           </Nav>
         </Drawer>
       </ClickAwayListener>
@@ -166,7 +173,7 @@ const Drawer = styled.div<{ $open: boolean }>`
   flex-direction: column;
   background-color: ${theme.palette.common.white};
 
-  ${theme.breakpoints.down('sm')} {
+  ${theme.breakpoints.down('md')} {
     position: absolute;
     z-index: ${theme.zIndex.drawer};
     left: ${({ $open }) => ($open ? 0 : -NAV_WIDTH)}px;
@@ -176,7 +183,7 @@ const Drawer = styled.div<{ $open: boolean }>`
 const Header = styled.div`
   padding: ${theme.spacing(4)} ${theme.spacing(4)} ${theme.spacing(2)} ${theme.spacing(4)};
 
-  ${theme.breakpoints.down('sm')} {
+  ${theme.breakpoints.down('md')} {
     margin-top: calc(40px + ${theme.spacing(4)});
   }
 `
@@ -204,6 +211,8 @@ const Nav = styled.div`
   padding: ${theme.spacing(2)} ${theme.spacing(4)} ${theme.spacing(4)};
   overflow: auto;
   flex: 1;
+  display: flex;
+  flex-direction: column;
 `
 
 const TabsButtons = styled.div`
@@ -257,6 +266,11 @@ const Gift = styled(Button)`
       opacity: 1;
     }
   }
+`
+
+const ApiKeyButton = styled(TabButton)`
+  margin-top: auto;
+  text-align: left;
 `
 
 export default SideNav

@@ -19,7 +19,7 @@ enum Language {
 Prism.manual = true
 
 interface CodeSnippetProps {
-  className: string
+  className?: string
 }
 
 export const CodeSnippet = ({ className }: CodeSnippetProps) => {
@@ -116,10 +116,6 @@ const Title = styled(Typography)`
 `
 
 const Content = styled.div`
-  padding: ${theme.spacing(8)};
-  border: 1px solid ${theme.palette.grey[300]};
-  border-radius: 12px;
-
   pre[class*='language-'] {
     margin: 0 0 ${theme.spacing(3)} 0;
   }

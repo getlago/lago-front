@@ -1,0 +1,61 @@
+{
+  // Place your lago-front workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and
+  // description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope
+  // is left empty or omitted, the snippet gets applied to all languages. The prefix is what is
+  // used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+  // $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders.
+  // Placeholders with the same ids are connected.
+  // Example:
+  // "Print to console": {
+  // 	"scope": "javascript,typescript",
+  // 	"prefix": "log",
+  // 	"body": [
+  // 		"console.log('$1');",
+  // 		"$2"
+  // 	],
+  // 	"description": "Log output to console"
+  // }
+
+  "Import from generated graphql file": {
+    "scope": "typescript, typescriptreact",
+    "prefix": "igenerated",
+    "body": "import { $1 } from '~/generated/graphql'"
+  },
+  "Import MuiTheme": {
+    "scope": "typescript, typescriptreact",
+    "prefix": "itheme",
+    "body": "import { theme } from '~/styles'"
+  },
+  "Import from MaterialUI/core": {
+    "scope": "typescript, typescriptreact",
+    "prefix": "imui",
+    "body": "import { $1 } from '@mui/material'"
+  },
+  "Import styled from styled-components": {
+    "scope": "typescript, typescriptreact",
+    "prefix": "istyled",
+    "body": "import styled from 'styled-components'"
+  },
+  "Import from components generics": {
+    "scope": "typescript, typescriptreact",
+    "prefix": "ids",
+    "body": "import { $1 } from '~/components/designSystem'"
+  },
+  "Import from form components": {
+    "scope": "typescript, typescriptreact",
+    "prefix": "iforms",
+    "body": "import { $1 } from '~/components/form'"
+  },
+  "Import from classnames": {
+    "scope": "typescript, typescriptreact",
+    "prefix": "iclsns",
+    "body": "import clsns from 'classnames'"
+  },
+
+  // In styles
+  "Add theme spacing in px": {
+    "scope": "css, styled, typescript, typescriptreact",
+    "prefix": "tspx",
+    "body": "${theme.spacing(${1:4})}"
+  }
+}

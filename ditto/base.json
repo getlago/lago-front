@@ -63,7 +63,7 @@
       "text_623b42ff8ee4e000ba87d0ae": "Add a billable metric",
       "text_623b42ff8ee4e000ba87d0b0": "Add a billable metric",
       "text_623b42ff8ee4e000ba87d0b2": "Test this snippet in your code",
-      "text_623b42ff8ee4e000ba87d0b4": "Base metric used to measure usage, and act as a foundation of pricing",
+      "text_623b42ff8ee4e000ba87d0b4": "Base metric used to measure usage, and act as a foundation of pricing.",
       "text_623b42ff8ee4e000ba87d0b6": "Node",
       "text_623b42ff8ee4e000ba87d0b8": "How should we name it? ",
       "text_623b42ff8ee4e000ba87d0be": "Name",
@@ -97,12 +97,17 @@
       "text_623b497ad05b960101be3458": "Customers",
       "text_623b497ad05b960101be345a": "API key",
       "text_623b53fea66c76017eaebb70": "Add your first billable metrics",
-      "text_623b53fea66c76017eaebb78": "A billable base metric is used to measure usage, and act as a foundation of pricing. \r\nE.g., API calls for an API product",
+      "text_623b53fea66c76017eaebb78": "A billable base metric is used to measure usage, and act as a foundation of pricing (e.g., API calls for an API product).",
       "text_623b53fea66c76017eaebb7c": "Add a billable metric",
       "text_623b53fea66c76017eaebb6e": "Something went wrong",
       "text_623b53fea66c76017eaebb76": "Please refresh the page or contact us if the error persists.",
-      "text_623b53fea66c76017eaebb7a": "Refresh the page"
+      "text_623b53fea66c76017eaebb7a": "Refresh the page",
+      "text_623c4a8c599213014cacc9de": "Count",
+      "text_623dfd731788a100ec660f14": "Your billable metric was successfully created!",
+      "text_623dfd731788a100ec660f16": "Now you can add another Billable metric, or go back to the app to manage your Plans.",
+      "text_623dfd731788a100ec660f18": "Add a billable metric",
+      "text_623dfd731788a100ec660f1a": "Go back to the app"
     }
   },
-  "exported_at": "2022-03-23T17:09:57.088Z"
+  "exported_at": "2022-03-25T17:39:57.144Z"
 }
