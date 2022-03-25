@@ -26,6 +26,7 @@ interface AvatarConnectorProps {
   size?: ConnectorAvatarSize
   initials?: never
   identifier?: never
+  className?: string
 }
 
 interface AvatarGenericProps {
@@ -34,6 +35,7 @@ interface AvatarGenericProps {
   identifier: string
   size?: AvatarSize
   children?: never
+  className?: string
 }
 
 const mapTypographyVariant = (size: ConnectorAvatarSize) => {
@@ -85,10 +87,12 @@ export const Avatar = ({
   identifier,
   initials = '',
   children,
+  className,
 }: AvatarProps) => {
   if (variant === 'connector') {
     return (
       <StyledAvatar
+        className={className}
         data-qa={`${variant}/${size}`}
         $size={mapAvatarSize(size)}
         $isRounded={true}
@@ -122,6 +126,7 @@ export const Avatar = ({
 
   return (
     <StyledAvatar
+      className={className}
       data-qa={`${variant}/${size}`}
       $size={mapAvatarSize(size)}
       $isRounded={variant === 'company'}

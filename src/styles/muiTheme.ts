@@ -142,6 +142,9 @@ export const theme = createTheme({
               color: palette.grey[400],
             },
           },
+          textarea: {
+            padding: 0,
+          },
         },
         notchedOutline: {
           borderColor: palette.grey[500],
