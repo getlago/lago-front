@@ -8,7 +8,7 @@ import localForage from 'localforage'
 
 import { Lago_Api_Error } from '~/generated/graphql'
 
-import { cache, AUTH_TOKEN_LS_KEY, addToast } from './cache'
+import { cache, AUTH_TOKEN_LS_KEY, ORGANIZATION_LS_KEY, addToast } from './cache'
 import { logOut, getItemFromLS, omitDeep } from './utils'
 import { typeDefs, resolvers } from './graphqlResolvers'
 
@@ -40,25 +40,12 @@ export const initializeApolloClient = async () => {
       headers: {
         ...headers,
         ...(!token ? {} : { authorization: `Bearer ${getItemFromLS(AUTH_TOKEN_LS_KEY)}` }),
+        'x-lago-organization': getItemFromLS(ORGANIZATION_LS_KEY)?.id,
       },
     })
 
     return forward(operation)
   })
-
-  /** Update token after every request */
-  // const afterwareLink = new ApolloLink((operation, forward) => {
-  //   return forward(operation).map((response) => {
-  //     const context = operation.getContext()
-  //     const refrechedToken = context.response.headers.get('x-lago-token')
-
-  //     if (refrechedToken) {
-  //       setItemFromLS(AUTH_TOKEN_LS_KEY, refrechedToken)
-  //     }
-
-  //     return response
-  //   })
-  // })
 
   const links = [
     initialLink.concat(timeoutLink),
@@ -68,7 +55,13 @@ export const initializeApolloClient = async () => {
       if (graphQLErrors) {
         // @ts-expect-error
         graphQLErrors.forEach(({ message, locations, path, extensions }: LagoGQLError) => {
-          const isUnauthorized = extensions && extensions.code === Lago_Api_Error.Unauthorized
+          const isUnauthorized =
+            extensions &&
+            [
+              Lago_Api_Error.Unauthorized,
+              Lago_Api_Error.ExpiredJwtToken,
+              Lago_Api_Error.TokenEncodingError,
+            ].includes(extensions.code)
 
           if (isUnauthorized && globalApolloClient) {
             logOut(globalApolloClient)

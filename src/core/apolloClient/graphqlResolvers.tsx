@@ -6,10 +6,20 @@ export const typeDefs = gql`
   }
 
   enum LAGO_API_ERROR {
-    user_already_exists
-    incorrect_login_or_password
     internal_error
     unauthorized
+    forbidden
+    not_found
+    unprocessable_entity
+
+    # Authentication & authentication errors
+    token_encoding_error
+    expired_jwt_token
+    incorrect_login_or_password
+    not_organization_member
+
+    # Validation errors
+    user_already_exists
   }
 `
 
