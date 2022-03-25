@@ -52,8 +52,8 @@ const Container = styled.div<{ $noMargins?: boolean }>`
   max-width: 496px;
 
   img {
-    width: 64px;
-    height: 64px;
+    width: 40px;
+    height: 40px;
   }
 
   > *:first-child {

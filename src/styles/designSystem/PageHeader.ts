@@ -14,7 +14,7 @@ export const PageHeader = styled.div<{ $withSide?: boolean }>`
   top: 0;
   z-index: ${theme.zIndex.navBar};
 
-  ${theme.breakpoints.down('sm')} {
+  ${theme.breakpoints.down('md')} {
     padding: ${({ $withSide }) =>
       $withSide ? `0 ${theme.spacing(4)} 0 ${theme.spacing(17)}` : `0 ${theme.spacing(4)}`};
   }
