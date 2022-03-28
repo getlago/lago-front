@@ -17,9 +17,6 @@ const CreateBillableMetric = lazy(
 
 const SideNavLayout = lazy(() => import(/* webpackChunkName: 'home' */ '~/layouts/SideNavLayout'))
 
-import Test from '~/pages/Test'
-import Test2 from '~/pages/Test2'
-
 interface SimpleRoute extends Omit<RouteObject, 'children'> {
   private?: boolean
   onlyPublic?: boolean
@@ -50,15 +47,8 @@ export const routes: CustomRouteObject[] = [
       {
         path: BILLABLE_METRICS_ROUTE,
         private: true,
-        element: <BillableMetricsList />,
-      },
-      {
         index: true,
-        element: <Test />,
-      },
-      {
-        path: '/test3',
-        element: <Test2 />,
+        element: <BillableMetricsList />,
       },
     ],
   },

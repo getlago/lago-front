@@ -10,6 +10,7 @@ import { Typography, Button } from '~/components/designSystem'
 import { theme } from '~/styles'
 import { ComboBox } from '~/components/form'
 import { useI18nContext } from '~/core/I18nContext'
+import { addToast } from '~/core/apolloClient'
 
 enum Language {
   node = 'node',
@@ -58,6 +59,7 @@ end
       <StyledComboBox
         value={language}
         onChange={(value) => setLanguage(value)}
+        disableClearable
         data={[
           {
             value: Language['node'],
@@ -82,6 +84,7 @@ end
           variant="captionCode"
           html={htmlRuby}
         />
+        <span />
       </Pre>
       <Button
         variant="secondary"
@@ -89,6 +92,10 @@ end
         fullWidth
         onClick={() => {
           navigator.clipboard.writeText(language === Language['node'] ? code : codeRuby)
+          addToast({
+            severity: 'info',
+            translateKey: 'text_6241ce41ae814301478358a2',
+          })
         }}
       >
         {translate('text_623b42ff8ee4e000ba87d0c6')}
@@ -118,6 +125,7 @@ const Title = styled(Typography)`
 const Content = styled.div`
   pre[class*='language-'] {
     margin: 0 0 ${theme.spacing(3)} 0;
+    display: flex;
   }
 
   pre[class*='language-'].line-numbers {
@@ -155,5 +163,9 @@ const Content = styled.div`
     color: ${theme.palette.common.white};
     display: block;
     text-align: right;
+  }
+
+  > span {
+    width: ${theme.spacing(3)};
   }
 `

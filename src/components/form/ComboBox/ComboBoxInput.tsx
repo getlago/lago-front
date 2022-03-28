@@ -17,6 +17,7 @@ export const ComboBoxInput = ({
   name,
   placeholder,
   params,
+  disableClearable,
 }: ComboBoxInputProps) => {
   const { inputProps, InputProps, ...restParams } = params
 
@@ -41,20 +42,22 @@ export const ComboBoxInput = ({
               ..._omit(InputProps, 'className'),
               endAdornment: (
                 <InputAdornment position="end">
-                  <StyledButton
-                    // To make sure the "clear button" is displayed only on hover or focus
-                    className={clsns('MuiAutocomplete-clearIndicator', {
-                      'MuiAutocomplete-clearIndicatorDirty': inputProps?.value,
-                    })}
-                    size="small"
-                    icon="close-circle-filled"
-                    variant="quaternary"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      inputProps.onChange({ target: { value: '' } })
-                    }}
-                  />
+                  {!disableClearable && (
+                    <StyledButton
+                      // To make sure the "clear button" is displayed only on hover or focus
+                      className={clsns('MuiAutocomplete-clearIndicator', {
+                        'MuiAutocomplete-clearIndicatorDirty': inputProps?.value,
+                      })}
+                      size="small"
+                      icon="close-circle-filled"
+                      variant="quaternary"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        inputProps.onChange({ target: { value: '' } })
+                      }}
+                    />
+                  )}
                   <Icon size="medium" name="chevron-up-down" />
                 </InputAdornment>
               ),

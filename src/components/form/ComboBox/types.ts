@@ -20,6 +20,7 @@ export interface ComboBoxProps extends Omit<ComboBoxInputProps, 'params'> {
   data: ComboBoxData[]
   sortValues?: boolean
   allowAddValue?: boolean
+  disableClearable?: boolean
   PopperProps?: Pick<MuiPopperProps, 'placement'> & {
     minWidth?: number
     maxWidth?: number
@@ -29,6 +30,7 @@ export interface ComboBoxProps extends Omit<ComboBoxInputProps, 'params'> {
 }
 
 export type ComboBoxInputProps = Omit<TextInputProps, 'onChange'> & {
+  disableClearable?: boolean
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: Omit<AutocompleteRenderInputParams, 'inputProps'> & { inputProps: any }
 }

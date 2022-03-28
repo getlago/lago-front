@@ -9,7 +9,6 @@ import { theme, PageHeader, NAV_HEIGHT } from '~/styles'
 import { Typography, Button } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
 import { BILLABLE_METRICS_ROUTE } from '~/core/router'
-import { useCurrentUserInfosVar } from '~/core/apolloClient'
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { TextInputField, ComboBoxField } from '~/components/form'
 import { useCreateBillableMetricMutation, AggregationTypeEnum } from '~/generated/graphql'
@@ -34,7 +33,6 @@ const CreateBillableMetric = () => {
       }
     },
   })
-  const { currentOrganization } = useCurrentUserInfosVar()
   const formikProps = useFormik({
     initialValues: {
       name: '',
@@ -56,7 +54,6 @@ const CreateBillableMetric = () => {
             code: values.code,
             description: values.description,
             aggregationType: values.aggregationType as AggregationTypeEnum,
-            organizationId: currentOrganization?.id ?? '',
           },
         },
       })
@@ -112,7 +109,7 @@ const CreateBillableMetric = () => {
                   <TextInputField
                     name="name"
                     label={translate('text_623b42ff8ee4e000ba87d0be')}
-                    placeholder={translate('text_623b42ff8ee4e000ba87d0c2')}
+                    placeholder={translate('text_6241cc759211e600ea57f4c7')}
                     // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus
                     formikProps={formikProps}
@@ -120,8 +117,7 @@ const CreateBillableMetric = () => {
                   <TextInputField
                     name="code"
                     label={translate('text_623b42ff8ee4e000ba87d0c0')}
-                    placeholder={translate('text_623b42ff8ee4e000ba87d0c0')}
-                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    placeholder={translate('text_623b42ff8ee4e000ba87d0c4')}
                     formikProps={formikProps}
                   />
                 </Line>
@@ -129,7 +125,6 @@ const CreateBillableMetric = () => {
                   name="description"
                   label={translate('text_623b42ff8ee4e000ba87d0c8')}
                   placeholder={translate('text_623b42ff8ee4e000ba87d0ca')}
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
                   rows="3"
                   multiline
                   formikProps={formikProps}
@@ -150,7 +145,11 @@ const CreateBillableMetric = () => {
                       value: AggregationTypeEnum.CountAgg,
                     },
                   ]}
-                  helperText={translate('text_623b42ff8ee4e000ba87d0d2')}
+                  helperText={
+                    formikProps.values?.aggregationType === AggregationTypeEnum.CountAgg
+                      ? translate('text_6241cc759211e600ea57f4f1')
+                      : translate('text_623b42ff8ee4e000ba87d0d2')
+                  }
                   formikProps={formikProps}
                 />
               </Card>

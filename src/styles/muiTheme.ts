@@ -368,13 +368,17 @@ export const theme = createTheme({
           paddingTop: 0,
           paddingBottom: 0,
           borderRadius: '12px',
-          // cf: https://github.com/mui-org/material-ui/issues/19692#issuecomment-586373401
-          '&[data-focus="true"]': {
-            backgroundColor: palette.grey[100],
+          height: '56px',
+          '&.Mui-focused': {
+            backgroundColor: `${palette.grey[100]} !important`,
           },
           '&[aria-selected="true"]': {
+            backgroundColor: `${palette.primary[100]} !important`,
             '&[aria-disabled="true"]': {
               opacity: '1 !important',
+            },
+            '&.Mui-focused': {
+              backgroundColor: `${palette.primary[200]} !important`,
             },
           },
         },
@@ -394,6 +398,10 @@ export const theme = createTheme({
             padding: '12px',
             minWidth: 'unset',
             width: '40px',
+          },
+          '&.Mui-disabled': {
+            backgroundColor: palette.grey[100],
+            color: palette.grey[400],
           },
         },
         sizeSmall: {
@@ -517,7 +525,7 @@ export const theme = createTheme({
           '&:active': {
             backgroundColor: palette.grey[400],
           },
-          '&$disabled': {
+          '&$disabled &.Mui-disabled': {
             color: palette.grey[400],
             backgroundColor: palette.grey[100],
           },
