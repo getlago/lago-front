@@ -40,14 +40,7 @@ const BillableMetricsList = () => {
           {translate('text_623b497ad05b960101be343a')}
         </StyledButton>
       </Header>
-      <ListHead>
-        <Typography color="disabled" variant="bodyHl">
-          {translate('text_623b497ad05b960101be343e')}
-        </Typography>
-        <Typography color="disabled" variant="bodyHl">
-          {translate('text_623b497ad05b960101be3440')}
-        </Typography>
-      </ListHead>
+
       {loading ? (
         [0, 1, 2].map((i) => (
           <Item key={`${i}-skeleton`}>
@@ -80,6 +73,14 @@ const BillableMetricsList = () => {
         />
       ) : (
         <div>
+          <ListHead>
+            <Typography color="disabled" variant="bodyHl">
+              {translate('text_623b497ad05b960101be343e')}
+            </Typography>
+            <Typography color="disabled" variant="bodyHl">
+              {translate('text_623b497ad05b960101be3440')}
+            </Typography>
+          </ListHead>
           {list.map(({ id, name, code, createdAt }) => {
             return (
               <Item key={id}>

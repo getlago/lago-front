@@ -23,17 +23,20 @@ export const ComboBoxItem = ({
   selected,
   comboboxProps,
 }: ComboBoxItemProps) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { className, ...allProps } = comboboxProps
 
   return (
     // @ts-ignore
     <Item
       id={id}
-      className={clsns('combo-box-item', {
-        'combo-box-item--selected': selected,
-        'combo-box-item--disabled': disabled,
-      })}
+      className={clsns(
+        'combo-box-item',
+        {
+          'combo-box-item--selected': selected,
+          'combo-box-item--disabled': disabled,
+        },
+        className
+      )}
       key={value}
       {...allProps}
     >
@@ -71,9 +74,6 @@ const Item = styled.div`
   cursor: pointer;
   width: 100%;
 
-  &.combo-box-item--selected {
-    background-color: ${theme.palette.primary[100]};
-  }
   &.combo-box-item--disabled {
     cursor: auto;
   }

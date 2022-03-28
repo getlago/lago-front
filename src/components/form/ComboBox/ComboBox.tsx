@@ -27,6 +27,7 @@ export const ComboBox = ({
   error,
   PopperProps,
   className,
+  disableClearable = false,
   onChange,
 }: ComboBoxProps) => {
   const { translate } = useI18nContext()
@@ -73,6 +74,7 @@ export const ComboBox = ({
       renderInput={(params) => {
         return (
           <ComboBoxInput
+            disableClearable={disableClearable}
             className={className}
             error={error}
             helperText={helperText}
