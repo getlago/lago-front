@@ -93,7 +93,7 @@ const BillableMetricsList = () => {
                   </Typography>
                   <Typography variant="caption">{code}</Typography>
                 </div>
-                <Typography>{DateTime.fromISO(createdAt).toFormat('yyyy/mm/dd')}</Typography>
+                <Typography>{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</Typography>
               </Item>
             )
           })}

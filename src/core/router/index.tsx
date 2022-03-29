@@ -20,6 +20,7 @@ const SideNavLayout = lazy(() => import(/* webpackChunkName: 'home' */ '~/layout
 interface SimpleRoute extends Omit<RouteObject, 'children'> {
   private?: boolean
   onlyPublic?: boolean
+  redirect?: string
 }
 interface CustomRouteObject extends SimpleRoute {
   children?: SimpleRoute[]
@@ -40,15 +41,19 @@ export const routes: CustomRouteObject[] = [
     private: true,
     children: [
       {
+        path: BILLABLE_METRICS_ROUTE,
+        private: true,
+        element: <BillableMetricsList />,
+      },
+      {
         path: API_KEYS_ROUTE,
         private: true,
         element: <ApiKeys />,
       },
       {
-        path: BILLABLE_METRICS_ROUTE,
+        path: HOME_ROUTE,
         private: true,
-        index: true,
-        element: <BillableMetricsList />,
+        redirect: BILLABLE_METRICS_ROUTE,
       },
     ],
   },
@@ -85,6 +90,8 @@ export const formatRoute: (route: CustomRouteObject, loggedIn: boolean) => Route
         <Navigate to={LOGIN_ROUTE} />
       ) : route.onlyPublic && loggedIn ? (
         <Navigate to={HOME_ROUTE} />
+      ) : route.redirect ? (
+        <Navigate to={route.redirect} />
       ) : (
         route.element
       ),

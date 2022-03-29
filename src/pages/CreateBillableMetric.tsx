@@ -61,7 +61,7 @@ const CreateBillableMetric = () => {
   })
 
   return (
-    <Page>
+    <div>
       <PageHeader>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_623b42ff8ee4e000ba87d0ae')}
@@ -95,8 +95,8 @@ const CreateBillableMetric = () => {
           </div>
         </SuccessCard>
       ) : (
-        <Container>
-          <Content>
+        <Content>
+          <div>
             <Main>
               <Title variant="headline">{translate('text_623b42ff8ee4e000ba87d0b0')}</Title>
               <Subtitle>{translate('text_623b42ff8ee4e000ba87d0b4')}</Subtitle>
@@ -167,47 +167,19 @@ const CreateBillableMetric = () => {
                 </SubmitButton>
               </ButtonContainer>
             </Main>
-            <Space></Space>
-          </Content>
-          <Side>
-            <CodeSnippet />
-          </Side>
-        </Container>
+            <Side>
+              <Card>
+                <CodeSnippet />
+              </Card>
+            </Side>
+          </div>
+        </Content>
       )}
-    </Page>
+    </div>
   )
 }
 
 export default CreateBillableMetric
-
-const Page = styled.div`
-  height: 100vh;
-`
-
-const Container = styled.div`
-  overflow: hidden;
-  max-width: 1056px;
-  margin: auto;
-  width: 100%;
-  position: relative;
-  height: calc(100vh - ${NAV_HEIGHT}px);
-  min-height: 524px;
-`
-
-const Content = styled.div`
-  padding-top: ${theme.spacing(12)};
-  display: flex;
-  justify-content: space-around;
-  box-sizing: border-box;
-  padding: 0 ${theme.spacing(4)};
-  height: calc(100vh - ${NAV_HEIGHT}px);
-  min-height: 524px;
-  overflow: auto;
-
-  > * {
-    max-width: 100%;
-  }
-`
 
 const Card = styled.div`
   padding: ${theme.spacing(8)};
@@ -290,19 +262,14 @@ const MobileOnly = styled(Card)`
   }
 `
 
-const Side = styled(Card)`
+const Side = styled.div`
   width: 408px;
-  position: absolute;
-  right: ${theme.spacing(4)};
-  top: ${theme.spacing(12)};
+  position: relative;
 
-  ${theme.breakpoints.down('md')} {
-    display: none;
+  > div {
+    position: sticky;
+    top: calc(${NAV_HEIGHT}px + ${theme.spacing(12)});
   }
-`
-
-const Space = styled.div`
-  width: 408px;
 
   ${theme.breakpoints.down('md')} {
     display: none;
@@ -315,4 +282,25 @@ const SubmitButton = styled(Button)`
 
 const ButtonContainer = styled.div`
   margin: 0 ${theme.spacing(6)};
+`
+
+const Content = styled.div`
+  > div {
+    display: flex;
+    max-width: 1024px;
+    padding: ${theme.spacing(4)};
+    margin: auto;
+
+    ${theme.breakpoints.down('md')} {
+      max-width: calc(100vw - ${theme.spacing(8)});
+
+      > div {
+        max-width: inherit;
+      }
+    }
+  }
+
+  ${theme.breakpoints.down('md')} {
+    max-width: 100vw;
+  }
 `
