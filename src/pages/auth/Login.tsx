@@ -6,7 +6,7 @@ import { useFormik } from 'formik'
 import { theme } from '~/styles'
 import { Typography, Button, Alert } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
-import { useLoginUserMutation, Lago_Api_Error } from '~/generated/graphql'
+import { useLoginUserMutation, Lago_Api_Error, CurrentUserFragmentDoc } from '~/generated/graphql'
 import { onLogIn } from '~/core/apolloClient'
 import { TextInputField } from '~/components/form'
 import { FORGOT_PASSWORD_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
@@ -17,11 +17,13 @@ gql`
   mutation loginUser($input: LoginUserInput!) {
     loginUser(input: $input) {
       user {
-        id
+        ...CurrentUser
       }
       token
     }
   }
+
+  ${CurrentUserFragmentDoc}
 `
 
 const Login = () => {
