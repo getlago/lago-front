@@ -9,5 +9,7 @@ projects:
     id: 623b3ac9459a5d00df324533
   - name: "\U0001F44D [Ready for dev] - Billable metrics - Create a billable metric"
     id: 623b42fddc2f2c017440cb5b
+  - name: '⚙️ [WIP] - Plans - Create a plan'
+    id: 62442e1098bdeb0134fd179b
 format: flat
 variants: true

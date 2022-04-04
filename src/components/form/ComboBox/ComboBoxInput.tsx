@@ -35,34 +35,35 @@ export const ComboBoxInput = ({
       error={error}
       autoComplete="off"
       helperText={helperText}
-      InputProps={
-        params.disabled
-          ? {}
-          : {
-              ..._omit(InputProps, 'className'),
-              endAdornment: (
-                <InputAdornment position="end">
-                  {!disableClearable && (
-                    <StyledButton
-                      // To make sure the "clear button" is displayed only on hover or focus
-                      className={clsns('MuiAutocomplete-clearIndicator', {
-                        'MuiAutocomplete-clearIndicatorDirty': inputProps?.value,
-                      })}
-                      size="small"
-                      icon="close-circle-filled"
-                      variant="quaternary"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        inputProps.onChange({ target: { value: '' } })
-                      }}
-                    />
-                  )}
-                  <Icon size="medium" name="chevron-up-down" />
-                </InputAdornment>
-              ),
-            }
-      }
+      InputProps={{
+        ..._omit(InputProps, 'className'),
+        endAdornment: (
+          <InputAdornment position="end">
+            {!disableClearable && (
+              <StyledButton
+                // To make sure the "clear button" is displayed only on hover or focus
+                className={clsns('MuiAutocomplete-clearIndicator', {
+                  'MuiAutocomplete-clearIndicatorDirty': inputProps?.value,
+                })}
+                disabled={restParams.disabled}
+                size="small"
+                icon="close-circle-filled"
+                variant="quaternary"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  inputProps.onChange({ target: { value: '' } })
+                }}
+              />
+            )}
+            <Icon
+              size="medium"
+              name="chevron-up-down"
+              onClick={restParams.disabled ? undefined : () => inputProps.onMouseDown()}
+            />
+          </InputAdornment>
+        ),
+      }}
       inputProps={_omit(inputProps, 'className')}
       {...restParams}
     />
