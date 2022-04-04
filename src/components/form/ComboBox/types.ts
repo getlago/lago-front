@@ -1,3 +1,4 @@
+import { ReactNode } from 'react'
 import { AutocompleteRenderInputParams } from '@mui/material'
 import { PopperProps as MuiPopperProps } from '@mui/material'
 
@@ -7,6 +8,7 @@ export interface ComboBoxData {
   value: string
   selected?: boolean
   label?: string
+  labelNode?: ReactNode
   disabled?: boolean
   customValue?: boolean
 }
@@ -20,10 +22,13 @@ export interface ComboBoxProps extends Omit<ComboBoxInputProps, 'params'> {
   data: ComboBoxData[]
   sortValues?: boolean
   allowAddValue?: boolean
+  loadingText?: string
+  emptyText?: string
   disableClearable?: boolean
   PopperProps?: Pick<MuiPopperProps, 'placement'> & {
     minWidth?: number
     maxWidth?: number
+    displayInDialog?: boolean
     offset?: string
   }
   onChange: (value: string) => unknown

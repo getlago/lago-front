@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
@@ -11,6 +11,7 @@ import { useI18nContext } from '~/core/I18nContext'
 import { BILLABLE_METRICS_ROUTE } from '~/core/router'
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { TextInputField, ComboBoxField } from '~/components/form'
+import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { useCreateBillableMetricMutation, AggregationTypeEnum } from '~/generated/graphql'
 import EmojiParty from '~/public/images/party.png'
 
@@ -24,6 +25,7 @@ gql`
 
 const CreateBillableMetric = () => {
   const { translate } = useI18nContext()
+  const warningDialogRef = useRef<WarningDialogRef>(null)
   const [isCreated, setIsCreated] = useState<boolean>(false)
   let navigate = useNavigate()
   const [create] = useCreateBillableMetricMutation({
@@ -69,7 +71,7 @@ const CreateBillableMetric = () => {
         <Button
           variant="quaternary"
           icon="close"
-          onClick={() => navigate(BILLABLE_METRICS_ROUTE)}
+          onClick={() => warningDialogRef.current?.openDialog()}
         />
       </PageHeader>
       {isCreated ? (
@@ -175,6 +177,13 @@ const CreateBillableMetric = () => {
           </div>
         </Content>
       )}
+      <WarningDialog
+        ref={warningDialogRef}
+        title={translate('text_6244277fe0975300fe3fb940')}
+        description={translate('text_6244277fe0975300fe3fb946')}
+        continueText={translate('text_6244277fe0975300fe3fb94c')}
+        onContinue={() => navigate(BILLABLE_METRICS_ROUTE)}
+      />
     </div>
   )
 }

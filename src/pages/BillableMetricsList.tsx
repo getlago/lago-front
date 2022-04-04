@@ -7,7 +7,7 @@ import { Typography, Button, Avatar, Icon, Skeleton } from '~/components/designS
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { useI18nContext } from '~/core/I18nContext'
 import { theme, PageHeader, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
-import { CREATE_BILLABLE_METRICS_ROUTE } from '~/core/router'
+import { CREATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import { useBillableMetricsQuery } from '~/generated/graphql'
 import EmojiError from '~/public/images/exploding-head.png'
 
@@ -36,20 +36,12 @@ const BillableMetricsList = () => {
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_623b497ad05b960101be3438')}
         </Typography>
-        <StyledButton onClick={() => navigate(CREATE_BILLABLE_METRICS_ROUTE)}>
+        <StyledButton onClick={() => navigate(CREATE_BILLABLE_METRIC_ROUTE)}>
           {translate('text_623b497ad05b960101be343a')}
         </StyledButton>
       </Header>
 
-      {loading ? (
-        [0, 1, 2].map((i) => (
-          <Item key={`${i}-skeleton`}>
-            <Skeleton variant="connectorAvatar" size="medium" />
-            <Skeleton variant="text" height={12} width={240} />
-            <Skeleton variant="text" height={12} width={240} />
-          </Item>
-        ))
-      ) : !!error ? (
+      {!loading && !!error ? (
         <GenericPlaceholder
           title={translate('text_623b53fea66c76017eaebb6e')}
           subtitle={translate('text_623b53fea66c76017eaebb76')}
@@ -58,13 +50,13 @@ const BillableMetricsList = () => {
           buttonAction={() => location.reload()}
           image={<img src={EmojiError} alt="error-emoji" />}
         />
-      ) : !list || !list.length ? (
+      ) : !loading && (!list || !list.length) ? (
         <GenericPlaceholder
           title={translate('text_623b53fea66c76017eaebb70')}
           subtitle={translate('text_623b53fea66c76017eaebb78')}
           buttonTitle={translate('text_623b53fea66c76017eaebb7c')}
           buttonVariant="primary"
-          buttonAction={() => navigate(CREATE_BILLABLE_METRICS_ROUTE)}
+          buttonAction={() => navigate(CREATE_BILLABLE_METRIC_ROUTE)}
           image={
             <Avatar variant="connector">
               <Icon name="pulse" color="dark" />
@@ -81,22 +73,30 @@ const BillableMetricsList = () => {
               {translate('text_623b497ad05b960101be3440')}
             </Typography>
           </ListHead>
-          {list.map(({ id, name, code, createdAt }) => {
-            return (
-              <Item key={id}>
-                <Avatar variant="connector">
-                  <Icon name="pulse" color="dark" />
-                </Avatar>
-                <div>
-                  <Typography color="textSecondary" variant="bodyHl">
-                    {name}
-                  </Typography>
-                  <Typography variant="caption">{code}</Typography>
-                </div>
-                <Typography>{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</Typography>
-              </Item>
-            )
-          })}
+          {loading
+            ? [0, 1, 2].map((i) => (
+                <Item key={`${i}-skeleton`}>
+                  <Skeleton variant="connectorAvatar" size="medium" />
+                  <Skeleton variant="text" height={12} width={240} />
+                  <Skeleton variant="text" height={12} width={240} />
+                </Item>
+              ))
+            : list.map(({ id, name, code, createdAt }) => {
+                return (
+                  <Item key={id}>
+                    <Avatar variant="connector">
+                      <Icon name="pulse" color="dark" />
+                    </Avatar>
+                    <div>
+                      <Typography color="textSecondary" variant="bodyHl">
+                        {name}
+                      </Typography>
+                      <Typography variant="caption">{code}</Typography>
+                    </div>
+                    <Typography>{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</Typography>
+                  </Item>
+                )
+              })}
         </div>
       )}
     </div>
@@ -121,6 +121,10 @@ const ListHead = styled.div`
   align-items: center;
   padding: 0 ${theme.spacing(12)};
   box-shadow: ${theme.shadows[7]};
+
+  ${theme.breakpoints.down('md')} {
+    padding: 0 ${theme.spacing(4)};
+  }
 `
 
 const StyledButton = styled(Button)`
@@ -133,6 +137,10 @@ const Item = styled.div`
   display: flex;
   align-items: center;
   padding: 0 ${theme.spacing(12)};
+
+  ${theme.breakpoints.down('md')} {
+    padding: 0 ${theme.spacing(4)};
+  }
 
   > *:first-child {
     margin-right: ${theme.spacing(3)};
