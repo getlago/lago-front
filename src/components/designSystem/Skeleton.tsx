@@ -1,5 +1,5 @@
 import { Skeleton as MuiSkeleton, SkeletonProps as MuiSkeletonProps } from '@mui/material'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import clsns from 'classnames'
 
 import { theme } from '~/styles'
@@ -69,12 +69,15 @@ export const Skeleton = ({
       variant={mapVariant(variant)}
       height={size ? mapAvatarSize(size) : height}
       width={size ? mapAvatarSize(size) : width}
+      $minSize={
+        size && ['connectorAvatar', 'accountAvatar'].includes(variant) ? mapAvatarSize(size) : null
+      }
       animation={animation}
     />
   )
 }
 
-const StyledSkeleton = styled(MuiSkeleton)`
+const StyledSkeleton = styled(MuiSkeleton)<{ $minSize?: number | null }>`
   && {
     &.MuiSkeleton-root {
       background-color: ${theme.palette.grey[100]};
@@ -87,6 +90,11 @@ const StyledSkeleton = styled(MuiSkeleton)`
 
     &.skeleton--connector {
       border-radius: 12px;
+      ${({ $minSize }) =>
+        $minSize &&
+        css`
+          min-width: ${$minSize}px;
+        `}
     }
   }
 `

@@ -27,6 +27,8 @@ export const ComboBox = ({
   error,
   PopperProps,
   className,
+  loadingText,
+  emptyText,
   disableClearable = false,
   onChange,
 }: ComboBoxProps) => {
@@ -101,10 +103,10 @@ export const ComboBox = ({
       loadingText={
         <LoadingContainer>
           <Loader color="primary" name="processing" animation="spin" />
-          <Typography>{translate('text_623b3acb8ee4e000ba87d084')}</Typography>
+          <Typography>{loadingText ?? translate('text_623b3acb8ee4e000ba87d084')}</Typography>
         </LoadingContainer>
       }
-      noOptionsText={translate('text_623b3acb8ee4e000ba87d082')}
+      noOptionsText={emptyText ?? translate('text_623b3acb8ee4e000ba87d082')}
       selectOnFocus={allowAddValue}
       clearOnBlur
       clearOnEscape

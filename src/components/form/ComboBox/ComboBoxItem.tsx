@@ -19,7 +19,7 @@ interface ComboBoxItemProps {
 
 export const ComboBoxItem = ({
   id,
-  option: { customValue, value, label, disabled },
+  option: { customValue, value, label, disabled, labelNode },
   selected,
   comboboxProps,
 }: ComboBoxItemProps) => {
@@ -44,7 +44,7 @@ export const ComboBoxItem = ({
         <>
           <AddCustomValueIcon name={'plus'} />
           <Typography variant="body" noWrap>
-            {label}
+            {labelNode ?? label}
           </Typography>
         </>
       ) : (
@@ -53,7 +53,7 @@ export const ComboBoxItem = ({
           name={value}
           value={value}
           checked={!!selected}
-          label={label || value}
+          label={labelNode || label || value}
         />
       )}
     </Item>

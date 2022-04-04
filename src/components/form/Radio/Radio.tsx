@@ -1,5 +1,5 @@
 import { Radio as MuiRadio, FormControlLabel } from '@mui/material'
-import { forwardRef } from 'react'
+import { forwardRef, ReactNode } from 'react'
 import styled from 'styled-components'
 
 import { Typography } from '~/components/designSystem'
@@ -12,7 +12,7 @@ export interface RadioProps {
   value: string | number
   checked: boolean
   disabled?: boolean
-  label?: string
+  label?: string | ReactNode
   error?: string
   onChange?: (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void
 }

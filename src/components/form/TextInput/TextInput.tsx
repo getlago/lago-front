@@ -21,7 +21,7 @@ export interface TextInputProps
   isOptional?: boolean
   cleanable?: boolean
   password?: boolean
-  value?: string
+  value?: string | number
   disableDebounce?: boolean
   onChange?: (value: string) => void
 }

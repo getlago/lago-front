@@ -9,13 +9,14 @@ type ComboBoxPopperFactoryArgs = Required<Pick<ComboBoxProps, 'PopperProps'>>['P
 
 // return a configured <Popper> component with custom styles
 export const ComboBoxPopperFactory =
-  ({ maxWidth, minWidth, placement }: ComboBoxPopperFactoryArgs = {}) =>
+  ({ maxWidth, minWidth, placement, displayInDialog }: ComboBoxPopperFactoryArgs = {}) =>
   // eslint-disable-next-line react/display-name
   (props: PopperProps) =>
     (
       <StyledPopper
         $minWidth={minWidth || 0}
         $maxWidth={maxWidth}
+        $displayInDialog={displayInDialog}
         placement={placement || 'bottom-start'}
         modifiers={[
           {
@@ -32,10 +33,15 @@ export const ComboBoxPopperFactory =
       </StyledPopper>
     )
 
-const StyledPopper = styled(Popper)<{ $minWidth?: number; $maxWidth?: number }>`
+const StyledPopper = styled(Popper)<{
+  $minWidth?: number
+  $maxWidth?: number
+  $displayInDialog?: boolean
+}>`
   min-width: ${({ $minWidth }) => $minWidth}px;
   max-width: ${({ $maxWidth }) => ($maxWidth ? `${$maxWidth}px` : 'initial')};
-  z-index: ${theme.zIndex.popper};
+  z-index: ${({ $displayInDialog }) =>
+    $displayInDialog ? theme.zIndex.dialog + 1 : theme.zIndex.popper};
 
   ${theme.breakpoints.down('sm')} {
     max-width: ${({ $minWidth }) => ($minWidth ? `${$minWidth}px` : 'initial')};

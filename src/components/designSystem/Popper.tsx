@@ -27,6 +27,7 @@ export interface PopperProps {
   CardProps?: UICardProps
   PopperProps?: Pick<MUIPopperProps, 'placement' | 'modifiers'>
   enableFlip?: boolean
+  displayInDialog?: boolean
   popperGroupName?: string
   popperName?: string
   children: (({ closePopper }: { closePopper: () => void }) => ReactNode) | ReactNode
@@ -49,6 +50,7 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
       className,
       minWidth,
       enableFlip = true,
+      displayInDialog = false,
       onClickAway,
     }: PopperProps,
     ref
@@ -89,6 +91,7 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
                 updateIsOpen(false)
               }
             }}
+            $displayInDialog={displayInDialog}
             open={isOpen}
             anchorEl={openerRef.current}
             $minWidth={minWidth ?? openerRef?.current?.offsetWidth ?? 0}
@@ -121,9 +124,10 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
 
 Popper.displayName = 'Popper'
 
-const StyledPopper = styled(MuiPopper)<{ $minWidth?: number }>`
+const StyledPopper = styled(MuiPopper)<{ $minWidth?: number; $displayInDialog?: boolean }>`
   min-width: ${({ $minWidth }) => $minWidth}px;
-  z-index: ${theme.zIndex.popper};
+  z-index: ${({ $displayInDialog }) =>
+    $displayInDialog ? theme.zIndex.dialog + 1 : theme.zIndex.popper};
 `
 
 const StyledCard = styled(Card)<{ $maxHeight?: number | string }>`

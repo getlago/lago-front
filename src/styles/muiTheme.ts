@@ -359,7 +359,14 @@ export const theme = createTheme({
         },
         root: {
           '.MuiOutlinedInput-root': {
-            padding: '0 14px 0 0 !important',
+            padding: '0 12px 0 0 !important',
+            '&.Mui-disabled': {
+              backgroundColor: palette.grey[100],
+
+              '.MuiInputAdornment-root': {
+                color: palette.grey[400],
+              },
+            },
           },
         },
         option: {

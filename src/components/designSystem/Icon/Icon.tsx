@@ -29,6 +29,7 @@ interface IconProps {
   color?: IconColor
   className?: string
   animation?: keyof typeof IconAnimationEnum
+  onClick?: () => {}
 }
 
 enum SizeEnum {
@@ -64,7 +65,14 @@ const mapColor = (color?: IconColor) => {
   }
 }
 
-export const Icon = ({ name, size = 'medium', color, className, animation }: IconProps) => {
+export const Icon = ({
+  name,
+  size = 'medium',
+  color,
+  className,
+  animation,
+  onClick,
+}: IconProps) => {
   const SVGIcon = ALL_ICONS[name]
 
   return (
@@ -72,9 +80,11 @@ export const Icon = ({ name, size = 'medium', color, className, animation }: Ico
       title={`${name}/${size}`}
       data-qa={`${name}/${size}`}
       $size={size}
+      $canClick={!!onClick}
       className={clsns('svg-icon', className, { [`icon-animation--${animation}`]: animation })}
       $color={mapColor(color)}
       component={<SVGIcon />}
+      onClick={onClick}
     />
   )
 }
@@ -84,6 +94,7 @@ const StyledIcon = styled(({ component, ...props }) => cloneElement(component, p
   min-width: ${(props: { $size: keyof typeof SizeEnum }) => SizeEnum[props.$size]};
   height: ${(props: { $size: keyof typeof SizeEnum }) => SizeEnum[props.$size]};
   color: ${(props) => props.$color};
+  cursor: ${({ $canClick }) => ($canClick ? 'pointer' : 'initial')};
 
   &.icon-animation--${IconAnimationEnum.spin} {
     animation: spin 1s linear infinite;

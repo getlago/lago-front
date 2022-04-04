@@ -9,15 +9,27 @@ import { Typography } from './Typography'
 
 export interface TabButtonProps {
   active?: boolean
-  title?: string
+  title?: string | number
   icon?: IconName | ReactNode
   canClickOnActive?: boolean
   className?: string
+  outlined?: boolean
   onClick?: (e: MouseEvent<HTMLButtonElement>) => unknown
 }
 
 export const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(
-  ({ active, title, icon, className, canClickOnActive = false, onClick }: TabButtonProps, ref) => {
+  (
+    {
+      active,
+      title,
+      icon,
+      className,
+      canClickOnActive = false,
+      outlined = false,
+      onClick,
+    }: TabButtonProps,
+    ref
+  ) => {
     const [isLoading, setIsLoading] = useState(false)
     const mountedRef = useRef(false)
 
@@ -35,6 +47,7 @@ export const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(
         ref={ref}
         className={className}
         $active={!!active}
+        $outlined={outlined}
         disabled={!canClickOnActive && active}
         onClick={(e) => {
           e.preventDefault()
@@ -78,7 +91,7 @@ export const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(
 
 TabButton.displayName = 'TabButton'
 
-const Container = styled.button<{ $active: boolean }>`
+const Container = styled.button<{ $active: boolean; $outlined: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -87,6 +100,12 @@ const Container = styled.button<{ $active: boolean }>`
   color: ${(props) => (props.$active ? theme.palette.primary.main : theme.palette.text.primary)};
   border-radius: 12px;
   transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  ${({ $outlined, $active }) =>
+    $outlined &&
+    !$active &&
+    css`
+      box-shadow: 0px 0px 0px 1px ${theme.palette.grey[500]} inset;
+    `}
 
   :focus:not(:active) {
     box-shadow: 0px 0px 0px 4px ${theme.palette.primary[200]};
