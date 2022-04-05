@@ -53,9 +53,11 @@ const CreatePlan = () => {
       description: '',
       frequency: PlanFrequency.Monthly,
       billingPeriod: BillingPeriodEnum.BeginningOfPeriod,
+      // @ts-ignore
       amountCents: undefined,
       amountCurrency: CurrencyEnum.Usd,
       vatRate: 0,
+      // @ts-ignore
       trialPeriod: undefined,
       proRata: false,
       charges: [] as LocalChargeInput[],
