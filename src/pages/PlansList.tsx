@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 
@@ -87,7 +87,7 @@ const PlansList = () => {
           </ListHead>
           {loading
             ? [0, 1, 2].map((i) => (
-                <Item key={`${i}-skeleton`}>
+                <Item key={`${i}-skeleton`} $skeleton>
                   <Skeleton variant="connectorAvatar" size="medium" />
                   <Skeleton variant="text" height={12} width={240} />
                   <Skeleton variant="text" height={12} width={240} />
@@ -149,12 +149,20 @@ const StyledButton = styled(Button)`
   min-width: 179px;
 `
 
-const Item = styled.div`
+const Item = styled.div<{ $skeleton?: boolean }>`
   height: ${NAV_HEIGHT}px;
   box-shadow: ${theme.shadows[7]};
   display: flex;
   align-items: center;
   padding: 0 ${theme.spacing(12)};
+
+  ${({ $skeleton }) =>
+    $skeleton &&
+    css`
+      > *:first-child {
+        margin-right: ${theme.spacing(3)};
+      }
+    `}
 
   ${theme.breakpoints.down('md')} {
     padding: 0 ${theme.spacing(4)};
