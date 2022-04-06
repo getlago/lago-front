@@ -44,7 +44,7 @@ export const AddChargeDialog = forwardRef<DialogRef, AddChargeDialogProps>(
           label: `${name} (${code})`,
           labelNode: (
             <Item>
-              {name} (<Typography color="textPrimary">{code}</Typography>)
+              {name} <Typography color="textPrimary">({code})</Typography>
             </Item>
           ),
           value: id,
@@ -92,7 +92,7 @@ export const AddChargeDialog = forwardRef<DialogRef, AddChargeDialogProps>(
         )}
       >
         <StyledComboBox
-          label={translate('text_6246b6bc6b25f500b779aa5e')}
+          label={translate('text_624c5eadff7db800acc4c995')}
           value={selectedId}
           data={billableMetrics}
           loading={loading}
@@ -109,6 +109,7 @@ export const AddChargeDialog = forwardRef<DialogRef, AddChargeDialogProps>(
 
 const Item = styled.span`
   display: flex;
+  white-space: pre;
 `
 
 const StyledComboBox = styled(ComboBox)`

@@ -22,6 +22,7 @@ export interface ComboBoxProps extends Omit<ComboBoxInputProps, 'params'> {
   data: ComboBoxData[]
   sortValues?: boolean
   allowAddValue?: boolean
+  infoText?: string
   loadingText?: string
   emptyText?: string
   disableClearable?: boolean

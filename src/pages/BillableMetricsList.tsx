@@ -10,6 +10,7 @@ import { theme, PageHeader, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { CREATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import { useBillableMetricsQuery } from '~/generated/graphql'
 import EmojiError from '~/public/images/exploding-head.png'
+import EmojiEmpty from '~/public/images/spider-web.png'
 
 gql`
   query billableMetrics($page: Int, $limit: Int) {
@@ -57,11 +58,7 @@ const BillableMetricsList = () => {
           buttonTitle={translate('text_623b53fea66c76017eaebb7c')}
           buttonVariant="primary"
           buttonAction={() => navigate(CREATE_BILLABLE_METRIC_ROUTE)}
-          image={
-            <Avatar variant="connector">
-              <Icon name="pulse" color="dark" />
-            </Avatar>
-          }
+          image={<img src={EmojiEmpty} alt="empty-emoji" />}
         />
       ) : (
         <div>

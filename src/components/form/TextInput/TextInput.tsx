@@ -5,12 +5,12 @@ import {
   TextFieldProps as MuiTextFieldProps,
   InputAdornment,
 } from '@mui/material'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { useState, useEffect, useCallback } from 'react'
 import _debounce from 'lodash/debounce'
 
 import { useI18nContext } from '~/core/I18nContext'
-import { Typography, Button, Tooltip } from '~/components/designSystem'
+import { Typography, Button, Tooltip, Icon } from '~/components/designSystem'
 import { theme } from '~/styles'
 
 export interface TextInputProps
@@ -23,6 +23,7 @@ export interface TextInputProps
   password?: boolean
   value?: string | number
   disableDebounce?: boolean
+  infoText?: string
   onChange?: (value: string) => void
 }
 
@@ -35,6 +36,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
       label,
       helperText,
       isOptional,
+      infoText,
       maxRows,
       rows,
       error,
@@ -84,13 +86,20 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
     return (
       <Container className={className}>
         {(label || isOptional) && (
-          <Typography
-            variant="captionHl"
-            color="textSecondary"
-            component={(labelProps) => <label htmlFor={name} {...labelProps} />}
-          >
-            {isOptional ? `${label} ${translate('common:field:optional')}` : label}
-          </Typography>
+          <Label $withInfo={!!infoText}>
+            <Typography
+              variant="captionHl"
+              color="textSecondary"
+              component={(labelProps) => <label htmlFor={name} {...labelProps} />}
+            >
+              {isOptional ? `${label} ${translate('common:field:optional')}` : label}
+            </Typography>
+            {!!infoText && (
+              <Tooltip placement="bottom-start" title={infoText}>
+                <Icon name="info-circle" />
+              </Tooltip>
+            )}
+          </Label>
         )}
         <MuiTextField
           ref={ref}
@@ -161,4 +170,21 @@ const Container = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(1)};
   }
+`
+
+const Label = styled.div<{ $withInfo?: boolean }>`
+  display: flex;
+  align-items: center;
+
+  ${({ $withInfo }) =>
+    $withInfo &&
+    css`
+      > *:first-child {
+        margin-right: ${theme.spacing(1)};
+      }
+
+      > *:last-child {
+        height: 16px;
+      }
+    `}
 `

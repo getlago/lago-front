@@ -1,7 +1,7 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { theme } from '~/styles'
-import { Typography, TabButton } from '~/components/designSystem'
+import { Typography, TabButton, Tooltip, Icon } from '~/components/designSystem'
 import { ButtonGroup } from '~/styles'
 
 interface ButtonSelectorOption {
@@ -15,6 +15,7 @@ export interface ButtonSelectorProps {
   options: ButtonSelectorOption[]
   value?: string | number
   error?: string
+  infoText?: string
   onChange: (value: string | number) => void
 }
 
@@ -24,14 +25,22 @@ export const ButtonSelector = ({
   options,
   value,
   error,
+  infoText,
   onChange,
 }: ButtonSelectorProps) => {
   return (
     <Container className={className}>
       {!!label && (
-        <Typography variant="captionHl" color="textSecondary">
-          {label}
-        </Typography>
+        <Label $withInfo={!!infoText}>
+          <Typography variant="captionHl" color="textSecondary">
+            {label}
+          </Typography>
+          {!!infoText && (
+            <Tooltip placement="bottom-start" title={infoText}>
+              <Icon name="info-circle" />
+            </Tooltip>
+          )}
+        </Label>
       )}
       <ButtonGroup>
         {options.map(({ value: optionValue, label: optionLabel }) => {
@@ -68,4 +77,21 @@ const StyledTypography = styled(Typography)`
   && {
     margin-top: ${theme.spacing(1)}px;
   }
+`
+
+const Label = styled.div<{ $withInfo?: boolean }>`
+  display: flex;
+  align-items: center;
+
+  ${({ $withInfo }) =>
+    $withInfo &&
+    css`
+      > *:first-child {
+        margin-right: ${theme.spacing(1)};
+      }
+
+      > *:last-child {
+        height: 16px;
+      }
+    `}
 `

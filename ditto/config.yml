@@ -11,5 +11,7 @@ projects:
     id: 623b42fddc2f2c017440cb5b
   - name: '⚙️ [WIP] - Plans - Create a plan'
     id: 62442e1098bdeb0134fd179b
+  - name: "\U0001F44D [Ready for dev] - All - Give more context in creation flows"
+    id: 624d9ad91a1c4d0149998c5b
 format: flat
 variants: true

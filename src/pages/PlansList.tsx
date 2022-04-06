@@ -9,6 +9,7 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { theme, PageHeader, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { useI18nContext } from '~/core/I18nContext'
 import EmojiError from '~/public/images/exploding-head.png'
+import EmojiEmpty from '~/public/images/spider-web.png'
 import { usePlansQuery } from '~/generated/graphql'
 
 gql`
@@ -38,9 +39,9 @@ const PlansList = () => {
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_62442e40cea25600b0b6d84a')}
         </Typography>
-        <StyledButton onClick={() => navigate(CREATE_PLAN_ROUTE)}>
+        <Button onClick={() => navigate(CREATE_PLAN_ROUTE)}>
           {translate('text_62442e40cea25600b0b6d84c')}
-        </StyledButton>
+        </Button>
       </Header>
 
       {!loading && !!error ? (
@@ -59,11 +60,7 @@ const PlansList = () => {
           buttonTitle={translate('text_624451f920b6a500aab37620')}
           buttonVariant="primary"
           buttonAction={() => navigate(CREATE_PLAN_ROUTE)}
-          image={
-            <Avatar variant="connector">
-              <Icon name="pulse" color="dark" />
-            </Avatar>
-          }
+          image={<img src={EmojiEmpty} alt="empty-emoji" />}
         />
       ) : (
         <div>
@@ -143,10 +140,6 @@ const ListHead = styled.div`
   ${theme.breakpoints.down('md')} {
     padding: 0 ${theme.spacing(4)};
   }
-`
-
-const StyledButton = styled(Button)`
-  min-width: 179px;
 `
 
 const Item = styled.div<{ $skeleton?: boolean }>`

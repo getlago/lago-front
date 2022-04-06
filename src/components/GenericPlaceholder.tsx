@@ -34,11 +34,11 @@ export const GenericPlaceholder = ({
 }: GenericPlaceholderProps | GenericPlaceholderNoButtonProps) => (
   <Container className={className} $noMargins={noMargins}>
     {image}
-    <Title variant="headline">{title}</Title>
+    <Title variant="subhead">{title}</Title>
     <Body $withButton={!!buttonTitle && !!buttonAction}>{subtitle}</Body>
 
     {!!buttonTitle && !!buttonAction && (
-      <Button variant={buttonVariant} size="large" onClick={buttonAction}>
+      <Button variant={buttonVariant} onClick={buttonAction}>
         {buttonTitle}
       </Button>
     )}

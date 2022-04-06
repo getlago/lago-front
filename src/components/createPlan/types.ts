@@ -22,4 +22,5 @@ export interface PlanForm {
   trialPeriod: number
   proRata: boolean
   charges: LocalChargeInput[]
+  payInAdvance: boolean
 }
