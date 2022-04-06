@@ -14,9 +14,13 @@ FROM nginx:1.21-alpine
 
 WORKDIR /usr/share/nginx/html
 
+RUN apk add --no-cache bash
+
 COPY --from=build /app/dist .
-COPY --from=build /app/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx/gzip.conf /etc/nginx/conf.d/gzip.conf
+COPY ./.env.sh ./.env.sh
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/bin/bash", "-c", "./.env.sh && nginx -g \"daemon off;\""]

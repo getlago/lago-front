@@ -68,6 +68,7 @@ const Login = () => {
 
   return (
     <Page>
+      <p>API_URL: {window.API_URL}</p>
       <Card>
         <StyledLogo height={24} />
         <Title variant="headline">{translate('text_620bc4d4269a55014d493f08')}</Title>
