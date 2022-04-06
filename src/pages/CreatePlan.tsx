@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { useFormik } from 'formik'
@@ -35,6 +35,7 @@ gql`
 
 const CreatePlan = () => {
   const [isCreated, setIsCreated] = useState<boolean>(false)
+  const containerRef = useRef<HTMLDivElement>(null)
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const addChargeDialogRef = useRef<AddChargeDialogRef>(null)
   const [create] = useCreatePlanMutation({
@@ -46,6 +47,7 @@ const CreatePlan = () => {
   })
   const { translate } = useI18nContext()
   let navigate = useNavigate()
+  const [newChargeId, setNewChargeId] = useState<string | null>(null)
   const formikProps = useFormik<PlanForm>({
     initialValues: {
       name: '',
@@ -53,13 +55,14 @@ const CreatePlan = () => {
       description: '',
       frequency: PlanFrequency.Monthly,
       billingPeriod: BillingPeriodEnum.BeginningOfPeriod,
+      payInAdvance: false,
       // @ts-ignore
       amountCents: undefined,
       amountCurrency: CurrencyEnum.Usd,
       vatRate: 0,
       // @ts-ignore
       trialPeriod: undefined,
-      proRata: false,
+      proRata: true,
       charges: [] as LocalChargeInput[],
     },
     validationSchema: object().shape({
@@ -107,11 +110,23 @@ const CreatePlan = () => {
     },
   })
 
+  useEffect(() => {
+    // When adding a new charge, scroll to the new charge element
+    if (!!newChargeId) {
+      const element = document.getElementById(newChargeId)
+      const rootElement = document.getElementById('root')
+
+      if (!element || !rootElement) return
+
+      rootElement.scrollTo({ top: element.offsetTop - 72 - 16, behavior: 'smooth' })
+    }
+  }, [newChargeId])
+
   return (
     <div>
       <PageHeader>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {translate('text_62442e40cea25600b0b6d84a')}
+          {translate('text_624453d52e945301380e4988')}
         </Typography>
         <Button
           variant="quaternary"
@@ -146,8 +161,10 @@ const CreatePlan = () => {
         <Content>
           <div>
             <Main>
-              <Title variant="headline">{translate('text_624453d52e945301380e498a')}</Title>
-              <Subtitle>{translate('text_624453d52e945301380e498e')}</Subtitle>
+              <div>
+                <Title variant="headline">{translate('text_624453d52e945301380e498a')}</Title>
+                <Subtitle>{translate('text_624453d52e945301380e498e')}</Subtitle>
+              </div>
               <Card>
                 <SectionTitle variant="subhead">
                   {translate('text_624453d52e945301380e4992')}
@@ -167,11 +184,12 @@ const CreatePlan = () => {
                     label={translate('text_624453d52e945301380e499a')}
                     placeholder={translate('text_624453d52e945301380e499e')}
                     formikProps={formikProps}
+                    infoText={translate('text_624d9adba93343010cd14ca1')}
                   />
                 </Line>
                 <TextInputField
                   name="description"
-                  label={translate('text_624453d52e945301380e49a0')}
+                  label={translate('text_624c5eadff7db800acc4c99f')}
                   placeholder={translate('text_624453d52e945301380e49a2')}
                   rows="3"
                   multiline
@@ -184,7 +202,8 @@ const CreatePlan = () => {
                 </SectionTitle>
                 <ButtonSelectorField
                   name="frequency"
-                  label={translate('text_624453d52e945301380e49a8')}
+                  label={translate('text_624c5eadff7db800acc4c9ad')}
+                  infoText={translate('text_624d9adba93343010cd14ca3')}
                   formikProps={formikProps}
                   options={[
                     {
@@ -200,7 +219,8 @@ const CreatePlan = () => {
 
                 <ButtonSelectorField
                   name="billingPeriod"
-                  label={translate('text_624453d52e945301380e49ae')}
+                  label={translate('text_624d90e6a93343010cd14b34')}
+                  infoText={translate('text_624d9adba93343010cd14ca5')}
                   formikProps={formikProps}
                   options={[
                     {
@@ -212,7 +232,7 @@ const CreatePlan = () => {
                       value: BillingPeriodEnum.BeginningOfPeriod,
                     },
                     {
-                      label: translate('text_624453d52e945301380e49b4'),
+                      label: translate('text_624453d52e945301380e49b2'),
                       value: BillingPeriodEnum.SubscriptionDate,
                     },
                   ]}
@@ -242,6 +262,18 @@ const CreatePlan = () => {
                     formikProps={formikProps}
                   />
                 </LineAmount>
+
+                <SwitchBlock>
+                  <SwitchField name="payInAdvance" formikProps={formikProps} />
+                  <div>
+                    <Typography color="textSecondary">
+                      {translate('text_624d90e6a93343010cd14b40')}
+                    </Typography>
+                    <Typography variant="caption">
+                      {translate('text_624d90e6a93343010cd14b4c')}
+                    </Typography>
+                  </div>
+                </SwitchBlock>
 
                 <TextInputField
                   name="vatRate"
@@ -284,7 +316,7 @@ const CreatePlan = () => {
                   </div>
                 </SwitchBlock>
               </CardSection>
-              <Card>
+              <Card ref={containerRef}>
                 <SectionTitle variant="subhead">
                   <div>{translate('text_624453d52e945301380e49ce')}</div>
                   <Typography>{translate('text_624453d52e945301380e49d0')}</Typography>
@@ -295,6 +327,7 @@ const CreatePlan = () => {
                     {formikProps.values.charges.map((charge, i) => {
                       return (
                         <ChargeAccordion
+                          id={charge.billableMetric.id}
                           key={`plan-charge-${charge.billableMetric.id}`}
                           currency={formikProps.values.amountCurrency}
                           index={i}
@@ -323,7 +356,7 @@ const CreatePlan = () => {
                   size="large"
                   onClick={formikProps.submitForm}
                 >
-                  {translate('text_623b42ff8ee4e000ba87d0d4')}
+                  {translate('text_624453d52e945301380e49d4')}
                 </Button>
               </ButtonContainer>
             </Main>
@@ -354,6 +387,8 @@ const CreatePlan = () => {
               vatRate: 0,
             },
           ])
+
+          setNewChargeId(newCharge.id)
         }}
       />
 

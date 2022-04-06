@@ -21,6 +21,7 @@ export const ComboBox = ({
   allowAddValue = false,
   sortValues = true,
   label,
+  infoText,
   placeholder,
   name,
   helperText,
@@ -81,6 +82,7 @@ export const ComboBox = ({
             error={error}
             helperText={helperText}
             label={label}
+            infoText={infoText}
             name={name}
             placeholder={placeholder}
             params={params}

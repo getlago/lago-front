@@ -12,12 +12,13 @@ import { ComboBox, ButtonSelector, TextInput, Switch } from '~/components/form'
 import { PlanForm } from './types'
 
 interface ChargeAccordionProps {
+  id: string
   index: number
   currency: CurrencyEnum
   formikProps: FormikProps<PlanForm>
 }
 
-export const ChargeAccordion = ({ index, currency, formikProps }: ChargeAccordionProps) => {
+export const ChargeAccordion = ({ id, index, currency, formikProps }: ChargeAccordionProps) => {
   const [isOpen, setIsOpen] = useState(true)
   const { translate } = useI18nContext()
   const localCharge = formikProps.values.charges[index]
@@ -34,7 +35,7 @@ export const ChargeAccordion = ({ index, currency, formikProps }: ChargeAccordio
   }, [currency, handleUpdate])
 
   return (
-    <Container>
+    <Container id={id}>
       <StyledAccordion expanded={isOpen} onChange={(_, expanded) => setIsOpen(expanded)} square>
         <Summary>
           <Tooltip
@@ -71,7 +72,7 @@ export const ChargeAccordion = ({ index, currency, formikProps }: ChargeAccordio
         <Details>
           <ComboBox
             name="chargeModel"
-            label={translate('text_624aa732d6af4e0103d40e6b')}
+            label={translate('text_624c5eadff7db800acc4ca0d')}
             data={[
               {
                 label: translate('text_624aa732d6af4e0103d40e6f'),
@@ -80,6 +81,7 @@ export const ChargeAccordion = ({ index, currency, formikProps }: ChargeAccordio
             ]}
             disableClearable
             value={localCharge.chargeModel}
+            infoText={translate('text_624d9adba93343010cd14ca7')}
             onChange={(value) => handleUpdate('chargeModel', value)}
           />
 
@@ -112,7 +114,8 @@ export const ChargeAccordion = ({ index, currency, formikProps }: ChargeAccordio
           </LineAmount>
 
           <ButtonSelector
-            label={translate('text_624aa732d6af4e0103d40e7c')}
+            infoText={translate('text_624d9adba93343010cd14ca9')}
+            label={translate('text_624d90e6a93343010cd14b62')}
             options={[
               {
                 label: translate('text_624aa732d6af4e0103d40e7e'),

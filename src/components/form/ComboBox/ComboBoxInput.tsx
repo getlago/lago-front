@@ -16,6 +16,7 @@ export const ComboBoxInput = ({
   label,
   name,
   placeholder,
+  infoText,
   params,
   disableClearable,
 }: ComboBoxInputProps) => {
@@ -33,6 +34,7 @@ export const ComboBoxInput = ({
       placeholder={placeholder}
       label={label}
       error={error}
+      infoText={infoText}
       autoComplete="off"
       helperText={helperText}
       InputProps={{

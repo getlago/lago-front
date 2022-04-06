@@ -100,8 +100,10 @@ const CreateBillableMetric = () => {
         <Content>
           <div>
             <Main>
-              <Title variant="headline">{translate('text_623b42ff8ee4e000ba87d0b0')}</Title>
-              <Subtitle>{translate('text_623b42ff8ee4e000ba87d0b4')}</Subtitle>
+              <div>
+                <Title variant="headline">{translate('text_623b42ff8ee4e000ba87d0b0')}</Title>
+                <Subtitle>{translate('text_623b42ff8ee4e000ba87d0b4')}</Subtitle>
+              </div>
               <Card>
                 <SectionTitle variant="subhead">
                   {translate('text_623b42ff8ee4e000ba87d0b8')}
@@ -121,6 +123,7 @@ const CreateBillableMetric = () => {
                     label={translate('text_623b42ff8ee4e000ba87d0c0')}
                     placeholder={translate('text_623b42ff8ee4e000ba87d0c4')}
                     formikProps={formikProps}
+                    infoText={translate('text_624d9adba93343010cd14c52')}
                   />
                 </Line>
                 <TextInputField
@@ -140,6 +143,7 @@ const CreateBillableMetric = () => {
                 <ComboBoxField
                   name="aggregationType"
                   label={translate('text_623b42ff8ee4e000ba87d0ce')}
+                  infoText={translate('text_624d9adba93343010cd14c56')}
                   placeholder={translate('text_623b42ff8ee4e000ba87d0d0')}
                   data={[
                     {
@@ -150,7 +154,7 @@ const CreateBillableMetric = () => {
                   helperText={
                     formikProps.values?.aggregationType === AggregationTypeEnum.CountAgg
                       ? translate('text_6241cc759211e600ea57f4f1')
-                      : translate('text_623b42ff8ee4e000ba87d0d2')
+                      : undefined
                   }
                   formikProps={formikProps}
                 />
