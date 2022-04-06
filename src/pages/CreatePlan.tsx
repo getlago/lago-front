@@ -15,8 +15,8 @@ import { CodeSnippet } from '~/components/CodeSnippet'
 import { AddChargeDialog, AddChargeDialogRef } from '~/components/createPlan/AddChargeDialog'
 import { ChargeAccordion } from '~/components/createPlan/ChargeAccordion'
 import {
-  PlanFrequency,
-  BillingPeriodEnum,
+  PlanInterval,
+  FrequencyEnum,
   CurrencyEnum,
   useCreatePlanMutation,
   ChargeFrequency,
@@ -53,8 +53,8 @@ const CreatePlan = () => {
       name: '',
       code: '',
       description: '',
-      frequency: PlanFrequency.Monthly,
-      billingPeriod: BillingPeriodEnum.BeginningOfPeriod,
+      interval: PlanInterval.Monthly,
+      frequency: FrequencyEnum.BeginningOfPeriod,
       payInAdvance: false,
       // @ts-ignore
       amountCents: undefined,
@@ -68,7 +68,7 @@ const CreatePlan = () => {
     validationSchema: object().shape({
       name: string().required(''),
       code: string().required(''),
-      frequency: string().required(''),
+      interval: string().required(''),
       amountCents: number().required(''),
       amountCurrency: string().required(''),
       charges: array().of(
@@ -201,39 +201,39 @@ const CreatePlan = () => {
                   {translate('text_624453d52e945301380e49a6')}
                 </SectionTitle>
                 <ButtonSelectorField
-                  name="frequency"
+                  name="interval"
                   label={translate('text_624c5eadff7db800acc4c9ad')}
                   infoText={translate('text_624d9adba93343010cd14ca3')}
                   formikProps={formikProps}
                   options={[
                     {
                       label: translate('text_624453d52e945301380e49aa'),
-                      value: PlanFrequency.Monthly,
+                      value: PlanInterval.Monthly,
                     },
                     {
                       label: translate('text_624453d52e945301380e49ac'),
-                      value: PlanFrequency.Yearly,
+                      value: PlanInterval.Yearly,
                     },
                   ]}
                 />
 
                 <ButtonSelectorField
-                  name="billingPeriod"
+                  name="frequency"
                   label={translate('text_624d90e6a93343010cd14b34')}
                   infoText={translate('text_624d9adba93343010cd14ca5')}
                   formikProps={formikProps}
                   options={[
                     {
                       label: translate(
-                        formikProps.values.frequency === PlanFrequency.Monthly
+                        formikProps.values.interval === PlanInterval.Monthly
                           ? 'text_624453d52e945301380e49b0'
                           : 'text_62447c3648f57b0163ae3e62'
                       ),
-                      value: BillingPeriodEnum.BeginningOfPeriod,
+                      value: FrequencyEnum.BeginningOfPeriod,
                     },
                     {
                       label: translate('text_624453d52e945301380e49b2'),
-                      value: BillingPeriodEnum.SubscriptionDate,
+                      value: FrequencyEnum.SubscriptionDate,
                     },
                   ]}
                 />
