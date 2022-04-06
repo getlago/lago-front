@@ -42,11 +42,6 @@ export type BillableMetricCollection = {
   metadata: CollectionMetadata;
 };
 
-export enum BillingPeriodEnum {
-  BeginningOfPeriod = 'beginning_of_period',
-  SubscriptionDate = 'subscription_date'
-}
-
 export type Charge = {
   __typename?: 'Charge';
   amountCents: Scalars['Int'];
@@ -110,13 +105,13 @@ export type CreateCustomerInput = {
 export type CreatePlanInput = {
   amountCents: Scalars['Int'];
   amountCurrency: CurrencyEnum;
-  billingPeriod: BillingPeriodEnum;
   charges: Array<ChargeInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']>;
   code: Scalars['String'];
   description?: InputMaybe<Scalars['String']>;
-  frequency: PlanFrequency;
+  frequency: FrequencyEnum;
+  interval: PlanInterval;
   name: Scalars['String'];
   payInAdvance: Scalars['Boolean'];
   proRata: Scalars['Boolean'];
@@ -176,6 +171,11 @@ export type DestroyPlanPayload = {
   clientMutationId?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['ID']>;
 };
+
+export enum FrequencyEnum {
+  BeginningOfPeriod = 'beginning_of_period',
+  SubscriptionDate = 'subscription_date'
+}
 
 export enum Lago_Api_Error {
   ExpiredJwtToken = 'expired_jwt_token',
@@ -294,7 +294,6 @@ export type Plan = {
   __typename?: 'Plan';
   amountCents: Scalars['Int'];
   amountCurrency: CurrencyEnum;
-  billingPeriod: BillingPeriodEnum;
   /** Number of charges attached to a plan */
   chargeCount: Scalars['Int'];
   charges?: Maybe<Array<Charge>>;
@@ -303,8 +302,9 @@ export type Plan = {
   /** Number of customers attached to a plan */
   customerCount: Scalars['Int'];
   description?: Maybe<Scalars['String']>;
-  frequency: PlanFrequency;
+  frequency: FrequencyEnum;
   id: Scalars['ID'];
+  interval: PlanInterval;
   name: Scalars['String'];
   organization?: Maybe<Organization>;
   payInAdvance: Scalars['Boolean'];
@@ -320,7 +320,7 @@ export type PlanCollection = {
   metadata: CollectionMetadata;
 };
 
-export enum PlanFrequency {
+export enum PlanInterval {
   Monthly = 'monthly',
   Weekly = 'weekly',
   Yearly = 'yearly'
@@ -411,14 +411,14 @@ export type UpdateBillableMetricInput = {
 export type UpdatePlanInput = {
   amountCents: Scalars['Int'];
   amountCurrency: CurrencyEnum;
-  billingPeriod: BillingPeriodEnum;
   charges: Array<ChargeInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']>;
   code: Scalars['String'];
   description?: InputMaybe<Scalars['String']>;
-  frequency: PlanFrequency;
+  frequency: FrequencyEnum;
   id: Scalars['String'];
+  interval: PlanInterval;
   name: Scalars['String'];
   payInAdvance: Scalars['Boolean'];
   proRata: Scalars['Boolean'];
