@@ -98,7 +98,7 @@ export const initializeApolloClient = async () => {
     }),
     // afterwareLink.concat(
     createUploadLink({
-      uri: `${window.API_URL}/graphql`,
+      uri: `${API_URL || window.API_URL}/graphql`,
     }) as unknown as ApolloLink,
     // ),
   ]
