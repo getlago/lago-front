@@ -9,7 +9,7 @@
   "private": true,
   "scripts": {
     "start": "webpack serve --config ./webpack.dev.js",
-    "start:build": "npx http-server-spa ./dist",
+    "start:build": "yarn build && npx http-server-spa ./dist",
     "build": "webpack --config ./webpack.prod.js",
     "build:analyseBundle": "webpack --config ./webpack.prod.js --env analyseBundle",
     "ditto": "npx @dittowords/cli pull",
