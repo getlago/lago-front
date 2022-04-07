@@ -77,10 +77,12 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
         event.persist()
         const newValue = event.currentTarget.value
 
+        if (type === 'number' && isNaN(newValue) && newValue !== '-') return
+
         setLocalValue(newValue)
         debouncedSetValue(newValue)
       },
-      [debouncedSetValue]
+      [debouncedSetValue, type]
     )
 
     return (
@@ -105,7 +107,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
           ref={ref}
           value={localValue || ''}
           name={name}
-          type={password && !isVisible ? 'password' : type}
+          type={password && !isVisible ? 'password' : type !== 'number' ? type : 'text'}
           onChange={handleChange}
           variant="outlined"
           minRows={rows}
