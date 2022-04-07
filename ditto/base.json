@@ -194,7 +194,7 @@
       "text_624c5eadff7db800acc4ca01": "Label",
       "text_6246b6bc6b25f500b779aa4a": "Add a charge",
       "text_6246b6bc6b25f500b779aa56": "Choose a billable metric to add in this plan, you’ll be abble to remove it if needed.",
-      "text_624c5eadff7db800acc4c995": "Billable metric",
+      "text_624c5eadff7db800acc4c995": "Bilable metric",
       "text_6246b6bc6b25f500b779aa6e": "Search or select a billable metric",
       "text_6246b6bc6b25f500b779aa7a": "No billable metrics",
       "text_6246b6bc6b25f500b779aa8a": "Cancel",
@@ -261,7 +261,8 @@
       "text_624c5eadff7db800acc4ca0a": "Model",
       "text_624d90e6a93343010cd14b61": "Frequency",
       "text_624aa79870f60300a3c4d089": "This charge will be counted as a unit for the period.",
-      "text_624c5eadff7db800acc4ca16": "Label"
+      "text_624c5eadff7db800acc4ca16": "Label",
+      "text_624ea7c29103fd010732ab7d": "Enter a number to move forward (use “.” for decimal)"
     },
     "project_624d9ad91a1c4d0149998c5b": {
       "text_624d9adba93343010cd14c52": "A unique code for this Billable Metric",
@@ -273,5 +274,5 @@
       "text_624d9adba93343010cd14ca9": "Defines if the charge is recurring period over period or if it’s a one time charge"
     }
   },
-  "exported_at": "2022-04-07T07:36:23.451Z"
+  "exported_at": "2022-04-07T09:00:00.928Z"
 }

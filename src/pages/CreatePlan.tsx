@@ -69,7 +69,9 @@ const CreatePlan = () => {
       name: string().required(''),
       code: string().required(''),
       interval: string().required(''),
-      amountCents: number().required(''),
+      amountCents: number().typeError(translate('text_624ea7c29103fd010732ab7d')).required(''),
+      vatRate: number().typeError(translate('text_624ea7c29103fd010732ab7d')),
+      trialPeriod: number().typeError(translate('text_624ea7c29103fd010732ab7d')),
       amountCurrency: string().required(''),
       charges: array().of(
         object().shape({
@@ -243,7 +245,6 @@ const CreatePlan = () => {
                     name="amountCents"
                     label={translate('text_624453d52e945301380e49b6')}
                     placeholder={translate('text_624453d52e945301380e49b8')}
-                    type="number"
                     formikProps={formikProps}
                   />
                   <ComboBoxField
@@ -280,7 +281,6 @@ const CreatePlan = () => {
                   label={translate('text_624453d52e945301380e49bc')}
                   placeholder={translate('text_624453d52e945301380e49be')}
                   formikProps={formikProps}
-                  type="number"
                   InputProps={{
                     endAdornment: (
                       <InputEnd color="textSecondary">
@@ -294,7 +294,6 @@ const CreatePlan = () => {
                   name="trialPeriod"
                   label={translate('text_624453d52e945301380e49c2')}
                   placeholder={translate('text_624453d52e945301380e49c4')}
-                  type="number"
                   formikProps={formikProps}
                   InputProps={{
                     endAdornment: (
