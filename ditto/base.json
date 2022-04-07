@@ -202,7 +202,7 @@
       "text_624c5eadff7db800acc4c9a3": "Label",
       "text_624c5eadff7db800acc4c9bf": "Label",
       "text_624c5eadff7db800acc4c9dc": "Label",
-      "text_624c5eadff7db800acc4c991": "Label",
+      "text_624c5eadff7db800acc4c991": "Bilable metric",
       "text_6246b6bc6b25f500b779aa84": "Doing some science, we’re loading your billable metrics ...",
       "text_624c5eadff7db800acc4c9af": "Label",
       "text_624c5eadff7db800acc4c9cb": "Label",
@@ -235,7 +235,7 @@
       "text_624d90e6a93343010cd14b62": "Frequency",
       "text_624aa732d6af4e0103d40e7e": "Recurring",
       "text_624aa732d6af4e0103d40e80": "One time",
-      "text_624aa732d6af4e0103d40e82": "This charge will have the same frequency as the plan’s frequency set above and paid in arrears.",
+      "text_624aa732d6af4e0103d40e82": "This charge will have the same frequency as the plan’s frequency set above.",
       "text_624aa732d6af4e0103d40e86": "Type a VAT percentage",
       "text_624aa732d6af4e0103d40e88": "%",
       "text_624aa732d6af4e0103d40e8a": "Apply pro-rata for this metric",
@@ -260,7 +260,7 @@
       "text_624c5eadff7db800acc4ca02": "On",
       "text_624c5eadff7db800acc4ca0a": "Model",
       "text_624d90e6a93343010cd14b61": "Frequency",
-      "text_624aa79870f60300a3c4d089": "This charge will be counted as a unit for the period and paid in arrears.",
+      "text_624aa79870f60300a3c4d089": "This charge will be counted as a unit for the period.",
       "text_624c5eadff7db800acc4ca16": "Label"
     },
     "project_624d9ad91a1c4d0149998c5b": {
@@ -273,5 +273,5 @@
       "text_624d9adba93343010cd14ca9": "Defines if the charge is recurring period over period or if it’s a one time charge"
     }
   },
-  "exported_at": "2022-04-06T14:09:28.188Z"
+  "exported_at": "2022-04-07T07:36:23.451Z"
 }
