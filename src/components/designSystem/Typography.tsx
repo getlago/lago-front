@@ -4,7 +4,7 @@ import clsns from 'classnames'
 import sanitizeHtml from 'sanitize-html'
 import { Link } from 'react-router-dom'
 import _isEqual from 'lodash/isEqual'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 const defaultSanitizerOptions = {
   allowedTags: ['b', 'i', 'em', 'strong', 'a', 'sup', 'span'],
@@ -61,6 +61,7 @@ export const Typography = memo(
     children,
     html,
     component = 'div',
+    noWrap,
     ...props
   }: TypographyProps) => {
     const getSanitizedHtml = (htmlString: string) => {
@@ -130,6 +131,8 @@ export const Typography = memo(
           captionCode: 'code',
         }}
         $code={variant === 'captionCode'}
+        $noWrap={noWrap}
+        noWrap={noWrap}
         component={component}
         {...props}
       >
@@ -144,6 +147,14 @@ export const Typography = memo(
 
 Typography.displayName = 'Typography'
 
-const StyledMuiTypography = styled(MuiTypography)<{ component?: unknown; $code?: boolean }>`
-  white-space: ${({ $code }) => ($code ? 'pre' : 'pre-line')};
+const StyledMuiTypography = styled(MuiTypography)<{
+  component?: unknown
+  $code?: boolean
+  $noWrap?: boolean
+}>`
+  ${({ $noWrap, $code }) =>
+    !$noWrap &&
+    css`
+      white-space: ${$code ? 'pre' : 'pre-line'};
+    `}
 `

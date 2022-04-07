@@ -8,9 +8,9 @@ import { CREATE_PLAN_ROUTE } from '~/core/router'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { theme, PageHeader, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { useI18nContext } from '~/core/I18nContext'
+import { usePlansQuery } from '~/generated/graphql'
 import EmojiError from '~/public/images/exploding-head.png'
 import EmojiEmpty from '~/public/images/spider-web.png'
-import { usePlansQuery } from '~/generated/graphql'
 
 gql`
   query plans($page: Int, $limit: Int) {
@@ -97,12 +97,14 @@ const PlansList = () => {
                       <ListAvatar variant="connector">
                         <Icon name="board" color="dark" />
                       </ListAvatar>
-                      <div>
-                        <Typography color="textSecondary" variant="bodyHl">
+                      <NameBlock>
+                        <Typography color="textSecondary" variant="bodyHl" noWrap>
                           {name}
                         </Typography>
-                        <Typography variant="caption">{code}</Typography>
-                      </div>
+                        <Typography variant="caption" noWrap>
+                          {code}
+                        </Typography>
+                      </NameBlock>
                     </PlanNameSection>
                     <PlanInfosSection>
                       <MediumCell>{customerCount}</MediumCell>
@@ -152,7 +154,7 @@ const Item = styled.div<{ $skeleton?: boolean }>`
   ${({ $skeleton }) =>
     $skeleton &&
     css`
-      > *:first-child {
+      > *:not(:last-child) {
         margin-right: ${theme.spacing(3)};
       }
     `}
@@ -180,6 +182,11 @@ const PlanNameSection = styled.div`
   margin-right: auto;
   display: flex;
   align-items: center;
+  min-width: 0;
+`
+
+const NameBlock = styled.div`
+  min-width: 0;
 `
 
 const PlanInfosSection = styled.div`

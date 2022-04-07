@@ -9,7 +9,7 @@ import { useI18nContext } from '~/core/I18nContext'
 import { logOut, useCurrentUserInfosVar } from '~/core/apolloClient'
 import { Avatar, Button, TabButton, Popper, IconName } from '~/components/designSystem'
 import { theme } from '~/styles'
-import { API_KEYS_ROUTE, BILLABLE_METRICS_ROUTE, PLANS_ROUTE } from '~/core/router'
+import { API_KEYS_ROUTE, BILLABLE_METRICS_ROUTE, PLANS_ROUTE, CUSTOMERS_LIST } from '~/core/router'
 import { MenuPopper } from '~/styles/designSystem'
 
 const NAV_WIDTH = 240
@@ -40,6 +40,11 @@ const SideNav = () => {
       title: translate('text_62442e40cea25600b0b6d85a'),
       icon: 'board',
       link: PLANS_ROUTE,
+    },
+    {
+      title: translate('text_624efab67eb2570101d117a5'),
+      icon: 'user-multiple',
+      link: CUSTOMERS_LIST,
     },
   ]
   const activeTabIndex = tabs.findIndex((tab) => pathname.includes(tab.link))

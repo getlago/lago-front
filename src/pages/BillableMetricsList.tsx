@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 
@@ -66,13 +66,13 @@ const BillableMetricsList = () => {
             <Typography color="disabled" variant="bodyHl">
               {translate('text_623b497ad05b960101be343e')}
             </Typography>
-            <Typography color="disabled" variant="bodyHl">
+            <CellSmall align="right" color="disabled" variant="bodyHl">
               {translate('text_623b497ad05b960101be3440')}
-            </Typography>
+            </CellSmall>
           </ListHead>
           {loading
             ? [0, 1, 2].map((i) => (
-                <Item key={`${i}-skeleton`}>
+                <Item key={`${i}-skeleton`} $loading>
                   <Skeleton variant="connectorAvatar" size="medium" />
                   <Skeleton variant="text" height={12} width={240} />
                   <Skeleton variant="text" height={12} width={240} />
@@ -81,16 +81,22 @@ const BillableMetricsList = () => {
             : list.map(({ id, name, code, createdAt }) => {
                 return (
                   <Item key={id}>
-                    <Avatar variant="connector">
-                      <Icon name="pulse" color="dark" />
-                    </Avatar>
-                    <div>
-                      <Typography color="textSecondary" variant="bodyHl">
-                        {name}
-                      </Typography>
-                      <Typography variant="caption">{code}</Typography>
-                    </div>
-                    <Typography>{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</Typography>
+                    <BillableMetricName>
+                      <Avatar variant="connector">
+                        <Icon name="pulse" color="dark" />
+                      </Avatar>
+                      <NameBlock>
+                        <Typography color="textSecondary" variant="bodyHl" noWrap>
+                          {name}
+                        </Typography>
+                        <Typography variant="caption" noWrap>
+                          {code}
+                        </Typography>
+                      </NameBlock>
+                    </BillableMetricName>
+                    <CellSmall align="right">
+                      {DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}
+                    </CellSmall>
                   </Item>
                 )
               })}
@@ -114,37 +120,63 @@ const ListHead = styled.div`
   background-color: ${theme.palette.grey[100]};
   height: ${HEADER_TABLE_HEIGHT}px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 0 ${theme.spacing(12)};
   box-shadow: ${theme.shadows[7]};
 
+  > *:first-child {
+    flex: 1;
+  }
+  > *:not(:last-child) {
+    margin-right: ${theme.spacing(6)};
+  }
+
   ${theme.breakpoints.down('md')} {
     padding: 0 ${theme.spacing(4)};
   }
+`
+
+const CellSmall = styled(Typography)`
+  width: 112px;
 `
 
 const StyledButton = styled(Button)`
   min-width: 179px;
 `
 
-const Item = styled.div`
+const NameBlock = styled.div`
+  min-width: 0;
+  margin-right: ${theme.spacing(6)};
+`
+
+const Item = styled.div<{ $loading?: boolean }>`
   height: ${NAV_HEIGHT}px;
   box-shadow: ${theme.shadows[7]};
   display: flex;
   align-items: center;
   padding: 0 ${theme.spacing(12)};
 
+  ${({ $loading }) =>
+    $loading &&
+    css`
+      > *:not(:last-child) {
+        margin-right: ${theme.spacing(6)};
+      }
+    `}
+
   ${theme.breakpoints.down('md')} {
     padding: 0 ${theme.spacing(4)};
   }
+`
+
+const BillableMetricName = styled.div`
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
 
   > *:first-child {
     margin-right: ${theme.spacing(3)};
-  }
-
-  > *:last-child {
-    margin-left: auto;
   }
 `
 

@@ -16,6 +16,12 @@ const CreateBillableMetric = lazy(
 )
 const PlansList = lazy(() => import(/* webpackChunkName: 'plans-list' */ '~/pages/PlansList'))
 const CreatePlan = lazy(() => import(/* webpackChunkName: 'create-plan' */ '~/pages/CreatePlan'))
+const CustomersList = lazy(
+  () => import(/* webpackChunkName: 'customers-list' */ '~/pages/CustomersList')
+)
+const CustomerDetails = lazy(
+  () => import(/* webpackChunkName: 'customer-details' */ '~/pages/CustomerDetails')
+)
 
 const SideNavLayout = lazy(() => import(/* webpackChunkName: 'home' */ '~/layouts/SideNavLayout'))
 
@@ -37,6 +43,8 @@ export const BILLABLE_METRICS_ROUTE = '/billable-metrics'
 export const CREATE_BILLABLE_METRIC_ROUTE = '/create/billable-metrics'
 export const PLANS_ROUTE = '/plans'
 export const CREATE_PLAN_ROUTE = '/create/plans'
+export const CUSTOMERS_LIST = '/customers'
+export const CUSTOMER_DETAILS = '/customer/:id'
 
 export const routes: CustomRouteObject[] = [
   {
@@ -58,6 +66,16 @@ export const routes: CustomRouteObject[] = [
         path: PLANS_ROUTE,
         private: true,
         element: <PlansList />,
+      },
+      {
+        path: CUSTOMERS_LIST,
+        private: true,
+        element: <CustomersList />,
+      },
+      {
+        path: CUSTOMER_DETAILS,
+        private: true,
+        element: <CustomerDetails />,
       },
       {
         path: HOME_ROUTE,

@@ -13,5 +13,7 @@ projects:
     id: 62442e1098bdeb0134fd179b
   - name: "\U0001F44D [Ready for dev] - All - Give more context in creation flows"
     id: 624d9ad91a1c4d0149998c5b
+  - name: "\U0001F44D [Ready for dev] - Customers - Customers list / details"
+    id: 624ef2f26583e200fe08b6fd
 format: flat
 variants: true
