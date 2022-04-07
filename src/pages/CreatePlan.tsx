@@ -76,7 +76,7 @@ const CreatePlan = () => {
       charges: array().of(
         object().shape({
           chargeModel: string().required(''),
-          amountCents: string().required(''),
+          amountCents: number().required(''),
           amountCurrency: string().required(''),
           frequency: string().required(''),
         })
@@ -245,6 +245,7 @@ const CreatePlan = () => {
                     name="amountCents"
                     label={translate('text_624453d52e945301380e49b6')}
                     placeholder={translate('text_624453d52e945301380e49b8')}
+                    type="number"
                     formikProps={formikProps}
                   />
                   <ComboBoxField
@@ -281,6 +282,7 @@ const CreatePlan = () => {
                   label={translate('text_624453d52e945301380e49bc')}
                   placeholder={translate('text_624453d52e945301380e49be')}
                   formikProps={formikProps}
+                  type="number"
                   InputProps={{
                     endAdornment: (
                       <InputEnd color="textSecondary">
@@ -295,6 +297,7 @@ const CreatePlan = () => {
                   label={translate('text_624453d52e945301380e49c2')}
                   placeholder={translate('text_624453d52e945301380e49c4')}
                   formikProps={formikProps}
+                  type="number"
                   InputProps={{
                     endAdornment: (
                       <InputEnd color="textSecondary">
