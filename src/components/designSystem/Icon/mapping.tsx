@@ -89,6 +89,7 @@ import Text from '~/public/icons/text.svg'
 import Trash from '~/public/icons/trash.svg'
 import Unlock from '~/public/icons/unlock.svg'
 import User from '~/public/icons/user.svg'
+import UserMultiple from '~/public/icons/user-multiple.svg'
 import UserAdd from '~/public/icons/user-add.svg'
 import ValidateFilled from '~/public/icons/validate-filled.svg'
 import ValidateUnfilled from '~/public/icons/validate-unfilled.svg'
@@ -188,6 +189,7 @@ export const ALL_ICONS = {
   unlock: Unlock,
   'user-add': UserAdd,
   user: User,
+  'user-multiple': UserMultiple,
   'validate-filled': ValidateFilled,
   'validate-unfilled': ValidateUnfilled,
   'warning-filled': WarningFilled,
