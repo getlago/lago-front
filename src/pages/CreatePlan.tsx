@@ -133,7 +133,9 @@ const CreatePlan = () => {
         <Button
           variant="quaternary"
           icon="close"
-          onClick={() => warningDialogRef.current?.openDialog()}
+          onClick={() =>
+            isCreated ? navigate(PLANS_ROUTE) : warningDialogRef.current?.openDialog()
+          }
         />
       </PageHeader>
 
