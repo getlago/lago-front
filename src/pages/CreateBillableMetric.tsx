@@ -71,7 +71,9 @@ const CreateBillableMetric = () => {
         <Button
           variant="quaternary"
           icon="close"
-          onClick={() => warningDialogRef.current?.openDialog()}
+          onClick={() =>
+            isCreated ? navigate(BILLABLE_METRICS_ROUTE) : warningDialogRef.current?.openDialog()
+          }
         />
       </PageHeader>
       {isCreated ? (
