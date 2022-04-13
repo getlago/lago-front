@@ -1,28 +1,31 @@
 import { gql } from '@apollo/client'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
-import { DateTime } from 'luxon'
 
-import { Typography, Button, Avatar, Icon, Skeleton } from '~/components/designSystem'
+import { Typography, Button } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { useI18nContext } from '~/core/I18nContext'
-import { theme, PageHeader, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
+import { theme, PageHeader, ListHeader } from '~/styles'
 import { CREATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
-import { useBillableMetricsQuery } from '~/generated/graphql'
+import { useBillableMetricsQuery, BillableMetricItemFragmentDoc } from '~/generated/graphql'
 import EmojiError from '~/public/images/exploding-head.png'
 import EmojiEmpty from '~/public/images/spider-web.png'
+import {
+  BillableMetricItem,
+  BillableMetricItemSkeleton,
+} from '~/components/billableMetrics/BillableMetricItem'
+import { useKeysNavigation } from '~/hooks/ui/useKeyNavigation'
 
 gql`
   query billableMetrics($page: Int, $limit: Int) {
     billableMetrics(page: $page, limit: $limit) {
       collection {
-        id
-        name
-        code
-        createdAt
+        ...BillableMetricItem
       }
     }
   }
+
+  ${BillableMetricItemFragmentDoc}
 `
 
 const BillableMetricsList = () => {
@@ -30,9 +33,13 @@ const BillableMetricsList = () => {
   let navigate = useNavigate()
   const { data, error, loading } = useBillableMetricsQuery()
   const list = data?.billableMetrics?.collection || []
+  const { onKeyDown } = useKeysNavigation({
+    getElmId: (i) => `billable-metric-item-${i}`,
+  })
+  let index = -1
 
   return (
-    <div>
+    <div role="grid" tabIndex={-1} onKeyDown={onKeyDown}>
       <Header $withSide>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_623b497ad05b960101be3438')}
@@ -72,32 +79,17 @@ const BillableMetricsList = () => {
           </ListHead>
           {loading
             ? [0, 1, 2].map((i) => (
-                <Item key={`${i}-skeleton`} $loading>
-                  <Skeleton variant="connectorAvatar" size="medium" />
-                  <Skeleton variant="text" height={12} width={240} />
-                  <Skeleton variant="text" height={12} width={240} />
-                </Item>
+                <BillableMetricItemSkeleton key={`billable-metric-item-skeleton-${i}`} />
               ))
-            : list.map(({ id, name, code, createdAt }) => {
+            : list.map((billableMetric) => {
+                index += 1
+
                 return (
-                  <Item key={id}>
-                    <BillableMetricName>
-                      <Avatar variant="connector">
-                        <Icon name="pulse" color="dark" />
-                      </Avatar>
-                      <NameBlock>
-                        <Typography color="textSecondary" variant="bodyHl" noWrap>
-                          {name}
-                        </Typography>
-                        <Typography variant="caption" noWrap>
-                          {code}
-                        </Typography>
-                      </NameBlock>
-                    </BillableMetricName>
-                    <CellSmall align="right">
-                      {DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}
-                    </CellSmall>
-                  </Item>
+                  <BillableMetricItem
+                    key={billableMetric.id}
+                    billableMetric={billableMetric}
+                    rowId={`billable-metric-item-${index}`}
+                  />
                 )
               })}
         </div>
@@ -116,23 +108,12 @@ const Header = styled(PageHeader)`
   }
 `
 
-const ListHead = styled.div`
-  background-color: ${theme.palette.grey[100]};
-  height: ${HEADER_TABLE_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  padding: 0 ${theme.spacing(12)};
-  box-shadow: ${theme.shadows[7]};
-
+const ListHead = styled(ListHeader)`
   > *:first-child {
     flex: 1;
   }
   > *:not(:last-child) {
     margin-right: ${theme.spacing(6)};
-  }
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
   }
 `
 
@@ -142,42 +123,6 @@ const CellSmall = styled(Typography)`
 
 const StyledButton = styled(Button)`
   min-width: 179px;
-`
-
-const NameBlock = styled.div`
-  min-width: 0;
-  margin-right: ${theme.spacing(6)};
-`
-
-const Item = styled.div<{ $loading?: boolean }>`
-  height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-  padding: 0 ${theme.spacing(12)};
-
-  ${({ $loading }) =>
-    $loading &&
-    css`
-      > *:not(:last-child) {
-        margin-right: ${theme.spacing(6)};
-      }
-    `}
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
-  }
-`
-
-const BillableMetricName = styled.div`
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
 `
 
 export default BillableMetricsList
