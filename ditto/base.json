@@ -305,7 +305,12 @@
     "project_6256de3622fcba00d9830a1e": {
       "text_6256de3bba111e00b3bfa51b": "Edit, delete",
       "text_6256de3bba111e00b3bfa531": "Edit",
-      "text_6256de3bba111e00b3bfa533": "Delete"
+      "text_6256de3bba111e00b3bfa533": "Delete",
+      "text_6256f824b6368e01153caa47": "Delete {{billableMetricName}}?",
+      "text_6256f824b6368e01153caa49": "By deleting this billable metric, you’ll not be able to retrieve it back. Fortunately, this metric is not link to customers. Are you sure?",
+      "text_6256f824b6368e01153caa4b": "Cancel",
+      "text_6256f824b6368e01153caa4d": "Delete billable metric",
+      "text_6256f9f1184d3301290c7299": "Billabled metric successfully deleted"
     },
     "project_620bc4d45f16c800e2324b82": {
       "text_620bc4d4269a55014d493f12": "Welcome to Lago",
@@ -347,5 +352,5 @@
       "text_622f7a3dc32ce100c46a5154": "An error occured, please reload the application"
     }
   },
-  "exported_at": "2022-04-13T14:31:50.299Z"
+  "exported_at": "2022-04-13T16:31:21.369Z"
 }
