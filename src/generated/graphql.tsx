@@ -504,7 +504,16 @@ export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, apiKey: string }> | null } };
 
-export type BillableMetricItemFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any };
+export type BillableMetricItemFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, canBeDeleted: boolean };
+
+export type DeleteBillableMetricDialogFragment = { __typename?: 'BillableMetric', id: string, name: string };
+
+export type DeleteBillableMetricMutationVariables = Exact<{
+  input: DestroyBillableMetricInput;
+}>;
+
+
+export type DeleteBillableMetricMutation = { __typename?: 'Mutation', destroyBillableMetric?: { __typename?: 'DestroyBillableMetricPayload', id?: string | null } | null };
 
 export type CreateCustomerMutationVariables = Exact<{
   input: CreateCustomerInput;
@@ -552,7 +561,7 @@ export type BillableMetricsQueryVariables = Exact<{
 }>;
 
 
-export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any }> } };
+export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, canBeDeleted: boolean }> } };
 
 export type CreateBillableMetricMutationVariables = Exact<{
   input: CreateBillableMetricInput;
@@ -629,6 +638,13 @@ export const BillableMetricItemFragmentDoc = gql`
   name
   code
   createdAt
+  canBeDeleted
+}
+    `;
+export const DeleteBillableMetricDialogFragmentDoc = gql`
+    fragment DeleteBillableMetricDialog on BillableMetric {
+  id
+  name
 }
     `;
 export const CustomerItemFragmentDoc = gql`
@@ -736,6 +752,39 @@ export function useUserIdentifierLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 export type UserIdentifierQueryHookResult = ReturnType<typeof useUserIdentifierQuery>;
 export type UserIdentifierLazyQueryHookResult = ReturnType<typeof useUserIdentifierLazyQuery>;
 export type UserIdentifierQueryResult = Apollo.QueryResult<UserIdentifierQuery, UserIdentifierQueryVariables>;
+export const DeleteBillableMetricDocument = gql`
+    mutation deleteBillableMetric($input: DestroyBillableMetricInput!) {
+  destroyBillableMetric(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteBillableMetricMutationFn = Apollo.MutationFunction<DeleteBillableMetricMutation, DeleteBillableMetricMutationVariables>;
+
+/**
+ * __useDeleteBillableMetricMutation__
+ *
+ * To run a mutation, you first call `useDeleteBillableMetricMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteBillableMetricMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteBillableMetricMutation, { data, loading, error }] = useDeleteBillableMetricMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteBillableMetricMutation(baseOptions?: Apollo.MutationHookOptions<DeleteBillableMetricMutation, DeleteBillableMetricMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteBillableMetricMutation, DeleteBillableMetricMutationVariables>(DeleteBillableMetricDocument, options);
+      }
+export type DeleteBillableMetricMutationHookResult = ReturnType<typeof useDeleteBillableMetricMutation>;
+export type DeleteBillableMetricMutationResult = Apollo.MutationResult<DeleteBillableMetricMutation>;
+export type DeleteBillableMetricMutationOptions = Apollo.BaseMutationOptions<DeleteBillableMetricMutation, DeleteBillableMetricMutationVariables>;
 export const CreateCustomerDocument = gql`
     mutation createCustomer($input: CreateCustomerInput!) {
   createCustomer(input: $input) {
@@ -885,10 +934,12 @@ export const BillableMetricsDocument = gql`
   billableMetrics(page: $page, limit: $limit) {
     collection {
       ...BillableMetricItem
+      ...DeleteBillableMetricDialog
     }
   }
 }
-    ${BillableMetricItemFragmentDoc}`;
+    ${BillableMetricItemFragmentDoc}
+${DeleteBillableMetricDialogFragmentDoc}`;
 
 /**
  * __useBillableMetricsQuery__
@@ -1061,16 +1112,11 @@ export const PlansDocument = gql`
     query plans($page: Int, $limit: Int) {
   plans(page: $page, limit: $limit) {
     collection {
-      id
-      name
-      code
-      chargeCount
-      customerCount
-      createdAt
+      ...PlanItem
     }
   }
 }
-    `;
+    ${PlanItemFragmentDoc}`;
 
 /**
  * __usePlansQuery__

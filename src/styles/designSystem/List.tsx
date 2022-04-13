@@ -31,18 +31,21 @@ export const ListItem = styled(BaseListItem)`
   }
 `
 
-export const ListHeader = styled.div`
+export const ListHeader = styled.div<{ $withActions?: boolean }>`
   position: sticky;
   background-color: ${theme.palette.grey[100]};
   height: ${HEADER_TABLE_HEIGHT}px;
   display: flex;
   align-items: center;
-  padding: 0 ${theme.spacing(12)};
   box-shadow: ${theme.shadows[7]};
   z-index: ${theme.zIndex.sectionHead};
   top: ${NAV_HEIGHT}px;
 
+  padding: ${({ $withActions }) =>
+    $withActions ? `0 ${theme.spacing(28)} 0 ${theme.spacing(12)} ` : `0 ${theme.spacing(12)}`};
+
   ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
+    padding: ${({ $withActions }) =>
+      $withActions ? `0 ${theme.spacing(20)} 0 ${theme.spacing(4)} ` : `0 ${theme.spacing(4)}`};
   }
 `

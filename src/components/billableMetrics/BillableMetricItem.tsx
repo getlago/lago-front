@@ -1,11 +1,25 @@
-import { memo } from 'react'
+import { memo, useRef } from 'react'
 import { DateTime } from 'luxon'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
 import { BillableMetricItemFragment } from '~/generated/graphql'
-import { Typography, Avatar, Icon, Skeleton } from '~/components/designSystem'
-import { theme, BaseListItem, ListItem } from '~/styles'
+import {
+  Typography,
+  Avatar,
+  Icon,
+  Skeleton,
+  Popper,
+  Button,
+  Tooltip,
+} from '~/components/designSystem'
+import { theme, BaseListItem, ListItem, MenuPopper } from '~/styles'
+import { useI18nContext } from '~/core/I18nContext'
+
+import {
+  DeleteBillableMetricDialog,
+  DeleteBillableMetricDialogRef,
+} from './DeleteBillableMetricDialog'
 
 gql`
   fragment BillableMetricItem on BillableMetric {
@@ -13,6 +27,7 @@ gql`
     name
     code
     createdAt
+    canBeDeleted
   }
 `
 
@@ -22,7 +37,9 @@ interface BillableMetricItemProps {
 }
 
 export const BillableMetricItem = memo(({ rowId, billableMetric }: BillableMetricItemProps) => {
-  const { name, code, createdAt } = billableMetric
+  const { name, code, createdAt, canBeDeleted } = billableMetric
+  const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
+  const { translate } = useI18nContext()
 
   return (
     <ListItem id={rowId} tabIndex={0}>
@@ -40,6 +57,41 @@ export const BillableMetricItem = memo(({ rowId, billableMetric }: BillableMetri
         </NameBlock>
       </BillableMetricName>
       <CellSmall align="right">{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</CellSmall>
+      <Popper
+        PopperProps={{ placement: 'bottom-end' }}
+        opener={({ isOpen }) => (
+          <div>
+            <Tooltip
+              placement="top-end"
+              disableHoverListener={isOpen}
+              title={translate('text_6256de3bba111e00b3bfa51b')}
+            >
+              <Button icon="dots-horizontal" variant="quaternary" />
+            </Tooltip>
+          </div>
+        )}
+      >
+        {({ closePopper }) => (
+          <MenuPopper>
+            <Button startIcon="pen" variant="quaternary" align="left" onClick={() => {}}>
+              {translate('text_6256de3bba111e00b3bfa531')}
+            </Button>
+            <Button
+              startIcon="trash"
+              variant="quaternary"
+              disabled={!canBeDeleted}
+              align="left"
+              onClick={() => {
+                deleteDialogRef.current?.openDialog()
+                closePopper()
+              }}
+            >
+              {translate('text_6256de3bba111e00b3bfa533')}
+            </Button>
+          </MenuPopper>
+        )}
+      </Popper>
+      <DeleteBillableMetricDialog ref={deleteDialogRef} billableMetric={billableMetric} />
     </ListItem>
   )
 })
@@ -70,6 +122,7 @@ const NameBlock = styled.div`
 
 const CellSmall = styled(Typography)`
   width: 112px;
+  margin-right: ${theme.spacing(6)};
 `
 
 const BillableMetricName = styled.div`
@@ -80,6 +133,10 @@ const BillableMetricName = styled.div`
 
   > *:first-child {
     margin-right: ${theme.spacing(3)};
+  }
+
+  > *:last-child {
+    margin-right: ${theme.spacing(6)};
   }
 `
 
