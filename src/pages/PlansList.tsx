@@ -1,30 +1,28 @@
 import { gql } from '@apollo/client'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
-import { DateTime } from 'luxon'
 
-import { Typography, Button, Avatar, Icon, Skeleton } from '~/components/designSystem'
+import { Typography, Button } from '~/components/designSystem'
 import { CREATE_PLAN_ROUTE } from '~/core/router'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { theme, PageHeader, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
+import { theme, PageHeader, ListHeader } from '~/styles'
 import { useI18nContext } from '~/core/I18nContext'
-import { usePlansQuery } from '~/generated/graphql'
+import { usePlansQuery, PlanItemFragmentDoc } from '~/generated/graphql'
 import EmojiError from '~/public/images/exploding-head.png'
 import EmojiEmpty from '~/public/images/spider-web.png'
+import { PlanItem, PlanItemSkeleton } from '~/components/plans/PlanItem'
+import { useKeysNavigation } from '~/hooks/ui/useKeyNavigation'
 
 gql`
   query plans($page: Int, $limit: Int) {
     plans(page: $page, limit: $limit) {
       collection {
-        id
-        name
-        code
-        chargeCount
-        customerCount
-        createdAt
+        ...PlanItem
       }
     }
   }
+
+  ${PlanItemFragmentDoc}
 `
 
 const PlansList = () => {
@@ -32,9 +30,13 @@ const PlansList = () => {
   let navigate = useNavigate()
   const { data, error, loading } = usePlansQuery()
   const list = data?.plans?.collection || []
+  const { onKeyDown } = useKeysNavigation({
+    getElmId: (i) => `plan-item-${i}`,
+  })
+  let index = -1
 
   return (
-    <div>
+    <div role="grid" tabIndex={-1} onKeyDown={onKeyDown}>
       <Header $withSide>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_62442e40cea25600b0b6d84a')}
@@ -83,36 +85,11 @@ const PlansList = () => {
             </PlanInfosSection>
           </ListHead>
           {loading
-            ? [0, 1, 2].map((i) => (
-                <Item key={`${i}-skeleton`} $skeleton>
-                  <Skeleton variant="connectorAvatar" size="medium" />
-                  <Skeleton variant="text" height={12} width={240} />
-                  <Skeleton variant="text" height={12} width={240} />
-                </Item>
-              ))
-            : list.map(({ id, name, code, createdAt, customerCount, chargeCount }) => {
-                return (
-                  <Item key={id}>
-                    <PlanNameSection>
-                      <ListAvatar variant="connector">
-                        <Icon name="board" color="dark" />
-                      </ListAvatar>
-                      <NameBlock>
-                        <Typography color="textSecondary" variant="bodyHl" noWrap>
-                          {name}
-                        </Typography>
-                        <Typography variant="caption" noWrap>
-                          {code}
-                        </Typography>
-                      </NameBlock>
-                    </PlanNameSection>
-                    <PlanInfosSection>
-                      <MediumCell>{customerCount}</MediumCell>
-                      <SmallCell>{chargeCount}</SmallCell>
-                      <MediumCell>{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</MediumCell>
-                    </PlanInfosSection>
-                  </Item>
-                )
+            ? [0, 1, 2].map((i) => <PlanItemSkeleton key={`plan-item-skeleton-${i}`} />)
+            : list.map((plan) => {
+                index += 1
+
+                return <PlanItem key={plan.id} plan={plan} rowId={`plan-item-${index}`} />
               })}
         </div>
       )}
@@ -130,38 +107,8 @@ const Header = styled(PageHeader)`
   }
 `
 
-const ListHead = styled.div`
-  background-color: ${theme.palette.grey[100]};
-  height: ${HEADER_TABLE_HEIGHT}px;
-  display: flex;
+const ListHead = styled(ListHeader)`
   justify-content: space-between;
-  align-items: center;
-  padding: 0 ${theme.spacing(12)};
-  box-shadow: ${theme.shadows[7]};
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
-  }
-`
-
-const Item = styled.div<{ $skeleton?: boolean }>`
-  height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-  padding: 0 ${theme.spacing(12)};
-
-  ${({ $skeleton }) =>
-    $skeleton &&
-    css`
-      > *:not(:last-child) {
-        margin-right: ${theme.spacing(3)};
-      }
-    `}
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
-  }
 `
 
 const MediumCell = styled(Typography)`
@@ -174,18 +121,10 @@ const SmallCell = styled(Typography)`
   width: 80px;
 `
 
-const ListAvatar = styled(Avatar)`
-  margin-right: ${theme.spacing(3)};
-`
-
 const PlanNameSection = styled.div`
   margin-right: auto;
   display: flex;
   align-items: center;
-  min-width: 0;
-`
-
-const NameBlock = styled.div`
   min-width: 0;
 `
 

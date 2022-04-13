@@ -12,8 +12,8 @@ import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { PLANS_ROUTE } from '~/core/router'
 import EmojiParty from '~/public/images/party.png'
 import { CodeSnippet } from '~/components/CodeSnippet'
-import { AddChargeDialog, AddChargeDialogRef } from '~/components/createPlan/AddChargeDialog'
-import { ChargeAccordion } from '~/components/createPlan/ChargeAccordion'
+import { AddChargeDialog, AddChargeDialogRef } from '~/components/plans/AddChargeDialog'
+import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
 import {
   PlanInterval,
   FrequencyEnum,
@@ -23,7 +23,7 @@ import {
   ChargeModelEnum,
 } from '~/generated/graphql'
 import { TextInputField, ButtonSelectorField, ComboBoxField, SwitchField } from '~/components/form'
-import { PlanForm, LocalChargeInput } from '~/components/createPlan/types'
+import { PlanForm, LocalChargeInput } from '~/components/plans/types'
 
 gql`
   mutation createPlan($input: CreatePlanInput!) {

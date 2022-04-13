@@ -1,10 +1,10 @@
 import { memo } from 'react'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { useNavigate, generatePath } from 'react-router-dom'
 
-import { theme, NAV_HEIGHT } from '~/styles'
+import { theme, BaseListItem, ListItem } from '~/styles'
 import { Avatar, Typography, Skeleton, Status, StatusEnum } from '~/components/designSystem'
 import { CustomerItemFragment, StatusTypeEnum } from '~/generated/graphql'
 import { CUSTOMER_DETAILS } from '~/core/router'
@@ -93,54 +93,26 @@ CustomerItem.displayName = 'CustomerItem'
 
 export const CustomerItemSkeleton = () => {
   return (
-    <Item $isSkeleton>
+    <SkeletonItem>
       <Skeleton variant="connectorAvatar" size="medium" />
       <Skeleton variant="text" height={12} width={240} />
       <Skeleton variant="text" height={12} width={240} />
-    </Item>
+    </SkeletonItem>
   )
 }
 
-const Item = styled.div<{ $isSkeleton?: boolean }>`
-  width: 100%;
-  box-sizing: border-box;
-  height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-  padding: 0 ${theme.spacing(12)};
-  cursor: pointer;
+const SkeletonItem = styled(BaseListItem)`
+  > *:first-child {
+    margin-right: ${theme.spacing(3)};
+  }
+  > *:not(:first-child):not(:last-child) {
+    margin-right: auto;
+  }
+`
 
+const Item = styled(ListItem)`
   > *:not(:last-child) {
     margin-right: ${theme.spacing(6)};
-  }
-
-  ${({ $isSkeleton }) =>
-    !$isSkeleton
-      ? css`
-          cursor: pointer;
-          &:hover:not(:active),
-          &:focus:not(:active) {
-            background-color: ${theme.palette.grey[100]};
-            outline: none;
-          }
-
-          &:active {
-            background-color: ${theme.palette.grey[200]};
-            outline: none;
-          }
-        `
-      : css`
-          > *:first-child {
-            margin-right: ${theme.spacing(3)};
-          }
-          > *:last-child  {
-            margin-left: auto;
-          }
-        `}
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
   }
 `
 

@@ -6,7 +6,7 @@ import { Typography, Button } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { useCustomersQuery, CustomerItemFragmentDoc } from '~/generated/graphql'
 import { useI18nContext } from '~/core/I18nContext'
-import { theme, PageHeader, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
+import { theme, PageHeader, ListHeader } from '~/styles'
 import EmojiError from '~/public/images/exploding-head.png'
 import EmojiEmpty from '~/public/images/spider-web.png'
 import { AddCustomerDialog, AddCustomerDialogRef } from '~/components/customers/AddCustomerDialog'
@@ -115,21 +115,8 @@ const Header = styled(PageHeader)`
   }
 `
 
-const ListHead = styled.div`
-  background-color: ${theme.palette.grey[100]};
-  height: ${HEADER_TABLE_HEIGHT}px;
-  display: flex;
+const ListHead = styled(ListHeader)`
   justify-content: space-between;
-  align-items: center;
-  padding: 0 ${theme.spacing(12)};
-  box-shadow: ${theme.shadows[7]};
-  position: sticky;
-  z-index: ${theme.zIndex.sectionHead};
-  top: ${NAV_HEIGHT}px;
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
-  }
 `
 
 const MediumCell = styled(Typography)`

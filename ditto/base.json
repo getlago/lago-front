@@ -302,6 +302,11 @@
       "text_62559eef7b0ccc015127e38d": "Upgrade, downgrade or just change the current plan to another.",
       "text_62559eef7b0ccc015127e39d": "For a downgrade plan, it will be applied at the end of the current period. Some fees may be applied to your customer."
     },
+    "project_6256de3622fcba00d9830a1e": {
+      "text_6256de3bba111e00b3bfa51b": "Edit, delete",
+      "text_6256de3bba111e00b3bfa531": "Edit",
+      "text_6256de3bba111e00b3bfa533": "Delete"
+    },
     "project_620bc4d45f16c800e2324b82": {
       "text_620bc4d4269a55014d493f12": "Welcome to Lago",
       "text_620bc4d4269a55014d493fc9": "Nice to see you here, let’s start by creating your account.",
@@ -342,5 +347,5 @@
       "text_622f7a3dc32ce100c46a5154": "An error occured, please reload the application"
     }
   },
-  "exported_at": "2022-04-12T15:48:05.642Z"
+  "exported_at": "2022-04-13T14:31:50.299Z"
 }
