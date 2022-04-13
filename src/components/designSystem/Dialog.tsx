@@ -149,7 +149,7 @@ const StyledDialog = styled(MuiDialog)`
       padding: ${theme.spacing(10)};
       z-index: ${theme.zIndex.dialog};
 
-      ${theme.breakpoints.down('sm')} {
+      ${theme.breakpoints.down('md')} {
         max-width: 100%;
       }
     }
@@ -173,7 +173,7 @@ const StyledButtonGroup = styled(ButtonGroup)`
     margin-left: auto;
     align-items: initial;
 
-    ${theme.breakpoints.down('sm')} {
+    ${theme.breakpoints.down('md')} {
       margin-left: 0;
       flex-direction: column-reverse;
     }

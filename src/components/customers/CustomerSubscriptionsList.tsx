@@ -43,9 +43,10 @@ const mapStatus = (type?: StatusTypeEnum | null) => {
         type: StatusEnum.paused,
         label: 'text_624efab67eb2570101d117f6',
       }
+    case StatusTypeEnum.Terminated:
     default:
       return {
-        type: StatusEnum.paused,
+        type: StatusEnum.error,
         label: 'text_624efab67eb2570101d11826',
       }
   }
@@ -161,7 +162,7 @@ const CellBig = styled(Typography)`
   > *:first-child {
     margin-right: ${theme.spacing(3)};
 
-    ${theme.breakpoints.down('sm')} {
+    ${theme.breakpoints.down('md')} {
       display: none;
     }
   }

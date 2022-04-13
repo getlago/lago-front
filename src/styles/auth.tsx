@@ -10,7 +10,7 @@ export const Page = styled.div`
   min-height: 100vh;
   padding: ${theme.spacing(20)};
 
-  ${theme.breakpoints.down('sm')} {
+  ${theme.breakpoints.down('md')} {
     padding: ${theme.spacing(20)} ${theme.spacing(4)};
   }
 `

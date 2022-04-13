@@ -43,7 +43,7 @@ const StyledPopper = styled(Popper)<{
   z-index: ${({ $displayInDialog }) =>
     $displayInDialog ? theme.zIndex.dialog + 1 : theme.zIndex.popper};
 
-  ${theme.breakpoints.down('sm')} {
+  ${theme.breakpoints.down('md')} {
     max-width: ${({ $minWidth }) => ($minWidth ? `${$minWidth}px` : 'initial')};
   }
 `

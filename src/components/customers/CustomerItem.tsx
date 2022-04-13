@@ -46,7 +46,7 @@ const mapStatus = (type?: StatusTypeEnum | null) => {
       }
     default:
       return {
-        type: StatusEnum.paused,
+        type: StatusEnum.error,
         label: 'text_624efab67eb2570101d11826',
       }
   }

@@ -21,23 +21,19 @@ interface StatusProps {
 
 const STATUS_CONFIG = {
   [StatusEnum.running]: {
-    // i18n-key cp:generics:status:running
-    label: 'cp:generics:status:running',
+    label: 'text_624efab67eb2570101d1180e',
     color: theme.palette.success[600],
   },
   [StatusEnum.paused]: {
-    // i18n-key cp:generics:status:paused
-    label: 'cp:generics:status:paused',
+    label: 'text_624efab67eb2570101d117f6',
     color: theme.palette.grey[500],
   },
   [StatusEnum.failed]: {
-    // i18n-key cp:generics:status:failed
-    label: 'cp:generics:status:failed',
+    label: 'text_624efab67eb2570101d11826', // TODO
     color: theme.palette.warning[600],
   },
   [StatusEnum.error]: {
-    // i18n-key cp:generics:status:error
-    label: 'cp:generics:status:error',
+    label: 'text_624efab67eb2570101d11826',
     color: theme.palette.error[600],
   },
 }
