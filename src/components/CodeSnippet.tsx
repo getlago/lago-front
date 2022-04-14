@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, memo } from 'react'
 import Prism from 'prismjs'
 import 'prismjs/components/prism-javascript'
 import 'prismjs/components/prism-ruby'
@@ -6,7 +6,7 @@ import 'prismjs/plugins/line-numbers/prism-line-numbers'
 import 'prismjs/themes/prism-okaidia.css'
 import styled from 'styled-components'
 
-import { Typography, Button } from '~/components/designSystem'
+import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { theme } from '~/styles'
 import { ComboBox } from '~/components/form'
 import { useI18nContext } from '~/core/I18nContext'
@@ -21,9 +21,10 @@ Prism.manual = true
 
 interface CodeSnippetProps {
   className?: string
+  loading?: boolean
 }
 
-export const CodeSnippet = ({ className }: CodeSnippetProps) => {
+export const CodeSnippet = memo(({ className, loading }: CodeSnippetProps) => {
   const { translate } = useI18nContext()
   const [language, setLanguage] = useState<string>(Language['node'])
 
@@ -53,56 +54,77 @@ end
 
   return (
     <Content className={className}>
-      <Title variant="bodyHl" color="textSecondary">
-        {translate('text_623b42ff8ee4e000ba87d0b2')}
-      </Title>
-      <StyledComboBox
-        value={language}
-        onChange={(value) => setLanguage(value)}
-        disableClearable
-        data={[
-          {
-            value: Language['node'],
-            label: translate('text_623b42ff8ee4e000ba87d0b6'),
-          },
-          {
-            value: Language['ruby'],
-            label: 'Ruby',
-          },
-        ]}
-      />
-      <Pre className="line-numbers language-javascript">
-        <Code
-          $hide={language !== Language['node']}
-          component="code"
-          variant="captionCode"
-          html={html}
-        />
-        <Code
-          $hide={language !== Language['ruby']}
-          component="code"
-          variant="captionCode"
-          html={htmlRuby}
-        />
-        <span />
-      </Pre>
-      <Button
-        variant="secondary"
-        startIcon="duplicate"
-        fullWidth
-        onClick={() => {
-          navigator.clipboard.writeText(language === Language['node'] ? code : codeRuby)
-          addToast({
-            severity: 'info',
-            translateKey: 'text_6241ce41ae814301478358a2',
-          })
-        }}
-      >
-        {translate('text_623b42ff8ee4e000ba87d0c6')}
-      </Button>
+      {loading ? (
+        <>
+          <TitleSkeleton variant="text" width="inherit" height={12} />
+          <Skeleton variant="text" width={168} height={12} />
+          <BlockSkeleton variant="text" width="inherit" height={112} />
+        </>
+      ) : (
+        <>
+          <Title variant="bodyHl" color="textSecondary">
+            {translate('text_623b42ff8ee4e000ba87d0b2')}
+          </Title>
+          <StyledComboBox
+            value={language}
+            onChange={(value) => setLanguage(value)}
+            disableClearable
+            data={[
+              {
+                value: Language['node'],
+                label: translate('text_623b42ff8ee4e000ba87d0b6'),
+              },
+              {
+                value: Language['ruby'],
+                label: 'Ruby',
+              },
+            ]}
+          />
+          <Pre className="line-numbers language-javascript">
+            <Code
+              $hide={language !== Language['node']}
+              component="code"
+              variant="captionCode"
+              html={html}
+            />
+            <Code
+              $hide={language !== Language['ruby']}
+              component="code"
+              variant="captionCode"
+              html={htmlRuby}
+            />
+            <span />
+          </Pre>
+          <Button
+            variant="secondary"
+            startIcon="duplicate"
+            fullWidth
+            onClick={() => {
+              navigator.clipboard.writeText(language === Language['node'] ? code : codeRuby)
+              addToast({
+                severity: 'info',
+                translateKey: 'text_6241ce41ae814301478358a2',
+              })
+            }}
+          >
+            {translate('text_623b42ff8ee4e000ba87d0c6')}
+          </Button>
+        </>
+      )}
     </Content>
   )
-}
+})
+
+CodeSnippet.displayName = 'CodeSnippet'
+
+const TitleSkeleton = styled(Skeleton)`
+  margin-bottom: ${theme.spacing(9)};
+`
+
+const BlockSkeleton = styled(Skeleton)`
+  border-radius: 12px !important;
+  margin-top: ${theme.spacing(4)};
+`
 
 const StyledComboBox = styled(ComboBox)`
   margin-bottom: ${theme.spacing(3)};

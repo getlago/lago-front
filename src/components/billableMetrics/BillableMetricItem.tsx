@@ -2,6 +2,7 @@ import { memo, useRef } from 'react'
 import { DateTime } from 'luxon'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
+import { generatePath, useNavigate } from 'react-router-dom'
 
 import { BillableMetricItemFragment } from '~/generated/graphql'
 import {
@@ -15,6 +16,7 @@ import {
 } from '~/components/designSystem'
 import { theme, BaseListItem, ListItem, MenuPopper } from '~/styles'
 import { useI18nContext } from '~/core/I18nContext'
+import { UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 
 import {
   DeleteBillableMetricDialog,
@@ -37,9 +39,10 @@ interface BillableMetricItemProps {
 }
 
 export const BillableMetricItem = memo(({ rowId, billableMetric }: BillableMetricItemProps) => {
-  const { name, code, createdAt, canBeDeleted } = billableMetric
+  const { id, name, code, createdAt, canBeDeleted } = billableMetric
   const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
   const { translate } = useI18nContext()
+  const navigate = useNavigate()
 
   return (
     <ListItem id={rowId} tabIndex={0}>
@@ -73,7 +76,12 @@ export const BillableMetricItem = memo(({ rowId, billableMetric }: BillableMetri
       >
         {({ closePopper }) => (
           <MenuPopper>
-            <Button startIcon="pen" variant="quaternary" align="left" onClick={() => {}}>
+            <Button
+              startIcon="pen"
+              variant="quaternary"
+              align="left"
+              onClick={() => navigate(generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { id }))}
+            >
               {translate('text_6256de3bba111e00b3bfa531')}
             </Button>
             <Button

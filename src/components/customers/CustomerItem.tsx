@@ -7,7 +7,7 @@ import { useNavigate, generatePath } from 'react-router-dom'
 import { theme, BaseListItem, ListItem } from '~/styles'
 import { Avatar, Typography, Skeleton, Status, StatusEnum } from '~/components/designSystem'
 import { CustomerItemFragment, StatusTypeEnum } from '~/generated/graphql'
-import { CUSTOMER_DETAILS } from '~/core/router'
+import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { useI18nContext } from '~/core/I18nContext'
 
 gql`
@@ -60,7 +60,11 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
   const navigate = useNavigate()
 
   return (
-    <Item id={rowId} tabIndex={0} onClick={() => navigate(generatePath(CUSTOMER_DETAILS, { id }))}>
+    <Item
+      id={rowId}
+      tabIndex={0}
+      onClick={() => navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id }))}
+    >
       <CustomerNameSection>
         <ListAvatar
           variant="user"
