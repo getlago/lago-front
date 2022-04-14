@@ -310,7 +310,15 @@
       "text_6256f824b6368e01153caa49": "By deleting this billable metric, you’ll not be able to retrieve it back. Fortunately, this metric is not link to customers. Are you sure?",
       "text_6256f824b6368e01153caa4b": "Cancel",
       "text_6256f824b6368e01153caa4d": "Delete billable metric",
-      "text_6256f9f1184d3301290c7299": "Billabled metric successfully deleted"
+      "text_6256f9f1184d3301290c7299": "Billabled metric successfully deleted",
+      "text_62582fb4675ece01137a7e44": "Edit a billable metric",
+      "text_62582fb4675ece01137a7e46": "Edit this billable metric",
+      "text_62582fb4675ece01137a7e48": "Base metric used to measure usage, and act as a foundation of pricing.",
+      "text_62582fb4675ece01137a7e6c": "Save billable metric’s edits",
+      "text_62583bbb86abcf01654f693f": "Leaving deletes your edition",
+      "text_62583bbb86abcf01654f6943": "By clicking “Leave without saving”, the edition started in this billable metric will not be saved. Are you sure you want to leave?",
+      "text_62583bbb86abcf01654f694b": "Leave without saving",
+      "text_62583bbb86abcf01654f697d": "Billabled metric successfully updated"
     },
     "project_620bc4d45f16c800e2324b82": {
       "text_620bc4d4269a55014d493f12": "Welcome to Lago",
@@ -352,5 +360,5 @@
       "text_622f7a3dc32ce100c46a5154": "An error occured, please reload the application"
     }
   },
-  "exported_at": "2022-04-13T16:31:21.369Z"
+  "exported_at": "2022-04-14T15:21:29.752Z"
 }

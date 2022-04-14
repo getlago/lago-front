@@ -555,13 +555,14 @@ export type GetbillableMetricsQuery = { __typename?: 'Query', billableMetrics: {
 
 export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any };
 
-export type BillableMetricsQueryVariables = Exact<{
-  page?: InputMaybe<Scalars['Int']>;
-  limit?: InputMaybe<Scalars['Int']>;
+export type EditBillableMetricFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum };
+
+export type GetSingleBillableMetricQueryVariables = Exact<{
+  ids?: InputMaybe<Scalars['Int']>;
 }>;
 
 
-export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, canBeDeleted: boolean }> } };
+export type GetSingleBillableMetricQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum }> } };
 
 export type CreateBillableMetricMutationVariables = Exact<{
   input: CreateBillableMetricInput;
@@ -569,6 +570,21 @@ export type CreateBillableMetricMutationVariables = Exact<{
 
 
 export type CreateBillableMetricMutation = { __typename?: 'Mutation', createBillableMetric?: { __typename?: 'BillableMetric', id: string } | null };
+
+export type UpdateBillableMetricMutationVariables = Exact<{
+  input: UpdateBillableMetricInput;
+}>;
+
+
+export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, createdAt: any, canBeDeleted: boolean } | null };
+
+export type BillableMetricsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']>;
+  limit?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, canBeDeleted: boolean }> } };
 
 export type CreatePlanMutationVariables = Exact<{
   input: CreatePlanInput;
@@ -678,6 +694,15 @@ export const PlanItemFragmentDoc = gql`
   chargeCount
   customerCount
   createdAt
+}
+    `;
+export const EditBillableMetricFragmentDoc = gql`
+    fragment EditBillableMetric on BillableMetric {
+  id
+  name
+  code
+  description
+  aggregationType
 }
     `;
 export const CustomerSubscriptionListFragmentDoc = gql`
@@ -929,6 +954,113 @@ export function useGetbillableMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHoo
 export type GetbillableMetricsQueryHookResult = ReturnType<typeof useGetbillableMetricsQuery>;
 export type GetbillableMetricsLazyQueryHookResult = ReturnType<typeof useGetbillableMetricsLazyQuery>;
 export type GetbillableMetricsQueryResult = Apollo.QueryResult<GetbillableMetricsQuery, GetbillableMetricsQueryVariables>;
+export const GetSingleBillableMetricDocument = gql`
+    query getSingleBillableMetric($ids: Int) {
+  billableMetrics(ids: $ids) {
+    collection {
+      ...EditBillableMetric
+    }
+  }
+}
+    ${EditBillableMetricFragmentDoc}`;
+
+/**
+ * __useGetSingleBillableMetricQuery__
+ *
+ * To run a query within a React component, call `useGetSingleBillableMetricQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSingleBillableMetricQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSingleBillableMetricQuery({
+ *   variables: {
+ *      ids: // value for 'ids'
+ *   },
+ * });
+ */
+export function useGetSingleBillableMetricQuery(baseOptions?: Apollo.QueryHookOptions<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>(GetSingleBillableMetricDocument, options);
+      }
+export function useGetSingleBillableMetricLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>(GetSingleBillableMetricDocument, options);
+        }
+export type GetSingleBillableMetricQueryHookResult = ReturnType<typeof useGetSingleBillableMetricQuery>;
+export type GetSingleBillableMetricLazyQueryHookResult = ReturnType<typeof useGetSingleBillableMetricLazyQuery>;
+export type GetSingleBillableMetricQueryResult = Apollo.QueryResult<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>;
+export const CreateBillableMetricDocument = gql`
+    mutation createBillableMetric($input: CreateBillableMetricInput!) {
+  createBillableMetric(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateBillableMetricMutationFn = Apollo.MutationFunction<CreateBillableMetricMutation, CreateBillableMetricMutationVariables>;
+
+/**
+ * __useCreateBillableMetricMutation__
+ *
+ * To run a mutation, you first call `useCreateBillableMetricMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateBillableMetricMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createBillableMetricMutation, { data, loading, error }] = useCreateBillableMetricMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateBillableMetricMutation(baseOptions?: Apollo.MutationHookOptions<CreateBillableMetricMutation, CreateBillableMetricMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateBillableMetricMutation, CreateBillableMetricMutationVariables>(CreateBillableMetricDocument, options);
+      }
+export type CreateBillableMetricMutationHookResult = ReturnType<typeof useCreateBillableMetricMutation>;
+export type CreateBillableMetricMutationResult = Apollo.MutationResult<CreateBillableMetricMutation>;
+export type CreateBillableMetricMutationOptions = Apollo.BaseMutationOptions<CreateBillableMetricMutation, CreateBillableMetricMutationVariables>;
+export const UpdateBillableMetricDocument = gql`
+    mutation updateBillableMetric($input: UpdateBillableMetricInput!) {
+  updateBillableMetric(input: $input) {
+    ...EditBillableMetric
+    ...BillableMetricItem
+    ...DeleteBillableMetricDialog
+  }
+}
+    ${EditBillableMetricFragmentDoc}
+${BillableMetricItemFragmentDoc}
+${DeleteBillableMetricDialogFragmentDoc}`;
+export type UpdateBillableMetricMutationFn = Apollo.MutationFunction<UpdateBillableMetricMutation, UpdateBillableMetricMutationVariables>;
+
+/**
+ * __useUpdateBillableMetricMutation__
+ *
+ * To run a mutation, you first call `useUpdateBillableMetricMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBillableMetricMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBillableMetricMutation, { data, loading, error }] = useUpdateBillableMetricMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateBillableMetricMutation(baseOptions?: Apollo.MutationHookOptions<UpdateBillableMetricMutation, UpdateBillableMetricMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateBillableMetricMutation, UpdateBillableMetricMutationVariables>(UpdateBillableMetricDocument, options);
+      }
+export type UpdateBillableMetricMutationHookResult = ReturnType<typeof useUpdateBillableMetricMutation>;
+export type UpdateBillableMetricMutationResult = Apollo.MutationResult<UpdateBillableMetricMutation>;
+export type UpdateBillableMetricMutationOptions = Apollo.BaseMutationOptions<UpdateBillableMetricMutation, UpdateBillableMetricMutationVariables>;
 export const BillableMetricsDocument = gql`
     query billableMetrics($page: Int, $limit: Int) {
   billableMetrics(page: $page, limit: $limit) {
@@ -969,39 +1101,6 @@ export function useBillableMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
 export type BillableMetricsQueryHookResult = ReturnType<typeof useBillableMetricsQuery>;
 export type BillableMetricsLazyQueryHookResult = ReturnType<typeof useBillableMetricsLazyQuery>;
 export type BillableMetricsQueryResult = Apollo.QueryResult<BillableMetricsQuery, BillableMetricsQueryVariables>;
-export const CreateBillableMetricDocument = gql`
-    mutation createBillableMetric($input: CreateBillableMetricInput!) {
-  createBillableMetric(input: $input) {
-    id
-  }
-}
-    `;
-export type CreateBillableMetricMutationFn = Apollo.MutationFunction<CreateBillableMetricMutation, CreateBillableMetricMutationVariables>;
-
-/**
- * __useCreateBillableMetricMutation__
- *
- * To run a mutation, you first call `useCreateBillableMetricMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateBillableMetricMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createBillableMetricMutation, { data, loading, error }] = useCreateBillableMetricMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateBillableMetricMutation(baseOptions?: Apollo.MutationHookOptions<CreateBillableMetricMutation, CreateBillableMetricMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateBillableMetricMutation, CreateBillableMetricMutationVariables>(CreateBillableMetricDocument, options);
-      }
-export type CreateBillableMetricMutationHookResult = ReturnType<typeof useCreateBillableMetricMutation>;
-export type CreateBillableMetricMutationResult = Apollo.MutationResult<CreateBillableMetricMutation>;
-export type CreateBillableMetricMutationOptions = Apollo.BaseMutationOptions<CreateBillableMetricMutation, CreateBillableMetricMutationVariables>;
 export const CreatePlanDocument = gql`
     mutation createPlan($input: CreatePlanInput!) {
   createPlan(input: $input) {

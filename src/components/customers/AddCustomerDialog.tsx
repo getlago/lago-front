@@ -9,7 +9,7 @@ import { useI18nContext } from '~/core/I18nContext'
 import { addToast } from '~/core/apolloClient'
 import { theme } from '~/styles'
 import { useCreateCustomerMutation, CustomerItemFragmentDoc } from '~/generated/graphql'
-import { CUSTOMER_DETAILS } from '~/core/router'
+import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 
 export interface AddCustomerDialogRef extends DialogRef {}
 
@@ -35,7 +35,7 @@ export const AddCustomerDialog = forwardRef<DialogRef>((_, ref) => {
           message: translate('text_6250304370f0f700a8fdc295'),
           severity: 'success',
         })
-        navigate(generatePath(CUSTOMER_DETAILS, { id: createCustomer.id }))
+        navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: createCustomer.id }))
         setName('')
         setCustomerId('')
       }

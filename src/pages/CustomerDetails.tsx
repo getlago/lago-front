@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { Typography, Button, Skeleton, Avatar } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
-import { CUSTOMERS_LIST } from '~/core/router'
+import { CUSTOMERS_LIST_ROUTE } from '~/core/router'
 import {
   useGetCustomerQuery,
   CustomerSubscriptionListFragmentDoc,
@@ -53,7 +53,11 @@ const CustomerDetails = () => {
   return (
     <div>
       <Header $withSide>
-        <Button variant="quaternary" icon="arrow-left" onClick={() => navigate(CUSTOMERS_LIST)} />
+        <Button
+          variant="quaternary"
+          icon="arrow-left"
+          onClick={() => navigate(CUSTOMERS_LIST_ROUTE)}
+        />
         {loading ? (
           <Skeleton variant="text" height={12} width={120} />
         ) : (

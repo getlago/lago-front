@@ -2,6 +2,7 @@ import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
 import { Navigate } from 'react-router-dom'
 
+const Error404 = lazy(() => import(/* webpackChunkName: 'error-404' */ '~/pages/Error404'))
 const Login = lazy(() => import(/* webpackChunkName: 'login' */ '~/pages/auth/Login'))
 const SignUp = lazy(() => import(/* webpackChunkName: 'sign-up' */ '~/pages/auth/SignUp'))
 const ForgotPassword = lazy(
@@ -41,12 +42,22 @@ export const HOME_ROUTE = '/'
 export const API_KEYS_ROUTE = '/api-keys'
 export const BILLABLE_METRICS_ROUTE = '/billable-metrics'
 export const CREATE_BILLABLE_METRIC_ROUTE = '/create/billable-metrics'
+export const UPDATE_BILLABLE_METRIC_ROUTE = '/create/billable-metrics/:id'
 export const PLANS_ROUTE = '/plans'
 export const CREATE_PLAN_ROUTE = '/create/plans'
-export const CUSTOMERS_LIST = '/customers'
-export const CUSTOMER_DETAILS = '/customer/:id'
+export const CUSTOMERS_LIST_ROUTE = '/customers'
+export const CUSTOMER_DETAILS_ROUTE = '/customer/:id'
+export const ERROR_404_ROUTE = '/404'
 
 export const routes: CustomRouteObject[] = [
+  {
+    path: '*',
+    element: <Error404 />,
+  },
+  {
+    path: ERROR_404_ROUTE,
+    element: <Error404 />,
+  },
   {
     path: HOME_ROUTE,
     element: <SideNavLayout />,
@@ -68,12 +79,12 @@ export const routes: CustomRouteObject[] = [
         element: <PlansList />,
       },
       {
-        path: CUSTOMERS_LIST,
+        path: CUSTOMERS_LIST_ROUTE,
         private: true,
         element: <CustomersList />,
       },
       {
-        path: CUSTOMER_DETAILS,
+        path: CUSTOMER_DETAILS_ROUTE,
         private: true,
         element: <CustomerDetails />,
       },
@@ -86,6 +97,11 @@ export const routes: CustomRouteObject[] = [
   },
   {
     path: CREATE_BILLABLE_METRIC_ROUTE,
+    private: true,
+    element: <CreateBillableMetric />,
+  },
+  {
+    path: UPDATE_BILLABLE_METRIC_ROUTE,
     private: true,
     element: <CreateBillableMetric />,
   },
