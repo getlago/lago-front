@@ -170,6 +170,7 @@ const CreateBillableMetric = () => {
 
                     <ComboBoxField
                       name="aggregationType"
+                      disabled={isEdition && !billableMetric?.canBeDeleted}
                       label={translate('text_623b42ff8ee4e000ba87d0ce')}
                       infoText={translate('text_624d9adba93343010cd14c56')}
                       placeholder={translate('text_623b42ff8ee4e000ba87d0d0')}
