@@ -82,7 +82,12 @@ const CustomerDetails = () => {
               <MainInfos>
                 <Skeleton variant="userAvatar" size="large" />
                 <div>
-                  <NameSkeleton variant="text" height={12} width={200} />
+                  <Skeleton
+                    variant="text"
+                    height={12}
+                    width={200}
+                    marginBottom={theme.spacing(5)}
+                  />
                   <Skeleton variant="text" height={12} width={128} />
                 </div>
               </MainInfos>
@@ -92,11 +97,21 @@ const CustomerDetails = () => {
                     {translate('text_6250304370f0f700a8fdc27d')}
                   </SectionHeader>
                   <div>
-                    <Skeleton variant="text" height={12} width={80} />
+                    <Skeleton
+                      variant="text"
+                      height={12}
+                      width={80}
+                      marginBottom={theme.spacing(3)}
+                    />
                     <Skeleton variant="text" height={12} width={200} />
                   </div>
                   <div>
-                    <Skeleton variant="text" height={12} width={80} />
+                    <Skeleton
+                      variant="text"
+                      height={12}
+                      width={80}
+                      marginBottom={theme.spacing(3)}
+                    />
                     <Skeleton variant="text" height={12} width={200} />
                   </div>
                 </LoadingDetails>
@@ -216,12 +231,6 @@ const Name = styled(Typography)`
   margin-bottom: ${theme.spacing(1)};
 `
 
-const NameSkeleton = styled(Skeleton)`
-  && {
-    margin-bottom: ${theme.spacing(5)};
-  }
-`
-
 const LoadingDetails = styled.div`
   > *:first-child {
     margin-bottom: ${theme.spacing(7)};
@@ -229,10 +238,6 @@ const LoadingDetails = styled.div`
 
   > *:not(:first-child) {
     margin-bottom: ${theme.spacing(7)};
-
-    > *:first-child {
-      margin-bottom: ${theme.spacing(3)};
-    }
   }
 `
 

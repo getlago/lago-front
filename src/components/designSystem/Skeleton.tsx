@@ -23,6 +23,8 @@ interface SkeletonConnectorProps extends Pick<MuiSkeletonProps, 'animation'> {
   width?: never
   height?: never
   className?: string
+  marginRight?: number | string
+  marginBottom?: number | string
 }
 
 interface SkeletonUserProps extends Pick<MuiSkeletonProps, 'animation'> {
@@ -31,12 +33,16 @@ interface SkeletonUserProps extends Pick<MuiSkeletonProps, 'animation'> {
   width?: never
   height?: never
   className?: string
+  marginRight?: number | string
+  marginBottom?: number | string
 }
 
 interface SkeletonGenericProps extends Pick<MuiSkeletonProps, 'animation' | 'width' | 'height'> {
   variant: TSkeletonVariant
   size?: never
   className?: string
+  marginRight?: number | string
+  marginBottom?: number | string
 }
 
 const mapVariant = (variant?: keyof typeof SkeletonVariantEnum): MuiSkeletonProps['variant'] => {
@@ -51,7 +57,7 @@ const mapVariant = (variant?: keyof typeof SkeletonVariantEnum): MuiSkeletonProp
   }
 }
 
-type SkeletonProps = SkeletonConnectorProps | SkeletonUserProps | SkeletonGenericProps
+export type SkeletonProps = SkeletonConnectorProps | SkeletonUserProps | SkeletonGenericProps
 
 export const Skeleton = ({
   variant = 'text',
@@ -60,6 +66,8 @@ export const Skeleton = ({
   height,
   animation = 'pulse',
   className,
+  marginBottom,
+  marginRight,
 }: SkeletonProps) => {
   return (
     <StyledSkeleton
@@ -72,15 +80,31 @@ export const Skeleton = ({
       $minSize={
         size && ['connectorAvatar', 'accountAvatar'].includes(variant) ? mapAvatarSize(size) : null
       }
+      $marginBottom={marginBottom}
+      $marginRight={marginRight}
       animation={animation}
     />
   )
 }
 
-const StyledSkeleton = styled(MuiSkeleton)<{ $minSize?: number | null }>`
+const StyledSkeleton = styled(MuiSkeleton)<{
+  $minSize?: number | null
+  $marginBottom?: number | string | null
+  $marginRight?: number | string | null
+}>`
   && {
     &.MuiSkeleton-root {
       background-color: ${theme.palette.grey[100]};
+      ${({ $marginBottom }) =>
+        $marginBottom &&
+        css`
+          margin-bottom: ${$marginBottom};
+        `}
+      ${({ $marginRight }) =>
+        $marginRight &&
+        css`
+          margin-right: ${$marginRight};
+        `}
     }
 
     &.MuiSkeleton-text {
