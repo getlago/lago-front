@@ -555,14 +555,14 @@ export type GetbillableMetricsQuery = { __typename?: 'Query', billableMetrics: {
 
 export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any };
 
-export type EditBillableMetricFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum };
+export type EditBillableMetricFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean };
 
 export type GetSingleBillableMetricQueryVariables = Exact<{
   ids?: InputMaybe<Scalars['Int']>;
 }>;
 
 
-export type GetSingleBillableMetricQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum }> } };
+export type GetSingleBillableMetricQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean }> } };
 
 export type CreateBillableMetricMutationVariables = Exact<{
   input: CreateBillableMetricInput;
@@ -576,7 +576,7 @@ export type UpdateBillableMetricMutationVariables = Exact<{
 }>;
 
 
-export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, createdAt: any, canBeDeleted: boolean } | null };
+export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean, createdAt: any } | null };
 
 export type BillableMetricsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -703,6 +703,7 @@ export const EditBillableMetricFragmentDoc = gql`
   code
   description
   aggregationType
+  canBeDeleted
 }
     `;
 export const CustomerSubscriptionListFragmentDoc = gql`

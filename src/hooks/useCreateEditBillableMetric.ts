@@ -23,6 +23,7 @@ gql`
     code
     description
     aggregationType
+    canBeDeleted
   }
 
   query getSingleBillableMetric($ids: Int) {
@@ -104,6 +105,7 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
           code: 'machin-chose',
           description: 'coucou',
           aggregationType: AggregationTypeEnum.CountAgg,
+          canBeDeleted: false,
         }
       : data?.billableMetrics?.collection[0],
     isCreated,
