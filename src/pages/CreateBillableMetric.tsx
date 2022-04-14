@@ -192,7 +192,7 @@ const CreateBillableMetric = () => {
                   </MobileOnly>
                   <ButtonContainer>
                     <SubmitButton
-                      disabled={!formikProps.isValid}
+                      disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
                       fullWidth
                       size="large"
                       onClick={formikProps.submitForm}
