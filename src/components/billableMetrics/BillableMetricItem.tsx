@@ -106,22 +106,13 @@ export const BillableMetricItem = memo(({ rowId, billableMetric }: BillableMetri
 
 export const BillableMetricItemSkeleton = () => {
   return (
-    <SkeletonItem>
-      <Skeleton variant="connectorAvatar" size="medium" />
+    <BaseListItem>
+      <Skeleton variant="connectorAvatar" size="medium" marginRight={theme.spacing(3)} />
+      <Skeleton variant="text" height={12} width={240} marginRight="auto" />
       <Skeleton variant="text" height={12} width={240} />
-      <Skeleton variant="text" height={12} width={240} />
-    </SkeletonItem>
+    </BaseListItem>
   )
 }
-
-const SkeletonItem = styled(BaseListItem)`
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-  > *:not(:first-child):not(:last-child) {
-    margin-right: auto;
-  }
-`
 
 const NameBlock = styled.div`
   min-width: 0;

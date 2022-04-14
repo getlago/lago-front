@@ -56,8 +56,8 @@ end
     <Content className={className}>
       {loading ? (
         <>
-          <TitleSkeleton variant="text" width="inherit" height={12} />
-          <Skeleton variant="text" width={168} height={12} />
+          <Skeleton variant="text" width="inherit" height={12} marginBottom={theme.spacing(9)} />
+          <Skeleton variant="text" width={168} height={12} marginBottom={theme.spacing(4)} />
           <BlockSkeleton variant="text" width="inherit" height={112} />
         </>
       ) : (
@@ -117,13 +117,8 @@ end
 
 CodeSnippet.displayName = 'CodeSnippet'
 
-const TitleSkeleton = styled(Skeleton)`
-  margin-bottom: ${theme.spacing(9)};
-`
-
 const BlockSkeleton = styled(Skeleton)`
   border-radius: 12px !important;
-  margin-top: ${theme.spacing(4)};
 `
 
 const StyledComboBox = styled(ComboBox)`

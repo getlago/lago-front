@@ -81,17 +81,37 @@ const CreateBillableMetric = () => {
               {loading ? (
                 <>
                   <SkeletonHeader>
-                    <Skeleton variant="text" width={280} height={12} />
-                    <Skeleton variant="text" width="inherit" height={12} />
+                    <Skeleton
+                      variant="text"
+                      width={280}
+                      height={12}
+                      marginBottom={theme.spacing(5)}
+                    />
+                    <Skeleton
+                      variant="text"
+                      width="inherit"
+                      height={12}
+                      marginBottom={theme.spacing(4)}
+                    />
                     <Skeleton variant="text" width={120} height={12} />
                   </SkeletonHeader>
 
                   {[0, 1, 2].map((skeletonCard) => (
-                    <SkeletonCard key={`skeleton-${skeletonCard}`}>
-                      <Skeleton variant="text" width={280} height={12} />
-                      <Skeleton variant="text" width="inherit" height={12} />
+                    <Card key={`skeleton-${skeletonCard}`}>
+                      <Skeleton
+                        variant="text"
+                        width={280}
+                        height={12}
+                        marginBottom={theme.spacing(9)}
+                      />
+                      <Skeleton
+                        variant="text"
+                        width="inherit"
+                        height={12}
+                        marginBottom={theme.spacing(4)}
+                      />
                       <Skeleton variant="text" width={120} height={12} />
-                    </SkeletonCard>
+                    </Card>
                   ))}
                 </>
               ) : (
@@ -222,23 +242,7 @@ const Card = styled.div`
 `
 
 const SkeletonHeader = styled.div`
-  > *:first-child {
-    margin-bottom: ${theme.spacing(5)};
-  }
-
-  > *:last-child {
-    margin-top: ${theme.spacing(4)};
-  }
-`
-
-const SkeletonCard = styled(Card)`
-  > *:first-child {
-    margin-bottom: ${theme.spacing(9)};
-  }
-
-  > *:last-child {
-    margin-top: ${theme.spacing(4)};
-  }
+  padding: 0 ${theme.spacing(8)};
 `
 
 const SuccessCard = styled(Card)`
