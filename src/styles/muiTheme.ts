@@ -449,8 +449,12 @@ export const theme = createTheme({
           '&:active': {
             backgroundColor: palette.grey[300],
           },
+          '&.Mui-disabled': {
+            backgroundColor: 'transparent',
+          },
           '&$disabled': {
             color: palette.grey[400],
+            backgroundColor: 'transparent',
           },
           '&.button-danger': {
             '&:hover': {
