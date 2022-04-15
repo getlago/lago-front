@@ -4,10 +4,10 @@ import { FormikProps } from 'formik'
 import styled from 'styled-components'
 
 import { theme } from '~/styles'
-import { Button, Typography, Tooltip, Alert } from '~/components/designSystem'
+import { Button, Typography, Tooltip } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
 import { ChargeFrequency, ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
-import { ComboBox, ButtonSelector, TextInput, Switch } from '~/components/form'
+import { ComboBox, ButtonSelector, TextInput } from '~/components/form'
 
 import { PlanForm } from './types'
 
@@ -130,14 +130,6 @@ export const ChargeAccordion = ({ id, index, currency, formikProps }: ChargeAcco
             onChange={(value) => handleUpdate('frequency', value)}
           />
 
-          <Alert type="info">
-            {translate(
-              localCharge.frequency === ChargeFrequency.Recurring
-                ? 'text_624aa732d6af4e0103d40e82'
-                : 'text_624aa79870f60300a3c4d089'
-            )}
-          </Alert>
-
           <TextInput
             name="vatRate"
             label={translate('text_624aa732d6af4e0103d40e3b')}
@@ -153,22 +145,6 @@ export const ChargeAccordion = ({ id, index, currency, formikProps }: ChargeAcco
             value={localCharge.vatRate as number}
             onChange={(value) => handleUpdate('vatRate', value)}
           />
-
-          <SwitchBlock>
-            <Switch
-              name="proRata"
-              checked={localCharge.proRata}
-              onChange={(value) => handleUpdate('proRata', value)}
-            />
-            <div>
-              <Typography color="textSecondary">
-                {translate('text_624aa732d6af4e0103d40e8a')}
-              </Typography>
-              <Typography variant="caption">
-                {translate('text_624aa732d6af4e0103d40e8e')}
-              </Typography>
-            </div>
-          </SwitchBlock>
         </Details>
       </StyledAccordion>
     </Container>
@@ -241,14 +217,6 @@ const Details = styled(AccordionDetails)`
 
 const InputEnd = styled(Typography)`
   margin-right: ${theme.spacing(4)};
-`
-
-const SwitchBlock = styled.div`
-  display: flex;
-  align-items: center;
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
 `
 
 const LineAmount = styled.div`
