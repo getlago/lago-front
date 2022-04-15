@@ -16,7 +16,6 @@ import { AddChargeDialog, AddChargeDialogRef } from '~/components/plans/AddCharg
 import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
 import {
   PlanInterval,
-  FrequencyEnum,
   CurrencyEnum,
   useCreatePlanMutation,
   ChargeFrequency,
@@ -54,7 +53,6 @@ const CreatePlan = () => {
       code: '',
       description: '',
       interval: PlanInterval.Monthly,
-      frequency: FrequencyEnum.BeginningOfPeriod,
       payInAdvance: false,
       // @ts-ignore
       amountCents: undefined,
@@ -62,7 +60,6 @@ const CreatePlan = () => {
       vatRate: 0,
       // @ts-ignore
       trialPeriod: undefined,
-      proRata: true,
       charges: [] as LocalChargeInput[],
     },
     validationSchema: object().shape({
@@ -221,27 +218,6 @@ const CreatePlan = () => {
                   ]}
                 />
 
-                <ButtonSelectorField
-                  name="frequency"
-                  label={translate('text_624d90e6a93343010cd14b34')}
-                  infoText={translate('text_624d9adba93343010cd14ca5')}
-                  formikProps={formikProps}
-                  options={[
-                    {
-                      label: translate(
-                        formikProps.values.interval === PlanInterval.Monthly
-                          ? 'text_624453d52e945301380e49b0'
-                          : 'text_62447c3648f57b0163ae3e62'
-                      ),
-                      value: FrequencyEnum.BeginningOfPeriod,
-                    },
-                    {
-                      label: translate('text_624453d52e945301380e49b2'),
-                      value: FrequencyEnum.SubscriptionDate,
-                    },
-                  ]}
-                />
-
                 <LineAmount>
                   <TextInputField
                     name="amountCents"
@@ -308,17 +284,6 @@ const CreatePlan = () => {
                     ),
                   }}
                 />
-                <SwitchBlock>
-                  <SwitchField name="proRata" formikProps={formikProps} />
-                  <div>
-                    <Typography color="textSecondary">
-                      {translate('text_624453d52e945301380e49c8')}
-                    </Typography>
-                    <Typography variant="caption">
-                      {translate('text_624453d52e945301380e49cc')}
-                    </Typography>
-                  </div>
-                </SwitchBlock>
               </CardSection>
               <Card ref={containerRef}>
                 <SectionTitle variant="subhead">

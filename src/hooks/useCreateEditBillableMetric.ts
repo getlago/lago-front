@@ -1,11 +1,10 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { gql } from '@apollo/client'
 
 import {
   useGetSingleBillableMetricQuery,
   EditBillableMetricFragment,
-  AggregationTypeEnum,
   CreateBillableMetricInput,
   useCreateBillableMetricMutation,
   BillableMetricItemFragmentDoc,
@@ -17,7 +16,7 @@ import { ERROR_404_ROUTE, BILLABLE_METRICS_ROUTE } from '~/core/router'
 import { addToast } from '~/core/apolloClient'
 
 gql`
-  fragment EditBillableMetric on BillableMetric {
+  fragment EditBillableMetric on BillableMetricDetail {
     id
     name
     code
@@ -26,11 +25,9 @@ gql`
     canBeDeleted
   }
 
-  query getSingleBillableMetric($ids: Int) {
-    billableMetrics(ids: $ids) {
-      collection {
-        ...EditBillableMetric
-      }
+  query getSingleBillableMetric($id: ID!) {
+    billableMetric(id: $id) {
+      ...EditBillableMetric
     }
   }
 
@@ -42,7 +39,6 @@ gql`
 
   mutation updateBillableMetric($input: UpdateBillableMetricInput!) {
     updateBillableMetric(input: $input) {
-      ...EditBillableMetric
       ...BillableMetricItem
       ...DeleteBillableMetricDialog
     }
@@ -65,6 +61,11 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
   const navigate = useNavigate()
   const { id } = useParams()
   const [isCreated, setIsCreated] = useState<boolean>(false)
+  const { data, loading, error } = useGetSingleBillableMetricQuery({
+    // @ts-ignore
+    variables: { id },
+    skip: !id,
+  })
   const [create] = useCreateBillableMetricMutation({
     onCompleted({ createBillableMetric }) {
       if (!!createBillableMetric) {
@@ -83,58 +84,45 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
       }
     },
   })
-  const { data, loading, error } = useGetSingleBillableMetricQuery({
-    variables: {
-      // @ts-ignore
-      ids: id,
-    },
-    skip: !id,
-  })
 
   if (error) {
-    navigate(ERROR_404_ROUTE)
+    navigate(ERROR_404_ROUTE) // TODO on error "not_found"
   }
 
-  return {
-    loading,
-    isEdition: !!id,
-    billableMetric: !data?.billableMetrics?.collection
-      ? {
-          id: 'f55abcf6-d376-4029-b3d1-e079c42e3003',
-          name: 'Machinchose',
-          code: 'machin-chose',
-          description: 'coucou',
-          aggregationType: AggregationTypeEnum.CountAgg,
-          canBeDeleted: false,
-        }
-      : data?.billableMetrics?.collection[0],
-    isCreated,
-    resetIsCreated: () => setIsCreated(false),
-    onSave: !!id
-      ? async ({ name, code, description, aggregationType }) => {
-          await update({
-            variables: {
-              input: {
-                id,
-                name,
-                code,
-                description,
-                aggregationType,
+  return useMemo(
+    () => ({
+      loading,
+      isEdition: !!id,
+      billableMetric: !data?.billableMetric ? undefined : data?.billableMetric,
+      isCreated,
+      resetIsCreated: () => setIsCreated(false),
+      onSave: !!id
+        ? async ({ name, code, description, aggregationType }) => {
+            await update({
+              variables: {
+                input: {
+                  id,
+                  name,
+                  code,
+                  description,
+                  aggregationType,
+                },
               },
-            },
-          })
-        }
-      : async ({ name, code, description, aggregationType }) => {
-          await create({
-            variables: {
-              input: {
-                name,
-                code,
-                description,
-                aggregationType,
+            })
+          }
+        : async ({ name, code, description, aggregationType }) => {
+            await create({
+              variables: {
+                input: {
+                  name,
+                  code,
+                  description,
+                  aggregationType,
+                },
               },
-            },
-          })
-        },
-  }
+            })
+          },
+    }),
+    [loading, id, data, isCreated, setIsCreated, update, create]
+  )
 }

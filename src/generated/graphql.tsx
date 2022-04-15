@@ -46,6 +46,20 @@ export type BillableMetricCollection = {
   metadata: CollectionMetadata;
 };
 
+export type BillableMetricDetail = {
+  __typename?: 'BillableMetricDetail';
+  aggregationType: AggregationTypeEnum;
+  /** Check if billable metric is deletable */
+  canBeDeleted: Scalars['Boolean'];
+  code: Scalars['String'];
+  createdAt: Scalars['ISO8601DateTime'];
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  organization?: Maybe<Organization>;
+  updatedAt: Scalars['ISO8601DateTime'];
+};
+
 export type Charge = {
   __typename?: 'Charge';
   amountCents: Scalars['Int'];
@@ -114,11 +128,9 @@ export type CreatePlanInput = {
   clientMutationId?: InputMaybe<Scalars['String']>;
   code: Scalars['String'];
   description?: InputMaybe<Scalars['String']>;
-  frequency: FrequencyEnum;
   interval: PlanInterval;
   name: Scalars['String'];
   payInAdvance: Scalars['Boolean'];
-  proRata: Scalars['Boolean'];
   trialPeriod?: InputMaybe<Scalars['Float']>;
   vatRate?: InputMaybe<Scalars['Float']>;
 };
@@ -194,11 +206,6 @@ export type DestroyPlanPayload = {
   clientMutationId?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['ID']>;
 };
-
-export enum FrequencyEnum {
-  BeginningOfPeriod = 'beginning_of_period',
-  SubscriptionDate = 'subscription_date'
-}
 
 export type Invoice = {
   __typename?: 'Invoice';
@@ -352,13 +359,11 @@ export type Plan = {
   /** Number of customers attached to a plan */
   customerCount: Scalars['Int'];
   description?: Maybe<Scalars['String']>;
-  frequency: FrequencyEnum;
   id: Scalars['ID'];
   interval: PlanInterval;
   name: Scalars['String'];
   organization?: Maybe<Organization>;
   payInAdvance: Scalars['Boolean'];
-  proRata: Scalars['Boolean'];
   trialPeriod?: Maybe<Scalars['Float']>;
   updatedAt: Scalars['ISO8601DateTime'];
   vatRate?: Maybe<Scalars['Float']>;
@@ -370,6 +375,30 @@ export type PlanCollection = {
   metadata: CollectionMetadata;
 };
 
+export type PlanDetails = {
+  __typename?: 'PlanDetails';
+  amountCents: Scalars['Int'];
+  amountCurrency: CurrencyEnum;
+  /** Check if plan is deletable */
+  canBeDeleted: Scalars['Boolean'];
+  /** Number of charges attached to a plan */
+  chargeCount: Scalars['Int'];
+  charges?: Maybe<Array<Charge>>;
+  code: Scalars['String'];
+  createdAt: Scalars['ISO8601DateTime'];
+  /** Number of customers attached to a plan */
+  customerCount: Scalars['Int'];
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  interval: PlanInterval;
+  name: Scalars['String'];
+  organization?: Maybe<Organization>;
+  payInAdvance: Scalars['Boolean'];
+  trialPeriod?: Maybe<Scalars['Float']>;
+  updatedAt: Scalars['ISO8601DateTime'];
+  vatRate?: Maybe<Scalars['Float']>;
+};
+
 export enum PlanInterval {
   Monthly = 'monthly',
   Weekly = 'weekly',
@@ -378,6 +407,8 @@ export enum PlanInterval {
 
 export type Query = {
   __typename?: 'Query';
+  /** Query a single billable metric of an organization */
+  billableMetric?: Maybe<BillableMetricDetail>;
   /** Query billable metrics of an organization */
   billableMetrics: BillableMetricCollection;
   /** Retrives currently connected user */
@@ -386,14 +417,21 @@ export type Query = {
   customer?: Maybe<CustomerDetails>;
   /** Query customers of an organization */
   customers: CustomerCollection;
+  /** Query a single plan of an organization */
+  plan?: Maybe<PlanDetails>;
   /** Query plans of an organization */
   plans: PlanCollection;
   token: Scalars['Boolean'];
 };
 
 
+export type QueryBillableMetricArgs = {
+  id: Scalars['ID'];
+};
+
+
 export type QueryBillableMetricsArgs = {
-  ids?: InputMaybe<Scalars['Int']>;
+  ids?: InputMaybe<Array<Scalars['String']>>;
   limit?: InputMaybe<Scalars['Int']>;
   page?: InputMaybe<Scalars['Int']>;
 };
@@ -408,6 +446,11 @@ export type QueryCustomersArgs = {
   ids?: InputMaybe<Array<Scalars['String']>>;
   limit?: InputMaybe<Scalars['Int']>;
   page?: InputMaybe<Scalars['Int']>;
+};
+
+
+export type QueryPlanArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -476,12 +519,10 @@ export type UpdatePlanInput = {
   clientMutationId?: InputMaybe<Scalars['String']>;
   code: Scalars['String'];
   description?: InputMaybe<Scalars['String']>;
-  frequency: FrequencyEnum;
   id: Scalars['String'];
   interval: PlanInterval;
   name: Scalars['String'];
   payInAdvance: Scalars['Boolean'];
-  proRata: Scalars['Boolean'];
   trialPeriod?: InputMaybe<Scalars['Float']>;
   vatRate?: InputMaybe<Scalars['Float']>;
 };
@@ -555,14 +596,14 @@ export type GetbillableMetricsQuery = { __typename?: 'Query', billableMetrics: {
 
 export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any };
 
-export type EditBillableMetricFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean };
+export type EditBillableMetricFragment = { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean };
 
 export type GetSingleBillableMetricQueryVariables = Exact<{
-  ids?: InputMaybe<Scalars['Int']>;
+  id: Scalars['ID'];
 }>;
 
 
-export type GetSingleBillableMetricQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean }> } };
+export type GetSingleBillableMetricQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean } | null };
 
 export type CreateBillableMetricMutationVariables = Exact<{
   input: CreateBillableMetricInput;
@@ -576,7 +617,7 @@ export type UpdateBillableMetricMutationVariables = Exact<{
 }>;
 
 
-export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean, createdAt: any } | null };
+export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, canBeDeleted: boolean } | null };
 
 export type BillableMetricsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -697,7 +738,7 @@ export const PlanItemFragmentDoc = gql`
 }
     `;
 export const EditBillableMetricFragmentDoc = gql`
-    fragment EditBillableMetric on BillableMetric {
+    fragment EditBillableMetric on BillableMetricDetail {
   id
   name
   code
@@ -956,11 +997,9 @@ export type GetbillableMetricsQueryHookResult = ReturnType<typeof useGetbillable
 export type GetbillableMetricsLazyQueryHookResult = ReturnType<typeof useGetbillableMetricsLazyQuery>;
 export type GetbillableMetricsQueryResult = Apollo.QueryResult<GetbillableMetricsQuery, GetbillableMetricsQueryVariables>;
 export const GetSingleBillableMetricDocument = gql`
-    query getSingleBillableMetric($ids: Int) {
-  billableMetrics(ids: $ids) {
-    collection {
-      ...EditBillableMetric
-    }
+    query getSingleBillableMetric($id: ID!) {
+  billableMetric(id: $id) {
+    ...EditBillableMetric
   }
 }
     ${EditBillableMetricFragmentDoc}`;
@@ -977,11 +1016,11 @@ export const GetSingleBillableMetricDocument = gql`
  * @example
  * const { data, loading, error } = useGetSingleBillableMetricQuery({
  *   variables: {
- *      ids: // value for 'ids'
+ *      id: // value for 'id'
  *   },
  * });
  */
-export function useGetSingleBillableMetricQuery(baseOptions?: Apollo.QueryHookOptions<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>) {
+export function useGetSingleBillableMetricQuery(baseOptions: Apollo.QueryHookOptions<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>(GetSingleBillableMetricDocument, options);
       }
@@ -1028,13 +1067,11 @@ export type CreateBillableMetricMutationOptions = Apollo.BaseMutationOptions<Cre
 export const UpdateBillableMetricDocument = gql`
     mutation updateBillableMetric($input: UpdateBillableMetricInput!) {
   updateBillableMetric(input: $input) {
-    ...EditBillableMetric
     ...BillableMetricItem
     ...DeleteBillableMetricDialog
   }
 }
-    ${EditBillableMetricFragmentDoc}
-${BillableMetricItemFragmentDoc}
+    ${BillableMetricItemFragmentDoc}
 ${DeleteBillableMetricDialogFragmentDoc}`;
 export type UpdateBillableMetricMutationFn = Apollo.MutationFunction<UpdateBillableMetricMutation, UpdateBillableMetricMutationVariables>;
 
