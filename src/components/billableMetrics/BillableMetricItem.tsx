@@ -17,6 +17,7 @@ import {
 import { theme, BaseListItem, ListItem, MenuPopper } from '~/styles'
 import { useI18nContext } from '~/core/I18nContext'
 import { UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
+import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 
 import {
   DeleteBillableMetricDialog,
@@ -34,8 +35,8 @@ gql`
 `
 
 interface BillableMetricItemProps {
-  rowId: string
   billableMetric: BillableMetricItemFragment
+  navigationProps?: ListKeyNavigationItemProps
 }
 
 const preventOnClickPropagation = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -43,84 +44,86 @@ const preventOnClickPropagation = (e: React.MouseEvent<HTMLDivElement>) => {
   e.preventDefault()
 }
 
-export const BillableMetricItem = memo(({ rowId, billableMetric }: BillableMetricItemProps) => {
-  const { id, name, code, createdAt, canBeDeleted } = billableMetric
-  const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
-  const { translate } = useI18nContext()
-  const navigate = useNavigate()
+export const BillableMetricItem = memo(
+  ({ billableMetric, navigationProps }: BillableMetricItemProps) => {
+    const { id, name, code, createdAt, canBeDeleted } = billableMetric
+    const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
+    const { translate } = useI18nContext()
+    const navigate = useNavigate()
 
-  return (
-    <ListItem
-      id={rowId}
-      tabIndex={0}
-      onClick={() => navigate(generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { id }))}
-    >
-      <BillableMetricName>
-        <Avatar variant="connector">
-          <Icon name="pulse" color="dark" />
-        </Avatar>
-        <NameBlock>
-          <Typography color="textSecondary" variant="bodyHl" noWrap>
-            {name}
-          </Typography>
-          <Typography variant="caption" noWrap>
-            {code}
-          </Typography>
-        </NameBlock>
-      </BillableMetricName>
-      <CellSmall align="right">{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</CellSmall>
-      <Popper
-        PopperProps={{ placement: 'bottom-end' }}
-        opener={({ isOpen }) => (
-          // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-          <div onClick={preventOnClickPropagation}>
-            <div>
-              <Tooltip
-                placement="top-end"
-                disableHoverListener={isOpen}
-                title={translate('text_6256de3bba111e00b3bfa51b')}
-              >
-                <Button icon="dots-horizontal" variant="quaternary" />
-              </Tooltip>
-            </div>
-          </div>
-        )}
+    return (
+      <ListItem
+        tabIndex={0}
+        onClick={() => navigate(generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { id }))}
+        {...navigationProps}
       >
-        {({ closePopper }) => (
-          <MenuPopper onClick={preventOnClickPropagation}>
-            <Button
-              startIcon="pen"
-              variant="quaternary"
-              align="left"
-              onClick={() => navigate(generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { id }))}
-            >
-              {translate('text_6256de3bba111e00b3bfa531')}
-            </Button>
-            <Tooltip
-              disableHoverListener={canBeDeleted}
-              title={translate('text_6259912c9fcd1d00e914a93d')}
-              placement="bottom-end"
-            >
+        <BillableMetricName>
+          <Avatar variant="connector">
+            <Icon name="pulse" color="dark" />
+          </Avatar>
+          <NameBlock>
+            <Typography color="textSecondary" variant="bodyHl" noWrap>
+              {name}
+            </Typography>
+            <Typography variant="caption" noWrap>
+              {code}
+            </Typography>
+          </NameBlock>
+        </BillableMetricName>
+        <CellSmall align="right">{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</CellSmall>
+        <Popper
+          PopperProps={{ placement: 'bottom-end' }}
+          opener={({ isOpen }) => (
+            // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+            <div onClick={preventOnClickPropagation}>
+              <div>
+                <Tooltip
+                  placement="top-end"
+                  disableHoverListener={isOpen}
+                  title={translate('text_6256de3bba111e00b3bfa51b')}
+                >
+                  <Button icon="dots-horizontal" variant="quaternary" />
+                </Tooltip>
+              </div>
+            </div>
+          )}
+        >
+          {({ closePopper }) => (
+            <MenuPopper onClick={preventOnClickPropagation}>
               <Button
-                startIcon="trash"
+                startIcon="pen"
                 variant="quaternary"
-                disabled={!canBeDeleted}
                 align="left"
-                onClick={() => {
-                  deleteDialogRef.current?.openDialog()
-                  closePopper()
-                }}
+                onClick={() => navigate(generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { id }))}
               >
-                {translate('text_6256de3bba111e00b3bfa533')}
+                {translate('text_6256de3bba111e00b3bfa531')}
               </Button>
-            </Tooltip>
-          </MenuPopper>
-        )}
-      </Popper>
-      <DeleteBillableMetricDialog ref={deleteDialogRef} billableMetric={billableMetric} />
-    </ListItem>
-  )
-})
+              <Tooltip
+                disableHoverListener={canBeDeleted}
+                title={translate('text_6259912c9fcd1d00e914a93d')}
+                placement="bottom-end"
+              >
+                <Button
+                  startIcon="trash"
+                  variant="quaternary"
+                  disabled={!canBeDeleted}
+                  align="left"
+                  onClick={() => {
+                    deleteDialogRef.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_6256de3bba111e00b3bfa533')}
+                </Button>
+              </Tooltip>
+            </MenuPopper>
+          )}
+        </Popper>
+        <DeleteBillableMetricDialog ref={deleteDialogRef} billableMetric={billableMetric} />
+      </ListItem>
+    )
+  }
+)
 
 export const BillableMetricItemSkeleton = () => {
   return (

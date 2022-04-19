@@ -2,14 +2,24 @@ import { KeyboardEventHandler, useCallback } from 'react'
 
 interface useKeyNavigationOptions {
   getElmId: (id: string | number) => string
+  navigate?: (id: string | number) => void
   disabled?: boolean
 }
 type UseKeyNavigation<T = HTMLDivElement> = (options: useKeyNavigationOptions) => {
   onKeyDown: KeyboardEventHandler<T>
 }
 
+export interface ListKeyNavigationItemProps {
+  id: string
+  'data-id'?: string | number
+}
+
 // Allow to navigate in a list
-export const useKeysNavigation: UseKeyNavigation = ({ getElmId, disabled = false }) => {
+export const useListKeysNavigation: UseKeyNavigation = ({
+  getElmId,
+  disabled = false,
+  navigate,
+}) => {
   return {
     onKeyDown: useCallback(
       (e) => {
@@ -32,13 +42,26 @@ export const useKeysNavigation: UseKeyNavigation = ({ getElmId, disabled = false
           nextId = getElmId(parseInt(getIndex) - 1)
         }
 
+        if (['Enter'].includes(e.code) && !!navigate) {
+          e.stopPropagation()
+          e.preventDefault()
+          const id = getElmId(parseInt(getIndex))
+          const elementToNavigateTo = document.getElementById(id)
+          const realId = elementToNavigateTo?.dataset.id
+
+          if (!!realId) {
+            navigate(realId)
+          }
+          return
+        }
+
         if (!nextId) return
 
         const elementToFocus = document.getElementById(nextId)
 
         elementToFocus && elementToFocus.focus()
       },
-      [disabled, getElmId]
+      [disabled, getElmId, navigate]
     ),
   }
 }
