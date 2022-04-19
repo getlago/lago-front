@@ -1,12 +1,12 @@
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, generatePath } from 'react-router-dom'
 
 import { Typography, Button } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { useI18nContext } from '~/core/I18nContext'
 import { theme, PageHeader, ListHeader } from '~/styles'
-import { CREATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
+import { CREATE_BILLABLE_METRIC_ROUTE, UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import {
   useBillableMetricsQuery,
   BillableMetricItemFragmentDoc,
@@ -18,7 +18,7 @@ import {
   BillableMetricItem,
   BillableMetricItemSkeleton,
 } from '~/components/billableMetrics/BillableMetricItem'
-import { useKeysNavigation } from '~/hooks/ui/useKeyNavigation'
+import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 
 gql`
   query billableMetrics($page: Int, $limit: Int) {
@@ -39,8 +39,9 @@ const BillableMetricsList = () => {
   let navigate = useNavigate()
   const { data, error, loading } = useBillableMetricsQuery()
   const list = data?.billableMetrics?.collection || []
-  const { onKeyDown } = useKeysNavigation({
+  const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `billable-metric-item-${i}`,
+    navigate: (id) => navigate(generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { id: String(id) })),
   })
   let index = -1
 
@@ -94,7 +95,10 @@ const BillableMetricsList = () => {
                   <BillableMetricItem
                     key={billableMetric.id}
                     billableMetric={billableMetric}
-                    rowId={`billable-metric-item-${index}`}
+                    navigationProps={{
+                      id: `billable-metric-item-${index}`,
+                      'data-id': billableMetric.id,
+                    }}
                   />
                 )
               })}

@@ -11,7 +11,7 @@ import { usePlansQuery, PlanItemFragmentDoc } from '~/generated/graphql'
 import EmojiError from '~/public/images/exploding-head.png'
 import EmojiEmpty from '~/public/images/spider-web.png'
 import { PlanItem, PlanItemSkeleton } from '~/components/plans/PlanItem'
-import { useKeysNavigation } from '~/hooks/ui/useKeyNavigation'
+import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 
 gql`
   query plans($page: Int, $limit: Int) {
@@ -30,7 +30,7 @@ const PlansList = () => {
   let navigate = useNavigate()
   const { data, error, loading } = usePlansQuery()
   const list = data?.plans?.collection || []
-  const { onKeyDown } = useKeysNavigation({
+  const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `plan-item-${i}`,
   })
   let index = -1

@@ -11,7 +11,7 @@ import EmojiError from '~/public/images/exploding-head.png'
 import EmojiEmpty from '~/public/images/spider-web.png'
 import { AddCustomerDialog, AddCustomerDialogRef } from '~/components/customers/AddCustomerDialog'
 import { CustomerItemSkeleton, CustomerItem } from '~/components/customers/CustomerItem'
-import { useKeysNavigation } from '~/hooks/ui/useKeyNavigation'
+import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 
 gql`
   query customers($page: Int, $limit: Int) {
@@ -27,7 +27,7 @@ gql`
 
 const CustomersList = () => {
   const addCustomerDialogRef = useRef<AddCustomerDialogRef>(null)
-  const { onKeyDown } = useKeysNavigation({
+  const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `customer-item-${i}`,
   })
   const { translate } = useI18nContext()
