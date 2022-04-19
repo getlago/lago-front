@@ -92,6 +92,10 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
               onDialogClose()
             }
           }}
+          onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+            e.stopPropagation()
+            e.preventDefault()
+          }}
           open={isOpen}
           onClose={(_, reason) => {
             if (['backdropClick', 'escapeKeyDown'].includes(reason)) {
