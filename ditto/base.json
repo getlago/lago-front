@@ -318,7 +318,8 @@
       "text_62583bbb86abcf01654f693f": "Leaving deletes your edition",
       "text_62583bbb86abcf01654f6943": "By clicking “Leave without saving”, the edition started in this billable metric will not be saved. Are you sure you want to leave?",
       "text_62583bbb86abcf01654f694b": "Leave without saving",
-      "text_62583bbb86abcf01654f697d": "Billabled metric successfully updated"
+      "text_62583bbb86abcf01654f697d": "Billabled metric successfully updated",
+      "text_6259912c9fcd1d00e914a93d": "This billable metric can’t be deleted because it’s linked to existing customers"
     },
     "project_620bc4d45f16c800e2324b82": {
       "text_620bc4d4269a55014d493f12": "Welcome to Lago",
@@ -360,5 +361,5 @@
       "text_622f7a3dc32ce100c46a5154": "An error occured, please reload the application"
     }
   },
-  "exported_at": "2022-04-14T15:21:29.752Z"
+  "exported_at": "2022-04-15T15:39:58.796Z"
 }

@@ -25,7 +25,7 @@ export interface PopperProps {
   maxHeight?: number | string
   minWidth?: number
   CardProps?: UICardProps
-  PopperProps?: Pick<MUIPopperProps, 'placement' | 'modifiers'>
+  PopperProps?: Pick<MUIPopperProps, 'placement' | 'modifiers' | 'disablePortal'>
   enableFlip?: boolean
   displayInDialog?: boolean
   popperGroupName?: string
@@ -82,7 +82,15 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
       <ClickAwayListener onClickAway={onClickAwayProxy}>
         <div className={className}>
           {typeof opener === 'function'
-            ? cloneElement(opener({ isOpen }), { onClick: toggle, ref: openerRef })
+            ? cloneElement(opener({ isOpen }), {
+                onClick: (e: React.MouseEvent<HTMLDivElement>) => {
+                  const element = opener({ isOpen })
+
+                  element?.props?.onClick && element.props.onClick(e)
+                  toggle()
+                },
+                ref: openerRef,
+              })
             : // @ts-expect-error
               cloneElement(opener, { onClick: toggle, ref: openerRef })}
           <StyledPopper

@@ -38,6 +38,11 @@ interface BillableMetricItemProps {
   billableMetric: BillableMetricItemFragment
 }
 
+const preventOnClickPropagation = (e: React.MouseEvent<HTMLDivElement>) => {
+  e.stopPropagation()
+  e.preventDefault()
+}
+
 export const BillableMetricItem = memo(({ rowId, billableMetric }: BillableMetricItemProps) => {
   const { id, name, code, createdAt, canBeDeleted } = billableMetric
   const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
@@ -45,7 +50,11 @@ export const BillableMetricItem = memo(({ rowId, billableMetric }: BillableMetri
   const navigate = useNavigate()
 
   return (
-    <ListItem id={rowId} tabIndex={0}>
+    <ListItem
+      id={rowId}
+      tabIndex={0}
+      onClick={() => navigate(generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { id }))}
+    >
       <BillableMetricName>
         <Avatar variant="connector">
           <Icon name="pulse" color="dark" />
@@ -63,19 +72,22 @@ export const BillableMetricItem = memo(({ rowId, billableMetric }: BillableMetri
       <Popper
         PopperProps={{ placement: 'bottom-end' }}
         opener={({ isOpen }) => (
-          <div>
-            <Tooltip
-              placement="top-end"
-              disableHoverListener={isOpen}
-              title={translate('text_6256de3bba111e00b3bfa51b')}
-            >
-              <Button icon="dots-horizontal" variant="quaternary" />
-            </Tooltip>
+          // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+          <div onClick={preventOnClickPropagation}>
+            <div>
+              <Tooltip
+                placement="top-end"
+                disableHoverListener={isOpen}
+                title={translate('text_6256de3bba111e00b3bfa51b')}
+              >
+                <Button icon="dots-horizontal" variant="quaternary" />
+              </Tooltip>
+            </div>
           </div>
         )}
       >
         {({ closePopper }) => (
-          <MenuPopper>
+          <MenuPopper onClick={preventOnClickPropagation}>
             <Button
               startIcon="pen"
               variant="quaternary"
@@ -84,18 +96,24 @@ export const BillableMetricItem = memo(({ rowId, billableMetric }: BillableMetri
             >
               {translate('text_6256de3bba111e00b3bfa531')}
             </Button>
-            <Button
-              startIcon="trash"
-              variant="quaternary"
-              disabled={!canBeDeleted}
-              align="left"
-              onClick={() => {
-                deleteDialogRef.current?.openDialog()
-                closePopper()
-              }}
+            <Tooltip
+              disableHoverListener={canBeDeleted}
+              title={translate('text_6259912c9fcd1d00e914a93d')}
+              placement="bottom-end"
             >
-              {translate('text_6256de3bba111e00b3bfa533')}
-            </Button>
+              <Button
+                startIcon="trash"
+                variant="quaternary"
+                disabled={!canBeDeleted}
+                align="left"
+                onClick={() => {
+                  deleteDialogRef.current?.openDialog()
+                  closePopper()
+                }}
+              >
+                {translate('text_6256de3bba111e00b3bfa533')}
+              </Button>
+            </Tooltip>
           </MenuPopper>
         )}
       </Popper>
