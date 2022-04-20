@@ -2,8 +2,9 @@ import { ChargeInput, BillableMetricForPlanFragment, CreatePlanInput } from '~/g
 
 export type LocalChargeInput = Omit<ChargeInput, 'billableMetricId'> & {
   billableMetric: BillableMetricForPlanFragment
+  id?: string
 }
 
-export interface PlanForm extends Omit<CreatePlanInput, 'clientMutationId' | 'charges'> {
+export interface PlanFormInput extends Omit<CreatePlanInput, 'clientMutationId' | 'charges'> {
   charges: LocalChargeInput[]
 }

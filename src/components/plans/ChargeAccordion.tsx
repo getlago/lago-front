@@ -9,17 +9,24 @@ import { useI18nContext } from '~/core/I18nContext'
 import { ChargeFrequency, ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
 import { ComboBox, ButtonSelector, TextInput } from '~/components/form'
 
-import { PlanForm } from './types'
+import { PlanFormInput } from './types'
 
 interface ChargeAccordionProps {
   id: string
   index: number
   currency: CurrencyEnum
-  formikProps: FormikProps<PlanForm>
+  disabled?: boolean
+  formikProps: FormikProps<PlanFormInput>
 }
 
-export const ChargeAccordion = ({ id, index, currency, formikProps }: ChargeAccordionProps) => {
-  const [isOpen, setIsOpen] = useState(true)
+export const ChargeAccordion = ({
+  id,
+  index,
+  currency,
+  disabled,
+  formikProps,
+}: ChargeAccordionProps) => {
+  const [isOpen, setIsOpen] = useState(!formikProps.values.charges?.[index]?.id ? true : false)
   const { translate } = useI18nContext()
   const localCharge = formikProps.values.charges[index]
 
@@ -54,16 +61,22 @@ export const ChargeAccordion = ({ id, index, currency, formikProps }: ChargeAcco
             {localCharge?.billableMetric?.name}{' '}
             <Typography>({localCharge?.billableMetric?.code})</Typography>
           </Title>
-          <Tooltip placement="top-end" title={translate('text_624aa732d6af4e0103d40e65')}>
+          <Tooltip
+            placement="top-end"
+            title={translate('text_624aa732d6af4e0103d40e65')}
+            disableHoverListener={disabled}
+          >
             <Button
               variant="quaternary"
+              disabled={disabled}
               size="small"
               icon="trash"
-              onClick={() => {
-                const charges = formikProps.values.charges
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                e.stopPropagation()
+                e.preventDefault()
+                const charges = [...formikProps.values.charges]
 
                 charges.splice(index, 1)
-
                 formikProps.setFieldValue('charges', charges)
               }}
             />
@@ -72,6 +85,7 @@ export const ChargeAccordion = ({ id, index, currency, formikProps }: ChargeAcco
         <Details>
           <ComboBox
             name="chargeModel"
+            disabled={disabled}
             label={translate('text_624c5eadff7db800acc4ca0d')}
             data={[
               {
@@ -87,6 +101,7 @@ export const ChargeAccordion = ({ id, index, currency, formikProps }: ChargeAcco
 
           <LineAmount>
             <TextInput
+              disabled={disabled}
               name="amountCents"
               label={translate('text_624453d52e945301380e49b6')}
               placeholder={translate('text_624453d52e945301380e49b8')}
@@ -115,6 +130,7 @@ export const ChargeAccordion = ({ id, index, currency, formikProps }: ChargeAcco
 
           <ButtonSelector
             infoText={translate('text_624d9adba93343010cd14ca9')}
+            disabled={disabled}
             label={translate('text_624d90e6a93343010cd14b62')}
             options={[
               {
@@ -132,13 +148,14 @@ export const ChargeAccordion = ({ id, index, currency, formikProps }: ChargeAcco
 
           <TextInput
             name="vatRate"
+            disabled={disabled}
             label={translate('text_624aa732d6af4e0103d40e3b')}
-            placeholder={translate('text_624aa732d6af4e0103d40e86')}
+            placeholder={translate('text_624453d52e945301380e49be')}
             type="number"
             InputProps={{
               endAdornment: (
-                <InputEnd color="textSecondary">
-                  {translate('text_624aa732d6af4e0103d40e88')}
+                <InputEnd color={disabled ? 'textPrimary' : 'textSecondary'}>
+                  {translate('text_624453d52e945301380e49c0')}
                 </InputEnd>
               ),
             }}

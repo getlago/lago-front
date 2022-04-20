@@ -1,131 +1,28 @@
-import { gql } from '@apollo/client'
-import { useState, useRef, useEffect } from 'react'
+import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { useFormik } from 'formik'
-import { object, string, number, array } from 'yup'
 
 import { theme, PageHeader, NAV_HEIGHT } from '~/styles'
-import { Typography, Button } from '~/components/designSystem'
+import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { PLANS_ROUTE } from '~/core/router'
 import EmojiParty from '~/public/images/party.png'
 import { CodeSnippet } from '~/components/CodeSnippet'
-import { AddChargeDialog, AddChargeDialogRef } from '~/components/plans/AddChargeDialog'
-import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
-import {
-  PlanInterval,
-  CurrencyEnum,
-  useCreatePlanMutation,
-  ChargeFrequency,
-  ChargeModelEnum,
-} from '~/generated/graphql'
-import { TextInputField, ButtonSelectorField, ComboBoxField, SwitchField } from '~/components/form'
-import { PlanForm, LocalChargeInput } from '~/components/plans/types'
-
-gql`
-  mutation createPlan($input: CreatePlanInput!) {
-    createPlan(input: $input) {
-      id
-    }
-  }
-`
+import { PlanForm } from '~/components/plans/PlanForm'
+import { useCreateEditPlan } from '~/hooks/useCreateEditPlan'
 
 const CreatePlan = () => {
-  const [isCreated, setIsCreated] = useState<boolean>(false)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const { loading, isEdition, isCreated, plan, onSave, resetIsCreated } = useCreateEditPlan()
   const warningDialogRef = useRef<WarningDialogRef>(null)
-  const addChargeDialogRef = useRef<AddChargeDialogRef>(null)
-  const [create] = useCreatePlanMutation({
-    onCompleted({ createPlan }) {
-      if (!!createPlan) {
-        setIsCreated(true)
-      }
-    },
-  })
   const { translate } = useI18nContext()
   let navigate = useNavigate()
-  const [newChargeId, setNewChargeId] = useState<string | null>(null)
-  const formikProps = useFormik<PlanForm>({
-    initialValues: {
-      name: '',
-      code: '',
-      description: '',
-      interval: PlanInterval.Monthly,
-      payInAdvance: false,
-      // @ts-ignore
-      amountCents: undefined,
-      amountCurrency: CurrencyEnum.Usd,
-      vatRate: 0,
-      // @ts-ignore
-      trialPeriod: undefined,
-      charges: [] as LocalChargeInput[],
-    },
-    validationSchema: object().shape({
-      name: string().required(''),
-      code: string().required(''),
-      interval: string().required(''),
-      amountCents: number().typeError(translate('text_624ea7c29103fd010732ab7d')).required(''),
-      vatRate: number().typeError(translate('text_624ea7c29103fd010732ab7d')),
-      trialPeriod: number().typeError(translate('text_624ea7c29103fd010732ab7d')),
-      amountCurrency: string().required(''),
-      charges: array().of(
-        object().shape({
-          chargeModel: string().required(''),
-          amountCents: string().required(''),
-          amountCurrency: string().required(''),
-          frequency: string().required(''),
-        })
-      ),
-    }),
-    validateOnMount: true,
-    onSubmit: async ({ amountCents, trialPeriod, vatRate, charges, ...values }) => {
-      await create({
-        variables: {
-          input: {
-            amountCents: Number(amountCents),
-            trialPeriod: Number(trialPeriod),
-            vatRate: Number(vatRate),
-            charges: charges.map(
-              ({
-                billableMetric,
-                amountCents: chargeAmountCents,
-                vatRate: chargeVatRate,
-                ...charge
-              }) => {
-                return {
-                  amountCents: Number(chargeAmountCents),
-                  vatRate: Number(chargeVatRate),
-                  billableMetricId: billableMetric.id,
-                  ...charge,
-                }
-              }
-            ),
-            ...values,
-          },
-        },
-      })
-    },
-  })
-
-  useEffect(() => {
-    // When adding a new charge, scroll to the new charge element
-    if (!!newChargeId) {
-      const element = document.getElementById(newChargeId)
-      const rootElement = document.getElementById('root')
-
-      if (!element || !rootElement) return
-
-      rootElement.scrollTo({ top: element.offsetTop - 72 - 16, behavior: 'smooth' })
-    }
-  }, [newChargeId])
 
   return (
     <div>
       <PageHeader>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {translate('text_624453d52e945301380e4988')}
+          {translate(isEdition ? 'text_625fd165963a7b00c8f59767' : 'text_624453d52e945301380e4988')}
         </Typography>
         <Button
           variant="quaternary"
@@ -144,13 +41,7 @@ const CreatePlan = () => {
           </SuccessTitle>
           <SuccessDescription>{translate('text_624455d859b1b000a8e17bf5')}</SuccessDescription>
           <div>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                formikProps.resetForm()
-                setIsCreated(false)
-              }}
-            >
+            <Button variant="secondary" onClick={resetIsCreated}>
               {translate('text_624455d859b1b000a8e17bf7')}
             </Button>
             <Button variant="secondary" onClick={() => navigate(PLANS_ROUTE)}>
@@ -162,210 +53,88 @@ const CreatePlan = () => {
         <Content>
           <div>
             <Main>
-              <div>
-                <Title variant="headline">{translate('text_624453d52e945301380e498a')}</Title>
-                <Subtitle>{translate('text_624453d52e945301380e498e')}</Subtitle>
-              </div>
-              <Card>
-                <SectionTitle variant="subhead">
-                  {translate('text_624453d52e945301380e4992')}
-                </SectionTitle>
+              {loading ? (
+                <>
+                  <SkeletonHeader>
+                    <Skeleton
+                      variant="text"
+                      width={280}
+                      height={12}
+                      marginBottom={theme.spacing(5)}
+                    />
+                    <Skeleton
+                      variant="text"
+                      width="inherit"
+                      height={12}
+                      marginBottom={theme.spacing(4)}
+                    />
+                    <Skeleton variant="text" width={120} height={12} />
+                  </SkeletonHeader>
 
-                <Line>
-                  <TextInputField
-                    name="name"
-                    label={translate('text_624453d52e945301380e4998')}
-                    placeholder={translate('text_624453d52e945301380e499c')}
-                    // eslint-disable-next-line jsx-a11y/no-autofocus
-                    autoFocus
-                    formikProps={formikProps}
-                  />
-                  <TextInputField
-                    name="code"
-                    label={translate('text_624453d52e945301380e499a')}
-                    placeholder={translate('text_624453d52e945301380e499e')}
-                    formikProps={formikProps}
-                    infoText={translate('text_624d9adba93343010cd14ca1')}
-                  />
-                </Line>
-                <TextInputField
-                  name="description"
-                  label={translate('text_624c5eadff7db800acc4c99f')}
-                  placeholder={translate('text_624453d52e945301380e49a2')}
-                  rows="3"
-                  multiline
-                  formikProps={formikProps}
-                />
-              </Card>
-              <CardSection>
-                <SectionTitle variant="subhead">
-                  {translate('text_624453d52e945301380e49a6')}
-                </SectionTitle>
-                <ButtonSelectorField
-                  name="interval"
-                  label={translate('text_624c5eadff7db800acc4c9ad')}
-                  infoText={translate('text_624d9adba93343010cd14ca3')}
-                  formikProps={formikProps}
-                  options={[
-                    {
-                      label: translate('text_624453d52e945301380e49aa'),
-                      value: PlanInterval.Monthly,
-                    },
-                    {
-                      label: translate('text_624453d52e945301380e49ac'),
-                      value: PlanInterval.Yearly,
-                    },
-                  ]}
-                />
-
-                <LineAmount>
-                  <TextInputField
-                    name="amountCents"
-                    label={translate('text_624453d52e945301380e49b6')}
-                    placeholder={translate('text_624453d52e945301380e49b8')}
-                    type="number"
-                    formikProps={formikProps}
-                  />
-                  <ComboBoxField
-                    name="amountCurrency"
-                    data={[
-                      {
-                        label: translate('text_624453d52e945301380e49ba'),
-                        value: CurrencyEnum.Usd,
-                      },
-                      {
-                        label: 'EUR', // TODO
-                        value: CurrencyEnum.Eur,
-                      },
-                    ]}
-                    disableClearable
-                    formikProps={formikProps}
-                  />
-                </LineAmount>
-
-                <SwitchBlock>
-                  <SwitchField name="payInAdvance" formikProps={formikProps} />
+                  {[0, 1, 2].map((skeletonCard) => (
+                    <Card key={`skeleton-${skeletonCard}`}>
+                      <Skeleton
+                        variant="text"
+                        width={280}
+                        height={12}
+                        marginBottom={theme.spacing(9)}
+                      />
+                      <Skeleton
+                        variant="text"
+                        width="inherit"
+                        height={12}
+                        marginBottom={theme.spacing(4)}
+                      />
+                      <Skeleton variant="text" width={120} height={12} />
+                    </Card>
+                  ))}
+                </>
+              ) : (
+                <>
                   <div>
-                    <Typography color="textSecondary">
-                      {translate('text_624d90e6a93343010cd14b40')}
-                    </Typography>
-                    <Typography variant="caption">
-                      {translate('text_624d90e6a93343010cd14b4c')}
-                    </Typography>
+                    <Title variant="headline">
+                      {translate(
+                        isEdition
+                          ? 'text_625fd165963a7b00c8f59771'
+                          : 'text_624453d52e945301380e498a'
+                      )}
+                    </Title>
+                    <Subtitle>
+                      {translate(
+                        isEdition
+                          ? 'text_625fd165963a7b00c8f5977b'
+                          : 'text_624453d52e945301380e498e'
+                      )}
+                    </Subtitle>
                   </div>
-                </SwitchBlock>
-
-                <TextInputField
-                  name="vatRate"
-                  label={translate('text_624453d52e945301380e49bc')}
-                  placeholder={translate('text_624453d52e945301380e49be')}
-                  type="number"
-                  formikProps={formikProps}
-                  InputProps={{
-                    endAdornment: (
-                      <InputEnd color="textSecondary">
-                        {translate('text_624453d52e945301380e49c0')}
-                      </InputEnd>
-                    ),
-                  }}
-                />
-
-                <TextInputField
-                  name="trialPeriod"
-                  label={translate('text_624453d52e945301380e49c2')}
-                  type="number"
-                  placeholder={translate('text_624453d52e945301380e49c4')}
-                  formikProps={formikProps}
-                  InputProps={{
-                    endAdornment: (
-                      <InputEnd color="textSecondary">
-                        {translate('text_624453d52e945301380e49c6')}
-                      </InputEnd>
-                    ),
-                  }}
-                />
-              </CardSection>
-              <Card ref={containerRef}>
-                <SectionTitle variant="subhead">
-                  <div>{translate('text_624453d52e945301380e49ce')}</div>
-                  <Typography>{translate('text_624453d52e945301380e49d0')}</Typography>
-                </SectionTitle>
-
-                {!!formikProps.values.charges.length && (
-                  <Charges>
-                    {formikProps.values.charges.map((charge, i) => {
-                      return (
-                        <ChargeAccordion
-                          id={charge.billableMetric.id}
-                          key={`plan-charge-${charge.billableMetric.id}`}
-                          currency={formikProps.values.amountCurrency}
-                          index={i}
-                          formikProps={formikProps}
-                        />
-                      )
-                    })}
-                  </Charges>
-                )}
-
-                <Button
-                  startIcon="plus"
-                  variant="quaternary"
-                  onClick={() => addChargeDialogRef.current?.openDialog()}
-                >
-                  {translate('text_624453d52e945301380e49d2')}
-                </Button>
-              </Card>
-              <MobileOnly>
-                <CodeSnippet />
-              </MobileOnly>
-              <ButtonContainer>
-                <Button
-                  disabled={!formikProps.isValid}
-                  fullWidth
-                  size="large"
-                  onClick={formikProps.submitForm}
-                >
-                  {translate('text_624453d52e945301380e49d4')}
-                </Button>
-              </ButtonContainer>
+                  <PlanForm isEdition={isEdition} plan={plan} onSave={onSave}>
+                    <MobileOnly>
+                      <CodeSnippet loading={loading} />
+                    </MobileOnly>
+                  </PlanForm>
+                </>
+              )}
             </Main>
             <Side>
               <Card>
-                <CodeSnippet />
+                <CodeSnippet loading={loading} />
               </Card>
             </Side>
           </div>
         </Content>
       )}
 
-      <AddChargeDialog
-        ref={addChargeDialogRef}
-        disabledItems={formikProps.values.charges.map((c) => c.billableMetric.id)}
-        onConfirm={(newCharge) => {
-          const previousCharges = [...formikProps.values.charges]
-
-          formikProps.setFieldValue('charges', [
-            ...previousCharges,
-            {
-              billableMetric: newCharge,
-              chargeModel: ChargeModelEnum.Standard,
-              amountCents: undefined,
-              amountCurrency: formikProps.values.amountCurrency, // TODO
-              frequency: ChargeFrequency.Recurring,
-              proRata: false,
-              vatRate: 0,
-            },
-          ])
-
-          setNewChargeId(newCharge.id)
-        }}
-      />
-
       <WarningDialog
         ref={warningDialogRef}
-        title={translate('text_624454dd67656e00c534bc35')}
-        description={translate('text_624454dd67656e00c534bc3b')}
-        continueText={translate('text_624454dd67656e00c534bc41')}
+        title={translate(
+          isEdition ? 'text_625fd165963a7b00c8f59777' : 'text_624454dd67656e00c534bc35'
+        )}
+        description={translate(
+          isEdition ? 'text_625fd165963a7b00c8f59781' : 'text_624454dd67656e00c534bc3b'
+        )}
+        continueText={translate(
+          isEdition ? 'text_625fd165963a7b00c8f59795' : 'text_624454dd67656e00c534bc41'
+        )}
         onContinue={() => navigate(PLANS_ROUTE)}
       />
     </div>
@@ -395,6 +164,10 @@ const SuccessCard = styled(Card)`
       margin-right: ${theme.spacing(3)};
     }
   }
+`
+
+const SkeletonHeader = styled.div`
+  padding: 0 ${theme.spacing(8)};
 `
 
 const SuccessTitle = styled(Typography)`
@@ -470,68 +243,6 @@ const Title = styled(Typography)`
 const Subtitle = styled(Typography)`
   margin-bottom: ${theme.spacing(8)};
   padding: 0 ${theme.spacing(8)};
-`
-
-const SectionTitle = styled(Typography)`
-  margin-bottom: ${theme.spacing(6)};
-
-  > div:first-child {
-    margin-bottom: ${theme.spacing(3)};
-  }
-`
-
-const Line = styled.div`
-  display: flex;
-  margin: -${theme.spacing(3)} -${theme.spacing(3)} ${theme.spacing(3)} -${theme.spacing(3)};
-  flex-wrap: wrap;
-
-  > * {
-    flex: 1;
-    margin: ${theme.spacing(3)};
-    min-width: 110px;
-  }
-`
-
-const CardSection = styled(Card)`
-  > *:not(:first-child):not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
-
-const LineAmount = styled.div`
-  display: flex;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-    flex: 1;
-  }
-
-  > *:last-child {
-    max-width: 120px;
-    margin-top: 24px;
-  }
-`
-
-const InputEnd = styled(Typography)`
-  margin-right: ${theme.spacing(4)};
-`
-
-const SwitchBlock = styled.div`
-  display: flex;
-  align-items: center;
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const ButtonContainer = styled.div`
-  margin: 0 ${theme.spacing(6)} ${theme.spacing(20)} ${theme.spacing(6)};
-`
-
-const Charges = styled.div`
-  > * {
-    margin-bottom: ${theme.spacing(6)};
-  }
 `
 
 export default CreatePlan

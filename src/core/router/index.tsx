@@ -42,7 +42,8 @@ export const HOME_ROUTE = '/'
 export const API_KEYS_ROUTE = '/api-keys'
 export const BILLABLE_METRICS_ROUTE = '/billable-metrics'
 export const CREATE_BILLABLE_METRIC_ROUTE = '/create/billable-metrics'
-export const UPDATE_BILLABLE_METRIC_ROUTE = '/create/billable-metrics/:id'
+export const UPDATE_BILLABLE_METRIC_ROUTE = '/create/billable-metric/:id'
+export const UPDATE_PLAN_ROUTE = '/create/plan/:id'
 export const PLANS_ROUTE = '/plans'
 export const CREATE_PLAN_ROUTE = '/create/plans'
 export const CUSTOMERS_LIST_ROUTE = '/customers'
@@ -107,6 +108,11 @@ export const routes: CustomRouteObject[] = [
   },
   {
     path: CREATE_PLAN_ROUTE,
+    private: true,
+    element: <CreatePlan />,
+  },
+  {
+    path: UPDATE_PLAN_ROUTE,
     private: true,
     element: <CreatePlan />,
   },
