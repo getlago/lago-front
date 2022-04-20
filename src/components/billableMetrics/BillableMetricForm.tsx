@@ -17,7 +17,7 @@ interface BillableMetricFormProps {
   billableMetric?: EditBillableMetricFragment
   children?: ReactNode
   isEdition?: boolean
-  onSave: (values: CreateBillableMetricInput) => void
+  onSave: (values: CreateBillableMetricInput) => Promise<void>
 }
 
 export const BillableMetricForm = ({

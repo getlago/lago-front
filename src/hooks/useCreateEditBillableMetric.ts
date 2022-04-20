@@ -97,28 +97,17 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
       isCreated,
       resetIsCreated: () => setIsCreated(false),
       onSave: !!id
-        ? async ({ name, code, description, aggregationType }) => {
+        ? async (values) => {
             await update({
               variables: {
-                input: {
-                  id,
-                  name,
-                  code,
-                  description,
-                  aggregationType,
-                },
+                input: { id, ...values },
               },
             })
           }
-        : async ({ name, code, description, aggregationType }) => {
+        : async (values) => {
             await create({
               variables: {
-                input: {
-                  name,
-                  code,
-                  description,
-                  aggregationType,
-                },
+                input: values,
               },
             })
           },

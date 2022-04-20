@@ -1,11 +1,25 @@
-import { memo } from 'react'
+import { memo, useRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
+import { generatePath, useNavigate } from 'react-router-dom'
 
-import { theme, BaseListItem, ListItem } from '~/styles'
-import { Typography, Avatar, Icon, Skeleton } from '~/components/designSystem'
-import { PlanItemFragment } from '~/generated/graphql'
+import { theme, BaseListItem, ListItem, MenuPopper } from '~/styles'
+import {
+  Typography,
+  Avatar,
+  Icon,
+  Skeleton,
+  Button,
+  Tooltip,
+  Popper,
+} from '~/components/designSystem'
+import { useI18nContext } from '~/core/I18nContext'
+import { PlanItemFragment, DeletePlanDialogFragmentDoc } from '~/generated/graphql'
+import { UPDATE_PLAN_ROUTE } from '~/core/router'
+import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
+
+import { DeletePlanDialog, DeletePlanDialogRef } from './DeletePlanDialog'
 
 gql`
   fragment PlanItem on Plan {
@@ -15,19 +29,35 @@ gql`
     chargeCount
     customerCount
     createdAt
+    canBeDeleted
+    ...DeletePlanDialog
   }
+
+  ${DeletePlanDialogFragmentDoc}
 `
 
 interface PlanItemProps {
   plan: PlanItemFragment
-  rowId: string
+  navigationProps?: ListKeyNavigationItemProps
 }
 
-export const PlanItem = memo(({ plan, rowId }: PlanItemProps) => {
-  const { name, code, customerCount, chargeCount, createdAt } = plan
+const preventOnClickPropagation = (e: React.MouseEvent<HTMLDivElement>) => {
+  e.stopPropagation()
+  e.preventDefault()
+}
+
+export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
+  const deleteDialogRef = useRef<DeletePlanDialogRef>(null)
+  const { id, name, code, customerCount, chargeCount, createdAt, canBeDeleted } = plan
+  const { translate } = useI18nContext()
+  const navigate = useNavigate()
 
   return (
-    <ListItem id={rowId} tabIndex={0}>
+    <ListItem
+      tabIndex={0}
+      onClick={() => navigate(generatePath(UPDATE_PLAN_ROUTE, { id }))}
+      {...navigationProps}
+    >
       <PlanNameSection>
         <ListAvatar variant="connector">
           <Icon name="board" color="dark" />
@@ -46,6 +76,55 @@ export const PlanItem = memo(({ plan, rowId }: PlanItemProps) => {
         <SmallCell>{chargeCount}</SmallCell>
         <MediumCell>{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</MediumCell>
       </PlanInfosSection>
+      <Popper
+        PopperProps={{ placement: 'bottom-end' }}
+        opener={({ isOpen }) => (
+          // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+          <div onClick={preventOnClickPropagation}>
+            <div>
+              <Tooltip
+                placement="top-end"
+                disableHoverListener={isOpen}
+                title={translate('text_6256de3bba111e00b3bfa51b')}
+              >
+                <Button icon="dots-horizontal" variant="quaternary" />
+              </Tooltip>
+            </div>
+          </div>
+        )}
+      >
+        {({ closePopper }) => (
+          <MenuPopper onClick={preventOnClickPropagation}>
+            <Button
+              startIcon="pen"
+              variant="quaternary"
+              align="left"
+              onClick={() => navigate(generatePath(UPDATE_PLAN_ROUTE, { id }))}
+            >
+              {translate('text_625fd39a15394c0117e7d792')}
+            </Button>
+            <Tooltip
+              disableHoverListener={canBeDeleted}
+              title={translate('text_625fd39a15394c0117e7d7aa')}
+              placement="bottom-end"
+            >
+              <Button
+                startIcon="trash"
+                variant="quaternary"
+                disabled={!canBeDeleted}
+                align="left"
+                onClick={() => {
+                  deleteDialogRef.current?.openDialog()
+                  closePopper()
+                }}
+              >
+                {translate('text_625fd39a15394c0117e7d794')}
+              </Button>
+            </Tooltip>
+          </MenuPopper>
+        )}
+      </Popper>
+      <DeletePlanDialog ref={deleteDialogRef} plan={plan} />
     </ListItem>
   )
 })
@@ -77,6 +156,8 @@ const PlanNameSection = styled.div`
 
 const PlanInfosSection = styled.div`
   display: flex;
+  margin-right: ${theme.spacing(6)};
+
   > *:not(:last-child) {
     margin-right: ${theme.spacing(6)};
 

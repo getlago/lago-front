@@ -594,7 +594,16 @@ export type GetbillableMetricsQueryVariables = Exact<{
 
 export type GetbillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> } };
 
-export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any };
+export type DeletePlanDialogFragment = { __typename?: 'Plan', id: string, name: string };
+
+export type DeletePlanMutationVariables = Exact<{
+  input: DestroyPlanInput;
+}>;
+
+
+export type DeletePlanMutation = { __typename?: 'Mutation', destroyPlan?: { __typename?: 'DestroyPlanPayload', id?: string | null } | null };
+
+export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, canBeDeleted: boolean };
 
 export type EditBillableMetricFragment = { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean };
 
@@ -619,13 +628,14 @@ export type UpdateBillableMetricMutationVariables = Exact<{
 
 export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, canBeDeleted: boolean } | null };
 
-export type BillableMetricsQueryVariables = Exact<{
-  page?: InputMaybe<Scalars['Int']>;
-  limit?: InputMaybe<Scalars['Int']>;
+export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, vatRate?: number | null, trialPeriod?: number | null, canBeDeleted: boolean, charges?: Array<{ __typename?: 'Charge', id: string, amountCents: number, amountCurrency: CurrencyEnum, frequency: ChargeFrequency, chargeModel: ChargeModelEnum, proRata: boolean, vatRate?: number | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null };
+
+export type GetSinglePlanQueryVariables = Exact<{
+  id: Scalars['ID'];
 }>;
 
 
-export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, canBeDeleted: boolean }> } };
+export type GetSinglePlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, vatRate?: number | null, trialPeriod?: number | null, canBeDeleted: boolean, charges?: Array<{ __typename?: 'Charge', id: string, amountCents: number, amountCurrency: CurrencyEnum, frequency: ChargeFrequency, chargeModel: ChargeModelEnum, proRata: boolean, vatRate?: number | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null } | null };
 
 export type CreatePlanMutationVariables = Exact<{
   input: CreatePlanInput;
@@ -633,6 +643,21 @@ export type CreatePlanMutationVariables = Exact<{
 
 
 export type CreatePlanMutation = { __typename?: 'Mutation', createPlan?: { __typename?: 'Plan', id: string } | null };
+
+export type UpdatePlanMutationVariables = Exact<{
+  input: UpdatePlanInput;
+}>;
+
+
+export type UpdatePlanMutation = { __typename?: 'Mutation', updatePlan?: { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, canBeDeleted: boolean } | null };
+
+export type BillableMetricsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']>;
+  limit?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, canBeDeleted: boolean }> } };
 
 export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, subscriptions?: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }> | null, invoices?: Array<{ __typename?: 'Invoice', id: string, issuingDate: any, amountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null }> | null };
 
@@ -657,7 +682,7 @@ export type PlansQueryVariables = Exact<{
 }>;
 
 
-export type PlansQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', collection: Array<{ __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any }> } };
+export type PlansQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', collection: Array<{ __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, canBeDeleted: boolean }> } };
 
 export type LoginUserMutationVariables = Exact<{
   input: LoginUserInput;
@@ -689,6 +714,12 @@ export const CurrentUserFragmentDoc = gql`
   }
 }
     ${CurrentOrganizationFragmentDoc}`;
+export const DeleteBillableMetricDialogFragmentDoc = gql`
+    fragment DeleteBillableMetricDialog on BillableMetric {
+  id
+  name
+}
+    `;
 export const BillableMetricItemFragmentDoc = gql`
     fragment BillableMetricItem on BillableMetric {
   id
@@ -696,14 +727,9 @@ export const BillableMetricItemFragmentDoc = gql`
   code
   createdAt
   canBeDeleted
+  ...DeleteBillableMetricDialog
 }
-    `;
-export const DeleteBillableMetricDialogFragmentDoc = gql`
-    fragment DeleteBillableMetricDialog on BillableMetric {
-  id
-  name
-}
-    `;
+    ${DeleteBillableMetricDialogFragmentDoc}`;
 export const CustomerItemFragmentDoc = gql`
     fragment CustomerItem on Customer {
   id
@@ -727,6 +753,12 @@ export const BillableMetricForPlanFragmentDoc = gql`
   code
 }
     `;
+export const DeletePlanDialogFragmentDoc = gql`
+    fragment DeletePlanDialog on Plan {
+  id
+  name
+}
+    `;
 export const PlanItemFragmentDoc = gql`
     fragment PlanItem on Plan {
   id
@@ -735,8 +767,10 @@ export const PlanItemFragmentDoc = gql`
   chargeCount
   customerCount
   createdAt
+  canBeDeleted
+  ...DeletePlanDialog
 }
-    `;
+    ${DeletePlanDialogFragmentDoc}`;
 export const EditBillableMetricFragmentDoc = gql`
     fragment EditBillableMetric on BillableMetricDetail {
   id
@@ -745,6 +779,35 @@ export const EditBillableMetricFragmentDoc = gql`
   description
   aggregationType
   canBeDeleted
+}
+    `;
+export const EditPlanFragmentDoc = gql`
+    fragment EditPlan on PlanDetails {
+  id
+  name
+  code
+  description
+  interval
+  payInAdvance
+  amountCents
+  amountCurrency
+  vatRate
+  trialPeriod
+  canBeDeleted
+  charges {
+    id
+    billableMetric {
+      id
+      name
+      code
+    }
+    amountCents
+    amountCurrency
+    frequency
+    chargeModel
+    proRata
+    vatRate
+  }
 }
     `;
 export const CustomerSubscriptionListFragmentDoc = gql`
@@ -996,6 +1059,39 @@ export function useGetbillableMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHoo
 export type GetbillableMetricsQueryHookResult = ReturnType<typeof useGetbillableMetricsQuery>;
 export type GetbillableMetricsLazyQueryHookResult = ReturnType<typeof useGetbillableMetricsLazyQuery>;
 export type GetbillableMetricsQueryResult = Apollo.QueryResult<GetbillableMetricsQuery, GetbillableMetricsQueryVariables>;
+export const DeletePlanDocument = gql`
+    mutation deletePlan($input: DestroyPlanInput!) {
+  destroyPlan(input: $input) {
+    id
+  }
+}
+    `;
+export type DeletePlanMutationFn = Apollo.MutationFunction<DeletePlanMutation, DeletePlanMutationVariables>;
+
+/**
+ * __useDeletePlanMutation__
+ *
+ * To run a mutation, you first call `useDeletePlanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePlanMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePlanMutation, { data, loading, error }] = useDeletePlanMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeletePlanMutation(baseOptions?: Apollo.MutationHookOptions<DeletePlanMutation, DeletePlanMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeletePlanMutation, DeletePlanMutationVariables>(DeletePlanDocument, options);
+      }
+export type DeletePlanMutationHookResult = ReturnType<typeof useDeletePlanMutation>;
+export type DeletePlanMutationResult = Apollo.MutationResult<DeletePlanMutation>;
+export type DeletePlanMutationOptions = Apollo.BaseMutationOptions<DeletePlanMutation, DeletePlanMutationVariables>;
 export const GetSingleBillableMetricDocument = gql`
     query getSingleBillableMetric($id: ID!) {
   billableMetric(id: $id) {
@@ -1099,46 +1195,41 @@ export function useUpdateBillableMetricMutation(baseOptions?: Apollo.MutationHoo
 export type UpdateBillableMetricMutationHookResult = ReturnType<typeof useUpdateBillableMetricMutation>;
 export type UpdateBillableMetricMutationResult = Apollo.MutationResult<UpdateBillableMetricMutation>;
 export type UpdateBillableMetricMutationOptions = Apollo.BaseMutationOptions<UpdateBillableMetricMutation, UpdateBillableMetricMutationVariables>;
-export const BillableMetricsDocument = gql`
-    query billableMetrics($page: Int, $limit: Int) {
-  billableMetrics(page: $page, limit: $limit) {
-    collection {
-      ...BillableMetricItem
-      ...DeleteBillableMetricDialog
-    }
+export const GetSinglePlanDocument = gql`
+    query getSinglePlan($id: ID!) {
+  plan(id: $id) {
+    ...EditPlan
   }
 }
-    ${BillableMetricItemFragmentDoc}
-${DeleteBillableMetricDialogFragmentDoc}`;
+    ${EditPlanFragmentDoc}`;
 
 /**
- * __useBillableMetricsQuery__
+ * __useGetSinglePlanQuery__
  *
- * To run a query within a React component, call `useBillableMetricsQuery` and pass it any options that fit your needs.
- * When your component renders, `useBillableMetricsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetSinglePlanQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSinglePlanQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useBillableMetricsQuery({
+ * const { data, loading, error } = useGetSinglePlanQuery({
  *   variables: {
- *      page: // value for 'page'
- *      limit: // value for 'limit'
+ *      id: // value for 'id'
  *   },
  * });
  */
-export function useBillableMetricsQuery(baseOptions?: Apollo.QueryHookOptions<BillableMetricsQuery, BillableMetricsQueryVariables>) {
+export function useGetSinglePlanQuery(baseOptions: Apollo.QueryHookOptions<GetSinglePlanQuery, GetSinglePlanQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<BillableMetricsQuery, BillableMetricsQueryVariables>(BillableMetricsDocument, options);
+        return Apollo.useQuery<GetSinglePlanQuery, GetSinglePlanQueryVariables>(GetSinglePlanDocument, options);
       }
-export function useBillableMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BillableMetricsQuery, BillableMetricsQueryVariables>) {
+export function useGetSinglePlanLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSinglePlanQuery, GetSinglePlanQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<BillableMetricsQuery, BillableMetricsQueryVariables>(BillableMetricsDocument, options);
+          return Apollo.useLazyQuery<GetSinglePlanQuery, GetSinglePlanQueryVariables>(GetSinglePlanDocument, options);
         }
-export type BillableMetricsQueryHookResult = ReturnType<typeof useBillableMetricsQuery>;
-export type BillableMetricsLazyQueryHookResult = ReturnType<typeof useBillableMetricsLazyQuery>;
-export type BillableMetricsQueryResult = Apollo.QueryResult<BillableMetricsQuery, BillableMetricsQueryVariables>;
+export type GetSinglePlanQueryHookResult = ReturnType<typeof useGetSinglePlanQuery>;
+export type GetSinglePlanLazyQueryHookResult = ReturnType<typeof useGetSinglePlanLazyQuery>;
+export type GetSinglePlanQueryResult = Apollo.QueryResult<GetSinglePlanQuery, GetSinglePlanQueryVariables>;
 export const CreatePlanDocument = gql`
     mutation createPlan($input: CreatePlanInput!) {
   createPlan(input: $input) {
@@ -1172,6 +1263,79 @@ export function useCreatePlanMutation(baseOptions?: Apollo.MutationHookOptions<C
 export type CreatePlanMutationHookResult = ReturnType<typeof useCreatePlanMutation>;
 export type CreatePlanMutationResult = Apollo.MutationResult<CreatePlanMutation>;
 export type CreatePlanMutationOptions = Apollo.BaseMutationOptions<CreatePlanMutation, CreatePlanMutationVariables>;
+export const UpdatePlanDocument = gql`
+    mutation updatePlan($input: UpdatePlanInput!) {
+  updatePlan(input: $input) {
+    ...PlanItem
+    ...DeletePlanDialog
+  }
+}
+    ${PlanItemFragmentDoc}
+${DeletePlanDialogFragmentDoc}`;
+export type UpdatePlanMutationFn = Apollo.MutationFunction<UpdatePlanMutation, UpdatePlanMutationVariables>;
+
+/**
+ * __useUpdatePlanMutation__
+ *
+ * To run a mutation, you first call `useUpdatePlanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePlanMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePlanMutation, { data, loading, error }] = useUpdatePlanMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdatePlanMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePlanMutation, UpdatePlanMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePlanMutation, UpdatePlanMutationVariables>(UpdatePlanDocument, options);
+      }
+export type UpdatePlanMutationHookResult = ReturnType<typeof useUpdatePlanMutation>;
+export type UpdatePlanMutationResult = Apollo.MutationResult<UpdatePlanMutation>;
+export type UpdatePlanMutationOptions = Apollo.BaseMutationOptions<UpdatePlanMutation, UpdatePlanMutationVariables>;
+export const BillableMetricsDocument = gql`
+    query billableMetrics($page: Int, $limit: Int) {
+  billableMetrics(page: $page, limit: $limit) {
+    collection {
+      ...BillableMetricItem
+    }
+  }
+}
+    ${BillableMetricItemFragmentDoc}`;
+
+/**
+ * __useBillableMetricsQuery__
+ *
+ * To run a query within a React component, call `useBillableMetricsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBillableMetricsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBillableMetricsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useBillableMetricsQuery(baseOptions?: Apollo.QueryHookOptions<BillableMetricsQuery, BillableMetricsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<BillableMetricsQuery, BillableMetricsQueryVariables>(BillableMetricsDocument, options);
+      }
+export function useBillableMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BillableMetricsQuery, BillableMetricsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<BillableMetricsQuery, BillableMetricsQueryVariables>(BillableMetricsDocument, options);
+        }
+export type BillableMetricsQueryHookResult = ReturnType<typeof useBillableMetricsQuery>;
+export type BillableMetricsLazyQueryHookResult = ReturnType<typeof useBillableMetricsLazyQuery>;
+export type BillableMetricsQueryResult = Apollo.QueryResult<BillableMetricsQuery, BillableMetricsQueryVariables>;
 export const GetCustomerDocument = gql`
     query getCustomer($id: ID!) {
   customer(id: $id) {

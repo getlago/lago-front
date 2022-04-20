@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, generatePath } from 'react-router-dom'
 
 import { Typography, Button } from '~/components/designSystem'
-import { CREATE_PLAN_ROUTE } from '~/core/router'
+import { CREATE_PLAN_ROUTE, UPDATE_PLAN_ROUTE } from '~/core/router'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { theme, PageHeader, ListHeader } from '~/styles'
 import { useI18nContext } from '~/core/I18nContext'
@@ -32,6 +32,7 @@ const PlansList = () => {
   const list = data?.plans?.collection || []
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `plan-item-${i}`,
+    navigate: (id) => navigate(generatePath(UPDATE_PLAN_ROUTE, { id: String(id) })),
   })
   let index = -1
 
@@ -66,7 +67,7 @@ const PlansList = () => {
         />
       ) : (
         <div>
-          <ListHead>
+          <ListHead $withActions>
             <PlanNameSection>
               <Typography color="disabled" variant="bodyHl">
                 {translate('text_62442e40cea25600b0b6d852')}
@@ -89,7 +90,16 @@ const PlansList = () => {
             : list.map((plan) => {
                 index += 1
 
-                return <PlanItem key={plan.id} plan={plan} rowId={`plan-item-${index}`} />
+                return (
+                  <PlanItem
+                    key={plan.id}
+                    plan={plan}
+                    navigationProps={{
+                      id: `plan-item-${index}`,
+                      'data-id': plan.id,
+                    }}
+                  />
+                )
               })}
         </div>
       )}

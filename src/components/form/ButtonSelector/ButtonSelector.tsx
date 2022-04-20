@@ -7,6 +7,7 @@ import { ButtonGroup } from '~/styles'
 interface ButtonSelectorOption {
   value: string | number
   label?: string
+  disabled?: boolean
 }
 
 export interface ButtonSelectorProps {
@@ -16,6 +17,7 @@ export interface ButtonSelectorProps {
   value?: string | number
   error?: string
   infoText?: string
+  disabled?: boolean
   onChange: (value: string | number) => void
 }
 
@@ -26,6 +28,7 @@ export const ButtonSelector = ({
   value,
   error,
   infoText,
+  disabled,
   onChange,
 }: ButtonSelectorProps) => {
   return (
@@ -43,10 +46,11 @@ export const ButtonSelector = ({
         </Label>
       )}
       <ButtonGroup>
-        {options.map(({ value: optionValue, label: optionLabel }) => {
+        {options.map(({ value: optionValue, label: optionLabel, disabled: optionDisabled }) => {
           return (
             <TabButton
               outlined
+              disabled={disabled || optionDisabled}
               key={`button-selector-${optionValue}`}
               title={optionLabel ?? optionValue}
               active={value === optionValue}

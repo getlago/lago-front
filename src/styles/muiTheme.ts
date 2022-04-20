@@ -76,8 +76,13 @@ export const theme = createTheme({
             boxShadow: `0px 0px 0px 4px ${palette.primary[200]} !important`,
           },
           '&.Mui-disabled': {
+            backgroundColor: palette.grey[100],
             '& .MuiOutlinedInput-notchedOutline': {
               borderColor: palette.grey[300],
+            },
+            '& input': {
+              '-webkit-text-fill-color': 'inherit',
+              color: palette.grey[400],
             },
           },
         },

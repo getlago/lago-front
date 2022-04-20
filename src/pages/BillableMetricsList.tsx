@@ -7,11 +7,7 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { useI18nContext } from '~/core/I18nContext'
 import { theme, PageHeader, ListHeader } from '~/styles'
 import { CREATE_BILLABLE_METRIC_ROUTE, UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
-import {
-  useBillableMetricsQuery,
-  BillableMetricItemFragmentDoc,
-  DeleteBillableMetricDialogFragmentDoc,
-} from '~/generated/graphql'
+import { useBillableMetricsQuery, BillableMetricItemFragmentDoc } from '~/generated/graphql'
 import EmojiError from '~/public/images/exploding-head.png'
 import EmojiEmpty from '~/public/images/spider-web.png'
 import {
@@ -25,13 +21,11 @@ gql`
     billableMetrics(page: $page, limit: $limit) {
       collection {
         ...BillableMetricItem
-        ...DeleteBillableMetricDialog
       }
     }
   }
 
   ${BillableMetricItemFragmentDoc}
-  ${DeleteBillableMetricDialogFragmentDoc}
 `
 
 const BillableMetricsList = () => {

@@ -10,6 +10,7 @@ import { Typography } from './Typography'
 export interface TabButtonProps {
   active?: boolean
   title?: string | number
+  disabled?: boolean
   icon?: IconName | ReactNode
   canClickOnActive?: boolean
   className?: string
@@ -26,6 +27,7 @@ export const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(
       className,
       canClickOnActive = false,
       outlined = false,
+      disabled,
       onClick,
     }: TabButtonProps,
     ref
@@ -48,7 +50,8 @@ export const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(
         className={className}
         $active={!!active}
         $outlined={outlined}
-        disabled={!canClickOnActive && active}
+        disabled={(!canClickOnActive && active) || disabled}
+        $fullyDisabled={disabled}
         onClick={(e) => {
           e.preventDefault()
 
@@ -91,13 +94,13 @@ export const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(
 
 TabButton.displayName = 'TabButton'
 
-const Container = styled.button<{ $active: boolean; $outlined: boolean }>`
+const Container = styled.button<{ $active: boolean; $outlined: boolean; $fullyDisabled?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${(props) =>
-    props.$active ? theme.palette.grey[200] : theme.palette.common.white};
-  color: ${(props) => (props.$active ? theme.palette.primary.main : theme.palette.text.primary)};
+  background-color: ${({ $active }) =>
+    $active ? theme.palette.grey[200] : theme.palette.common.white};
+  color: ${({ $active }) => ($active ? theme.palette.primary.main : theme.palette.text.primary)};
   border-radius: 12px;
   transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
   ${({ $outlined, $active }) =>
@@ -112,14 +115,25 @@ const Container = styled.button<{ $active: boolean; $outlined: boolean }>`
     border-radius: 12px;
   }
 
-  ${(props) =>
-    !props.$active &&
+  ${({ $active, $fullyDisabled }) =>
+    !$active &&
+    !$fullyDisabled &&
     css`
       :hover {
         background-color: ${theme.palette.grey[200]};
         color: ${theme.palette.text.primary};
       }
     `}
+
+  ${({ $fullyDisabled, $active }) =>
+    $fullyDisabled &&
+    css`
+      cursor: default;
+      background-color: ${$active ? theme.palette.grey[100] : 'transparent'};
+      color: ${theme.palette.grey[400]};
+      box-shadow: none;
+    `}
+
 
   > *:not(:last-child) {
     margin-right: ${theme.spacing(2)};

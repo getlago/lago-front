@@ -4,7 +4,10 @@ import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { BillableMetricItemFragment } from '~/generated/graphql'
+import {
+  BillableMetricItemFragment,
+  DeleteBillableMetricDialogFragmentDoc,
+} from '~/generated/graphql'
 import {
   Typography,
   Avatar,
@@ -31,7 +34,10 @@ gql`
     code
     createdAt
     canBeDeleted
+    ...DeleteBillableMetricDialog
   }
+
+  ${DeleteBillableMetricDialogFragmentDoc}
 `
 
 interface BillableMetricItemProps {
