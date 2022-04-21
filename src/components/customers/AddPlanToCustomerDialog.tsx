@@ -120,7 +120,11 @@ export const AddPlanToCustomerDialog = forwardRef<DialogRef, AddPlanToCustomerDi
                 closeDialog()
               }}
             >
-              {translate('text_625434c7bb2cb40124c81a41')}
+              {translate(
+                existingPlanIds?.length
+                  ? 'text_62559eef7b0ccc015127e3a1'
+                  : 'text_625434c7bb2cb40124c81a41'
+              )}
             </Button>
           </>
         )}

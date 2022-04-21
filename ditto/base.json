@@ -230,13 +230,13 @@
       "text_624aa732d6af4e0103d40e7e": "Recurring",
       "text_624aa732d6af4e0103d40e80": "One time",
       "text_624aa732d6af4e0103d40e82": "This charge will have the same frequency as the plan’s frequency set above.",
+      "text_625e76067ef39a013e154b0c": "VAT rate (optional)",
+      "text_625e76067ef39a013e154b10": "Type a VAT percentage",
+      "text_625e76067ef39a013e154b14": "%",
       "text_624aa732d6af4e0103d40e8a": "Apply pro-rata for this metric",
       "text_624aa732d6af4e0103d40e8e": "If true, the Plan is distributed in equal portions during the period.",
       "text_624aa732d6af4e0103d40e92": "Add plan",
       "text_624c5eadff7db800acc4ca17": "Label",
-      "text_625e76067ef39a013e154b0c": "VAT rate (optional)",
-      "text_625e76067ef39a013e154b10": "Type a VAT percentage",
-      "text_625e76067ef39a013e154b14": "%",
       "text_624c5eadff7db800acc4c99d": "Description (optional)",
       "text_624d90e6a93343010cd14b3a": "Interval",
       "text_624d90e6a93343010cd14b46": "Frequency",
@@ -256,10 +256,10 @@
       "text_624c5eadff7db800acc4ca0a": "Model",
       "text_624d90e6a93343010cd14b61": "Frequency",
       "text_624aa79870f60300a3c4d089": "This charge will be counted as a unit for the period.",
-      "text_624c5eadff7db800acc4ca16": "Label",
       "text_625e76067ef39a013e154b0e": "VAT rate (optional)",
       "text_625e76067ef39a013e154b12": "Type a VAT percentage",
       "text_625e76067ef39a013e154b15": "%",
+      "text_624c5eadff7db800acc4ca16": "Label",
       "text_624ea7c29103fd010732ab7d": "Enter a number to move forward (use “.” for decimal)"
     },
     "project_624d9ad91a1c4d0149998c5b": {
@@ -343,7 +343,8 @@
       "text_62544f170d205200f09d5938": "Plan successfully added",
       "text_62559eef7b0ccc015127e38b": "Change customer plan",
       "text_62559eef7b0ccc015127e38d": "Upgrade, downgrade or just change the current plan to another.",
-      "text_62559eef7b0ccc015127e39d": "For a downgrade plan, it will be applied at the end of the current period. Some fees may be applied to your customer."
+      "text_62559eef7b0ccc015127e39d": "For a downgrade plan, it will be applied at the end of the current period. Some fees may be applied to your customer.",
+      "text_62559eef7b0ccc015127e3a1": "Change plan"
     },
     "project_6256de3622fcba00d9830a1e": {
       "text_6256de3bba111e00b3bfa51b": "Edit, delete",
@@ -381,5 +382,5 @@
       "text_625fd39a15394c0117e7d7aa": "This plan can’t be deleted because it’s linked to existing customers"
     }
   },
-  "exported_at": "2022-04-20T09:34:42.705Z"
+  "exported_at": "2022-04-21T12:34:21.162Z"
 }
