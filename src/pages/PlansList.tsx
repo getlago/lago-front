@@ -5,7 +5,7 @@ import { useNavigate, generatePath } from 'react-router-dom'
 import { Typography, Button } from '~/components/designSystem'
 import { CREATE_PLAN_ROUTE, UPDATE_PLAN_ROUTE } from '~/core/router'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { theme, PageHeader, ListHeader } from '~/styles'
+import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
 import { useI18nContext } from '~/core/I18nContext'
 import { usePlansQuery, PlanItemFragmentDoc } from '~/generated/graphql'
 import EmojiError from '~/public/images/exploding-head.png'
@@ -66,7 +66,7 @@ const PlansList = () => {
           image={<img src={EmojiEmpty} alt="empty-emoji" />}
         />
       ) : (
-        <div>
+        <ListContainer>
           <ListHead $withActions>
             <PlanNameSection>
               <Typography color="disabled" variant="bodyHl">
@@ -101,7 +101,7 @@ const PlansList = () => {
                   />
                 )
               })}
-        </div>
+        </ListContainer>
       )}
     </div>
   )

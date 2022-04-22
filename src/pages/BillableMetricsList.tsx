@@ -5,7 +5,7 @@ import { useNavigate, generatePath } from 'react-router-dom'
 import { Typography, Button } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { useI18nContext } from '~/core/I18nContext'
-import { theme, PageHeader, ListHeader } from '~/styles'
+import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
 import { CREATE_BILLABLE_METRIC_ROUTE, UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import { useBillableMetricsQuery, BillableMetricItemFragmentDoc } from '~/generated/graphql'
 import EmojiError from '~/public/images/exploding-head.png'
@@ -69,7 +69,7 @@ const BillableMetricsList = () => {
           image={<img src={EmojiEmpty} alt="empty-emoji" />}
         />
       ) : (
-        <div>
+        <ListContainer>
           <ListHead $withActions>
             <Typography color="disabled" variant="bodyHl">
               {translate('text_623b497ad05b960101be343e')}
@@ -96,7 +96,7 @@ const BillableMetricsList = () => {
                   />
                 )
               })}
-        </div>
+        </ListContainer>
       )}
     </div>
   )

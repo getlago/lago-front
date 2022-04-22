@@ -380,7 +380,28 @@
       "text_625fd39a15394c0117e7d792": "Edit",
       "text_625fd39a15394c0117e7d794": "Delete",
       "text_625fd39a15394c0117e7d7aa": "This plan can’t be deleted because it’s linked to existing customers"
+    },
+    "project_626162c105cb2c00e673c696": {
+      "text_626162c62f790600f850b728": "ID already existing on another customer",
+      "text_626162c62f790600f850b6fe": "Actions",
+      "text_626162c62f790600f850b70c": "Add a plan",
+      "text_626162c62f790600f850b718": "Edit customer info",
+      "text_626162c62f790600f850b726": "Delete customer",
+      "text_626162c62f790600f850b75a": "Edit",
+      "text_626162c62f790600f850b7da": "Customer successfully updated",
+      "text_626162c62f790600f850b6e8": "Delete {{customerFullName}}?",
+      "text_626162c62f790600f850b6f8": "By deleting this customer, you’ll not be able to retrieve it back. Fortunately, this customer is not link to plans. Are you sure?",
+      "text_626162c62f790600f850b712": "Delete customer",
+      "text_626162c62f790600f850b814": "Customer successfully deleted",
+      "text_626162c62f790600f850b7b6": "Edit, delete",
+      "text_626162c62f790600f850b836": "This customer can’t be deleted because she’s linked to an active or terminated subscription",
+      "text_6261640f28a49700f1290df3": "Edit",
+      "text_6261640f28a49700f1290df5": "Delete",
+      "text_6261712bff79eb00ed02906f": "Edit customer",
+      "text_6261712bff79eb00ed02907b": "Edit customer",
+      "text_6262658ead40f401000bc80f": "Change plan",
+      "text_6262658ead40f401000bc825": "This customer can’t be deleted because she’s linked to an active or terminated existing subscription"
     }
   },
-  "exported_at": "2022-04-21T12:34:21.162Z"
+  "exported_at": "2022-04-22T08:45:01.337Z"
 }

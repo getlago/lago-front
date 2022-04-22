@@ -49,3 +49,7 @@ export const ListHeader = styled.div<{ $withActions?: boolean }>`
       $withActions ? `0 ${theme.spacing(20)} 0 ${theme.spacing(4)} ` : `0 ${theme.spacing(4)}`};
   }
 `
+
+export const ListContainer = styled.div`
+  margin-bottom: ${theme.spacing(20)};
+`

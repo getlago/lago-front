@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useImperativeHandle, forwardRef } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { DateTime } from 'luxon'
@@ -24,6 +24,9 @@ gql`
   }
 `
 
+export interface CustomerSubscriptionsListRef {
+  openAddPlanDialog: () => void
+}
 interface CustomerSubscriptionsListProps {
   customerName: string
   customerId: string
@@ -52,92 +55,105 @@ const mapStatus = (type?: StatusTypeEnum | null) => {
   }
 }
 
-export const CustomerSubscriptionsList = ({
-  customerId,
-  customerName,
-  subscriptions,
-  refetchCustomer,
-}: CustomerSubscriptionsListProps) => {
-  const { translate } = useI18nContext()
-  const addPlanToCustomerDialogRef = useRef<AddPlanToCustomerDialogRef>(null)
-  const hasNoSubscription = !subscriptions || !subscriptions.length
-  const selectedPlansId = useMemo(
-    () =>
-      (subscriptions || []).reduce<string[]>((acc, s) => {
-        if ([StatusTypeEnum.Active, StatusTypeEnum.Pending].includes(s.status as StatusTypeEnum)) {
-          acc.push(s.plan?.id)
-        }
-        return acc
-      }, []),
-    [subscriptions]
-  )
+export const CustomerSubscriptionsList = forwardRef<
+  CustomerSubscriptionsListRef,
+  CustomerSubscriptionsListProps
+>(
+  (
+    { customerId, customerName, subscriptions, refetchCustomer }: CustomerSubscriptionsListProps,
+    ref
+  ) => {
+    const { translate } = useI18nContext()
+    const addPlanToCustomerDialogRef = useRef<AddPlanToCustomerDialogRef>(null)
+    const hasNoSubscription = !subscriptions || !subscriptions.length
+    const selectedPlansId = useMemo(
+      () =>
+        (subscriptions || []).reduce<string[]>((acc, s) => {
+          if (
+            [StatusTypeEnum.Active, StatusTypeEnum.Pending].includes(s.status as StatusTypeEnum)
+          ) {
+            acc.push(s.plan?.id)
+          }
+          return acc
+        }, []),
+      [subscriptions]
+    )
 
-  return (
-    <SideSection $empty={hasNoSubscription}>
-      <SectionHeader variant="subhead">
-        {translate('text_6250304370f0f700a8fdc28d')}
-        <Button
-          variant="secondary"
-          onClick={() => addPlanToCustomerDialogRef?.current?.openDialog()}
-        >
-          {hasNoSubscription
-            ? translate('text_6250304370f0f700a8fdc28b')
-            : translate('text_6253f11816f710014600b9e9')}
-        </Button>
-      </SectionHeader>
-      {hasNoSubscription ? (
-        <Typography>{translate('text_6250304370f0f700a8fdc28f')}</Typography>
-      ) : (
-        <>
-          <ListHeader>
-            <CellBigHeader variant="bodyHl" color="disabled" noWrap>
-              {translate('text_6253f11816f710014600b9ed')}
-            </CellBigHeader>
-            <CellSmall variant="bodyHl" color="disabled">
-              {translate('text_6253f11816f710014600b9ef')}
-            </CellSmall>
-            <CellSmall variant="bodyHl" color="disabled" align="right">
-              {translate('text_6253f11816f710014600b9f1')}
-            </CellSmall>
-          </ListHeader>
-          {subscriptions.map(({ id, plan, status, startedAt }) => {
-            const statusConfig = mapStatus(status)
+    useImperativeHandle(ref, () => ({
+      openAddPlanDialog: () => {
+        addPlanToCustomerDialogRef?.current?.openDialog()
+      },
+    }))
 
-            return (
-              <Item key={id}>
-                <CellBig>
-                  <Avatar variant="connector">
-                    <Icon name="clock" color="dark" />
-                  </Avatar>
-                  <NameBlock>
-                    <Typography color="textSecondary" variant="bodyHl" noWrap>
-                      {plan.name}
-                    </Typography>
-                    <Typography variant="caption" noWrap>
-                      {plan.code}
-                    </Typography>
-                  </NameBlock>
-                </CellBig>
-                <CellStatus type={statusConfig.type} label={translate(statusConfig.label)} />
-                <CellSmall align="right" color="textSecondary">
-                  {DateTime.fromISO(startedAt).toFormat('yyyy/LL/dd')}
-                </CellSmall>
-              </Item>
-            )
-          })}
-        </>
-      )}
+    return (
+      <SideSection $empty={hasNoSubscription}>
+        <SectionHeader variant="subhead">
+          {translate('text_6250304370f0f700a8fdc28d')}
+          <Button
+            variant="secondary"
+            onClick={() => addPlanToCustomerDialogRef?.current?.openDialog()}
+          >
+            {hasNoSubscription
+              ? translate('text_6250304370f0f700a8fdc28b')
+              : translate('text_6253f11816f710014600b9e9')}
+          </Button>
+        </SectionHeader>
+        {hasNoSubscription ? (
+          <Typography>{translate('text_6250304370f0f700a8fdc28f')}</Typography>
+        ) : (
+          <>
+            <ListHeader>
+              <CellBigHeader variant="bodyHl" color="disabled" noWrap>
+                {translate('text_6253f11816f710014600b9ed')}
+              </CellBigHeader>
+              <CellSmall variant="bodyHl" color="disabled">
+                {translate('text_6253f11816f710014600b9ef')}
+              </CellSmall>
+              <CellSmall variant="bodyHl" color="disabled" align="right">
+                {translate('text_6253f11816f710014600b9f1')}
+              </CellSmall>
+            </ListHeader>
+            {subscriptions.map(({ id, plan, status, startedAt }) => {
+              const statusConfig = mapStatus(status)
 
-      <AddPlanToCustomerDialog
-        ref={addPlanToCustomerDialogRef}
-        customerName={customerName}
-        customerId={customerId}
-        existingPlanIds={selectedPlansId}
-        refetchCustomer={refetchCustomer}
-      />
-    </SideSection>
-  )
-}
+              return (
+                <Item key={id}>
+                  <CellBig>
+                    <Avatar variant="connector">
+                      <Icon name="clock" color="dark" />
+                    </Avatar>
+                    <NameBlock>
+                      <Typography color="textSecondary" variant="bodyHl" noWrap>
+                        {plan.name}
+                      </Typography>
+                      <Typography variant="caption" noWrap>
+                        {plan.code}
+                      </Typography>
+                    </NameBlock>
+                  </CellBig>
+                  <CellStatus type={statusConfig.type} label={translate(statusConfig.label)} />
+                  <CellSmall align="right" color="textSecondary">
+                    {!startedAt ? '-' : DateTime.fromISO(startedAt).toFormat('yyyy/LL/dd')}
+                  </CellSmall>
+                </Item>
+              )
+            })}
+          </>
+        )}
+
+        <AddPlanToCustomerDialog
+          ref={addPlanToCustomerDialogRef}
+          customerName={customerName}
+          customerId={customerId}
+          existingPlanIds={selectedPlansId}
+          refetchCustomer={refetchCustomer}
+        />
+      </SideSection>
+    )
+  }
+)
+
+CustomerSubscriptionsList.displayName = 'CustomerSubscriptionsList'
 
 const ListHeader = styled.div`
   height: ${HEADER_TABLE_HEIGHT}px;

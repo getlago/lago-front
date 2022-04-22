@@ -1,33 +1,45 @@
+import { useRef } from 'react'
 import { gql } from '@apollo/client'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Typography, Button, Skeleton, Avatar } from '~/components/designSystem'
+import { Typography, Button, Skeleton, Avatar, Popper, Tooltip } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
 import { CUSTOMERS_LIST_ROUTE } from '~/core/router'
 import {
   useGetCustomerQuery,
   CustomerSubscriptionListFragmentDoc,
   CustomerInvoiceListFragmentDoc,
+  AddCustomerDialogDetailFragmentDoc,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import EmojiError from '~/public/images/exploding-head.png'
-import { CustomerSubscriptionsList } from '~/components/customers/CustomerSubscriptionsList'
+import {
+  CustomerSubscriptionsList,
+  CustomerSubscriptionsListRef,
+} from '~/components/customers/CustomerSubscriptionsList'
 import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
-import { theme, PageHeader } from '~/styles'
+import { theme, PageHeader, MenuPopper } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
+import {
+  DeleteCustomerDialog,
+  DeleteCustomerDialogRef,
+} from '~/components/customers/DeleteCustomerDialog'
+import { AddCustomerDialog, AddCustomerDialogRef } from '~/components/customers/AddCustomerDialog'
 
 gql`
   fragment CustomerDetails on CustomerDetails {
     id
     name
     customerId
-    subscriptions {
+    canBeDeleted
+    subscriptions(status: [active, pending]) {
       ...CustomerSubscriptionList
     }
     invoices {
       ...CustomerInvoiceList
     }
+    ...AddCustomerDialogDetail
   }
 
   query getCustomer($id: ID!) {
@@ -38,9 +50,13 @@ gql`
 
   ${CustomerSubscriptionListFragmentDoc}
   ${CustomerInvoiceListFragmentDoc}
+  ${AddCustomerDialogDetailFragmentDoc}
 `
 
 const CustomerDetails = () => {
+  const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
+  const editDialogRef = useRef<AddCustomerDialogRef>(null)
+  const subscriptionsListRef = useRef<CustomerSubscriptionsListRef>(null)
   const { translate } = useI18nContext()
   const navigate = useNavigate()
   const { id } = useParams()
@@ -48,25 +64,79 @@ const CustomerDetails = () => {
     variables: { id: id as string },
     skip: !id,
   })
-  const { name, customerId, invoices, subscriptions } = data?.customer || {}
+  const { name, customerId, invoices, subscriptions, canBeDeleted } = data?.customer || {}
 
   return (
     <div>
-      <Header $withSide>
-        <Button
-          variant="quaternary"
-          icon="arrow-left"
-          onClick={() => navigate(CUSTOMERS_LIST_ROUTE)}
-        />
-        {loading ? (
-          <Skeleton variant="text" height={12} width={120} />
-        ) : (
-          <Typography variant="bodyHl" color="textSecondary">
-            {name}
-          </Typography>
-        )}
-      </Header>
-      {error && !loading ? (
+      <PageHeader $withSide>
+        <HeaderLeft>
+          <Button
+            variant="quaternary"
+            icon="arrow-left"
+            onClick={() => navigate(CUSTOMERS_LIST_ROUTE)}
+          />
+          {loading ? (
+            <Skeleton variant="text" height={12} width={120} />
+          ) : (
+            <Typography variant="bodyHl" color="textSecondary">
+              {name}
+            </Typography>
+          )}
+        </HeaderLeft>
+        <Popper
+          PopperProps={{ placement: 'bottom-end' }}
+          opener={
+            <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
+          }
+        >
+          {({ closePopper }) => (
+            <MenuPopper>
+              <Button
+                variant="quaternary"
+                align="left"
+                onClick={() => {
+                  subscriptionsListRef?.current?.openAddPlanDialog()
+                  closePopper()
+                }}
+              >
+                {translate(
+                  !subscriptions?.length
+                    ? 'text_626162c62f790600f850b70c'
+                    : 'text_6262658ead40f401000bc80f'
+                )}
+              </Button>
+              <Button
+                variant="quaternary"
+                align="left"
+                onClick={() => {
+                  editDialogRef.current?.openDialog()
+                  closePopper()
+                }}
+              >
+                {translate('text_626162c62f790600f850b718')}
+              </Button>
+              <Tooltip
+                placement="bottom-end"
+                disableHoverListener={canBeDeleted}
+                title={translate('text_6262658ead40f401000bc825')}
+              >
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  disabled={!canBeDeleted}
+                  onClick={() => {
+                    deleteDialogRef.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_626162c62f790600f850b726')}
+                </Button>
+              </Tooltip>
+            </MenuPopper>
+          )}
+        </Popper>
+      </PageHeader>
+      {(error || !data?.customer) && !loading ? (
         <GenericPlaceholder
           title={translate('text_6250304370f0f700a8fdc270')}
           subtitle={translate('text_6250304370f0f700a8fdc274')}
@@ -76,110 +146,128 @@ const CustomerDetails = () => {
           image={<img src={EmojiError} alt="error-emoji" />}
         />
       ) : (
-        <Content>
-          {loading ? (
-            <>
-              <MainInfos>
-                <Skeleton variant="userAvatar" size="large" />
-                <div>
-                  <Skeleton
-                    variant="text"
-                    height={12}
-                    width={200}
-                    marginBottom={theme.spacing(5)}
+        <>
+          <Content>
+            {loading ? (
+              <>
+                <MainInfos>
+                  <Skeleton variant="userAvatar" size="large" />
+                  <div>
+                    <Skeleton
+                      variant="text"
+                      height={12}
+                      width={200}
+                      marginBottom={theme.spacing(5)}
+                    />
+                    <Skeleton variant="text" height={12} width={128} />
+                  </div>
+                </MainInfos>
+                <Infos>
+                  <LoadingDetails>
+                    <SectionHeader variant="subhead">
+                      {translate('text_6250304370f0f700a8fdc27d')}
+                    </SectionHeader>
+                    <div>
+                      <Skeleton
+                        variant="text"
+                        height={12}
+                        width={80}
+                        marginBottom={theme.spacing(3)}
+                      />
+                      <Skeleton variant="text" height={12} width={200} />
+                    </div>
+                    <div>
+                      <Skeleton
+                        variant="text"
+                        height={12}
+                        width={80}
+                        marginBottom={theme.spacing(3)}
+                      />
+                      <Skeleton variant="text" height={12} width={200} />
+                    </div>
+                  </LoadingDetails>
+                  <SideBlock>
+                    <SideLoadingSection>
+                      <SectionHeader variant="subhead">
+                        {translate('text_6250304370f0f700a8fdc28d')}
+                      </SectionHeader>
+                      <Skeleton variant="text" height={12} width={240} />
+                    </SideLoadingSection>
+                    <SideLoadingSection>
+                      <SectionHeader variant="subhead">
+                        {translate('text_6250304370f0f700a8fdc291')}
+                      </SectionHeader>
+                      <Skeleton variant="text" height={12} width={240} />
+                    </SideLoadingSection>
+                  </SideBlock>
+                </Infos>
+              </>
+            ) : (
+              <>
+                <MainInfos>
+                  <Avatar
+                    size="large"
+                    variant="user"
+                    identifier={name || ''}
+                    initials={(name || '').split(' ').reduce((acc, n) => (acc = acc + n[0]), '')}
                   />
-                  <Skeleton variant="text" height={12} width={128} />
-                </div>
-              </MainInfos>
-              <Infos>
-                <LoadingDetails>
-                  <SectionHeader variant="subhead">
-                    {translate('text_6250304370f0f700a8fdc27d')}
-                  </SectionHeader>
                   <div>
-                    <Skeleton
-                      variant="text"
-                      height={12}
-                      width={80}
-                      marginBottom={theme.spacing(3)}
-                    />
-                    <Skeleton variant="text" height={12} width={200} />
+                    <Name color="textSecondary" variant="headline">
+                      {name}
+                    </Name>
+                    <Typography>{customerId}</Typography>
                   </div>
-                  <div>
-                    <Skeleton
-                      variant="text"
-                      height={12}
-                      width={80}
-                      marginBottom={theme.spacing(3)}
-                    />
-                    <Skeleton variant="text" height={12} width={200} />
-                  </div>
-                </LoadingDetails>
-                <SideBlock>
-                  <SideLoadingSection>
+                </MainInfos>
+                <Infos>
+                  <DetailsBlock>
                     <SectionHeader variant="subhead">
-                      {translate('text_6250304370f0f700a8fdc28d')}
-                    </SectionHeader>
-                    <Skeleton variant="text" height={12} width={240} />
-                  </SideLoadingSection>
-                  <SideLoadingSection>
-                    <SectionHeader variant="subhead">
-                      {translate('text_6250304370f0f700a8fdc291')}
-                    </SectionHeader>
-                    <Skeleton variant="text" height={12} width={240} />
-                  </SideLoadingSection>
-                </SideBlock>
-              </Infos>
-            </>
-          ) : (
-            <>
-              <MainInfos>
-                <Avatar
-                  size="large"
-                  variant="user"
-                  identifier={name || ''}
-                  initials={(name || '').split(' ').reduce((acc, n) => (acc = acc + n[0]), '')}
-                />
-                <div>
-                  <Name color="textSecondary" variant="headline">
-                    {name}
-                  </Name>
-                  <Typography>{customerId}</Typography>
-                </div>
-              </MainInfos>
-              <Infos>
-                <DetailsBlock>
-                  <SectionHeader variant="subhead">
-                    {translate('text_6250304370f0f700a8fdc27d')}
-                  </SectionHeader>
+                      {translate('text_6250304370f0f700a8fdc27d')}
 
-                  <div>
-                    <Typography variant="caption">
-                      {translate('text_6250304370f0f700a8fdc283')}
-                    </Typography>
-                    <Typography color="textSecondary">{customerId}</Typography>
-                  </div>
-                </DetailsBlock>
-                <SideBlock>
-                  <CustomerSubscriptionsList
-                    customerName={name as string}
-                    customerId={customerId as string}
-                    subscriptions={subscriptions ?? []}
-                    refetchCustomer={refetch}
-                  />
-                  <CustomerInvoicesList invoices={invoices} />
-                </SideBlock>
-              </Infos>
-            </>
-          )}
-        </Content>
+                      <Button
+                        variant="secondary"
+                        onClick={() => editDialogRef?.current?.openDialog()}
+                      >
+                        {translate('text_626162c62f790600f850b75a')}
+                      </Button>
+                    </SectionHeader>
+
+                    <div>
+                      <Typography variant="caption">
+                        {translate('text_6250304370f0f700a8fdc283')}
+                      </Typography>
+                      <Typography color="textSecondary">{customerId}</Typography>
+                    </div>
+                  </DetailsBlock>
+                  <SideBlock>
+                    <CustomerSubscriptionsList
+                      ref={subscriptionsListRef}
+                      customerName={name as string}
+                      customerId={customerId as string}
+                      subscriptions={subscriptions ?? []}
+                      refetchCustomer={refetch}
+                    />
+                    <CustomerInvoicesList invoices={invoices} />
+                  </SideBlock>
+                </Infos>
+              </>
+            )}
+          </Content>
+          <AddCustomerDialog ref={editDialogRef} customer={data?.customer} />
+          <DeleteCustomerDialog
+            ref={deleteDialogRef}
+            onDeleted={() => navigate(CUSTOMERS_LIST_ROUTE)}
+            // @ts-ignore
+            customer={data?.customer}
+          />
+        </>
       )}
     </div>
   )
 }
 
-const Header = styled(PageHeader)`
-  justify-content: flex-start;
+const HeaderLeft = styled.div`
+  display: flex;
+  align-items: center;
 
   > *:first-child {
     margin-right: ${theme.spacing(3)};
