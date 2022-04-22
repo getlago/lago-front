@@ -11,7 +11,7 @@ import { useI18nContext } from '~/core/I18nContext'
 import { Typography, Button } from '~/components/designSystem'
 import { theme } from '~/styles'
 import { AddChargeDialog, AddChargeDialogRef } from '~/components/plans/AddChargeDialog'
-import { ChargeFrequency, ChargeModelEnum } from '~/generated/graphql'
+import { ChargeModelEnum } from '~/generated/graphql'
 
 import { PlanFormInput, LocalChargeInput } from './types'
 
@@ -257,7 +257,6 @@ export const PlanForm = ({ plan, children, onSave, isEdition }: PlanFormProps) =
               chargeModel: ChargeModelEnum.Standard,
               amountCents: undefined,
               amountCurrency: formikProps.values.amountCurrency, // TODO
-              frequency: ChargeFrequency.Recurring,
               proRata: false,
               vatRate: 0,
             },
