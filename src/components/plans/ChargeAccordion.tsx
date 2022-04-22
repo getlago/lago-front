@@ -6,8 +6,8 @@ import styled from 'styled-components'
 import { theme } from '~/styles'
 import { Button, Typography, Tooltip } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
-import { ChargeFrequency, ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
-import { ComboBox, ButtonSelector, TextInput } from '~/components/form'
+import { ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
+import { ComboBox, TextInput } from '~/components/form'
 
 import { PlanFormInput } from './types'
 
@@ -127,24 +127,6 @@ export const ChargeAccordion = ({
               onChange={(value) => handleUpdate('amountCurrency', value)}
             />
           </LineAmount>
-
-          <ButtonSelector
-            infoText={translate('text_624d9adba93343010cd14ca9')}
-            disabled={disabled}
-            label={translate('text_624d90e6a93343010cd14b62')}
-            options={[
-              {
-                label: translate('text_624aa732d6af4e0103d40e7e'),
-                value: ChargeFrequency.Recurring,
-              },
-              {
-                label: translate('text_624aa732d6af4e0103d40e80'),
-                value: ChargeFrequency.OneTime,
-              },
-            ]}
-            value={localCharge.frequency}
-            onChange={(value) => handleUpdate('frequency', value)}
-          />
 
           <TextInput
             name="vatRate"

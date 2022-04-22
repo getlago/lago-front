@@ -36,7 +36,6 @@ gql`
       }
       amountCents
       amountCurrency
-      frequency
       chargeModel
       proRata
       vatRate
