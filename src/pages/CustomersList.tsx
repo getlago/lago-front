@@ -6,7 +6,7 @@ import { Typography, Button } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { useCustomersQuery, CustomerItemFragmentDoc } from '~/generated/graphql'
 import { useI18nContext } from '~/core/I18nContext'
-import { theme, PageHeader, ListHeader } from '~/styles'
+import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
 import EmojiError from '~/public/images/exploding-head.png'
 import EmojiEmpty from '~/public/images/spider-web.png'
 import { AddCustomerDialog, AddCustomerDialogRef } from '~/components/customers/AddCustomerDialog'
@@ -65,8 +65,8 @@ const CustomersList = () => {
           image={<img src={EmojiEmpty} alt="empty-emoji" />}
         />
       ) : (
-        <>
-          <ListHead>
+        <ListContainer>
+          <ListHead $withActions>
             <PlanNameSection>
               <Typography color="disabled" variant="bodyHl">
                 {translate('text_624efab67eb2570101d117cc')}
@@ -97,7 +97,7 @@ const CustomersList = () => {
                   />
                 )
               })}
-        </>
+        </ListContainer>
       )}
 
       <AddCustomerDialog ref={addCustomerDialogRef} />

@@ -1,14 +1,32 @@
-import { memo } from 'react'
+import { memo, useRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { useNavigate, generatePath } from 'react-router-dom'
 
-import { theme, BaseListItem, ListItem } from '~/styles'
-import { Avatar, Typography, Skeleton, Status, StatusEnum } from '~/components/designSystem'
-import { CustomerItemFragment, StatusTypeEnum } from '~/generated/graphql'
+import { theme, BaseListItem, ListItem, MenuPopper } from '~/styles'
+import {
+  Avatar,
+  Typography,
+  Skeleton,
+  Status,
+  StatusEnum,
+  Popper,
+  Button,
+  Tooltip,
+} from '~/components/designSystem'
+import {
+  CustomerItemFragment,
+  StatusTypeEnum,
+  AddCustomerDialogFragmentDoc,
+} from '~/generated/graphql'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { useI18nContext } from '~/core/I18nContext'
+import {
+  DeleteCustomerDialog,
+  DeleteCustomerDialogRef,
+} from '~/components/customers/DeleteCustomerDialog'
+import { AddCustomerDialog, AddCustomerDialogRef } from '~/components/customers/AddCustomerDialog'
 
 gql`
   fragment CustomerItem on Customer {
@@ -16,6 +34,7 @@ gql`
     name
     customerId
     createdAt
+    canBeDeleted
     subscriptions {
       id
       status
@@ -24,7 +43,10 @@ gql`
         name
       }
     }
+    ...AddCustomerDialog
   }
+
+  ${AddCustomerDialogFragmentDoc}
 `
 
 interface CustomerItemProps {
@@ -52,8 +74,15 @@ const mapStatus = (type?: StatusTypeEnum | null) => {
   }
 }
 
+const preventOnClickPropagation = (e: React.MouseEvent<HTMLDivElement>) => {
+  e.stopPropagation()
+  e.preventDefault()
+}
+
 export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
-  const { id, name, customerId, subscriptions, createdAt } = customer
+  const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
+  const editDialogRef = useRef<AddCustomerDialogRef>(null)
+  const { id, name, customerId, subscriptions, createdAt, canBeDeleted } = customer
   const subscription = !subscriptions || !subscriptions[0] ? null : subscriptions[0]
   const status = mapStatus(subscription?.status)
   const { translate } = useI18nContext()
@@ -89,6 +118,59 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
         </SmallCell>
         <SmallCell align="right">{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</SmallCell>
       </PlanInfosSection>
+      <Popper
+        PopperProps={{ placement: 'bottom-end' }}
+        opener={({ isOpen }) => (
+          // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+          <div onClick={preventOnClickPropagation}>
+            <div>
+              <Tooltip
+                placement="top-end"
+                disableHoverListener={isOpen}
+                title={translate('text_626162c62f790600f850b7b6')}
+              >
+                <Button icon="dots-horizontal" variant="quaternary" />
+              </Tooltip>
+            </div>
+          </div>
+        )}
+      >
+        {({ closePopper }) => (
+          <MenuPopper onClick={preventOnClickPropagation}>
+            <Button
+              startIcon="pen"
+              variant="quaternary"
+              align="left"
+              onClick={() => {
+                editDialogRef.current?.openDialog()
+                closePopper()
+              }}
+            >
+              {translate('text_6261640f28a49700f1290df3')}
+            </Button>
+            <Tooltip
+              disableHoverListener={canBeDeleted}
+              title={translate('text_626162c62f790600f850b836')}
+              placement="bottom-end"
+            >
+              <Button
+                startIcon="trash"
+                variant="quaternary"
+                disabled={!canBeDeleted}
+                align="left"
+                onClick={() => {
+                  deleteDialogRef.current?.openDialog()
+                  closePopper()
+                }}
+              >
+                {translate('text_6261640f28a49700f1290df5')}
+              </Button>
+            </Tooltip>
+          </MenuPopper>
+        )}
+      </Popper>
+      <AddCustomerDialog ref={editDialogRef} customer={customer} />
+      <DeleteCustomerDialog ref={deleteDialogRef} customer={customer} />
     </Item>
   )
 })

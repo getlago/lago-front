@@ -17,5 +17,7 @@ projects:
     id: 624ef2f26583e200fe08b6fd
   - name: "\U0001F44D [Ready for dev] - All - Edit & delete ≠ objects"
     id: 6256de3622fcba00d9830a1e
+  - name: "\U0001F44D [Ready for dev] - Customers - Edit & delete a customer"
+    id: 626162c105cb2c00e673c696
 format: flat
 variants: true
