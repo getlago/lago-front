@@ -55,7 +55,6 @@ export const PlanForm = ({ plan, children, onSave, isEdition }: PlanFormProps) =
           chargeModel: string().required(''),
           amountCents: string().required(''),
           amountCurrency: string().required(''),
-          frequency: string().required(''),
         })
       ),
     }),
