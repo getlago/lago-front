@@ -242,7 +242,7 @@ const CustomerDetails = () => {
                     <CustomerSubscriptionsList
                       ref={subscriptionsListRef}
                       customerName={name as string}
-                      customerId={customerId as string}
+                      customerId={id as string}
                       subscriptions={subscriptions ?? []}
                       refetchCustomer={refetch}
                     />

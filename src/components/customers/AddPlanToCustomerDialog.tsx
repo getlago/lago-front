@@ -44,11 +44,11 @@ interface AddPlanToCustomerDialogProps {
 
 export const AddPlanToCustomerDialog = forwardRef<DialogRef, AddPlanToCustomerDialogProps>(
   (
-    { customerName, customerId, existingPlanIds, refetchCustomer }: AddPlanToCustomerDialogProps,
+    { customerId, customerName, existingPlanIds, refetchCustomer }: AddPlanToCustomerDialogProps,
     ref
   ) => {
     const { translate } = useI18nContext()
-    const [planCode, setPlanCode] = useState<string>()
+    const [planId, setPlanId] = useState<string>()
     const [getPlans, { loading, data }] = useGetPlansLazyQuery()
     const [create] = useCreateSubscriptionMutation({
       onCompleted: async ({ createSubscription }) => {
@@ -65,10 +65,10 @@ export const AddPlanToCustomerDialog = forwardRef<DialogRef, AddPlanToCustomerDi
     const plans = useMemo(() => {
       if (!data || !data?.plans || !data?.plans?.collection) return []
 
-      return data?.plans?.collection.map(({ id, name, code }) => {
+      return data?.plans?.collection.map(({ id, name }) => {
         return {
           label: name,
-          value: code,
+          value: id,
           disabled: existingPlanIds && existingPlanIds.includes(id),
         }
       })
@@ -99,24 +99,24 @@ export const AddPlanToCustomerDialog = forwardRef<DialogRef, AddPlanToCustomerDi
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                setPlanCode(undefined)
+                setPlanId(undefined)
               }}
             >
               {translate('text_6244277fe0975300fe3fb94a')}
             </Button>
             <Button
-              disabled={!planCode}
+              disabled={!planId}
               onClick={async () => {
                 await create({
                   variables: {
                     input: {
-                      customerId: customerId,
-                      planCode: planCode as string,
+                      customerId,
+                      planId: planId as string,
                     },
                   },
                   refetchQueries: ['getCustomer'],
                 })
-                setPlanCode(undefined)
+                setPlanId(undefined)
                 closeDialog()
               }}
             >
@@ -131,14 +131,14 @@ export const AddPlanToCustomerDialog = forwardRef<DialogRef, AddPlanToCustomerDi
       >
         <StyledComboBox
           label={translate('text_625434c7bb2cb40124c81a29')}
-          value={planCode}
+          value={planId}
           data={plans}
           loading={loading}
           loadingText={translate('text_625434c7bb2cb40124c81a35')}
           placeholder={translate('text_625434c7bb2cb40124c81a31')}
           emptyText={translate('text_625434c7bb2cb40124c81a37')}
           PopperProps={{ displayInDialog: true }}
-          onChange={(value) => setPlanCode(value)}
+          onChange={(value) => setPlanId(value)}
         />
 
         {!!existingPlanIds?.length && (
