@@ -1,4 +1,4 @@
-import { forwardRef, useEffect } from 'react'
+import { forwardRef, useEffect, RefObject } from 'react'
 import { gql } from '@apollo/client'
 import { useNavigate, generatePath } from 'react-router-dom'
 import styled from 'styled-components'
@@ -8,7 +8,7 @@ import { object, string } from 'yup'
 import { Dialog, Button, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { useI18nContext } from '~/core/I18nContext'
-import { addToast } from '~/core/apolloClient'
+import { addToast, LagoGQLError } from '~/core/apolloClient'
 import { theme } from '~/styles'
 import {
   useCreateCustomerMutation,
@@ -19,6 +19,7 @@ import {
   CreateCustomerInput,
   UpdateCustomerInput,
   AddCustomerDialogDetailFragmentDoc,
+  Lago_Api_Error,
 } from '~/generated/graphql'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 
@@ -65,6 +66,7 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
     const { translate } = useI18nContext()
     const navigate = useNavigate()
     const [create] = useCreateCustomerMutation({
+      context: { silentErrorCode: [Lago_Api_Error.UnprocessableEntity] },
       onCompleted({ createCustomer }) {
         if (!!createCustomer) {
           addToast({
@@ -93,6 +95,7 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
         })
       },
     })
+
     const formikProps = useFormik<CreateCustomerInput | UpdateCustomerInput>({
       initialValues: {
         name: customer?.name ?? '',
@@ -102,13 +105,30 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
         name: string().required(''),
         customerId: string().required(''),
       }),
-      onSubmit: async (values) => {
+      onSubmit: async (values, formikBag) => {
+        let answer = undefined
+
         if (isEdition) {
-          await update({
+          answer = await update({
             variables: { input: { id: customer?.id as string, ...values } },
           })
         } else {
-          await create({ variables: { input: values } })
+          answer = await create({ variables: { input: values } })
+        }
+
+        const { errors } = answer
+
+        const error = !errors ? undefined : (errors[0]?.extensions as LagoGQLError['extensions'])
+
+        if (
+          !!error &&
+          error?.code === Lago_Api_Error.UnprocessableEntity &&
+          !!error?.details?.customerId
+        ) {
+          formikBag.setFieldError('customerId', translate('text_626162c62f790600f850b728'))
+        } else {
+          ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()
+          !isEdition && formikBag.resetForm()
         }
       },
     })
@@ -139,11 +159,8 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
             <Button
               disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
               onClick={async () => {
-                await formikProps.submitForm()
-                if (!isEdition) {
-                  formikProps.resetForm()
-                }
-                closeDialog()
+                await formikProps.handleSubmit()
+                // closeDialog()
               }}
             >
               {translate(

@@ -15,6 +15,7 @@ import { typeDefs, resolvers } from './graphqlResolvers'
 export interface LagoGQLError extends GraphQLError {
   extensions: {
     code: Lago_Api_Error
+    details: Record<string, string[]>
   }
 }
 
