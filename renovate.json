@@ -4,7 +4,6 @@
   "prHourlyLimit": 10,
   "prCreation": "not-pending",
   "stabilityDays": 3,
-  "schedule": ["after 1am before 8am"],
   "addLabels": ["🔗 dependencies"],
   "packageRules": [
     {
