@@ -98,7 +98,7 @@
     "react-window": "1.8.7",
     "sanitize-html": "2.5.3",
     "styled-components": "5.3.5",
-    "yarn": "1.22.17",
+    "yarn": "1.22.18",
     "yup": "0.32.11"
   },
   "resolutions": {
