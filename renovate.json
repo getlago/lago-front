@@ -1,5 +1,26 @@
 {
-  "extends": [
-    "config:base"
+  "extends": ["config:base"],
+  "prConcurrentLimit": 5,
+  "schedule": ["after 1am before 8am"],
+  "stabilityDays": 3,
+  "packageRules": [
+    {
+      "updateTypes": ["major"],
+      "addLabels": ["🔗 dependencies"],
+      "automerge": false,
+      "commitMessagePrefix": "[major]"
+    },
+    {
+      "updateTypes": ["minor"],
+      "addLabels": ["🔗 dependencies"],
+      "automerge": false,
+      "commitMessagePrefix": "[minor]"
+    },
+    {
+      "updateTypes": ["patch", "digest", "bump"],
+      "addLabels": ["🔗 dependencies"],
+      "commitMessagePrefix": "[patches]",
+      "automerge": true
+    }
   ]
 }
