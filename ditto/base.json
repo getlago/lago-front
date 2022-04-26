@@ -297,6 +297,8 @@
       "text_624efab67eb2570101d117d8": "Please refresh the page or contact us if the error persists.",
       "text_624efab67eb2570101d117e0": "Refresh the page",
       "text_6250304370f0f700a8fdc27d": "Details",
+      "text_62681362c41e7401718e79fc": "Full name",
+      "text_62681362c41e7401718e7a02": "John Doe",
       "text_6250304370f0f700a8fdc283": "External ID",
       "text_6250304370f0f700a8fdc28b": "Add a plan",
       "text_6250304370f0f700a8fdc28d": "Subscription",
@@ -307,6 +309,8 @@
       "text_6250304370f0f700a8fdc270": "Something went wrong",
       "text_6250304370f0f700a8fdc274": "Please refresh the page or contact us if the error persists.",
       "text_6250304370f0f700a8fdc278": "Refresh the page",
+      "text_62681362c41e7401718e79fe": "Full name",
+      "text_62681362c41e7401718e7a03": "John Doe",
       "text_6253f11816f710014600b9e9": "Change plan",
       "text_6253f11816f710014600b9ed": "Plan name",
       "text_6253f11816f710014600b9ef": "Subscription",
@@ -340,11 +344,14 @@
       "text_625434c7bb2cb40124c81a35": "Doing some science, we’re loading your plans ...",
       "text_625434c7bb2cb40124c81a37": "No plans",
       "text_625434c7bb2cb40124c81a43": "An error occured, we can’t load your plans right now.",
+      "text_62681362c41e7401718e7a00": "Full name",
+      "text_62681362c41e7401718e7a04": "John Doe",
       "text_62544f170d205200f09d5938": "Plan successfully added",
       "text_62559eef7b0ccc015127e38b": "Change customer plan",
       "text_62559eef7b0ccc015127e38d": "Upgrade, downgrade or just change the current plan to another.",
       "text_62559eef7b0ccc015127e39d": "For a downgrade plan, it will be applied at the end of the current period. Some fees may be applied to your customer.",
-      "text_62559eef7b0ccc015127e3a1": "Change plan"
+      "text_62559eef7b0ccc015127e3a1": "Change plan",
+      "text_62681c60582e4f00aa82938a": "Downgrading to {{planName}} at {{dateStartNewPlan}}"
     },
     "project_6256de3622fcba00d9830a1e": {
       "text_6256de3bba111e00b3bfa51b": "Edit, delete",
@@ -388,6 +395,7 @@
       "text_626162c62f790600f850b718": "Edit customer info",
       "text_626162c62f790600f850b726": "Delete customer",
       "text_626162c62f790600f850b75a": "Edit",
+      "text_626162c62f790600f850b76a": "Full name",
       "text_626162c62f790600f850b7da": "Customer successfully updated",
       "text_626162c62f790600f850b6e8": "Delete {{customerFullName}}?",
       "text_626162c62f790600f850b6f8": "By deleting this customer, you’ll not be able to retrieve it back. Fortunately, this customer is not link to plans. Are you sure?",
@@ -403,5 +411,5 @@
       "text_6262658ead40f401000bc825": "This customer can’t be deleted because she’s linked to an active or terminated existing subscription"
     }
   },
-  "exported_at": "2022-04-22T08:45:01.337Z"
+  "exported_at": "2022-04-26T16:24:16.011Z"
 }

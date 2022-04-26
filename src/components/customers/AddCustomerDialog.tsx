@@ -66,7 +66,7 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
     const { translate } = useI18nContext()
     const navigate = useNavigate()
     const [create] = useCreateCustomerMutation({
-      context: { silentErrorCode: [Lago_Api_Error.UnprocessableEntity] },
+      context: { silentErrorCodes: [Lago_Api_Error.UnprocessableEntity] },
       onCompleted({ createCustomer }) {
         if (!!createCustomer) {
           addToast({
@@ -78,6 +78,7 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
       },
     })
     const [update] = useUpdateCustomerMutation({
+      context: { silentErrorCodes: [Lago_Api_Error.UnprocessableEntity] },
       onCompleted({ updateCustomer }) {
         if (!!updateCustomer) {
           addToast({
@@ -135,7 +136,12 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
     const isEdition = !!customer
 
     useEffect(() => {
-      formikProps.setValues({ name: customer?.name ?? '', customerId: customer?.customerId ?? '' })
+      formikProps.resetForm({
+        values: {
+          name: customer?.name ?? '',
+          customerId: customer?.customerId ?? '',
+        },
+      })
     }, [customer])
 
     return (
@@ -151,17 +157,20 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                formikProps.resetForm()
+                formikProps.resetForm({
+                  values: {
+                    name: customer?.name ?? '',
+                    customerId: customer?.customerId ?? '',
+                  },
+                })
               }}
             >
               {translate('text_6244277fe0975300fe3fb94a')}
             </Button>
             <Button
               disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
-              onClick={async () => {
-                await formikProps.handleSubmit()
-                // closeDialog()
-              }}
+              loading={formikProps.isSubmitting}
+              onClick={async () => await formikProps.handleSubmit()}
             >
               {translate(
                 isEdition ? 'text_6261712bff79eb00ed02907b' : 'text_624efab67eb2570101d117eb'
