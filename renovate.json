@@ -1,6 +1,6 @@
 {
   "extends": ["config:base"],
-  "prConcurrentLimit": 5,
+  "prConcurrentLimit": 10,
   "schedule": ["after 1am before 8am"],
   "stabilityDays": 3,
   "packageRules": [
@@ -8,18 +8,18 @@
       "updateTypes": ["major"],
       "addLabels": ["🔗 dependencies"],
       "automerge": false,
-      "commitMessagePrefix": "[major]"
+      "commitMessagePrefix": "chore(deps-major)"
     },
     {
       "updateTypes": ["minor"],
       "addLabels": ["🔗 dependencies"],
       "automerge": false,
-      "commitMessagePrefix": "[minor]"
+      "commitMessagePrefix": "chore(deps-minor)"
     },
     {
       "updateTypes": ["patch", "digest", "bump"],
       "addLabels": ["🔗 dependencies"],
-      "commitMessagePrefix": "[patches]",
+      "commitMessagePrefix": "chore(deps)",
       "automerge": true
     }
   ]
