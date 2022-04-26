@@ -78,6 +78,10 @@ export const CustomerSubscriptionsList = forwardRef<
         }, []),
       [subscriptions]
     )
+    const downgradingTo =
+      !!subscriptions && !!subscriptions.length
+        ? subscriptions.find((s) => s.status === StatusTypeEnum.Pending)
+        : undefined
 
     useImperativeHandle(ref, () => ({
       openAddPlanDialog: () => {
@@ -138,6 +142,16 @@ export const CustomerSubscriptionsList = forwardRef<
                 </Item>
               )
             })}
+            {downgradingTo && (
+              <DowngradeInfo variant="caption">
+                {translate('text_62681c60582e4f00aa82938a', {
+                  planName: downgradingTo?.plan?.name,
+                  dateStartNewPlan: DateTime.fromISO(downgradingTo?.startedAt).toFormat(
+                    'yyyy/LL/dd'
+                  ),
+                })}
+              </DowngradeInfo>
+            )}
           </>
         )}
 
@@ -205,4 +219,12 @@ const Item = styled.div`
   > *:not(:last-child) {
     margin-right: ${theme.spacing(6)};
   }
+`
+
+const DowngradeInfo = styled(Typography)`
+  height: ${HEADER_TABLE_HEIGHT}px;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  box-shadow: ${theme.shadows[7]};
 `

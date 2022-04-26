@@ -237,6 +237,7 @@ export const PlanForm = ({ plan, children, onSave, isEdition }: PlanFormProps) =
           disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
           fullWidth
           size="large"
+          loading={formikProps.isSubmitting}
           onClick={formikProps.submitForm}
         >
           {translate(isEdition ? 'text_625fd165963a7b00c8f598aa' : 'text_624453d52e945301380e49d4')}

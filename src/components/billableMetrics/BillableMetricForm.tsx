@@ -105,6 +105,7 @@ export const BillableMetricForm = ({
           disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
           fullWidth
           size="large"
+          loading={formikProps.isSubmitting}
           onClick={formikProps.submitForm}
         >
           {translate(isEdition ? 'text_62582fb4675ece01137a7e6c' : 'text_623b42ff8ee4e000ba87d0d4')}

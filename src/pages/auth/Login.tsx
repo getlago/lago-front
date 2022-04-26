@@ -99,7 +99,12 @@ const Login = () => {
           placeholder={translate('text_620bc4d4269a55014d493f5b')}
         />
 
-        <SubmitButton fullWidth size="large" onClick={formikProps.submitForm}>
+        <SubmitButton
+          fullWidth
+          size="large"
+          loading={formikProps.isSubmitting}
+          onClick={formikProps.submitForm}
+        >
           {translate('text_620bc4d4269a55014d493f6d')}
         </SubmitButton>
 

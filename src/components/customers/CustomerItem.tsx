@@ -83,7 +83,10 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
   const editDialogRef = useRef<AddCustomerDialogRef>(null)
   const { id, name, customerId, subscriptions, createdAt, canBeDeleted } = customer
-  const subscription = !subscriptions || !subscriptions[0] ? null : subscriptions[0]
+  const subscription =
+    !subscriptions || !subscriptions.length
+      ? null
+      : subscriptions.find((s) => s.status === StatusTypeEnum.Active)
   const status = mapStatus(subscription?.status)
   const { translate } = useI18nContext()
   const navigate = useNavigate()
