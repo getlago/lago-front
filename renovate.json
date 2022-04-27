@@ -6,6 +6,9 @@
   "stabilityDays": 3,
   "addLabels": ["🔗 dependencies"],
   "schedule": ["after 1am before 8am"],
+  "dependencyDashboardTitle": "👷‍♀️ Dependency Dashboard",
+  "dependencyDashboardHeader": "[👮‍♂️ Do not close]. This issue provides visibility into Renovate updates and their statuses. [Learn more](https://docs.renovatebot.com/key-concepts/dashboard/)",
+  "dependencyDashboardLabels": ["🙅 Don't close"],
   "packageRules": [
     {
       "updateTypes": ["major"],
