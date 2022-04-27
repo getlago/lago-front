@@ -19,5 +19,7 @@ projects:
     id: 6256de3622fcba00d9830a1e
   - name: "\U0001F44D [Ready for dev] - Customers - Edit & delete a customer"
     id: 626162c105cb2c00e673c696
+  - name: "\U0001F44D [Ready for dev] -  B.metrics - Add Sum / Max / Count unique aggregation type to b.metrics"
+    id: 62694d8eb0d327016e05c5b5
 format: flat
 variants: true
