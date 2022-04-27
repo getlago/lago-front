@@ -16,6 +16,7 @@ gql`
     id
     status
     startedAt
+    pendingStartDate
     plan {
       id
       name
@@ -117,7 +118,7 @@ export const CustomerSubscriptionsList = forwardRef<
                 {translate('text_6253f11816f710014600b9f1')}
               </CellSmall>
             </ListHeader>
-            {subscriptions.map(({ id, plan, status, startedAt }) => {
+            {subscriptions.map(({ id, plan, status, startedAt, pendingStartDate }) => {
               const statusConfig = mapStatus(status)
 
               return (
@@ -137,7 +138,7 @@ export const CustomerSubscriptionsList = forwardRef<
                   </CellBig>
                   <CellStatus type={statusConfig.type} label={translate(statusConfig.label)} />
                   <CellSmall align="right" color="textSecondary">
-                    {!startedAt ? '-' : DateTime.fromISO(startedAt).toFormat('yyyy/LL/dd')}
+                    { startedAt ? DateTime.fromISO(startedAt).toFormat('yyyy/LL/dd') : DateTime.fromISO(pendingStartDate).toFormat('yyyy/LL/dd') }
                   </CellSmall>
                 </Item>
               )
@@ -146,7 +147,7 @@ export const CustomerSubscriptionsList = forwardRef<
               <DowngradeInfo variant="caption">
                 {translate('text_62681c60582e4f00aa82938a', {
                   planName: downgradingTo?.plan?.name,
-                  dateStartNewPlan: DateTime.fromISO(downgradingTo?.startedAt).toFormat(
+                  dateStartNewPlan: DateTime.fromISO(downgradingTo?.pendingStartDate).toFormat(
                     'yyyy/LL/dd'
                   ),
                 })}

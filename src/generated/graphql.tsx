@@ -1072,6 +1072,7 @@ export type Subscription = {
   customer: Customer;
   id: Scalars['ID'];
   nextPlan?: Maybe<Plan>;
+  pendingStartDate?: Maybe<Scalars['ISO8601Date']>;
   plan: Plan;
   startedAt?: Maybe<Scalars['ISO8601DateTime']>;
   status?: Maybe<StatusTypeEnum>;
@@ -1196,13 +1197,13 @@ export type CreateSubscriptionMutationVariables = Exact<{
 }>;
 
 
-export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } } | null };
+export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } } | null };
 
 export type CustomerInvoiceListFragment = { __typename?: 'Invoice', id: string, issuingDate: any, amountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null };
 
 export type CustomerItemFragment = { __typename?: 'Customer', id: string, name?: string | null, customerId: string, createdAt: any, canBeDeleted: boolean, subscriptions?: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string } }> | null };
 
-export type CustomerSubscriptionListFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } };
+export type CustomerSubscriptionListFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } };
 
 export type DeleteCustomerDialogFragment = { __typename?: 'Customer', id: string, name?: string | null };
 
@@ -1288,14 +1289,14 @@ export type BillableMetricsQueryVariables = Exact<{
 
 export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, canBeDeleted: boolean }> } };
 
-export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, issuingDate: any, amountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null }> | null };
+export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, issuingDate: any, amountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null }> | null };
 
 export type GetCustomerQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, issuingDate: any, amountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null }> | null } | null };
+export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, issuingDate: any, amountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null }> | null } | null };
 
 export type CustomersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -1459,6 +1460,7 @@ export const CustomerSubscriptionListFragmentDoc = gql`
   id
   status
   startedAt
+  pendingStartDate
   plan {
     id
     name
