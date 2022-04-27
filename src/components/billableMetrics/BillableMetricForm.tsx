@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { useFormik } from 'formik'
 import { object, string } from 'yup'
 import styled from 'styled-components'
@@ -34,15 +34,30 @@ export const BillableMetricForm = ({
       description: billableMetric?.description ?? '',
       // @ts-ignore
       aggregationType: billableMetric?.aggregationType ?? '',
+      fieldName: billableMetric?.fieldName ?? undefined,
     },
     validationSchema: object().shape({
       name: string().required(''),
       code: string().required(''),
       aggregationType: string().required(''),
+      fieldName: string().when('aggregationType', {
+        is: (aggregationType: AggregationTypeEnum) =>
+          !!aggregationType && aggregationType !== AggregationTypeEnum.CountAgg,
+        then: string().required(),
+      }),
     }),
     validateOnMount: true,
     onSubmit: onSave,
   })
+
+  useEffect(() => {
+    if (
+      formikProps.values.aggregationType === AggregationTypeEnum.CountAgg &&
+      !!formikProps.values.fieldName
+    ) {
+      formikProps.setFieldValue('fieldName', undefined)
+    }
+  }, [formikProps.values.aggregationType, formikProps.values.fieldName])
 
   return (
     <>
@@ -79,7 +94,7 @@ export const BillableMetricForm = ({
       <Card>
         <SectionTitle variant="subhead">{translate('text_623b42ff8ee4e000ba87d0cc')}</SectionTitle>
 
-        <ComboBoxField
+        <StyledComboBoxField
           name="aggregationType"
           disabled={isEdition && !billableMetric?.canBeDeleted}
           label={translate('text_623b42ff8ee4e000ba87d0ce')}
@@ -90,14 +105,42 @@ export const BillableMetricForm = ({
               label: translate('text_623c4a8c599213014cacc9de'),
               value: AggregationTypeEnum.CountAgg,
             },
+            {
+              label: translate('text_62694d9181be8d00a33f20f0'),
+              value: AggregationTypeEnum.UniqueCountAgg,
+            },
+            {
+              label: translate('text_62694d9181be8d00a33f20f8'),
+              value: AggregationTypeEnum.MaxAgg,
+            },
+            {
+              label: translate('text_62694d9181be8d00a33f2100'),
+              value: AggregationTypeEnum.SumAgg,
+            },
           ]}
           helperText={
             formikProps.values?.aggregationType === AggregationTypeEnum.CountAgg
               ? translate('text_6241cc759211e600ea57f4f1')
+              : formikProps.values?.aggregationType === AggregationTypeEnum.UniqueCountAgg
+              ? translate('text_62694d9181be8d00a33f20f6')
+              : formikProps.values?.aggregationType === AggregationTypeEnum.MaxAgg
+              ? translate('text_62694d9181be8d00a33f20f2')
+              : formikProps.values?.aggregationType === AggregationTypeEnum.SumAgg
+              ? translate('text_62694d9181be8d00a33f20ec')
               : undefined
           }
           formikProps={formikProps}
         />
+
+        {formikProps.values?.aggregationType &&
+          formikProps.values?.aggregationType !== AggregationTypeEnum.CountAgg && (
+            <TextInputField
+              name="fieldName"
+              label={translate('text_62694d9181be8d00a33f20fe')}
+              placeholder={translate('text_62694d9181be8d00a33f2105')}
+              formikProps={formikProps}
+            />
+          )}
       </Card>
       {children}
       <ButtonContainer>
@@ -144,4 +187,8 @@ const SubmitButton = styled(Button)`
 
 const ButtonContainer = styled.div`
   margin: 0 ${theme.spacing(6)};
+`
+
+const StyledComboBoxField = styled(ComboBoxField)`
+  margin-bottom: ${theme.spacing(6)};
 `

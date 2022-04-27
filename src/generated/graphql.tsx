@@ -1235,14 +1235,14 @@ export type DeletePlanMutation = { __typename?: 'Mutation', destroyPlan?: { __ty
 
 export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, canBeDeleted: boolean };
 
-export type EditBillableMetricFragment = { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean };
+export type EditBillableMetricFragment = { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean, fieldName?: string | null };
 
 export type GetSingleBillableMetricQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetSingleBillableMetricQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean } | null };
+export type GetSingleBillableMetricQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean, fieldName?: string | null } | null };
 
 export type CreateBillableMetricMutationVariables = Exact<{
   input: CreateBillableMetricInput;
@@ -1425,6 +1425,7 @@ export const EditBillableMetricFragmentDoc = gql`
   description
   aggregationType
   canBeDeleted
+  fieldName
 }
     `;
 export const EditPlanFragmentDoc = gql`

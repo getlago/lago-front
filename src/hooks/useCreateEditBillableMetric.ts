@@ -23,6 +23,7 @@ gql`
     description
     aggregationType
     canBeDeleted
+    fieldName
   }
 
   query getSingleBillableMetric($id: ID!) {
