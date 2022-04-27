@@ -19,6 +19,7 @@
     {
       "updateTypes": ["patch", "digest", "bump"],
       "commitMessagePrefix": "chore(deps)",
+      "reviewers": ["renovate-approve"],
       "automerge": true
     }
   ]
