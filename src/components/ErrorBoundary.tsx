@@ -25,6 +25,6 @@ export class ErrorBoundary extends Component<{}, ErrorBoundaryProps> {
   }
 
   render() {
-    return <>this.props.children</>
+    return <>{this.props.children}</>
   }
 }

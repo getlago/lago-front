@@ -138,7 +138,7 @@ export const CustomerSubscriptionsList = forwardRef<
                   </CellBig>
                   <CellStatus type={statusConfig.type} label={translate(statusConfig.label)} />
                   <CellSmall align="right" color="textSecondary">
-                    { startedAt ? DateTime.fromISO(startedAt).toFormat('yyyy/LL/dd') : DateTime.fromISO(pendingStartDate).toFormat('yyyy/LL/dd') }
+                    {DateTime.fromISO(startedAt ?? pendingStartDate).toFormat('yyyy/LL/dd')}
                   </CellSmall>
                 </Item>
               )
