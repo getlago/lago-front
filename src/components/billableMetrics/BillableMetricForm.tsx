@@ -30,12 +30,12 @@ export const BillableMetricForm = ({
   const { translate } = useI18nContext()
   const formikProps = useFormik<CreateBillableMetricInput>({
     initialValues: {
-      name: billableMetric?.name ?? '',
-      code: billableMetric?.code ?? '',
-      description: billableMetric?.description ?? '',
+      name: '',
+      code: '',
+      description: '',
       // @ts-ignore
-      aggregationType: billableMetric?.aggregationType ?? '',
-      fieldName: billableMetric?.fieldName ?? undefined,
+      aggregationType: '',
+      fieldName: undefined,
     },
     validationSchema: object().shape({
       name: string().required(''),
@@ -50,6 +50,19 @@ export const BillableMetricForm = ({
     validateOnMount: true,
     onSubmit: onSave,
   })
+
+  useEffect(() => {
+    if (!!billableMetric && !!billableMetric?.code) {
+      formikProps.setValues({
+        name: billableMetric?.name ?? '',
+        code: billableMetric?.code ?? '',
+        description: billableMetric?.description ?? '',
+        // @ts-ignore
+        aggregationType: billableMetric?.aggregationType ?? '',
+        fieldName: billableMetric?.fieldName ?? undefined,
+      })
+    }
+  }, [billableMetric])
 
   useEffect(() => {
     if (
