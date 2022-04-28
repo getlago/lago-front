@@ -1,128 +1,83 @@
-import { useEffect, useState, memo } from 'react'
+import { memo, useEffect, useRef } from 'react'
 import Prism from 'prismjs'
 import 'prismjs/components/prism-javascript'
 import 'prismjs/components/prism-ruby'
+import 'prismjs/components/prism-bash'
 import 'prismjs/plugins/line-numbers/prism-line-numbers'
 import 'prismjs/themes/prism-okaidia.css'
 import styled from 'styled-components'
 
 import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { theme } from '~/styles'
-import { ComboBox } from '~/components/form'
 import { useI18nContext } from '~/core/I18nContext'
 import { addToast } from '~/core/apolloClient'
-
-enum Language {
-  node = 'node',
-  ruby = 'ruby',
-}
 
 Prism.manual = true
 
 interface CodeSnippetProps {
   className?: string
   loading?: boolean
+  code: string
+  language?: 'bash' | 'javascript'
 }
 
-export const CodeSnippet = memo(({ className, loading }: CodeSnippetProps) => {
-  const { translate } = useI18nContext()
-  const [language, setLanguage] = useState<string>(Language['node'])
+export const CodeSnippet = memo(
+  ({ className, loading, code, language = 'javascript' }: CodeSnippetProps) => {
+    const codeRef = useRef(null)
+    const { translate } = useI18nContext()
 
-  useEffect(() => {
-    Prism.highlightAll()
-  }, [language])
+    useEffect(() => {
+      if (codeRef && codeRef.current) {
+        Prism.highlightElement(codeRef.current)
+      }
+    })
 
-  const code = `[
-  {
-    "customerID": "{{customer_id}}",
-    "meterApiName": "",
-    "meterValue": 1,
-    "meterTimeInMillis": 18593875774,
+    return (
+      <Content className={className}>
+        {loading ? (
+          <>
+            <Skeleton variant="text" width="inherit" height={12} marginBottom={theme.spacing(9)} />
+            <Skeleton variant="text" width={168} height={12} marginBottom={theme.spacing(4)} />
+            <BlockSkeleton variant="text" width="inherit" height={112} />
+          </>
+        ) : (
+          <>
+            <Title variant="bodyHl" color="textSecondary">
+              {translate('text_623b42ff8ee4e000ba87d0b2')}
+            </Title>
+
+            <Pre className="line-numbers">
+              <Code ref={codeRef} className={`language-${language}`}>
+                {code}
+              </Code>
+              <span />
+            </Pre>
+            <Button
+              variant="secondary"
+              startIcon="duplicate"
+              fullWidth
+              onClick={() => {
+                navigator.clipboard.writeText(code)
+
+                addToast({
+                  severity: 'info',
+                  translateKey: 'text_6241ce41ae814301478358a2',
+                })
+              }}
+            >
+              {translate('text_623b42ff8ee4e000ba87d0c6')}
+            </Button>
+          </>
+        )}
+      </Content>
+    )
   }
-]`
-  const codeRuby = `if name == "John"
-  puts "Hi There John!"
-elsif name == "Bob"
-  puts "Heyo Bob!"
-else 
-  puts "I don't know you! Stranger Danger!!"
-end
-`
-
-  const html = Prism.highlight(code, Prism.languages.javascript, 'javascript')
-  const htmlRuby = Prism.highlight(codeRuby, Prism.languages.ruby, 'ruby')
-
-  return (
-    <Content className={className}>
-      {loading ? (
-        <>
-          <Skeleton variant="text" width="inherit" height={12} marginBottom={theme.spacing(9)} />
-          <Skeleton variant="text" width={168} height={12} marginBottom={theme.spacing(4)} />
-          <BlockSkeleton variant="text" width="inherit" height={112} />
-        </>
-      ) : (
-        <>
-          <Title variant="bodyHl" color="textSecondary">
-            {translate('text_623b42ff8ee4e000ba87d0b2')}
-          </Title>
-          <StyledComboBox
-            value={language}
-            onChange={(value) => setLanguage(value)}
-            disableClearable
-            data={[
-              {
-                value: Language['node'],
-                label: translate('text_623b42ff8ee4e000ba87d0b6'),
-              },
-              {
-                value: Language['ruby'],
-                label: 'Ruby',
-              },
-            ]}
-          />
-          <Pre className="line-numbers language-javascript">
-            <Code
-              $hide={language !== Language['node']}
-              component="code"
-              variant="captionCode"
-              html={html}
-            />
-            <Code
-              $hide={language !== Language['ruby']}
-              component="code"
-              variant="captionCode"
-              html={htmlRuby}
-            />
-            <span />
-          </Pre>
-          <Button
-            variant="secondary"
-            startIcon="duplicate"
-            fullWidth
-            onClick={() => {
-              navigator.clipboard.writeText(language === Language['node'] ? code : codeRuby)
-              addToast({
-                severity: 'info',
-                translateKey: 'text_6241ce41ae814301478358a2',
-              })
-            }}
-          >
-            {translate('text_623b42ff8ee4e000ba87d0c6')}
-          </Button>
-        </>
-      )}
-    </Content>
-  )
-})
+)
 
 CodeSnippet.displayName = 'CodeSnippet'
 
 const BlockSkeleton = styled(Skeleton)`
   border-radius: 12px !important;
-`
-
-const StyledComboBox = styled(ComboBox)`
-  margin-bottom: ${theme.spacing(3)};
 `
 
 const Pre = styled.pre`
@@ -131,8 +86,11 @@ const Pre = styled.pre`
   border-radius: 12px;
 `
 
-const Code = styled(Typography)<{ $hide: boolean }>`
-  display: ${({ $hide }) => ($hide ? 'none' : 'block')};
+const Code = styled.code`
+  font-family: 'IBM Plex Mono, monospace';
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
 `
 
 const Title = styled(Typography)`

@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useFormik } from 'formik'
 import { object, string } from 'yup'
 import styled from 'styled-components'
@@ -9,20 +9,21 @@ import {
   CreateBillableMetricInput,
 } from '~/generated/graphql'
 import { TextInputField, ComboBoxField } from '~/components/form'
-import { Typography, Button } from '~/components/designSystem'
+import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
-import { theme } from '~/styles'
+import { theme, NAV_HEIGHT } from '~/styles'
+import { BillableMetricCodeSnippet } from '~/components/billableMetrics/BillableMetricCodeSnippet'
 
 interface BillableMetricFormProps {
   billableMetric?: EditBillableMetricFragment
-  children?: ReactNode
+  loading?: boolean
   isEdition?: boolean
   onSave: (values: CreateBillableMetricInput) => Promise<void>
 }
 
 export const BillableMetricForm = ({
   billableMetric,
-  children,
+  loading,
   isEdition,
   onSave,
 }: BillableMetricFormProps) => {
@@ -43,7 +44,7 @@ export const BillableMetricForm = ({
       fieldName: string().when('aggregationType', {
         is: (aggregationType: AggregationTypeEnum) =>
           !!aggregationType && aggregationType !== AggregationTypeEnum.CountAgg,
-        then: string().required(),
+        then: string().required(''),
       }),
     }),
     validateOnMount: true,
@@ -60,101 +61,166 @@ export const BillableMetricForm = ({
   }, [formikProps.values.aggregationType, formikProps.values.fieldName])
 
   return (
-    <>
-      <Card>
-        <SectionTitle variant="subhead">{translate('text_623b42ff8ee4e000ba87d0b8')}</SectionTitle>
+    <Content>
+      <div>
+        <Main>
+          {loading ? (
+            <>
+              <SkeletonHeader>
+                <Skeleton variant="text" width={280} height={12} marginBottom={theme.spacing(5)} />
+                <Skeleton
+                  variant="text"
+                  width="inherit"
+                  height={12}
+                  marginBottom={theme.spacing(4)}
+                />
+                <Skeleton variant="text" width={120} height={12} />
+              </SkeletonHeader>
 
-        <Line>
-          <TextInputField
-            name="name"
-            label={translate('text_623b42ff8ee4e000ba87d0be')}
-            placeholder={translate('text_6241cc759211e600ea57f4c7')}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
-            formikProps={formikProps}
-          />
-          <TextInputField
-            name="code"
-            disabled={isEdition && !billableMetric?.canBeDeleted}
-            label={translate('text_623b42ff8ee4e000ba87d0c0')}
-            placeholder={translate('text_623b42ff8ee4e000ba87d0c4')}
-            formikProps={formikProps}
-            infoText={translate('text_624d9adba93343010cd14c52')}
-          />
-        </Line>
-        <TextInputField
-          name="description"
-          label={translate('text_623b42ff8ee4e000ba87d0c8')}
-          placeholder={translate('text_623b42ff8ee4e000ba87d0ca')}
-          rows="3"
-          multiline
-          formikProps={formikProps}
-        />
-      </Card>
-      <Card>
-        <SectionTitle variant="subhead">{translate('text_623b42ff8ee4e000ba87d0cc')}</SectionTitle>
+              {[0, 1, 2].map((skeletonCard) => (
+                <Card key={`skeleton-${skeletonCard}`}>
+                  <Skeleton
+                    variant="text"
+                    width={280}
+                    height={12}
+                    marginBottom={theme.spacing(9)}
+                  />
+                  <Skeleton
+                    variant="text"
+                    width="inherit"
+                    height={12}
+                    marginBottom={theme.spacing(4)}
+                  />
+                  <Skeleton variant="text" width={120} height={12} />
+                </Card>
+              ))}
+            </>
+          ) : (
+            <>
+              <div>
+                <Title variant="headline">
+                  {translate(
+                    isEdition ? 'text_62582fb4675ece01137a7e46' : 'text_623b42ff8ee4e000ba87d0b0'
+                  )}
+                </Title>
+                <Subtitle>
+                  {translate(
+                    isEdition ? 'text_62582fb4675ece01137a7e48' : 'text_623b42ff8ee4e000ba87d0b4'
+                  )}
+                </Subtitle>
+              </div>
+              <Card>
+                <SectionTitle variant="subhead">
+                  {translate('text_623b42ff8ee4e000ba87d0b8')}
+                </SectionTitle>
 
-        <StyledComboBoxField
-          name="aggregationType"
-          disabled={isEdition && !billableMetric?.canBeDeleted}
-          label={translate('text_623b42ff8ee4e000ba87d0ce')}
-          infoText={translate('text_624d9adba93343010cd14c56')}
-          placeholder={translate('text_623b42ff8ee4e000ba87d0d0')}
-          data={[
-            {
-              label: translate('text_623c4a8c599213014cacc9de'),
-              value: AggregationTypeEnum.CountAgg,
-            },
-            {
-              label: translate('text_62694d9181be8d00a33f20f0'),
-              value: AggregationTypeEnum.UniqueCountAgg,
-            },
-            {
-              label: translate('text_62694d9181be8d00a33f20f8'),
-              value: AggregationTypeEnum.MaxAgg,
-            },
-            {
-              label: translate('text_62694d9181be8d00a33f2100'),
-              value: AggregationTypeEnum.SumAgg,
-            },
-          ]}
-          helperText={
-            formikProps.values?.aggregationType === AggregationTypeEnum.CountAgg
-              ? translate('text_6241cc759211e600ea57f4f1')
-              : formikProps.values?.aggregationType === AggregationTypeEnum.UniqueCountAgg
-              ? translate('text_62694d9181be8d00a33f20f6')
-              : formikProps.values?.aggregationType === AggregationTypeEnum.MaxAgg
-              ? translate('text_62694d9181be8d00a33f20f2')
-              : formikProps.values?.aggregationType === AggregationTypeEnum.SumAgg
-              ? translate('text_62694d9181be8d00a33f20ec')
-              : undefined
-          }
-          formikProps={formikProps}
-        />
+                <Line>
+                  <TextInputField
+                    name="name"
+                    label={translate('text_623b42ff8ee4e000ba87d0be')}
+                    placeholder={translate('text_6241cc759211e600ea57f4c7')}
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    autoFocus
+                    formikProps={formikProps}
+                  />
+                  <TextInputField
+                    name="code"
+                    disabled={isEdition && !billableMetric?.canBeDeleted}
+                    label={translate('text_623b42ff8ee4e000ba87d0c0')}
+                    placeholder={translate('text_623b42ff8ee4e000ba87d0c4')}
+                    formikProps={formikProps}
+                    infoText={translate('text_624d9adba93343010cd14c52')}
+                  />
+                </Line>
+                <TextInputField
+                  name="description"
+                  label={translate('text_623b42ff8ee4e000ba87d0c8')}
+                  placeholder={translate('text_623b42ff8ee4e000ba87d0ca')}
+                  rows="3"
+                  multiline
+                  formikProps={formikProps}
+                />
+              </Card>
+              <Card>
+                <SectionTitle variant="subhead">
+                  {translate('text_623b42ff8ee4e000ba87d0cc')}
+                </SectionTitle>
 
-        {formikProps.values?.aggregationType &&
-          formikProps.values?.aggregationType !== AggregationTypeEnum.CountAgg && (
-            <TextInputField
-              name="fieldName"
-              label={translate('text_62694d9181be8d00a33f20fe')}
-              placeholder={translate('text_62694d9181be8d00a33f2105')}
-              formikProps={formikProps}
-            />
+                <StyledComboBoxField
+                  name="aggregationType"
+                  disabled={isEdition && !billableMetric?.canBeDeleted}
+                  label={translate('text_623b42ff8ee4e000ba87d0ce')}
+                  infoText={translate('text_624d9adba93343010cd14c56')}
+                  placeholder={translate('text_623b42ff8ee4e000ba87d0d0')}
+                  data={[
+                    {
+                      label: translate('text_623c4a8c599213014cacc9de'),
+                      value: AggregationTypeEnum.CountAgg,
+                    },
+                    {
+                      label: translate('text_62694d9181be8d00a33f20f0'),
+                      value: AggregationTypeEnum.UniqueCountAgg,
+                    },
+                    {
+                      label: translate('text_62694d9181be8d00a33f20f8'),
+                      value: AggregationTypeEnum.MaxAgg,
+                    },
+                    {
+                      label: translate('text_62694d9181be8d00a33f2100'),
+                      value: AggregationTypeEnum.SumAgg,
+                    },
+                  ]}
+                  helperText={
+                    formikProps.values?.aggregationType === AggregationTypeEnum.CountAgg
+                      ? translate('text_6241cc759211e600ea57f4f1')
+                      : formikProps.values?.aggregationType === AggregationTypeEnum.UniqueCountAgg
+                      ? translate('text_62694d9181be8d00a33f20f6')
+                      : formikProps.values?.aggregationType === AggregationTypeEnum.MaxAgg
+                      ? translate('text_62694d9181be8d00a33f20f2')
+                      : formikProps.values?.aggregationType === AggregationTypeEnum.SumAgg
+                      ? translate('text_62694d9181be8d00a33f20ec')
+                      : undefined
+                  }
+                  formikProps={formikProps}
+                />
+
+                {formikProps.values?.aggregationType &&
+                  formikProps.values?.aggregationType !== AggregationTypeEnum.CountAgg && (
+                    <TextInputField
+                      name="fieldName"
+                      disabled={isEdition && !billableMetric?.canBeDeleted}
+                      label={translate('text_62694d9181be8d00a33f20fe')}
+                      placeholder={translate('text_62694d9181be8d00a33f2105')}
+                      formikProps={formikProps}
+                    />
+                  )}
+              </Card>
+              <MobileOnly>
+                <BillableMetricCodeSnippet loading={loading} billableMetric={formikProps.values} />
+              </MobileOnly>
+              <ButtonContainer>
+                <SubmitButton
+                  disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
+                  fullWidth
+                  size="large"
+                  loading={formikProps.isSubmitting}
+                  onClick={formikProps.submitForm}
+                >
+                  {translate(
+                    isEdition ? 'text_62582fb4675ece01137a7e6c' : 'text_623b42ff8ee4e000ba87d0d4'
+                  )}
+                </SubmitButton>
+              </ButtonContainer>
+            </>
           )}
-      </Card>
-      {children}
-      <ButtonContainer>
-        <SubmitButton
-          disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
-          fullWidth
-          size="large"
-          loading={formikProps.isSubmitting}
-          onClick={formikProps.submitForm}
-        >
-          {translate(isEdition ? 'text_62582fb4675ece01137a7e6c' : 'text_623b42ff8ee4e000ba87d0d4')}
-        </SubmitButton>
-      </ButtonContainer>
-    </>
+        </Main>
+        <Side>
+          <Card>
+            <BillableMetricCodeSnippet loading={loading} billableMetric={formikProps.values} />
+          </Card>
+        </Side>
+      </div>
+    </Content>
   )
 }
 
@@ -191,4 +257,75 @@ const ButtonContainer = styled.div`
 
 const StyledComboBoxField = styled(ComboBoxField)`
   margin-bottom: ${theme.spacing(6)};
+`
+
+const Title = styled(Typography)`
+  margin-bottom: ${theme.spacing(1)};
+  padding: 0 ${theme.spacing(8)};
+`
+
+const Subtitle = styled(Typography)`
+  margin-bottom: ${theme.spacing(8)};
+  padding: 0 ${theme.spacing(8)};
+`
+
+const MobileOnly = styled(Card)`
+  display: none;
+
+  ${theme.breakpoints.down('md')} {
+    display: block;
+  }
+`
+
+const Side = styled.div`
+  width: 408px;
+  position: relative;
+
+  > div {
+    position: sticky;
+    top: calc(${NAV_HEIGHT}px + ${theme.spacing(12)});
+  }
+
+  ${theme.breakpoints.down('md')} {
+    display: none;
+  }
+`
+
+const Content = styled.div`
+  > div {
+    display: flex;
+    max-width: 1024px;
+    padding: ${theme.spacing(4)};
+    margin: auto;
+
+    ${theme.breakpoints.down('md')} {
+      max-width: calc(100vw - ${theme.spacing(8)});
+
+      > div {
+        max-width: inherit;
+      }
+    }
+  }
+
+  ${theme.breakpoints.down('md')} {
+    max-width: 100vw;
+  }
+`
+
+const Main = styled.div`
+  margin-right: ${theme.spacing(8)};
+  flex: 1;
+  padding-top: ${theme.spacing(12)};
+
+  > *:not(:last-child) {
+    margin-bottom: ${theme.spacing(8)};
+  }
+
+  ${theme.breakpoints.down('md')} {
+    margin-right: 0;
+  }
+`
+
+const SkeletonHeader = styled.div`
+  padding: 0 ${theme.spacing(8)};
 `
