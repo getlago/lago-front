@@ -37,7 +37,7 @@ export const ComboBox = ({
 
   // By default, we want to sort `options` alphabetically (by value)
   const data = useMemo(() => {
-    return sortValues ? _sortBy(rawData, (item) => item.value) : rawData
+    return sortValues ? _sortBy(rawData, (item) => item.label ?? item.value) : rawData
   }, [rawData, sortValues])
 
   // we need a ref to the previous data (see the following `useEffect()`)

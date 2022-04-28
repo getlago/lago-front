@@ -8,7 +8,7 @@ import { useI18nContext } from '~/core/I18nContext'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { PLANS_ROUTE } from '~/core/router'
 import EmojiParty from '~/public/images/party.png'
-import { CodeSnippet } from '~/components/CodeSnippet'
+import { CodeSnippetOld } from '~/components/CodeSnippetOld'
 import { PlanForm } from '~/components/plans/PlanForm'
 import { useCreateEditPlan } from '~/hooks/useCreateEditPlan'
 
@@ -109,7 +109,7 @@ const CreatePlan = () => {
                   </div>
                   <PlanForm isEdition={isEdition} plan={plan} onSave={onSave}>
                     <MobileOnly>
-                      <CodeSnippet loading={loading} />
+                      <CodeSnippetOld loading={loading} />
                     </MobileOnly>
                   </PlanForm>
                 </>
@@ -117,7 +117,7 @@ const CreatePlan = () => {
             </Main>
             <Side>
               <Card>
-                <CodeSnippet loading={loading} />
+                <CodeSnippetOld loading={loading} />
               </Card>
             </Side>
           </div>
