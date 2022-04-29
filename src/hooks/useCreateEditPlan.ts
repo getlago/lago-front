@@ -37,7 +37,6 @@ gql`
       amountCents
       amountCurrency
       chargeModel
-      proRata
       vatRate
     }
   }
