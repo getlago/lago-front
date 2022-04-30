@@ -38,7 +38,7 @@ jobs:
       PORTER_TOKEN: ${{ secrets.PORTER_TOKEN_2643 }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2.4.2
+      uses: actions/checkout@v3.0.2
     - name: Extract branch name
       shell: bash
       run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
