@@ -65,7 +65,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
     )
 
     useEffect(() => {
-      if (value) {
+      if (value !== undefined && value !== null) {
         setLocalValue(value)
       } else {
         setLocalValue('')
@@ -105,7 +105,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
         )}
         <MuiTextField
           ref={ref}
-          value={localValue || ''}
+          value={localValue}
           name={name}
           type={password && !isVisible ? 'password' : type !== 'number' ? type : 'text'}
           onChange={handleChange}

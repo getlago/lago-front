@@ -37,7 +37,7 @@ export const PlanForm = ({ plan, children, onSave, isEdition }: PlanFormProps) =
       // @ts-ignore
       amountCents: plan?.amountCents ?? undefined,
       amountCurrency: plan?.amountCurrency ?? CurrencyEnum.Usd,
-      vatRate: plan?.vatRate ?? 0,
+      vatRate: plan?.vatRate === undefined ? 0 : plan?.vatRate,
       // @ts-ignore
       trialPeriod: plan?.trialPeriod ?? undefined,
       charges: plan?.charges ?? ([] as LocalChargeInput[]),
