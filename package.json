@@ -77,14 +77,14 @@
     "webpack-merge": "5.8.0"
   },
   "dependencies": {
-    "@apollo/client": "3.4.16",
+    "@apollo/client": "3.6.1",
     "@mui/material": "5.4.3",
     "@mui/styled-engine": "5.4.2",
     "@mui/styled-engine-sc": "5.4.2",
     "add": "2.0.6",
     "apollo-link-timeout": "4.0.0",
     "apollo-upload-client": "16.0.0",
-    "apollo3-cache-persist": "0.13.0",
+    "apollo3-cache-persist": "0.14.0",
     "classnames": "2.3.1",
     "crypto-hash": "2.0.1",
     "formik": "2.2.9",
