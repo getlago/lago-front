@@ -26,6 +26,7 @@ import {
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
 import { AddCustomerDialog, AddCustomerDialogRef } from '~/components/customers/AddCustomerDialog'
+import CountryCodes from '~/public/countryCode.json'
 
 gql`
   fragment CustomerDetails on CustomerDetails {
@@ -53,6 +54,12 @@ gql`
   ${AddCustomerDialogDetailFragmentDoc}
 `
 
+const formatUrl: (url: string) => string = (url) => {
+  if (url.length < 16) return url
+
+  return url.slice(0, 10) + '...' + url.slice(-6)
+}
+
 const CustomerDetails = () => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
   const editDialogRef = useRef<AddCustomerDialogRef>(null)
@@ -64,7 +71,25 @@ const CustomerDetails = () => {
     variables: { id: id as string },
     skip: !id,
   })
-  const { name, customerId, invoices, subscriptions, canBeDeleted } = data?.customer || {}
+  const {
+    name,
+    customerId,
+    invoices,
+    subscriptions,
+    canBeDeleted,
+    legalName,
+    legalNumber,
+    phone,
+    email,
+    logoUrl,
+    url,
+    addressLine1,
+    addressLine2,
+    state,
+    country,
+    city,
+    zipcode,
+  } = data?.customer || {}
 
   return (
     <div>
@@ -244,6 +269,73 @@ const CustomerDetails = () => {
                       </Typography>
                       <Typography color="textSecondary">{customerId}</Typography>
                     </div>
+                    {legalName && (
+                      <div>
+                        <Typography variant="caption">
+                          {translate('text_626c0c301a16a600ea061471')}
+                        </Typography>
+                        <Typography color="textSecondary">{legalName}</Typography>
+                      </div>
+                    )}
+                    {legalNumber && (
+                      <div>
+                        <Typography variant="caption">
+                          {translate('text_626c0c301a16a600ea061475')}
+                        </Typography>
+                        <Typography color="textSecondary">{legalNumber}</Typography>
+                      </div>
+                    )}
+                    {email && (
+                      <div>
+                        <Typography variant="caption">
+                          {translate('text_626c0c301a16a600ea061479')}
+                        </Typography>
+                        <Typography color="textSecondary">{email}</Typography>
+                      </div>
+                    )}
+                    {phone && (
+                      <div>
+                        <Typography variant="caption">
+                          {translate('text_626c0c301a16a600ea06147d')}
+                        </Typography>
+                        <Typography color="textSecondary">{phone}</Typography>
+                      </div>
+                    )}
+                    {url && (
+                      <div>
+                        <Typography variant="caption">
+                          {translate('text_626c0c301a16a600ea061481')}
+                        </Typography>
+                        <Typography>
+                          <a href={url}>{formatUrl(url)}</a>
+                        </Typography>
+                      </div>
+                    )}
+                    {logoUrl && (
+                      <div>
+                        <Typography variant="caption">
+                          {translate('text_626c0c301a16a600ea061485')}
+                        </Typography>
+                        <Typography>
+                          <a href={logoUrl}>{formatUrl(logoUrl)}</a>
+                        </Typography>
+                      </div>
+                    )}
+                    {(addressLine1 || addressLine2 || state || country || city || zipcode) && (
+                      <div>
+                        <Typography variant="caption">
+                          {translate('text_626c0c301a16a600ea06148d')}
+                        </Typography>
+                        <Typography color="textSecondary">{addressLine1}</Typography>
+                        <Typography color="textSecondary">{addressLine2}</Typography>
+                        <Typography color="textSecondary">
+                          {zipcode} {city} {state}
+                        </Typography>
+                        {country && (
+                          <Typography color="textSecondary">{CountryCodes[country]}</Typography>
+                        )}
+                      </div>
+                    )}
                   </DetailsBlock>
                   <SideBlock>
                     <CustomerSubscriptionsList

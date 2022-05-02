@@ -3,7 +3,6 @@ import {
   forwardRef,
   useEffect,
   createContext,
-  cloneElement,
   useContext,
   useRef,
   ReactNode,
@@ -18,12 +17,7 @@ import { ComboBoxProps } from './types'
 function renderRow(props: any) {
   const { data, index, style } = props
 
-  return cloneElement(data[index], {
-    style: {
-      ...style,
-      top: style.top,
-    },
-  })
+  return <div style={style}>{data[index]}</div>
 }
 
 const OuterElementContext = createContext({})

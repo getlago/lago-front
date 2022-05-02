@@ -21,5 +21,9 @@ projects:
     id: 626162c105cb2c00e673c696
   - name: "\U0001F44D [Ready for dev] -  B.metrics - Add Sum / Max / Count unique aggregation type to b.metrics"
     id: 62694d8eb0d327016e05c5b5
+  - name: Ditto Component Library
+    id: ditto_component_library
+  - name: "\U0001F44D [Ready for dev] - Customer - Add invoice data to customer creation/edition"
+    id: 626c0c056054aa00f9967401
 format: flat
 variants: true

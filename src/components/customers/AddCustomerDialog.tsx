@@ -1,61 +1,35 @@
-import { forwardRef, useEffect, RefObject } from 'react'
-import { gql } from '@apollo/client'
-import { useNavigate, generatePath } from 'react-router-dom'
+import { forwardRef, useEffect, RefObject, useState, useRef } from 'react'
 import styled from 'styled-components'
 import { useFormik } from 'formik'
 import { object, string } from 'yup'
+import _omit from 'lodash/omit'
 
-import { Dialog, Button, DialogRef } from '~/components/designSystem'
-import { TextInputField } from '~/components/form'
+import { Dialog, Button, DialogRef, Typography, Tooltip, Skeleton } from '~/components/designSystem'
+import { TextInputField, ComboBoxField } from '~/components/form'
 import { useI18nContext } from '~/core/I18nContext'
-import { addToast, LagoGQLError } from '~/core/apolloClient'
+import { LagoGQLError } from '~/core/apolloClient'
 import { theme } from '~/styles'
 import {
-  useCreateCustomerMutation,
-  CustomerItemFragmentDoc,
   AddCustomerDialogFragment,
   AddCustomerDialogDetailFragment,
-  useUpdateCustomerMutation,
   CreateCustomerInput,
   UpdateCustomerInput,
-  AddCustomerDialogDetailFragmentDoc,
   Lago_Api_Error,
 } from '~/generated/graphql'
-import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
+import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
+import CountryCodes from '~/public/countryCode.json'
+
+const countryData: { value: string; label: string }[] = Object.keys(CountryCodes).map(
+  (countryKey) => {
+    return {
+      value: countryKey,
+      // @ts-ignore
+      label: CountryCodes[countryKey],
+    }
+  }
+)
 
 export interface AddCustomerDialogRef extends DialogRef {}
-
-gql`
-  fragment AddCustomerDialog on Customer {
-    id
-    name
-    customerId
-    canBeDeleted
-  }
-
-  fragment AddCustomerDialogDetail on CustomerDetails {
-    id
-    name
-    customerId
-    canBeDeleted
-  }
-
-  mutation createCustomer($input: CreateCustomerInput!) {
-    createCustomer(input: $input) {
-      ...AddCustomerDialog
-      ...CustomerItem
-    }
-  }
-
-  mutation updateCustomer($input: UpdateCustomerInput!) {
-    updateCustomer(input: $input) {
-      ...AddCustomerDialog
-      ...CustomerItem
-    }
-  }
-
-  ${CustomerItemFragmentDoc}
-`
 
 interface AddCustomerDialogProps {
   customer?: AddCustomerDialogFragment | AddCustomerDialogDetailFragment | null
@@ -64,58 +38,43 @@ interface AddCustomerDialogProps {
 export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
   ({ customer }: AddCustomerDialogProps, ref) => {
     const { translate } = useI18nContext()
-    const navigate = useNavigate()
-    const [create] = useCreateCustomerMutation({
-      context: { silentErrorCodes: [Lago_Api_Error.UnprocessableEntity] },
-      onCompleted({ createCustomer }) {
-        if (!!createCustomer) {
-          addToast({
-            message: translate('text_6250304370f0f700a8fdc295'),
-            severity: 'success',
-          })
-          navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: createCustomer.id }))
-        }
-      },
+    const { isEdition, loading, billingInfos, onSave, loadBillingInfos } = useCreateEditCustomer({
+      customer,
     })
-    const [update] = useUpdateCustomerMutation({
-      context: { silentErrorCodes: [Lago_Api_Error.UnprocessableEntity] },
-      onCompleted({ updateCustomer }) {
-        if (!!updateCustomer) {
-          addToast({
-            message: translate('text_626162c62f790600f850b7da'),
-            severity: 'success',
-          })
-        }
-      },
-      update(cache, { data }) {
-        if (!data?.updateCustomer) return
+    const [isCollapsed, setIsCollapsed] = useState(!isEdition)
+    const mounted = useRef(false)
 
-        cache.writeFragment({
-          data: { ...data?.updateCustomer, __typename: 'CustomerDetails' },
-          fragment: AddCustomerDialogDetailFragmentDoc,
-        })
-      },
-    })
+    useEffect(() => {
+      mounted.current = true
+
+      return () => {
+        mounted.current = false
+      }
+    }, [])
 
     const formikProps = useFormik<CreateCustomerInput | UpdateCustomerInput>({
       initialValues: {
         name: customer?.name ?? '',
         customerId: customer?.customerId ?? '',
+        legalName: undefined,
+        legalNumber: undefined,
+        phone: undefined,
+        email: undefined,
+        logoUrl: undefined,
+        url: undefined,
+        addressLine1: undefined,
+        addressLine2: undefined,
+        state: undefined,
+        country: undefined,
+        city: undefined,
+        zipcode: undefined,
       },
       validationSchema: object().shape({
         name: string().required(''),
         customerId: string().required(''),
       }),
       onSubmit: async (values, formikBag) => {
-        let answer = undefined
-
-        if (isEdition) {
-          answer = await update({
-            variables: { input: { id: customer?.id as string, ...values } },
-          })
-        } else {
-          answer = await create({ variables: { input: values } })
-        }
+        const answer = await onSave(values)
 
         const { errors } = answer
 
@@ -129,20 +88,34 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
           formikBag.setFieldError('customerId', translate('text_626162c62f790600f850b728'))
         } else {
           ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()
-          !isEdition && formikBag.resetForm()
+          if (mounted.current) {
+            !isEdition && formikBag.resetForm()
+            setIsCollapsed(!isEdition)
+          }
         }
       },
     })
-    const isEdition = !!customer
+
+    useEffect(() => {
+      if (isEdition) {
+        loadBillingInfos && loadBillingInfos()
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isEdition])
 
     useEffect(() => {
       formikProps.resetForm({
         values: {
           name: customer?.name ?? '',
           customerId: customer?.customerId ?? '',
+          ...(billingInfos ? { ..._omit(billingInfos, 'id') } : {}),
         },
       })
-    }, [customer])
+      if (mounted.current) {
+        setIsCollapsed(!isEdition)
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [customer, billingInfos])
 
     return (
       <Dialog
@@ -157,10 +130,14 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
               variant="quaternary"
               onClick={() => {
                 closeDialog()
+                if (mounted.current) {
+                  setIsCollapsed(!isEdition)
+                }
                 formikProps.resetForm({
                   values: {
                     name: customer?.name ?? '',
                     customerId: customer?.customerId ?? '',
+                    ...(billingInfos ? { ..._omit(billingInfos, 'id') } : {}),
                   },
                 })
               }}
@@ -186,7 +163,7 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
             placeholder={translate('text_624efab67eb2570101d117c6')}
             formikProps={formikProps}
           />
-          <TextInputField
+          <CustomerId
             name="customerId"
             disabled={isEdition && !customer?.canBeDeleted}
             label={translate('text_624efab67eb2570101d117ce')}
@@ -196,15 +173,168 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
             }
             formikProps={formikProps}
           />
+          <div>
+            <BillinInfoLine>
+              <Typography variant="subhead">
+                {translate('text_626c0c09812bbc00e4c59dfd')}
+              </Typography>
+              <Tooltip
+                placement="top-end"
+                title={translate(
+                  isCollapsed ? 'text_626c0c6c93d2b600a73fc7b8' : 'text_626c0c09812bbc00e4c59e5d'
+                )}
+              >
+                <CollapseButton
+                  $expanded={!isCollapsed}
+                  size="small"
+                  variant="quaternary"
+                  icon="chevron-right"
+                  onClick={() => {
+                    loadBillingInfos && loadBillingInfos()
+                    setIsCollapsed((prev) => !prev)
+                  }}
+                />
+              </Tooltip>
+            </BillinInfoLine>
+            <BillingInfos $visible={!isCollapsed}>
+              {loading ? (
+                <Skeleton variant="text" width={240} height={12} />
+              ) : (
+                <>
+                  <BillingBlock $first>
+                    <Typography variant="bodyHl">
+                      {translate('text_626c0c09812bbc00e4c59dff')}
+                    </Typography>
+                    <TextInputField
+                      name="legalName"
+                      label={translate('text_626c0c09812bbc00e4c59e01')}
+                      placeholder={translate('text_626c0c09812bbc00e4c59e03')}
+                      formikProps={formikProps}
+                    />
+                    <TextInputField
+                      name="legalNumber"
+                      label={translate('text_626c0c09812bbc00e4c59e05')}
+                      placeholder={translate('text_626c0c09812bbc00e4c59e07')}
+                      formikProps={formikProps}
+                    />
+                    <TextInputField
+                      name="email"
+                      label={translate('text_626c0c09812bbc00e4c59e09')}
+                      placeholder={translate('text_626c0c09812bbc00e4c59e0b')}
+                      formikProps={formikProps}
+                    />
+                    <TextInputField
+                      name="phone"
+                      label={translate('text_626c0c09812bbc00e4c59e0d')}
+                      placeholder={translate('text_626c0c09812bbc00e4c59e0f')}
+                      formikProps={formikProps}
+                    />
+                    <TextInputField
+                      name="url"
+                      label={translate('text_626c0c09812bbc00e4c59e11')}
+                      placeholder={translate('text_626c0c09812bbc00e4c59e13')}
+                      formikProps={formikProps}
+                    />
+                    <TextInputField
+                      name="logoUrl"
+                      label={translate('text_626c0c09812bbc00e4c59e15')}
+                      placeholder={translate('text_626c0c09812bbc00e4c59e17')}
+                      formikProps={formikProps}
+                    />
+                  </BillingBlock>
+                  <BillingBlock>
+                    <Typography variant="bodyHl">
+                      {translate('text_626c0c09812bbc00e4c59e19')}
+                    </Typography>
+                    <TextInputField
+                      name="addressLine1"
+                      label={translate('text_626c0c09812bbc00e4c59e1b')}
+                      placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
+                      formikProps={formikProps}
+                    />
+                    <TextInputField
+                      name="addressLine2"
+                      placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
+                      formikProps={formikProps}
+                    />
+                    <TextInputField
+                      name="zipcode"
+                      placeholder={translate('text_626c0c09812bbc00e4c59e21')}
+                      formikProps={formikProps}
+                    />
+                    <TextInputField
+                      name="city"
+                      placeholder={translate('text_626c0c09812bbc00e4c59e23')}
+                      formikProps={formikProps}
+                    />
+                    <TextInputField
+                      name="state"
+                      placeholder={translate('text_626c0c09812bbc00e4c59e25')}
+                      formikProps={formikProps}
+                    />
+                    <ComboBoxField
+                      data={countryData}
+                      name="country"
+                      placeholder={translate('text_626c0c09812bbc00e4c59e27')}
+                      formikProps={formikProps}
+                      PopperProps={{ displayInDialog: true }}
+                    />
+                  </BillingBlock>
+                </>
+              )}
+            </BillingInfos>
+          </div>
         </Content>
       </Dialog>
     )
   }
 )
 
+const CustomerId = styled(TextInputField)`
+  margin-bottom: ${theme.spacing(8)};
+`
+
+const BillinInfoLine = styled.div`
+  display: flex;
+  align-items: center;
+
+  > *:first-child {
+    margin-right: ${theme.spacing(3)};
+  }
+`
+
 const Content = styled.div`
   > * {
     margin-bottom: ${theme.spacing(8)};
+  }
+`
+
+const BillingInfos = styled.div<{ $visible: boolean }>`
+  margin-top: ${({ $visible }) => ($visible ? theme.spacing(6) : 0)};
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  max-height: ${({ $visible }) => ($visible ? '10000px' : '0px')};
+  overflow: ${({ $visible }) => ($visible ? 'unset' : 'hidden')};
+  display: flex;
+  flex-direction: column;
+  margin-bottom: ${({ $visible }) => ($visible ? theme.spacing(3) : 0)};
+
+  > * {
+    flex: 1;
+  }
+`
+
+const CollapseButton = styled(Button)<{ $expanded: boolean }>`
+  svg {
+    transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    transform: ${({ $expanded }) => ($expanded ? 'rotate(90deg)' : 'rotate(0deg)')};
+  }
+`
+
+const BillingBlock = styled.div<{ $first?: boolean }>`
+  margin-bottom: ${({ $first }) => ($first ? theme.spacing(6) : 0)};
+
+  > * {
+    margin-bottom: ${theme.spacing(4)};
   }
 `
 

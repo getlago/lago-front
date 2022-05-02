@@ -75,6 +75,7 @@ type UseCreateEditPlanReturn = {
 
 const formatPlanInput = (values: PlanFormInput) => {
   const { amountCents, trialPeriod, vatRate, charges, ...otherValues } = values
+
   return {
     amountCents: Number(amountCents),
     trialPeriod: Number(trialPeriod),
