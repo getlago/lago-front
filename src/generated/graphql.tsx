@@ -1180,24 +1180,6 @@ export type DeleteBillableMetricMutationVariables = Exact<{
 
 export type DeleteBillableMetricMutation = { __typename?: 'Mutation', destroyBillableMetric?: { __typename?: 'DestroyBillableMetricPayload', id?: string | null } | null };
 
-export type AddCustomerDialogFragment = { __typename?: 'Customer', id: string, name?: string | null, customerId: string, canBeDeleted: boolean };
-
-export type AddCustomerDialogDetailFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean };
-
-export type CreateCustomerMutationVariables = Exact<{
-  input: CreateCustomerInput;
-}>;
-
-
-export type CreateCustomerMutation = { __typename?: 'Mutation', createCustomer?: { __typename?: 'Customer', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, createdAt: any, subscriptions?: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string } }> | null } | null };
-
-export type UpdateCustomerMutationVariables = Exact<{
-  input: UpdateCustomerInput;
-}>;
-
-
-export type UpdateCustomerMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, createdAt: any, subscriptions?: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string } }> | null } | null };
-
 export type GetPlansQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -1215,7 +1197,7 @@ export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscr
 
 export type CustomerInvoiceListFragment = { __typename?: 'Invoice', id: string, issuingDate: any, amountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null };
 
-export type CustomerItemFragment = { __typename?: 'Customer', id: string, name?: string | null, customerId: string, createdAt: any, canBeDeleted: boolean, subscriptions?: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string } }> | null };
+export type CustomerItemFragment = { __typename?: 'Customer', id: string, name?: string | null, customerId: string, createdAt: any, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, subscriptions?: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string } }> | null };
 
 export type CustomerSubscriptionListFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } };
 
@@ -1272,6 +1254,33 @@ export type UpdateBillableMetricMutationVariables = Exact<{
 
 export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, canBeDeleted: boolean } | null };
 
+export type AddCustomerDialogFragment = { __typename?: 'Customer', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null };
+
+export type AddCustomerDialogDetailFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null };
+
+export type BillingInfosFragment = { __typename?: 'CustomerDetails', id: string, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null };
+
+export type GetBillingInfosQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetBillingInfosQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null } | null };
+
+export type CreateCustomerMutationVariables = Exact<{
+  input: CreateCustomerInput;
+}>;
+
+
+export type CreateCustomerMutation = { __typename?: 'Mutation', createCustomer?: { __typename?: 'Customer', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, createdAt: any, subscriptions?: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string } }> | null } | null };
+
+export type UpdateCustomerMutationVariables = Exact<{
+  input: UpdateCustomerInput;
+}>;
+
+
+export type UpdateCustomerMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, createdAt: any, subscriptions?: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string } }> | null } | null };
+
 export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, vatRate?: number | null, trialPeriod?: number | null, canBeDeleted: boolean, charges?: Array<{ __typename?: 'Charge', id: string, amountCents: number, amountCurrency: CurrencyEnum, chargeModel: ChargeModelEnum, vatRate?: number | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null };
 
 export type GetSinglePlanQueryVariables = Exact<{
@@ -1303,14 +1312,14 @@ export type BillableMetricsQueryVariables = Exact<{
 
 export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, canBeDeleted: boolean }> } };
 
-export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, issuingDate: any, amountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null }> | null };
+export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, issuingDate: any, amountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null }> | null };
 
 export type GetCustomerQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, issuingDate: any, amountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null }> | null } | null };
+export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, issuingDate: any, amountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null }> | null } | null };
 
 export type CustomersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -1318,7 +1327,7 @@ export type CustomersQueryVariables = Exact<{
 }>;
 
 
-export type CustomersQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', collection: Array<{ __typename?: 'Customer', id: string, name?: string | null, customerId: string, createdAt: any, canBeDeleted: boolean, subscriptions?: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string } }> | null }> } };
+export type CustomersQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', collection: Array<{ __typename?: 'Customer', id: string, name?: string | null, customerId: string, createdAt: any, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, subscriptions?: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string } }> | null }> } };
 
 export type PlansQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -1380,6 +1389,18 @@ export const AddCustomerDialogFragmentDoc = gql`
   name
   customerId
   canBeDeleted
+  legalName
+  legalNumber
+  phone
+  email
+  logoUrl
+  url
+  addressLine1
+  addressLine2
+  state
+  country
+  city
+  zipcode
 }
     `;
 export const CustomerItemFragmentDoc = gql`
@@ -1442,6 +1463,23 @@ export const EditBillableMetricFragmentDoc = gql`
   fieldName
 }
     `;
+export const BillingInfosFragmentDoc = gql`
+    fragment BillingInfos on CustomerDetails {
+  id
+  legalName
+  legalNumber
+  phone
+  email
+  logoUrl
+  url
+  addressLine1
+  addressLine2
+  state
+  country
+  city
+  zipcode
+}
+    `;
 export const EditPlanFragmentDoc = gql`
     fragment EditPlan on PlanDetails {
   id
@@ -1500,6 +1538,18 @@ export const AddCustomerDialogDetailFragmentDoc = gql`
   name
   customerId
   canBeDeleted
+  legalName
+  legalNumber
+  phone
+  email
+  logoUrl
+  url
+  addressLine1
+  addressLine2
+  state
+  country
+  city
+  zipcode
 }
     `;
 export const CustomerDetailsFragmentDoc = gql`
@@ -1586,76 +1636,6 @@ export function useDeleteBillableMetricMutation(baseOptions?: Apollo.MutationHoo
 export type DeleteBillableMetricMutationHookResult = ReturnType<typeof useDeleteBillableMetricMutation>;
 export type DeleteBillableMetricMutationResult = Apollo.MutationResult<DeleteBillableMetricMutation>;
 export type DeleteBillableMetricMutationOptions = Apollo.BaseMutationOptions<DeleteBillableMetricMutation, DeleteBillableMetricMutationVariables>;
-export const CreateCustomerDocument = gql`
-    mutation createCustomer($input: CreateCustomerInput!) {
-  createCustomer(input: $input) {
-    ...AddCustomerDialog
-    ...CustomerItem
-  }
-}
-    ${AddCustomerDialogFragmentDoc}
-${CustomerItemFragmentDoc}`;
-export type CreateCustomerMutationFn = Apollo.MutationFunction<CreateCustomerMutation, CreateCustomerMutationVariables>;
-
-/**
- * __useCreateCustomerMutation__
- *
- * To run a mutation, you first call `useCreateCustomerMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateCustomerMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createCustomerMutation, { data, loading, error }] = useCreateCustomerMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateCustomerMutation(baseOptions?: Apollo.MutationHookOptions<CreateCustomerMutation, CreateCustomerMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateCustomerMutation, CreateCustomerMutationVariables>(CreateCustomerDocument, options);
-      }
-export type CreateCustomerMutationHookResult = ReturnType<typeof useCreateCustomerMutation>;
-export type CreateCustomerMutationResult = Apollo.MutationResult<CreateCustomerMutation>;
-export type CreateCustomerMutationOptions = Apollo.BaseMutationOptions<CreateCustomerMutation, CreateCustomerMutationVariables>;
-export const UpdateCustomerDocument = gql`
-    mutation updateCustomer($input: UpdateCustomerInput!) {
-  updateCustomer(input: $input) {
-    ...AddCustomerDialog
-    ...CustomerItem
-  }
-}
-    ${AddCustomerDialogFragmentDoc}
-${CustomerItemFragmentDoc}`;
-export type UpdateCustomerMutationFn = Apollo.MutationFunction<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
-
-/**
- * __useUpdateCustomerMutation__
- *
- * To run a mutation, you first call `useUpdateCustomerMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCustomerMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateCustomerMutation, { data, loading, error }] = useUpdateCustomerMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateCustomerMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerMutation, UpdateCustomerMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateCustomerMutation, UpdateCustomerMutationVariables>(UpdateCustomerDocument, options);
-      }
-export type UpdateCustomerMutationHookResult = ReturnType<typeof useUpdateCustomerMutation>;
-export type UpdateCustomerMutationResult = Apollo.MutationResult<UpdateCustomerMutation>;
-export type UpdateCustomerMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
 export const GetPlansDocument = gql`
     query getPlans($page: Int, $limit: Int) {
   plans(page: $page, limit: $limit) {
@@ -1936,6 +1916,111 @@ export function useUpdateBillableMetricMutation(baseOptions?: Apollo.MutationHoo
 export type UpdateBillableMetricMutationHookResult = ReturnType<typeof useUpdateBillableMetricMutation>;
 export type UpdateBillableMetricMutationResult = Apollo.MutationResult<UpdateBillableMetricMutation>;
 export type UpdateBillableMetricMutationOptions = Apollo.BaseMutationOptions<UpdateBillableMetricMutation, UpdateBillableMetricMutationVariables>;
+export const GetBillingInfosDocument = gql`
+    query getBillingInfos($id: ID!) {
+  customer(id: $id) {
+    ...BillingInfos
+  }
+}
+    ${BillingInfosFragmentDoc}`;
+
+/**
+ * __useGetBillingInfosQuery__
+ *
+ * To run a query within a React component, call `useGetBillingInfosQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBillingInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBillingInfosQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetBillingInfosQuery(baseOptions: Apollo.QueryHookOptions<GetBillingInfosQuery, GetBillingInfosQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetBillingInfosQuery, GetBillingInfosQueryVariables>(GetBillingInfosDocument, options);
+      }
+export function useGetBillingInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBillingInfosQuery, GetBillingInfosQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetBillingInfosQuery, GetBillingInfosQueryVariables>(GetBillingInfosDocument, options);
+        }
+export type GetBillingInfosQueryHookResult = ReturnType<typeof useGetBillingInfosQuery>;
+export type GetBillingInfosLazyQueryHookResult = ReturnType<typeof useGetBillingInfosLazyQuery>;
+export type GetBillingInfosQueryResult = Apollo.QueryResult<GetBillingInfosQuery, GetBillingInfosQueryVariables>;
+export const CreateCustomerDocument = gql`
+    mutation createCustomer($input: CreateCustomerInput!) {
+  createCustomer(input: $input) {
+    ...AddCustomerDialog
+    ...CustomerItem
+  }
+}
+    ${AddCustomerDialogFragmentDoc}
+${CustomerItemFragmentDoc}`;
+export type CreateCustomerMutationFn = Apollo.MutationFunction<CreateCustomerMutation, CreateCustomerMutationVariables>;
+
+/**
+ * __useCreateCustomerMutation__
+ *
+ * To run a mutation, you first call `useCreateCustomerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCustomerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCustomerMutation, { data, loading, error }] = useCreateCustomerMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCustomerMutation(baseOptions?: Apollo.MutationHookOptions<CreateCustomerMutation, CreateCustomerMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCustomerMutation, CreateCustomerMutationVariables>(CreateCustomerDocument, options);
+      }
+export type CreateCustomerMutationHookResult = ReturnType<typeof useCreateCustomerMutation>;
+export type CreateCustomerMutationResult = Apollo.MutationResult<CreateCustomerMutation>;
+export type CreateCustomerMutationOptions = Apollo.BaseMutationOptions<CreateCustomerMutation, CreateCustomerMutationVariables>;
+export const UpdateCustomerDocument = gql`
+    mutation updateCustomer($input: UpdateCustomerInput!) {
+  updateCustomer(input: $input) {
+    ...AddCustomerDialog
+    ...CustomerItem
+  }
+}
+    ${AddCustomerDialogFragmentDoc}
+${CustomerItemFragmentDoc}`;
+export type UpdateCustomerMutationFn = Apollo.MutationFunction<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
+
+/**
+ * __useUpdateCustomerMutation__
+ *
+ * To run a mutation, you first call `useUpdateCustomerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCustomerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCustomerMutation, { data, loading, error }] = useUpdateCustomerMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCustomerMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerMutation, UpdateCustomerMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCustomerMutation, UpdateCustomerMutationVariables>(UpdateCustomerDocument, options);
+      }
+export type UpdateCustomerMutationHookResult = ReturnType<typeof useUpdateCustomerMutation>;
+export type UpdateCustomerMutationResult = Apollo.MutationResult<UpdateCustomerMutation>;
+export type UpdateCustomerMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
 export const GetSinglePlanDocument = gql`
     query getSinglePlan($id: ID!) {
   plan(id: $id) {
