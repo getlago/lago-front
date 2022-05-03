@@ -615,6 +615,7 @@
       "text_62694d9181be8d00a33f20ec": "Sum automatically a property during a period"
     },
     "project_626c0c056054aa00f9967401": {
+      "text_626c0c09812bbc00e4c59df1": "Account information",
       "text_626c0c09812bbc00e4c59dfd": "Billing information",
       "text_626c0c09812bbc00e4c59dff": "Company information (optional)",
       "text_626c0c09812bbc00e4c59e01": "Legal name",
@@ -644,7 +645,6 @@
       "text_626c0c301a16a600ea06147d": "Phone number",
       "text_626c0c301a16a600ea061481": "Website url",
       "text_626c0c301a16a600ea061485": "Logo url",
-      "text_626c0c301a16a600ea061489": "Lago ID",
       "text_626c0c301a16a600ea06148d": "Shipping information",
       "text_626c0c6c93d2b600a73fc7b8": "Expand info"
     },
@@ -900,5 +900,5 @@
       "country-code-zw": "Zimbabwe"
     }
   },
-  "exported_at": "2022-05-02T14:31:36.367Z"
+  "exported_at": "2022-05-03T08:11:25.936Z"
 }
