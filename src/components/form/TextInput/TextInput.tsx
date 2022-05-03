@@ -51,7 +51,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
     ref
   ) => {
     const { translate } = useI18nContext()
-    const [localValue, setLocalValue] = useState<string | number | null>(null)
+    const [localValue, setLocalValue] = useState<string | number>('')
     const [isVisible, setIsVisible] = useState(!password)
     const debouncedSetValue = useMemo(
       () =>

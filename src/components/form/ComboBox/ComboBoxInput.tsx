@@ -23,7 +23,7 @@ export const ComboBoxInput = ({
   const { inputProps, InputProps, ...restParams } = params
 
   return (
-    <TextInput
+    <StyledTextInput
       onChange={(newVal) => {
         // needed because useAutocomplete expect a DOM onChange listener...
         inputProps.onChange({ target: { value: newVal } })
@@ -78,6 +78,15 @@ const StyledButton = styled(Button)`
 
     &.MuiAutocomplete-clearIndicatorDirty {
       display: inherit;
+      visibility: hidden;
+    }
+  }
+`
+
+const StyledTextInput = styled(TextInput)`
+  &:hover {
+    .MuiAutocomplete-clearIndicatorDirty {
+      visibility: visible;
     }
   }
 `

@@ -54,25 +54,27 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
 
     const formikProps = useFormik<CreateCustomerInput | UpdateCustomerInput>({
       initialValues: {
-        name: customer?.name ?? '',
-        customerId: customer?.customerId ?? '',
+        name: '',
+        customerId: '',
         legalName: undefined,
         legalNumber: undefined,
-        phone: undefined,
         email: undefined,
-        logoUrl: undefined,
+        phone: undefined,
         url: undefined,
+        logoUrl: undefined,
         addressLine1: undefined,
         addressLine2: undefined,
+        zipcode: undefined,
+        city: undefined,
         state: undefined,
         country: undefined,
-        city: undefined,
-        zipcode: undefined,
       },
       validationSchema: object().shape({
         name: string().required(''),
         customerId: string().required(''),
       }),
+      validateOnMount: true,
+      enableReinitialize: true,
       onSubmit: async (values, formikBag) => {
         const answer = await onSave(values)
 
@@ -104,15 +106,25 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
     }, [isEdition])
 
     useEffect(() => {
-      formikProps.resetForm({
-        values: {
-          name: customer?.name ?? '',
-          customerId: customer?.customerId ?? '',
-          ...(billingInfos ? { ..._omit(billingInfos, 'id') } : {}),
-        },
-      })
       if (mounted.current) {
         setIsCollapsed(!isEdition)
+        formikProps.setValues({
+          name: customer?.name ?? '',
+          customerId: customer?.customerId ?? '',
+          legalName: undefined,
+          legalNumber: undefined,
+          phone: undefined,
+          email: undefined,
+          logoUrl: undefined,
+          url: undefined,
+          addressLine1: undefined,
+          addressLine2: undefined,
+          state: undefined,
+          country: undefined,
+          city: undefined,
+          zipcode: undefined,
+          ..._omit(billingInfos, 'id'),
+        })
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [customer, billingInfos])
@@ -132,14 +144,27 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
                 closeDialog()
                 if (mounted.current) {
                   setIsCollapsed(!isEdition)
+
+                  formikProps.resetForm({
+                    values: {
+                      name: customer?.name ?? '',
+                      customerId: customer?.customerId ?? '',
+                      legalName: undefined,
+                      legalNumber: undefined,
+                      phone: undefined,
+                      email: undefined,
+                      logoUrl: undefined,
+                      url: undefined,
+                      addressLine1: undefined,
+                      addressLine2: undefined,
+                      state: undefined,
+                      country: undefined,
+                      city: undefined,
+                      zipcode: undefined,
+                      ..._omit(billingInfos, 'id'),
+                    },
+                  })
                 }
-                formikProps.resetForm({
-                  values: {
-                    name: customer?.name ?? '',
-                    customerId: customer?.customerId ?? '',
-                    ...(billingInfos ? { ..._omit(billingInfos, 'id') } : {}),
-                  },
-                })
               }}
             >
               {translate('text_6244277fe0975300fe3fb94a')}
@@ -157,6 +182,7 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
         )}
       >
         <Content>
+          <Typography variant="subhead">{translate('text_626c0c09812bbc00e4c59df1')}</Typography>
           <TextInputField
             name="name"
             label={translate('text_624efab67eb2570101d117be')}
@@ -174,7 +200,7 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
             formikProps={formikProps}
           />
           <div>
-            <BillinInfoLine>
+            <BillinInfoLine onClick={() => setIsCollapsed((prev) => !prev)}>
               <Typography variant="subhead">
                 {translate('text_626c0c09812bbc00e4c59dfd')}
               </Typography>
@@ -189,10 +215,6 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
                   size="small"
                   variant="quaternary"
                   icon="chevron-right"
-                  onClick={() => {
-                    loadBillingInfos && loadBillingInfos()
-                    setIsCollapsed((prev) => !prev)
-                  }}
                 />
               </Tooltip>
             </BillinInfoLine>
@@ -297,6 +319,7 @@ const CustomerId = styled(TextInputField)`
 const BillinInfoLine = styled.div`
   display: flex;
   align-items: center;
+  cursor: pointer;
 
   > *:first-child {
     margin-right: ${theme.spacing(3)};
@@ -306,6 +329,10 @@ const BillinInfoLine = styled.div`
 const Content = styled.div`
   > * {
     margin-bottom: ${theme.spacing(8)};
+
+    &:first-child {
+      margin-bottom: ${theme.spacing(6)};
+    }
   }
 `
 
