@@ -14,6 +14,7 @@ import {
   PLANS_ROUTE,
   CUSTOMERS_LIST_ROUTE,
   DEVELOPPERS_ROUTE,
+  SETTINGS_ROUTE,
   HOME_ROUTE,
 } from '~/core/router'
 import { MenuPopper } from '~/styles/designSystem'
@@ -55,6 +56,20 @@ const SideNav = () => {
       link: CUSTOMERS_LIST_ROUTE,
     },
   ]
+
+  const bottomTabButtons: TabProps[] = [
+    {
+      title: translate('text_6271200984178801ba8bdeac'),
+      icon: 'laptop',
+      link: DEVELOPPERS_ROUTE,
+    },
+    {
+      title: translate('text_62728ff857d47b013204c726'),
+      icon: 'settings',
+      link: SETTINGS_ROUTE,
+    },
+  ]
+
   const activeTabIndex = tabs.findIndex((tab) => (tab.match || tab.link).includes(pathname))
   const contentRef = useRef<HTMLDivElement>(null)
 
@@ -117,37 +132,45 @@ const SideNav = () => {
           </Header>
           <Nav className="nav">
             <TabsButtons>
-              {tabs.map(({ title, icon }, i) => {
+              {tabs.map(({ title, icon, canClickOnActive, link }, i) => {
                 return (
                   <TabButton
                     key={`side-nav-${i}-${title}`}
                     active={activeTabIndex === i}
                     onClick={() => {
-                      navigate(tabs[i].link)
+                      navigate(link)
                       setOpen(false)
                       const element = document.activeElement as HTMLElement
 
                       element.blur && element.blur()
                     }}
                     icon={icon}
-                    canClickOnActive={tabs[i].canClickOnActive}
+                    canClickOnActive={canClickOnActive}
                     title={title}
                   />
                 )
               })}
             </TabsButtons>
-            <DeveloppersButton
-              active={pathname.includes(DEVELOPPERS_ROUTE)}
-              onClick={() => {
-                navigate(DEVELOPPERS_ROUTE)
-                setOpen(false)
-                const element = document.activeElement as HTMLElement
+            <BottomButtons>
+              {bottomTabButtons.map(({ title, icon, link, canClickOnActive }, i) => {
+                return (
+                  <TabButton
+                    key={`side-nav-bottom-${i}-${title}`}
+                    active={pathname.includes(link)}
+                    onClick={() => {
+                      navigate(link)
+                      setOpen(false)
+                      const element = document.activeElement as HTMLElement
 
-                element.blur && element.blur()
-              }}
-              icon="laptop"
-              title={translate('text_6271200984178801ba8bdeac')}
-            />
+                      element.blur && element.blur()
+                    }}
+                    icon={icon}
+                    canClickOnActive={canClickOnActive}
+                    title={title}
+                  />
+                )
+              })}
+            </BottomButtons>
           </Nav>
         </Drawer>
       </ClickAwayListener>
@@ -248,6 +271,22 @@ const TabsButtons = styled.div`
   }
 `
 
+const BottomButtons = styled.div`
+  margin-top: auto;
+  width: 100%;
+  box-sizing: border-box;
+  flex-direction: column;
+  display: flex;
+
+  > * {
+    text-align: left;
+
+    &:not(:last-child) {
+      margin-bottom: ${theme.spacing(1)};
+    }
+  }
+`
+
 const StyledMenuPopper = styled(MenuPopper)`
   padding: 0;
   overflow: hidden;
@@ -284,11 +323,6 @@ const Gift = styled(Button)`
       opacity: 1;
     }
   }
-`
-
-const DeveloppersButton = styled(TabButton)`
-  margin-top: auto;
-  text-align: left;
 `
 
 export default SideNav

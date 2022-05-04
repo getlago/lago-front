@@ -127,23 +127,6 @@ export const ChargeAccordion = ({
               onChange={(value) => handleUpdate('amountCurrency', value)}
             />
           </LineAmount>
-
-          <TextInput
-            name="vatRate"
-            disabled={disabled}
-            label={translate('text_624aa732d6af4e0103d40e3b')}
-            placeholder={translate('text_624453d52e945301380e49be')}
-            type="number"
-            InputProps={{
-              endAdornment: (
-                <InputEnd color={disabled ? 'textPrimary' : 'textSecondary'}>
-                  {translate('text_624453d52e945301380e49c0')}
-                </InputEnd>
-              ),
-            }}
-            value={localCharge.vatRate as number}
-            onChange={(value) => handleUpdate('vatRate', value)}
-          />
         </Details>
       </StyledAccordion>
     </Container>
@@ -212,10 +195,6 @@ const Details = styled(AccordionDetails)`
       margin-bottom: ${theme.spacing(6)};
     }
   }
-`
-
-const InputEnd = styled(Typography)`
-  margin-right: ${theme.spacing(4)};
 `
 
 const LineAmount = styled.div`

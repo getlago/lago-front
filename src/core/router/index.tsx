@@ -7,11 +7,16 @@ const SignUp = lazy(() => import(/* webpackChunkName: 'sign-up' */ '~/pages/auth
 const ForgotPassword = lazy(
   () => import(/* webpackChunkName: 'forgot-password' */ '~/pages/auth/ForgotPassword')
 )
-const ApiKeys = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/ApiKeys'))
-const Webhook = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/Webhook'))
+
 const Developpers = lazy(
   () => import(/* webpackChunkName: 'developpers-layout' */ '~/layouts/Developpers')
 )
+const ApiKeys = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/developpers/ApiKeys'))
+const Webhook = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/developpers/Webhook'))
+
+const Settings = lazy(() => import(/* webpackChunkName: 'settings' */ '~/layouts/Settings'))
+const TaxRate = lazy(() => import(/* webpackChunkName: 'tax-rate' */ '~/pages/settings/VatRate'))
+
 const BillableMetricsList = lazy(
   () => import(/* webpackChunkName: 'billable-metrics' */ '~/pages/BillableMetricsList')
 )
@@ -50,9 +55,15 @@ export const CREATE_PLAN_ROUTE = '/create/plans'
 export const CUSTOMERS_LIST_ROUTE = '/customers'
 export const CUSTOMER_DETAILS_ROUTE = '/customer/:id'
 export const ERROR_404_ROUTE = '/404'
+
+// Developpers routes
 export const DEVELOPPERS_ROUTE = '/developpers'
 export const API_KEYS_ROUTE = `${DEVELOPPERS_ROUTE}/api-keys`
 export const WEBHOOK_ROUTE = `${DEVELOPPERS_ROUTE}/webhook`
+
+// Settings route
+export const SETTINGS_ROUTE = '/settings'
+export const VAT_RATE_ROUTE = `${SETTINGS_ROUTE}/tax-rate`
 
 export const routes: CustomRouteObject[] = [
   {
@@ -85,6 +96,17 @@ export const routes: CustomRouteObject[] = [
             path: WEBHOOK_ROUTE,
             private: true,
             element: <Webhook />,
+          },
+        ],
+      },
+      {
+        private: true,
+        element: <Settings />,
+        children: [
+          {
+            path: [SETTINGS_ROUTE, VAT_RATE_ROUTE],
+            private: true,
+            element: <TaxRate />,
           },
         ],
       },

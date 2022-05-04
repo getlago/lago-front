@@ -37,7 +37,6 @@ export const PlanForm = ({ plan, children, onSave, isEdition }: PlanFormProps) =
       // @ts-ignore
       amountCents: plan?.amountCents ?? undefined,
       amountCurrency: plan?.amountCurrency ?? CurrencyEnum.Usd,
-      vatRate: plan?.vatRate === undefined ? 0 : plan?.vatRate,
       // @ts-ignore
       trialPeriod: plan?.trialPeriod ?? undefined,
       charges: plan?.charges ?? ([] as LocalChargeInput[]),
@@ -47,7 +46,6 @@ export const PlanForm = ({ plan, children, onSave, isEdition }: PlanFormProps) =
       code: string().required(''),
       interval: string().required(''),
       amountCents: number().typeError(translate('text_624ea7c29103fd010732ab7d')).required(''),
-      vatRate: number().typeError(translate('text_624ea7c29103fd010732ab7d')),
       trialPeriod: number().typeError(translate('text_624ea7c29103fd010732ab7d')),
       amountCurrency: string().required(''),
       charges: array().of(
@@ -166,22 +164,6 @@ export const PlanForm = ({ plan, children, onSave, isEdition }: PlanFormProps) =
             <Typography variant="caption">{translate('text_624d90e6a93343010cd14b4c')}</Typography>
           </div>
         </SwitchBlock>
-
-        <TextInputField
-          name="vatRate"
-          disabled={isEdition && !plan?.canBeDeleted}
-          label={translate('text_624453d52e945301380e49bc')}
-          placeholder={translate('text_624453d52e945301380e49be')}
-          type="number"
-          formikProps={formikProps}
-          InputProps={{
-            endAdornment: (
-              <InputEnd color={!plan?.canBeDeleted ? 'textPrimary' : 'textSecondary'}>
-                {translate('text_624453d52e945301380e49c0')}
-              </InputEnd>
-            ),
-          }}
-        />
 
         <TextInputField
           name="trialPeriod"
