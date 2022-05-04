@@ -27,5 +27,7 @@ projects:
     id: 626c0c056054aa00f9967401
   - name: "\U0001F44D [Ready for dev] - Settings - Webhooks in app"
     id: 6271200612648800e9bdfd47
+  - name: "\U0001F44D [Ready for dev] - Setting - Set tax rates in application"
+    id: 62728ff2d06c9b00f4ea46ad
 format: flat
 variants: true

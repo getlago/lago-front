@@ -24,7 +24,6 @@ gql`
     payInAdvance
     amountCents
     amountCurrency
-    vatRate
     trialPeriod
     canBeDeleted
     charges {
@@ -37,7 +36,6 @@ gql`
       amountCents
       amountCurrency
       chargeModel
-      vatRate
     }
   }
 
