@@ -43,12 +43,14 @@ import EyeHidden from '~/public/icons/eye-hidden.svg'
 import Filter from '~/public/icons/filter.svg'
 import Flash from '~/public/icons/flash.svg'
 import Formulas from '~/public/icons/formulas.svg'
+import Globe from '~/public/icons/globe.svg'
 import Google from '~/public/icons/google.svg'
 import Handle from '~/public/icons/handle.svg'
 import Hashtag from '~/public/icons/hashtag.svg'
 import InfoCircle from '~/public/icons/info-circle.svg'
 import Key from '~/public/icons/key.svg'
 import KeyboardEnter from '~/public/icons/keyboard-enter.svg'
+import Laptop from '~/public/icons/laptop.svg'
 import Lock from '~/public/icons/lock.svg'
 import Logout from '~/public/icons/log-out.svg'
 import Loupe from '~/public/icons/loupe.svg'
@@ -142,12 +144,14 @@ export const ALL_ICONS = {
   filter: Filter,
   flash: Flash,
   formulas: Formulas,
+  globe: Globe,
   google: Google,
   handle: Handle,
   hashtag: Hashtag,
   'info-circle': InfoCircle,
   key: Key,
   'keyboard-enter': KeyboardEnter,
+  laptop: Laptop,
   lock: Lock,
   logout: Logout,
   loupe: Loupe,

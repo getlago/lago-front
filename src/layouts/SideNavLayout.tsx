@@ -10,10 +10,10 @@ import { logOut, useCurrentUserInfosVar } from '~/core/apolloClient'
 import { Avatar, Button, TabButton, Popper, IconName } from '~/components/designSystem'
 import { theme } from '~/styles'
 import {
-  API_KEYS_ROUTE,
   BILLABLE_METRICS_ROUTE,
   PLANS_ROUTE,
   CUSTOMERS_LIST_ROUTE,
+  API_KEYS_ROUTE,
 } from '~/core/router'
 import { MenuPopper } from '~/styles/designSystem'
 
@@ -142,8 +142,8 @@ const SideNav = () => {
 
                 element.blur && element.blur()
               }}
-              icon="key"
-              title={translate('text_6227a2e847fcd700e9038943')}
+              icon="laptop"
+              title={translate('text_6271200984178801ba8bdeac')}
             />
           </Nav>
         </Drawer>
