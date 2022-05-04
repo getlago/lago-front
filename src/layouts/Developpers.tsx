@@ -1,12 +1,14 @@
 import { Outlet } from 'react-router-dom'
 import { useNavigate, useLocation } from 'react-router-dom'
+import styled from 'styled-components'
 
 import { PageHeader } from '~/styles'
 import { useI18nContext } from '~/core/I18nContext'
 import { Typography, BasicTabs } from '~/components/designSystem'
-import { API_KEYS_ROUTE, WEBHOOK_ROUTE } from '~/core/router'
+import { API_KEYS_ROUTE, WEBHOOK_ROUTE, DEVELOPPERS_ROUTE } from '~/core/router'
+import { NAV_HEIGHT } from '~/styles'
 
-const Settings = () => {
+const Developpers = () => {
   const { translate } = useI18nContext()
   const { pathname } = useLocation()
   const navigate = useNavigate()
@@ -30,12 +32,20 @@ const Settings = () => {
       </PageHeader>
       <BasicTabs
         tabs={tabsOptions}
-        value={pathname}
+        value={pathname === DEVELOPPERS_ROUTE ? API_KEYS_ROUTE : pathname}
         onClick={(_, key) => navigate(key as string)}
       />
-      <Outlet />
+      <Content>
+        <Outlet />
+      </Content>
     </div>
   )
 }
 
-export default Settings
+const Content = styled.div`
+  display: flex;
+  min-height: calc(100vh - ${NAV_HEIGHT * 2}px);
+  flex-direction: column;
+`
+
+export default Developpers
