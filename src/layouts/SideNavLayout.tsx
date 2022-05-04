@@ -13,7 +13,8 @@ import {
   BILLABLE_METRICS_ROUTE,
   PLANS_ROUTE,
   CUSTOMERS_LIST_ROUTE,
-  API_KEYS_ROUTE,
+  DEVELOPPERS_ROUTE,
+  HOME_ROUTE,
 } from '~/core/router'
 import { MenuPopper } from '~/styles/designSystem'
 
@@ -24,6 +25,7 @@ interface TabProps {
   icon: IconName
   link: string
   canClickOnActive?: boolean
+  match?: string[]
 }
 
 const SideNav = () => {
@@ -40,6 +42,7 @@ const SideNav = () => {
       title: translate('text_623b497ad05b960101be3448'),
       icon: 'pulse',
       link: BILLABLE_METRICS_ROUTE,
+      match: [BILLABLE_METRICS_ROUTE, HOME_ROUTE],
     },
     {
       title: translate('text_62442e40cea25600b0b6d85a'),
@@ -52,7 +55,7 @@ const SideNav = () => {
       link: CUSTOMERS_LIST_ROUTE,
     },
   ]
-  const activeTabIndex = tabs.findIndex((tab) => pathname.includes(tab.link))
+  const activeTabIndex = tabs.findIndex((tab) => (tab.match || tab.link).includes(pathname))
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -133,10 +136,10 @@ const SideNav = () => {
                 )
               })}
             </TabsButtons>
-            <ApiKeyButton
-              active={pathname.includes(API_KEYS_ROUTE)}
+            <DeveloppersButton
+              active={pathname.includes(DEVELOPPERS_ROUTE)}
               onClick={() => {
-                navigate(API_KEYS_ROUTE)
+                navigate(DEVELOPPERS_ROUTE)
                 setOpen(false)
                 const element = document.activeElement as HTMLElement
 
@@ -283,7 +286,7 @@ const Gift = styled(Button)`
   }
 `
 
-const ApiKeyButton = styled(TabButton)`
+const DeveloppersButton = styled(TabButton)`
   margin-top: auto;
   text-align: left;
 `

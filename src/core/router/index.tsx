@@ -1,6 +1,5 @@
 import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
-import { Navigate } from 'react-router-dom'
 
 const Error404 = lazy(() => import(/* webpackChunkName: 'error-404' */ '~/pages/Error404'))
 const Login = lazy(() => import(/* webpackChunkName: 'login' */ '~/pages/auth/Login'))
@@ -10,7 +9,9 @@ const ForgotPassword = lazy(
 )
 const ApiKeys = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/ApiKeys'))
 const Webhook = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/Webhook'))
-const Settings = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/layouts/Settings'))
+const Developpers = lazy(
+  () => import(/* webpackChunkName: 'developpers-layout' */ '~/layouts/Developpers')
+)
 const BillableMetricsList = lazy(
   () => import(/* webpackChunkName: 'billable-metrics' */ '~/pages/BillableMetricsList')
 )
@@ -28,7 +29,8 @@ const CustomerDetails = lazy(
 
 const SideNavLayout = lazy(() => import(/* webpackChunkName: 'home' */ '~/layouts/SideNavLayout'))
 
-interface CustomRouteObject extends Omit<RouteObject, 'children'> {
+export interface CustomRouteObject extends Omit<RouteObject, 'children' | 'path'> {
+  path?: string | string[]
   private?: boolean
   onlyPublic?: boolean
   redirect?: string
@@ -48,9 +50,9 @@ export const CREATE_PLAN_ROUTE = '/create/plans'
 export const CUSTOMERS_LIST_ROUTE = '/customers'
 export const CUSTOMER_DETAILS_ROUTE = '/customer/:id'
 export const ERROR_404_ROUTE = '/404'
-export const SETTINGS_ROUTE = '/settings'
-export const API_KEYS_ROUTE = '/settings/api-keys'
-export const WEBHOOK_ROUTE = '/settings/webhook'
+export const DEVELOPPERS_ROUTE = '/developpers'
+export const API_KEYS_ROUTE = `${DEVELOPPERS_ROUTE}/api-keys`
+export const WEBHOOK_ROUTE = `${DEVELOPPERS_ROUTE}/webhook`
 
 export const routes: CustomRouteObject[] = [
   {
@@ -62,22 +64,20 @@ export const routes: CustomRouteObject[] = [
     element: <Error404 />,
   },
   {
-    path: HOME_ROUTE,
     element: <SideNavLayout />,
     private: true,
     children: [
       {
-        path: BILLABLE_METRICS_ROUTE,
+        path: [BILLABLE_METRICS_ROUTE, HOME_ROUTE],
         private: true,
         element: <BillableMetricsList />,
       },
       {
-        path: SETTINGS_ROUTE,
         private: true,
-        element: <Settings />,
+        element: <Developpers />,
         children: [
           {
-            path: API_KEYS_ROUTE,
+            path: [API_KEYS_ROUTE, DEVELOPPERS_ROUTE],
             private: true,
             element: <ApiKeys />,
           },
@@ -103,30 +103,15 @@ export const routes: CustomRouteObject[] = [
         private: true,
         element: <CustomerDetails />,
       },
-      {
-        path: HOME_ROUTE,
-        private: true,
-        redirect: BILLABLE_METRICS_ROUTE,
-      },
     ],
   },
   {
-    path: CREATE_BILLABLE_METRIC_ROUTE,
+    path: [CREATE_BILLABLE_METRIC_ROUTE, UPDATE_BILLABLE_METRIC_ROUTE],
     private: true,
     element: <CreateBillableMetric />,
   },
   {
-    path: UPDATE_BILLABLE_METRIC_ROUTE,
-    private: true,
-    element: <CreateBillableMetric />,
-  },
-  {
-    path: CREATE_PLAN_ROUTE,
-    private: true,
-    element: <CreatePlan />,
-  },
-  {
-    path: UPDATE_PLAN_ROUTE,
+    path: [CREATE_PLAN_ROUTE, UPDATE_PLAN_ROUTE],
     private: true,
     element: <CreatePlan />,
   },
@@ -146,25 +131,3 @@ export const routes: CustomRouteObject[] = [
     onlyPublic: true,
   },
 ]
-
-export const formatRoute: (route: CustomRouteObject, loggedIn: boolean) => RouteObject = (
-  route,
-  loggedIn
-) => {
-  return {
-    ...(route.path ? { path: route.path } : { index: true }),
-    element:
-      route.private && !loggedIn ? (
-        <Navigate to={LOGIN_ROUTE} />
-      ) : route.onlyPublic && loggedIn ? (
-        <Navigate to={HOME_ROUTE} />
-      ) : route.redirect ? (
-        <Navigate to={route.redirect} />
-      ) : (
-        route.element
-      ),
-    ...(route.children
-      ? { children: route.children.map((child: CustomRouteObject) => formatRoute(child, loggedIn)) }
-      : {}),
-  }
-}
