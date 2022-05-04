@@ -9,6 +9,8 @@ const ForgotPassword = lazy(
   () => import(/* webpackChunkName: 'forgot-password' */ '~/pages/auth/ForgotPassword')
 )
 const ApiKeys = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/ApiKeys'))
+const Webhook = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/Webhook'))
+const Settings = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/layouts/Settings'))
 const BillableMetricsList = lazy(
   () => import(/* webpackChunkName: 'billable-metrics' */ '~/pages/BillableMetricsList')
 )
@@ -26,20 +28,17 @@ const CustomerDetails = lazy(
 
 const SideNavLayout = lazy(() => import(/* webpackChunkName: 'home' */ '~/layouts/SideNavLayout'))
 
-interface SimpleRoute extends Omit<RouteObject, 'children'> {
+interface CustomRouteObject extends Omit<RouteObject, 'children'> {
   private?: boolean
   onlyPublic?: boolean
   redirect?: string
-}
-interface CustomRouteObject extends SimpleRoute {
-  children?: SimpleRoute[]
+  children?: CustomRouteObject[]
 }
 
 export const LOGIN_ROUTE = '/login'
 export const FORGOT_PASSWORD_ROUTE = '/forgot-password'
 export const SIGN_UP_ROUTE = '/sign-up'
 export const HOME_ROUTE = '/'
-export const API_KEYS_ROUTE = '/api-keys'
 export const BILLABLE_METRICS_ROUTE = '/billable-metrics'
 export const CREATE_BILLABLE_METRIC_ROUTE = '/create/billable-metrics'
 export const UPDATE_BILLABLE_METRIC_ROUTE = '/create/billable-metric/:id'
@@ -49,6 +48,9 @@ export const CREATE_PLAN_ROUTE = '/create/plans'
 export const CUSTOMERS_LIST_ROUTE = '/customers'
 export const CUSTOMER_DETAILS_ROUTE = '/customer/:id'
 export const ERROR_404_ROUTE = '/404'
+export const SETTINGS_ROUTE = '/settings'
+export const API_KEYS_ROUTE = '/settings/api-keys'
+export const WEBHOOK_ROUTE = '/settings/webhook'
 
 export const routes: CustomRouteObject[] = [
   {
@@ -70,9 +72,21 @@ export const routes: CustomRouteObject[] = [
         element: <BillableMetricsList />,
       },
       {
-        path: API_KEYS_ROUTE,
+        path: SETTINGS_ROUTE,
         private: true,
-        element: <ApiKeys />,
+        element: <Settings />,
+        children: [
+          {
+            path: API_KEYS_ROUTE,
+            private: true,
+            element: <ApiKeys />,
+          },
+          {
+            path: WEBHOOK_ROUTE,
+            private: true,
+            element: <Webhook />,
+          },
+        ],
       },
       {
         path: PLANS_ROUTE,

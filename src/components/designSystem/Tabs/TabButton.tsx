@@ -4,8 +4,8 @@ import styled, { css } from 'styled-components'
 
 import { theme } from '~/styles'
 
-import { Icon, IconName } from './Icon'
-import { Typography } from './Typography'
+import { Icon, IconName } from '../Icon'
+import { Typography } from '../Typography'
 
 export interface TabButtonProps {
   active?: boolean
