@@ -72,22 +72,18 @@ type UseCreateEditPlanReturn = {
 }
 
 const formatPlanInput = (values: PlanFormInput) => {
-  const { amountCents, trialPeriod, vatRate, charges, ...otherValues } = values
+  const { amountCents, trialPeriod, charges, ...otherValues } = values
 
   return {
     amountCents: Number(amountCents),
     trialPeriod: Number(trialPeriod),
-    vatRate: Number(vatRate),
-    charges: charges.map(
-      ({ billableMetric, amountCents: chargeAmountCents, vatRate: chargeVatRate, ...charge }) => {
-        return {
-          amountCents: Number(chargeAmountCents),
-          vatRate: Number(chargeVatRate),
-          billableMetricId: billableMetric.id,
-          ...charge,
-        }
+    charges: charges.map(({ billableMetric, amountCents: chargeAmountCents, ...charge }) => {
+      return {
+        amountCents: Number(chargeAmountCents),
+        billableMetricId: billableMetric.id,
+        ...charge,
       }
-    ),
+    }),
     ...otherValues,
   }
 }

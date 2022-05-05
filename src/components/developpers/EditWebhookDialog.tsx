@@ -75,7 +75,7 @@ export const EditWebhookDialog = forwardRef<DialogRef, EditWebhookDialogProps>(
                   !!error?.details?.webhookUrl
                 ) {
                   setMutationError(translate('text_6271200984178801ba8bdf58'))
-                } else {
+                } else if (!errors) {
                   addToast({
                     message: translate(
                       isEdition ? 'text_6271200984178801ba8bdf98' : 'text_6271200984178801ba8bdf7f'

@@ -56,7 +56,9 @@ export const EditOrganizationVatRateDialog = forwardRef<
           </Button>
           <Button
             variant="primary"
-            disabled={!localVatRate || localVatRate === vatRate || !!mutationError}
+            disabled={
+              typeof localVatRate !== 'number' || localVatRate === vatRate || !!mutationError
+            }
             onClick={async () => {
               const res = await updateVatRate({
                 variables: { input: { vatRate: localVatRate } },
@@ -72,7 +74,7 @@ export const EditOrganizationVatRateDialog = forwardRef<
                 !!error?.details?.vatRate
               ) {
                 setMutationError(translate('text_6272a16eea94bd01089abaa7'))
-              } else {
+              } else if (!errors) {
                 addToast({
                   message: translate('text_62728ff857d47b013204c86f'),
                   severity: 'success',

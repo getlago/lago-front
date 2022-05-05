@@ -3,13 +3,18 @@ import { useEffect, useRef } from 'react'
 
 import { addToast, updateCurrentUserInfosVar, resetCurrentUserInfosVar } from '~/core/apolloClient'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
-import { useUserIdentifierQuery } from '~/generated/graphql'
+import {
+  useUserIdentifierQuery,
+  ApiKeyOrganizationFragmentDoc,
+  VatRateOrganizationFragmentDoc,
+} from '~/generated/graphql'
 
 gql`
   fragment CurrentOrganization on Organization {
     id
     name
-    apiKey
+    ...ApiKeyOrganization
+    ...VatRateOrganization
   }
 
   fragment CurrentUser on User {
@@ -25,6 +30,9 @@ gql`
       ...CurrentUser
     }
   }
+
+  ${ApiKeyOrganizationFragmentDoc}
+  ${VatRateOrganizationFragmentDoc}
 `
 
 export const UserIdentifier = () => {
