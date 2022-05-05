@@ -239,7 +239,6 @@ export const PlanForm = ({ plan, children, onSave, isEdition }: PlanFormProps) =
               chargeModel: ChargeModelEnum.Standard,
               amountCents: undefined,
               amountCurrency: formikProps.values.amountCurrency, // TODO
-              vatRate: 0,
             },
           ])
 

@@ -11,6 +11,8 @@ import {
   CustomerSubscriptionListFragmentDoc,
   CustomerInvoiceListFragmentDoc,
   AddCustomerDialogDetailFragmentDoc,
+  CustomerVatRateFragmentDoc,
+  CustomerVatRateFragment,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import EmojiError from '~/public/images/exploding-head.png'
@@ -19,6 +21,7 @@ import {
   CustomerSubscriptionsListRef,
 } from '~/components/customers/CustomerSubscriptionsList'
 import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
+import { CustomerVatRate } from '~/components/customers/CustomerVatRate'
 import { theme, PageHeader, MenuPopper } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
 import {
@@ -40,6 +43,7 @@ gql`
     invoices {
       ...CustomerInvoiceList
     }
+    ...CustomerVatRate
     ...AddCustomerDialogDetail
   }
 
@@ -52,6 +56,7 @@ gql`
   ${CustomerSubscriptionListFragmentDoc}
   ${CustomerInvoiceListFragmentDoc}
   ${AddCustomerDialogDetailFragmentDoc}
+  ${CustomerVatRateFragmentDoc}
 `
 
 const formatUrl: (url: string) => string = (url) => {
@@ -221,6 +226,12 @@ const CustomerDetails = () => {
                     </SideLoadingSection>
                     <SideLoadingSection>
                       <SectionHeader variant="subhead">
+                        {translate('text_62728ff857d47b013204cac1')}
+                      </SectionHeader>
+                      <Skeleton variant="text" height={12} width={240} />
+                    </SideLoadingSection>
+                    <SideLoadingSection>
+                      <SectionHeader variant="subhead">
                         {translate('text_6250304370f0f700a8fdc291')}
                       </SectionHeader>
                       <Skeleton variant="text" height={12} width={240} />
@@ -345,6 +356,7 @@ const CustomerDetails = () => {
                       subscriptions={subscriptions ?? []}
                       refetchCustomer={refetch}
                     />
+                    <CustomerVatRate customer={data?.customer as CustomerVatRateFragment} />
                     <CustomerInvoicesList invoices={invoices} />
                   </SideBlock>
                 </Infos>
@@ -429,7 +441,7 @@ const LoadingDetails = styled.div`
 `
 
 const SideBlock = styled.div`
-  > *:first-child {
+  > *:not(:last-child) {
     margin-bottom: ${theme.spacing(8)};
   }
 `

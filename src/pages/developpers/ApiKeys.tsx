@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
 import { useCurrentUserInfosVar, addToast } from '~/core/apolloClient'
@@ -5,6 +6,13 @@ import { useI18nContext } from '~/core/I18nContext'
 import { Typography, Button } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
 import { theme } from '~/styles'
+
+gql`
+  fragment ApiKeyOrganization on Organization {
+    id
+    apiKey
+  }
+`
 
 const ApiKeys = () => {
   const { currentOrganization } = useCurrentUserInfosVar()

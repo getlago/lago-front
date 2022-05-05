@@ -35,7 +35,7 @@ const VatRate = () => {
     <Page>
       <Typography variant="headline">{translate('text_62728ff857d47b013204c776')}</Typography>
       <Subtitle>{translate('text_62728ff857d47b013204c782')}</Subtitle>
-      <Head $empty={!vatRate && !loading}>
+      <Head $empty={typeof vatRate !== 'number' && !loading}>
         <Typography variant="subhead">{translate('text_62728ff857d47b013204c7ae')}</Typography>
         <Button variant="secondary" onClick={editDialogRef?.current?.openDialog}>
           {translate('text_62728ff857d47b013204c798')}
