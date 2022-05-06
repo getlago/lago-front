@@ -12,28 +12,28 @@ const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
   --header "Authorization: Bearer $API_KEY" \\
   --header 'Content-Type: application/json' \\
   --data-raw ${JSON.stringify(
-    `{"event": {"customer_id": "__CUSTOMER_ID__", "code": "${code}", "timestamp": $(date +%s)}}`
+    `{"event": { "transaction_id": "__UNIQUE_ID__", "customer_id": "__CUSTOMER_ID__", "code": "${code}", "timestamp": $(date +%s)}}`
   )}`
     case AggregationTypeEnum.UniqueCountAgg:
       return `curl --location --request POST "$LAGO_URL/api/v1/events" \\
   --header "Authorization: Bearer $API_KEY" \\
   --header 'Content-Type: application/json' \\
   --data-raw ${JSON.stringify(
-    `{"event": {"customer_id": "__CUSTOMER_ID__", "code": "${code}", "timestamp": $(date +%s), "properties":  { "${fieldName}": "data" }}}`
+    `{"event": { "transaction_id": "__UNIQUE_ID__", "customer_id": "__CUSTOMER_ID__", "code": "${code}", "timestamp": $(date +%s), "properties":  { "${fieldName}": "data" }}}`
   )}`
     case AggregationTypeEnum.MaxAgg:
       return `curl --location --request POST "${API_URL}/api/v1/events" \\
   --header "Authorization: Bearer $API_KEY" \\
   --header 'Content-Type: application/json' \\
   --data-raw ${JSON.stringify(
-    `{"event": {"customer_id": "__CUSTOMER_ID__", "code": "${code}", "timestamp": $(date +%s), "properties":  { "${fieldName}": 12 }}}`
+    `{"event": { "transaction_id": "__UNIQUE_ID__", "customer_id": "__CUSTOMER_ID__", "code": "${code}", "timestamp": $(date +%s), "properties":  { "${fieldName}": 12 }}}`
   )}`
     case AggregationTypeEnum.SumAgg:
       return `curl --location --request POST "${API_URL}/api/v1/events" \\
   --header "Authorization: Bearer $API_KEY" \\
   --header 'Content-Type: application/json' \\
   --data-raw ${JSON.stringify(
-    `{"event": {"customer_id": "__CUSTOMER_ID__", "code": "${code}", "timestamp": $(date +%s), "properties":  { "${fieldName}": 12 }}}`
+    `{"event": { "transaction_id": "__UNIQUE_ID__", "customer_id": "__CUSTOMER_ID__", "code": "${code}", "timestamp": $(date +%s), "properties":  { "${fieldName}": 12 }}}`
   )}`
     default:
       return '# Fill the form to generate the code snippet'
