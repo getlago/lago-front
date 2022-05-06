@@ -17,7 +17,7 @@
     "project_623b42fddc2f2c017440cb5b": {
       "text_623b42ff8ee4e000ba87d0ae": "Add a billable metric",
       "text_623b42ff8ee4e000ba87d0b0": "Add a billable metric",
-      "text_623b42ff8ee4e000ba87d0b2": "Test this snippet in your code",
+      "text_623b42ff8ee4e000ba87d0b2": "Test this snippet",
       "text_623b42ff8ee4e000ba87d0b4": "Base metric used to measure usage, and act as a foundation of pricing.",
       "text_623b42ff8ee4e000ba87d0b6": "Node",
       "text_623b42ff8ee4e000ba87d0b8": "How should we name it? ",
@@ -25,7 +25,7 @@
       "text_623b42ff8ee4e000ba87d0c0": "Code",
       "text_6241cc759211e600ea57f4c7": "Type a name",
       "text_623b42ff8ee4e000ba87d0c4": "Type a code",
-      "text_623b42ff8ee4e000ba87d0c6": "Copy",
+      "text_623b42ff8ee4e000ba87d0c6": "Copy to clipboard",
       "text_623b42ff8ee4e000ba87d0c8": "Description (optional)",
       "text_623b42ff8ee4e000ba87d0ca": "Explain the goal of this billable metric …",
       "text_623b42ff8ee4e000ba87d0cc": "How should we measure it? ",
@@ -1072,5 +1072,5 @@
       "country-code-zw": "Zimbabwe"
     }
   },
-  "exported_at": "2022-05-06T09:03:10.814Z"
+  "exported_at": "2022-05-06T15:06:18.954Z"
 }
