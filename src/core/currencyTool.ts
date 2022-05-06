@@ -9,11 +9,23 @@ const mapCurrency: (currency: CurrencyEnum) => string = (currency) => {
   }
 }
 
-export const formatAmount: (amount: number, currency: CurrencyEnum) => string = (
-  amount,
-  currency
-) => {
-  return amount.toLocaleString(mapCurrency(currency), {
+enum AmountUnit {
+  cent = 'cent',
+  standard = 'standard',
+}
+
+export const formatAmountToCurrency: (
+  amount: number,
+  currency: CurrencyEnum,
+  initialUnit?: keyof typeof AmountUnit
+) => string = (amount, currency, initialUnit = 'cent') => {
+  let formattedToUnit = amount
+
+  if (initialUnit === AmountUnit['cent']) {
+    formattedToUnit = amount / 100
+  }
+
+  return formattedToUnit.toLocaleString(mapCurrency(currency), {
     style: 'currency',
     currency,
     currencyDisplay: 'code',

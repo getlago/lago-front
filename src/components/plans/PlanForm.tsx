@@ -6,7 +6,13 @@ import styled from 'styled-components'
 import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
 import { EditPlanFragment } from '~/generated/graphql'
 import { PlanInterval, CurrencyEnum } from '~/generated/graphql'
-import { TextInputField, ButtonSelectorField, ComboBoxField, SwitchField } from '~/components/form'
+import {
+  TextInputField,
+  ButtonSelectorField,
+  ComboBoxField,
+  SwitchField,
+  AmountField,
+} from '~/components/form'
 import { useI18nContext } from '~/core/I18nContext'
 import { Typography, Button } from '~/components/designSystem'
 import { theme } from '~/styles'
@@ -125,12 +131,11 @@ export const PlanForm = ({ plan, children, onSave, isEdition }: PlanFormProps) =
         />
 
         <LineAmount>
-          <TextInputField
-            disabled={isEdition && !plan?.canBeDeleted}
+          <AmountField
             name="amountCents"
+            disabled={isEdition && !plan?.canBeDeleted}
             label={translate('text_624453d52e945301380e49b6')}
             placeholder={translate('text_624453d52e945301380e49b8')}
-            type="number"
             formikProps={formikProps}
           />
           <ComboBoxField
