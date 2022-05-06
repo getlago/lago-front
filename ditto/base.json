@@ -625,8 +625,8 @@
       "text_6271200984178801ba8bdf42": "Webhook endpoints",
       "text_6271200984178801ba8bdf56": "Webhook name",
       "text_6271200984178801ba8bdf69": "Event",
-      "text_6271200984178801ba8bdeac": "Developpers",
-      "text_6271200984178801ba8bdebe": "Developpers",
+      "text_6271200984178801ba8bdeac": "Developers",
+      "text_6271200984178801ba8bdebe": "Developers",
       "text_6271200984178801ba8bdeca": "API keys",
       "text_6271200984178801ba8bdede": "Webhooks",
       "text_6271200984178801ba8bdef2": "Webhooks",
@@ -677,14 +677,14 @@
       "text_62728ff857d47b013204c7a2": "Tax rate",
       "text_62728ff857d47b013204c7ce": "%",
       "text_62728ff857d47b013204c7e4": "Cancel",
-      "text_62728ff857d47b013204c7fa": "Add tax rate",
+      "text_62728ff857d47b013204c7fa": "Edit tax rate",
       "text_62728ff857d47b013204c86f": "Tax rate successfully created",
       "text_62728ff857d47b013204cab3": "Add a tax rate",
       "text_62728ff857d47b013204cac1": "Taxe rates",
       "text_62728ff857d47b013204cadd": "This customer inherits a rate of {{orgTaxRate}}% defined in the <a data-text=\"general setting\" href=\"{{link}}\">-</a>. Add a rate on this customer to overwrite the general setting.",
       "text_62728ff857d47b013204cb25": "Tax rate defined at {{taxRate}}%",
       "text_62728ff857d47b013204cb3f": "Only for this customer",
-      "text_62728ff857d47b013204cb59": "This tax rate overwrite the one set at {{organisactionTaxRate}}% in the <a data-text=\"general settings\" href=\"{{link}}\">-</a>",
+      "text_62728ff857d47b013204cb59": "This tax rate overwrites the one set at {{organisactionTaxRate}}% in the <a data-text=\"general settings\" href=\"{{link}}\">-</a>",
       "text_62728ff857d47b013204cc62": "Tax rate successfully created",
       "text_62728ff857d47b013204cc4e": "Edit, delete",
       "text_62728ff857d47b013204cc35": "Edit",
@@ -769,7 +769,7 @@
       "text_62728ff857d47b013204cc5c": "xxx.xx EUR",
       "text_62728ff857d47b013204cc4f": "Tax rate successfully edited",
       "text_62728ff857d47b013204c768": "You’re about to delete a tax rate",
-      "text_62728ff857d47b013204c774": "After deleting this tax rate, {{customerFullName}}’s next invoices will have no tax rates. Are you sure to delete it?",
+      "text_62728ff857d47b013204c774": "After deleting this tax rate, {{customerFullName}}’s upcoming invoices will inherit general tax rates. Are you sure to delete it?",
       "text_62728ff857d47b013204c780": "Cancel",
       "text_62728ff857d47b013204c796": "Yes, delete",
       "text_62728ff857d47b013204cbed": "Tax rate successfully deleted",
@@ -1072,5 +1072,5 @@
       "country-code-zw": "Zimbabwe"
     }
   },
-  "exported_at": "2022-05-05T09:33:13.117Z"
+  "exported_at": "2022-05-06T09:03:10.814Z"
 }
