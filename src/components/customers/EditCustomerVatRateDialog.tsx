@@ -108,7 +108,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
               }}
             >
               {translate(
-                isEdition ? 'text_6271200984178801ba8bdf3e' : 'text_627387d5053a1000c5287cad'
+                isEdition ? 'text_62728ff857d47b013204c7f2' : 'text_627387d5053a1000c5287cad'
               )}
             </Button>
           </>
