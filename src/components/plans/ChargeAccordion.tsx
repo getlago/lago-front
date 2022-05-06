@@ -7,7 +7,7 @@ import { theme } from '~/styles'
 import { Button, Typography, Tooltip } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
 import { ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
-import { ComboBox, TextInput } from '~/components/form'
+import { ComboBox, AmountInput } from '~/components/form'
 
 import { PlanFormInput } from './types'
 
@@ -100,12 +100,11 @@ export const ChargeAccordion = ({
           />
 
           <LineAmount>
-            <TextInput
-              disabled={disabled}
+            <AmountInput
               name="amountCents"
+              disabled={disabled}
               label={translate('text_624453d52e945301380e49b6')}
               placeholder={translate('text_624453d52e945301380e49b8')}
-              type="number"
               value={localCharge.amountCents}
               onChange={(value) => handleUpdate('amountCents', value)}
             />
