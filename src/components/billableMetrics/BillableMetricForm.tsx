@@ -75,8 +75,8 @@ export const BillableMetricForm = ({
 
   return (
     <Content>
-      <div>
-        <Main>
+      <Main>
+        <div>
           {loading ? (
             <>
               <SkeletonHeader>
@@ -208,9 +208,7 @@ export const BillableMetricForm = ({
                     />
                   )}
               </Card>
-              <MobileOnly>
-                <BillableMetricCodeSnippet loading={loading} billableMetric={formikProps.values} />
-              </MobileOnly>
+
               <ButtonContainer>
                 <SubmitButton
                   disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
@@ -226,13 +224,11 @@ export const BillableMetricForm = ({
               </ButtonContainer>
             </>
           )}
-        </Main>
-        <Side>
-          <Card>
-            <BillableMetricCodeSnippet loading={loading} billableMetric={formikProps.values} />
-          </Card>
-        </Side>
-      </div>
+        </div>
+      </Main>
+      <Side>
+        <BillableMetricCodeSnippet loading={loading} billableMetric={formikProps.values} />
+      </Side>
     </Content>
   )
 }
@@ -282,21 +278,15 @@ const Subtitle = styled(Typography)`
   padding: 0 ${theme.spacing(8)};
 `
 
-const MobileOnly = styled(Card)`
-  display: none;
-
-  ${theme.breakpoints.down('md')} {
-    display: block;
-  }
-`
-
 const Side = styled.div`
-  width: 408px;
+  width: 40%;
   position: relative;
+  background-color: ${theme.palette.grey[100]};
 
   > div {
     position: sticky;
-    top: calc(${NAV_HEIGHT}px + ${theme.spacing(12)});
+    top: ${NAV_HEIGHT}px;
+    height: calc(100vh - ${NAV_HEIGHT}px);
   }
 
   ${theme.breakpoints.down('md')} {
@@ -305,37 +295,25 @@ const Side = styled.div`
 `
 
 const Content = styled.div`
+  display: flex;
+`
+
+const Main = styled.div`
+  width: 60%;
+  box-sizing: border-box;
+  padding: ${theme.spacing(12)} ${theme.spacing(12)} 0 ${theme.spacing(12)};
+
   > div {
-    display: flex;
-    max-width: 1024px;
-    padding: ${theme.spacing(4)};
-    margin: auto;
+    max-width: 720px;
 
-    ${theme.breakpoints.down('md')} {
-      max-width: calc(100vw - ${theme.spacing(8)});
-
-      > div {
-        max-width: inherit;
-      }
+    > *:not(:last-child) {
+      margin-bottom: ${theme.spacing(8)};
     }
   }
 
   ${theme.breakpoints.down('md')} {
-    max-width: 100vw;
-  }
-`
-
-const Main = styled.div`
-  margin-right: ${theme.spacing(8)};
-  flex: 1;
-  padding-top: ${theme.spacing(12)};
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(8)};
-  }
-
-  ${theme.breakpoints.down('md')} {
-    margin-right: 0;
+    width: 100%;
+    padding: ${theme.spacing(12)} ${theme.spacing(4)} 0;
   }
 `
 

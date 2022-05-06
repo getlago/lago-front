@@ -14,38 +14,50 @@ import {
   AmountField,
 } from '~/components/form'
 import { useI18nContext } from '~/core/I18nContext'
-import { Typography, Button } from '~/components/designSystem'
-import { theme } from '~/styles'
+import { Typography, Button, Skeleton } from '~/components/designSystem'
+import { theme, NAV_HEIGHT } from '~/styles'
 import { AddChargeDialog, AddChargeDialogRef } from '~/components/plans/AddChargeDialog'
 import { ChargeModelEnum } from '~/generated/graphql'
+import { CodeSnippet } from '~/components/CodeSnippet'
 
 import { PlanFormInput, LocalChargeInput } from './types'
 
 interface PlanFormProps {
   plan?: EditPlanFragment
   isEdition?: boolean
+  loading?: boolean
   children?: ReactNode
   onSave: (values: PlanFormInput) => Promise<void>
 }
 
-export const PlanForm = ({ plan, children, onSave, isEdition }: PlanFormProps) => {
+// TODO Update the snippet
+const code = `[
+  {
+    "customerID": "{{customer_id}}",
+    "meterApiName": "",
+    "meterValue": 1,
+    "meterTimeInMillis": 18593875774,
+  }
+]`
+
+export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFormProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const addChargeDialogRef = useRef<AddChargeDialogRef>(null)
   const { translate } = useI18nContext()
   const [newChargeId, setNewChargeId] = useState<string | null>(null)
   const formikProps = useFormik<PlanFormInput>({
     initialValues: {
-      name: plan?.name ?? '',
-      code: plan?.code ?? '',
-      description: plan?.description ?? '',
-      interval: plan?.interval ?? PlanInterval.Monthly,
-      payInAdvance: plan?.payInAdvance ?? false,
+      name: '',
+      code: '',
+      description: '',
+      interval: PlanInterval.Monthly,
+      payInAdvance: false,
       // @ts-ignore
-      amountCents: plan?.amountCents ?? undefined,
-      amountCurrency: plan?.amountCurrency ?? CurrencyEnum.Usd,
+      amountCents: undefined,
+      amountCurrency: CurrencyEnum.Usd,
       // @ts-ignore
-      trialPeriod: plan?.trialPeriod ?? undefined,
-      charges: plan?.charges ?? ([] as LocalChargeInput[]),
+      trialPeriod: undefined,
+      charges: [] as LocalChargeInput[],
     },
     validationSchema: object().shape({
       name: string().required(''),
@@ -67,6 +79,24 @@ export const PlanForm = ({ plan, children, onSave, isEdition }: PlanFormProps) =
   })
 
   useEffect(() => {
+    if (!!plan && !!plan.code) {
+      formikProps.setValues({
+        name: plan?.name ?? '',
+        code: plan?.code ?? '',
+        description: plan?.description ?? '',
+        interval: plan?.interval ?? PlanInterval.Monthly,
+        payInAdvance: plan?.payInAdvance ?? false,
+        // @ts-ignore
+        amountCents: plan?.amountCents ?? undefined,
+        amountCurrency: plan?.amountCurrency ?? CurrencyEnum.Usd,
+        // @ts-ignore
+        trialPeriod: plan?.trialPeriod ?? undefined,
+        charges: plan?.charges ?? ([] as LocalChargeInput[]),
+      })
+    }
+  }, [plan])
+
+  useEffect(() => {
     // When adding a new charge, scroll to the new charge element
     if (!!newChargeId) {
       const element = document.getElementById(newChargeId)
@@ -80,179 +110,260 @@ export const PlanForm = ({ plan, children, onSave, isEdition }: PlanFormProps) =
 
   return (
     <>
-      <Card>
-        <SectionTitle variant="subhead">{translate('text_624453d52e945301380e4992')}</SectionTitle>
-
-        <Line>
-          <TextInputField
-            name="name"
-            label={translate('text_624453d52e945301380e4998')}
-            placeholder={translate('text_624453d52e945301380e499c')}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
-            formikProps={formikProps}
-          />
-          <TextInputField
-            name="code"
-            disabled={isEdition && !plan?.canBeDeleted}
-            label={translate('text_624453d52e945301380e499a')}
-            placeholder={translate('text_624453d52e945301380e499e')}
-            formikProps={formikProps}
-            infoText={translate('text_624d9adba93343010cd14ca1')}
-          />
-        </Line>
-        <TextInputField
-          name="description"
-          label={translate('text_624c5eadff7db800acc4c99f')}
-          placeholder={translate('text_624453d52e945301380e49a2')}
-          rows="3"
-          multiline
-          formikProps={formikProps}
-        />
-      </Card>
-      <CardSection>
-        <SectionTitle variant="subhead">{translate('text_624453d52e945301380e49a6')}</SectionTitle>
-        <ButtonSelectorField
-          disabled={isEdition && !plan?.canBeDeleted}
-          name="interval"
-          label={translate('text_624c5eadff7db800acc4c9ad')}
-          infoText={translate('text_624d9adba93343010cd14ca3')}
-          formikProps={formikProps}
-          options={[
-            {
-              label: translate('text_624453d52e945301380e49aa'),
-              value: PlanInterval.Monthly,
-            },
-            {
-              label: translate('text_624453d52e945301380e49ac'),
-              value: PlanInterval.Yearly,
-            },
-          ]}
-        />
-
-        <LineAmount>
-          <AmountField
-            name="amountCents"
-            disabled={isEdition && !plan?.canBeDeleted}
-            label={translate('text_624453d52e945301380e49b6')}
-            placeholder={translate('text_624453d52e945301380e49b8')}
-            formikProps={formikProps}
-          />
-          <ComboBoxField
-            disabled={isEdition && !plan?.canBeDeleted}
-            name="amountCurrency"
-            data={[
-              {
-                label: translate('text_624453d52e945301380e49ba'),
-                value: CurrencyEnum.Usd,
-              },
-              {
-                label: 'EUR', // TODO
-                value: CurrencyEnum.Eur,
-              },
-            ]}
-            disableClearable
-            formikProps={formikProps}
-          />
-        </LineAmount>
-
-        <SwitchBlock>
-          <SwitchField
-            name="payInAdvance"
-            disabled={isEdition && !plan?.canBeDeleted}
-            formikProps={formikProps}
-          />
+      <Content>
+        <Main>
           <div>
-            <Typography color="textSecondary">
-              {translate('text_624d90e6a93343010cd14b40')}
-            </Typography>
-            <Typography variant="caption">{translate('text_624d90e6a93343010cd14b4c')}</Typography>
-          </div>
-        </SwitchBlock>
+            {loading ? (
+              <>
+                <SkeletonHeader>
+                  <Skeleton
+                    variant="text"
+                    width={280}
+                    height={12}
+                    marginBottom={theme.spacing(5)}
+                  />
+                  <Skeleton
+                    variant="text"
+                    width="inherit"
+                    height={12}
+                    marginBottom={theme.spacing(4)}
+                  />
+                  <Skeleton variant="text" width={120} height={12} />
+                </SkeletonHeader>
 
-        <TextInputField
-          name="trialPeriod"
-          disabled={isEdition && !plan?.canBeDeleted}
-          label={translate('text_624453d52e945301380e49c2')}
-          type="number"
-          placeholder={translate('text_624453d52e945301380e49c4')}
-          formikProps={formikProps}
-          InputProps={{
-            endAdornment: (
-              <InputEnd color={!plan?.canBeDeleted ? 'textPrimary' : 'textSecondary'}>
-                {translate('text_624453d52e945301380e49c6')}
-              </InputEnd>
-            ),
-          }}
-        />
-      </CardSection>
-      <Card ref={containerRef}>
-        <SectionTitle variant="subhead">
-          <div>{translate('text_624453d52e945301380e49ce')}</div>
-          <Typography>{translate('text_624453d52e945301380e49d0')}</Typography>
-        </SectionTitle>
+                {[0, 1, 2].map((skeletonCard) => (
+                  <Card key={`skeleton-${skeletonCard}`}>
+                    <Skeleton
+                      variant="text"
+                      width={280}
+                      height={12}
+                      marginBottom={theme.spacing(9)}
+                    />
+                    <Skeleton
+                      variant="text"
+                      width="inherit"
+                      height={12}
+                      marginBottom={theme.spacing(4)}
+                    />
+                    <Skeleton variant="text" width={120} height={12} />
+                  </Card>
+                ))}
+              </>
+            ) : (
+              <>
+                <div>
+                  <Title variant="headline">
+                    {translate(
+                      isEdition ? 'text_625fd165963a7b00c8f59771' : 'text_624453d52e945301380e498a'
+                    )}
+                  </Title>
+                  <Subtitle>
+                    {translate(
+                      isEdition ? 'text_625fd165963a7b00c8f5977b' : 'text_624453d52e945301380e498e'
+                    )}
+                  </Subtitle>
+                </div>
+                <Card>
+                  <SectionTitle variant="subhead">
+                    {translate('text_624453d52e945301380e4992')}
+                  </SectionTitle>
 
-        {!!formikProps.values.charges.length && (
-          <Charges>
-            {formikProps.values.charges.map((charge, i) => {
-              return (
-                <ChargeAccordion
-                  id={charge.billableMetric.id}
-                  key={`plan-charge-${charge.billableMetric.id}`}
-                  currency={formikProps.values.amountCurrency}
-                  index={i}
-                  disabled={isEdition && !plan?.canBeDeleted}
-                  formikProps={formikProps}
+                  <Line>
+                    <TextInputField
+                      name="name"
+                      label={translate('text_624453d52e945301380e4998')}
+                      placeholder={translate('text_624453d52e945301380e499c')}
+                      // eslint-disable-next-line jsx-a11y/no-autofocus
+                      autoFocus
+                      formikProps={formikProps}
+                    />
+                    <TextInputField
+                      name="code"
+                      disabled={isEdition && !plan?.canBeDeleted}
+                      label={translate('text_624453d52e945301380e499a')}
+                      placeholder={translate('text_624453d52e945301380e499e')}
+                      formikProps={formikProps}
+                      infoText={translate('text_624d9adba93343010cd14ca1')}
+                    />
+                  </Line>
+                  <TextInputField
+                    name="description"
+                    label={translate('text_624c5eadff7db800acc4c99f')}
+                    placeholder={translate('text_624453d52e945301380e49a2')}
+                    rows="3"
+                    multiline
+                    formikProps={formikProps}
+                  />
+                </Card>
+                <CardSection>
+                  <SectionTitle variant="subhead">
+                    {translate('text_624453d52e945301380e49a6')}
+                  </SectionTitle>
+                  <ButtonSelectorField
+                    disabled={isEdition && !plan?.canBeDeleted}
+                    name="interval"
+                    label={translate('text_624c5eadff7db800acc4c9ad')}
+                    infoText={translate('text_624d9adba93343010cd14ca3')}
+                    formikProps={formikProps}
+                    options={[
+                      {
+                        label: translate('text_624453d52e945301380e49aa'),
+                        value: PlanInterval.Monthly,
+                      },
+                      {
+                        label: translate('text_624453d52e945301380e49ac'),
+                        value: PlanInterval.Yearly,
+                      },
+                    ]}
+                  />
+
+                  <LineAmount>
+                    <AmountField
+                      name="amountCents"
+                      disabled={isEdition && !plan?.canBeDeleted}
+                      label={translate('text_624453d52e945301380e49b6')}
+                      placeholder={translate('text_624453d52e945301380e49b8')}
+                      formikProps={formikProps}
+                    />
+                    <ComboBoxField
+                      disabled={isEdition && !plan?.canBeDeleted}
+                      name="amountCurrency"
+                      data={[
+                        {
+                          label: translate('text_624453d52e945301380e49ba'),
+                          value: CurrencyEnum.Usd,
+                        },
+                        {
+                          label: 'EUR', // TODO
+                          value: CurrencyEnum.Eur,
+                        },
+                      ]}
+                      disableClearable
+                      formikProps={formikProps}
+                    />
+                  </LineAmount>
+
+                  <SwitchBlock>
+                    <SwitchField
+                      name="payInAdvance"
+                      disabled={isEdition && !plan?.canBeDeleted}
+                      formikProps={formikProps}
+                    />
+                    <div>
+                      <Typography color="textSecondary">
+                        {translate('text_624d90e6a93343010cd14b40')}
+                      </Typography>
+                      <Typography variant="caption">
+                        {translate('text_624d90e6a93343010cd14b4c')}
+                      </Typography>
+                    </div>
+                  </SwitchBlock>
+
+                  <TextInputField
+                    name="trialPeriod"
+                    disabled={isEdition && !plan?.canBeDeleted}
+                    label={translate('text_624453d52e945301380e49c2')}
+                    type="number"
+                    placeholder={translate('text_624453d52e945301380e49c4')}
+                    formikProps={formikProps}
+                    InputProps={{
+                      endAdornment: (
+                        <InputEnd color={!plan?.canBeDeleted ? 'textPrimary' : 'textSecondary'}>
+                          {translate('text_624453d52e945301380e49c6')}
+                        </InputEnd>
+                      ),
+                    }}
+                  />
+                </CardSection>
+                <Card ref={containerRef}>
+                  <SectionTitle variant="subhead">
+                    <div>{translate('text_624453d52e945301380e49ce')}</div>
+                    <Typography>{translate('text_624453d52e945301380e49d0')}</Typography>
+                  </SectionTitle>
+
+                  {!!formikProps.values.charges.length && (
+                    <Charges>
+                      {formikProps.values.charges.map((charge, i) => {
+                        return (
+                          <ChargeAccordion
+                            id={charge.billableMetric.id}
+                            key={`plan-charge-${charge.billableMetric.id}`}
+                            currency={formikProps.values.amountCurrency}
+                            index={i}
+                            disabled={isEdition && !plan?.canBeDeleted}
+                            formikProps={formikProps}
+                          />
+                        )
+                      })}
+                    </Charges>
+                  )}
+
+                  <Button
+                    startIcon="plus"
+                    variant="quaternary"
+                    disabled={isEdition && !plan?.canBeDeleted}
+                    onClick={() => addChargeDialogRef.current?.openDialog()}
+                  >
+                    {translate('text_624453d52e945301380e49d2')}
+                  </Button>
+                </Card>
+                {children}
+                <ButtonContainer>
+                  <Button
+                    disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
+                    fullWidth
+                    size="large"
+                    loading={formikProps.isSubmitting}
+                    onClick={formikProps.submitForm}
+                  >
+                    {translate(
+                      isEdition ? 'text_625fd165963a7b00c8f598aa' : 'text_624453d52e945301380e49d4'
+                    )}
+                  </Button>
+                </ButtonContainer>
+
+                <AddChargeDialog
+                  ref={addChargeDialogRef}
+                  disabledItems={formikProps.values.charges.map((c) => c.billableMetric.id)}
+                  onConfirm={(newCharge) => {
+                    const previousCharges = [...formikProps.values.charges]
+
+                    formikProps.setFieldValue('charges', [
+                      ...previousCharges,
+                      {
+                        billableMetric: newCharge,
+                        chargeModel: ChargeModelEnum.Standard,
+                        amountCents: undefined,
+                        amountCurrency: formikProps.values.amountCurrency, // TODO
+                      },
+                    ])
+
+                    setNewChargeId(newCharge.id)
+                  }}
                 />
-              )
-            })}
-          </Charges>
-        )}
-
-        <Button
-          startIcon="plus"
-          variant="quaternary"
-          disabled={isEdition && !plan?.canBeDeleted}
-          onClick={() => addChargeDialogRef.current?.openDialog()}
-        >
-          {translate('text_624453d52e945301380e49d2')}
-        </Button>
-      </Card>
-      {children}
-      <ButtonContainer>
-        <Button
-          disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
-          fullWidth
-          size="large"
-          loading={formikProps.isSubmitting}
-          onClick={formikProps.submitForm}
-        >
-          {translate(isEdition ? 'text_625fd165963a7b00c8f598aa' : 'text_624453d52e945301380e49d4')}
-        </Button>
-      </ButtonContainer>
-
-      <AddChargeDialog
-        ref={addChargeDialogRef}
-        disabledItems={formikProps.values.charges.map((c) => c.billableMetric.id)}
-        onConfirm={(newCharge) => {
-          const previousCharges = [...formikProps.values.charges]
-
-          formikProps.setFieldValue('charges', [
-            ...previousCharges,
-            {
-              billableMetric: newCharge,
-              chargeModel: ChargeModelEnum.Standard,
-              amountCents: undefined,
-              amountCurrency: formikProps.values.amountCurrency, // TODO
-            },
-          ])
-
-          setNewChargeId(newCharge.id)
-        }}
-      />
+              </>
+            )}
+          </div>
+        </Main>
+        <Side>
+          <div>
+            <CodeSnippet loading={loading} language="bash" code={code} />
+          </div>
+        </Side>
+      </Content>
     </>
   )
 }
+
+const Title = styled(Typography)`
+  margin-bottom: ${theme.spacing(1)};
+  padding: 0 ${theme.spacing(8)};
+`
+
+const Subtitle = styled(Typography)`
+  margin-bottom: ${theme.spacing(8)};
+  padding: 0 ${theme.spacing(8)};
+`
 
 const Card = styled.div`
   padding: ${theme.spacing(8)};
@@ -321,4 +432,47 @@ const Line = styled.div`
     margin: ${theme.spacing(3)};
     min-width: 110px;
   }
+`
+
+const Side = styled.div`
+  width: 40%;
+  position: relative;
+  background-color: ${theme.palette.grey[100]};
+
+  > div {
+    position: sticky;
+    top: ${NAV_HEIGHT}px;
+    height: calc(100vh - ${NAV_HEIGHT}px);
+  }
+
+  ${theme.breakpoints.down('md')} {
+    display: none;
+  }
+`
+
+const Content = styled.div`
+  display: flex;
+`
+
+const Main = styled.div`
+  width: 60%;
+  box-sizing: border-box;
+  padding: ${theme.spacing(12)} ${theme.spacing(12)} 0 ${theme.spacing(12)};
+
+  > div {
+    max-width: 720px;
+
+    > *:not(:last-child) {
+      margin-bottom: ${theme.spacing(8)};
+    }
+  }
+
+  ${theme.breakpoints.down('md')} {
+    width: 100%;
+    padding: ${theme.spacing(12)} ${theme.spacing(4)} 0;
+  }
+`
+
+const SkeletonHeader = styled.div`
+  padding: 0 ${theme.spacing(8)};
 `
