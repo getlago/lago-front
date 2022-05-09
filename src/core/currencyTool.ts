@@ -14,12 +14,21 @@ enum AmountUnit {
   standard = 'standard',
 }
 
+enum CurrencyDisplay {
+  code = 'code',
+  symbol = 'symbol',
+}
+
 export const formatAmountToCurrency: (
   amount: number,
   currency: CurrencyEnum,
-  initialUnit?: keyof typeof AmountUnit
-) => string = (amount, currency, initialUnit = 'cent') => {
+  options?: {
+    initialUnit?: keyof typeof AmountUnit
+    currencyDisplay?: keyof typeof CurrencyDisplay
+  }
+) => string = (amount, currency, options) => {
   let formattedToUnit = amount
+  const { initialUnit = 'cent', currencyDisplay = CurrencyDisplay.code } = options || {}
 
   if (initialUnit === AmountUnit['cent']) {
     formattedToUnit = amount / 100
@@ -28,6 +37,6 @@ export const formatAmountToCurrency: (
   return formattedToUnit.toLocaleString(mapCurrency(currency), {
     style: 'currency',
     currency,
-    currencyDisplay: 'code',
+    currencyDisplay,
   })
 }

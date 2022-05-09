@@ -26,7 +26,9 @@ describe('Currency tools', () => {
       expect(formattedEUR).toMatch('000,50')
       expect(formattedEUR).toMatch('EUR')
 
-      const formattedEURCent = formatAmountToCurrency(150050, CurrencyEnum.Eur, 'standard')
+      const formattedEURCent = formatAmountToCurrency(150050, CurrencyEnum.Eur, {
+        initialUnit: 'standard',
+      })
 
       expect(formattedEURCent).toMatch('150')
       expect(formattedEURCent).toMatch('050,00')

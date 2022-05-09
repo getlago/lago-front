@@ -29,5 +29,7 @@ projects:
     id: 6271200612648800e9bdfd47
   - name: "\U0001F44D [Ready for dev] - Setting - Set tax rates in application"
     id: 62728ff2d06c9b00f4ea46ad
+  - name: '⚙️ [WIP] - Plans - Add Graduated in charge model'
+    id: 62793bb8e62e1200cbcdddf8
 format: flat
 variants: true

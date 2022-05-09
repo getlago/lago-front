@@ -85,6 +85,12 @@ export const theme = createTheme({
               '-webkit-text-fill-color': 'inherit',
             },
           },
+          '& .MuiInputAdornment-positionStart': {
+            paddingLeft: '16px',
+          },
+          '& .MuiInputBase-inputAdornedStart': {
+            paddingLeft: '8px',
+          },
         },
         inputAdornedEnd: {
           paddingRight: '16px',

@@ -781,6 +781,22 @@
       "text_627387d5053a1000c5287cab": "Cancel",
       "text_627387d5053a1000c5287cad": "Add tax rate"
     },
+    "project_62793bb8e62e1200cbcdddf8": {
+      "text_62793bbb599f1c01522e919f": "Graduated pricing",
+      "text_62793bbb599f1c01522e91a1": "Charge per example €10.00/unit for the first 100 units and then €5.00/unit for the next 50.",
+      "text_62793bbb599f1c01522e91a5": "Add another tier",
+      "text_62793bbb599f1c01522e91ab": "First unit",
+      "text_62793bbb599f1c01522e91b1": "Last unit",
+      "text_62793bbb599f1c01522e91b6": "Per unit",
+      "text_62793bbb599f1c01522e91bc": "Flat fee",
+      "text_62793bbb599f1c01522e91c0": "For the first",
+      "text_62793bbb599f1c01522e91fc": "For the next",
+      "text_62793bbb599f1c01522e9239": "Delete tier",
+      "text_62793bbb599f1c01522e9232": "This tier overlap with another one, please put a value upper than {{value}}",
+      "text_627b69c9fe95530136833956": "{{lastRowUnit}} units would cost {{value}}",
+      "text_627b69c9fe95530136833958": "First {{tier1LastUnit}} x {{tier1PerUnit}} + {{tier1FlatFee}} = {{totalTier1}}",
+      "text_627b69c9fe9553013683395a": "Next {{unitCount}} x {{tierPerUnit}} + {{tierFlatFee}} = {{totalTier}}"
+    },
     "project_620bc4d45f16c800e2324b82": {
       "text_620bc4d4269a55014d493f12": "Welcome to Lago",
       "text_620bc4d4269a55014d493fc9": "Nice to see you here, let’s start by creating your account.",
@@ -1072,5 +1088,5 @@
       "country-code-zw": "Zimbabwe"
     }
   },
-  "exported_at": "2022-05-06T15:06:18.954Z"
+  "exported_at": "2022-05-11T07:52:02.428Z"
 }
