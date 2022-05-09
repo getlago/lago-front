@@ -9,7 +9,7 @@ import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { PLANS_ROUTE } from '~/core/router'
 import EmojiParty from '~/public/images/party.png'
 import { PlanForm } from '~/components/plans/PlanForm'
-import { useCreateEditPlan } from '~/hooks/useCreateEditPlan'
+import { useCreateEditPlan } from '~/hooks/plans/useCreateEditPlan'
 
 const CreatePlan = () => {
   const { loading, isEdition, isCreated, plan, onSave, resetIsCreated } = useCreateEditPlan()

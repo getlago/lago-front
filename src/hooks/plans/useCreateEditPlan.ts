@@ -9,6 +9,7 @@ import {
   useGetSinglePlanQuery,
   useCreatePlanMutation,
   useUpdatePlanMutation,
+  ChargeModelEnum,
 } from '~/generated/graphql'
 import { ERROR_404_ROUTE, PLANS_ROUTE } from '~/core/router'
 import { addToast } from '~/core/apolloClient'
@@ -32,6 +33,12 @@ gql`
         id
         name
         code
+      }
+      graduatedRanges {
+        flatAmountCents
+        fromValue
+        perUnitAmountCents
+        toValue
       }
       amountCents
       amountCurrency
@@ -77,13 +84,33 @@ const formatPlanInput = (values: PlanFormInput) => {
   return {
     amountCents: Number(amountCents),
     trialPeriod: Number(trialPeriod),
-    charges: charges.map(({ billableMetric, amountCents: chargeAmountCents, ...charge }) => {
-      return {
-        amountCents: Number(chargeAmountCents),
-        billableMetricId: billableMetric.id,
-        ...charge,
+    charges: charges.map(
+      ({
+        billableMetric,
+        amountCents: chargeAmountCents,
+        graduatedRanges,
+        chargeModel,
+        ...charge
+      }) => {
+        return {
+          chargeModel,
+          billableMetricId: billableMetric.id,
+          ...(chargeModel === ChargeModelEnum.Graduated
+            ? {
+                graduatedRanges: (graduatedRanges || []).map(
+                  ({ flatAmountCents, fromValue, perUnitAmountCents, ...range }) => ({
+                    flatAmountCents: flatAmountCents || 0,
+                    fromValue: fromValue || 0,
+                    perUnitAmountCents: perUnitAmountCents || 0,
+                    ...range,
+                  })
+                ),
+              }
+            : { amountCents: Number(chargeAmountCents) || undefined }),
+          ...charge,
+        }
       }
-    }),
+    ),
     ...otherValues,
   }
 }

@@ -15,7 +15,7 @@ import { theme } from '~/styles'
 
 export interface TextInputProps
   extends Omit<MuiTextFieldProps, 'label' | 'variant' | 'error' | 'onChange'> {
-  error?: string
+  error?: string | boolean
   name?: string
   label?: string | ReactNode
   isOptional?: boolean
@@ -165,7 +165,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
         />
         {(helperText || error) && (
           <Typography variant="caption" color={error ? 'error' : 'textPrimary'}>
-            {error ? translate(error as string) : helperText}
+            {typeof error === 'string' ? translate(error as string) : helperText}
           </Typography>
         )}
       </Container>

@@ -8,6 +8,7 @@ import { Button, Typography, Tooltip } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
 import { ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
 import { ComboBox, AmountInput } from '~/components/form'
+import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 
 import { PlanFormInput } from './types'
 
@@ -58,7 +59,7 @@ export const ChargeAccordion = ({
             />
           </Tooltip>
           <Title color="textSecondary">
-            {localCharge?.billableMetric?.name}{' '}
+            {localCharge?.billableMetric?.name}
             <Typography>({localCharge?.billableMetric?.code})</Typography>
           </Title>
           <Tooltip
@@ -92,40 +93,58 @@ export const ChargeAccordion = ({
                 label: translate('text_624aa732d6af4e0103d40e6f'),
                 value: ChargeModelEnum.Standard,
               },
+              {
+                label: translate('text_62793bbb599f1c01522e919f'),
+                value: ChargeModelEnum.Graduated,
+              },
             ]}
             disableClearable
             value={localCharge.chargeModel}
-            infoText={translate('text_624d9adba93343010cd14ca7')}
+            helperText={translate(
+              localCharge.chargeModel === ChargeModelEnum.Graduated
+                ? 'text_62793bbb599f1c01522e91a1'
+                : 'text_624d9adba93343010cd14ca7'
+            )}
             onChange={(value) => handleUpdate('chargeModel', value)}
           />
 
-          <LineAmount>
-            <AmountInput
-              name="amountCents"
+          {localCharge.chargeModel === ChargeModelEnum.Standard && (
+            <LineAmount>
+              <AmountInput
+                name="amountCents"
+                disabled={disabled}
+                label={translate('text_624453d52e945301380e49b6')}
+                placeholder={translate('text_624453d52e945301380e49b8')}
+                value={localCharge.amountCents as number | undefined}
+                onChange={(value) => handleUpdate('amountCents', value)}
+              />
+              <ComboBox
+                name="amountCurrency"
+                disabled
+                data={[
+                  {
+                    label: translate('text_624453d52e945301380e49ba'),
+                    value: CurrencyEnum.Usd,
+                  },
+                  {
+                    label: 'EUR', // TODO
+                    value: CurrencyEnum.Eur,
+                  },
+                ]}
+                disableClearable
+                value={localCharge.amountCurrency}
+                onChange={(value) => handleUpdate('amountCurrency', value)}
+              />
+            </LineAmount>
+          )}
+          {localCharge.chargeModel === ChargeModelEnum.Graduated && (
+            <GraduatedChargeTable
               disabled={disabled}
-              label={translate('text_624453d52e945301380e49b6')}
-              placeholder={translate('text_624453d52e945301380e49b8')}
-              value={localCharge.amountCents}
-              onChange={(value) => handleUpdate('amountCents', value)}
+              chargeIndex={index}
+              currency={currency}
+              formikProps={formikProps}
             />
-            <ComboBox
-              name="amountCurrency"
-              disabled
-              data={[
-                {
-                  label: translate('text_624453d52e945301380e49ba'),
-                  value: CurrencyEnum.Usd,
-                },
-                {
-                  label: 'EUR', // TODO
-                  value: CurrencyEnum.Eur,
-                },
-              ]}
-              disableClearable
-              value={localCharge.amountCurrency}
-              onChange={(value) => handleUpdate('amountCurrency', value)}
-            />
-          </LineAmount>
+          )}
         </Details>
       </StyledAccordion>
     </Container>
@@ -148,7 +167,7 @@ const StyledAccordion = styled(Accordion)`
     height: 0;
   }
   &.MuiAccordion-root.Mui-expanded {
-    margin: 0 0 ${theme.spacing(6)};
+    margin: 0 0 ${theme.spacing(4)};
   }
 
   .MuiAccordionSummary-content {
@@ -188,7 +207,7 @@ const Details = styled(AccordionDetails)`
   flex-direction: column;
 
   &.MuiAccordionDetails-root {
-    padding: ${theme.spacing(4)};
+    padding: ${theme.spacing(4)} ${theme.spacing(4)} 0 ${theme.spacing(4)};
 
     > *:not(:last-child) {
       margin-bottom: ${theme.spacing(6)};

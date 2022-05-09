@@ -5,7 +5,7 @@ import styled from 'styled-components'
 
 import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
 import { EditPlanFragment } from '~/generated/graphql'
-import { PlanInterval, CurrencyEnum } from '~/generated/graphql'
+import { PlanInterval, CurrencyEnum, ChargeModelEnum } from '~/generated/graphql'
 import {
   TextInputField,
   ButtonSelectorField,
@@ -17,7 +17,6 @@ import { useI18nContext } from '~/core/I18nContext'
 import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { theme, NAV_HEIGHT } from '~/styles'
 import { AddChargeDialog, AddChargeDialogRef } from '~/components/plans/AddChargeDialog'
-import { ChargeModelEnum } from '~/generated/graphql'
 import { CodeSnippet } from '~/components/CodeSnippet'
 
 import { PlanFormInput, LocalChargeInput } from './types'
@@ -63,14 +62,58 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
       name: string().required(''),
       code: string().required(''),
       interval: string().required(''),
-      amountCents: number().typeError(translate('text_624ea7c29103fd010732ab7d')).required(''),
+      amountCents: string().required(''),
       trialPeriod: number().typeError(translate('text_624ea7c29103fd010732ab7d')),
       amountCurrency: string().required(''),
       charges: array().of(
         object().shape({
           chargeModel: string().required(''),
-          amountCents: string().required(''),
-          amountCurrency: string().required(''),
+          amountCents: number().when('chargeModel', {
+            is: (chargeModel: ChargeModelEnum) =>
+              !!chargeModel && chargeModel === ChargeModelEnum.Standard,
+            then: number().typeError(translate('text_624ea7c29103fd010732ab7d')).required(''),
+          }),
+          amountCurrency: string().when('chargeModel', {
+            is: (chargeModel: ChargeModelEnum) =>
+              !!chargeModel && chargeModel === ChargeModelEnum.Standard,
+            then: string().required(''),
+          }),
+          graduatedRanges: array().when('chargeModel', {
+            is: (chargeModel: ChargeModelEnum) =>
+              !!chargeModel && chargeModel === ChargeModelEnum.Graduated,
+            then: array()
+              .test({
+                test: (graduatedRange) => {
+                  let isValid = true
+
+                  graduatedRange?.every(
+                    ({ fromValue, toValue, perUnitAmountCents, flatAmountCents }, i) => {
+                      if (
+                        typeof perUnitAmountCents !== 'number' &&
+                        typeof flatAmountCents !== 'number'
+                      ) {
+                        isValid = false
+                        return false
+                      }
+
+                      if (
+                        i < graduatedRange.length - 1 &&
+                        (typeof fromValue !== 'number' || (fromValue || 0) >= toValue)
+                      ) {
+                        isValid = false
+                        return false
+                      }
+
+                      return true
+                    }
+                  )
+
+                  return isValid
+                },
+              })
+              .min(2)
+              .required(''),
+          }),
         })
       ),
     }),
@@ -91,7 +134,14 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
         amountCurrency: plan?.amountCurrency ?? CurrencyEnum.Usd,
         // @ts-ignore
         trialPeriod: plan?.trialPeriod ?? undefined,
-        charges: plan?.charges ?? ([] as LocalChargeInput[]),
+        // @ts-ignore
+        charges: plan?.charges
+          ? plan?.charges.map(({ amountCents, ...charge }) => ({
+              // AmountCent can be null and this breaks the validation
+              amountCents: typeof amountCents === 'number' ? amountCents : undefined,
+              ...charge,
+            }))
+          : ([] as LocalChargeInput[]),
       })
     }
   }, [plan])
