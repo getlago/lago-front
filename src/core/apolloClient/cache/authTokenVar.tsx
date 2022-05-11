@@ -8,6 +8,6 @@ export const AUTH_TOKEN_LS_KEY = 'authToken'
 export const authTokenVar = makeVar<string>(getItemFromLS(AUTH_TOKEN_LS_KEY))
 
 export const updateAuthTokenVar = (token?: string) => {
-  authTokenVar(token)
   setItemFromLS(AUTH_TOKEN_LS_KEY, token)
+  authTokenVar(token)
 }
