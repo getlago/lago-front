@@ -24,6 +24,10 @@ export interface TextInputProps
   value?: string | number
   disableDebounce?: boolean
   infoText?: string
+  replace?: {
+    toReplace: string
+    by: string
+  }
   onChange?: (value: string) => void
 }
 
@@ -44,6 +48,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
       InputProps,
       type = 'text',
       password,
+      replace,
       disableDebounce,
       onChange,
       ...props
@@ -76,13 +81,17 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
       (event) => {
         event.persist()
         const newValue = event.currentTarget.value
+        const replacedValue =
+          replace && newValue && typeof newValue === 'string'
+            ? (newValue as string).replace(new RegExp(replace.toReplace, 'g'), replace.by)
+            : newValue
 
         if (type === 'number' && isNaN(newValue) && newValue !== '-') return
 
-        setLocalValue(newValue)
-        debouncedSetValue(newValue)
+        setLocalValue(replacedValue)
+        debouncedSetValue(replacedValue)
       },
-      [debouncedSetValue, type]
+      [debouncedSetValue, type, replace]
     )
 
     return (
