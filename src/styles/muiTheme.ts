@@ -81,8 +81,8 @@ export const theme = createTheme({
               borderColor: palette.grey[300],
             },
             '& input': {
+              color: palette.grey[600],
               '-webkit-text-fill-color': 'inherit',
-              color: palette.grey[400],
             },
           },
         },
