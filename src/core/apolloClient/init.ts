@@ -62,14 +62,14 @@ export const initializeApolloClient = async () => {
               Lago_Api_Error.Unauthorized,
               Lago_Api_Error.ExpiredJwtToken,
               Lago_Api_Error.TokenEncodingError,
-            ].includes(extensions.code)
+            ].includes(extensions?.code)
 
           if (isUnauthorized && globalApolloClient) {
             logOut(globalApolloClient)
           }
 
           !silentError &&
-            !silentErrorCodes.includes(extensions.code) &&
+            !silentErrorCodes.includes(extensions?.code) &&
             !isUnauthorized &&
             message !== 'PersistedQueryNotFound' &&
             addToast({
