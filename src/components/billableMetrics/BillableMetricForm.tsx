@@ -138,6 +138,7 @@ export const BillableMetricForm = ({
                   />
                   <TextInputField
                     name="code"
+                    replace={{ toReplace: ' ', by: '_' }}
                     disabled={isEdition && !billableMetric?.canBeDeleted}
                     label={translate('text_623b42ff8ee4e000ba87d0c0')}
                     placeholder={translate('text_623b42ff8ee4e000ba87d0c4')}

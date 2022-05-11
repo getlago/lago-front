@@ -179,6 +179,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                     />
                     <TextInputField
                       name="code"
+                      replace={{ toReplace: ' ', by: '_' }}
                       disabled={isEdition && !plan?.canBeDeleted}
                       label={translate('text_624453d52e945301380e499a')}
                       placeholder={translate('text_624453d52e945301380e499e')}
