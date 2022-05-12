@@ -80,14 +80,14 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({ formikProps, ch
               units,
               perUnitCent: range.perUnitAmountCents || 0,
               flatFeeCent: range.flatAmountCents || 0,
-              totalCent: (units * range.perUnitAmountCents || 0) + range.flatAmountCents || 0,
+              totalCent: units * (range.perUnitAmountCents || 0) + (range.flatAmountCents || 0),
             })
           } else {
             acc.push({
               units: 1,
               perUnitCent: range.perUnitAmountCents || 0,
               flatFeeCent: range.flatAmountCents || 0,
-              totalCent: (1 * range.perUnitAmountCents || 0) + range.flatAmountCents || 0,
+              totalCent: 1 * (range.perUnitAmountCents || 0) + (range.flatAmountCents || 0),
             })
 
             const totalLine = {
