@@ -78,42 +78,44 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
               !!chargeModel && chargeModel === ChargeModelEnum.Standard,
             then: string().required(''),
           }),
-          graduatedRanges: array().when('chargeModel', {
-            is: (chargeModel: ChargeModelEnum) =>
-              !!chargeModel && chargeModel === ChargeModelEnum.Graduated,
-            then: array()
-              .test({
-                test: (graduatedRange) => {
-                  let isValid = true
+          graduatedRanges: array()
+            .when('chargeModel', {
+              is: (chargeModel: ChargeModelEnum) =>
+                !!chargeModel && chargeModel === ChargeModelEnum.Graduated,
+              then: array()
+                .test({
+                  test: (graduatedRange) => {
+                    let isValid = true
 
-                  graduatedRange?.every(
-                    ({ fromValue, toValue, perUnitAmountCents, flatAmountCents }, i) => {
-                      if (
-                        typeof perUnitAmountCents !== 'number' &&
-                        typeof flatAmountCents !== 'number'
-                      ) {
-                        isValid = false
-                        return false
+                    graduatedRange?.every(
+                      ({ fromValue, toValue, perUnitAmountCents, flatAmountCents }, i) => {
+                        if (
+                          typeof perUnitAmountCents !== 'number' &&
+                          typeof flatAmountCents !== 'number'
+                        ) {
+                          isValid = false
+                          return false
+                        }
+
+                        if (
+                          i < graduatedRange.length - 1 &&
+                          (typeof fromValue !== 'number' || (fromValue || 0) >= toValue)
+                        ) {
+                          isValid = false
+                          return false
+                        }
+
+                        return true
                       }
+                    )
 
-                      if (
-                        i < graduatedRange.length - 1 &&
-                        (typeof fromValue !== 'number' || (fromValue || 0) >= toValue)
-                      ) {
-                        isValid = false
-                        return false
-                      }
-
-                      return true
-                    }
-                  )
-
-                  return isValid
-                },
-              })
-              .min(2)
-              .required(''),
-          }),
+                    return isValid
+                  },
+                })
+                .min(2)
+                .required(''),
+            })
+            .nullable(),
         })
       ),
     }),
