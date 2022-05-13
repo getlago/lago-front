@@ -7,7 +7,7 @@ import { theme } from '~/styles'
 import { Button, Typography, Tooltip } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
 import { ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
-import { ComboBox, AmountInput } from '~/components/form'
+import { ComboBox, TextInput } from '~/components/form'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 
 import { PlanFormInput } from './types'
@@ -110,8 +110,9 @@ export const ChargeAccordion = ({
 
           {localCharge.chargeModel === ChargeModelEnum.Standard && (
             <LineAmount>
-              <AmountInput
+              <TextInput
                 name="amountCents"
+                beforeChangeFormatter={['positiveNumber', 'decimal']}
                 disabled={disabled}
                 label={translate('text_624453d52e945301380e49b6')}
                 placeholder={translate('text_624453d52e945301380e49b8')}

@@ -93,7 +93,7 @@ export const EditOrganizationVatRateDialog = forwardRef<
           label={translate('text_62728ff857d47b013204c7a2')}
           value={localVatRate}
           error={mutationError}
-          type="number"
+          beforeChangeFormatter="positiveNumber"
           onChange={(value) => {
             !!mutationError && setMutationError(undefined)
             setLocalVatRate(Number(value))

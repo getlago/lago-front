@@ -1,18 +1,25 @@
 /* eslint-disable react/prop-types */
-import { forwardRef, useMemo, ReactNode } from 'react'
+import { forwardRef, useMemo, ReactNode, useState, useEffect, useCallback } from 'react'
 import {
   TextField as MuiTextField,
   TextFieldProps as MuiTextFieldProps,
   InputAdornment,
 } from '@mui/material'
 import styled, { css } from 'styled-components'
-import { useState, useEffect, useCallback } from 'react'
 import _debounce from 'lodash/debounce'
 
 import { useI18nContext } from '~/core/I18nContext'
 import { Typography, Button, Tooltip, Icon } from '~/components/designSystem'
 import { theme } from '~/styles'
 
+enum ValueFormatter {
+  int = 'int',
+  decimal = 'decimal', // Truncate numbers to 2 decimals
+  positiveNumber = 'positiveNumber',
+  code = 'code', // Replace all the spaces by "_"
+}
+
+type ValueFormatterType = keyof typeof ValueFormatter
 export interface TextInputProps
   extends Omit<MuiTextFieldProps, 'label' | 'variant' | 'error' | 'onChange'> {
   error?: string | boolean
@@ -23,12 +30,51 @@ export interface TextInputProps
   password?: boolean
   value?: string | number
   disableDebounce?: boolean
+  beforeChangeFormatter?: ValueFormatterType[] | ValueFormatterType
   infoText?: string
-  replace?: {
-    toReplace: string
-    by: string
-  }
   onChange?: (value: string) => void
+}
+
+const numberFormatter = new RegExp(
+  `${ValueFormatter.int}|${ValueFormatter.decimal}|${ValueFormatter.positiveNumber}`
+)
+
+export const formatValue = (
+  value: string | number | undefined,
+  formatterFunctions?: ValueFormatterType[] | ValueFormatterType
+) => {
+  let formattedValue = value
+
+  if (value === undefined || value === null || value === '') return ''
+  if (!formatterFunctions || !formatterFunctions.length) return value
+  if (
+    numberFormatter.test(
+      typeof formatterFunctions === 'string' ? formatterFunctions : formatterFunctions.join('')
+    )
+  ) {
+    if (formattedValue != null && isNaN(Number(String(formattedValue).replace(/\.|\-/g, ''))))
+      return null
+  }
+
+  if (formatterFunctions.includes(ValueFormatter.positiveNumber)) {
+    formattedValue = String(formattedValue).replace('-', '')
+  }
+
+  if (formatterFunctions.includes(ValueFormatter.int)) {
+    formattedValue = formattedValue === '-' ? formattedValue : parseInt(String(formattedValue))
+  }
+
+  if (formatterFunctions.includes(ValueFormatter.decimal)) {
+    if (formattedValue !== '-') {
+      formattedValue = (String(formattedValue).match(/^-?\d+(?:\.\d{0,2})?/) || [])[0]
+    }
+  }
+
+  if (formatterFunctions.includes(ValueFormatter.code)) {
+    formattedValue = String(value).replace(/\s/g, '_')
+  }
+
+  return !formattedValue && formattedValue !== 0 ? '' : formattedValue
 }
 
 export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
@@ -48,8 +94,8 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
       InputProps,
       type = 'text',
       password,
-      replace,
       disableDebounce,
+      beforeChangeFormatter,
       onChange,
       ...props
     }: TextInputProps,
@@ -70,7 +116,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
     )
 
     useEffect(() => {
-      if (value !== undefined && value !== null) {
+      if (value != null) {
         setLocalValue(value)
       } else {
         setLocalValue('')
@@ -80,18 +126,14 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
     const handleChange = useCallback(
       (event) => {
         event.persist()
-        const newValue = event.currentTarget.value
-        const replacedValue =
-          replace && newValue && typeof newValue === 'string'
-            ? (newValue as string).replace(new RegExp(replace.toReplace, 'g'), replace.by)
-            : newValue
+        const formattedValue = formatValue(event.currentTarget.value, beforeChangeFormatter)
 
-        if (type === 'number' && isNaN(newValue) && newValue !== '-') return
+        if (formattedValue == null) return
 
-        setLocalValue(replacedValue)
-        debouncedSetValue(replacedValue)
+        setLocalValue(formattedValue)
+        debouncedSetValue(formattedValue)
       },
-      [debouncedSetValue, type, replace]
+      [debouncedSetValue, beforeChangeFormatter]
     )
 
     return (

@@ -82,7 +82,7 @@ const formatPlanInput = (values: PlanFormInput) => {
   const { amountCents, trialPeriod, charges, ...otherValues } = values
 
   return {
-    amountCents: Number(amountCents),
+    amountCents: Math.round(Number(amountCents) * 100),
     trialPeriod: Number(trialPeriod),
     charges: charges.map(
       ({
@@ -99,14 +99,16 @@ const formatPlanInput = (values: PlanFormInput) => {
             ? {
                 graduatedRanges: (graduatedRanges || []).map(
                   ({ flatAmountCents, fromValue, perUnitAmountCents, ...range }) => ({
-                    flatAmountCents: flatAmountCents || 0,
+                    flatAmountCents: flatAmountCents ? Math.round(flatAmountCents * 100) : 0,
                     fromValue: fromValue || 0,
-                    perUnitAmountCents: perUnitAmountCents || 0,
+                    perUnitAmountCents: perUnitAmountCents
+                      ? Math.round(perUnitAmountCents * 100)
+                      : 0,
                     ...range,
                   })
                 ),
               }
-            : { amountCents: Number(chargeAmountCents) || undefined }),
+            : { amountCents: chargeAmountCents ? Math.round(chargeAmountCents * 100) : undefined }),
           ...charge,
         }
       }

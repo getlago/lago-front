@@ -16,9 +16,11 @@ type InfoCalculationRow = {
 type UseGraduatedChargeForm = ({
   formikProps,
   chargeIndex,
+  disabled,
 }: {
   formikProps: FormikProps<PlanFormInput>
   chargeIndex: number
+  disabled?: boolean
 }) => {
   handleUpdate: (rangeIndex: number, fieldName: string, value?: number | string) => void
   addRange: () => void
@@ -27,7 +29,11 @@ type UseGraduatedChargeForm = ({
   infosCaclucation: InfoCalculationRow[]
 }
 
-export const useGraduatedChargeForm: UseGraduatedChargeForm = ({ formikProps, chargeIndex }) => {
+export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
+  formikProps,
+  chargeIndex,
+  disabled,
+}) => {
   const formikIdentifier = `charges.${chargeIndex}.graduatedRanges`
   const graduatedRanges = useMemo(
     () => formikProps.values.charges[chargeIndex].graduatedRanges || [],
@@ -62,10 +68,10 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({ formikProps, ch
           return {
             ...range,
             // First and last rows can't be deleted
-            disabledDelete: [0, graduatedRanges.length - 1].includes(i),
+            disabledDelete: [0, graduatedRanges.length - 1].includes(i) || !!disabled,
           }
         }),
-      [graduatedRanges]
+      [graduatedRanges, disabled]
     ),
     infosCaclucation: useMemo(
       () =>
@@ -139,7 +145,10 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({ formikProps, ch
       const safeValue = Number(value || 0)
 
       if (fieldName !== 'toValue') {
-        formikProps.setFieldValue(`${formikIdentifier}.${rangeIndex}.${fieldName}`, safeValue)
+        formikProps.setFieldValue(
+          `${formikIdentifier}.${rangeIndex}.${fieldName}`,
+          value !== '' ? Number(value) : value
+        )
       } else {
         const newGraduatedRanges = graduatedRanges.reduce<GraduatedRangeInput[]>(
           (acc, range, i) => {
