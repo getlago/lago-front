@@ -119,11 +119,11 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
             label={translate('text_627387d5053a1000c5287ca5')}
             placeholder={translate('text_627387d5053a1000c5287ca5')}
             value={localVatRate}
-            type="number"
+            beforeChangeFormatter="positiveNumber"
             error={mutationError}
             onChange={(value) => {
               !!mutationError && setMutationError(undefined)
-              setLocalVatRate(Number(value))
+              setLocalVatRate(value === '' ? undefined : Number(value))
             }}
             InputProps={{
               endAdornment: (

@@ -6,13 +6,7 @@ import styled from 'styled-components'
 import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
 import { EditPlanFragment } from '~/generated/graphql'
 import { PlanInterval, CurrencyEnum, ChargeModelEnum } from '~/generated/graphql'
-import {
-  TextInputField,
-  ButtonSelectorField,
-  ComboBoxField,
-  SwitchField,
-  AmountField,
-} from '~/components/form'
+import { TextInputField, ButtonSelectorField, ComboBoxField, SwitchField } from '~/components/form'
 import { useI18nContext } from '~/core/I18nContext'
 import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { theme, NAV_HEIGHT } from '~/styles'
@@ -99,7 +93,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
 
                         if (
                           i < graduatedRange.length - 1 &&
-                          (typeof fromValue !== 'number' || (fromValue || 0) >= toValue)
+                          (typeof fromValue !== 'number' || (fromValue || 0) > toValue)
                         ) {
                           isValid = false
                           return false
@@ -132,15 +126,26 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
         interval: plan?.interval ?? PlanInterval.Monthly,
         payInAdvance: plan?.payInAdvance ?? false,
         // @ts-ignore
-        amountCents: plan?.amountCents ?? undefined,
+        amountCents: plan?.amountCents ? plan?.amountCents / 100 : plan?.amountCents || undefined,
         amountCurrency: plan?.amountCurrency ?? CurrencyEnum.Usd,
         // @ts-ignore
         trialPeriod: plan?.trialPeriod ?? undefined,
         // @ts-ignore
         charges: plan?.charges
-          ? plan?.charges.map(({ amountCents, ...charge }) => ({
+          ? plan?.charges.map(({ amountCents, graduatedRanges, ...charge }) => ({
               // AmountCent can be null and this breaks the validation
-              amountCents: typeof amountCents === 'number' ? amountCents : undefined,
+              amountCents: amountCents ? amountCents / 100 : amountCents || undefined,
+              graduatedRanges: !graduatedRanges
+                ? null
+                : graduatedRanges.map(({ perUnitAmountCents, flatAmountCents, ...range }) => ({
+                    flatAmountCents: flatAmountCents
+                      ? flatAmountCents / 100
+                      : flatAmountCents || undefined,
+                    perUnitAmountCents: perUnitAmountCents
+                      ? perUnitAmountCents / 100
+                      : perUnitAmountCents || undefined,
+                    ...range,
+                  })),
               ...charge,
             }))
           : ([] as LocalChargeInput[]),
@@ -231,7 +236,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                     />
                     <TextInputField
                       name="code"
-                      replace={{ toReplace: ' ', by: '_' }}
+                      beforeChangeFormatter="code"
                       disabled={isEdition && !plan?.canBeDeleted}
                       label={translate('text_624453d52e945301380e499a')}
                       placeholder={translate('text_624453d52e945301380e499e')}
@@ -271,8 +276,9 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                   />
 
                   <LineAmount>
-                    <AmountField
+                    <TextInputField
                       name="amountCents"
+                      beforeChangeFormatter={['positiveNumber', 'decimal']}
                       disabled={isEdition && !plan?.canBeDeleted}
                       label={translate('text_624453d52e945301380e49b6')}
                       placeholder={translate('text_624453d52e945301380e49b8')}
@@ -316,7 +322,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                     name="trialPeriod"
                     disabled={isEdition && !plan?.canBeDeleted}
                     label={translate('text_624453d52e945301380e49c2')}
-                    type="number"
+                    beforeChangeFormatter="positiveNumber"
                     placeholder={translate('text_624453d52e945301380e49c4')}
                     formikProps={formikProps}
                     InputProps={{

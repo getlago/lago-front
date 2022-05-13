@@ -131,6 +131,7 @@ const HeaderRow = styled.tr`
 const HeaderCell = styled.th<{ $size: number }>`
   width: ${({ $size }) => $size}px;
   min-width: ${({ $size }) => $size}px;
+  max-width: ${({ $size }) => $size}px;
   min-width: ${({ $size }) => $size}px;
   box-sizing: border-box;
   border-right: 1px solid ${theme.palette.grey[300]};
@@ -156,6 +157,7 @@ const ContentRow = styled.tr`
 const ContentCell = styled.td<{ $size: number }>`
   width: ${({ $size }) => $size}px;
   min-width: ${({ $size }) => $size}px;
+  max-width: ${({ $size }) => $size}px;
   min-width: ${({ $size }) => $size}px;
   box-sizing: border-box;
   height: ${CELL_HEIGHT}px;

@@ -5,7 +5,7 @@ import { InputAdornment } from '@mui/material'
 
 import { theme } from '~/styles'
 import { Table, Typography, Button, Tooltip, Alert } from '~/components/designSystem'
-import { TextInput, AmountInput } from '~/components/form'
+import { TextInput } from '~/components/form'
 import { useI18nContext } from '~/core/I18nContext'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useGraduatedChargeForm } from '~/hooks/plans/useGraduatedChargeForm'
@@ -32,11 +32,12 @@ export const GraduatedChargeTable = ({
     useGraduatedChargeForm({
       formikProps,
       chargeIndex,
+      disabled,
     })
 
   return (
     <Container>
-      <AddButton startIcon="plus" variant="quaternary" onClick={addRange}>
+      <AddButton startIcon="plus" variant="quaternary" onClick={addRange} disabled={disabled}>
         {translate('text_62793bbb599f1c01522e91a5')}
       </AddButton>
       <TableContainer>
@@ -62,34 +63,38 @@ export const GraduatedChargeTable = ({
                 </DisabledCell>
               ),
               size: 124,
-              content: (row) => <DisabledCell color="disabled">{row?.fromValue}</DisabledCell>,
+              content: (row) => (
+                <DisabledCell color="disabled" noWrap>
+                  {row?.fromValue}
+                </DisabledCell>
+              ),
             },
             {
               title: (
-                <DisabledCell variant="captionHl">
+                <DisabledCell variant="captionHl" noWrap>
                   {translate('text_62793bbb599f1c01522e91b1')}
                 </DisabledCell>
               ),
               size: 124,
               content: (row, i) =>
                 disabled || i === tableDatas?.length - 1 ? (
-                  <DisabledCell variant="body" color="disabled">
+                  <DisabledCell variant="body" color="disabled" noWrap>
                     {row.toValue || '∞'}
                   </DisabledCell>
                 ) : (
                   <Tooltip
                     placement="top"
                     title={translate('text_62793bbb599f1c01522e9232', {
-                      value: row.fromValue,
+                      value: row.fromValue - 1,
                     })}
                     disableHoverListener={errorIndex !== i}
                   >
                     <CellInput
-                      type="number"
                       error={errorIndex === i}
                       value={row.toValue as number | undefined}
+                      beforeChangeFormatter={['int', 'positiveNumber']}
                       onBlur={() => {
-                        if (typeof row.toValue === 'number' && row.toValue <= row.fromValue) {
+                        if (typeof row.toValue === 'number' && row.toValue < row.fromValue) {
                           setErrorIndex(i)
                         }
                       }}
@@ -115,7 +120,8 @@ export const GraduatedChargeTable = ({
                     <Typography color="disabled">{row.perUnitAmountCents}</Typography>
                   </DisabledAmountCell>
                 ) : (
-                  <CellAmountInput
+                  <CellAmount
+                    beforeChangeFormatter={['decimal', 'positiveNumber']}
                     placeholder="0.00"
                     value={row.perUnitAmountCents}
                     onChange={(value) => handleUpdate(i, 'perUnitAmountCents', value)}
@@ -139,7 +145,8 @@ export const GraduatedChargeTable = ({
                     <Typography color="disabled">{row.flatAmountCents}</Typography>
                   </DisabledAmountCell>
                 ) : (
-                  <CellAmountInput
+                  <CellAmount
+                    beforeChangeFormatter={['decimal', 'positiveNumber']}
                     placeholder="0.00"
                     value={row.flatAmountCents}
                     onChange={(value) => handleUpdate(i, 'flatAmountCents', value)}
@@ -161,8 +168,10 @@ export const GraduatedChargeTable = ({
                 <Typography variant="bodyHl" key={`calculation-alert-${i}`} color="textSecondary">
                   {translate('text_627b69c9fe95530136833956', {
                     lastRowUnit: calculation.firstUnit,
-                    value: formatAmountToCurrency(calculation.totalCent, currency, {
+                    value: formatAmountToCurrency(calculation.totalCent, {
                       currencyDisplay: 'symbol',
+                      initialUnit: 'standard',
+                      currency,
                     }),
                   })}
                 </Typography>
@@ -173,14 +182,20 @@ export const GraduatedChargeTable = ({
                 <Typography key={`calculation-alert-${i}`} color="textSecondary">
                   {translate('text_627b69c9fe95530136833958', {
                     tier1LastUnit: calculation.units,
-                    tier1PerUnit: formatAmountToCurrency(calculation.perUnitCent, currency, {
+                    tier1PerUnit: formatAmountToCurrency(calculation.perUnitCent, {
                       currencyDisplay: 'symbol',
+                      initialUnit: 'standard',
+                      currency,
                     }),
-                    tier1FlatFee: formatAmountToCurrency(calculation.flatFeeCent, currency, {
+                    tier1FlatFee: formatAmountToCurrency(calculation.flatFeeCent, {
                       currencyDisplay: 'symbol',
+                      initialUnit: 'standard',
+                      currency,
                     }),
-                    totalTier1: formatAmountToCurrency(calculation.totalCent, currency, {
+                    totalTier1: formatAmountToCurrency(calculation.totalCent, {
                       currencyDisplay: 'symbol',
+                      initialUnit: 'standard',
+                      currency,
                     }),
                   })}
                 </Typography>
@@ -191,14 +206,20 @@ export const GraduatedChargeTable = ({
               <Typography key={`calculation-alert-${i}`} color="textSecondary">
                 {translate('text_627b69c9fe9553013683395a', {
                   unitCount: calculation.units,
-                  tierPerUnit: formatAmountToCurrency(calculation.perUnitCent, currency, {
+                  tierPerUnit: formatAmountToCurrency(calculation.perUnitCent, {
                     currencyDisplay: 'symbol',
+                    initialUnit: 'standard',
+                    currency,
                   }),
-                  tierFlatFee: formatAmountToCurrency(calculation.flatFeeCent, currency, {
+                  tierFlatFee: formatAmountToCurrency(calculation.flatFeeCent, {
                     currencyDisplay: 'symbol',
+                    initialUnit: 'standard',
+                    currency,
                   }),
-                  totalTier: formatAmountToCurrency(calculation.totalCent, currency, {
+                  totalTier: formatAmountToCurrency(calculation.totalCent, {
                     currencyDisplay: 'symbol',
+                    initialUnit: 'standard',
+                    currency,
                   }),
                 })}
               </Typography>
@@ -261,7 +282,7 @@ const CellInput = styled(TextInput)`
   }
 `
 
-const CellAmountInput = styled(AmountInput)`
+const CellAmount = styled(TextInput)`
   && {
     > * {
       margin-bottom: 0;

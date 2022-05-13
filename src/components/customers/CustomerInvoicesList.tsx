@@ -75,7 +75,7 @@ export const CustomerInvoicesList = ({ invoices }: CustomerInvoicesListProps) =>
                   {plan?.name}
                 </PlanCell>
                 <AmountCell align="right" color="textSecondary">
-                  {formatAmountToCurrency(amountCents, amountCurrency)}
+                  {formatAmountToCurrency(amountCents, { currency: amountCurrency })}
                 </AmountCell>
               </Item>
             )
