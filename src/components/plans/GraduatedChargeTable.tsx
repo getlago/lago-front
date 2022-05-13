@@ -117,7 +117,9 @@ export const GraduatedChargeTable = ({
                 disabled ? (
                   <DisabledAmountCell>
                     <Typography color="textSecondary">{currency}</Typography>
-                    <Typography color="disabled">{row.perUnitAmountCents}</Typography>
+                    <Typography color="disabled" noWrap>
+                      {(row.perUnitAmountCents || 0.0).toFixed(2)}
+                    </Typography>
                   </DisabledAmountCell>
                 ) : (
                   <CellAmount
@@ -143,7 +145,9 @@ export const GraduatedChargeTable = ({
                 disabled ? (
                   <DisabledAmountCell>
                     <Typography color="textSecondary">{currency}</Typography>
-                    <Typography color="disabled">{row.flatAmountCents}</Typography>
+                    <Typography color="disabled" noWrap>
+                      {(row.flatAmountCents || 0.0).toFixed(2)}
+                    </Typography>
                   </DisabledAmountCell>
                 ) : (
                   <CellAmount
@@ -252,6 +256,7 @@ const DisabledCell = styled(Typography)`
 `
 
 const DisabledAmountCell = styled.div`
+  max-width: 124px;
   padding: 0px ${theme.spacing(4)};
   display: flex;
 
