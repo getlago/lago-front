@@ -11,7 +11,7 @@ import { useI18nContext } from '~/core/I18nContext'
 import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { theme, NAV_HEIGHT } from '~/styles'
 import { AddChargeDialog, AddChargeDialogRef } from '~/components/plans/AddChargeDialog'
-import { CodeSnippet } from '~/components/CodeSnippet'
+import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
 
 import { PlanFormInput, LocalChargeInput } from './types'
 
@@ -22,16 +22,6 @@ interface PlanFormProps {
   children?: ReactNode
   onSave: (values: PlanFormInput) => Promise<void>
 }
-
-// TODO Update the snippet
-const code = `[
-  {
-    "customerID": "{{customer_id}}",
-    "meterApiName": "",
-    "meterValue": 1,
-    "meterTimeInMillis": 18593875774,
-  }
-]`
 
 export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFormProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -414,9 +404,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
           </div>
         </Main>
         <Side>
-          <div>
-            <CodeSnippet loading={loading} language="bash" code={code} />
-          </div>
+          <PlanCodeSnippet loading={loading} plan={formikProps.values} />
         </Side>
       </Content>
     </>
