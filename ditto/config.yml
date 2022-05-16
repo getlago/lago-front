@@ -31,5 +31,7 @@ projects:
     id: 62728ff2d06c9b00f4ea46ad
   - name: '⚙️ [WIP] - Plans - Add Graduated in charge model'
     id: 62793bb8e62e1200cbcdddf8
+  - name: "\U0001F44D [Ready for dev] - Plans - Add Package per unit in charge model"
+    id: 62820857abe2eb0109dfb546
 format: flat
 variants: true

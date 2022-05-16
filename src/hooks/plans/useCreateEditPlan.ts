@@ -43,6 +43,8 @@ gql`
       amountCents
       amountCurrency
       chargeModel
+      freeUnits
+      packageSize
     }
   }
 
@@ -90,6 +92,7 @@ const formatPlanInput = (values: PlanFormInput) => {
         amountCents: chargeAmountCents,
         graduatedRanges,
         chargeModel,
+        freeUnits,
         ...charge
       }) => {
         return {
@@ -109,6 +112,7 @@ const formatPlanInput = (values: PlanFormInput) => {
                 ),
               }
             : { amountCents: chargeAmountCents ? Math.round(chargeAmountCents * 100) : undefined }),
+          ...(chargeModel === ChargeModelEnum.Package ? { freeUnits: freeUnits || 0 } : {}),
           ...charge,
         }
       }

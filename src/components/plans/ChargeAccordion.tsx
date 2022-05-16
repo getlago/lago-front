@@ -9,6 +9,7 @@ import { useI18nContext } from '~/core/I18nContext'
 import { ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
 import { ComboBox, TextInput } from '~/components/form'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
+import { PackageCharge } from '~/components/plans/PackageCharge'
 
 import { PlanFormInput } from './types'
 
@@ -97,12 +98,18 @@ export const ChargeAccordion = ({
                 label: translate('text_62793bbb599f1c01522e919f'),
                 value: ChargeModelEnum.Graduated,
               },
+              {
+                label: translate('text_6282085b4f283b0102655868'),
+                value: ChargeModelEnum.Package,
+              },
             ]}
             disableClearable
             value={localCharge.chargeModel}
             helperText={translate(
               localCharge.chargeModel === ChargeModelEnum.Graduated
                 ? 'text_62793bbb599f1c01522e91a1'
+                : localCharge.chargeModel === ChargeModelEnum.Package
+                ? 'text_6282085b4f283b010265586c'
                 : 'text_624d9adba93343010cd14ca7'
             )}
             onChange={(value) => handleUpdate('chargeModel', value)}
@@ -134,9 +141,12 @@ export const ChargeAccordion = ({
                 ]}
                 disableClearable
                 value={localCharge.amountCurrency}
-                onChange={(value) => handleUpdate('amountCurrency', value)}
+                onChange={() => {}}
               />
             </LineAmount>
+          )}
+          {localCharge.chargeModel === ChargeModelEnum.Package && (
+            <PackageCharge disabled={disabled} chargeIndex={index} formikProps={formikProps} />
           )}
           {localCharge.chargeModel === ChargeModelEnum.Graduated && (
             <GraduatedChargeTable

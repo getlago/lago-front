@@ -797,6 +797,21 @@
       "text_627b69c9fe95530136833958": "First {{tier1LastUnit}} x {{tier1PerUnit}} + {{tier1FlatFee}} = {{totalTier1}}",
       "text_627b69c9fe9553013683395a": "Next {{unitCount}} x {{tierPerUnit}} + {{tierFlatFee}} = {{totalTier}}"
     },
+    "project_62820857abe2eb0109dfb546": {
+      "text_6282085b4f283b0102655868": "Package pricing",
+      "text_6282085b4f283b010265586c": "Charge per example €10.00 for every 100 units. Usages are rounded up by default.",
+      "text_6282085b4f283b0102655870": "Amount",
+      "text_6282085b4f283b010265587c": "per",
+      "text_6282085b4f283b0102655884": "units",
+      "text_6282085b4f283b0102655888": "Unit per package must be a value greater than 1",
+      "text_6282085b4f283b010265588c": "Free units (optional)",
+      "text_6282085b4f283b0102655894": "units",
+      "text_6282085b4f283b0102655898": "Please put a value greater that 1 in unit per package to have an example",
+      "text_6282085b4f283b0102655892": "{{units}} units would cost {{cost}}",
+      "text_6282085b4f283b0102655896": "From {{unit}} to {{unitInPackage}} = {{cost}}",
+      "text_62824f0e5d93bc008d268cf4": "0.00",
+      "text_62824f0e5d93bc008d268d00": "0"
+    },
     "project_620bc4d45f16c800e2324b82": {
       "text_620bc4d4269a55014d493f12": "Welcome to Lago",
       "text_620bc4d4269a55014d493fc9": "Nice to see you here, let’s start by creating your account.",
@@ -1088,5 +1103,5 @@
       "country-code-zw": "Zimbabwe"
     }
   },
-  "exported_at": "2022-05-11T07:52:02.428Z"
+  "exported_at": "2022-05-16T14:04:52.102Z"
 }
