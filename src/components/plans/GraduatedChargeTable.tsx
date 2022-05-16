@@ -175,7 +175,7 @@ export const GraduatedChargeTable = ({
                   {translate('text_627b69c9fe95530136833956', {
                     lastRowUnit: calculation.firstUnit,
                     value: formatAmountToCurrency(calculation.totalCent, {
-                      currencyDisplay: 'symbol',
+                      currencyDisplay: 'code',
                       initialUnit: 'standard',
                       currency,
                     }),
@@ -189,17 +189,17 @@ export const GraduatedChargeTable = ({
                   {translate('text_627b69c9fe95530136833958', {
                     tier1LastUnit: calculation.units,
                     tier1PerUnit: formatAmountToCurrency(calculation.perUnitCent, {
-                      currencyDisplay: 'symbol',
+                      currencyDisplay: 'code',
                       initialUnit: 'standard',
                       currency,
                     }),
                     tier1FlatFee: formatAmountToCurrency(calculation.flatFeeCent, {
-                      currencyDisplay: 'symbol',
+                      currencyDisplay: 'code',
                       initialUnit: 'standard',
                       currency,
                     }),
                     totalTier1: formatAmountToCurrency(calculation.totalCent, {
-                      currencyDisplay: 'symbol',
+                      currencyDisplay: 'code',
                       initialUnit: 'standard',
                       currency,
                     }),
@@ -213,17 +213,17 @@ export const GraduatedChargeTable = ({
                 {translate('text_627b69c9fe9553013683395a', {
                   unitCount: calculation.units,
                   tierPerUnit: formatAmountToCurrency(calculation.perUnitCent, {
-                    currencyDisplay: 'symbol',
+                    currencyDisplay: 'code',
                     initialUnit: 'standard',
                     currency,
                   }),
                   tierFlatFee: formatAmountToCurrency(calculation.flatFeeCent, {
-                    currencyDisplay: 'symbol',
+                    currencyDisplay: 'code',
                     initialUnit: 'standard',
                     currency,
                   }),
                   totalTier: formatAmountToCurrency(calculation.totalCent, {
-                    currencyDisplay: 'symbol',
+                    currencyDisplay: 'code',
                     initialUnit: 'standard',
                     currency,
                   }),

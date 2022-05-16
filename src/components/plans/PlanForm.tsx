@@ -64,13 +64,22 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
           chargeModel: string().required(''),
           amountCents: number().when('chargeModel', {
             is: (chargeModel: ChargeModelEnum) =>
-              !!chargeModel && chargeModel === ChargeModelEnum.Standard,
+              !!chargeModel &&
+              [ChargeModelEnum.Standard, ChargeModelEnum.Package].includes(chargeModel),
             then: number().typeError(translate('text_624ea7c29103fd010732ab7d')).required(''),
           }),
           amountCurrency: string().when('chargeModel', {
             is: (chargeModel: ChargeModelEnum) =>
-              !!chargeModel && chargeModel === ChargeModelEnum.Standard,
+              !!chargeModel &&
+              [ChargeModelEnum.Standard, ChargeModelEnum.Package].includes(chargeModel),
             then: string().required(''),
+          }),
+          packageSize: number().when('chargeModel', {
+            is: (chargeModel: ChargeModelEnum) =>
+              !!chargeModel && ChargeModelEnum.Package === chargeModel,
+            then: number()
+              .min(1, 'text_6282085b4f283b0102655888')
+              .required('text_6282085b4f283b0102655888'),
           }),
           graduatedRanges: array()
             .when('chargeModel', {

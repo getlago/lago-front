@@ -69,8 +69,10 @@ export type Charge = {
   billableMetric: BillableMetric;
   chargeModel: ChargeModelEnum;
   createdAt: Scalars['ISO8601DateTime'];
+  freeUnits?: Maybe<Scalars['Int']>;
   graduatedRanges?: Maybe<Array<GraduatedRange>>;
   id: Scalars['ID'];
+  packageSize?: Maybe<Scalars['Int']>;
   updatedAt: Scalars['ISO8601DateTime'];
 };
 
@@ -79,12 +81,15 @@ export type ChargeInput = {
   amountCurrency: CurrencyEnum;
   billableMetricId: Scalars['ID'];
   chargeModel: ChargeModelEnum;
+  freeUnits?: InputMaybe<Scalars['Int']>;
   graduatedRanges?: InputMaybe<Array<GraduatedRangeInput>>;
   id?: InputMaybe<Scalars['ID']>;
+  packageSize?: InputMaybe<Scalars['Int']>;
 };
 
 export enum ChargeModelEnum {
   Graduated = 'graduated',
+  Package = 'package',
   Standard = 'standard'
 }
 
@@ -1307,6 +1312,29 @@ export type UpdateVatRateOrganizationMutationVariables = Exact<{
 
 export type UpdateVatRateOrganizationMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string, vatRate: number } | null };
 
+export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, charges?: Array<{ __typename?: 'Charge', id: string, amountCents?: number | null, amountCurrency?: CurrencyEnum | null, chargeModel: ChargeModelEnum, freeUnits?: number | null, packageSize?: number | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmountCents: number, fromValue: number, perUnitAmountCents: number, toValue?: number | null }> | null }> | null };
+
+export type GetSinglePlanQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetSinglePlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, charges?: Array<{ __typename?: 'Charge', id: string, amountCents?: number | null, amountCurrency?: CurrencyEnum | null, chargeModel: ChargeModelEnum, freeUnits?: number | null, packageSize?: number | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmountCents: number, fromValue: number, perUnitAmountCents: number, toValue?: number | null }> | null }> | null } | null };
+
+export type CreatePlanMutationVariables = Exact<{
+  input: CreatePlanInput;
+}>;
+
+
+export type CreatePlanMutation = { __typename?: 'Mutation', createPlan?: { __typename?: 'Plan', id: string } | null };
+
+export type UpdatePlanMutationVariables = Exact<{
+  input: UpdatePlanInput;
+}>;
+
+
+export type UpdatePlanMutation = { __typename?: 'Mutation', updatePlan?: { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, canBeDeleted: boolean } | null };
+
 export type EditBillableMetricFragment = { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean, fieldName?: string | null };
 
 export type GetSingleBillableMetricQueryVariables = Exact<{
@@ -1356,29 +1384,6 @@ export type UpdateCustomerMutationVariables = Exact<{
 
 
 export type UpdateCustomerMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, createdAt: any, subscriptions?: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string } }> | null } | null };
-
-export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, charges?: Array<{ __typename?: 'Charge', id: string, amountCents?: number | null, amountCurrency?: CurrencyEnum | null, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmountCents: number, fromValue: number, perUnitAmountCents: number, toValue?: number | null }> | null }> | null };
-
-export type GetSinglePlanQueryVariables = Exact<{
-  id: Scalars['ID'];
-}>;
-
-
-export type GetSinglePlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, charges?: Array<{ __typename?: 'Charge', id: string, amountCents?: number | null, amountCurrency?: CurrencyEnum | null, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmountCents: number, fromValue: number, perUnitAmountCents: number, toValue?: number | null }> | null }> | null } | null };
-
-export type CreatePlanMutationVariables = Exact<{
-  input: CreatePlanInput;
-}>;
-
-
-export type CreatePlanMutation = { __typename?: 'Mutation', createPlan?: { __typename?: 'Plan', id: string } | null };
-
-export type UpdatePlanMutationVariables = Exact<{
-  input: UpdatePlanInput;
-}>;
-
-
-export type UpdatePlanMutation = { __typename?: 'Mutation', updatePlan?: { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, canBeDeleted: boolean } | null };
 
 export type BillableMetricsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -1554,34 +1559,6 @@ export const PlanItemFragmentDoc = gql`
   ...DeletePlanDialog
 }
     ${DeletePlanDialogFragmentDoc}`;
-export const EditBillableMetricFragmentDoc = gql`
-    fragment EditBillableMetric on BillableMetricDetail {
-  id
-  name
-  code
-  description
-  aggregationType
-  canBeDeleted
-  fieldName
-}
-    `;
-export const BillingInfosFragmentDoc = gql`
-    fragment BillingInfos on CustomerDetails {
-  id
-  legalName
-  legalNumber
-  phone
-  email
-  logoUrl
-  url
-  addressLine1
-  addressLine2
-  state
-  country
-  city
-  zipcode
-}
-    `;
 export const EditPlanFragmentDoc = gql`
     fragment EditPlan on PlanDetails {
   id
@@ -1610,7 +1587,37 @@ export const EditPlanFragmentDoc = gql`
     amountCents
     amountCurrency
     chargeModel
+    freeUnits
+    packageSize
   }
+}
+    `;
+export const EditBillableMetricFragmentDoc = gql`
+    fragment EditBillableMetric on BillableMetricDetail {
+  id
+  name
+  code
+  description
+  aggregationType
+  canBeDeleted
+  fieldName
+}
+    `;
+export const BillingInfosFragmentDoc = gql`
+    fragment BillingInfos on CustomerDetails {
+  id
+  legalName
+  legalNumber
+  phone
+  email
+  logoUrl
+  url
+  addressLine1
+  addressLine2
+  state
+  country
+  city
+  zipcode
 }
     `;
 export const CustomerSubscriptionListFragmentDoc = gql`
@@ -2114,6 +2121,109 @@ export function useUpdateVatRateOrganizationMutation(baseOptions?: Apollo.Mutati
 export type UpdateVatRateOrganizationMutationHookResult = ReturnType<typeof useUpdateVatRateOrganizationMutation>;
 export type UpdateVatRateOrganizationMutationResult = Apollo.MutationResult<UpdateVatRateOrganizationMutation>;
 export type UpdateVatRateOrganizationMutationOptions = Apollo.BaseMutationOptions<UpdateVatRateOrganizationMutation, UpdateVatRateOrganizationMutationVariables>;
+export const GetSinglePlanDocument = gql`
+    query getSinglePlan($id: ID!) {
+  plan(id: $id) {
+    ...EditPlan
+  }
+}
+    ${EditPlanFragmentDoc}`;
+
+/**
+ * __useGetSinglePlanQuery__
+ *
+ * To run a query within a React component, call `useGetSinglePlanQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSinglePlanQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSinglePlanQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetSinglePlanQuery(baseOptions: Apollo.QueryHookOptions<GetSinglePlanQuery, GetSinglePlanQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSinglePlanQuery, GetSinglePlanQueryVariables>(GetSinglePlanDocument, options);
+      }
+export function useGetSinglePlanLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSinglePlanQuery, GetSinglePlanQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSinglePlanQuery, GetSinglePlanQueryVariables>(GetSinglePlanDocument, options);
+        }
+export type GetSinglePlanQueryHookResult = ReturnType<typeof useGetSinglePlanQuery>;
+export type GetSinglePlanLazyQueryHookResult = ReturnType<typeof useGetSinglePlanLazyQuery>;
+export type GetSinglePlanQueryResult = Apollo.QueryResult<GetSinglePlanQuery, GetSinglePlanQueryVariables>;
+export const CreatePlanDocument = gql`
+    mutation createPlan($input: CreatePlanInput!) {
+  createPlan(input: $input) {
+    id
+  }
+}
+    `;
+export type CreatePlanMutationFn = Apollo.MutationFunction<CreatePlanMutation, CreatePlanMutationVariables>;
+
+/**
+ * __useCreatePlanMutation__
+ *
+ * To run a mutation, you first call `useCreatePlanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePlanMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPlanMutation, { data, loading, error }] = useCreatePlanMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreatePlanMutation(baseOptions?: Apollo.MutationHookOptions<CreatePlanMutation, CreatePlanMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePlanMutation, CreatePlanMutationVariables>(CreatePlanDocument, options);
+      }
+export type CreatePlanMutationHookResult = ReturnType<typeof useCreatePlanMutation>;
+export type CreatePlanMutationResult = Apollo.MutationResult<CreatePlanMutation>;
+export type CreatePlanMutationOptions = Apollo.BaseMutationOptions<CreatePlanMutation, CreatePlanMutationVariables>;
+export const UpdatePlanDocument = gql`
+    mutation updatePlan($input: UpdatePlanInput!) {
+  updatePlan(input: $input) {
+    ...PlanItem
+    ...DeletePlanDialog
+  }
+}
+    ${PlanItemFragmentDoc}
+${DeletePlanDialogFragmentDoc}`;
+export type UpdatePlanMutationFn = Apollo.MutationFunction<UpdatePlanMutation, UpdatePlanMutationVariables>;
+
+/**
+ * __useUpdatePlanMutation__
+ *
+ * To run a mutation, you first call `useUpdatePlanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePlanMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePlanMutation, { data, loading, error }] = useUpdatePlanMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdatePlanMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePlanMutation, UpdatePlanMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePlanMutation, UpdatePlanMutationVariables>(UpdatePlanDocument, options);
+      }
+export type UpdatePlanMutationHookResult = ReturnType<typeof useUpdatePlanMutation>;
+export type UpdatePlanMutationResult = Apollo.MutationResult<UpdatePlanMutation>;
+export type UpdatePlanMutationOptions = Apollo.BaseMutationOptions<UpdatePlanMutation, UpdatePlanMutationVariables>;
 export const GetSingleBillableMetricDocument = gql`
     query getSingleBillableMetric($id: ID!) {
   billableMetric(id: $id) {
@@ -2322,109 +2432,6 @@ export function useUpdateCustomerMutation(baseOptions?: Apollo.MutationHookOptio
 export type UpdateCustomerMutationHookResult = ReturnType<typeof useUpdateCustomerMutation>;
 export type UpdateCustomerMutationResult = Apollo.MutationResult<UpdateCustomerMutation>;
 export type UpdateCustomerMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
-export const GetSinglePlanDocument = gql`
-    query getSinglePlan($id: ID!) {
-  plan(id: $id) {
-    ...EditPlan
-  }
-}
-    ${EditPlanFragmentDoc}`;
-
-/**
- * __useGetSinglePlanQuery__
- *
- * To run a query within a React component, call `useGetSinglePlanQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetSinglePlanQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetSinglePlanQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetSinglePlanQuery(baseOptions: Apollo.QueryHookOptions<GetSinglePlanQuery, GetSinglePlanQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetSinglePlanQuery, GetSinglePlanQueryVariables>(GetSinglePlanDocument, options);
-      }
-export function useGetSinglePlanLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSinglePlanQuery, GetSinglePlanQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetSinglePlanQuery, GetSinglePlanQueryVariables>(GetSinglePlanDocument, options);
-        }
-export type GetSinglePlanQueryHookResult = ReturnType<typeof useGetSinglePlanQuery>;
-export type GetSinglePlanLazyQueryHookResult = ReturnType<typeof useGetSinglePlanLazyQuery>;
-export type GetSinglePlanQueryResult = Apollo.QueryResult<GetSinglePlanQuery, GetSinglePlanQueryVariables>;
-export const CreatePlanDocument = gql`
-    mutation createPlan($input: CreatePlanInput!) {
-  createPlan(input: $input) {
-    id
-  }
-}
-    `;
-export type CreatePlanMutationFn = Apollo.MutationFunction<CreatePlanMutation, CreatePlanMutationVariables>;
-
-/**
- * __useCreatePlanMutation__
- *
- * To run a mutation, you first call `useCreatePlanMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreatePlanMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createPlanMutation, { data, loading, error }] = useCreatePlanMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreatePlanMutation(baseOptions?: Apollo.MutationHookOptions<CreatePlanMutation, CreatePlanMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreatePlanMutation, CreatePlanMutationVariables>(CreatePlanDocument, options);
-      }
-export type CreatePlanMutationHookResult = ReturnType<typeof useCreatePlanMutation>;
-export type CreatePlanMutationResult = Apollo.MutationResult<CreatePlanMutation>;
-export type CreatePlanMutationOptions = Apollo.BaseMutationOptions<CreatePlanMutation, CreatePlanMutationVariables>;
-export const UpdatePlanDocument = gql`
-    mutation updatePlan($input: UpdatePlanInput!) {
-  updatePlan(input: $input) {
-    ...PlanItem
-    ...DeletePlanDialog
-  }
-}
-    ${PlanItemFragmentDoc}
-${DeletePlanDialogFragmentDoc}`;
-export type UpdatePlanMutationFn = Apollo.MutationFunction<UpdatePlanMutation, UpdatePlanMutationVariables>;
-
-/**
- * __useUpdatePlanMutation__
- *
- * To run a mutation, you first call `useUpdatePlanMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdatePlanMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updatePlanMutation, { data, loading, error }] = useUpdatePlanMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdatePlanMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePlanMutation, UpdatePlanMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdatePlanMutation, UpdatePlanMutationVariables>(UpdatePlanDocument, options);
-      }
-export type UpdatePlanMutationHookResult = ReturnType<typeof useUpdatePlanMutation>;
-export type UpdatePlanMutationResult = Apollo.MutationResult<UpdatePlanMutation>;
-export type UpdatePlanMutationOptions = Apollo.BaseMutationOptions<UpdatePlanMutation, UpdatePlanMutationVariables>;
 export const BillableMetricsDocument = gql`
     query billableMetrics($page: Int, $limit: Int) {
   billableMetrics(page: $page, limit: $limit) {
