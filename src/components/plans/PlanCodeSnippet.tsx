@@ -5,12 +5,15 @@ import { PlanFormInput } from './types'
 const getSnippets = (plan?: PlanFormInput) => {
   if (!plan) return '# Fill the form to generate the code snippet'
 
-  return `curl --location --request POST "${API_URL}/api/v1/subscriptions" \\
-  --header "Authorization: Bearer $API_KEY" \\
+  return `# Assign a plan to a customer
+curl --location --request POST "${API_URL}/api/v1/subscriptions" \\
+  --header "Authorization: Bearer $YOUR_API_KEY" \\
   --header 'Content-Type: application/json' \\
   --data-raw ${JSON.stringify(
     `{"subscription": {"customer_id": "__CUSTOMER_ID__", "plan_code": "${plan.code}"} }`
-  )}`
+  )}
+  
+# To use the snippet, don’t forget to edit your __YOUR_API_KEY__ and  __CUSTOMER_ID__`
 }
 
 interface PlanCodeSnippetProps {

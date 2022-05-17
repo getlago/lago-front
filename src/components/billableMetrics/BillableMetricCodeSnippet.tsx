@@ -9,32 +9,40 @@ const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
   switch (aggregationType) {
     case AggregationTypeEnum.CountAgg:
       return `curl --location --request POST "${API_URL}/api/v1/events" \\
-  --header "Authorization: Bearer $API_KEY" \\
+  --header "Authorization: Bearer $__YOUR_API_KEY__" \\
   --header 'Content-Type: application/json' \\
   --data-raw ${JSON.stringify(
     `{"event": { "transaction_id": "__UNIQUE_ID__", "customer_id": "__CUSTOMER_ID__", "code": "${code}", "timestamp": $(date +%s)}}`
-  )}`
+  )}
+  
+# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__ and __CUSTOMER_ID__`
     case AggregationTypeEnum.UniqueCountAgg:
       return `curl --location --request POST "$LAGO_URL/api/v1/events" \\
-  --header "Authorization: Bearer $API_KEY" \\
+  --header "Authorization: Bearer $__YOUR_API_KEY__" \\
   --header 'Content-Type: application/json' \\
   --data-raw ${JSON.stringify(
     `{"event": { "transaction_id": "__UNIQUE_ID__", "customer_id": "__CUSTOMER_ID__", "code": "${code}", "timestamp": $(date +%s), "properties":  { "${fieldName}": "data" }}}`
-  )}`
+  )}
+
+# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__ and __CUSTOMER_ID__`
     case AggregationTypeEnum.MaxAgg:
       return `curl --location --request POST "${API_URL}/api/v1/events" \\
-  --header "Authorization: Bearer $API_KEY" \\
+  --header "Authorization: Bearer $__YOUR_API_KEY__" \\
   --header 'Content-Type: application/json' \\
   --data-raw ${JSON.stringify(
     `{"event": { "transaction_id": "__UNIQUE_ID__", "customer_id": "__CUSTOMER_ID__", "code": "${code}", "timestamp": $(date +%s), "properties":  { "${fieldName}": 12 }}}`
-  )}`
+  )}
+
+# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__ and __CUSTOMER_ID__`
     case AggregationTypeEnum.SumAgg:
       return `curl --location --request POST "${API_URL}/api/v1/events" \\
-  --header "Authorization: Bearer $API_KEY" \\
+  --header "Authorization: Bearer $__YOUR_API_KEY__" \\
   --header 'Content-Type: application/json' \\
   --data-raw ${JSON.stringify(
     `{"event": { "transaction_id": "__UNIQUE_ID__", "customer_id": "__CUSTOMER_ID__", "code": "${code}", "timestamp": $(date +%s), "properties":  { "${fieldName}": 12 }}}`
-  )}`
+  )}
+
+# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__ and __CUSTOMER_ID__`
     default:
       return '# Fill the form to generate the code snippet'
   }

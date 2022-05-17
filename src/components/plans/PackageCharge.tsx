@@ -108,7 +108,9 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
       />
       <Alert type="info">
         {!localCharge.packageSize ? (
-          <Typography>{translate('text_6282085b4f283b0102655898')}</Typography>
+          <Typography color="textSecondary">
+            {translate('text_6282085b4f283b0102655898')}
+          </Typography>
         ) : (
           <>
             <Typography variant="bodyHl" color="textSecondary">
