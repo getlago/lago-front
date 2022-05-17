@@ -4,7 +4,7 @@ import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { useNavigate, generatePath } from 'react-router-dom'
 
-import { theme, BaseListItem, ListItem, MenuPopper } from '~/styles'
+import { theme, BaseListItem, ListItem, MenuPopper, PopperOpener, ItemContainer } from '~/styles'
 import {
   Avatar,
   Typography,
@@ -74,11 +74,6 @@ const mapStatus = (type?: StatusTypeEnum | null) => {
   }
 }
 
-const preventOnClickPropagation = (e: React.MouseEvent<HTMLDivElement>) => {
-  e.stopPropagation()
-  e.preventDefault()
-}
-
 export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
   const editDialogRef = useRef<AddCustomerDialogRef>(null)
@@ -92,54 +87,55 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
   const navigate = useNavigate()
 
   return (
-    <Item
-      id={rowId}
-      tabIndex={0}
-      onClick={() => navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id }))}
-    >
-      <CustomerNameSection>
-        <ListAvatar
-          variant="user"
-          identifier={name as string}
-          initials={(name || '').split(' ').reduce((acc, n) => (acc = acc + n[0]), '')}
-        />
-        <NameBlock>
-          <Typography color="textSecondary" variant="bodyHl" noWrap>
-            {name}
-          </Typography>
-          <Typography variant="caption" noWrap>
-            {customerId}
-          </Typography>
-        </NameBlock>
-      </CustomerNameSection>
-      <PlanInfosSection>
-        <MediumCell align="left">
-          {!subscription || !subscription?.plan.name ? '-' : subscription?.plan.name}
-        </MediumCell>
-        <SmallCell align="left">
-          {!subscription ? '-' : <Status type={status.type} label={translate(status.label)} />}
-        </SmallCell>
-        <SmallCell align="right">{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</SmallCell>
-      </PlanInfosSection>
+    <ItemContainer>
+      <Item
+        id={rowId}
+        tabIndex={0}
+        onClick={() => navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id }))}
+      >
+        <CustomerNameSection>
+          <ListAvatar
+            variant="user"
+            identifier={name as string}
+            initials={(name || '').split(' ').reduce((acc, n) => (acc = acc + n[0]), '')}
+          />
+          <NameBlock>
+            <Typography color="textSecondary" variant="bodyHl" noWrap>
+              {name}
+            </Typography>
+            <Typography variant="caption" noWrap>
+              {customerId}
+            </Typography>
+          </NameBlock>
+        </CustomerNameSection>
+        <PlanInfosSection>
+          <MediumCell align="left">
+            {!subscription || !subscription?.plan.name ? '-' : subscription?.plan.name}
+          </MediumCell>
+          <SmallCell align="left">
+            {!subscription ? '-' : <Status type={status.type} label={translate(status.label)} />}
+          </SmallCell>
+          <SmallCell align="right">{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</SmallCell>
+        </PlanInfosSection>
+        <ButtonMock />
+      </Item>
       <Popper
         PopperProps={{ placement: 'bottom-end' }}
         opener={({ isOpen }) => (
           // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-          <div onClick={preventOnClickPropagation}>
-            <div>
-              <Tooltip
-                placement="top-end"
-                disableHoverListener={isOpen}
-                title={translate('text_626162c62f790600f850b7b6')}
-              >
-                <Button icon="dots-horizontal" variant="quaternary" />
-              </Tooltip>
-            </div>
-          </div>
+          <PopperOpener>
+            <Tooltip
+              placement="top-end"
+              disableHoverListener={isOpen}
+              title={translate('text_626162c62f790600f850b7b6')}
+            >
+              <Button icon="dots-horizontal" variant="quaternary" />
+            </Tooltip>
+          </PopperOpener>
         )}
       >
         {({ closePopper }) => (
-          <MenuPopper onClick={preventOnClickPropagation}>
+          <MenuPopper>
             <Button
               startIcon="pen"
               variant="quaternary"
@@ -174,7 +170,7 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
       </Popper>
       <AddCustomerDialog ref={editDialogRef} customer={customer} />
       <DeleteCustomerDialog ref={deleteDialogRef} customer={customer} />
-    </Item>
+    </ItemContainer>
   )
 })
 
@@ -229,4 +225,8 @@ const PlanInfosSection = styled.div`
       display: none;
     }
   }
+`
+
+const ButtonMock = styled.div`
+  width: 40px;
 `

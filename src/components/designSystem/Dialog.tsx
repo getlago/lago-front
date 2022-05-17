@@ -87,14 +87,9 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
         <StyledDialog
           scroll="body"
           onKeyDown={(e) => {
-            e.stopPropagation()
             if (e.code === 'Escape') {
               onDialogClose()
             }
-          }}
-          onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-            e.stopPropagation()
-            e.preventDefault()
           }}
           open={isOpen}
           onClose={(_, reason) => {

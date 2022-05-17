@@ -43,11 +43,6 @@ interface CustomerVatRateProps {
   customer: CustomerVatRateFragment
 }
 
-const preventOnClickPropagation = (e: React.MouseEvent<HTMLDivElement>) => {
-  e.stopPropagation()
-  e.preventDefault()
-}
-
 export const CustomerVatRate = ({ customer }: CustomerVatRateProps) => {
   const { translate } = useI18nContext()
   const { currentOrganization } = useCurrentUserInfosVar()
@@ -82,25 +77,28 @@ export const CustomerVatRate = ({ customer }: CustomerVatRateProps) => {
               {translate('text_62728ff857d47b013204c7c4')}
             </Typography>
           </ListHead>
-          <VatRateItem className="coucou" onClick={() => editDialogRef?.current?.openDialog()}>
-            <LeftBlock>
-              <Avatar variant="connector">
-                <Icon color="dark" name="percentage" />
-              </Avatar>
-              <div>
-                <Typography variant="bodyHl" color="textSecondary" noWrap>
-                  {translate('text_62728ff857d47b013204cb25', { taxRate: customer?.vatRate })}
-                </Typography>
-                <Typography variant="caption">
-                  {translate('text_62728ff857d47b013204cb3f')}
-                </Typography>
-              </div>
-            </LeftBlock>
+          <ItemContainer>
+            <VatRateItem onClick={() => editDialogRef?.current?.openDialog()}>
+              <LeftBlock>
+                <Avatar variant="connector">
+                  <Icon color="dark" name="percentage" />
+                </Avatar>
+                <div>
+                  <Typography variant="bodyHl" color="textSecondary" noWrap>
+                    {translate('text_62728ff857d47b013204cb25', { taxRate: customer?.vatRate })}
+                  </Typography>
+                  <Typography variant="caption">
+                    {translate('text_62728ff857d47b013204cb3f')}
+                  </Typography>
+                </div>
+              </LeftBlock>
+              <ButtonMock />
+            </VatRateItem>
             <Popper
               PopperProps={{ placement: 'bottom-end' }}
               opener={({ isOpen }) => (
                 // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-                <div onClick={preventOnClickPropagation}>
+                <PopperOpener>
                   <div>
                     <Tooltip
                       placement="top-end"
@@ -110,11 +108,11 @@ export const CustomerVatRate = ({ customer }: CustomerVatRateProps) => {
                       <Button icon="dots-horizontal" variant="quaternary" />
                     </Tooltip>
                   </div>
-                </div>
+                </PopperOpener>
               )}
             >
               {({ closePopper }) => (
-                <MenuPopper onClick={preventOnClickPropagation}>
+                <MenuPopper>
                   <Button
                     startIcon="pen"
                     variant="quaternary"
@@ -140,7 +138,7 @@ export const CustomerVatRate = ({ customer }: CustomerVatRateProps) => {
                 </MenuPopper>
               )}
             </Popper>
-          </VatRateItem>
+          </ItemContainer>
           <Info
             variant="caption"
             html={translate('text_62728ff857d47b013204cb59', {
@@ -186,11 +184,26 @@ const VatRateItem = styled.div`
   }
 `
 
+const ItemContainer = styled.div`
+  position: relative;
+`
+
 const ListHead = styled.div`
   display: flex;
   align-items: center;
   box-shadow: ${theme.shadows[7]};
   height: ${HEADER_TABLE_HEIGHT}px;
+`
+
+const PopperOpener = styled.div`
+  position: absolute;
+  right: 0;
+  top: ${NAV_HEIGHT / 2 - 20}px;
+  z-index: 1;
+`
+
+const ButtonMock = styled.div`
+  width: 40px;
 `
 
 const Info = styled(Typography)`

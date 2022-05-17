@@ -17,7 +17,7 @@ import {
   Button,
   Tooltip,
 } from '~/components/designSystem'
-import { theme, BaseListItem, ListItem, MenuPopper } from '~/styles'
+import { theme, BaseListItem, ListItem, MenuPopper, PopperOpener, ItemContainer } from '~/styles'
 import { useI18nContext } from '~/core/I18nContext'
 import { UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
@@ -45,11 +45,6 @@ interface BillableMetricItemProps {
   navigationProps?: ListKeyNavigationItemProps
 }
 
-const preventOnClickPropagation = (e: React.MouseEvent<HTMLDivElement>) => {
-  e.stopPropagation()
-  e.preventDefault()
-}
-
 export const BillableMetricItem = memo(
   ({ billableMetric, navigationProps }: BillableMetricItemProps) => {
     const { id, name, code, createdAt, canBeDeleted } = billableMetric
@@ -58,44 +53,45 @@ export const BillableMetricItem = memo(
     const navigate = useNavigate()
 
     return (
-      <ListItem
-        tabIndex={0}
-        onClick={() => navigate(generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { id }))}
-        {...navigationProps}
-      >
-        <BillableMetricName>
-          <Avatar variant="connector">
-            <Icon name="pulse" color="dark" />
-          </Avatar>
-          <NameBlock>
-            <Typography color="textSecondary" variant="bodyHl" noWrap>
-              {name}
-            </Typography>
-            <Typography variant="caption" noWrap>
-              {code}
-            </Typography>
-          </NameBlock>
-        </BillableMetricName>
-        <CellSmall align="right">{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</CellSmall>
+      <ItemContainer>
+        <ListItem
+          tabIndex={0}
+          onClick={() => navigate(generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { id }))}
+          {...navigationProps}
+        >
+          <BillableMetricName>
+            <Avatar variant="connector">
+              <Icon name="pulse" color="dark" />
+            </Avatar>
+            <NameBlock>
+              <Typography color="textSecondary" variant="bodyHl" noWrap>
+                {name}
+              </Typography>
+              <Typography variant="caption" noWrap>
+                {code}
+              </Typography>
+            </NameBlock>
+          </BillableMetricName>
+          <CellSmall align="right">{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</CellSmall>
+          <ButtonMock />
+        </ListItem>
         <Popper
           PopperProps={{ placement: 'bottom-end' }}
           opener={({ isOpen }) => (
             // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-            <div onClick={preventOnClickPropagation}>
-              <div>
-                <Tooltip
-                  placement="top-end"
-                  disableHoverListener={isOpen}
-                  title={translate('text_6256de3bba111e00b3bfa51b')}
-                >
-                  <Button icon="dots-horizontal" variant="quaternary" />
-                </Tooltip>
-              </div>
-            </div>
+            <PopperOpener>
+              <Tooltip
+                placement="top-end"
+                disableHoverListener={isOpen}
+                title={translate('text_6256de3bba111e00b3bfa51b')}
+              >
+                <Button icon="dots-horizontal" variant="quaternary" />
+              </Tooltip>
+            </PopperOpener>
           )}
         >
           {({ closePopper }) => (
-            <MenuPopper onClick={preventOnClickPropagation}>
+            <MenuPopper>
               <Button
                 startIcon="pen"
                 variant="quaternary"
@@ -126,7 +122,7 @@ export const BillableMetricItem = memo(
           )}
         </Popper>
         <DeleteBillableMetricDialog ref={deleteDialogRef} billableMetric={billableMetric} />
-      </ListItem>
+      </ItemContainer>
     )
   }
 )
@@ -164,6 +160,10 @@ const BillableMetricName = styled.div`
   > *:last-child {
     margin-right: ${theme.spacing(6)};
   }
+`
+
+const ButtonMock = styled.div`
+  width: 40px;
 `
 
 BillableMetricItem.displayName = 'BillableMetricItem'
