@@ -9,6 +9,9 @@ import {
   Children,
 } from 'react'
 import { VariableSizeList } from 'react-window'
+import styled from 'styled-components'
+
+import { theme } from '~/styles'
 
 import { ITEM_HEIGHT } from './ComboBoxItem'
 import { ComboBoxProps } from './types'
@@ -56,9 +59,9 @@ export const ComboBoxVirtualizedList = forwardRef<HTMLDivElement, ComboBoxVirtua
     const getHeight = () => {
       // recommended perf best practice
       if (itemCount > 8) {
-        return 8 * ITEM_HEIGHT
+        return 8 * (ITEM_HEIGHT + 4) - 4 // Last item does not have 4px margin-bottom
       }
-      return itemData.length * ITEM_HEIGHT
+      return itemData.length * (ITEM_HEIGHT + 4) - 4 // Last item does not have 4px margin-bottom
     }
 
     // reset the `VariableSizeList` cache if data gets updated
@@ -83,21 +86,27 @@ export const ComboBoxVirtualizedList = forwardRef<HTMLDivElement, ComboBoxVirtua
     return (
       <div ref={ref}>
         <OuterElementContext.Provider value={propsToForward}>
-          <VariableSizeList
+          <StyledVariableSizeList
             itemData={itemData}
             height={getHeight()}
             width="100%"
             ref={gridRef}
             outerElementType={OuterElementType}
             innerElementType="div"
-            itemSize={() => ITEM_HEIGHT}
+            itemSize={(index) => (index === itemCount - 1 ? ITEM_HEIGHT : ITEM_HEIGHT + 4)}
             overscanCount={5}
             itemCount={itemCount}
           >
             {renderRow}
-          </VariableSizeList>
+          </StyledVariableSizeList>
         </OuterElementContext.Provider>
       </div>
     )
   }
 )
+
+const StyledVariableSizeList = styled(VariableSizeList)`
+  > *:not(:last-child) {
+    margin-bottom: ${theme.spacing(1)};
+  }
+`
