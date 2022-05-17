@@ -4,7 +4,7 @@ import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { theme, BaseListItem, ListItem, MenuPopper } from '~/styles'
+import { theme, BaseListItem, ListItem, MenuPopper, PopperOpener, ItemContainer } from '~/styles'
 import {
   Typography,
   Avatar,
@@ -41,11 +41,6 @@ interface PlanItemProps {
   navigationProps?: ListKeyNavigationItemProps
 }
 
-const preventOnClickPropagation = (e: React.MouseEvent<HTMLDivElement>) => {
-  e.stopPropagation()
-  e.preventDefault()
-}
-
 export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
   const deleteDialogRef = useRef<DeletePlanDialogRef>(null)
   const { id, name, code, customerCount, chargeCount, createdAt, canBeDeleted } = plan
@@ -53,48 +48,49 @@ export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
   const navigate = useNavigate()
 
   return (
-    <ListItem
-      tabIndex={0}
-      onClick={() => navigate(generatePath(UPDATE_PLAN_ROUTE, { id }))}
-      {...navigationProps}
-    >
-      <PlanNameSection>
-        <ListAvatar variant="connector">
-          <Icon name="board" color="dark" />
-        </ListAvatar>
-        <NameBlock>
-          <Typography color="textSecondary" variant="bodyHl" noWrap>
-            {name}
-          </Typography>
-          <Typography variant="caption" noWrap>
-            {code}
-          </Typography>
-        </NameBlock>
-      </PlanNameSection>
-      <PlanInfosSection>
-        <MediumCell>{customerCount}</MediumCell>
-        <SmallCell>{chargeCount}</SmallCell>
-        <MediumCell>{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</MediumCell>
-      </PlanInfosSection>
+    <ItemContainer>
+      <ListItem
+        tabIndex={0}
+        onClick={() => navigate(generatePath(UPDATE_PLAN_ROUTE, { id }))}
+        {...navigationProps}
+      >
+        <PlanNameSection>
+          <ListAvatar variant="connector">
+            <Icon name="board" color="dark" />
+          </ListAvatar>
+          <NameBlock>
+            <Typography color="textSecondary" variant="bodyHl" noWrap>
+              {name}
+            </Typography>
+            <Typography variant="caption" noWrap>
+              {code}
+            </Typography>
+          </NameBlock>
+        </PlanNameSection>
+        <PlanInfosSection>
+          <MediumCell>{customerCount}</MediumCell>
+          <SmallCell>{chargeCount}</SmallCell>
+          <MediumCell>{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</MediumCell>
+        </PlanInfosSection>
+        <ButtonMock />
+      </ListItem>
       <Popper
         PopperProps={{ placement: 'bottom-end' }}
         opener={({ isOpen }) => (
           // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-          <div onClick={preventOnClickPropagation}>
-            <div>
-              <Tooltip
-                placement="top-end"
-                disableHoverListener={isOpen}
-                title={translate('text_6256de3bba111e00b3bfa51b')}
-              >
-                <Button icon="dots-horizontal" variant="quaternary" />
-              </Tooltip>
-            </div>
-          </div>
+          <PopperOpener>
+            <Tooltip
+              placement="top-end"
+              disableHoverListener={isOpen}
+              title={translate('text_6256de3bba111e00b3bfa51b')}
+            >
+              <Button icon="dots-horizontal" variant="quaternary" />
+            </Tooltip>
+          </PopperOpener>
         )}
       >
         {({ closePopper }) => (
-          <MenuPopper onClick={preventOnClickPropagation}>
+          <MenuPopper>
             <Button
               startIcon="pen"
               variant="quaternary"
@@ -125,7 +121,7 @@ export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
         )}
       </Popper>
       <DeletePlanDialog ref={deleteDialogRef} plan={plan} />
-    </ListItem>
+    </ItemContainer>
   )
 })
 
@@ -175,6 +171,10 @@ const MediumCell = styled(Typography)`
 const SmallCell = styled(Typography)`
   text-align: right;
   width: 80px;
+`
+
+const ButtonMock = styled.div`
+  width: 40px;
 `
 
 PlanItem.displayName = 'PlanItem'

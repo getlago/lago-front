@@ -53,3 +53,18 @@ export const ListHeader = styled.div<{ $withActions?: boolean }>`
 export const ListContainer = styled.div`
   margin-bottom: ${theme.spacing(20)};
 `
+
+export const ItemContainer = styled.div`
+  position: relative;
+`
+
+export const PopperOpener = styled.div`
+  position: absolute;
+  right: ${theme.spacing(12)};
+  top: ${NAV_HEIGHT / 2 - 20}px;
+  z-index: 1;
+
+  ${theme.breakpoints.down('md')} {
+    right: ${theme.spacing(4)};
+  }
+`
