@@ -1391,7 +1391,7 @@ export type BillableMetricsQueryVariables = Exact<{
 }>;
 
 
-export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, canBeDeleted: boolean }> } };
+export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, canBeDeleted: boolean }> } };
 
 export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, issuingDate: any, amountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null }> | null };
 
@@ -1408,7 +1408,7 @@ export type CustomersQueryVariables = Exact<{
 }>;
 
 
-export type CustomersQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', collection: Array<{ __typename?: 'Customer', id: string, name?: string | null, customerId: string, createdAt: any, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, subscriptions?: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string } }> | null }> } };
+export type CustomersQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Customer', id: string, name?: string | null, customerId: string, createdAt: any, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, subscriptions?: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string } }> | null }> } };
 
 export type PlansQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -1416,7 +1416,7 @@ export type PlansQueryVariables = Exact<{
 }>;
 
 
-export type PlansQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', collection: Array<{ __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, canBeDeleted: boolean }> } };
+export type PlansQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, canBeDeleted: boolean }> } };
 
 export type LoginUserMutationVariables = Exact<{
   input: LoginUserInput;
@@ -2435,6 +2435,10 @@ export type UpdateCustomerMutationOptions = Apollo.BaseMutationOptions<UpdateCus
 export const BillableMetricsDocument = gql`
     query billableMetrics($page: Int, $limit: Int) {
   billableMetrics(page: $page, limit: $limit) {
+    metadata {
+      currentPage
+      totalPages
+    }
     collection {
       ...BillableMetricItem
     }
@@ -2508,6 +2512,10 @@ export type GetCustomerQueryResult = Apollo.QueryResult<GetCustomerQuery, GetCus
 export const CustomersDocument = gql`
     query customers($page: Int, $limit: Int) {
   customers(page: $page, limit: $limit) {
+    metadata {
+      currentPage
+      totalPages
+    }
     collection {
       ...CustomerItem
     }
@@ -2546,6 +2554,10 @@ export type CustomersQueryResult = Apollo.QueryResult<CustomersQuery, CustomersQ
 export const PlansDocument = gql`
     query plans($page: Int, $limit: Int) {
   plans(page: $page, limit: $limit) {
+    metadata {
+      currentPage
+      totalPages
+    }
     collection {
       ...PlanItem
     }

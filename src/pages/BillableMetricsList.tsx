@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { useNavigate, generatePath } from 'react-router-dom'
 
-import { Typography, Button } from '~/components/designSystem'
+import { Typography, Button, InfiniteScroll } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { useI18nContext } from '~/core/I18nContext'
 import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
@@ -19,6 +19,10 @@ import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 gql`
   query billableMetrics($page: Int, $limit: Int) {
     billableMetrics(page: $page, limit: $limit) {
+      metadata {
+        currentPage
+        totalPages
+      }
       collection {
         ...BillableMetricItem
       }
@@ -31,7 +35,10 @@ gql`
 const BillableMetricsList = () => {
   const { translate } = useI18nContext()
   let navigate = useNavigate()
-  const { data, error, loading } = useBillableMetricsQuery()
+  const { data, error, loading, fetchMore } = useBillableMetricsQuery({
+    variables: { limit: 20 },
+    notifyOnNetworkStatusChange: true,
+  })
   const list = data?.billableMetrics?.collection || []
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `billable-metric-item-${i}`,
@@ -78,11 +85,19 @@ const BillableMetricsList = () => {
               {translate('text_623b497ad05b960101be3440')}
             </CellSmall>
           </ListHead>
-          {loading
-            ? [0, 1, 2].map((i) => (
-                <BillableMetricItemSkeleton key={`billable-metric-item-skeleton-${i}`} />
-              ))
-            : list.map((billableMetric) => {
+          <InfiniteScroll
+            onBottom={() => {
+              const { currentPage = 0, totalPages = 0 } = data?.billableMetrics?.metadata || {}
+
+              currentPage < totalPages &&
+                !loading &&
+                fetchMore({
+                  variables: { page: currentPage + 1 },
+                })
+            }}
+          >
+            {!!list &&
+              list.map((billableMetric) => {
                 index += 1
 
                 return (
@@ -96,6 +111,11 @@ const BillableMetricsList = () => {
                   />
                 )
               })}
+            {loading &&
+              [0, 1, 2].map((i) => (
+                <BillableMetricItemSkeleton key={`billable-metric-item-skeleton-${i}`} />
+              ))}
+          </InfiniteScroll>
         </ListContainer>
       )}
     </div>

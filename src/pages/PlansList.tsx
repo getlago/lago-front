@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { useNavigate, generatePath } from 'react-router-dom'
 
-import { Typography, Button } from '~/components/designSystem'
+import { Typography, Button, InfiniteScroll } from '~/components/designSystem'
 import { CREATE_PLAN_ROUTE, UPDATE_PLAN_ROUTE } from '~/core/router'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
@@ -16,6 +16,10 @@ import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 gql`
   query plans($page: Int, $limit: Int) {
     plans(page: $page, limit: $limit) {
+      metadata {
+        currentPage
+        totalPages
+      }
       collection {
         ...PlanItem
       }
@@ -28,7 +32,10 @@ gql`
 const PlansList = () => {
   const { translate } = useI18nContext()
   let navigate = useNavigate()
-  const { data, error, loading } = usePlansQuery()
+  const { data, error, loading, fetchMore } = usePlansQuery({
+    variables: { limit: 10 },
+    notifyOnNetworkStatusChange: true,
+  })
   const list = data?.plans?.collection || []
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `plan-item-${i}`,
@@ -85,22 +92,37 @@ const PlansList = () => {
               </MediumCell>
             </PlanInfosSection>
           </ListHead>
-          {loading
-            ? [0, 1, 2].map((i) => <PlanItemSkeleton key={`plan-item-skeleton-${i}`} />)
-            : list.map((plan) => {
-                index += 1
+          <InfiniteScroll
+            onBottom={() => {
+              const { currentPage = 0, totalPages = 0 } = data?.plans?.metadata || {}
 
-                return (
-                  <PlanItem
-                    key={plan.id}
-                    plan={plan}
-                    navigationProps={{
-                      id: `plan-item-${index}`,
-                      'data-id': plan.id,
-                    }}
-                  />
-                )
-              })}
+              currentPage < totalPages &&
+                !loading &&
+                fetchMore({
+                  variables: { page: currentPage + 1 },
+                })
+            }}
+          >
+            <>
+              {!!list &&
+                list.map((plan) => {
+                  index += 1
+
+                  return (
+                    <PlanItem
+                      key={plan.id}
+                      plan={plan}
+                      navigationProps={{
+                        id: `plan-item-${index}`,
+                        'data-id': plan.id,
+                      }}
+                    />
+                  )
+                })}
+              {loading &&
+                [0, 1, 2].map((i) => <PlanItemSkeleton key={`plan-item-skeleton-${i}`} />)}
+            </>
+          </InfiniteScroll>
         </ListContainer>
       )}
     </div>

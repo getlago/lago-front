@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
-import { Typography, Button } from '~/components/designSystem'
+import { Typography, Button, InfiniteScroll } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { useCustomersQuery, CustomerItemFragmentDoc } from '~/generated/graphql'
 import { useI18nContext } from '~/core/I18nContext'
@@ -16,6 +16,10 @@ import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 gql`
   query customers($page: Int, $limit: Int) {
     customers(page: $page, limit: $limit) {
+      metadata {
+        currentPage
+        totalPages
+      }
       collection {
         ...CustomerItem
       }
@@ -31,7 +35,10 @@ const CustomersList = () => {
     getElmId: (i) => `customer-item-${i}`,
   })
   const { translate } = useI18nContext()
-  const { data, error, loading } = useCustomersQuery()
+  const { data, error, loading, fetchMore } = useCustomersQuery({
+    variables: { limit: 20 },
+    notifyOnNetworkStatusChange: true,
+  })
   const list = data?.customers?.collection || []
   let index = -1
 
@@ -84,19 +91,34 @@ const CustomersList = () => {
               </SmallCell>
             </PlanInfosSection>
           </ListHead>
-          {loading
-            ? [0, 1, 2].map((i) => <CustomerItemSkeleton key={`customer-item-skeleton-${i}`} />)
-            : list.map((customer) => {
-                index += 1
+          <InfiniteScroll
+            onBottom={() => {
+              const { currentPage = 0, totalPages = 0 } = data?.customers?.metadata || {}
 
-                return (
-                  <CustomerItem
-                    key={customer.id}
-                    rowId={`customer-item-${index}`}
-                    customer={customer}
-                  />
-                )
-              })}
+              currentPage < totalPages &&
+                !loading &&
+                fetchMore({
+                  variables: { page: currentPage + 1 },
+                })
+            }}
+          >
+            <>
+              {!!list &&
+                list.map((customer) => {
+                  index += 1
+
+                  return (
+                    <CustomerItem
+                      key={customer.id}
+                      rowId={`customer-item-${index}`}
+                      customer={customer}
+                    />
+                  )
+                })}
+              {loading &&
+                [0, 1, 2].map((i) => <CustomerItemSkeleton key={`customer-item-skeleton-${i}`} />)}
+            </>
+          </InfiniteScroll>
         </ListContainer>
       )}
 

@@ -1,5 +1,4 @@
 import { InMemoryCache, makeVar } from '@apollo/client'
-import { relayStylePagination } from '@apollo/client/utilities'
 
 import { authTokenVar } from './authTokenVar'
 
@@ -22,7 +21,45 @@ export const cache = new InMemoryCache({
             return authTokenVar()
           },
         },
-        audience__list: relayStylePagination(['order']),
+        billableMetrics: {
+          keyArgs: false,
+          merge(existing, incoming) {
+            if (incoming?.metadata?.currentPage === 1) {
+              return incoming
+            }
+
+            return {
+              ...incoming,
+              collection: [...(existing?.collection || []), ...(incoming.collection || [])],
+            }
+          },
+        },
+        plans: {
+          keyArgs: false,
+          merge(existing, incoming) {
+            if (incoming?.metadata?.currentPage === 1) {
+              return incoming
+            }
+
+            return {
+              ...incoming,
+              collection: [...(existing?.collection || []), ...(incoming.collection || [])],
+            }
+          },
+        },
+        customers: {
+          keyArgs: false,
+          merge(existing, incoming) {
+            if (incoming?.metadata?.currentPage === 1) {
+              return incoming
+            }
+
+            return {
+              ...incoming,
+              collection: [...(existing?.collection || []), ...(incoming.collection || [])],
+            }
+          },
+        },
       },
     },
   },

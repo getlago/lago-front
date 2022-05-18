@@ -99,13 +99,6 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
     })
 
     useEffect(() => {
-      if (isEdition) {
-        loadBillingInfos && loadBillingInfos()
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isEdition])
-
-    useEffect(() => {
       if (mounted.current) {
         setIsCollapsed(!isEdition)
         formikProps.setValues({
@@ -135,6 +128,9 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
         title={translate(
           isEdition ? 'text_6261712bff79eb00ed02906f' : 'text_624efab67eb2570101d117ad'
         )}
+        onOpen={() => {
+          isEdition && loadBillingInfos && loadBillingInfos()
+        }}
         description={!isEdition && translate('text_624efab67eb2570101d117b5')}
         actions={({ closeDialog }) => (
           <>
