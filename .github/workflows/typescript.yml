@@ -3,8 +3,8 @@ name: Typescript
 on: push
 
 jobs:
-  run-tests:
-    name: Run tests
+  run-typescript:
+    name: Run typescript
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
