@@ -31,6 +31,7 @@ const CustomersList = lazy(
 const CustomerDetails = lazy(
   () => import(/* webpackChunkName: 'customer-details' */ '~/pages/CustomerDetails')
 )
+const CouponsList = lazy(() => import(/* webpackChunkName: 'coupons-list' */ '~/pages/CouponsList'))
 
 const SideNavLayout = lazy(() => import(/* webpackChunkName: 'home' */ '~/layouts/SideNavLayout'))
 
@@ -55,6 +56,7 @@ export const CREATE_PLAN_ROUTE = '/create/plans'
 export const CUSTOMERS_LIST_ROUTE = '/customers'
 export const CUSTOMER_DETAILS_ROUTE = '/customer/:id'
 export const ERROR_404_ROUTE = '/404'
+export const COUPONS_ROUTE = '/coupons'
 
 // Developpers routes
 export const DEVELOPPERS_ROUTE = '/developpers'
@@ -124,6 +126,11 @@ export const routes: CustomRouteObject[] = [
         path: CUSTOMER_DETAILS_ROUTE,
         private: true,
         element: <CustomerDetails />,
+      },
+      {
+        path: COUPONS_ROUTE,
+        private: true,
+        element: <CouponsList />,
       },
     ],
   },

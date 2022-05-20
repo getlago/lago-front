@@ -16,6 +16,7 @@ import {
   DEVELOPPERS_ROUTE,
   SETTINGS_ROUTE,
   HOME_ROUTE,
+  COUPONS_ROUTE,
 } from '~/core/router'
 import { MenuPopper } from '~/styles/designSystem'
 
@@ -49,6 +50,11 @@ const SideNav = () => {
       title: translate('text_62442e40cea25600b0b6d85a'),
       icon: 'board',
       link: PLANS_ROUTE,
+    },
+    {
+      title: translate('text_62865498824cc10126ab2940'),
+      icon: 'coupon',
+      link: COUPONS_ROUTE,
     },
     {
       title: translate('text_624efab67eb2570101d117a5'),
