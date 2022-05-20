@@ -30,17 +30,36 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
   const [newChargeId, setNewChargeId] = useState<string | null>(null)
   const formikProps = useFormik<PlanFormInput>({
     initialValues: {
-      name: '',
-      code: '',
-      description: '',
-      interval: PlanInterval.Monthly,
-      payInAdvance: false,
+      name: plan?.name || '',
+      code: plan?.code || '',
+      description: plan?.description || '',
+      interval: plan?.interval || PlanInterval.Monthly,
+      payInAdvance: plan?.payInAdvance || false,
       // @ts-ignore
-      amountCents: undefined,
-      amountCurrency: CurrencyEnum.Usd,
+      amountCents: plan?.amountCents ? plan?.amountCents / 100 : plan?.amountCents || undefined,
+      amountCurrency: plan?.amountCurrency || CurrencyEnum.Usd,
       // @ts-ignore
-      trialPeriod: undefined,
-      charges: [] as LocalChargeInput[],
+      trialPeriod: plan?.trialPeriod || undefined,
+      // @ts-ignore
+      charges: plan?.charges
+        ? plan?.charges.map(({ amountCents, graduatedRanges, packageSize, ...charge }) => ({
+            // AmountCent can be null and this breaks the validation
+            amountCents: amountCents ? amountCents / 100 : amountCents || undefined,
+            packageSize: packageSize == null ? undefined : packageSize,
+            graduatedRanges: !graduatedRanges
+              ? null
+              : graduatedRanges.map(({ perUnitAmountCents, flatAmountCents, ...range }) => ({
+                  flatAmountCents: flatAmountCents
+                    ? flatAmountCents / 100
+                    : flatAmountCents || undefined,
+                  perUnitAmountCents: perUnitAmountCents
+                    ? perUnitAmountCents / 100
+                    : perUnitAmountCents || undefined,
+                  ...range,
+                })),
+            ...charge,
+          }))
+        : ([] as LocalChargeInput[]),
     },
     validationSchema: object().shape({
       name: string().required(''),
@@ -112,45 +131,10 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
         })
       ),
     }),
+    enableReinitialize: true,
     validateOnMount: true,
     onSubmit: onSave,
   })
-
-  useEffect(() => {
-    if (!!plan && !!plan.code) {
-      formikProps.setValues({
-        name: plan?.name ?? '',
-        code: plan?.code ?? '',
-        description: plan?.description ?? '',
-        interval: plan?.interval ?? PlanInterval.Monthly,
-        payInAdvance: plan?.payInAdvance ?? false,
-        // @ts-ignore
-        amountCents: plan?.amountCents ? plan?.amountCents / 100 : plan?.amountCents || undefined,
-        amountCurrency: plan?.amountCurrency ?? CurrencyEnum.Usd,
-        // @ts-ignore
-        trialPeriod: plan?.trialPeriod ?? undefined,
-        // @ts-ignore
-        charges: plan?.charges
-          ? plan?.charges.map(({ amountCents, graduatedRanges, ...charge }) => ({
-              // AmountCent can be null and this breaks the validation
-              amountCents: amountCents ? amountCents / 100 : amountCents || undefined,
-              graduatedRanges: !graduatedRanges
-                ? null
-                : graduatedRanges.map(({ perUnitAmountCents, flatAmountCents, ...range }) => ({
-                    flatAmountCents: flatAmountCents
-                      ? flatAmountCents / 100
-                      : flatAmountCents || undefined,
-                    perUnitAmountCents: perUnitAmountCents
-                      ? perUnitAmountCents / 100
-                      : perUnitAmountCents || undefined,
-                    ...range,
-                  })),
-              ...charge,
-            }))
-          : ([] as LocalChargeInput[]),
-      })
-    }
-  }, [plan])
 
   useEffect(() => {
     // When adding a new charge, scroll to the new charge element

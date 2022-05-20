@@ -32,6 +32,9 @@ const CustomerDetails = lazy(
   () => import(/* webpackChunkName: 'customer-details' */ '~/pages/CustomerDetails')
 )
 const CouponsList = lazy(() => import(/* webpackChunkName: 'coupons-list' */ '~/pages/CouponsList'))
+const CreateCoupon = lazy(
+  () => import(/* webpackChunkName: 'create-coupon' */ '~/pages/CreateCoupon')
+)
 
 const SideNavLayout = lazy(() => import(/* webpackChunkName: 'home' */ '~/layouts/SideNavLayout'))
 
@@ -47,16 +50,27 @@ export const LOGIN_ROUTE = '/login'
 export const FORGOT_PASSWORD_ROUTE = '/forgot-password'
 export const SIGN_UP_ROUTE = '/sign-up'
 export const HOME_ROUTE = '/'
+
+// Billable metrics routes
 export const BILLABLE_METRICS_ROUTE = '/billable-metrics'
 export const CREATE_BILLABLE_METRIC_ROUTE = '/create/billable-metrics'
-export const UPDATE_BILLABLE_METRIC_ROUTE = '/create/billable-metric/:id'
-export const UPDATE_PLAN_ROUTE = '/create/plan/:id'
+export const UPDATE_BILLABLE_METRIC_ROUTE = '/update/billable-metric/:id'
+
+// Plans routes
 export const PLANS_ROUTE = '/plans'
 export const CREATE_PLAN_ROUTE = '/create/plans'
+export const UPDATE_PLAN_ROUTE = '/update/plan/:id'
+
+// Customer routes
 export const CUSTOMERS_LIST_ROUTE = '/customers'
 export const CUSTOMER_DETAILS_ROUTE = '/customer/:id'
-export const ERROR_404_ROUTE = '/404'
+
+// Coupons routes
 export const COUPONS_ROUTE = '/coupons'
+export const CREATE_COUPON_ROUTE = '/create/coupons'
+export const UPDATE_COUPON_ROUTE = '/update/coupons/:id'
+
+export const ERROR_404_ROUTE = '/404'
 
 // Developpers routes
 export const DEVELOPPERS_ROUTE = '/developpers'
@@ -133,6 +147,11 @@ export const routes: CustomRouteObject[] = [
         element: <CouponsList />,
       },
     ],
+  },
+  {
+    path: [CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE],
+    private: true,
+    element: <CreateCoupon />,
   },
   {
     path: [CREATE_BILLABLE_METRIC_ROUTE, UPDATE_BILLABLE_METRIC_ROUTE],

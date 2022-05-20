@@ -1,5 +1,8 @@
+import { gql } from '@apollo/client'
 import styled from 'styled-components'
+import { useNavigate, generatePath } from 'react-router-dom'
 
+import { CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
 import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
 import { Typography, Button, InfiniteScroll } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
@@ -7,51 +10,50 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import EmojiError from '~/public/images/exploding-head.png'
 import EmojiEmpty from '~/public/images/spider-web.png'
 import { CouponItem, CouponItemSkeleton } from '~/components/coupons/CouponItem'
-import { CurrencyEnum, StatusTypeEnum } from '~/generated/graphql'
+import { CouponItemFragmentDoc, useCouponsQuery } from '~/generated/graphql'
+import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
+
+gql`
+  query coupons($page: Int, $limit: Int) {
+    coupons(page: $page, limit: $limit) {
+      metadata {
+        currentPage
+        totalPages
+      }
+      collection {
+        ...CouponItem
+      }
+    }
+  }
+
+  ${CouponItemFragmentDoc}
+`
 
 const CouponsList = () => {
   const { translate } = useI18nContext()
+  let navigate = useNavigate()
+  const { onKeyDown } = useListKeysNavigation({
+    getElmId: (i) => `coupon-item-${i}`,
+    navigate: (id) => navigate(generatePath(UPDATE_COUPON_ROUTE, { id: String(id) })),
+  })
+  const { data, error, loading, fetchMore } = useCouponsQuery({
+    variables: { limit: 20 },
+    notifyOnNetworkStatusChange: true,
+  })
+  const list = data?.coupons?.collection || []
   let index = -1
-  // TODO
-  const loading = true
-  const error = false
-  const list = [
-    {
-      id: 'truc',
-      name: 'machin',
-      currency: CurrencyEnum.Eur,
-      amountCents: 40000,
-      expiracyDate: '2022-04-13T14:40:26Z',
-      customers: 4,
-      status: StatusTypeEnum.Active,
-      canBeDeleted: false,
-    },
-    {
-      id: 'truc2',
-      name: 'machin2',
-      currency: CurrencyEnum.Usd,
-      amountCents: 30000,
-      expiracyDate: '2022-04-13T14:40:26Z',
-      customers: 0,
-      status: StatusTypeEnum.Terminated,
-      canBeDeleted: true,
-    },
-  ]
 
   return (
-    <div>
+    <div role="grid" tabIndex={-1} onKeyDown={onKeyDown}>
       <Header $withSide>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_62865498824cc10126ab2956')}
         </Typography>
-        <Button
-          onClick={() => {
-            /**. TODO*/
-          }}
-        >
+        <Button onClick={() => navigate(CREATE_COUPON_ROUTE)}>
           {translate('text_62865498824cc10126ab2954')}
         </Button>
       </Header>
+
       {!loading && !!error ? (
         <GenericPlaceholder
           title={translate('text_62865498824cc10126ab2962')}
@@ -94,13 +96,13 @@ const CouponsList = () => {
           </ListHead>
           <InfiniteScroll
             onBottom={() => {
-              // TODO
-              //   const { currentPage = 0, totalPages = 0 } = data?.plans?.metadata || {}
-              //   currentPage < totalPages &&
-              //     !loading &&
-              //     fetchMore({
-              //       variables: { page: currentPage + 1 },
-              //     })
+              const { currentPage = 0, totalPages = 0 } = data?.coupons?.metadata || {}
+
+              currentPage < totalPages &&
+                !loading &&
+                fetchMore({
+                  variables: { page: currentPage + 1 },
+                })
             }}
           >
             <>
@@ -113,7 +115,7 @@ const CouponsList = () => {
                       key={coupon.id}
                       coupon={coupon}
                       navigationProps={{
-                        id: `plan-item-${index}`,
+                        id: `coupon-item-${index}`,
                         'data-id': coupon.id,
                       }}
                     />

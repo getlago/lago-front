@@ -839,7 +839,8 @@
       "text_62876a50ea3bba00b56d2cbc": "Terminate",
       "text_62876a50ea3bba00b56d2cc2": "Delete",
       "text_62876a50ea3bba00b56d2cee": "This coupon can’t be deleted because it’s linked to existing customers",
-      "text_62876a50ea3bba00b56d2ce9": "This coupon is already terminated",
+      "text_62878d88ea3bba00b56d33cd": "Edit",
+      "text_62878d88ea3bba00b56d33cf": "This coupon is already terminated",
       "text_62876e85e32e0300e18030e7": "Add a coupon",
       "text_62876e85e32e0300e1803106": "Add a coupon",
       "text_62876e85e32e0300e180310f": "Create and define a coupon and add it to customers to offer a discount.",
@@ -859,6 +860,7 @@
       "text_62876e85e32e0300e1803172": "0",
       "text_62876e85e32e0300e1803178": "days",
       "text_62876e85e32e0300e180317b": "Number of day must be a value greater than 1",
+      "text_62876e85e32e0300e180317d": "Add coupon",
       "text_62876e85e32e0300e18030f3": "Your coupon was successfully created!",
       "text_62876e85e32e0300e18030fa": "Congratulations, you can add another Coupon or go back to the app.",
       "text_62876e85e32e0300e1803102": "Add a coupon",
@@ -866,7 +868,16 @@
       "text_62876e85e32e0300e18030f5": "Leaving deletes your choices",
       "text_62876e85e32e0300e18030fc": "By clicking ‘Leave’, the coupon and data you’re creating will be deleted. Are you sure you want to leave?",
       "text_62876e85e32e0300e1803104": "Cancel",
-      "text_62876e85e32e0300e180310b": "Leave"
+      "text_62876e85e32e0300e180310b": "Leave",
+      "text_62878d88ea3bba00b56d3412": "Terminated coupon can’t be editable, please create a new one",
+      "text_6287a9bdac160c00b2e0fbe7": "Edit a coupon",
+      "text_6287a9bdac160c00b2e0fc05": "Edit a coupon",
+      "text_6287a9bdac160c00b2e0fc0b": "Edit this coupon then add it to customers to offer a discount.",
+      "text_6287a9bdac160c00b2e0fc6b": "Save coupon edits",
+      "text_6287a9bdac160c00b2e0fc81": "Coupon successfully edited",
+      "text_6287a9bdac160c00b2e0fbeb": "Leaving deletes your edition",
+      "text_6287a9bdac160c00b2e0fbf1": "By clicking “Leave without saving”, the edition started in this coupon will not be saved. Are you sure you want to leave?",
+      "text_6287a9bdac160c00b2e0fbfd": "Leave without saving"
     },
     "project_620bc4d45f16c800e2324b82": {
       "text_620bc4d4269a55014d493f12": "Welcome to Lago",
@@ -1159,5 +1170,5 @@
       "country-code-zw": "Zimbabwe"
     }
   },
-  "exported_at": "2022-05-20T10:36:47.350Z"
+  "exported_at": "2022-05-20T14:48:45.825Z"
 }
