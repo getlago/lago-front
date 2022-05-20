@@ -53,16 +53,9 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
         <ComboBox
           name="amountCurrency"
           disabled
-          data={[
-            {
-              label: translate('text_624453d52e945301380e49ba'),
-              value: CurrencyEnum.Usd,
-            },
-            {
-              label: 'EUR', // TODO
-              value: CurrencyEnum.Eur,
-            },
-          ]}
+          data={Object.values(CurrencyEnum).map((currencyType) => ({
+            value: currencyType,
+          }))}
           disableClearable
           value={localCharge.amountCurrency}
           onChange={() => {}}
