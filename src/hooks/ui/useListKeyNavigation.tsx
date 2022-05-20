@@ -32,19 +32,16 @@ export const useListKeysNavigation: UseKeyNavigation = ({
 
         if (['ArrowDown', 'KeyJ'].includes(e.code)) {
           e.stopPropagation()
-          e.preventDefault()
           nextId = getElmId(parseInt(getIndex) + 1)
         }
 
         if (['ArrowUp', 'KeyK'].includes(e.code)) {
           e.stopPropagation()
-          e.preventDefault()
           nextId = getElmId(parseInt(getIndex) - 1)
         }
 
         if (['Enter'].includes(e.code) && !!navigate) {
           e.stopPropagation()
-          e.preventDefault()
           const id = getElmId(parseInt(getIndex))
           const elementToNavigateTo = document.getElementById(id)
           const realId = elementToNavigateTo?.dataset.id
