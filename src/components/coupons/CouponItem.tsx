@@ -1,5 +1,7 @@
+import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { DateTime } from 'luxon'
+import { useNavigate, generatePath } from 'react-router-dom'
 
 import { theme, BaseListItem, ListItem, MenuPopper, PopperOpener, ItemContainer } from '~/styles'
 import {
@@ -13,28 +15,32 @@ import {
   Status,
   StatusEnum,
 } from '~/components/designSystem'
+import { UPDATE_COUPON_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
-import { CurrencyEnum, StatusTypeEnum } from '~/generated/graphql'
+import { CouponStatusEnum, CouponItemFragment } from '~/generated/graphql'
 import { formatAmountToCurrency } from '~/core/currencyTool'
 import { useI18nContext } from '~/core/I18nContext'
 
+gql`
+  fragment CouponItem on Coupon {
+    id
+    name
+    customerCount
+    status
+    amountCurrency
+    amountCents
+    canBeDeleted
+  }
+`
+
 interface CouponItemProps {
-  coupon: {
-    name: string
-    currency: CurrencyEnum
-    amountCents: number
-    expiracyDate: string
-    customers?: number
-    status?: StatusTypeEnum
-    canBeDeleted?: boolean
-  } // TODO
+  coupon: CouponItemFragment
   navigationProps?: ListKeyNavigationItemProps
 }
 
-const mapStatus = (type?: StatusTypeEnum | undefined) => {
-  // TODO check status with API
+const mapStatus = (type?: CouponStatusEnum | undefined) => {
   switch (type) {
-    case StatusTypeEnum.Active:
+    case CouponStatusEnum.Active:
       return {
         type: StatusEnum.running,
         label: 'text_62865498824cc10126ab297c',
@@ -48,7 +54,8 @@ const mapStatus = (type?: StatusTypeEnum | undefined) => {
 }
 
 export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
-  const { name, currency, amountCents, expiracyDate, customers, status, canBeDeleted } = coupon
+  const { id, name, amountCurrency, amountCents, customerCount, status, canBeDeleted } = coupon
+  let navigate = useNavigate()
   const { translate } = useI18nContext()
   const formattedStatus = mapStatus(status)
 
@@ -56,9 +63,7 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
     <ItemContainer>
       <ListItem
         tabIndex={0}
-        onClick={() => {
-          /** TODO */
-        }}
+        onClick={() => navigate(generatePath(UPDATE_COUPON_ROUTE, { id }))}
         {...navigationProps}
       >
         <CouponNameSection>
@@ -73,15 +78,16 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
               {translate('text_62865498824cc10126ab2976', {
                 amount: formatAmountToCurrency(amountCents || 0, {
                   currencyDisplay: 'code',
-                  currency,
+                  currency: amountCurrency,
                 }),
               })}
             </Typography>
           </NameBlock>
         </CouponNameSection>
         <CouponInfosSection>
-          <SmallCell>{customers}</SmallCell>
-          <SmallCell>{DateTime.fromISO(expiracyDate).toFormat('yyyy/LL/dd')}</SmallCell>
+          <SmallCell>{customerCount}</SmallCell>
+          <SmallCell>TODO</SmallCell>
+          {/* <SmallCell>{DateTime.fromISO(expiracyDate).toFormat('yyyy/LL/dd')}</SmallCell> */}
           <MediumCell>
             {<Status type={formattedStatus.type} label={translate(formattedStatus.label)} />}
           </MediumCell>
@@ -105,25 +111,32 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
       >
         {({ closePopper }) => (
           <MenuPopper>
-            <Button
-              startIcon="pen"
-              variant="quaternary"
-              align="left"
-              onClick={() => {
-                /** TODO */
-              }}
-            >
-              {translate('text_62876a50ea3bba00b56d2cb6')}
-            </Button>
             <Tooltip
-              disableHoverListener={status !== StatusTypeEnum.Terminated}
-              title={translate('text_62876a50ea3bba00b56d2ce9')}
+              disableHoverListener={status !== CouponStatusEnum.Terminated}
+              title={translate('text_62878d88ea3bba00b56d3412')}
+              placement="bottom-end"
+            >
+              <Button
+                startIcon="pen"
+                disabled={status === CouponStatusEnum.Terminated}
+                variant="quaternary"
+                fullWidth
+                align="left"
+                onClick={() => navigate(generatePath(UPDATE_COUPON_ROUTE, { id }))}
+              >
+                {translate('text_62876a50ea3bba00b56d2cb6')}
+              </Button>
+            </Tooltip>
+            <Tooltip
+              disableHoverListener={status !== CouponStatusEnum.Terminated}
+              title={translate('text_62878d88ea3bba00b56d33cf')}
               placement="bottom-end"
             >
               <Button
                 startIcon="switch"
                 variant="quaternary"
-                disabled={status === StatusTypeEnum.Terminated}
+                disabled={status === CouponStatusEnum.Terminated}
+                fullWidth
                 align="left"
                 onClick={() => {
                   //   deleteDialogRef.current?.openDialog() todo
