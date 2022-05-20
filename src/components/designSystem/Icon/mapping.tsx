@@ -31,6 +31,7 @@ import Command from '~/public/icons/command.svg'
 import Company from '~/public/icons/company.svg'
 import Condition from '~/public/icons/condition.svg'
 import ContentLeftAlign from '~/public/icons/content-left-align.svg'
+import Coupon from '~/public/icons/coupon.svg'
 import Descending from '~/public/icons/descending.svg'
 import Document from '~/public/icons/document.svg'
 import DotsHorizontal from '~/public/icons/dots-horizontal.svg'
@@ -132,6 +133,7 @@ export const ALL_ICONS = {
   company: Company,
   condition: Condition,
   'content-left-align': ContentLeftAlign,
+  coupon: Coupon,
   descending: Descending,
   document: Document,
   'dots-horizontal': DotsHorizontal,
