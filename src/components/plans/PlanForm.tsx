@@ -286,16 +286,9 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                     <ComboBoxField
                       disabled={isEdition && !plan?.canBeDeleted}
                       name="amountCurrency"
-                      data={[
-                        {
-                          label: translate('text_624453d52e945301380e49ba'),
-                          value: CurrencyEnum.Usd,
-                        },
-                        {
-                          label: 'EUR', // TODO
-                          value: CurrencyEnum.Eur,
-                        },
-                      ]}
+                      data={Object.values(CurrencyEnum).map((currencyType) => ({
+                        value: currencyType,
+                      }))}
                       disableClearable
                       formikProps={formikProps}
                     />
