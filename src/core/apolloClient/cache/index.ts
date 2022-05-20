@@ -24,7 +24,7 @@ export const cache = new InMemoryCache({
         billableMetrics: {
           keyArgs: false,
           merge(existing, incoming) {
-            if (incoming?.metadata?.currentPage === 1) {
+            if (!incoming?.metadata?.currentPage || incoming?.metadata?.currentPage === 1) {
               return incoming
             }
 
@@ -37,7 +37,7 @@ export const cache = new InMemoryCache({
         plans: {
           keyArgs: false,
           merge(existing, incoming) {
-            if (incoming?.metadata?.currentPage === 1) {
+            if (!incoming?.metadata?.currentPage || incoming?.metadata?.currentPage === 1) {
               return incoming
             }
 
@@ -50,7 +50,7 @@ export const cache = new InMemoryCache({
         customers: {
           keyArgs: false,
           merge(existing, incoming) {
-            if (incoming?.metadata?.currentPage === 1) {
+            if (!incoming?.metadata?.currentPage || incoming?.metadata?.currentPage === 1) {
               return incoming
             }
 
