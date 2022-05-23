@@ -120,7 +120,7 @@ export const CouponForm = ({ isEdition, loading, coupon, onSave }: BillableMetri
                   label={translate('text_62876e85e32e0300e1803127')}
                   placeholder={translate('text_62876e85e32e0300e180312d')}
                   formikProps={formikProps}
-                  infoText={translate('text_62876e85e32e0300e1803131')}
+                  helperText={translate('text_62876e85e32e0300e1803131')}
                 />
               </Card>
               <Card>
@@ -158,7 +158,7 @@ export const CouponForm = ({ isEdition, loading, coupon, onSave }: BillableMetri
                     },
                     {
                       value: CouponExpiration.NoExpiration,
-                      label: translate('text_62876e85e32e0300e1803161'),
+                      label: translate('text_62876e85e32e0300e1803157'),
                     },
                   ]}
                   disableClearable
@@ -201,10 +201,7 @@ export const CouponForm = ({ isEdition, loading, coupon, onSave }: BillableMetri
           )}
         </div>
       </Main>
-      <Side>
-        {/* TODO */}
-        {/* <BillableMetricCodeSnippet loading={loading} billableMetric={formikProps.values} /> */}
-      </Side>
+      <Side>{/* TODO */}</Side>
     </Content>
   )
 }

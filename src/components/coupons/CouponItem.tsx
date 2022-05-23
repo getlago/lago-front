@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { DateTime } from 'luxon'
@@ -20,6 +21,11 @@ import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { CouponStatusEnum, CouponItemFragment } from '~/generated/graphql'
 import { formatAmountToCurrency } from '~/core/currencyTool'
 import { useI18nContext } from '~/core/I18nContext'
+import { DeleteCouponDialog, DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
+import {
+  TerminateCouponDialog,
+  TerminateCouponDialogRef,
+} from '~/components/coupons/TerminateCouponDialog'
 
 gql`
   fragment CouponItem on Coupon {
@@ -30,6 +36,7 @@ gql`
     amountCurrency
     amountCents
     canBeDeleted
+    expirationDate
   }
 `
 
@@ -54,7 +61,18 @@ const mapStatus = (type?: CouponStatusEnum | undefined) => {
 }
 
 export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
-  const { id, name, amountCurrency, amountCents, customerCount, status, canBeDeleted } = coupon
+  const {
+    id,
+    name,
+    amountCurrency,
+    amountCents,
+    customerCount,
+    status,
+    canBeDeleted,
+    expirationDate,
+  } = coupon
+  const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
+  const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
   let navigate = useNavigate()
   const { translate } = useI18nContext()
   const formattedStatus = mapStatus(status)
@@ -63,12 +81,16 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
     <ItemContainer>
       <ListItem
         tabIndex={0}
-        onClick={() => navigate(generatePath(UPDATE_COUPON_ROUTE, { id }))}
+        onClick={
+          status === CouponStatusEnum.Terminated
+            ? undefined
+            : () => navigate(generatePath(UPDATE_COUPON_ROUTE, { id }))
+        }
         {...navigationProps}
       >
         <CouponNameSection>
           <ListAvatar variant="connector">
-            <Icon name="board" color="dark" />
+            <Icon name="coupon" color="dark" />
           </ListAvatar>
           <NameBlock>
             <Typography color="textSecondary" variant="bodyHl" noWrap>
@@ -86,8 +108,11 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
         </CouponNameSection>
         <CouponInfosSection>
           <SmallCell>{customerCount}</SmallCell>
-          <SmallCell>TODO</SmallCell>
-          {/* <SmallCell>{DateTime.fromISO(expiracyDate).toFormat('yyyy/LL/dd')}</SmallCell> */}
+          <SmallCell>
+            {!expirationDate
+              ? translate('text_62876e85e32e0300e1803157')
+              : DateTime.fromISO(expirationDate).toFormat('yyyy/LL/dd')}
+          </SmallCell>
           <MediumCell>
             {<Status type={formattedStatus.type} label={translate(formattedStatus.label)} />}
           </MediumCell>
@@ -139,7 +164,7 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
                 fullWidth
                 align="left"
                 onClick={() => {
-                  //   deleteDialogRef.current?.openDialog() todo
+                  terminateDialogRef.current?.openDialog()
                   closePopper()
                 }}
               >
@@ -158,7 +183,7 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
                 align="left"
                 fullWidth
                 onClick={() => {
-                  //   deleteDialogRef.current?.openDialog() TODO
+                  deleteDialogRef.current?.openDialog()
                   closePopper()
                 }}
               >
@@ -168,6 +193,8 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
           </MenuPopper>
         )}
       </Popper>
+      <DeleteCouponDialog ref={deleteDialogRef} coupon={coupon} />
+      <TerminateCouponDialog ref={terminateDialogRef} coupon={coupon} />
     </ItemContainer>
   )
 }

@@ -854,7 +854,7 @@
       "text_62876e85e32e0300e180313d": "Amount",
       "text_62876e85e32e0300e1803143": "0.00",
       "text_62876e85e32e0300e1803151": "Coupon validity duration",
-      "text_62876e85e32e0300e1803161": "Forever",
+      "text_62876e85e32e0300e1803157": "Forever",
       "text_62876e85e32e0300e1803165": "Multiple days",
       "text_62876e85e32e0300e180316c": "Number of days",
       "text_62876e85e32e0300e1803172": "0",
@@ -877,7 +877,17 @@
       "text_6287a9bdac160c00b2e0fc81": "Coupon successfully edited",
       "text_6287a9bdac160c00b2e0fbeb": "Leaving deletes your edition",
       "text_6287a9bdac160c00b2e0fbf1": "By clicking “Leave without saving”, the edition started in this coupon will not be saved. Are you sure you want to leave?",
-      "text_6287a9bdac160c00b2e0fbfd": "Leave without saving"
+      "text_6287a9bdac160c00b2e0fbfd": "Leave without saving",
+      "text_628b432fd8f2bc0105b973ee": "Delete {{couponName}}",
+      "text_628b432fd8f2bc0105b973f6": "By deleting this coupon, you wont be able to retrieve it back. Fortunately, this won’t affect any customers as no one’s using it. Are you sure?",
+      "text_628b432fd8f2bc0105b973fe": "Cancel",
+      "text_628b432fd8f2bc0105b97406": "Delete coupon",
+      "text_628b432fd8f2bc0105b9746f": "Coupon successfully deleted",
+      "text_628b432fd8f2bc0105b973ec": "Terminate {{couponName}}",
+      "text_628b432fd8f2bc0105b973f4": "By terminating this coupon, you turn it off. Customers who’s using it can still get the discount but new customers will not be able to. This action can’t be undo, are you sure?",
+      "text_628b432fd8f2bc0105b973fc": "Cancel",
+      "text_628b432fd8f2bc0105b97404": "Terminated coupon",
+      "text_628b432fd8f2bc0105b9746a": "Coupon successfully terminated"
     },
     "project_620bc4d45f16c800e2324b82": {
       "text_620bc4d4269a55014d493f12": "Welcome to Lago",
@@ -1170,5 +1180,5 @@
       "country-code-zw": "Zimbabwe"
     }
   },
-  "exported_at": "2022-05-20T14:48:45.825Z"
+  "exported_at": "2022-05-23T09:31:54.553Z"
 }

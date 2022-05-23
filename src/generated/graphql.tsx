@@ -26,6 +26,15 @@ export enum AggregationTypeEnum {
   UniqueCountAgg = 'unique_count_agg'
 }
 
+export type AppliedCoupon = {
+  __typename?: 'AppliedCoupon';
+  amountCents: Scalars['Int'];
+  amountCurrency: CurrencyEnum;
+  coupon: Coupon;
+  createdAt: Scalars['ISO8601DateTime'];
+  id: Scalars['ID'];
+};
+
 export type BillableMetric = {
   __typename?: 'BillableMetric';
   aggregationType: AggregationTypeEnum;
@@ -613,6 +622,7 @@ export type Coupon = {
   /** Number of customers using this coupon */
   customerCount: Scalars['Int'];
   expiration: CouponExpiration;
+  expirationDate?: Maybe<Scalars['ISO8601Date']>;
   expirationDuration?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   name: Scalars['String'];
@@ -639,6 +649,7 @@ export type CouponDetails = {
   /** Number of customers using this coupon */
   customerCount: Scalars['Int'];
   expiration: CouponExpiration;
+  expirationDate?: Maybe<Scalars['ISO8601Date']>;
   expirationDuration?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   name: Scalars['String'];
@@ -775,6 +786,7 @@ export type CustomerDetails = {
   __typename?: 'CustomerDetails';
   addressLine1?: Maybe<Scalars['String']>;
   addressLine2?: Maybe<Scalars['String']>;
+  appliedCoupons?: Maybe<Array<AppliedCoupon>>;
   /** Check if customer is deletable */
   canBeDeleted: Scalars['Boolean'];
   city?: Maybe<Scalars['String']>;
@@ -1373,7 +1385,25 @@ export type DeleteBillableMetricMutationVariables = Exact<{
 
 export type DeleteBillableMetricMutation = { __typename?: 'Mutation', destroyBillableMetric?: { __typename?: 'DestroyBillableMetricPayload', id?: string | null } | null };
 
-export type CouponItemFragment = { __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency: CurrencyEnum, amountCents: number, canBeDeleted: boolean };
+export type CouponItemFragment = { __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency: CurrencyEnum, amountCents: number, canBeDeleted: boolean, expirationDate?: any | null };
+
+export type DeleteCouponFragment = { __typename?: 'Coupon', id: string, name: string };
+
+export type DeleteCouponMutationVariables = Exact<{
+  input: DestroyCouponInput;
+}>;
+
+
+export type DeleteCouponMutation = { __typename?: 'Mutation', destroyCoupon?: { __typename?: 'DestroyCouponPayload', id?: string | null } | null };
+
+export type TerminateCouponFragment = { __typename?: 'Coupon', id: string, name: string };
+
+export type TerminateCouponMutationVariables = Exact<{
+  input: TerminateCouponInput;
+}>;
+
+
+export type TerminateCouponMutation = { __typename?: 'Mutation', terminateCoupon?: { __typename?: 'Coupon', id: string } | null };
 
 export type GetPlansQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -1536,7 +1566,7 @@ export type UpdateCouponMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCouponMutation = { __typename?: 'Mutation', updateCoupon?: { __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency: CurrencyEnum, amountCents: number, canBeDeleted: boolean } | null };
+export type UpdateCouponMutation = { __typename?: 'Mutation', updateCoupon?: { __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency: CurrencyEnum, amountCents: number, canBeDeleted: boolean, expirationDate?: any | null } | null };
 
 export type AddCustomerDialogFragment = { __typename?: 'Customer', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null };
 
@@ -1579,7 +1609,7 @@ export type CouponsQueryVariables = Exact<{
 }>;
 
 
-export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency: CurrencyEnum, amountCents: number, canBeDeleted: boolean }> } };
+export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency: CurrencyEnum, amountCents: number, canBeDeleted: boolean, expirationDate?: any | null }> } };
 
 export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, issuingDate: any, amountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null }> | null };
 
@@ -1687,6 +1717,19 @@ export const CouponItemFragmentDoc = gql`
   amountCurrency
   amountCents
   canBeDeleted
+  expirationDate
+}
+    `;
+export const DeleteCouponFragmentDoc = gql`
+    fragment DeleteCoupon on Coupon {
+  id
+  name
+}
+    `;
+export const TerminateCouponFragmentDoc = gql`
+    fragment TerminateCoupon on Coupon {
+  id
+  name
 }
     `;
 export const AddCustomerDialogFragmentDoc = gql`
@@ -1985,6 +2028,72 @@ export function useDeleteBillableMetricMutation(baseOptions?: Apollo.MutationHoo
 export type DeleteBillableMetricMutationHookResult = ReturnType<typeof useDeleteBillableMetricMutation>;
 export type DeleteBillableMetricMutationResult = Apollo.MutationResult<DeleteBillableMetricMutation>;
 export type DeleteBillableMetricMutationOptions = Apollo.BaseMutationOptions<DeleteBillableMetricMutation, DeleteBillableMetricMutationVariables>;
+export const DeleteCouponDocument = gql`
+    mutation deleteCoupon($input: DestroyCouponInput!) {
+  destroyCoupon(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteCouponMutationFn = Apollo.MutationFunction<DeleteCouponMutation, DeleteCouponMutationVariables>;
+
+/**
+ * __useDeleteCouponMutation__
+ *
+ * To run a mutation, you first call `useDeleteCouponMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCouponMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCouponMutation, { data, loading, error }] = useDeleteCouponMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteCouponMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCouponMutation, DeleteCouponMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteCouponMutation, DeleteCouponMutationVariables>(DeleteCouponDocument, options);
+      }
+export type DeleteCouponMutationHookResult = ReturnType<typeof useDeleteCouponMutation>;
+export type DeleteCouponMutationResult = Apollo.MutationResult<DeleteCouponMutation>;
+export type DeleteCouponMutationOptions = Apollo.BaseMutationOptions<DeleteCouponMutation, DeleteCouponMutationVariables>;
+export const TerminateCouponDocument = gql`
+    mutation terminateCoupon($input: TerminateCouponInput!) {
+  terminateCoupon(input: $input) {
+    id
+  }
+}
+    `;
+export type TerminateCouponMutationFn = Apollo.MutationFunction<TerminateCouponMutation, TerminateCouponMutationVariables>;
+
+/**
+ * __useTerminateCouponMutation__
+ *
+ * To run a mutation, you first call `useTerminateCouponMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTerminateCouponMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [terminateCouponMutation, { data, loading, error }] = useTerminateCouponMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useTerminateCouponMutation(baseOptions?: Apollo.MutationHookOptions<TerminateCouponMutation, TerminateCouponMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<TerminateCouponMutation, TerminateCouponMutationVariables>(TerminateCouponDocument, options);
+      }
+export type TerminateCouponMutationHookResult = ReturnType<typeof useTerminateCouponMutation>;
+export type TerminateCouponMutationResult = Apollo.MutationResult<TerminateCouponMutation>;
+export type TerminateCouponMutationOptions = Apollo.BaseMutationOptions<TerminateCouponMutation, TerminateCouponMutationVariables>;
 export const GetPlansDocument = gql`
     query getPlans($page: Int, $limit: Int) {
   plans(page: $page, limit: $limit) {
