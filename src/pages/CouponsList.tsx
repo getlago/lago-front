@@ -69,9 +69,7 @@ const CouponsList = () => {
           subtitle={translate('text_62865498824cc10126ab2971')}
           buttonTitle={translate('text_62865498824cc10126ab2975')}
           buttonVariant="primary"
-          buttonAction={() => {
-            /** TODO */
-          }}
+          buttonAction={() => navigate(CREATE_COUPON_ROUTE)}
           image={<img src={EmojiEmpty} alt="empty-emoji" />}
         />
       ) : (

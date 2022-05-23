@@ -369,7 +369,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                         billableMetric: newCharge,
                         chargeModel: ChargeModelEnum.Standard,
                         amountCents: undefined,
-                        amountCurrency: formikProps.values.amountCurrency, // TODO
+                        amountCurrency: formikProps.values.amountCurrency,
                       },
                     ])
 
