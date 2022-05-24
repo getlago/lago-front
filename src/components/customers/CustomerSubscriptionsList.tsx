@@ -95,7 +95,7 @@ export const CustomerSubscriptionsList = forwardRef<
         <SectionHeader variant="subhead">
           {translate('text_6250304370f0f700a8fdc28d')}
           <Button
-            variant="secondary"
+            variant="quaternary"
             onClick={() => addPlanToCustomerDialogRef?.current?.openDialog()}
           >
             {hasNoSubscription

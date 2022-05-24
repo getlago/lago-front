@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
 import { ClickAwayListener } from '@mui/material'
 import { useApolloClient } from '@apollo/client'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, Location } from 'react-router-dom'
 
 import { useI18nContext } from '~/core/I18nContext'
 import { logOut, useCurrentUserInfosVar } from '~/core/apolloClient'
@@ -37,7 +37,7 @@ const SideNav = () => {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
-  const { pathname } = location
+  const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
   const companyName = currentOrganization?.name
   const tabs: TabProps[] = [
     {
@@ -81,10 +81,10 @@ const SideNav = () => {
 
   useEffect(() => {
     // Avoid weird scroll behaviour on navigation
-    if (!contentRef.current) return
+    if (!contentRef.current || state?.disableScrollTop) return
 
     contentRef.current?.scrollTo(0, 0)
-  }, [pathname, contentRef])
+  }, [pathname, contentRef, state?.disableScrollTop])
 
   return (
     <Container>

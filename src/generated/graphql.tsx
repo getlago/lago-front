@@ -1224,6 +1224,7 @@ export type QueryCouponsArgs = {
   ids?: InputMaybe<Array<Scalars['ID']>>;
   limit?: InputMaybe<Scalars['Int']>;
   page?: InputMaybe<Scalars['Int']>;
+  status?: InputMaybe<CouponStatusEnum>;
 };
 
 
@@ -1442,6 +1443,7 @@ export type TerminateCouponMutation = { __typename?: 'Mutation', terminateCoupon
 export type GetCouponForCustomerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
+  status?: InputMaybe<CouponStatusEnum>;
 }>;
 
 
@@ -1481,6 +1483,8 @@ export type RemoveCouponMutation = { __typename?: 'Mutation', terminateAppliedCo
 export type CustomerInvoiceListFragment = { __typename?: 'Invoice', id: string, issuingDate: any, amountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null };
 
 export type CustomerItemFragment = { __typename?: 'Customer', id: string, name?: string | null, customerId: string, createdAt: any, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, subscriptions?: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string } }> | null };
+
+export type CustomerMainInfosFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null };
 
 export type CustomerSubscriptionListFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } };
 
@@ -2011,6 +2015,26 @@ export const AddCustomerDialogDetailFragmentDoc = gql`
   zipcode
 }
     `;
+export const CustomerMainInfosFragmentDoc = gql`
+    fragment CustomerMainInfos on CustomerDetails {
+  id
+  name
+  customerId
+  canBeDeleted
+  legalName
+  legalNumber
+  phone
+  email
+  logoUrl
+  url
+  addressLine1
+  addressLine2
+  state
+  country
+  city
+  zipcode
+}
+    `;
 export const CustomerDetailsFragmentDoc = gql`
     fragment CustomerDetails on CustomerDetails {
   id
@@ -2028,12 +2052,14 @@ export const CustomerDetailsFragmentDoc = gql`
   }
   ...CustomerVatRate
   ...AddCustomerDialogDetail
+  ...CustomerMainInfos
 }
     ${CustomerSubscriptionListFragmentDoc}
 ${CustomerInvoiceListFragmentDoc}
 ${CustomerCouponFragmentDoc}
 ${CustomerVatRateFragmentDoc}
-${AddCustomerDialogDetailFragmentDoc}`;
+${AddCustomerDialogDetailFragmentDoc}
+${CustomerMainInfosFragmentDoc}`;
 export const UserIdentifierDocument = gql`
     query UserIdentifier {
   me: currentUser {
@@ -2168,8 +2194,8 @@ export type TerminateCouponMutationHookResult = ReturnType<typeof useTerminateCo
 export type TerminateCouponMutationResult = Apollo.MutationResult<TerminateCouponMutation>;
 export type TerminateCouponMutationOptions = Apollo.BaseMutationOptions<TerminateCouponMutation, TerminateCouponMutationVariables>;
 export const GetCouponForCustomerDocument = gql`
-    query getCouponForCustomer($page: Int, $limit: Int) {
-  coupons(page: $page, limit: $limit) {
+    query getCouponForCustomer($page: Int, $limit: Int, $status: CouponStatusEnum) {
+  coupons(page: $page, limit: $limit, status: $status) {
     metadata {
       currentPage
       totalPages
@@ -2198,6 +2224,7 @@ export const GetCouponForCustomerDocument = gql`
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
+ *      status: // value for 'status'
  *   },
  * });
  */

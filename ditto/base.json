@@ -911,6 +911,11 @@
       "text_628b8dc14c71840130f8d8a1": "Apply coupon",
       "text_628c83763b29a500a8785d0c": "{{amount}} off once"
     },
+    "project_628cf7593d43eb010ec6b067": {
+      "text_628cf761cbe6820138b8f2e4": "Overview",
+      "text_628cf761cbe6820138b8f2e6": "Invoices",
+      "text_628cf761cbe6820138b8f2e8": "Taxe rate"
+    },
     "project_620bc4d45f16c800e2324b82": {
       "text_620bc4d4269a55014d493f12": "Welcome to Lago",
       "text_620bc4d4269a55014d493fc9": "Nice to see you here, let’s start by creating your account.",
@@ -1202,5 +1207,5 @@
       "country-code-zw": "Zimbabwe"
     }
   },
-  "exported_at": "2022-05-24T07:23:27.615Z"
+  "exported_at": "2022-05-24T15:20:03.389Z"
 }

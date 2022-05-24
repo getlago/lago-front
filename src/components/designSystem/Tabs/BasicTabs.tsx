@@ -19,7 +19,7 @@ export interface BasicTabsProps {
   name?: string
   tabs: TBasicTab[]
   scrollable?: boolean
-  align?: 'left' | 'center'
+  align?: 'left' | 'center' | 'superLeft'
   value: number | string
   className?: string
   onClick: (index: number, key?: string) => unknown
@@ -85,6 +85,24 @@ const TabsButtons = styled.div`
 
   &.tabs-buttons--left {
     padding: ${theme.spacing(4)} ${theme.spacing(12)};
+
+    ::after {
+      content: '';
+      padding-right: ${theme.spacing(12)};
+    }
+
+    ${theme.breakpoints.down('sm')} {
+      padding: ${theme.spacing(4)};
+
+      ::after {
+        content: '';
+        padding-right: ${theme.spacing(4)};
+      }
+    }
+  }
+
+  &.tabs-buttons--superLeft {
+    padding: ${theme.spacing(4)} 0;
 
     ::after {
       content: '';
