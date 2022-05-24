@@ -13,6 +13,8 @@ import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
 import { TextInputField, ComboBoxField } from '~/components/form'
 
+import { CouponCodeSnippet } from './CouponCodeSnippet'
+
 interface BillableMetricFormProps {
   coupon?: EditCouponFragment
   loading?: boolean
@@ -201,7 +203,9 @@ export const CouponForm = ({ isEdition, loading, coupon, onSave }: BillableMetri
           )}
         </div>
       </Main>
-      <Side>{/* TODO */}</Side>
+      <Side>
+        <CouponCodeSnippet loading={loading} coupon={formikProps.values} />
+      </Side>
     </Content>
   )
 }

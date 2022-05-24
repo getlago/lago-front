@@ -820,10 +820,10 @@
       "text_62865498824cc10126ab2964": "# customers",
       "text_62865498824cc10126ab296a": "Expire",
       "text_62865498824cc10126ab296f": "Status",
-      "text_62865498824cc10126ab2976": "{{amount}} free",
+      "text_62865498824cc10126ab2976": "{{amount}} off once",
       "text_62865498824cc10126ab297c": "Active",
       "text_62876a50ea3bba00b56d2c23": "Coupon name",
-      "text_62876a50ea3bba00b56d2c25": "{{currency}} {{amount}} free",
+      "text_62876a50ea3bba00b56d2c25": "{{currency}} {{amount}} off once",
       "text_62876a50ea3bba00b56d2c2a": "0",
       "text_62876a50ea3bba00b56d2c2c": "No end date",
       "text_62876a50ea3bba00b56d2c2f": "Active",
@@ -888,6 +888,28 @@
       "text_628b432fd8f2bc0105b973fc": "Cancel",
       "text_628b432fd8f2bc0105b97404": "Terminated coupon",
       "text_628b432fd8f2bc0105b9746a": "Coupon successfully terminated"
+    },
+    "project_628b8c5f8161d800e7c1c562": {
+      "text_628b8c693e464200e00e465b": "Apply a coupon to this customer",
+      "text_628b8c693e464200e00e4669": "By applying a coupon to this customer, she/he will benefit instantly the discount defined on this coupon.",
+      "text_628b8c693e464200e00e4677": "Coupon",
+      "text_628b8c693e464200e00e4685": "Select or search a coupon",
+      "text_628b8c693e464200e00e4693": "Cancel",
+      "text_628b8c693e464200e00e46a1": "Apply coupon",
+      "text_628b8c693e464200e00e469d": "Active coupon",
+      "text_628b8c693e464200e00e46ab": "Name",
+      "text_628b8c693e464200e00e46c7": "{{currency}} {{amount}} off once",
+      "text_628b8c693e464200e00e49f2": "Coupon successfully applied",
+      "text_628b8c693e464200e00e4a10": "Remove",
+      "text_628b8c693e464200e00e465f": "Remove this coupon from this customer",
+      "text_628b8c693e464200e00e466d": "By removing this coupon, customer will no longer have access to the discount. The discount already consumed will still be counted on the current invoice. Are you sure?",
+      "text_628b8c693e464200e00e4689": "Remove coupon",
+      "text_628b8c693e464200e00e49d1": "Coupon successfully removed",
+      "text_628b8c693e464200e00e469b": "Amount",
+      "text_628b8c693e464200e00e46c5": "This coupon was already applied once to this customer. Please choose another coupon.",
+      "text_628b8c693e464200e00e46c3": "Customer plan’s currency and the one in the coupon are different. To apply this coupon, please adapt the coupon.",
+      "text_628b8dc14c71840130f8d8a1": "Apply coupon",
+      "text_628c83763b29a500a8785d0c": "{{amount}} off once"
     },
     "project_620bc4d45f16c800e2324b82": {
       "text_620bc4d4269a55014d493f12": "Welcome to Lago",
@@ -1180,5 +1202,5 @@
       "country-code-zw": "Zimbabwe"
     }
   },
-  "exported_at": "2022-05-23T09:31:54.553Z"
+  "exported_at": "2022-05-24T07:23:27.615Z"
 }

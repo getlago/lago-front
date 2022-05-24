@@ -60,6 +60,19 @@ export const cache = new InMemoryCache({
             }
           },
         },
+        coupons: {
+          keyArgs: false,
+          merge(existing, incoming) {
+            if (!incoming?.metadata?.currentPage || incoming?.metadata?.currentPage === 1) {
+              return incoming
+            }
+
+            return {
+              ...incoming,
+              collection: [...(existing?.collection || []), ...(incoming.collection || [])],
+            }
+          },
+        },
       },
     },
   },

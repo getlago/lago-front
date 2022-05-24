@@ -77,9 +77,7 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
       enableReinitialize: true,
       onSubmit: async (values, formikBag) => {
         const answer = await onSave(values)
-
         const { errors } = answer
-
         const error = !errors ? undefined : (errors[0]?.extensions as LagoGQLError['extensions'])
 
         if (
