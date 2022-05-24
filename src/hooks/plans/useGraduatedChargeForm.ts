@@ -7,9 +7,9 @@ import { GraduatedRangeInput } from '~/generated/graphql'
 type RangeType = GraduatedRangeInput & { disabledDelete: boolean }
 type InfoCalculationRow = {
   units: number
-  perUnitCent: number
-  flatFeeCent: number
-  totalCent: number
+  perUnit: number
+  flatFee: number
+  total: number
   firstUnit?: number
 }
 
@@ -47,14 +47,14 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
         {
           fromValue: 0,
           toValue: 1,
-          flatAmountCents: undefined,
-          perUnitAmountCents: undefined,
+          flatAmount: undefined,
+          perUnitAmount: undefined,
         },
         {
           fromValue: 2,
           toValue: null,
-          flatAmountCents: undefined,
-          perUnitAmountCents: undefined,
+          flatAmount: undefined,
+          perUnitAmount: undefined,
         },
       ])
     }
@@ -84,25 +84,25 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
           if (i < graduatedRanges.length - 1) {
             acc.push({
               units,
-              perUnitCent: range.perUnitAmountCents || 0,
-              flatFeeCent: range.flatAmountCents || 0,
-              totalCent: units * (range.perUnitAmountCents || 0) + (range.flatAmountCents || 0),
+              perUnit: Number(range.perUnitAmount || 0),
+              flatFee: Number(range.flatAmount || 0),
+              total: units * Number(range.perUnitAmount || 0) + Number(range.flatAmount || 0),
             })
           } else {
             acc.push({
               units: 1,
-              perUnitCent: range.perUnitAmountCents || 0,
-              flatFeeCent: range.flatAmountCents || 0,
-              totalCent: 1 * (range.perUnitAmountCents || 0) + (range.flatAmountCents || 0),
+              perUnit: Number(range.perUnitAmount || 0),
+              flatFee: Number(range.flatAmount || 0),
+              total: 1 * Number(range.perUnitAmount || 0) + Number(range.flatAmount || 0),
             })
 
             const totalLine = {
               firstUnit: range.fromValue,
-              totalCent: acc.reduce<number>((accTotal, rangeCost) => {
-                return accTotal + rangeCost.totalCent
+              total: acc.reduce<number>((accTotal, rangeCost) => {
+                return accTotal + rangeCost.total
               }, 0),
-              perUnitCent: 0,
-              flatFeeCent: 0,
+              perUnit: 0,
+              flatFee: 0,
               units: 0,
             }
 
@@ -125,8 +125,8 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
             acc.push({
               fromValue: newToValue,
               toValue: newToValue + 1,
-              flatAmountCents: undefined,
-              perUnitAmountCents: undefined,
+              flatAmount: undefined,
+              perUnitAmount: undefined,
             })
             acc.push({
               ...range,

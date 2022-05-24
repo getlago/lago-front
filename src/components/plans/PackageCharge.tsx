@@ -43,12 +43,12 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
       <LineAmount>
         <TextInput
           name="amountCents"
-          beforeChangeFormatter={['positiveNumber', 'decimal']}
+          beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
           disabled={disabled}
           label={translate('text_6282085b4f283b0102655870')}
           placeholder={translate('text_62824f0e5d93bc008d268cf4')}
-          value={localCharge.amountCents as number | undefined}
-          onChange={(value) => handleUpdate('amountCents', value)}
+          value={localCharge.amount || ''}
+          onChange={(value) => handleUpdate('amount', value)}
         />
         <ComboBox
           name="amountCurrency"
@@ -109,9 +109,10 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_6282085b4f283b0102655892', {
                 units: localCharge.packageSize + (localCharge.freeUnits || 0) + 1,
-                cost: formatAmountToCurrency((localCharge.amountCents || 0) * 2, {
+                cost: formatAmountToCurrency(Number(localCharge.amount || 0) * 2, {
                   currencyDisplay: 'code',
                   initialUnit: 'standard',
+                  maximumFractionDigits: 5,
                   currency: localCharge.amountCurrency,
                 }),
               })}
@@ -124,6 +125,7 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
                   cost: formatAmountToCurrency(0, {
                     currencyDisplay: 'code',
                     initialUnit: 'standard',
+                    maximumFractionDigits: 5,
                     currency: localCharge.amountCurrency,
                   }),
                 })}
@@ -134,9 +136,10 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
               {translate('text_6282085b4f283b0102655896', {
                 unit: (localCharge.freeUnits || 0) + 1,
                 unitInPackage: localCharge.packageSize + (localCharge.freeUnits || 0),
-                cost: formatAmountToCurrency(localCharge.amountCents || 0, {
+                cost: formatAmountToCurrency(Number(localCharge.amount || 0), {
                   currencyDisplay: 'code',
                   initialUnit: 'standard',
+                  maximumFractionDigits: 5,
                   currency: localCharge.amountCurrency,
                 }),
               })}
@@ -145,9 +148,10 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
               {translate('text_6282085b4f283b0102655896', {
                 unit: (localCharge.freeUnits || 0) + localCharge.packageSize + 1,
                 unitInPackage: localCharge.packageSize * 2 + (localCharge.freeUnits || 0),
-                cost: formatAmountToCurrency((localCharge.amountCents || 0) * 2, {
+                cost: formatAmountToCurrency(Number(localCharge.amount || 0) * 2, {
                   currencyDisplay: 'code',
                   initialUnit: 'standard',
+                  maximumFractionDigits: 5,
                   currency: localCharge.amountCurrency,
                 }),
               })}

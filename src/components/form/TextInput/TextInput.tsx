@@ -17,6 +17,7 @@ enum ValueFormatter {
   decimal = 'decimal', // Truncate numbers to 2 decimals
   positiveNumber = 'positiveNumber',
   code = 'code', // Replace all the spaces by "_"
+  chargeDecimal = 'chargeDecimal', // Truncate charge numbers to 5 decimals
 }
 
 type ValueFormatterType = keyof typeof ValueFormatter
@@ -67,6 +68,12 @@ export const formatValue = (
   if (formatterFunctions.includes(ValueFormatter.decimal)) {
     if (formattedValue !== '-') {
       formattedValue = (String(formattedValue).match(/^-?\d+(?:\.\d{0,2})?/) || [])[0]
+    }
+  }
+
+  if (formatterFunctions.includes(ValueFormatter.chargeDecimal)) {
+    if (formattedValue !== '-') {
+      formattedValue = (String(formattedValue).match(/^-?\d+(?:\.\d{0,5})?/) || [])[0]
     }
   }
 

@@ -42,19 +42,15 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
       trialPeriod: plan?.trialPeriod || undefined,
       // @ts-ignore
       charges: plan?.charges
-        ? plan?.charges.map(({ amountCents, graduatedRanges, packageSize, ...charge }) => ({
-            // AmountCent can be null and this breaks the validation
-            amountCents: amountCents ? amountCents / 100 : amountCents || undefined,
+        ? plan?.charges.map(({ amount, graduatedRanges, packageSize, ...charge }) => ({
+            // Amount can be null and this breaks the validation
+            amount: amount || undefined,
             packageSize: packageSize == null ? undefined : packageSize,
             graduatedRanges: !graduatedRanges
               ? null
-              : graduatedRanges.map(({ perUnitAmountCents, flatAmountCents, ...range }) => ({
-                  flatAmountCents: flatAmountCents
-                    ? flatAmountCents / 100
-                    : flatAmountCents || undefined,
-                  perUnitAmountCents: perUnitAmountCents
-                    ? perUnitAmountCents / 100
-                    : perUnitAmountCents || undefined,
+              : graduatedRanges.map(({ perUnitAmount, flatAmount, ...range }) => ({
+                  flatAmount,
+                  perUnitAmount,
                   ...range,
                 })),
             ...charge,
@@ -71,7 +67,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
       charges: array().of(
         object().shape({
           chargeModel: string().required(''),
-          amountCents: number().when('chargeModel', {
+          amount: number().when('chargeModel', {
             is: (chargeModel: ChargeModelEnum) =>
               !!chargeModel &&
               [ChargeModelEnum.Standard, ChargeModelEnum.Package].includes(chargeModel),
@@ -100,11 +96,8 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                     let isValid = true
 
                     graduatedRange?.every(
-                      ({ fromValue, toValue, perUnitAmountCents, flatAmountCents }, i) => {
-                        if (
-                          typeof perUnitAmountCents !== 'number' &&
-                          typeof flatAmountCents !== 'number'
-                        ) {
+                      ({ fromValue, toValue, perUnitAmount, flatAmount }, i) => {
+                        if (Number(perUnitAmount) == NaN && Number(flatAmount) == NaN) {
                           isValid = false
                           return false
                         }
