@@ -118,13 +118,13 @@ export const ChargeAccordion = ({
           {localCharge.chargeModel === ChargeModelEnum.Standard && (
             <LineAmount>
               <TextInput
-                name="amountCents"
-                beforeChangeFormatter={['positiveNumber', 'decimal']}
+                name="amount"
+                beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
                 disabled={disabled}
                 label={translate('text_624453d52e945301380e49b6')}
                 placeholder={translate('text_624453d52e945301380e49b8')}
-                value={localCharge.amountCents as number | undefined}
-                onChange={(value) => handleUpdate('amountCents', value)}
+                value={localCharge.amount as string}
+                onChange={(value) => handleUpdate('amount', value)}
               />
               <ComboBox
                 name="amountCurrency"

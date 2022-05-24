@@ -24,6 +24,7 @@ export const formatAmountToCurrency: (
     currencyDisplay?: keyof typeof CurrencyDisplay
     style?: keyof typeof AmountStyle
     minimumFractionDigits?: number
+    maximumFractionDigits?: number
   }
 ) => string = (amount, options) => {
   let formattedToUnit = amount

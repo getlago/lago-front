@@ -35,12 +35,12 @@ gql`
         code
       }
       graduatedRanges {
-        flatAmountCents
+        flatAmount
         fromValue
-        perUnitAmountCents
+        perUnitAmount
         toValue
       }
-      amountCents
+      amount
       amountCurrency
       chargeModel
       freeUnits
@@ -89,7 +89,7 @@ const formatPlanInput = (values: PlanFormInput) => {
     charges: charges.map(
       ({
         billableMetric,
-        amountCents: chargeAmountCents,
+        amount: chargeAmount,
         graduatedRanges,
         chargeModel,
         freeUnits,
@@ -101,17 +101,15 @@ const formatPlanInput = (values: PlanFormInput) => {
           ...(chargeModel === ChargeModelEnum.Graduated
             ? {
                 graduatedRanges: (graduatedRanges || []).map(
-                  ({ flatAmountCents, fromValue, perUnitAmountCents, ...range }) => ({
-                    flatAmountCents: flatAmountCents ? Math.round(flatAmountCents * 100) : 0,
+                  ({ flatAmount, fromValue, perUnitAmount, ...range }) => ({
+                    flatAmount: String(flatAmount || '0'),
                     fromValue: fromValue || 0,
-                    perUnitAmountCents: perUnitAmountCents
-                      ? Math.round(perUnitAmountCents * 100)
-                      : 0,
+                    perUnitAmount: String(perUnitAmount || '0'),
                     ...range,
                   })
                 ),
               }
-            : { amountCents: chargeAmountCents ? Math.round(chargeAmountCents * 100) : undefined }),
+            : { amount: chargeAmount }),
           ...(chargeModel === ChargeModelEnum.Package ? { freeUnits: freeUnits || 0 } : {}),
           ...charge,
         }
