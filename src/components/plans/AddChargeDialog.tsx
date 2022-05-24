@@ -35,7 +35,9 @@ export const AddChargeDialog = forwardRef<DialogRef, AddChargeDialogProps>(
   ({ disabledItems, onConfirm }: AddChargeDialogProps, ref) => {
     const [selectedId, setSelectedId] = useState<string>()
     const { translate } = useI18nContext()
-    const [getBillableMetrics, { loading, data }] = useGetbillableMetricsLazyQuery()
+    const [getBillableMetrics, { loading, data }] = useGetbillableMetricsLazyQuery({
+      variables: { limit: 50 },
+    })
     const billableMetrics = useMemo(() => {
       if (!data || !data?.billableMetrics || !data?.billableMetrics?.collection) return []
 

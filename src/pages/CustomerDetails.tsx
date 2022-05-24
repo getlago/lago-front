@@ -13,6 +13,7 @@ import {
   AddCustomerDialogDetailFragmentDoc,
   CustomerVatRateFragmentDoc,
   CustomerVatRateFragment,
+  CustomerCouponFragmentDoc,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import EmojiError from '~/public/images/exploding-head.png'
@@ -29,6 +30,7 @@ import {
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
 import { AddCustomerDialog, AddCustomerDialogRef } from '~/components/customers/AddCustomerDialog'
+import { CustomerCoupons, CustomerCouponsListRef } from '~/components/customers/CustomerCoupons'
 import CountryCodes from '~/public/countryCode.json'
 
 gql`
@@ -42,6 +44,9 @@ gql`
     }
     invoices {
       ...CustomerInvoiceList
+    }
+    appliedCoupons {
+      ...CustomerCoupon
     }
     ...CustomerVatRate
     ...AddCustomerDialogDetail
@@ -57,6 +62,7 @@ gql`
   ${CustomerInvoiceListFragmentDoc}
   ${AddCustomerDialogDetailFragmentDoc}
   ${CustomerVatRateFragmentDoc}
+  ${CustomerCouponFragmentDoc}
 `
 
 const formatUrl: (url: string) => string = (url) => {
@@ -68,6 +74,7 @@ const formatUrl: (url: string) => string = (url) => {
 const CustomerDetails = () => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
   const editDialogRef = useRef<AddCustomerDialogRef>(null)
+  const couponListRef = useRef<CustomerCouponsListRef>(null)
   const subscriptionsListRef = useRef<CustomerSubscriptionsListRef>(null)
   const { translate } = useI18nContext()
   const navigate = useNavigate()
@@ -94,6 +101,7 @@ const CustomerDetails = () => {
     country,
     city,
     zipcode,
+    appliedCoupons,
   } = data?.customer || {}
 
   return (
@@ -144,6 +152,19 @@ const CustomerDetails = () => {
                 }}
               >
                 {translate('text_626162c62f790600f850b718')}
+              </Button>
+              <Button
+                variant="quaternary"
+                align="left"
+                disabled={
+                  !subscriptions || !subscriptions?.length || (appliedCoupons || []).length > 0
+                }
+                onClick={() => {
+                  couponListRef.current?.openAddCouponDialog()
+                  closePopper()
+                }}
+              >
+                {translate('text_628b8dc14c71840130f8d8a1')}
               </Button>
               <Tooltip
                 placement="bottom-end"
@@ -256,98 +277,105 @@ const CustomerDetails = () => {
                   </div>
                 </MainInfos>
                 <Infos>
-                  <DetailsBlock>
-                    <SectionHeader variant="subhead">
-                      {translate('text_6250304370f0f700a8fdc27d')}
+                  <div>
+                    <CustomerCoupons
+                      ref={couponListRef}
+                      customerId={id as string}
+                      coupons={appliedCoupons}
+                    />
+                    <DetailsBlock>
+                      <SectionHeader variant="subhead">
+                        {translate('text_6250304370f0f700a8fdc27d')}
 
-                      <Button
-                        variant="secondary"
-                        onClick={() => editDialogRef?.current?.openDialog()}
-                      >
-                        {translate('text_626162c62f790600f850b75a')}
-                      </Button>
-                    </SectionHeader>
+                        <Button
+                          variant="secondary"
+                          onClick={() => editDialogRef?.current?.openDialog()}
+                        >
+                          {translate('text_626162c62f790600f850b75a')}
+                        </Button>
+                      </SectionHeader>
 
-                    <div>
-                      <Typography variant="caption">
-                        {translate('text_626162c62f790600f850b76a')}
-                      </Typography>
-                      <Typography color="textSecondary">{name}</Typography>
-                    </div>
-                    <div>
-                      <Typography variant="caption">
-                        {translate('text_6250304370f0f700a8fdc283')}
-                      </Typography>
-                      <Typography color="textSecondary">{customerId}</Typography>
-                    </div>
-                    {legalName && (
                       <div>
                         <Typography variant="caption">
-                          {translate('text_626c0c301a16a600ea061471')}
+                          {translate('text_626162c62f790600f850b76a')}
                         </Typography>
-                        <Typography color="textSecondary">{legalName}</Typography>
+                        <Typography color="textSecondary">{name}</Typography>
                       </div>
-                    )}
-                    {legalNumber && (
                       <div>
                         <Typography variant="caption">
-                          {translate('text_626c0c301a16a600ea061475')}
+                          {translate('text_6250304370f0f700a8fdc283')}
                         </Typography>
-                        <Typography color="textSecondary">{legalNumber}</Typography>
+                        <Typography color="textSecondary">{customerId}</Typography>
                       </div>
-                    )}
-                    {email && (
-                      <div>
-                        <Typography variant="caption">
-                          {translate('text_626c0c301a16a600ea061479')}
-                        </Typography>
-                        <Typography color="textSecondary">{email}</Typography>
-                      </div>
-                    )}
-                    {phone && (
-                      <div>
-                        <Typography variant="caption">
-                          {translate('text_626c0c301a16a600ea06147d')}
-                        </Typography>
-                        <Typography color="textSecondary">{phone}</Typography>
-                      </div>
-                    )}
-                    {url && (
-                      <div>
-                        <Typography variant="caption">
-                          {translate('text_626c0c301a16a600ea061481')}
-                        </Typography>
-                        <Typography>
-                          <a href={url}>{formatUrl(url)}</a>
-                        </Typography>
-                      </div>
-                    )}
-                    {logoUrl && (
-                      <div>
-                        <Typography variant="caption">
-                          {translate('text_626c0c301a16a600ea061485')}
-                        </Typography>
-                        <Typography>
-                          <a href={logoUrl}>{formatUrl(logoUrl)}</a>
-                        </Typography>
-                      </div>
-                    )}
-                    {(addressLine1 || addressLine2 || state || country || city || zipcode) && (
-                      <div>
-                        <Typography variant="caption">
-                          {translate('text_626c0c301a16a600ea06148d')}
-                        </Typography>
-                        <Typography color="textSecondary">{addressLine1}</Typography>
-                        <Typography color="textSecondary">{addressLine2}</Typography>
-                        <Typography color="textSecondary">
-                          {zipcode} {city} {state}
-                        </Typography>
-                        {country && (
-                          <Typography color="textSecondary">{CountryCodes[country]}</Typography>
-                        )}
-                      </div>
-                    )}
-                  </DetailsBlock>
+                      {legalName && (
+                        <div>
+                          <Typography variant="caption">
+                            {translate('text_626c0c301a16a600ea061471')}
+                          </Typography>
+                          <Typography color="textSecondary">{legalName}</Typography>
+                        </div>
+                      )}
+                      {legalNumber && (
+                        <div>
+                          <Typography variant="caption">
+                            {translate('text_626c0c301a16a600ea061475')}
+                          </Typography>
+                          <Typography color="textSecondary">{legalNumber}</Typography>
+                        </div>
+                      )}
+                      {email && (
+                        <div>
+                          <Typography variant="caption">
+                            {translate('text_626c0c301a16a600ea061479')}
+                          </Typography>
+                          <Typography color="textSecondary">{email}</Typography>
+                        </div>
+                      )}
+                      {phone && (
+                        <div>
+                          <Typography variant="caption">
+                            {translate('text_626c0c301a16a600ea06147d')}
+                          </Typography>
+                          <Typography color="textSecondary">{phone}</Typography>
+                        </div>
+                      )}
+                      {url && (
+                        <div>
+                          <Typography variant="caption">
+                            {translate('text_626c0c301a16a600ea061481')}
+                          </Typography>
+                          <Typography>
+                            <a href={url}>{formatUrl(url)}</a>
+                          </Typography>
+                        </div>
+                      )}
+                      {logoUrl && (
+                        <div>
+                          <Typography variant="caption">
+                            {translate('text_626c0c301a16a600ea061485')}
+                          </Typography>
+                          <Typography>
+                            <a href={logoUrl}>{formatUrl(logoUrl)}</a>
+                          </Typography>
+                        </div>
+                      )}
+                      {(addressLine1 || addressLine2 || state || country || city || zipcode) && (
+                        <div>
+                          <Typography variant="caption">
+                            {translate('text_626c0c301a16a600ea06148d')}
+                          </Typography>
+                          <Typography color="textSecondary">{addressLine1}</Typography>
+                          <Typography color="textSecondary">{addressLine2}</Typography>
+                          <Typography color="textSecondary">
+                            {zipcode} {city} {state}
+                          </Typography>
+                          {country && (
+                            <Typography color="textSecondary">{CountryCodes[country]}</Typography>
+                          )}
+                        </div>
+                      )}
+                    </DetailsBlock>
+                  </div>
                   <SideBlock>
                     <CustomerSubscriptionsList
                       ref={subscriptionsListRef}
@@ -407,8 +435,14 @@ const Infos = styled.div`
   display: flex;
 
   > *:first-child {
+    display: flex;
+    flex-direction: column;
     width: 320px;
     margin-right: ${theme.spacing(8)};
+
+    > *:not(:last-child) {
+      margin-bottom: ${theme.spacing(12)};
+    }
 
     @media (max-width: 1024px) {
       flex: 1;

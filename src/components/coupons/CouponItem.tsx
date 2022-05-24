@@ -110,7 +110,7 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
           <SmallCell>{customerCount}</SmallCell>
           <SmallCell>
             {!expirationDate
-              ? translate('text_62876e85e32e0300e1803157')
+              ? translate('text_62876a50ea3bba00b56d2c2c')
               : DateTime.fromISO(expirationDate).toFormat('yyyy/LL/dd')}
           </SmallCell>
           <MediumCell>
