@@ -55,7 +55,7 @@ export const CustomerVatRate = ({ customer }: CustomerVatRateProps) => {
       <Header $hasNoData={hasNoVatRate} variant="subhead">
         {translate('text_62728ff857d47b013204cac1')}
         <Button
-          variant="secondary"
+          variant="quaternary"
           disabled={!hasNoVatRate}
           onClick={() => editDialogRef?.current?.openDialog()}
         >

@@ -1,11 +1,19 @@
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import { gql } from '@apollo/client'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, generatePath } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Typography, Button, Skeleton, Avatar, Popper, Tooltip } from '~/components/designSystem'
+import {
+  Typography,
+  Button,
+  Skeleton,
+  Avatar,
+  Popper,
+  Tooltip,
+  BasicTabs,
+} from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
-import { CUSTOMERS_LIST_ROUTE } from '~/core/router'
+import { CUSTOMERS_LIST_ROUTE, CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
 import {
   useGetCustomerQuery,
   CustomerSubscriptionListFragmentDoc,
@@ -14,6 +22,7 @@ import {
   CustomerVatRateFragmentDoc,
   CustomerVatRateFragment,
   CustomerCouponFragmentDoc,
+  CustomerMainInfosFragmentDoc,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import EmojiError from '~/public/images/exploding-head.png'
@@ -31,7 +40,7 @@ import {
 } from '~/components/customers/DeleteCustomerDialog'
 import { AddCustomerDialog, AddCustomerDialogRef } from '~/components/customers/AddCustomerDialog'
 import { CustomerCoupons, CustomerCouponsListRef } from '~/components/customers/CustomerCoupons'
-import CountryCodes from '~/public/countryCode.json'
+import { CustomerMainInfos } from '~/components/customers/CustomerMainInfos'
 
 gql`
   fragment CustomerDetails on CustomerDetails {
@@ -50,6 +59,7 @@ gql`
     }
     ...CustomerVatRate
     ...AddCustomerDialogDetail
+    ...CustomerMainInfos
   }
 
   query getCustomer($id: ID!) {
@@ -63,12 +73,13 @@ gql`
   ${AddCustomerDialogDetailFragmentDoc}
   ${CustomerVatRateFragmentDoc}
   ${CustomerCouponFragmentDoc}
+  ${CustomerMainInfosFragmentDoc}
 `
 
-const formatUrl: (url: string) => string = (url) => {
-  if (url.length < 16) return url
-
-  return url.slice(0, 10) + '...' + url.slice(-6)
+enum TabsOptions {
+  overview = 'overview',
+  invoices = 'invoices',
+  taxRate = 'taxRate',
 }
 
 const CustomerDetails = () => {
@@ -78,31 +89,30 @@ const CustomerDetails = () => {
   const subscriptionsListRef = useRef<CustomerSubscriptionsListRef>(null)
   const { translate } = useI18nContext()
   const navigate = useNavigate()
-  const { id } = useParams()
+  const { id, tab } = useParams()
   const { data, loading, error, refetch } = useGetCustomerQuery({
     variables: { id: id as string },
     skip: !id,
   })
-  const {
-    name,
-    customerId,
-    invoices,
-    subscriptions,
-    canBeDeleted,
-    legalName,
-    legalNumber,
-    phone,
-    email,
-    logoUrl,
-    url,
-    addressLine1,
-    addressLine2,
-    state,
-    country,
-    city,
-    zipcode,
-    appliedCoupons,
-  } = data?.customer || {}
+  const { name, customerId, invoices, subscriptions, canBeDeleted, appliedCoupons } =
+    data?.customer || {}
+
+  const tabsOptions = useMemo(() => {
+    return [
+      {
+        title: translate('text_628cf761cbe6820138b8f2e4'),
+        key: TabsOptions.overview,
+      },
+      {
+        title: translate('text_628cf761cbe6820138b8f2e6'),
+        key: TabsOptions.invoices,
+      },
+      {
+        title: translate('text_628cf761cbe6820138b8f2e8'),
+        key: TabsOptions.taxRate,
+      },
+    ]
+  }, [translate])
 
   return (
     <div>
@@ -201,195 +211,88 @@ const CustomerDetails = () => {
         <>
           <Content>
             {loading ? (
-              <>
-                <MainInfos>
-                  <Skeleton variant="userAvatar" size="large" />
-                  <div>
-                    <Skeleton
-                      variant="text"
-                      height={12}
-                      width={200}
-                      marginBottom={theme.spacing(5)}
-                    />
-                    <Skeleton variant="text" height={12} width={128} />
-                  </div>
-                </MainInfos>
-                <Infos>
-                  <LoadingDetails>
-                    <SectionHeader variant="subhead">
-                      {translate('text_6250304370f0f700a8fdc27d')}
-                    </SectionHeader>
-                    <div>
-                      <Skeleton
-                        variant="text"
-                        height={12}
-                        width={80}
-                        marginBottom={theme.spacing(3)}
-                      />
-                      <Skeleton variant="text" height={12} width={200} />
-                    </div>
-                    <div>
-                      <Skeleton
-                        variant="text"
-                        height={12}
-                        width={80}
-                        marginBottom={theme.spacing(3)}
-                      />
-                      <Skeleton variant="text" height={12} width={200} />
-                    </div>
-                  </LoadingDetails>
-                  <SideBlock>
-                    <SideLoadingSection>
-                      <SectionHeader variant="subhead">
-                        {translate('text_6250304370f0f700a8fdc28d')}
-                      </SectionHeader>
-                      <Skeleton variant="text" height={12} width={240} />
-                    </SideLoadingSection>
-                    <SideLoadingSection>
-                      <SectionHeader variant="subhead">
-                        {translate('text_62728ff857d47b013204cac1')}
-                      </SectionHeader>
-                      <Skeleton variant="text" height={12} width={240} />
-                    </SideLoadingSection>
-                    <SideLoadingSection>
-                      <SectionHeader variant="subhead">
-                        {translate('text_6250304370f0f700a8fdc291')}
-                      </SectionHeader>
-                      <Skeleton variant="text" height={12} width={240} />
-                    </SideLoadingSection>
-                  </SideBlock>
-                </Infos>
-              </>
-            ) : (
-              <>
-                <MainInfos>
-                  <Avatar
-                    size="large"
-                    variant="user"
-                    identifier={name || ''}
-                    initials={(name || '').split(' ').reduce((acc, n) => (acc = acc + n[0]), '')}
+              <MainInfos>
+                <Skeleton variant="userAvatar" size="large" />
+                <div>
+                  <Skeleton
+                    variant="text"
+                    height={12}
+                    width={200}
+                    marginBottom={theme.spacing(5)}
                   />
-                  <div>
-                    <Name color="textSecondary" variant="headline">
-                      {name}
-                    </Name>
-                    <Typography>{customerId}</Typography>
-                  </div>
-                </MainInfos>
-                <Infos>
-                  <div>
-                    <CustomerCoupons
-                      ref={couponListRef}
-                      customerId={id as string}
-                      coupons={appliedCoupons}
-                    />
-                    <DetailsBlock>
-                      <SectionHeader variant="subhead">
-                        {translate('text_6250304370f0f700a8fdc27d')}
-
-                        <Button
-                          variant="secondary"
-                          onClick={() => editDialogRef?.current?.openDialog()}
-                        >
-                          {translate('text_626162c62f790600f850b75a')}
-                        </Button>
-                      </SectionHeader>
-
-                      <div>
-                        <Typography variant="caption">
-                          {translate('text_626162c62f790600f850b76a')}
-                        </Typography>
-                        <Typography color="textSecondary">{name}</Typography>
-                      </div>
-                      <div>
-                        <Typography variant="caption">
-                          {translate('text_6250304370f0f700a8fdc283')}
-                        </Typography>
-                        <Typography color="textSecondary">{customerId}</Typography>
-                      </div>
-                      {legalName && (
-                        <div>
-                          <Typography variant="caption">
-                            {translate('text_626c0c301a16a600ea061471')}
-                          </Typography>
-                          <Typography color="textSecondary">{legalName}</Typography>
-                        </div>
-                      )}
-                      {legalNumber && (
-                        <div>
-                          <Typography variant="caption">
-                            {translate('text_626c0c301a16a600ea061475')}
-                          </Typography>
-                          <Typography color="textSecondary">{legalNumber}</Typography>
-                        </div>
-                      )}
-                      {email && (
-                        <div>
-                          <Typography variant="caption">
-                            {translate('text_626c0c301a16a600ea061479')}
-                          </Typography>
-                          <Typography color="textSecondary">{email}</Typography>
-                        </div>
-                      )}
-                      {phone && (
-                        <div>
-                          <Typography variant="caption">
-                            {translate('text_626c0c301a16a600ea06147d')}
-                          </Typography>
-                          <Typography color="textSecondary">{phone}</Typography>
-                        </div>
-                      )}
-                      {url && (
-                        <div>
-                          <Typography variant="caption">
-                            {translate('text_626c0c301a16a600ea061481')}
-                          </Typography>
-                          <Typography>
-                            <a href={url}>{formatUrl(url)}</a>
-                          </Typography>
-                        </div>
-                      )}
-                      {logoUrl && (
-                        <div>
-                          <Typography variant="caption">
-                            {translate('text_626c0c301a16a600ea061485')}
-                          </Typography>
-                          <Typography>
-                            <a href={logoUrl}>{formatUrl(logoUrl)}</a>
-                          </Typography>
-                        </div>
-                      )}
-                      {(addressLine1 || addressLine2 || state || country || city || zipcode) && (
-                        <div>
-                          <Typography variant="caption">
-                            {translate('text_626c0c301a16a600ea06148d')}
-                          </Typography>
-                          <Typography color="textSecondary">{addressLine1}</Typography>
-                          <Typography color="textSecondary">{addressLine2}</Typography>
-                          <Typography color="textSecondary">
-                            {zipcode} {city} {state}
-                          </Typography>
-                          {country && (
-                            <Typography color="textSecondary">{CountryCodes[country]}</Typography>
-                          )}
-                        </div>
-                      )}
-                    </DetailsBlock>
-                  </div>
-                  <SideBlock>
-                    <CustomerSubscriptionsList
-                      ref={subscriptionsListRef}
-                      customerName={name as string}
-                      customerId={id as string}
-                      subscriptions={subscriptions ?? []}
-                      refetchCustomer={refetch}
-                    />
-                    <CustomerVatRate customer={data?.customer as CustomerVatRateFragment} />
-                    <CustomerInvoicesList invoices={invoices} />
-                  </SideBlock>
-                </Infos>
-              </>
+                  <Skeleton variant="text" height={12} width={128} />
+                </div>
+              </MainInfos>
+            ) : (
+              <MainInfos>
+                <Avatar
+                  size="large"
+                  variant="user"
+                  identifier={name || ''}
+                  initials={(name || '').split(' ').reduce((acc, n) => (acc = acc + n[0]), '')}
+                />
+                <div>
+                  <Name color="textSecondary" variant="headline">
+                    {name}
+                  </Name>
+                  <Typography>{customerId}</Typography>
+                </div>
+              </MainInfos>
             )}
+
+            <Infos>
+              <CustomerMainInfos
+                loading={loading}
+                customer={data?.customer}
+                onEdit={editDialogRef.current?.openDialog}
+              />
+              <div>
+                <BasicTabs
+                  tabs={tabsOptions}
+                  value={tab || 0}
+                  align="superLeft"
+                  onClick={(_, key) =>
+                    navigate(generatePath(CUSTOMER_DETAILS_TAB_ROUTE, { id, tab: key as string }), {
+                      state: { disableScrollTop: true },
+                    })
+                  }
+                />
+                <SideBlock>
+                  {loading && (
+                    <>
+                      <SideLoadingSection>
+                        <SectionHeader variant="subhead">
+                          <Skeleton variant="text" height={12} width={200} />
+                        </SectionHeader>
+                        <Skeleton variant="text" height={12} width={240} />
+                      </SideLoadingSection>
+                    </>
+                  )}
+                  {!loading && (!tab || tab === TabsOptions.overview) && (
+                    <>
+                      <CustomerCoupons
+                        ref={couponListRef}
+                        customerId={id as string}
+                        coupons={appliedCoupons}
+                      />
+                      <CustomerSubscriptionsList
+                        ref={subscriptionsListRef}
+                        customerName={name as string}
+                        customerId={id as string}
+                        subscriptions={subscriptions ?? []}
+                        refetchCustomer={refetch}
+                      />
+                    </>
+                  )}
+                  {!loading && tab === TabsOptions.invoices && (
+                    <CustomerInvoicesList invoices={invoices} />
+                  )}
+                  {!loading && tab === TabsOptions.taxRate && (
+                    <CustomerVatRate customer={data?.customer as CustomerVatRateFragment} />
+                  )}
+                </SideBlock>
+              </div>
+            </Infos>
           </Content>
           <AddCustomerDialog ref={editDialogRef} customer={data?.customer} />
           <DeleteCustomerDialog
@@ -440,10 +343,6 @@ const Infos = styled.div`
     width: 320px;
     margin-right: ${theme.spacing(8)};
 
-    > *:not(:last-child) {
-      margin-bottom: ${theme.spacing(12)};
-    }
-
     @media (max-width: 1024px) {
       flex: 1;
       width: inherit;
@@ -464,16 +363,6 @@ const Name = styled(Typography)`
   margin-bottom: ${theme.spacing(1)};
 `
 
-const LoadingDetails = styled.div`
-  > *:first-child {
-    margin-bottom: ${theme.spacing(7)};
-  }
-
-  > *:not(:first-child) {
-    margin-bottom: ${theme.spacing(7)};
-  }
-`
-
 const SideBlock = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(8)};
@@ -483,16 +372,6 @@ const SideBlock = styled.div`
 const SideLoadingSection = styled.div`
   > *:first-child {
     margin-bottom: ${theme.spacing(8)};
-  }
-`
-
-const DetailsBlock = styled.div`
-  > *:first-child {
-    margin-bottom: ${theme.spacing(6)};
-  }
-
-  > *:not(:first-child) {
-    margin-bottom: ${theme.spacing(4)};
   }
 `
 

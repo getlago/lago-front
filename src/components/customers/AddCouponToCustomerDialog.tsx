@@ -13,14 +13,15 @@ import {
   CurrencyEnum,
   useAddCouponMutation,
   Lago_Api_Error,
+  CouponStatusEnum,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
 import { formatAmountToCurrency } from '~/core/currencyTool'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
 
 gql`
-  query getCouponForCustomer($page: Int, $limit: Int) {
-    coupons(page: $page, limit: $limit) {
+  query getCouponForCustomer($page: Int, $limit: Int, $status: CouponStatusEnum) {
+    coupons(page: $page, limit: $limit, status: $status) {
       metadata {
         currentPage
         totalPages
@@ -54,7 +55,7 @@ export const AddCouponToCustomerDialog = forwardRef<
   const { translate } = useI18nContext()
   const mounted = useRef(false)
   const [getCoupons, { loading, data }] = useGetCouponForCustomerLazyQuery({
-    variables: { limit: 50 },
+    variables: { limit: 50, status: CouponStatusEnum.Active },
   })
   const [addCoupon] = useAddCouponMutation({
     context: {

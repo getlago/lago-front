@@ -37,5 +37,7 @@ projects:
     id: 62865490ae25a500b104b108
   - name: "\U0001F44D [Ready for dev] - Coupons - Apply coupons to customers"
     id: 628b8c5f8161d800e7c1c562
+  - name: '⚙️ [WIP] - Logs - Log usage & measurement'
+    id: 628cf7593d43eb010ec6b067
 format: flat
 variants: true

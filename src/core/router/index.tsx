@@ -64,6 +64,7 @@ export const UPDATE_PLAN_ROUTE = '/update/plan/:id'
 // Customer routes
 export const CUSTOMERS_LIST_ROUTE = '/customers'
 export const CUSTOMER_DETAILS_ROUTE = '/customer/:id'
+export const CUSTOMER_DETAILS_TAB_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/:tab`
 
 // Coupons routes
 export const COUPONS_ROUTE = '/coupons'
@@ -137,7 +138,7 @@ export const routes: CustomRouteObject[] = [
         element: <CustomersList />,
       },
       {
-        path: CUSTOMER_DETAILS_ROUTE,
+        path: [CUSTOMER_DETAILS_ROUTE, CUSTOMER_DETAILS_TAB_ROUTE],
         private: true,
         element: <CustomerDetails />,
       },
