@@ -104,7 +104,7 @@
       "text_624453d52e945301380e49b0": "Beginning of the month",
       "text_624453d52e945301380e49b2": "Subscription date",
       "text_624453d52e945301380e49b6": "Amount",
-      "text_624453d52e945301380e49b8": "Type an amount",
+      "text_624453d52e945301380e49b8": "0.00",
       "text_624453d52e945301380e49ba": "USD",
       "text_624d90e6a93343010cd14b40": "Pay the plan in advance",
       "text_624d90e6a93343010cd14b4c": "If true, the Plan is pay upfront (in advance) for the period. If false, the Plan is paid for the past period (in arrears).",
@@ -185,7 +185,7 @@
       "text_624c5eadff7db800acc4ca0d": "Model",
       "text_624aa732d6af4e0103d40e6f": "Standard pricing",
       "text_624aa732d6af4e0103d40e73": "Amount",
-      "text_624aa732d6af4e0103d40e77": "Type an amount",
+      "text_624aa732d6af4e0103d40e77": "0.00",
       "text_624aa732d6af4e0103d40e7a": "USD",
       "text_624d90e6a93343010cd14b62": "Frequency",
       "text_624aa732d6af4e0103d40e7e": "Recurring",
@@ -1207,5 +1207,5 @@
       "country-code-zw": "Zimbabwe"
     }
   },
-  "exported_at": "2022-05-24T15:20:03.389Z"
+  "exported_at": "2022-05-25T16:03:53.734Z"
 }
