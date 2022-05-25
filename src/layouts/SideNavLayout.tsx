@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
 import { ClickAwayListener } from '@mui/material'
 import { useApolloClient } from '@apollo/client'
-import { useNavigate, useLocation, Location } from 'react-router-dom'
+import { useNavigate, useLocation, Location, matchPath } from 'react-router-dom'
 
 import { useI18nContext } from '~/core/I18nContext'
 import { logOut, useCurrentUserInfosVar } from '~/core/apolloClient'
@@ -13,10 +13,12 @@ import {
   BILLABLE_METRICS_ROUTE,
   PLANS_ROUTE,
   CUSTOMERS_LIST_ROUTE,
+  CUSTOMER_DETAILS_TAB_ROUTE,
   DEVELOPPERS_ROUTE,
   SETTINGS_ROUTE,
   HOME_ROUTE,
   COUPONS_ROUTE,
+  CUSTOMER_DETAILS_ROUTE,
 } from '~/core/router'
 import { MenuPopper } from '~/styles/designSystem'
 
@@ -60,6 +62,8 @@ const SideNav = () => {
       title: translate('text_624efab67eb2570101d117a5'),
       icon: 'user-multiple',
       link: CUSTOMERS_LIST_ROUTE,
+      match: [CUSTOMERS_LIST_ROUTE, CUSTOMER_DETAILS_ROUTE, CUSTOMER_DETAILS_TAB_ROUTE],
+      canClickOnActive: true,
     },
   ]
 
@@ -76,7 +80,9 @@ const SideNav = () => {
     },
   ]
 
-  const activeTabIndex = tabs.findIndex((tab) => (tab.match || tab.link).includes(pathname))
+  const activeTabIndex = tabs.findIndex(
+    (tab) => tab.link === pathname || !!tab.match?.find((match) => !!matchPath(match, pathname))
+  )
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
