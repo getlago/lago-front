@@ -14,7 +14,7 @@ gql`
   fragment CustomerInvoiceList on Invoice {
     id
     issuingDate
-    amountCents
+    totalAmountCents
     amountCurrency
     plan {
       id
@@ -51,7 +51,7 @@ export const CustomerInvoicesList = ({ invoices }: CustomerInvoicesListProps) =>
               {translate('text_62544c1db13ca10187214d85')}
             </AmountCell>
           </ListHeader>
-          {invoices.map(({ id, issuingDate, amountCents, amountCurrency, plan }) => {
+          {invoices.map(({ id, issuingDate, totalAmountCents, amountCurrency, plan }) => {
             return (
               <Item key={id}>
                 <IssuingDateCell noWrap>
@@ -75,7 +75,7 @@ export const CustomerInvoicesList = ({ invoices }: CustomerInvoicesListProps) =>
                   {plan?.name}
                 </PlanCell>
                 <AmountCell align="right" color="textSecondary">
-                  {formatAmountToCurrency(amountCents, { currency: amountCurrency })}
+                  {formatAmountToCurrency(totalAmountCents, { currency: amountCurrency })}
                 </AmountCell>
               </Item>
             )
