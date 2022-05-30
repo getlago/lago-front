@@ -1,29 +1,21 @@
-# Lago - Front
+# Lago
 
-## Local environment setup
+Lago is an open-source Stripe Billing alternative.
 
-To install the full app, you can refer to the [Lago README](https://github.com/getlago/lago#readme)
+This library will allow you to build an entire billing logic from scratch, even the most complex one. Lago is a real-time event-based library made for usage-based billing, subscription-based billing, and all the nuances of pricing in between.
 
-### Development usefull commands
+## Documentation
 
-```bash
-# Code formating
-yarn lint
+The official Lago documentation is available here : https://doc.getlago.com
 
-# Tests
-yarn test
+## Contributing
 
-# Codegen to generate types from the api schemas
-# (make sure the api is running)
-yarn codegen
-yarn codegen:watch # will run anytime a new file is saved
+TODO
 
-# Translations
-yarn ditto # Pull new translations
-yarn ditto:addNew # Register new project from Ditto
+## Front Development Environment
 
-# Bundle analyser
-yarn build:analyseBundle
-```
+Check the wiki [guide](https://github.com/getlago/lago-front/wiki)
 
-**_Note : linter and tests are run during the pull request pipelines_**
+## License
+
+Lago is open-source under the GNU Affero General Public License Version 3 (AGPLv3) or any later version.
