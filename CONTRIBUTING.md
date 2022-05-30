@@ -37,8 +37,8 @@ This project and everyone participating in it is governed by the [Code of Conduc
 
 ## I don't want to read this whole thing I just have a question!!!
 
-- [Github Discussions, the official Lago](https://github.com/getlago/lago/discussions)
-- [Lago FAQ](https://github.com/getlago/lago/discussions)
+- [Github Discussions, the official Lago](https://github.com/getlago/lago-front/discussions)
+- [Lago FAQ](https://github.com/getlago/lago-front/discussions)
 - [Lago official documentation](https://doc.getlago.com/docs/guide/intro)
 
 ## What should I know before I get started?
@@ -51,7 +51,7 @@ Here's a list of Lago's elements:
 
 - [lago/core](https://github.com/getlago/lago) - Lago Core!
 - [lago/front](https://github.com/getlago/lago-front) - Lago's UI (you are here 📍)
-- [lago/front](https://github.com/getlago/lago-api) - Lago's API.
+- [lago/api](https://github.com/getlago/lago-api) - Lago's API.
 
 #### The different clients
 
@@ -63,7 +63,7 @@ Also, because Lago is extensible, it's possible that a feature you've become acc
 
 ### Design Decisions
 
-If you have a question around how we do things, check to see if it is documented in the wiki of the related repository. If it is _not_ documented there, please open a new topic on [Github Discussions](https://github.com/getlago/lago/discussions) and ask your question.
+If you have a question around how we do things, check to see if it is documented in the wiki of the related repository. If it is _not_ documented there, please open a new topic on [Github Discussions](https://github.com/getlago/lago-front/discussions) and ask your question.
 
 ## How Can I Contribute?
 
@@ -77,7 +77,7 @@ Before creating bug reports, please check [this list](#before-submitting-a-bug-r
 
 #### Before Submitting A Bug Report
 
-- **Check the [discussions](https://github.com/getlago/lago/discussions)** for a list of common questions and problems.
+- **Check the [discussions](https://github.com/getlago/lago-front/discussions)** for a list of common questions and problems.
 - **Determine [which element the problem should be reported in](#lago-and-packages)**.
 - **Perform a [cursory search](https://github.com/search?q=+is%3Aissue+user%3Agetlago)** to see if the problem has already been reported. If it has **and the issue is still open**, add a comment to the existing issue instead of opening a new one.
 
