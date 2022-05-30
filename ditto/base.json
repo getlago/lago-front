@@ -667,7 +667,7 @@
       "text_62728ff857d47b013204c776": "Tax",
       "text_62728ff857d47b013204c782": "Configure this setting to automatically calculate on your invoices. ",
       "text_62728ff857d47b013204c798": "Edit tax rate",
-      "text_62728ff857d47b013204c7ae": "Taxe rates",
+      "text_62728ff857d47b013204c7ae": "Tax rates",
       "text_62728ff857d47b013204c7c4": "Tax rate",
       "text_62728ff857d47b013204c7da": "Tax rate defined at {{taxRate}}%",
       "text_62728ff857d47b013204c7f0": "For all customers",
@@ -680,7 +680,7 @@
       "text_62728ff857d47b013204c7fa": "Edit tax rate",
       "text_62728ff857d47b013204c86f": "Tax rate successfully created",
       "text_62728ff857d47b013204cab3": "Add a tax rate",
-      "text_62728ff857d47b013204cac1": "Taxe rates",
+      "text_62728ff857d47b013204cac1": "Tax rates",
       "text_62728ff857d47b013204cadd": "This customer inherits a rate of {{orgTaxRate}}% defined in the <a data-text=\"general setting\" href=\"{{link}}\">-</a>. Add a rate on this customer to overwrite the general setting.",
       "text_62728ff857d47b013204cb25": "Tax rate defined at {{taxRate}}%",
       "text_62728ff857d47b013204cb3f": "Only for this customer",
@@ -746,7 +746,7 @@
       "text_62728ff857d47b013204cacf": "2022/04/07",
       "text_62728ff857d47b013204caeb": "Downgrading to {{plan_name}} at {{date_start_new_plan}}",
       "text_62728ff857d47b013204cb05": "Add a tax rate",
-      "text_62728ff857d47b013204cb1f": "Taxe rates",
+      "text_62728ff857d47b013204cb1f": "Tax rates",
       "text_62728ff857d47b013204cb2b": "Tax rate",
       "text_62728ff857d47b013204cb37": "Tax rate defined at 12%",
       "text_62728ff857d47b013204cb43": "Only for this customer",
@@ -914,7 +914,7 @@
     "project_628cf7593d43eb010ec6b067": {
       "text_628cf761cbe6820138b8f2e4": "Overview",
       "text_628cf761cbe6820138b8f2e6": "Invoices",
-      "text_628cf761cbe6820138b8f2e8": "Taxe rate"
+      "text_628cf761cbe6820138b8f2e8": "Tax rate"
     },
     "project_620bc4d45f16c800e2324b82": {
       "text_620bc4d4269a55014d493f12": "Welcome to Lago",
@@ -1207,5 +1207,5 @@
       "country-code-zw": "Zimbabwe"
     }
   },
-  "exported_at": "2022-05-25T16:03:53.734Z"
+  "exported_at": "2022-05-30T16:34:27.132Z"
 }
