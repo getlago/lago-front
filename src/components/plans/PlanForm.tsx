@@ -46,13 +46,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
             // Amount can be null and this breaks the validation
             amount: amount || undefined,
             packageSize: packageSize == null ? undefined : packageSize,
-            graduatedRanges: !graduatedRanges
-              ? null
-              : graduatedRanges.map(({ perUnitAmount, flatAmount, ...range }) => ({
-                  flatAmount,
-                  perUnitAmount,
-                  ...range,
-                })),
+            graduatedRanges: !graduatedRanges ? null : graduatedRanges,
             ...charge,
           }))
         : ([] as LocalChargeInput[]),
@@ -97,7 +91,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
 
                     graduatedRange?.every(
                       ({ fromValue, toValue, perUnitAmount, flatAmount }, i) => {
-                        if (Number(perUnitAmount) == NaN && Number(flatAmount) == NaN) {
+                        if (isNaN(Number(perUnitAmount)) && isNaN(Number(flatAmount))) {
                           isValid = false
                           return false
                         }
