@@ -10,7 +10,7 @@ The official Lago documentation is available here : https://doc.getlago.com
 
 ## Contributing
 
-TODO
+The contribution documentation is available [here](https://github.com/getlago/lago-front/blob/main/CONTRIBUTING.md)
 
 ## Front Development Environment
 
