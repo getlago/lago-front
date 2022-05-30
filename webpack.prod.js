@@ -59,7 +59,7 @@ const config = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: process.env.APP_ENV === 'production' ? 'Lago' : 'Lago - Staging',
+      title: process.env.APP_ENV === 'production' ? 'Lago' : 'Lago - Cloud',
       template: path.join(__dirname, 'src', 'index.html'),
       favicon:
         process.env.APP_ENV === 'production'
