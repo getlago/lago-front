@@ -123,7 +123,7 @@ export const ChargeAccordion = ({
                 disabled={disabled}
                 label={translate('text_624453d52e945301380e49b6')}
                 placeholder={translate('text_624453d52e945301380e49b8')}
-                value={localCharge.amount as string}
+                value={localCharge.amount || ''}
                 onChange={(value) => handleUpdate('amount', value)}
               />
               <ComboBox

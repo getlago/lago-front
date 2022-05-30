@@ -80,20 +80,22 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
             i === 0
               ? range.toValue || 0
               : (range.toValue || 0) - (graduatedRanges[i - 1].toValue || 0)
+          const perUnit = Number(range.perUnitAmount || 0)
+          const flatFee = Number(range.flatAmount || 0)
 
           if (i < graduatedRanges.length - 1) {
             acc.push({
               units,
-              perUnit: Number(range.perUnitAmount || 0),
-              flatFee: Number(range.flatAmount || 0),
-              total: units * Number(range.perUnitAmount || 0) + Number(range.flatAmount || 0),
+              perUnit,
+              flatFee,
+              total: units * perUnit + flatFee,
             })
           } else {
             acc.push({
               units: 1,
-              perUnit: Number(range.perUnitAmount || 0),
-              flatFee: Number(range.flatAmount || 0),
-              total: 1 * Number(range.perUnitAmount || 0) + Number(range.flatAmount || 0),
+              perUnit,
+              flatFee,
+              total: 1 * perUnit + flatFee,
             })
 
             const totalLine = {
