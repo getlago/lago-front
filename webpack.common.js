@@ -26,9 +26,10 @@ module.exports = () => {
       }),
       new webpack.DefinePlugin({
         IS_PROD_ENV: APP_ENV === 'production',
+        IS_DEV_ENV: APP_ENV === 'development',
         APP_ENV: JSON.stringify(APP_ENV),
         API_URL: JSON.stringify(process.env.API_URL),
-        APP_VERSION: JSON.stringify(process.env.APP_VERSION),
+        APP_VERSION: JSON.stringify(process.env.APP_VERSION), // TODO - not passed on the cloud
       }),
     ],
   }

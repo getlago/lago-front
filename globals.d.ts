@@ -1,5 +1,6 @@
 declare var APP_ENV: "production" | "staging" | "development";
 declare var IS_PROD_ENV: boolean;
+declare var IS_DEV_ENV: boolean;
 declare var API_URL: string;
 declare var APP_VERSION: string;
 

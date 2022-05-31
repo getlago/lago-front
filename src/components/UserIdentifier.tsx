@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
+import * as Sentry from '@sentry/browser'
 
 import { addToast, updateCurrentUserInfosVar, resetCurrentUserInfosVar } from '~/core/apolloClient'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
@@ -45,6 +46,7 @@ export const UserIdentifier = () => {
     if (!isAuthenticated) {
       resetCurrentUserInfosVar()
       refetchCountRef.current = 0
+      Sentry.configureScope((scope) => scope.setUser(null))
     } else if (!data) {
       if (refetchCountRef.current <= 5) {
         refetch()
@@ -56,6 +58,9 @@ export const UserIdentifier = () => {
         })
       }
     } else {
+      const { id, email } = data?.me
+
+      Sentry.configureScope((scope) => scope.setUser({ id, email: email || undefined }))
       updateCurrentUserInfosVar({ user: data?.me })
     }
   }, [data, isAuthenticated, refetch])

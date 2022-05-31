@@ -83,6 +83,7 @@
     "@mui/material": "5.4.3",
     "@mui/styled-engine": "5.4.2",
     "@mui/styled-engine-sc": "5.4.2",
+    "@sentry/react": "^7.0.0",
     "add": "2.0.6",
     "apollo-link-timeout": "4.0.0",
     "apollo-upload-client": "16.0.0",

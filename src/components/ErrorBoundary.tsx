@@ -1,4 +1,5 @@
-import { ReactNode, Component } from 'react'
+import { ReactNode, Component, ErrorInfo } from 'react'
+import * as Sentry from '@sentry/browser'
 
 import { addToast } from '~/core/apolloClient'
 
@@ -9,14 +10,14 @@ interface ErrorBoundaryProps {
 }
 
 export class ErrorBoundary extends Component<{}, ErrorBoundaryProps> {
-  componentDidCatch(/*error: { message: string; name: string }, errorInfo: unknown */) {
-    // TODO
-    // catchError(error)
-
-    // catchError(new Error('Application crashed'), {
-    //   info: errorInfo,
-    //   error: { message: error.message, name: error.name },
-    // })
+  componentDidCatch(error: { message: string; name: string }, errorInfo: ErrorInfo) {
+    Sentry.withScope((scope) => {
+      Object.keys(errorInfo).forEach((key) => {
+        // @ts-ignore
+        scope.setExtra(key, errorInfo[key])
+      })
+      Sentry.captureException(error)
+    })
 
     addToast({
       severity: 'danger',
