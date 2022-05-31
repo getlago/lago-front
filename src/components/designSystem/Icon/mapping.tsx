@@ -11,6 +11,7 @@ import AttachmentNa from '~/public/icons/attachment-na.svg'
 import Bank from '~/public/icons/bank.svg'
 import Bell from '~/public/icons/bell.svg'
 import Board from '~/public/icons/board.svg'
+import Book from '~/public/icons/book.svg'
 import Box from '~/public/icons/box.svg'
 import Burger from '~/public/icons/burger.svg'
 import Calendar from '~/public/icons/calendar.svg'
@@ -113,6 +114,7 @@ export const ALL_ICONS = {
   bank: Bank,
   bell: Bell,
   board: Board,
+  book: Book,
   burger: Burger,
   box: Box,
   calendar: Calendar,

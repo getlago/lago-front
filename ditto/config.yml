@@ -39,5 +39,7 @@ projects:
     id: 628b8c5f8161d800e7c1c562
   - name: '⚙️ [WIP] - Logs - Log usage & measurement'
     id: 628cf7593d43eb010ec6b067
+  - name: "\U0001F44D [Ready for dev] - Add-ons - Apply an Add-on to a Customer"
+    id: 6295e54aa233f00167720fe8
 format: flat
 variants: true

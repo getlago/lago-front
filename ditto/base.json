@@ -916,6 +916,9 @@
       "text_628cf761cbe6820138b8f2e6": "Invoices",
       "text_628cf761cbe6820138b8f2e8": "Tax rate"
     },
+    "project_6295e54aa233f00167720fe8": {
+      "text_6295e58352f39200d902b01c": "Documentation"
+    },
     "project_620bc4d45f16c800e2324b82": {
       "text_620bc4d4269a55014d493f12": "Welcome to Lago",
       "text_620bc4d4269a55014d493fc9": "Nice to see you here, let’s start by creating your account.",
@@ -1207,5 +1210,5 @@
       "country-code-zw": "Zimbabwe"
     }
   },
-  "exported_at": "2022-05-30T16:34:27.132Z"
+  "exported_at": "2022-05-31T09:54:41.913Z"
 }

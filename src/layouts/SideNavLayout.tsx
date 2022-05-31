@@ -9,6 +9,7 @@ import { useI18nContext } from '~/core/I18nContext'
 import { logOut, useCurrentUserInfosVar } from '~/core/apolloClient'
 import { Avatar, Button, TabButton, Popper, IconName } from '~/components/designSystem'
 import { theme } from '~/styles'
+import { DOCUMENTATION_URL } from '~/externalUrls'
 import {
   BILLABLE_METRICS_ROUTE,
   PLANS_ROUTE,
@@ -30,6 +31,7 @@ interface TabProps {
   link: string
   canClickOnActive?: boolean
   match?: string[]
+  external?: boolean
 }
 
 const SideNav = () => {
@@ -68,6 +70,12 @@ const SideNav = () => {
   ]
 
   const bottomTabButtons: TabProps[] = [
+    {
+      title: translate('text_6295e58352f39200d902b01c'),
+      icon: 'book',
+      link: DOCUMENTATION_URL,
+      external: true,
+    },
     {
       title: translate('text_6271200984178801ba8bdeac'),
       icon: 'laptop',
@@ -164,17 +172,21 @@ const SideNav = () => {
               })}
             </TabsButtons>
             <BottomButtons>
-              {bottomTabButtons.map(({ title, icon, link, canClickOnActive }, i) => {
+              {bottomTabButtons.map(({ title, icon, link, canClickOnActive, external }, i) => {
                 return (
                   <TabButton
                     key={`side-nav-bottom-${i}-${title}`}
                     active={pathname.includes(link)}
                     onClick={() => {
-                      navigate(link)
-                      setOpen(false)
+                      if (external) {
+                        window.open(link, '_newtab')
+                      } else {
+                        navigate(link)
+                      }
                       const element = document.activeElement as HTMLElement
 
                       element.blur && element.blur()
+                      setOpen(false)
                     }}
                     icon={icon}
                     canClickOnActive={canClickOnActive}
