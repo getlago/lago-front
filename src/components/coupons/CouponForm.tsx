@@ -37,7 +37,7 @@ export const CouponForm = ({ isEdition, loading, coupon, onSave }: CouponFormPro
       expirationDuration: coupon?.expirationDuration || undefined,
     },
     validationSchema: object().shape({
-      amountCents: string().required(''),
+      amountCents: number().min(1, 'text_62978f2c197cea009ab0b7d4').required(''),
       name: string().required(''),
       amountCurrency: string().required(''),
       code: string().required(''),
