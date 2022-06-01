@@ -85,7 +85,7 @@ const formatPlanInput = (values: PlanFormInput) => {
 
   return {
     amountCents: Math.round(Number(amountCents) * 100),
-    trialPeriod: Number(trialPeriod),
+    trialPeriod: Number(trialPeriod || 0),
     charges: charges.map(
       ({
         billableMetric,

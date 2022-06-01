@@ -36,10 +36,10 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
       interval: plan?.interval || PlanInterval.Monthly,
       payInAdvance: plan?.payInAdvance || false,
       // @ts-ignore
-      amountCents: plan?.amountCents ? plan?.amountCents / 100 : plan?.amountCents || undefined,
+      amountCents: isNaN(plan?.amountCents) ? undefined : plan?.amountCents / 100,
       amountCurrency: plan?.amountCurrency || CurrencyEnum.Usd,
       // @ts-ignore
-      trialPeriod: plan?.trialPeriod || undefined,
+      trialPeriod: isNaN(plan?.trialPeriod) ? undefined : plan?.trialPeriod,
       // @ts-ignore
       charges: plan?.charges
         ? plan?.charges.map(({ amount, graduatedRanges, packageSize, ...charge }) => ({
