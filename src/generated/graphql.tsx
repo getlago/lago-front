@@ -1619,6 +1619,21 @@ export type TerminateCouponMutationVariables = Exact<{
 
 export type TerminateCouponMutation = { __typename?: 'Mutation', terminateCoupon?: { __typename?: 'Coupon', id: string } | null };
 
+export type GetAddOnsForCustomerQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']>;
+  limit?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type GetAddOnsForCustomerQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: number }> } };
+
+export type AddAddOnMutationVariables = Exact<{
+  input: CreateAppliedAddOnInput;
+}>;
+
+
+export type AddAddOnMutation = { __typename?: 'Mutation', createAppliedAddOn?: { __typename?: 'AppliedAddOn', id: string } | null };
+
 export type GetCouponForCustomerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -1649,6 +1664,8 @@ export type CreateSubscriptionMutationVariables = Exact<{
 
 
 export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } } | null };
+
+export type CustomerAddOnsFragment = { __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } };
 
 export type CustomerCouponFragment = { __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } };
 
@@ -1883,14 +1900,14 @@ export type CouponsQueryVariables = Exact<{
 
 export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency: CurrencyEnum, amountCents: number, canBeDeleted: boolean, expirationDate?: any | null }> } };
 
-export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, issuingDate: any, totalAmountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null };
+export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, issuingDate: any, totalAmountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null };
 
 export type GetCustomerQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, issuingDate: any, totalAmountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null } | null };
+export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, issuingDate: any, totalAmountCents: number, amountCurrency: CurrencyEnum, plan?: { __typename?: 'Plan', id: string, name: string } | null }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null } | null };
 
 export type CustomersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -2208,6 +2225,18 @@ export const CustomerCouponFragmentDoc = gql`
   }
 }
     `;
+export const CustomerAddOnsFragmentDoc = gql`
+    fragment CustomerAddOns on AppliedAddOn {
+  id
+  amountCents
+  amountCurrency
+  createdAt
+  addOn {
+    id
+    name
+  }
+}
+    `;
 export const EditCustomerVatRateFragmentDoc = gql`
     fragment EditCustomerVatRate on CustomerDetails {
   id
@@ -2286,6 +2315,9 @@ export const CustomerDetailsFragmentDoc = gql`
   appliedCoupons {
     ...CustomerCoupon
   }
+  appliedAddOns {
+    ...CustomerAddOns
+  }
   ...CustomerVatRate
   ...AddCustomerDialogDetail
   ...CustomerMainInfos
@@ -2293,6 +2325,7 @@ export const CustomerDetailsFragmentDoc = gql`
     ${CustomerSubscriptionListFragmentDoc}
 ${CustomerInvoiceListFragmentDoc}
 ${CustomerCouponFragmentDoc}
+${CustomerAddOnsFragmentDoc}
 ${CustomerVatRateFragmentDoc}
 ${AddCustomerDialogDetailFragmentDoc}
 ${CustomerMainInfosFragmentDoc}`;
@@ -2462,6 +2495,84 @@ export function useTerminateCouponMutation(baseOptions?: Apollo.MutationHookOpti
 export type TerminateCouponMutationHookResult = ReturnType<typeof useTerminateCouponMutation>;
 export type TerminateCouponMutationResult = Apollo.MutationResult<TerminateCouponMutation>;
 export type TerminateCouponMutationOptions = Apollo.BaseMutationOptions<TerminateCouponMutation, TerminateCouponMutationVariables>;
+export const GetAddOnsForCustomerDocument = gql`
+    query getAddOnsForCustomer($page: Int, $limit: Int) {
+  addOns(page: $page, limit: $limit) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      name
+      amountCurrency
+      amountCents
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetAddOnsForCustomerQuery__
+ *
+ * To run a query within a React component, call `useGetAddOnsForCustomerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAddOnsForCustomerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAddOnsForCustomerQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetAddOnsForCustomerQuery(baseOptions?: Apollo.QueryHookOptions<GetAddOnsForCustomerQuery, GetAddOnsForCustomerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAddOnsForCustomerQuery, GetAddOnsForCustomerQueryVariables>(GetAddOnsForCustomerDocument, options);
+      }
+export function useGetAddOnsForCustomerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAddOnsForCustomerQuery, GetAddOnsForCustomerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAddOnsForCustomerQuery, GetAddOnsForCustomerQueryVariables>(GetAddOnsForCustomerDocument, options);
+        }
+export type GetAddOnsForCustomerQueryHookResult = ReturnType<typeof useGetAddOnsForCustomerQuery>;
+export type GetAddOnsForCustomerLazyQueryHookResult = ReturnType<typeof useGetAddOnsForCustomerLazyQuery>;
+export type GetAddOnsForCustomerQueryResult = Apollo.QueryResult<GetAddOnsForCustomerQuery, GetAddOnsForCustomerQueryVariables>;
+export const AddAddOnDocument = gql`
+    mutation addAddOn($input: CreateAppliedAddOnInput!) {
+  createAppliedAddOn(input: $input) {
+    id
+  }
+}
+    `;
+export type AddAddOnMutationFn = Apollo.MutationFunction<AddAddOnMutation, AddAddOnMutationVariables>;
+
+/**
+ * __useAddAddOnMutation__
+ *
+ * To run a mutation, you first call `useAddAddOnMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddAddOnMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addAddOnMutation, { data, loading, error }] = useAddAddOnMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddAddOnMutation(baseOptions?: Apollo.MutationHookOptions<AddAddOnMutation, AddAddOnMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddAddOnMutation, AddAddOnMutationVariables>(AddAddOnDocument, options);
+      }
+export type AddAddOnMutationHookResult = ReturnType<typeof useAddAddOnMutation>;
+export type AddAddOnMutationResult = Apollo.MutationResult<AddAddOnMutation>;
+export type AddAddOnMutationOptions = Apollo.BaseMutationOptions<AddAddOnMutation, AddAddOnMutationVariables>;
 export const GetCouponForCustomerDocument = gql`
     query getCouponForCustomer($page: Int, $limit: Int, $status: CouponStatusEnum) {
   coupons(page: $page, limit: $limit, status: $status) {

@@ -29,6 +29,7 @@ gql`
     amountCents
     customerCount
     createdAt
+    # canBeDeleted # TODO
   }
 `
 
@@ -42,6 +43,7 @@ export const AddOnItem = ({ addOn, navigationProps }: AddOnItemProps) => {
   const deleteDialogRef = useRef<DeleteAddOnDialogRef>(null)
   let navigate = useNavigate()
   const { translate } = useI18nContext()
+  const canBeDeleted = true // TODO
 
   return (
     <ItemContainer>
@@ -100,18 +102,25 @@ export const AddOnItem = ({ addOn, navigationProps }: AddOnItemProps) => {
             >
               {translate('text_629728388c4d2300e2d3816a')}
             </Button>
-            <Button
-              startIcon="trash"
-              variant="quaternary"
-              align="left"
-              fullWidth
-              onClick={() => {
-                deleteDialogRef.current?.openDialog()
-                closePopper()
-              }}
+            <Tooltip
+              disableHoverListener={canBeDeleted}
+              title={translate('text_629791022a75b60089e98ea7')}
+              placement="bottom-end"
             >
-              {translate('text_629728388c4d2300e2d38182')}
-            </Button>
+              <Button
+                startIcon="trash"
+                variant="quaternary"
+                disabled={!canBeDeleted}
+                align="left"
+                fullWidth
+                onClick={() => {
+                  deleteDialogRef.current?.openDialog()
+                  closePopper()
+                }}
+              >
+                {translate('text_629728388c4d2300e2d38182')}
+              </Button>
+            </Tooltip>
           </MenuPopper>
         )}
       </Popper>

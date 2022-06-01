@@ -1,5 +1,5 @@
 import { useFormik } from 'formik'
-import { object, string } from 'yup'
+import { object, string, number } from 'yup'
 import styled from 'styled-components'
 
 import { CreateAddOnInput, CurrencyEnum, EditAddOnFragment } from '~/generated/graphql'
@@ -31,7 +31,7 @@ export const AddOnForm = ({ isEdition, loading, addOn, onSave }: AddOnFormProps)
     validationSchema: object().shape({
       name: string().required(''),
       code: string().required(''),
-      amountCents: string().required(''),
+      amountCents: number().min(1, 'text_62978ebe99054a011fc189e0').required(''),
       amountCurrency: string().required(''),
     }),
     enableReinitialize: true,
