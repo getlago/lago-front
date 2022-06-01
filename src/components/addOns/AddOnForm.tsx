@@ -1,52 +1,38 @@
 import { useFormik } from 'formik'
-import { object, string, number } from 'yup'
+import { object, string } from 'yup'
 import styled from 'styled-components'
 
-import {
-  CreateCouponInput,
-  CurrencyEnum,
-  CouponExpiration,
-  EditCouponFragment,
-} from '~/generated/graphql'
+import { CreateAddOnInput, CurrencyEnum, EditAddOnFragment } from '~/generated/graphql'
 import { theme, NAV_HEIGHT } from '~/styles'
 import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
 import { TextInputField, ComboBoxField } from '~/components/form'
 
-import { CouponCodeSnippet } from './CouponCodeSnippet'
+// import { CouponCodeSnippet } from './CouponCodeSnippet'
 
-interface CouponFormProps {
-  coupon?: EditCouponFragment
+interface AddOnFormProps {
+  addOn?: EditAddOnFragment
   loading?: boolean
   isEdition?: boolean
-  onSave: (values: CreateCouponInput) => Promise<void>
+  onSave: (values: CreateAddOnInput) => Promise<void>
 }
 
-export const CouponForm = ({ isEdition, loading, coupon, onSave }: CouponFormProps) => {
+export const AddOnForm = ({ isEdition, loading, addOn, onSave }: AddOnFormProps) => {
   const { translate } = useI18nContext()
-  const formikProps = useFormik<CreateCouponInput>({
+  const formikProps = useFormik<CreateAddOnInput>({
     initialValues: {
+      name: addOn?.name || '',
+      code: addOn?.code || '',
+      description: addOn?.description || '',
       // @ts-ignore
-      amountCents: coupon?.amountCents
-        ? coupon?.amountCents / 100
-        : coupon?.amountCents || undefined,
-      name: coupon?.name || '',
-      amountCurrency: coupon?.amountCurrency || CurrencyEnum.Usd,
-      code: coupon?.code || '',
-      expiration: coupon?.expiration || CouponExpiration.NoExpiration,
-      expirationDuration: coupon?.expirationDuration || undefined,
+      amountCents: addOn?.amountCents ? addOn?.amountCents / 100 : addOn?.amountCents || undefined,
+      amountCurrency: addOn?.amountCurrency || CurrencyEnum.Usd,
     },
     validationSchema: object().shape({
-      amountCents: string().required(''),
       name: string().required(''),
-      amountCurrency: string().required(''),
       code: string().required(''),
-      expiration: string().required(''),
-      expirationDuration: number().when('expiration', {
-        is: (expiration: CouponExpiration) =>
-          !!expiration && expiration === CouponExpiration.TimeLimit,
-        then: number().min(1, 'text_62876e85e32e0300e180317b').required(''),
-      }),
+      amountCents: string().required(''),
+      amountCurrency: string().required(''),
     }),
     enableReinitialize: true,
     validateOnMount: true,
@@ -70,7 +56,7 @@ export const CouponForm = ({ isEdition, loading, coupon, onSave }: CouponFormPro
                 <Skeleton variant="text" width={120} height={12} />
               </SkeletonHeader>
 
-              {[0, 1].map((skeletonCard) => (
+              {[0, 1, 2].map((skeletonCard) => (
                 <Card key={`skeleton-${skeletonCard}`}>
                   <Skeleton
                     variant="text"
@@ -93,54 +79,61 @@ export const CouponForm = ({ isEdition, loading, coupon, onSave }: CouponFormPro
               <div>
                 <Title variant="headline">
                   {translate(
-                    isEdition ? 'text_6287a9bdac160c00b2e0fc05' : 'text_62876e85e32e0300e1803106'
+                    isEdition ? 'text_629728388c4d2300e2d38041' : 'text_629728388c4d2300e2d3803d'
                   )}
                 </Title>
                 <Subtitle>
                   {translate(
-                    isEdition ? 'text_6287a9bdac160c00b2e0fc0b' : 'text_62876e85e32e0300e180310f'
+                    isEdition ? 'text_629728388c4d2300e2d38065' : 'text_629728388c4d2300e2d38061'
                   )}
                 </Subtitle>
               </div>
               <Card>
                 <SectionTitle variant="subhead">
-                  {translate('text_62876e85e32e0300e1803115')}
+                  {translate('text_629728388c4d2300e2d38079')}
                 </SectionTitle>
 
+                <Line>
+                  <TextInputField
+                    name="name"
+                    label={translate('text_629728388c4d2300e2d38091')}
+                    placeholder={translate('text_629728388c4d2300e2d380a5')}
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    autoFocus
+                    formikProps={formikProps}
+                  />
+                  <TextInputField
+                    name="code"
+                    beforeChangeFormatter="code"
+                    label={translate('text_629728388c4d2300e2d380b7')}
+                    placeholder={translate('text_629728388c4d2300e2d380d9')}
+                    formikProps={formikProps}
+                    infoText={translate('text_629778b2a517d100c19bc524')}
+                  />
+                </Line>
                 <TextInputField
-                  name="name"
-                  label={translate('text_62876e85e32e0300e180311b')}
-                  placeholder={translate('text_62876e85e32e0300e1803121')}
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
-                  autoFocus
+                  name="description"
+                  label={translate('text_629728388c4d2300e2d380f1')}
+                  placeholder={translate('text_629728388c4d2300e2d38103')}
+                  rows="3"
+                  multiline
                   formikProps={formikProps}
-                />
-                <TextInputField
-                  name="code"
-                  beforeChangeFormatter="code"
-                  disabled={isEdition && !coupon?.canBeDeleted}
-                  label={translate('text_62876e85e32e0300e1803127')}
-                  placeholder={translate('text_62876e85e32e0300e180312d')}
-                  formikProps={formikProps}
-                  helperText={translate('text_62876e85e32e0300e1803131')}
                 />
               </Card>
               <Card>
                 <SectionTitle variant="subhead">
-                  {translate('text_62876e85e32e0300e1803137')}
+                  {translate('text_629728388c4d2300e2d38117')}
                 </SectionTitle>
 
                 <LineAmount>
                   <TextInputField
                     name="amountCents"
                     beforeChangeFormatter={['positiveNumber', 'decimal']}
-                    disabled={isEdition && !coupon?.canBeDeleted}
-                    label={translate('text_62876e85e32e0300e180313d')}
-                    placeholder={translate('text_62876e85e32e0300e1803143')}
+                    label={translate('text_629728388c4d2300e2d3812d')}
+                    placeholder={translate('text_629728388c4d2300e2d3813d')}
                     formikProps={formikProps}
                   />
                   <ComboBoxField
-                    disabled={isEdition && !coupon?.canBeDeleted}
                     name="amountCurrency"
                     data={Object.values(CurrencyEnum).map((currencyType) => ({
                       value: currencyType,
@@ -149,41 +142,6 @@ export const CouponForm = ({ isEdition, loading, coupon, onSave }: CouponFormPro
                     formikProps={formikProps}
                   />
                 </LineAmount>
-
-                <ComboBoxField
-                  disabled={isEdition && !coupon?.canBeDeleted}
-                  name="expiration"
-                  data={[
-                    {
-                      value: CouponExpiration.TimeLimit,
-                      label: translate('text_62876e85e32e0300e1803165'),
-                    },
-                    {
-                      value: CouponExpiration.NoExpiration,
-                      label: translate('text_62876e85e32e0300e1803157'),
-                    },
-                  ]}
-                  disableClearable
-                  formikProps={formikProps}
-                />
-
-                {formikProps.values.expiration === CouponExpiration.TimeLimit && (
-                  <TextInputField
-                    name="expirationDuration"
-                    beforeChangeFormatter={['int', 'positiveNumber']}
-                    disabled={isEdition && !coupon?.canBeDeleted}
-                    label={translate('text_62876e85e32e0300e180316c')}
-                    placeholder={translate('text_62876e85e32e0300e1803172')}
-                    formikProps={formikProps}
-                    InputProps={{
-                      endAdornment: (
-                        <InputEnd color="textSecondary">
-                          {translate('text_62876e85e32e0300e1803178')}
-                        </InputEnd>
-                      ),
-                    }}
-                  />
-                )}
               </Card>
 
               <ButtonContainer>
@@ -195,7 +153,7 @@ export const CouponForm = ({ isEdition, loading, coupon, onSave }: CouponFormPro
                   onClick={formikProps.submitForm}
                 >
                   {translate(
-                    isEdition ? 'text_6287a9bdac160c00b2e0fc6b' : 'text_62876e85e32e0300e180317d'
+                    isEdition ? 'text_629728388c4d2300e2d38170' : 'text_629728388c4d2300e2d38179'
                   )}
                 </SubmitButton>
               </ButtonContainer>
@@ -203,9 +161,7 @@ export const CouponForm = ({ isEdition, loading, coupon, onSave }: CouponFormPro
           )}
         </div>
       </Main>
-      <Side>
-        <CouponCodeSnippet loading={loading} coupon={formikProps.values} />
-      </Side>
+      <Side>{/* <CouponCodeSnippet loading={loading} coupon={formikProps.values} /> */}</Side>
     </Content>
   )
 }
@@ -301,6 +257,14 @@ const LineAmount = styled.div`
   }
 `
 
-const InputEnd = styled(Typography)`
-  margin-right: ${theme.spacing(4)};
+const Line = styled.div`
+  display: flex;
+  margin: -${theme.spacing(3)} -${theme.spacing(3)} ${theme.spacing(3)} -${theme.spacing(3)};
+  flex-wrap: wrap;
+
+  > * {
+    flex: 1;
+    margin: ${theme.spacing(3)};
+    min-width: 110px;
+  }
 `

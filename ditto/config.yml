@@ -41,5 +41,7 @@ projects:
     id: 628cf7593d43eb010ec6b067
   - name: "\U0001F44D [Ready for dev] - Add-ons - Apply an Add-on to a Customer"
     id: 6295e54aa233f00167720fe8
+  - name: "\U0001F44D [Ready for dev] - Add-ons - Create / Edit / Delete an Add-on"
+    id: 62972835d3981000e8b0eb9d
 format: flat
 variants: true

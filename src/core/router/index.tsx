@@ -36,6 +36,11 @@ const CreateCoupon = lazy(
   () => import(/* webpackChunkName: 'create-coupon' */ '~/pages/CreateCoupon')
 )
 
+const AddOnsList = lazy(() => import(/* webpackChunkName: 'add-ons-list' */ '~/pages/AddOnsList'))
+const CreateAddOn = lazy(
+  () => import(/* webpackChunkName: 'create-coupon' */ '~/pages/CreateAddOn')
+)
+
 const SideNavLayout = lazy(() => import(/* webpackChunkName: 'home' */ '~/layouts/SideNavLayout'))
 
 export interface CustomRouteObject extends Omit<RouteObject, 'children' | 'path'> {
@@ -70,6 +75,11 @@ export const CUSTOMER_DETAILS_TAB_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/:tab`
 export const COUPONS_ROUTE = '/coupons'
 export const CREATE_COUPON_ROUTE = '/create/coupons'
 export const UPDATE_COUPON_ROUTE = '/update/coupons/:id'
+
+// Addon routes
+export const ADD_ONS_ROUTE = '/add-ons'
+export const CREATE_ADD_ON_ROUTE = '/create/add-on'
+export const UPDATE_ADD_ON_ROUTE = '/update/add-on/:id'
 
 export const ERROR_404_ROUTE = '/404'
 
@@ -147,7 +157,17 @@ export const routes: CustomRouteObject[] = [
         private: true,
         element: <CouponsList />,
       },
+      {
+        path: ADD_ONS_ROUTE,
+        private: true,
+        element: <AddOnsList />,
+      },
     ],
+  },
+  {
+    path: [CREATE_ADD_ON_ROUTE, UPDATE_ADD_ON_ROUTE],
+    private: true,
+    element: <CreateAddOn />,
   },
   {
     path: [CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE],
