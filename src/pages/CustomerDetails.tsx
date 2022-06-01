@@ -23,6 +23,7 @@ import {
   CustomerVatRateFragment,
   CustomerCouponFragmentDoc,
   CustomerMainInfosFragmentDoc,
+  CustomerAddOnsFragmentDoc,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import EmojiError from '~/public/images/exploding-head.png'
@@ -40,6 +41,7 @@ import {
 } from '~/components/customers/DeleteCustomerDialog'
 import { AddCustomerDialog, AddCustomerDialogRef } from '~/components/customers/AddCustomerDialog'
 import { CustomerCoupons, CustomerCouponsListRef } from '~/components/customers/CustomerCoupons'
+import { CustomerAddOns, CustomerAddOnsListRef } from '~/components/customers/CustomerAddOns'
 import { CustomerMainInfos } from '~/components/customers/CustomerMainInfos'
 
 gql`
@@ -57,6 +59,9 @@ gql`
     appliedCoupons {
       ...CustomerCoupon
     }
+    appliedAddOns {
+      ...CustomerAddOns
+    }
     ...CustomerVatRate
     ...AddCustomerDialogDetail
     ...CustomerMainInfos
@@ -73,6 +78,7 @@ gql`
   ${AddCustomerDialogDetailFragmentDoc}
   ${CustomerVatRateFragmentDoc}
   ${CustomerCouponFragmentDoc}
+  ${CustomerAddOnsFragmentDoc}
   ${CustomerMainInfosFragmentDoc}
 `
 
@@ -86,6 +92,7 @@ const CustomerDetails = () => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
   const editDialogRef = useRef<AddCustomerDialogRef>(null)
   const couponListRef = useRef<CustomerCouponsListRef>(null)
+  const addOnListRef = useRef<CustomerAddOnsListRef>(null)
   const subscriptionsListRef = useRef<CustomerSubscriptionsListRef>(null)
   const { translate } = useI18nContext()
   const navigate = useNavigate()
@@ -94,7 +101,7 @@ const CustomerDetails = () => {
     variables: { id: id as string },
     skip: !id,
   })
-  const { name, customerId, invoices, subscriptions, canBeDeleted, appliedCoupons } =
+  const { name, customerId, invoices, subscriptions, canBeDeleted, appliedCoupons, appliedAddOns } =
     data?.customer || {}
 
   const tabsOptions = useMemo(() => {
@@ -162,6 +169,19 @@ const CustomerDetails = () => {
                 }}
               >
                 {translate('text_626162c62f790600f850b718')}
+              </Button>
+              <Button
+                variant="quaternary"
+                align="left"
+                disabled={
+                  !subscriptions || !subscriptions?.length || (appliedCoupons || []).length > 0
+                }
+                onClick={() => {
+                  addOnListRef.current?.openAddAddOnDialog()
+                  closePopper()
+                }}
+              >
+                {translate('text_6295e58352f39200d902b02a')}
               </Button>
               <Button
                 variant="quaternary"
@@ -274,6 +294,11 @@ const CustomerDetails = () => {
                         ref={couponListRef}
                         customerId={id as string}
                         coupons={appliedCoupons}
+                      />
+                      <CustomerAddOns
+                        ref={addOnListRef}
+                        customerId={id as string}
+                        addOns={appliedAddOns}
                       />
                       <CustomerSubscriptionsList
                         ref={subscriptionsListRef}

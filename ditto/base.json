@@ -856,6 +856,9 @@
       "text_62876e85e32e0300e1803151": "Coupon validity duration",
       "text_62876e85e32e0300e1803157": "Forever",
       "text_62876e85e32e0300e1803165": "Multiple days",
+      "text_62978f2c197cea009ab0b7d0": "Amount",
+      "text_62978f2c197cea009ab0b7d2": "0.00",
+      "text_62978f2c197cea009ab0b7d4": "Amount must be a value greater than 0",
       "text_62876e85e32e0300e180316c": "Number of days",
       "text_62876e85e32e0300e1803172": "0",
       "text_62876e85e32e0300e1803178": "days",
@@ -917,7 +920,22 @@
       "text_628cf761cbe6820138b8f2e8": "Tax rate"
     },
     "project_6295e54aa233f00167720fe8": {
-      "text_6295e58352f39200d902b01c": "Documentation"
+      "text_6295e58352f39200d902b01c": "Documentation",
+      "text_6295e58352f39200d902b02a": "Apply add-on",
+      "text_629781ec7c6c1500d94fbb00": "Apply an add-on to this customer",
+      "text_629781ec7c6c1500d94fbb08": "By applying an add-on to this customer, she/he will be charged instantly and be invoiced at the end of the billing period.",
+      "text_629781ec7c6c1500d94fbb0e": "Add-on",
+      "text_629781ec7c6c1500d94fbb16": "Select or search an add-on",
+      "text_629781ec7c6c1500d94fbb1c": "Cancel",
+      "text_629781ec7c6c1500d94fbb24": "Apply add-on",
+      "text_629781ec7c6c1500d94fbbf8": "Add an add-on",
+      "text_629781ec7c6c1500d94fbbfe": "Add-ons",
+      "text_629781ec7c6c1500d94fbc04": "Add-on name",
+      "text_629781ec7c6c1500d94fbc0a": "Date added",
+      "text_629781ec7c6c1500d94fbc16": "One time charge of {{amountWithCurrency}}",
+      "text_629781ec7c6c1500d94fbc98": "Add-on successfully applied",
+      "text_629781ec7c6c1500d94fbb04": "Amount",
+      "text_629781ec7c6c1500d94fbb18": "Customer plan’s currency and the one in the add-on are different. To apply this add-on, please adapt the add-on."
     },
     "project_62972835d3981000e8b0eb9d": {
       "text_629728388c4d2300e2d3801a": "Add-ons",
@@ -973,7 +991,9 @@
       "text_629728388c4d2300e2d380c5": "By deleting this add-on, you wont be able to retrieve it back. Are you sure?",
       "text_629728388c4d2300e2d380ef": "Cancel",
       "text_629728388c4d2300e2d380f5": "Delete add-on",
-      "text_629728388c4d2300e2d3815f": "Add-on successfully deleted"
+      "text_629728388c4d2300e2d3815f": "Add-on successfully terminated",
+      "text_62978ebe99054a011fc189e0": "Amount must be a value greater than 0",
+      "text_629791022a75b60089e98ea7": "This coupon can’t be deleted because it’s linked to existing customers"
     },
     "project_620bc4d45f16c800e2324b82": {
       "text_620bc4d4269a55014d493f12": "Welcome to Lago",
@@ -1266,5 +1286,5 @@
       "country-code-zw": "Zimbabwe"
     }
   },
-  "exported_at": "2022-06-01T14:34:41.703Z"
+  "exported_at": "2022-06-01T16:19:33.544Z"
 }
