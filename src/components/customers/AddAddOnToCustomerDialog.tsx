@@ -120,7 +120,7 @@ export const AddAddOnToCustomerDialog = forwardRef<
             <Typography color="textPrimary">
               (
               {translate('text_629781ec7c6c1500d94fbc16', {
-                amount: formatAmountToCurrency(amountCents || 0, {
+                amountWithCurrency: formatAmountToCurrency(amountCents || 0, {
                   currencyDisplay: 'code',
                   currency: amountCurrency,
                 }),

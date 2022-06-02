@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useRef, useImperativeHandle, forwardRef, memo } from 'react'
+import { useRef, memo } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
@@ -11,11 +11,6 @@ import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { formatAmountToCurrency } from '~/core/currencyTool'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
-
-import {
-  AddCouponToCustomerDialog,
-  AddCouponToCustomerDialogRef,
-} from './AddCouponToCustomerDialog'
 
 gql`
   fragment CustomerCoupon on AppliedCoupon {
@@ -35,106 +30,86 @@ gql`
   }
 `
 
-export interface CustomerCouponsListRef {
-  openAddCouponDialog: () => void
-}
-
 interface CustomerCouponsProps {
-  customerId: string
   coupons?: CustomerCouponFragment[] | null | undefined
 }
 
-export const CustomerCoupons = memo(
-  forwardRef<CustomerCouponsListRef, CustomerCouponsProps>(
-    ({ coupons, customerId }: CustomerCouponsProps, ref) => {
-      const addPlanToCustomerDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
-      const removeDialogRef = useRef<WarningDialogRef>(null)
-      const deleteCouponId = useRef<string | null>(null)
-      const { translate } = useI18nContext()
-      const [removeCoupon] = useRemoveCouponMutation({
-        onCompleted({ terminateAppliedCoupon }) {
-          if (!!terminateAppliedCoupon) {
-            addToast({
-              severity: 'success',
-              message: translate('text_628b8c693e464200e00e49d1'),
+export const CustomerCoupons = memo(({ coupons }: CustomerCouponsProps) => {
+  const removeDialogRef = useRef<WarningDialogRef>(null)
+  const deleteCouponId = useRef<string | null>(null)
+  const { translate } = useI18nContext()
+  const [removeCoupon] = useRemoveCouponMutation({
+    onCompleted({ terminateAppliedCoupon }) {
+      if (!!terminateAppliedCoupon) {
+        addToast({
+          severity: 'success',
+          message: translate('text_628b8c693e464200e00e49d1'),
+        })
+      }
+    },
+  })
+
+  return (
+    <>
+      {!!(coupons || [])?.length && (
+        <Container>
+          <SectionHeader variant="subhead">
+            {translate('text_628b8c693e464200e00e469d')}
+          </SectionHeader>
+          <ListHeader>
+            <Typography variant="bodyHl" color="disabled" noWrap>
+              {translate('text_628b8c693e464200e00e46ab')}
+            </Typography>
+          </ListHeader>
+          {(coupons || []).map(({ amountCents, amountCurrency, coupon, id }) => (
+            <CouponNameSection key={id}>
+              <ListAvatar variant="connector">
+                <Icon name="coupon" color="dark" />
+              </ListAvatar>
+              <NameBlock>
+                <Typography color="textSecondary" variant="bodyHl" noWrap>
+                  {coupon?.name}
+                </Typography>
+                <Typography variant="caption" noWrap>
+                  {translate('text_62865498824cc10126ab2976', {
+                    amount: formatAmountToCurrency(amountCents || 0, {
+                      currencyDisplay: 'code',
+                      currency: amountCurrency,
+                    }),
+                  })}
+                </Typography>
+              </NameBlock>
+              <DeleteTooltip placement="top-end" title={translate('text_628b8c693e464200e00e4a10')}>
+                <Button
+                  variant="quaternary"
+                  icon="trash"
+                  onClick={() => {
+                    deleteCouponId.current = id
+                    removeDialogRef?.current?.openDialog()
+                  }}
+                />
+              </DeleteTooltip>
+            </CouponNameSection>
+          ))}
+        </Container>
+      )}
+      <WarningDialog
+        ref={removeDialogRef}
+        title={translate('text_628b8c693e464200e00e465f')}
+        description={translate('text_628b8c693e464200e00e466d')}
+        onContinue={async () => {
+          if (deleteCouponId.current) {
+            await removeCoupon({
+              variables: { input: { id: deleteCouponId.current } },
+              refetchQueries: ['getCustomer'],
             })
           }
-        },
-      })
-
-      useImperativeHandle(ref, () => ({
-        openAddCouponDialog: () => {
-          addPlanToCustomerDialogRef?.current?.openDialog()
-        },
-      }))
-
-      return (
-        <>
-          {!!(coupons || [])?.length && (
-            <Container>
-              <SectionHeader variant="subhead">
-                {translate('text_628b8c693e464200e00e469d')}
-              </SectionHeader>
-              <ListHeader>
-                <Typography variant="bodyHl" color="disabled" noWrap>
-                  {translate('text_628b8c693e464200e00e46ab')}
-                </Typography>
-              </ListHeader>
-              {(coupons || []).map(({ amountCents, amountCurrency, coupon, id }) => (
-                <CouponNameSection key={id}>
-                  <ListAvatar variant="connector">
-                    <Icon name="coupon" color="dark" />
-                  </ListAvatar>
-                  <NameBlock>
-                    <Typography color="textSecondary" variant="bodyHl" noWrap>
-                      {coupon?.name}
-                    </Typography>
-                    <Typography variant="caption" noWrap>
-                      {translate('text_62865498824cc10126ab2976', {
-                        amount: formatAmountToCurrency(amountCents || 0, {
-                          currencyDisplay: 'code',
-                          currency: amountCurrency,
-                        }),
-                      })}
-                    </Typography>
-                  </NameBlock>
-                  <DeleteTooltip
-                    placement="top-end"
-                    title={translate('text_628b8c693e464200e00e4a10')}
-                  >
-                    <Button
-                      variant="quaternary"
-                      icon="trash"
-                      onClick={() => {
-                        deleteCouponId.current = id
-                        removeDialogRef?.current?.openDialog()
-                      }}
-                    />
-                  </DeleteTooltip>
-                </CouponNameSection>
-              ))}
-            </Container>
-          )}
-          <AddCouponToCustomerDialog ref={addPlanToCustomerDialogRef} customerId={customerId} />
-          <WarningDialog
-            ref={removeDialogRef}
-            title={translate('text_628b8c693e464200e00e465f')}
-            description={translate('text_628b8c693e464200e00e466d')}
-            onContinue={async () => {
-              if (deleteCouponId.current) {
-                await removeCoupon({
-                  variables: { input: { id: deleteCouponId.current } },
-                  refetchQueries: ['getCustomer'],
-                })
-              }
-            }}
-            continueText={translate('text_628b8c693e464200e00e4689')}
-          />
-        </>
-      )
-    }
+        }}
+        continueText={translate('text_628b8c693e464200e00e4689')}
+      />
+    </>
   )
-)
+})
 
 const Container = styled.div`
   display: flex;
