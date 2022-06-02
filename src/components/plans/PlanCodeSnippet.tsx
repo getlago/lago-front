@@ -9,9 +9,12 @@ const getSnippets = (plan?: PlanFormInput) => {
 curl --location --request POST "${API_URL}/api/v1/subscriptions" \\
   --header "Authorization: Bearer $YOUR_API_KEY" \\
   --header 'Content-Type: application/json' \\
-  --data-raw ${JSON.stringify(
-    `{"subscription": {"customer_id": "__CUSTOMER_ID__", "plan_code": "${plan.code}"} }`
-  )}
+  --data-raw '{
+    "subscription": {
+      "customer_id": "__CUSTOMER_ID__",
+      "plan_code": "${plan.code}"
+    }
+  }'
   
 # To use the snippet, don’t forget to edit your __YOUR_API_KEY__ and  __CUSTOMER_ID__`
 }

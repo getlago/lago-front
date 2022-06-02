@@ -25,6 +25,8 @@ export type AddOn = {
   __typename?: 'AddOn';
   amountCents: Scalars['Int'];
   amountCurrency: CurrencyEnum;
+  /** Check if add-on is deletable */
+  canBeDeleted: Scalars['Boolean'];
   code: Scalars['String'];
   createdAt: Scalars['ISO8601DateTime'];
   /** Number of customers using this add-on */
@@ -46,6 +48,8 @@ export type AddOnDetails = {
   __typename?: 'AddOnDetails';
   amountCents: Scalars['Int'];
   amountCurrency: CurrencyEnum;
+  /** Check if add-on is deletable */
+  canBeDeleted: Scalars['Boolean'];
   code: Scalars['String'];
   createdAt: Scalars['ISO8601DateTime'];
   /** Number of customers using this add-on */
@@ -1577,7 +1581,7 @@ export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, apiKey: string, vatRate: number }> | null } };
 
-export type AddOnItemFragment = { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: number, customerCount: number, createdAt: any };
+export type AddOnItemFragment = { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: number, customerCount: number, createdAt: any, canBeDeleted: boolean };
 
 export type DeleteAddOnFragment = { __typename?: 'AddOn', id: string, name: string };
 
@@ -1801,7 +1805,7 @@ export type UpdateAddOnMutationVariables = Exact<{
 }>;
 
 
-export type UpdateAddOnMutation = { __typename?: 'Mutation', updateAddOn?: { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: number, customerCount: number, createdAt: any } | null };
+export type UpdateAddOnMutation = { __typename?: 'Mutation', updateAddOn?: { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: number, customerCount: number, createdAt: any, canBeDeleted: boolean } | null };
 
 export type EditBillableMetricFragment = { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean, fieldName?: string | null };
 
@@ -1882,7 +1886,7 @@ export type AddOnsQueryVariables = Exact<{
 }>;
 
 
-export type AddOnsQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: number, customerCount: number, createdAt: any }> } };
+export type AddOnsQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: number, customerCount: number, createdAt: any, canBeDeleted: boolean }> } };
 
 export type BillableMetricsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -1989,6 +1993,7 @@ export const AddOnItemFragmentDoc = gql`
   amountCents
   customerCount
   createdAt
+  canBeDeleted
 }
     `;
 export const DeleteAddOnFragmentDoc = gql`

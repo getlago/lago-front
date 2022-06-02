@@ -173,9 +173,7 @@ const CustomerDetails = () => {
               <Button
                 variant="quaternary"
                 align="left"
-                disabled={
-                  !subscriptions || !subscriptions?.length || (appliedCoupons || []).length > 0
-                }
+                disabled={!subscriptions || !subscriptions?.length}
                 onClick={() => {
                   addOnListRef.current?.openAddAddOnDialog()
                   closePopper()

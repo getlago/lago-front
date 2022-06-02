@@ -64,7 +64,7 @@ export const AddAddOnToCustomerDialog = forwardRef<
       if (createAppliedAddOn) {
         addToast({
           severity: 'success',
-          translateKey: 'CreateAppliedAddOnInput',
+          translateKey: 'text_629781ec7c6c1500d94fbc98',
         })
       }
     },

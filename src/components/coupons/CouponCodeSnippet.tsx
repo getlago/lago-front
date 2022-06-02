@@ -8,13 +8,14 @@ const getSnippets = (coupon?: CreateCouponInput) => {
 curl --location --request POST "${API_URL}/api/v1/applied_coupons" \\
   --header "Authorization: Bearer $YOUR_API_KEY" \\
   --header 'Content-Type: application/json' \\
-  --data-raw ${JSON.stringify(
-    `{"applied_coupon": {"customer_id": "__CUSTOMER_ID__", "coupon_code": "${
-      coupon.code
-    }", "amount_cents": ${coupon.amountCents * 100}, "amount_currency": "${
-      coupon.amountCurrency
-    }" }}`
-  )}
+  --data-raw '{
+    "applied_coupon": {
+      "customer_id": "__CUSTOMER_ID__",
+      "coupon_code": "${coupon.code}",
+      "amount_cents": ${coupon.amountCents * 100},
+      "amount_currency": "${coupon.amountCurrency}"
+    }
+  }'
   
 # To use the snippet, don’t forget to edit your __YOUR_API_KEY__ and  __CUSTOMER_ID__`
 }
