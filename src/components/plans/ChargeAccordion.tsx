@@ -60,7 +60,7 @@ export const ChargeAccordion = ({
             />
           </Tooltip>
           <Title color="textSecondary">
-            {localCharge?.billableMetric?.name}
+            {localCharge?.billableMetric?.name}{' '}
             <Typography>({localCharge?.billableMetric?.code})</Typography>
           </Title>
           <Tooltip
