@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useRef, useImperativeHandle, forwardRef, memo } from 'react'
+import { forwardRef, memo, MutableRefObject } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { DateTime } from 'luxon'
@@ -11,7 +11,7 @@ import { Typography, Avatar, Icon, Button } from '~/components/designSystem'
 import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { formatAmountToCurrency } from '~/core/currencyTool'
 
-import { AddAddOnToCustomerDialog, AddAddOnToCustomerDialogRef } from './AddAddOnToCustomerDialog'
+import { AddAddOnToCustomerDialogRef } from './AddAddOnToCustomerDialog'
 
 gql`
   fragment CustomerAddOns on AppliedAddOn {
@@ -26,26 +26,14 @@ gql`
   }
 `
 
-export interface CustomerAddOnsListRef {
-  openAddAddOnDialog: () => void
-}
-
 interface CustomerAddOnsProps {
-  customerId: string
   addOns?: CustomerAddOnsFragment[] | null | undefined
 }
 
 export const CustomerAddOns = memo(
-  forwardRef<CustomerAddOnsListRef, CustomerAddOnsProps>(
-    ({ addOns, customerId }: CustomerAddOnsProps, ref) => {
-      const addPlanToCustomerDialogRef = useRef<AddAddOnToCustomerDialogRef>(null)
+  forwardRef<AddAddOnToCustomerDialogRef, CustomerAddOnsProps>(
+    ({ addOns }: CustomerAddOnsProps, ref) => {
       const { translate } = useI18nContext()
-
-      useImperativeHandle(ref, () => ({
-        openAddAddOnDialog: () => {
-          addPlanToCustomerDialogRef?.current?.openDialog()
-        },
-      }))
 
       return (
         <>
@@ -55,7 +43,9 @@ export const CustomerAddOns = memo(
                 {translate('text_629781ec7c6c1500d94fbbfe')}
                 <Button
                   variant="quaternary"
-                  onClick={() => addPlanToCustomerDialogRef?.current?.openDialog()}
+                  onClick={() =>
+                    (ref as MutableRefObject<AddAddOnToCustomerDialogRef>)?.current?.openDialog()
+                  }
                 >
                   {translate('text_629781ec7c6c1500d94fbbf8')}
                 </Button>
@@ -95,7 +85,6 @@ export const CustomerAddOns = memo(
               ))}
             </Container>
           )}
-          <AddAddOnToCustomerDialog ref={addPlanToCustomerDialogRef} customerId={customerId} />
         </>
       )
     }

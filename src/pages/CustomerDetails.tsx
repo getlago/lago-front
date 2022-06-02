@@ -24,13 +24,11 @@ import {
   CustomerCouponFragmentDoc,
   CustomerMainInfosFragmentDoc,
   CustomerAddOnsFragmentDoc,
+  StatusTypeEnum,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import EmojiError from '~/public/images/exploding-head.png'
-import {
-  CustomerSubscriptionsList,
-  CustomerSubscriptionsListRef,
-} from '~/components/customers/CustomerSubscriptionsList'
+import { CustomerSubscriptionsList } from '~/components/customers/CustomerSubscriptionsList'
 import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
 import { CustomerVatRate } from '~/components/customers/CustomerVatRate'
 import { theme, PageHeader, MenuPopper } from '~/styles'
@@ -40,9 +38,21 @@ import {
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
 import { AddCustomerDialog, AddCustomerDialogRef } from '~/components/customers/AddCustomerDialog'
-import { CustomerCoupons, CustomerCouponsListRef } from '~/components/customers/CustomerCoupons'
-import { CustomerAddOns, CustomerAddOnsListRef } from '~/components/customers/CustomerAddOns'
+import { CustomerCoupons } from '~/components/customers/CustomerCoupons'
+import { CustomerAddOns } from '~/components/customers/CustomerAddOns'
 import { CustomerMainInfos } from '~/components/customers/CustomerMainInfos'
+import {
+  AddCouponToCustomerDialog,
+  AddCouponToCustomerDialogRef,
+} from '~/components/customers/AddCouponToCustomerDialog'
+import {
+  AddAddOnToCustomerDialog,
+  AddAddOnToCustomerDialogRef,
+} from '~/components/customers/AddAddOnToCustomerDialog'
+import {
+  AddPlanToCustomerDialog,
+  AddPlanToCustomerDialogRef,
+} from '~/components/customers/AddPlanToCustomerDialog'
 
 gql`
   fragment CustomerDetails on CustomerDetails {
@@ -91,9 +101,9 @@ enum TabsOptions {
 const CustomerDetails = () => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
   const editDialogRef = useRef<AddCustomerDialogRef>(null)
-  const couponListRef = useRef<CustomerCouponsListRef>(null)
-  const addOnListRef = useRef<CustomerAddOnsListRef>(null)
-  const subscriptionsListRef = useRef<CustomerSubscriptionsListRef>(null)
+  const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
+  const addOnDialogRef = useRef<AddAddOnToCustomerDialogRef>(null)
+  const subscriptionsDialogRef = useRef<AddPlanToCustomerDialogRef>(null)
   const { translate } = useI18nContext()
   const navigate = useNavigate()
   const { id, tab } = useParams()
@@ -120,6 +130,17 @@ const CustomerDetails = () => {
       },
     ]
   }, [translate])
+
+  const selectedPlansId = useMemo(
+    () =>
+      (subscriptions || []).reduce<string[]>((acc, s) => {
+        if ([StatusTypeEnum.Active, StatusTypeEnum.Pending].includes(s.status as StatusTypeEnum)) {
+          acc.push(s.plan?.id)
+        }
+        return acc
+      }, []),
+    [subscriptions]
+  )
 
   return (
     <div>
@@ -150,7 +171,7 @@ const CustomerDetails = () => {
                 variant="quaternary"
                 align="left"
                 onClick={() => {
-                  subscriptionsListRef?.current?.openAddPlanDialog()
+                  subscriptionsDialogRef?.current?.openDialog()
                   closePopper()
                 }}
               >
@@ -175,7 +196,7 @@ const CustomerDetails = () => {
                 align="left"
                 disabled={!subscriptions || !subscriptions?.length}
                 onClick={() => {
-                  addOnListRef.current?.openAddAddOnDialog()
+                  addOnDialogRef.current?.openDialog()
                   closePopper()
                 }}
               >
@@ -188,7 +209,7 @@ const CustomerDetails = () => {
                   !subscriptions || !subscriptions?.length || (appliedCoupons || []).length > 0
                 }
                 onClick={() => {
-                  couponListRef.current?.openAddCouponDialog()
+                  addCouponDialogRef.current?.openDialog()
                   closePopper()
                 }}
               >
@@ -288,22 +309,11 @@ const CustomerDetails = () => {
                   )}
                   {!loading && (!tab || tab === TabsOptions.overview) && (
                     <>
-                      <CustomerCoupons
-                        ref={couponListRef}
-                        customerId={id as string}
-                        coupons={appliedCoupons}
-                      />
-                      <CustomerAddOns
-                        ref={addOnListRef}
-                        customerId={id as string}
-                        addOns={appliedAddOns}
-                      />
+                      <CustomerCoupons coupons={appliedCoupons} />
+                      <CustomerAddOns ref={addOnDialogRef} addOns={appliedAddOns} />
                       <CustomerSubscriptionsList
-                        ref={subscriptionsListRef}
-                        customerName={name as string}
-                        customerId={id as string}
+                        ref={subscriptionsDialogRef}
                         subscriptions={subscriptions ?? []}
-                        refetchCustomer={refetch}
                       />
                     </>
                   )}
@@ -323,6 +333,15 @@ const CustomerDetails = () => {
             onDeleted={() => navigate(CUSTOMERS_LIST_ROUTE)}
             // @ts-ignore
             customer={data?.customer}
+          />
+          <AddCouponToCustomerDialog ref={addCouponDialogRef} customerId={id as string} />
+          <AddAddOnToCustomerDialog ref={addOnDialogRef} customerId={id as string} />
+          <AddPlanToCustomerDialog
+            ref={subscriptionsDialogRef}
+            customerName={name as string}
+            customerId={id as string}
+            existingPlanIds={selectedPlansId}
+            refetchCustomer={refetch}
           />
         </>
       )}
