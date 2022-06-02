@@ -29,7 +29,7 @@ gql`
     amountCents
     customerCount
     createdAt
-    # canBeDeleted # TODO
+    canBeDeleted
   }
 `
 
@@ -39,11 +39,10 @@ interface AddOnItemProps {
 }
 
 export const AddOnItem = ({ addOn, navigationProps }: AddOnItemProps) => {
-  const { id, name, amountCurrency, amountCents, customerCount, createdAt } = addOn
+  const { id, name, amountCurrency, amountCents, customerCount, createdAt, canBeDeleted } = addOn
   const deleteDialogRef = useRef<DeleteAddOnDialogRef>(null)
   let navigate = useNavigate()
   const { translate } = useI18nContext()
-  const canBeDeleted = true // TODO
 
   return (
     <ItemContainer>

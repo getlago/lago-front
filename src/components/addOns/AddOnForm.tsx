@@ -8,7 +8,7 @@ import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
 import { TextInputField, ComboBoxField } from '~/components/form'
 
-// import { CouponCodeSnippet } from './CouponCodeSnippet'
+import { AddOnCodeSnippet } from './AddOnCodeSnippet'
 
 interface AddOnFormProps {
   addOn?: EditAddOnFragment
@@ -161,7 +161,9 @@ export const AddOnForm = ({ isEdition, loading, addOn, onSave }: AddOnFormProps)
           )}
         </div>
       </Main>
-      <Side>{/* <CouponCodeSnippet loading={loading} coupon={formikProps.values} /> */}</Side>
+      <Side>
+        <AddOnCodeSnippet loading={loading} addOn={formikProps.values} />
+      </Side>
     </Content>
   )
 }

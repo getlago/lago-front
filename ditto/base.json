@@ -993,7 +993,7 @@
       "text_629728388c4d2300e2d380f5": "Delete add-on",
       "text_629728388c4d2300e2d3815f": "Add-on successfully terminated",
       "text_62978ebe99054a011fc189e0": "Amount must be a value greater than 0",
-      "text_629791022a75b60089e98ea7": "This coupon can’t be deleted because it’s linked to existing customers"
+      "text_629791022a75b60089e98ea7": "This add on can’t be deleted because it’s linked to existing customers"
     },
     "project_620bc4d45f16c800e2324b82": {
       "text_620bc4d4269a55014d493f12": "Welcome to Lago",
@@ -1286,5 +1286,5 @@
       "country-code-zw": "Zimbabwe"
     }
   },
-  "exported_at": "2022-06-01T16:19:33.544Z"
+  "exported_at": "2022-06-01T16:35:37.531Z"
 }
