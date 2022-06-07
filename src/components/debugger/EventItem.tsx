@@ -33,7 +33,7 @@ export const EventItem = ({ event, navigationProps, selected, onClick }: EventIt
     <ItemContainer>
       <Item tabIndex={0} onClick={onClick} {...navigationProps} $active={selected}>
         <NameSection>
-          <ListAvatar variant="connector">
+          <ListAvatar variant="connector" $hasWarning={hasWarning}>
             <Icon
               name={hasWarning ? 'warning-unfilled' : 'checkmark'}
               color={hasWarning ? 'warning' : 'dark'}
@@ -84,8 +84,13 @@ const NameSection = styled.div`
   min-width: 0;
 `
 
-const ListAvatar = styled(Avatar)`
+const ListAvatar = styled(Avatar)<{ $hasWarning?: boolean }>`
   margin-right: ${theme.spacing(3)};
+  ${({ $hasWarning }) =>
+    $hasWarning &&
+    css`
+      background-color: ${theme.palette.secondary[100]};
+    `}
 `
 
 const NameBlock = styled.div`

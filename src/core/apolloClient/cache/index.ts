@@ -1,5 +1,7 @@
 import { InMemoryCache, makeVar } from '@apollo/client'
 
+import { CollectionMetadata } from '~/generated/graphql'
+
 import { authTokenVar } from './authTokenVar'
 
 import { getItemFromLS } from '../utils'
@@ -12,6 +14,19 @@ export * from './authTokenVar'
 export * from './toastVar'
 export * from './currentUserInfosVar'
 
+type PaginatedCollection = { metadata: CollectionMetadata; collection: Record<string, unknown>[] }
+
+const mergePaginatedCollection = (existing: PaginatedCollection, incoming: PaginatedCollection) => {
+  if (!incoming?.metadata?.currentPage || incoming?.metadata?.currentPage === 1) {
+    return incoming
+  }
+
+  return {
+    ...incoming,
+    collection: [...(existing?.collection || []), ...(incoming.collection || [])],
+  }
+}
+
 export const cache = new InMemoryCache({
   typePolicies: {
     Query: {
@@ -23,68 +38,23 @@ export const cache = new InMemoryCache({
         },
         billableMetrics: {
           keyArgs: false,
-          merge(existing, incoming) {
-            if (!incoming?.metadata?.currentPage || incoming?.metadata?.currentPage === 1) {
-              return incoming
-            }
-
-            return {
-              ...incoming,
-              collection: [...(existing?.collection || []), ...(incoming.collection || [])],
-            }
-          },
+          merge: mergePaginatedCollection,
         },
         plans: {
           keyArgs: false,
-          merge(existing, incoming) {
-            if (!incoming?.metadata?.currentPage || incoming?.metadata?.currentPage === 1) {
-              return incoming
-            }
-
-            return {
-              ...incoming,
-              collection: [...(existing?.collection || []), ...(incoming.collection || [])],
-            }
-          },
+          merge: mergePaginatedCollection,
         },
         customers: {
           keyArgs: false,
-          merge(existing, incoming) {
-            if (!incoming?.metadata?.currentPage || incoming?.metadata?.currentPage === 1) {
-              return incoming
-            }
-
-            return {
-              ...incoming,
-              collection: [...(existing?.collection || []), ...(incoming.collection || [])],
-            }
-          },
+          merge: mergePaginatedCollection,
         },
         coupons: {
           keyArgs: false,
-          merge(existing, incoming) {
-            if (!incoming?.metadata?.currentPage || incoming?.metadata?.currentPage === 1) {
-              return incoming
-            }
-
-            return {
-              ...incoming,
-              collection: [...(existing?.collection || []), ...(incoming.collection || [])],
-            }
-          },
+          merge: mergePaginatedCollection,
         },
         events: {
           keyArgs: false,
-          merge(existing, incoming) {
-            if (!incoming?.metadata?.currentPage || incoming?.metadata?.currentPage === 1) {
-              return incoming
-            }
-
-            return {
-              ...incoming,
-              collection: [...(existing?.collection || []), ...(incoming.collection || [])],
-            }
-          },
+          merge: mergePaginatedCollection,
         },
       },
     },
