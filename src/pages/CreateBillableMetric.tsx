@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 
-import { theme, PageHeader } from '~/styles'
+import { theme, PageHeader, Card } from '~/styles'
 import { Typography, Button } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
 import { BILLABLE_METRICS_ROUTE } from '~/core/router'
@@ -33,7 +33,7 @@ const CreateBillableMetric = () => {
         />
       </PageHeader>
       {isCreated ? (
-        <SuccessCard>
+        <SuccessCard $disableChildSpacing>
           <img src={EmojiParty} alt="success emoji" />
           <SuccessTitle variant="subhead">
             {translate('text_623dfd731788a100ec660f14')}
@@ -74,13 +74,6 @@ const CreateBillableMetric = () => {
 }
 
 export default CreateBillableMetric
-
-const Card = styled.div`
-  padding: ${theme.spacing(8)};
-  border: 1px solid ${theme.palette.grey[300]};
-  border-radius: 12px;
-  box-sizing: border-box;
-`
 
 const SuccessCard = styled(Card)`
   max-width: 672px;

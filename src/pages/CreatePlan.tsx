@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { theme, PageHeader } from '~/styles'
+import { theme, PageHeader, Card } from '~/styles'
 import { Typography, Button } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
@@ -33,7 +33,7 @@ const CreatePlan = () => {
       </PageHeader>
 
       {isCreated ? (
-        <SuccessCard>
+        <SuccessCard $disableChildSpacing>
           <img src={EmojiParty} alt="success emoji" />
           <SuccessTitle variant="subhead">
             {translate('text_624455d859b1b000a8e17bf3')}
@@ -68,13 +68,6 @@ const CreatePlan = () => {
     </div>
   )
 }
-
-const Card = styled.div`
-  padding: ${theme.spacing(8)};
-  border: 1px solid ${theme.palette.grey[300]};
-  border-radius: 12px;
-  box-sizing: border-box;
-`
 
 const SuccessCard = styled(Card)`
   max-width: 672px;

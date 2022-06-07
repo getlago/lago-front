@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
-import { theme, PageHeader } from '~/styles'
+import { theme, PageHeader, Card } from '~/styles'
 import { useI18nContext } from '~/core/I18nContext'
 import { Typography, Button } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
@@ -32,7 +32,7 @@ const CreateCoupon = () => {
         />
       </PageHeader>
       {isCreated ? (
-        <SuccessCard>
+        <SuccessCard $disableChildSpacing>
           <img src={EmojiParty} alt="success emoji" />
           <SuccessTitle variant="subhead">
             {translate('text_62876e85e32e0300e18030f3')}
@@ -66,13 +66,6 @@ const CreateCoupon = () => {
     </div>
   )
 }
-
-const Card = styled.div`
-  padding: ${theme.spacing(8)};
-  border: 1px solid ${theme.palette.grey[300]};
-  border-radius: 12px;
-  box-sizing: border-box;
-`
 
 const SuccessCard = styled(Card)`
   max-width: 672px;

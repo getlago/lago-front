@@ -9,7 +9,7 @@ import { PlanInterval, CurrencyEnum, ChargeModelEnum } from '~/generated/graphql
 import { TextInputField, ButtonSelectorField, ComboBoxField, SwitchField } from '~/components/form'
 import { useI18nContext } from '~/core/I18nContext'
 import { Typography, Button, Skeleton } from '~/components/designSystem'
-import { theme, NAV_HEIGHT } from '~/styles'
+import { theme, NAV_HEIGHT, Card } from '~/styles'
 import { AddChargeDialog, AddChargeDialogRef } from '~/components/plans/AddChargeDialog'
 import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
 
@@ -223,7 +223,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                     formikProps={formikProps}
                   />
                 </Card>
-                <CardSection>
+                <Card>
                   <SectionTitle variant="subhead">
                     {translate('text_624453d52e945301380e49a6')}
                   </SectionTitle>
@@ -296,7 +296,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                       ),
                     }}
                   />
-                </CardSection>
+                </Card>
                 <Card ref={containerRef}>
                   <SectionTitle variant="subhead">
                     <div>{translate('text_624453d52e945301380e49ce')}</div>
@@ -385,13 +385,6 @@ const Subtitle = styled(Typography)`
   padding: 0 ${theme.spacing(8)};
 `
 
-const Card = styled.div`
-  padding: ${theme.spacing(8)};
-  border: 1px solid ${theme.palette.grey[300]};
-  border-radius: 12px;
-  box-sizing: border-box;
-`
-
 const InputEnd = styled(Typography)`
   margin-right: ${theme.spacing(4)};
 `
@@ -414,12 +407,6 @@ const Charges = styled.div`
   }
 `
 
-const CardSection = styled(Card)`
-  > *:not(:first-child):not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
-
 const LineAmount = styled.div`
   display: flex;
 
@@ -435,8 +422,6 @@ const LineAmount = styled.div`
 `
 
 const SectionTitle = styled(Typography)`
-  margin-bottom: ${theme.spacing(6)};
-
   > div:first-child {
     margin-bottom: ${theme.spacing(3)};
   }

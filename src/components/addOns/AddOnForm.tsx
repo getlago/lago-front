@@ -3,7 +3,7 @@ import { object, string, number } from 'yup'
 import styled from 'styled-components'
 
 import { CreateAddOnInput, CurrencyEnum, EditAddOnFragment } from '~/generated/graphql'
-import { theme, NAV_HEIGHT } from '~/styles'
+import { theme, NAV_HEIGHT, Card } from '~/styles'
 import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
 import { TextInputField, ComboBoxField } from '~/components/form'
@@ -215,17 +215,6 @@ const Side = styled.div`
 
   ${theme.breakpoints.down('md')} {
     display: none;
-  }
-`
-
-const Card = styled.div`
-  padding: ${theme.spacing(8)};
-  border: 1px solid ${theme.palette.grey[300]};
-  border-radius: 12px;
-  box-sizing: border-box;
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
   }
 `
 
