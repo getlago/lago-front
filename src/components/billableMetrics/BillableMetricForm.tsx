@@ -11,7 +11,7 @@ import {
 import { TextInputField, ComboBoxField } from '~/components/form'
 import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
-import { theme, NAV_HEIGHT } from '~/styles'
+import { theme, NAV_HEIGHT, Card } from '~/styles'
 import { BillableMetricCodeSnippet } from '~/components/billableMetrics/BillableMetricCodeSnippet'
 
 interface BillableMetricFormProps {
@@ -111,9 +111,9 @@ export const BillableMetricForm = ({
                 </Subtitle>
               </div>
               <Card>
-                <SectionTitle variant="subhead">
+                <Typography variant="subhead">
                   {translate('text_623b42ff8ee4e000ba87d0b8')}
-                </SectionTitle>
+                </Typography>
 
                 <Line>
                   <TextInputField
@@ -144,11 +144,11 @@ export const BillableMetricForm = ({
                 />
               </Card>
               <Card>
-                <SectionTitle variant="subhead">
+                <Typography variant="subhead">
                   {translate('text_623b42ff8ee4e000ba87d0cc')}
-                </SectionTitle>
+                </Typography>
 
-                <StyledComboBoxField
+                <ComboBoxField
                   name="aggregationType"
                   disabled={isEdition && !billableMetric?.canBeDeleted}
                   label={translate('text_623b42ff8ee4e000ba87d0ce')}
@@ -234,27 +234,12 @@ const Line = styled.div`
   }
 `
 
-const Card = styled.div`
-  padding: ${theme.spacing(8)};
-  border: 1px solid ${theme.palette.grey[300]};
-  border-radius: 12px;
-  box-sizing: border-box;
-`
-
-const SectionTitle = styled(Typography)`
-  margin-bottom: ${theme.spacing(6)};
-`
-
 const SubmitButton = styled(Button)`
   margin-bottom: ${theme.spacing(20)};
 `
 
 const ButtonContainer = styled.div`
   margin: 0 ${theme.spacing(6)};
-`
-
-const StyledComboBoxField = styled(ComboBoxField)`
-  margin-bottom: ${theme.spacing(6)};
 `
 
 const Title = styled(Typography)`

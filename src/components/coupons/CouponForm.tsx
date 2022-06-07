@@ -8,7 +8,7 @@ import {
   CouponExpiration,
   EditCouponFragment,
 } from '~/generated/graphql'
-import { theme, NAV_HEIGHT } from '~/styles'
+import { theme, NAV_HEIGHT, Card } from '~/styles'
 import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
 import { TextInputField, ComboBoxField } from '~/components/form'
@@ -103,9 +103,9 @@ export const CouponForm = ({ isEdition, loading, coupon, onSave }: CouponFormPro
                 </Subtitle>
               </div>
               <Card>
-                <SectionTitle variant="subhead">
+                <Typography variant="subhead">
                   {translate('text_62876e85e32e0300e1803115')}
-                </SectionTitle>
+                </Typography>
 
                 <TextInputField
                   name="name"
@@ -126,9 +126,9 @@ export const CouponForm = ({ isEdition, loading, coupon, onSave }: CouponFormPro
                 />
               </Card>
               <Card>
-                <SectionTitle variant="subhead">
+                <Typography variant="subhead">
                   {translate('text_62876e85e32e0300e1803137')}
-                </SectionTitle>
+                </Typography>
 
                 <LineAmount>
                   <TextInputField
@@ -260,27 +260,12 @@ const Side = styled.div`
   }
 `
 
-const Card = styled.div`
-  padding: ${theme.spacing(8)};
-  border: 1px solid ${theme.palette.grey[300]};
-  border-radius: 12px;
-  box-sizing: border-box;
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
-
 const SkeletonHeader = styled.div`
   padding: 0 ${theme.spacing(8)};
 `
 
 const SubmitButton = styled(Button)`
   margin-bottom: ${theme.spacing(20)};
-`
-
-const SectionTitle = styled(Typography)`
-  margin-bottom: ${theme.spacing(6)};
 `
 
 const ButtonContainer = styled.div`

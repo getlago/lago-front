@@ -17,14 +17,11 @@ import styled from 'styled-components'
 
 import { theme } from '~/styles'
 
-import { Card, CardProps as UICardProps } from './Card'
-
 export interface PopperProps {
   className?: string
   opener?: ReactElement | (({ isOpen }: { isOpen: boolean }) => ReactElement)
   maxHeight?: number | string
   minWidth?: number
-  CardProps?: UICardProps
   PopperProps?: Pick<MUIPopperProps, 'placement' | 'modifiers' | 'disablePortal'>
   enableFlip?: boolean
   displayInDialog?: boolean
@@ -43,7 +40,6 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
   (
     {
       opener,
-      CardProps,
       PopperProps,
       maxHeight,
       children,
@@ -118,7 +114,7 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
             ]}
             {...PopperProps}
           >
-            <StyledCard $maxHeight={maxHeight} {...CardProps}>
+            <StyledCard $maxHeight={maxHeight}>
               {typeof children === 'function'
                 ? children({ closePopper: () => updateIsOpen(false) })
                 : children}
@@ -138,7 +134,11 @@ const StyledPopper = styled(MuiPopper)<{ $minWidth?: number; $displayInDialog?: 
     $displayInDialog ? theme.zIndex.dialog + 1 : theme.zIndex.popper};
 `
 
-const StyledCard = styled(Card)<{ $maxHeight?: number | string }>`
+const StyledCard = styled.div<{ $maxHeight?: number | string }>`
+  background-color: ${theme.palette.background.default};
+  box-shadow: ${theme.shadows[2]};
+  border: 1px solid ${theme.palette.grey[200]};
+  border-radius: 12px;
   overflow: auto;
   scroll-behavior: smooth;
   max-height: ${({ $maxHeight }) =>

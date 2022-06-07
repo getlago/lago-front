@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
-import { theme, PageHeader } from '~/styles'
+import { theme, PageHeader, Card } from '~/styles'
 import { useI18nContext } from '~/core/I18nContext'
 import { Typography, Button } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
@@ -32,7 +32,7 @@ const CreateAddOn = () => {
         />
       </PageHeader>
       {isCreated ? (
-        <SuccessCard>
+        <SuccessCard $disableChildSpacing>
           <img src={EmojiParty} alt="success emoji" />
           <SuccessTitle variant="subhead">
             {translate('text_629728388c4d2300e2d37fd8')}
@@ -66,13 +66,6 @@ const CreateAddOn = () => {
     </div>
   )
 }
-
-const Card = styled.div`
-  padding: ${theme.spacing(8)};
-  border: 1px solid ${theme.palette.grey[300]};
-  border-radius: 12px;
-  box-sizing: border-box;
-`
 
 const SuccessCard = styled(Card)`
   max-width: 672px;
