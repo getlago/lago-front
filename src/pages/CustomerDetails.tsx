@@ -41,6 +41,7 @@ import { AddCustomerDialog, AddCustomerDialogRef } from '~/components/customers/
 import { CustomerCoupons } from '~/components/customers/CustomerCoupons'
 import { CustomerAddOns } from '~/components/customers/CustomerAddOns'
 import { CustomerMainInfos } from '~/components/customers/CustomerMainInfos'
+import { CustomerUsage } from '~/components/customers/CustomerUsage'
 import {
   AddCouponToCustomerDialog,
   AddCouponToCustomerDialogRef,
@@ -309,6 +310,9 @@ const CustomerDetails = () => {
                   )}
                   {!loading && (!tab || tab === TabsOptions.overview) && (
                     <>
+                      {!!subscriptions && !!subscriptions.length && (
+                        <CustomerUsage customerId={id as string} />
+                      )}
                       <CustomerCoupons coupons={appliedCoupons} />
                       <CustomerAddOns ref={addOnDialogRef} addOns={appliedAddOns} />
                       <CustomerSubscriptionsList

@@ -12,7 +12,7 @@ export interface GenericPlaceholderProps {
   buttonTitle: string
   buttonVariant?: ButtonVariant
   noMargins?: boolean
-  buttonAction: () => unknown
+  buttonAction: () => Promise<void> | unknown
 }
 
 interface GenericPlaceholderNoButtonProps

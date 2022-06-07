@@ -57,6 +57,7 @@ gql`
 const Debugger = () => {
   const { translate } = useI18nContext()
   const [selectedEventId, setSelectedEventId] = useState<string | undefined>(undefined)
+  const [refetchLoading, setRefetchLoading] = useState<boolean>(false)
   const { data, error, loading, refetch, fetchMore } = useEventsQuery({
     variables: { limit: 20 },
     notifyOnNetworkStatusChange: true,
@@ -73,18 +74,10 @@ const Debugger = () => {
   let index = -1
   const groupedEvent = useMemo(
     () =>
-      (data?.events?.collection || []).reduce<
-        Record<string, (EventListFragment & { time: string })[]>
-      >((acc, item) => {
+      (data?.events?.collection || []).reduce<Record<string, EventListFragment[]>>((acc, item) => {
         const date = DateTime.fromISO(item.timestamp).toFormat('dd LLLL yyyy')
 
-        acc[date] = [
-          ...(acc[date] ? acc[date] : []),
-          {
-            time: DateTime.fromISO(item.timestamp).toFormat('HH:mm:ss'),
-            ...item,
-          },
-        ]
+        acc[date] = [...(acc[date] ? acc[date] : []), item]
 
         return acc
       }, {}),
@@ -92,8 +85,10 @@ const Debugger = () => {
   )
 
   useEffect(() => {
-    setSelectedEventId(data?.events?.collection ? data?.events?.collection[0]?.id : undefined)
-  }, [data?.events?.collection])
+    if (!selectedEventId && data?.events?.collection) {
+      setSelectedEventId(data?.events?.collection[0]?.id)
+    }
+  }, [data?.events?.collection, selectedEventId])
 
   return (
     <div role="grid" tabIndex={-1} onKeyDown={onKeyDown}>
@@ -117,19 +112,24 @@ const Debugger = () => {
           <Events>
             <Header variant="bodyHl" color="textSecondary">
               {translate('text_6298bd525e359200d5ea0020')}
-              <Tooltip title={translate('text_6298bd525e359200d5ea0010')}>
-                <Button
-                  icon="reload"
-                  variant="quaternary"
-                  onClick={async () => {
-                    await refetch({ page: 0 })
-                  }}
-                />
-              </Tooltip>
+              {!!data?.events?.collection && (
+                <Tooltip title={translate('text_6298bd525e359200d5ea0010')} placement="top-end">
+                  <Button
+                    icon="reload"
+                    variant="quaternary"
+                    onClick={async () => {
+                      setRefetchLoading(true)
+                      setSelectedEventId(undefined)
+                      await refetch({ page: 0 })
+                      setRefetchLoading(false)
+                    }}
+                  />
+                </Tooltip>
+              )}
             </Header>
             <EventList>
               <>
-                {loading && !data?.events?.collection && <DateHeader />}
+                {((loading && !data?.events?.collection) || refetchLoading) && <DateHeader />}
                 <InfiniteScroll
                   onBottom={() => {
                     const { currentPage = 0, totalPages = 0 } = data?.events?.metadata || {}
@@ -142,133 +142,135 @@ const Debugger = () => {
                   }}
                 >
                   <>
-                    {Object.keys(groupedEvent).map((eventDate) => {
-                      return (
-                        <div key={eventDate}>
-                          <DateHeader>{eventDate}</DateHeader>
-                          {groupedEvent[eventDate].map((event) => {
-                            const {
-                              id,
-                              billableMetricName,
-                              timestamp,
-                              payload,
-                              customerId,
-                              transactionId,
-                              apiClient,
-                              code,
-                              ipAddress,
-                              matchBillableMetric,
-                              matchCustomField,
-                            } = event
+                    {!refetchLoading &&
+                      Object.keys(groupedEvent).map((eventDate) => {
+                        return (
+                          <div key={eventDate}>
+                            <DateHeader>{eventDate}</DateHeader>
+                            {groupedEvent[eventDate].map((event) => {
+                              const {
+                                id,
+                                billableMetricName,
+                                timestamp,
+                                payload,
+                                customerId,
+                                transactionId,
+                                apiClient,
+                                code,
+                                ipAddress,
+                                matchBillableMetric,
+                                matchCustomField,
+                              } = event
 
-                            index += 1
+                              index += 1
 
-                            return (
-                              <div key={id}>
-                                <EventItem
-                                  event={event}
-                                  onClick={() => {
-                                    setSelectedEventId(id)
-                                    const element = document.activeElement as HTMLElement
+                              return (
+                                <div key={id}>
+                                  <EventItem
+                                    event={event}
+                                    onClick={() => {
+                                      setSelectedEventId(id)
+                                      const element = document.activeElement as HTMLElement
 
-                                    element.blur && element.blur()
-                                  }}
-                                  selected={selectedEventId === id}
-                                  navigationProps={{
-                                    id: `event-item-${index}`,
-                                    'data-id': id,
-                                  }}
-                                />
-                                {selectedEventId === id && (
-                                  <EventInfos>
-                                    <Header variant="bodyHl" color="textSecondary">
-                                      {billableMetricName}
-                                    </Header>
-                                    <EventInfosContainer>
-                                      {!matchBillableMetric && (
-                                        <StyledAlert type="warning">
-                                          {translate('text_6298bd525e359200d5ea01b7')}
-                                        </StyledAlert>
-                                      )}
-                                      {!matchCustomField && (
-                                        <StyledAlert type="warning">
-                                          {translate('text_6298bd525e359200d5ea0197')}
-                                        </StyledAlert>
-                                      )}
-                                      <EventInfoLine>
-                                        <Typography variant="caption">
-                                          {translate('text_6298bd525e359200d5ea018f')}
-                                        </Typography>
-                                        <Typography color="textSecondary">
-                                          {DateTime.fromISO(timestamp).toFormat(
-                                            'yyyy/LL/dd HH:mm:ss'
-                                          )}
-                                        </Typography>
-                                      </EventInfoLine>
-                                      <EventInfoLine>
-                                        <Typography variant="caption">
-                                          {translate('text_6298bd525e359200d5ea01a7')}
-                                        </Typography>
-                                        <Typography color="textSecondary">{customerId}</Typography>
-                                      </EventInfoLine>
-                                      <EventInfoLine>
-                                        <Typography variant="caption">
-                                          {translate('text_6298bd525e359200d5ea01c1')}
-                                        </Typography>
-                                        <Typography color="textSecondary">{code}</Typography>
-                                      </EventInfoLine>
-                                      <EventInfoLine>
-                                        <Typography variant="caption">
-                                          {translate('text_6298bd525e359200d5ea01da')}
-                                        </Typography>
-                                        <Typography color="textSecondary">
-                                          {billableMetricName}
-                                        </Typography>
-                                      </EventInfoLine>
-                                      <EventInfoLine>
-                                        <Typography variant="caption">
-                                          {translate('text_6298bd525e359200d5ea01f2')}
-                                        </Typography>
-                                        <Typography color="textSecondary">
-                                          {transactionId}
-                                        </Typography>{' '}
-                                        <Tooltip
-                                          placement="bottom-start"
-                                          title={translate('text_6298bd525e359200d5ea0257')}
-                                        >
-                                          <Icon name="info-circle" />
-                                        </Tooltip>
-                                      </EventInfoLine>
-                                      <EventInfoLine>
-                                        <Typography variant="caption">
-                                          {translate('text_6298bd525e359200d5ea020a')}
-                                        </Typography>
-                                        <Typography color="textSecondary">{ipAddress}</Typography>
-                                      </EventInfoLine>
-                                      <EventInfoLine>
-                                        <Typography variant="caption">
-                                          {translate('text_6298bd525e359200d5ea0222')}
-                                        </Typography>
-                                        <Typography color="textSecondary">{apiClient}</Typography>
-                                      </EventInfoLine>
-                                    </EventInfosContainer>
-                                    <Payload>
-                                      <StyledCodeSnippet
-                                        loading={loading}
-                                        language="json"
-                                        code={JSON.stringify(payload, null, 2)}
-                                        canCopy={false}
-                                        displayHead={false}
-                                      />
-                                    </Payload>
-                                  </EventInfos>
-                                )}
-                              </div>
-                            )
-                          })}
-                        </div>
-                      )
-                    })}
+                                      element.blur && element.blur()
+                                    }}
+                                    selected={selectedEventId === id}
+                                    navigationProps={{
+                                      id: `event-item-${index}`,
+                                      'data-id': id,
+                                    }}
+                                  />
+                                  {selectedEventId === id && (
+                                    <EventInfos>
+                                      <EventHeader variant="bodyHl" color="textSecondary">
+                                        {billableMetricName}
+                                      </EventHeader>
+                                      <EventInfosContainer>
+                                        {!matchBillableMetric && (
+                                          <StyledAlert type="warning">
+                                            {translate('text_6298bd525e359200d5ea01b7')}
+                                          </StyledAlert>
+                                        )}
+                                        {!matchCustomField && (
+                                          <StyledAlert type="warning">
+                                            {translate('text_6298bd525e359200d5ea0197')}
+                                          </StyledAlert>
+                                        )}
+                                        <EventInfoLine>
+                                          <Typography variant="caption">
+                                            {translate('text_6298bd525e359200d5ea018f')}
+                                          </Typography>
+                                          <Typography color="textSecondary">
+                                            {DateTime.fromISO(timestamp).toFormat(
+                                              'yyyy/LL/dd HH:mm:ss'
+                                            )}
+                                          </Typography>
+                                        </EventInfoLine>
+                                        <EventInfoLine>
+                                          <Typography variant="caption">
+                                            {translate('text_6298bd525e359200d5ea01a7')}
+                                          </Typography>
+                                          <Typography color="textSecondary">
+                                            {customerId}
+                                          </Typography>
+                                        </EventInfoLine>
+                                        <EventInfoLine>
+                                          <Typography variant="caption">
+                                            {translate('text_6298bd525e359200d5ea01c1')}
+                                          </Typography>
+                                          <Typography color="textSecondary">{code}</Typography>
+                                        </EventInfoLine>
+                                        <EventInfoLine>
+                                          <Typography variant="caption">
+                                            {translate('text_6298bd525e359200d5ea01da')}
+                                          </Typography>
+                                          <Typography color="textSecondary">
+                                            {billableMetricName}
+                                          </Typography>
+                                        </EventInfoLine>
+                                        <EventInfoLine>
+                                          <Typography variant="caption">
+                                            {translate('text_6298bd525e359200d5ea01f2')}
+                                          </Typography>
+                                          <Typography color="textSecondary">
+                                            {transactionId}
+                                          </Typography>{' '}
+                                          <Tooltip
+                                            placement="bottom-start"
+                                            title={translate('text_6298bd525e359200d5ea0257')}
+                                          >
+                                            <Icon name="info-circle" />
+                                          </Tooltip>
+                                        </EventInfoLine>
+                                        <EventInfoLine>
+                                          <Typography variant="caption">
+                                            {translate('text_6298bd525e359200d5ea020a')}
+                                          </Typography>
+                                          <Typography color="textSecondary">{ipAddress}</Typography>
+                                        </EventInfoLine>
+                                        <EventInfoLine>
+                                          <Typography variant="caption">
+                                            {translate('text_6298bd525e359200d5ea0222')}
+                                          </Typography>
+                                          <Typography color="textSecondary">{apiClient}</Typography>
+                                        </EventInfoLine>
+                                      </EventInfosContainer>
+                                      <Payload>
+                                        <StyledCodeSnippet
+                                          language="json"
+                                          code={JSON.stringify(payload, null, 2)}
+                                          canCopy={false}
+                                          displayHead={false}
+                                        />
+                                      </Payload>
+                                    </EventInfos>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )
+                      })}
                     {loading &&
                       [0, 1, 2].map((i) => <EventItemSkeleton key={`event-skeleton-item-${i}`} />)}
                   </>
@@ -322,6 +324,7 @@ const EventInfos = styled.div`
   ${theme.breakpoints.down('md')} {
     position: initial;
     box-shadow: none;
+    width: 100%;
   }
 `
 
@@ -373,6 +376,12 @@ const Header = styled(Typography)`
   box-sizing: border-box;
 `
 
+const EventHeader = styled(Header)`
+  ${theme.breakpoints.down('md')} {
+    display: none;
+  }
+`
+
 const HeaderBillableMetric = styled(Typography)`
   height: ${NAV_HEIGHT}px;
   box-shadow: ${theme.shadows[7]};
@@ -412,7 +421,7 @@ const Payload = styled.div`
   background-color: ${theme.palette.grey[100]};
 
   ${theme.breakpoints.down('md')} {
-    box-shadow: none;
+    box-shadow: ${theme.shadows[7]};
   }
 `
 

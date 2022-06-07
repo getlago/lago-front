@@ -469,7 +469,7 @@
       "text_62544c1db13ca10187214d7d": "Invoices",
       "text_62544c1db13ca10187214d7f": "Issuing date",
       "text_62544c1db13ca10187214d81": "ID",
-      "text_62544c1db13ca10187214d83": "Plan name",
+      "text_62544c1db13ca10187214d83": "Name",
       "text_62544c1db13ca10187214d85": "Amount",
       "text_62544c1db13ca10187214d87": "{{invoice…}}",
       "text_62544c1db13ca10187214d89": "Mar 31, 2029",
@@ -934,17 +934,22 @@
       "text_6298bd525e359200d5ea01f2": "Transaction ID",
       "text_6298bd525e359200d5ea020a": "IP address",
       "text_6298bd525e359200d5ea0222": "Client API",
+      "text_629f47b883ba2301048a38e3": "Events",
       "text_6298bd525e359200d5ea0010": "Reload events",
       "text_6298bd525e359200d5ea0020": "Events",
       "text_6298bd525e359200d5ea0257": "The transaction ID is used as an idempotecy key. It’s here to guarante that the event is executed only once",
       "text_6298bd525e359200d5ea01b7": "This event code doesn’t match an existing billable metric",
       "text_6298bd525e359200d5ea0197": "The property sent doesn’t match the one used to aggregate your billable metric.",
-      "text_6298bd525e359200d5ea01ad": "Cycle from May 22 to Jun. 22",
+      "text_6298bd525e359200d5ea01ad": "Cycle from {{fromDate}} to {{toDate}}",
       "text_6298bd525e359200d5ea01c9": "Invoiced revenue from start date",
       "text_6298bd525e359200d5ea01e2": "See billable metrics current usage",
       "text_6298bd525e359200d5ea01ec": "Name",
-      "text_6298bd525e359200d5ea01f8": "Usage from May 22",
-      "text_6298bd525e359200d5ea026e": "Hide billable metrics current usage"
+      "text_6298bd525e359200d5ea01f8": "Usage from {{fromDate}}",
+      "text_6298bd525e359200d5ea021c": "{{unitCount}} units",
+      "text_6298bd525e359200d5ea026e": "Hide billable metrics current usage",
+      "text_629f47b883ba2301048a393a": "Something went wrong",
+      "text_629f47b883ba2301048a393c": "We can’t load customer’s usage, please retry the load.",
+      "text_629f47b883ba2301048a393e": "Retry load"
     },
     "project_6295e54aa233f00167720fe8": {
       "text_6295e58352f39200d902b01c": "Documentation",
@@ -1313,5 +1318,5 @@
       "country-code-zw": "Zimbabwe"
     }
   },
-  "exported_at": "2022-06-02T13:48:47.735Z"
+  "exported_at": "2022-06-07T13:59:24.542Z"
 }
