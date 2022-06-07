@@ -13,6 +13,9 @@ const Developpers = lazy(
 )
 const ApiKeys = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/developpers/ApiKeys'))
 const Webhook = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/developpers/Webhook'))
+const Debugger = lazy(
+  () => import(/* webpackChunkName: 'api-keys' */ '~/pages/developpers/Debugger')
+)
 
 const Settings = lazy(() => import(/* webpackChunkName: 'settings' */ '~/layouts/Settings'))
 const TaxRate = lazy(() => import(/* webpackChunkName: 'tax-rate' */ '~/pages/settings/VatRate'))
@@ -87,6 +90,7 @@ export const ERROR_404_ROUTE = '/404'
 export const DEVELOPPERS_ROUTE = '/developpers'
 export const API_KEYS_ROUTE = `${DEVELOPPERS_ROUTE}/api-keys`
 export const WEBHOOK_ROUTE = `${DEVELOPPERS_ROUTE}/webhook`
+export const DEBUGGER_ROUTE = `${DEVELOPPERS_ROUTE}/debugger`
 
 // Settings route
 export const SETTINGS_ROUTE = '/settings'
@@ -123,6 +127,11 @@ export const routes: CustomRouteObject[] = [
             path: WEBHOOK_ROUTE,
             private: true,
             element: <Webhook />,
+          },
+          {
+            path: DEBUGGER_ROUTE,
+            private: true,
+            element: <Debugger />,
           },
         ],
       },

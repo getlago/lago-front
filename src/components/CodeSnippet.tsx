@@ -3,6 +3,7 @@ import Prism from 'prismjs'
 import 'prismjs/components/prism-javascript'
 import 'prismjs/components/prism-ruby'
 import 'prismjs/components/prism-bash'
+import 'prismjs/components/prism-json'
 import 'prismjs/plugins/line-numbers/prism-line-numbers'
 // import 'prismjs/themes/prism.css'
 import styled from 'styled-components'
@@ -18,11 +19,20 @@ interface CodeSnippetProps {
   className?: string
   loading?: boolean
   code: string
-  language?: 'bash' | 'javascript'
+  language?: 'bash' | 'javascript' | 'json'
+  canCopy?: boolean
+  displayHead?: boolean
 }
 
 export const CodeSnippet = memo(
-  ({ className, loading, code, language = 'javascript' }: CodeSnippetProps) => {
+  ({
+    className,
+    loading,
+    code,
+    language = 'javascript',
+    canCopy = true,
+    displayHead = true,
+  }: CodeSnippetProps) => {
     const codeRef = useRef(null)
     const { translate } = useI18nContext()
 
@@ -36,29 +46,35 @@ export const CodeSnippet = memo(
       <Content className={className}>
         {loading ? null : (
           <>
-            <Head>
-              <Typography variant="bodyHl">{translate('text_623b42ff8ee4e000ba87d0b2')}</Typography>
-            </Head>
-            <Pre className="line-numbers">
+            {displayHead && (
+              <Head>
+                <Typography variant="bodyHl">
+                  {translate('text_623b42ff8ee4e000ba87d0b2')}
+                </Typography>
+              </Head>
+            )}
+            <Pre className="line-numbers" $withHeader={displayHead}>
               <Code ref={codeRef} className={`language-${language}`}>
                 {code}
               </Code>
               <span />
             </Pre>
-            <CopyButton
-              variant="secondary"
-              startIcon="duplicate"
-              onClick={() => {
-                navigator.clipboard.writeText(code)
+            {canCopy && (
+              <CopyButton
+                variant="secondary"
+                startIcon="duplicate"
+                onClick={() => {
+                  navigator.clipboard.writeText(code)
 
-                addToast({
-                  severity: 'info',
-                  translateKey: 'text_6241ce41ae814301478358a2',
-                })
-              }}
-            >
-              {translate('text_623b42ff8ee4e000ba87d0c6')}
-            </CopyButton>
+                  addToast({
+                    severity: 'info',
+                    translateKey: 'text_6241ce41ae814301478358a2',
+                  })
+                }}
+              >
+                {translate('text_623b42ff8ee4e000ba87d0c6')}
+              </CopyButton>
+            )}
           </>
         )}
       </Content>
@@ -76,10 +92,10 @@ const Head = styled.div`
   box-shadow: ${theme.shadows[7]};
 `
 
-const Pre = styled.pre`
+const Pre = styled.pre<{ $withHeader?: boolean }>`
   padding: ${theme.spacing(4)};
   background-color: transparent !important;
-  height: calc(100% - ${NAV_HEIGHT}px);
+  height: ${({ $withHeader }) => ($withHeader ? `calc(100% - ${NAV_HEIGHT}px)` : '100%')};
   box-sizing: border-box;
 `
 
@@ -161,7 +177,6 @@ const Content = styled.div`
     background: none;
     text-shadow: 0 1px white;
     font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-    font-size: 1em;
     text-align: left;
     white-space: pre;
     word-spacing: normal;
@@ -204,8 +219,6 @@ const Content = styled.div`
 
   /* Code blocks */
   pre[class*='language-'] {
-    padding: 1em;
-    margin: 0.5em 0;
     overflow: auto;
   }
 

@@ -976,10 +976,12 @@ export type DestroyPlanPayload = {
 
 export type Event = {
   __typename?: 'Event';
+  apiClient?: Maybe<Scalars['String']>;
   billableMetricName?: Maybe<Scalars['String']>;
   code: Scalars['String'];
   customerId: Scalars['String'];
   id: Scalars['ID'];
+  ipAddress?: Maybe<Scalars['String']>;
   matchBillableMetric: Scalars['Boolean'];
   matchCustomField: Scalars['Boolean'];
   payload: Scalars['JSON'];
@@ -992,6 +994,33 @@ export type EventCollection = {
   __typename?: 'EventCollection';
   collection: Array<Event>;
   metadata: CollectionMetadata;
+};
+
+export type Forecast = {
+  __typename?: 'Forecast';
+  amountCents: Scalars['Int'];
+  amountCurrency: CurrencyEnum;
+  fees?: Maybe<Array<ForecastedFee>>;
+  fromDate: Scalars['ISO8601Date'];
+  issuingDate: Scalars['ISO8601Date'];
+  toDate: Scalars['ISO8601Date'];
+  totalAmountCents: Scalars['Int'];
+  totalAmountCurrency: CurrencyEnum;
+  vatAmountCents: Scalars['Int'];
+  vatAmountCurrency: CurrencyEnum;
+};
+
+export type ForecastedFee = {
+  __typename?: 'ForecastedFee';
+  aggregationType: AggregationTypeEnum;
+  amountCents: Scalars['Int'];
+  amountCurrency: CurrencyEnum;
+  billableMetricCode: Scalars['String'];
+  billableMetricName: Scalars['String'];
+  chargeModel: ChargeModelEnum;
+  units: Scalars['Int'];
+  vatAmountCents: Scalars['Int'];
+  vatAmountCurrency: CurrencyEnum;
 };
 
 export type GraduatedRange = {
@@ -1337,6 +1366,8 @@ export type Query = {
   customers: CustomerCollection;
   /** Query events of an organization */
   events?: Maybe<EventCollection>;
+  /** Query the forecast of customer usage */
+  forecast: Forecast;
   /** Query a single plan of an organization */
   plan?: Maybe<PlanDetails>;
   /** Query plans of an organization */
@@ -1397,6 +1428,11 @@ export type QueryCustomersArgs = {
 export type QueryEventsArgs = {
   limit?: InputMaybe<Scalars['Int']>;
   page?: InputMaybe<Scalars['Int']>;
+};
+
+
+export type QueryForecastArgs = {
+  customerId?: InputMaybe<Scalars['ID']>;
 };
 
 
@@ -1719,6 +1755,8 @@ export type UpdateCustomerVatRateMutation = { __typename?: 'Mutation', updateCus
 
 export type EditCustomerVatRateFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, vatRate?: number | null };
 
+export type EventItemFragment = { __typename?: 'Event', id: string, code: string, customerId: string, timestamp?: any | null, matchBillableMetric: boolean, matchCustomField: boolean };
+
 export type DeleteWebhookMutationVariables = Exact<{
   input: UpdateOrganizationInput;
 }>;
@@ -1944,6 +1982,16 @@ export type SignupMutationVariables = Exact<{
 export type SignupMutation = { __typename?: 'Mutation', registerUser?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, apiKey: string, vatRate: number }> | null }, organization: { __typename?: 'Organization', id: string, name: string } } | null };
 
 export type ApiKeyOrganizationFragment = { __typename?: 'Organization', id: string, apiKey: string };
+
+export type EventListFragment = { __typename?: 'Event', id: string, code: string, customerId: string, transactionId?: string | null, timestamp?: any | null, receivedAt: any, payload: any, billableMetricName?: string | null, matchBillableMetric: boolean, matchCustomField: boolean, apiClient?: string | null, ipAddress?: string | null };
+
+export type EventsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']>;
+  limit?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type EventsQuery = { __typename?: 'Query', events?: { __typename?: 'EventCollection', collection: Array<{ __typename?: 'Event', id: string, code: string, customerId: string, transactionId?: string | null, timestamp?: any | null, receivedAt: any, payload: any, billableMetricName?: string | null, matchBillableMetric: boolean, matchCustomField: boolean, apiClient?: string | null, ipAddress?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
 
 export type WehbookSettingQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2334,6 +2382,33 @@ ${CustomerAddOnsFragmentDoc}
 ${CustomerVatRateFragmentDoc}
 ${AddCustomerDialogDetailFragmentDoc}
 ${CustomerMainInfosFragmentDoc}`;
+export const EventItemFragmentDoc = gql`
+    fragment EventItem on Event {
+  id
+  code
+  customerId
+  timestamp
+  matchBillableMetric
+  matchCustomField
+}
+    `;
+export const EventListFragmentDoc = gql`
+    fragment EventList on Event {
+  id
+  code
+  customerId
+  transactionId
+  timestamp
+  receivedAt
+  payload
+  billableMetricName
+  matchBillableMetric
+  matchCustomField
+  apiClient
+  ipAddress
+  ...EventItem
+}
+    ${EventItemFragmentDoc}`;
 export const UserIdentifierDocument = gql`
     query UserIdentifier {
   me: currentUser {
@@ -3872,6 +3947,48 @@ export function useSignupMutation(baseOptions?: Apollo.MutationHookOptions<Signu
 export type SignupMutationHookResult = ReturnType<typeof useSignupMutation>;
 export type SignupMutationResult = Apollo.MutationResult<SignupMutation>;
 export type SignupMutationOptions = Apollo.BaseMutationOptions<SignupMutation, SignupMutationVariables>;
+export const EventsDocument = gql`
+    query events($page: Int, $limit: Int) {
+  events(page: $page, limit: $limit) {
+    collection {
+      ...EventList
+    }
+    metadata {
+      currentPage
+      totalPages
+    }
+  }
+}
+    ${EventListFragmentDoc}`;
+
+/**
+ * __useEventsQuery__
+ *
+ * To run a query within a React component, call `useEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useEventsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useEventsQuery(baseOptions?: Apollo.QueryHookOptions<EventsQuery, EventsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<EventsQuery, EventsQueryVariables>(EventsDocument, options);
+      }
+export function useEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<EventsQuery, EventsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<EventsQuery, EventsQueryVariables>(EventsDocument, options);
+        }
+export type EventsQueryHookResult = ReturnType<typeof useEventsQuery>;
+export type EventsLazyQueryHookResult = ReturnType<typeof useEventsLazyQuery>;
+export type EventsQueryResult = Apollo.QueryResult<EventsQuery, EventsQueryVariables>;
 export const WehbookSettingDocument = gql`
     query wehbookSetting {
   currentUser {
