@@ -1,7 +1,6 @@
 import { createTheme, alpha } from '@mui/material/styles'
 
 import { palette } from './colorsPalette'
-// import MuiButton from './buttons'
 
 export const MAX_WIDTH = 1600
 export const NAV_HEIGHT = 72

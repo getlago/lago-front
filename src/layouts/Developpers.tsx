@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { PageHeader } from '~/styles'
 import { useI18nContext } from '~/core/I18nContext'
 import { Typography, BasicTabs } from '~/components/designSystem'
-import { API_KEYS_ROUTE, WEBHOOK_ROUTE, DEVELOPPERS_ROUTE } from '~/core/router'
+import { API_KEYS_ROUTE, WEBHOOK_ROUTE, DEVELOPPERS_ROUTE, DEBUGGER_ROUTE } from '~/core/router'
 import { NAV_HEIGHT } from '~/styles'
 
 const Developpers = () => {
@@ -20,6 +20,10 @@ const Developpers = () => {
     {
       title: translate('text_6271200984178801ba8bdede'),
       key: WEBHOOK_ROUTE,
+    },
+    {
+      title: translate('text_6298bd525e359200d5ea001a'),
+      key: DEBUGGER_ROUTE,
     },
   ]
 
