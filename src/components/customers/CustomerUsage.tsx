@@ -85,8 +85,8 @@ export const CustomerUsage = ({ customerId }: CustomerUsageProps) => {
             <>
               <Typography variant="caption">
                 {translate('text_6298bd525e359200d5ea01ad', {
-                  fromDate: DateTime.fromISO(fromDate).toFormat('LLL yy'),
-                  toDate: DateTime.fromISO(toDate).toFormat('LLL yy'),
+                  fromDate: DateTime.fromISO(fromDate).toFormat('LLL. dd'),
+                  toDate: DateTime.fromISO(toDate).toFormat('LLL. dd'),
                 })}
               </Typography>
               <Typography variant="subhead">
@@ -127,7 +127,7 @@ export const CustomerUsage = ({ customerId }: CustomerUsageProps) => {
             </Typography>
             <Typography variant="bodyHl" color="disabled">
               {translate('text_6298bd525e359200d5ea01f8', {
-                fromDate: DateTime.fromISO(fromDate).toFormat('LLL yy'),
+                fromDate: DateTime.fromISO(fromDate).toFormat('LLL. dd'),
               })}
             </Typography>
           </ListHeader>
