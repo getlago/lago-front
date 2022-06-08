@@ -200,7 +200,7 @@ const Debugger = () => {
                                           <Typography variant="caption">
                                             {translate('text_6298bd525e359200d5ea018f')}
                                           </Typography>
-                                          <Typography color="textSecondary">
+                                          <Typography color="textSecondary" noWrap>
                                             {DateTime.fromISO(timestamp).toFormat(
                                               'yyyy/LL/dd HH:mm:ss'
                                             )}
@@ -210,7 +210,7 @@ const Debugger = () => {
                                           <Typography variant="caption">
                                             {translate('text_6298bd525e359200d5ea01a7')}
                                           </Typography>
-                                          <Typography color="textSecondary">
+                                          <Typography color="textSecondary" noWrap>
                                             {customerId}
                                           </Typography>
                                         </EventInfoLine>
@@ -218,13 +218,15 @@ const Debugger = () => {
                                           <Typography variant="caption">
                                             {translate('text_6298bd525e359200d5ea01c1')}
                                           </Typography>
-                                          <Typography color="textSecondary">{code}</Typography>
+                                          <Typography color="textSecondary" noWrap>
+                                            {code}
+                                          </Typography>
                                         </EventInfoLine>
                                         <EventInfoLine>
                                           <Typography variant="caption">
                                             {translate('text_6298bd525e359200d5ea01da')}
                                           </Typography>
-                                          <Typography color="textSecondary">
+                                          <Typography color="textSecondary" noWrap>
                                             {billableMetricName}
                                           </Typography>
                                         </EventInfoLine>
@@ -232,27 +234,31 @@ const Debugger = () => {
                                           <Typography variant="caption">
                                             {translate('text_6298bd525e359200d5ea01f2')}
                                           </Typography>
-                                          <Typography color="textSecondary">
+                                          <TransactionId color="textSecondary" noWrap>
                                             {transactionId}
-                                          </Typography>{' '}
-                                          <Tooltip
+                                          </TransactionId>
+                                          <TransactionIdTooltip
                                             placement="bottom-start"
                                             title={translate('text_6298bd525e359200d5ea0257')}
                                           >
                                             <Icon name="info-circle" />
-                                          </Tooltip>
+                                          </TransactionIdTooltip>
                                         </EventInfoLine>
                                         <EventInfoLine>
                                           <Typography variant="caption">
                                             {translate('text_6298bd525e359200d5ea020a')}
                                           </Typography>
-                                          <Typography color="textSecondary">{ipAddress}</Typography>
+                                          <Typography color="textSecondary" noWrap>
+                                            {ipAddress}
+                                          </Typography>
                                         </EventInfoLine>
                                         <EventInfoLine>
                                           <Typography variant="caption">
                                             {translate('text_6298bd525e359200d5ea0222')}
                                           </Typography>
-                                          <Typography color="textSecondary">{apiClient}</Typography>
+                                          <Typography color="textSecondary" noWrap>
+                                            {apiClient}
+                                          </Typography>
                                         </EventInfoLine>
                                       </EventInfosContainer>
                                       <Payload>
@@ -415,6 +421,10 @@ const EventInfosContainer = styled.div`
   }
 `
 
+const TransactionId = styled(Typography)`
+  margin-right: ${theme.spacing(1)};
+`
+
 const Payload = styled.div`
   flex: 1;
   box-shadow: ${theme.shadows[8]};
@@ -427,11 +437,12 @@ const Payload = styled.div`
 
 const EventInfoLine = styled.div`
   display: flex;
-  align-items: baseline;
+  align-items: center;
 
   > *:first-child {
-    width: 120px;
-    min-width: 120px;
+    width: 140px;
+    min-width: 140px;
+    margin-right: ${theme.spacing(3)};
   }
 `
 
@@ -443,6 +454,10 @@ const StyledCodeSnippet = styled(CodeSnippet)`
   > * {
     padding-bottom: 0px;
   }
+`
+
+const TransactionIdTooltip = styled(Tooltip)`
+  height: 16px;
 `
 
 export default Debugger
