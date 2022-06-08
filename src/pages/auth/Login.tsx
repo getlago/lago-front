@@ -81,33 +81,34 @@ const Login = () => {
             Lago_Api_Error.IncorrectLoginOrPassword && (
             <ErrorAlert type="danger">{translate('text_620bc4d4269a55014d493fb7')}</ErrorAlert>
           )}
+        <form>
+          <EmailInput
+            name="email"
+            formikProps={formikProps}
+            label={translate('text_620bc4d4269a55014d493f1e')}
+            placeholder={translate('text_620bc4d4269a55014d493f49')}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
+          />
 
-        <EmailInput
-          name="email"
-          formikProps={formikProps}
-          label={translate('text_620bc4d4269a55014d493f1e')}
-          placeholder={translate('text_620bc4d4269a55014d493f49')}
-          // eslint-disable-next-line jsx-a11y/no-autofocus
-          autoFocus
-        />
+          <PasswordInput
+            name="password"
+            formikProps={formikProps}
+            disableDebounce
+            password
+            label={translate('text_620bc4d4269a55014d493f32')}
+            placeholder={translate('text_620bc4d4269a55014d493f5b')}
+          />
 
-        <PasswordInput
-          name="password"
-          formikProps={formikProps}
-          disableDebounce
-          password
-          label={translate('text_620bc4d4269a55014d493f32')}
-          placeholder={translate('text_620bc4d4269a55014d493f5b')}
-        />
-
-        <SubmitButton
-          fullWidth
-          size="large"
-          loading={formikProps.isSubmitting}
-          onClick={formikProps.submitForm}
-        >
-          {translate('text_620bc4d4269a55014d493f6d')}
-        </SubmitButton>
+          <SubmitButton
+            fullWidth
+            size="large"
+            loading={formikProps.isSubmitting}
+            onClick={formikProps.submitForm}
+          >
+            {translate('text_620bc4d4269a55014d493f6d')}
+          </SubmitButton>
+        </form>
 
         <ForgotPassword
           variant="caption"
