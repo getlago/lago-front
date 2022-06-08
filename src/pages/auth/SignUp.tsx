@@ -128,66 +128,68 @@ const SignUp = () => {
               />
             </ErrorAlert>
           )}
-
-        <Input
-          name="organizationName"
-          onChange={(value) => setFormFields((prev) => ({ ...prev, organizationName: value }))}
-          label={translate('text_620bc4d4269a55014d493f26')}
-          placeholder={translate('text_620bc4d4269a55014d493f65')}
-          // eslint-disable-next-line jsx-a11y/no-autofocus
-          autoFocus
-        />
-        <Input
-          name="email"
-          onChange={(value) => setFormFields((prev) => ({ ...prev, email: value }))}
-          label={translate('text_620bc4d4269a55014d493f1e')}
-          placeholder={translate('text_620bc4d4269a55014d493f49')}
-        />
-
-        <PasswordBlock>
-          <TextInput
-            value={formFields.password}
-            password
-            onChange={(value) => setFormFields((prev) => ({ ...prev, password: value }))}
-            label={translate('text_620bc4d4269a55014d493f53')}
-            placeholder={translate('text_620bc4d4269a55014d493f5b')}
-            onFocus={() => setIsPswFocused(true)}
-            onBlur={() => setIsPswFocused(false)}
+        <form>
+          <Input
+            name="organizationName"
+            onChange={(value) => setFormFields((prev) => ({ ...prev, organizationName: value }))}
+            label={translate('text_620bc4d4269a55014d493f26')}
+            placeholder={translate('text_620bc4d4269a55014d493f65')}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
           />
-          <PasswordValidation $visible={isPswFocused}>
-            {errors.some((err) => PASSWORD_VALIDATION.includes(err)) ? (
-              PASSWORD_VALIDATION.map((err) => {
-                const isErrored = errors.includes(err)
+          <Input
+            name="email"
+            onChange={(value) => setFormFields((prev) => ({ ...prev, email: value }))}
+            label={translate('text_620bc4d4269a55014d493f1e')}
+            placeholder={translate('text_620bc4d4269a55014d493f49')}
+          />
 
-                return (
-                  <ValidationLine key={err}>
-                    <svg height={8} width={8}>
-                      <circle
-                        cx="4"
-                        cy="4"
-                        r="4"
-                        fill={isErrored ? theme.palette.primary.main : theme.palette.grey[500]}
-                      />
-                    </svg>
-                    <Typography
-                      variant="caption"
-                      color={isErrored ? 'textSecondary' : 'textPrimary'}
-                    >
-                      {translate(err)}
-                    </Typography>
-                  </ValidationLine>
-                )
-              })
-            ) : (
-              <StyledAlert type="success">{translate('text_620bc4d4269a55014d493fbe')}</StyledAlert>
-            )}
-          </PasswordValidation>
-        </PasswordBlock>
+          <PasswordBlock>
+            <TextInput
+              value={formFields.password}
+              password
+              onChange={(value) => setFormFields((prev) => ({ ...prev, password: value }))}
+              label={translate('text_620bc4d4269a55014d493f53')}
+              placeholder={translate('text_620bc4d4269a55014d493f5b')}
+              onFocus={() => setIsPswFocused(true)}
+              onBlur={() => setIsPswFocused(false)}
+            />
+            <PasswordValidation $visible={isPswFocused}>
+              {errors.some((err) => PASSWORD_VALIDATION.includes(err)) ? (
+                PASSWORD_VALIDATION.map((err) => {
+                  const isErrored = errors.includes(err)
 
-        <SubmitButton disabled={errors.length > 0} fullWidth size="large" onClick={onSignUp}>
-          {translate('text_620bc4d4269a55014d493fb5')}
-        </SubmitButton>
+                  return (
+                    <ValidationLine key={err}>
+                      <svg height={8} width={8}>
+                        <circle
+                          cx="4"
+                          cy="4"
+                          r="4"
+                          fill={isErrored ? theme.palette.primary.main : theme.palette.grey[500]}
+                        />
+                      </svg>
+                      <Typography
+                        variant="caption"
+                        color={isErrored ? 'textSecondary' : 'textPrimary'}
+                      >
+                        {translate(err)}
+                      </Typography>
+                    </ValidationLine>
+                  )
+                })
+              ) : (
+                <StyledAlert type="success">
+                  {translate('text_620bc4d4269a55014d493fbe')}
+                </StyledAlert>
+              )}
+            </PasswordValidation>
+          </PasswordBlock>
 
+          <SubmitButton disabled={errors.length > 0} fullWidth size="large" onClick={onSignUp}>
+            {translate('text_620bc4d4269a55014d493fb5')}
+          </SubmitButton>
+        </form>
         <Typography
           variant="caption"
           html={translate('text_620bc4d4269a55014d493fd4', { link: LOGIN_ROUTE })}
