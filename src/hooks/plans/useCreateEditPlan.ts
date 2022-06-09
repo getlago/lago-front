@@ -10,7 +10,6 @@ import {
   useCreatePlanMutation,
   useUpdatePlanMutation,
   ChargeModelEnum,
-  FixedAmountTargetEnum,
 } from '~/generated/graphql'
 import { ERROR_404_ROUTE, PLANS_ROUTE } from '~/core/router'
 import { addToast } from '~/core/apolloClient'
@@ -97,8 +96,6 @@ const formatPlanInput = (values: PlanFormInput) => {
         graduatedRanges,
         chargeModel,
         freeUnits,
-        fixedAmount,
-        fixedAmountTarget,
         ...charge
       }) => {
         return {
@@ -117,12 +114,6 @@ const formatPlanInput = (values: PlanFormInput) => {
               }
             : { amount: chargeAmount }),
           ...(chargeModel === ChargeModelEnum.Package ? { freeUnits: freeUnits || 0 } : {}),
-          ...(chargeModel === ChargeModelEnum.Percentage
-            ? {
-                fixedAmount: String(fixedAmount || 0),
-                fixedAmountTarget: fixedAmountTarget || FixedAmountTargetEnum.EachUnit,
-              }
-            : {}),
           ...charge,
         }
       }

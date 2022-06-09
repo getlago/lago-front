@@ -83,7 +83,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
           rate: number().when('chargeModel', {
             is: (chargeModel: ChargeModelEnum) =>
               !!chargeModel && ChargeModelEnum.Percentage === chargeModel,
-            then: number().min(1, 'text_62a0b7107afa2700a65ef70e').required(''),
+            then: number().min(0.001, 'text_62a0b7107afa2700a65ef70e').required(''),
           }),
           fixedAmount: number().when('fixedAmountTarget', {
             is: (fixedAmountTarget: FixedAmountTargetEnum) => {

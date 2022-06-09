@@ -29,7 +29,7 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
     [chargeIndex]
   )
 
-  const formattedFixedCharge = formatAmountToCurrency((Number(localCharge.fixedAmount) || 0) * 10, {
+  const formattedFixedCharge = formatAmountToCurrency(Number(localCharge.fixedAmount) || 0, {
     currencyDisplay: 'code',
     currency: localCharge.amountCurrency,
     initialUnit: 'standard',
