@@ -4,7 +4,7 @@ import { object, string, number, array } from 'yup'
 import styled from 'styled-components'
 
 import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
-import { EditPlanFragment } from '~/generated/graphql'
+import { EditPlanFragment, FixedAmountTargetEnum } from '~/generated/graphql'
 import { PlanInterval, CurrencyEnum, ChargeModelEnum } from '~/generated/graphql'
 import { TextInputField, ButtonSelectorField, ComboBoxField, SwitchField } from '~/components/form'
 import { useI18nContext } from '~/core/I18nContext'
@@ -79,6 +79,17 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
             then: number()
               .min(1, 'text_6282085b4f283b0102655888')
               .required('text_6282085b4f283b0102655888'),
+          }),
+          rate: number().when('chargeModel', {
+            is: (chargeModel: ChargeModelEnum) =>
+              !!chargeModel && ChargeModelEnum.Percentage === chargeModel,
+            then: number().min(1, 'text_62a0b7107afa2700a65ef70e').required(''),
+          }),
+          fixedAmount: number().when('fixedAmountTarget', {
+            is: (fixedAmountTarget: FixedAmountTargetEnum) => {
+              return !!fixedAmountTarget
+            },
+            then: number().required(''),
           }),
           graduatedRanges: array()
             .when('chargeModel', {

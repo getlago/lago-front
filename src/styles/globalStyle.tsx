@@ -44,6 +44,11 @@ export const inputGlobalStyles = (
           outline: 'none',
         },
       },
+      b: {
+        fontSize: '16px',
+        lineHeight: '28px',
+        fontWeight: 500,
+      },
     }}
   />
 )

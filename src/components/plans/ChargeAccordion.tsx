@@ -10,6 +10,7 @@ import { ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
 import { ComboBox, TextInput } from '~/components/form'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
+import { ChargePercentage } from '~/components/plans/ChargePercentage'
 
 import { PlanFormInput } from './types'
 
@@ -99,6 +100,10 @@ export const ChargeAccordion = ({
                 value: ChargeModelEnum.Graduated,
               },
               {
+                label: translate('text_62a0b7107afa2700a65ef6e2'),
+                value: ChargeModelEnum.Percentage,
+              },
+              {
                 label: translate('text_6282085b4f283b0102655868'),
                 value: ChargeModelEnum.Package,
               },
@@ -106,7 +111,9 @@ export const ChargeAccordion = ({
             disableClearable
             value={localCharge.chargeModel}
             helperText={translate(
-              localCharge.chargeModel === ChargeModelEnum.Graduated
+              localCharge.chargeModel === ChargeModelEnum.Percentage
+                ? 'text_62a0b7107afa2700a65ef6ec'
+                : localCharge.chargeModel === ChargeModelEnum.Graduated
                 ? 'text_62793bbb599f1c01522e91a1'
                 : localCharge.chargeModel === ChargeModelEnum.Package
                 ? 'text_6282085b4f283b010265586c'
@@ -148,6 +155,9 @@ export const ChargeAccordion = ({
               currency={currency}
               formikProps={formikProps}
             />
+          )}
+          {localCharge.chargeModel === ChargeModelEnum.Percentage && (
+            <ChargePercentage disabled={disabled} chargeIndex={index} formikProps={formikProps} />
           )}
         </Details>
       </StyledAccordion>
