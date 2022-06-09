@@ -8,7 +8,7 @@ import { useI18nContext } from '~/core/I18nContext'
 import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
 import { addToast } from '~/core/apolloClient'
-import { formatAmountToCurrency } from '~/core/currencyTool'
+import { intlFormatNumber } from '~/core/intlFormatNumber'
 
 gql`
   fragment CustomerInvoiceList on Invoice {
@@ -75,7 +75,7 @@ export const CustomerInvoicesList = ({ invoices }: CustomerInvoicesListProps) =>
                   {plan?.name}
                 </PlanCell>
                 <AmountCell align="right" color="textSecondary">
-                  {formatAmountToCurrency(totalAmountCents, { currency: amountCurrency })}
+                  {intlFormatNumber(totalAmountCents, { currency: amountCurrency })}
                 </AmountCell>
               </Item>
             )

@@ -3,7 +3,7 @@ import { FormikProps } from 'formik'
 import _get from 'lodash/get'
 import styled from 'styled-components'
 
-import { formatAmountToCurrency } from '~/core/currencyTool'
+import { intlFormatNumber } from '~/core/intlFormatNumber'
 import { TextInput, ButtonSelector, ComboBox } from '~/components/form'
 import { theme } from '~/styles'
 import { Alert, Typography, Button, Tooltip } from '~/components/designSystem'
@@ -29,13 +29,13 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
     [chargeIndex]
   )
 
-  const formattedFixedCharge = formatAmountToCurrency(Number(localCharge.fixedAmount) || 0, {
+  const formattedFixedCharge = intlFormatNumber(Number(localCharge.fixedAmount) || 0, {
     currencyDisplay: 'code',
     currency: localCharge.amountCurrency,
     initialUnit: 'standard',
     maximumFractionDigits: 5,
   })
-  const formattedRate = formatAmountToCurrency(Number(localCharge.rate) || 0, {
+  const formattedRate = intlFormatNumber(Number(localCharge.rate) || 0, {
     minimumFractionDigits: 2,
     style: 'percent',
   })
@@ -148,7 +148,7 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
             !localCharge.fixedAmountTarget
               ? translate('text_62a0b7107afa2700a65ef71e', {
                   rate: formattedRate,
-                  cost: formatAmountToCurrency(((Number(localCharge.rate) || 0) * 10) / 100, {
+                  cost: intlFormatNumber(((Number(localCharge.rate) || 0) * 10) / 100, {
                     currencyDisplay: 'code',
                     currency: localCharge.amountCurrency,
                     initialUnit: 'standard',
@@ -158,7 +158,7 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
               ? translate('text_62a0b7107afa2700a65ef73e', {
                   rate: formattedRate,
                   fixedCharge: formattedFixedCharge,
-                  cost: formatAmountToCurrency(
+                  cost: intlFormatNumber(
                     ((Number(localCharge.rate) || 0) * 10) / 100 +
                       10 * (Number(localCharge.fixedAmount) || 0),
                     {
@@ -172,7 +172,7 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
               : translate('text_62a0b7107afa2700a65ef73a', {
                   rate: formattedRate,
                   fixedCharge: formattedFixedCharge,
-                  cost: formatAmountToCurrency(
+                  cost: intlFormatNumber(
                     ((Number(localCharge.rate) || 0) * 10) / 100 +
                       (Number(localCharge.fixedAmount) || 0),
                     {

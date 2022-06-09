@@ -16,7 +16,7 @@ enum AmountStyle {
   decimal = 'decimal',
 }
 
-export const formatAmountToCurrency: (
+export const intlFormatNumber: (
   amount: number,
   options?: {
     currency?: CurrencyEnum

@@ -9,7 +9,7 @@ import { Alert, Typography } from '~/components/designSystem'
 import { useI18nContext } from '~/core/I18nContext'
 import { theme } from '~/styles'
 import { CurrencyEnum } from '~/generated/graphql'
-import { formatAmountToCurrency } from '~/core/currencyTool'
+import { intlFormatNumber } from '~/core/intlFormatNumber'
 
 import { PlanFormInput } from './types'
 
@@ -109,7 +109,7 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_6282085b4f283b0102655892', {
                 units: localCharge.packageSize + (localCharge.freeUnits || 0) + 1,
-                cost: formatAmountToCurrency(Number(localCharge.amount || 0) * 2, {
+                cost: intlFormatNumber(Number(localCharge.amount || 0) * 2, {
                   currencyDisplay: 'code',
                   initialUnit: 'standard',
                   maximumFractionDigits: 5,
@@ -122,7 +122,7 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
                 {translate('text_6282085b4f283b0102655896', {
                   unit: 1,
                   unitInPackage: localCharge.freeUnits,
-                  cost: formatAmountToCurrency(0, {
+                  cost: intlFormatNumber(0, {
                     currencyDisplay: 'code',
                     initialUnit: 'standard',
                     maximumFractionDigits: 5,
@@ -136,7 +136,7 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
               {translate('text_6282085b4f283b0102655896', {
                 unit: (localCharge.freeUnits || 0) + 1,
                 unitInPackage: localCharge.packageSize + (localCharge.freeUnits || 0),
-                cost: formatAmountToCurrency(Number(localCharge.amount || 0), {
+                cost: intlFormatNumber(Number(localCharge.amount || 0), {
                   currencyDisplay: 'code',
                   initialUnit: 'standard',
                   maximumFractionDigits: 5,
@@ -148,7 +148,7 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
               {translate('text_6282085b4f283b0102655896', {
                 unit: (localCharge.freeUnits || 0) + localCharge.packageSize + 1,
                 unitInPackage: localCharge.packageSize * 2 + (localCharge.freeUnits || 0),
-                cost: formatAmountToCurrency(Number(localCharge.amount || 0) * 2, {
+                cost: intlFormatNumber(Number(localCharge.amount || 0) * 2, {
                   currencyDisplay: 'code',
                   initialUnit: 'standard',
                   maximumFractionDigits: 5,

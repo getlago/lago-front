@@ -15,7 +15,7 @@ import {
   Lago_Api_Error,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
-import { formatAmountToCurrency } from '~/core/currencyTool'
+import { intlFormatNumber } from '~/core/intlFormatNumber'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
 
 gql`
@@ -120,7 +120,7 @@ export const AddAddOnToCustomerDialog = forwardRef<
             <Typography color="textPrimary">
               (
               {translate('text_629781ec7c6c1500d94fbc16', {
-                amountWithCurrency: formatAmountToCurrency(amountCents || 0, {
+                amountWithCurrency: intlFormatNumber(amountCents || 0, {
                   currencyDisplay: 'code',
                   currency: amountCurrency,
                 }),

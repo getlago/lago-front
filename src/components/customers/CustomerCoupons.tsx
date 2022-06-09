@@ -8,7 +8,7 @@ import { SectionHeader } from '~/styles/customer'
 import { useI18nContext } from '~/core/I18nContext'
 import { Typography, Avatar, Icon, Button, Tooltip } from '~/components/designSystem'
 import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
-import { formatAmountToCurrency } from '~/core/currencyTool'
+import { intlFormatNumber } from '~/core/intlFormatNumber'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 
@@ -72,7 +72,7 @@ export const CustomerCoupons = memo(({ coupons }: CustomerCouponsProps) => {
                 </Typography>
                 <Typography variant="caption" noWrap>
                   {translate('text_62865498824cc10126ab2976', {
-                    amount: formatAmountToCurrency(amountCents || 0, {
+                    amount: intlFormatNumber(amountCents || 0, {
                       currencyDisplay: 'code',
                       currency: amountCurrency,
                     }),

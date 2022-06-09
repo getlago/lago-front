@@ -9,7 +9,7 @@ import { TextInput } from '~/components/form'
 import { useI18nContext } from '~/core/I18nContext'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useGraduatedChargeForm } from '~/hooks/plans/useGraduatedChargeForm'
-import { formatAmountToCurrency } from '~/core/currencyTool'
+import { intlFormatNumber } from '~/core/intlFormatNumber'
 
 import { PlanFormInput } from './types'
 
@@ -174,7 +174,7 @@ export const GraduatedChargeTable = ({
                 <Typography variant="bodyHl" key={`calculation-alert-${i}`} color="textSecondary">
                   {translate('text_627b69c9fe95530136833956', {
                     lastRowUnit: calculation.firstUnit,
-                    value: formatAmountToCurrency(calculation.total, {
+                    value: intlFormatNumber(calculation.total, {
                       currencyDisplay: 'code',
                       initialUnit: 'standard',
                       maximumFractionDigits: 5,
@@ -189,19 +189,19 @@ export const GraduatedChargeTable = ({
                 <Typography key={`calculation-alert-${i}`} color="textSecondary">
                   {translate('text_627b69c9fe95530136833958', {
                     tier1LastUnit: calculation.units,
-                    tier1PerUnit: formatAmountToCurrency(calculation.perUnit, {
+                    tier1PerUnit: intlFormatNumber(calculation.perUnit, {
                       currencyDisplay: 'code',
                       initialUnit: 'standard',
                       maximumFractionDigits: 5,
                       currency,
                     }),
-                    tier1FlatFee: formatAmountToCurrency(calculation.flatFee, {
+                    tier1FlatFee: intlFormatNumber(calculation.flatFee, {
                       currencyDisplay: 'code',
                       initialUnit: 'standard',
                       maximumFractionDigits: 5,
                       currency,
                     }),
-                    totalTier1: formatAmountToCurrency(calculation.total, {
+                    totalTier1: intlFormatNumber(calculation.total, {
                       currencyDisplay: 'code',
                       initialUnit: 'standard',
                       maximumFractionDigits: 5,
@@ -216,19 +216,19 @@ export const GraduatedChargeTable = ({
               <Typography key={`calculation-alert-${i}`} color="textSecondary">
                 {translate('text_627b69c9fe9553013683395a', {
                   unitCount: calculation.units,
-                  tierPerUnit: formatAmountToCurrency(calculation.perUnit, {
+                  tierPerUnit: intlFormatNumber(calculation.perUnit, {
                     currencyDisplay: 'code',
                     initialUnit: 'standard',
                     maximumFractionDigits: 5,
                     currency,
                   }),
-                  tierFlatFee: formatAmountToCurrency(calculation.flatFee, {
+                  tierFlatFee: intlFormatNumber(calculation.flatFee, {
                     currencyDisplay: 'code',
                     initialUnit: 'standard',
                     maximumFractionDigits: 5,
                     currency,
                   }),
-                  totalTier: formatAmountToCurrency(calculation.total, {
+                  totalTier: intlFormatNumber(calculation.total, {
                     currencyDisplay: 'code',
                     initialUnit: 'standard',
                     maximumFractionDigits: 5,

@@ -19,7 +19,7 @@ import {
 import { UPDATE_COUPON_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { CouponStatusEnum, CouponItemFragment } from '~/generated/graphql'
-import { formatAmountToCurrency } from '~/core/currencyTool'
+import { intlFormatNumber } from '~/core/intlFormatNumber'
 import { useI18nContext } from '~/core/I18nContext'
 import { DeleteCouponDialog, DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
 import {
@@ -98,7 +98,7 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
             </Typography>
             <Typography variant="caption" noWrap>
               {translate('text_62865498824cc10126ab2976', {
-                amount: formatAmountToCurrency(amountCents || 0, {
+                amount: intlFormatNumber(amountCents || 0, {
                   currencyDisplay: 'code',
                   currency: amountCurrency,
                 }),
