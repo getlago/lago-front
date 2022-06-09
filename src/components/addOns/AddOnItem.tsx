@@ -17,7 +17,7 @@ import {
 import { UPDATE_ADD_ON_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { AddOnItemFragment } from '~/generated/graphql'
-import { formatAmountToCurrency } from '~/core/currencyTool'
+import { intlFormatNumber } from '~/core/intlFormatNumber'
 import { useI18nContext } from '~/core/I18nContext'
 import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
 
@@ -61,7 +61,7 @@ export const AddOnItem = ({ addOn, navigationProps }: AddOnItemProps) => {
             </Typography>
             <Typography variant="caption" noWrap>
               {translate('text_629728388c4d2300e2d3810b', {
-                amountWithCurrency: formatAmountToCurrency(amountCents || 0, {
+                amountWithCurrency: intlFormatNumber(amountCents || 0, {
                   currencyDisplay: 'code',
                   currency: amountCurrency,
                 }),

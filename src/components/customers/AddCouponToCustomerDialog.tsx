@@ -16,7 +16,7 @@ import {
   CouponStatusEnum,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
-import { formatAmountToCurrency } from '~/core/currencyTool'
+import { intlFormatNumber } from '~/core/intlFormatNumber'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
 
 gql`
@@ -126,7 +126,7 @@ export const AddCouponToCustomerDialog = forwardRef<
             <Typography color="textPrimary">
               (
               {translate('text_628c83763b29a500a8785d0c', {
-                amount: formatAmountToCurrency(amountCents || 0, {
+                amount: intlFormatNumber(amountCents || 0, {
                   currencyDisplay: 'code',
                   currency: amountCurrency,
                 }),
