@@ -141,7 +141,7 @@ const Debugger = () => {
                       })
                   }}
                 >
-                  <>
+                  <ListContent>
                     {!refetchLoading &&
                       Object.keys(groupedEvent).map((eventDate) => {
                         return (
@@ -279,7 +279,7 @@ const Debugger = () => {
                       })}
                     {loading &&
                       [0, 1, 2].map((i) => <EventItemSkeleton key={`event-skeleton-item-${i}`} />)}
-                  </>
+                  </ListContent>
                 </InfiniteScroll>
               </>
             </EventList>
@@ -458,6 +458,10 @@ const StyledCodeSnippet = styled(CodeSnippet)`
 
 const TransactionIdTooltip = styled(Tooltip)`
   height: 16px;
+`
+
+const ListContent = styled.div`
+  margin-bottom: ${theme.spacing(20)};
 `
 
 export default Debugger
