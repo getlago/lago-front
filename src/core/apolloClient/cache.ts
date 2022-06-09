@@ -1,18 +1,6 @@
-import { InMemoryCache, makeVar } from '@apollo/client'
+import { InMemoryCache } from '@apollo/client'
 
 import { CollectionMetadata } from '~/generated/graphql'
-
-import { authTokenVar } from './authTokenVar'
-
-import { getItemFromLS } from '../utils'
-
-export const AUTH_TOKEN_LS_KEY = 'authToken'
-
-// Initialize reactive variables
-export const isAuthenticatedVar = makeVar<boolean>(!!getItemFromLS(AUTH_TOKEN_LS_KEY))
-export * from './authTokenVar'
-export * from './toastVar'
-export * from './currentUserInfosVar'
 
 type PaginatedCollection = { metadata: CollectionMetadata; collection: Record<string, unknown>[] }
 
@@ -31,11 +19,6 @@ export const cache = new InMemoryCache({
   typePolicies: {
     Query: {
       fields: {
-        token: {
-          read() {
-            return authTokenVar()
-          },
-        },
         billableMetrics: {
           keyArgs: false,
           merge: mergePaginatedCollection,

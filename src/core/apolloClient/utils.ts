@@ -2,7 +2,11 @@ import { ApolloClient } from '@apollo/client'
 
 import { CurrentUserFragment } from '~/generated/graphql'
 
-import { updateAuthTokenVar, updateCurrentUserInfosVar, resetCurrentUserInfosVar } from './cache'
+import {
+  updateAuthTokenVar,
+  updateCurrentUserInfosVar,
+  resetCurrentUserInfosVar,
+} from './reactiveVars'
 
 // --------------------- Local storage utils ---------------------
 export const getItemFromLS = (key: string) => {
