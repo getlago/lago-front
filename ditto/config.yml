@@ -43,5 +43,7 @@ projects:
     id: 6295e54aa233f00167720fe8
   - name: "\U0001F44D [Ready for dev] - Add-ons - Create / Edit / Delete an Add-on"
     id: 62972835d3981000e8b0eb9d
+  - name: "\U0001F44D [Ready for dev] - Plans - Add Percentage in charge model"
+    id: 62a0b709894be901198aeddb
 format: flat
 variants: true

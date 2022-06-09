@@ -1777,14 +1777,14 @@ export type UpdateVatRateOrganizationMutationVariables = Exact<{
 
 export type UpdateVatRateOrganizationMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string, vatRate: number } | null };
 
-export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, charges?: Array<{ __typename?: 'Charge', id: string, amount?: string | null, amountCurrency?: CurrencyEnum | null, chargeModel: ChargeModelEnum, freeUnits?: number | null, packageSize?: number | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null }> | null };
+export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, charges?: Array<{ __typename?: 'Charge', id: string, amount?: string | null, amountCurrency?: CurrencyEnum | null, chargeModel: ChargeModelEnum, freeUnits?: number | null, packageSize?: number | null, rate?: string | null, fixedAmount?: string | null, fixedAmountTarget?: FixedAmountTargetEnum | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null }> | null };
 
 export type GetSinglePlanQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetSinglePlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, charges?: Array<{ __typename?: 'Charge', id: string, amount?: string | null, amountCurrency?: CurrencyEnum | null, chargeModel: ChargeModelEnum, freeUnits?: number | null, packageSize?: number | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null }> | null } | null };
+export type GetSinglePlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, charges?: Array<{ __typename?: 'Charge', id: string, amount?: string | null, amountCurrency?: CurrencyEnum | null, chargeModel: ChargeModelEnum, freeUnits?: number | null, packageSize?: number | null, rate?: string | null, fixedAmount?: string | null, fixedAmountTarget?: FixedAmountTargetEnum | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null }> | null } | null };
 
 export type CreatePlanMutationVariables = Exact<{
   input: CreatePlanInput;
@@ -2167,6 +2167,9 @@ export const EditPlanFragmentDoc = gql`
     chargeModel
     freeUnits
     packageSize
+    rate
+    fixedAmount
+    fixedAmountTarget
   }
 }
     `;

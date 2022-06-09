@@ -905,7 +905,7 @@
       "text_628b8c693e464200e00e49f2": "Coupon successfully applied",
       "text_628b8c693e464200e00e4a10": "Remove",
       "text_628b8c693e464200e00e465f": "Remove this coupon from this customer",
-      "text_628b8c693e464200e00e466d": "By removing this coupon, customer will no longer have access to the discount. The discount already consumed will still be counted on the current invoice. Are you sure?",
+      "text_628b8c693e464200e00e466d": "By removing this coupon, customer will no longer have access to the discount. The discount will not appear on customer's invoice. Are you sure?",
       "text_628b8c693e464200e00e4689": "Remove coupon",
       "text_628b8c693e464200e00e49d1": "Coupon successfully removed",
       "text_628b8c693e464200e00e469b": "Amount",
@@ -1026,6 +1026,24 @@
       "text_629728388c4d2300e2d3815f": "Add-on successfully terminated",
       "text_62978ebe99054a011fc189e0": "Amount must be a value greater than 0",
       "text_629791022a75b60089e98ea7": "This add on can’t be deleted because it’s linked to existing customers"
+    },
+    "project_62a0b709894be901198aeddb": {
+      "text_62a0b7107afa2700a65ef6e2": "Percentage pricing",
+      "text_62a0b7107afa2700a65ef6ec": "Charge per example 10% of the amount of units.",
+      "text_62a0b7107afa2700a65ef6f6": "Percentage rate",
+      "text_62a0b7107afa2700a65ef700": "0.00",
+      "text_62a0b7107afa2700a65ef70a": "%",
+      "text_62a0b7107afa2700a65ef714": "Add a fixed charge",
+      "text_62a0b7107afa2700a65ef71e": "<b>{{rate}} of 10 units would cost {{cost}}</b>\n{{rate}} x 10 = {{cost}}",
+      "text_62a0b7107afa2700a65ef70e": "Percentage rate must be greather than 0",
+      "text_62a0b7107afa2700a65ef708": "Fixe charge amount",
+      "text_62a0b7107afa2700a65ef712": "0.00",
+      "text_62a0b7107afa2700a65ef726": "Amount defined",
+      "text_62a0b7107afa2700a65ef730": "Per each unit",
+      "text_62a0b7107afa2700a65ef738": "For all units",
+      "text_62a0b7107afa2700a65ef73e": "<b>{{rate}} of 10 units with a fixed charge of {{fixedCharge}} per each unit would cost {{cost}}</b>\n{{rate}} x 10 + {{fixedCharge}} x 10 = {{cost}}",
+      "text_62a0b7107afa2700a65ef73a": "<b>{{rate}} of 10 units with a fixed charge of {{fixedCharge}} for all units would cost {{cost}}</b>\n{{rate}} x 10 + {{fixedCharge}} x 1 = {{cost}}",
+      "text_62a0b7107afa2700a65ef74c": "Remove fixed charge"
     },
     "project_620bc4d45f16c800e2324b82": {
       "text_620bc4d4269a55014d493f12": "Welcome to Lago",
@@ -1318,5 +1336,5 @@
       "country-code-zw": "Zimbabwe"
     }
   },
-  "exported_at": "2022-06-07T13:59:24.542Z"
+  "exported_at": "2022-06-09T11:53:18.112Z"
 }
