@@ -8,7 +8,8 @@ import localForage from 'localforage'
 
 import { Lago_Api_Error } from '~/generated/graphql'
 
-import { cache, AUTH_TOKEN_LS_KEY, ORGANIZATION_LS_KEY, addToast } from './cache'
+import { cache } from './cache'
+import { AUTH_TOKEN_LS_KEY, ORGANIZATION_LS_KEY, addToast } from './reactiveVars'
 import { logOut, getItemFromLS, omitDeep } from './utils'
 import { typeDefs, resolvers } from './graphqlResolvers'
 
