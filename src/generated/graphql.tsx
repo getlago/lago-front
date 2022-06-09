@@ -130,10 +130,13 @@ export type Charge = {
   billableMetric: BillableMetric;
   chargeModel: ChargeModelEnum;
   createdAt: Scalars['ISO8601DateTime'];
+  fixedAmount?: Maybe<Scalars['String']>;
+  fixedAmountTarget?: Maybe<FixedAmountTargetEnum>;
   freeUnits?: Maybe<Scalars['Int']>;
   graduatedRanges?: Maybe<Array<GraduatedRange>>;
   id: Scalars['ID'];
   packageSize?: Maybe<Scalars['Int']>;
+  rate?: Maybe<Scalars['String']>;
   updatedAt: Scalars['ISO8601DateTime'];
 };
 
@@ -142,15 +145,19 @@ export type ChargeInput = {
   amountCurrency: CurrencyEnum;
   billableMetricId: Scalars['ID'];
   chargeModel: ChargeModelEnum;
+  fixedAmount?: InputMaybe<Scalars['String']>;
+  fixedAmountTarget?: InputMaybe<FixedAmountTargetEnum>;
   freeUnits?: InputMaybe<Scalars['Int']>;
   graduatedRanges?: InputMaybe<Array<GraduatedRangeInput>>;
   id?: InputMaybe<Scalars['ID']>;
   packageSize?: InputMaybe<Scalars['Int']>;
+  rate?: InputMaybe<Scalars['String']>;
 };
 
 export enum ChargeModelEnum {
   Graduated = 'graduated',
   Package = 'package',
+  Percentage = 'percentage',
   Standard = 'standard'
 }
 
@@ -996,32 +1003,10 @@ export type EventCollection = {
   metadata: CollectionMetadata;
 };
 
-export type Forecast = {
-  __typename?: 'Forecast';
-  amountCents: Scalars['Int'];
-  amountCurrency: CurrencyEnum;
-  fees?: Maybe<Array<ForecastedFee>>;
-  fromDate: Scalars['ISO8601Date'];
-  issuingDate: Scalars['ISO8601Date'];
-  toDate: Scalars['ISO8601Date'];
-  totalAmountCents: Scalars['Int'];
-  totalAmountCurrency: CurrencyEnum;
-  vatAmountCents: Scalars['Int'];
-  vatAmountCurrency: CurrencyEnum;
-};
-
-export type ForecastedFee = {
-  __typename?: 'ForecastedFee';
-  aggregationType: AggregationTypeEnum;
-  amountCents: Scalars['Int'];
-  amountCurrency: CurrencyEnum;
-  billableMetricCode: Scalars['String'];
-  billableMetricName: Scalars['String'];
-  chargeModel: ChargeModelEnum;
-  units: Scalars['Int'];
-  vatAmountCents: Scalars['Int'];
-  vatAmountCurrency: CurrencyEnum;
-};
+export enum FixedAmountTargetEnum {
+  AllUnits = 'all_units',
+  EachUnit = 'each_unit'
+}
 
 export type GraduatedRange = {
   __typename?: 'GraduatedRange';
@@ -1366,8 +1351,6 @@ export type Query = {
   customers: CustomerCollection;
   /** Query events of an organization */
   events?: Maybe<EventCollection>;
-  /** Query the forecast of customer usage */
-  forecast: Forecast;
   /** Query a single plan of an organization */
   plan?: Maybe<PlanDetails>;
   /** Query plans of an organization */
@@ -1428,11 +1411,6 @@ export type QueryCustomersArgs = {
 export type QueryEventsArgs = {
   limit?: InputMaybe<Scalars['Int']>;
   page?: InputMaybe<Scalars['Int']>;
-};
-
-
-export type QueryForecastArgs = {
-  customerId?: InputMaybe<Scalars['ID']>;
 };
 
 
@@ -1723,13 +1701,6 @@ export type CustomerItemFragment = { __typename?: 'Customer', id: string, name?:
 export type CustomerMainInfosFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null };
 
 export type CustomerSubscriptionListFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } };
-
-export type UserUsageQueryVariables = Exact<{
-  customerId: Scalars['ID'];
-}>;
-
-
-export type UserUsageQuery = { __typename?: 'Query', forecast: { __typename?: 'Forecast', fromDate: any, toDate: any, issuingDate: any, amountCents: number, amountCurrency: CurrencyEnum, totalAmountCents: number, totalAmountCurrency: CurrencyEnum, vatAmountCents: number, vatAmountCurrency: CurrencyEnum, fees?: Array<{ __typename?: 'ForecastedFee', billableMetricName: string, billableMetricCode: string, aggregationType: AggregationTypeEnum, chargeModel: ChargeModelEnum, units: number, amountCents: number, amountCurrency: CurrencyEnum, vatAmountCents: number, vatAmountCurrency: CurrencyEnum }> | null } };
 
 export type VatRateOrganizationFragment = { __typename?: 'Organization', id: string, vatRate: number };
 
@@ -2845,60 +2816,6 @@ export function useRemoveCouponMutation(baseOptions?: Apollo.MutationHookOptions
 export type RemoveCouponMutationHookResult = ReturnType<typeof useRemoveCouponMutation>;
 export type RemoveCouponMutationResult = Apollo.MutationResult<RemoveCouponMutation>;
 export type RemoveCouponMutationOptions = Apollo.BaseMutationOptions<RemoveCouponMutation, RemoveCouponMutationVariables>;
-export const UserUsageDocument = gql`
-    query userUsage($customerId: ID!) {
-  forecast(customerId: $customerId) {
-    fromDate
-    toDate
-    issuingDate
-    amountCents
-    amountCurrency
-    totalAmountCents
-    totalAmountCurrency
-    vatAmountCents
-    vatAmountCurrency
-    fees {
-      billableMetricName
-      billableMetricCode
-      aggregationType
-      chargeModel
-      units
-      amountCents
-      amountCurrency
-      vatAmountCents
-      vatAmountCurrency
-    }
-  }
-}
-    `;
-
-/**
- * __useUserUsageQuery__
- *
- * To run a query within a React component, call `useUserUsageQuery` and pass it any options that fit your needs.
- * When your component renders, `useUserUsageQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useUserUsageQuery({
- *   variables: {
- *      customerId: // value for 'customerId'
- *   },
- * });
- */
-export function useUserUsageQuery(baseOptions: Apollo.QueryHookOptions<UserUsageQuery, UserUsageQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<UserUsageQuery, UserUsageQueryVariables>(UserUsageDocument, options);
-      }
-export function useUserUsageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserUsageQuery, UserUsageQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<UserUsageQuery, UserUsageQueryVariables>(UserUsageDocument, options);
-        }
-export type UserUsageQueryHookResult = ReturnType<typeof useUserUsageQuery>;
-export type UserUsageLazyQueryHookResult = ReturnType<typeof useUserUsageLazyQuery>;
-export type UserUsageQueryResult = Apollo.QueryResult<UserUsageQuery, UserUsageQueryVariables>;
 export const DeleteCustomerDocument = gql`
     mutation deleteCustomer($input: DestroyCustomerInput!) {
   destroyCustomer(input: $input) {
