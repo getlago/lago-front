@@ -42,10 +42,11 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
       trialPeriod: isNaN(plan?.trialPeriod) ? undefined : plan?.trialPeriod,
       // @ts-ignore
       charges: plan?.charges
-        ? plan?.charges.map(({ amount, graduatedRanges, packageSize, ...charge }) => ({
+        ? plan?.charges.map(({ amount, graduatedRanges, packageSize, fixedAmount, ...charge }) => ({
             // Amount can be null and this breaks the validation
             amount: amount || undefined,
             packageSize: packageSize == null ? undefined : packageSize,
+            fixedAmount: fixedAmount || undefined,
             graduatedRanges: !graduatedRanges ? null : graduatedRanges,
             ...charge,
           }))
