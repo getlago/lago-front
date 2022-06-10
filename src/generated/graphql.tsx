@@ -807,6 +807,7 @@ export type CreateCustomerInput = {
 export type CreatePlanInput = {
   amountCents: Scalars['Int'];
   amountCurrency: CurrencyEnum;
+  billChargesMonthly?: InputMaybe<Scalars['Boolean']>;
   charges: Array<ChargeInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']>;
@@ -1027,6 +1028,7 @@ export type Invoice = {
   __typename?: 'Invoice';
   amountCents: Scalars['Int'];
   amountCurrency: CurrencyEnum;
+  chargesFromDate?: Maybe<Scalars['ISO8601Date']>;
   createdAt: Scalars['ISO8601DateTime'];
   fromDate: Scalars['ISO8601Date'];
   id: Scalars['ID'];
@@ -1275,6 +1277,7 @@ export type Plan = {
   __typename?: 'Plan';
   amountCents: Scalars['Int'];
   amountCurrency: CurrencyEnum;
+  billChargesMonthly?: Maybe<Scalars['Boolean']>;
   /** Check if plan is deletable */
   canBeDeleted: Scalars['Boolean'];
   /** Number of charges attached to a plan */
@@ -1304,6 +1307,7 @@ export type PlanDetails = {
   __typename?: 'PlanDetails';
   amountCents: Scalars['Int'];
   amountCurrency: CurrencyEnum;
+  billChargesMonthly?: Maybe<Scalars['Boolean']>;
   /** Check if plan is deletable */
   canBeDeleted: Scalars['Boolean'];
   /** Number of charges attached to a plan */
@@ -1565,6 +1569,7 @@ export type UpdateOrganizationInput = {
 export type UpdatePlanInput = {
   amountCents: Scalars['Int'];
   amountCurrency: CurrencyEnum;
+  billChargesMonthly?: InputMaybe<Scalars['Boolean']>;
   charges: Array<ChargeInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']>;
@@ -1777,14 +1782,14 @@ export type UpdateVatRateOrganizationMutationVariables = Exact<{
 
 export type UpdateVatRateOrganizationMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string, vatRate: number } | null };
 
-export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, charges?: Array<{ __typename?: 'Charge', id: string, amount?: string | null, amountCurrency?: CurrencyEnum | null, chargeModel: ChargeModelEnum, freeUnits?: number | null, packageSize?: number | null, rate?: string | null, fixedAmount?: string | null, fixedAmountTarget?: FixedAmountTargetEnum | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null }> | null };
+export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, billChargesMonthly?: boolean | null, charges?: Array<{ __typename?: 'Charge', id: string, amount?: string | null, amountCurrency?: CurrencyEnum | null, chargeModel: ChargeModelEnum, freeUnits?: number | null, packageSize?: number | null, rate?: string | null, fixedAmount?: string | null, fixedAmountTarget?: FixedAmountTargetEnum | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null }> | null };
 
 export type GetSinglePlanQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetSinglePlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, charges?: Array<{ __typename?: 'Charge', id: string, amount?: string | null, amountCurrency?: CurrencyEnum | null, chargeModel: ChargeModelEnum, freeUnits?: number | null, packageSize?: number | null, rate?: string | null, fixedAmount?: string | null, fixedAmountTarget?: FixedAmountTargetEnum | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null }> | null } | null };
+export type GetSinglePlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, billChargesMonthly?: boolean | null, charges?: Array<{ __typename?: 'Charge', id: string, amount?: string | null, amountCurrency?: CurrencyEnum | null, chargeModel: ChargeModelEnum, freeUnits?: number | null, packageSize?: number | null, rate?: string | null, fixedAmount?: string | null, fixedAmountTarget?: FixedAmountTargetEnum | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null }> | null } | null };
 
 export type CreatePlanMutationVariables = Exact<{
   input: CreatePlanInput;
@@ -2149,6 +2154,7 @@ export const EditPlanFragmentDoc = gql`
   amountCurrency
   trialPeriod
   canBeDeleted
+  billChargesMonthly
   charges {
     id
     billableMetric {

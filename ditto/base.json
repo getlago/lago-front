@@ -1045,6 +1045,10 @@
       "text_62a0b7107afa2700a65ef73a": "<b>{{rate}} of 10 units with a fixed charge of {{fixedCharge}} for all units would cost {{cost}}</b>\n{{rate}} x 10 + {{fixedCharge}} x 1 = {{cost}}",
       "text_62a0b7107afa2700a65ef74c": "Remove fixed charge"
     },
+    "project_62a30bc3940c3583b1a429be": {
+      "text_62a30bc79dae432fb055330b": "Apply charges monthly",
+      "text_62a30bc79dae432fb055330f": "By switching on, all the charges will be invoiced monthly even if the plan is yearly"
+    },
     "project_620bc4d45f16c800e2324b82": {
       "text_620bc4d4269a55014d493f12": "Welcome to Lago",
       "text_620bc4d4269a55014d493fc9": "Nice to see you here, let’s start by creating your account.",
@@ -1336,5 +1340,5 @@
       "country-code-zw": "Zimbabwe"
     }
   },
-  "exported_at": "2022-06-09T13:19:42.028Z"
+  "exported_at": "2022-06-13T13:17:46.244Z"
 }

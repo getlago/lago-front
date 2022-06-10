@@ -27,6 +27,7 @@ gql`
     amountCurrency
     trialPeriod
     canBeDeleted
+    billChargesMonthly
     charges {
       id
       billableMetric {
