@@ -8,7 +8,14 @@ import { EditPlanFragment, FixedAmountTargetEnum } from '~/generated/graphql'
 import { PlanInterval, CurrencyEnum, ChargeModelEnum } from '~/generated/graphql'
 import { TextInputField, ButtonSelectorField, ComboBoxField, SwitchField } from '~/components/form'
 import { useI18nContext } from '~/core/I18nContext'
-import { Typography, Button, Skeleton } from '~/components/designSystem'
+import {
+  Typography,
+  Button,
+  Skeleton,
+  Icon,
+  Tooltip,
+  IconSizeEnum,
+} from '~/components/designSystem'
 import { theme, NAV_HEIGHT, Card } from '~/styles'
 import { AddChargeDialog, AddChargeDialogRef } from '~/components/plans/AddChargeDialog'
 import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
@@ -40,6 +47,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
       amountCurrency: plan?.amountCurrency || CurrencyEnum.Usd,
       // @ts-ignore
       trialPeriod: isNaN(plan?.trialPeriod) ? undefined : plan?.trialPeriod,
+      billChargesMonthly: plan?.billChargesMonthly || undefined,
       // @ts-ignore
       charges: plan?.charges
         ? plan?.charges.map(({ amount, graduatedRanges, packageSize, fixedAmount, ...charge }) => ({
@@ -146,6 +154,22 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
       rootElement.scrollTo({ top: element.offsetTop - 72 - 16, behavior: 'smooth' })
     }
   }, [newChargeId])
+
+  useEffect(() => {
+    if (
+      (!formikProps.values.charges ||
+        !formikProps.values.charges.length ||
+        formikProps.values.interval !== PlanInterval.Yearly) &&
+      !!formikProps.values.billChargesMonthly
+    ) {
+      formikProps.setFieldValue('billChargesMonthly', false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    formikProps.values.charges,
+    formikProps.values.billChargesMonthly,
+    formikProps.values.interval,
+  ])
 
   return (
     <>
@@ -331,15 +355,35 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                       })}
                     </Charges>
                   )}
-
-                  <Button
-                    startIcon="plus"
-                    variant="quaternary"
-                    disabled={isEdition && !plan?.canBeDeleted}
-                    onClick={() => addChargeDialogRef.current?.openDialog()}
-                  >
-                    {translate('text_624453d52e945301380e49d2')}
-                  </Button>
+                  <ChargeFooter>
+                    <Button
+                      startIcon="plus"
+                      variant="quaternary"
+                      disabled={isEdition && !plan?.canBeDeleted}
+                      onClick={() => addChargeDialogRef.current?.openDialog()}
+                    >
+                      {translate('text_624453d52e945301380e49d2')}
+                    </Button>
+                    {!!formikProps.values.charges.length &&
+                      formikProps.values.interval === PlanInterval.Yearly && (
+                        <ChargeInvoiceLine>
+                          <Typography color="textSecondary">
+                            {translate('text_62a30bc79dae432fb055330b')}
+                          </Typography>
+                          <SwitchField
+                            name="billChargesMonthly"
+                            disabled={isEdition && !plan?.canBeDeleted}
+                            formikProps={formikProps}
+                          />
+                          <ChargeInvoiceTooltip
+                            title={translate('text_62a30bc79dae432fb055330f')}
+                            placement="top-end"
+                          >
+                            <Icon name="info-circle" />
+                          </ChargeInvoiceTooltip>
+                        </ChargeInvoiceLine>
+                      )}
+                  </ChargeFooter>
                 </Card>
                 {children}
                 <ButtonContainer>
@@ -492,4 +536,23 @@ const Main = styled.div`
 
 const SkeletonHeader = styled.div`
   padding: 0 ${theme.spacing(8)};
+`
+
+const ChargeFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+`
+
+const ChargeInvoiceLine = styled.div`
+  display: flex;
+  align-items: center;
+  > *:not(:last-child) {
+    margin-right: ${theme.spacing(3)};
+  }
+`
+
+const ChargeInvoiceTooltip = styled(Tooltip)`
+  height: ${IconSizeEnum.medium};
 `

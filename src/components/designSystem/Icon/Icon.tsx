@@ -32,7 +32,7 @@ interface IconProps {
   onClick?: () => {}
 }
 
-enum SizeEnum {
+export enum IconSizeEnum {
   small = '12px',
   medium = '16px',
   large = '24px',
@@ -90,9 +90,9 @@ export const Icon = ({
 }
 
 const StyledIcon = styled(({ component, ...props }) => cloneElement(component, props))`
-  width: ${(props: { $size: keyof typeof SizeEnum }) => SizeEnum[props.$size]};
-  min-width: ${(props: { $size: keyof typeof SizeEnum }) => SizeEnum[props.$size]};
-  height: ${(props: { $size: keyof typeof SizeEnum }) => SizeEnum[props.$size]};
+  width: ${(props: { $size: keyof typeof IconSizeEnum }) => IconSizeEnum[props.$size]};
+  min-width: ${(props: { $size: keyof typeof IconSizeEnum }) => IconSizeEnum[props.$size]};
+  height: ${(props: { $size: keyof typeof IconSizeEnum }) => IconSizeEnum[props.$size]};
   color: ${(props) => props.$color};
   cursor: ${({ $canClick }) => ($canClick ? 'pointer' : 'initial')};
 
