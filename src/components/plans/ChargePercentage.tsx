@@ -40,10 +40,6 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
     style: 'percent',
   })
 
-  const displayFixedAmountSection =
-    (!isNaN(Number(localCharge.fixedAmount)) && !!Number(localCharge.fixedAmount)) ||
-    ([undefined, '', null].includes(localCharge.fixedAmount) && !!localCharge.fixedAmountTarget)
-
   return (
     <Container>
       <TextInput
@@ -66,7 +62,7 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
         }}
       />
 
-      {displayFixedAmountSection ? (
+      {!!localCharge.fixedAmountTarget ? (
         <>
           <LineAmount>
             <TextInput
