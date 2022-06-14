@@ -80,9 +80,9 @@
   },
   "dependencies": {
     "@apollo/client": "3.4.16",
-    "@mui/material": "5.4.3",
-    "@mui/styled-engine": "5.4.2",
-    "@mui/styled-engine-sc": "5.4.2",
+    "@mui/material": "5.8.4",
+    "@mui/styled-engine": "5.8.0",
+    "@mui/styled-engine-sc": "5.8.0",
     "@sentry/react": "^7.0.0",
     "@sentry/tracing": "^7.0.0",
     "add": "2.0.6",
@@ -107,7 +107,7 @@
   },
   "resolutions": {
     "styled-components": "5.3.5",
-    "@mui/styled-engine": "5.4.2",
+    "@mui/styled-engine": "5.8.0",
     "lodash": "4.17.21"
   },
   "engines": {
