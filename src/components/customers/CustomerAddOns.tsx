@@ -6,7 +6,7 @@ import { DateTime } from 'luxon'
 
 import { CustomerAddOnsFragment } from '~/generated/graphql'
 import { SectionHeader } from '~/styles/customer'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { Typography, Avatar, Icon, Button } from '~/components/designSystem'
 import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
@@ -33,7 +33,7 @@ interface CustomerAddOnsProps {
 export const CustomerAddOns = memo(
   forwardRef<AddAddOnToCustomerDialogRef, CustomerAddOnsProps>(
     ({ addOns }: CustomerAddOnsProps, ref) => {
-      const { translate } = useI18nContext()
+      const { translate } = useInternationalization()
 
       return (
         <>

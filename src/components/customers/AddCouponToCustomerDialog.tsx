@@ -6,7 +6,7 @@ import { useFormik } from 'formik'
 
 import { Dialog, Button, DialogRef, Typography, Alert } from '~/components/designSystem'
 import { ComboBoxField, TextInputField, ComboBox } from '~/components/form'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import {
   useGetCouponForCustomerLazyQuery,
   CreateAppliedCouponInput,
@@ -52,7 +52,7 @@ export const AddCouponToCustomerDialog = forwardRef<
   AddCouponToCustomerDialogRef,
   AddCouponToCustomerDialogProps
 >(({ customerId }: AddCouponToCustomerDialogProps, ref) => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const mounted = useRef(false)
   const [getCoupons, { loading, data }] = useGetCouponForCustomerLazyQuery({
     variables: { limit: 50, status: CouponStatusEnum.Active },

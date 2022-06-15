@@ -4,7 +4,7 @@ import { DateTime } from 'luxon'
 
 import { CustomerInvoiceListFragment } from '~/generated/graphql'
 import { Typography, Button, Tooltip } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
 import { addToast } from '~/core/apolloClient'
@@ -28,7 +28,7 @@ interface CustomerInvoicesListProps {
 }
 
 export const CustomerInvoicesList = ({ invoices }: CustomerInvoicesListProps) => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
 
   return (
     <SideSection $empty={!invoices || !invoices.length}>

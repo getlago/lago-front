@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 import { theme } from '~/styles'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 
 import { Typography } from './Typography'
 
@@ -42,7 +42,7 @@ export const STATUS_WIDTH = 84
 const STATUS_SIZE = 12
 
 export const Status = ({ type, className, label }: StatusProps) => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const config = STATUS_CONFIG[type]
 
   switch (type) {

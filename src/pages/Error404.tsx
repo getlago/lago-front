@@ -1,13 +1,13 @@
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import EmojiError from '~/public/images/exploding-head.png'
 import { theme } from '~/styles'
 
 const Error404 = () => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const navigate = useNavigate()
 
   // TODO

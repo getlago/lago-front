@@ -5,7 +5,7 @@ import styled from 'styled-components'
 
 import { Page, Title, Subtitle, StyledLogo, Card } from '~/styles/auth'
 import { Typography, Alert, Button } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { theme } from '~/styles'
 import { TextInput } from '~/components/form'
 import { LOGIN_ROUTE } from '~/core/router'
@@ -52,7 +52,7 @@ const PASSWORD_VALIDATION = [
 ]
 
 const SignUp = () => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const [signUp, { error: signUpError }] = useSignupMutation({
     context: { silentErrorCodes: [Lago_Api_Error.UserAlreadyExists] },
     onCompleted(res) {

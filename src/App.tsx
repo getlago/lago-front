@@ -3,8 +3,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material'
 import { ApolloClient, NormalizedCacheObject, ApolloProvider } from '@apollo/client'
 
-import { initializeApolloClient } from '~/core/apolloClient'
-import { I18nProvider, LocaleEnum } from '~/core/I18nContext'
+import { initializeApolloClient, initializeTranslations } from '~/core/apolloClient'
 import { theme } from '~/styles'
 import { UserIdentifier } from '~/components/UserIdentifier'
 import { ToastContainer } from '~/components/designSystem/Toasts'
@@ -23,6 +22,7 @@ const App = () => {
     }
     // eslint-disable-next-line no-console
     initApolloClient().catch((err) => console.error(err))
+    initializeTranslations()
   }, [])
 
   if (!client) return null
@@ -31,14 +31,12 @@ const App = () => {
     <BrowserRouter basename="/">
       <ApolloProvider client={client}>
         <ThemeProvider theme={theme}>
-          <I18nProvider locale={LocaleEnum.en}>
-            {inputGlobalStyles}
-            <ErrorBoundary>
-              <RouteWrapper />
-            </ErrorBoundary>
-            <UserIdentifier />
-            <ToastContainer />
-          </I18nProvider>
+          {inputGlobalStyles}
+          <ErrorBoundary>
+            <RouteWrapper />
+          </ErrorBoundary>
+          <UserIdentifier />
+          <ToastContainer />
         </ThemeProvider>
       </ApolloProvider>
     </BrowserRouter>

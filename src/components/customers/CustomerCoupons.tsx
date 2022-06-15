@@ -5,7 +5,7 @@ import styled from 'styled-components'
 
 import { CustomerCouponFragment, useRemoveCouponMutation } from '~/generated/graphql'
 import { SectionHeader } from '~/styles/customer'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { Typography, Avatar, Icon, Button, Tooltip } from '~/components/designSystem'
 import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
@@ -37,7 +37,7 @@ interface CustomerCouponsProps {
 export const CustomerCoupons = memo(({ coupons }: CustomerCouponsProps) => {
   const removeDialogRef = useRef<WarningDialogRef>(null)
   const deleteCouponId = useRef<string | null>(null)
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const [removeCoupon] = useRemoveCouponMutation({
     onCompleted({ terminateAppliedCoupon }) {
       if (!!terminateAppliedCoupon) {

@@ -10,7 +10,7 @@ import {
 } from '~/generated/graphql'
 import { TextInputField, ComboBoxField } from '~/components/form'
 import { Typography, Button, Skeleton } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { theme, NAV_HEIGHT, Card } from '~/styles'
 import { BillableMetricCodeSnippet } from '~/components/billableMetrics/BillableMetricCodeSnippet'
 
@@ -27,7 +27,7 @@ export const BillableMetricForm = ({
   isEdition,
   onSave,
 }: BillableMetricFormProps) => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const formikProps = useFormik<CreateBillableMetricInput>({
     initialValues: {
       name: billableMetric?.name || '',

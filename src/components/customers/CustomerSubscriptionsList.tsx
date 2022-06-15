@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 
 import { CustomerSubscriptionListFragment, StatusTypeEnum } from '~/generated/graphql'
 import { Typography, Button, Avatar, Icon, Status, StatusEnum } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
 
@@ -54,7 +54,7 @@ export const CustomerSubscriptionsList = forwardRef<
   AddPlanToCustomerDialogRef,
   CustomerSubscriptionsListProps
 >(({ subscriptions }: CustomerSubscriptionsListProps, ref) => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const hasNoSubscription = !subscriptions || !subscriptions.length
   const downgradingTo =
     !!subscriptions && !!subscriptions.length

@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { Dialog, Button, DialogRef, Typography } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { useUpdateVatRateOrganizationMutation, Lago_Api_Error } from '~/generated/graphql'
 import { theme } from '~/styles'
 import { LagoGQLError, addToast } from '~/core/apolloClient'
@@ -27,7 +27,7 @@ export const EditOrganizationVatRateDialog = forwardRef<
   DialogRef,
   EditOrganizationVatRateDialogProps
 >(({ vatRate }: EditOrganizationVatRateDialogProps, ref) => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const [mutationError, setMutationError] = useState<string | undefined>(undefined)
   const [localVatRate, setLocalVatRate] = useState<number>(vatRate)
   const [updateVatRate] = useUpdateVatRateOrganizationMutation({

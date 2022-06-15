@@ -3,7 +3,7 @@ import { useMemo, useState, useEffect } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import {
   Typography,
   Button,
@@ -55,7 +55,7 @@ gql`
 `
 
 const Debugger = () => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const [selectedEventId, setSelectedEventId] = useState<string | undefined>(undefined)
   const [refetchLoading, setRefetchLoading] = useState<boolean>(false)
   const { data, error, loading, refetch, fetchMore } = useEventsQuery({

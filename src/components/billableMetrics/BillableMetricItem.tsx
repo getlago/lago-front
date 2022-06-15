@@ -18,7 +18,7 @@ import {
   Tooltip,
 } from '~/components/designSystem'
 import { theme, BaseListItem, ListItem, MenuPopper, PopperOpener, ItemContainer } from '~/styles'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 
@@ -49,7 +49,7 @@ export const BillableMetricItem = memo(
   ({ billableMetric, navigationProps }: BillableMetricItemProps) => {
     const { id, name, code, createdAt, canBeDeleted } = billableMetric
     const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
-    const { translate } = useI18nContext()
+    const { translate } = useInternationalization()
     const navigate = useNavigate()
 
     return (

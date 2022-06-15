@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
 import { useCurrentUserInfosVar, addToast } from '~/core/apolloClient'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { Typography, Button } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
 import { theme } from '~/styles'
@@ -16,7 +16,7 @@ gql`
 
 const ApiKeys = () => {
   const { currentOrganization } = useCurrentUserInfosVar()
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const apiKey = currentOrganization?.apiKey.substring(5).replace(/.(?=.{3,}$)/g, '•')
 
   return (

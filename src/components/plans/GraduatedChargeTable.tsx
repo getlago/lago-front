@@ -6,7 +6,7 @@ import { InputAdornment } from '@mui/material'
 import { theme } from '~/styles'
 import { Table, Typography, Button, Tooltip, Alert } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useGraduatedChargeForm } from '~/hooks/plans/useGraduatedChargeForm'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
@@ -26,7 +26,7 @@ export const GraduatedChargeTable = ({
   formikProps,
   disabled,
 }: GraduatedChargeTableProps) => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const [errorIndex, setErrorIndex] = useState<number | undefined>()
   const { tableDatas, addRange, handleUpdate, deleteRange, infosCaclucation } =
     useGraduatedChargeForm({

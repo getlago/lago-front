@@ -4,7 +4,7 @@ import { useNavigate, generatePath } from 'react-router-dom'
 
 import { Typography, Button, InfiniteScroll } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
 import { CREATE_BILLABLE_METRIC_ROUTE, UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import { useBillableMetricsQuery, BillableMetricItemFragmentDoc } from '~/generated/graphql'
@@ -33,7 +33,7 @@ gql`
 `
 
 const BillableMetricsList = () => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   let navigate = useNavigate()
   const { data, error, loading, fetchMore } = useBillableMetricsQuery({
     variables: { limit: 20 },

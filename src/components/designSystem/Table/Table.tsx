@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import styled from 'styled-components'
 
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { theme } from '~/styles'
 
 import { Button } from '../Button'
@@ -51,7 +51,7 @@ export const Table = <T extends Record<string, unknown>>({
   data,
   onDeleteRow,
 }: TableProps<T>) => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
 
   return (
     <Content className={className}>

@@ -21,7 +21,7 @@ import {
   AddCustomerDialogFragmentDoc,
 } from '~/generated/graphql'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import {
   DeleteCustomerDialog,
   DeleteCustomerDialogRef,
@@ -83,7 +83,7 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
       ? null
       : subscriptions.find((s) => s.status === StatusTypeEnum.Active)
   const status = mapStatus(subscription?.status)
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const navigate = useNavigate()
 
   return (

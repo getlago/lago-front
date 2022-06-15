@@ -7,7 +7,7 @@ import {
   DeleteCustomerVatRateFragment,
 } from '~/generated/graphql'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 
 gql`
@@ -43,7 +43,7 @@ export const DeleteCustomerVatRateDialog = forwardRef<DialogRef, DeleteCustomerV
         }
       },
     })
-    const { translate } = useI18nContext()
+    const { translate } = useInternationalization()
 
     return (
       <WarningDialog

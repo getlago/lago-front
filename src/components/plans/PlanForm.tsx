@@ -7,7 +7,7 @@ import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
 import { EditPlanFragment, FixedAmountTargetEnum } from '~/generated/graphql'
 import { PlanInterval, CurrencyEnum, ChargeModelEnum } from '~/generated/graphql'
 import { TextInputField, ButtonSelectorField, ComboBoxField, SwitchField } from '~/components/form'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import {
   Typography,
   Button,
@@ -33,7 +33,7 @@ interface PlanFormProps {
 export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFormProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const addChargeDialogRef = useRef<AddChargeDialogRef>(null)
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const [newChargeId, setNewChargeId] = useState<string | null>(null)
   const formikProps = useFormik<PlanFormInput>({
     initialValues: {

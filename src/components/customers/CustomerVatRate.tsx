@@ -3,7 +3,7 @@ import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
 import { SectionHeader, SideSection } from '~/styles/customer'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { Button, Typography, Avatar, Icon, Popper, Tooltip } from '~/components/designSystem'
 import { useCurrentUserInfosVar } from '~/core/apolloClient'
 import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT, MenuPopper } from '~/styles'
@@ -44,7 +44,7 @@ interface CustomerVatRateProps {
 }
 
 export const CustomerVatRate = ({ customer }: CustomerVatRateProps) => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const { currentOrganization } = useCurrentUserInfosVar()
   const hasNoVatRate = typeof customer?.vatRate !== 'number'
   const editDialogRef = useRef<EditCustomerVatRateDialogRef>(null)

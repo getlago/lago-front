@@ -5,7 +5,7 @@ import { useNavigate, generatePath } from 'react-router-dom'
 import { CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
 import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
 import { Typography, Button, InfiniteScroll } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import EmojiError from '~/public/images/exploding-head.png'
 import EmojiEmpty from '~/public/images/spider-web.png'
@@ -30,7 +30,7 @@ gql`
 `
 
 const CouponsList = () => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   let navigate = useNavigate()
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `coupon-item-${i}`,

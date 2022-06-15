@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { CreateAddOnInput, CurrencyEnum, EditAddOnFragment } from '~/generated/graphql'
 import { theme, NAV_HEIGHT, Card } from '~/styles'
 import { Typography, Button, Skeleton } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { TextInputField, ComboBoxField } from '~/components/form'
 
 import { AddOnCodeSnippet } from './AddOnCodeSnippet'
@@ -18,7 +18,7 @@ interface AddOnFormProps {
 }
 
 export const AddOnForm = ({ isEdition, loading, addOn, onSave }: AddOnFormProps) => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const formikProps = useFormik<CreateAddOnInput>({
     initialValues: {
       name: addOn?.name || '',

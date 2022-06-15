@@ -5,7 +5,7 @@ import { ClickAwayListener } from '@mui/material'
 import { useApolloClient } from '@apollo/client'
 import { useNavigate, useLocation, Location, matchPath } from 'react-router-dom'
 
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { logOut, useCurrentUserInfosVar } from '~/core/apolloClient'
 import { Avatar, Button, TabButton, Popper, IconName } from '~/components/designSystem'
 import { theme } from '~/styles'
@@ -38,7 +38,7 @@ interface TabProps {
 const SideNav = () => {
   const client = useApolloClient()
   const { currentOrganization } = useCurrentUserInfosVar()
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
