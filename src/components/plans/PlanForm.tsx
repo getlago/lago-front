@@ -50,14 +50,17 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
       billChargesMonthly: plan?.billChargesMonthly || undefined,
       // @ts-ignore
       charges: plan?.charges
-        ? plan?.charges.map(({ amount, graduatedRanges, packageSize, fixedAmount, ...charge }) => ({
-            // Amount can be null and this breaks the validation
-            amount: amount || undefined,
-            packageSize: packageSize == null ? undefined : packageSize,
-            fixedAmount: fixedAmount || undefined,
-            graduatedRanges: !graduatedRanges ? null : graduatedRanges,
-            ...charge,
-          }))
+        ? plan?.charges.map(
+            ({ amount, graduatedRanges, packageSize, fixedAmount, rate, ...charge }) => ({
+              // Amount can be null and this breaks the validation
+              amount: amount || undefined,
+              packageSize: packageSize == null ? undefined : packageSize,
+              fixedAmount: fixedAmount || undefined,
+              graduatedRanges: !graduatedRanges ? null : graduatedRanges,
+              rate: rate || undefined,
+              ...charge,
+            })
+          )
         : ([] as LocalChargeInput[]),
     },
     validationSchema: object().shape({
