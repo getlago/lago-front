@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
 import { theme, PageHeader, Card } from '~/styles'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { Typography, Button } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import EmojiParty from '~/public/images/party.png'
@@ -12,7 +12,7 @@ import { COUPONS_ROUTE } from '~/core/router'
 import { CouponForm } from '~/components/coupons/CouponForm'
 
 const CreateCoupon = () => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   let navigate = useNavigate()
   const { isEdition, loading, coupon, isCreated, resetIsCreated, onSave } = useCreateEditCoupon()
   const warningDialogRef = useRef<WarningDialogRef>(null)

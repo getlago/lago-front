@@ -4,7 +4,7 @@ import { forwardRef } from 'react'
 import { Typography, DialogRef } from '~/components/designSystem'
 import { DeletePlanDialogFragment, useDeletePlanMutation } from '~/generated/graphql'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 
 gql`
@@ -47,7 +47,7 @@ export const DeletePlanDialog = forwardRef<DialogRef, DeletePlanDialogProps>(
         cache.evict({ id: cacheId })
       },
     })
-    const { translate } = useI18nContext()
+    const { translate } = useInternationalization()
 
     return (
       <WarningDialog

@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { Dialog, Button, DialogRef, Typography } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import {
   useUpdateCustomerVatRateMutation,
   Lago_Api_Error,
@@ -36,7 +36,7 @@ interface EditCustomerVatRateDialogProps {
 
 export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRateDialogProps>(
   ({ customer }: EditCustomerVatRateDialogProps, ref) => {
-    const { translate } = useI18nContext()
+    const { translate } = useInternationalization()
     const [mutationError, setMutationError] = useState<string | undefined>(undefined)
     const vatRate = typeof customer?.vatRate === 'number' ? customer?.vatRate : undefined
     const [localVatRate, setLocalVatRate] = useState<number | undefined>(vatRate)

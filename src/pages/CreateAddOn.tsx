@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
 import { theme, PageHeader, Card } from '~/styles'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { Typography, Button } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import EmojiParty from '~/public/images/party.png'
@@ -12,7 +12,7 @@ import { ADD_ONS_ROUTE } from '~/core/router'
 import { AddOnForm } from '~/components/addOns/AddOnForm'
 
 const CreateAddOn = () => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   let navigate = useNavigate()
   const { isEdition, loading, addOn, isCreated, resetIsCreated, onSave } = useCreateEditAddOn()
   const warningDialogRef = useRef<WarningDialogRef>(null)

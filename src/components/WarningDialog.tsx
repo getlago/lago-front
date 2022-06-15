@@ -1,7 +1,7 @@
 import { forwardRef } from 'react'
 
 import { Dialog, DialogProps, Button, DialogRef } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 
 enum WarningDialogMode {
   info = 'info',
@@ -21,7 +21,7 @@ export const WarningDialog = forwardRef<DialogRef, WarningDialogProps>(
     { onContinue, continueText, mode = WarningDialogMode.danger, ...props }: WarningDialogProps,
     ref
   ) => {
-    const { translate } = useI18nContext()
+    const { translate } = useInternationalization()
 
     return (
       <Dialog

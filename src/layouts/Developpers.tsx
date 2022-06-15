@@ -3,13 +3,13 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { PageHeader } from '~/styles'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { Typography, BasicTabs } from '~/components/designSystem'
 import { API_KEYS_ROUTE, WEBHOOK_ROUTE, DEVELOPPERS_ROUTE, DEBUGGER_ROUTE } from '~/core/router'
 import { NAV_HEIGHT } from '~/styles'
 
 const Developpers = () => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const tabsOptions = [

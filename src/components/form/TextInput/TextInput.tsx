@@ -8,7 +8,7 @@ import {
 import styled, { css } from 'styled-components'
 import _debounce from 'lodash/debounce'
 
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { Typography, Button, Tooltip, Icon } from '~/components/designSystem'
 import { theme } from '~/styles'
 
@@ -108,7 +108,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
     }: TextInputProps,
     ref
   ) => {
-    const { translate } = useI18nContext()
+    const { translate } = useInternationalization()
     const [localValue, setLocalValue] = useState<string | number>('')
     const [isVisible, setIsVisible] = useState(!password)
     const debouncedSetValue = useMemo(

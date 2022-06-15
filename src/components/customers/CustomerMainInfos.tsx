@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
 import { Typography, Button, Skeleton } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
 import { CustomerMainInfosFragment } from '~/generated/graphql'
@@ -42,7 +42,7 @@ const formatUrl: (url: string) => string = (url) => {
 }
 
 export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInfosProps) => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
 
   if (loading || !customer)
     return (

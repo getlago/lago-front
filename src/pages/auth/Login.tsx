@@ -5,7 +5,7 @@ import { useFormik } from 'formik'
 
 import { theme } from '~/styles'
 import { Typography, Button, Alert } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { useLoginUserMutation, Lago_Api_Error, CurrentUserFragmentDoc } from '~/generated/graphql'
 import { onLogIn } from '~/core/apolloClient'
 import { TextInputField } from '~/components/form'
@@ -27,7 +27,7 @@ gql`
 `
 
 const Login = () => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const [login, { error: loginError }] = useLoginUserMutation({
     context: { silentErrorCodes: [Lago_Api_Error.IncorrectLoginOrPassword] },
     onCompleted(res) {

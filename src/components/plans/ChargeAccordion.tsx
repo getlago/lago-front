@@ -5,7 +5,7 @@ import styled from 'styled-components'
 
 import { theme } from '~/styles'
 import { Button, Typography, Tooltip } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
 import { ComboBox, TextInput } from '~/components/form'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
@@ -30,7 +30,7 @@ export const ChargeAccordion = ({
   formikProps,
 }: ChargeAccordionProps) => {
   const [isOpen, setIsOpen] = useState(!formikProps.values.charges?.[index]?.id ? true : false)
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const localCharge = formikProps.values.charges[index]
 
   const handleUpdate = useCallback(

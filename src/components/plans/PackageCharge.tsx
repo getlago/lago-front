@@ -6,7 +6,7 @@ import { InputAdornment } from '@mui/material'
 
 import { ComboBox, TextInput } from '~/components/form'
 import { Alert, Typography } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { theme } from '~/styles'
 import { CurrencyEnum } from '~/generated/graphql'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
@@ -20,7 +20,7 @@ interface PackageChargeProps {
 }
 
 export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageChargeProps) => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const localCharge = formikProps.values.charges[chargeIndex]
 
   const handleUpdate = useCallback(

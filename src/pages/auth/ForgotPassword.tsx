@@ -1,12 +1,12 @@
 import { useNavigate } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { LOGIN_ROUTE } from '~/core/router'
 import { Page, Title, Subtitle, StyledLogo, Card } from '~/styles/auth'
 
 const ForgotPassword = () => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   let navigate = useNavigate()
 
   return (

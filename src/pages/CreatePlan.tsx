@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { theme, PageHeader, Card } from '~/styles'
 import { Typography, Button } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { PLANS_ROUTE } from '~/core/router'
 import EmojiParty from '~/public/images/party.png'
@@ -14,7 +14,7 @@ import { useCreateEditPlan } from '~/hooks/plans/useCreateEditPlan'
 const CreatePlan = () => {
   const { loading, isEdition, isCreated, plan, onSave, resetIsCreated } = useCreateEditPlan()
   const warningDialogRef = useRef<WarningDialogRef>(null)
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   let navigate = useNavigate()
 
   return (

@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { Dialog, Button, DialogRef, Typography } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { useGetbillableMetricsLazyQuery, BillableMetricForPlanFragment } from '~/generated/graphql'
 import { theme } from '~/styles'
 
@@ -34,7 +34,7 @@ interface AddChargeDialogProps {
 export const AddChargeDialog = forwardRef<DialogRef, AddChargeDialogProps>(
   ({ disabledItems, onConfirm }: AddChargeDialogProps, ref) => {
     const [selectedId, setSelectedId] = useState<string>()
-    const { translate } = useI18nContext()
+    const { translate } = useInternationalization()
     const [getBillableMetrics, { loading, data }] = useGetbillableMetricsLazyQuery({
       variables: { limit: 50 },
     })

@@ -6,7 +6,7 @@ import { Typography, Button, InfiniteScroll } from '~/components/designSystem'
 import { CREATE_PLAN_ROUTE, UPDATE_PLAN_ROUTE } from '~/core/router'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { usePlansQuery, PlanItemFragmentDoc } from '~/generated/graphql'
 import EmojiError from '~/public/images/exploding-head.png'
 import EmojiEmpty from '~/public/images/spider-web.png'
@@ -30,7 +30,7 @@ gql`
 `
 
 const PlansList = () => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   let navigate = useNavigate()
   const { data, error, loading, fetchMore } = usePlansQuery({
     variables: { limit: 10 },

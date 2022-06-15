@@ -10,7 +10,7 @@ import styled from 'styled-components'
 
 import { Typography, Button } from '~/components/designSystem'
 import { theme, NAV_HEIGHT } from '~/styles'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 
 Prism.manual = true
@@ -34,7 +34,7 @@ export const CodeSnippet = memo(
     displayHead = true,
   }: CodeSnippetProps) => {
     const codeRef = useRef(null)
-    const { translate } = useI18nContext()
+    const { translate } = useInternationalization()
 
     useEffect(() => {
       if (codeRef && codeRef.current) {

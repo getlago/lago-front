@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { Dialog, Button, DialogRef, Alert } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 import { theme } from '~/styles'
 import {
@@ -47,7 +47,7 @@ export const AddPlanToCustomerDialog = forwardRef<DialogRef, AddPlanToCustomerDi
     { customerId, customerName, existingPlanIds, refetchCustomer }: AddPlanToCustomerDialogProps,
     ref
   ) => {
-    const { translate } = useI18nContext()
+    const { translate } = useInternationalization()
     const [planId, setPlanId] = useState<string>()
     const [getPlans, { loading, data }] = useGetPlansLazyQuery()
     const [create] = useCreateSubscriptionMutation({

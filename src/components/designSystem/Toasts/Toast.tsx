@@ -4,7 +4,7 @@ import clsns from 'classnames'
 
 import { theme } from '~/styles'
 import { removeToast, TToast, TSeverity, ToastSeverityEnum } from '~/core/apolloClient'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 
 import { Typography } from '../Typography'
 import { Button } from '../Button'
@@ -21,7 +21,7 @@ const AUTO_DISMISS_TIME = 6000
 export const Toast = forwardRef<ToastRef, ToastProps>(({ toast }: ToastProps, ref) => {
   const [closing, setClosing] = useState(false)
   const timeoutRef = useRef(null)
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const { id, severity = ToastSeverityEnum.info, autoDismiss = true, message, translateKey } = toast
 
   const startTimeout = useCallback(

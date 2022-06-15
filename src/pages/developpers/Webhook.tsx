@@ -11,7 +11,7 @@ import {
   Avatar,
   Icon,
 } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT, MenuPopper } from '~/styles'
 import { useWehbookSettingQuery } from '~/generated/graphql'
 import { EditWebhookDialog, EditWebhookDialogRef } from '~/components/developpers/EditWebhookDialog'
@@ -33,7 +33,7 @@ gql`
 `
 
 const Webhook = () => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const editDialogRef = useRef<EditWebhookDialogRef>(null)
   const deleleDialogRef = useRef<DeleteWebhookDialogRef>(null)
   const { data, loading } = useWehbookSettingQuery()

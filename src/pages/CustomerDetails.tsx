@@ -12,7 +12,7 @@ import {
   Tooltip,
   BasicTabs,
 } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { CUSTOMERS_LIST_ROUTE, CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
 import {
   useGetCustomerQuery,
@@ -104,7 +104,7 @@ const CustomerDetails = () => {
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
   const addOnDialogRef = useRef<AddAddOnToCustomerDialogRef>(null)
   const subscriptionsDialogRef = useRef<AddPlanToCustomerDialogRef>(null)
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { id, tab } = useParams()
   const { data, loading, error, refetch } = useGetCustomerQuery({

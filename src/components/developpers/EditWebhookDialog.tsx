@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { Dialog, Button, DialogRef, Typography } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { useUpdateOrganizationMutation, Lago_Api_Error } from '~/generated/graphql'
 import { theme } from '~/styles'
 import { LagoGQLError, addToast } from '~/core/apolloClient'
@@ -25,7 +25,7 @@ interface EditWebhookDialogProps {
 
 export const EditWebhookDialog = forwardRef<DialogRef, EditWebhookDialogProps>(
   ({ webhook }: EditWebhookDialogProps, ref) => {
-    const { translate } = useI18nContext()
+    const { translate } = useInternationalization()
     const [mutationError, setMutationError] = useState<string | undefined>(undefined)
     const [localWebhook, setLocalWebhook] = useState<string | undefined>(webhook || undefined)
     const isEdition = !!webhook

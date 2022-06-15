@@ -7,7 +7,7 @@ import { intlFormatNumber } from '~/core/intlFormatNumber'
 import { TextInput, ButtonSelector, ComboBox } from '~/components/form'
 import { theme } from '~/styles'
 import { Alert, Typography, Button, Tooltip } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { CurrencyEnum, FixedAmountTargetEnum } from '~/generated/graphql'
 
 import { PlanFormInput } from './types'
@@ -19,7 +19,7 @@ interface ChargePercentageProps {
 }
 
 export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargePercentageProps) => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const localCharge = formikProps.values.charges[chargeIndex]
   const handleUpdate = useCallback(
     (name, value) => {

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { theme, PageHeader, Card } from '~/styles'
 import { Typography, Button } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { BILLABLE_METRICS_ROUTE } from '~/core/router'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import EmojiParty from '~/public/images/party.png'
@@ -12,7 +12,7 @@ import { BillableMetricForm } from '~/components/billableMetrics/BillableMetricF
 import { useCreateEditBillableMetric } from '~/hooks/useCreateEditBillableMetric'
 
 const CreateBillableMetric = () => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const { isEdition, loading, billableMetric, isCreated, resetIsCreated, onSave } =
     useCreateEditBillableMetric()
   const warningDialogRef = useRef<WarningDialogRef>(null)

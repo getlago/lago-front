@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { gql } from '@apollo/client'
 
 import { Typography, Button, Skeleton, Avatar, Icon } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT } from '~/styles'
 import { useVatRateSettingQuery } from '~/generated/graphql'
 import {
@@ -24,7 +24,7 @@ gql`
 `
 
 const VatRate = () => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const editDialogRef = useRef<EditOrganizationVatRateDialogRef>(null)
   const { data, loading } = useVatRateSettingQuery()
   const vatRate = data?.currentUser?.organizations

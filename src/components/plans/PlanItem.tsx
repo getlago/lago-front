@@ -14,7 +14,7 @@ import {
   Tooltip,
   Popper,
 } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { PlanItemFragment, DeletePlanDialogFragmentDoc } from '~/generated/graphql'
 import { UPDATE_PLAN_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
@@ -44,7 +44,7 @@ interface PlanItemProps {
 export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
   const deleteDialogRef = useRef<DeletePlanDialogRef>(null)
   const { id, name, code, customerCount, chargeCount, createdAt, canBeDeleted } = plan
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const navigate = useNavigate()
 
   return (

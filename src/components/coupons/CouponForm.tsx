@@ -10,7 +10,7 @@ import {
 } from '~/generated/graphql'
 import { theme, NAV_HEIGHT, Card } from '~/styles'
 import { Typography, Button, Skeleton } from '~/components/designSystem'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { TextInputField, ComboBoxField } from '~/components/form'
 
 import { CouponCodeSnippet } from './CouponCodeSnippet'
@@ -23,7 +23,7 @@ interface CouponFormProps {
 }
 
 export const CouponForm = ({ isEdition, loading, coupon, onSave }: CouponFormProps) => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const formikProps = useFormik<CreateCouponInput>({
     initialValues: {
       // @ts-ignore

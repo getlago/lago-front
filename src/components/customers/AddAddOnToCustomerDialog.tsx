@@ -6,7 +6,7 @@ import { useFormik } from 'formik'
 
 import { Dialog, Button, DialogRef, Typography, Alert } from '~/components/designSystem'
 import { ComboBoxField, TextInputField, ComboBox } from '~/components/form'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import {
   useAddAddOnMutation,
   useGetAddOnsForCustomerLazyQuery,
@@ -51,7 +51,7 @@ export const AddAddOnToCustomerDialog = forwardRef<
   AddAddOnToCustomerDialogRef,
   AddAddOnToCustomerDialogProps
 >(({ customerId }: AddAddOnToCustomerDialogProps, ref) => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const mounted = useRef(false)
   const [getAddOns, { loading, data }] = useGetAddOnsForCustomerLazyQuery({
     variables: { limit: 50 },

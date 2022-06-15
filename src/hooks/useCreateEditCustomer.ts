@@ -17,7 +17,7 @@ import {
   CreateCustomerMutation,
 } from '~/generated/graphql'
 import { addToast } from '~/core/apolloClient'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 
 gql`
@@ -114,7 +114,7 @@ type UseCreateEditCustomer = (props: {
 }
 
 export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const navigate = useNavigate()
   const [create] = useCreateCustomerMutation({
     context: { silentErrorCodes: [Lago_Api_Error.UnprocessableEntity] },

@@ -6,7 +6,7 @@ import _omit from 'lodash/omit'
 
 import { Dialog, Button, DialogRef, Typography, Tooltip, Skeleton } from '~/components/designSystem'
 import { TextInputField, ComboBoxField } from '~/components/form'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { LagoGQLError } from '~/core/apolloClient'
 import { theme } from '~/styles'
 import {
@@ -37,7 +37,7 @@ interface AddCustomerDialogProps {
 
 export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
   ({ customer }: AddCustomerDialogProps, ref) => {
-    const { translate } = useI18nContext()
+    const { translate } = useInternationalization()
     const { isEdition, loading, billingInfos, onSave, loadBillingInfos } = useCreateEditCustomer({
       customer,
     })

@@ -20,7 +20,7 @@ import { UPDATE_COUPON_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { CouponStatusEnum, CouponItemFragment } from '~/generated/graphql'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { DeleteCouponDialog, DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
 import {
   TerminateCouponDialog,
@@ -74,7 +74,7 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
   const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
   const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
   let navigate = useNavigate()
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
   const formattedStatus = mapStatus(status)
 
   return (

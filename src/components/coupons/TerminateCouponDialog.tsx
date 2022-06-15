@@ -4,7 +4,7 @@ import { forwardRef } from 'react'
 import { Typography, DialogRef } from '~/components/designSystem'
 import { TerminateCouponFragment, useTerminateCouponMutation } from '~/generated/graphql'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 
 gql`
@@ -38,7 +38,7 @@ export const TerminateCouponDialog = forwardRef<DialogRef, TerminateCouponDialog
         }
       },
     })
-    const { translate } = useI18nContext()
+    const { translate } = useInternationalization()
 
     return (
       <WarningDialog

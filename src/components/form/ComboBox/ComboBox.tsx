@@ -3,7 +3,7 @@ import { Autocomplete, createFilterOptions } from '@mui/material'
 import _sortBy from 'lodash/sortBy'
 import styled from 'styled-components'
 
-import { useI18nContext } from '~/core/I18nContext'
+import { useInternationalization } from '~/hooks/useInternationalization'
 import { Icon, Typography } from '~/components/designSystem'
 import { theme } from '~/styles'
 
@@ -33,7 +33,7 @@ export const ComboBox = ({
   disableClearable = false,
   onChange,
 }: ComboBoxProps) => {
-  const { translate } = useI18nContext()
+  const { translate } = useInternationalization()
 
   // By default, we want to sort `options` alphabetically (by value)
   const data = useMemo(() => {
