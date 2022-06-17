@@ -85,8 +85,8 @@ const Login = () => {
           <EmailInput
             name="email"
             formikProps={formikProps}
-            label={translate('text_620bc4d4269a55014d493f1e')}
-            placeholder={translate('text_620bc4d4269a55014d493f49')}
+            label={translate('text_62a99ba2af7535cefacab4aa')}
+            placeholder={translate('text_62a99ba2af7535cefacab4bf')}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
           />

@@ -47,5 +47,7 @@ projects:
     id: 62a0b709894be901198aeddb
   - name: "\U0001F44D [Ready for dev] - Plans - Bill Charges monthly on a yearly plan"
     id: 62a30bc3940c3583b1a429be
+  - name: "\U0001F44D [Ready for dev] - Settings - Invoice settings"
+    id: 62ab2cff6d409cff712298ea
 format: flat
 variants: true
