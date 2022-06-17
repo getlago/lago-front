@@ -117,7 +117,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
         <Content>
           <TextInput
             label={translate('text_627387d5053a1000c5287ca5')}
-            placeholder={translate('text_627387d5053a1000c5287ca5')}
+            placeholder={translate('text_627387d5053a1000c5287ca7')}
             value={localVatRate}
             beforeChangeFormatter="positiveNumber"
             error={mutationError}
