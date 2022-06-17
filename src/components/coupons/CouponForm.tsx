@@ -135,8 +135,8 @@ export const CouponForm = ({ isEdition, loading, coupon, onSave }: CouponFormPro
                     name="amountCents"
                     beforeChangeFormatter={['positiveNumber', 'decimal']}
                     disabled={isEdition && !coupon?.canBeDeleted}
-                    label={translate('text_62876e85e32e0300e180313d')}
-                    placeholder={translate('text_62876e85e32e0300e1803143')}
+                    label={translate('text_62978f2c197cea009ab0b7d0')}
+                    placeholder={translate('text_62978f2c197cea009ab0b7d2')}
                     formikProps={formikProps}
                   />
                   <ComboBoxField

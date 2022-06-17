@@ -32,7 +32,7 @@ export const DeleteAddOnDialog = forwardRef<DialogRef, DeleteAddOnDialogProps>(
       onCompleted(data) {
         if (data && data.destroyAddOn) {
           addToast({
-            message: translate('text_628b432fd8f2bc0105b9746f'),
+            message: translate('text_629728388c4d2300e2d3815f'),
             severity: 'success',
           })
         }
