@@ -132,16 +132,16 @@ const SignUp = () => {
           <Input
             name="organizationName"
             onChange={(value) => setFormFields((prev) => ({ ...prev, organizationName: value }))}
-            label={translate('text_620bc4d4269a55014d493f26')}
-            placeholder={translate('text_620bc4d4269a55014d493f65')}
+            label={translate('text_62a99ba2af7535cefacab49c')}
+            placeholder={translate('text_62a99ba2af7535cefacab4ba')}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
           />
           <Input
             name="email"
             onChange={(value) => setFormFields((prev) => ({ ...prev, email: value }))}
-            label={translate('text_620bc4d4269a55014d493f1e')}
-            placeholder={translate('text_620bc4d4269a55014d493f49')}
+            label={translate('text_62a99ba2af7535cefacab4aa')}
+            placeholder={translate('text_62a99ba2af7535cefacab4bf')}
           />
 
           <PasswordBlock>
