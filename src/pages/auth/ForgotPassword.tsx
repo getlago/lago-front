@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { LOGIN_ROUTE } from '~/core/router'
 import { Page, Title, Subtitle, StyledLogo, Card } from '~/styles/auth'
 

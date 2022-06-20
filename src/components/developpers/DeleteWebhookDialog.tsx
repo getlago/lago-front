@@ -4,7 +4,7 @@ import { gql } from '@apollo/client'
 import { DialogRef } from '~/components/designSystem'
 import { useDeleteWebhookMutation } from '~/generated/graphql'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 
 gql`

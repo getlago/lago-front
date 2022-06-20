@@ -10,7 +10,7 @@ import {
 } from '~/generated/graphql'
 import { theme, NAV_HEIGHT, Card } from '~/styles'
 import { Typography, Button, Skeleton } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { TextInputField, ComboBoxField } from '~/components/form'
 
 import { CouponCodeSnippet } from './CouponCodeSnippet'

@@ -17,7 +17,7 @@ import {
   CreateCustomerMutation,
 } from '~/generated/graphql'
 import { addToast } from '~/core/apolloClient'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 
 gql`

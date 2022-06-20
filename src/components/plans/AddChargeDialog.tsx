@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { Dialog, Button, DialogRef, Typography } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useGetbillableMetricsLazyQuery, BillableMetricForPlanFragment } from '~/generated/graphql'
 import { theme } from '~/styles'
 

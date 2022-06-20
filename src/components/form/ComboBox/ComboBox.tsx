@@ -3,7 +3,7 @@ import { Autocomplete, createFilterOptions } from '@mui/material'
 import _sortBy from 'lodash/sortBy'
 import styled from 'styled-components'
 
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Icon, Typography } from '~/components/designSystem'
 import { theme } from '~/styles'
 

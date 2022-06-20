@@ -21,7 +21,7 @@ import {
   AddCustomerDialogFragmentDoc,
 } from '~/generated/graphql'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   DeleteCustomerDialog,
   DeleteCustomerDialogRef,

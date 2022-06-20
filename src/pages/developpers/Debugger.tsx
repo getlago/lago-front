@@ -3,7 +3,7 @@ import { useMemo, useState, useEffect } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   Typography,
   Button,

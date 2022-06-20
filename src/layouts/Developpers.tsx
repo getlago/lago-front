@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { PageHeader } from '~/styles'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, BasicTabs } from '~/components/designSystem'
 import { API_KEYS_ROUTE, WEBHOOK_ROUTE, DEVELOPPERS_ROUTE, DEBUGGER_ROUTE } from '~/core/router'
 import { NAV_HEIGHT } from '~/styles'

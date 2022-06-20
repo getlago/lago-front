@@ -6,7 +6,7 @@ import _omit from 'lodash/omit'
 
 import { Dialog, Button, DialogRef, Typography, Tooltip, Skeleton } from '~/components/designSystem'
 import { TextInputField, ComboBoxField } from '~/components/form'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { LagoGQLError } from '~/core/apolloClient'
 import { theme } from '~/styles'
 import {

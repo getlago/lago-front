@@ -5,7 +5,7 @@ import { ClickAwayListener } from '@mui/material'
 import { useApolloClient } from '@apollo/client'
 import { useNavigate, useLocation, Location, matchPath } from 'react-router-dom'
 
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { logOut, useCurrentUserInfosVar } from '~/core/apolloClient'
 import { Avatar, Button, TabButton, Popper, IconName } from '~/components/designSystem'
 import { theme } from '~/styles'

@@ -10,7 +10,7 @@ import styled from 'styled-components'
 
 import { Typography, Button } from '~/components/designSystem'
 import { theme, NAV_HEIGHT } from '~/styles'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 
 Prism.manual = true

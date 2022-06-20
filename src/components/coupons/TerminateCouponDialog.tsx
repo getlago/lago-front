@@ -4,7 +4,7 @@ import { forwardRef } from 'react'
 import { Typography, DialogRef } from '~/components/designSystem'
 import { TerminateCouponFragment, useTerminateCouponMutation } from '~/generated/graphql'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 
 gql`

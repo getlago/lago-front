@@ -18,7 +18,7 @@ import { UPDATE_ADD_ON_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { AddOnItemFragment } from '~/generated/graphql'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
 
 gql`

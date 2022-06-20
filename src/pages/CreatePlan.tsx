@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { theme, PageHeader, Card } from '~/styles'
 import { Typography, Button } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { PLANS_ROUTE } from '~/core/router'
 import EmojiParty from '~/public/images/party.png'

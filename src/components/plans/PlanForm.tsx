@@ -7,7 +7,7 @@ import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
 import { EditPlanFragment, FixedAmountTargetEnum } from '~/generated/graphql'
 import { PlanInterval, CurrencyEnum, ChargeModelEnum } from '~/generated/graphql'
 import { TextInputField, ButtonSelectorField, ComboBoxField, SwitchField } from '~/components/form'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   Typography,
   Button,

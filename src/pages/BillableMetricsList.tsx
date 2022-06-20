@@ -4,7 +4,7 @@ import { useNavigate, generatePath } from 'react-router-dom'
 
 import { Typography, Button, InfiniteScroll } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
 import { CREATE_BILLABLE_METRIC_ROUTE, UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import { useBillableMetricsQuery, BillableMetricItemFragmentDoc } from '~/generated/graphql'

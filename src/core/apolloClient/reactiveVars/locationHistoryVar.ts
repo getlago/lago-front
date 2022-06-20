@@ -8,10 +8,8 @@ import { makeVar, ReactiveVar } from '@apollo/client'
 
 const MAX_HISTORY_KEPT = 5
 
-/** ----------------- VAR ----------------- */
 export const locationHistoryVar = makeVar([]) as unknown as ReactiveVar<Location[]>
 
-/** ----------------- UTILS ----------------- */
 export const addLocationToHistory = (location: Location) => {
   const current = locationHistoryVar()
 
