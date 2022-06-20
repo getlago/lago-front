@@ -1,12 +1,29 @@
-import { Suspense } from 'react'
+import { Suspense, ReactNode, useEffect } from 'react'
 import { useRoutes } from 'react-router-dom'
 import styled from 'styled-components'
-import { Navigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import type { RouteObject } from 'react-router-dom'
 
 import { Icon } from '~/components/designSystem'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
-import { routes, CustomRouteObject, LOGIN_ROUTE, HOME_ROUTE } from '~/core/router'
+import { routes, CustomRouteObject } from '~/core/router'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+
+interface PageWrapperProps {
+  routeConfig: CustomRouteObject
+  children: ReactNode
+}
+
+const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
+  const location = useLocation()
+  const { onRouteEnter } = useLocationHistory()
+
+  useEffect(() => {
+    onRouteEnter(routeConfig, location)
+  }, [location, routeConfig, onRouteEnter])
+
+  return <>{children}</>
+}
 
 export const routesFormatter: (
   routesToFormat: CustomRouteObject[],
@@ -14,14 +31,8 @@ export const routesFormatter: (
 ) => RouteObject[] = (routesToFormat, loggedIn) => {
   return routesToFormat.reduce<RouteObject[]>((acc, route) => {
     const routeConfig = {
-      element:
-        route.private && !loggedIn ? (
-          <Navigate to={LOGIN_ROUTE} />
-        ) : route.onlyPublic && loggedIn ? (
-          <Navigate to={HOME_ROUTE} />
-        ) : route.redirect ? (
-          <Navigate to={route.redirect} />
-        ) : (
+      element: (
+        <PageWrapper routeConfig={route}>
           <Suspense
             fallback={
               <Loader>
@@ -31,7 +42,8 @@ export const routesFormatter: (
           >
             {route.element}
           </Suspense>
-        ),
+        </PageWrapper>
+      ),
       ...(route.children ? { children: routesFormatter(route.children, loggedIn) } : {}),
     }
 

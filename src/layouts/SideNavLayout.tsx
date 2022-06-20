@@ -149,7 +149,7 @@ const SideNav = () => {
                       key="menu-logout"
                       icon="logout"
                       title={translate('text_623b497ad05b960101be3444')}
-                      onClick={() => logOut(client)}
+                      onClick={() => logOut(client, true)}
                     />
                   </Logout>
                 </StyledMenuPopper>
