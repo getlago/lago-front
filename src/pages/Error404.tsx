@@ -1,14 +1,15 @@
 import styled from 'styled-components'
-import { useNavigate } from 'react-router-dom'
 
 import { useInternationalization } from '~/hooks/useInternationalization'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { HOME_ROUTE } from '~/core/router'
 import EmojiError from '~/public/images/exploding-head.png'
 import { theme } from '~/styles'
 
 const Error404 = () => {
   const { translate } = useInternationalization()
-  const navigate = useNavigate()
+  const { goBack } = useLocationHistory()
 
   // TODO
   return (
@@ -20,7 +21,7 @@ const Error404 = () => {
           'It seems the page you was looking for do not exists, please go back to the app.'
         )}
         buttonTitle={translate('Go back to the app')}
-        buttonAction={() => navigate('/')}
+        buttonAction={() => goBack(HOME_ROUTE, { previousCount: -2 })}
       />
     </Container>
   )

@@ -6,6 +6,7 @@ import {
   updateAuthTokenVar,
   updateCurrentUserInfosVar,
   resetCurrentUserInfosVar,
+  resetLocationHistoryVar,
 } from './reactiveVars'
 
 // --------------------- Local storage utils ---------------------
@@ -30,12 +31,13 @@ export const removeItem = (key: string) => {
 }
 
 // --------------------- Auth utils ---------------------
-export const logOut = async (client: ApolloClient<object>) => {
+export const logOut = async (client: ApolloClient<object>, resetLocationHistory?: boolean) => {
   localStorage && localStorage.clear()
 
   await client.cache.reset()
   updateAuthTokenVar()
   resetCurrentUserInfosVar()
+  resetLocationHistory && resetLocationHistoryVar()
 }
 
 export const onLogIn = (token: string, user: CurrentUserFragment) => {

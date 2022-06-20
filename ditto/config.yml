@@ -1,8 +1,6 @@
 projects:
   - name: "\U0001F44D [Ready for dev] - Onboarding - Create & Connect to an account"
     id: 620bc4d45f16c800e2324b82
-  - name: '✅ [Ready for dev] - Navigation - Contact us'
-    id: 6177d3aa12af7100ce4becb3
   - name: '⚙️ [WIP] - Settings - API KEY'
     id: 6227a2e6da6f5200e76ec9c2
   - name: ⛵️Documentation asset
