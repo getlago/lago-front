@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
 import { useCurrentUserInfosVar, addToast } from '~/core/apolloClient'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, Button } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
 import { theme } from '~/styles'

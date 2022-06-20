@@ -4,7 +4,7 @@ import clsns from 'classnames'
 
 import { theme } from '~/styles'
 import { removeToast, TToast, TSeverity, ToastSeverityEnum } from '~/core/apolloClient'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { Typography } from '../Typography'
 import { Button } from '../Button'

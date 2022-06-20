@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
 import { Typography, Button, Skeleton } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
 import { CustomerMainInfosFragment } from '~/generated/graphql'

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { theme, PageHeader, Card } from '~/styles'
 import { Typography, Button } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { BILLABLE_METRICS_ROUTE } from '~/core/router'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import EmojiParty from '~/public/images/party.png'

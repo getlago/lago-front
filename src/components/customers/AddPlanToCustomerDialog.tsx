@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { Dialog, Button, DialogRef, Alert } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 import { theme } from '~/styles'
 import {

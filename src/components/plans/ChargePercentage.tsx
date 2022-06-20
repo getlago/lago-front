@@ -7,7 +7,7 @@ import { intlFormatNumber } from '~/core/intlFormatNumber'
 import { TextInput, ButtonSelector, ComboBox } from '~/components/form'
 import { theme } from '~/styles'
 import { Alert, Typography, Button, Tooltip } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CurrencyEnum, FixedAmountTargetEnum } from '~/generated/graphql'
 
 import { PlanFormInput } from './types'

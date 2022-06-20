@@ -4,7 +4,7 @@ import { DateTime } from 'luxon'
 
 import { CustomerInvoiceListFragment } from '~/generated/graphql'
 import { Typography, Button, Tooltip } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
 import { addToast } from '~/core/apolloClient'

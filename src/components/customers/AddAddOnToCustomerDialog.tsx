@@ -6,7 +6,7 @@ import { useFormik } from 'formik'
 
 import { Dialog, Button, DialogRef, Typography, Alert } from '~/components/designSystem'
 import { ComboBoxField, TextInputField, ComboBox } from '~/components/form'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   useAddAddOnMutation,
   useGetAddOnsForCustomerLazyQuery,

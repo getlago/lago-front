@@ -7,7 +7,7 @@ import {
   DeleteCustomerVatRateFragment,
 } from '~/generated/graphql'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 
 gql`

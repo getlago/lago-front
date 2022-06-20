@@ -3,7 +3,7 @@ import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
 import { SectionHeader, SideSection } from '~/styles/customer'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Button, Typography, Avatar, Icon, Popper, Tooltip } from '~/components/designSystem'
 import { useCurrentUserInfosVar } from '~/core/apolloClient'
 import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT, MenuPopper } from '~/styles'

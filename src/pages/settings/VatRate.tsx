@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { gql } from '@apollo/client'
 
 import { Typography, Button, Skeleton, Avatar, Icon } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT } from '~/styles'
 import { useVatRateSettingQuery } from '~/generated/graphql'
 import {

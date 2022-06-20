@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { HOME_ROUTE } from '~/core/router'

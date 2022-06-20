@@ -5,7 +5,7 @@ import { useFormik } from 'formik'
 
 import { theme } from '~/styles'
 import { Typography, Button, Alert } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLoginUserMutation, Lago_Api_Error, CurrentUserFragmentDoc } from '~/generated/graphql'
 import { onLogIn } from '~/core/apolloClient'
 import { TextInputField } from '~/components/form'

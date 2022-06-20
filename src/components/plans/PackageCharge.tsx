@@ -6,7 +6,7 @@ import { InputAdornment } from '@mui/material'
 
 import { ComboBox, TextInput } from '~/components/form'
 import { Alert, Typography } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { CurrencyEnum } from '~/generated/graphql'
 import { intlFormatNumber } from '~/core/intlFormatNumber'

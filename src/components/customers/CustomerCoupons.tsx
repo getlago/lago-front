@@ -5,7 +5,7 @@ import styled from 'styled-components'
 
 import { CustomerCouponFragment, useRemoveCouponMutation } from '~/generated/graphql'
 import { SectionHeader } from '~/styles/customer'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, Avatar, Icon, Button, Tooltip } from '~/components/designSystem'
 import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { intlFormatNumber } from '~/core/intlFormatNumber'

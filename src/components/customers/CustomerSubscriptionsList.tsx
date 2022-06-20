@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 
 import { CustomerSubscriptionListFragment, StatusTypeEnum } from '~/generated/graphql'
 import { Typography, Button, Avatar, Icon, Status, StatusEnum } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
 

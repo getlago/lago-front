@@ -5,7 +5,7 @@ import styled from 'styled-components'
 
 import { Page, Title, Subtitle, StyledLogo, Card } from '~/styles/auth'
 import { Typography, Alert, Button } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { TextInput } from '~/components/form'
 import { LOGIN_ROUTE } from '~/core/router'

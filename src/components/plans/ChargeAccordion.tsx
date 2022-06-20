@@ -5,7 +5,7 @@ import styled from 'styled-components'
 
 import { theme } from '~/styles'
 import { Button, Typography, Tooltip } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
 import { ComboBox, TextInput } from '~/components/form'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'

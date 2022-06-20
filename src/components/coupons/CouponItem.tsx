@@ -20,7 +20,7 @@ import { UPDATE_COUPON_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { CouponStatusEnum, CouponItemFragment } from '~/generated/graphql'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DeleteCouponDialog, DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
 import {
   TerminateCouponDialog,

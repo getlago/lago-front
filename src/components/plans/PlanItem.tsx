@@ -14,7 +14,7 @@ import {
   Tooltip,
   Popper,
 } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PlanItemFragment, DeletePlanDialogFragmentDoc } from '~/generated/graphql'
 import { UPDATE_PLAN_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'

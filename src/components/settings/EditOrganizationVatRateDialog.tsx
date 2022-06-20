@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { Dialog, Button, DialogRef, Typography } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useUpdateVatRateOrganizationMutation, Lago_Api_Error } from '~/generated/graphql'
 import { theme } from '~/styles'
 import { LagoGQLError, addToast } from '~/core/apolloClient'

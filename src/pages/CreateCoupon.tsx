@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
 import { theme, PageHeader, Card } from '~/styles'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, Button } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import EmojiParty from '~/public/images/party.png'

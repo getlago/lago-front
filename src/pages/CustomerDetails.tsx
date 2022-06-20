@@ -12,7 +12,7 @@ import {
   Tooltip,
   BasicTabs,
 } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CUSTOMERS_LIST_ROUTE, CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
 import {
   useGetCustomerQuery,

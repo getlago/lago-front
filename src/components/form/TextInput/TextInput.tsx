@@ -8,7 +8,7 @@ import {
 import styled, { css } from 'styled-components'
 import _debounce from 'lodash/debounce'
 
-import { useInternationalization } from '~/hooks/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, Button, Tooltip, Icon } from '~/components/designSystem'
 import { theme } from '~/styles'
 
