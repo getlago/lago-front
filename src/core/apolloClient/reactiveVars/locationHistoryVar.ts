@@ -4,11 +4,11 @@
  * This var exists to address this problem by allowing to have access to the previous routes.
  */
 import { Location } from 'react-router-dom'
-import { makeVar, ReactiveVar } from '@apollo/client'
+import { makeVar } from '@apollo/client'
 
 const MAX_HISTORY_KEPT = 5
 
-export const locationHistoryVar = makeVar([]) as unknown as ReactiveVar<Location[]>
+export const locationHistoryVar = makeVar<Location[]>([])
 
 export const addLocationToHistory = (location: Location) => {
   const current = locationHistoryVar()

@@ -37,7 +37,7 @@ const getPreviousLocation = ({
             ? matchPath(location.pathname, exclude)
             : exclude.some((pathToExclude) => matchPath(location.pathname, pathToExclude))
 
-        return i >= Math.abs(previousCount) && !isExluded
+        return !isExluded
       })
     : Math.abs(previousCount)
 
