@@ -837,20 +837,278 @@ export type CreateSubscriptionInput = {
 };
 
 export enum CurrencyEnum {
-  /** Danish Krone */
+  /** United Arab Emirates dirham */
+  Aed = 'AED',
+  /** Afghan afghani */
+  Afn = 'AFN',
+  /** Albanian lek */
+  All = 'ALL',
+  /** Armenian dram */
+  Amd = 'AMD',
+  /** Netherlands Antillean guilder */
+  Ang = 'ANG',
+  /** Angolan kwanza */
+  Aoa = 'AOA',
+  /** Argentine peso */
+  Ars = 'ARS',
+  /** Australian dollar */
+  Aud = 'AUD',
+  /** Aruban florin */
+  Awg = 'AWG',
+  /** Azerbaijani manat */
+  Azn = 'AZN',
+  /** Bosnia and Herzegovina convertible mark */
+  Bam = 'BAM',
+  /** Barbados dollar */
+  Bbd = 'BBD',
+  /** Bangladeshi taka */
+  Bdt = 'BDT',
+  /** Bulgarian lev */
+  Bgn = 'BGN',
+  /** Bahraini dinar */
+  Bif = 'BIF',
+  /** Burundian franc */
+  Bmd = 'BMD',
+  /** Bermudian dollar */
+  Bnd = 'BND',
+  /** Brunei dollar */
+  Bob = 'BOB',
+  /** Boliviano */
+  Brl = 'BRL',
+  /** Brazilian real */
+  Bsd = 'BSD',
+  /** Bahamian dollar */
+  Bwp = 'BWP',
+  /** Botswana pula */
+  Byn = 'BYN',
+  /** Belarusian ruble */
+  Bzd = 'BZD',
+  /** Belize dollar */
+  Cad = 'CAD',
+  /** Canadian dollar */
+  Cdf = 'CDF',
+  /** Congolese franc */
+  Chf = 'CHF',
+  /** Swiss franc */
+  Clp = 'CLP',
+  /** Chilean peso */
+  Cny = 'CNY',
+  /** Colombian peso */
+  Cop = 'COP',
+  /** Costa Rican colon */
+  Crc = 'CRC',
+  /** Cape Verdean escudo */
+  Cve = 'CVE',
+  /** Czech koruna */
+  Czk = 'CZK',
+  /** Djiboutian franc */
+  Djf = 'DJF',
+  /** Danish krone */
   Dkk = 'DKK',
+  /** Dominican peso */
+  Dop = 'DOP',
+  /** Algerian dinar */
+  Dzd = 'DZD',
+  /** Egyptian pound */
+  Egp = 'EGP',
+  /** Ethiopian birr */
+  Etb = 'ETB',
   /** Euro */
   Eur = 'EUR',
-  /** Pound Sterling */
+  /** Fiji dollar */
+  Fjd = 'FJD',
+  /** Falkland Islands pound */
+  Fkp = 'FKP',
+  /** Pound sterling */
   Gbp = 'GBP',
+  /** Georgian lari */
+  Gel = 'GEL',
+  /** Gibraltar pound */
+  Gip = 'GIP',
+  /** Gambian dalasi */
+  Gmd = 'GMD',
+  /** Guinean franc */
+  Gnf = 'GNF',
+  /** Guatemalan quetzal */
+  Gtq = 'GTQ',
+  /** Guyanese dollar */
+  Gyd = 'GYD',
+  /** Hong Kong dollar */
+  Hkd = 'HKD',
+  /** Honduran lempira */
+  Hnl = 'HNL',
+  /** Croatian kuna */
+  Hrk = 'HRK',
+  /** Haitian gourde */
+  Htg = 'HTG',
+  /** Hungarian forint */
+  Huf = 'HUF',
   /** Indonesian Rupiah */
   Idr = 'IDR',
+  /** Israeli new shekel */
+  Ils = 'ILS',
+  /** Indian rupee */
+  Inr = 'INR',
+  /** Icelandic króna */
+  Isk = 'ISK',
+  /** Jamaican dollar */
+  Jmd = 'JMD',
+  /** Japanese yen */
+  Jpy = 'JPY',
+  /** Kenyan shilling */
+  Kes = 'KES',
+  /** Kyrgyzstani som */
+  Kgs = 'KGS',
+  /** Cambodian riel */
+  Khr = 'KHR',
+  /** Comoro franc */
+  Kmf = 'KMF',
+  /** South Korean won */
+  Krw = 'KRW',
+  /** Cayman Islands dollar */
+  Kyd = 'KYD',
+  /** Kazakhstani tenge */
+  Kzt = 'KZT',
+  /** Lao kip */
+  Lak = 'LAK',
+  /** Lebanese pound */
+  Lbp = 'LBP',
+  /** Sri Lankan rupee */
+  Lkr = 'LKR',
+  /** Liberian dollar */
+  Lrd = 'LRD',
+  /** Lesotho loti */
+  Lsl = 'LSL',
+  /** Moroccan dirham */
+  Mad = 'MAD',
+  /** Moldovan leu */
+  Mdl = 'MDL',
+  /** Malagasy ariary */
+  Mga = 'MGA',
+  /** Macedonian denar */
+  Mkd = 'MKD',
+  /** Myanmar kyat */
+  Mmk = 'MMK',
+  /** Mongolian tögrög */
+  Mnt = 'MNT',
+  /** Macanese pataca */
+  Mop = 'MOP',
+  /** Mauritanian ouguiya */
+  Mro = 'MRO',
+  /** Mauritian rupee */
+  Mur = 'MUR',
+  /** Maldivian rufiyaa */
+  Mvr = 'MVR',
+  /** Malawian kwacha */
+  Mwk = 'MWK',
+  /** Mexican peso */
+  Mxn = 'MXN',
+  /** Malaysian ringgit */
+  Myr = 'MYR',
+  /** Mozambican metical */
+  Mzn = 'MZN',
+  /** Namibian dollar */
+  Nad = 'NAD',
+  /** Nigerian naira */
+  Ngn = 'NGN',
+  /** Nicaraguan córdoba */
+  Nio = 'NIO',
   /** Norwegian Krone */
   Nok = 'NOK',
+  /** Nepalese rupee */
+  Npr = 'NPR',
+  /** New Zealand dollar */
+  Nzd = 'NZD',
+  /** Panamanian balboa */
+  Pab = 'PAB',
+  /** Peruvian sol */
+  Pen = 'PEN',
+  /** Papua New Guinean kina */
+  Pgk = 'PGK',
+  /** Philippine peso */
+  Php = 'PHP',
+  /** Pakistani rupee */
+  Pkr = 'PKR',
+  /** Polish złoty */
+  Pln = 'PLN',
+  /** Paraguayan guaraní */
+  Pyg = 'PYG',
+  /** Qatari riyal */
+  Qar = 'QAR',
+  /** Romanian leu */
+  Ron = 'RON',
+  /** Serbian dinar */
+  Rsd = 'RSD',
+  /** Russian ruble */
+  Rub = 'RUB',
+  /** Rwandan franc */
+  Rwf = 'RWF',
+  /** Saudi riyal */
+  Sar = 'SAR',
+  /** Solomon Islands dollar */
+  Sbd = 'SBD',
+  /** Seychelles rupee */
+  Scr = 'SCR',
   /** Swedish Krona */
   Sek = 'SEK',
+  /** Singapore dollar */
+  Sgd = 'SGD',
+  /** Saint Helena pound */
+  Shp = 'SHP',
+  /** Sierra Leonean leone */
+  Sll = 'SLL',
+  /** Somali shilling */
+  Sos = 'SOS',
+  /** Surinamese dollar */
+  Srd = 'SRD',
+  /** São Tomé and Príncipe dobra */
+  Std = 'STD',
+  /** Swazi lilangeni */
+  Szl = 'SZL',
+  /** Thai baht */
+  Thb = 'THB',
+  /** Tajikistani somoni */
+  Tjs = 'TJS',
+  /** Tongan paʻanga */
+  Top = 'TOP',
+  /** Turkish lira */
+  Try = 'TRY',
+  /** Trinidad and Tobago dollar */
+  Ttd = 'TTD',
+  /** New Taiwan dollar */
+  Twd = 'TWD',
+  /** Tanzanian shilling */
+  Tzs = 'TZS',
+  /** Ukrainian hryvnia */
+  Uah = 'UAH',
+  /** Ugandan shilling */
+  Ugx = 'UGX',
   /** American Dollar */
-  Usd = 'USD'
+  Usd = 'USD',
+  /** Uruguayan peso */
+  Uyu = 'UYU',
+  /** Uzbekistan som */
+  Uzs = 'UZS',
+  /** Vietnamese đồng */
+  Vnd = 'VND',
+  /** Vanuatu vatu */
+  Vuv = 'VUV',
+  /** Samoan tala */
+  Wst = 'WST',
+  /** CFA franc BEAC */
+  Xaf = 'XAF',
+  /** East Caribbean dollar */
+  Xcd = 'XCD',
+  /** CFA franc BCEAO */
+  Xof = 'XOF',
+  /** CFP franc (franc Pacifique) */
+  Xpf = 'XPF',
+  /** Yemeni rial */
+  Yer = 'YER',
+  /** South African rand */
+  Zar = 'ZAR',
+  /** Zambian kwacha */
+  Zmw = 'ZMW'
 }
 
 export type Customer = {
