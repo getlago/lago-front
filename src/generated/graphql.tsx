@@ -2115,6 +2115,15 @@ export type DeletePlanMutation = { __typename?: 'Mutation', destroyPlan?: { __ty
 
 export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, canBeDeleted: boolean };
 
+export type EditOrganizationInformationsDialogFragment = { __typename?: 'Organization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null };
+
+export type UpdateOrganizationInformationsMutationVariables = Exact<{
+  input: UpdateOrganizationInput;
+}>;
+
+
+export type UpdateOrganizationInformationsMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null } | null };
+
 export type UpdateVatRateOrganizationMutationVariables = Exact<{
   input: UpdateOrganizationInput;
 }>;
@@ -2321,6 +2330,13 @@ export type WehbookSettingQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type WehbookSettingQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, webhookUrl?: string | null }> | null } };
 
+export type OrganizationInformationsFragment = { __typename?: 'Organization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null };
+
+export type GetOrganizationInformationsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetOrganizationInformationsQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', organizations?: Array<{ __typename?: 'Organization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null }> | null } };
+
 export type VatRateSettingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -2482,6 +2498,22 @@ export const PlanItemFragmentDoc = gql`
   ...DeletePlanDialog
 }
     ${DeletePlanDialogFragmentDoc}`;
+export const EditOrganizationInformationsDialogFragmentDoc = gql`
+    fragment EditOrganizationInformationsDialog on Organization {
+  id
+  logoUrl
+  name
+  legalName
+  legalNumber
+  email
+  addressLine1
+  addressLine2
+  zipcode
+  city
+  state
+  country
+}
+    `;
 export const EditPlanFragmentDoc = gql`
     fragment EditPlan on PlanDetails {
   id
@@ -2736,6 +2768,22 @@ export const EventListFragmentDoc = gql`
   ...EventItem
 }
     ${EventItemFragmentDoc}`;
+export const OrganizationInformationsFragmentDoc = gql`
+    fragment OrganizationInformations on Organization {
+  id
+  logoUrl
+  name
+  legalName
+  legalNumber
+  email
+  addressLine1
+  addressLine2
+  zipcode
+  city
+  state
+  country
+}
+    `;
 export const UserIdentifierDocument = gql`
     query UserIdentifier {
   me: currentUser {
@@ -3405,6 +3453,41 @@ export function useDeletePlanMutation(baseOptions?: Apollo.MutationHookOptions<D
 export type DeletePlanMutationHookResult = ReturnType<typeof useDeletePlanMutation>;
 export type DeletePlanMutationResult = Apollo.MutationResult<DeletePlanMutation>;
 export type DeletePlanMutationOptions = Apollo.BaseMutationOptions<DeletePlanMutation, DeletePlanMutationVariables>;
+export const UpdateOrganizationInformationsDocument = gql`
+    mutation updateOrganizationInformations($input: UpdateOrganizationInput!) {
+  updateOrganization(input: $input) {
+    ...OrganizationInformations
+    ...EditOrganizationInformationsDialog
+  }
+}
+    ${OrganizationInformationsFragmentDoc}
+${EditOrganizationInformationsDialogFragmentDoc}`;
+export type UpdateOrganizationInformationsMutationFn = Apollo.MutationFunction<UpdateOrganizationInformationsMutation, UpdateOrganizationInformationsMutationVariables>;
+
+/**
+ * __useUpdateOrganizationInformationsMutation__
+ *
+ * To run a mutation, you first call `useUpdateOrganizationInformationsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOrganizationInformationsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOrganizationInformationsMutation, { data, loading, error }] = useUpdateOrganizationInformationsMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOrganizationInformationsMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationInformationsMutation, UpdateOrganizationInformationsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateOrganizationInformationsMutation, UpdateOrganizationInformationsMutationVariables>(UpdateOrganizationInformationsDocument, options);
+      }
+export type UpdateOrganizationInformationsMutationHookResult = ReturnType<typeof useUpdateOrganizationInformationsMutation>;
+export type UpdateOrganizationInformationsMutationResult = Apollo.MutationResult<UpdateOrganizationInformationsMutation>;
+export type UpdateOrganizationInformationsMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationInformationsMutation, UpdateOrganizationInformationsMutationVariables>;
 export const UpdateVatRateOrganizationDocument = gql`
     mutation updateVatRateOrganization($input: UpdateOrganizationInput!) {
   updateOrganization(input: $input) {
@@ -4354,6 +4437,44 @@ export function useWehbookSettingLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 export type WehbookSettingQueryHookResult = ReturnType<typeof useWehbookSettingQuery>;
 export type WehbookSettingLazyQueryHookResult = ReturnType<typeof useWehbookSettingLazyQuery>;
 export type WehbookSettingQueryResult = Apollo.QueryResult<WehbookSettingQuery, WehbookSettingQueryVariables>;
+export const GetOrganizationInformationsDocument = gql`
+    query getOrganizationInformations {
+  currentUser {
+    organizations {
+      ...OrganizationInformations
+      ...EditOrganizationInformationsDialog
+    }
+  }
+}
+    ${OrganizationInformationsFragmentDoc}
+${EditOrganizationInformationsDialogFragmentDoc}`;
+
+/**
+ * __useGetOrganizationInformationsQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationInformationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationInformationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationInformationsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetOrganizationInformationsQuery(baseOptions?: Apollo.QueryHookOptions<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>(GetOrganizationInformationsDocument, options);
+      }
+export function useGetOrganizationInformationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>(GetOrganizationInformationsDocument, options);
+        }
+export type GetOrganizationInformationsQueryHookResult = ReturnType<typeof useGetOrganizationInformationsQuery>;
+export type GetOrganizationInformationsLazyQueryHookResult = ReturnType<typeof useGetOrganizationInformationsLazyQuery>;
+export type GetOrganizationInformationsQueryResult = Apollo.QueryResult<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>;
 export const VatRateSettingDocument = gql`
     query vatRateSetting {
   currentUser {
