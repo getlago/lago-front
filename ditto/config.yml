@@ -43,5 +43,7 @@ projects:
     id: 62a0b709894be901198aeddb
   - name: "\U0001F44D [Ready for dev] - Plans - Bill Charges monthly on a yearly plan"
     id: 62a30bc3940c3583b1a429be
+  - name: '⚙️ [WIP] - Plans - Add weekly interval to Plans'
+    id: 62b32ec020fff7fdc7426158
 format: flat
 variants: true

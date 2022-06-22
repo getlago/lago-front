@@ -281,6 +281,10 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                         label: translate('text_624453d52e945301380e49ac'),
                         value: PlanInterval.Yearly,
                       },
+                      {
+                        label: translate('text_62b32ec6b0434070791c2d4c'),
+                        value: PlanInterval.Weekly,
+                      },
                     ]}
                   />
 
