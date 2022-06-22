@@ -19,6 +19,12 @@ const Debugger = lazy(
 
 const Settings = lazy(() => import(/* webpackChunkName: 'settings' */ '~/layouts/Settings'))
 const TaxRate = lazy(() => import(/* webpackChunkName: 'tax-rate' */ '~/pages/settings/VatRate'))
+const OrganizationInformations = lazy(
+  () =>
+    import(
+      /* webpackChunkName: 'organization-informations' */ '~/pages/settings/OrganizationInformations'
+    )
+)
 
 const BillableMetricsList = lazy(
   () => import(/* webpackChunkName: 'billable-metrics' */ '~/pages/BillableMetricsList')
@@ -95,6 +101,7 @@ export const DEBUGGER_ROUTE = `${DEVELOPPERS_ROUTE}/debugger`
 // Settings route
 export const SETTINGS_ROUTE = '/settings'
 export const VAT_RATE_ROUTE = `${SETTINGS_ROUTE}/tax-rate`
+export const ORGANIZATION_INFORMATIONS_ROUTE = `${SETTINGS_ROUTE}/organization-informations`
 
 export const routes: CustomRouteObject[] = [
   {
@@ -140,7 +147,12 @@ export const routes: CustomRouteObject[] = [
         element: <Settings />,
         children: [
           {
-            path: [SETTINGS_ROUTE, VAT_RATE_ROUTE],
+            path: [SETTINGS_ROUTE, ORGANIZATION_INFORMATIONS_ROUTE],
+            private: true,
+            element: <OrganizationInformations />,
+          },
+          {
+            path: [VAT_RATE_ROUTE],
             private: true,
             element: <TaxRate />,
           },
