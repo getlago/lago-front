@@ -47,5 +47,7 @@ projects:
     id: 62b32ec020fff7fdc7426158
   - name: "\U0001F44D [Ready for dev] - All - Empty and error state in app"
     id: 62bac374775f2a0472421630
+  - name: "\U0001F44D [Ready for dev] - Settings - Invoice settings"
+    id: 62ab2cff6d409cff712298ea
 format: flat
 variants: true
