@@ -144,7 +144,7 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
             !localCharge.fixedAmountTarget
               ? translate('text_62a0b7107afa2700a65ef71e', {
                   rate: formattedRate,
-                  cost: intlFormatNumber(((Number(localCharge.rate) || 0) * 10) / 100, {
+                  cost: intlFormatNumber(((Number(localCharge.rate) || 0) * 100) / 100, {
                     currencyDisplay: 'code',
                     currency: localCharge.amountCurrency,
                     initialUnit: 'standard',
@@ -155,8 +155,8 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
                   rate: formattedRate,
                   fixedCharge: formattedFixedCharge,
                   cost: intlFormatNumber(
-                    ((Number(localCharge.rate) || 0) * 10) / 100 +
-                      10 * (Number(localCharge.fixedAmount) || 0),
+                    ((Number(localCharge.rate) || 0) * 100) / 100 +
+                      100 * (Number(localCharge.fixedAmount) || 0),
                     {
                       currencyDisplay: 'code',
                       currency: localCharge.amountCurrency,
@@ -169,7 +169,7 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
                   rate: formattedRate,
                   fixedCharge: formattedFixedCharge,
                   cost: intlFormatNumber(
-                    ((Number(localCharge.rate) || 0) * 10) / 100 +
+                    ((Number(localCharge.rate) || 0) * 100) / 100 +
                       (Number(localCharge.fixedAmount) || 0),
                     {
                       currencyDisplay: 'code',
