@@ -304,21 +304,13 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                     />
                   </LineAmount>
 
-                  <SwitchBlock>
-                    <SwitchField
-                      name="payInAdvance"
-                      disabled={isEdition && !plan?.canBeDeleted}
-                      formikProps={formikProps}
-                    />
-                    <div>
-                      <Typography color="textSecondary">
-                        {translate('text_624d90e6a93343010cd14b40')}
-                      </Typography>
-                      <Typography variant="caption">
-                        {translate('text_624d90e6a93343010cd14b4c')}
-                      </Typography>
-                    </div>
-                  </SwitchBlock>
+                  <SwitchField
+                    name="payInAdvance"
+                    disabled={isEdition && !plan?.canBeDeleted}
+                    label={translate('text_624d90e6a93343010cd14b40')}
+                    subLabel={translate('text_624d90e6a93343010cd14b4c')}
+                    formikProps={formikProps}
+                  />
 
                   <TextInputField
                     name="trialPeriod"
@@ -370,10 +362,9 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                     {!!formikProps.values.charges.length &&
                       formikProps.values.interval === PlanInterval.Yearly && (
                         <ChargeInvoiceLine>
-                          <Typography color="textSecondary">
-                            {translate('text_62a30bc79dae432fb055330b')}
-                          </Typography>
                           <SwitchField
+                            labelPosition="left"
+                            label={translate('text_62a30bc79dae432fb055330b')}
                             name="billChargesMonthly"
                             disabled={isEdition && !plan?.canBeDeleted}
                             formikProps={formikProps}
@@ -446,14 +437,6 @@ const Subtitle = styled(Typography)`
 
 const InputEnd = styled(Typography)`
   margin-right: ${theme.spacing(4)};
-`
-
-const SwitchBlock = styled.div`
-  display: flex;
-  align-items: center;
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
 `
 
 const ButtonContainer = styled.div`
