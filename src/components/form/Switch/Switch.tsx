@@ -5,15 +5,32 @@ import { useRef, useState, useEffect, MouseEvent } from 'react'
 import { Typography, Icon } from '~/components/designSystem'
 import { theme } from '~/styles'
 
+enum LabelPositionEnum {
+  left = 'left',
+  right = 'right',
+}
+
+type LabelPosition = keyof typeof LabelPositionEnum
 export interface SwitchProps {
   name: string
   disabled?: boolean
   checked?: boolean
-  onClick?: (e: MouseEvent<HTMLDivElement>) => Promise<void> | void
-  onChange?: (value: boolean) => void
+  label?: string
+  subLabel?: string
+  labelPosition?: LabelPosition
+  onChange?: (value: boolean, e: MouseEvent<HTMLDivElement>) => Promise<unknown> | void
 }
 
-export const Switch = ({ name, disabled, checked, onChange, onClick, ...props }: SwitchProps) => {
+export const Switch = ({
+  name,
+  label,
+  subLabel,
+  disabled,
+  checked,
+  labelPosition = LabelPositionEnum.right,
+  onChange,
+  ...props
+}: SwitchProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
   const mountedRef = useRef(false)
   const [focused, setFocused] = useState(false)
@@ -30,15 +47,10 @@ export const Switch = ({ name, disabled, checked, onChange, onClick, ...props }:
 
   return (
     <Container
-      $checked={!!checked}
-      className={clsns('switchField', {
-        'switchField--disabled': disabled,
-        'switchField--focused': focused,
-        'switchField--loading': loading,
-      })}
+      $orientation={labelPosition}
       onClick={(e) => {
-        if (onClick) {
-          const res = onClick(e)
+        if (onChange) {
+          const res = onChange(!checked, e)
 
           if (res !== null && res instanceof Promise) {
             let realLoading = true
@@ -51,7 +63,6 @@ export const Switch = ({ name, disabled, checked, onChange, onClick, ...props }:
               if (mountedRef.current) {
                 realLoading = false
                 setLoading(false)
-                onChange && onChange(!checked)
               }
             })
           }
@@ -60,44 +71,79 @@ export const Switch = ({ name, disabled, checked, onChange, onClick, ...props }:
         }
       }}
     >
-      <input
-        {...props}
-        ref={inputRef}
-        disabled={disabled || loading}
-        aria-label={name}
-        checked={checked}
-        type="checkbox"
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        onChange={onChange && ((e) => onChange(e.currentTarget.checked))}
-      />
-      <Loader animation="spin" name="processing" color="light" />
-      <StyledTypography color={disabled ? 'inherit' : 'contrast'} variant="note">
-        On
-      </StyledTypography>
-      <StyledTypography color={disabled ? 'inherit' : 'disabled'} variant="note">
-        Off
-      </StyledTypography>
-      <SwitchElement width="24" height="24" viewBox="0 0 24 24" $checked={!!checked}>
-        <circle
-          cx="12"
-          cy="12"
-          r="12"
-          fill={
-            disabled
-              ? theme.palette.grey[300]
-              : checked
-              ? theme.palette.common.white
-              : theme.palette.grey[500]
-          }
+      <SwitchContainer
+        $checked={!!checked}
+        className={clsns('switchField', {
+          'switchField--disabled': disabled,
+          'switchField--focused': focused,
+          'switchField--loading': loading,
+        })}
+      >
+        <input
+          readOnly
+          {...props}
+          ref={inputRef}
+          disabled={disabled || loading}
+          aria-label={name}
+          checked={checked}
+          type="checkbox"
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
         />
-        <circle cx="12" cy="12" r="11" fill={theme.palette.common.white} />
-      </SwitchElement>
+        {loading && <Loader animation="spin" name="processing" color="light" />}
+        <StyledTypography color={disabled ? 'inherit' : 'contrast'} variant="note">
+          On
+        </StyledTypography>
+        <StyledTypography color={disabled ? 'inherit' : 'disabled'} variant="note">
+          Off
+        </StyledTypography>
+        <SwitchElement width="24" height="24" viewBox="0 0 24 24" $checked={!!checked}>
+          <circle
+            cx="12"
+            cy="12"
+            r="12"
+            fill={
+              disabled
+                ? theme.palette.grey[300]
+                : checked
+                ? theme.palette.common.white
+                : theme.palette.grey[500]
+            }
+          />
+          <circle cx="12" cy="12" r="11" fill={theme.palette.common.white} />
+        </SwitchElement>
+      </SwitchContainer>
+      {(!!label || !!subLabel) && (
+        <>
+          <Space />
+          <LabelContainer>
+            {!!label && <Typography color="textSecondary">{label}</Typography>}
+            {!!subLabel && <Typography variant="caption">{subLabel}</Typography>}
+          </LabelContainer>
+        </>
+      )}
     </Container>
   )
 }
 
 Switch.displayName = 'Switch'
+
+const Container = styled.div<{ $orientation: LabelPosition }>`
+  display: flex;
+  align-items: center;
+  flex-direction: ${({ $orientation }) =>
+    $orientation === LabelPositionEnum.right ? 'row' : 'row-reverse'};
+`
+
+const LabelContainer = styled.div`
+  cursor: pointer;
+`
+
+const Space = styled.div`
+  width: ${theme.spacing(3)};
+  min-width: ${theme.spacing(3)};
+  min-height: 1px;
+`
 
 const Loader = styled(Icon)`
   position: absolute;
@@ -123,7 +169,7 @@ const StyledTypography = styled(Typography)`
   opacity: 1;
 `
 
-const Container = styled.div<{ $checked: boolean }>`
+const SwitchContainer = styled.div<{ $checked: boolean }>`
   border-radius: 32px;
   width: 60px;
   max-width: 60px;
@@ -135,6 +181,7 @@ const Container = styled.div<{ $checked: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  cursor: pointer;
   padding: 0 ${theme.spacing(1)};
 
   :not(.switchField--disabled):not(.switchField--loading) {
