@@ -4,7 +4,6 @@ import { ReactNode } from 'react'
 import { theme } from '~/styles'
 
 import { Typography } from './Typography'
-import { Icon } from './Icon'
 
 const AVATAR_PALETTE = {
   orange: '#FF9351',
@@ -104,22 +103,13 @@ export const Avatar = ({
   }
 
   const getContent = () => {
-    switch (true) {
-      case size === 'small':
-        return (
-          <Typography color="inherit" variant={mapTypographyVariant(size)}>
-            {initials.substring(0, 1).toUpperCase()}
-          </Typography>
-        )
-      case variant === 'company':
-        return <Icon name="company" size={size as AvatarSize} color="light" />
-      default:
-        return (
-          <Typography color="inherit" variant={mapTypographyVariant(size)}>
-            {initials.substring(0, 2).toUpperCase()}
-          </Typography>
-        )
-    }
+    let cursor = size === 'small' ? 1 : 2
+
+    return (
+      <Typography color="inherit" variant={mapTypographyVariant(size)}>
+        {initials.substring(0, cursor).toUpperCase()}
+      </Typography>
+    )
   }
 
   const backgroundColorKey = getBackgroundColorKey(identifier)
