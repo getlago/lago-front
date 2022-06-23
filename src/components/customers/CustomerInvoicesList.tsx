@@ -2,10 +2,10 @@ import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { DateTime } from 'luxon'
 
-import { CustomerInvoiceListFragment } from '~/generated/graphql'
-import { Typography, Button, Tooltip } from '~/components/designSystem'
+import { InvoiceStatusTypeEnum, CustomerInvoiceListFragment } from '~/generated/graphql'
+import { Button, Popper, Status, StatusEnum, Tooltip, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
+import { HEADER_TABLE_HEIGHT, MenuPopper, NAV_HEIGHT, theme } from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
@@ -13,18 +13,36 @@ import { intlFormatNumber } from '~/core/intlFormatNumber'
 gql`
   fragment CustomerInvoiceList on Invoice {
     id
-    issuingDate
-    totalAmountCents
     amountCurrency
-    plan {
-      id
-      name
-    }
+    issuingDate
+    number
+    status
+    totalAmountCents
   }
 `
 
 interface CustomerInvoicesListProps {
   invoices?: CustomerInvoiceListFragment[] | null
+}
+
+const mapStatus = (type?: InvoiceStatusTypeEnum | undefined) => {
+  switch (type) {
+    case InvoiceStatusTypeEnum.Succeeded:
+      return {
+        type: StatusEnum.running,
+        label: 'text_62b31e1f6a5b8b1b745ece18',
+      }
+    case InvoiceStatusTypeEnum.Failed:
+      return {
+        type: StatusEnum.failed,
+        label: 'text_62b31e1f6a5b8b1b745ece38',
+      }
+    default:
+      return {
+        type: StatusEnum.paused,
+        label: 'text_62b31e1f6a5b8b1b745ece28',
+      }
+  }
 }
 
 export const CustomerInvoicesList = ({ invoices }: CustomerInvoicesListProps) => {
@@ -41,42 +59,76 @@ export const CustomerInvoicesList = ({ invoices }: CustomerInvoicesListProps) =>
             <IssuingDateCell variant="bodyHl" color="disabled" noWrap>
               {translate('text_62544c1db13ca10187214d7f')}
             </IssuingDateCell>
-            <IDCellHeader variant="bodyHl" color="disabled">
-              {translate('text_62544c1db13ca10187214d81')}
-            </IDCellHeader>
-            <PlanCell variant="bodyHl" color="disabled" noWrap>
-              {translate('text_62544c1db13ca10187214d83')}
-            </PlanCell>
+            <NumberCellHeader variant="bodyHl" color="disabled">
+              {translate('text_62b31e1f6a5b8b1b745ece00')}
+            </NumberCellHeader>
             <AmountCell variant="bodyHl" color="disabled" align="right">
               {translate('text_62544c1db13ca10187214d85')}
             </AmountCell>
+            <PaymentCell variant="bodyHl" color="disabled" noWrap>
+              {translate('text_62b31e1f6a5b8b1b745ece08')}
+            </PaymentCell>
+            <ActionCell></ActionCell>
           </ListHeader>
-          {invoices.map(({ id, issuingDate, totalAmountCents, amountCurrency, plan }) => {
+          {invoices.map(({ amountCurrency, id, issuingDate, number, totalAmountCents, status }) => {
+            const formattedStatus = mapStatus(status)
+
             return (
               <Item key={id}>
                 <IssuingDateCell noWrap>
                   {DateTime.fromISO(issuingDate).toFormat('yyyy/LL/dd')}
                 </IssuingDateCell>
-                <Tooltip placement="top-start" title={translate('text_6253f11816f710014600ba1d')}>
-                  <IDCell
-                    variant="quaternary"
-                    onClick={() => {
-                      navigator.clipboard.writeText(id)
-                      addToast({
-                        severity: 'info',
-                        translateKey: 'text_6253f11816f710014600ba1f',
-                      })
-                    }}
-                  >
-                    {id}
-                  </IDCell>
-                </Tooltip>
-                <PlanCell color="textSecondary" noWrap>
-                  {plan?.name}
-                </PlanCell>
-                <AmountCell align="right" color="textSecondary">
+                <NumberCell color="textSecondary">{number}</NumberCell>
+                <AmountCell color="textSecondary" align="right">
                   {intlFormatNumber(totalAmountCents, { currency: amountCurrency })}
                 </AmountCell>
+                <PaymentCell>
+                  <Status type={formattedStatus.type} label={translate(formattedStatus.label)} />
+                </PaymentCell>
+                <ActionCell>
+                  <Popper
+                    PopperProps={{ placement: 'bottom-end' }}
+                    opener={({ isOpen }) => (
+                      <div>
+                        <Tooltip
+                          placement="top-end"
+                          disableHoverListener={isOpen}
+                          title={translate('text_62b31e1f6a5b8b1b745ece3c')}
+                        >
+                          <Button icon="dots-horizontal" variant="quaternary" />
+                        </Tooltip>
+                      </div>
+                    )}
+                  >
+                    {({ closePopper }) => (
+                      <MenuPopper>
+                        <Button
+                          startIcon="download"
+                          variant="quaternary"
+                          align="left"
+                          disabled={true}
+                        >
+                          {translate('text_62b31e1f6a5b8b1b745ece42')}
+                        </Button>
+                        <Button
+                          startIcon="duplicate"
+                          variant="quaternary"
+                          align="left"
+                          onClick={() => {
+                            navigator.clipboard.writeText(id)
+                            addToast({
+                              severity: 'info',
+                              translateKey: 'text_6253f11816f710014600ba1f',
+                            })
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_62b31e1f6a5b8b1b745ece46')}
+                        </Button>
+                      </MenuPopper>
+                    )}
+                  </Popper>
+                </ActionCell>
               </Item>
             )
           })}
@@ -97,29 +149,31 @@ const ListHeader = styled.div`
 `
 
 const IssuingDateCell = styled(Typography)`
-  width: 128px;
+  min-width: 100px;
 `
-const IDCellHeader = styled(Typography)`
+const NumberCellHeader = styled(Typography)`
   box-sizing: border-box;
-  padding: 0 ${theme.spacing(3)};
-  width: 144px;
+  flex: 1;
 `
 
-const IDCell = styled(Button)`
-  width: 144px;
+const NumberCell = styled(Typography)`
+  flex: 1;
   white-space: pre;
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
 `
 
-const PlanCell = styled(Typography)`
-  min-width: 50px;
-  flex: 1;
+const PaymentCell = styled(Typography)`
+  width: 112px;
 `
 
 const AmountCell = styled(Typography)`
-  width: 160px;
+  flex: 1;
+`
+
+const ActionCell = styled.div`
+  min-width: 40px;
 `
 
 const Item = styled.div`
