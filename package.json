@@ -82,7 +82,7 @@
   },
   "dependencies": {
     "@apollo/client": "3.4.16",
-    "@mui/material": "5.8.4",
+    "@mui/material": "5.8.5",
     "@mui/styled-engine": "5.8.0",
     "@mui/styled-engine-sc": "5.8.0",
     "@sentry/react": "7.2.0",
