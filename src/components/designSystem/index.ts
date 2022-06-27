@@ -1,6 +1,7 @@
 export * from './Alert'
 export * from './Avatar'
 export * from './Button'
+export * from './Chip'
 export * from './Dialog'
 export * from './Icon'
 export * from './InfiniteScroll'
