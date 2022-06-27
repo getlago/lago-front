@@ -37,7 +37,7 @@ export const Radio = forwardRef<HTMLElement, RadioProps>(
           label={<Typography color={disabled ? 'disabled' : 'textSecondary'}>{label}</Typography>}
         />
         {!!error && (
-          <StyledTypography variant="caption" color="error">
+          <StyledTypography variant="caption" color="danger600">
             {error}
           </StyledTypography>
         )}

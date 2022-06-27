@@ -60,7 +60,7 @@ export const ButtonSelector = ({
         })}
       </ButtonGroup>
       {!!error && (
-        <StyledTypography variant="caption" color="error">
+        <StyledTypography variant="caption" color="danger600">
           {error}
         </StyledTypography>
       )}
