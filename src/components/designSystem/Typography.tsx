@@ -1,6 +1,5 @@
 import { Typography as MuiTypography, TypographyProps as MuiTypographyProps } from '@mui/material'
 import { ElementType, memo } from 'react'
-import clsns from 'classnames'
 import sanitizeHtml from 'sanitize-html'
 import { Link } from 'react-router-dom'
 import _isEqual from 'lodash/isEqual'
@@ -19,7 +18,20 @@ const sanitize = (dirty: string, options: sanitizeHtml.IOptions | undefined) => 
   __html: sanitizeHtml(dirty, { ...defaultSanitizerOptions, ...options }),
 })
 
-type Color = MuiTypographyProps['color'] | 'disabled' | 'contrast'
+enum ColorTypeEnum {
+  grey700 = 'grey.700',
+  grey600 = 'grey.600',
+  grey500 = 'grey.500',
+  primary600 = 'primary.600',
+  danger600 = 'error.600',
+  inherit = 'inherit',
+  contrast = 'common.white',
+  disabled = 'text.disabled', // This is to maintain the existing code
+  textPrimary = 'text.primary', // This is to maintain the existing code
+  textSecondary = 'text.secondary', // This is to maintain the existing code
+}
+
+type Color = keyof typeof ColorTypeEnum
 interface TypographyProps extends Omit<MuiTypographyProps, 'color'> {
   className?: string
   component?: ElementType
@@ -27,29 +39,20 @@ interface TypographyProps extends Omit<MuiTypographyProps, 'color'> {
   html?: string
 }
 
-const ADDITIONNAL_COLORS = ['disabled', 'contrast']
-
-const mapColor = (
-  variant: TypographyProps['variant'],
-  color: Color
-): MuiTypographyProps['color'] => {
-  if (color) {
-    return ADDITIONNAL_COLORS.includes(color as string)
-      ? 'inherit'
-      : (color as MuiTypographyProps['color'])
-  }
+const mapColor = (variant: TypographyProps['variant'], color?: Color): ColorTypeEnum => {
+  if (color) return ColorTypeEnum[color]
 
   switch (variant) {
     case 'headline':
     case 'subhead':
-      return 'textSecondary'
+      return ColorTypeEnum.textSecondary
     case 'bodyHl':
     case 'body':
     case 'captionHl':
     case 'note':
     case 'caption':
     default:
-      return 'textPrimary'
+      return ColorTypeEnum.textPrimary
   }
 }
 
@@ -118,11 +121,8 @@ export const Typography = memo(
     return (
       <StyledMuiTypography
         variant={variant}
+        className={className}
         color={mapColor(variant, color)}
-        className={clsns(className, {
-          [`MuiTypography-additionalColor-${color}`]:
-            color && ADDITIONNAL_COLORS.includes(color as string),
-        })}
         data-qa={variant}
         variantMapping={{
           subhead: 'div',
