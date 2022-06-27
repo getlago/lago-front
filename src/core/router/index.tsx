@@ -18,12 +18,18 @@ const Debugger = lazy(
 )
 
 const Settings = lazy(() => import(/* webpackChunkName: 'settings' */ '~/layouts/Settings'))
-const TaxRate = lazy(() => import(/* webpackChunkName: 'tax-rate' */ '~/pages/settings/VatRate'))
 const OrganizationInformations = lazy(
   () =>
     import(
       /* webpackChunkName: 'organization-informations' */ '~/pages/settings/OrganizationInformations'
     )
+)
+const VatRate = lazy(() => import(/* webpackChunkName: 'tax-rate' */ '~/pages/settings/VatRate'))
+const Integrations = lazy(
+  () => import(/* webpackChunkName: 'integrations' */ '~/pages/settings/Integrations')
+)
+const StripeIntegration = lazy(
+  () => import(/* webpackChunkName: 'stripe-integration' */ '~/pages/settings/StripeIntegration')
 )
 
 const BillableMetricsList = lazy(
@@ -102,6 +108,8 @@ export const DEBUGGER_ROUTE = `${DEVELOPPERS_ROUTE}/debugger`
 export const SETTINGS_ROUTE = '/settings'
 export const VAT_RATE_ROUTE = `${SETTINGS_ROUTE}/tax-rate`
 export const ORGANIZATION_INFORMATIONS_ROUTE = `${SETTINGS_ROUTE}/organization-informations`
+export const INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
+export const STRIPE_INTEGRATION_ROUTE = `${SETTINGS_ROUTE}/integrations/stripe`
 
 export const routes: CustomRouteObject[] = [
   {
@@ -154,9 +162,19 @@ export const routes: CustomRouteObject[] = [
           {
             path: [VAT_RATE_ROUTE],
             private: true,
-            element: <TaxRate />,
+            element: <VatRate />,
+          },
+          {
+            path: INTEGRATIONS_ROUTE,
+            private: true,
+            element: <Integrations />,
           },
         ],
+      },
+      {
+        path: STRIPE_INTEGRATION_ROUTE,
+        private: true,
+        element: <StripeIntegration />,
       },
       {
         path: PLANS_ROUTE,
