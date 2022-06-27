@@ -28,7 +28,7 @@ interface AvatarConnectorProps {
   className?: string
 }
 
-interface AvatarGenericProps {
+export interface AvatarGenericProps {
   variant: 'user' | 'company'
   initials: string // Note that only the first initial will be displayed in small size
   identifier: string
