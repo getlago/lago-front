@@ -10,7 +10,7 @@ ENV API_URL $API_URL
 
 RUN yarn && yarn build && npm prune --production
 
-FROM nginx:1.22-alpine
+FROM nginx:1.23-alpine
 
 WORKDIR /usr/share/nginx/html
 
