@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { forwardRef } from 'react'
 import { FormikProps } from 'formik'
+import _get from 'lodash/get'
 
 import { TextInput, TextInputProps } from './TextInput'
 
@@ -21,8 +22,7 @@ export const TextInputField = forwardRef<HTMLDivElement, TextInputFieldProps>(
     return (
       <TextInput
         name={name}
-        // @ts-ignore
-        value={values[name]}
+        value={_get(values, name)}
         ref={ref}
         onBlur={handleBlur}
         cleanable={cleanable}

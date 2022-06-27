@@ -1,5 +1,6 @@
 import { gql, FetchResult } from '@apollo/client'
 import { useNavigate, generatePath } from 'react-router-dom'
+import _omit from 'lodash/omit'
 
 import {
   useCreateCustomerMutation,
@@ -38,6 +39,11 @@ gql`
     country
     city
     zipcode
+    paymentProvider
+    stripeCustomer {
+      id
+      providerCustomerId
+    }
   }
 
   fragment AddCustomerDialogDetail on CustomerDetails {
@@ -57,6 +63,11 @@ gql`
     country
     city
     zipcode
+    paymentProvider
+    stripeCustomer {
+      id
+      providerCustomerId
+    }
   }
 
   fragment BillingInfos on CustomerDetails {
@@ -73,6 +84,11 @@ gql`
     country
     city
     zipcode
+    paymentProvider
+    stripeCustomer {
+      id
+      providerCustomerId
+    }
   }
 
   query getBillingInfos($id: ID!) {
@@ -157,10 +173,26 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
     billingInfos: data?.customer,
     loadBillingInfos: !!customer ? getBillingInfos : undefined,
     onSave: !!customer
-      ? async (values) =>
+      ? async ({ stripeCustomer, paymentProvider, ...values }) =>
           await update({
-            variables: { input: { id: customer?.id as string, ...values } },
+            variables: {
+              input: {
+                id: customer?.id as string,
+                paymentProvider: paymentProvider || null,
+                stripeCustomer: { ..._omit(stripeCustomer, 'id') },
+                ...values,
+              },
+            },
           })
-      : async (values) => await create({ variables: { input: values } }),
+      : async ({ stripeCustomer, paymentProvider, ...values }) =>
+          await create({
+            variables: {
+              input: {
+                ...values,
+                paymentProvider: paymentProvider || null,
+                stripeCustomer: { ..._omit(stripeCustomer, 'id') },
+              },
+            },
+          }),
   }
 }

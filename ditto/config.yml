@@ -49,5 +49,7 @@ projects:
     id: 62bac374775f2a0472421630
   - name: "\U0001F44D [Ready for dev] - Settings - Invoice settings"
     id: 62ab2cff6d409cff712298ea
+  - name: '⚙️ [WIP] - Settings - Lago <> Stripe connection + impact on customer view'
+    id: 62b1edda611dee64a01ad185
 format: flat
 variants: true

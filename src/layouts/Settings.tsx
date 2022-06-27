@@ -5,7 +5,12 @@ import styled from 'styled-components'
 import { PageHeader } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, BasicTabs } from '~/components/designSystem'
-import { ORGANIZATION_INFORMATIONS_ROUTE, SETTINGS_ROUTE, VAT_RATE_ROUTE } from '~/core/router'
+import {
+  ORGANIZATION_INFORMATIONS_ROUTE,
+  SETTINGS_ROUTE,
+  VAT_RATE_ROUTE,
+  INTEGRATIONS_ROUTE,
+} from '~/core/router'
 import { NAV_HEIGHT } from '~/styles'
 
 const Settings = () => {
@@ -20,6 +25,10 @@ const Settings = () => {
     {
       title: translate('text_62728ff857d47b013204c75a'),
       key: VAT_RATE_ROUTE,
+    },
+    {
+      title: translate('text_62b1edddbf5f461ab9712733'),
+      key: INTEGRATIONS_ROUTE,
     },
   ]
 

@@ -5,7 +5,7 @@ import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
-import { CustomerMainInfosFragment } from '~/generated/graphql'
+import { CustomerMainInfosFragment, ProviderTypeEnum } from '~/generated/graphql'
 import CountryCodes from '~/public/countryCode.json'
 
 gql`
@@ -26,6 +26,11 @@ gql`
     country
     city
     zipcode
+    paymentProvider
+    stripeCustomer {
+      id
+      providerCustomerId
+    }
   }
 `
 
@@ -76,6 +81,8 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     country,
     city,
     zipcode,
+    paymentProvider,
+    stripeCustomer,
   } = customer
 
   return (
@@ -145,6 +152,20 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             {zipcode} {city} {state}
           </Typography>
           {country && <Typography color="textSecondary">{CountryCodes[country]}</Typography>}
+        </div>
+      )}
+      {paymentProvider === ProviderTypeEnum?.Stripe && (
+        <div>
+          <Typography variant="caption">{translate('text_62b5c912506c4905fa755248')}</Typography>
+          <Typography color="textSecondary">
+            {translate('text_62b5c912506c4905fa75524a')}
+          </Typography>
+        </div>
+      )}
+      {!!stripeCustomer && !!stripeCustomer?.providerCustomerId && (
+        <div>
+          <Typography variant="caption">{translate('text_62b5c912506c4905fa75524c')}</Typography>
+          <Typography color="textSecondary">{stripeCustomer?.providerCustomerId}</Typography>
         </div>
       )}
     </DetailsBlock>
