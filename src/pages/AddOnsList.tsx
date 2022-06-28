@@ -7,8 +7,8 @@ import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
 import { Typography, Button, InfiniteScroll } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import EmojiError from '~/public/images/exploding-head.png'
-import EmojiEmpty from '~/public/images/spider-web.png'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import EmptyImage from '~/public/images/maneki/empty.svg'
 import { AddOnItem, AddOnItemSkeleton } from '~/components/addOns/AddOnItem'
 import { AddOnItemFragmentDoc, useAddOnsQuery } from '~/generated/graphql'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
@@ -62,7 +62,7 @@ const AddOnsList = () => {
           buttonTitle={translate('text_629728388c4d2300e2d38110')}
           buttonVariant="primary"
           buttonAction={() => location.reload()}
-          image={<img src={EmojiError} alt="error-emoji" />}
+          image={<ErrorImage width="136" height="104" />}
         />
       ) : !loading && (!list || !list.length) ? (
         <GenericPlaceholder
@@ -71,7 +71,7 @@ const AddOnsList = () => {
           buttonTitle={translate('text_629728388c4d2300e2d3810f')}
           buttonVariant="primary"
           buttonAction={() => navigate(CREATE_ADD_ON_ROUTE)}
-          image={<img src={EmojiEmpty} alt="empty-emoji" />}
+          image={<EmptyImage width="136" height="104" />}
         />
       ) : (
         <ListContainer>

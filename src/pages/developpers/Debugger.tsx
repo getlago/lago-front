@@ -14,8 +14,8 @@ import {
   Alert,
 } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import EmojiError from '~/public/images/exploding-head.png'
-import EmojiEmpty from '~/public/images/spider-web.png'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import EmptyImage from '~/public/images/maneki/empty.svg'
 import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT } from '~/styles'
 import { useEventsQuery, EventListFragment, EventItemFragmentDoc } from '~/generated/graphql'
 import { EventItem, EventItemSkeleton } from '~/components/debugger/EventItem'
@@ -99,13 +99,13 @@ const Debugger = () => {
           buttonTitle={translate('text_6298bd525e359200d5ea0007')}
           buttonVariant="primary"
           buttonAction={location.reload}
-          image={<img src={EmojiError} alt="error-emoji" />}
+          image={<ErrorImage width="136" height="104" />}
         />
       ) : !loading && (!data?.events?.collection || !data?.events?.collection.length) ? (
         <GenericPlaceholder
           title={translate('text_6298bd525e359200d5ea002a')}
           subtitle={translate('text_6298bd525e359200d5ea0036')}
-          image={<img src={EmojiEmpty} alt="empty-emoji" />}
+          image={<EmptyImage width="136" height="104" />}
         />
       ) : (
         <Container>

@@ -7,8 +7,8 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { useCustomersQuery, CustomerItemFragmentDoc } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
-import EmojiError from '~/public/images/exploding-head.png'
-import EmojiEmpty from '~/public/images/spider-web.png'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import EmptyImage from '~/public/images/maneki/empty.svg'
 import { AddCustomerDialog, AddCustomerDialogRef } from '~/components/customers/AddCustomerDialog'
 import { CustomerItemSkeleton, CustomerItem } from '~/components/customers/CustomerItem'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
@@ -60,7 +60,7 @@ const CustomersList = () => {
           buttonTitle={translate('text_624efab67eb2570101d117e0')}
           buttonVariant="primary"
           buttonAction={() => location.reload()}
-          image={<img src={EmojiError} alt="error-emoji" />}
+          image={<ErrorImage width="136" height="104" />}
         />
       ) : !loading && (!list || !list.length) ? (
         <GenericPlaceholder
@@ -69,7 +69,7 @@ const CustomersList = () => {
           buttonTitle={translate('text_624efab67eb2570101d117b9')}
           buttonVariant="primary"
           buttonAction={() => addCustomerDialogRef.current?.openDialog()}
-          image={<img src={EmojiEmpty} alt="empty-emoji" />}
+          image={<EmptyImage width="136" height="104" />}
         />
       ) : (
         <ListContainer>

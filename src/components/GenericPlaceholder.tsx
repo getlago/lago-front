@@ -57,7 +57,7 @@ const Container = styled.div<{ $noMargins?: boolean }>`
   }
 
   > *:first-child {
-    margin-bottom: ${theme.spacing(8)};
+    margin-bottom: ${theme.spacing(5)};
   }
 `
 
@@ -69,6 +69,6 @@ const Title = styled(Typography)`
 
 const Body = styled(Typography)<{ $withButton?: boolean }>`
   && {
-    margin-bottom: ${({ $withButton }) => ($withButton ? theme.spacing(8) : 0)};
+    margin-bottom: ${({ $withButton }) => ($withButton ? theme.spacing(5) : 0)};
   }
 `

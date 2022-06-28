@@ -7,7 +7,7 @@ import { theme, PageHeader, Card } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, Button } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import EmojiParty from '~/public/images/party.png'
+import SuccessImage from '~/public/images/maneki/success.svg'
 import { ADD_ONS_ROUTE } from '~/core/router'
 import { AddOnForm } from '~/components/addOns/AddOnForm'
 
@@ -33,7 +33,7 @@ const CreateAddOn = () => {
       </PageHeader>
       {isCreated ? (
         <SuccessCard $disableChildSpacing>
-          <img src={EmojiParty} alt="success emoji" />
+          <SuccessImage width="136" height="104" />
           <SuccessTitle variant="subhead">
             {translate('text_629728388c4d2300e2d37fd8')}
           </SuccessTitle>
