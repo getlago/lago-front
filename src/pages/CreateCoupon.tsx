@@ -7,7 +7,7 @@ import { theme, PageHeader, Card } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, Button } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import EmojiParty from '~/public/images/party.png'
+import SuccessImage from '~/public/images/maneki/success.svg'
 import { COUPONS_ROUTE } from '~/core/router'
 import { CouponForm } from '~/components/coupons/CouponForm'
 
@@ -33,7 +33,7 @@ const CreateCoupon = () => {
       </PageHeader>
       {isCreated ? (
         <SuccessCard $disableChildSpacing>
-          <img src={EmojiParty} alt="success emoji" />
+          <SuccessImage width="136" height="104" />
           <SuccessTitle variant="subhead">
             {translate('text_62876e85e32e0300e18030f3')}
           </SuccessTitle>

@@ -45,5 +45,7 @@ projects:
     id: 62a30bc3940c3583b1a429be
   - name: '⚙️ [WIP] - Plans - Add weekly interval to Plans'
     id: 62b32ec020fff7fdc7426158
+  - name: "\U0001F44D [Ready for dev] - All - Empty and error state in app"
+    id: 62bac374775f2a0472421630
 format: flat
 variants: true

@@ -7,7 +7,7 @@ import { Typography, Button } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { BILLABLE_METRICS_ROUTE } from '~/core/router'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import EmojiParty from '~/public/images/party.png'
+import SuccessImage from '~/public/images/maneki/success.svg'
 import { BillableMetricForm } from '~/components/billableMetrics/BillableMetricForm'
 import { useCreateEditBillableMetric } from '~/hooks/useCreateEditBillableMetric'
 
@@ -34,7 +34,7 @@ const CreateBillableMetric = () => {
       </PageHeader>
       {isCreated ? (
         <SuccessCard $disableChildSpacing>
-          <img src={EmojiParty} alt="success emoji" />
+          <SuccessImage width="136" height="104" />
           <SuccessTitle variant="subhead">
             {translate('text_623dfd731788a100ec660f14')}
           </SuccessTitle>

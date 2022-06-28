@@ -27,7 +27,7 @@ import {
   StatusTypeEnum,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import EmojiError from '~/public/images/exploding-head.png'
+import ErrorImage from '~/public/images/maneki/error.svg'
 import { CustomerSubscriptionsList } from '~/components/customers/CustomerSubscriptionsList'
 import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
 import { CustomerVatRate } from '~/components/customers/CustomerVatRate'
@@ -244,7 +244,7 @@ const CustomerDetails = () => {
           buttonTitle={translate('text_6250304370f0f700a8fdc278')}
           buttonVariant="primary"
           buttonAction={() => location.reload()}
-          image={<img src={EmojiError} alt="error-emoji" />}
+          image={<ErrorImage width="136" height="104" />}
         />
       ) : (
         <>

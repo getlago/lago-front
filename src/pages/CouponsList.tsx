@@ -7,8 +7,8 @@ import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
 import { Typography, Button, InfiniteScroll } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import EmojiError from '~/public/images/exploding-head.png'
-import EmojiEmpty from '~/public/images/spider-web.png'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import EmptyImage from '~/public/images/maneki/empty.svg'
 import { CouponItem, CouponItemSkeleton } from '~/components/coupons/CouponItem'
 import { CouponItemFragmentDoc, useCouponsQuery } from '~/generated/graphql'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
@@ -61,7 +61,7 @@ const CouponsList = () => {
           buttonTitle={translate('text_62865498824cc10126ab296e')}
           buttonVariant="primary"
           buttonAction={() => location.reload()}
-          image={<img src={EmojiError} alt="error-emoji" />}
+          image={<ErrorImage width="136" height="104" />}
         />
       ) : !loading && (!list || !list.length) ? (
         <GenericPlaceholder
@@ -70,7 +70,7 @@ const CouponsList = () => {
           buttonTitle={translate('text_62865498824cc10126ab2975')}
           buttonVariant="primary"
           buttonAction={() => navigate(CREATE_COUPON_ROUTE)}
-          image={<img src={EmojiEmpty} alt="empty-emoji" />}
+          image={<EmptyImage width="136" height="104" />}
         />
       ) : (
         <ListContainer>

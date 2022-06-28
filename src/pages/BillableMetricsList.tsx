@@ -8,8 +8,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
 import { CREATE_BILLABLE_METRIC_ROUTE, UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import { useBillableMetricsQuery, BillableMetricItemFragmentDoc } from '~/generated/graphql'
-import EmojiError from '~/public/images/exploding-head.png'
-import EmojiEmpty from '~/public/images/spider-web.png'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import EmptyImage from '~/public/images/maneki/empty.svg'
 import {
   BillableMetricItem,
   BillableMetricItemSkeleton,
@@ -64,7 +64,7 @@ const BillableMetricsList = () => {
           buttonTitle={translate('text_623b53fea66c76017eaebb7a')}
           buttonVariant="primary"
           buttonAction={() => location.reload()}
-          image={<img src={EmojiError} alt="error-emoji" />}
+          image={<ErrorImage width="136" height="104" />}
         />
       ) : !loading && (!list || !list.length) ? (
         <GenericPlaceholder
@@ -73,7 +73,7 @@ const BillableMetricsList = () => {
           buttonTitle={translate('text_623b53fea66c76017eaebb7c')}
           buttonVariant="primary"
           buttonAction={() => navigate(CREATE_BILLABLE_METRIC_ROUTE)}
-          image={<img src={EmojiEmpty} alt="empty-emoji" />}
+          image={<EmptyImage width="136" height="104" />}
         />
       ) : (
         <ListContainer>

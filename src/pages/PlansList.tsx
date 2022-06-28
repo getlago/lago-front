@@ -8,8 +8,8 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlansQuery, PlanItemFragmentDoc } from '~/generated/graphql'
-import EmojiError from '~/public/images/exploding-head.png'
-import EmojiEmpty from '~/public/images/spider-web.png'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import EmptyImage from '~/public/images/maneki/empty.svg'
 import { PlanItem, PlanItemSkeleton } from '~/components/plans/PlanItem'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 
@@ -61,7 +61,7 @@ const PlansList = () => {
           buttonTitle={translate('text_624451f920b6a500aab37622')}
           buttonVariant="primary"
           buttonAction={() => location.reload()}
-          image={<img src={EmojiError} alt="error-emoji" />}
+          image={<ErrorImage width="136" height="104" />}
         />
       ) : !loading && (!list || !list.length) ? (
         <GenericPlaceholder
@@ -70,7 +70,7 @@ const PlansList = () => {
           buttonTitle={translate('text_624451f920b6a500aab37620')}
           buttonVariant="primary"
           buttonAction={() => navigate(CREATE_PLAN_ROUTE)}
-          image={<img src={EmojiEmpty} alt="empty-emoji" />}
+          image={<EmptyImage width="136" height="104" />}
         />
       ) : (
         <ListContainer>

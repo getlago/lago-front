@@ -7,7 +7,7 @@ import { Typography, Button } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { PLANS_ROUTE } from '~/core/router'
-import EmojiParty from '~/public/images/party.png'
+import SuccessImage from '~/public/images/maneki/success.svg'
 import { PlanForm } from '~/components/plans/PlanForm'
 import { useCreateEditPlan } from '~/hooks/plans/useCreateEditPlan'
 
@@ -34,7 +34,7 @@ const CreatePlan = () => {
 
       {isCreated ? (
         <SuccessCard $disableChildSpacing>
-          <img src={EmojiParty} alt="success emoji" />
+          <SuccessImage width="136" height="104" />
           <SuccessTitle variant="subhead">
             {translate('text_624455d859b1b000a8e17bf3')}
           </SuccessTitle>
