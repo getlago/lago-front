@@ -1931,14 +1931,14 @@ export type User = {
   updatedAt: Scalars['ISO8601DateTime'];
 };
 
-export type CurrentOrganizationFragment = { __typename?: 'Organization', id: string, name: string, apiKey: string, vatRate: number };
+export type CurrentOrganizationFragment = { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, apiKey: string, vatRate: number };
 
-export type CurrentUserFragment = { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, apiKey: string, vatRate: number }> | null };
+export type CurrentUserFragment = { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, apiKey: string, vatRate: number }> | null };
 
 export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, apiKey: string, vatRate: number }> | null } };
+export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, apiKey: string, vatRate: number }> | null } };
 
 export type AddOnItemFragment = { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: number, customerCount: number, createdAt: any, canBeDeleted: boolean };
 
@@ -2304,14 +2304,14 @@ export type LoginUserMutationVariables = Exact<{
 }>;
 
 
-export type LoginUserMutation = { __typename?: 'Mutation', loginUser?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, apiKey: string, vatRate: number }> | null } } | null };
+export type LoginUserMutation = { __typename?: 'Mutation', loginUser?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, apiKey: string, vatRate: number }> | null } } | null };
 
 export type SignupMutationVariables = Exact<{
   input: RegisterUserInput;
 }>;
 
 
-export type SignupMutation = { __typename?: 'Mutation', registerUser?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, apiKey: string, vatRate: number }> | null }, organization: { __typename?: 'Organization', id: string, name: string } } | null };
+export type SignupMutation = { __typename?: 'Mutation', registerUser?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, apiKey: string, vatRate: number }> | null }, organization: { __typename?: 'Organization', id: string, name: string } } | null };
 
 export type ApiKeyOrganizationFragment = { __typename?: 'Organization', id: string, apiKey: string };
 
@@ -2358,6 +2358,7 @@ export const CurrentOrganizationFragmentDoc = gql`
     fragment CurrentOrganization on Organization {
   id
   name
+  logoUrl
   ...ApiKeyOrganization
   ...VatRateOrganization
 }

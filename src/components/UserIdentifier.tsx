@@ -14,6 +14,7 @@ gql`
   fragment CurrentOrganization on Organization {
     id
     name
+    logoUrl
     ...ApiKeyOrganization
     ...VatRateOrganization
   }

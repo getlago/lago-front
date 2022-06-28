@@ -43,7 +43,6 @@ const SideNav = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
-  const companyName = currentOrganization?.name
   const tabs: TabProps[] = [
     {
       title: translate('text_623b497ad05b960101be3448'),
@@ -130,14 +129,25 @@ const SideNav = () => {
               enableFlip={false}
               opener={
                 <HeaderButton
-                  title={companyName}
+                  title={currentOrganization?.name}
                   icon={
-                    <Avatar
-                      variant="company"
-                      identifier={companyName || ''}
-                      size="small"
-                      initials={(companyName ?? 'Lago')[0]}
-                    />
+                    <>
+                      {currentOrganization?.logoUrl ? (
+                        <Avatar size="small" variant="connector">
+                          <img
+                            src={currentOrganization?.logoUrl as string}
+                            alt={`${currentOrganization?.name}'s logo`}
+                          />
+                        </Avatar>
+                      ) : (
+                        <Avatar
+                          variant="company"
+                          identifier={currentOrganization?.name || ''}
+                          size="small"
+                          initials={(currentOrganization?.name ?? 'Lago')[0]}
+                        />
+                      )}
+                    </>
                   }
                 />
               }
