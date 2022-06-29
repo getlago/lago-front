@@ -28,11 +28,13 @@ module.exports = {
         };
       })`
 
-    return `const React = require('react');
+    return {
+      code: `const React = require('react');
       module.exports = {
         __esModule: true,
         default: ${ReactComponent},
         ReactComponent: ${ReactComponent},
-      };`
+      };`,
+    }
   },
 }

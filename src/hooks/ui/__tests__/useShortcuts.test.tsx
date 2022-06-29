@@ -28,7 +28,8 @@ describe('useShortcuts()', () => {
       )
 
       // cf: https://testing-library.com/docs/ecosystem-user-event#keyboardtext-options
-      userEvent.keyboard('{Meta>}D{/Meta}')
+      userEvent.keyboard('{Meta}')
+      userEvent.keyboard('D')
 
       expect(action).toHaveBeenCalled()
     })
@@ -51,7 +52,8 @@ describe('useShortcuts()', () => {
         </div>
       )
 
-      userEvent.keyboard('{Meta>}D{/Meta}')
+      userEvent.keyboard('{Meta}')
+      userEvent.keyboard('D')
 
       expect(action).not.toHaveBeenCalled()
     })
@@ -74,7 +76,8 @@ describe('useShortcuts()', () => {
         </div>
       )
 
-      userEvent.keyboard('{Meta>}{Enter}{/Meta}')
+      userEvent.keyboard('{Meta}')
+      userEvent.keyboard('{Enter}')
 
       expect(action).toHaveBeenCalled()
     })
