@@ -64,38 +64,32 @@ async function extract() {
     const dittoKeys = Object.keys(dittoFile?.projects).reduce((acc, key) => {
       return [...acc, ...Object.keys(dittoFile.projects[key])]
     }, [])
-    const keysNotInDitto = _.difference(foundKeys, dittoKeys)
-    const dittoKeysNotUsed = _.difference(dittoKeys, foundKeys)
-
-    if (keysNotInDitto.length) {
-      console.info(
-        '\u001b[' +
-          31 +
-          'm' +
-          `\n----- Keys not in ditto ----- ${keysNotInDitto.length}` +
-          '\u001b[0m'
-      )
-      console.info(keysNotInDitto.join('\n'))
-    }
-
-    if (dittoKeysNotUsed.length) {
-      console.info(
-        '\u001b[' +
-          31 +
-          'm' +
-          `\n----- Ditto Keys not used ----- ${dittoKeysNotUsed.length}` +
-          '\u001b[0m'
-      )
-      console.info(dittoKeysNotUsed.join('\n'))
-    }
+    const keysNotInDitto = _.uniq(_.difference(foundKeys, dittoKeys))
+    const dittoKeysNotUsed = _.uniq(_.difference(dittoKeys, foundKeys))
 
     if (dittoKeysNotUsed.length || keysNotInDitto.length) {
-      console.info(
-        '\u001b[' + 31 + 'm' + `\nKeys not in ditto : ${keysNotInDitto.length}` + '\u001b[0m'
-      )
-      console.info(
-        '\u001b[' + 31 + 'm' + `\nDitto Keys not used : ${dittoKeysNotUsed.length}` + '\u001b[0m'
-      )
+      if (keysNotInDitto.length) {
+        console.info(
+          '\u001b[' +
+            31 +
+            'm' +
+            `\n----- Keys used but not defined ----- ${keysNotInDitto.length}` +
+            '\u001b[0m'
+        )
+        console.info(keysNotInDitto.join('\n'))
+      }
+      if (dittoKeysNotUsed.length) {
+        console.info(
+          '\u001b[' +
+            31 +
+            'm' +
+            `\n----- Keys defined but not used ----- ${dittoKeysNotUsed.length}` +
+            '\u001b[0m'
+        )
+        console.info(dittoKeysNotUsed.join('\n'))
+      }
+
+      throw Error
     } else {
       console.info('\u001b[' + 32 + 'm' + '✔ All good' + '\u001b[0m')
     }
@@ -109,7 +103,7 @@ async function main() {
   try {
     await extract()
   } catch (e) {
-    console.warn('Keys extraction failed', e)
+    console.info('\u001b[' + 31 + 'm' + '\nTranslation check failed' + '\u001b[0m')
     process.exit(1)
   }
 }
