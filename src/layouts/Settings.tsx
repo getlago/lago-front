@@ -23,7 +23,7 @@ const Settings = () => {
       key: ORGANIZATION_INFORMATIONS_ROUTE,
     },
     {
-      title: translate('text_62728ff857d47b013204c75a'),
+      title: translate('text_62ab2d0396dd6b0361614d24'),
       key: VAT_RATE_ROUTE,
     },
     {
