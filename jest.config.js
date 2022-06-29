@@ -10,7 +10,6 @@ module.exports = {
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
     '\\.svg$': '<rootDir>/__mocks__/svgMock.js',
-    '^(?!.*\\.(js|jsx|ts|tsx|css|json)$)': '<rootDir>/__mocks__/fileMock.js',
   },
 
   transformIgnorePatterns: [
@@ -50,11 +49,11 @@ module.exports = {
 
   // Module file extensions for importing
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-
   globals: {
     APP_ENV: true,
     IS_PROD_ENV: true,
     API_URL: true,
     APP_VERSION: true,
+    IS_REACT_ACT_ENVIRONMENT: true,
   },
 }
