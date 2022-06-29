@@ -1,5 +1,13 @@
 /* eslint-disable react/prop-types */
-import { forwardRef, useMemo, ReactNode, useState, useEffect, useCallback } from 'react'
+import {
+  forwardRef,
+  useMemo,
+  ReactNode,
+  useState,
+  useEffect,
+  useCallback,
+  ChangeEvent,
+} from 'react'
 import {
   TextField as MuiTextField,
   TextFieldProps as MuiTextFieldProps,
@@ -129,7 +137,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
     }, [value])
 
     const handleChange = useCallback(
-      (event) => {
+      (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         event.persist()
         const formattedValue = formatValue(event.currentTarget.value, beforeChangeFormatter)
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useCallback } from 'react'
+import { useEffect, useMemo, useRef, useCallback, KeyboardEvent } from 'react'
 
 export interface Shortcut {
   keys: string[]
@@ -86,9 +86,9 @@ export const useShortcuts: UseShortcutReturn = (shortcuts) => {
     [shortcuts, isMac]
   )
 
-  const onKeyDown = useCallback(
+  const onKeyDown: (e: Event) => void = useCallback(
     (e) => {
-      const cleanKey = getCleanKey(e.code)
+      const cleanKey = getCleanKey((e as unknown as KeyboardEvent).code)
 
       if (usableKeys.includes(cleanKey)) {
         keyPressedRef.current[cleanKey] = true
@@ -108,8 +108,8 @@ export const useShortcuts: UseShortcutReturn = (shortcuts) => {
     [usableShortcuts, usableKeys]
   )
 
-  const onKeyUp = useCallback((e) => {
-    const cleanKey = getCleanKey(e.code)
+  const onKeyUp: (e: Event) => void = useCallback((e) => {
+    const cleanKey = getCleanKey((e as unknown as KeyboardEvent).code)
 
     if (keyPressedRef.current[cleanKey]) {
       keyPressedRef.current[cleanKey] = false

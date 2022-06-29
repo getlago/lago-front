@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, RefObject, useState, useRef } from 'react'
+import { forwardRef, useEffect, RefObject, useState } from 'react'
 import styled from 'styled-components'
 import { useFormik } from 'formik'
 import { object, string } from 'yup'
@@ -42,16 +42,6 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
       customer,
     })
     const [isCollapsed, setIsCollapsed] = useState(!isEdition)
-    const mounted = useRef(false)
-
-    useEffect(() => {
-      mounted.current = true
-
-      return () => {
-        mounted.current = false
-      }
-    }, [])
-
     const formikProps = useFormik<CreateCustomerInput | UpdateCustomerInput>({
       initialValues: {
         name: '',
@@ -88,35 +78,31 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
           formikBag.setFieldError('customerId', translate('text_626162c62f790600f850b728'))
         } else {
           ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()
-          if (mounted.current) {
-            !isEdition && formikBag.resetForm()
-            setIsCollapsed(!isEdition)
-          }
+          !isEdition && formikBag.resetForm()
+          setIsCollapsed(!isEdition)
         }
       },
     })
 
     useEffect(() => {
-      if (mounted.current) {
-        setIsCollapsed(!isEdition)
-        formikProps.setValues({
-          name: customer?.name ?? '',
-          customerId: customer?.customerId ?? '',
-          legalName: undefined,
-          legalNumber: undefined,
-          phone: undefined,
-          email: undefined,
-          logoUrl: undefined,
-          url: undefined,
-          addressLine1: undefined,
-          addressLine2: undefined,
-          state: undefined,
-          country: undefined,
-          city: undefined,
-          zipcode: undefined,
-          ..._omit(billingInfos, 'id'),
-        })
-      }
+      setIsCollapsed(!isEdition)
+      formikProps.setValues({
+        name: customer?.name ?? '',
+        customerId: customer?.customerId ?? '',
+        legalName: undefined,
+        legalNumber: undefined,
+        phone: undefined,
+        email: undefined,
+        logoUrl: undefined,
+        url: undefined,
+        addressLine1: undefined,
+        addressLine2: undefined,
+        state: undefined,
+        country: undefined,
+        city: undefined,
+        zipcode: undefined,
+        ..._omit(billingInfos, 'id'),
+      })
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [customer, billingInfos])
 
@@ -136,29 +122,27 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                if (mounted.current) {
-                  setIsCollapsed(!isEdition)
+                setIsCollapsed(!isEdition)
 
-                  formikProps.resetForm({
-                    values: {
-                      name: customer?.name ?? '',
-                      customerId: customer?.customerId ?? '',
-                      legalName: undefined,
-                      legalNumber: undefined,
-                      phone: undefined,
-                      email: undefined,
-                      logoUrl: undefined,
-                      url: undefined,
-                      addressLine1: undefined,
-                      addressLine2: undefined,
-                      state: undefined,
-                      country: undefined,
-                      city: undefined,
-                      zipcode: undefined,
-                      ..._omit(billingInfos, 'id'),
-                    },
-                  })
-                }
+                formikProps.resetForm({
+                  values: {
+                    name: customer?.name ?? '',
+                    customerId: customer?.customerId ?? '',
+                    legalName: undefined,
+                    legalNumber: undefined,
+                    phone: undefined,
+                    email: undefined,
+                    logoUrl: undefined,
+                    url: undefined,
+                    addressLine1: undefined,
+                    addressLine2: undefined,
+                    state: undefined,
+                    country: undefined,
+                    city: undefined,
+                    zipcode: undefined,
+                    ..._omit(billingInfos, 'id'),
+                  },
+                })
               }}
             >
               {translate('text_6244277fe0975300fe3fb94a')}

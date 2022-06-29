@@ -1,4 +1,4 @@
-import { forwardRef, useMemo, useRef, useEffect, RefObject } from 'react'
+import { forwardRef, useMemo, RefObject } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { object, string, number } from 'yup'
@@ -52,7 +52,6 @@ export const AddAddOnToCustomerDialog = forwardRef<
   AddAddOnToCustomerDialogProps
 >(({ customerId }: AddAddOnToCustomerDialogProps, ref) => {
   const { translate } = useInternationalization()
-  const mounted = useRef(false)
   const [getAddOns, { loading, data }] = useGetAddOnsForCustomerLazyQuery({
     variables: { limit: 50 },
   })
@@ -101,9 +100,7 @@ export const AddAddOnToCustomerDialog = forwardRef<
         formikBag.setFieldError('amountCurrency', translate('text_629781ec7c6c1500d94fbb18'))
       } else {
         ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()
-        if (mounted.current) {
-          formikBag.resetForm()
-        }
+        formikBag.resetForm()
       }
     },
   })
@@ -134,14 +131,6 @@ export const AddAddOnToCustomerDialog = forwardRef<
     })
   }, [data, translate])
 
-  useEffect(() => {
-    mounted.current = true
-
-    return () => {
-      mounted.current = false
-    }
-  }, [])
-
   const error = formikProps.errors?.addOnId || formikProps.errors?.amountCurrency
 
   return (
@@ -161,9 +150,7 @@ export const AddAddOnToCustomerDialog = forwardRef<
             variant="quaternary"
             onClick={() => {
               closeDialog()
-              if (mounted.current) {
-                formikProps.resetForm()
-              }
+              formikProps.resetForm()
             }}
           >
             {translate('text_629781ec7c6c1500d94fbb1c')}
