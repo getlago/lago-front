@@ -1,0 +1,23 @@
+name: Translation Check
+
+on: push
+
+jobs:
+  run-translation-check:
+    name: Run Translation Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - name: Install Node.js dependencies
+        run: yarn
+
+      - name: Run Translation Check
+        run: |
+          yarn inspectTranslations
