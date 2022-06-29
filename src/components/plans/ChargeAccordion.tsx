@@ -34,10 +34,11 @@ export const ChargeAccordion = ({
   const localCharge = formikProps.values.charges[index]
 
   const handleUpdate = useCallback(
-    (name, value) => {
+    (name: string, value: string) => {
       formikProps.setFieldValue(`charges.${index}.${name}`, value)
     },
-    [index]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [index, formikProps.setFieldValue]
   )
 
   useEffect(() => {

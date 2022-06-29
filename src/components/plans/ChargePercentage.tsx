@@ -22,7 +22,7 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
   const { translate } = useInternationalization()
   const localCharge = formikProps.values.charges[chargeIndex]
   const handleUpdate = useCallback(
-    (name, value) => {
+    (name: string, value: string | number) => {
       formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

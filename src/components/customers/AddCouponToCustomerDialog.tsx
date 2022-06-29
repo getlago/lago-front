@@ -1,4 +1,4 @@
-import { forwardRef, useMemo, useRef, useEffect, RefObject } from 'react'
+import { forwardRef, useMemo, RefObject } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { object, string, number } from 'yup'
@@ -53,7 +53,6 @@ export const AddCouponToCustomerDialog = forwardRef<
   AddCouponToCustomerDialogProps
 >(({ customerId }: AddCouponToCustomerDialogProps, ref) => {
   const { translate } = useInternationalization()
-  const mounted = useRef(false)
   const [getCoupons, { loading, data }] = useGetCouponForCustomerLazyQuery({
     variables: { limit: 50, status: CouponStatusEnum.Active },
   })
@@ -107,9 +106,7 @@ export const AddCouponToCustomerDialog = forwardRef<
         formikBag.setFieldError('amountCurrency', translate('text_628b8c693e464200e00e46c3'))
       } else {
         ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()
-        if (mounted.current) {
-          formikBag.resetForm()
-        }
+        formikBag.resetForm()
       }
     },
   })
@@ -140,14 +137,6 @@ export const AddCouponToCustomerDialog = forwardRef<
     })
   }, [data, translate])
 
-  useEffect(() => {
-    mounted.current = true
-
-    return () => {
-      mounted.current = false
-    }
-  }, [])
-
   const error = formikProps.errors?.couponId || formikProps.errors?.amountCurrency
 
   return (
@@ -167,9 +156,7 @@ export const AddCouponToCustomerDialog = forwardRef<
             variant="quaternary"
             onClick={() => {
               closeDialog()
-              if (mounted.current) {
-                formikProps.resetForm()
-              }
+              formikProps.resetForm()
             }}
           >
             {translate('text_628b8c693e464200e00e4693')}

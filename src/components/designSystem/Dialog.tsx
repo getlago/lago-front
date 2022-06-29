@@ -5,7 +5,6 @@ import {
   ReactElement,
   useImperativeHandle,
   forwardRef,
-  useRef,
 } from 'react'
 import { Dialog as MuiDialog, alpha } from '@mui/material'
 import styled from 'styled-components'
@@ -46,15 +45,6 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
     ref
   ) => {
     const [isOpen, setIsOpen] = useState(open)
-    const mounted = useRef<boolean>(false)
-
-    useEffect(() => {
-      mounted.current = true
-
-      return () => {
-        mounted.current = false
-      }
-    })
 
     useImperativeHandle(ref, () => ({
       openDialog: () => {
@@ -65,7 +55,6 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
     }))
 
     const onDialogClose = () => {
-      if (!mounted.current) return
       setIsOpen(false)
       onClickAway && onClickAway()
     }

@@ -24,7 +24,7 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
   const localCharge = formikProps.values.charges[chargeIndex]
 
   const handleUpdate = useCallback(
-    (name, value) => {
+    (name: string, value: string) => {
       formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
