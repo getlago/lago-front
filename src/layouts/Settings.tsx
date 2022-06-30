@@ -19,7 +19,7 @@ const Settings = () => {
   const navigate = useNavigate()
   const tabsOptions = [
     {
-      title: 'Organisation',
+      title: translate('text_62ab2d0396dd6b0361614d1c'),
       key: ORGANIZATION_INFORMATIONS_ROUTE,
     },
     {

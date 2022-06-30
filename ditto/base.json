@@ -635,8 +635,11 @@
       "text_62ab2d0396dd6b0361614d20": "JPG or PNG. Max size of 800K",
       "text_62b95bf4a482330b71b8acb2": "Organisation name",
       "text_62ab2d0396dd6b0361614d40": "Legal name",
+      "text_62ab2d0396dd6b0361614d48": "Legal name",
       "text_62ab2d0396dd6b0361614d50": "Legal number",
+      "text_62ab2d0396dd6b0361614d58": "Legal number",
       "text_62ab2d0396dd6b0361614d60": "Email",
+      "text_62ab2d0396dd6b0361614d68": "Email",
       "text_62ab2d0396dd6b0361614d70": "Address",
       "text_62ab2d0396dd6b0361614d78": "Adress line 1",
       "text_62ab2d0396dd6b0361614d80": "Adress line 2",
@@ -644,7 +647,10 @@
       "text_62ab2d0396dd6b0361614d90": "City",
       "text_62ab2d0396dd6b0361614d98": "State",
       "text_62ab2d0396dd6b0361614da0": "Country",
+      "text_62ab2d0396dd6b0361614da8": "Cancel",
       "text_62ab2d0396dd6b0361614db2": "Save information",
+      "text_62ab2d0396dd6b0361614d1e": "JPG or PNG. Max size of 800K",
+      "text_62ab2d0396dd6b0361614d1c": "Organisation",
       "text_62ab2d0396dd6b0361614d2c": "Organisation info",
       "text_62ab2d0396dd6b0361614d34": "Those information are important to generate invoices, please fill them.",
       "text_62ab2d0396dd6b0361614d3c": "Edit information",
@@ -652,9 +658,26 @@
       "text_62ab2d0396dd6b0361614d5c": "Organisation name",
       "text_62ab2d0396dd6b0361614d64": "No value",
       "text_62ab2d0396dd6b0361614d6c": "Legal name",
+      "text_62ab2d0396dd6b0361614d74": "No value",
       "text_62ab2d0396dd6b0361614d7c": "Legal number",
+      "text_62ab2d0396dd6b0361614d84": "No value",
       "text_62ab2d0396dd6b0361614d8c": "Email",
-      "text_62ab2d0396dd6b0361614ddc": "Organisation information saved"
+      "text_62ab2d0396dd6b0361614d94": "No value",
+      "text_62ab2d0396dd6b0361614d9c": "Address line 1",
+      "text_62ab2d0396dd6b0361614da4": "No value",
+      "text_62ab2d0396dd6b0361614dac": "Address line 2",
+      "text_62ab2d0396dd6b0361614dc0": "No value",
+      "text_62ab2d0396dd6b0361614dc8": "Zipcode",
+      "text_62ab2d0396dd6b0361614dd0": "No value",
+      "text_62ab2d0396dd6b0361614dd6": "City",
+      "text_62ab2d0396dd6b0361614db0": "No value",
+      "text_62ab2d0396dd6b0361614db6": "State",
+      "text_62ab2d0396dd6b0361614ddd": "No value",
+      "text_62ab2d0396dd6b0361614de3": "Country",
+      "text_62ab2d0396dd6b0361614ddc": "Organisation information saved",
+      "text_62bb102b66ff57dbfe7905c0": "Something went wrong",
+      "text_62bb102b66ff57dbfe7905c2": "Please refresh the page or contact us if the error persists.",
+      "text_62bb102b66ff57dbfe7905c4": "Refresh the page"
     },
     "project_62b1edda611dee64a01ad185": {
       "text_62b1edddbf5f461ab9712733": "Integrations",
@@ -710,5 +733,5 @@
       "text_62bac37900192b773560e831": "Go back to the app"
     }
   },
-  "exported_at": "2022-06-30T14:01:46.677Z"
+  "exported_at": "2022-06-30T15:16:06.228Z"
 }
