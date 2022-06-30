@@ -39,6 +39,7 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef, AddStripDialog>(
           if (!isEdition) {
             navigate(STRIPE_INTEGRATION_ROUTE)
           }
+          setStripeApiKey('')
           addToast({
             message: translate(
               isEdition ? 'text_62b1edddbf5f461ab97126f6' : 'text_62b1edddbf5f461ab9712743'
@@ -77,7 +78,6 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef, AddStripDialog>(
                   variables: {
                     input: {
                       secretKey: stripeApiKey,
-                      sendZeroAmountInvoice: false,
                       createCustomers: false,
                     },
                   },
