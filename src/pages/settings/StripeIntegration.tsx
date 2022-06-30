@@ -37,7 +37,6 @@ gql`
     id
     secretKey
     createCustomers
-    sendZeroAmountInvoice
   }
 
   query stripeIntegrationsSetting {
@@ -188,21 +187,12 @@ const StripeIntegration = () => {
             <SwitchBlock>
               <Switch
                 name="createCustomers"
-                checked={stripePaymentProvider?.createCustomers}
+                checked={!stripePaymentProvider ? false : stripePaymentProvider?.createCustomers}
                 onChange={async (value) =>
                   await update({ variables: { input: { createCustomers: value } } })
                 }
                 label={translate('text_62b1edddbf5f461ab97127c8')}
                 subLabel={translate('text_62b1edddbf5f461ab97127d8')}
-              />
-              <Switch
-                name="createCustomers"
-                checked={!stripePaymentProvider?.sendZeroAmountInvoice}
-                onChange={async (value) =>
-                  await update({ variables: { input: { sendZeroAmountInvoice: !value } } })
-                }
-                label={translate('text_62b1edddbf5f461ab97127e6')}
-                subLabel={translate('text_62b1edddbf5f461ab97127f2')}
               />
             </SwitchBlock>
           </>

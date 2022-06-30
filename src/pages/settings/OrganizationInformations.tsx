@@ -109,7 +109,7 @@ const OrganizationInformations = () => {
               <tr>
                 <td>
                   <Typography variant="caption">
-                    {translate('text_62ab2d0396dd6b0361614d30')}
+                    {translate('text_62b95bf4a482330b71b8acb2')}
                   </Typography>
                 </td>
                 <td>
