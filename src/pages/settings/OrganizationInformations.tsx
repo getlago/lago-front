@@ -53,9 +53,9 @@ const OrganizationInformations = () => {
   if (!!error && !loading) {
     return (
       <GenericPlaceholder
-        title={translate('text_629728388c4d2300e2d380d5')}
-        subtitle={translate('text_629728388c4d2300e2d380eb')}
-        buttonTitle={translate('text_629728388c4d2300e2d38110')}
+        title={translate('text_62bb102b66ff57dbfe7905c0')}
+        subtitle={translate('text_62bb102b66ff57dbfe7905c2')}
+        buttonTitle={translate('text_62bb102b66ff57dbfe7905c4')}
         buttonVariant="primary"
         buttonAction={() => location.reload()}
         image={<ErrorImage width="136" height="104" />}
@@ -109,21 +109,19 @@ const OrganizationInformations = () => {
               <tr>
                 <td>
                   <Typography variant="caption">
-                    {translate('text_62b95bf4a482330b71b8acb2')}
+                    {translate('text_62ab2d0396dd6b0361614d5c')}
                   </Typography>
                 </td>
                 <td>
                   <Typography variant="body" color="grey700">
-                    {organization?.name
-                      ? organization.name
-                      : translate('text_62ab2d0396dd6b0361614d64')}
+                    {organization.name}
                   </Typography>
                 </td>
               </tr>
               <tr>
                 <td>
                   <Typography variant="caption">
-                    {translate('text_62ab2d0396dd6b0361614d40')}
+                    {translate('text_62ab2d0396dd6b0361614d6c')}
                   </Typography>
                 </td>
                 <td>
@@ -140,7 +138,7 @@ const OrganizationInformations = () => {
               <tr>
                 <td>
                   <Typography variant="caption">
-                    {translate('text_62ab2d0396dd6b0361614d50')}
+                    {translate('text_62ab2d0396dd6b0361614d7c')}
                   </Typography>
                 </td>
                 <td>
@@ -150,28 +148,28 @@ const OrganizationInformations = () => {
                   >
                     {organization?.legalNumber
                       ? organization.legalNumber
-                      : translate('text_62ab2d0396dd6b0361614d64')}
+                      : translate('text_62ab2d0396dd6b0361614d74')}
                   </Typography>
                 </td>
               </tr>
               <tr>
                 <td>
                   <Typography variant="caption">
-                    {translate('text_62ab2d0396dd6b0361614d60')}
+                    {translate('text_62ab2d0396dd6b0361614d8c')}
                   </Typography>
                 </td>
                 <td>
                   <Typography variant="body" color={organization?.email ? 'grey700' : 'grey500'}>
                     {organization?.email
                       ? organization.email
-                      : translate('text_62ab2d0396dd6b0361614d64')}
+                      : translate('text_62ab2d0396dd6b0361614d84')}
                   </Typography>
                 </td>
               </tr>
               <tr>
                 <td>
                   <Typography variant="caption">
-                    {translate('text_62ab2d0396dd6b0361614d78')}
+                    {translate('text_62ab2d0396dd6b0361614d9c')}
                   </Typography>
                 </td>
                 <td>
@@ -181,14 +179,14 @@ const OrganizationInformations = () => {
                   >
                     {organization?.addressLine1
                       ? organization.addressLine1
-                      : translate('text_62ab2d0396dd6b0361614d64')}
+                      : translate('text_62ab2d0396dd6b0361614d94')}
                   </Typography>
                 </td>
               </tr>
               <tr>
                 <td>
                   <Typography variant="caption">
-                    {translate('text_62ab2d0396dd6b0361614d80')}
+                    {translate('text_62ab2d0396dd6b0361614dac')}
                   </Typography>
                 </td>
                 <td>
@@ -198,63 +196,63 @@ const OrganizationInformations = () => {
                   >
                     {organization?.addressLine2
                       ? organization.addressLine2
-                      : translate('text_62ab2d0396dd6b0361614d64')}
+                      : translate('text_62ab2d0396dd6b0361614da4')}
                   </Typography>
                 </td>
               </tr>
               <tr>
                 <td>
                   <Typography variant="caption">
-                    {translate('text_62ab2d0396dd6b0361614d88')}
+                    {translate('text_62ab2d0396dd6b0361614dc8')}
                   </Typography>
                 </td>
                 <td>
                   <Typography variant="body" color={organization?.zipcode ? 'grey700' : 'grey500'}>
                     {organization?.zipcode
                       ? organization.zipcode
-                      : translate('text_62ab2d0396dd6b0361614d64')}
+                      : translate('text_62ab2d0396dd6b0361614dc0')}
                   </Typography>
                 </td>
               </tr>
               <tr>
                 <td>
                   <Typography variant="caption">
-                    {translate('text_62ab2d0396dd6b0361614d90')}
+                    {translate('text_62ab2d0396dd6b0361614dd6')}
                   </Typography>
                 </td>
                 <td>
                   <Typography variant="body" color={organization?.city ? 'grey700' : 'grey500'}>
                     {organization?.city
                       ? organization.city
-                      : translate('text_62ab2d0396dd6b0361614d64')}
+                      : translate('text_62ab2d0396dd6b0361614dd0')}
                   </Typography>
                 </td>
               </tr>
               <tr>
                 <td>
                   <Typography variant="caption">
-                    {translate('text_62ab2d0396dd6b0361614d98')}
+                    {translate('text_62ab2d0396dd6b0361614db6')}
                   </Typography>
                 </td>
                 <td>
                   <Typography variant="body" color={organization?.state ? 'grey700' : 'grey500'}>
                     {organization?.state
                       ? organization.state
-                      : translate('text_62ab2d0396dd6b0361614d64')}
+                      : translate('text_62ab2d0396dd6b0361614db0')}
                   </Typography>
                 </td>
               </tr>
               <tr>
                 <td>
                   <Typography variant="caption">
-                    {translate('text_62ab2d0396dd6b0361614da0')}
+                    {translate('text_62ab2d0396dd6b0361614de3')}
                   </Typography>
                 </td>
                 <td>
                   <Typography variant="body" color={organization?.country ? 'grey700' : 'grey500'}>
                     {organization?.country
                       ? CountryCodes[organization.country]
-                      : translate('text_62ab2d0396dd6b0361614d64')}
+                      : translate('text_62ab2d0396dd6b0361614ddd')}
                   </Typography>
                 </td>
               </tr>

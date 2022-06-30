@@ -139,7 +139,7 @@ export const EditOrganizationInformationsDialog = forwardRef<
               formikProps.resetForm()
             }}
           >
-            {translate('text_62728ff857d47b013204c7e4')}
+            {translate('text_62ab2d0396dd6b0361614da8')}
           </Button>
           <Button
             variant="primary"
@@ -183,7 +183,9 @@ export const EditOrganizationInformationsDialog = forwardRef<
                 {translate('text_62ab2d0396dd6b0361614d18')}
               </ChooseFileButton>
               <Typography variant="caption" color={logoUploadError ? 'danger600' : undefined}>
-                {translate('text_62ab2d0396dd6b0361614d20')}
+                {logoUploadError
+                  ? translate('text_62ab2d0396dd6b0361614d1e')
+                  : translate('text_62ab2d0396dd6b0361614d20')}
               </Typography>
             </AvatarUploadWrapper>
             <HiddenInput
@@ -204,8 +206,8 @@ export const EditOrganizationInformationsDialog = forwardRef<
         <FormSection>
           <TextInput
             name="name"
-            label={translate('text_62ab2d0396dd6b0361614d5c')}
-            placeholder={translate('text_62ab2d0396dd6b0361614d5c')}
+            label={translate('text_62b95bf4a482330b71b8acb2')}
+            placeholder={translate('text_62b95bf4a482330b71b8acb2')}
             value={organization?.name}
             disabled={true}
           />
@@ -213,8 +215,8 @@ export const EditOrganizationInformationsDialog = forwardRef<
         <FormSection>
           <TextInputField
             name="legalName"
-            label={translate('text_62ab2d0396dd6b0361614d6c')}
-            placeholder={translate('text_62ab2d0396dd6b0361614d6c')}
+            label={translate('text_62ab2d0396dd6b0361614d40')}
+            placeholder={translate('text_62ab2d0396dd6b0361614d48')}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             formikProps={formikProps}
@@ -223,16 +225,16 @@ export const EditOrganizationInformationsDialog = forwardRef<
         <FormSection>
           <TextInputField
             name="legalNumber"
-            label={translate('text_62ab2d0396dd6b0361614d7c')}
-            placeholder={translate('text_62ab2d0396dd6b0361614d7c')}
+            label={translate('text_62ab2d0396dd6b0361614d50')}
+            placeholder={translate('text_62ab2d0396dd6b0361614d58')}
             formikProps={formikProps}
           />
         </FormSection>
         <FormSection>
           <TextInputField
             name="email"
-            label={translate('text_62ab2d0396dd6b0361614d8c')}
-            placeholder={translate('text_62ab2d0396dd6b0361614d8c')}
+            label={translate('text_62ab2d0396dd6b0361614d60')}
+            placeholder={translate('text_62ab2d0396dd6b0361614d68')}
             formikProps={formikProps}
           />
         </FormSection>
