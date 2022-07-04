@@ -30,6 +30,8 @@ interface PlanFormProps {
   onSave: (values: PlanFormInput) => Promise<void>
 }
 
+const getNewChargeId = (id: string, index: number) => `plan-charge-${id}-${index}`
+
 export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFormProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const addChargeDialogRef = useRef<AddChargeDialogRef>(null)
@@ -343,8 +345,8 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                       {formikProps.values.charges.map((charge, i) => {
                         return (
                           <ChargeAccordion
-                            id={charge.billableMetric.id}
-                            key={`plan-charge-${charge.billableMetric.id}`}
+                            id={getNewChargeId(charge.billableMetric.id, i)}
+                            key={getNewChargeId(charge.billableMetric.id, i)}
                             currency={formikProps.values.amountCurrency}
                             index={i}
                             disabled={isEdition && !plan?.canBeDeleted}
@@ -400,7 +402,6 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
 
                 <AddChargeDialog
                   ref={addChargeDialogRef}
-                  disabledItems={formikProps.values.charges.map((c) => c.billableMetric.id)}
                   onConfirm={(newCharge) => {
                     const previousCharges = [...formikProps.values.charges]
 
@@ -414,7 +415,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                       },
                     ])
 
-                    setNewChargeId(newCharge.id)
+                    setNewChargeId(getNewChargeId(newCharge.id, previousCharges.length))
                   }}
                 />
               </>
