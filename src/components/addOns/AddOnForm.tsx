@@ -149,7 +149,6 @@ export const AddOnForm = ({ isEdition, loading, addOn, onSave }: AddOnFormProps)
                   disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
                   fullWidth
                   size="large"
-                  loading={formikProps.isSubmitting}
                   onClick={formikProps.submitForm}
                 >
                   {translate(

@@ -155,10 +155,7 @@ export const AddAddOnToCustomerDialog = forwardRef<
           >
             {translate('text_629781ec7c6c1500d94fbb1c')}
           </Button>
-          <Button
-            disabled={!formikProps.isValid}
-            onClick={async () => await formikProps.handleSubmit()}
-          >
+          <Button disabled={!formikProps.isValid} onClick={formikProps.submitForm}>
             {translate('text_629781ec7c6c1500d94fbb24')}
           </Button>
         </>

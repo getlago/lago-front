@@ -165,7 +165,7 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
             <Button
               disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
               loading={formikProps.isSubmitting}
-              onClick={async () => await formikProps.handleSubmit()}
+              onClick={formikProps.submitForm}
             >
               {translate(
                 isEdition ? 'text_6261712bff79eb00ed02907b' : 'text_624efab67eb2570101d117eb'
