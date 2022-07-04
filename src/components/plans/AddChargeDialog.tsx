@@ -27,12 +27,11 @@ gql`
 `
 
 interface AddChargeDialogProps {
-  disabledItems?: string[]
   onConfirm: (item: BillableMetricForPlanFragment) => void
 }
 
 export const AddChargeDialog = forwardRef<DialogRef, AddChargeDialogProps>(
-  ({ disabledItems, onConfirm }: AddChargeDialogProps, ref) => {
+  ({ onConfirm }: AddChargeDialogProps, ref) => {
     const [selectedId, setSelectedId] = useState<string>()
     const { translate } = useInternationalization()
     const [getBillableMetrics, { loading, data }] = useGetbillableMetricsLazyQuery({
@@ -50,10 +49,9 @@ export const AddChargeDialog = forwardRef<DialogRef, AddChargeDialogProps>(
             </Item>
           ),
           value: id,
-          disabled: disabledItems && disabledItems.includes(id),
         }
       })
-    }, [data, disabledItems])
+    }, [data])
 
     return (
       <Dialog
