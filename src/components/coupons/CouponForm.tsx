@@ -191,7 +191,6 @@ export const CouponForm = ({ isEdition, loading, coupon, onSave }: CouponFormPro
                   disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
                   fullWidth
                   size="large"
-                  loading={formikProps.isSubmitting}
                   onClick={formikProps.submitForm}
                 >
                   {translate(

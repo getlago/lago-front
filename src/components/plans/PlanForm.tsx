@@ -391,7 +391,6 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                     disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
                     fullWidth
                     size="large"
-                    loading={formikProps.isSubmitting}
                     onClick={formikProps.submitForm}
                   >
                     {translate(
