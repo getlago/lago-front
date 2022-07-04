@@ -96,7 +96,6 @@ export const EditOrganizationInformationsDialog = forwardRef<
     enableReinitialize: true,
     validateOnMount: true,
     onSubmit: async (values) => {
-      values.country = values?.country || null
       await updateOrganizationInformations({
         variables: {
           input: {

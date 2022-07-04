@@ -18,7 +18,7 @@ export const ComboBoxField = ({ name, formikProps, ...props }: ComboBoxFieldProp
     <ComboBox
       name={name}
       value={_get(values, name)}
-      onChange={(newValue) => setFieldValue(name, newValue)}
+      onChange={(newValue) => setFieldValue(name, newValue || null)}
       {...props}
     />
   )

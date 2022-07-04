@@ -173,23 +173,21 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
     billingInfos: data?.customer,
     loadBillingInfos: !!customer ? getBillingInfos : undefined,
     onSave: !!customer
-      ? async ({ stripeCustomer, paymentProvider, ...values }) =>
+      ? async ({ stripeCustomer, ...values }) =>
           await update({
             variables: {
               input: {
                 id: customer?.id as string,
-                paymentProvider: paymentProvider || null,
                 stripeCustomer: { ..._omit(stripeCustomer, 'id') },
                 ...values,
               },
             },
           })
-      : async ({ stripeCustomer, paymentProvider, ...values }) =>
+      : async ({ stripeCustomer, ...values }) =>
           await create({
             variables: {
               input: {
                 ...values,
-                paymentProvider: paymentProvider || null,
                 stripeCustomer: { ..._omit(stripeCustomer, 'id') },
               },
             },
