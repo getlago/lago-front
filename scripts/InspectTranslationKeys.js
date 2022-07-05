@@ -60,10 +60,8 @@ async function extract() {
 
   translationFiles.forEach((file) => {
     // Get all translation keys from the ditto file
-    const dittoFile = JSON.parse(fs.readFileSync(file), 'utf-8')
-    const dittoKeys = Object.keys(dittoFile?.projects).reduce((acc, key) => {
-      return [...acc, ...Object.keys(dittoFile.projects[key])]
-    }, [])
+    const dittoTranslations = JSON.parse(fs.readFileSync(file), 'utf-8')
+    const dittoKeys = Object.keys(dittoTranslations)
     const keysNotInDitto = _.uniq(_.difference(foundKeys, dittoKeys))
     const dittoKeysNotUsed = _.uniq(_.difference(dittoKeys, foundKeys))
 
@@ -103,7 +101,7 @@ async function main() {
   try {
     await extract()
   } catch (e) {
-    console.info('\u001b[' + 31 + 'm' + '\nTranslation check failed' + '\u001b[0m')
+    console.info('\u001b[' + 31 + 'm' + '\nTranslation check failed' + '\u001b[0m', e)
     process.exit(1)
   }
 }

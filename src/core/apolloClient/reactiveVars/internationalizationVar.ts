@@ -16,9 +16,7 @@ interface InternationalizationVar {
 }
 
 interface DittoTranslation {
-  projects: {
-    [key: string]: Record<string, string>
-  }
+  [key: string]: string
 }
 
 const getTranslations: (locale: IntlLocale) => Promise<Record<string, string>> = async (locale) => {
@@ -28,14 +26,12 @@ const getTranslations: (locale: IntlLocale) => Promise<Record<string, string>> =
   try {
     loadedDittoTranslation = (await import(`../../../../ditto/${locale}.json`)) as DittoTranslation
   } catch (err) {
-    loadedDittoTranslation = (await import(`../../../../ditto/base.json`)) as DittoTranslation
+    loadedDittoTranslation = (await import(
+      `../../../../ditto/base.json`
+    )) as unknown as DittoTranslation
   }
 
-  return loadedDittoTranslation?.projects
-    ? Object.keys(loadedDittoTranslation?.projects).reduce<Record<string, string>>((acc, key) => {
-        return { ...acc, ...loadedDittoTranslation.projects[key] }
-      }, {})
-    : {}
+  return loadedDittoTranslation
 }
 
 export const internationalizationVar = makeVar<InternationalizationVar>({
