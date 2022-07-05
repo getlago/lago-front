@@ -51,5 +51,7 @@ projects:
     id: 620bc4d45f16c800e2324b82
   - name: Settings - Invoice settings
     id: 62ab2cff6d409cff712298ea
+  - name: "Logs - Log current usage"
+    id: 62c3f3f85ba98dad7106f33b
 format: flat
 variants: true

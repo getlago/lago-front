@@ -40,12 +40,14 @@ const CreateBillableMetric = lazy(
 )
 const PlansList = lazy(() => import(/* webpackChunkName: 'plans-list' */ '~/pages/PlansList'))
 const CreatePlan = lazy(() => import(/* webpackChunkName: 'create-plan' */ '~/pages/CreatePlan'))
+
 const CustomersList = lazy(
   () => import(/* webpackChunkName: 'customers-list' */ '~/pages/CustomersList')
 )
 const CustomerDetails = lazy(
   () => import(/* webpackChunkName: 'customer-details' */ '~/pages/CustomerDetails')
 )
+
 const CouponsList = lazy(() => import(/* webpackChunkName: 'coupons-list' */ '~/pages/CouponsList'))
 const CreateCoupon = lazy(
   () => import(/* webpackChunkName: 'create-coupon' */ '~/pages/CreateCoupon')
