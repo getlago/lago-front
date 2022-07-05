@@ -41,6 +41,9 @@ module.exports = {
   "project_62b1edda611dee64a01ad185": {
     "base": require('./Lago <> Stripe connection + impact on customer view__base.json')
   },
+  "project_62c3f3f85ba98dad7106f33b": {
+    "base": require('./Logs - Log current usage__base.json')
+  },
   "project_628cf7593d43eb010ec6b067": {
     "base": require('./Logs - Log usage & measurement__base.json')
   },

@@ -40,6 +40,7 @@ import {
 import { AddCustomerDialog, AddCustomerDialogRef } from '~/components/customers/AddCustomerDialog'
 import { CustomerCoupons } from '~/components/customers/CustomerCoupons'
 import { CustomerAddOns } from '~/components/customers/CustomerAddOns'
+import { CustomerUsage } from '~/components/customers/CustomerUsage'
 import { CustomerMainInfos } from '~/components/customers/CustomerMainInfos'
 import {
   AddCouponToCustomerDialog,
@@ -96,6 +97,7 @@ enum TabsOptions {
   overview = 'overview',
   invoices = 'invoices',
   taxRate = 'taxRate',
+  usage = 'usage',
 }
 
 const CustomerDetails = () => {
@@ -119,6 +121,10 @@ const CustomerDetails = () => {
       {
         title: translate('text_628cf761cbe6820138b8f2e4'),
         key: TabsOptions.overview,
+      },
+      {
+        title: translate('text_62c3f3fca8a1625624e83365'),
+        key: TabsOptions.usage,
       },
       {
         title: translate('text_628cf761cbe6820138b8f2e6'),
@@ -317,6 +323,7 @@ const CustomerDetails = () => {
                       />
                     </>
                   )}
+                  {tab === TabsOptions.usage && <CustomerUsage id={id as string} />}
                   {!loading && tab === TabsOptions.invoices && (
                     <CustomerInvoicesList invoices={invoices} />
                   )}
