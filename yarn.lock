@@ -1899,7 +1899,7 @@
   resolved "https://registry.npmjs.org/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@dittowords/cli@^2.5.1":
+"@dittowords/cli@2.5.1":
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/@dittowords/cli/-/cli-2.5.1.tgz#a6cf078eb759038a77a623f2416cf114da6c4f30"
   integrity sha512-lgDFT0S48Ud9y7PX+gtAy/y0oQNGSHqdvTvGxlabZOqy7gNwEle3kCtExVvVz7Hg4uNZwfG10TKxxuBH06sypQ==
