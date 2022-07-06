@@ -1,8 +1,8 @@
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 
-import { Typography, Button, Skeleton, Avatar, Icon } from '~/components/designSystem'
+import { Typography, Button, Skeleton, Avatar, Icon, ShowMoreText } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -44,30 +44,12 @@ gql`
 
 const VatRate = () => {
   const { translate } = useInternationalization()
-  const [isTextTruncated, setIsTesxtTruncated] = useState(true)
   const editVATDialogRef = useRef<EditOrganizationVatRateDialogRef>(null)
   const editInvoiceTemplateDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
   const { data, error, loading } = useGetOrganizationInvoiceAndTaxInformationsQuery()
   const organization = (data?.currentUser?.organizations || [])[0]
   const vatRate = organization?.vatRate || 0
   const invoiceFooter = organization?.invoiceFooter || ''
-
-  const renderInvoiceFooter = () => {
-    if (isTextTruncated && invoiceFooter.length > MAX_FOOTER_LENGTH_DISPLAY_LIMIT) {
-      /* eslint-disable jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events, jsx-a11y/anchor-is-valid */
-      return (
-        <>
-          {invoiceFooter.substring(0, MAX_FOOTER_LENGTH_DISPLAY_LIMIT)}...
-          <a onClick={() => setIsTesxtTruncated(false)}>
-            {translate('text_62bdbf07117c3d1f178d6517')}
-          </a>
-        </>
-      )
-      /* eslint-enable jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events, jsx-a11y/anchor-is-valid */
-    }
-
-    return invoiceFooter
-  }
 
   if (!!error && !loading) {
     return (
@@ -103,7 +85,11 @@ const VatRate = () => {
           <>
             <CustomFooterLabel>{translate('text_62bb10ad2a10bd182d002045')}</CustomFooterLabel>
             <CustomFooterValue>
-              {invoiceFooter ? renderInvoiceFooter() : translate('text_62ab2d0396dd6b0361614d64')}
+              {invoiceFooter ? (
+                <ShowMoreText text={invoiceFooter} limit={MAX_FOOTER_LENGTH_DISPLAY_LIMIT} />
+              ) : (
+                translate('text_62ab2d0396dd6b0361614d64')
+              )}
             </CustomFooterValue>
           </>
         )}
@@ -192,10 +178,6 @@ const CustomFooterLabel = styled(Typography)`
 `
 const CustomFooterValue = styled(Typography)`
   flex: 1;
-
-  > a:hover {
-    cursor: pointer;
-  }
 `
 
 const SkeletonLabel = styled(Skeleton)`
