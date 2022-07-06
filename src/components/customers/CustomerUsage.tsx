@@ -8,7 +8,7 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme, NAV_HEIGHT } from '~/styles'
-import { Typography, Button, Skeleton, Avatar, Icon } from '~/components/designSystem'
+import { Typography, Button, Skeleton, Avatar, Icon, Tooltip } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
 
 gql`
@@ -63,15 +63,16 @@ export const CustomerUsage = ({ id }: CustomerUsageProps) => {
     <div>
       <Header>
         <Title variant="subhead">{translate('text_62c3f3fca8a1625624e8337b')}</Title>
-        <Button
-          disabled={loading}
-          onClick={() => {
-            refetch()
-          }}
-          variant="quaternary"
-        >
-          {translate('text_62c3f3fca8a1625624e83375')}
-        </Button>
+        <Tooltip placement="top-end" title={translate('text_62c3f3fca8a1625624e83375')}>
+          <Button
+            variant="quaternary"
+            disabled={!data && loading}
+            onClick={async () => {
+              await refetch()
+            }}
+            icon="reload"
+          ></Button>
+        </Tooltip>
       </Header>
       <Header>
         {loading ? (
