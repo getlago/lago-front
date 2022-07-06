@@ -2,7 +2,11 @@ import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { DateTime } from 'luxon'
 
-import { InvoiceStatusTypeEnum, CustomerInvoiceListFragment } from '~/generated/graphql'
+import {
+  CustomerInvoiceListFragment,
+  InvoiceStatusTypeEnum,
+  useDownloadInvoiceMutation,
+} from '~/generated/graphql'
 import { Button, Popper, Status, StatusEnum, Tooltip, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { HEADER_TABLE_HEIGHT, MenuPopper, NAV_HEIGHT, theme } from '~/styles'
@@ -18,6 +22,13 @@ gql`
     number
     status
     totalAmountCents
+  }
+
+  mutation downloadInvoice($input: DownloadInvoiceInput!) {
+    downloadInvoice(input: $input) {
+      id
+      fileUrl
+    }
   }
 `
 
@@ -47,6 +58,29 @@ const mapStatus = (type?: InvoiceStatusTypeEnum | undefined) => {
 
 export const CustomerInvoicesList = ({ invoices }: CustomerInvoicesListProps) => {
   const { translate } = useInternationalization()
+  const [downloadInvoice] = useDownloadInvoiceMutation({
+    onCompleted({ downloadInvoice: data }) {
+      const fileUrl = data?.fileUrl
+
+      if (fileUrl) {
+        // We open a window, add url then focus on different lines, in order to prevent browsers to block page opening
+        // It could be seen as unexpected popup as not immediatly done on user action
+        // https://stackoverflow.com/questions/2587677/avoid-browser-popup-blockers
+        const myWindow = window.open('', '_blank')
+
+        if (myWindow?.location?.href) {
+          myWindow.location.href = fileUrl
+          return myWindow?.focus()
+        } else {
+          myWindow?.close()
+          addToast({
+            severity: 'danger',
+            translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+          })
+        }
+      }
+    },
+  })
 
   return (
     <SideSection $empty={!invoices || !invoices.length}>
@@ -74,7 +108,7 @@ export const CustomerInvoicesList = ({ invoices }: CustomerInvoicesListProps) =>
             const formattedStatus = mapStatus(status)
 
             return (
-              <Item key={id}>
+              <Item key={`invoice-${id}`}>
                 <IssuingDateCell noWrap>
                   {DateTime.fromISO(issuingDate).toFormat('yyyy/LL/dd')}
                 </IssuingDateCell>
@@ -106,7 +140,11 @@ export const CustomerInvoicesList = ({ invoices }: CustomerInvoicesListProps) =>
                           startIcon="download"
                           variant="quaternary"
                           align="left"
-                          disabled={true}
+                          onClick={async () => {
+                            await downloadInvoice({
+                              variables: { input: { id } },
+                            })
+                          }}
                         >
                           {translate('text_62b31e1f6a5b8b1b745ece42')}
                         </Button>
