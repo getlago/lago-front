@@ -115,28 +115,7 @@ const CustomerDetails = () => {
   })
   const { name, customerId, invoices, subscriptions, canBeDeleted, appliedCoupons, appliedAddOns } =
     data?.customer || {}
-
-  const tabsOptions = useMemo(() => {
-    return [
-      {
-        title: translate('text_628cf761cbe6820138b8f2e4'),
-        key: TabsOptions.overview,
-      },
-      {
-        title: translate('text_62c3f3fca8a1625624e83365'),
-        key: TabsOptions.usage,
-      },
-      {
-        title: translate('text_628cf761cbe6820138b8f2e6'),
-        key: TabsOptions.invoices,
-      },
-      {
-        title: translate('text_628cf761cbe6820138b8f2e8'),
-        key: TabsOptions.taxRate,
-      },
-    ]
-  }, [translate])
-
+  const hasSubscription = !!(subscriptions || []).length
   const selectedPlansId = useMemo(
     () =>
       (subscriptions || []).reduce<string[]>((acc, s) => {
@@ -182,7 +161,7 @@ const CustomerDetails = () => {
                 }}
               >
                 {translate(
-                  !subscriptions?.length
+                  !hasSubscription
                     ? 'text_626162c62f790600f850b70c'
                     : 'text_6262658ead40f401000bc80f'
                 )}
@@ -200,7 +179,7 @@ const CustomerDetails = () => {
               <Button
                 variant="quaternary"
                 align="left"
-                disabled={!subscriptions || !subscriptions?.length}
+                disabled={!hasSubscription}
                 onClick={() => {
                   addOnDialogRef.current?.openDialog()
                   closePopper()
@@ -211,9 +190,7 @@ const CustomerDetails = () => {
               <Button
                 variant="quaternary"
                 align="left"
-                disabled={
-                  !subscriptions || !subscriptions?.length || (appliedCoupons || []).length > 0
-                }
+                disabled={!hasSubscription || (appliedCoupons || []).length > 0}
                 onClick={() => {
                   addCouponDialogRef.current?.openDialog()
                   closePopper()
@@ -293,8 +270,60 @@ const CustomerDetails = () => {
               />
               <div>
                 <BasicTabs
-                  tabs={tabsOptions}
+                  tabs={[
+                    {
+                      title: translate('text_628cf761cbe6820138b8f2e4'),
+                      key: TabsOptions.overview,
+                      component: (
+                        <SideBlock>
+                          <CustomerCoupons coupons={appliedCoupons} />
+                          <CustomerAddOns ref={addOnDialogRef} addOns={appliedAddOns} />
+                          <CustomerSubscriptionsList
+                            ref={subscriptionsDialogRef}
+                            subscriptions={subscriptions ?? []}
+                          />
+                        </SideBlock>
+                      ),
+                    },
+                    {
+                      title: translate('text_62c3f3fca8a1625624e83365'),
+                      key: TabsOptions.usage,
+                      hidden: !hasSubscription,
+                      component: (
+                        <SideBlock>
+                          <CustomerUsage id={id as string} />
+                        </SideBlock>
+                      ),
+                    },
+                    {
+                      title: translate('text_628cf761cbe6820138b8f2e6'),
+                      key: TabsOptions.invoices,
+                      component: (
+                        <SideBlock>
+                          <CustomerInvoicesList invoices={invoices} />
+                        </SideBlock>
+                      ),
+                    },
+                    {
+                      title: translate('text_628cf761cbe6820138b8f2e8'),
+                      key: TabsOptions.taxRate,
+                      component: (
+                        <SideBlock>
+                          <CustomerVatRate customer={data?.customer as CustomerVatRateFragment} />
+                        </SideBlock>
+                      ),
+                    },
+                  ]}
                   value={tab || 0}
+                  loading={loading}
+                  loadingComponent={
+                    <SideLoadingSection>
+                      <SectionHeader variant="subhead">
+                        <Skeleton variant="text" height={12} width={200} />
+                      </SectionHeader>
+                      <Skeleton variant="text" height={12} width={240} />
+                    </SideLoadingSection>
+                  }
                   align="superLeft"
                   onClick={(_, key) =>
                     navigate(generatePath(CUSTOMER_DETAILS_TAB_ROUTE, { id, tab: key as string }), {
@@ -302,35 +331,6 @@ const CustomerDetails = () => {
                     })
                   }
                 />
-                <SideBlock>
-                  {loading && (
-                    <>
-                      <SideLoadingSection>
-                        <SectionHeader variant="subhead">
-                          <Skeleton variant="text" height={12} width={200} />
-                        </SectionHeader>
-                        <Skeleton variant="text" height={12} width={240} />
-                      </SideLoadingSection>
-                    </>
-                  )}
-                  {!loading && (!tab || tab === TabsOptions.overview) && (
-                    <>
-                      <CustomerCoupons coupons={appliedCoupons} />
-                      <CustomerAddOns ref={addOnDialogRef} addOns={appliedAddOns} />
-                      <CustomerSubscriptionsList
-                        ref={subscriptionsDialogRef}
-                        subscriptions={subscriptions ?? []}
-                      />
-                    </>
-                  )}
-                  {tab === TabsOptions.usage && <CustomerUsage id={id as string} />}
-                  {!loading && tab === TabsOptions.invoices && (
-                    <CustomerInvoicesList invoices={invoices} />
-                  )}
-                  {!loading && tab === TabsOptions.taxRate && (
-                    <CustomerVatRate customer={data?.customer as CustomerVatRateFragment} />
-                  )}
-                </SideBlock>
               </div>
             </Infos>
           </Content>
