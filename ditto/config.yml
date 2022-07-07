@@ -53,5 +53,7 @@ projects:
     id: 62ab2cff6d409cff712298ea
   - name: "Logs - Log current usage"
     id: 62c3f3f85ba98dad7106f33b
+  - name: "\U0001F44D [Ready for dev] - Navigation - Display app version"
+    id: 62c6c95d9333c1ac1be9f938
 format: flat
 variants: true

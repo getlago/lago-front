@@ -1123,6 +1123,12 @@ export enum CurrencyEnum {
   Zmw = 'ZMW'
 }
 
+export type CurrentVersion = {
+  __typename?: 'CurrentVersion';
+  githubUrl: Scalars['String'];
+  number: Scalars['String'];
+};
+
 export type Customer = {
   __typename?: 'Customer';
   addressLine1?: Maybe<Scalars['String']>;
@@ -1711,6 +1717,8 @@ export type Query = {
   coupons: CouponCollection;
   /** Retrives currently connected user */
   currentUser: User;
+  /** Retrieve the version of the application */
+  currentVersion: CurrentVersion;
   /** Query a single customer of an organization */
   customer?: Maybe<CustomerDetails>;
   /** Query the usage of the customer on the current billing period */
@@ -2329,6 +2337,11 @@ export type UpdateCustomerMutationVariables = Exact<{
 
 
 export type UpdateCustomerMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, createdAt: any, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null, subscriptions?: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string } }> | null } | null };
+
+export type CurrentVersionQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CurrentVersionQuery = { __typename?: 'Query', currentVersion: { __typename?: 'CurrentVersion', githubUrl: string, number: string } };
 
 export type AddOnsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -4275,6 +4288,41 @@ export function useUpdateCustomerMutation(baseOptions?: Apollo.MutationHookOptio
 export type UpdateCustomerMutationHookResult = ReturnType<typeof useUpdateCustomerMutation>;
 export type UpdateCustomerMutationResult = Apollo.MutationResult<UpdateCustomerMutation>;
 export type UpdateCustomerMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
+export const CurrentVersionDocument = gql`
+    query CurrentVersion {
+  currentVersion {
+    githubUrl
+    number
+  }
+}
+    `;
+
+/**
+ * __useCurrentVersionQuery__
+ *
+ * To run a query within a React component, call `useCurrentVersionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCurrentVersionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCurrentVersionQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCurrentVersionQuery(baseOptions?: Apollo.QueryHookOptions<CurrentVersionQuery, CurrentVersionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CurrentVersionQuery, CurrentVersionQueryVariables>(CurrentVersionDocument, options);
+      }
+export function useCurrentVersionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CurrentVersionQuery, CurrentVersionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CurrentVersionQuery, CurrentVersionQueryVariables>(CurrentVersionDocument, options);
+        }
+export type CurrentVersionQueryHookResult = ReturnType<typeof useCurrentVersionQuery>;
+export type CurrentVersionLazyQueryHookResult = ReturnType<typeof useCurrentVersionLazyQuery>;
+export type CurrentVersionQueryResult = Apollo.QueryResult<CurrentVersionQuery, CurrentVersionQueryVariables>;
 export const AddOnsDocument = gql`
     query addOns($page: Int, $limit: Int) {
   addOns(page: $page, limit: $limit) {
