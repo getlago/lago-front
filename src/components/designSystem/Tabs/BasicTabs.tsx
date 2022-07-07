@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import styled from 'styled-components'
 import clsns from 'classnames'
 
@@ -6,42 +6,57 @@ import { theme, NAV_HEIGHT } from '~/styles'
 
 import { TabButton } from './TabButton'
 
-import { IconName } from '../Icon'
+import { IconName, Icon } from '../Icon'
 
 export type TBasicTab = {
   title: string
   key?: string
   icon?: IconName | ReactNode
   component?: ReactNode
+  hidden?: boolean
 } & Record<string, unknown>
 
 export interface BasicTabsProps {
   name?: string
   tabs: TBasicTab[]
-  scrollable?: boolean
   align?: 'left' | 'center' | 'superLeft'
   value: number | string
   className?: string
+  loading?: boolean
+  loadingComponent?: ReactNode
   onClick: (index: number, key?: string) => unknown
 }
 
 export const BasicTabs = ({
   tabs,
   name = 'tab',
-  scrollable,
   value,
   align = 'left',
   className,
+  loading,
+  loadingComponent,
   onClick,
 }: BasicTabsProps) => {
   const safeValue = !value || value < 0 ? 0 : value
   const activeIndex =
     typeof safeValue === 'string' ? tabs.findIndex((tab) => tab.key === safeValue) : safeValue
 
+  useEffect(() => {
+    const currentTab = tabs[activeIndex]
+
+    if (currentTab.hidden) {
+      const firstTabVisibleIndex = tabs.findIndex((tab) => !tab.hidden)
+
+      onClick(firstTabVisibleIndex, tabs[firstTabVisibleIndex]?.key)
+    }
+  }, [activeIndex, tabs, onClick])
+
   return (
     <Container className={className}>
       <TabsButtons className={clsns(`tabs-buttons--${align}`)}>
-        {tabs.map(({ title, icon, key }, i) => {
+        {tabs.map(({ title, icon, key, hidden }, i) => {
+          if (hidden) return null
+
           return (
             <TabButton
               key={`${i}-${name}-${key || title}`}
@@ -53,14 +68,16 @@ export const BasicTabs = ({
           )
         })}
       </TabsButtons>
-      {tabs[activeIndex].component && (
-        <Content
-          className={clsns({
-            [`tabs-buttons--scrollable`]: scrollable,
-          })}
-        >
-          {tabs[activeIndex].component}
-        </Content>
+      {loading ? (
+        loadingComponent ? (
+          loadingComponent
+        ) : (
+          <Loader>
+            <Icon name="processing" color="info" size="large" animation="spin" />
+          </Loader>
+        )
+      ) : (
+        !!tabs[activeIndex].component && tabs[activeIndex].component
       )}
     </Container>
   )
@@ -126,15 +143,16 @@ const TabsButtons = styled.div`
   }
 `
 
-const Container = styled.div`
+const Loader = styled.div`
+  height: 160px;
+  width: 100%;
+  margin: auto;
   display: flex;
+  align-items: center;
+  justify-content: center;
 `
 
-const Content = styled.div`
-  flex: 1;
-  overflow: auto;
-
-  &.tabs-buttons--scrollable {
-    overflow-y: auto;
-  }
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
 `
