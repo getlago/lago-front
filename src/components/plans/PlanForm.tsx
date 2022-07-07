@@ -47,8 +47,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
       // @ts-ignore
       amountCents: isNaN(plan?.amountCents) ? undefined : plan?.amountCents / 100,
       amountCurrency: plan?.amountCurrency || CurrencyEnum.Usd,
-      // @ts-ignore
-      trialPeriod: isNaN(plan?.trialPeriod) ? undefined : plan?.trialPeriod,
+      trialPeriod: plan?.trialPeriod == null ? (isEdition ? 0 : undefined) : plan?.trialPeriod,
       billChargesMonthly: plan?.billChargesMonthly || undefined,
       // @ts-ignore
       charges: plan?.charges
@@ -147,6 +146,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
     validateOnMount: true,
     onSubmit: onSave,
   })
+  const chargeEditIndexLimit = plan?.charges?.length || 0
 
   useEffect(() => {
     // When adding a new charge, scroll to the new charge element
@@ -343,13 +343,15 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                   {!!formikProps.values.charges.length && (
                     <Charges>
                       {formikProps.values.charges.map((charge, i) => {
+                        const id = getNewChargeId(charge.billableMetric.id, i)
+
                         return (
                           <ChargeAccordion
-                            id={getNewChargeId(charge.billableMetric.id, i)}
-                            key={getNewChargeId(charge.billableMetric.id, i)}
+                            id={id}
+                            key={id}
                             currency={formikProps.values.amountCurrency}
                             index={i}
-                            disabled={isEdition && !plan?.canBeDeleted}
+                            disabled={isEdition && !plan?.canBeDeleted && chargeEditIndexLimit > i}
                             formikProps={formikProps}
                           />
                         )
@@ -360,7 +362,6 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                     <Button
                       startIcon="plus"
                       variant="quaternary"
-                      disabled={isEdition && !plan?.canBeDeleted}
                       onClick={() => addChargeDialogRef.current?.openDialog()}
                     >
                       {translate('text_624453d52e945301380e49d2')}
@@ -403,6 +404,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                   ref={addChargeDialogRef}
                   onConfirm={(newCharge) => {
                     const previousCharges = [...formikProps.values.charges]
+                    const newId = getNewChargeId(newCharge.id, previousCharges.length)
 
                     formikProps.setFieldValue('charges', [
                       ...previousCharges,
@@ -413,8 +415,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                         amountCurrency: formikProps.values.amountCurrency,
                       },
                     ])
-
-                    setNewChargeId(getNewChargeId(newCharge.id, previousCharges.length))
+                    setNewChargeId(newId)
                   }}
                 />
               </>
