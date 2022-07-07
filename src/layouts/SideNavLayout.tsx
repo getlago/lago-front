@@ -1,15 +1,25 @@
+import { gql } from '@apollo/client'
 import { Outlet } from 'react-router-dom'
 import { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
-import { ClickAwayListener } from '@mui/material'
+import { ClickAwayListener, Typography } from '@mui/material'
 import { useApolloClient } from '@apollo/client'
 import { useNavigate, useLocation, Location, matchPath } from 'react-router-dom'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { logOut, useCurrentUserInfosVar } from '~/core/apolloClient'
-import { Avatar, Button, TabButton, Popper, IconName } from '~/components/designSystem'
+import {
+  Avatar,
+  Button,
+  Icon,
+  IconName,
+  Popper,
+  Skeleton,
+  TabButton,
+} from '~/components/designSystem'
 import { theme } from '~/styles'
 import { DOCUMENTATION_URL } from '~/externalUrls'
+import { MenuPopper } from '~/styles/designSystem'
 import {
   BILLABLE_METRICS_ROUTE,
   PLANS_ROUTE,
@@ -22,9 +32,18 @@ import {
   CUSTOMER_DETAILS_ROUTE,
   ADD_ONS_ROUTE,
 } from '~/core/router'
-import { MenuPopper } from '~/styles/designSystem'
+import { useCurrentVersionQuery } from '~/generated/graphql'
 
 const NAV_WIDTH = 240
+
+gql`
+  query CurrentVersion {
+    currentVersion {
+      githubUrl
+      number
+    }
+  }
+`
 
 interface TabProps {
   title: string
@@ -42,6 +61,7 @@ const SideNav = () => {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const { data, loading, error } = useCurrentVersionQuery()
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
   const tabs: TabProps[] = [
     {
@@ -162,6 +182,24 @@ const SideNav = () => {
                       onClick={() => logOut(client, true)}
                     />
                   </Logout>
+                  {!!loading && !error ? (
+                    <Version>
+                      <Skeleton variant="text" height={12} width={48} />
+                      <Skeleton variant="text" height={12} width={120} />
+                    </Version>
+                  ) : !!data && !error ? (
+                    <Version>
+                      <Typography>{translate('text_62c6c95fe73d08be5b86c334')}</Typography>
+                      <ExternalLink
+                        href={data?.currentVersion?.githubUrl}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                      >
+                        {data?.currentVersion?.number}
+                        <ExternalLinkIcon name="outside" size="small" />
+                      </ExternalLink>
+                    </Version>
+                  ) : undefined}
                 </StyledMenuPopper>
               )}
             </Popper>
@@ -335,6 +373,10 @@ const StyledMenuPopper = styled(MenuPopper)`
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+
+  > :first-child {
+    margin-bottom: 0;
+  }
 `
 
 const Logout = styled.div`
@@ -344,6 +386,30 @@ const Logout = styled.div`
   > * {
     width: 100%;
     text-align: left;
+  }
+`
+
+const Version = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  height: ${theme.spacing(5)};
+`
+
+const ExternalLinkIcon = styled(Icon)`
+  margin-left: ${theme.spacing(2)};
+
+  &:hover {
+    cursor: pointer;
+  }
+`
+
+const ExternalLink = styled.a`
+  color: ${theme.palette.primary[600]};
+
+  &:visited {
+    color: ${theme.palette.primary[600]};
   }
 `
 
