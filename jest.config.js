@@ -55,5 +55,6 @@ module.exports = {
     API_URL: true,
     APP_VERSION: true,
     IS_REACT_ACT_ENVIRONMENT: true,
+    LAGO_SIGNUP_DISABLED: false,
   },
 }

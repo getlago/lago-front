@@ -235,9 +235,13 @@ export const routes: CustomRouteObject[] = [
     element: <ForgotPassword />,
     onlyPublic: true,
   },
-  {
-    path: SIGN_UP_ROUTE,
-    element: <SignUp />,
-    onlyPublic: true,
-  },
+  ...(!LAGO_SIGNUP_DISABLED
+    ? [
+        {
+          path: SIGN_UP_ROUTE,
+          element: <SignUp />,
+          onlyPublic: true,
+        },
+      ]
+    : []),
 ]
