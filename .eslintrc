@@ -18,7 +18,9 @@
     "sourceType": "module"
   },
   "rules": {
+    "no-alert": "error",
     "no-console": 2,
+    "no-debugger": "error",
     "@typescript-eslint/no-explicit-any": 2,
     "@typescript-eslint/no-non-null-assertion": 2,
     "react/react-in-jsx-scope": 0,
