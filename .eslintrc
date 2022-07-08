@@ -19,23 +19,23 @@
   },
   "rules": {
     "no-alert": "error",
-    "no-console": 2,
+    "no-console": "error",
     "no-debugger": "error",
-    "@typescript-eslint/no-explicit-any": 2,
-    "@typescript-eslint/no-non-null-assertion": 2,
-    "react/react-in-jsx-scope": 0,
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-non-null-assertion": "error",
+    "react/react-in-jsx-scope": "off",
     "no-shadow": "off", // replaced by ts-eslint rule below
     "@typescript-eslint/no-shadow": "error",
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": "error",
     "newline-after-var": ["warn"],
     "import/order": [
-      2,
+      "error",
       {
         "groups": ["builtin", "external", "internal", "unknown", "sibling", "parent", "index"],
         "newlines-between": "always"
       }
     ],
-    "react/display-name": 1
+    "react/display-name": "warn"
   }
 }
