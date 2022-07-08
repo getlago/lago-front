@@ -84,7 +84,7 @@ export const ComboBoxVirtualizedList = forwardRef<HTMLDivElement, ComboBoxVirtua
     )
 
     return (
-      <div ref={ref}>
+      <Container ref={ref}>
         <OuterElementContext.Provider value={propsToForward}>
           <StyledVariableSizeList
             itemData={itemData}
@@ -100,7 +100,7 @@ export const ComboBoxVirtualizedList = forwardRef<HTMLDivElement, ComboBoxVirtua
             {renderRow}
           </StyledVariableSizeList>
         </OuterElementContext.Provider>
-      </div>
+      </Container>
     )
   }
 )
@@ -108,5 +108,13 @@ export const ComboBoxVirtualizedList = forwardRef<HTMLDivElement, ComboBoxVirtua
 const StyledVariableSizeList = styled(VariableSizeList)`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(1)};
+  }
+`
+
+const Container = styled.div`
+  max-height: inherit;
+
+  .MuiAutocomplete-listbox {
+    max-height: inherit;
   }
 `
