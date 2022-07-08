@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import clsns from 'classnames'
 import { useRef, useState, useEffect, MouseEvent } from 'react'
 
@@ -48,28 +48,32 @@ export const Switch = ({
   return (
     <Container
       $orientation={labelPosition}
-      onClick={(e) => {
-        if (onChange) {
-          const res = onChange(!checked, e)
+      onClick={
+        disabled
+          ? undefined
+          : (e) => {
+              if (onChange) {
+                const res = onChange(!checked, e)
 
-          if (res !== null && res instanceof Promise) {
-            let realLoading = true
+                if (res !== null && res instanceof Promise) {
+                  let realLoading = true
 
-            // This is to prenvent icon blink if the loading time is really small
-            setTimeout(() => {
-              if (mountedRef.current && realLoading) setLoading(true)
-            }, 100)
-            res.finally(() => {
-              if (mountedRef.current) {
-                realLoading = false
-                setLoading(false)
+                  // This is to prenvent icon blink if the loading time is really small
+                  setTimeout(() => {
+                    if (mountedRef.current && realLoading) setLoading(true)
+                  }, 100)
+                  res.finally(() => {
+                    if (mountedRef.current) {
+                      realLoading = false
+                      setLoading(false)
+                    }
+                  })
+                }
+              } else {
+                inputRef.current?.click()
               }
-            })
-          }
-        } else {
-          inputRef.current?.click()
-        }
-      }}
+            }
+      }
     >
       <SwitchContainer
         $checked={!!checked}
@@ -116,7 +120,7 @@ export const Switch = ({
       {(!!label || !!subLabel) && (
         <>
           <Space />
-          <LabelContainer>
+          <LabelContainer $disabled={disabled}>
             {!!label && <Typography color="textSecondary">{label}</Typography>}
             {!!subLabel && <Typography variant="caption">{subLabel}</Typography>}
           </LabelContainer>
@@ -135,8 +139,12 @@ const Container = styled.div<{ $orientation: LabelPosition }>`
     $orientation === LabelPositionEnum.right ? 'row' : 'row-reverse'};
 `
 
-const LabelContainer = styled.div`
-  cursor: pointer;
+const LabelContainer = styled.div<{ $disabled?: boolean }>`
+  ${({ $disabled }) =>
+    !$disabled &&
+    css`
+      cursor: pointer;
+    `}
 `
 
 const Space = styled.div`
@@ -181,7 +189,6 @@ const SwitchContainer = styled.div<{ $checked: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: pointer;
   padding: 0 ${theme.spacing(1)};
 
   :not(.switchField--disabled):not(.switchField--loading) {
