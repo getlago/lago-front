@@ -94,7 +94,6 @@ const Login = () => {
           <PasswordInput
             name="password"
             formikProps={formikProps}
-            disableDebounce
             password
             label={translate('text_620bc4d4269a55014d493f32')}
             placeholder={translate('text_620bc4d4269a55014d493f5b')}

@@ -1,5 +1,6 @@
 import { FormikProps } from 'formik'
-import { forwardRef } from 'react'
+import { forwardRef, memo } from 'react'
+import _isEqual from 'lodash/isEqual'
 
 import { Radio, RadioProps } from './Radio'
 
@@ -9,21 +10,35 @@ export interface RadioFieldProps extends Omit<RadioProps, 'checked' | 'name'> {
   formikProps: FormikProps<any>
 }
 
-export const RadioField = forwardRef<HTMLElement, RadioFieldProps>(
-  /* eslint-disable react/prop-types */
-  ({ name, value, formikProps, ...props }: RadioFieldProps, ref) => {
-    const { values, setFieldValue, errors, touched } = formikProps
+export const RadioField = memo(
+  forwardRef<HTMLElement, RadioFieldProps>(
+    /* eslint-disable react/prop-types */
+    ({ name, value, formikProps, ...props }: RadioFieldProps, ref) => {
+      const { values, setFieldValue, errors, touched } = formikProps
 
+      return (
+        <Radio
+          {...props}
+          ref={ref}
+          value={value}
+          checked={values[name] === value}
+          onChange={() => setFieldValue(name, value)}
+          name={name}
+          error={touched[name] ? (errors[name] as string) : undefined}
+        />
+      )
+    }
+  ),
+  (
+    { formikProps: prevFormikProps, name: prevName, ...prev },
+    { formikProps: nextformikProps, name: nextName, ...next }
+  ) => {
     return (
-      <Radio
-        {...props}
-        ref={ref}
-        value={value}
-        checked={values[name] === value}
-        onChange={() => setFieldValue(name, value)}
-        name={name}
-        error={touched[name] ? (errors[name] as string) : undefined}
-      />
+      _isEqual(prev, next) &&
+      prevName === nextName &&
+      prevFormikProps.values[prevName] === nextformikProps.values[nextName] &&
+      prevFormikProps.errors[prevName] === nextformikProps.errors[nextName] &&
+      prevFormikProps.touched[prevName] === nextformikProps.touched[nextName]
     )
   }
 )

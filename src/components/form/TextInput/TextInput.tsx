@@ -1,20 +1,11 @@
 /* eslint-disable react/prop-types */
-import {
-  forwardRef,
-  useMemo,
-  ReactNode,
-  useState,
-  useEffect,
-  useCallback,
-  ChangeEvent,
-} from 'react'
+import { forwardRef, ReactNode, useState, useEffect, useCallback, ChangeEvent } from 'react'
 import {
   TextField as MuiTextField,
   TextFieldProps as MuiTextFieldProps,
   InputAdornment,
 } from '@mui/material'
 import styled, { css } from 'styled-components'
-import _debounce from 'lodash/debounce'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, Button, Tooltip, Icon } from '~/components/designSystem'
@@ -37,7 +28,6 @@ export interface TextInputProps
   cleanable?: boolean
   password?: boolean
   value?: string | number
-  disableDebounce?: boolean
   beforeChangeFormatter?: ValueFormatterType[] | ValueFormatterType
   infoText?: string
   onChange?: (value: string) => void
@@ -107,7 +97,6 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
       InputProps,
       type = 'text',
       password,
-      disableDebounce,
       beforeChangeFormatter,
       onChange,
       ...props
@@ -117,16 +106,6 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
     const { translate } = useInternationalization()
     const [localValue, setLocalValue] = useState<string | number>('')
     const [isVisible, setIsVisible] = useState(!password)
-    const debouncedSetValue = useMemo(
-      () =>
-        _debounce(
-          (newValue) => {
-            onChange && onChange(newValue)
-          },
-          disableDebounce ? 0 : 200
-        ),
-      [onChange, disableDebounce]
-    )
 
     useEffect(() => {
       if (value != null) {
@@ -144,9 +123,11 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
         if (formattedValue == null) return
 
         setLocalValue(formattedValue)
-        debouncedSetValue(formattedValue)
+        // formattedValue is casted to string to avoid the need to type every TextInput when used (either number or string)
+        // We will need to uniformize this later
+        onChange && onChange(formattedValue as string)
       },
-      [debouncedSetValue, beforeChangeFormatter]
+      [onChange, beforeChangeFormatter]
     )
 
     return (
