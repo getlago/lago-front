@@ -29,7 +29,6 @@ export const ComboBoxInput = ({
         inputProps.onChange({ target: { value: newVal } })
       }}
       className={className}
-      disableDebounce
       name={name}
       placeholder={placeholder}
       label={label}

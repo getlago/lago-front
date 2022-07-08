@@ -123,7 +123,6 @@ export const GraduatedChargeTable = ({
                   </DisabledAmountCell>
                 ) : (
                   <CellAmount
-                    disableDebounce
                     beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                     placeholder="0.00"
                     value={row.perUnitAmount}
@@ -151,7 +150,6 @@ export const GraduatedChargeTable = ({
                   </DisabledAmountCell>
                 ) : (
                   <CellAmount
-                    disableDebounce
                     beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                     placeholder="0.00"
                     value={row.flatAmount}
