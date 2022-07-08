@@ -3,6 +3,7 @@ declare var IS_PROD_ENV: boolean;
 declare var IS_DEV_ENV: boolean;
 declare var API_URL: string;
 declare var APP_VERSION: string;
+declare var LAGO_SIGNUP_DISABLED: boolean;
 
 declare module "*.svg" {
   const content: any;

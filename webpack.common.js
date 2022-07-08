@@ -30,6 +30,7 @@ module.exports = () => {
         APP_ENV: JSON.stringify(APP_ENV),
         API_URL: JSON.stringify(process.env.API_URL),
         APP_VERSION: JSON.stringify(process.env.APP_VERSION), // TODO - not passed on the cloud
+        LAGO_SIGNUP_DISABLED: process.env.LAGO_SIGNUP_DISABLED,
       }),
     ],
   }
