@@ -104,13 +104,20 @@ const Login = () => {
           </SubmitButton>
         </form>
 
-        <ForgotPassword
+        <UsefullLink
           variant="caption"
-          html={translate('text_620bc4d4269a55014d493f93', {
+          html={translate('text_62c84d0029355c83db4dd184', {
             linkForgetPassword: FORGOT_PASSWORD_ROUTE,
-            linkSignUp: SIGN_UP_ROUTE,
           })}
         />
+        {!LAGO_SIGNUP_DISABLED && (
+          <UsefullLink
+            variant="caption"
+            html={translate('text_62c84d0029355c83db4dd186', {
+              linkSignUp: SIGN_UP_ROUTE,
+            })}
+          />
+        )}
       </Card>
     </Page>
   )
@@ -136,7 +143,7 @@ const SubmitButton = styled(Button)`
   }
 `
 
-const ForgotPassword = styled(Typography)`
+const UsefullLink = styled(Typography)`
   && {
     margin: auto;
     text-align: center;
