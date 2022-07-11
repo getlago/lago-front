@@ -13,7 +13,7 @@
     "build": "webpack --config ./webpack.prod.js",
     "build:analyseBundle": "webpack --config ./webpack.prod.js --env analyseBundle",
     "ditto": "yarn ditto-cli pull && node scripts/MergeTranslationFiles.js",
-    "ditto:addNew": "npx @dittowords/cli project add",
+    "ditto:addNew": "yarn ditto-cli project add",
     "lint": "prettier --check src/**/*.{ts,tsx,svg,html} && eslint \"**/*.{js,ts,tsx}\"",
     "eslint": "eslint \"**/*.{js,ts,tsx}\"",
     "lint:fix": "prettier --write src/** && eslint --fix .",
@@ -111,7 +111,8 @@
   "resolutions": {
     "styled-components": "5.3.5",
     "@mui/styled-engine": "5.8.7",
-    "lodash": "4.17.21"
+    "lodash": "4.17.21",
+    "axios": "0.19.2"
   },
   "engines": {
     "node": ">=14.13"
