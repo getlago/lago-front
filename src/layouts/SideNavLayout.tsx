@@ -33,6 +33,7 @@ import {
   ADD_ONS_ROUTE,
 } from '~/core/router'
 import { useCurrentVersionQuery } from '~/generated/graphql'
+import { useShortcuts } from '~/hooks/ui/useShortcuts'
 
 const NAV_WIDTH = 240
 
@@ -59,6 +60,7 @@ const SideNav = () => {
   const { currentOrganization } = useCurrentUserInfosVar()
   const { translate } = useInternationalization()
   const [open, setOpen] = useState(false)
+  const [isCmdPressed, setIsCmdPressed] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
   const { data, loading, error } = useCurrentVersionQuery()
@@ -124,6 +126,23 @@ const SideNav = () => {
 
     contentRef.current?.scrollTo(0, 0)
   }, [pathname, contentRef, state?.disableScrollTop])
+
+  const onPress = async () => {
+    setIsCmdPressed(true)
+  }
+
+  const onKeyUp = () => {
+    setIsCmdPressed(false)
+  }
+
+  useShortcuts([
+    {
+      keys: ['Cmd'],
+      windowsKeys: ['Ctrl'],
+      action: onPress,
+      reset: onKeyUp,
+    },
+  ])
 
   return (
     <Container>
@@ -212,7 +231,11 @@ const SideNav = () => {
                     key={`side-nav-${i}-${title}`}
                     active={activeTabIndex === i}
                     onClick={() => {
-                      navigate(link)
+                      if (isCmdPressed) {
+                        window.open(link, '_blank')
+                      } else {
+                        navigate(link)
+                      }
                       setOpen(false)
                       const element = document.activeElement as HTMLElement
 
@@ -232,8 +255,8 @@ const SideNav = () => {
                     key={`side-nav-bottom-${i}-${title}`}
                     active={pathname.includes(link)}
                     onClick={() => {
-                      if (external) {
-                        window.open(link, '_newtab')
+                      if (external || isCmdPressed) {
+                        window.open(link, '_blank')
                       } else {
                         navigate(link)
                       }

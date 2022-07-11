@@ -5,11 +5,13 @@ export interface Shortcut {
   windowsKeys?: string[] // if set, this will be used only for Windows and "keys" will be used only for Mac
   disabled?: boolean
   action: () => void
+  reset?: () => void
 }
 
 type CleanedShortcut = {
   keys: string[]
   action: () => void
+  reset?: () => void
 }
 
 type ReducedShortcut = {
@@ -76,7 +78,7 @@ export const useShortcuts: UseShortcutReturn = (shortcuts) => {
           ).map((key) => getCleanKey(key))
           const shortcutId = getShortcutId(keys)
 
-          acc.usableShortcuts[shortcutId] = { keys, action: shortcut.action }
+          acc.usableShortcuts[shortcutId] = { keys, action: shortcut.action, reset: shortcut.reset }
           acc.usableKeys = [...acc.usableKeys, ...keys]
 
           return acc
@@ -108,13 +110,20 @@ export const useShortcuts: UseShortcutReturn = (shortcuts) => {
     [usableShortcuts, usableKeys]
   )
 
-  const onKeyUp: (e: Event) => void = useCallback((e) => {
-    const cleanKey = getCleanKey((e as unknown as KeyboardEvent).code)
+  const onKeyUp: (e: Event) => void = useCallback(
+    (e) => {
+      const cleanKey = getCleanKey((e as unknown as KeyboardEvent).code)
 
-    if (keyPressedRef.current[cleanKey]) {
-      keyPressedRef.current[cleanKey] = false
-    }
-  }, [])
+      if (keyPressedRef.current[cleanKey]) {
+        keyPressedRef.current[cleanKey] = false
+      }
+
+      if (usableShortcuts?.cdm?.reset) {
+        usableShortcuts.cdm.reset()
+      }
+    },
+    [usableShortcuts.cdm]
+  )
 
   useEffect(() => {
     if (shortcuts.length < 1) return
