@@ -112,7 +112,7 @@
     "styled-components": "5.3.5",
     "@mui/styled-engine": "5.8.7",
     "lodash": "4.17.21",
-    "axios": "0.19.2"
+    "axios": "0.21.2"
   },
   "engines": {
     "node": ">=14.13"
