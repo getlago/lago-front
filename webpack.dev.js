@@ -74,6 +74,9 @@ module.exports = (env) =>
       },
       client: {
         overlay: true,
+        webSocketURL: {
+          port: 443,
+        },
       },
       allowedHosts: ['app.lago.dev'],
     },
