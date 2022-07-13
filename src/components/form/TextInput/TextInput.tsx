@@ -30,7 +30,7 @@ export interface TextInputProps
   value?: string | number
   beforeChangeFormatter?: ValueFormatterType[] | ValueFormatterType
   infoText?: string
-  onChange?: (value: string) => void
+  onChange?: (value: string, e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | null) => void
 }
 
 const numberFormatter = new RegExp(
@@ -125,7 +125,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
         setLocalValue(formattedValue)
         // formattedValue is casted to string to avoid the need to type every TextInput when used (either number or string)
         // We will need to uniformize this later
-        onChange && onChange(formattedValue as string)
+        onChange && onChange(formattedValue as string, event)
       },
       [onChange, beforeChangeFormatter]
     )
@@ -167,7 +167,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
                         size="small"
                         icon="close-circle-filled"
                         variant="quaternary"
-                        onClick={() => onChange && onChange('')}
+                        onClick={() => onChange && onChange('', null)}
                       />
                     </InputAdornment>
                   ),

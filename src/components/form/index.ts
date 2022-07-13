@@ -1,5 +1,6 @@
 export * from './ButtonSelector'
 export * from './ComboBox'
+export * from './DatePicker'
 export * from './Radio'
-export * from './TextInput'
 export * from './Switch'
+export * from './TextInput'
