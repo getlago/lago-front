@@ -57,20 +57,12 @@ const Webhook = () => {
       </Head>
 
       {!webhookUrl && !loading ? (
-        <EmptyBlock color="disabled">
-          {translate('text_6271200984178801ba8bdf68')}
-          <EventName component="span" variant="captionCode">
-            {translate('text_6271200984178801ba8bdf54')}
-          </EventName>
-        </EmptyBlock>
+        <Typography color="disabled">{translate('text_62ce85fb3fb6842020331d85')}</Typography>
       ) : (
         <>
           <ListHead>
             <Typography variant="bodyHl" color="disabled">
               {translate('text_6271200984178801ba8bdf3a')}
-            </Typography>
-            <Typography variant="bodyHl" color="disabled">
-              {translate('text_6271200984178801ba8bdf4e')}
             </Typography>
           </ListHead>
           <WebhookItem>
@@ -93,9 +85,6 @@ const Webhook = () => {
                   </Typography>
                 </LeftBlock>
                 <RightBlock>
-                  <EventName component="span" variant="captionCode">
-                    {translate('text_6271200984178801ba8bdf54')}
-                  </EventName>
                   <Popper
                     PopperProps={{ placement: 'bottom-end' }}
                     opener={({ isOpen }) => (
@@ -206,25 +195,6 @@ const RightBlock = styled.div`
   > *:first-child {
     margin-right: ${theme.spacing(6)};
   }
-`
-
-const EmptyBlock = styled(Typography)`
-  display: inherit;
-
-  > span {
-    margin-left: ${theme.spacing(1)};
-  }
-`
-
-const EventName = styled(Typography)`
-  background-color: ${theme.palette.grey[100]};
-  padding: 6px ${theme.spacing(2)};
-  border: 1px solid ${theme.palette.grey[300]};
-  height: 32px;
-  width: fit-content;
-  color: ${theme.palette.error[600]};
-  border-radius: 8px;
-  box-sizing: border-box;
 `
 
 const RightSkeleton = styled(Skeleton)`
