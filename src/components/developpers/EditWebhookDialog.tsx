@@ -94,11 +94,6 @@ export const EditWebhookDialog = forwardRef<DialogRef, EditWebhookDialogProps>(
         )}
       >
         <Content>
-          <Label variant="captionHl" color="textSecondary">
-            {translate('text_6271200984178801ba8bdefa')}
-          </Label>
-          <EventName variant="captionCode">{translate('text_6271200984178801ba8bdf0e')}</EventName>
-
           <TextInput
             label={translate('text_6271200984178801ba8bdf22')}
             placeholder={translate('text_6271200984178801ba8bdf36')}
@@ -108,6 +103,13 @@ export const EditWebhookDialog = forwardRef<DialogRef, EditWebhookDialogProps>(
               !!mutationError && setMutationError(undefined)
               setLocalWebhook(value)
             }}
+            helperText={
+              <Typography
+                variant="caption"
+                color="inherit"
+                html={translate('text_62ce85fb3fb6842020331d83')}
+              />
+            }
           />
         </Content>
       </Dialog>
@@ -116,22 +118,6 @@ export const EditWebhookDialog = forwardRef<DialogRef, EditWebhookDialogProps>(
 )
 
 const Content = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-`
-
-const Label = styled(Typography)`
-  margin-bottom: ${theme.spacing(1)};
-`
-
-const EventName = styled(Typography)`
-  background-color: ${theme.palette.grey[100]};
-  padding: 6px ${theme.spacing(2)};
-  border: 1px solid ${theme.palette.grey[300]};
-  height: 32px;
-  width: fit-content;
-  color: ${theme.palette.error[600]};
-  border-radius: 8px;
-  box-sizing: border-box;
   margin-bottom: ${theme.spacing(8)};
 `
 
