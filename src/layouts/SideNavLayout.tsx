@@ -31,6 +31,7 @@ import {
   COUPONS_ROUTE,
   CUSTOMER_DETAILS_ROUTE,
   ADD_ONS_ROUTE,
+  ONLY_DEV_DESIGN_SYSTEM_ROUTE,
 } from '~/core/router'
 import { useCurrentVersionQuery } from '~/generated/graphql'
 
@@ -95,6 +96,15 @@ const SideNav = () => {
   ]
 
   const bottomTabButtons: TabProps[] = [
+    ...(!IS_PROD_ENV
+      ? [
+          {
+            title: 'Design System',
+            icon: 'rocket',
+            link: ONLY_DEV_DESIGN_SYSTEM_ROUTE,
+          } as TabProps,
+        ]
+      : []),
     {
       title: translate('text_6295e58352f39200d902b01c'),
       icon: 'book',
