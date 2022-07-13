@@ -113,6 +113,13 @@ export const ORGANIZATION_INFORMATIONS_ROUTE = `${SETTINGS_ROUTE}/organization-i
 export const INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
 export const STRIPE_INTEGRATION_ROUTE = `${SETTINGS_ROUTE}/integrations/stripe`
 
+// *********************** Route Available only on dev mode
+const DesignSystem = lazy(
+  () => import(/* webpackChunkName: 'home' */ '~/pages/__devOnly/DesignSystem')
+)
+
+export const ONLY_DEV_DESIGN_SYSTEM_ROUTE = `/design-system`
+
 export const routes: CustomRouteObject[] = [
   {
     path: '*',
@@ -203,6 +210,14 @@ export const routes: CustomRouteObject[] = [
         private: true,
         element: <AddOnsList />,
       },
+      ...(!IS_PROD_ENV
+        ? [
+            {
+              path: ONLY_DEV_DESIGN_SYSTEM_ROUTE,
+              element: <DesignSystem />,
+            },
+          ]
+        : []),
     ],
   },
   {
