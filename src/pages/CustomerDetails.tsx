@@ -26,10 +26,12 @@ import {
   CustomerMainInfosFragmentDoc,
   CustomerAddOnsFragmentDoc,
   CustomerUsageSubscriptionFragmentDoc,
+  StatusTypeEnum,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { CustomerSubscriptionsList } from '~/components/customers/subscriptions/CustomerSubscriptionsList'
+import { CustomerWalletsList } from '~/components/wallets/CustomerWalletList'
 import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
 import { CustomerVatRate } from '~/components/customers/CustomerVatRate'
 import { theme, PageHeader, MenuPopper } from '~/styles'
@@ -55,6 +57,10 @@ import {
   AddPlanToCustomerDialog,
   AddPlanToCustomerDialogRef,
 } from '~/components/customers/subscriptions/AddPlanToCustomerDialog'
+import {
+  AddWalletToCustomerDialog,
+  AddWalletToCustomerDialogRef,
+} from '~/components/wallets/AddWalletToCustomerDialog'
 
 gql`
   fragment CustomerDetails on CustomerDetails {
@@ -62,7 +68,12 @@ gql`
     name
     customerId
     canBeDeleted
+    hasActiveWallet
     subscriptions(status: [active]) {
+      plan {
+        id
+        amountCurrency
+      }
       ...CustomerSubscriptionList
       ...CustomerUsageSubscription
     }
@@ -98,6 +109,7 @@ gql`
 
 enum TabsOptions {
   overview = 'overview',
+  wallet = 'wallet',
   invoices = 'invoices',
   taxRate = 'taxRate',
   usage = 'usage',
@@ -109,6 +121,7 @@ const CustomerDetails = () => {
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
   const addOnDialogRef = useRef<AddAddOnToCustomerDialogRef>(null)
   const subscriptionsDialogRef = useRef<AddPlanToCustomerDialogRef>(null)
+  const addWalletToCustomerDialogRef = useRef<AddWalletToCustomerDialogRef>(null)
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { id, tab } = useParams()
@@ -116,9 +129,22 @@ const CustomerDetails = () => {
     variables: { id: id as string },
     skip: !id,
   })
-  const { name, customerId, invoices, subscriptions, canBeDeleted, appliedCoupons, appliedAddOns } =
-    data?.customer || {}
+  const {
+    appliedAddOns,
+    appliedCoupons,
+    canBeDeleted,
+    customerId,
+    hasActiveWallet,
+    invoices,
+    name,
+    subscriptions,
+  } = data?.customer || {}
   const hasSubscription = !!(subscriptions || []).length
+  const hasActiveSubscription = !!(subscriptions || []).find(
+    (subscription) => subscription.status === StatusTypeEnum.Active
+  )
+
+  const userCurrency = (subscriptions || [])[0]?.plan?.amountCurrency
 
   return (
     <div>
@@ -186,6 +212,17 @@ const CustomerDetails = () => {
                 }}
               >
                 {translate('text_628b8dc14c71840130f8d8a1')}
+              </Button>
+              <Button
+                variant="quaternary"
+                align="left"
+                disabled={!hasSubscription || !!hasActiveWallet}
+                onClick={() => {
+                  addWalletToCustomerDialogRef.current?.openDialog()
+                  closePopper()
+                }}
+              >
+                {translate('text_62d175066d2dbf1d50bc93a5')}
               </Button>
               <Tooltip
                 placement="bottom-end"
@@ -280,6 +317,20 @@ const CustomerDetails = () => {
                       ),
                     },
                     {
+                      title: translate('text_62d175066d2dbf1d50bc937c'),
+                      key: TabsOptions.wallet,
+                      component: (
+                        <SideBlock>
+                          <CustomerWalletsList
+                            ref={addWalletToCustomerDialogRef}
+                            customerId={id as string}
+                            hasActiveWallet={!!hasActiveWallet}
+                            hasActiveSubscription={hasActiveSubscription}
+                          />
+                        </SideBlock>
+                      ),
+                    },
+                    {
                       title: translate('text_62c3f3fca8a1625624e83365'),
                       key: TabsOptions.usage,
                       hidden: !hasSubscription,
@@ -349,6 +400,13 @@ const CustomerDetails = () => {
             customerName={name as string}
             customerId={id as string}
           />
+          {!!userCurrency && (
+            <AddWalletToCustomerDialog
+              customerId={id as string}
+              userCurrency={userCurrency}
+              ref={addWalletToCustomerDialogRef}
+            />
+          )}
         </>
       )}
     </div>

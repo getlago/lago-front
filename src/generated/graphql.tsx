@@ -1420,6 +1420,7 @@ export enum InvoiceStatusTypeEnum {
 
 export enum InvoiceTypeEnum {
   AddOn = 'add_on',
+  Credit = 'credit',
   Subscription = 'subscription'
 }
 
@@ -1481,7 +1482,7 @@ export type Mutation = {
   /** Creates a new Customer Wallet */
   createCustomerWallet?: Maybe<Wallet>;
   /** Creates a new Customer Wallet Transaction */
-  createCustomerWalletTransaction?: Maybe<WalletTransaction>;
+  createCustomerWalletTransaction?: Maybe<WalletTransactionCollection>;
   /** Creates a new Plan */
   createPlan?: Maybe<Plan>;
   /** Create a new Subscription */
@@ -2512,6 +2513,60 @@ export type DeleteStripeMutationVariables = Exact<{
 
 export type DeleteStripeMutation = { __typename?: 'Mutation', destroyPaymentProvider?: { __typename?: 'DestroyPaymentProviderPayload', id?: string | null } | null };
 
+export type CreateCustomerWalletMutationVariables = Exact<{
+  input: CreateCustomerWalletInput;
+}>;
+
+
+export type CreateCustomerWalletMutation = { __typename?: 'Mutation', createCustomerWallet?: { __typename?: 'Wallet', id: string } | null };
+
+export type GetCustomerWalletListQueryVariables = Exact<{
+  customerId: Scalars['ID'];
+  page?: InputMaybe<Scalars['Int']>;
+  limit?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type GetCustomerWalletListQuery = { __typename?: 'Query', wallets: { __typename?: 'WalletCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: string, name: string, expirationDate?: any | null, balance: string, consumedAmount: string, consumedCredits: string, createdAt: any, creditsBalance: string, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null }> } };
+
+export type TerminateCustomerWalletMutationVariables = Exact<{
+  input: TerminateCustomerWalletInput;
+}>;
+
+
+export type TerminateCustomerWalletMutation = { __typename?: 'Mutation', terminateCustomerWallet?: { __typename?: 'Wallet', id: string, status: WalletStatusEnum } | null };
+
+export type CreateCustomerWalletTransactionMutationVariables = Exact<{
+  input: CreateCustomerWalletTransactionInput;
+}>;
+
+
+export type CreateCustomerWalletTransactionMutation = { __typename?: 'Mutation', createCustomerWalletTransaction?: { __typename?: 'WalletTransactionCollection', collection: Array<{ __typename?: 'WalletTransaction', id: string }> } | null };
+
+export type WalletForTopupFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: string };
+
+export type UpdateCustomerWalletMutationVariables = Exact<{
+  input: UpdateCustomerWalletInput;
+}>;
+
+
+export type UpdateCustomerWalletMutation = { __typename?: 'Mutation', updateCustomerWallet?: { __typename?: 'Wallet', id: string, name: string, expirationDate?: any | null } | null };
+
+export type WalletForUpdateFragment = { __typename?: 'Wallet', id: string, name: string, expirationDate?: any | null };
+
+export type WalletAccordionFragment = { __typename?: 'Wallet', id: string, balance: string, consumedAmount: string, consumedCredits: string, createdAt: any, creditsBalance: string, currency: CurrencyEnum, expirationDate?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, name: string, rateAmount: string, status: WalletStatusEnum, terminatedAt?: any | null };
+
+export type GetWalletTransactionsQueryVariables = Exact<{
+  walletId: Scalars['ID'];
+  page?: InputMaybe<Scalars['Int']>;
+  limit?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type GetWalletTransactionsQuery = { __typename?: 'Query', walletTransactions: { __typename?: 'WalletTransactionCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'WalletTransaction', id: string, status: WalletTransactionStatusEnum, transactionType: WalletTransactionTransactionTypeEnum, amount: string, creditAmount: string, settledAt?: any | null, createdAt: any }> } };
+
+export type WalletInfosForTransactionsFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, status: WalletStatusEnum };
+
 export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, billChargesMonthly?: boolean | null, charges?: Array<{ __typename?: 'Charge', id: string, amount?: string | null, chargeModel: ChargeModelEnum, freeUnits?: number | null, packageSize?: number | null, rate?: string | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null }> | null };
 
 export type GetSinglePlanQueryVariables = Exact<{
@@ -2660,14 +2715,14 @@ export type CouponsQueryVariables = Exact<{
 
 export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency: CurrencyEnum, amountCents: number, canBeDeleted: boolean, expirationDate?: any | null }> } };
 
-export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, plan: { __typename?: 'Plan', id: string, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null };
+export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, hasActiveWallet: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null };
 
 export type GetCustomerQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, plan: { __typename?: 'Plan', id: string, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null } | null };
+export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, hasActiveWallet: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null } | null };
 
 export type CustomersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -2925,6 +2980,45 @@ export const EditOrganizationInvoiceTemplateDialogFragmentDoc = gql`
   invoiceFooter
 }
     `;
+export const WalletForTopupFragmentDoc = gql`
+    fragment WalletForTopup on Wallet {
+  id
+  currency
+  rateAmount
+}
+    `;
+export const WalletForUpdateFragmentDoc = gql`
+    fragment WalletForUpdate on Wallet {
+  id
+  name
+  expirationDate
+}
+    `;
+export const WalletAccordionFragmentDoc = gql`
+    fragment WalletAccordion on Wallet {
+  id
+  balance
+  consumedAmount
+  consumedCredits
+  createdAt
+  creditsBalance
+  currency
+  expirationDate
+  lastBalanceSyncAt
+  lastConsumedCreditAt
+  name
+  rateAmount
+  status
+  terminatedAt
+}
+    `;
+export const WalletInfosForTransactionsFragmentDoc = gql`
+    fragment WalletInfosForTransactions on Wallet {
+  id
+  currency
+  status
+}
+    `;
 export const VolumeRangesFragmentDoc = gql`
     fragment VolumeRanges on Charge {
   volumeRanges {
@@ -3174,7 +3268,12 @@ export const CustomerDetailsFragmentDoc = gql`
   name
   customerId
   canBeDeleted
+  hasActiveWallet
   subscriptions(status: [active]) {
+    plan {
+      id
+      amountCurrency
+    }
     ...CustomerSubscriptionList
     ...CustomerUsageSubscription
   }
@@ -4246,6 +4345,240 @@ export function useDeleteStripeMutation(baseOptions?: Apollo.MutationHookOptions
 export type DeleteStripeMutationHookResult = ReturnType<typeof useDeleteStripeMutation>;
 export type DeleteStripeMutationResult = Apollo.MutationResult<DeleteStripeMutation>;
 export type DeleteStripeMutationOptions = Apollo.BaseMutationOptions<DeleteStripeMutation, DeleteStripeMutationVariables>;
+export const CreateCustomerWalletDocument = gql`
+    mutation createCustomerWallet($input: CreateCustomerWalletInput!) {
+  createCustomerWallet(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateCustomerWalletMutationFn = Apollo.MutationFunction<CreateCustomerWalletMutation, CreateCustomerWalletMutationVariables>;
+
+/**
+ * __useCreateCustomerWalletMutation__
+ *
+ * To run a mutation, you first call `useCreateCustomerWalletMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCustomerWalletMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCustomerWalletMutation, { data, loading, error }] = useCreateCustomerWalletMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCustomerWalletMutation(baseOptions?: Apollo.MutationHookOptions<CreateCustomerWalletMutation, CreateCustomerWalletMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCustomerWalletMutation, CreateCustomerWalletMutationVariables>(CreateCustomerWalletDocument, options);
+      }
+export type CreateCustomerWalletMutationHookResult = ReturnType<typeof useCreateCustomerWalletMutation>;
+export type CreateCustomerWalletMutationResult = Apollo.MutationResult<CreateCustomerWalletMutation>;
+export type CreateCustomerWalletMutationOptions = Apollo.BaseMutationOptions<CreateCustomerWalletMutation, CreateCustomerWalletMutationVariables>;
+export const GetCustomerWalletListDocument = gql`
+    query getCustomerWalletList($customerId: ID!, $page: Int, $limit: Int) {
+  wallets(customerId: $customerId, page: $page, limit: $limit) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      ...WalletForTopup
+      ...WalletForUpdate
+      ...WalletAccordion
+      ...WalletInfosForTransactions
+    }
+  }
+}
+    ${WalletForTopupFragmentDoc}
+${WalletForUpdateFragmentDoc}
+${WalletAccordionFragmentDoc}
+${WalletInfosForTransactionsFragmentDoc}`;
+
+/**
+ * __useGetCustomerWalletListQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerWalletListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerWalletListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerWalletListQuery({
+ *   variables: {
+ *      customerId: // value for 'customerId'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetCustomerWalletListQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>(GetCustomerWalletListDocument, options);
+      }
+export function useGetCustomerWalletListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>(GetCustomerWalletListDocument, options);
+        }
+export type GetCustomerWalletListQueryHookResult = ReturnType<typeof useGetCustomerWalletListQuery>;
+export type GetCustomerWalletListLazyQueryHookResult = ReturnType<typeof useGetCustomerWalletListLazyQuery>;
+export type GetCustomerWalletListQueryResult = Apollo.QueryResult<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>;
+export const TerminateCustomerWalletDocument = gql`
+    mutation terminateCustomerWallet($input: TerminateCustomerWalletInput!) {
+  terminateCustomerWallet(input: $input) {
+    id
+    status
+  }
+}
+    `;
+export type TerminateCustomerWalletMutationFn = Apollo.MutationFunction<TerminateCustomerWalletMutation, TerminateCustomerWalletMutationVariables>;
+
+/**
+ * __useTerminateCustomerWalletMutation__
+ *
+ * To run a mutation, you first call `useTerminateCustomerWalletMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTerminateCustomerWalletMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [terminateCustomerWalletMutation, { data, loading, error }] = useTerminateCustomerWalletMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useTerminateCustomerWalletMutation(baseOptions?: Apollo.MutationHookOptions<TerminateCustomerWalletMutation, TerminateCustomerWalletMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<TerminateCustomerWalletMutation, TerminateCustomerWalletMutationVariables>(TerminateCustomerWalletDocument, options);
+      }
+export type TerminateCustomerWalletMutationHookResult = ReturnType<typeof useTerminateCustomerWalletMutation>;
+export type TerminateCustomerWalletMutationResult = Apollo.MutationResult<TerminateCustomerWalletMutation>;
+export type TerminateCustomerWalletMutationOptions = Apollo.BaseMutationOptions<TerminateCustomerWalletMutation, TerminateCustomerWalletMutationVariables>;
+export const CreateCustomerWalletTransactionDocument = gql`
+    mutation createCustomerWalletTransaction($input: CreateCustomerWalletTransactionInput!) {
+  createCustomerWalletTransaction(input: $input) {
+    collection {
+      id
+    }
+  }
+}
+    `;
+export type CreateCustomerWalletTransactionMutationFn = Apollo.MutationFunction<CreateCustomerWalletTransactionMutation, CreateCustomerWalletTransactionMutationVariables>;
+
+/**
+ * __useCreateCustomerWalletTransactionMutation__
+ *
+ * To run a mutation, you first call `useCreateCustomerWalletTransactionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCustomerWalletTransactionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCustomerWalletTransactionMutation, { data, loading, error }] = useCreateCustomerWalletTransactionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCustomerWalletTransactionMutation(baseOptions?: Apollo.MutationHookOptions<CreateCustomerWalletTransactionMutation, CreateCustomerWalletTransactionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCustomerWalletTransactionMutation, CreateCustomerWalletTransactionMutationVariables>(CreateCustomerWalletTransactionDocument, options);
+      }
+export type CreateCustomerWalletTransactionMutationHookResult = ReturnType<typeof useCreateCustomerWalletTransactionMutation>;
+export type CreateCustomerWalletTransactionMutationResult = Apollo.MutationResult<CreateCustomerWalletTransactionMutation>;
+export type CreateCustomerWalletTransactionMutationOptions = Apollo.BaseMutationOptions<CreateCustomerWalletTransactionMutation, CreateCustomerWalletTransactionMutationVariables>;
+export const UpdateCustomerWalletDocument = gql`
+    mutation updateCustomerWallet($input: UpdateCustomerWalletInput!) {
+  updateCustomerWallet(input: $input) {
+    ...WalletForUpdate
+  }
+}
+    ${WalletForUpdateFragmentDoc}`;
+export type UpdateCustomerWalletMutationFn = Apollo.MutationFunction<UpdateCustomerWalletMutation, UpdateCustomerWalletMutationVariables>;
+
+/**
+ * __useUpdateCustomerWalletMutation__
+ *
+ * To run a mutation, you first call `useUpdateCustomerWalletMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCustomerWalletMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCustomerWalletMutation, { data, loading, error }] = useUpdateCustomerWalletMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCustomerWalletMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerWalletMutation, UpdateCustomerWalletMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCustomerWalletMutation, UpdateCustomerWalletMutationVariables>(UpdateCustomerWalletDocument, options);
+      }
+export type UpdateCustomerWalletMutationHookResult = ReturnType<typeof useUpdateCustomerWalletMutation>;
+export type UpdateCustomerWalletMutationResult = Apollo.MutationResult<UpdateCustomerWalletMutation>;
+export type UpdateCustomerWalletMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerWalletMutation, UpdateCustomerWalletMutationVariables>;
+export const GetWalletTransactionsDocument = gql`
+    query getWalletTransactions($walletId: ID!, $page: Int, $limit: Int) {
+  walletTransactions(walletId: $walletId, page: $page, limit: $limit) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      id
+      status
+      transactionType
+      amount
+      creditAmount
+      settledAt
+      createdAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetWalletTransactionsQuery__
+ *
+ * To run a query within a React component, call `useGetWalletTransactionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetWalletTransactionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetWalletTransactionsQuery({
+ *   variables: {
+ *      walletId: // value for 'walletId'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetWalletTransactionsQuery(baseOptions: Apollo.QueryHookOptions<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>(GetWalletTransactionsDocument, options);
+      }
+export function useGetWalletTransactionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>(GetWalletTransactionsDocument, options);
+        }
+export type GetWalletTransactionsQueryHookResult = ReturnType<typeof useGetWalletTransactionsQuery>;
+export type GetWalletTransactionsLazyQueryHookResult = ReturnType<typeof useGetWalletTransactionsLazyQuery>;
+export type GetWalletTransactionsQueryResult = Apollo.QueryResult<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>;
 export const GetSinglePlanDocument = gql`
     query getSinglePlan($id: ID!) {
   plan(id: $id) {

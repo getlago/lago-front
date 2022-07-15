@@ -56,6 +56,7 @@ export const DatePicker = ({
      */
     !!value ? (typeof value === 'string' ? DateTime.fromISO(value) : value) : null
   )
+
   const isInvalid = !!localDate && !localDate.isValid
   const { translate } = useInternationalization()
 
@@ -85,7 +86,16 @@ export const DatePicker = ({
                 name: 'offset',
                 enabled: true,
                 options: {
-                  offset: [0, 8],
+                  // @ts-ignore
+                  offset: ({ reference }) => {
+                    // Re-calculate picker position if placed on the left.
+                    // Removes the input width and twice the picker icon "box" (24*2)
+                    if (placement.includes('left')) {
+                      return [0, -(reference.width - 48)]
+                    } else {
+                      return [0, 8]
+                    }
+                  },
                 },
               },
             ],

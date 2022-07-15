@@ -87,6 +87,7 @@ import StarFilled from '~/public/icons/star-filled.svg'
 import Stop from '~/public/icons/stop.svg'
 import SwitchOff from '~/public/icons/switch-off.svg'
 import Switch from '~/public/icons/switch.svg'
+import Sync from '~/public/icons/sync.svg'
 import Table from '~/public/icons/table.svg'
 import TableHorizontale from '~/public/icons/table-horizontale.svg'
 import Target from '~/public/icons/target.svg'
@@ -98,6 +99,7 @@ import UserMultiple from '~/public/icons/user-multiple.svg'
 import UserAdd from '~/public/icons/user-add.svg'
 import ValidateFilled from '~/public/icons/validate-filled.svg'
 import ValidateUnfilled from '~/public/icons/validate-unfilled.svg'
+import Wallet from '~/public/icons/wallet.svg'
 import WarningFilled from '~/public/icons/warning-filled.svg'
 import WarningUnfilled from '~/public/icons/warning-unfilled.svg'
 
@@ -191,6 +193,7 @@ export const ALL_ICONS = {
   stop: Stop,
   switch: Switch,
   'switch-off': SwitchOff,
+  sync: Sync,
   table: Table,
   'table-horizontale': TableHorizontale,
   target: Target,
@@ -202,6 +205,7 @@ export const ALL_ICONS = {
   'user-multiple': UserMultiple,
   'validate-filled': ValidateFilled,
   'validate-unfilled': ValidateUnfilled,
+  wallet: Wallet,
   'warning-filled': WarningFilled,
   'warning-unfilled': WarningUnfilled,
 }
