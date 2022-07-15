@@ -30,6 +30,7 @@ import {
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { CustomerSubscriptionsList } from '~/components/customers/CustomerSubscriptionsList'
+import { CustomerWalletsList } from '~/components/customers/CustomerWalletList'
 import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
 import { CustomerVatRate } from '~/components/customers/CustomerVatRate'
 import { theme, PageHeader, MenuPopper } from '~/styles'
@@ -96,6 +97,7 @@ gql`
 
 enum TabsOptions {
   overview = 'overview',
+  wallet = 'wallet',
   invoices = 'invoices',
   taxRate = 'taxRate',
   usage = 'usage',
@@ -283,6 +285,15 @@ const CustomerDetails = () => {
                             ref={subscriptionsDialogRef}
                             subscriptions={subscriptions ?? []}
                           />
+                        </SideBlock>
+                      ),
+                    },
+                    {
+                      title: translate('text_62d175066d2dbf1d50bc937c'),
+                      key: TabsOptions.wallet,
+                      component: (
+                        <SideBlock>
+                          <CustomerWalletsList />
                         </SideBlock>
                       ),
                     },
