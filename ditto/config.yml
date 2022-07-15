@@ -65,5 +65,7 @@ projects:
     id: 62ea7cd19883fb6718fa823c
   - name: "\U0001F44D [Ready for dev] - Plans - Add Volume in charge model"
     id: 6304e74718860633c15905f2
+  - name: '⚙️ [WIP] - Credits - Create prepaid credits'
+    id: 62d175018d4659c9a3eec929
 format: flat
 variants: true
