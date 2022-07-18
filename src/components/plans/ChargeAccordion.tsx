@@ -65,26 +65,23 @@ export const ChargeAccordion = ({
             {localCharge?.billableMetric?.name}{' '}
             <Typography>({localCharge?.billableMetric?.code})</Typography>
           </Title>
-          <Tooltip
-            placement="top-end"
-            title={translate('text_624aa732d6af4e0103d40e65')}
-            disableHoverListener={disabled}
-          >
-            <Button
-              variant="quaternary"
-              disabled={disabled}
-              size="small"
-              icon="trash"
-              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                e.stopPropagation()
-                e.preventDefault()
-                const charges = [...formikProps.values.charges]
+          {!disabled && (
+            <Tooltip placement="top-end" title={translate('text_624aa732d6af4e0103d40e65')}>
+              <Button
+                variant="quaternary"
+                size="small"
+                icon="trash"
+                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                  const charges = [...formikProps.values.charges]
 
-                charges.splice(index, 1)
-                formikProps.setFieldValue('charges', charges)
-              }}
-            />
-          </Tooltip>
+                  charges.splice(index, 1)
+                  formikProps.setFieldValue('charges', charges)
+                }}
+              />
+            </Tooltip>
+          )}
         </Summary>
         <Details>
           <ComboBox
