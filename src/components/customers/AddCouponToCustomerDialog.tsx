@@ -183,6 +183,8 @@ export const AddCouponToCustomerDialog = forwardRef<
                 amountCents: coupon.amountCents / 100,
                 amountCurrency: coupon.amountCurrency,
               })
+            } else {
+              formikProps.setFieldValue('couponId', undefined)
             }
           }}
           PopperProps={{ displayInDialog: true }}
@@ -202,6 +204,7 @@ export const AddCouponToCustomerDialog = forwardRef<
               data={Object.values(CurrencyEnum).map((currencyType) => ({
                 value: currencyType,
               }))}
+              isEmptyNull={false}
               disableClearable
               formikProps={formikProps}
               PopperProps={{ displayInDialog: true }}

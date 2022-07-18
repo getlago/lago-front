@@ -177,6 +177,8 @@ export const AddAddOnToCustomerDialog = forwardRef<
                 amountCents: addOn.amountCents / 100,
                 amountCurrency: addOn.amountCurrency,
               })
+            } else {
+              formikProps.setFieldValue('addOnId', undefined)
             }
           }}
           PopperProps={{ displayInDialog: true }}
@@ -192,6 +194,7 @@ export const AddAddOnToCustomerDialog = forwardRef<
             />
             <ComboBoxField
               name="amountCurrency"
+              isEmptyNull={false}
               data={Object.values(CurrencyEnum).map((currencyType) => ({
                 value: currencyType,
               }))}
