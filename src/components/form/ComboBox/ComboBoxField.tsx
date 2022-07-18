@@ -10,18 +10,19 @@ interface ComboBoxFieldProps extends Omit<ComboBoxProps, 'onChange' | 'value' | 
   name: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formikProps: FormikProps<any>
+  isEmptyNull?: Boolean // If false, on field reset the combobox will return an empty string
   onChange?: (value: string) => unknown
 }
 
 export const ComboBoxField = memo(
-  ({ name, formikProps, ...props }: ComboBoxFieldProps) => {
+  ({ name, isEmptyNull = true, formikProps, ...props }: ComboBoxFieldProps) => {
     const { setFieldValue, values } = formikProps
 
     return (
       <ComboBox
         name={name}
         value={_get(values, name)}
-        onChange={(newValue) => setFieldValue(name, newValue || null)}
+        onChange={(newValue) => setFieldValue(name, newValue || (isEmptyNull ? null : ''))}
         {...props}
       />
     )
