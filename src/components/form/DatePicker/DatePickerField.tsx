@@ -5,7 +5,7 @@ import _get from 'lodash/get'
 
 import { DatePicker, DatePickerProps } from './DatePicker'
 
-interface DatePickerFieldFormProps extends Omit<DatePickerProps, 'name' | 'onChange'> {
+interface DatePickerFieldFormProps extends Omit<DatePickerProps, 'name' | 'onChange' | 'onError'> {
   name: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formikProps: FormikProps<any>
@@ -13,7 +13,7 @@ interface DatePickerFieldFormProps extends Omit<DatePickerProps, 'name' | 'onCha
 
 export const DatePickerField = memo(
   ({ name, formikProps, ...props }: DatePickerFieldFormProps) => {
-    const { values, errors, touched, handleBlur, setFieldValue } = formikProps
+    const { values, errors, touched, handleBlur, setFieldValue, setFieldError } = formikProps
 
     return (
       <DatePicker
@@ -21,6 +21,7 @@ export const DatePickerField = memo(
         onBlur={handleBlur}
         value={_get(values, name)}
         error={touched[name] ? (errors[name] as string) : undefined}
+        onError={(err) => setFieldError(name, err)}
         onChange={(value: string | null | undefined) => {
           setFieldValue(name, value)
         }}

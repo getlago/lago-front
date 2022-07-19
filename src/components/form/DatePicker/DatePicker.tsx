@@ -12,8 +12,14 @@ import { theme } from '~/styles'
 import { Button, Tooltip } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export enum DATE_PICKER_ERROR_ENUM {
+  invalid = 'invalid',
+}
 export interface DatePickerProps
-  extends Omit<TextInputProps, 'value' | 'onChange' | 'beforeChangeFormatter' | 'password'> {
+  extends Omit<
+    TextInputProps,
+    'value' | 'onChange' | 'beforeChangeFormatter' | 'password' | 'onError'
+  > {
   className?: string
   value?: string | null
   placeholder?: string
@@ -22,6 +28,7 @@ export interface DatePickerProps
   disableFuture?: boolean
   disablePast?: boolean
   placement?: MuiPopperProps['placement']
+  onError?: (err: keyof typeof DATE_PICKER_ERROR_ENUM | undefined) => void
   onChange: (value?: string | null) => void
 }
 
@@ -38,6 +45,7 @@ export const DatePicker = ({
   placeholder,
   disabled,
   placement = 'bottom-end',
+  onError,
   onChange,
   ...props
 }: DatePickerProps) => {
@@ -99,7 +107,10 @@ export const DatePicker = ({
             const formattedDate = (date as unknown as DateTime)?.toISO()
 
             if ((date as unknown as DateTime)?.isValid || !date) {
+              onError && onError(undefined)
               onChange(formattedDate)
+            } else {
+              onError && onError(DATE_PICKER_ERROR_ENUM.invalid)
             }
           }}
           renderInput={({ inputRef, inputProps, InputProps }) => {
