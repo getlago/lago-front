@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
   useCallback,
+  MouseEvent,
 } from 'react'
 import {
   Popper as MuiPopper,
@@ -79,7 +80,7 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
         <div className={className}>
           {typeof opener === 'function'
             ? cloneElement(opener({ isOpen }), {
-                onClick: (e: React.MouseEvent<HTMLDivElement>) => {
+                onClick: (e: MouseEvent<HTMLDivElement>) => {
                   const element = opener({ isOpen })
 
                   element?.props?.onClick && element.props.onClick(e)

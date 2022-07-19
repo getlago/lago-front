@@ -1,7 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/prop-types */
+import {
+  forwardRef,
+  useState,
+  useEffect,
+  useRef,
+  HTMLAttributeAnchorTarget,
+  MouseEvent,
+} from 'react'
 import { Button as MuiButton, ButtonProps as MuiButtonProps } from '@mui/material'
-import { forwardRef, useState, useEffect, useRef, HTMLAttributeAnchorTarget } from 'react'
 import clsns from 'classnames'
 import styled from 'styled-components'
 
@@ -131,7 +138,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const localLoading = loading || isLoading
 
-    const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleClick = async (e: MouseEvent<HTMLButtonElement>) => {
       if (to) {
         window.open(to, target ?? '_blank')
       }

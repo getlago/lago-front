@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, MouseEvent } from 'react'
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
 import { FormikProps } from 'formik'
 import styled from 'styled-components'
@@ -71,7 +71,7 @@ export const ChargeAccordion = ({
                 variant="quaternary"
                 size="small"
                 icon="trash"
-                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                onClick={(e: MouseEvent<HTMLButtonElement>) => {
                   e.stopPropagation()
                   e.preventDefault()
                   const charges = [...formikProps.values.charges]

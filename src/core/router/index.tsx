@@ -119,6 +119,7 @@ const DesignSystem = lazy(
 )
 
 export const ONLY_DEV_DESIGN_SYSTEM_ROUTE = `/design-system`
+export const ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE = `${ONLY_DEV_DESIGN_SYSTEM_ROUTE}/:tab`
 
 export const routes: CustomRouteObject[] = [
   {
@@ -213,7 +214,7 @@ export const routes: CustomRouteObject[] = [
       ...(!IS_PROD_ENV
         ? [
             {
-              path: ONLY_DEV_DESIGN_SYSTEM_ROUTE,
+              path: [ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE],
               element: <DesignSystem />,
             },
           ]

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router'
 import { gql } from '@apollo/client'
 
 import { theme, PageHeader, NAV_HEIGHT, HEADER_TABLE_HEIGHT, MenuPopper } from '~/styles'
-import { INTEGRATIONS_ROUTE } from '~/core/router'
+import { INTEGRATIONS_ROUTE, STRIPE_INTEGRATION_ROUTE } from '~/core/router'
 import {
   Typography,
   Button,
@@ -12,7 +12,7 @@ import {
   Avatar,
   Chip,
   Icon,
-  BasicTabs,
+  NavigationTab,
   Popper,
 } from '~/components/designSystem'
 import { Switch } from '~/components/form'
@@ -77,6 +77,7 @@ const StripeIntegration = () => {
   const tabsOptions = [
     {
       title: translate('text_62b1edddbf5f461ab9712725'),
+      link: STRIPE_INTEGRATION_ROUTE,
     },
   ]
 
@@ -126,7 +127,7 @@ const StripeIntegration = () => {
           </>
         )}
       </MainInfos>
-      <BasicTabs tabs={tabsOptions} value={0} onClick={() => {}} />
+      <NavigationTab tabs={tabsOptions} />
       <Settings>
         <Title variant="subhead">{translate('text_62b1edddbf5f461ab971273f')}</Title>
         <Subtitle variant="bodyHl" color="disabled">
