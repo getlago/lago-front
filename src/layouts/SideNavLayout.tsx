@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
 import { ClickAwayListener, Typography } from '@mui/material'
 import { useApolloClient } from '@apollo/client'
-import { useNavigate, useLocation, Location, matchPath } from 'react-router-dom'
+import { useLocation, Location } from 'react-router-dom'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { logOut, useCurrentUserInfosVar } from '~/core/apolloClient'
@@ -15,7 +15,7 @@ import {
   IconName,
   Popper,
   Skeleton,
-  TabButton,
+  NavigationTab,
 } from '~/components/designSystem'
 import { theme } from '~/styles'
 import { DOCUMENTATION_URL } from '~/externalUrls'
@@ -32,6 +32,7 @@ import {
   CUSTOMER_DETAILS_ROUTE,
   ADD_ONS_ROUTE,
   ONLY_DEV_DESIGN_SYSTEM_ROUTE,
+  ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE,
 } from '~/core/router'
 import { useCurrentVersionQuery } from '~/generated/graphql'
 
@@ -50,7 +51,6 @@ interface TabProps {
   title: string
   icon: IconName
   link: string
-  canClickOnActive?: boolean
   match?: string[]
   external?: boolean
 }
@@ -60,72 +60,9 @@ const SideNav = () => {
   const { currentOrganization } = useCurrentUserInfosVar()
   const { translate } = useInternationalization()
   const [open, setOpen] = useState(false)
-  const navigate = useNavigate()
   const location = useLocation()
   const { data, loading, error } = useCurrentVersionQuery()
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
-  const tabs: TabProps[] = [
-    {
-      title: translate('text_623b497ad05b960101be3448'),
-      icon: 'pulse',
-      link: BILLABLE_METRICS_ROUTE,
-      match: [BILLABLE_METRICS_ROUTE, HOME_ROUTE],
-    },
-    {
-      title: translate('text_62442e40cea25600b0b6d85a'),
-      icon: 'board',
-      link: PLANS_ROUTE,
-    },
-    {
-      title: translate('text_629728388c4d2300e2d3801a'),
-      icon: 'puzzle',
-      link: ADD_ONS_ROUTE,
-    },
-    {
-      title: translate('text_62865498824cc10126ab2940'),
-      icon: 'coupon',
-      link: COUPONS_ROUTE,
-    },
-    {
-      title: translate('text_624efab67eb2570101d117a5'),
-      icon: 'user-multiple',
-      link: CUSTOMERS_LIST_ROUTE,
-      match: [CUSTOMERS_LIST_ROUTE, CUSTOMER_DETAILS_ROUTE, CUSTOMER_DETAILS_TAB_ROUTE],
-      canClickOnActive: true,
-    },
-  ]
-
-  const bottomTabButtons: TabProps[] = [
-    ...(!IS_PROD_ENV
-      ? [
-          {
-            title: 'Design System',
-            icon: 'rocket',
-            link: ONLY_DEV_DESIGN_SYSTEM_ROUTE,
-          } as TabProps,
-        ]
-      : []),
-    {
-      title: translate('text_6295e58352f39200d902b01c'),
-      icon: 'book',
-      link: DOCUMENTATION_URL,
-      external: true,
-    },
-    {
-      title: translate('text_6271200984178801ba8bdeac'),
-      icon: 'laptop',
-      link: DEVELOPPERS_ROUTE,
-    },
-    {
-      title: translate('text_62728ff857d47b013204c726'),
-      icon: 'settings',
-      link: SETTINGS_ROUTE,
-    },
-  ]
-
-  const activeTabIndex = tabs.findIndex(
-    (tab) => tab.link === pathname || !!tab.match?.find((match) => !!matchPath(match, pathname))
-  )
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -158,39 +95,37 @@ const SideNav = () => {
               maxHeight={`calc(100vh - 64px - 16px)`}
               enableFlip={false}
               opener={
-                <HeaderButton
-                  title={currentOrganization?.name}
-                  icon={
-                    <>
-                      {currentOrganization?.logoUrl ? (
-                        <Avatar size="small" variant="connector">
-                          <img
-                            src={currentOrganization?.logoUrl as string}
-                            alt={`${currentOrganization?.name}'s logo`}
-                          />
-                        </Avatar>
-                      ) : (
-                        <Avatar
-                          variant="company"
-                          identifier={currentOrganization?.name || ''}
-                          size="small"
-                          initials={(currentOrganization?.name ?? 'Lago')[0]}
-                        />
-                      )}
-                    </>
-                  }
-                />
+                <HeaderButton variant="quaternary">
+                  {currentOrganization?.logoUrl ? (
+                    <Avatar size="small" variant="connector">
+                      <img
+                        src={currentOrganization?.logoUrl as string}
+                        alt={`${currentOrganization?.name}'s logo`}
+                      />
+                    </Avatar>
+                  ) : (
+                    <Avatar
+                      variant="company"
+                      identifier={currentOrganization?.name || ''}
+                      size="small"
+                      initials={(currentOrganization?.name ?? 'Lago')[0]}
+                    />
+                  )}
+                  {currentOrganization?.name}
+                </HeaderButton>
               }
             >
               {() => (
                 <StyledMenuPopper>
                   <Logout>
-                    <TabButton
-                      key="menu-logout"
-                      icon="logout"
-                      title={translate('text_623b497ad05b960101be3444')}
-                      onClick={() => logOut(client, true)}
-                    />
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      startIcon="logout"
+                      onClick={async () => await logOut(client, true)}
+                    >
+                      {translate('text_623b497ad05b960101be3444')}
+                    </Button>
                   </Logout>
                   {!!loading && !error ? (
                     <Version>
@@ -216,48 +151,77 @@ const SideNav = () => {
           </Header>
           <Nav className="nav">
             <TabsButtons>
-              {tabs.map(({ title, icon, canClickOnActive, link }, i) => {
-                return (
-                  <TabButton
-                    key={`side-nav-${i}-${title}`}
-                    active={activeTabIndex === i}
-                    onClick={() => {
-                      navigate(link)
-                      setOpen(false)
-                      const element = document.activeElement as HTMLElement
-
-                      element.blur && element.blur()
-                    }}
-                    icon={icon}
-                    canClickOnActive={canClickOnActive}
-                    title={title}
-                  />
-                )
-              })}
+              <NavigationTab
+                onClick={() => setOpen(false)}
+                tabs={[
+                  {
+                    title: translate('text_623b497ad05b960101be3448'),
+                    icon: 'pulse',
+                    link: BILLABLE_METRICS_ROUTE,
+                    match: [BILLABLE_METRICS_ROUTE, HOME_ROUTE],
+                  },
+                  {
+                    title: translate('text_62442e40cea25600b0b6d85a'),
+                    icon: 'board',
+                    link: PLANS_ROUTE,
+                  },
+                  {
+                    title: translate('text_629728388c4d2300e2d3801a'),
+                    icon: 'puzzle',
+                    link: ADD_ONS_ROUTE,
+                  },
+                  {
+                    title: translate('text_62865498824cc10126ab2940'),
+                    icon: 'coupon',
+                    link: COUPONS_ROUTE,
+                  },
+                  {
+                    title: translate('text_624efab67eb2570101d117a5'),
+                    icon: 'user-multiple',
+                    link: CUSTOMERS_LIST_ROUTE,
+                    match: [
+                      CUSTOMERS_LIST_ROUTE,
+                      CUSTOMER_DETAILS_ROUTE,
+                      CUSTOMER_DETAILS_TAB_ROUTE,
+                    ],
+                  },
+                ]}
+                orientation="vertical"
+              />
             </TabsButtons>
             <BottomButtons>
-              {bottomTabButtons.map(({ title, icon, link, canClickOnActive, external }, i) => {
-                return (
-                  <TabButton
-                    key={`side-nav-bottom-${i}-${title}`}
-                    active={pathname.includes(link)}
-                    onClick={() => {
-                      if (external) {
-                        window.open(link, '_newtab')
-                      } else {
-                        navigate(link)
-                      }
-                      const element = document.activeElement as HTMLElement
-
-                      element.blur && element.blur()
-                      setOpen(false)
-                    }}
-                    icon={icon}
-                    canClickOnActive={canClickOnActive}
-                    title={title}
-                  />
-                )
-              })}
+              <NavigationTab
+                onClick={() => setOpen(false)}
+                tabs={[
+                  ...(!IS_PROD_ENV
+                    ? [
+                        {
+                          title: 'Design System',
+                          icon: 'rocket',
+                          link: ONLY_DEV_DESIGN_SYSTEM_ROUTE,
+                          match: [ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, ONLY_DEV_DESIGN_SYSTEM_ROUTE],
+                        } as TabProps,
+                      ]
+                    : []),
+                  {
+                    title: translate('text_6295e58352f39200d902b01c'),
+                    icon: 'book',
+                    link: DOCUMENTATION_URL,
+                    external: true,
+                  },
+                  {
+                    title: translate('text_6271200984178801ba8bdeac'),
+                    icon: 'laptop',
+                    link: DEVELOPPERS_ROUTE,
+                  },
+                  {
+                    title: translate('text_62728ff857d47b013204c726'),
+                    icon: 'settings',
+                    link: SETTINGS_ROUTE,
+                  },
+                ]}
+                orientation="vertical"
+              />
             </BottomButtons>
           </Nav>
         </Drawer>
@@ -317,7 +281,7 @@ const Header = styled.div`
   }
 `
 
-const HeaderButton = styled(TabButton)`
+const HeaderButton = styled(Button)`
   max-width: calc(${NAV_WIDTH}px - ${theme.spacing(8)});
   color: ${theme.palette.text.secondary};
   text-align: left;
@@ -328,6 +292,10 @@ const HeaderButton = styled(TabButton)`
   :focus:not(:active) {
     box-shadow: none;
     border-radius: 12px;
+  }
+
+  > *:first-child {
+    margin-right: ${theme.spacing(2)};
   }
 `
 
