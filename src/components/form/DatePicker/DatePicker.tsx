@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon'
 import { DatePicker as MuiDatePicker } from '@mui/x-date-pickers/DatePicker'
+import { PopperProps as MuiPopperProps } from '@mui/material'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import _omit from 'lodash/omit'
@@ -20,6 +21,7 @@ export interface DatePickerProps
   helperText?: string
   disableFuture?: boolean
   disablePast?: boolean
+  placement?: MuiPopperProps['placement']
   onChange: (value?: string | null) => void
 }
 
@@ -35,6 +37,7 @@ export const DatePicker = ({
   disablePast,
   placeholder,
   disabled,
+  placement = 'bottom-end',
   onChange,
   ...props
 }: DatePickerProps) => {
@@ -45,6 +48,7 @@ export const DatePicker = ({
      */
     !!value ? DateTime.fromISO(value) : null
   )
+
   const isInvalid = !!localDate && !localDate.isValid
   const { translate } = useInternationalization()
 
@@ -63,7 +67,7 @@ export const DatePicker = ({
           value={localDate}
           PopperProps={{
             disablePortal: true,
-            placement: 'bottom-end',
+            placement,
             style: { paddingBottom: theme.spacing(4) },
             modifiers: [
               {
