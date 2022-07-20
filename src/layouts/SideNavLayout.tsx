@@ -193,7 +193,7 @@ const SideNav = () => {
               <NavigationTab
                 onClick={() => setOpen(false)}
                 tabs={[
-                  ...(!IS_PROD_ENV
+                  ...(IS_QA_ENV || IS_DEV_ENV
                     ? [
                         {
                           title: 'Design System',

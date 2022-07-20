@@ -50,10 +50,12 @@ module.exports = {
   // Module file extensions for importing
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   globals: {
-    APP_ENV: true,
+    APP_ENV: 'production',
     IS_PROD_ENV: true,
-    API_URL: true,
-    APP_VERSION: true,
+    IS_QA_ENV: false,
+    IS_DEV_ENV: false,
+    API_URL: 'http://localhost:3000',
+    APP_VERSION: '1.0.0',
     IS_REACT_ACT_ENVIRONMENT: true,
     LAGO_SIGNUP_DISABLED: false,
   },

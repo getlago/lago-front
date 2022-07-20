@@ -45,7 +45,7 @@ export const useInternationalization: UseInternationalization = () => {
         }
 
         if (!translations || !translations[key]) {
-          if (!IS_PROD_ENV) {
+          if (IS_QA_ENV || IS_DEV_ENV) {
             // eslint-disable-next-line no-console
             console.warn(`Translation '${key}' for locale '${locale}' not found.`)
           }

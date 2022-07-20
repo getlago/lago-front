@@ -211,7 +211,7 @@ export const routes: CustomRouteObject[] = [
         private: true,
         element: <AddOnsList />,
       },
-      ...(!IS_PROD_ENV
+      ...(IS_QA_ENV || IS_DEV_ENV
         ? [
             {
               path: [ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE],
