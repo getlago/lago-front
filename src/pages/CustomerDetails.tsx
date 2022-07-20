@@ -55,6 +55,10 @@ import {
   AddPlanToCustomerDialog,
   AddPlanToCustomerDialogRef,
 } from '~/components/customers/AddPlanToCustomerDialog'
+import {
+  AddWalletToCustomerDialog,
+  AddWalletToCustomerDialogRef,
+} from '~/components/customers/AddWalletToCustomerDialog'
 
 gql`
   fragment CustomerDetails on CustomerDetails {
@@ -108,6 +112,7 @@ const CustomerDetails = () => {
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
   const addOnDialogRef = useRef<AddAddOnToCustomerDialogRef>(null)
   const subscriptionsDialogRef = useRef<AddPlanToCustomerDialogRef>(null)
+  const addWalletToCustomerDialogRef = useRef<AddWalletToCustomerDialogRef>(null)
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { id, tab } = useParams()
@@ -199,6 +204,17 @@ const CustomerDetails = () => {
                 }}
               >
                 {translate('text_628b8dc14c71840130f8d8a1')}
+              </Button>
+              <Button
+                variant="quaternary"
+                align="left"
+                // TODO disabled={wallet?.length > 0}
+                onClick={() => {
+                  addWalletToCustomerDialogRef.current?.openDialog()
+                  closePopper()
+                }}
+              >
+                {translate('text_62d175066d2dbf1d50bc93a5')}
               </Button>
               <Tooltip
                 placement="bottom-end"
@@ -292,7 +308,7 @@ const CustomerDetails = () => {
                       key: TabsOptions.wallet,
                       component: (
                         <SideBlock>
-                          <CustomerWalletsList />
+                          <CustomerWalletsList ref={addWalletToCustomerDialogRef} />
                         </SideBlock>
                       ),
                     },
@@ -361,6 +377,7 @@ const CustomerDetails = () => {
             existingPlanIds={selectedPlansId}
             refetchCustomer={refetch}
           />
+          <AddWalletToCustomerDialog customerId={id as string} ref={addWalletToCustomerDialogRef} />
         </>
       )}
     </div>

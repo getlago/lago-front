@@ -56,6 +56,7 @@ export const DatePicker = ({
      */
     !!value ? DateTime.fromISO(value) : null
   )
+
   const isInvalid = !!localDate && !localDate.isValid
   const { translate } = useInternationalization()
 

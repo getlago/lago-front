@@ -2223,6 +2223,13 @@ export type CreateSubscriptionMutationVariables = Exact<{
 
 export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } } | null };
 
+export type CreateCustomerWalletMutationVariables = Exact<{
+  input: CreateCustomerWalletInput;
+}>;
+
+
+export type CreateCustomerWalletMutation = { __typename?: 'Mutation', createCustomerWallet?: { __typename?: 'Wallet', id: string } | null };
+
 export type CustomerAddOnsFragment = { __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } };
 
 export type CustomerCouponFragment = { __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } };
@@ -3474,6 +3481,39 @@ export function useCreateSubscriptionMutation(baseOptions?: Apollo.MutationHookO
 export type CreateSubscriptionMutationHookResult = ReturnType<typeof useCreateSubscriptionMutation>;
 export type CreateSubscriptionMutationResult = Apollo.MutationResult<CreateSubscriptionMutation>;
 export type CreateSubscriptionMutationOptions = Apollo.BaseMutationOptions<CreateSubscriptionMutation, CreateSubscriptionMutationVariables>;
+export const CreateCustomerWalletDocument = gql`
+    mutation createCustomerWallet($input: CreateCustomerWalletInput!) {
+  createCustomerWallet(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateCustomerWalletMutationFn = Apollo.MutationFunction<CreateCustomerWalletMutation, CreateCustomerWalletMutationVariables>;
+
+/**
+ * __useCreateCustomerWalletMutation__
+ *
+ * To run a mutation, you first call `useCreateCustomerWalletMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCustomerWalletMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCustomerWalletMutation, { data, loading, error }] = useCreateCustomerWalletMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCustomerWalletMutation(baseOptions?: Apollo.MutationHookOptions<CreateCustomerWalletMutation, CreateCustomerWalletMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCustomerWalletMutation, CreateCustomerWalletMutationVariables>(CreateCustomerWalletDocument, options);
+      }
+export type CreateCustomerWalletMutationHookResult = ReturnType<typeof useCreateCustomerWalletMutation>;
+export type CreateCustomerWalletMutationResult = Apollo.MutationResult<CreateCustomerWalletMutation>;
+export type CreateCustomerWalletMutationOptions = Apollo.BaseMutationOptions<CreateCustomerWalletMutation, CreateCustomerWalletMutationVariables>;
 export const RemoveCouponDocument = gql`
     mutation removeCoupon($input: TerminateAppliedCouponInput!) {
   terminateAppliedCoupon(input: $input) {
