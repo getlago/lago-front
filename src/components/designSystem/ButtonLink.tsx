@@ -25,13 +25,13 @@ interface ConditionalWrapperProps extends Pick<ButtonLinkProps, 'external' | 'to
 }
 
 const ConditionalWrapper = forwardRef<HTMLAnchorElement, ConditionalWrapperProps>(
-  ({ external, to, children, ...props }: ConditionalWrapperProps) => {
+  ({ external, to, children, ...props }: ConditionalWrapperProps, ref) => {
     return external ? (
-      <ExternalLink href={to} rel="noopener noreferrer" target="_blank" {...props}>
+      <ExternalLink ref={ref} href={to} rel="noopener noreferrer" target="_blank" {...props}>
         {children}
       </ExternalLink>
     ) : (
-      <InternalLink to={to} {...props}>
+      <InternalLink ref={ref} to={to} {...props}>
         {children}
       </InternalLink>
     )

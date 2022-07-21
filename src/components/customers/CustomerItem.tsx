@@ -5,21 +5,8 @@ import { DateTime } from 'luxon'
 import { useNavigate, generatePath } from 'react-router-dom'
 
 import { theme, BaseListItem, ListItem, MenuPopper, PopperOpener, ItemContainer } from '~/styles'
-import {
-  Avatar,
-  Typography,
-  Skeleton,
-  Status,
-  StatusEnum,
-  Popper,
-  Button,
-  Tooltip,
-} from '~/components/designSystem'
-import {
-  CustomerItemFragment,
-  StatusTypeEnum,
-  AddCustomerDialogFragmentDoc,
-} from '~/generated/graphql'
+import { Avatar, Typography, Skeleton, Popper, Button, Tooltip } from '~/components/designSystem'
+import { CustomerItemFragment, AddCustomerDialogFragmentDoc } from '~/generated/graphql'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
@@ -35,14 +22,7 @@ gql`
     customerId
     createdAt
     canBeDeleted
-    subscriptions {
-      id
-      status
-      plan {
-        id
-        name
-      }
-    }
+    activeSubscriptionCount
     ...AddCustomerDialog
   }
 
@@ -54,35 +34,10 @@ interface CustomerItemProps {
   rowId: string
 }
 
-const mapStatus = (type?: StatusTypeEnum | null) => {
-  switch (type) {
-    case StatusTypeEnum.Active:
-      return {
-        type: StatusEnum.running,
-        label: 'text_624efab67eb2570101d1180e',
-      }
-    case StatusTypeEnum.Pending:
-      return {
-        type: StatusEnum.paused,
-        label: 'text_624efab67eb2570101d117f6',
-      }
-    default:
-      return {
-        type: StatusEnum.error,
-        label: 'text_624efab67eb2570101d11826',
-      }
-  }
-}
-
 export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
   const editDialogRef = useRef<AddCustomerDialogRef>(null)
-  const { id, name, customerId, subscriptions, createdAt, canBeDeleted } = customer
-  const subscription =
-    !subscriptions || !subscriptions.length
-      ? null
-      : subscriptions.find((s) => s.status === StatusTypeEnum.Active)
-  const status = mapStatus(subscription?.status)
+  const { id, name, customerId, createdAt, canBeDeleted, activeSubscriptionCount } = customer
   const { translate } = useInternationalization()
   const navigate = useNavigate()
 
@@ -109,12 +64,7 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
           </NameBlock>
         </CustomerNameSection>
         <PlanInfosSection>
-          <MediumCell align="left">
-            {!subscription || !subscription?.plan.name ? '-' : subscription?.plan.name}
-          </MediumCell>
-          <SmallCell align="left">
-            {!subscription ? '-' : <Status type={status.type} label={translate(status.label)} />}
-          </SmallCell>
+          <MediumCell align="right">{activeSubscriptionCount}</MediumCell>
           <SmallCell align="right">
             {DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy')}
           </SmallCell>
