@@ -12,8 +12,8 @@ import { Typography, Button, Skeleton, Avatar, Icon, Tooltip } from '~/component
 import { intlFormatNumber } from '~/core/intlFormatNumber'
 
 gql`
-  query customerUsage($customerId: ID!) {
-    customerUsage(customerId: $customerId) {
+  query customerUsage($customerId: ID!, $subscriptionId: ID!) {
+    customerUsage(customerId: $customerId, subscriptionId: $subscriptionId) {
       amountCents
       totalAmountCurrency
       fromDate
@@ -39,7 +39,7 @@ interface CustomerUsageProps {
 export const CustomerUsage = ({ id }: CustomerUsageProps) => {
   const { translate } = useInternationalization()
   const { data, error, loading, refetch } = useCustomerUsageQuery({
-    variables: { customerId: id },
+    variables: { customerId: id, subscriptionId: 'TODO' },
     skip: !id,
     notifyOnNetworkStatusChange: true,
   })
@@ -63,7 +63,7 @@ export const CustomerUsage = ({ id }: CustomerUsageProps) => {
     <div>
       <Header>
         <Title variant="subhead">{translate('text_62c3f3fca8a1625624e8337b')}</Title>
-        <Tooltip placement="top-end" title={translate('text_62c3f3fca8a1625624e83375')}>
+        <Tooltip placement="top-end" title={translate('text_62c58e5b2789287893c592bf')}>
           <Button
             variant="quaternary"
             disabled={!data && loading}

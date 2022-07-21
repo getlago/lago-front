@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react'
+import { useRef } from 'react'
 import { gql } from '@apollo/client'
 import { useNavigate, useParams, generatePath } from 'react-router-dom'
 import styled from 'styled-components'
@@ -24,11 +24,10 @@ import {
   CustomerCouponFragmentDoc,
   CustomerMainInfosFragmentDoc,
   CustomerAddOnsFragmentDoc,
-  StatusTypeEnum,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { CustomerSubscriptionsList } from '~/components/customers/CustomerSubscriptionsList'
+import { CustomerSubscriptionsList } from '~/components/customers/subscriptions/CustomerSubscriptionsList'
 import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
 import { CustomerVatRate } from '~/components/customers/CustomerVatRate'
 import { theme, PageHeader, MenuPopper } from '~/styles'
@@ -53,7 +52,7 @@ import {
 import {
   AddPlanToCustomerDialog,
   AddPlanToCustomerDialogRef,
-} from '~/components/customers/AddPlanToCustomerDialog'
+} from '~/components/customers/subscriptions/AddPlanToCustomerDialog'
 
 gql`
   fragment CustomerDetails on CustomerDetails {
@@ -61,7 +60,7 @@ gql`
     name
     customerId
     canBeDeleted
-    subscriptions(status: [active, pending]) {
+    subscriptions(status: [active]) {
       ...CustomerSubscriptionList
     }
     invoices {
@@ -116,16 +115,6 @@ const CustomerDetails = () => {
   const { name, customerId, invoices, subscriptions, canBeDeleted, appliedCoupons, appliedAddOns } =
     data?.customer || {}
   const hasSubscription = !!(subscriptions || []).length
-  const selectedPlansId = useMemo(
-    () =>
-      (subscriptions || []).reduce<string[]>((acc, s) => {
-        if ([StatusTypeEnum.Active, StatusTypeEnum.Pending].includes(s.status as StatusTypeEnum)) {
-          acc.push(s.plan?.id)
-        }
-        return acc
-      }, []),
-    [subscriptions]
-  )
 
   return (
     <div>
@@ -160,11 +149,7 @@ const CustomerDetails = () => {
                   closePopper()
                 }}
               >
-                {translate(
-                  !hasSubscription
-                    ? 'text_626162c62f790600f850b70c'
-                    : 'text_6262658ead40f401000bc80f'
-                )}
+                {translate('text_626162c62f790600f850b70c')}
               </Button>
               <Button
                 variant="quaternary"
@@ -276,10 +261,13 @@ const CustomerDetails = () => {
                       key: TabsOptions.overview,
                       component: (
                         <SideBlock>
-                          <CustomerCoupons coupons={appliedCoupons} />
-                          <CustomerAddOns ref={addOnDialogRef} addOns={appliedAddOns} />
+                          {!loading && <CustomerCoupons coupons={appliedCoupons} />}
+                          {!loading && (
+                            <CustomerAddOns ref={addOnDialogRef} addOns={appliedAddOns} />
+                          )}
                           <CustomerSubscriptionsList
                             ref={subscriptionsDialogRef}
+                            loading={loading}
                             subscriptions={subscriptions ?? []}
                           />
                         </SideBlock>
@@ -315,7 +303,10 @@ const CustomerDetails = () => {
                     },
                   ]}
                   value={tab || 0}
-                  loading={loading}
+                  loading={
+                    ![TabsOptions.overview, TabsOptions.usage].includes(tab as TabsOptions) &&
+                    loading
+                  }
                   loadingComponent={
                     <SideLoadingSection>
                       <SectionHeader variant="subhead">
@@ -347,7 +338,6 @@ const CustomerDetails = () => {
             ref={subscriptionsDialogRef}
             customerName={name as string}
             customerId={id as string}
-            existingPlanIds={selectedPlansId}
             refetchCustomer={refetch}
           />
         </>
