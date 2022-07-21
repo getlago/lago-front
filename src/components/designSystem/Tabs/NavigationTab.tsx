@@ -93,10 +93,10 @@ const TabsBlock = styled.div<{
   display: flex;
   box-sizing: border-box;
   padding: ${theme.spacing(4)};
-  overflow: auto;
   width: 100%;
 
   &.navigation-tab--horizontal {
+    overflow: auto;
     box-shadow: ${theme.shadows[7]};
     flex-direction: row;
     height: ${NAV_HEIGHT}px;
@@ -136,6 +136,7 @@ const TabsBlock = styled.div<{
     box-shadow: none;
     flex-direction: column;
     padding: 0;
+    overflow: visible;
 
     > *:not(:last-child) {
       margin-bottom: ${theme.spacing(1)};
