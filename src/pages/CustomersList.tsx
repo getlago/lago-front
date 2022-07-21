@@ -81,11 +81,8 @@ const CustomersList = () => {
             </PlanNameSection>
             <PlanInfosSection>
               <MediumCell color="disabled" variant="bodyHl">
-                {translate('text_624efab67eb2570101d117d4')}
+                {translate('text_62d95e42c1e1dfe7376fdf35')}
               </MediumCell>
-              <SmallCell $alignLeft color="disabled" variant="bodyHl">
-                {translate('text_624efab67eb2570101d117dc')}
-              </SmallCell>
               <SmallCell color="disabled" variant="bodyHl">
                 {translate('text_624efab67eb2570101d117e3')}
               </SmallCell>
@@ -142,7 +139,7 @@ const ListHead = styled(ListHeader)`
 `
 
 const MediumCell = styled(Typography)`
-  text-align: left;
+  text-align: right;
   width: 200px;
 `
 
