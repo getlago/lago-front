@@ -5,7 +5,6 @@ import 'prismjs/components/prism-ruby'
 import 'prismjs/components/prism-bash'
 import 'prismjs/components/prism-json'
 import 'prismjs/plugins/line-numbers/prism-line-numbers'
-// import 'prismjs/themes/prism.css'
 import styled from 'styled-components'
 
 import { Typography, Button } from '~/components/designSystem'

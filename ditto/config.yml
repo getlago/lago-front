@@ -51,9 +51,11 @@ projects:
     id: 620bc4d45f16c800e2324b82
   - name: Settings - Invoice settings
     id: 62ab2cff6d409cff712298ea
-  - name: "Logs - Log current usage"
+  - name: Logs - Log current usage
     id: 62c3f3f85ba98dad7106f33b
   - name: "\U0001F44D [Ready for dev] - Navigation - Display app version"
     id: 62c6c95d9333c1ac1be9f938
+  - name: 'Plans,Customers - Add multiple plans to a customer'
+    id: 62d7f6138ca07e88551c9dde
 format: flat
 variants: true
