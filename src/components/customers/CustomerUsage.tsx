@@ -14,7 +14,7 @@ import { intlFormatNumber } from '~/core/intlFormatNumber'
 gql`
   query customerUsage($customerId: ID!) {
     customerUsage(customerId: $customerId) {
-      totalAmountCents
+      amountCents
       totalAmountCurrency
       fromDate
       toDate
@@ -104,7 +104,7 @@ export const CustomerUsage = ({ id }: CustomerUsageProps) => {
               </Block>
             </MainInfos>
             <Typography color="textSecondary">
-              {intlFormatNumber(data?.customerUsage?.totalAmountCents || 0, {
+              {intlFormatNumber(data?.customerUsage?.amountCents || 0, {
                 currencyDisplay: 'code',
                 currency: data?.customerUsage?.totalAmountCurrency,
               })}
