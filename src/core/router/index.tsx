@@ -1,6 +1,8 @@
 import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
 
+import { AppEnvEnum } from '~/globalTypes'
+
 const Error404 = lazy(() => import(/* webpackChunkName: 'error-404' */ '~/pages/Error404'))
 const Login = lazy(() => import(/* webpackChunkName: 'login' */ '~/pages/auth/Login'))
 const SignUp = lazy(() => import(/* webpackChunkName: 'sign-up' */ '~/pages/auth/SignUp'))
@@ -211,7 +213,7 @@ export const routes: CustomRouteObject[] = [
         private: true,
         element: <AddOnsList />,
       },
-      ...(IS_QA_ENV || IS_DEV_ENV
+      ...([AppEnvEnum.qa, AppEnvEnum.development].includes(APP_ENV)
         ? [
             {
               path: [ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE],

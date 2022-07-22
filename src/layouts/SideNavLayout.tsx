@@ -8,6 +8,7 @@ import { useLocation, Location } from 'react-router-dom'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { logOut, useCurrentUserInfosVar } from '~/core/apolloClient'
+import { AppEnvEnum } from '~/globalTypes'
 import {
   Avatar,
   Button,
@@ -193,7 +194,7 @@ const SideNav = () => {
               <NavigationTab
                 onClick={() => setOpen(false)}
                 tabs={[
-                  ...(IS_QA_ENV || IS_DEV_ENV
+                  ...([AppEnvEnum.qa, AppEnvEnum.development].includes(APP_ENV)
                     ? [
                         {
                           title: 'Design System',
