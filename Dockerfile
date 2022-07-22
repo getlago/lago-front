@@ -23,4 +23,4 @@ COPY ./.env.sh ./.env.sh
 
 EXPOSE 80
 
-CMD ["/bin/bash", "-c", "./.env.sh && nginx -g \"daemon off;\""]
+ENTRYPOINT ["/bin/bash", "-c", "./.env.sh && nginx -g \"daemon off;\""]
