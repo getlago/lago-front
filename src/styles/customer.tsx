@@ -9,9 +9,9 @@ export const SideSection = styled.div<{ $empty?: boolean }>`
   }
 `
 
-export const SectionHeader = styled(Typography)`
+export const SectionHeader = styled(Typography)<{ $hideBottomShadow?: boolean }>`
   height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
+  box-shadow: ${({ $hideBottomShadow }) => ($hideBottomShadow ? undefined : theme.shadows[7])};
   display: flex;
   align-items: center;
   justify-content: space-between;

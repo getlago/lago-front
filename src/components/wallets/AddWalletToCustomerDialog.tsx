@@ -67,7 +67,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
               ...values,
             },
           },
-          refetchQueries: ['getCustomer'],
+          refetchQueries: ['getCustomer', 'getCustomerWalletList'],
         })
       },
     })
