@@ -29,7 +29,7 @@ import {
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { CustomerSubscriptionsList } from '~/components/customers/CustomerSubscriptionsList'
-import { CustomerWalletsList } from '~/components/customers/CustomerWalletList'
+import { CustomerWalletsList } from '~/components/wallets/CustomerWalletList'
 import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
 import { CustomerVatRate } from '~/components/customers/CustomerVatRate'
 import { theme, PageHeader, MenuPopper } from '~/styles'
@@ -58,7 +58,7 @@ import {
 import {
   AddWalletToCustomerDialog,
   AddWalletToCustomerDialogRef,
-} from '~/components/customers/AddWalletToCustomerDialog'
+} from '~/components/wallets/AddWalletToCustomerDialog'
 
 gql`
   fragment CustomerDetails on CustomerDetails {
@@ -308,7 +308,10 @@ const CustomerDetails = () => {
                       key: TabsOptions.wallet,
                       component: (
                         <SideBlock>
-                          <CustomerWalletsList ref={addWalletToCustomerDialogRef} />
+                          <CustomerWalletsList
+                            ref={addWalletToCustomerDialogRef}
+                            customerId={id as string}
+                          />
                         </SideBlock>
                       ),
                     },
