@@ -45,13 +45,12 @@ gql`
 interface AddPlanToCustomerDialogProps {
   customerName: string
   customerId: string
-  refetchCustomer: () => void
 }
 
 export const AddPlanToCustomerDialog = forwardRef<
   AddPlanToCustomerDialogRef,
   AddPlanToCustomerDialogProps
->(({ customerId, customerName, refetchCustomer }: AddPlanToCustomerDialogProps, ref) => {
+>(({ customerId, customerName }: AddPlanToCustomerDialogProps, ref) => {
   const dialogRef = useRef<DialogRef>(null)
   const [existingInfos, setExistingInfos] = useState<
     | {
@@ -68,7 +67,6 @@ export const AddPlanToCustomerDialog = forwardRef<
     },
     onCompleted: async ({ createSubscription }) => {
       if (!!createSubscription) {
-        await refetchCustomer()
         addToast({
           message: existingInfos
             ? translate('text_62d7f6178ec94cd09370e69a')
@@ -97,6 +95,7 @@ export const AddPlanToCustomerDialog = forwardRef<
             ...values,
           },
         },
+        refetchQueries: ['getCustomer'],
       })
 
       const { errors } = answer
@@ -142,11 +141,12 @@ export const AddPlanToCustomerDialog = forwardRef<
         existingInfos ? 'text_62559eef7b0ccc015127e38b' : 'text_625434c7bb2cb40124c81a19',
         { customerName }
       )}
+      onClickAway={() => formikProps.resetForm()}
       description={translate(
         existingInfos ? 'text_62559eef7b0ccc015127e38d' : 'text_625434c7bb2cb40124c81a21'
       )}
       onOpen={() => {
-        if (!loading && !data) {
+        if (!loading) {
           getPlans()
         }
       }}
