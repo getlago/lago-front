@@ -3,7 +3,6 @@ import styled from 'styled-components'
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 
-import { Skeleton } from '~/components/designSystem'
 import { theme, NAV_HEIGHT, MenuPopper } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { SubscriptionItemPlanFragment } from '~/generated/graphql'
@@ -16,6 +15,7 @@ import {
   StatusEnum,
   Popper,
   Tooltip,
+  Skeleton,
 } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 

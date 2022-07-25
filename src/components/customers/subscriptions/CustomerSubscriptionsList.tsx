@@ -28,7 +28,7 @@ gql`
     id
     status
     startedAt
-    pendingStartDate
+    nextPendingStartDate
     name
     nextName
     plan {
@@ -99,7 +99,7 @@ export const CustomerSubscriptionsList = forwardRef<
           </ListHeader>
           <List>
             {subscriptions.map((subscription) => {
-              const { id, name, plan, startedAt, nextName, pendingStartDate, nextPlan } =
+              const { id, name, plan, startedAt, nextName, nextPendingStartDate, nextPlan } =
                 subscription
               const isDowngrading = !!nextPlan
 
@@ -110,7 +110,7 @@ export const CustomerSubscriptionsList = forwardRef<
                       ref={subscriptionItemRef}
                       subscriptionId={id}
                       subscriptionName={nextName}
-                      date={pendingStartDate}
+                      date={nextPendingStartDate}
                       plan={nextPlan}
                       isPending
                     />
@@ -126,9 +126,9 @@ export const CustomerSubscriptionsList = forwardRef<
                     <DowngradeInfo variant="caption">
                       {translate('text_62681c60582e4f00aa82938a', {
                         planName: nextPlan?.name,
-                        dateStartNewPlan: !pendingStartDate
+                        dateStartNewPlan: !nextPendingStartDate
                           ? '-'
-                          : DateTime.fromISO(pendingStartDate).toFormat('LLL. dd, yyyy'),
+                          : DateTime.fromISO(nextPendingStartDate).toFormat('LLL. dd, yyyy'),
                       })}
                     </DowngradeInfo>
                   )}
