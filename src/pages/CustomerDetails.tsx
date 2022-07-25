@@ -24,6 +24,7 @@ import {
   CustomerCouponFragmentDoc,
   CustomerMainInfosFragmentDoc,
   CustomerAddOnsFragmentDoc,
+  CustomerUsageSubscriptionFragmentDoc,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -39,7 +40,7 @@ import {
 import { AddCustomerDialog, AddCustomerDialogRef } from '~/components/customers/AddCustomerDialog'
 import { CustomerCoupons } from '~/components/customers/CustomerCoupons'
 import { CustomerAddOns } from '~/components/customers/CustomerAddOns'
-import { CustomerUsage } from '~/components/customers/CustomerUsage'
+import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
 import { CustomerMainInfos } from '~/components/customers/CustomerMainInfos'
 import {
   AddCouponToCustomerDialog,
@@ -62,6 +63,7 @@ gql`
     canBeDeleted
     subscriptions(status: [active]) {
       ...CustomerSubscriptionList
+      ...CustomerUsageSubscription
     }
     invoices {
       ...CustomerInvoiceList
@@ -90,6 +92,7 @@ gql`
   ${CustomerCouponFragmentDoc}
   ${CustomerAddOnsFragmentDoc}
   ${CustomerMainInfosFragmentDoc}
+  ${CustomerUsageSubscriptionFragmentDoc}
 `
 
 enum TabsOptions {
@@ -108,7 +111,7 @@ const CustomerDetails = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { id, tab } = useParams()
-  const { data, loading, error, refetch } = useGetCustomerQuery({
+  const { data, loading, error } = useGetCustomerQuery({
     variables: { id: id as string },
     skip: !id,
   })
@@ -279,7 +282,11 @@ const CustomerDetails = () => {
                       hidden: !hasSubscription,
                       component: (
                         <SideBlock>
-                          <CustomerUsage id={id as string} />
+                          <CustomerUsage
+                            id={id as string}
+                            subscriptions={subscriptions ?? []}
+                            loading={loading}
+                          />
                         </SideBlock>
                       ),
                     },
@@ -338,7 +345,6 @@ const CustomerDetails = () => {
             ref={subscriptionsDialogRef}
             customerName={name as string}
             customerId={id as string}
-            refetchCustomer={refetch}
           />
         </>
       )}
