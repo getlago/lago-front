@@ -111,7 +111,7 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
           <SmallCell>
             {!expirationDate
               ? translate('text_62876a50ea3bba00b56d2c2c')
-              : DateTime.fromISO(expirationDate).toFormat('yyyy/LL/dd')}
+              : DateTime.fromISO(expirationDate).toFormat('LLL. dd, yyyy')}
           </SmallCell>
           <MediumCell>
             {<Status type={formattedStatus.type} label={translate(formattedStatus.label)} />}

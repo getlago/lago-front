@@ -71,7 +71,7 @@ export const AddOnItem = ({ addOn, navigationProps }: AddOnItemProps) => {
         </AddOnNameSection>
         <CouponInfosSection>
           <SmallCell>{customerCount}</SmallCell>
-          <MediumCell>{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</MediumCell>
+          <MediumCell>{DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy')}</MediumCell>
         </CouponInfosSection>
         <ButtonMock />
       </ListItem>

@@ -72,7 +72,9 @@ export const BillableMetricItem = memo(
               </Typography>
             </NameBlock>
           </BillableMetricName>
-          <CellSmall align="right">{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</CellSmall>
+          <CellSmall align="right">
+            {DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy')}
+          </CellSmall>
           <ButtonMock />
         </ListItem>
         <Popper

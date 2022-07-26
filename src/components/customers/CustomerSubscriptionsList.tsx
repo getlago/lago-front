@@ -111,7 +111,7 @@ export const CustomerSubscriptionsList = forwardRef<
                 </CellBig>
                 <CellStatus type={statusConfig.type} label={translate(statusConfig.label)} />
                 <CellSmall align="right" color="textSecondary">
-                  {DateTime.fromISO(startedAt ?? pendingStartDate).toFormat('yyyy/LL/dd')}
+                  {DateTime.fromISO(startedAt ?? pendingStartDate).toFormat('LLL. dd, yyyy')}
                 </CellSmall>
               </Item>
             )
@@ -121,7 +121,7 @@ export const CustomerSubscriptionsList = forwardRef<
               {translate('text_62681c60582e4f00aa82938a', {
                 planName: downgradingTo?.plan?.name,
                 dateStartNewPlan: DateTime.fromISO(downgradingTo?.pendingStartDate).toFormat(
-                  'yyyy/LL/dd'
+                  'LLL. dd, yyyy'
                 ),
               })}
             </DowngradeInfo>

@@ -96,9 +96,9 @@ export const CustomerUsage = ({ id }: CustomerUsageProps) => {
                 <Typography variant="caption" noWrap>
                   {translate('text_62c3f3fca8a1625624e83383', {
                     fromDate: DateTime.fromISO(data?.customerUsage?.fromDate).toFormat(
-                      'LLL. dd yyyy'
+                      'LLL. dd, yyyy'
                     ),
-                    toDate: DateTime.fromISO(data?.customerUsage?.toDate).toFormat('LLL. dd yyyy'),
+                    toDate: DateTime.fromISO(data?.customerUsage?.toDate).toFormat('LLL. dd, yyyy'),
                   })}
                 </Typography>
               </Block>

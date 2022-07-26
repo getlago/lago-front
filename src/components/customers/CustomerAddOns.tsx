@@ -79,7 +79,7 @@ export const CustomerAddOns = memo(
                     </NameBlock>
                   </NameSection>
                   <Typography color="textSecondary" variant="body" noWrap>
-                    {DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}
+                    {DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy')}
                   </Typography>
                 </Item>
               ))}
