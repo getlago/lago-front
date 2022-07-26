@@ -68,6 +68,9 @@ module.exports = {
   "project_62442e1098bdeb0134fd179b": {
     "base": require('./Plans - Create a plan__base.json')
   },
+  "project_62d7f6138ca07e88551c9dde": {
+    "base": require('./Plans,Customers - Add multiple plans to a customer__base.json')
+  },
   "project_62728ff2d06c9b00f4ea46ad": {
     "base": require('./Setting - Set tax rates in application__base.json')
   },
