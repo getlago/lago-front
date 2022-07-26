@@ -70,7 +70,7 @@ export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
         <PlanInfosSection>
           <MediumCell>{customerCount}</MediumCell>
           <SmallCell>{chargeCount}</SmallCell>
-          <MediumCell>{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</MediumCell>
+          <MediumCell>{DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy')}</MediumCell>
         </PlanInfosSection>
         <ButtonMock />
       </ListItem>

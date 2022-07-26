@@ -75,7 +75,7 @@ const Debugger = () => {
   const groupedEvent = useMemo(
     () =>
       (data?.events?.collection || []).reduce<Record<string, EventListFragment[]>>((acc, item) => {
-        const date = DateTime.fromISO(item.timestamp).toFormat('dd LLLL yyyy')
+        const date = DateTime.fromISO(item.timestamp).toFormat('LLL. dd, yyyy')
 
         acc[date] = [...(acc[date] ? acc[date] : []), item]
 
@@ -202,7 +202,7 @@ const Debugger = () => {
                                           </Typography>
                                           <Typography color="textSecondary" noWrap>
                                             {DateTime.fromISO(timestamp).toFormat(
-                                              'yyyy/LL/dd HH:mm:ss'
+                                              'LLL. dd, yyyy HH:mm:ss'
                                             )}
                                           </Typography>
                                         </EventInfoLine>

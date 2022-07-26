@@ -115,7 +115,9 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
           <SmallCell align="left">
             {!subscription ? '-' : <Status type={status.type} label={translate(status.label)} />}
           </SmallCell>
-          <SmallCell align="right">{DateTime.fromISO(createdAt).toFormat('yyyy/LL/dd')}</SmallCell>
+          <SmallCell align="right">
+            {DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy')}
+          </SmallCell>
         </PlanInfosSection>
         <ButtonMock />
       </Item>

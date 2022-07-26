@@ -110,7 +110,7 @@ export const CustomerInvoicesList = ({ invoices }: CustomerInvoicesListProps) =>
             return (
               <Item key={`invoice-${id}`}>
                 <IssuingDateCell noWrap>
-                  {DateTime.fromISO(issuingDate).toFormat('yyyy/LL/dd')}
+                  {DateTime.fromISO(issuingDate).toFormat('LLL. dd, yyyy')}
                 </IssuingDateCell>
                 <NumberCell color="textSecondary">{number}</NumberCell>
                 <AmountCell color="textSecondary" align="right">
