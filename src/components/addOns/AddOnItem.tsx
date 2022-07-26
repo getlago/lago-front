@@ -4,7 +4,14 @@ import styled from 'styled-components'
 import { DateTime } from 'luxon'
 import { useNavigate, generatePath } from 'react-router-dom'
 
-import { theme, BaseListItem, ListItem, MenuPopper, PopperOpener, ItemContainer } from '~/styles'
+import {
+  theme,
+  BaseListItem,
+  ListItemLink,
+  MenuPopper,
+  PopperOpener,
+  ItemContainer,
+} from '~/styles'
 import {
   Typography,
   Avatar,
@@ -46,9 +53,9 @@ export const AddOnItem = ({ addOn, navigationProps }: AddOnItemProps) => {
 
   return (
     <ItemContainer>
-      <ListItem
+      <ListItemLink
+        to={generatePath(UPDATE_ADD_ON_ROUTE, { id })}
         tabIndex={0}
-        onClick={() => navigate(generatePath(UPDATE_ADD_ON_ROUTE, { id }))}
         {...navigationProps}
       >
         <AddOnNameSection>
@@ -74,7 +81,7 @@ export const AddOnItem = ({ addOn, navigationProps }: AddOnItemProps) => {
           <MediumCell>{DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy')}</MediumCell>
         </CouponInfosSection>
         <ButtonMock />
-      </ListItem>
+      </ListItemLink>
       <Popper
         PopperProps={{ placement: 'bottom-end' }}
         opener={({ isOpen }) => (

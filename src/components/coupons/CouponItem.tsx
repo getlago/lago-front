@@ -4,7 +4,14 @@ import styled from 'styled-components'
 import { DateTime } from 'luxon'
 import { useNavigate, generatePath } from 'react-router-dom'
 
-import { theme, BaseListItem, ListItem, MenuPopper, PopperOpener, ItemContainer } from '~/styles'
+import {
+  theme,
+  BaseListItem,
+  ListItemLink,
+  MenuPopper,
+  PopperOpener,
+  ItemContainer,
+} from '~/styles'
 import {
   Typography,
   Avatar,
@@ -22,6 +29,7 @@ import { CouponStatusEnum, CouponItemFragment } from '~/generated/graphql'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DeleteCouponDialog, DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import {
   TerminateCouponDialog,
   TerminateCouponDialogRef,
@@ -79,14 +87,18 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
 
   return (
     <ItemContainer>
-      <ListItem
-        tabIndex={0}
-        onClick={
-          status === CouponStatusEnum.Terminated
-            ? undefined
-            : () => navigate(generatePath(UPDATE_COUPON_ROUTE, { id }))
-        }
-        {...navigationProps}
+      <ConditionalWrapper
+        condition={status === CouponStatusEnum.Terminated}
+        validWrapper={(children) => <BaseListItem>{children}</BaseListItem>}
+        invalidWrapper={(children) => (
+          <ListItemLink
+            tabIndex={0}
+            to={generatePath(UPDATE_COUPON_ROUTE, { id })}
+            {...navigationProps}
+          >
+            {children}
+          </ListItemLink>
+        )}
       >
         <CouponNameSection>
           <ListAvatar variant="connector">
@@ -118,7 +130,7 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
           </MediumCell>
         </CouponInfosSection>
         <ButtonMock />
-      </ListItem>
+      </ConditionalWrapper>
       <Popper
         PopperProps={{ placement: 'bottom-end' }}
         opener={({ isOpen }) => (

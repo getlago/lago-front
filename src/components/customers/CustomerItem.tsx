@@ -2,9 +2,16 @@ import { memo, useRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
-import { useNavigate, generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
-import { theme, BaseListItem, ListItem, MenuPopper, PopperOpener, ItemContainer } from '~/styles'
+import {
+  theme,
+  BaseListItem,
+  ListItemLink,
+  MenuPopper,
+  PopperOpener,
+  ItemContainer,
+} from '~/styles'
 import {
   Avatar,
   Typography,
@@ -84,15 +91,10 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
       : subscriptions.find((s) => s.status === StatusTypeEnum.Active)
   const status = mapStatus(subscription?.status)
   const { translate } = useInternationalization()
-  const navigate = useNavigate()
 
   return (
     <ItemContainer>
-      <Item
-        id={rowId}
-        tabIndex={0}
-        onClick={() => navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id }))}
-      >
+      <Item id={rowId} to={generatePath(CUSTOMER_DETAILS_ROUTE, { id })} tabIndex={0}>
         <CustomerNameSection>
           <ListAvatar
             variant="user"
@@ -188,7 +190,7 @@ export const CustomerItemSkeleton = () => {
   )
 }
 
-const Item = styled(ListItem)`
+const Item = styled(ListItemLink)`
   > *:not(:last-child) {
     margin-right: ${theme.spacing(6)};
   }

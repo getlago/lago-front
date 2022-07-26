@@ -4,7 +4,14 @@ import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { theme, BaseListItem, ListItem, MenuPopper, PopperOpener, ItemContainer } from '~/styles'
+import {
+  theme,
+  BaseListItem,
+  ListItemLink,
+  MenuPopper,
+  PopperOpener,
+  ItemContainer,
+} from '~/styles'
 import {
   Typography,
   Avatar,
@@ -49,11 +56,7 @@ export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
 
   return (
     <ItemContainer>
-      <ListItem
-        tabIndex={0}
-        onClick={() => navigate(generatePath(UPDATE_PLAN_ROUTE, { id }))}
-        {...navigationProps}
-      >
+      <ListItemLink tabIndex={0} to={generatePath(UPDATE_PLAN_ROUTE, { id })} {...navigationProps}>
         <PlanNameSection>
           <ListAvatar variant="connector">
             <Icon name="board" color="dark" />
@@ -73,7 +76,7 @@ export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
           <MediumCell>{DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy')}</MediumCell>
         </PlanInfosSection>
         <ButtonMock />
-      </ListItem>
+      </ListItemLink>
       <Popper
         PopperProps={{ placement: 'bottom-end' }}
         opener={({ isOpen }) => (
