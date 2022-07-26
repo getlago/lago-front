@@ -17,7 +17,14 @@ import {
   Button,
   Tooltip,
 } from '~/components/designSystem'
-import { theme, BaseListItem, ListItem, MenuPopper, PopperOpener, ItemContainer } from '~/styles'
+import {
+  theme,
+  BaseListItem,
+  ListItemLink,
+  MenuPopper,
+  PopperOpener,
+  ItemContainer,
+} from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
@@ -54,9 +61,9 @@ export const BillableMetricItem = memo(
 
     return (
       <ItemContainer>
-        <ListItem
+        <ListItemLink
+          to={generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { id })}
           tabIndex={0}
-          onClick={() => navigate(generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { id }))}
           {...navigationProps}
         >
           <BillableMetricName>
@@ -76,7 +83,7 @@ export const BillableMetricItem = memo(
             {DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy')}
           </CellSmall>
           <ButtonMock />
-        </ListItem>
+        </ListItemLink>
         <Popper
           PopperProps={{ placement: 'bottom-end' }}
           opener={({ isOpen }) => (

@@ -73,13 +73,19 @@ const DesignSystem = () => {
                     to={ONLY_DEV_DESIGN_SYSTEM_ROUTE}
                   />
                   <ButtonLink
+                    icon="plug"
+                    title="Button Link External"
+                    external
+                    to="https://www.youtube.com/watch?v=h6fcK_fRYaI&ab_channel=Kurzgesagt%E2%80%93InaNutshell"
+                  />
+                  <ButtonLink
                     disabled
                     title="Button Link Disabled"
                     to={ONLY_DEV_DESIGN_SYSTEM_ROUTE}
                   />
                 </Block>
                 <Block>
-                  <a href="/"> Normal Link </a>
+                  <a href="https://main-app.staging.getlago.com/coupons"> Normal Link </a>
                 </Block>
               </Container>
             ),

@@ -1,8 +1,9 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
+import { Link } from 'react-router-dom'
 
 import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT } from '~/styles'
 
-export const BaseListItem = styled.div`
+const ListItemCss = css`
   width: 100%;
   box-sizing: border-box;
   height: ${NAV_HEIGHT}px;
@@ -16,19 +17,44 @@ export const BaseListItem = styled.div`
   }
 `
 
-export const ListItem = styled(BaseListItem)`
+const ListClickableItemCss = css`
   cursor: pointer;
 
   &:hover:not(:active),
   &:focus:not(:active) {
     background-color: ${theme.palette.grey[100]};
-    outline: none;
   }
 
   &:active {
     background-color: ${theme.palette.grey[200]};
-    outline: none;
   }
+
+  &:hover,
+  &:focus,
+  &:active {
+    outline: none;
+    text-decoration: none;
+    box-shadow: ${theme.shadows[7]};
+    border-radius: 0;
+  }
+
+  &:visited {
+    color: inherit;
+  }
+`
+
+export const BaseListItem = styled.div`
+  ${ListItemCss}
+`
+
+export const ListItemLink = styled(Link)`
+  ${ListItemCss}
+  ${ListClickableItemCss}
+`
+
+export const ListItem = styled.div`
+  ${ListItemCss}
+  ${ListClickableItemCss}
 `
 
 export const ListHeader = styled.div<{ $withActions?: boolean }>`

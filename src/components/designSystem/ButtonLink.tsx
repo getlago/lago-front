@@ -1,8 +1,9 @@
-import { forwardRef, ReactNode, MouseEvent } from 'react'
+import { forwardRef, MouseEvent } from 'react'
 import { Link } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
 import { theme } from '~/styles'
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 
 import { Icon, IconName } from './Icon'
 import { Typography } from './Typography'
@@ -17,45 +18,43 @@ export interface ButtonLinkProps {
   onClick?: (e: MouseEvent<HTMLAnchorElement>) => void
 }
 
-interface ConditionalWrapperProps extends Pick<ButtonLinkProps, 'external' | 'to'> {
-  $active?: boolean
-  $disabled?: boolean
-  children: ReactNode
-  onMouseDown: (e: MouseEvent<HTMLAnchorElement>) => void
-}
-
-const ConditionalWrapper = forwardRef<HTMLAnchorElement, ConditionalWrapperProps>(
-  ({ external, to, children, ...props }: ConditionalWrapperProps) => {
-    return external ? (
-      <ExternalLink href={to} rel="noopener noreferrer" target="_blank" {...props}>
-        {children}
-      </ExternalLink>
-    ) : (
-      <InternalLink to={to} {...props}>
-        {children}
-      </InternalLink>
-    )
-  }
-)
-
-ConditionalWrapper.displayName = 'ConditionalWrapper'
-
 export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
   ({ to, title, icon, active, disabled, external, onClick }: ButtonLinkProps, ref) => {
+    const onMouseDown = (e: MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault()
+      onClick && onClick(e)
+      const element = document.activeElement as HTMLElement
+
+      element.blur && element.blur()
+    }
+
     return (
       <ConditionalWrapper
-        to={to}
-        $active={active}
-        $disabled={disabled}
-        external={external}
-        ref={ref}
-        onMouseDown={(e) => {
-          e.preventDefault()
-          onClick && onClick(e)
-          const element = document.activeElement as HTMLElement
-
-          element.blur && element.blur()
-        }}
+        condition={!!external}
+        validWrapper={(children) => (
+          <ExternalLink
+            ref={ref}
+            href={to}
+            rel="noopener noreferrer"
+            target="_blank"
+            $active={active}
+            $disabled={disabled}
+            onMouseDown={onMouseDown}
+          >
+            {children}
+          </ExternalLink>
+        )}
+        invalidWrapper={(children) => (
+          <InternalLink
+            ref={ref}
+            to={to}
+            $active={active}
+            $disabled={disabled}
+            onMouseDown={onMouseDown}
+          >
+            {children}
+          </InternalLink>
+        )}
       >
         {icon && <Icon name={icon} />}
         <Label noWrap color="inherit">
