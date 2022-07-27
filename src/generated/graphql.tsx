@@ -1331,6 +1331,7 @@ export type Event = {
   matchCustomField: Scalars['Boolean'];
   payload: Scalars['JSON'];
   receivedAt: Scalars['ISO8601DateTime'];
+  subscriptionId: Scalars['String'];
   timestamp?: Maybe<Scalars['ISO8601DateTime']>;
   transactionId?: Maybe<Scalars['String']>;
 };
@@ -2483,7 +2484,7 @@ export type SignupMutation = { __typename?: 'Mutation', registerUser?: { __typen
 
 export type ApiKeyOrganizationFragment = { __typename?: 'Organization', id: string, apiKey: string };
 
-export type EventListFragment = { __typename?: 'Event', id: string, code: string, customerId: string, transactionId?: string | null, timestamp?: any | null, receivedAt: any, payload: any, billableMetricName?: string | null, matchBillableMetric: boolean, matchCustomField: boolean, apiClient?: string | null, ipAddress?: string | null };
+export type EventListFragment = { __typename?: 'Event', id: string, code: string, customerId: string, transactionId?: string | null, timestamp?: any | null, receivedAt: any, payload: any, billableMetricName?: string | null, matchBillableMetric: boolean, matchCustomField: boolean, apiClient?: string | null, ipAddress?: string | null, subscriptionId: string };
 
 export type EventsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -2491,7 +2492,7 @@ export type EventsQueryVariables = Exact<{
 }>;
 
 
-export type EventsQuery = { __typename?: 'Query', events?: { __typename?: 'EventCollection', collection: Array<{ __typename?: 'Event', id: string, code: string, customerId: string, transactionId?: string | null, timestamp?: any | null, receivedAt: any, payload: any, billableMetricName?: string | null, matchBillableMetric: boolean, matchCustomField: boolean, apiClient?: string | null, ipAddress?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type EventsQuery = { __typename?: 'Query', events?: { __typename?: 'EventCollection', collection: Array<{ __typename?: 'Event', id: string, code: string, customerId: string, transactionId?: string | null, timestamp?: any | null, receivedAt: any, payload: any, billableMetricName?: string | null, matchBillableMetric: boolean, matchCustomField: boolean, apiClient?: string | null, ipAddress?: string | null, subscriptionId: string }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
 
 export type WehbookSettingQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2994,6 +2995,7 @@ export const EventListFragmentDoc = gql`
   matchCustomField
   apiClient
   ipAddress
+  subscriptionId
   ...EventItem
 }
     ${EventItemFragmentDoc}`;

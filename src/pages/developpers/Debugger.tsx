@@ -36,6 +36,7 @@ gql`
     matchCustomField
     apiClient
     ipAddress
+    subscriptionId
     ...EventItem
   }
 
@@ -160,6 +161,7 @@ const Debugger = () => {
                                 ipAddress,
                                 matchBillableMetric,
                                 matchCustomField,
+                                subscriptionId,
                               } = event
 
                               index += 1
@@ -204,6 +206,14 @@ const Debugger = () => {
                                             {DateTime.fromISO(timestamp).toFormat(
                                               'LLL. dd, yyyy HH:mm:ss'
                                             )}
+                                          </Typography>
+                                        </EventInfoLine>
+                                        <EventInfoLine>
+                                          <Typography variant="caption">
+                                            {translate('text_62e0feac0a543924c8f67ae5')}
+                                          </Typography>
+                                          <Typography color="textSecondary" noWrap>
+                                            {subscriptionId}
                                           </Typography>
                                         </EventInfoLine>
                                         <EventInfoLine>
