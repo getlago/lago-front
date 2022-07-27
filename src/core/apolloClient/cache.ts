@@ -39,6 +39,10 @@ export const cache = new InMemoryCache({
           keyArgs: false,
           merge: mergePaginatedCollection,
         },
+        addOns: {
+          keyArgs: false,
+          merge: mergePaginatedCollection,
+        },
       },
     },
   },
