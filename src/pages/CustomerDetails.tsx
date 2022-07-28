@@ -66,6 +66,7 @@ gql`
     name
     customerId
     canBeDeleted
+    hasActiveWallet
     subscriptions(status: [active, pending]) {
       ...CustomerSubscriptionList
     }
@@ -120,8 +121,16 @@ const CustomerDetails = () => {
     variables: { id: id as string },
     skip: !id,
   })
-  const { name, customerId, invoices, subscriptions, canBeDeleted, appliedCoupons, appliedAddOns } =
-    data?.customer || {}
+  const {
+    appliedAddOns,
+    appliedCoupons,
+    canBeDeleted,
+    customerId,
+    hasActiveWallet,
+    invoices,
+    name,
+    subscriptions,
+  } = data?.customer || {}
   const hasSubscription = !!(subscriptions || []).length
   const selectedPlansId = useMemo(
     () =>
@@ -208,7 +217,7 @@ const CustomerDetails = () => {
               <Button
                 variant="quaternary"
                 align="left"
-                // TODO disabled={wallet?.length > 0}
+                disabled={!hasSubscription || !!hasActiveWallet}
                 onClick={() => {
                   addWalletToCustomerDialogRef.current?.openDialog()
                   closePopper()
@@ -311,6 +320,7 @@ const CustomerDetails = () => {
                           <CustomerWalletsList
                             ref={addWalletToCustomerDialogRef}
                             customerId={id as string}
+                            hasActiveWallet={!!hasActiveWallet}
                           />
                         </SideBlock>
                       ),

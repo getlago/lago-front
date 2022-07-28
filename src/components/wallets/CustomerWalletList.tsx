@@ -6,7 +6,11 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { SectionHeader, SideSection } from '~/styles/customer'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { useGetCustomerWalletListQuery, WalletAccordionFragmentDoc } from '~/generated/graphql'
+import {
+  useGetCustomerWalletListQuery,
+  WalletAccordionFragmentDoc,
+  WalletInfosForTransactionsFragmentDoc,
+} from '~/generated/graphql'
 
 import { AddWalletToCustomerDialogRef } from './AddWalletToCustomerDialog'
 import { WalletAccordion, WalletAccordionSkeleton } from './WalletAccordion'
@@ -20,6 +24,7 @@ gql`
       }
       collection {
         ...WalletAccordion
+        ...WalletInfosForTransactions
       }
     }
   }
@@ -31,16 +36,18 @@ gql`
   }
 
   ${WalletAccordionFragmentDoc}
+  ${WalletInfosForTransactionsFragmentDoc}
 `
 
 interface CustommerWalletListProps {
   customerId: string
+  hasActiveWallet: boolean
 }
 
 export const CustomerWalletsList = forwardRef<
   AddWalletToCustomerDialogRef,
   CustommerWalletListProps
->(({ customerId }: CustommerWalletListProps, ref) => {
+>(({ customerId, hasActiveWallet }: CustommerWalletListProps, ref) => {
   const { translate } = useInternationalization()
   const { data, error, loading, fetchMore } = useGetCustomerWalletListQuery({
     variables: { customerId, page: 0, limit: 20 },
@@ -67,11 +74,17 @@ export const CustomerWalletsList = forwardRef<
         {translate('text_62d175066d2dbf1d50bc9384')}
         <Button
           variant="quaternary"
-          onClick={() =>
-            (ref as MutableRefObject<AddWalletToCustomerDialogRef>)?.current?.openDialog()
-          }
+          onClick={() => {
+            if (hasActiveWallet) {
+              // TODO: Add edit dropdown
+            } else {
+              ;(ref as MutableRefObject<AddWalletToCustomerDialogRef>)?.current?.openDialog()
+            }
+          }}
         >
-          {!!hasNoWallet ? translate('text_62d175066d2dbf1d50bc9382') : 'TODO'}
+          {hasActiveWallet
+            ? 'TODO: edit button dropdown translation'
+            : translate('text_62d175066d2dbf1d50bc9382')}
         </Button>
       </SectionHeader>
 
