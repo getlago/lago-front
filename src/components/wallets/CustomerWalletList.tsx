@@ -1,7 +1,7 @@
-import { forwardRef, MutableRefObject } from 'react'
+import { forwardRef, MutableRefObject, useRef } from 'react'
 import { gql } from '@apollo/client'
 
-import { Button, InfiniteScroll, Typography } from '~/components/designSystem'
+import { Button, InfiniteScroll, Popper, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { SectionHeader, SideSection } from '~/styles/customer'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -9,11 +9,24 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import {
   useGetCustomerWalletListQuery,
   WalletAccordionFragmentDoc,
+  WalletForTopupFragmentDoc,
+  WalletForUpdateFragmentDoc,
   WalletInfosForTransactionsFragmentDoc,
+  WalletStatusEnum,
 } from '~/generated/graphql'
+import { MenuPopper } from '~/styles'
 
 import { AddWalletToCustomerDialogRef } from './AddWalletToCustomerDialog'
 import { WalletAccordion, WalletAccordionSkeleton } from './WalletAccordion'
+import {
+  UpdateCustomerWalletDialog,
+  UpdateCustomerWalletDialogRef,
+} from './UpdateCustomerWalletDialog'
+import {
+  TerminateCustomerWalletDialog,
+  TerminateCustomerWalletDialogRef,
+} from './TerminateCustomerWalletDialog'
+import { TopupWalletDialog, TopupWalletDialogRef } from './TopupWalletDialog'
 
 gql`
   query getCustomerWalletList($customerId: ID!, $page: Int, $limit: Int) {
@@ -23,6 +36,8 @@ gql`
         totalPages
       }
       collection {
+        ...WalletForTopup
+        ...WalletForUpdate
         ...WalletAccordion
         ...WalletInfosForTransactions
       }
@@ -35,6 +50,8 @@ gql`
     }
   }
 
+  ${WalletForTopupFragmentDoc}
+  ${WalletForUpdateFragmentDoc}
   ${WalletAccordionFragmentDoc}
   ${WalletInfosForTransactionsFragmentDoc}
 `
@@ -49,18 +66,22 @@ export const CustomerWalletsList = forwardRef<
   CustommerWalletListProps
 >(({ customerId, hasActiveWallet }: CustommerWalletListProps, ref) => {
   const { translate } = useInternationalization()
+  const updateCustomerWalletDialogRef = useRef<UpdateCustomerWalletDialogRef>(null)
+  const terminateCustomerWalletDialogRef = useRef<TerminateCustomerWalletDialogRef>(null)
+  const topupWalletDialogRef = useRef<TopupWalletDialogRef>(null)
   const { data, error, loading, fetchMore } = useGetCustomerWalletListQuery({
     variables: { customerId, page: 0, limit: 20 },
   })
   const list = data?.wallets?.collection || []
   const hasNoWallet = !list || !list.length
+  const activeWallet = list.find((wallet) => wallet.status === WalletStatusEnum.Active)
 
   if (!loading && !!error) {
     return (
       <GenericPlaceholder
-        title={translate('text_62d7ffcb1c57d7e6d15bdce3')}
-        subtitle={translate('text_62d7ffcb1c57d7e6d15bdce5')}
-        buttonTitle={translate('text_62d7ffcb1c57d7e6d15bdce7')}
+        title={translate('text_62e0ee200a543924c8f6775e')}
+        subtitle={translate('text_62e0ee200a543924c8f67760')}
+        buttonTitle={translate('text_62e0ee200a543924c8f67762')}
         buttonVariant="primary"
         buttonAction={() => location.reload()}
         image={<ErrorImage width="136" height="104" />}
@@ -72,20 +93,60 @@ export const CustomerWalletsList = forwardRef<
     <SideSection $empty={!!hasNoWallet}>
       <SectionHeader variant="subhead" $hideBottomShadow={!!loading || !hasNoWallet}>
         {translate('text_62d175066d2dbf1d50bc9384')}
-        <Button
-          variant="quaternary"
-          onClick={() => {
-            if (hasActiveWallet) {
-              // TODO: Add edit dropdown
-            } else {
-              ;(ref as MutableRefObject<AddWalletToCustomerDialogRef>)?.current?.openDialog()
+        {!hasActiveWallet ? (
+          <Button
+            variant="quaternary"
+            onClick={() =>
+              (ref as MutableRefObject<AddWalletToCustomerDialogRef>)?.current?.openDialog()
             }
-          }}
-        >
-          {hasActiveWallet
-            ? 'TODO: edit button dropdown translation'
-            : translate('text_62d175066d2dbf1d50bc9382')}
-        </Button>
+          >
+            {translate('text_62d175066d2dbf1d50bc9382')}
+          </Button>
+        ) : (
+          <Popper
+            PopperProps={{ placement: 'bottom-end' }}
+            opener={
+              <Button variant="quaternary" endIcon="chevron-down">
+                {translate('text_62e161ceb87c201025388aa2')}
+              </Button>
+            }
+          >
+            {({ closePopper }) => (
+              <MenuPopper>
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    topupWalletDialogRef?.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_62e161ceb87c201025388ada')}
+                </Button>
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    updateCustomerWalletDialogRef?.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_62e161ceb87c201025388adc')}
+                </Button>
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    terminateCustomerWalletDialogRef?.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_62e161ceb87c201025388ade')}
+                </Button>
+              </MenuPopper>
+            )}
+          </Popper>
+        )}
       </SectionHeader>
 
       {!!loading ? (
@@ -110,10 +171,25 @@ export const CustomerWalletsList = forwardRef<
         >
           <>
             {list.map((wallet) => (
-              <WalletAccordion key={`wallet-${wallet.id}`} wallet={wallet} />
+              <WalletAccordion
+                key={`wallet-${wallet.id}`}
+                wallet={wallet}
+                ref={topupWalletDialogRef}
+              />
             ))}
           </>
         </InfiniteScroll>
+      )}
+
+      {activeWallet && (
+        <>
+          <TopupWalletDialog ref={topupWalletDialogRef} wallet={activeWallet} />
+          <UpdateCustomerWalletDialog ref={updateCustomerWalletDialogRef} wallet={activeWallet} />
+          <TerminateCustomerWalletDialog
+            ref={terminateCustomerWalletDialogRef}
+            walletId={activeWallet.id}
+          />
+        </>
       )}
     </SideSection>
   )
