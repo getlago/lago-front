@@ -24,6 +24,7 @@ enum ColorTypeEnum {
   grey500 = 'grey.500',
   primary600 = 'primary.600',
   danger600 = 'error.600',
+  success600 = 'success.600',
   inherit = 'inherit',
   contrast = 'common.white',
   disabled = 'text.disabled', // This is to maintain the existing code
