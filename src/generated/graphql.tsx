@@ -1152,6 +1152,8 @@ export type Customer = {
   createdAt: Scalars['ISO8601DateTime'];
   customerId: Scalars['String'];
   email?: Maybe<Scalars['String']>;
+  /** Define if a customer has an active wallet */
+  hasActiveWallet: Scalars['Boolean'];
   id: Scalars['ID'];
   legalName?: Maybe<Scalars['String']>;
   legalNumber?: Maybe<Scalars['String']>;
@@ -1189,6 +1191,8 @@ export type CustomerDetails = {
   createdAt: Scalars['ISO8601DateTime'];
   customerId: Scalars['String'];
   email?: Maybe<Scalars['String']>;
+  /** Define if a customer has an active wallet */
+  hasActiveWallet: Scalars['Boolean'];
   id: Scalars['ID'];
   invoices?: Maybe<Array<Invoice>>;
   legalName?: Maybe<Scalars['String']>;
@@ -2155,7 +2159,7 @@ export type WalletTransaction = {
   creditAmount: Scalars['String'];
   id: Scalars['ID'];
   settledAt?: Maybe<Scalars['ISO8601DateTime']>;
-  status: WalletStatusEnum;
+  status: WalletTransactionStatusEnum;
   transactionType: WalletTransactionTransactionTypeEnum;
   updatedAt: Scalars['ISO8601DateTime'];
   wallet?: Maybe<Wallet>;
@@ -2174,7 +2178,7 @@ export type WalletTransactionDetails = {
   creditAmount: Scalars['String'];
   id: Scalars['ID'];
   settledAt?: Maybe<Scalars['ISO8601DateTime']>;
-  status: WalletStatusEnum;
+  status: WalletTransactionStatusEnum;
   transactionType: WalletTransactionTransactionTypeEnum;
   updatedAt: Scalars['ISO8601DateTime'];
   wallet?: Maybe<Wallet>;
@@ -2441,9 +2445,20 @@ export type GetCustomerWalletListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerWalletListQuery = { __typename?: 'Query', wallets: { __typename?: 'WalletCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Wallet', id: string, balance: string, consumedCredits: string, createdAt: any, creditsBalance: string, currency: CurrencyEnum, expirationDate?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, name: string, rateAmount: string, status: WalletStatusEnum }> } };
+export type GetCustomerWalletListQuery = { __typename?: 'Query', wallets: { __typename?: 'WalletCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Wallet', id: string, balance: string, consumedCredits: string, createdAt: any, creditsBalance: string, currency: CurrencyEnum, expirationDate?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, name: string, rateAmount: string, status: WalletStatusEnum, terminatedAt?: any | null }> } };
 
-export type WalletAccordionFragment = { __typename?: 'Wallet', id: string, balance: string, consumedCredits: string, createdAt: any, creditsBalance: string, currency: CurrencyEnum, expirationDate?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, name: string, rateAmount: string, status: WalletStatusEnum };
+export type WalletAccordionFragment = { __typename?: 'Wallet', id: string, balance: string, consumedCredits: string, createdAt: any, creditsBalance: string, currency: CurrencyEnum, expirationDate?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, name: string, rateAmount: string, status: WalletStatusEnum, terminatedAt?: any | null };
+
+export type GetWalletTransactionsQueryVariables = Exact<{
+  walletId: Scalars['ID'];
+  page?: InputMaybe<Scalars['Int']>;
+  limit?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type GetWalletTransactionsQuery = { __typename?: 'Query', walletTransactions: { __typename?: 'WalletTransactionCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'WalletTransaction', id: string, status: WalletTransactionStatusEnum, amount: string, creditAmount: string, settledAt?: any | null }> } };
+
+export type WalletInfosForTransactionsFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum };
 
 export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, billChargesMonthly?: boolean | null, charges?: Array<{ __typename?: 'Charge', id: string, amount?: string | null, amountCurrency?: CurrencyEnum | null, chargeModel: ChargeModelEnum, freeUnits?: number | null, packageSize?: number | null, rate?: string | null, fixedAmount?: string | null, fixedAmountTarget?: FixedAmountTargetEnum | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null }> | null };
 
@@ -2593,14 +2608,14 @@ export type CouponsQueryVariables = Exact<{
 
 export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency: CurrencyEnum, amountCents: number, canBeDeleted: boolean, expirationDate?: any | null }> } };
 
-export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null };
+export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, hasActiveWallet: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null };
 
 export type GetCustomerQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null } | null };
+export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, hasActiveWallet: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, pendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null } | null };
 
 export type CustomersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -2879,6 +2894,13 @@ export const WalletAccordionFragmentDoc = gql`
   name
   rateAmount
   status
+  terminatedAt
+}
+    `;
+export const WalletInfosForTransactionsFragmentDoc = gql`
+    fragment WalletInfosForTransactions on Wallet {
+  id
+  currency
 }
     `;
 export const EditPlanFragmentDoc = gql`
@@ -3098,6 +3120,7 @@ export const CustomerDetailsFragmentDoc = gql`
   name
   customerId
   canBeDeleted
+  hasActiveWallet
   subscriptions(status: [active, pending]) {
     ...CustomerSubscriptionList
   }
@@ -4141,10 +4164,12 @@ export const GetCustomerWalletListDocument = gql`
     }
     collection {
       ...WalletAccordion
+      ...WalletInfosForTransactions
     }
   }
 }
-    ${WalletAccordionFragmentDoc}`;
+    ${WalletAccordionFragmentDoc}
+${WalletInfosForTransactionsFragmentDoc}`;
 
 /**
  * __useGetCustomerWalletListQuery__
@@ -4175,6 +4200,54 @@ export function useGetCustomerWalletListLazyQuery(baseOptions?: Apollo.LazyQuery
 export type GetCustomerWalletListQueryHookResult = ReturnType<typeof useGetCustomerWalletListQuery>;
 export type GetCustomerWalletListLazyQueryHookResult = ReturnType<typeof useGetCustomerWalletListLazyQuery>;
 export type GetCustomerWalletListQueryResult = Apollo.QueryResult<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>;
+export const GetWalletTransactionsDocument = gql`
+    query getWalletTransactions($walletId: ID!, $page: Int, $limit: Int) {
+  walletTransactions(walletId: $walletId, page: $page, limit: $limit) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      id
+      status
+      amount
+      creditAmount
+      settledAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetWalletTransactionsQuery__
+ *
+ * To run a query within a React component, call `useGetWalletTransactionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetWalletTransactionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetWalletTransactionsQuery({
+ *   variables: {
+ *      walletId: // value for 'walletId'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetWalletTransactionsQuery(baseOptions: Apollo.QueryHookOptions<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>(GetWalletTransactionsDocument, options);
+      }
+export function useGetWalletTransactionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>(GetWalletTransactionsDocument, options);
+        }
+export type GetWalletTransactionsQueryHookResult = ReturnType<typeof useGetWalletTransactionsQuery>;
+export type GetWalletTransactionsLazyQueryHookResult = ReturnType<typeof useGetWalletTransactionsLazyQuery>;
+export type GetWalletTransactionsQueryResult = Apollo.QueryResult<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>;
 export const GetSinglePlanDocument = gql`
     query getSinglePlan($id: ID!) {
   plan(id: $id) {

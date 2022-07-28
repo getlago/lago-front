@@ -52,7 +52,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
         rateAmount: '1.00',
       },
       validationSchema: object().shape({
-        expirationDate: date(),
+        expirationDate: date().min(new Date()),
         grantedCredits: string().required(''),
         name: string(),
         paidCredits: string().required(''),
@@ -177,6 +177,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
           </Alert>
 
           <DatePickerField
+            disablePast
             name="expirationDate"
             placement="top-end"
             label={translate('text_62d18855b22699e5cf55f897')}

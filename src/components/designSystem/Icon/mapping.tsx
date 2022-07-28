@@ -87,6 +87,7 @@ import StarFilled from '~/public/icons/star-filled.svg'
 import Stop from '~/public/icons/stop.svg'
 import SwitchOff from '~/public/icons/switch-off.svg'
 import Switch from '~/public/icons/switch.svg'
+import Sync from '~/public/icons/sync.svg'
 import Table from '~/public/icons/table.svg'
 import TableHorizontale from '~/public/icons/table-horizontale.svg'
 import Target from '~/public/icons/target.svg'
@@ -192,6 +193,7 @@ export const ALL_ICONS = {
   stop: Stop,
   switch: Switch,
   'switch-off': SwitchOff,
+  sync: Sync,
   table: Table,
   'table-horizontale': TableHorizontale,
   target: Target,

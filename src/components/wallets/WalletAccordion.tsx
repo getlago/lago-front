@@ -4,7 +4,7 @@ import styled, { css } from 'styled-components'
 import { DateTime } from 'luxon'
 import { gql } from '@apollo/client'
 
-import { theme } from '~/styles'
+import { NAV_HEIGHT, theme } from '~/styles'
 import {
   Avatar,
   Button,
@@ -17,6 +17,8 @@ import {
 } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { WalletAccordionFragment, WalletStatusEnum } from '~/generated/graphql'
+
+import { WalletTransactionList } from './WalletTransactionList'
 
 gql`
   fragment WalletAccordion on Wallet {
@@ -32,6 +34,7 @@ gql`
     name
     rateAmount
     status
+    terminatedAt
   }
 `
 
@@ -67,18 +70,26 @@ export const WalletAccordion = ({ wallet }: WalletAccordionProps) => {
     name,
     rateAmount,
     status,
+    terminatedAt,
   } = wallet
 
   const statusMap = mapStatus(status)
   let [creditAmountUnit = '0', creditAmountCents = '00'] = creditsBalance.split('.')
-  let [consumerCreditUnit = '0', consumerCreditCents = '00'] = consumedCredits.split('.')
+  let [consumedCreditUnit = '0', consumedCreditCents = '00'] = consumedCredits.split('.')
   const { translate } = useInternationalization()
+  const isWalletActive = status === WalletStatusEnum.Active
   // All active wallets should be opened by default on first render
-  const [isOpen, setIsOpen] = useState(status === WalletStatusEnum.Active)
+  const [isOpen, setIsOpen] = useState(isWalletActive)
 
   return (
     <Container>
-      <StyledAccordion expanded={isOpen} onChange={(_, expanded) => setIsOpen(expanded)} square>
+      <StyledAccordion
+        expanded={isOpen}
+        onChange={(_, expanded) => {
+          setIsOpen(expanded)
+        }}
+        square
+      >
         <Summary $isOpen={isOpen}>
           <SummaryLeft>
             <Button
@@ -90,14 +101,14 @@ export const WalletAccordion = ({ wallet }: WalletAccordionProps) => {
               <Icon name="wallet" color="dark" />
             </Avatar>
             <SummaryInfos>
-              <Typography variant="bodyHl">
+              <Typography variant="bodyHl" noWrap>
                 {name
                   ? name
                   : translate('text_62da6ec24a8e24e44f8128b2', {
                       createdAt: DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy'),
                     })}
               </Typography>
-              <Typography variant="caption">
+              <Typography variant="caption" noWrap>
                 {translate('text_62da6ec24a8e24e44f812872', {
                   rateAmount: rateAmount,
                   currency: currency,
@@ -127,13 +138,13 @@ export const WalletAccordion = ({ wallet }: WalletAccordionProps) => {
                 </TooltipIcon>
               </DetailSummaryLine>
               <DetailSummaryLine>
-                <Typography color="grey700" variant="subhead">
+                <Typography color={isWalletActive ? 'grey700' : 'grey600'} variant="subhead" noWrap>
                   {creditAmountUnit}
                 </Typography>
-                <TextWithSideSpace color="grey700" variant="bodyHl">
+                <TextWithSideSpace color={isWalletActive ? 'grey700' : 'grey600'} variant="bodyHl">
                   .{creditAmountCents}
                 </TextWithSideSpace>
-                <Typography color="grey700" variant="bodyHl">
+                <Typography color={isWalletActive ? 'grey700' : 'grey600'} variant="bodyHl">
                   {translate(
                     'text_62da6ec24a8e24e44f81287a',
                     undefined,
@@ -166,17 +177,17 @@ export const WalletAccordion = ({ wallet }: WalletAccordionProps) => {
                 </TooltipIcon>
               </DetailSummaryLine>
               <DetailSummaryLine>
-                <Typography color="grey700" variant="subhead">
-                  {consumerCreditUnit}
+                <Typography color={isWalletActive ? 'grey700' : 'grey600'} variant="subhead" noWrap>
+                  {consumedCreditUnit}
                 </Typography>
-                <TextWithSideSpace color="grey700" variant="bodyHl">
-                  .{consumerCreditCents}
+                <TextWithSideSpace color={isWalletActive ? 'grey700' : 'grey600'} variant="bodyHl">
+                  .{consumedCreditCents}
                 </TextWithSideSpace>
-                <Typography color="grey700" variant="bodyHl">
+                <Typography color={isWalletActive ? 'grey700' : 'grey600'} variant="bodyHl">
                   {translate(
                     'text_62da6ec24a8e24e44f812884',
                     undefined,
-                    Math.max(Number(consumerCreditUnit) || Number(consumerCreditCents))
+                    Math.max(Number(consumedCreditUnit) || Number(consumedCreditCents))
                   )}
                 </Typography>
               </DetailSummaryLine>
@@ -193,12 +204,16 @@ export const WalletAccordion = ({ wallet }: WalletAccordionProps) => {
             <DetailSummaryBlock>
               <DetailSummaryLine>
                 <Typography color="grey500" variant="captionHl">
-                  {translate('text_62da6ec24a8e24e44f81288a')}
+                  {isWalletActive
+                    ? translate('text_62da6ec24a8e24e44f81288a')
+                    : translate('text_62e2a2f2a79d60429eff3035')}
                 </Typography>
               </DetailSummaryLine>
               <DetailSummaryLine>
                 <Typography color="grey700" variant="caption">
-                  {expirationDate
+                  {!isWalletActive
+                    ? DateTime.fromISO(terminatedAt).toFormat('LLL. dd, yyyy')
+                    : expirationDate
                     ? DateTime.fromISO(expirationDate).toFormat('LLL. dd, yyyy')
                     : translate('text_62da6ec24a8e24e44f81288c')}
                 </Typography>
@@ -206,24 +221,7 @@ export const WalletAccordion = ({ wallet }: WalletAccordionProps) => {
             </DetailSummaryBlock>
           </DetailSummary>
 
-          <TransactionListHeader>
-            <Typography variant="bodyHl" color="grey500">
-              {translate('text_62da6ec24a8e24e44f81288e')}
-            </Typography>
-            <Typography variant="bodyHl" color="grey500">
-              {translate('text_62da6ec24a8e24e44f812890')}
-            </Typography>
-          </TransactionListHeader>
-
-          <TransactionList>TODO</TransactionList>
-
-          <Loadmore>
-            <Button variant="quaternary">
-              <Typography variant="body" color="grey600">
-                {translate('text_62da6ec24a8e24e44f8128aa')}
-              </Typography>
-            </Button>
-          </Loadmore>
+          <WalletTransactionList isOpen={isOpen} wallet={wallet} />
         </Details>
       </StyledAccordion>
     </Container>
@@ -262,7 +260,7 @@ const StyledAccordion = styled(Accordion)`
 `
 
 const Summary = styled(AccordionSummary)<{ $isOpen?: boolean }>`
-  height: 72px;
+  height: ${NAV_HEIGHT}px;
   box-shadow: ${({ $isOpen }) => ($isOpen ? theme.shadows[7] : undefined)};
 
   &.Mui-disabled {
@@ -297,6 +295,7 @@ const SummaryRight = styled.div`
 const SummaryInfos = styled.div<{ $isLoading?: boolean }>`
   display: flex;
   flex-direction: column;
+  min-width: 20px;
 
   > div:first-child {
     margin-bottom: ${({ $isLoading }) => ($isLoading ? theme.spacing(3) : 0)};
@@ -352,20 +351,4 @@ const DetailSummaryLine = styled.div`
 
 const TextWithSideSpace = styled(Typography)`
   margin-right: ${theme.spacing(1)};
-`
-
-const TransactionListHeader = styled.div`
-  display: flex;
-  padding: 10px ${theme.spacing(4)};
-  justify-content: space-between;
-`
-
-const TransactionList = styled.div`
-  > *:not(:last-child) {
-    box-shadow: ${theme.shadows[7]};
-  }
-`
-
-const Loadmore = styled.div`
-  margin: ${theme.spacing(1)} auto;
 `
