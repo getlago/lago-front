@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { forwardRef, MutableRefObject, useEffect } from 'react'
 import styled from 'styled-components'
 import { DateTime } from 'luxon'
 import { gql } from '@apollo/client'
@@ -12,10 +12,13 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   useGetWalletTransactionsLazyQuery,
   WalletInfosForTransactionsFragment,
+  WalletStatusEnum,
   WalletTransactionStatusEnum,
   WalletTransactionTransactionTypeEnum,
 } from '~/generated/graphql'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
+
+import { TopupWalletDialogRef } from './TopupWalletDialog'
 
 gql`
   query getWalletTransactions($walletId: ID!, $page: Int, $limit: Int) {
@@ -38,6 +41,7 @@ gql`
   fragment WalletInfosForTransactions on Wallet {
     id
     currency
+    status
   }
 `
 
@@ -46,51 +50,66 @@ interface WalletTransactionListProps {
   wallet: WalletInfosForTransactionsFragment
 }
 
-export const WalletTransactionList = ({ isOpen, wallet }: WalletTransactionListProps) => {
-  const { translate } = useInternationalization()
-  const [getWalletTransactions, { data, error, fetchMore, loading, refetch }] =
-    useGetWalletTransactionsLazyQuery({
-      variables: { walletId: wallet.id, limit: 20 },
-    })
-  const list = data?.walletTransactions?.collection
-  const { currentPage = 0, totalPages = 0 } = data?.walletTransactions?.metadata || {}
-  const hasData = !!list && !!list?.length
+export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTransactionListProps>(
+  ({ isOpen, wallet }: WalletTransactionListProps, ref) => {
+    const { translate } = useInternationalization()
+    const [getWalletTransactions, { data, error, fetchMore, loading, refetch }] =
+      useGetWalletTransactionsLazyQuery({
+        variables: { walletId: wallet.id, limit: 20 },
+      })
+    const list = data?.walletTransactions?.collection
+    const { currentPage = 0, totalPages = 0 } = data?.walletTransactions?.metadata || {}
+    const hasData = !!list && !!list?.length
 
-  useEffect(() => {
-    if (isOpen && !data && !loading && !error) {
-      getWalletTransactions()
-    }
-  }, [isOpen, error, data, loading, getWalletTransactions])
+    useEffect(() => {
+      if (isOpen && !data && !loading && !error) {
+        getWalletTransactions()
+      }
+    }, [isOpen, error, data, loading, getWalletTransactions])
 
-  return (
-    <>
-      {!error && !!hasData && (
-        <TransactionListHeader>
-          <Typography variant="bodyHl" color="grey500">
-            {translate('text_62da6ec24a8e24e44f81288e')}
-          </Typography>
-          <Typography variant="bodyHl" color="grey500">
-            {translate('text_62da6ec24a8e24e44f812890')}
-          </Typography>
-        </TransactionListHeader>
-      )}
+    return (
+      <>
+        {!error && !!hasData && (
+          <TransactionListHeader>
+            <Typography variant="bodyHl" color="grey500">
+              {translate('text_62da6ec24a8e24e44f81288e')}
+            </Typography>
+            <Typography variant="bodyHl" color="grey500">
+              {translate('text_62da6ec24a8e24e44f812890')}
+            </Typography>
+          </TransactionListHeader>
+        )}
 
-      <TransactionListWrapper>
-        {!!error && !loading ? (
-          <GenericState
-            title={translate('text_62d7ffcb1c57d7e6d15bdce3')}
-            subtitle={translate('text_62d7ffcb1c57d7e6d15bdce5')}
-            buttonTitle={translate('text_62d7ffcb1c57d7e6d15bdce7')}
-            buttonVariant="primary"
-            buttonAction={() => refetch()}
-            image={<ErrorImage width="136" height="104" />}
-          />
-        ) : !!loading ? (
-          [1, 2, 3].map((i) => (
-            <ListItemWrapper key={`wallet-transaction-skeleton-${i}`}>
-              <ListLeftWrapper>
-                <Skeleton variant="connectorAvatar" size="medium" marginRight={theme.spacing(3)} />
-                <ColumnWrapper>
+        <TransactionListWrapper>
+          {!!error && !loading ? (
+            <GenericState
+              title={translate('text_62d7ffcb1c57d7e6d15bdce3')}
+              subtitle={translate('text_62d7ffcb1c57d7e6d15bdce5')}
+              buttonTitle={translate('text_62d7ffcb1c57d7e6d15bdce7')}
+              buttonVariant="primary"
+              buttonAction={() => refetch()}
+              image={<ErrorImage width="136" height="104" />}
+            />
+          ) : !!loading ? (
+            [1, 2, 3].map((i) => (
+              <ListItemWrapper key={`wallet-transaction-skeleton-${i}`}>
+                <ListLeftWrapper>
+                  <Skeleton
+                    variant="connectorAvatar"
+                    size="medium"
+                    marginRight={theme.spacing(3)}
+                  />
+                  <ColumnWrapper>
+                    <Skeleton
+                      variant="text"
+                      height={12}
+                      width={144}
+                      marginBottom={theme.spacing(3)}
+                    />
+                    <Skeleton variant="text" height={12} width={80} />
+                  </ColumnWrapper>
+                </ListLeftWrapper>
+                <ListRightWrapper>
                   <Skeleton
                     variant="text"
                     height={12}
@@ -98,97 +117,95 @@ export const WalletTransactionList = ({ isOpen, wallet }: WalletTransactionListP
                     marginBottom={theme.spacing(3)}
                   />
                   <Skeleton variant="text" height={12} width={80} />
-                </ColumnWrapper>
-              </ListLeftWrapper>
-              <ListRightWrapper>
-                <Skeleton variant="text" height={12} width={144} marginBottom={theme.spacing(3)} />
-                <Skeleton variant="text" height={12} width={80} />
-              </ListRightWrapper>
-            </ListItemWrapper>
-          ))
-        ) : !hasData ? (
-          <GenericState
-            title={translate('text_62e0ee200a543924c8f67755')}
-            subtitle={translate('text_62e0ee200a543924c8f67759')}
-            buttonTitle={translate('text_62e0ee200a543924c8f6775d')}
-            buttonVariant="primary"
-            buttonAction={() => 'TODO: open topup modal'}
-            image={<EmptyImage width="136" height="104" />}
-          />
-        ) : (
-          <>
-            {list?.map((transaction, i) => {
-              const { amount, creditAmount, settledAt, status } = transaction
-              const isPending = status === WalletTransactionStatusEnum.Pending
-              const isInbound = WalletTransactionTransactionTypeEnum.Inbound
-              const iconName = isPending ? 'sync' : isInbound ? 'plus' : 'minus'
+                </ListRightWrapper>
+              </ListItemWrapper>
+            ))
+          ) : !hasData && wallet?.status !== WalletStatusEnum.Terminated ? (
+            <GenericState
+              title={translate('text_62e0ee200a543924c8f67755')}
+              subtitle={translate('text_62e0ee200a543924c8f67759')}
+              buttonTitle={translate('text_62e0ee200a543924c8f6775d')}
+              buttonVariant="primary"
+              buttonAction={() => {
+                ;(ref as MutableRefObject<TopupWalletDialogRef>)?.current?.openDialog()
+              }}
+              image={<EmptyImage width="136" height="104" />}
+            />
+          ) : (
+            <>
+              {list?.map((transaction, i) => {
+                const { amount, creditAmount, settledAt, status } = transaction
+                const isPending = status === WalletTransactionStatusEnum.Pending
+                const isInbound = WalletTransactionTransactionTypeEnum.Inbound
+                const iconName = isPending ? 'sync' : isInbound ? 'plus' : 'minus'
 
-              return (
-                <ListItemWrapper key={`wallet-transaction-${i}`}>
-                  <ListLeftWrapper>
-                    <ItemIcon variant="connector">
-                      <Icon name={iconName} color="dark" />
-                    </ItemIcon>
-                    <ColumnWrapper>
-                      <Typography variant="bodyHl" color={isPending ? 'grey600' : 'grey700'}>
-                        {isInbound
-                          ? translate('text_62da6ec24a8e24e44f81289a')
-                          : translate('text_62da6ec24a8e24e44f812892')}
+                return (
+                  <ListItemWrapper key={`wallet-transaction-${i}`}>
+                    <ListLeftWrapper>
+                      <ItemIcon variant="connector">
+                        <Icon name={iconName} color="dark" />
+                      </ItemIcon>
+                      <ColumnWrapper>
+                        <Typography variant="bodyHl" color={isPending ? 'grey600' : 'grey700'}>
+                          {isInbound
+                            ? translate('text_62da6ec24a8e24e44f81289a')
+                            : translate('text_62da6ec24a8e24e44f812892')}
+                        </Typography>
+                        <Typography variant="caption" color="grey600">
+                          {DateTime.fromISO(settledAt).toFormat('LLL. dd, yyyy')}
+                          {isPending && ` • ${translate('text_62da6db136909f52c2704c30')}`}
+                        </Typography>
+                      </ColumnWrapper>
+                    </ListLeftWrapper>
+                    <ListRightWrapper>
+                      <Typography
+                        variant="body"
+                        color={isPending ? 'grey600' : isInbound ? 'success600' : 'grey700'}
+                      >
+                        {isInbound ? '+ ' : '- '}
+                        {translate('text_62da6ec24a8e24e44f812896', {
+                          amount: intlFormatNumber(Number(amount) || 0, {
+                            initialUnit: 'standard',
+                            maximumFractionDigits: 5,
+                            style: 'decimal',
+                          }),
+                        })}
                       </Typography>
                       <Typography variant="caption" color="grey600">
-                        {DateTime.fromISO(settledAt).toFormat('LLL. dd, yyyy')}
-                        {isPending && ` • ${translate('text_62da6db136909f52c2704c30')}`}
-                      </Typography>
-                    </ColumnWrapper>
-                  </ListLeftWrapper>
-                  <ListRightWrapper>
-                    <Typography
-                      variant="body"
-                      color={isPending ? 'grey600' : isInbound ? 'success600' : 'grey700'}
-                    >
-                      {isInbound ? '+ ' : '- '}
-                      {translate('text_62da6ec24a8e24e44f812896', {
-                        amount: intlFormatNumber(Number(amount) || 0, {
+                        {intlFormatNumber(Number(creditAmount) || 0, {
+                          currencyDisplay: 'code',
                           initialUnit: 'standard',
                           maximumFractionDigits: 5,
-                          style: 'decimal',
-                        }),
-                      })}
+                          currency: wallet?.currency,
+                        })}
+                      </Typography>
+                    </ListRightWrapper>
+                  </ListItemWrapper>
+                )
+              })}
+              {currentPage < totalPages && (
+                <Loadmore>
+                  <Button
+                    variant="quaternary"
+                    onClick={() =>
+                      fetchMore({
+                        variables: { page: currentPage + 1 },
+                      })
+                    }
+                  >
+                    <Typography variant="body" color="grey600">
+                      {translate('text_62da6ec24a8e24e44f8128aa')}
                     </Typography>
-                    <Typography variant="caption" color="grey600">
-                      {intlFormatNumber(Number(creditAmount) || 0, {
-                        currencyDisplay: 'code',
-                        initialUnit: 'standard',
-                        maximumFractionDigits: 5,
-                        currency: wallet?.currency,
-                      })}
-                    </Typography>
-                  </ListRightWrapper>
-                </ListItemWrapper>
-              )
-            })}
-            {currentPage < totalPages && (
-              <Loadmore>
-                <Button
-                  variant="quaternary"
-                  onClick={() =>
-                    fetchMore({
-                      variables: { page: currentPage + 1 },
-                    })
-                  }
-                >
-                  <Typography variant="body" color="grey600">
-                    {translate('text_62da6ec24a8e24e44f8128aa')}
-                  </Typography>
-                </Button>
-              </Loadmore>
-            )}
-          </>
-        )}
-      </TransactionListWrapper>
-    </>
-  )
-}
+                  </Button>
+                </Loadmore>
+              )}
+            </>
+          )}
+        </TransactionListWrapper>
+      </>
+    )
+  }
+)
 
 const TransactionListHeader = styled.div`
   display: flex;

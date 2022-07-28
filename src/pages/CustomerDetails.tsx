@@ -68,6 +68,10 @@ gql`
     canBeDeleted
     hasActiveWallet
     subscriptions(status: [active, pending]) {
+      plan {
+        id
+        amountCurrency
+      }
       ...CustomerSubscriptionList
     }
     invoices {
@@ -142,6 +146,7 @@ const CustomerDetails = () => {
       }, []),
     [subscriptions]
   )
+  const userCurrency = (subscriptions || [])[0]?.plan?.amountCurrency
 
   return (
     <div>
@@ -390,7 +395,11 @@ const CustomerDetails = () => {
             existingPlanIds={selectedPlansId}
             refetchCustomer={refetch}
           />
-          <AddWalletToCustomerDialog customerId={id as string} ref={addWalletToCustomerDialogRef} />
+          <AddWalletToCustomerDialog
+            customerId={id as string}
+            userCurrency={userCurrency}
+            ref={addWalletToCustomerDialogRef}
+          />
         </>
       )}
     </div>

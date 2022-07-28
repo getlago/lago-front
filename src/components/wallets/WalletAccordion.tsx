@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { forwardRef, useState } from 'react'
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
 import styled, { css } from 'styled-components'
 import { DateTime } from 'luxon'
@@ -17,13 +17,16 @@ import {
 } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { WalletAccordionFragment, WalletStatusEnum } from '~/generated/graphql'
+import { intlFormatNumber } from '~/core/intlFormatNumber'
 
 import { WalletTransactionList } from './WalletTransactionList'
+import { TopupWalletDialogRef } from './TopupWalletDialog'
 
 gql`
   fragment WalletAccordion on Wallet {
     id
     balance
+    consumedAmount
     consumedCredits
     createdAt
     creditsBalance
@@ -57,176 +60,197 @@ const mapStatus = (type?: WalletStatusEnum | undefined) => {
   }
 }
 
-export const WalletAccordion = ({ wallet }: WalletAccordionProps) => {
-  const {
-    balance,
-    consumedCredits,
-    createdAt,
-    creditsBalance,
-    currency,
-    expirationDate,
-    lastBalanceSyncAt,
-    lastConsumedCreditAt,
-    name,
-    rateAmount,
-    status,
-    terminatedAt,
-  } = wallet
+export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionProps>(
+  ({ wallet }: WalletAccordionProps, ref) => {
+    const {
+      balance,
+      consumedAmount,
+      consumedCredits,
+      createdAt,
+      creditsBalance,
+      currency,
+      expirationDate,
+      lastBalanceSyncAt,
+      lastConsumedCreditAt,
+      name,
+      rateAmount,
+      status,
+      terminatedAt,
+    } = wallet
 
-  const statusMap = mapStatus(status)
-  let [creditAmountUnit = '0', creditAmountCents = '00'] = creditsBalance.split('.')
-  let [consumedCreditUnit = '0', consumedCreditCents = '00'] = consumedCredits.split('.')
-  const { translate } = useInternationalization()
-  const isWalletActive = status === WalletStatusEnum.Active
-  // All active wallets should be opened by default on first render
-  const [isOpen, setIsOpen] = useState(isWalletActive)
+    const statusMap = mapStatus(status)
+    let [creditAmountUnit = '0', creditAmountCents = '00'] = creditsBalance.split('.')
+    let [consumedCreditUnit = '0', consumedCreditCents = '00'] = consumedCredits.split('.')
+    const { translate } = useInternationalization()
+    const isWalletActive = status === WalletStatusEnum.Active
+    // All active wallets should be opened by default on first render
+    const [isOpen, setIsOpen] = useState(isWalletActive)
 
-  return (
-    <Container>
-      <StyledAccordion
-        expanded={isOpen}
-        onChange={(_, expanded) => {
-          setIsOpen(expanded)
-        }}
-        square
-      >
-        <Summary $isOpen={isOpen}>
-          <SummaryLeft>
-            <Button
-              variant="quaternary"
-              size="small"
-              icon={isOpen ? 'chevron-down' : 'chevron-right'}
-            />
-            <Avatar variant="connector">
-              <Icon name="wallet" color="dark" />
-            </Avatar>
-            <SummaryInfos>
-              <Typography variant="bodyHl" noWrap>
-                {name
-                  ? name
-                  : translate('text_62da6ec24a8e24e44f8128b2', {
-                      createdAt: DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy'),
+    return (
+      <Container>
+        <StyledAccordion
+          expanded={isOpen}
+          onChange={(_, expanded) => {
+            setIsOpen(expanded)
+          }}
+          square
+        >
+          <Summary $isOpen={isOpen}>
+            <SummaryLeft>
+              <Button
+                variant="quaternary"
+                size="small"
+                icon={isOpen ? 'chevron-down' : 'chevron-right'}
+              />
+              <Avatar variant="connector">
+                <Icon name="wallet" color="dark" />
+              </Avatar>
+              <SummaryInfos>
+                <Typography variant="bodyHl" noWrap>
+                  {name
+                    ? name
+                    : translate('text_62da6ec24a8e24e44f8128b2', {
+                        createdAt: DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy'),
+                      })}
+                </Typography>
+                <Typography variant="caption" noWrap>
+                  {translate('text_62da6ec24a8e24e44f812872', {
+                    rateAmount: rateAmount,
+                    currency: currency,
+                  })}
+                </Typography>
+              </SummaryInfos>
+            </SummaryLeft>
+            <SummaryRight>
+              <Status type={statusMap.type} label={translate(statusMap.label)} />
+            </SummaryRight>
+          </Summary>
+
+          <Details>
+            <DetailSummary>
+              <DetailSummaryBlock>
+                <DetailSummaryLine>
+                  <TextWithSideSpace color="grey500">
+                    {translate('text_62da6ec24a8e24e44f812876')}
+                  </TextWithSideSpace>
+                  <TooltipIcon
+                    placement="bottom-start"
+                    title={translate('text_62da6db136909f52c2704c40', {
+                      date: DateTime.fromISO(lastBalanceSyncAt).toFormat('LLL. dd, yyyy'),
                     })}
-              </Typography>
-              <Typography variant="caption" noWrap>
-                {translate('text_62da6ec24a8e24e44f812872', {
-                  rateAmount: rateAmount,
-                  currency: currency,
-                })}
-              </Typography>
-            </SummaryInfos>
-          </SummaryLeft>
-          <SummaryRight>
-            <Status type={statusMap.type} label={translate(statusMap.label)} />
-          </SummaryRight>
-        </Summary>
+                  >
+                    <Icon name="info-circle" />
+                  </TooltipIcon>
+                </DetailSummaryLine>
+                <DetailSummaryLine>
+                  <Typography
+                    color={isWalletActive ? 'grey700' : 'grey600'}
+                    variant="subhead"
+                    noWrap
+                  >
+                    {creditAmountUnit}
+                  </Typography>
+                  <TextWithSideSpace
+                    color={isWalletActive ? 'grey700' : 'grey600'}
+                    variant="bodyHl"
+                  >
+                    .{creditAmountCents}
+                  </TextWithSideSpace>
+                  <Typography color={isWalletActive ? 'grey700' : 'grey600'} variant="bodyHl">
+                    {translate(
+                      'text_62da6ec24a8e24e44f81287a',
+                      undefined,
+                      Math.max(Number(creditAmountUnit) || Number(creditAmountCents))
+                    )}
+                  </Typography>
+                </DetailSummaryLine>
+                <DetailSummaryLine>
+                  <Typography color="grey600" variant="caption">
+                    {intlFormatNumber(Number(balance), {
+                      currencyDisplay: 'code',
+                      initialUnit: 'standard',
+                      maximumFractionDigits: 2,
+                      currency,
+                    })}
+                  </Typography>
+                </DetailSummaryLine>
+              </DetailSummaryBlock>
 
-        <Details>
-          <DetailSummary>
-            <DetailSummaryBlock>
-              <DetailSummaryLine>
-                <TextWithSideSpace color="grey500">
-                  {translate('text_62da6ec24a8e24e44f812876')}
-                </TextWithSideSpace>
-                <TooltipIcon
-                  placement="bottom-start"
-                  title={translate('text_62da6db136909f52c2704c40', {
-                    date: DateTime.fromISO(lastBalanceSyncAt).toFormat('LLL. dd, yyyy'),
-                  })}
-                >
-                  <Icon name="info-circle" />
-                </TooltipIcon>
-              </DetailSummaryLine>
-              <DetailSummaryLine>
-                <Typography color={isWalletActive ? 'grey700' : 'grey600'} variant="subhead" noWrap>
-                  {creditAmountUnit}
-                </Typography>
-                <TextWithSideSpace color={isWalletActive ? 'grey700' : 'grey600'} variant="bodyHl">
-                  .{creditAmountCents}
-                </TextWithSideSpace>
-                <Typography color={isWalletActive ? 'grey700' : 'grey600'} variant="bodyHl">
-                  {translate(
-                    'text_62da6ec24a8e24e44f81287a',
-                    undefined,
-                    Math.max(Number(creditAmountUnit) || Number(creditAmountCents))
-                  )}
-                </Typography>
-              </DetailSummaryLine>
-              <DetailSummaryLine>
-                <TextWithSideSpace color="grey600" variant="caption">
-                  {currency}
-                </TextWithSideSpace>
-                <Typography color="grey600" variant="caption">
-                  {balance}
-                </Typography>
-              </DetailSummaryLine>
-            </DetailSummaryBlock>
+              <DetailSummaryBlock>
+                <DetailSummaryLine>
+                  <TextWithSideSpace color="grey500">
+                    {translate('text_62da6ec24a8e24e44f812880')}
+                  </TextWithSideSpace>
+                  <TooltipIcon
+                    placement="bottom-start"
+                    title={translate('text_62da6db136909f52c2704c40', {
+                      date: DateTime.fromISO(lastConsumedCreditAt).toFormat('LLL. dd, yyyy'),
+                    })}
+                  >
+                    <Icon name="info-circle" />
+                  </TooltipIcon>
+                </DetailSummaryLine>
+                <DetailSummaryLine>
+                  <Typography
+                    color={isWalletActive ? 'grey700' : 'grey600'}
+                    variant="subhead"
+                    noWrap
+                  >
+                    {consumedCreditUnit}
+                  </Typography>
+                  <TextWithSideSpace
+                    color={isWalletActive ? 'grey700' : 'grey600'}
+                    variant="bodyHl"
+                  >
+                    .{consumedCreditCents}
+                  </TextWithSideSpace>
+                  <Typography color={isWalletActive ? 'grey700' : 'grey600'} variant="bodyHl">
+                    {translate(
+                      'text_62da6ec24a8e24e44f812884',
+                      undefined,
+                      Math.max(Number(consumedCreditUnit) || Number(consumedCreditCents))
+                    )}
+                  </Typography>
+                </DetailSummaryLine>
+                <DetailSummaryLine>
+                  <Typography color="grey600" variant="caption">
+                    {intlFormatNumber(Number(consumedAmount), {
+                      currencyDisplay: 'code',
+                      initialUnit: 'standard',
+                      maximumFractionDigits: 2,
+                      currency,
+                    })}
+                  </Typography>
+                </DetailSummaryLine>
+              </DetailSummaryBlock>
 
-            <DetailSummaryBlock>
-              <DetailSummaryLine>
-                <TextWithSideSpace color="grey500">
-                  {translate('text_62da6ec24a8e24e44f812880')}
-                </TextWithSideSpace>
-                <TooltipIcon
-                  placement="bottom-start"
-                  title={translate('text_62da6db136909f52c2704c40', {
-                    date: DateTime.fromISO(lastConsumedCreditAt).toFormat('LLL. dd, yyyy'),
-                  })}
-                >
-                  <Icon name="info-circle" />
-                </TooltipIcon>
-              </DetailSummaryLine>
-              <DetailSummaryLine>
-                <Typography color={isWalletActive ? 'grey700' : 'grey600'} variant="subhead" noWrap>
-                  {consumedCreditUnit}
-                </Typography>
-                <TextWithSideSpace color={isWalletActive ? 'grey700' : 'grey600'} variant="bodyHl">
-                  .{consumedCreditCents}
-                </TextWithSideSpace>
-                <Typography color={isWalletActive ? 'grey700' : 'grey600'} variant="bodyHl">
-                  {translate(
-                    'text_62da6ec24a8e24e44f812884',
-                    undefined,
-                    Math.max(Number(consumedCreditUnit) || Number(consumedCreditCents))
-                  )}
-                </Typography>
-              </DetailSummaryLine>
-              <DetailSummaryLine>
-                <TextWithSideSpace color="grey600" variant="caption">
-                  {currency}
-                </TextWithSideSpace>
-                <Typography color="grey600" variant="caption">
-                  TODO: Wait for the new attribut consumed_balance from backend
-                </Typography>
-              </DetailSummaryLine>
-            </DetailSummaryBlock>
+              <DetailSummaryBlock>
+                <DetailSummaryLine>
+                  <Typography color="grey500" variant="captionHl">
+                    {isWalletActive
+                      ? translate('text_62da6ec24a8e24e44f81288a')
+                      : translate('text_62e2a2f2a79d60429eff3035')}
+                  </Typography>
+                </DetailSummaryLine>
+                <DetailSummaryLine>
+                  <Typography color="grey700" variant="caption">
+                    {!isWalletActive
+                      ? DateTime.fromISO(terminatedAt).toFormat('LLL. dd, yyyy')
+                      : expirationDate
+                      ? DateTime.fromISO(expirationDate).toFormat('LLL. dd, yyyy')
+                      : translate('text_62da6ec24a8e24e44f81288c')}
+                  </Typography>
+                </DetailSummaryLine>
+              </DetailSummaryBlock>
+            </DetailSummary>
 
-            <DetailSummaryBlock>
-              <DetailSummaryLine>
-                <Typography color="grey500" variant="captionHl">
-                  {isWalletActive
-                    ? translate('text_62da6ec24a8e24e44f81288a')
-                    : translate('text_62e2a2f2a79d60429eff3035')}
-                </Typography>
-              </DetailSummaryLine>
-              <DetailSummaryLine>
-                <Typography color="grey700" variant="caption">
-                  {!isWalletActive
-                    ? DateTime.fromISO(terminatedAt).toFormat('LLL. dd, yyyy')
-                    : expirationDate
-                    ? DateTime.fromISO(expirationDate).toFormat('LLL. dd, yyyy')
-                    : translate('text_62da6ec24a8e24e44f81288c')}
-                </Typography>
-              </DetailSummaryLine>
-            </DetailSummaryBlock>
-          </DetailSummary>
-
-          <WalletTransactionList isOpen={isOpen} wallet={wallet} />
-        </Details>
-      </StyledAccordion>
-    </Container>
-  )
-}
+            <WalletTransactionList isOpen={isOpen} wallet={wallet} ref={ref} />
+          </Details>
+        </StyledAccordion>
+      </Container>
+    )
+  }
+)
 
 export const WalletAccordionSkeleton = () => {
   return (
@@ -352,3 +376,5 @@ const DetailSummaryLine = styled.div`
 const TextWithSideSpace = styled(Typography)`
   margin-right: ${theme.spacing(1)};
 `
+
+WalletAccordion.displayName = 'WalletAccordion'
