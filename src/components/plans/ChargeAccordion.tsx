@@ -3,7 +3,7 @@ import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
 import { FormikProps } from 'formik'
 import styled from 'styled-components'
 
-import { theme } from '~/styles'
+import { theme, NAV_HEIGHT } from '~/styles'
 import { Button, Typography, Tooltip } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
@@ -61,9 +61,13 @@ export const ChargeAccordion = ({
               icon={isOpen ? 'chevron-down' : 'chevron-right'}
             />
           </Tooltip>
-          <Title color="textSecondary">
-            {localCharge?.billableMetric?.name}{' '}
-            <Typography>({localCharge?.billableMetric?.code})</Typography>
+          <Title>
+            <Typography variant="bodyHl" color="textSecondary" noWrap>
+              {localCharge?.billableMetric?.name}
+            </Typography>
+            <Typography variant="caption" noWrap>
+              {localCharge?.billableMetric?.code}
+            </Typography>
           </Title>
           {!disabled && (
             <Tooltip placement="top-end" title={translate('text_624aa732d6af4e0103d40e65')}>
@@ -170,6 +174,7 @@ const Container = styled.div`
 
 const StyledAccordion = styled(Accordion)`
   border-radius: 12px;
+  overflow: hidden;
 
   &.MuiAccordion-root.MuiPaper-root {
     border-radius: 12px;
@@ -189,7 +194,7 @@ const StyledAccordion = styled(Accordion)`
 
 const Summary = styled(AccordionSummary)`
   && {
-    height: 60px;
+    height: ${NAV_HEIGHT}px;
     border-radius: 12px;
 
     &.MuiAccordionSummary-root.Mui-focused {
@@ -198,8 +203,14 @@ const Summary = styled(AccordionSummary)`
 
     .MuiAccordionSummary-content {
       display: flex;
+      height: ${NAV_HEIGHT}px;
+      box-sizing: border-box;
       align-items: center;
       padding: ${theme.spacing(4)};
+
+      &:hover {
+        background-color: ${theme.palette.grey[100]};
+      }
 
       > *:first-child {
         margin-right: ${theme.spacing(4)};
@@ -208,15 +219,10 @@ const Summary = styled(AccordionSummary)`
   }
 `
 
-const Title = styled(Typography)`
-  display: flex;
-  margin-right: auto;
-  white-space: pre;
-`
-
 const Details = styled(AccordionDetails)`
   display: flex;
   flex-direction: column;
+  box-shadow: ${theme.shadows[5]};
 
   &.MuiAccordionDetails-root {
     padding: ${theme.spacing(4)} ${theme.spacing(4)} 0 ${theme.spacing(4)};
@@ -225,6 +231,13 @@ const Details = styled(AccordionDetails)`
       margin-bottom: ${theme.spacing(6)};
     }
   }
+`
+
+const Title = styled.div`
+  display: flex;
+  flex-direction: column;
+  white-space: pre;
+  min-width: 20px;
 `
 
 const LineAmount = styled.div`
