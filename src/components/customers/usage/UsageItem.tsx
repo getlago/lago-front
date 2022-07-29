@@ -74,15 +74,18 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
             <Icon name="pulse" color="dark" />
           </StyledAvatar>
           <Title>
-            <Typography variant="bodyHl" color="textSecondary">
+            <Typography variant="bodyHl" color="textSecondary" noWrap>
               {name || plan?.name}
             </Typography>
-            <Typography variant="caption">{plan?.code}</Typography>
+            <Typography variant="caption" noWrap>
+              {plan?.code}
+            </Typography>
           </Title>
           <Tooltip placement="top-start" title={translate('text_62d7f6178ec94cd09370e4b3')}>
             <Button
               variant="quaternary"
               icon="reload"
+              size="small"
               onClick={async (e) => {
                 e.preventDefault()
                 e.stopPropagation()
@@ -228,6 +231,7 @@ const Container = styled.div`
 
 const StyledAccordion = styled(Accordion)`
   border-radius: 12px;
+  overflow: hidden;
 
   &.MuiAccordion-root.MuiPaper-root {
     border-radius: 12px;
@@ -247,7 +251,7 @@ const StyledAccordion = styled(Accordion)`
 
 const Summary = styled(AccordionSummary)`
   && {
-    height: 60px;
+    height: ${NAV_HEIGHT}px;
     border-radius: 12px;
 
     &.MuiAccordionSummary-root.Mui-focused {
@@ -255,9 +259,15 @@ const Summary = styled(AccordionSummary)`
     }
 
     .MuiAccordionSummary-content {
+      height: ${NAV_HEIGHT}px;
+      box-sizing: border-box;
       display: flex;
       align-items: center;
       padding: ${theme.spacing(4)};
+
+      &:hover {
+        background-color: ${theme.palette.grey[100]};
+      }
 
       > *:first-child {
         margin-right: ${theme.spacing(3)};
@@ -274,6 +284,7 @@ const Title = styled.div`
   display: flex;
   flex-direction: column;
   margin-right: auto;
+  min-width: 20px;
 `
 
 const Details = styled(AccordionDetails)`
@@ -326,6 +337,7 @@ const Line = styled.div`
   justify-content: space-between;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
 
   > *:first-child {
     margin-right: ${theme.spacing(3)};

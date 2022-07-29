@@ -32,7 +32,7 @@ export const EditCustomerSubscriptionDialog = forwardRef<EditCustomerSubscriptio
         if (!!updateSubscription) {
           addToast({
             severity: 'success',
-            translateKey: 'text_62d7f6178ec94cd09370e6ab',
+            translateKey: 'text_62e38a4631937146a6d6d5dd',
           })
         }
       },
