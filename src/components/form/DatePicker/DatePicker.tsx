@@ -350,6 +350,10 @@ const Container = styled.div`
       background-color: ${theme.palette.background.default};
       z-index: 1;
     }
+
+    &.Mui-disabled {
+      color: ${theme.palette.grey[400]} !important;
+    }
   }
 `
 
