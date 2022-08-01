@@ -12,6 +12,7 @@ import { AppEnvEnum } from '~/globalTypes'
 import {
   Avatar,
   Button,
+  ButtonLink,
   Icon,
   IconName,
   Popper,
@@ -180,6 +181,7 @@ const SideNav = () => {
                     title: translate('text_624efab67eb2570101d117a5'),
                     icon: 'user-multiple',
                     link: CUSTOMERS_LIST_ROUTE,
+                    canBeClickedOnActive: true,
                     match: [
                       CUSTOMERS_LIST_ROUTE,
                       CUSTOMER_DETAILS_ROUTE,
@@ -229,7 +231,12 @@ const SideNav = () => {
       </ClickAwayListener>
       <Content ref={contentRef}>
         <Outlet />
-        <Gift variant="quaternary" to="https://www.incredibox.com/demo/">
+        <Gift
+          type="button"
+          buttonProps={{ variant: 'quaternary', size: 'medium' }}
+          to="https://www.incredibox.com/demo/"
+          external
+        >
           <span role="img" aria-label="gift">
             🎁
           </span>
@@ -392,21 +399,22 @@ const ExternalLink = styled.a`
   }
 `
 
-const Gift = styled(Button)`
-  && {
-    position: absolute;
-    bottom: ${theme.spacing(3)};
-    right: ${theme.spacing(3)};
+const Gift = styled(ButtonLink)`
+  position: absolute;
+  bottom: ${theme.spacing(3)};
+  right: ${theme.spacing(3)};
+  opacity: 0.03;
+  transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+
+  > * {
+    min-width: 30px;
     height: 30px;
     width: 30px;
-    min-width: 30px;
-    padding-left: 15px;
-    opacity: 0.03;
-    transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    padding: 0;
+  }
 
-    &:hover {
-      opacity: 1;
-    }
+  &:hover {
+    opacity: 1;
   }
 `
 

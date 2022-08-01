@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
 import { theme, PageHeader, Card } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Typography, Button } from '~/components/designSystem'
+import { Typography, Button, ButtonLink } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import SuccessImage from '~/public/images/maneki/success.svg'
 import { ADD_ONS_ROUTE } from '~/core/router'
@@ -42,9 +42,9 @@ const CreateAddOn = () => {
             <Button variant="secondary" onClick={resetIsCreated}>
               {translate('text_629728388c4d2300e2d3800c')}
             </Button>
-            <Button variant="secondary" onClick={() => navigate(ADD_ONS_ROUTE)}>
+            <ButtonLink type="button" to={ADD_ONS_ROUTE} buttonProps={{ variant: 'secondary' }}>
               {translate('text_629728388c4d2300e2d38026')}
-            </Button>
+            </ButtonLink>
           </div>
         </SuccessCard>
       ) : (

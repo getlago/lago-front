@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { DateTime } from 'luxon'
-import { useNavigate, generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import {
   theme,
@@ -20,6 +20,7 @@ import {
   Button,
   Tooltip,
   Popper,
+  ButtonLink,
 } from '~/components/designSystem'
 import { UPDATE_ADD_ON_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
@@ -48,7 +49,6 @@ interface AddOnItemProps {
 export const AddOnItem = ({ addOn, navigationProps }: AddOnItemProps) => {
   const { id, name, amountCurrency, amountCents, customerCount, createdAt, canBeDeleted } = addOn
   const deleteDialogRef = useRef<DeleteAddOnDialogRef>(null)
-  let navigate = useNavigate()
   const { translate } = useInternationalization()
 
   return (
@@ -99,15 +99,18 @@ export const AddOnItem = ({ addOn, navigationProps }: AddOnItemProps) => {
       >
         {({ closePopper }) => (
           <MenuPopper>
-            <Button
-              startIcon="pen"
-              variant="quaternary"
-              fullWidth
-              align="left"
-              onClick={() => navigate(generatePath(UPDATE_ADD_ON_ROUTE, { id }))}
+            <ButtonLink
+              to={generatePath(UPDATE_ADD_ON_ROUTE, { id })}
+              type="button"
+              buttonProps={{
+                variant: 'quaternary',
+                startIcon: 'pen',
+                align: 'left',
+                fullWidth: true,
+              }}
             >
               {translate('text_629728388c4d2300e2d3816a')}
-            </Button>
+            </ButtonLink>
             <Tooltip
               disableHoverListener={canBeDeleted}
               title={translate('text_629791022a75b60089e98ea7')}

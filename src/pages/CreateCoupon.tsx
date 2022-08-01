@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
 import { theme, PageHeader, Card } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Typography, Button } from '~/components/designSystem'
+import { Typography, Button, ButtonLink } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import SuccessImage from '~/public/images/maneki/success.svg'
 import { COUPONS_ROUTE } from '~/core/router'
@@ -42,9 +42,9 @@ const CreateCoupon = () => {
             <Button variant="secondary" onClick={resetIsCreated}>
               {translate('text_62876e85e32e0300e1803102')}
             </Button>
-            <Button variant="secondary" onClick={() => navigate(COUPONS_ROUTE)}>
+            <ButtonLink type="button" to={COUPONS_ROUTE} buttonProps={{ variant: 'secondary' }}>
               {translate('text_62876e85e32e0300e180310a')}
-            </Button>
+            </ButtonLink>
           </div>
         </SuccessCard>
       ) : (

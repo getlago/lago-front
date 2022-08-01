@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { useNavigate, generatePath } from 'react-router-dom'
 
-import { Typography, Button, InfiniteScroll } from '~/components/designSystem'
+import { Typography, ButtonLink, InfiniteScroll } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
@@ -52,7 +52,7 @@ const BillableMetricsList = () => {
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_623b497ad05b960101be3438')}
         </Typography>
-        <StyledButton onClick={() => navigate(CREATE_BILLABLE_METRIC_ROUTE)}>
+        <StyledButton type="button" to={CREATE_BILLABLE_METRIC_ROUTE}>
           {translate('text_623b497ad05b960101be343a')}
         </StyledButton>
       </Header>
@@ -145,7 +145,7 @@ const CellSmall = styled(Typography)`
   width: 112px;
 `
 
-const StyledButton = styled(Button)`
+const StyledButton = styled(ButtonLink)`
   min-width: 179px;
 `
 

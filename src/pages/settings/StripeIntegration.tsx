@@ -1,6 +1,5 @@
 import { useRef } from 'react'
 import styled from 'styled-components'
-import { useNavigate } from 'react-router'
 import { gql } from '@apollo/client'
 
 import { theme, PageHeader, NAV_HEIGHT, HEADER_TABLE_HEIGHT, MenuPopper } from '~/styles'
@@ -8,6 +7,7 @@ import { INTEGRATIONS_ROUTE, STRIPE_INTEGRATION_ROUTE } from '~/core/router'
 import {
   Typography,
   Button,
+  ButtonLink,
   Skeleton,
   Avatar,
   Chip,
@@ -61,7 +61,6 @@ gql`
 const StripeIntegration = () => {
   const addDialogRef = useRef<AddStripeDialogRef>(null)
   const deleteDialogRef = useRef<DeleteStripeIntegrationDialogRef>(null)
-  const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { data, loading } = useStripeIntegrationsSettingQuery()
   const [update] = useUpdateStripeIntegrationMutation({
@@ -87,10 +86,10 @@ const StripeIntegration = () => {
     <div>
       <PageHeader $withSide>
         <HeaderBlock>
-          <Button
-            variant="quaternary"
-            icon="arrow-left"
-            onClick={() => navigate(INTEGRATIONS_ROUTE)}
+          <ButtonLink
+            to={INTEGRATIONS_ROUTE}
+            type="button"
+            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
             <Skeleton variant="text" height={12} width={120} />

@@ -4,7 +4,7 @@ import { useNavigate, generatePath } from 'react-router-dom'
 
 import { CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
 import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
-import { Typography, Button, InfiniteScroll } from '~/components/designSystem'
+import { Typography, ButtonLink, InfiniteScroll } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -49,9 +49,9 @@ const CouponsList = () => {
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_62865498824cc10126ab2956')}
         </Typography>
-        <Button onClick={() => navigate(CREATE_COUPON_ROUTE)}>
+        <ButtonLink type="button" to={CREATE_COUPON_ROUTE}>
           {translate('text_62865498824cc10126ab2954')}
-        </Button>
+        </ButtonLink>
       </Header>
 
       {!loading && !!error ? (

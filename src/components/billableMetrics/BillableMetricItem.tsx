@@ -2,7 +2,7 @@ import { memo, useRef } from 'react'
 import { DateTime } from 'luxon'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import {
   BillableMetricItemFragment,
@@ -15,6 +15,7 @@ import {
   Skeleton,
   Popper,
   Button,
+  ButtonLink,
   Tooltip,
 } from '~/components/designSystem'
 import {
@@ -57,7 +58,6 @@ export const BillableMetricItem = memo(
     const { id, name, code, createdAt, canBeDeleted } = billableMetric
     const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
     const { translate } = useInternationalization()
-    const navigate = useNavigate()
 
     return (
       <ItemContainer>
@@ -101,14 +101,18 @@ export const BillableMetricItem = memo(
         >
           {({ closePopper }) => (
             <MenuPopper>
-              <Button
-                startIcon="pen"
-                variant="quaternary"
-                align="left"
-                onClick={() => navigate(generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { id }))}
+              <ButtonLink
+                type="button"
+                buttonProps={{
+                  startIcon: 'pen',
+                  variant: 'quaternary',
+                  align: 'left',
+                  fullWidth: true,
+                }}
+                to={generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { id })}
               >
                 {translate('text_6256de3bba111e00b3bfa531')}
-              </Button>
+              </ButtonLink>
               <Tooltip
                 disableHoverListener={canBeDeleted}
                 title={translate('text_6259912c9fcd1d00e914a93d')}
