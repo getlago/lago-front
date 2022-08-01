@@ -2,7 +2,7 @@ import { memo, useRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import {
   theme,
@@ -18,6 +18,7 @@ import {
   Icon,
   Skeleton,
   Button,
+  ButtonLink,
   Tooltip,
   Popper,
 } from '~/components/designSystem'
@@ -52,7 +53,6 @@ export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
   const deleteDialogRef = useRef<DeletePlanDialogRef>(null)
   const { id, name, code, customerCount, chargeCount, createdAt, canBeDeleted } = plan
   const { translate } = useInternationalization()
-  const navigate = useNavigate()
 
   return (
     <ItemContainer>
@@ -94,14 +94,18 @@ export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
       >
         {({ closePopper }) => (
           <MenuPopper>
-            <Button
-              startIcon="pen"
-              variant="quaternary"
-              align="left"
-              onClick={() => navigate(generatePath(UPDATE_PLAN_ROUTE, { id }))}
+            <ButtonLink
+              type="button"
+              buttonProps={{
+                startIcon: 'pen',
+                variant: 'quaternary',
+                align: 'left',
+                fullWidth: true,
+              }}
+              to={generatePath(UPDATE_PLAN_ROUTE, { id })}
             >
               {translate('text_625fd39a15394c0117e7d792')}
-            </Button>
+            </ButtonLink>
             <Tooltip
               disableHoverListener={canBeDeleted}
               title={translate('text_625fd39a15394c0117e7d7aa')}

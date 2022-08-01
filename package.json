@@ -93,9 +93,9 @@
   },
   "dependencies": {
     "@apollo/client": "3.6.9",
+    "@date-io/luxon": "2.14.0",
     "@mui/material": "5.8.7",
     "@mui/styled-engine": "5.8.7",
-    "@date-io/luxon": "2.14.0",
     "@mui/styled-engine-sc": "5.8.0",
     "@mui/x-date-pickers": "5.0.0-alpha.7",
     "@sentry/react": "7.7.0",
@@ -105,6 +105,7 @@
     "apollo-upload-client": "17.0.0",
     "apollo3-cache-persist": "0.14.1",
     "classnames": "2.3.1",
+    "clsx": "^1.2.1",
     "crypto-hash": "2.0.1",
     "formik": "2.2.9",
     "localforage": "1.10.0",

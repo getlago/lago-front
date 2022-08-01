@@ -1,65 +1,100 @@
-import { forwardRef, MouseEvent } from 'react'
+import { forwardRef, MouseEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import styled, { css } from 'styled-components'
+import { clsx } from 'clsx'
 
-import { theme } from '~/styles'
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 
-import { Icon, IconName } from './Icon'
-import { Typography } from './Typography'
+import { IconName } from './Icon'
+import { Button, ButtonProps } from './Button'
 
-export interface ButtonLinkProps {
+enum ButtonLinkTypeEnum {
+  tab = 'tab',
+  button = 'button',
+}
+export interface ButtonLinkBaseProps {
+  className?: string
   to: string
-  title?: string | number
-  icon?: IconName
-  active?: boolean
+  type: keyof typeof ButtonLinkTypeEnum
   disabled?: boolean
   external?: boolean
-  onClick?: (e: MouseEvent<HTMLAnchorElement>) => void
+  children?: ReactNode
+  onClick?: (e: MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => void
 }
 
-export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
-  ({ to, title, icon, active, disabled, external, onClick }: ButtonLinkProps, ref) => {
-    const onMouseDown = (e: MouseEvent<HTMLAnchorElement>) => {
-      e.preventDefault()
-      onClick && onClick(e)
-      const element = document.activeElement as HTMLElement
+export interface ButtonLinkTabProps extends ButtonLinkBaseProps {
+  type: 'tab'
+  icon?: IconName
+  active?: boolean
+  canBeClickedOnActive?: boolean
+  buttonProps?: never
+}
 
-      element.blur && element.blur()
-    }
+interface ButtonLinkButtonProps extends ButtonLinkBaseProps {
+  type: 'button'
+  buttonProps?: Omit<ButtonProps, 'disabled'>
+  icon?: never
+  active?: never
+  canBeClickedOnActive?: never
+}
+
+type ButtonLinkProps = ButtonLinkTabProps | ButtonLinkButtonProps
+
+export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
+  (
+    {
+      className,
+      to,
+      icon,
+      active,
+      disabled,
+      external,
+      type,
+      buttonProps,
+      children,
+      canBeClickedOnActive,
+      onClick,
+    }: ButtonLinkProps,
+    ref
+  ) => {
+    const updatedButtonProps =
+      type === ButtonLinkTypeEnum.tab
+        ? {
+            variant: active ? 'secondary' : 'quaternary',
+            align: 'left',
+            fullWidth: true,
+            startIcon: icon,
+          }
+        : buttonProps || {}
+
+    const classNames = clsx(className, {
+      'button-link-disabled': (active && !canBeClickedOnActive) || disabled,
+    })
 
     return (
       <ConditionalWrapper
         condition={!!external}
-        validWrapper={(children) => (
-          <ExternalLink
-            ref={ref}
+        validWrapper={(wrapperChildren) => (
+          <ExternalButtonLink
+            className={classNames}
             href={to}
+            ref={ref}
             rel="noopener noreferrer"
             target="_blank"
-            $active={active}
-            $disabled={disabled}
-            onMouseDown={onMouseDown}
           >
-            {children}
-          </ExternalLink>
+            {wrapperChildren}
+          </ExternalButtonLink>
         )}
-        invalidWrapper={(children) => (
-          <InternalLink
-            ref={ref}
-            to={to}
-            $active={active}
-            $disabled={disabled}
-            onMouseDown={onMouseDown}
-          >
-            {children}
-          </InternalLink>
+        invalidWrapper={(wrapperChildren) => (
+          <InternalButtonLink className={classNames} to={to} ref={ref}>
+            {wrapperChildren}
+          </InternalButtonLink>
         )}
       >
-        {icon && <Icon name={icon} />}
-        <Label noWrap color="inherit">
-          {title}
-        </Label>
+        {/* @ts-ignore */}
+        <Button onClick={onClick} disabled={disabled} {...updatedButtonProps}>
+          {children}
+        </Button>
       </ConditionalWrapper>
     )
   }
@@ -67,21 +102,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
 
 ButtonLink.displayName = 'ButtonLink'
 
-const Container = css<{ $active?: boolean; $disabled?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  border-radius: 12px !important;
-  padding: 6px 12px;
-  height: 40px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-  background-color: ${({ $active }) =>
-    $active ? theme.palette.grey[200] : theme.palette.common.white};
-  color: ${({ $active }) => ($active ? theme.palette.primary.main : theme.palette.text.primary)};
-
+const LinkBase = css`
   &:focus,
   &:active,
   &:hover {
@@ -89,38 +110,16 @@ const Container = css<{ $active?: boolean; $disabled?: boolean }>`
     text-decoration: none;
   }
 
-  ${({ $active, $disabled }) =>
-    $disabled
-      ? css`
-          background-color: ${$active ? theme.palette.grey[100] : 'transparent'};
-          color: ${theme.palette.grey[400]};
-          box-shadow: none;
-          pointer-events: none;
-        `
-      : !$active &&
-        css`
-          &:hover {
-            background-color: ${theme.palette.grey[200]};
-            color: ${theme.palette.text.primary};
-          }
-          &:focus:not(:active) {
-            box-shadow: 0px 0px 0px 4px ${theme.palette.primary[200]};
-            border-radius: 12px;
-          }
-        `}
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(2)};
+  &.button-link-disabled,
+  &.button-link-disabled > button {
+    pointer-events: none;
   }
 `
 
-const InternalLink = styled(Link)<{ $active?: boolean; $disabled?: boolean }>`
-  ${Container}
-`
-const ExternalLink = styled.a<{ $active?: boolean; $disabled?: boolean }>`
-  ${Container}
+const InternalButtonLink = styled(Link)`
+  ${LinkBase}
 `
 
-const Label = styled(Typography)`
-  flex: 1;
+const ExternalButtonLink = styled.a`
+  ${LinkBase}
 `

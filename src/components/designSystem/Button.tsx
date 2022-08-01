@@ -1,13 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/prop-types */
-import {
-  forwardRef,
-  useState,
-  useEffect,
-  useRef,
-  HTMLAttributeAnchorTarget,
-  MouseEvent,
-} from 'react'
+import { forwardRef, useState, useEffect, useRef, MouseEvent } from 'react'
 import { Button as MuiButton, ButtonProps as MuiButtonProps } from '@mui/material'
 import clsns from 'classnames'
 import styled from 'styled-components'
@@ -52,8 +45,6 @@ interface SimpleButtonProps
   startIcon?: IconName
   loading?: boolean // If the `onClick` function returns a promise, the loading state will be handled automatically
   className?: string
-  target?: HTMLAttributeAnchorTarget
-  to?: string // Can be use to open external link
   inheritColor?: boolean // This will only work for quaternary buttons
 }
 interface ButtonIconProps
@@ -116,8 +107,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       endIcon,
       loading,
       children,
-      to,
-      target,
       inheritColor,
       onClick,
       ...props
@@ -139,9 +128,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const localLoading = loading || isLoading
 
     const handleClick = async (e: MouseEvent<HTMLButtonElement>) => {
-      if (to) {
-        window.open(to, target ?? '_blank')
-      }
       if (onClick) {
         const res = onClick(e)
 

@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { DateTime } from 'luxon'
-import { useNavigate, generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import {
   theme,
@@ -18,6 +18,7 @@ import {
   Icon,
   Skeleton,
   Button,
+  ButtonLink,
   Tooltip,
   Popper,
   Status,
@@ -81,7 +82,6 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
   } = coupon
   const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
   const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
-  let navigate = useNavigate()
   const { translate } = useInternationalization()
   const formattedStatus = mapStatus(status)
 
@@ -153,16 +153,19 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
               title={translate('text_62878d88ea3bba00b56d3412')}
               placement="bottom-end"
             >
-              <Button
-                startIcon="pen"
+              <ButtonLink
+                type="button"
+                buttonProps={{
+                  startIcon: 'pen',
+                  variant: 'quaternary',
+                  align: 'left',
+                  fullWidth: true,
+                }}
                 disabled={status === CouponStatusEnum.Terminated}
-                variant="quaternary"
-                fullWidth
-                align="left"
-                onClick={() => navigate(generatePath(UPDATE_COUPON_ROUTE, { id }))}
+                to={generatePath(UPDATE_COUPON_ROUTE, { id })}
               >
                 {translate('text_62876a50ea3bba00b56d2cb6')}
-              </Button>
+              </ButtonLink>
             </Tooltip>
             <Tooltip
               disableHoverListener={status !== CouponStatusEnum.Terminated}

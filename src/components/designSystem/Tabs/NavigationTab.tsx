@@ -1,11 +1,10 @@
 import { ReactNode } from 'react'
 import styled, { css } from 'styled-components'
 import { useLocation, matchPath } from 'react-router-dom'
-import _omit from 'lodash/omit'
 
 import { theme, NAV_HEIGHT } from '~/styles'
 
-import { ButtonLink, ButtonLinkProps } from '../ButtonLink'
+import { ButtonLink, ButtonLinkTabProps } from '../ButtonLink'
 import { Icon } from '../Icon'
 
 enum NavigationTabAlignEnum {
@@ -19,10 +18,11 @@ enum NavigationTabOrientationEnum {
   horizontal = 'horizontal',
 }
 
-export interface NavigationTabProps extends Omit<ButtonLinkProps, 'to'> {
+export interface NavigationTabProps extends Omit<ButtonLinkTabProps, 'to' | 'type' | 'children'> {
   link: string
   match?: string[]
   hidden?: boolean
+  title?: string
   component?: ReactNode
 }
 
@@ -57,7 +57,7 @@ export const NavigationTab = ({
     <Container>
       <TabsBlock className={`navigation-tab--${orientation}`} $align={align}>
         {tabs.map((tab, i) => {
-          const { link, hidden, ...props } = tab
+          const { link, hidden, title, ...props } = tab
 
           if (hidden) return null
 
@@ -65,10 +65,13 @@ export const NavigationTab = ({
             <ButtonLink
               key={`${i}-${name}-${link}`}
               to={link}
+              type="tab"
               active={link === activeTab?.link}
               onClick={!!onClick ? () => onClick(tab) : undefined}
-              {..._omit(props, 'children')}
-            />
+              {...props}
+            >
+              {title}
+            </ButtonLink>
           )
         })}
       </TabsBlock>

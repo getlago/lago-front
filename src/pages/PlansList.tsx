@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { useNavigate, generatePath } from 'react-router-dom'
 
-import { Typography, Button, InfiniteScroll } from '~/components/designSystem'
+import { Typography, InfiniteScroll, ButtonLink } from '~/components/designSystem'
 import { CREATE_PLAN_ROUTE, UPDATE_PLAN_ROUTE } from '~/core/router'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
@@ -49,9 +49,9 @@ const PlansList = () => {
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_62442e40cea25600b0b6d84a')}
         </Typography>
-        <Button onClick={() => navigate(CREATE_PLAN_ROUTE)}>
+        <ButtonLink type="button" to={CREATE_PLAN_ROUTE}>
           {translate('text_62442e40cea25600b0b6d84c')}
-        </Button>
+        </ButtonLink>
       </Header>
 
       {!loading && !!error ? (

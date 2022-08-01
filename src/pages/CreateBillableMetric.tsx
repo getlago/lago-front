@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 
 import { theme, PageHeader, Card } from '~/styles'
-import { Typography, Button } from '~/components/designSystem'
+import { Typography, Button, ButtonLink } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { BILLABLE_METRICS_ROUTE } from '~/core/router'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
@@ -43,9 +43,13 @@ const CreateBillableMetric = () => {
             <Button variant="secondary" onClick={resetIsCreated}>
               {translate('text_623dfd731788a100ec660f18')}
             </Button>
-            <Button variant="secondary" onClick={() => navigate(BILLABLE_METRICS_ROUTE)}>
+            <ButtonLink
+              type="button"
+              to={BILLABLE_METRICS_ROUTE}
+              buttonProps={{ variant: 'secondary' }}
+            >
               {translate('text_623dfd731788a100ec660f1a')}
-            </Button>
+            </ButtonLink>
           </div>
         </SuccessCard>
       ) : (

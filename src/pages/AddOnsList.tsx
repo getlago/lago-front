@@ -4,7 +4,7 @@ import { useNavigate, generatePath } from 'react-router-dom'
 
 import { CREATE_ADD_ON_ROUTE, UPDATE_ADD_ON_ROUTE } from '~/core/router'
 import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
-import { Typography, Button, InfiniteScroll } from '~/components/designSystem'
+import { Typography, ButtonLink, InfiniteScroll } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -50,9 +50,9 @@ const AddOnsList = () => {
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_629728388c4d2300e2d3809b')}
         </Typography>
-        <Button onClick={() => navigate(CREATE_ADD_ON_ROUTE)}>
+        <ButtonLink type="button" to={CREATE_ADD_ON_ROUTE}>
           {translate('text_629728388c4d2300e2d38085')}
-        </Button>
+        </ButtonLink>
       </Header>
 
       {!loading && !!error ? (

@@ -64,27 +64,49 @@ const DesignSystem = () => {
             component: (
               <Container>
                 <GroupTitle variant="headline">Links</GroupTitle>
+                <GroupTitle variant="subhead">Link in navigation tabs</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
-                  <ButtonLink title="Button Link" icon="rocket" to={ONLY_DEV_DESIGN_SYSTEM_ROUTE} />
+                  <ButtonLink type="tab" icon="rocket" to={ONLY_DEV_DESIGN_SYSTEM_ROUTE}>
+                    Non active Link
+                  </ButtonLink>
+                  <ButtonLink type="tab" active icon="plug" to={ONLY_DEV_DESIGN_SYSTEM_ROUTE}>
+                    Active
+                  </ButtonLink>
                   <ButtonLink
-                    active
+                    type="tab"
                     icon="plug"
-                    title="Button Link Active"
-                    to={ONLY_DEV_DESIGN_SYSTEM_ROUTE}
-                  />
-                  <ButtonLink
-                    icon="plug"
-                    title="Button Link External"
                     external
                     to="https://www.youtube.com/watch?v=h6fcK_fRYaI&ab_channel=Kurzgesagt%E2%80%93InaNutshell"
-                  />
-                  <ButtonLink
-                    disabled
-                    title="Button Link Disabled"
-                    to={ONLY_DEV_DESIGN_SYSTEM_ROUTE}
-                  />
+                  >
+                    External
+                  </ButtonLink>
+                  <ButtonLink type="tab" disabled to={ONLY_DEV_DESIGN_SYSTEM_ROUTE}>
+                    Disabled
+                  </ButtonLink>
                 </Block>
-                <Block>
+                <GroupTitle variant="subhead">Button Links</GroupTitle>
+                <Block $marginBottom={theme.spacing(6)}>
+                  <ButtonLink type="button" to={ONLY_DEV_DESIGN_SYSTEM_ROUTE}>
+                    Internal
+                  </ButtonLink>
+                  <ButtonLink
+                    type="button"
+                    external
+                    to="https://www.youtube.com/watch?v=h6fcK_fRYaI&ab_channel=Kurzgesagt%E2%80%93InaNutshell"
+                  >
+                    External
+                  </ButtonLink>
+
+                  <ButtonLink
+                    type="button"
+                    buttonProps={{ variant: 'tertiary', startIcon: 'bell' }}
+                    to={ONLY_DEV_DESIGN_SYSTEM_ROUTE}
+                  >
+                    With Button Props
+                  </ButtonLink>
+                </Block>
+                <GroupTitle variant="subhead">Simple links</GroupTitle>
+                <Block $marginBottom={theme.spacing(6)}>
                   <a href="https://main-app.staging.getlago.com/coupons"> Normal Link </a>
                 </Block>
               </Container>

@@ -11,6 +11,7 @@ import {
   Popper,
   Tooltip,
   BasicTabs,
+  ButtonLink,
 } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CUSTOMERS_LIST_ROUTE, CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
@@ -131,10 +132,10 @@ const CustomerDetails = () => {
     <div>
       <PageHeader $withSide>
         <HeaderLeft>
-          <Button
-            variant="quaternary"
-            icon="arrow-left"
-            onClick={() => navigate(CUSTOMERS_LIST_ROUTE)}
+          <ButtonLink
+            to={CUSTOMERS_LIST_ROUTE}
+            type="button"
+            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
             <Skeleton variant="text" height={12} width={120} />

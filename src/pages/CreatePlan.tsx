@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { theme, PageHeader, Card } from '~/styles'
-import { Typography, Button } from '~/components/designSystem'
+import { Typography, Button, ButtonLink } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { PLANS_ROUTE } from '~/core/router'
@@ -43,9 +43,9 @@ const CreatePlan = () => {
             <Button variant="secondary" onClick={resetIsCreated}>
               {translate('text_624455d859b1b000a8e17bf7')}
             </Button>
-            <Button variant="secondary" onClick={() => navigate(PLANS_ROUTE)}>
+            <ButtonLink type="button" to={PLANS_ROUTE} buttonProps={{ variant: 'secondary' }}>
               {translate('text_624455d859b1b000a8e17bf9')}
-            </Button>
+            </ButtonLink>
           </div>
         </SuccessCard>
       ) : (
