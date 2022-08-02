@@ -115,7 +115,7 @@ export const UpdateCustomerWalletDialog = forwardRef<DialogRef, UpdateCustomerWa
           <DatePickerField
             disablePast
             name="expirationDate"
-            placement="top-end"
+            placement="left-start"
             label={translate('text_62d94fc982c82f068d3753c7')}
             placeholder={translate('text_62d94fc982c82f068d3753c9')}
             helperText={translate('text_62d94fc982c82f068d3753cb')}
