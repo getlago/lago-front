@@ -2,13 +2,21 @@ import styled, { css } from 'styled-components'
 import { useFormik } from 'formik'
 import { generatePath } from 'react-router-dom'
 
-import { Typography, ButtonLink, NavigationTab } from '~/components/designSystem'
+import {
+  Typography,
+  ButtonLink,
+  NavigationTab,
+  Drawer,
+  Button,
+  Dialog,
+} from '~/components/designSystem'
 import { theme, PageHeader } from '~/styles'
 import { DatePickerField } from '~/components/form'
 import { ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
 
 const FORM_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'form' })
 const LINK_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'links' })
+const POPPERS_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'poppers' })
 
 const DesignSystem = () => {
   const formikProps = useFormik({
@@ -30,10 +38,56 @@ const DesignSystem = () => {
         name="design-system"
         tabs={[
           {
+            title: 'Poppers',
+            icon: 'apps',
+            link: POPPERS_TAB_URL,
+            match: [POPPERS_TAB_URL, ONLY_DEV_DESIGN_SYSTEM_ROUTE],
+            component: (
+              <Container>
+                <GroupTitle variant="headline">Poppers</GroupTitle>
+                <Block>
+                  <Drawer title="Imma supa drawa" opener={<Button>Drawer</Button>}>
+                    <iframe
+                      title="hey you"
+                      src="https://giphy.com/embed/nNxT5qXR02FOM"
+                      width="480"
+                      height="399"
+                      frameBorder="0"
+                      allowFullScreen
+                    ></iframe>
+                  </Drawer>
+                  <Dialog
+                    opener={<Button>Dialog</Button>}
+                    title="Imma dialog"
+                    description="And I'm happy to see you"
+                    actions={({ closeDialog }) => (
+                      <>
+                        <Button variant="quaternary" onClick={() => closeDialog()}>
+                          Oups
+                        </Button>
+                        <Button>Ok bye</Button>
+                      </>
+                    )}
+                  >
+                    <GroupTitle>
+                      <iframe
+                        title="Happy to see you"
+                        src="https://giphy.com/embed/l2Jhok92mZ2PZHjDG"
+                        width="480"
+                        height="256"
+                        frameBorder="0"
+                        allowFullScreen
+                      ></iframe>
+                    </GroupTitle>
+                  </Dialog>
+                </Block>
+              </Container>
+            ),
+          },
+          {
             title: 'Form',
             icon: 'switch',
             link: FORM_TAB_URL,
-            match: [FORM_TAB_URL, ONLY_DEV_DESIGN_SYSTEM_ROUTE],
             component: (
               <Container>
                 <Form onSubmit={(e) => e.preventDefault()}>
