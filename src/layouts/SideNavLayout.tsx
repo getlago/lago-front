@@ -254,7 +254,7 @@ const Container = styled.div`
 const BurgerButton = styled(Button)`
   && {
     position: absolute;
-    z-index: ${theme.zIndex.drawer + 1};
+    z-index: ${theme.zIndex.drawer};
     left: ${theme.spacing(4)};
     top: ${theme.spacing(4)};
 
@@ -276,7 +276,7 @@ const Drawer = styled.div<{ $open: boolean }>`
 
   ${theme.breakpoints.down('md')} {
     position: absolute;
-    z-index: ${theme.zIndex.drawer};
+    z-index: ${theme.zIndex.drawer - 1};
     left: ${({ $open }) => ($open ? 0 : -NAV_WIDTH)}px;
   }
 `
