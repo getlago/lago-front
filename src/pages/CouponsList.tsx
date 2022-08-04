@@ -84,9 +84,9 @@ const CouponsList = () => {
               <SmallCell color="disabled" variant="bodyHl">
                 {translate('text_62865498824cc10126ab2964')}
               </SmallCell>
-              <SmallCell color="disabled" variant="bodyHl">
+              <MediumCell color="disabled" variant="bodyHl">
                 {translate('text_62865498824cc10126ab296a')}
-              </SmallCell>
+              </MediumCell>
               <MediumCell color="disabled" variant="bodyHl">
                 {translate('text_62865498824cc10126ab296f')}
               </MediumCell>
