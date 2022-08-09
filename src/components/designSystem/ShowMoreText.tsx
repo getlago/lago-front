@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react'
+import { useState, cloneElement, ReactElement } from 'react'
 import styled from 'styled-components'
 
 import { Typography } from '~/components/designSystem'
@@ -8,14 +8,14 @@ import { theme } from '~/styles'
 interface ShowMoreTextProps {
   text: string
   limit: number
-  showMore?: String | ReactNode
+  showMore?: String | ReactElement
 }
 
 export const ShowMoreText = ({ text, limit, showMore }: ShowMoreTextProps) => {
   const { translate } = useInternationalization()
   const [isTextTruncated, setIsTextTruncated] = useState(true)
 
-  if (!isTextTruncated || text.length <= limit) return <>{text}</>
+  if (!isTextTruncated || text.length <= limit) return <Typography>{text}</Typography>
 
   return (
     <Typography>
@@ -28,7 +28,8 @@ export const ShowMoreText = ({ text, limit, showMore }: ShowMoreTextProps) => {
           </ShowMoreHandler>
         ) : (
           /* eslint-enable jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events, jsx-a11y/anchor-is-valid */
-          !!showMore && showMore
+          !!showMore &&
+          cloneElement(showMore as ReactElement, { onClick: () => setIsTextTruncated(false) })
         )}
       </span>
     </Typography>
