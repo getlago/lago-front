@@ -121,16 +121,22 @@ export const Avatar = ({
       $size={mapAvatarSize(size)}
       $isRounded={variant === 'company'}
       // @ts-expect-error
-      $backgroundColor={AVATAR_PALETTE[backgroundColorKey]}
+      $backgroundColor={!!identifier ? AVATAR_PALETTE[backgroundColorKey] : theme.palette.grey[100]}
+      $color={!!identifier ? theme.palette.common.white : theme.palette.grey[600]}
     >
       {getContent()}
     </StyledAvatar>
   )
 }
 
-const StyledAvatar = styled.div<{ $size: number; $isRounded: boolean; $backgroundColor?: string }>`
-  background-color: ${(props) => props.$backgroundColor || 'none'};
-  color: ${theme.palette.common.white};
+const StyledAvatar = styled.div<{
+  $size: number
+  $isRounded: boolean
+  $backgroundColor?: string
+  $color?: string
+}>`
+  background-color: ${(props) => props.$backgroundColor};
+  color: ${(props) => props.$color};
   width: ${(props) => props.$size}px;
   min-width: ${(props) => props.$size}px;
   height: ${(props) => props.$size}px;

@@ -240,11 +240,13 @@ const CustomerDetails = () => {
                   size="large"
                   variant="user"
                   identifier={name || ''}
-                  initials={(name || '').split(' ').reduce((acc, n) => (acc = acc + n[0]), '')}
+                  initials={
+                    !name ? '-' : name.split(' ').reduce((acc, n) => (acc = acc + n[0]), '')
+                  }
                 />
                 <div>
                   <Name color="textSecondary" variant="headline">
-                    {name}
+                    {name || translate('text_62f272a7a60b4d7fadad911a')}
                   </Name>
                   <Typography>{customerId}</Typography>
                 </div>

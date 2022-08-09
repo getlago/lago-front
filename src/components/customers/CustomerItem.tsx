@@ -54,11 +54,11 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
           <ListAvatar
             variant="user"
             identifier={name as string}
-            initials={(name || '').split(' ').reduce((acc, n) => (acc = acc + n[0]), '')}
+            initials={!name ? '-' : name.split(' ').reduce((acc, n) => (acc = acc + n[0]), '')}
           />
           <NameBlock>
             <Typography color="textSecondary" variant="bodyHl" noWrap>
-              {name}
+              {name || translate('text_62f272a7a60b4d7fadad911a')}
             </Typography>
             <Typography variant="caption" noWrap>
               {customerId}
