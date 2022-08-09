@@ -70,7 +70,7 @@ export const Status = ({ type, className, label }: StatusProps) => {
 const Container = styled.div`
   display: flex;
   align-items: baseline;
-  width: ${STATUS_WIDTH}px;
+  min-width: ${STATUS_WIDTH}px;
 
   > :first-child {
     margin-right: ${theme.spacing(2)};
