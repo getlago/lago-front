@@ -119,6 +119,14 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [customer, billingInfos])
 
+    useEffect(() => {
+      if (!formikProps.values.paymentProvider) {
+        // If no payment provider, reset stripe customer
+        formikProps.setFieldValue('stripeCustomer.providerCustomerId', null)
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [formikProps.values.paymentProvider])
+
     return (
       <Dialog
         ref={ref}
