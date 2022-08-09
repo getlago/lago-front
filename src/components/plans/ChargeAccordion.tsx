@@ -238,6 +238,7 @@ const Title = styled.div`
   flex-direction: column;
   white-space: pre;
   min-width: 20px;
+  margin-right: auto;
 `
 
 const LineAmount = styled.div`

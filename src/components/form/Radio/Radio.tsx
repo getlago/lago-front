@@ -51,7 +51,6 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
           )}
         </RadioContainer>
         <Typography
-          variant="captionHl"
           color={disabled ? 'disabled' : 'textSecondary'}
           component={(labelProps) => <label htmlFor={name} {...labelProps} />}
         >
