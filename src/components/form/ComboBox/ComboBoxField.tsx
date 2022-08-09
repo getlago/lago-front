@@ -16,12 +16,13 @@ interface ComboBoxFieldProps extends Omit<ComboBoxProps, 'onChange' | 'value' | 
 
 export const ComboBoxField = memo(
   ({ name, isEmptyNull = true, formikProps, ...props }: ComboBoxFieldProps) => {
-    const { setFieldValue, values } = formikProps
+    const { setFieldValue, values, errors, touched } = formikProps
 
     return (
       <ComboBox
         name={name}
         value={_get(values, name)}
+        error={touched[name] ? (errors[name] as string) : undefined}
         onChange={(newValue) => setFieldValue(name, newValue || (isEmptyNull ? null : ''))}
         {...props}
       />
