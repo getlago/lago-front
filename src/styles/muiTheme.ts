@@ -178,20 +178,7 @@ export const theme = createTheme({
             marginTop: '6px',
             padding: '0 16px 0 0',
           },
-          '& .MuiRadio-root': {
-            marginTop: '6px',
-            padding: '0 16px 0 0',
-          },
           '&:hover': {
-            // ------- Radio
-            '& .MuiRadio-root.MuiIconButton-root:not(.Mui-checked)': {
-              background: 'none',
-              color: palette.grey[200],
-            },
-            '& .MuiRadio-root.MuiIconButton-root.Mui-checked': {
-              background: 'none',
-              color: palette.primary[100],
-            },
             // ------- Checkboxes
             '& .MuiCheckbox-root.MuiIconButton-root:not(.Mui-checked)': {
               background: 'none',
@@ -203,13 +190,6 @@ export const theme = createTheme({
             },
           },
           '&:active:active': {
-            // ------- Radio
-            '& .MuiRadio-root.MuiIconButton-root:not(.Mui-checked)': {
-              color: palette.grey[300],
-            },
-            '& .MuiRadio-root.MuiIconButton-root.Mui-checked': {
-              color: palette.primary[200],
-            },
             // ------- Checkbox
             '& .MuiCheckbox-root.MuiIconButton-root:not(.Mui-checked)': {
               color: palette.grey[300],
@@ -219,20 +199,6 @@ export const theme = createTheme({
             },
           },
           '&.Mui-disabled': {
-            // ------- Radio
-            '& .MuiRadio-root.MuiIconButton-root.Mui-disabled:not(.Mui-checked) svg circle': {
-              color: palette.common.white,
-              '&.radio-coloured': {
-                fill: palette.grey[400],
-              },
-            },
-            '& .MuiRadio-root.MuiIconButton-root.Mui-disabled.Mui-disabled.Mui-checked': {
-              color: palette.common.white,
-              transition: 'none',
-              '&.radio-checked-coloured': {
-                fill: palette.grey[400],
-              },
-            },
             // ------- Checkbox
             '& .MuiCheckbox-root.MuiIconButton-root.Mui-disabled:not(.Mui-checked) svg rect': {
               color: palette.common.white,
@@ -241,29 +207,6 @@ export const theme = createTheme({
             '& .MuiCheckbox-root.MuiIconButton-root.Mui-disabled.Mui-disabled.Mui-checked': {
               transition: 'none',
               color: palette.grey[400],
-            },
-          },
-        },
-      },
-    },
-    MuiRadio: {
-      styleOverrides: {
-        root: {
-          transition: 'color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
-          '&.Mui-focusVisible svg': {
-            boxShadow: `0px 0px 0px 4px ${palette.primary[200]}`,
-            borderRadius: '50%',
-          },
-          '&:not(.Mui-checked)': {
-            color: palette.common.white,
-          },
-          '&.Mui-checked': {
-            color: palette.primary.main,
-            '&.MuiIconButton-root': {
-              color: palette.common.white,
-              '&.Mui-disabled .radio-checked-coloured': {
-                fill: palette.grey[400],
-              },
             },
           },
         },
