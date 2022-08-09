@@ -16,28 +16,40 @@ const AVATAR_PALETTE = {
   pink: '#FF9BE0',
 }
 
-export type AvatarSize = 'small' | 'medium' | 'large'
-export type ConnectorAvatarSize = Omit<AvatarSize, 'small'>
+enum AvatarSizeEnum {
+  small = 'small',
+  medium = 'medium',
+  large = 'large',
+}
+
+enum AvatarVariantEnum {
+  connector = 'connector',
+  user = 'user',
+  company = 'company',
+}
+
+export type AvatarSize = keyof typeof AvatarSizeEnum
+type AvatarVariant = keyof typeof AvatarVariantEnum
 
 interface AvatarConnectorProps {
-  variant: 'connector'
+  variant: Extract<AvatarVariant, 'connector'>
   children: ReactNode | string
-  size?: ConnectorAvatarSize
+  size?: AvatarSize
   initials?: never
   identifier?: never
   className?: string
 }
 
 export interface AvatarGenericProps {
-  variant: 'user' | 'company'
-  initials: string // Note that only the first initial will be displayed in small size
+  variant: Extract<AvatarVariant, 'company' | 'user'>
   identifier: string
+  initials?: string // Note that only the first initial will be displayed in small size
   size?: AvatarSize
   children?: never
   className?: string
 }
 
-const mapTypographyVariant = (size: ConnectorAvatarSize) => {
+const mapTypographyVariant = (size: AvatarSize) => {
   switch (size) {
     case 'small':
       return 'note'
@@ -48,7 +60,7 @@ const mapTypographyVariant = (size: ConnectorAvatarSize) => {
   }
 }
 
-export const mapAvatarSize = (size: ConnectorAvatarSize) => {
+export const mapAvatarSize = (size: AvatarSize) => {
   switch (size) {
     case 'small':
       return 16
@@ -84,7 +96,7 @@ export const Avatar = ({
   variant,
   size = 'medium',
   identifier,
-  initials = '',
+  initials,
   children,
   className,
 }: AvatarProps) => {
@@ -107,7 +119,7 @@ export const Avatar = ({
 
     return (
       <Typography color="inherit" variant={mapTypographyVariant(size)}>
-        {initials.substring(0, cursor).toUpperCase()}
+        {(initials || identifier || '').substring(0, cursor).toUpperCase()}
       </Typography>
     )
   }
