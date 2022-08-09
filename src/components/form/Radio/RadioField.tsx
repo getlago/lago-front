@@ -11,10 +11,10 @@ export interface RadioFieldProps extends Omit<RadioProps, 'checked' | 'name'> {
 }
 
 export const RadioField = memo(
-  forwardRef<HTMLElement, RadioFieldProps>(
+  forwardRef<HTMLInputElement, RadioFieldProps>(
     /* eslint-disable react/prop-types */
     ({ name, value, formikProps, ...props }: RadioFieldProps, ref) => {
-      const { values, setFieldValue, errors, touched } = formikProps
+      const { values, setFieldValue } = formikProps
 
       return (
         <Radio
@@ -24,7 +24,6 @@ export const RadioField = memo(
           checked={values[name] === value}
           onChange={() => setFieldValue(name, value)}
           name={name}
-          error={touched[name] ? (errors[name] as string) : undefined}
         />
       )
     }
