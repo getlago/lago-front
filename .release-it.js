@@ -1,17 +1,11 @@
 module.exports = {
-  plugins: {
-    '@release-it-plugins/lerna-changelog': {
-      infile: 'CHANGELOG.md',
-    },
-  },
   git: {
     commitMessage: 'v${version}',
+    requireBranch: 'main',
     tagName: 'v${version}',
   },
-  github: {
-    release: true,
-    releaseName: 'v${version}',
-    tokenRef: 'GITHUB_AUTH',
+  hooks: {
+    'after:bump': 'yarn changelog:update --package',
   },
   npm: {
     publish: false,
