@@ -4,31 +4,20 @@ import clsns from 'classnames'
 
 import { theme } from '~/styles'
 
-import { AvatarSize, mapAvatarSize, ConnectorAvatarSize } from './Avatar'
+import { AvatarSize, mapAvatarSize } from './Avatar'
 
 enum SkeletonVariantEnum {
   connectorAvatar = 'connectorAvatar',
-  accountAvatar = 'accountAvatar',
+  companyAvatar = 'companyAvatar',
   userAvatar = 'userAvatar',
-  text = 'text',
-  rect = 'rect',
-  circle = 'circle',
 }
 
-type TSkeletonVariant = keyof typeof SkeletonVariantEnum
+type TSkeletonVariant =
+  | keyof typeof SkeletonVariantEnum
+  | Extract<MuiSkeletonProps['variant'], 'circular' | 'rectangular' | 'text'>
 
 interface SkeletonConnectorProps extends Pick<MuiSkeletonProps, 'animation'> {
-  variant: Extract<TSkeletonVariant, 'connectorAvatar' | 'accountAvatar'>
-  size: ConnectorAvatarSize
-  width?: never
-  height?: never
-  className?: string
-  marginRight?: number | string
-  marginBottom?: number | string
-}
-
-interface SkeletonUserProps extends Pick<MuiSkeletonProps, 'animation'> {
-  variant: 'userAvatar'
+  variant: Extract<TSkeletonVariant, 'companyAvatar' | 'userAvatar' | 'connectorAvatar'>
   size: AvatarSize
   width?: never
   height?: never
@@ -45,19 +34,19 @@ interface SkeletonGenericProps extends Pick<MuiSkeletonProps, 'animation' | 'wid
   marginBottom?: number | string
 }
 
-const mapVariant = (variant?: keyof typeof SkeletonVariantEnum): MuiSkeletonProps['variant'] => {
+const mapVariant = (variant: TSkeletonVariant): MuiSkeletonProps['variant'] => {
   switch (variant) {
     case SkeletonVariantEnum.connectorAvatar:
-    case SkeletonVariantEnum.accountAvatar:
+    case SkeletonVariantEnum.companyAvatar:
       return 'rectangular'
     case SkeletonVariantEnum.userAvatar:
       return 'circular'
     default:
-      return variant as 'circular' | 'rectangular' | 'text'
+      return variant as MuiSkeletonProps['variant']
   }
 }
 
-export type SkeletonProps = SkeletonConnectorProps | SkeletonUserProps | SkeletonGenericProps
+export type SkeletonProps = SkeletonConnectorProps | SkeletonGenericProps
 
 export const Skeleton = ({
   variant = 'text',
@@ -71,14 +60,14 @@ export const Skeleton = ({
 }: SkeletonProps) => {
   return (
     <StyledSkeleton
-      className={clsns(className, {
-        'skeleton--connector': ['connectorAvatar', 'accountAvatar'].includes(variant),
+      className={clsns(className, `skeleton-variant--${variant}`, {
+        [`skeleton-size--${size}`]: !!size,
       })}
       variant={mapVariant(variant)}
       height={size ? mapAvatarSize(size) : height}
       width={size ? mapAvatarSize(size) : width}
       $minSize={
-        size && ['connectorAvatar', 'accountAvatar'].includes(variant) ? mapAvatarSize(size) : null
+        size && ['connectorAvatar', 'companyAvatar'].includes(variant) ? mapAvatarSize(size) : null
       }
       $marginBottom={marginBottom}
       $marginRight={marginRight}
@@ -107,13 +96,21 @@ const StyledSkeleton = styled(MuiSkeleton)<{
         `}
     }
 
-    &.MuiSkeleton-text {
+    &.skeleton-variant--text {
       transform: none;
       border-radius: 32px;
     }
 
-    &.skeleton--connector {
+    &.skeleton-variant--rectangular {
       border-radius: 12px;
+    }
+
+    &.skeleton-variant--connectorAvatar {
+      border-radius: 12px;
+
+      &.skeleton-size--small {
+        border-radius: 4px;
+      }
       ${({ $minSize }) =>
         $minSize &&
         css`
