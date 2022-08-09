@@ -1,0 +1,59 @@
+### Changelog
+
+All notable changes to this project will be documented in this file.
+
+{{#each releases}}
+  {{#if href}}
+    ###{{#unless major}}#{{/unless}} [{{title}}]({{href}})
+  {{else}}
+    #### {{title}}
+  {{/if}}
+
+  {{#if summary}}
+    {{summary}}
+  {{/if}}
+
+  {{! use break: or Break: }}
+  {{#commit-list
+    commits
+    heading='### Breaking changes'
+    message='(break: )|(Break: )'
+    exclude='(fix: )|(Fix: )|(bug: )|(Bug: )|(Feat: )|(feat: )|(Deps: )|(deps: )|chore|Chore'}}
+      - {{subject}} ([`{{shorthash}}`]({{href}}))
+  {{/commit-list}}
+
+  {{! use feat: or Feat: }}
+  {{#commit-list
+    commits
+    heading='### Features'
+    message='(feat: )|(Feat: )'
+    exclude='(fix: )|(Fix: )|(bug: )|(Bug: )|(break: )|(Break: )|(Deps: )|(deps: )|chore|Chore'}}
+      - {{subject}} ([`{{shorthash}}`]({{href}}))
+  {{/commit-list}}
+
+  {{! use fix: Fix: bug: or Bug: }}
+  {{#commit-list
+    commits
+    heading='### Fixes'
+    message='(fix: )|(Fix: )|(bug: )|(Bug: )'
+    exclude='(break: )|(Break: )|(Feat: )|(feat: )|(Deps: )|(deps: )|chore|Chore'}}
+      - {{subject}} ([`{{shorthash}}`]({{href}}))
+  {{/commit-list}}
+  
+  {{! use fix: Deps: bug: or deps: }}
+  {{#commit-list
+    commits
+    heading='### Chore & Dependencies'
+    message='(Deps: )|(deps: )|chore|Chore'
+    exclude='(break: )|(Break: )|(Feat: )|(feat: )|(fix: )|(Fix: )|(bug: )|(Bug: )'}}
+      - {{subject}} ([`{{shorthash}}`]({{href}}))
+  {{/commit-list}}
+  
+  {{! all others }}
+  {{#commit-list
+    commits
+    heading='### Others'
+    exclude='(break: )|(Break: )|(Feat: )|(feat: )|(fix: )|(Fix: )|(bug: )|(Bug: )|(Deps: )|(deps: )|chore|Chore'}}
+      - {{subject}} ([`{{shorthash}}`]({{href}}))
+  {{/commit-list}}
+{{/each}}
