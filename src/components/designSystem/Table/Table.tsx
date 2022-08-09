@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
 import styled from 'styled-components'
+import _get from 'lodash/get'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
@@ -17,7 +18,6 @@ interface TableColumnMapKey<T> {
   size?: number
   content: ReactNode | ((row: DataType<T>, index: number) => ReactNode)
   mapKey?: never // Use this if you only want to render the property itself
-  skeleton?: ReactNode
   onClick?: () => unknown // On column header click
 }
 
@@ -26,7 +26,6 @@ interface TableColumnContent {
   size?: number
   content?: never
   mapKey: string // Use this if you only want to render the property itself
-  skeleton?: ReactNode
   onClick?: () => unknown // On column header click
 }
 
@@ -36,12 +35,8 @@ export interface TableProps<T> {
   name: string // this is to allow to have several table on a same page (no duplicated keys)
   columns: TableColumnProps<T>[]
   data: DataType<T>[]
-  emptyPlacholder?: ReactNode // displayed if "skeletonRowCount < 1 && data.length < 1"
-  skeletonRowCount?: number // Should be set to 0 if there is no more elements to load
-  error?: ReactNode
   className?: string
   onDeleteRow?: (row: DataType<T>, index: number) => unknown
-  onBottomReach?: () => unknown // Can be used to load more datas
 }
 
 export const Table = <T extends Record<string, unknown>>({
@@ -58,9 +53,13 @@ export const Table = <T extends Record<string, unknown>>({
       {/* Header */}
       <thead>
         <HeaderRow>
-          {columns?.map(({ title, size = 124 }, i) => {
+          {columns?.map(({ title, size = 124, onClick }, i) => {
             return (
-              <HeaderCell key={`table-${name}-head-${i}`} $size={size}>
+              <HeaderCell
+                key={`table-${name}-head-${i}`}
+                $size={size}
+                onClick={() => onClick && onClick()}
+              >
                 {title && title}
               </HeaderCell>
             )
@@ -76,8 +75,7 @@ export const Table = <T extends Record<string, unknown>>({
                   return (
                     <ContentCell $size={size} key={`table-${name}-cell-${i}-${j}`}>
                       {mapKey ? (
-                        // @ts-expect-error
-                        <Typography variant="body">{_get(row, mapKey)}</Typography>
+                        <Typography variant="body">{_get(row, mapKey) as string}</Typography>
                       ) : typeof content === 'function' ? (
                         content(row, i)
                       ) : (
