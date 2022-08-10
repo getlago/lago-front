@@ -47,7 +47,12 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
       // @ts-ignore
       amountCents: isNaN(plan?.amountCents) ? undefined : plan?.amountCents / 100,
       amountCurrency: plan?.amountCurrency || CurrencyEnum.Usd,
-      trialPeriod: plan?.trialPeriod == null ? (isEdition ? 0 : undefined) : plan?.trialPeriod,
+      trialPeriod:
+        plan?.trialPeriod === null || plan?.trialPeriod === undefined
+          ? isEdition
+            ? 0
+            : undefined
+          : plan?.trialPeriod,
       billChargesMonthly: plan?.billChargesMonthly || undefined,
       // @ts-ignore
       charges: plan?.charges
@@ -55,7 +60,8 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
             ({ amount, graduatedRanges, packageSize, fixedAmount, rate, ...charge }) => ({
               // Amount can be null and this breaks the validation
               amount: amount || undefined,
-              packageSize: packageSize == null ? undefined : packageSize,
+              packageSize:
+                packageSize === null || packageSize === undefined ? undefined : packageSize,
               fixedAmount: fixedAmount || undefined,
               graduatedRanges: !graduatedRanges ? null : graduatedRanges,
               rate: rate || undefined,
