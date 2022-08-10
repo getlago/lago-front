@@ -123,6 +123,8 @@ const DesignSystem = lazy(
 export const ONLY_DEV_DESIGN_SYSTEM_ROUTE = `/design-system`
 export const ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE = `${ONLY_DEV_DESIGN_SYSTEM_ROUTE}/:tab`
 
+const environment = window.APP_ENV || APP_ENV
+
 export const routes: CustomRouteObject[] = [
   {
     path: '*',
@@ -213,7 +215,7 @@ export const routes: CustomRouteObject[] = [
         private: true,
         element: <AddOnsList />,
       },
-      ...([AppEnvEnum.qa, AppEnvEnum.development].includes(APP_ENV)
+      ...([AppEnvEnum.qa, AppEnvEnum.development].includes(environment)
         ? [
             {
               path: [ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE],

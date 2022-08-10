@@ -6,11 +6,13 @@ import App from '~/App'
 
 import { AppEnvEnum } from './globalTypes'
 
-if (APP_ENV !== AppEnvEnum.development) {
+const environment = window.APP_ENV || APP_ENV
+
+if (environment !== AppEnvEnum.development) {
   Sentry.init({
     dsn: 'https://3dedf10cc2614403886aa3784388a366@o554090.ingest.sentry.io/6458937',
     integrations: [new BrowserTracing()],
-    environment: APP_ENV,
+    environment,
   })
 }
 
