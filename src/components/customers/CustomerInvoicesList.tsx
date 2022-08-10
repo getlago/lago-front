@@ -71,13 +71,13 @@ export const CustomerInvoicesList = ({ invoices }: CustomerInvoicesListProps) =>
         if (myWindow?.location?.href) {
           myWindow.location.href = fileUrl
           return myWindow?.focus()
-        } else {
-          myWindow?.close()
-          addToast({
-            severity: 'danger',
-            translateKey: 'text_62b31e1f6a5b8b1b745ece48',
-          })
         }
+
+        myWindow?.close()
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+        })
       }
     },
   })
