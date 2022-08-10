@@ -50,8 +50,12 @@ export const formatValue = (
       typeof formatterFunctions === 'string' ? formatterFunctions : formatterFunctions.join('')
     )
   ) {
-    if (formattedValue != null && isNaN(Number(String(formattedValue).replace(/\.|\-/g, ''))))
+    if (
+      (formattedValue !== null || formattedValue !== undefined) &&
+      isNaN(Number(String(formattedValue).replace(/\.|\-/g, '')))
+    ) {
       return null
+    }
   }
 
   if (formatterFunctions.includes(ValueFormatter.positiveNumber)) {
@@ -108,7 +112,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
     const [isVisible, setIsVisible] = useState(!password)
 
     useEffect(() => {
-      if (value != null) {
+      if (value !== null || value !== undefined) {
         setLocalValue(value)
       } else {
         setLocalValue('')
@@ -120,7 +124,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
         event.persist()
         const formattedValue = formatValue(event.currentTarget.value, beforeChangeFormatter)
 
-        if (formattedValue == null) return
+        if (formattedValue === null || formattedValue === undefined) return
 
         setLocalValue(formattedValue)
         // formattedValue is casted to string to avoid the need to type every TextInput when used (either number or string)
