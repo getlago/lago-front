@@ -39,6 +39,7 @@ import {
 import { useCurrentVersionQuery } from '~/generated/graphql'
 
 const NAV_WIDTH = 240
+const environment = window.APP_ENV || APP_ENV
 
 gql`
   query CurrentVersion {
@@ -196,7 +197,7 @@ const SideNav = () => {
               <NavigationTab
                 onClick={() => setOpen(false)}
                 tabs={[
-                  ...([AppEnvEnum.qa, AppEnvEnum.development].includes(APP_ENV)
+                  ...([AppEnvEnum.qa, AppEnvEnum.development].includes(environment)
                     ? [
                         {
                           title: 'Design System',
