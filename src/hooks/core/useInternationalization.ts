@@ -3,8 +3,6 @@ import { useCallback } from 'react'
 import { IntlLocale, useInternationalizationVar, updateIntlLocale } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/globalTypes'
 
-const environment = window.APP_ENV || APP_ENV
-
 type UseInternationalization = () => {
   locale: IntlLocale
   translate: (
@@ -48,7 +46,7 @@ export const useInternationalization: UseInternationalization = () => {
         }
 
         if (!translations || !translations[key]) {
-          if ([AppEnvEnum.qa, AppEnvEnum.development].includes(environment)) {
+          if ([AppEnvEnum.qa, AppEnvEnum.development].includes(window.APP_ENV || APP_ENV)) {
             // eslint-disable-next-line no-console
             console.warn(`Translation '${key}' for locale '${locale}' not found.`)
           }
