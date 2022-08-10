@@ -184,7 +184,7 @@ const StyledAccordion = styled(Accordion)`
     height: 0;
   }
   &.MuiAccordion-root.Mui-expanded {
-    margin: 0 0 ${theme.spacing(4)};
+    margin: 0;
   }
 
   .MuiAccordionSummary-content {
@@ -225,7 +225,7 @@ const Details = styled(AccordionDetails)`
   box-shadow: ${theme.shadows[5]};
 
   &.MuiAccordionDetails-root {
-    padding: ${theme.spacing(4)} ${theme.spacing(4)} 0 ${theme.spacing(4)};
+    padding: ${theme.spacing(4)};
 
     > *:not(:last-child) {
       margin-bottom: ${theme.spacing(6)};
