@@ -1,6 +1,6 @@
 import { KeyboardEventHandler, useCallback } from 'react'
 
-interface useKeyNavigationOptions {
+export interface useKeyNavigationOptions {
   getElmId: (id: string | number) => string
   navigate?: (id: string | number) => void
   disabled?: boolean
