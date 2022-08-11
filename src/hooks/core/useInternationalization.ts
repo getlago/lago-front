@@ -16,14 +16,14 @@ type UseInternationalization = () => {
   updateLocale: (locale: IntlLocale) => void
 }
 
-function replaceDynamicVarInString(
+export function replaceDynamicVarInString(
   template: string,
   data: Record<string, string | number | undefined | null>
 ) {
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => String(data[key]))
 }
 
-function getPluralTranslation(template: string, plural: number) {
+export function getPluralTranslation(template: string, plural: number) {
   // Translations are defined on the following base : "none | unique | plural" or "unique | plural"
   const splitted = template.split('|')
 
