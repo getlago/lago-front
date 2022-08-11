@@ -1,11 +1,14 @@
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { CreateCouponInput } from '~/generated/graphql'
+import { envGlobalVar } from '~/core/apolloClient'
+
+const { apiUrl } = envGlobalVar()
 
 const getSnippets = (coupon?: CreateCouponInput) => {
   if (!coupon || !coupon.code) return '# Fill the form to generate the code snippet'
 
   return `# Assign a coupon to a customer
-curl --location --request POST "${API_URL}/api/v1/applied_coupons" \\
+curl --location --request POST "${apiUrl}/api/v1/applied_coupons" \\
   --header "Authorization: Bearer $YOUR_API_KEY" \\
   --header 'Content-Type: application/json' \\
   --data-raw '{

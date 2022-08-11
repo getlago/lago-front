@@ -9,7 +9,7 @@ import localForage from 'localforage'
 import { Lago_Api_Error } from '~/generated/graphql'
 
 import { cache } from './cache'
-import { AUTH_TOKEN_LS_KEY, ORGANIZATION_LS_KEY, addToast } from './reactiveVars'
+import { AUTH_TOKEN_LS_KEY, ORGANIZATION_LS_KEY, addToast, envGlobalVar } from './reactiveVars'
 import { logOut, getItemFromLS, omitDeep } from './utils'
 import { typeDefs, resolvers } from './graphqlResolvers'
 
@@ -23,8 +23,8 @@ export interface LagoGQLError extends GraphQLError {
 let globalApolloClient: ApolloClient<NormalizedCacheObject> | null = null
 
 const TIMEOUT = 300000 // 5 minutes timeout
-
 const timeoutLink = new ApolloLinkTimeout(TIMEOUT)
+const { apiUrl, appVersion } = envGlobalVar()
 
 export const initializeApolloClient = async () => {
   if (globalApolloClient) return globalApolloClient
@@ -100,7 +100,7 @@ export const initializeApolloClient = async () => {
     }),
     // afterwareLink.concat(
     createUploadLink({
-      uri: `${API_URL || window.API_URL}/graphql`,
+      uri: `${apiUrl}/graphql`,
     }) as unknown as ApolloLink,
     // ),
   ]
@@ -109,14 +109,14 @@ export const initializeApolloClient = async () => {
     cache,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     storage: new LocalForageWrapper(localForage),
-    key: `apollo-cache-persist-${APP_VERSION || '0.0.0'}`,
+    key: `apollo-cache-persist-lago-${appVersion}`,
   })
 
   const client = new ApolloClient({
     cache,
     link: ApolloLink.from(links),
     name: 'lago-app',
-    version: APP_VERSION,
+    version: appVersion,
     typeDefs,
     resolvers,
     defaultOptions: {

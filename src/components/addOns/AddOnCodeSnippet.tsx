@@ -1,11 +1,14 @@
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { CreateAddOnInput } from '~/generated/graphql'
+import { envGlobalVar } from '~/core/apolloClient'
+
+const { apiUrl } = envGlobalVar()
 
 const getSnippets = (addOn?: CreateAddOnInput) => {
   if (!addOn || !addOn.code) return '# Fill the form to generate the code snippet'
 
   return `# Assign an add on to a customer
-curl --location --request POST "${API_URL}/api/v1/applied_add_ons" \\
+curl --location --request POST "${apiUrl}/api/v1/applied_add_ons" \\
   --header "Authorization: Bearer $API_KEY" \\
   --header 'Content-Type: application/json' \\
   --data-raw '{

@@ -1,5 +1,8 @@
 import { AggregationTypeEnum, CreateBillableMetricInput } from '~/generated/graphql'
 import { CodeSnippet } from '~/components/CodeSnippet'
+import { envGlobalVar } from '~/core/apolloClient'
+
+const { apiUrl } = envGlobalVar()
 
 const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
   if (!billableMetric) return '# Fill the form to generate the code snippet'
@@ -8,7 +11,7 @@ const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
 
   switch (aggregationType) {
     case AggregationTypeEnum.CountAgg:
-      return `curl --location --request POST "${API_URL}/api/v1/events" \\
+      return `curl --location --request POST "${apiUrl}/api/v1/events" \\
   --header "Authorization: Bearer $__YOUR_API_KEY__" \\
   --header 'Content-Type: application/json' \\
   --data-raw '{
@@ -42,7 +45,7 @@ const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
 # To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__, __SUBSCRIPTION_ID__ and __CUSTOMER_ID__`
     case AggregationTypeEnum.SumAgg:
     case AggregationTypeEnum.MaxAgg:
-      return `curl --location --request POST "${API_URL}/api/v1/events" \\
+      return `curl --location --request POST "${apiUrl}/api/v1/events" \\
   --header "Authorization: Bearer $__YOUR_API_KEY__" \\
   --header 'Content-Type: application/json' \\
   --data-raw '{

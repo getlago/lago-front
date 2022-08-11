@@ -2,6 +2,9 @@ import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
 
 import { AppEnvEnum } from '~/globalTypes'
+import { envGlobalVar } from '~/core/apolloClient'
+
+const { appEnv, disableSignUp } = envGlobalVar()
 
 const Error404 = lazy(() => import(/* webpackChunkName: 'error-404' */ '~/pages/Error404'))
 const Login = lazy(() => import(/* webpackChunkName: 'login' */ '~/pages/auth/Login'))
@@ -213,7 +216,7 @@ export const routes: CustomRouteObject[] = [
         private: true,
         element: <AddOnsList />,
       },
-      ...([AppEnvEnum.qa, AppEnvEnum.development].includes(window.APP_ENV || APP_ENV)
+      ...([AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv)
         ? [
             {
               path: [ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE],
@@ -253,7 +256,7 @@ export const routes: CustomRouteObject[] = [
     element: <ForgotPassword />,
     onlyPublic: true,
   },
-  ...(!LAGO_SIGNUP_DISABLED
+  ...(!disableSignUp
     ? [
         {
           path: SIGN_UP_ROUTE,

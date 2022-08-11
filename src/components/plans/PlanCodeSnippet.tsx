@@ -1,12 +1,15 @@
 import { CodeSnippet } from '~/components/CodeSnippet'
+import { envGlobalVar } from '~/core/apolloClient'
 
 import { PlanFormInput } from './types'
+
+const { apiUrl } = envGlobalVar()
 
 const getSnippets = (plan?: PlanFormInput) => {
   if (!plan) return '# Fill the form to generate the code snippet'
 
   return `# Assign a plan to a customer
-curl --location --request POST "${API_URL}/api/v1/subscriptions" \\
+curl --location --request POST "${apiUrl}/api/v1/subscriptions" \\
   --header "Authorization: Bearer $YOUR_API_KEY" \\
   --header 'Content-Type: application/json' \\
   --data-raw '{
