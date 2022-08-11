@@ -3,6 +3,8 @@ const path = require('path')
 
 const webpack = require('webpack')
 
+const { version } = require('./package.json')
+
 const APP_ENV = process.env.APP_ENV ?? 'development'
 
 module.exports = () => {
@@ -27,7 +29,7 @@ module.exports = () => {
       new webpack.DefinePlugin({
         APP_ENV: JSON.stringify(APP_ENV),
         API_URL: JSON.stringify(process.env.API_URL),
-        APP_VERSION: JSON.stringify(process.env.APP_VERSION), // TODO - not passed on the cloud
+        APP_VERSION: JSON.stringify(version),
         LAGO_SIGNUP_DISABLED: process.env.LAGO_SIGNUP_DISABLED,
       }),
     ],

@@ -7,6 +7,7 @@ export const isAuthenticatedVar = makeVar<boolean>(!!getItemFromLS(AUTH_TOKEN_LS
 
 export * from './authTokenVar'
 export * from './currentUserInfosVar'
+export * from './envGlobalVar'
 export * from './internationalizationVar'
 export * from './locationHistoryVar'
 export * from './toastVar'

@@ -7,7 +7,7 @@ import { useApolloClient } from '@apollo/client'
 import { useLocation, Location } from 'react-router-dom'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { logOut, useCurrentUserInfosVar } from '~/core/apolloClient'
+import { logOut, useCurrentUserInfosVar, envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/globalTypes'
 import {
   Avatar,
@@ -39,6 +39,7 @@ import {
 import { useCurrentVersionQuery } from '~/generated/graphql'
 
 const NAV_WIDTH = 240
+const { appEnv } = envGlobalVar()
 
 gql`
   query CurrentVersion {
@@ -196,7 +197,7 @@ const SideNav = () => {
               <NavigationTab
                 onClick={() => setOpen(false)}
                 tabs={[
-                  ...([AppEnvEnum.qa, AppEnvEnum.development].includes(window.APP_ENV || APP_ENV)
+                  ...([AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv)
                     ? [
                         {
                           title: 'Design System',

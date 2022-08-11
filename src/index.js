@@ -3,16 +3,17 @@ import * as Sentry from '@sentry/react'
 import { BrowserTracing } from '@sentry/tracing'
 
 import App from '~/App'
+import { envGlobalVar } from '~/core/apolloClient'
 
 import { AppEnvEnum } from './globalTypes'
 
-const environment = window.APP_ENV || APP_ENV
+const { appEnv } = envGlobalVar()
 
-if (environment !== AppEnvEnum.development) {
+if (appEnv !== AppEnvEnum.development) {
   Sentry.init({
     dsn: 'https://3dedf10cc2614403886aa3784388a366@o554090.ingest.sentry.io/6458937',
     integrations: [new BrowserTracing()],
-    environment,
+    environment: appEnv,
   })
 }
 

@@ -7,11 +7,13 @@ import { theme } from '~/styles'
 import { Typography, Button, Alert } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLoginUserMutation, Lago_Api_Error, CurrentUserFragmentDoc } from '~/generated/graphql'
-import { onLogIn } from '~/core/apolloClient'
+import { onLogIn, envGlobalVar } from '~/core/apolloClient'
 import { TextInputField } from '~/components/form'
 import { FORGOT_PASSWORD_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import { Page, Title, Subtitle, StyledLogo, Card } from '~/styles/auth'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
+
+const { disableSignUp } = envGlobalVar()
 
 gql`
   mutation loginUser($input: LoginUserInput!) {
@@ -110,7 +112,7 @@ const Login = () => {
             linkForgetPassword: FORGOT_PASSWORD_ROUTE,
           })}
         />
-        {!LAGO_SIGNUP_DISABLED && (
+        {!disableSignUp && (
           <UsefullLink
             variant="caption"
             html={translate('text_62c84d0029355c83db4dd186', {
