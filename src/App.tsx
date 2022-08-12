@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material'
 import { ApolloClient, NormalizedCacheObject, ApolloProvider } from '@apollo/client'
@@ -10,9 +10,19 @@ import { ToastContainer } from '~/components/designSystem/Toasts'
 import { inputGlobalStyles } from '~/styles/globalStyle'
 import { ErrorBoundary } from '~/components/ErrorBoundary'
 import { RouteWrapper } from '~/components/RouteWrapper'
+import { useShortcuts } from '~/hooks/ui/useShortcuts'
+import { DebugInfoDialog, DebugInfoDialogRef } from '~/components/DebugInfoDialog'
 
 const App = () => {
   const [client, setClient] = useState<ApolloClient<NormalizedCacheObject> | null>(null)
+  const debugInfoDialogRef = useRef<DebugInfoDialogRef>(null)
+
+  useShortcuts([
+    {
+      keys: ['Ctrl', 'KeyI'],
+      action: () => debugInfoDialogRef.current?.openDialog(),
+    },
+  ])
 
   useEffect(() => {
     async function initApolloClient() {
@@ -37,6 +47,7 @@ const App = () => {
           </ErrorBoundary>
           <UserIdentifier />
           <ToastContainer />
+          <DebugInfoDialog ref={debugInfoDialogRef} />
         </ThemeProvider>
       </ApolloProvider>
     </BrowserRouter>

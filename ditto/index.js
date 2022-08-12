@@ -83,6 +83,9 @@ module.exports = {
   "project_6271200612648800e9bdfd47": {
     "base": require('./Settings - Webhooks in app__base.json')
   },
+  "project_62f50d2512182c6df6c39e37": {
+    "base": require('./⚙️ [WIP] - General - FE environment infos__base.json')
+  },
   "project_62c6c95d9333c1ac1be9f938": {
     "base": require('./👍 [Ready for dev] - Navigation - Display app version__base.json')
   }

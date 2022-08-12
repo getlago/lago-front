@@ -24,5 +24,10 @@ assignees: MorganeLecurieux
 **Screenshots**
 <!--- If applicable, add screenshots to help explain your problem. -->
 
+**Environment infos**
+<!--- Please go to the running app and use the Ctrl + I shortcut
+    Then copy/past the given infos here
+  -->
+
 **Additional context**
 <!--- Add any other context about the problem here. -->

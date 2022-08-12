@@ -83,6 +83,32 @@ describe('useShortcuts()', () => {
     })
   })
 
+  describe('when additionnal keys are pressed', () => {
+    let action = jest.fn()
+    let shortcuts: Shortcut[] = [
+      {
+        action,
+        keys: ['Cmd', 'KeyD'],
+        disabled: false,
+      },
+    ]
+
+    it('should not fire the action', () => {
+      render(
+        <div>
+          <MyTestComponentThatUsesShortcuts shortcuts={shortcuts} />
+        </div>
+      )
+
+      // cf: https://testing-library.com/docs/ecosystem-user-event#keyboardtext-options
+      userEvent.keyboard('{Meta}')
+      userEvent.keyboard('I')
+      userEvent.keyboard('D')
+
+      expect(action).not.toHaveBeenCalled()
+    })
+  })
+
   describe('getCleanKey()', () => {
     it('should clean keys correctly', () => {
       expect(getCleanKey('MetaLeft')).toEqual('Cmd')

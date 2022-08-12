@@ -57,5 +57,7 @@ projects:
     id: 62c6c95d9333c1ac1be9f938
   - name: 'Plans,Customers - Add multiple plans to a customer'
     id: 62d7f6138ca07e88551c9dde
+  - name: '⚙️ [WIP] - General - FE environment infos'
+    id: 62f50d2512182c6df6c39e37
 format: flat
 variants: true
