@@ -12,10 +12,7 @@ type CleanedShortcut = {
   action: () => void
 }
 
-type ReducedShortcut = {
-  usableShortcuts: Record<string, CleanedShortcut>
-  usableKeys: string[]
-}
+type ReducedShortcut = Record<string, CleanedShortcut>
 
 export const getCleanKey = (key: string) => {
   switch (key) {
@@ -65,24 +62,20 @@ type UseShortcutReturn = (shortcuts: Shortcut[]) => { isMac: boolean }
 export const useShortcuts: UseShortcutReturn = (shortcuts) => {
   const isMac = navigator.platform.toUpperCase().includes('MAC')
   const keyPressedRef = useRef<Record<string, boolean>>({})
-  const { usableShortcuts, usableKeys } = useMemo(
+  const usableShortcuts = useMemo(
     () =>
-      shortcuts.reduce<ReducedShortcut>(
-        (acc, shortcut) => {
-          if (shortcut.disabled) return acc
-          // Get keys according to OS
-          const keys = (
-            !!shortcut?.windowsKeys && !isMac ? shortcut?.windowsKeys : shortcut?.keys
-          ).map((key) => getCleanKey(key))
-          const shortcutId = getShortcutId(keys)
+      shortcuts.reduce<ReducedShortcut>((acc, shortcut) => {
+        if (shortcut.disabled) return acc
+        // Get keys according to OS
+        const keys = (
+          !!shortcut?.windowsKeys && !isMac ? shortcut?.windowsKeys : shortcut?.keys
+        ).map((key) => getCleanKey(key))
+        const shortcutId = getShortcutId(keys)
 
-          acc.usableShortcuts[shortcutId] = { keys, action: shortcut.action }
-          acc.usableKeys = [...acc.usableKeys, ...keys]
+        acc[shortcutId] = { keys, action: shortcut.action }
 
-          return acc
-        },
-        { usableShortcuts: {}, usableKeys: [] }
-      ),
+        return acc
+      }, {}),
     [shortcuts, isMac]
   )
 
@@ -90,22 +83,20 @@ export const useShortcuts: UseShortcutReturn = (shortcuts) => {
     (e) => {
       const cleanKey = getCleanKey((e as unknown as KeyboardEvent).code)
 
-      if (usableKeys.includes(cleanKey)) {
-        keyPressedRef.current[cleanKey] = true
+      keyPressedRef.current[cleanKey] = true
 
-        const pressKeysID = getShortcutId(
-          Object.keys(keyPressedRef.current).filter((key) => !!keyPressedRef.current[key])
-        )
+      const pressKeysID = getShortcutId(
+        Object.keys(keyPressedRef.current).filter((key) => !!keyPressedRef.current[key])
+      )
 
-        if (!!usableShortcuts[pressKeysID]) {
-          usableShortcuts[pressKeysID].action()
+      if (!!usableShortcuts[pressKeysID]) {
+        usableShortcuts[pressKeysID].action()
 
-          // Clean after use of one shortcut to it to be recalled right away
-          keyPressedRef.current = {}
-        }
+        // Clean after use of one shortcut to it to be recalled right away
+        keyPressedRef.current = {}
       }
     },
-    [usableShortcuts, usableKeys]
+    [usableShortcuts]
   )
 
   const onKeyUp: (e: Event) => void = useCallback((e) => {
