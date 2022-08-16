@@ -19,6 +19,7 @@ export const getCleanKey = (key: string) => {
     case 'MetaLeft':
     case 'OSLeft':
     case 'MetaRight':
+    case 'Meta':
     case 'OSRight':
       return 'Cmd'
     case 'AltLeft':

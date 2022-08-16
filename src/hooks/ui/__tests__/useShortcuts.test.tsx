@@ -20,7 +20,7 @@ describe('useShortcuts()', () => {
       },
     ]
 
-    it('calls the action callback', () => {
+    it('calls the action callback', async () => {
       render(
         <div>
           <MyTestComponentThatUsesShortcuts shortcuts={shortcuts} />
@@ -28,8 +28,7 @@ describe('useShortcuts()', () => {
       )
 
       // cf: https://testing-library.com/docs/ecosystem-user-event#keyboardtext-options
-      userEvent.keyboard('{Meta}')
-      userEvent.keyboard('D')
+      await userEvent.keyboard('{Meta>}D')
 
       expect(action).toHaveBeenCalled()
     })
@@ -45,15 +44,14 @@ describe('useShortcuts()', () => {
       },
     ]
 
-    it('does not call the action callback', () => {
+    it('does not call the action callback', async () => {
       render(
         <div>
           <MyTestComponentThatUsesShortcuts shortcuts={shortcuts} />
         </div>
       )
 
-      userEvent.keyboard('{Meta}')
-      userEvent.keyboard('D')
+      await userEvent.keyboard('{Meta>}D')
 
       expect(action).not.toHaveBeenCalled()
     })
@@ -69,15 +67,14 @@ describe('useShortcuts()', () => {
       },
     ]
 
-    it('works.', () => {
+    it('works.', async () => {
       render(
         <div>
           <MyTestComponentThatUsesShortcuts shortcuts={shortcuts} />
         </div>
       )
 
-      userEvent.keyboard('{Meta}')
-      userEvent.keyboard('{Enter}')
+      await userEvent.keyboard('{Meta>}[Enter]')
 
       expect(action).toHaveBeenCalled()
     })
@@ -93,7 +90,7 @@ describe('useShortcuts()', () => {
       },
     ]
 
-    it('should not fire the action', () => {
+    it('should not fire the action', async () => {
       render(
         <div>
           <MyTestComponentThatUsesShortcuts shortcuts={shortcuts} />
@@ -101,9 +98,7 @@ describe('useShortcuts()', () => {
       )
 
       // cf: https://testing-library.com/docs/ecosystem-user-event#keyboardtext-options
-      userEvent.keyboard('{Meta}')
-      userEvent.keyboard('I')
-      userEvent.keyboard('D')
+      await userEvent.keyboard('{Meta>}{I>}{D}')
 
       expect(action).not.toHaveBeenCalled()
     })

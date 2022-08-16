@@ -21,7 +21,7 @@ describe('useListKeyNavigation()', () => {
     let action = jest.fn()
     let disabled = true
 
-    it('does not return', () => {
+    it('does not return', async () => {
       render(
         <MyTestComponentThatUsesNavigation
           conponentProps={{
@@ -37,11 +37,11 @@ describe('useListKeyNavigation()', () => {
         </MyTestComponentThatUsesNavigation>
       )
 
-      userEvent.keyboard('{ArrowDown}')
-      userEvent.keyboard('{j}')
-      userEvent.keyboard('{ArrowUp}')
-      userEvent.keyboard('{k}')
-      userEvent.keyboard('{Enter}')
+      await userEvent.keyboard('{ArrowDown}')
+      await userEvent.keyboard('{j}')
+      await userEvent.keyboard('{ArrowUp}')
+      await userEvent.keyboard('{k}')
+      await userEvent.keyboard('{Enter}')
 
       expect(action).not.toHaveBeenCalled()
     })
@@ -51,7 +51,7 @@ describe('useListKeyNavigation()', () => {
     let navigate = jest.fn()
     let disabled = false
 
-    it('focuses the next element', () => {
+    it('focuses the next element', async () => {
       render(
         <MyTestComponentThatUsesNavigation
           conponentProps={{
@@ -78,16 +78,16 @@ describe('useListKeyNavigation()', () => {
       document?.getElementById('item-0')?.focus()
       expect(document?.activeElement?.id).toEqual('item-0')
 
-      userEvent.keyboard('{ArrowDown}')
+      await userEvent.keyboard('{ArrowDown}')
       expect(document?.activeElement?.id).toEqual('item-1')
 
-      userEvent.keyboard('{j}')
+      await userEvent.keyboard('{j}')
       expect(document?.activeElement?.id).toEqual('item-2')
 
       expect(navigate).not.toHaveBeenCalled()
     })
 
-    it('returns if no next element to focus', () => {
+    it('returns if no next element to focus', async () => {
       render(
         <MyTestComponentThatUsesNavigation
           conponentProps={{
@@ -107,8 +107,8 @@ describe('useListKeyNavigation()', () => {
       document?.getElementById('item-0')?.focus()
       expect(document?.activeElement?.id).toEqual('item-0')
 
-      userEvent.keyboard('{ArrowDown}')
-      userEvent.keyboard('{j}')
+      await userEvent.keyboard('{ArrowDown}')
+      await userEvent.keyboard('{j}')
 
       expect(document?.activeElement?.id).toEqual('item-0')
       expect(navigate).not.toHaveBeenCalled()
@@ -119,7 +119,7 @@ describe('useListKeyNavigation()', () => {
     let navigate = jest.fn()
     let disabled = false
 
-    it('focuses the next element', () => {
+    it('focuses the next element', async () => {
       render(
         <MyTestComponentThatUsesNavigation
           conponentProps={{
@@ -146,16 +146,16 @@ describe('useListKeyNavigation()', () => {
       document?.getElementById('item-2')?.focus()
       expect(document?.activeElement?.id).toEqual('item-2')
 
-      userEvent.keyboard('{ArrowUp}')
+      await userEvent.keyboard('{ArrowUp}')
       expect(document?.activeElement?.id).toEqual('item-1')
 
-      userEvent.keyboard('{k}')
+      await userEvent.keyboard('{k}')
       expect(document?.activeElement?.id).toEqual('item-0')
 
       expect(navigate).not.toHaveBeenCalled()
     })
 
-    it('returns if no previous element to focus', () => {
+    it('returns if no previous element to focus', async () => {
       render(
         <MyTestComponentThatUsesNavigation
           conponentProps={{
@@ -175,8 +175,8 @@ describe('useListKeyNavigation()', () => {
       document?.getElementById('item-0')?.focus()
       expect(document?.activeElement?.id).toEqual('item-0')
 
-      userEvent.keyboard('{ArrowUp}')
-      userEvent.keyboard('{k}')
+      await userEvent.keyboard('{ArrowUp}')
+      await userEvent.keyboard('{k}')
 
       expect(document?.activeElement?.id).toEqual('item-0')
       expect(navigate).not.toHaveBeenCalled()
@@ -187,7 +187,7 @@ describe('useListKeyNavigation()', () => {
     let navigate = jest.fn((id) => id)
     let disabled = false
 
-    it('triggers navigate method with correct argument', () => {
+    it('triggers navigate method with correct argument', async () => {
       render(
         <MyTestComponentThatUsesNavigation
           conponentProps={{
@@ -211,10 +211,10 @@ describe('useListKeyNavigation()', () => {
       document?.getElementById('item-0')?.focus()
       expect(document?.activeElement?.id).toEqual('item-0')
 
-      userEvent.keyboard('{j}')
+      await userEvent.keyboard('{j}')
       expect(document?.activeElement?.id).toEqual('item-1')
 
-      userEvent.keyboard('{Enter}')
+      await userEvent.keyboard('{Enter}')
       expect(document?.activeElement?.id).toEqual('item-1')
       expect(navigate).toHaveBeenCalled()
       expect(navigate.mock.results[0].value).toBe('model-id-1')
