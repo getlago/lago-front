@@ -1,0 +1,50 @@
+name: Run Codegen
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_branch:
+        description: API Branch
+        required: true
+        default: "main"
+
+jobs:
+  codegen:
+    name: Run Codegen
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Checkout API Git repository
+        uses: actions/checkout@v3
+        with:
+          repository: getlago/lago-api
+          ref: ${{ github.event.inputs.api_branch }}
+          path: api
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Build API local image
+        run: |
+          docker build -t getlago/api:ci ./api
+      
+      - name: Generate API RSA Key
+        run: |
+          echo "LAGO_RSA_PRIVATE_KEY=\"`openssl genrsa 2048 | base64`\"" >> .env
+      
+      - name: Launch API
+        run: docker-compose -f ./api/docker-compose.ci.yml --env-file ./.env up -d api
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - name: Install Node.js dependencies
+        run: yarn
+
+      - name: Run codegen
+        env:
+          CODEGEN_API: http://localhost:3000/graphql
+        run: |
+          yarn codegen
