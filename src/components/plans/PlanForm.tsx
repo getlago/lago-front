@@ -4,7 +4,7 @@ import { object, string, number, array } from 'yup'
 import styled from 'styled-components'
 
 import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
-import { EditPlanFragment, FixedAmountTargetEnum } from '~/generated/graphql'
+import { EditPlanFragment } from '~/generated/graphql'
 import { PlanInterval, CurrencyEnum, ChargeModelEnum } from '~/generated/graphql'
 import { TextInputField, ButtonSelectorField, ComboBoxField, SwitchField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -57,12 +57,23 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
       // @ts-ignore
       charges: plan?.charges
         ? plan?.charges.map(
-            ({ amount, graduatedRanges, packageSize, fixedAmount, rate, ...charge }) => ({
+            ({
+              amount,
+              fixedAmount,
+              freeUnitsPerEvents,
+              freeUnitsPerTotalAggregation,
+              graduatedRanges,
+              packageSize,
+              rate,
+              ...charge
+            }) => ({
               // Amount can be null and this breaks the validation
               amount: amount || undefined,
               packageSize:
                 packageSize === null || packageSize === undefined ? undefined : packageSize,
               fixedAmount: fixedAmount || undefined,
+              freeUnitsPerEvents: freeUnitsPerEvents || undefined,
+              freeUnitsPerTotalAggregation: freeUnitsPerTotalAggregation || undefined,
               graduatedRanges: !graduatedRanges ? null : graduatedRanges,
               rate: rate || undefined,
               ...charge,
@@ -104,11 +115,20 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
               !!chargeModel && ChargeModelEnum.Percentage === chargeModel,
             then: number().min(0.001, 'text_62a0b7107afa2700a65ef70e').required(''),
           }),
-          fixedAmount: number().when('fixedAmountTarget', {
-            is: (fixedAmountTarget: FixedAmountTargetEnum) => {
-              return !!fixedAmountTarget
-            },
-            then: number().required(''),
+          fixedAmount: number().when('chargeModel', {
+            is: (chargeModel: ChargeModelEnum) =>
+              !!chargeModel && ChargeModelEnum.Percentage === chargeModel,
+            then: number().min(0.001, 'text_62a0b7107afa2700a65ef70e'),
+          }),
+          freeUnitsPerEvents: number().when('chargeModel', {
+            is: (chargeModel: ChargeModelEnum) =>
+              !!chargeModel && ChargeModelEnum.Percentage === chargeModel,
+            then: number(),
+          }),
+          freeUnitsPerTotalAggregation: number().when('chargeModel', {
+            is: (chargeModel: ChargeModelEnum) =>
+              !!chargeModel && ChargeModelEnum.Percentage === chargeModel,
+            then: number(),
           }),
           graduatedRanges: array()
             .when('chargeModel', {
@@ -355,7 +375,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                           <ChargeAccordion
                             id={id}
                             key={id}
-                            currency={formikProps.values.amountCurrency}
+                            currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
                             index={i}
                             disabled={isEdition && !plan?.canBeDeleted && chargeEditIndexLimit > i}
                             formikProps={formikProps}
@@ -401,7 +421,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                     onClick={formikProps.submitForm}
                   >
                     {translate(
-                      isEdition ? 'text_625fd165963a7b00c8f598aa' : 'text_624453d52e945301380e49d4'
+                      isEdition ? 'text_625fd165963a7b00c8f598aa' : 'text_62ff5d01a306e274d4ffcc75'
                     )}
                   </Button>
                 </ButtonContainer>

@@ -59,5 +59,7 @@ projects:
     id: 62d7f6138ca07e88551c9dde
   - name: '⚙️ [WIP] - General - FE environment infos'
     id: 62f50d2512182c6df6c39e37
+  - name: "\U0001F44D [Ready for dev] - Add Percentage in charge model"
+    id: 62ff5cfec490a4767eccdf6e
 format: flat
 variants: true

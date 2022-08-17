@@ -48,7 +48,8 @@ gql`
       packageSize
       rate
       fixedAmount
-      fixedAmountTarget
+      freeUnitsPerEvents
+      freeUnitsPerTotalAggregation
     }
   }
 
@@ -97,6 +98,7 @@ const formatPlanInput = (values: PlanFormInput) => {
         graduatedRanges,
         chargeModel,
         freeUnits,
+        freeUnitsPerEvents,
         ...charge
       }) => {
         return {
@@ -115,6 +117,9 @@ const formatPlanInput = (values: PlanFormInput) => {
               }
             : { amount: chargeAmount }),
           ...(chargeModel === ChargeModelEnum.Package ? { freeUnits: freeUnits || 0 } : {}),
+          ...(chargeModel === ChargeModelEnum.Percentage
+            ? { freeUnitsPerEvents: Number(freeUnitsPerEvents) || undefined }
+            : {}),
           ...charge,
         }
       }
