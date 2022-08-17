@@ -86,6 +86,9 @@ module.exports = {
   "project_62f50d2512182c6df6c39e37": {
     "base": require('./⚙️ [WIP] - General - FE environment infos__base.json')
   },
+  "project_62ff5cfec490a4767eccdf6e": {
+    "base": require('./👍 [Ready for dev] - Add Percentage in charge model__base.json')
+  },
   "project_62c6c95d9333c1ac1be9f938": {
     "base": require('./👍 [Ready for dev] - Navigation - Display app version__base.json')
   }

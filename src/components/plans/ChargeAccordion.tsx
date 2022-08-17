@@ -114,7 +114,7 @@ export const ChargeAccordion = ({
             value={localCharge.chargeModel}
             helperText={translate(
               localCharge.chargeModel === ChargeModelEnum.Percentage
-                ? 'text_62a0b7107afa2700a65ef6ec'
+                ? 'text_62ff5d01a306e274d4ffcc06'
                 : localCharge.chargeModel === ChargeModelEnum.Graduated
                 ? 'text_62793bbb599f1c01522e91a1'
                 : localCharge.chargeModel === ChargeModelEnum.Package

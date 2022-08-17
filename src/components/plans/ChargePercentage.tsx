@@ -4,11 +4,10 @@ import _get from 'lodash/get'
 import styled from 'styled-components'
 
 import { intlFormatNumber } from '~/core/intlFormatNumber'
-import { TextInput, ButtonSelector, ComboBox } from '~/components/form'
-import { theme } from '~/styles'
-import { Alert, Typography, Button, Tooltip } from '~/components/designSystem'
+import { TextInput } from '~/components/form'
+import { MenuPopper, theme } from '~/styles'
+import { Alert, Typography, Button, Tooltip, Popper } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { CurrencyEnum, FixedAmountTargetEnum } from '~/generated/graphql'
 
 import { PlanFormInput } from './types'
 
@@ -21,6 +20,21 @@ interface ChargePercentageProps {
 export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargePercentageProps) => {
   const { translate } = useInternationalization()
   const localCharge = formikProps.values.charges[chargeIndex]
+  const showRate = localCharge.rate !== undefined && localCharge.rate !== ''
+  const showFixedAmount = localCharge.fixedAmount !== undefined && localCharge.fixedAmount !== ''
+  const showFreeUnitsPerEvents = !!localCharge.freeUnitsPerEvents
+  const showFreeUnitsPerTotalAggregation =
+    localCharge.freeUnitsPerTotalAggregation !== undefined &&
+    localCharge.freeUnitsPerTotalAggregation !== ''
+  const showAlert =
+    showRate || showFixedAmount || showFreeUnitsPerEvents || showFreeUnitsPerTotalAggregation
+  let freeUnitsPerTotalAggregationTranslation = translate('text_6303351deffd2a0d70498677', {
+    freeAmountUnits: intlFormatNumber(Number(localCharge.freeUnitsPerTotalAggregation) * 100 || 0, {
+      currencyDisplay: 'code',
+      currency: localCharge.amountCurrency,
+      maximumFractionDigits: 5,
+    }),
+  })
   const handleUpdate = useCallback(
     (name: string, value: string | number) => {
       formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
@@ -29,20 +43,15 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
     [chargeIndex]
   )
 
-  const formattedFixedCharge = intlFormatNumber(Number(localCharge.fixedAmount) || 0, {
-    currencyDisplay: 'code',
-    currency: localCharge.amountCurrency,
-    initialUnit: 'standard',
-    maximumFractionDigits: 5,
-  })
-  const formattedRate = intlFormatNumber(Number(localCharge.rate) || 0, {
-    minimumFractionDigits: 2,
-    style: 'percent',
-  })
+  if (!showFreeUnitsPerEvents && showFreeUnitsPerTotalAggregation) {
+    freeUnitsPerTotalAggregationTranslation =
+      freeUnitsPerTotalAggregationTranslation.charAt(0).toUpperCase() +
+      freeUnitsPerTotalAggregationTranslation.slice(1)
+  }
 
   return (
     <Container>
-      <TextInput
+      <Input
         label={translate('text_62a0b7107afa2700a65ef6f6')}
         name="rate"
         // eslint-disable-next-line jsx-a11y/no-autofocus
@@ -62,126 +71,245 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
         }}
       />
 
-      {!!localCharge.fixedAmountTarget ? (
-        <>
-          <LineAmount>
-            <TextInput
-              name="fixedAmount"
-              beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
-              disabled={disabled}
-              label={translate('text_62a0b7107afa2700a65ef708')}
-              placeholder={translate('text_62a0b7107afa2700a65ef712')}
-              value={localCharge.fixedAmount || ''}
-              onChange={(value) => handleUpdate('fixedAmount', value)}
-            />
-            <StyledComboBox
-              name="amountCurrency"
-              disabled
-              data={Object.values(CurrencyEnum).map((currencyType) => ({
-                value: currencyType,
-              }))}
-              disableClearable
-              value={localCharge.amountCurrency}
-              onChange={() => {}}
-            />
-            <Tooltip
-              disableHoverListener={disabled}
-              title={translate('text_62a0b7107afa2700a65ef74c')}
-              placement="top-end"
-            >
-              <Button
-                icon="trash"
-                size="small"
-                disabled={disabled}
-                variant="quaternary"
-                onClick={() => {
-                  formikProps.setFieldValue(`charges.${chargeIndex}`, {
-                    ...localCharge,
-                    fixedAmount: undefined,
-                    fixedAmountTarget: undefined,
-                  })
-                }}
-              />
-            </Tooltip>
-          </LineAmount>
-          <ButtonSelector
-            label={translate('text_62a0b7107afa2700a65ef726')}
-            value={localCharge.fixedAmountTarget as string | undefined}
-            onChange={(value) => handleUpdate('fixedAmountTarget', value)}
+      {localCharge.fixedAmount !== undefined && (
+        <LineAmount>
+          <Input
+            name="fixedAmount"
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
+            beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
             disabled={disabled}
-            options={[
-              {
-                label: translate('text_62a0b7107afa2700a65ef730'),
-                value: FixedAmountTargetEnum.EachUnit,
-              },
-              {
-                label: translate('text_62a0b7107afa2700a65ef738'),
-                value: FixedAmountTargetEnum.AllUnits,
-              },
-            ]}
+            label={translate('text_62ff5d01a306e274d4ffcc1e')}
+            placeholder={translate('text_62ff5d01a306e274d4ffcc24')}
+            value={localCharge.fixedAmount || ''}
+            onChange={(value) => handleUpdate('fixedAmount', value)}
+            InputProps={{
+              endAdornment: <InputEnd color="textSecondary">{localCharge.amountCurrency}</InputEnd>,
+            }}
+            helperText={translate('text_62ff5d01a306e274d4ffcc30')}
           />
-        </>
-      ) : (
+          <Tooltip
+            disableHoverListener={disabled}
+            title={translate('text_62ff5d01a306e274d4ffcc28')}
+            placement="top-end"
+          >
+            <Button
+              icon="trash"
+              size="small"
+              disabled={disabled}
+              variant="quaternary"
+              onClick={() => {
+                formikProps.setFieldValue(`charges.${chargeIndex}`, {
+                  ...localCharge,
+                  fixedAmount: undefined,
+                })
+              }}
+            />
+          </Tooltip>
+        </LineAmount>
+      )}
+
+      {localCharge.freeUnitsPerEvents !== undefined && (
+        <LineAmount>
+          <Input
+            name="freeUnitsPerEvents"
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
+            beforeChangeFormatter={['positiveNumber', 'int']}
+            disabled={disabled}
+            label={translate('text_62ff5d01a306e274d4ffcc36')}
+            placeholder={translate('text_62ff5d01a306e274d4ffcc3c')}
+            value={localCharge.freeUnitsPerEvents || ''}
+            onChange={(value) => handleUpdate('freeUnitsPerEvents', value)}
+            InputProps={{
+              endAdornment: (
+                <InputEnd color="textSecondary">
+                  {translate('text_62ff5d01a306e274d4ffcc42')}
+                </InputEnd>
+              ),
+            }}
+          />
+          <Tooltip
+            disableHoverListener={disabled}
+            title={translate('text_62ff5d01a306e274d4ffcc46')}
+            placement="top-end"
+          >
+            <Button
+              icon="trash"
+              size="small"
+              disabled={disabled}
+              variant="quaternary"
+              onClick={() => {
+                formikProps.setFieldValue(`charges.${chargeIndex}`, {
+                  ...localCharge,
+                  freeUnitsPerEvents: undefined,
+                })
+              }}
+            />
+          </Tooltip>
+        </LineAmount>
+      )}
+
+      {localCharge.freeUnitsPerTotalAggregation !== undefined && (
+        <LineAmount>
+          {localCharge.freeUnitsPerEvents !== undefined &&
+            localCharge.freeUnitsPerTotalAggregation !== undefined && (
+              <OrText variant="body">{translate('text_62ff5d01a306e274d4ffcc59')}</OrText>
+            )}
+          <Input
+            name="freeUnitsPerTotalAggregation"
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
+            beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
+            disabled={disabled}
+            label={translate('text_62ff5d01a306e274d4ffcc48')}
+            placeholder={translate('text_62ff5d01a306e274d4ffcc4e')}
+            value={localCharge.freeUnitsPerTotalAggregation || ''}
+            onChange={(value) => handleUpdate('freeUnitsPerTotalAggregation', value)}
+            InputProps={{
+              endAdornment: <InputEnd color="textSecondary">{localCharge.amountCurrency}</InputEnd>,
+            }}
+          />
+          <Tooltip
+            disableHoverListener={disabled}
+            title={translate('text_62ff5d01a306e274d4ffcc5b')}
+            placement="top-end"
+          >
+            <Button
+              icon="trash"
+              size="small"
+              disabled={disabled}
+              variant="quaternary"
+              onClick={() => {
+                formikProps.setFieldValue(`charges.${chargeIndex}`, {
+                  ...localCharge,
+                  freeUnitsPerTotalAggregation: undefined,
+                })
+              }}
+            />
+          </Tooltip>
+        </LineAmount>
+      )}
+
+      <LineButton>
         <Button
           startIcon="plus"
           variant="quaternary"
-          disabled={disabled}
+          disabled={disabled || localCharge.fixedAmount !== undefined}
           onClick={() =>
             formikProps.setFieldValue(`charges.${chargeIndex}`, {
               ...localCharge,
-              fixedAmount: undefined,
-              fixedAmountTarget: FixedAmountTargetEnum.EachUnit,
+              fixedAmount: '',
             })
           }
         >
-          {translate('text_62a0b7107afa2700a65ef714')}
+          {translate('text_62ff5d01a306e274d4ffcc5d')}
         </Button>
-      )}
-      <Alert type="info">
-        <Typography
-          color="textSecondary"
-          html={
-            !localCharge.fixedAmountTarget
-              ? translate('text_62a0b7107afa2700a65ef71e', {
-                  rate: formattedRate,
-                  cost: intlFormatNumber(((Number(localCharge.rate) || 0) * 100) / 100, {
-                    currencyDisplay: 'code',
-                    currency: localCharge.amountCurrency,
-                    initialUnit: 'standard',
-                  }),
-                })
-              : localCharge.fixedAmountTarget === FixedAmountTargetEnum.EachUnit
-              ? translate('text_62a0b7107afa2700a65ef73e', {
-                  rate: formattedRate,
-                  fixedCharge: formattedFixedCharge,
-                  cost: intlFormatNumber(
-                    ((Number(localCharge.rate) || 0) * 100) / 100 +
-                      100 * (Number(localCharge.fixedAmount) || 0),
-                    {
-                      currencyDisplay: 'code',
-                      currency: localCharge.amountCurrency,
-                      initialUnit: 'standard',
-                      maximumFractionDigits: 5,
-                    }
-                  ),
-                })
-              : translate('text_62a0b7107afa2700a65ef73a', {
-                  rate: formattedRate,
-                  fixedCharge: formattedFixedCharge,
-                  cost: intlFormatNumber(
-                    ((Number(localCharge.rate) || 0) * 100) / 100 +
-                      (Number(localCharge.fixedAmount) || 0),
-                    {
-                      currencyDisplay: 'code',
-                      currency: localCharge.amountCurrency,
-                      initialUnit: 'standard',
-                      maximumFractionDigits: 5,
-                    }
-                  ),
-                })
+
+        <Popper
+          PopperProps={{ placement: 'bottom-end' }}
+          opener={
+            <Button
+              startIcon="plus"
+              endIcon="chevron-down"
+              variant="quaternary"
+              disabled={
+                disabled ||
+                (localCharge.freeUnitsPerEvents !== undefined &&
+                  localCharge.freeUnitsPerTotalAggregation !== undefined)
+              }
+            >
+              {translate('text_62ff5d01a306e274d4ffcc61')}
+            </Button>
           }
-        />
-      </Alert>
+        >
+          {({ closePopper }) => (
+            <MenuPopper>
+              <FreeUnitButton
+                variant="quaternary"
+                disabled={disabled || localCharge.freeUnitsPerEvents !== undefined}
+                onClick={() => {
+                  formikProps.setFieldValue(`charges.${chargeIndex}`, {
+                    ...localCharge,
+                    freeUnitsPerEvents: '',
+                  })
+                  closePopper()
+                }}
+              >
+                {translate('text_62ff5d01a306e274d4ffcc3e')}
+              </FreeUnitButton>
+              <FreeUnitButton
+                variant="quaternary"
+                disabled={disabled || localCharge.freeUnitsPerTotalAggregation !== undefined}
+                onClick={() => {
+                  formikProps.setFieldValue(`charges.${chargeIndex}`, {
+                    ...localCharge,
+                    freeUnitsPerTotalAggregation: '',
+                  })
+                  closePopper()
+                }}
+              >
+                {translate('text_62ff5d01a306e274d4ffcc44')}
+              </FreeUnitButton>
+            </MenuPopper>
+          )}
+        </Popper>
+      </LineButton>
+
+      {showAlert && (
+        <Alert type="info">
+          {showRate && (
+            <Typography color="textSecondary">
+              {translate('text_62ff5d01a306e274d4ffcc65', {
+                percentageFee: intlFormatNumber(Number(localCharge.rate) || 0, {
+                  minimumFractionDigits: 2,
+                  style: 'percent',
+                }),
+              })}
+            </Typography>
+          )}
+          {showFixedAmount && (
+            <Typography color="textSecondary">
+              {translate('text_62ff5d01a306e274d4ffcc69', {
+                fixedFeeValue: intlFormatNumber(Number(localCharge.fixedAmount) * 100 || 0, {
+                  currencyDisplay: 'code',
+                  currency: localCharge.amountCurrency,
+                  maximumFractionDigits: 5,
+                }),
+              })}
+            </Typography>
+          )}
+          {(showFreeUnitsPerEvents || showFreeUnitsPerTotalAggregation) && (
+            <Typography color="textSecondary">
+              {showFreeUnitsPerEvents &&
+                translate(
+                  'text_62ff5d01a306e274d4ffcc6d',
+                  {
+                    freeEventUnits: localCharge.freeUnitsPerEvents || 0,
+                  },
+                  Math.max(Number(localCharge.freeUnitsPerEvents) || 0)
+                )}
+
+              {/* Spaces bellow are important */}
+              {showFreeUnitsPerEvents &&
+                showFreeUnitsPerTotalAggregation &&
+                ` ${translate('text_6303351deffd2a0d70498675')} `}
+
+              {showFreeUnitsPerTotalAggregation && freeUnitsPerTotalAggregationTranslation}
+
+              {` ${translate(
+                'text_6303351deffd2a0d70498679',
+                {
+                  freeEventUnits: localCharge.freeUnitsPerEvents || 0,
+                },
+                (localCharge.freeUnitsPerEvents || 0) < 2 && !showFreeUnitsPerTotalAggregation
+                  ? 1
+                  : 2
+              )}`}
+            </Typography>
+          )}
+        </Alert>
+      )}
     </Container>
   )
 }
@@ -192,6 +320,10 @@ const Container = styled.div`
   }
 `
 
+const Input = styled(TextInput)`
+  flex: 1;
+`
+
 const InputEnd = styled(Typography)`
   margin-right: ${theme.spacing(4)};
 `
@@ -199,18 +331,28 @@ const InputEnd = styled(Typography)`
 const LineAmount = styled.div`
   display: flex;
 
-  > *:first-child {
+  > *:not(:last-child) {
     margin-right: ${theme.spacing(3)};
-    flex: 1;
   }
 
   > *:last-child {
-    transform: translateY(50%);
+    margin-top: 34px;
   }
 `
 
-const StyledComboBox = styled(ComboBox)`
-  max-width: 120px;
-  margin-top: ${theme.spacing(6)};
-  margin-right: ${theme.spacing(3)};
+const FreeUnitButton = styled(Button)`
+  justify-content: flex-start;
+`
+
+const OrText = styled(Typography)`
+  flex: initial;
+  margin-top: 34px;
+`
+
+const LineButton = styled.div`
+  display: flex;
+
+  > *:first-child {
+    margin-right: ${theme.spacing(3)};
+  }
 `
