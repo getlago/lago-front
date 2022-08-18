@@ -1,15 +1,12 @@
 name: Run Codegen
 
 on:
-  workflow_dispatch:
-    inputs:
-      api_branch:
-        description: API Branch
-        required: true
-        default: "main"
+  pull_request:
+    types: [review_requested, ready_for_review, synchronize]
 
 jobs:
   codegen:
+    if: github.event.pull_request.draft == false
     name: Run Codegen
     runs-on: ubuntu-latest
     steps:
@@ -48,3 +45,6 @@ jobs:
           CODEGEN_API: http://localhost:3000/graphql
         run: |
           yarn codegen
+
+      - name: Run Typescript
+        run: yarn tsc
