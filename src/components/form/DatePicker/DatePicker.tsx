@@ -21,7 +21,7 @@ export interface DatePickerProps
     'value' | 'onChange' | 'beforeChangeFormatter' | 'password' | 'onError'
   > {
   className?: string
-  value?: string | null
+  value?: string | DateTime | null
   placeholder?: string
   error?: string
   helperText?: string
@@ -54,13 +54,13 @@ export const DatePicker = ({
      * Date will be passed to the parent as ISO
      * So we need to make sure to re-transform to DateTime for the component to read it
      */
-    !!value ? DateTime.fromISO(value) : null
+    !!value ? (typeof value === 'string' ? DateTime.fromISO(value) : value) : null
   )
   const isInvalid = !!localDate && !localDate.isValid
   const { translate } = useInternationalization()
 
   useEffect(() => {
-    setLocalDate(!!value ? DateTime.fromISO(value) : null)
+    setLocalDate(!!value ? (typeof value === 'string' ? DateTime.fromISO(value) : value) : null)
   }, [value])
 
   return (

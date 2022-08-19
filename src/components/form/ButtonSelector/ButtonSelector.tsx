@@ -17,6 +17,7 @@ export interface ButtonSelectorProps {
   value?: string | number
   error?: string
   infoText?: string
+  helperText?: string
   disabled?: boolean
   onChange: (value: string | number) => void
 }
@@ -28,6 +29,7 @@ export const ButtonSelector = ({
   value,
   error,
   infoText,
+  helperText,
   disabled,
   onChange,
 }: ButtonSelectorProps) => {
@@ -59,9 +61,9 @@ export const ButtonSelector = ({
           )
         })}
       </ButtonGroup>
-      {!!error && (
-        <StyledTypography variant="caption" color="danger600">
-          {error}
+      {(!!error || !!helperText) && (
+        <StyledTypography variant="caption" color={error ? 'danger600' : 'textPrimary'}>
+          {error || helperText}
         </StyledTypography>
       )}
     </Container>
@@ -79,7 +81,7 @@ const Container = styled.div`
 
 const StyledTypography = styled(Typography)`
   && {
-    margin-top: ${theme.spacing(1)}px;
+    margin-top: ${theme.spacing(1)};
   }
 `
 
