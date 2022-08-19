@@ -61,5 +61,7 @@ projects:
     id: 62f50d2512182c6df6c39e37
   - name: "\U0001F44D [Ready for dev] - Add Percentage in charge model"
     id: 62ff5cfec490a4767eccdf6e
+  - name: '⚙️ [WIP] - Customers - Subscription on anniversary date'
+    id: 62ea7cd19883fb6718fa823c
 format: flat
 variants: true

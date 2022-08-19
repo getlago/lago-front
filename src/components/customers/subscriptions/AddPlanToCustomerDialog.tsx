@@ -3,9 +3,10 @@ import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { useFormik } from 'formik'
 import { object, string } from 'yup'
+import { DateTime } from 'luxon'
 
 import { Dialog, Button, DialogRef, Alert, Typography } from '~/components/designSystem'
-import { ComboBoxField, TextInputField } from '~/components/form'
+import { ComboBoxField, TextInputField, DatePicker, ButtonSelectorField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
 import { theme } from '~/styles'
@@ -15,6 +16,8 @@ import {
   useGetPlansLazyQuery,
   CreateSubscriptionInput,
   Lago_Api_Error,
+  PlanInterval,
+  BillingTimeEnum,
 } from '~/generated/graphql'
 
 export interface AddPlanToCustomerDialogRef {
@@ -29,6 +32,7 @@ gql`
         id
         name
         code
+        interval
       }
     }
   }
@@ -52,6 +56,7 @@ export const AddPlanToCustomerDialog = forwardRef<
   AddPlanToCustomerDialogProps
 >(({ customerId, customerName }: AddPlanToCustomerDialogProps, ref) => {
   const dialogRef = useRef<DialogRef>(null)
+  const currentDateRef = useRef<DateTime>(DateTime.now())
   const [existingInfos, setExistingInfos] = useState<
     | {
         subscriptionId: string
@@ -81,11 +86,13 @@ export const AddPlanToCustomerDialog = forwardRef<
       // @ts-ignore
       planId: undefined,
       name: '',
+      billingTime: BillingTimeEnum.Calendar,
     },
     validationSchema: object().shape({
       planId: string().required(''),
     }),
     validateOnMount: true,
+    enableReinitialize: true,
     onSubmit: async (values, formikBag) => {
       const answer = await create({
         variables: {
@@ -109,7 +116,7 @@ export const AddPlanToCustomerDialog = forwardRef<
       }
     },
   })
-  const plans = useMemo(() => {
+  const comboboxPlansData = useMemo(() => {
     if (!data || !data?.plans || !data?.plans?.collection) return []
 
     return data?.plans?.collection.map(({ id, name, code }) => {
@@ -125,6 +132,52 @@ export const AddPlanToCustomerDialog = forwardRef<
       }
     })
   }, [data, existingInfos?.existingPlanId])
+
+  const selectedPlan = useMemo(() => {
+    if (!data?.plans?.collection || !formikProps.values.planId) return undefined
+
+    return (data?.plans?.collection || []).find((plan) => plan.id === formikProps.values.planId)
+  }, [data?.plans, formikProps.values.planId])
+
+  const billingTimeHelper = useMemo(() => {
+    const billingTime = formikProps.values.billingTime
+    const currentDate = DateTime.now().setLocale('en-gb')
+    const formattedCurrentDate = currentDate.toFormat('LL/dd/yyyy')
+    const february29 = '02/29/2020'
+    const currentDay = currentDate.get('day')
+
+    if (!selectedPlan) return undefined
+
+    switch (selectedPlan?.interval) {
+      case PlanInterval.Monthly:
+        if (billingTime === BillingTimeEnum.Calendar)
+          return translate('text_62ea7cd44cd4b14bb9ac1d7e')
+
+        if (currentDay <= 28) {
+          return translate('text_62ea7cd44cd4b14bb9ac1d82', { day: currentDay })
+        } else if (currentDay === 29) {
+          return translate('text_62ea7cd44cd4b14bb9ac1d86')
+        } else if (currentDay === 30) {
+          return translate('text_62ea7cd44cd4b14bb9ac1d8a')
+        }
+        return translate('text_62ea7cd44cd4b14bb9ac1d8e')
+
+      case PlanInterval.Yearly:
+        return translate(
+          billingTime === BillingTimeEnum.Calendar
+            ? 'text_62ea7cd44cd4b14bb9ac1d92'
+            : formattedCurrentDate === february29
+            ? 'text_62ea7cd44cd4b14bb9ac1d9a'
+            : 'text_62ea7cd44cd4b14bb9ac1d96'
+        )
+
+      case PlanInterval.Weekly:
+      default:
+        return billingTime === BillingTimeEnum.Calendar
+          ? translate('text_62ea7cd44cd4b14bb9ac1d9e')
+          : translate('text_62ea7cd44cd4b14bb9ac1da2', { day: currentDate.weekdayLong })
+    }
+  }, [selectedPlan, formikProps.values.billingTime, translate])
 
   useImperativeHandle(ref, () => ({
     openDialog: (infos) => {
@@ -174,7 +227,7 @@ export const AddPlanToCustomerDialog = forwardRef<
           name="planId"
           formikProps={formikProps}
           label={translate('text_625434c7bb2cb40124c81a29')}
-          data={plans}
+          data={comboboxPlansData}
           loading={loading}
           isEmptyNull={false}
           loadingText={translate('text_625434c7bb2cb40124c81a35')}
@@ -182,13 +235,44 @@ export const AddPlanToCustomerDialog = forwardRef<
           emptyText={translate('text_625434c7bb2cb40124c81a37')}
           PopperProps={{ displayInDialog: true }}
         />
-        <TextInputField
-          name="name"
-          formikProps={formikProps}
-          label={translate('text_62d7f6178ec94cd09370e2b9')}
-          placeholder={translate('text_62d7f6178ec94cd09370e2cb')}
-          helperText={translate('text_62d7f6178ec94cd09370e2d9')}
-        />
+        {!!formikProps?.values?.planId && (
+          <>
+            <TextInputField
+              name="name"
+              formikProps={formikProps}
+              label={translate('text_62d7f6178ec94cd09370e2b9')}
+              placeholder={translate('text_62d7f6178ec94cd09370e2cb')}
+              helperText={translate('text_62d7f6178ec94cd09370e2d9')}
+            />
+            {!existingInfos && (
+              <>
+                <DatePicker
+                  disabled
+                  name="anniversaryDate"
+                  value={currentDateRef?.current}
+                  label={translate('text_62ea7cd44cd4b14bb9ac1dbb')}
+                  onChange={() => {}}
+                />
+                <ButtonSelectorField
+                  name="billingTime"
+                  label={translate('text_62ea7cd44cd4b14bb9ac1db7')}
+                  formikProps={formikProps}
+                  helperText={billingTimeHelper}
+                  options={[
+                    {
+                      label: translate('text_62ea7cd44cd4b14bb9ac1db9'),
+                      value: BillingTimeEnum.Calendar,
+                    },
+                    {
+                      label: translate('text_62ea7cd44cd4b14bb9ac1dbb'),
+                      value: BillingTimeEnum.Anniversary,
+                    },
+                  ]}
+                />
+              </>
+            )}
+          </>
+        )}
 
         {!!formikProps.errors.planId ? (
           <Alert type="danger">{formikProps.errors.planId}</Alert>
