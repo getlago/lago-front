@@ -1,4 +1,19 @@
-import { getPluralTranslation, replaceDynamicVarInString } from '../useInternationalization'
+import { renderHook } from '@testing-library/react'
+
+import {
+  getPluralTranslation,
+  replaceDynamicVarInString,
+  useInternationalization,
+} from '../useInternationalization'
+
+const mockUpdateIntlLocale = jest.fn()
+let mockUseInternationalizationVar = {}
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  useInternationalizationVar: () => mockUseInternationalizationVar,
+  updateIntlLocale: () => mockUpdateIntlLocale,
+}))
 
 describe('useLocationHistory()', () => {
   describe('replaceDynamicVarInString()', () => {
@@ -53,6 +68,30 @@ describe('useLocationHistory()', () => {
       })
       it('returns second part if plural is 3', () => {
         expect(getPluralTranslation('one|two|three', 3)).toBe('three')
+      })
+    })
+  })
+
+  describe('useInternationalization()', () => {
+    describe('translate', () => {
+      it('returns expected translations', () => {
+        mockUseInternationalizationVar = {
+          translations: { name: 'Spike Spiegel', amount: '{{amount}} Woolong|{{amount}} Woolongs' },
+          locale: 'en',
+        }
+        const { result } = renderHook(() => useInternationalization())
+
+        expect(result.current.translate('name')).toBe('Spike Spiegel')
+        expect(result.current.translate('random')).toBe('random')
+        expect(result.current.translate('amount', { amount: 1 }, 1)).toBe('1 Woolong')
+        expect(result.current.translate('amount', { amount: 2 }, 2)).toBe('2 Woolongs')
+      })
+
+      it('returns empty string if no translations', () => {
+        mockUseInternationalizationVar = {}
+        const { result } = renderHook(() => useInternationalization())
+
+        expect(result.current.translate('random')).toBe('')
       })
     })
   })
