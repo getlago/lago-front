@@ -69,7 +69,7 @@ export const AddOnItem = ({ addOn, navigationProps }: AddOnItemProps) => {
             <Typography variant="caption" noWrap>
               {translate('text_629728388c4d2300e2d3810b', {
                 amountWithCurrency: intlFormatNumber(amountCents || 0, {
-                  currencyDisplay: 'code',
+                  currencyDisplay: 'symbol',
                   currency: amountCurrency,
                 }),
               })}

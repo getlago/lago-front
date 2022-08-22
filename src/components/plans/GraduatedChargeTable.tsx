@@ -173,7 +173,7 @@ export const GraduatedChargeTable = ({
                   {translate('text_627b69c9fe95530136833956', {
                     lastRowUnit: calculation.firstUnit,
                     value: intlFormatNumber(calculation.total, {
-                      currencyDisplay: 'code',
+                      currencyDisplay: 'symbol',
                       initialUnit: 'standard',
                       maximumFractionDigits: 5,
                       currency,
@@ -188,19 +188,19 @@ export const GraduatedChargeTable = ({
                   {translate('text_627b69c9fe95530136833958', {
                     tier1LastUnit: calculation.units,
                     tier1PerUnit: intlFormatNumber(calculation.perUnit, {
-                      currencyDisplay: 'code',
+                      currencyDisplay: 'symbol',
                       initialUnit: 'standard',
                       maximumFractionDigits: 5,
                       currency,
                     }),
                     tier1FlatFee: intlFormatNumber(calculation.flatFee, {
-                      currencyDisplay: 'code',
+                      currencyDisplay: 'symbol',
                       initialUnit: 'standard',
                       maximumFractionDigits: 5,
                       currency,
                     }),
                     totalTier1: intlFormatNumber(calculation.total, {
-                      currencyDisplay: 'code',
+                      currencyDisplay: 'symbol',
                       initialUnit: 'standard',
                       maximumFractionDigits: 5,
                       currency,
@@ -215,19 +215,19 @@ export const GraduatedChargeTable = ({
                 {translate('text_627b69c9fe9553013683395a', {
                   unitCount: calculation.units,
                   tierPerUnit: intlFormatNumber(calculation.perUnit, {
-                    currencyDisplay: 'code',
+                    currencyDisplay: 'symbol',
                     initialUnit: 'standard',
                     maximumFractionDigits: 5,
                     currency,
                   }),
                   tierFlatFee: intlFormatNumber(calculation.flatFee, {
-                    currencyDisplay: 'code',
+                    currencyDisplay: 'symbol',
                     initialUnit: 'standard',
                     maximumFractionDigits: 5,
                     currency,
                   }),
                   totalTier: intlFormatNumber(calculation.total, {
-                    currencyDisplay: 'code',
+                    currencyDisplay: 'symbol',
                     initialUnit: 'standard',
                     maximumFractionDigits: 5,
                     currency,

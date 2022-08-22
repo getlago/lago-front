@@ -110,7 +110,7 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
               {translate('text_6282085b4f283b0102655892', {
                 units: localCharge.packageSize + (localCharge.freeUnits || 0) + 1,
                 cost: intlFormatNumber(Number(localCharge.amount || 0) * 2, {
-                  currencyDisplay: 'code',
+                  currencyDisplay: 'symbol',
                   initialUnit: 'standard',
                   maximumFractionDigits: 5,
                   currency: localCharge.amountCurrency,
@@ -123,7 +123,7 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
                   unit: 1,
                   unitInPackage: localCharge.freeUnits,
                   cost: intlFormatNumber(0, {
-                    currencyDisplay: 'code',
+                    currencyDisplay: 'symbol',
                     initialUnit: 'standard',
                     maximumFractionDigits: 5,
                     currency: localCharge.amountCurrency,
@@ -137,7 +137,7 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
                 unit: (localCharge.freeUnits || 0) + 1,
                 unitInPackage: localCharge.packageSize + (localCharge.freeUnits || 0),
                 cost: intlFormatNumber(Number(localCharge.amount || 0), {
-                  currencyDisplay: 'code',
+                  currencyDisplay: 'symbol',
                   initialUnit: 'standard',
                   maximumFractionDigits: 5,
                   currency: localCharge.amountCurrency,
@@ -149,7 +149,7 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
                 unit: (localCharge.freeUnits || 0) + localCharge.packageSize + 1,
                 unitInPackage: localCharge.packageSize * 2 + (localCharge.freeUnits || 0),
                 cost: intlFormatNumber(Number(localCharge.amount || 0) * 2, {
-                  currencyDisplay: 'code',
+                  currencyDisplay: 'symbol',
                   initialUnit: 'standard',
                   maximumFractionDigits: 5,
                   currency: localCharge.amountCurrency,

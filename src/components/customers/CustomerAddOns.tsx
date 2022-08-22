@@ -71,7 +71,7 @@ export const CustomerAddOns = memo(
                       <Typography variant="caption" noWrap>
                         {translate('text_629781ec7c6c1500d94fbc16', {
                           amountWithCurrency: intlFormatNumber(amountCents || 0, {
-                            currencyDisplay: 'code',
+                            currencyDisplay: 'symbol',
                             currency: amountCurrency,
                           }),
                         })}

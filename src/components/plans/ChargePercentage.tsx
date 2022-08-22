@@ -30,7 +30,7 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
     showRate || showFixedAmount || showFreeUnitsPerEvents || showFreeUnitsPerTotalAggregation
   let freeUnitsPerTotalAggregationTranslation = translate('text_6303351deffd2a0d70498677', {
     freeAmountUnits: intlFormatNumber(Number(localCharge.freeUnitsPerTotalAggregation) * 100 || 0, {
-      currencyDisplay: 'code',
+      currencyDisplay: 'symbol',
       currency: localCharge.amountCurrency,
       maximumFractionDigits: 5,
     }),
@@ -272,7 +272,7 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
             <Typography color="textSecondary">
               {translate('text_62ff5d01a306e274d4ffcc69', {
                 fixedFeeValue: intlFormatNumber(Number(localCharge.fixedAmount) * 100 || 0, {
-                  currencyDisplay: 'code',
+                  currencyDisplay: 'symbol',
                   currency: localCharge.amountCurrency,
                   maximumFractionDigits: 5,
                 }),

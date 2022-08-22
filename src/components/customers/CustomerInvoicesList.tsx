@@ -114,7 +114,10 @@ export const CustomerInvoicesList = ({ invoices }: CustomerInvoicesListProps) =>
                 </IssuingDateCell>
                 <NumberCell color="textSecondary">{number}</NumberCell>
                 <AmountCell color="textSecondary" align="right">
-                  {intlFormatNumber(totalAmountCents, { currency: amountCurrency })}
+                  {intlFormatNumber(totalAmountCents, {
+                    currency: amountCurrency,
+                    currencyDisplay: 'symbol',
+                  })}
                 </AmountCell>
                 <PaymentCell>
                   <Status type={formattedStatus.type} label={translate(formattedStatus.label)} />
