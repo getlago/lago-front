@@ -163,13 +163,11 @@ export const AddPlanToCustomerDialog = forwardRef<
         return translate('text_62ea7cd44cd4b14bb9ac1d8e')
 
       case PlanInterval.Yearly:
-        return translate(
-          billingTime === BillingTimeEnum.Calendar
-            ? 'text_62ea7cd44cd4b14bb9ac1d92'
-            : formattedCurrentDate === february29
-            ? 'text_62ea7cd44cd4b14bb9ac1d9a'
-            : 'text_62ea7cd44cd4b14bb9ac1d96'
-        )
+        return billingTime === BillingTimeEnum.Calendar
+          ? translate('text_62ea7cd44cd4b14bb9ac1d92')
+          : formattedCurrentDate === february29
+          ? translate('text_62ea7cd44cd4b14bb9ac1d9a')
+          : translate('text_62ea7cd44cd4b14bb9ac1d96', { date: currentDate.toFormat('LLL. dd') })
 
       case PlanInterval.Weekly:
       default:
@@ -260,7 +258,12 @@ export const AddPlanToCustomerDialog = forwardRef<
                   helperText={billingTimeHelper}
                   options={[
                     {
-                      label: translate('text_62ea7cd44cd4b14bb9ac1db9'),
+                      label:
+                        selectedPlan?.interval === PlanInterval.Yearly
+                          ? translate('text_62ebd597d5d5130a03ced107')
+                          : selectedPlan?.interval === PlanInterval.Weekly
+                          ? translate('text_62ebd597d5d5130a03ced101')
+                          : translate('text_62ea7cd44cd4b14bb9ac1db9'),
                       value: BillingTimeEnum.Calendar,
                     },
                     {
