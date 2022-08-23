@@ -32,7 +32,7 @@ export const ChargePercentage = ({
   const showFreeUnitsPerTotalAggregation = localCharge.freeUnitsPerTotalAggregation !== undefined
   let freeUnitsPerTotalAggregationTranslation = translate('text_6303351deffd2a0d70498677', {
     freeAmountUnits: intlFormatNumber(Number(localCharge.freeUnitsPerTotalAggregation) * 100 || 0, {
-      currencyDisplay: 'code',
+      currencyDisplay: 'symbol',
       currency,
       maximumFractionDigits: 5,
     }),
@@ -272,7 +272,7 @@ export const ChargePercentage = ({
           <Typography color="textSecondary">
             {translate('text_62ff5d01a306e274d4ffcc69', {
               fixedFeeValue: intlFormatNumber(Number(localCharge.fixedAmount) * 100 || 0, {
-                currencyDisplay: 'code',
+                currencyDisplay: 'symbol',
                 currency,
                 maximumFractionDigits: 5,
               }),
