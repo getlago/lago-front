@@ -8,16 +8,23 @@ import { TextInput } from '~/components/form'
 import { MenuPopper, theme } from '~/styles'
 import { Alert, Typography, Button, Tooltip, Popper } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { CurrencyEnum } from '~/generated/graphql'
 
 import { PlanFormInput } from './types'
 
 interface ChargePercentageProps {
   disabled?: boolean
   chargeIndex: number
+  currency: CurrencyEnum
   formikProps: FormikProps<PlanFormInput>
 }
 
-export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargePercentageProps) => {
+export const ChargePercentage = ({
+  currency,
+  disabled,
+  chargeIndex,
+  formikProps,
+}: ChargePercentageProps) => {
   const { translate } = useInternationalization()
   const localCharge = formikProps.values.charges[chargeIndex]
   const showRate = localCharge.rate !== undefined && localCharge.rate !== ''
@@ -31,7 +38,7 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
   let freeUnitsPerTotalAggregationTranslation = translate('text_6303351deffd2a0d70498677', {
     freeAmountUnits: intlFormatNumber(Number(localCharge.freeUnitsPerTotalAggregation) * 100 || 0, {
       currencyDisplay: 'code',
-      currency: localCharge.amountCurrency,
+      currency,
       maximumFractionDigits: 5,
     }),
   })
@@ -84,7 +91,7 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
             value={localCharge.fixedAmount || ''}
             onChange={(value) => handleUpdate('fixedAmount', value)}
             InputProps={{
-              endAdornment: <InputEnd color="textSecondary">{localCharge.amountCurrency}</InputEnd>,
+              endAdornment: <InputEnd color="textSecondary">{currency}</InputEnd>,
             }}
             helperText={translate('text_62ff5d01a306e274d4ffcc30')}
           />
@@ -167,7 +174,7 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
             value={localCharge.freeUnitsPerTotalAggregation || ''}
             onChange={(value) => handleUpdate('freeUnitsPerTotalAggregation', value)}
             InputProps={{
-              endAdornment: <InputEnd color="textSecondary">{localCharge.amountCurrency}</InputEnd>,
+              endAdornment: <InputEnd color="textSecondary">{currency}</InputEnd>,
             }}
           />
           <Tooltip
@@ -273,7 +280,7 @@ export const ChargePercentage = ({ disabled, chargeIndex, formikProps }: ChargeP
               {translate('text_62ff5d01a306e274d4ffcc69', {
                 fixedFeeValue: intlFormatNumber(Number(localCharge.fixedAmount) * 100 || 0, {
                   currencyDisplay: 'code',
-                  currency: localCharge.amountCurrency,
+                  currency,
                   maximumFractionDigits: 5,
                 }),
               })}
