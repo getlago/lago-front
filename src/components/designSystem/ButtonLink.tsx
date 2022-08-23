@@ -76,6 +76,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
         condition={!!external}
         validWrapper={(wrapperChildren) => (
           <ExternalButtonLink
+            tabIndex={-1}
             className={classNames}
             href={to}
             ref={ref}
@@ -86,7 +87,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
           </ExternalButtonLink>
         )}
         invalidWrapper={(wrapperChildren) => (
-          <InternalButtonLink className={classNames} to={to} ref={ref}>
+          <InternalButtonLink tabIndex={-1} className={classNames} to={to} ref={ref}>
             {wrapperChildren}
           </InternalButtonLink>
         )}
