@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, MouseEvent } from 'react'
+import { useState, useCallback, MouseEvent } from 'react'
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
 import { FormikProps } from 'formik'
 import styled from 'styled-components'
@@ -40,10 +40,6 @@ export const ChargeAccordion = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [index, formikProps.setFieldValue]
   )
-
-  useEffect(() => {
-    handleUpdate('amountCurrency', currency)
-  }, [currency, handleUpdate])
 
   return (
     <Container id={id}>
@@ -142,13 +138,18 @@ export const ChargeAccordion = ({
                   value: currencyType,
                 }))}
                 disableClearable
-                value={localCharge.amountCurrency}
+                value={currency}
                 onChange={() => {}}
               />
             </LineAmount>
           )}
           {localCharge.chargeModel === ChargeModelEnum.Package && (
-            <PackageCharge disabled={disabled} chargeIndex={index} formikProps={formikProps} />
+            <PackageCharge
+              currency={currency}
+              disabled={disabled}
+              chargeIndex={index}
+              formikProps={formikProps}
+            />
           )}
           {localCharge.chargeModel === ChargeModelEnum.Graduated && (
             <GraduatedChargeTable
@@ -159,7 +160,12 @@ export const ChargeAccordion = ({
             />
           )}
           {localCharge.chargeModel === ChargeModelEnum.Percentage && (
-            <ChargePercentage disabled={disabled} chargeIndex={index} formikProps={formikProps} />
+            <ChargePercentage
+              currency={currency}
+              disabled={disabled}
+              chargeIndex={index}
+              formikProps={formikProps}
+            />
           )}
         </Details>
       </StyledAccordion>

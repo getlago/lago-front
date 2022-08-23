@@ -42,7 +42,6 @@ gql`
         toValue
       }
       amount
-      amountCurrency
       chargeModel
       freeUnits
       packageSize

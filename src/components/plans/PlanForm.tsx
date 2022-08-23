@@ -97,12 +97,6 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
               [ChargeModelEnum.Standard, ChargeModelEnum.Package].includes(chargeModel),
             then: number().typeError(translate('text_624ea7c29103fd010732ab7d')).required(''),
           }),
-          amountCurrency: string().when('chargeModel', {
-            is: (chargeModel: ChargeModelEnum) =>
-              !!chargeModel &&
-              [ChargeModelEnum.Standard, ChargeModelEnum.Package].includes(chargeModel),
-            then: string().required(''),
-          }),
           packageSize: number().when('chargeModel', {
             is: (chargeModel: ChargeModelEnum) =>
               !!chargeModel && ChargeModelEnum.Package === chargeModel,
@@ -438,7 +432,6 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                         billableMetric: newCharge,
                         chargeModel: ChargeModelEnum.Standard,
                         amountCents: undefined,
-                        amountCurrency: formikProps.values.amountCurrency,
                       },
                     ])
                     setNewChargeId(newId)

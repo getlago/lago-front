@@ -16,10 +16,16 @@ import { PlanFormInput } from './types'
 interface PackageChargeProps {
   disabled?: boolean
   chargeIndex: number
+  currency: CurrencyEnum
   formikProps: FormikProps<PlanFormInput>
 }
 
-export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageChargeProps) => {
+export const PackageCharge = ({
+  currency,
+  disabled,
+  chargeIndex,
+  formikProps,
+}: PackageChargeProps) => {
   const { translate } = useInternationalization()
   const localCharge = formikProps.values.charges[chargeIndex]
 
@@ -57,7 +63,7 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
             value: currencyType,
           }))}
           disableClearable
-          value={localCharge.amountCurrency}
+          value={currency}
           onChange={() => {}}
         />
       </LineAmount>
@@ -113,7 +119,7 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
                   currencyDisplay: 'code',
                   initialUnit: 'standard',
                   maximumFractionDigits: 5,
-                  currency: localCharge.amountCurrency,
+                  currency,
                 }),
               })}
             </Typography>
@@ -126,7 +132,7 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
                     currencyDisplay: 'code',
                     initialUnit: 'standard',
                     maximumFractionDigits: 5,
-                    currency: localCharge.amountCurrency,
+                    currency,
                   }),
                 })}
               </Typography>
@@ -140,7 +146,7 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
                   currencyDisplay: 'code',
                   initialUnit: 'standard',
                   maximumFractionDigits: 5,
-                  currency: localCharge.amountCurrency,
+                  currency,
                 }),
               })}
             </Typography>
@@ -152,7 +158,7 @@ export const PackageCharge = ({ disabled, chargeIndex, formikProps }: PackageCha
                   currencyDisplay: 'code',
                   initialUnit: 'standard',
                   maximumFractionDigits: 5,
-                  currency: localCharge.amountCurrency,
+                  currency,
                 }),
               })}
             </Typography>

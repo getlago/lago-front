@@ -17,13 +17,12 @@ gql`
   query customerUsage($customerId: ID!, $subscriptionId: ID!) {
     customerUsage(customerId: $customerId, subscriptionId: $subscriptionId) {
       amountCents
-      totalAmountCurrency
+      amountCurrency
       fromDate
       toDate
       chargesUsage {
         units
         amountCents
-        amountCurrency
         billableMetric {
           id
           code
@@ -46,6 +45,7 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
   const [fetchUsage, { data, error, loading, refetch }] = useCustomerUsageLazyQuery({
     variables: { customerId: customerId, subscriptionId: id },
   })
+  const currency = data?.customerUsage?.amountCurrency
 
   return (
     <Container>
@@ -146,7 +146,7 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
                     <Typography color="textSecondary">
                       {intlFormatNumber(data?.customerUsage?.amountCents || 0, {
                         currencyDisplay: 'code',
-                        currency: data?.customerUsage?.totalAmountCurrency,
+                        currency,
                       })}
                     </Typography>
                   </UsageHeader>
@@ -167,7 +167,7 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
                       )
                     })
                   : data?.customerUsage?.chargesUsage?.map((usage, i) => {
-                      const { billableMetric, units, amountCents, amountCurrency } = usage
+                      const { billableMetric, units, amountCents } = usage
 
                       return (
                         <ItemContainer key={`customer-usage-${i}`}>
@@ -182,7 +182,7 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
                             <Typography color="textSecondary">
                               {intlFormatNumber(amountCents || 0, {
                                 currencyDisplay: 'code',
-                                currency: amountCurrency,
+                                currency,
                               })}
                             </Typography>
                           </Line>
