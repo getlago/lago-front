@@ -159,7 +159,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         $align={align}
         onClick={handleClick}
         size={size}
-        data-qa={getDataQa(variant, size, danger, disabled)}
+        data-test={getDataQa(variant, size, danger, disabled)}
         disableElevation
         disableRipple
         disabled={disabled}

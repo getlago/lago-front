@@ -48,7 +48,7 @@ export const Status = ({ type, className, label }: StatusProps) => {
   switch (type) {
     case StatusEnum.paused:
       return (
-        <Container data-qa={type} className={className}>
+        <Container data-test={type} className={className}>
           <svg height={STATUS_SIZE} width={STATUS_SIZE}>
             <circle cx="6" cy="6" r="5" fill="none" stroke={config.color} strokeWidth="2" />
           </svg>
@@ -57,7 +57,7 @@ export const Status = ({ type, className, label }: StatusProps) => {
       )
     default:
       return (
-        <Container data-qa={type} className={className}>
+        <Container data-test={type} className={className}>
           <svg height={STATUS_SIZE} width={STATUS_SIZE}>
             <circle cx="6" cy="6" r="6" fill={config.color} />
           </svg>

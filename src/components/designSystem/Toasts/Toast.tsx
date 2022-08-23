@@ -70,7 +70,7 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({ toast }: ToastProps, re
       $severity={severity}
       onMouseEnter={stopTimeout}
       onMouseLeave={() => startTimeout(AUTO_DISMISS_TIME / 2)}
-      data-qa={`toast/${severity}`}
+      data-test={`toast/${severity}`}
     >
       <Message color="inherit">{translateKey ? translate(translateKey) : message}</Message>
       <Button

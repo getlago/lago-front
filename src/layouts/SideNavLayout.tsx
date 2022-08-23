@@ -98,7 +98,7 @@ const SideNav = () => {
               maxHeight={`calc(100vh - 64px - 16px)`}
               enableFlip={false}
               opener={
-                <HeaderButton variant="quaternary">
+                <HeaderButton data-test="side-nav-name" variant="quaternary">
                   {currentOrganization?.logoUrl ? (
                     <Avatar size="small" variant="connector">
                       <img
