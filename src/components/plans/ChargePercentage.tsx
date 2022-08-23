@@ -27,14 +27,9 @@ export const ChargePercentage = ({
 }: ChargePercentageProps) => {
   const { translate } = useInternationalization()
   const localCharge = formikProps.values.charges[chargeIndex]
-  const showRate = localCharge.rate !== undefined && localCharge.rate !== ''
-  const showFixedAmount = localCharge.fixedAmount !== undefined && localCharge.fixedAmount !== ''
-  const showFreeUnitsPerEvents = !!localCharge.freeUnitsPerEvents
-  const showFreeUnitsPerTotalAggregation =
-    localCharge.freeUnitsPerTotalAggregation !== undefined &&
-    localCharge.freeUnitsPerTotalAggregation !== ''
-  const showAlert =
-    showRate || showFixedAmount || showFreeUnitsPerEvents || showFreeUnitsPerTotalAggregation
+  const showFixedAmount = localCharge.fixedAmount !== undefined
+  const showFreeUnitsPerEvents = localCharge.freeUnitsPerEvents !== undefined
+  const showFreeUnitsPerTotalAggregation = localCharge.freeUnitsPerTotalAggregation !== undefined
   let freeUnitsPerTotalAggregationTranslation = translate('text_6303351deffd2a0d70498677', {
     freeAmountUnits: intlFormatNumber(Number(localCharge.freeUnitsPerTotalAggregation) * 100 || 0, {
       currencyDisplay: 'code',
@@ -263,60 +258,55 @@ export const ChargePercentage = ({
         </Popper>
       </LineButton>
 
-      {showAlert && (
-        <Alert type="info">
-          {showRate && (
-            <Typography color="textSecondary">
-              {translate('text_62ff5d01a306e274d4ffcc65', {
-                percentageFee: intlFormatNumber(Number(localCharge.rate) || 0, {
-                  minimumFractionDigits: 2,
-                  style: 'percent',
-                }),
-              })}
-            </Typography>
-          )}
-          {showFixedAmount && (
-            <Typography color="textSecondary">
-              {translate('text_62ff5d01a306e274d4ffcc69', {
-                fixedFeeValue: intlFormatNumber(Number(localCharge.fixedAmount) * 100 || 0, {
-                  currencyDisplay: 'code',
-                  currency,
-                  maximumFractionDigits: 5,
-                }),
-              })}
-            </Typography>
-          )}
-          {(showFreeUnitsPerEvents || showFreeUnitsPerTotalAggregation) && (
-            <Typography color="textSecondary">
-              {showFreeUnitsPerEvents &&
-                translate(
-                  'text_62ff5d01a306e274d4ffcc6d',
-                  {
-                    freeEventUnits: localCharge.freeUnitsPerEvents || 0,
-                  },
-                  Math.max(Number(localCharge.freeUnitsPerEvents) || 0)
-                )}
+      <Alert type="info">
+        <Typography color="textSecondary">
+          {translate('text_62ff5d01a306e274d4ffcc65', {
+            percentageFee: intlFormatNumber(Number(localCharge.rate) || 0, {
+              minimumFractionDigits: 2,
+              style: 'percent',
+            }),
+          })}
+        </Typography>
 
-              {/* Spaces bellow are important */}
-              {showFreeUnitsPerEvents &&
-                showFreeUnitsPerTotalAggregation &&
-                ` ${translate('text_6303351deffd2a0d70498675')} `}
-
-              {showFreeUnitsPerTotalAggregation && freeUnitsPerTotalAggregationTranslation}
-
-              {` ${translate(
-                'text_6303351deffd2a0d70498679',
+        {showFixedAmount && (
+          <Typography color="textSecondary">
+            {translate('text_62ff5d01a306e274d4ffcc69', {
+              fixedFeeValue: intlFormatNumber(Number(localCharge.fixedAmount) * 100 || 0, {
+                currencyDisplay: 'code',
+                currency,
+                maximumFractionDigits: 5,
+              }),
+            })}
+          </Typography>
+        )}
+        {(showFreeUnitsPerEvents || showFreeUnitsPerTotalAggregation) && (
+          <Typography color="textSecondary">
+            {showFreeUnitsPerEvents &&
+              translate(
+                'text_62ff5d01a306e274d4ffcc6d',
                 {
                   freeEventUnits: localCharge.freeUnitsPerEvents || 0,
                 },
-                (localCharge.freeUnitsPerEvents || 0) < 2 && !showFreeUnitsPerTotalAggregation
-                  ? 1
-                  : 2
-              )}`}
-            </Typography>
-          )}
-        </Alert>
-      )}
+                Math.max(Number(localCharge.freeUnitsPerEvents) || 0)
+              )}
+
+            {/* Spaces bellow are important */}
+            {showFreeUnitsPerEvents &&
+              showFreeUnitsPerTotalAggregation &&
+              ` ${translate('text_6303351deffd2a0d70498675')} `}
+
+            {showFreeUnitsPerTotalAggregation && freeUnitsPerTotalAggregationTranslation}
+
+            {` ${translate(
+              'text_6303351deffd2a0d70498679',
+              {
+                freeEventUnits: localCharge.freeUnitsPerEvents || 0,
+              },
+              (localCharge.freeUnitsPerEvents || 0) < 2 && !showFreeUnitsPerTotalAggregation ? 1 : 2
+            )}`}
+          </Typography>
+        )}
+      </Alert>
     </Container>
   )
 }
