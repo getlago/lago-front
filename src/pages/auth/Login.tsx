@@ -81,8 +81,11 @@ const Login = () => {
           loginError?.graphQLErrors[0] &&
           loginError?.graphQLErrors[0]?.extensions?.code ===
             Lago_Api_Error.IncorrectLoginOrPassword && (
-            <ErrorAlert type="danger">{translate('text_620bc4d4269a55014d493fb7')}</ErrorAlert>
+            <ErrorAlert data-test="error-alert" type="danger">
+              {translate('text_620bc4d4269a55014d493fb7')}
+            </ErrorAlert>
           )}
+
         <form>
           <EmailInput
             name="email"
@@ -101,7 +104,7 @@ const Login = () => {
             placeholder={translate('text_620bc4d4269a55014d493f5b')}
           />
 
-          <SubmitButton fullWidth size="large" onClick={formikProps.submitForm}>
+          <SubmitButton data-test="submit" fullWidth size="large" onClick={formikProps.submitForm}>
             {translate('text_620bc4d4269a55014d493f6d')}
           </SubmitButton>
         </form>

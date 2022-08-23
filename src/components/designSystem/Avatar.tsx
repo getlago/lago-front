@@ -104,7 +104,7 @@ export const Avatar = ({
     return (
       <StyledAvatar
         className={className}
-        data-qa={`${variant}/${size}`}
+        data-test={`${variant}/${size}`}
         $size={mapAvatarSize(size)}
         $isRounded={true}
         $backgroundColor={theme.palette.grey[100]}
@@ -129,7 +129,7 @@ export const Avatar = ({
   return (
     <StyledAvatar
       className={className}
-      data-qa={`${variant}/${size}`}
+      data-test={`${variant}/${size}`}
       $size={mapAvatarSize(size)}
       $isRounded={variant === 'company'}
       // @ts-expect-error

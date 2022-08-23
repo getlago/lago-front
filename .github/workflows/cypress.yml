@@ -1,0 +1,56 @@
+name: TestE2E
+
+on:
+  pull_request:
+    types: [review_requested, ready_for_review, synchronize]
+
+jobs:
+  cypress-run: 
+    if: github.event.pull_request.draft == false
+    name: Run Test E2E
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - name: Install Node.js dependencies
+        run: yarn
+
+      - name: Build Front local image
+        run: |
+          docker build -t getlago/front:ci ./
+
+      - name: Checkout API Git repository
+        uses: actions/checkout@v3
+        with:
+          repository: getlago/lago-api
+          ref: ${{ github.event.inputs.api_branch }}
+          path: api
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Build API local image
+        run: |
+          docker build -t getlago/api:ci ./api
+      
+      - name: Generate API RSA Key
+        run: |
+          echo "LAGO_RSA_PRIVATE_KEY=\"`openssl genrsa 2048 | base64`\"" >> .env
+
+      - name: Launch APP + API
+        run: |
+          docker-compose -f ./api/docker-compose.ci.yml -f docker-compose.ci.yml --env-file ./.env up -d redis api front
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v4
+        env: 
+          CYPRESS_GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+        with:
+          browser: chrome
+          record: true
+          config: baseUrl=http://localhost,projectId=u863yi

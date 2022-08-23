@@ -23,6 +23,7 @@
     "codegen": "graphql-codegen --config codegen.yml -r dotenv/config",
     "codegen:watch": "graphql-codegen --config codegen.yml -r dotenv/config --watch",
     "test": "jest",
+    "test:e2e": "cypress open --config-file cypress/cypress.config.js",
     "inspectTranslations": "node scripts/InspectTranslationKeys",
     "release": "release-it",
     "changelog:update": "auto-changelog --template=.changelog/regular.hbs"
@@ -62,6 +63,7 @@
     "babel-plugin-prismjs": "2.1.0",
     "babel-plugin-styled-components": "2.0.7",
     "css-loader": "6.7.1",
+    "cypress": "10.4.0",
     "dotenv": "16.0.1",
     "duplicate-package-checker-webpack-plugin": "3.0.0",
     "eslint": "8.22.0",

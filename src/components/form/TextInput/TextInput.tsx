@@ -204,7 +204,11 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
           {...props}
         />
         {(helperText || error) && (
-          <Typography variant="caption" color={error ? 'danger600' : 'textPrimary'}>
+          <Typography
+            variant="caption"
+            data-test={error ? 'text-field-error' : 'text-field-helpertext'}
+            color={error ? 'danger600' : 'textPrimary'}
+          >
             {typeof error === 'string' ? translate(error as string) : helperText}
           </Typography>
         )}

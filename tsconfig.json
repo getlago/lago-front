@@ -1,5 +1,5 @@
 {
-  "include": ["**/*.tsx", "**/*.ts"],
+  "include": ["**/*.tsx", "**/*.ts", "cypress/cypress.config.js"],
   "compilerOptions": {
     "lib": ["es6", "dom", "esnext"],
     "outDir": "./dist",
@@ -20,6 +20,6 @@
     },
     "moduleResolution": "node"
   },
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "cypress", "cypress.config.ts"],
   "allowUmdGlobalAccess": true
 }

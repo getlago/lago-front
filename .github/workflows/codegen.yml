@@ -45,6 +45,5 @@ jobs:
           CODEGEN_API: http://localhost:3000/graphql
         run: |
           yarn codegen
-
       - name: Run Typescript
         run: yarn tsc

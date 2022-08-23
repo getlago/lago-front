@@ -123,7 +123,7 @@ export const Typography = memo(
         variant={variant}
         className={className}
         color={mapColor(variant, color)}
-        data-qa={variant}
+        data-test={variant}
         variantMapping={{
           subhead: 'div',
           caption: 'div',

@@ -78,7 +78,7 @@ export const Icon = ({
   return (
     <StyledIcon
       title={`${name}/${size}`}
-      data-qa={`${name}/${size}`}
+      data-test={`${name}/${size}`}
       $size={size}
       $canClick={!!onClick}
       className={clsns('svg-icon', className, { [`icon-animation--${animation}`]: animation })}

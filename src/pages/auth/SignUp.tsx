@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { gql } from '@apollo/client'
 import { object, string } from 'yup'
 import styled from 'styled-components'
+import _findKey from 'lodash/findKey'
 
 import { Page, Title, Subtitle, StyledLogo, Card } from '~/styles/auth'
 import { Typography, Alert, Button } from '~/components/designSystem'
@@ -121,7 +122,7 @@ const SignUp = () => {
         {!!signUpError?.graphQLErrors &&
           signUpError?.graphQLErrors[0] &&
           signUpError?.graphQLErrors[0]?.extensions?.code === Lago_Api_Error.UserAlreadyExists && (
-            <ErrorAlert type="danger">
+            <ErrorAlert type="danger" data-test="error-alert">
               <Typography
                 color="inherit"
                 html={translate('text_622f7a3dc32ce100c46a5131', { link: LOGIN_ROUTE })}
@@ -146,6 +147,7 @@ const SignUp = () => {
 
           <PasswordBlock>
             <TextInput
+              name="password"
               value={formFields.password}
               password
               onChange={(value) => setFormFields((prev) => ({ ...prev, password: value }))}
@@ -154,13 +156,21 @@ const SignUp = () => {
               onFocus={() => setIsPswFocused(true)}
               onBlur={() => setIsPswFocused(false)}
             />
-            <PasswordValidation $visible={isPswFocused}>
+            <PasswordValidation
+              data-test={
+                isPswFocused ? 'password-validation--visible' : 'password-validation--hidden'
+              }
+              $visible={isPswFocused}
+            >
               {errors.some((err) => PASSWORD_VALIDATION.includes(err)) ? (
                 PASSWORD_VALIDATION.map((err) => {
                   const isErrored = errors.includes(err)
 
                   return (
-                    <ValidationLine key={err}>
+                    <ValidationLine
+                      key={err}
+                      data-test={isErrored ? _findKey(FORM_ERRORS, (v) => v === err) : undefined}
+                    >
                       <svg height={8} width={8}>
                         <circle
                           cx="4"
@@ -179,14 +189,20 @@ const SignUp = () => {
                   )
                 })
               ) : (
-                <StyledAlert type="success">
+                <StyledAlert type="success" data-test="success">
                   {translate('text_620bc4d4269a55014d493fbe')}
                 </StyledAlert>
               )}
             </PasswordValidation>
           </PasswordBlock>
 
-          <SubmitButton disabled={errors.length > 0} fullWidth size="large" onClick={onSignUp}>
+          <SubmitButton
+            data-test="submit-button"
+            disabled={errors.length > 0}
+            fullWidth
+            size="large"
+            onClick={onSignUp}
+          >
             {translate('text_620bc4d4269a55014d493fb5')}
           </SubmitButton>
         </form>
