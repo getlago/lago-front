@@ -13,6 +13,7 @@ import { PackageCharge } from '~/components/plans/PackageCharge'
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
 
 import { PlanFormInput } from './types'
+import { VolumeChargeTable } from './VolumeChargeTable'
 
 interface ChargeAccordionProps {
   id: string
@@ -66,7 +67,14 @@ export const ChargeAccordion = ({
             </Typography>
           </Title>
           {!disabled && (
-            <Tooltip placement="top-end" title={translate('text_624aa732d6af4e0103d40e65')}>
+            <Tooltip
+              placement="top-end"
+              title={
+                ChargeModelEnum.Volume
+                  ? translate('text_6304e74aab6dbc18d615f421')
+                  : translate('text_624aa732d6af4e0103d40e65')
+              }
+            >
               <Button
                 variant="quaternary"
                 size="small"
@@ -105,6 +113,10 @@ export const ChargeAccordion = ({
                 label: translate('text_6282085b4f283b0102655868'),
                 value: ChargeModelEnum.Package,
               },
+              {
+                label: translate('text_6304e74aab6dbc18d615f386'),
+                value: ChargeModelEnum.Volume,
+              },
             ]}
             disableClearable
             value={localCharge.chargeModel}
@@ -115,6 +127,8 @@ export const ChargeAccordion = ({
                 ? 'text_62793bbb599f1c01522e91a1'
                 : localCharge.chargeModel === ChargeModelEnum.Package
                 ? 'text_6282085b4f283b010265586c'
+                : localCharge.chargeModel === ChargeModelEnum.Volume
+                ? 'text_6304e74aab6dbc18d615f38a'
                 : 'text_624d9adba93343010cd14ca7'
             )}
             onChange={(value) => handleUpdate('chargeModel', value)}
@@ -161,6 +175,14 @@ export const ChargeAccordion = ({
           )}
           {localCharge.chargeModel === ChargeModelEnum.Percentage && (
             <ChargePercentage
+              currency={currency}
+              disabled={disabled}
+              chargeIndex={index}
+              formikProps={formikProps}
+            />
+          )}
+          {localCharge.chargeModel === ChargeModelEnum.Volume && (
+            <VolumeChargeTable
               currency={currency}
               disabled={disabled}
               chargeIndex={index}

@@ -10,6 +10,7 @@ import {
   useCreatePlanMutation,
   useUpdatePlanMutation,
   ChargeModelEnum,
+  VolumeRangesFragmentDoc,
 } from '~/generated/graphql'
 import { ERROR_404_ROUTE, PLANS_ROUTE } from '~/core/router'
 import { addToast } from '~/core/apolloClient'
@@ -41,6 +42,7 @@ gql`
         perUnitAmount
         toValue
       }
+      ...VolumeRanges
       amount
       chargeModel
       freeUnits
@@ -73,6 +75,7 @@ gql`
 
   ${PlanItemFragmentDoc}
   ${DeletePlanDialogFragmentDoc}
+  ${VolumeRangesFragmentDoc}
 `
 
 type UseCreateEditPlanReturn = {
@@ -95,6 +98,7 @@ const formatPlanInput = (values: PlanFormInput) => {
         billableMetric,
         amount: chargeAmount,
         graduatedRanges,
+        volumeRanges,
         chargeModel,
         freeUnits,
         freeUnitsPerEvents,
@@ -106,6 +110,18 @@ const formatPlanInput = (values: PlanFormInput) => {
           ...(chargeModel === ChargeModelEnum.Graduated
             ? {
                 graduatedRanges: (graduatedRanges || []).map(
+                  ({ flatAmount, fromValue, perUnitAmount, ...range }) => ({
+                    flatAmount: String(flatAmount || '0'),
+                    fromValue: fromValue || 0,
+                    perUnitAmount: String(perUnitAmount || '0'),
+                    ...range,
+                  })
+                ),
+              }
+            : { amount: chargeAmount }),
+          ...(chargeModel === ChargeModelEnum.Volume
+            ? {
+                volumeRanges: (volumeRanges || []).map(
                   ({ flatAmount, fromValue, perUnitAmount, ...range }) => ({
                     flatAmount: String(flatAmount || '0'),
                     fromValue: fromValue || 0,
