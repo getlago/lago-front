@@ -63,6 +63,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
               freeUnitsPerEvents,
               freeUnitsPerTotalAggregation,
               graduatedRanges,
+              volumeRanges,
               packageSize,
               rate,
               ...charge
@@ -75,6 +76,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
               freeUnitsPerEvents: freeUnitsPerEvents || undefined,
               freeUnitsPerTotalAggregation: freeUnitsPerTotalAggregation || undefined,
               graduatedRanges: !graduatedRanges ? null : graduatedRanges,
+              volumeRanges: !volumeRanges ? null : volumeRanges,
               rate: rate || undefined,
               ...charge,
             })
@@ -151,6 +153,39 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                         return true
                       }
                     )
+
+                    return isValid
+                  },
+                })
+                .min(2)
+                .required(''),
+            })
+            .nullable(),
+          volumeRanges: array()
+            .when('chargeModel', {
+              is: (chargeModel: ChargeModelEnum) =>
+                !!chargeModel && chargeModel === ChargeModelEnum.Volume,
+              then: array()
+                .test({
+                  test: (volumeRange) => {
+                    let isValid = true
+
+                    volumeRange?.every(({ fromValue, toValue, perUnitAmount, flatAmount }, i) => {
+                      if (isNaN(Number(perUnitAmount)) && isNaN(Number(flatAmount))) {
+                        isValid = false
+                        return false
+                      }
+
+                      if (
+                        i < volumeRange.length - 1 &&
+                        (typeof fromValue !== 'number' || (fromValue || 0) > toValue)
+                      ) {
+                        isValid = false
+                        return false
+                      }
+
+                      return true
+                    })
 
                     return isValid
                   },
