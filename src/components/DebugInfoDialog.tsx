@@ -21,8 +21,10 @@ export const DebugInfoDialog = forwardRef<DialogRef>(({}, ref) => {
       description={<Typography html={translate('text_62f50d26c989ab031968849a')} />}
       actions={({ closeDialog }) => (
         <>
+          <Button variant="quaternary" onClick={closeDialog}>
+            {translate('text_62f50d26c989ab03196884ae')}
+          </Button>
           <Button
-            variant="quaternary"
             onClick={() => {
               navigator.clipboard.writeText(
                 `### Environment informations
@@ -39,11 +41,11 @@ export const DebugInfoDialog = forwardRef<DialogRef>(({}, ref) => {
                 severity: 'info',
                 translateKey: 'text_62f50d3cc15266f3bd1d83ce',
               })
+              closeDialog()
             }}
           >
             {translate('text_62f50d26c989ab03196884ac')}
           </Button>
-          <Button onClick={closeDialog}>{translate('text_62f50d26c989ab03196884ae')}</Button>
         </>
       )}
     >
