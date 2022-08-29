@@ -327,10 +327,14 @@ const UsageLogContainer = styled.div`
 
 const ItemContainer = styled.div`
   padding: ${theme.spacing(4)};
-  min-width: 140px;
+  min-width: 300px;
   box-sizing: border-box;
   background-color: ${theme.palette.background.default};
   flex: 1;
+
+  ${theme.breakpoints.down('md')} {
+    min-width: 180px;
+  }
 `
 
 const Line = styled.div`
