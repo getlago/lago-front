@@ -4,7 +4,7 @@ import _get from 'lodash/get'
 import _isEqual from 'lodash/isEqual'
 
 import { ComboBox } from './ComboBox'
-import { ComboBoxProps } from './types'
+import { ComboBoxProps, BasicComboBoxData, ComboboxDataGrouped } from './types'
 
 interface ComboBoxFieldProps extends Omit<ComboBoxProps, 'onChange' | 'value' | 'name'> {
   name: string
@@ -15,11 +15,29 @@ interface ComboBoxFieldProps extends Omit<ComboBoxProps, 'onChange' | 'value' | 
 }
 
 export const ComboBoxField = memo(
-  ({ name, isEmptyNull = true, formikProps, ...props }: ComboBoxFieldProps) => {
+  ({
+    name,
+    isEmptyNull = true,
+    formikProps,
+    renderGroupHeader,
+    data,
+    ...props
+  }: ComboBoxFieldProps) => {
     const { setFieldValue, values, errors, touched } = formikProps
 
-    return (
+    return renderGroupHeader ? (
       <ComboBox
+        name={name}
+        data={data as ComboboxDataGrouped[]}
+        renderGroupHeader={renderGroupHeader}
+        value={_get(values, name)}
+        error={touched[name] ? (errors[name] as string) : undefined}
+        onChange={(newValue) => setFieldValue(name, newValue || (isEmptyNull ? null : ''))}
+        {...props}
+      />
+    ) : (
+      <ComboBox
+        data={data as BasicComboBoxData[]}
         name={name}
         value={_get(values, name)}
         error={touched[name] ? (errors[name] as string) : undefined}

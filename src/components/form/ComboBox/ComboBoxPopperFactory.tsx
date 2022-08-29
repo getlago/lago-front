@@ -1,15 +1,27 @@
+import { ReactNode } from 'react'
 import { Popper, PopperProps } from '@mui/material'
 import styled from 'styled-components'
+import clsx from 'clsx'
 
 import { theme } from '~/styles'
 
 import { ComboBoxProps } from './types'
 
-type ComboBoxPopperFactoryArgs = Required<Pick<ComboBoxProps, 'PopperProps'>>['PopperProps']
+type ComboBoxPopperFactoryArgs = Required<Pick<ComboBoxProps, 'PopperProps'>>['PopperProps'] & {
+  grouped?: boolean
+  virtualized?: boolean
+}
 
 // return a configured <Popper> component with custom styles
 export const ComboBoxPopperFactory =
-  ({ maxWidth, minWidth, placement, displayInDialog }: ComboBoxPopperFactoryArgs = {}) =>
+  ({
+    maxWidth,
+    minWidth,
+    placement,
+    displayInDialog,
+    grouped,
+    virtualized,
+  }: ComboBoxPopperFactoryArgs = {}) =>
   // eslint-disable-next-line react/display-name
   (props: PopperProps) =>
     (
@@ -29,7 +41,14 @@ export const ComboBoxPopperFactory =
         ]}
         {...props}
       >
-        {props.children}
+        <div
+          className={clsx({
+            'combobox-popper--virtualized': virtualized,
+            'combobox-popper--grouped': grouped,
+          })}
+        >
+          {props.children as ReactNode}
+        </div>
       </StyledPopper>
     )
 
@@ -45,5 +64,14 @@ const StyledPopper = styled(Popper)<{
 
   ${theme.breakpoints.down('md')} {
     max-width: ${({ $minWidth }) => ($minWidth ? `${$minWidth}px` : 'initial')};
+  }
+
+  .MuiAutocomplete-paper {
+    border: 1px solid ${theme.palette.grey[200]};
+    padding: ${theme.spacing(2)} 0;
+  }
+
+  > *.combobox-popper--grouped .MuiAutocomplete-paper {
+    padding: 0 0 ${theme.spacing(2)} 0;
   }
 `

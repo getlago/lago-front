@@ -9,8 +9,8 @@ import { theme } from '~/styles'
 
 import { ComboBoxItem } from './ComboBoxItem'
 import { ComboBoxInput } from './ComboBoxInput'
-import { ComboBoxVirtualizedList } from './ComboBoxVirtualizedList'
 import { ComboBoxPopperFactory } from './ComboBoxPopperFactory'
+import { ComboboxList } from './ComboboxList'
 import { ComboBoxData, ComboBoxProps } from './types'
 
 export const ComboBox = ({
@@ -31,13 +31,17 @@ export const ComboBox = ({
   loadingText,
   emptyText,
   disableClearable = false,
+  renderGroupHeader,
+  virtualized = true,
   onChange,
 }: ComboBoxProps) => {
   const { translate } = useInternationalization()
 
   // By default, we want to sort `options` alphabetically (by value)
   const data = useMemo(() => {
-    return sortValues ? _sortBy(rawData, (item) => item.label ?? item.value) : rawData
+    return (
+      sortValues ? _sortBy(rawData, (item: ComboBoxData) => item.label ?? item.value) : rawData
+    ) as ComboBoxData[]
   }, [rawData, sortValues])
 
   // we need a ref to the previous data (see the following `useEffect()`)
@@ -125,6 +129,7 @@ export const ComboBox = ({
             key={`option-${option.value}`}
             option={option}
             selected={state.selected}
+            virtualized={virtualized}
           />
         )
       }}
@@ -149,13 +154,17 @@ export const ComboBox = ({
       }}
       ListboxComponent={
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ComboBoxVirtualizedList as any
+        ComboboxList as any
       }
       ListboxProps={
         // @ts-ignore
-        { value, data }
+        { value, renderGroupHeader, virtualized }
       }
-      PopperComponent={ComboBoxPopperFactory(PopperProps)}
+      PopperComponent={ComboBoxPopperFactory({
+        ...PopperProps,
+        grouped: !!(data || [])[0]?.group,
+        virtualized,
+      })}
       getOptionDisabled={(option) => !!option?.disabled}
       getOptionLabel={(option) => {
         const optionForString =
