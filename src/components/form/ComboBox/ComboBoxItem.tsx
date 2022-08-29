@@ -15,12 +15,14 @@ interface ComboBoxItemProps {
   option: ComboBoxData
   selected?: boolean
   comboboxProps: React.HTMLAttributes<HTMLLIElement>
+  virtualized?: boolean
 }
 
 export const ComboBoxItem = ({
   id,
   option: { customValue, value, label, disabled, labelNode },
   selected,
+  virtualized,
   comboboxProps,
 }: ComboBoxItemProps) => {
   const { className, ...allProps } = comboboxProps
@@ -29,10 +31,9 @@ export const ComboBoxItem = ({
     // @ts-ignore
     <Item
       id={id}
+      $virtualized={virtualized}
       className={clsns(
-        'combo-box-item',
         {
-          'combo-box-item--selected': selected,
           'combo-box-item--disabled': disabled,
         },
         className
@@ -64,15 +65,20 @@ const AddCustomValueIcon = styled(Icon)`
   margin-right: ${theme.spacing(4)};
 `
 
-const Item = styled.div`
-  min-height: ${ITEM_HEIGHT}px;
-  box-sizing: border-box;
-  padding: 14px ${theme.spacing(4)};
-  display: flex;
-  align-items: center;
-  border-radius: 12px;
-  cursor: pointer;
-  width: 100%;
+export const Item = styled.div<{ $virtualized?: boolean }>`
+  && {
+    padding: 0 ${theme.spacing(4)};
+    min-height: ${ITEM_HEIGHT}px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-left: ${theme.spacing(2)};
+    margin-right: ${theme.spacing(2)};
+    width: ${({ $virtualized }) => ($virtualized ? 'initial' : 'inherit')};
+    box-sizing: border-box;
+  }
 
   &.combo-box-item--disabled {
     cursor: auto;

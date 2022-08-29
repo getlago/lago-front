@@ -4,27 +4,33 @@ import { PopperProps as MuiPopperProps } from '@mui/material'
 
 import { TextInputProps } from '../TextInput'
 
-export interface ComboBoxData {
+export interface BasicComboBoxData {
   value: string
   selected?: boolean
   label?: string
   labelNode?: ReactNode
   disabled?: boolean
   customValue?: boolean
+  group?: never
 }
 
-export type ComboBoxDataWithLabel = ComboBoxData & Required<Pick<ComboBoxData, 'label'>>
+export interface ComboboxDataGrouped extends Omit<BasicComboBoxData, 'group'> {
+  group: string
+}
 
-export interface ComboBoxProps extends Omit<ComboBoxInputProps, 'params'> {
+export type ComboBoxData = BasicComboBoxData | ComboboxDataGrouped
+
+interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params'> {
   loading?: boolean
   disabled?: boolean
   value?: string
-  data: ComboBoxData[]
+  data: BasicComboBoxData[]
   sortValues?: boolean
   allowAddValue?: boolean
   infoText?: string
   loadingText?: string
   emptyText?: string
+  virtualized?: boolean
   disableClearable?: boolean
   PopperProps?: Pick<MuiPopperProps, 'placement'> & {
     minWidth?: number
@@ -32,8 +38,16 @@ export interface ComboBoxProps extends Omit<ComboBoxInputProps, 'params'> {
     displayInDialog?: boolean
     offset?: string
   }
+  renderGroupHeader?: never
   onChange: (value: string) => unknown
 }
+
+interface GroupedComboboxProps extends Omit<BasicComboboxProps, 'data' | 'renderGroupHeader'> {
+  data: ComboboxDataGrouped[]
+  renderGroupHeader?: Record<string, ReactNode>
+}
+
+export type ComboBoxProps = BasicComboboxProps | GroupedComboboxProps
 
 export type ComboBoxInputProps = Omit<TextInputProps, 'onChange'> & {
   disableClearable?: boolean

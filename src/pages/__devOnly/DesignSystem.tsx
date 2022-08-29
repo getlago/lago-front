@@ -698,11 +698,77 @@ const DesignSystem = () => {
                   <Block $marginBottom={theme.spacing(6)}>
                     <ComboBoxField
                       name="combobox"
-                      data={[{ value: 'Him' }, { value: 'Her' }, { value: 'Mike' }]}
-                      label="Who's the best designer in town ?"
-                      placeholder="Choose wisely"
+                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
+                        value: `${letter}-${i}`,
+                        group: Math.round(i / 5) + '',
+                      }))}
+                      label="Grouped by - virtualized"
+                      placeholder="Placeholder"
                       formikProps={formikProps}
                     />
+                    <ComboBoxField
+                      name="combobox"
+                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
+                        value: `${letter}-${i}`,
+                      }))}
+                      label="Not grouped - virtualized"
+                      placeholder="Placeholder"
+                      formikProps={formikProps}
+                    />
+                    <ComboBoxField
+                      name="combobox"
+                      virtualized={false}
+                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
+                        value: `${letter}-${i}`,
+                      }))}
+                      label="Not grouped - normal"
+                      placeholder="Placeholder"
+                      formikProps={formikProps}
+                    />
+                    <ComboBoxField
+                      name="combobox"
+                      virtualized={false}
+                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
+                        value: `${letter}-${i}`,
+                        group: Math.round(i / 5) + '',
+                      }))}
+                      renderGroupHeader={{
+                        '0': (
+                          <ComboboxHeader>
+                            <Typography variant="captionHl" color="textSecondary">
+                              The good •&#32;
+                            </Typography>
+                            <Typography component="span" variant="caption" noWrap>
+                              Based on several survey
+                            </Typography>
+                          </ComboboxHeader>
+                        ),
+                        '1': (
+                          <ComboboxHeader>
+                            <Typography variant="captionHl" color="textSecondary">
+                              The bad •&#32;
+                            </Typography>
+                            <Typography component="span" variant="caption" noWrap>
+                              Because I say so
+                            </Typography>
+                          </ComboboxHeader>
+                        ),
+                        '2': (
+                          <ComboboxHeader>
+                            <Typography variant="captionHl" color="textSecondary">
+                              The ugly •&#32;
+                            </Typography>
+                            <Typography component="span" variant="caption" noWrap>
+                              Don&apos;t look at it
+                            </Typography>
+                          </ComboboxHeader>
+                        ),
+                      }}
+                      label="Grouped by - normal - custom headers"
+                      placeholder="Placeholder"
+                      formikProps={formikProps}
+                    />
+
                     <ComboBoxField
                       name="combobox"
                       data={[]}
@@ -947,6 +1013,22 @@ const TableContent = styled.div`
 
   > * {
     margin-right: ${theme.spacing(4)};
+  }
+`
+
+const ComboboxHeader = styled.div`
+  display: flex;
+  width: 100%;
+
+  > * {
+    white-space: nowrap;
+
+    &:first-child {
+      margin-right: ${theme.spacing(1)};
+    }
+    &:last-child {
+      min-width: 0;
+    }
   }
 `
 

@@ -1,38 +1,12 @@
 /* eslint-disable react/prop-types */
-import {
-  forwardRef,
-  useEffect,
-  createContext,
-  useContext,
-  useRef,
-  ReactNode,
-  Children,
-} from 'react'
+import { useEffect, useRef, ReactElement } from 'react'
 import { VariableSizeList } from 'react-window'
-import styled from 'styled-components'
-
-import { theme } from '~/styles'
 
 import { ITEM_HEIGHT } from './ComboBoxItem'
 import { ComboBoxProps } from './types'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function renderRow(props: any) {
-  const { data, index, style } = props
-
-  return <div style={style}>{data[index]}</div>
-}
-
-const OuterElementContext = createContext({})
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const OuterElementType = forwardRef<HTMLDivElement, any>((props, ref) => {
-  const outerProps = useContext(OuterElementContext)
-
-  return <div ref={ref} {...props} {...outerProps} />
-})
-
-OuterElementType.displayName = 'OuterElementType'
+export const GROUP_ITEM_KEY = 'combobox-group-by'
+export const GROUP_HEADER_HEIGHT = 44
 
 function useResetCache(itemCount: number) {
   const ref = useRef<VariableSizeList>(null)
@@ -46,75 +20,60 @@ function useResetCache(itemCount: number) {
 }
 
 type ComboBoxVirtualizedListProps = {
-  children: ReactNode
-} & Pick<ComboBoxProps, 'value'> &
-  Pick<ComboBoxProps, 'data'>
+  elements: ReactElement[]
+} & Pick<ComboBoxProps, 'value'>
 
-export const ComboBoxVirtualizedList = forwardRef<HTMLDivElement, ComboBoxVirtualizedListProps>(
-  function ListboxComponent(props: ComboBoxVirtualizedListProps, ref) {
-    const { children, value, data, ...propsToForward } = props
-    const itemData = Children.toArray(children)
-    const itemCount = itemData.length
+export const ComboBoxVirtualizedList = (props: ComboBoxVirtualizedListProps) => {
+  const { elements, value } = props
+  const itemCount = elements?.length
 
-    const getHeight = () => {
-      // recommended perf best practice
-      if (itemCount > 8) {
-        return 8 * (ITEM_HEIGHT + 4) - 4 // Last item does not have 4px margin-bottom
-      }
-      return itemData.length * (ITEM_HEIGHT + 4) - 4 // Last item does not have 4px margin-bottom
+  const getHeight = () => {
+    // recommended perf best practice
+    if (itemCount > 5) {
+      return 5 * (ITEM_HEIGHT + 4) - 4 // Last item does not have 4px margin-bottom
     }
+    return itemCount * (ITEM_HEIGHT + 4) - 4 // Last item does not have 4px margin-bottom
+  }
 
-    // reset the `VariableSizeList` cache if data gets updated
-    const gridRef = useResetCache(itemCount)
+  // reset the `VariableSizeList` cache if data gets updated
+  const gridRef = useResetCache(itemCount)
 
-    // when value gets updated, ensure we tell <VariableSizeList>
-    //  to scroll to the selected option
-    useEffect(
-      () => {
-        if (gridRef && value && gridRef.current) {
-          const valueIndex = data.findIndex((option) => option.value === value)
+  // when value gets updated, ensure we tell <VariableSizeList>
+  // to scroll to the selected option
+  useEffect(
+    () => {
+      if (gridRef && value && gridRef.current) {
+        const valueIndex = elements.findIndex(
+          (el) => el.props?.children?.props?.option.value === value
+        )
 
-          if (valueIndex) {
-            gridRef.current?.scrollToItem(valueIndex, 'smart')
-          }
+        if (valueIndex) {
+          gridRef.current?.scrollToItem(valueIndex, 'smart')
         }
-      },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [value]
-    )
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [value]
+  )
 
-    return (
-      <Container ref={ref}>
-        <OuterElementContext.Provider value={propsToForward}>
-          <StyledVariableSizeList
-            itemData={itemData}
-            height={getHeight()}
-            width="100%"
-            ref={gridRef}
-            outerElementType={OuterElementType}
-            innerElementType="div"
-            itemSize={(index) => (index === itemCount - 1 ? ITEM_HEIGHT : ITEM_HEIGHT + 4)}
-            overscanCount={5}
-            itemCount={itemCount}
-          >
-            {renderRow}
-          </StyledVariableSizeList>
-        </OuterElementContext.Provider>
-      </Container>
-    )
-  }
-)
-
-const StyledVariableSizeList = styled(VariableSizeList)`
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(1)};
-  }
-`
-
-const Container = styled.div`
-  max-height: inherit;
-
-  .MuiAutocomplete-listbox {
-    max-height: inherit;
-  }
-`
+  return (
+    <VariableSizeList
+      itemData={elements}
+      height={getHeight()}
+      width="100%"
+      ref={gridRef}
+      innerElementType="div"
+      itemSize={(index) => {
+        return index === itemCount - 1
+          ? ITEM_HEIGHT
+          : ((elements[index].key as string) || '').includes(GROUP_ITEM_KEY)
+          ? GROUP_HEADER_HEIGHT + (index === 0 ? 8 : 12)
+          : ITEM_HEIGHT + 4
+      }}
+      overscanCount={5}
+      itemCount={itemCount}
+    >
+      {({ style, index }) => <div style={style}>{elements[index]}</div>}
+    </VariableSizeList>
+  )
+}
