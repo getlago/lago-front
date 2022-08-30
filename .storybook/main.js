@@ -1,4 +1,6 @@
+require('dotenv').config()
 const path = require('path')
+const webpack = require('webpack')
 
 module.exports = {
   stories: ['../src/**/*.stories.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
@@ -19,11 +21,31 @@ module.exports = {
 
     const fileLoaderRule = config.module.rules.find((rule) => rule.test && rule.test.test('.svg'))
     fileLoaderRule.exclude = /\.svg$/
-    config.module.rules.push({
-      test: /\.svg$/,
-      enforce: 'pre',
-      loader: require.resolve('@svgr/webpack'),
-    })
+    config.module.rules.push(
+      {
+        test: /\.svg$/,
+        enforce: 'pre',
+        loader: require.resolve('@svgr/webpack'),
+        options: {
+          svgoConfig: {
+            pluggins: [{ prefixIds: false, prefixClassNames: false }],
+          },
+        },
+      },
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      }
+    )
+
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        APP_ENV: JSON.stringify('production'),
+        API_URL: JSON.stringify(process.env.API_URL),
+        LAGO_SIGNUP_DISABLED: process.env.LAGO_SIGNUP_DISABLED,
+        APP_VERSION: JSON.stringify('0.0'),
+      })
+    )
 
     return config
   },

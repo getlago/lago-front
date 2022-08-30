@@ -106,7 +106,7 @@ const Container = styled.div<{ $virtualized?: boolean }>`
 
   ${Item}:not(:last-child) {
     margin: ${({ $virtualized }) =>
-      $virtualized ? `0 ${theme.spacing(2)}` : `0 ${theme.spacing(2)} ${theme.spacing(1)}`};
+      $virtualized ? `0 ${theme.spacing(2)}` : `0 0 ${theme.spacing(1)}`};
   }
 `
 
