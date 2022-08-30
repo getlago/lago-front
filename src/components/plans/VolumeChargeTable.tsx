@@ -179,7 +179,7 @@ export const VolumeChargeTable = ({
         <Typography variant="bodyHl" color="textSecondary">
           {translate('text_6304e74aab6dbc18d615f412', {
             lastRowFirstUnit: infosCalculation.lastRowFirstUnit,
-            value: intlFormatNumber(infosCalculation.value, {
+            value: intlFormatNumber(infosCalculation.value * 100, {
               currencyDisplay: 'symbol',
               maximumFractionDigits: 5,
               currency,
