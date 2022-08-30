@@ -36,7 +36,7 @@
     "@dittowords/cli": "2.5.1",
     "@emotion/react": "11.10.0",
     "@emotion/styled": "11.10.0",
-    "@graphql-codegen/cli": "2.11.6",
+    "@graphql-codegen/cli": "2.11.8",
     "@graphql-codegen/typescript": "2.7.3",
     "@graphql-codegen/typescript-operations": "2.5.3",
     "@graphql-codegen/typescript-react-apollo": "3.3.3",
