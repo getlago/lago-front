@@ -27,7 +27,6 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params'> {
   data: BasicComboBoxData[]
   sortValues?: boolean
   allowAddValue?: boolean
-  infoText?: string
   loadingText?: string
   emptyText?: string
   virtualized?: boolean
@@ -49,7 +48,10 @@ interface GroupedComboboxProps extends Omit<BasicComboboxProps, 'data' | 'render
 
 export type ComboBoxProps = BasicComboboxProps | GroupedComboboxProps
 
-export type ComboBoxInputProps = Omit<TextInputProps, 'onChange'> & {
+export type ComboBoxInputProps = Pick<
+  TextInputProps,
+  'error' | 'label' | 'name' | 'placeholder' | 'helperText' | 'className' | 'infoText'
+> & {
   disableClearable?: boolean
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: Omit<AutocompleteRenderInputParams, 'inputProps'> & { inputProps: any }

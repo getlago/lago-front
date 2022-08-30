@@ -2,11 +2,13 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import Maneki from './assets/maneki.png'
 
+import { decorators } from '../../.storybook/preview'
 import { Alert } from '../components/designSystem/Alert'
 
 export default {
   title: 'Design System/Alert',
   component: Alert,
+  decorators,
   argTypes: {
     ButtonProps: { table: { disable: true } },
   },
