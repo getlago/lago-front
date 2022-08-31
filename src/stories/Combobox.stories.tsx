@@ -10,6 +10,7 @@ import { decorators } from '../../.storybook/preview'
 
 const ComboboxHeader = styled.div`
   display: flex;
+  min-width: 0;
 
   > * {
     white-space: nowrap;
@@ -60,7 +61,10 @@ export default {
         Grouped: [
           { value: 'Alex', group: 'Frontend' },
           { value: 'Morguy', group: 'Frontend' },
-          { value: 'Mike', group: 'Designer' },
+          {
+            value: 'Mike',
+            group: 'Designer',
+          },
           { value: 'Jerem', group: 'Backend' },
           { value: 'Lovro', group: 'Backend' },
           { value: 'Romain', group: 'Backend' },
@@ -81,7 +85,7 @@ export default {
           Frontend: (
             <ComboboxHeader>
               <Typography variant="captionHl" color="textSecondary">
-                The good •&#32;
+                🚀 •&#32;
               </Typography>
               <Typography component="span" variant="caption" noWrap>
                 Frontend
@@ -91,7 +95,7 @@ export default {
           Backend: (
             <ComboboxHeader>
               <Typography variant="captionHl" color="textSecondary">
-                The bad •&#32;
+                🔥 •&#32;
               </Typography>
               <Typography component="span" variant="caption" noWrap>
                 Backend
@@ -101,10 +105,11 @@ export default {
           Designer: (
             <ComboboxHeader>
               <Typography variant="captionHl" color="textSecondary">
-                The ugly •&#32;
+                🎨 •&#32;
               </Typography>
               <Typography component="span" variant="caption" noWrap>
-                Designer
+                Designer - Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cumque
+                temporibus ea ducimus non repellendus!
               </Typography>
             </ComboboxHeader>
           ),

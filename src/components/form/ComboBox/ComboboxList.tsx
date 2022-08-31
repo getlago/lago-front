@@ -3,6 +3,7 @@ import styled, { css } from 'styled-components'
 import _groupBy from 'lodash/groupBy'
 
 import { theme } from '~/styles'
+import { Typography } from '~/components/designSystem'
 
 import {
   ComboBoxVirtualizedList,
@@ -63,7 +64,9 @@ export const ComboboxList = forwardRef(
                     $isFirst={i === 0}
                     $virtualized={virtualized}
                   >
-                    {(!!renderGroupHeader && (renderGroupHeader[key] as ReactNode)) || key}
+                    {(!!renderGroupHeader && (renderGroupHeader[key] as ReactNode)) || (
+                      <Typography noWrap>{key}</Typography>
+                    )}
                   </GroupHeader>,
                 ]
               : [],

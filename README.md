@@ -16,6 +16,10 @@ The contribution documentation is available [here](https://github.com/getlago/la
 
 Check the wiki [guide](https://github.com/getlago/lago-front/wiki)
 
+## Storybook for Design System components
+
+Accessible on github pages [https://getlago.github.io/lago-front](https://getlago.github.io/lago-front)
+
 ## License
 
 Lago is open-source under the GNU Affero General Public License Version 3 (AGPLv3) or any later version.
