@@ -77,6 +77,7 @@ export const ComboBox = ({
   return (
     <Autocomplete
       options={data}
+      open
       disabled={disabled}
       renderInput={(params) => {
         return (
