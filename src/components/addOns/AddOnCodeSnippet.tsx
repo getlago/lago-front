@@ -13,14 +13,14 @@ curl --location --request POST "${apiUrl}/api/v1/applied_add_ons" \\
   --header 'Content-Type: application/json' \\
   --data-raw '{
     "applied_add_on": {
-      "customer_id": "__CUSTOMER_ID__",
+      "external_customer_id": "__EXTERNAL_CUSTOMER_ID__",
       "add_on_code": "${addOn.code}",
       "amount_cents": ${addOn.amountCents},
       "amount_currency": "EUR"
     }
   }'
   
-# To use the snippet, don’t forget to edit your __YOUR_API_KEY__ and  __CUSTOMER_ID__`
+# To use the snippet, don’t forget to edit your __YOUR_API_KEY__ and  __EXTERNAL_CUSTOMER_ID__`
 }
 
 interface AddOnCodeSnippetProps {

@@ -31,6 +31,7 @@ gql`
     nextPendingStartDate
     name
     nextName
+    externalId
     plan {
       ...SubscriptionItemPlan
     }
@@ -99,8 +100,16 @@ export const CustomerSubscriptionsList = forwardRef<
           </ListHeader>
           <List>
             {subscriptions.map((subscription) => {
-              const { id, name, plan, startedAt, nextName, nextPendingStartDate, nextPlan } =
-                subscription
+              const {
+                id,
+                externalId,
+                name,
+                plan,
+                startedAt,
+                nextName,
+                nextPendingStartDate,
+                nextPlan,
+              } = subscription
               const isDowngrading = !!nextPlan
 
               return (
@@ -108,7 +117,7 @@ export const CustomerSubscriptionsList = forwardRef<
                   {isDowngrading && !!nextPlan && (
                     <SubscriptionItem
                       ref={subscriptionItemRef}
-                      subscriptionId={id}
+                      subscriptionId={externalId}
                       subscriptionName={nextName}
                       date={nextPendingStartDate}
                       plan={nextPlan}
@@ -117,7 +126,7 @@ export const CustomerSubscriptionsList = forwardRef<
                   )}
                   <SubscriptionItem
                     ref={subscriptionItemRef}
-                    subscriptionId={id}
+                    subscriptionId={externalId}
                     subscriptionName={name}
                     date={startedAt}
                     plan={plan}

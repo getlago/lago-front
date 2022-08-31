@@ -25,7 +25,7 @@ gql`
   fragment AddCustomerDialog on Customer {
     id
     name
-    customerId
+    externalId
     canBeDeleted
     legalName
     legalNumber
@@ -49,7 +49,7 @@ gql`
   fragment AddCustomerDialogDetail on CustomerDetails {
     id
     name
-    customerId
+    externalId
     canBeDeleted
     legalName
     legalNumber

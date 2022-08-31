@@ -816,8 +816,8 @@ export type CreateCustomerInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']>;
   country?: InputMaybe<CountryCode>;
-  customerId: Scalars['String'];
   email?: InputMaybe<Scalars['String']>;
+  externalId: Scalars['String'];
   legalName?: InputMaybe<Scalars['String']>;
   legalNumber?: InputMaybe<Scalars['String']>;
   logoUrl?: InputMaybe<Scalars['String']>;
@@ -1171,8 +1171,8 @@ export type Customer = {
   city?: Maybe<Scalars['String']>;
   country?: Maybe<CountryCode>;
   createdAt: Scalars['ISO8601DateTime'];
-  customerId: Scalars['String'];
   email?: Maybe<Scalars['String']>;
+  externalId: Scalars['String'];
   /** Define if a customer has an active wallet */
   hasActiveWallet: Scalars['Boolean'];
   id: Scalars['ID'];
@@ -1213,8 +1213,8 @@ export type CustomerDetails = {
   country?: Maybe<CountryCode>;
   createdAt: Scalars['ISO8601DateTime'];
   currency?: Maybe<CurrencyEnum>;
-  customerId: Scalars['String'];
   email?: Maybe<Scalars['String']>;
+  externalId: Scalars['String'];
   /** Define if a customer has an active wallet */
   hasActiveWallet: Scalars['Boolean'];
   id: Scalars['ID'];
@@ -1358,14 +1358,14 @@ export type Event = {
   apiClient?: Maybe<Scalars['String']>;
   billableMetricName?: Maybe<Scalars['String']>;
   code: Scalars['String'];
-  customerId: Scalars['String'];
+  externalCustomerId: Scalars['String'];
+  externalSubscriptionId: Scalars['String'];
   id: Scalars['ID'];
   ipAddress?: Maybe<Scalars['String']>;
   matchBillableMetric: Scalars['Boolean'];
   matchCustomField: Scalars['Boolean'];
   payload: Scalars['JSON'];
   receivedAt: Scalars['ISO8601DateTime'];
-  subscriptionId: Scalars['String'];
   timestamp?: Maybe<Scalars['ISO8601DateTime']>;
   transactionId?: Maybe<Scalars['String']>;
 };
@@ -1975,6 +1975,7 @@ export type Subscription = {
   canceledAt?: Maybe<Scalars['ISO8601DateTime']>;
   createdAt: Scalars['ISO8601DateTime'];
   customer: Customer;
+  externalId: Scalars['String'];
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
   nextName?: Maybe<Scalars['String']>;
@@ -2061,8 +2062,8 @@ export type UpdateCustomerInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']>;
   country?: InputMaybe<CountryCode>;
-  customerId: Scalars['String'];
   email?: InputMaybe<Scalars['String']>;
+  externalId: Scalars['String'];
   id: Scalars['ID'];
   legalName?: InputMaybe<Scalars['String']>;
   legalNumber?: InputMaybe<Scalars['String']>;
@@ -2357,9 +2358,9 @@ export type DownloadInvoiceMutationVariables = Exact<{
 
 export type DownloadInvoiceMutation = { __typename?: 'Mutation', downloadInvoice?: { __typename?: 'Invoice', id: string, fileUrl?: string | null } | null };
 
-export type CustomerItemFragment = { __typename?: 'Customer', id: string, name?: string | null, customerId: string, createdAt: any, canBeDeleted: boolean, activeSubscriptionCount: number, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null };
+export type CustomerItemFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, createdAt: any, canBeDeleted: boolean, activeSubscriptionCount: number, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null };
 
-export type CustomerMainInfosFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null };
+export type CustomerMainInfosFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null };
 
 export type VatRateOrganizationFragment = { __typename?: 'Organization', id: string, vatRate: number };
 
@@ -2405,9 +2406,9 @@ export type CreateSubscriptionMutationVariables = Exact<{
 }>;
 
 
-export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, plan: { __typename?: 'Plan', id: string, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null } | null };
+export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, plan: { __typename?: 'Plan', id: string, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null } | null };
 
-export type CustomerSubscriptionListFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, plan: { __typename?: 'Plan', id: string, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null };
+export type CustomerSubscriptionListFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, plan: { __typename?: 'Plan', id: string, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null };
 
 export type UpdateCustomerSubscriptionMutationVariables = Exact<{
   input: UpdateSubscriptionInput;
@@ -2435,7 +2436,7 @@ export type CustomerUsageQueryVariables = Exact<{
 
 export type CustomerUsageQuery = { __typename?: 'Query', customerUsage: { __typename?: 'CustomerUsage', amountCents: any, amountCurrency: CurrencyEnum, fromDate: any, toDate: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', units: number, amountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string } }> } };
 
-export type EventItemFragment = { __typename?: 'Event', id: string, code: string, customerId: string, timestamp?: any | null, matchBillableMetric: boolean, matchCustomField: boolean };
+export type EventItemFragment = { __typename?: 'Event', id: string, code: string, externalCustomerId: string, timestamp?: any | null, matchBillableMetric: boolean, matchCustomField: boolean };
 
 export type DeleteWebhookMutationVariables = Exact<{
   input: UpdateOrganizationInput;
@@ -2659,9 +2660,9 @@ export type UpdateCouponMutationVariables = Exact<{
 
 export type UpdateCouponMutation = { __typename?: 'Mutation', updateCoupon?: { __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency: CurrencyEnum, amountCents: number, canBeDeleted: boolean, expirationDate?: any | null } | null };
 
-export type AddCustomerDialogFragment = { __typename?: 'Customer', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null };
+export type AddCustomerDialogFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null };
 
-export type AddCustomerDialogDetailFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null };
+export type AddCustomerDialogDetailFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null };
 
 export type BillingInfosFragment = { __typename?: 'CustomerDetails', id: string, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null };
 
@@ -2677,14 +2678,14 @@ export type CreateCustomerMutationVariables = Exact<{
 }>;
 
 
-export type CreateCustomerMutation = { __typename?: 'Mutation', createCustomer?: { __typename?: 'Customer', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, createdAt: any, activeSubscriptionCount: number, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null } | null };
+export type CreateCustomerMutation = { __typename?: 'Mutation', createCustomer?: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, createdAt: any, activeSubscriptionCount: number, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null } | null };
 
 export type UpdateCustomerMutationVariables = Exact<{
   input: UpdateCustomerInput;
 }>;
 
 
-export type UpdateCustomerMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, createdAt: any, activeSubscriptionCount: number, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null } | null };
+export type UpdateCustomerMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, createdAt: any, activeSubscriptionCount: number, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null } | null };
 
 export type CurrentVersionQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2715,14 +2716,14 @@ export type CouponsQueryVariables = Exact<{
 
 export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency: CurrencyEnum, amountCents: number, canBeDeleted: boolean, expirationDate?: any | null }> } };
 
-export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, hasActiveWallet: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null };
+export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, hasActiveWallet: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null };
 
 export type GetCustomerQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, name?: string | null, customerId: string, canBeDeleted: boolean, hasActiveWallet: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null } | null };
+export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, hasActiveWallet: boolean, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCents: number, amountCurrency: CurrencyEnum, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null } | null };
 
 export type CustomersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -2730,7 +2731,7 @@ export type CustomersQueryVariables = Exact<{
 }>;
 
 
-export type CustomersQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Customer', id: string, name?: string | null, customerId: string, createdAt: any, canBeDeleted: boolean, activeSubscriptionCount: number, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null }> } };
+export type CustomersQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Customer', id: string, name?: string | null, externalId: string, createdAt: any, canBeDeleted: boolean, activeSubscriptionCount: number, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null }> } };
 
 export type PlansQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -2756,7 +2757,7 @@ export type SignupMutation = { __typename?: 'Mutation', registerUser?: { __typen
 
 export type ApiKeyOrganizationFragment = { __typename?: 'Organization', id: string, apiKey: string };
 
-export type EventListFragment = { __typename?: 'Event', id: string, code: string, customerId: string, transactionId?: string | null, timestamp?: any | null, receivedAt: any, payload: any, billableMetricName?: string | null, matchBillableMetric: boolean, matchCustomField: boolean, apiClient?: string | null, ipAddress?: string | null, subscriptionId: string };
+export type EventListFragment = { __typename?: 'Event', id: string, code: string, externalCustomerId: string, transactionId?: string | null, timestamp?: any | null, receivedAt: any, payload: any, billableMetricName?: string | null, matchBillableMetric: boolean, matchCustomField: boolean, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId: string };
 
 export type EventsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -2764,7 +2765,7 @@ export type EventsQueryVariables = Exact<{
 }>;
 
 
-export type EventsQuery = { __typename?: 'Query', events?: { __typename?: 'EventCollection', collection: Array<{ __typename?: 'Event', id: string, code: string, customerId: string, transactionId?: string | null, timestamp?: any | null, receivedAt: any, payload: any, billableMetricName?: string | null, matchBillableMetric: boolean, matchCustomField: boolean, apiClient?: string | null, ipAddress?: string | null, subscriptionId: string }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type EventsQuery = { __typename?: 'Query', events?: { __typename?: 'EventCollection', collection: Array<{ __typename?: 'Event', id: string, code: string, externalCustomerId: string, transactionId?: string | null, timestamp?: any | null, receivedAt: any, payload: any, billableMetricName?: string | null, matchBillableMetric: boolean, matchCustomField: boolean, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId: string }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
 
 export type WehbookSettingQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2896,7 +2897,7 @@ export const AddCustomerDialogFragmentDoc = gql`
     fragment AddCustomerDialog on Customer {
   id
   name
-  customerId
+  externalId
   canBeDeleted
   legalName
   legalNumber
@@ -2921,7 +2922,7 @@ export const CustomerItemFragmentDoc = gql`
     fragment CustomerItem on Customer {
   id
   name
-  customerId
+  externalId
   createdAt
   canBeDeleted
   activeSubscriptionCount
@@ -3137,6 +3138,7 @@ export const CustomerSubscriptionListFragmentDoc = gql`
   nextPendingStartDate
   name
   nextName
+  externalId
   plan {
     ...SubscriptionItemPlan
   }
@@ -3216,7 +3218,7 @@ export const AddCustomerDialogDetailFragmentDoc = gql`
     fragment AddCustomerDialogDetail on CustomerDetails {
   id
   name
-  customerId
+  externalId
   canBeDeleted
   legalName
   legalNumber
@@ -3241,7 +3243,7 @@ export const CustomerMainInfosFragmentDoc = gql`
     fragment CustomerMainInfos on CustomerDetails {
   id
   name
-  customerId
+  externalId
   canBeDeleted
   legalName
   legalNumber
@@ -3266,7 +3268,7 @@ export const CustomerDetailsFragmentDoc = gql`
     fragment CustomerDetails on CustomerDetails {
   id
   name
-  customerId
+  externalId
   canBeDeleted
   hasActiveWallet
   subscriptions(status: [active]) {
@@ -3302,7 +3304,7 @@ export const EventItemFragmentDoc = gql`
     fragment EventItem on Event {
   id
   code
-  customerId
+  externalCustomerId
   timestamp
   matchBillableMetric
   matchCustomField
@@ -3312,7 +3314,7 @@ export const EventListFragmentDoc = gql`
     fragment EventList on Event {
   id
   code
-  customerId
+  externalCustomerId
   transactionId
   timestamp
   receivedAt
@@ -3322,7 +3324,7 @@ export const EventListFragmentDoc = gql`
   matchCustomField
   apiClient
   ipAddress
-  subscriptionId
+  externalSubscriptionId
   ...EventItem
 }
     ${EventItemFragmentDoc}`;

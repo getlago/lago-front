@@ -26,7 +26,7 @@ gql`
   fragment CustomerItem on Customer {
     id
     name
-    customerId
+    externalId
     createdAt
     canBeDeleted
     activeSubscriptionCount
@@ -44,7 +44,7 @@ interface CustomerItemProps {
 export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
   const editDialogRef = useRef<AddCustomerDialogRef>(null)
-  const { id, name, customerId, createdAt, canBeDeleted, activeSubscriptionCount } = customer
+  const { id, name, externalId, createdAt, canBeDeleted, activeSubscriptionCount } = customer
   const { translate } = useInternationalization()
 
   return (
@@ -61,7 +61,7 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
               {name || translate('text_62f272a7a60b4d7fadad911a')}
             </Typography>
             <Typography variant="caption" noWrap>
-              {customerId}
+              {externalId}
             </Typography>
           </NameBlock>
         </CustomerNameSection>
