@@ -13,14 +13,14 @@ curl --location --request POST "${apiUrl}/api/v1/applied_coupons" \\
   --header 'Content-Type: application/json' \\
   --data-raw '{
     "applied_coupon": {
-      "customer_id": "__CUSTOMER_ID__",
+      "external_customer_id": "__EXTERNAL_CUSTOMER_ID__",
       "coupon_code": "${coupon.code}",
       "amount_cents": ${coupon.amountCents * 100},
       "amount_currency": "${coupon.amountCurrency}"
     }
   }'
   
-# To use the snippet, don’t forget to edit your __YOUR_API_KEY__ and  __CUSTOMER_ID__`
+# To use the snippet, don’t forget to edit your __YOUR_API_KEY__ and  __EXTERNAL_CUSTOMER_ID__`
 }
 
 interface CouponCodeSnippetProps {

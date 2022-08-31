@@ -17,14 +17,14 @@ const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
   --data-raw '{
     "event": {
       "transaction_id": "__UNIQUE_ID__", 
-      "subscription_id": "__SUBSCRIPTION_ID__",
-      "customer_id": "__CUSTOMER_ID__", 
+      "external_subscription_id": "__EXTERNAL_SUBSCRIPTION_ID__",
+      "external_customer_id": "__EXTERNAL_CUSTOMER_ID__", 
       "code": "${code}", 
       "timestamp": $(date +%s)
     }
   }'
   
-# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__, __SUBSCRIPTION_ID__ and __CUSTOMER_ID__`
+# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__, __EXTERNAL_SUBSCRIPTION_ID__ and __EXTERNAL_CUSTOMER_ID__`
     case AggregationTypeEnum.UniqueCountAgg:
       return `curl --location --request POST "$LAGO_URL/api/v1/events" \\
   --header "Authorization: Bearer $__YOUR_API_KEY__" \\
@@ -32,8 +32,8 @@ const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
   --data-raw '{
     "event": {
       "transaction_id": "__UNIQUE_ID__", 
-      "subscription_id": "__SUBSCRIPTION_ID__",
-      "customer_id": "__CUSTOMER_ID__", 
+      "external_subscription_id": "__EXTERNAL_SUBSCRIPTION_ID__",
+      "external_customer_id": "__EXTERNAL_CUSTOMER_ID__", 
       "code": "${code}", 
       "timestamp": $(date +%s), 
       "properties":  { 
@@ -42,7 +42,7 @@ const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
     }
   }'
 
-# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__, __SUBSCRIPTION_ID__ and __CUSTOMER_ID__`
+# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__, __EXTERNAL_SUBSCRIPTION_ID__ and __EXTERNAL_CUSTOMER_ID__`
     case AggregationTypeEnum.SumAgg:
     case AggregationTypeEnum.MaxAgg:
       return `curl --location --request POST "${apiUrl}/api/v1/events" \\
@@ -51,8 +51,8 @@ const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
   --data-raw '{
     "event": { 
       "transaction_id": "__UNIQUE_ID__", 
-      "subscription_id": "__SUBSCRIPTION_ID__",
-      "customer_id": "__CUSTOMER_ID__", 
+      "external_subscription_id": "__EXTERNAL_SUBSCRIPTION_ID__",
+      "external_customer_id": "__EXTERNAL_CUSTOMER_ID__", 
       "code": "${code}", 
       "timestamp": $(date +%s), 
       "properties":  { 
@@ -61,7 +61,7 @@ const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
     }
   }'
 
-# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__, __SUBSCRIPTION_ID__ and __CUSTOMER_ID__`
+# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__, __EXTERNAL_SUBSCRIPTION_ID__ and __EXTERNAL_CUSTOMER_ID__`
     default:
       return '# Fill the form to generate the code snippet'
   }

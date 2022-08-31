@@ -11,7 +11,7 @@ gql`
   fragment EventItem on Event {
     id
     code
-    customerId
+    externalCustomerId
     timestamp
     matchBillableMetric
     matchCustomField
@@ -26,7 +26,7 @@ interface EventItemProps {
 }
 
 export const EventItem = ({ event, navigationProps, selected, onClick }: EventItemProps) => {
-  const { code, customerId, timestamp, matchBillableMetric, matchCustomField } = event
+  const { code, externalCustomerId, timestamp, matchBillableMetric, matchCustomField } = event
   const hasWarning = !matchBillableMetric || !matchCustomField
 
   return (
@@ -44,7 +44,7 @@ export const EventItem = ({ event, navigationProps, selected, onClick }: EventIt
               {code}
             </Typography>
             <Typography variant="caption" noWrap>
-              {customerId}
+              {externalCustomerId}
             </Typography>
           </NameBlock>
         </NameSection>

@@ -54,7 +54,7 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
     const formikProps = useFormik<CreateCustomerInput | UpdateCustomerInput>({
       initialValues: {
         name: '',
-        customerId: '',
+        externalId: '',
         legalName: undefined,
         legalNumber: undefined,
         email: undefined,
@@ -72,7 +72,7 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
       },
       validationSchema: object().shape({
         name: string().required(''),
-        customerId: string().required(''),
+        externalId: string().required(''),
       }),
       validateOnMount: true,
       enableReinitialize: true,
@@ -84,9 +84,9 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
         if (
           !!error &&
           error?.code === Lago_Api_Error.UnprocessableEntity &&
-          !!error?.details?.customerId
+          !!error?.details?.externalId
         ) {
-          formikBag.setFieldError('customerId', translate('text_626162c62f790600f850b728'))
+          formikBag.setFieldError('externalId', translate('text_626162c62f790600f850b728'))
         } else {
           ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()
           !isEdition && formikBag.resetForm()
@@ -99,7 +99,7 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
       setIsCollapsed(!isEdition)
       formikProps.setValues({
         name: customer?.name ?? '',
-        customerId: customer?.customerId ?? '',
+        externalId: customer?.externalId ?? '',
         legalName: customer?.legalName ?? undefined,
         legalNumber: customer?.legalNumber ?? undefined,
         phone: customer?.phone ?? undefined,
@@ -148,7 +148,7 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
                 formikProps.resetForm({
                   values: {
                     name: customer?.name ?? '',
-                    customerId: customer?.customerId ?? '',
+                    externalId: customer?.externalId ?? '',
                     legalName: undefined,
                     legalNumber: undefined,
                     phone: undefined,
@@ -191,7 +191,7 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
             formikProps={formikProps}
           />
           <CustomerId
-            name="customerId"
+            name="externalId"
             disabled={isEdition && !customer?.canBeDeleted}
             label={translate('text_624efab67eb2570101d117ce')}
             placeholder={translate('text_624efab67eb2570101d117d6')}

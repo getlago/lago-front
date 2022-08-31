@@ -12,7 +12,7 @@ gql`
   fragment CustomerMainInfos on CustomerDetails {
     id
     name
-    customerId
+    externalId
     canBeDeleted
     legalName
     legalNumber
@@ -68,7 +68,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
 
   const {
     name,
-    customerId,
+    externalId,
     legalName,
     legalNumber,
     phone,
@@ -103,7 +103,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
       )}
       <div>
         <Typography variant="caption">{translate('text_6250304370f0f700a8fdc283')}</Typography>
-        <Typography color="textSecondary">{customerId}</Typography>
+        <Typography color="textSecondary">{externalId}</Typography>
       </div>
       {legalName && (
         <div>

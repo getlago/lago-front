@@ -66,7 +66,7 @@ gql`
   fragment CustomerDetails on CustomerDetails {
     id
     name
-    customerId
+    externalId
     canBeDeleted
     hasActiveWallet
     subscriptions(status: [active]) {
@@ -133,7 +133,7 @@ const CustomerDetails = () => {
     appliedAddOns,
     appliedCoupons,
     canBeDeleted,
-    customerId,
+    externalId,
     hasActiveWallet,
     invoices,
     name,
@@ -285,7 +285,7 @@ const CustomerDetails = () => {
                   <Name color="textSecondary" variant="headline">
                     {name || translate('text_62f272a7a60b4d7fadad911a')}
                   </Name>
-                  <Typography>{customerId}</Typography>
+                  <Typography>{externalId}</Typography>
                 </div>
               </MainInfos>
             )}

@@ -26,7 +26,7 @@ gql`
   fragment EventList on Event {
     id
     code
-    customerId
+    externalCustomerId
     transactionId
     timestamp
     receivedAt
@@ -36,7 +36,7 @@ gql`
     matchCustomField
     apiClient
     ipAddress
-    subscriptionId
+    externalSubscriptionId
     ...EventItem
   }
 
@@ -154,14 +154,14 @@ const Debugger = () => {
                                 billableMetricName,
                                 timestamp,
                                 payload,
-                                customerId,
+                                externalCustomerId,
                                 transactionId,
                                 apiClient,
                                 code,
                                 ipAddress,
                                 matchBillableMetric,
                                 matchCustomField,
-                                subscriptionId,
+                                externalSubscriptionId,
                               } = event
 
                               index += 1
@@ -213,7 +213,7 @@ const Debugger = () => {
                                             {translate('text_62e0feac0a543924c8f67ae5')}
                                           </Typography>
                                           <Typography color="textSecondary" noWrap>
-                                            {subscriptionId}
+                                            {externalSubscriptionId}
                                           </Typography>
                                         </EventInfoLine>
                                         <EventInfoLine>
@@ -221,7 +221,7 @@ const Debugger = () => {
                                             {translate('text_6298bd525e359200d5ea01a7')}
                                           </Typography>
                                           <Typography color="textSecondary" noWrap>
-                                            {customerId}
+                                            {externalCustomerId}
                                           </Typography>
                                         </EventInfoLine>
                                         <EventInfoLine>
