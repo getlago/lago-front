@@ -2,7 +2,7 @@ name: Run Codegen
 
 on:
   pull_request:
-    types: [review_requested, ready_for_review, synchronize]
+    types: [opened, reopened, review_requested, ready_for_review, synchronize]
 
 jobs:
   codegen:
