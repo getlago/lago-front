@@ -3733,7 +3733,7 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@storybook/addon-actions@6.5.10", "@storybook/addon-actions@^6.5.9":
+"@storybook/addon-actions@6.5.10":
   version "6.5.10"
   resolved "https://registry.yarnpkg.com/@storybook/addon-actions/-/addon-actions-6.5.10.tgz#83ec807a899e0412cf98037647f256c45cc32bf5"
   integrity sha512-vpCnEu81fmtYzOf0QsRYoDuf9wXgVVl2VysE1dWRebRhIUDU0JurrthTnw322e38D4FzaoNGqZE7wnBYBohzZA==
@@ -3829,7 +3829,7 @@
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
-"@storybook/addon-essentials@^6.5.9":
+"@storybook/addon-essentials@6.5.10":
   version "6.5.10"
   resolved "https://registry.yarnpkg.com/@storybook/addon-essentials/-/addon-essentials-6.5.10.tgz#d56f0f972e3bd5eae6c79b2126f510c5c020b62d"
   integrity sha512-PT2aiR4vgAyB0pl3HNBUa4/a7NDRxASxAazz7zt9ZDirkipDKfxwdcLeRoJzwSngVDWEhuz5/paN5x4eNp4Hww==
@@ -3850,7 +3850,7 @@
     regenerator-runtime "^0.13.7"
     ts-dedent "^2.0.0"
 
-"@storybook/addon-interactions@^6.5.9":
+"@storybook/addon-interactions@6.5.10":
   version "6.5.10"
   resolved "https://registry.yarnpkg.com/@storybook/addon-interactions/-/addon-interactions-6.5.10.tgz#c1d635b972bb7d21ccfe9b3bd928916683d92b26"
   integrity sha512-+O/ZuQjonpFmTdFRqjCimQTx4S4c1+S3dYCn6gD/E4xzqlQn1BQaER3paX/aBUKb3oRaSO9RUQ+uxePM4zBEwA==
@@ -3871,7 +3871,7 @@
     polished "^4.2.2"
     ts-dedent "^2.2.0"
 
-"@storybook/addon-links@^6.5.9":
+"@storybook/addon-links@6.5.10":
   version "6.5.10"
   resolved "https://registry.yarnpkg.com/@storybook/addon-links/-/addon-links-6.5.10.tgz#f66568fbc84b942032ac2de85f799d69fcf77922"
   integrity sha512-r3WzYIPz7WjHiaPObC2Tg6bHuZRBb/Kt/X+Eitw+jTqBel7ksvkO36tn81q8Eyj61qIdNQmUWAaX/0aewT0kLA==
@@ -4042,7 +4042,7 @@
     webpack-hot-middleware "^2.25.1"
     webpack-virtual-modules "^0.2.2"
 
-"@storybook/builder-webpack5@^6.5.9":
+"@storybook/builder-webpack5@6.5.10":
   version "6.5.10"
   resolved "https://registry.yarnpkg.com/@storybook/builder-webpack5/-/builder-webpack5-6.5.10.tgz#de78a8a262410bbe65eecc62f2beaed1fe44dd5d"
   integrity sha512-Hcsm/TzGRXHndgQCftt+pzI7GQJRqAv8A8ie5b3aFcodhJfK0qzZsQD4Y4ZWxXh1I/xe5t74Kl2qUJ40PX+geA==
@@ -4407,7 +4407,7 @@
     webpack-dev-middleware "^3.7.3"
     webpack-virtual-modules "^0.2.2"
 
-"@storybook/manager-webpack5@^6.5.9":
+"@storybook/manager-webpack5@6.5.10":
   version "6.5.10"
   resolved "https://registry.yarnpkg.com/@storybook/manager-webpack5/-/manager-webpack5-6.5.10.tgz#dff8e53615906284b68df013935e8a6234ddaafe"
   integrity sha512-uRo+6e5MiVOtyFVMYIKVqvpDveCjHyzXBfetSYR7rKEZoaDMEnLLiuF7DIH12lzxwmzCJ1gIc4lf5HFiTMNkgw==
@@ -4515,7 +4515,7 @@
     react-docgen-typescript "^2.1.1"
     tslib "^2.0.0"
 
-"@storybook/react@^6.5.9":
+"@storybook/react@6.5.10":
   version "6.5.10"
   resolved "https://registry.yarnpkg.com/@storybook/react/-/react-6.5.10.tgz#6e9f5cf5e4c81d966774c08c87fb2414052db454"
   integrity sha512-m8S1qQrwA7pDGwdKEvL6LV3YKvSzVUY297Fq+xcTU3irnAy4sHDuFoLqV6Mi1510mErK1r8+rf+0R5rEXB219g==
@@ -4630,7 +4630,7 @@
     read-pkg-up "^7.0.1"
     regenerator-runtime "^0.13.7"
 
-"@storybook/testing-library@^0.0.13":
+"@storybook/testing-library@0.0.13":
   version "0.0.13"
   resolved "https://registry.yarnpkg.com/@storybook/testing-library/-/testing-library-0.0.13.tgz#417c87d4ea62895092ec5fdf67027ae201254f45"
   integrity sha512-vRMeIGer4EjJkTgI8sQyK9W431ekPWYCWL//OmSDJ64IT3h7FnW7Xg6p+eqM3oII98/O5pcya5049GxnjaPtxw==
