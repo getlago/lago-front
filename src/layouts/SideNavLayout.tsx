@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { Outlet } from 'react-router-dom'
 import { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
-import { ClickAwayListener, Typography } from '@mui/material'
+import { ClickAwayListener } from '@mui/material'
 import { useApolloClient } from '@apollo/client'
 import { useLocation, Location } from 'react-router-dom'
 
@@ -18,6 +18,7 @@ import {
   Popper,
   Skeleton,
   NavigationTab,
+  Typography,
 } from '~/components/designSystem'
 import { theme } from '~/styles'
 import { DOCUMENTATION_URL } from '~/externalUrls'
@@ -114,7 +115,9 @@ const SideNav = () => {
                       initials={(currentOrganization?.name ?? 'Lago')[0]}
                     />
                   )}
-                  {currentOrganization?.name}
+                  <Typography color="textSecondary" noWrap>
+                    {currentOrganization?.name}
+                  </Typography>
                 </HeaderButton>
               }
             >
@@ -292,11 +295,7 @@ const Header = styled.div`
 
 const HeaderButton = styled(Button)`
   max-width: calc(${NAV_WIDTH}px - ${theme.spacing(8)});
-  color: ${theme.palette.text.secondary};
   text-align: left;
-  :hover {
-    color: ${theme.palette.text.secondary};
-  }
 
   :focus:not(:active) {
     box-shadow: none;
