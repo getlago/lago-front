@@ -54,7 +54,7 @@ export const NavigationTab = ({
   )
 
   return (
-    <Container>
+    <Container $vertical={orientation === NavigationTabOrientationEnum.vertical}>
       <TabsBlock className={`navigation-tab--${orientation}`} $align={align}>
         {tabs.map((tab, i) => {
           const { link, hidden, title, ...props } = tab
@@ -157,7 +157,7 @@ const Loader = styled.div`
   justify-content: center;
 `
 
-const Container = styled.div`
+const Container = styled.div<{ $vertical?: boolean }>`
   display: flex;
-  flex-direction: column;
+  flex-direction: ${({ $vertical }) => ($vertical ? 'row' : 'column')};
 `

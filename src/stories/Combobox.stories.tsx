@@ -45,33 +45,6 @@ export default {
         ),
       },
     },
-    data: {
-      options: ['Simple', 'Grouped'],
-      defaultValue: 'Simple',
-      mapping: {
-        Simple: [
-          { value: 'Alex' },
-          { value: 'Morguy' },
-          { value: 'Mike' },
-          { value: 'Jerem' },
-          { value: 'Lovro' },
-          { value: 'Romain' },
-          { value: 'Vincent' },
-        ],
-        Grouped: [
-          { value: 'Alex', group: 'Frontend' },
-          { value: 'Morguy', group: 'Frontend' },
-          {
-            value: 'Mike',
-            group: 'Designer',
-          },
-          { value: 'Jerem', group: 'Backend' },
-          { value: 'Lovro', group: 'Backend' },
-          { value: 'Romain', group: 'Backend' },
-          { value: 'Vincent', group: 'Backend' },
-        ],
-      },
-    },
     error: { type: 'string' },
     value: { table: { disable: true } },
     onChange: { table: { disable: true } },
@@ -137,4 +110,38 @@ Default.args = {
   emptyText: 'No values',
   disableClearable: false,
   virtualized: true,
+  data: [
+    { value: 'Alex' },
+    { value: 'Morguy' },
+    { value: 'Mike' },
+    { value: 'Jerem' },
+    { value: 'Lovro' },
+    { value: 'Romain' },
+    { value: 'Vincent' },
+  ],
+}
+
+export const Grouped = Template.bind({})
+Grouped.args = {
+  loading: false,
+  disabled: false,
+  allowAddValue: false,
+  sortValues: true,
+  placeholder: 'My values are grouped',
+  loadingText: 'You need to remove the data to see me',
+  emptyText: 'No values',
+  disableClearable: false,
+  virtualized: true,
+  data: [
+    { value: 'Alex', group: 'Frontend' },
+    { value: 'Morguy', group: 'Frontend' },
+    {
+      value: 'Mike',
+      group: 'Designer',
+    },
+    { value: 'Jerem', group: 'Backend' },
+    { value: 'Lovro', group: 'Backend' },
+    { value: 'Romain', group: 'Backend' },
+    { value: 'Vincent', group: 'Backend' },
+  ],
 }
