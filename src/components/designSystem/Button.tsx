@@ -32,10 +32,7 @@ type MuiColor =
   | undefined
 
 interface SimpleButtonProps
-  extends Omit<
-    MuiButtonProps,
-    'color' | 'variant' | 'disableElevation' | 'disableRipple' | 'endIcon' | 'startIcon'
-  > {
+  extends Pick<MuiButtonProps, 'disabled' | 'children' | 'onClick' | 'fullWidth'> {
   size?: ButtonSize
   variant?: ButtonVariant
   danger?: boolean
@@ -198,5 +195,5 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button'
 
 const StyledButton = styled(MuiButton)<{ $align?: ButtonAlign }>`
-  justify-content: ${({ $align }) => $align ?? 'inherit'};
+  justify-content: ${({ $align }) => $align ?? 'inherit'} !important;
 `

@@ -1,4 +1,3 @@
-import { Outlet } from 'react-router-dom'
 import { withRouter } from 'storybook-addon-react-router-v6'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import styled, { css } from 'styled-components'
@@ -48,6 +47,7 @@ Default.args = {
     {
       title: 'Tab 1',
       link: '/',
+      icon: 'at',
       component: (
         <ChildContainer>
           <Typography color="primary600">Displaying tab 1</Typography>
@@ -75,14 +75,7 @@ Default.args = {
   ],
 }
 
-const VerticalTemplate: ComponentStory<typeof NavigationTab> = (props) => (
-  <>
-    <NavigationTab {...props} />
-    <Outlet />
-  </>
-)
-
-export const Vertical = VerticalTemplate.bind({})
+export const Vertical = Template.bind({})
 Vertical.argTypes = {
   align: { table: { disable: true } },
 }
@@ -93,6 +86,7 @@ Vertical.args = {
     {
       title: 'Tab 1',
       link: '/',
+      icon: 'alphabet',
       component: (
         <ChildContainer $vertical>
           <Typography color="primary600">Displaying tab 1</Typography>

@@ -44,7 +44,7 @@ export const ComboBoxVirtualizedList = (props: ComboBoxVirtualizedListProps) => 
     () => {
       if (gridRef && value && gridRef.current) {
         const valueIndex = elements.findIndex(
-          (el) => el.props?.children?.props?.option.value === value
+          (el) => el.props?.children?.props?.option?.value === value
         )
 
         if (valueIndex) {
