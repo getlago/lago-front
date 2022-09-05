@@ -10,8 +10,8 @@ import {
   Avatar,
   Popper,
   Tooltip,
-  BasicTabs,
   ButtonLink,
+  NavigationTab,
 } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CUSTOMERS_LIST_ROUTE, CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
@@ -297,11 +297,15 @@ const CustomerDetails = () => {
                 onEdit={editDialogRef.current?.openDialog}
               />
               <div>
-                <BasicTabs
+                <NavigationTab
+                  align="superLeft"
                   tabs={[
                     {
                       title: translate('text_628cf761cbe6820138b8f2e4'),
-                      key: TabsOptions.overview,
+                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                        id,
+                        tab: TabsOptions.overview,
+                      }),
                       component: (
                         <SideBlock>
                           {!loading && <CustomerCoupons coupons={appliedCoupons} />}
@@ -318,7 +322,10 @@ const CustomerDetails = () => {
                     },
                     {
                       title: translate('text_62d175066d2dbf1d50bc937c'),
-                      key: TabsOptions.wallet,
+                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                        id,
+                        tab: TabsOptions.wallet,
+                      }),
                       component: (
                         <SideBlock>
                           <CustomerWalletsList
@@ -332,7 +339,10 @@ const CustomerDetails = () => {
                     },
                     {
                       title: translate('text_62c3f3fca8a1625624e83365'),
-                      key: TabsOptions.usage,
+                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                        id,
+                        tab: TabsOptions.usage,
+                      }),
                       hidden: !hasSubscription,
                       component: (
                         <SideBlock>
@@ -346,7 +356,10 @@ const CustomerDetails = () => {
                     },
                     {
                       title: translate('text_628cf761cbe6820138b8f2e6'),
-                      key: TabsOptions.invoices,
+                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                        id,
+                        tab: TabsOptions.invoices,
+                      }),
                       component: (
                         <SideBlock>
                           <CustomerInvoicesList invoices={invoices} />
@@ -355,7 +368,10 @@ const CustomerDetails = () => {
                     },
                     {
                       title: translate('text_628cf761cbe6820138b8f2e8'),
-                      key: TabsOptions.taxRate,
+                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                        id,
+                        tab: TabsOptions.taxRate,
+                      }),
                       component: (
                         <SideBlock>
                           <CustomerVatRate customer={data?.customer as CustomerVatRateFragment} />
@@ -363,11 +379,6 @@ const CustomerDetails = () => {
                       ),
                     },
                   ]}
-                  value={tab || 0}
-                  loading={
-                    ![TabsOptions.overview, TabsOptions.usage].includes(tab as TabsOptions) &&
-                    loading
-                  }
                   loadingComponent={
                     <SideLoadingSection>
                       <SectionHeader variant="subhead">
@@ -376,11 +387,9 @@ const CustomerDetails = () => {
                       <Skeleton variant="text" height={12} width={240} />
                     </SideLoadingSection>
                   }
-                  align="superLeft"
-                  onClick={(_, key) =>
-                    navigate(generatePath(CUSTOMER_DETAILS_TAB_ROUTE, { id, tab: key as string }), {
-                      state: { disableScrollTop: true },
-                    })
+                  loading={
+                    ![TabsOptions.overview, TabsOptions.usage].includes(tab as TabsOptions) &&
+                    loading
                   }
                 />
               </div>
