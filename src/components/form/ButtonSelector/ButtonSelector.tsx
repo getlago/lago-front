@@ -1,8 +1,10 @@
 import styled, { css } from 'styled-components'
 
 import { theme } from '~/styles'
-import { Typography, TabButton, Tooltip, Icon } from '~/components/designSystem'
+import { Typography, Tooltip, Icon } from '~/components/designSystem'
 import { ButtonGroup } from '~/styles'
+
+import { TabButton } from './TabButton'
 
 interface ButtonSelectorOption {
   value: string | number
@@ -50,14 +52,15 @@ export const ButtonSelector = ({
       <ButtonGroup>
         {options.map(({ value: optionValue, label: optionLabel, disabled: optionDisabled }) => {
           return (
-            <TabButton
-              outlined
-              disabled={disabled || optionDisabled}
-              key={`button-selector-${optionValue}`}
-              title={optionLabel ?? optionValue}
-              active={value === optionValue}
-              onClick={() => onChange(optionValue)}
-            />
+            <>
+              <TabButton
+                disabled={disabled || optionDisabled}
+                key={`button-selector-${optionValue}`}
+                title={optionLabel ?? optionValue}
+                active={value === optionValue}
+                onClick={() => onChange(optionValue)}
+              />
+            </>
           )
         })}
       </ButtonGroup>

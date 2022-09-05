@@ -115,6 +115,10 @@ const LinkBase = css`
   &.button-link-disabled > button {
     pointer-events: none;
   }
+
+  > button {
+    white-space: nowrap;
+  }
 `
 
 const InternalButtonLink = styled(Link)`

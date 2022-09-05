@@ -4,8 +4,8 @@ import { useLocation, matchPath } from 'react-router-dom'
 
 import { theme, NAV_HEIGHT } from '~/styles'
 
-import { ButtonLink, ButtonLinkTabProps } from '../ButtonLink'
-import { Icon } from '../Icon'
+import { ButtonLink, ButtonLinkTabProps } from './ButtonLink'
+import { Icon } from './Icon'
 
 enum NavigationTabAlignEnum {
   left = 'left',
