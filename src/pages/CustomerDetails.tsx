@@ -14,7 +14,11 @@ import {
   NavigationTab,
 } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { CUSTOMERS_LIST_ROUTE, CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
+import {
+  CUSTOMERS_LIST_ROUTE,
+  CUSTOMER_DETAILS_TAB_ROUTE,
+  CUSTOMER_DETAILS_ROUTE,
+} from '~/core/router'
 import {
   useGetCustomerQuery,
   CustomerSubscriptionListFragmentDoc,
@@ -306,6 +310,15 @@ const CustomerDetails = () => {
                         id,
                         tab: TabsOptions.overview,
                       }),
+                      match: [
+                        generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                          id,
+                          tab: TabsOptions.overview,
+                        }),
+                        generatePath(CUSTOMER_DETAILS_ROUTE, {
+                          id,
+                        }),
+                      ],
                       component: (
                         <SideBlock>
                           {!loading && <CustomerCoupons coupons={appliedCoupons} />}
