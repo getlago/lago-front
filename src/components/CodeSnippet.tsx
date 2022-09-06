@@ -99,7 +99,7 @@ const Pre = styled.pre<{ $withHeader?: boolean }>`
 `
 
 const Code = styled.code`
-  font-family: 'IBM Plex Mono, monospace';
+  font-family: 'IBM Plex Mono, Consolas, Monaco, Andale Mono, Ubuntu Mono, monospace';
   font-weight: 400;
   font-size: 14px;
   line-height: 20px;
@@ -175,7 +175,7 @@ const Content = styled.div`
     color: #19212e;
     background: none;
     text-shadow: 0 1px white;
-    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-family: IBM Plex Mono, Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
     text-align: left;
     white-space: pre;
     word-spacing: normal;
