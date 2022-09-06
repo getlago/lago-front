@@ -196,4 +196,5 @@ Button.displayName = 'Button'
 
 const StyledButton = styled(MuiButton)<{ $align?: ButtonAlign }>`
   justify-content: ${({ $align }) => $align ?? 'inherit'} !important;
+  min-width: unset;
 `
