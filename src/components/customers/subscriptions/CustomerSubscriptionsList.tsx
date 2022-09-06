@@ -117,7 +117,8 @@ export const CustomerSubscriptionsList = forwardRef<
                   {isDowngrading && !!nextPlan && (
                     <SubscriptionItem
                       ref={subscriptionItemRef}
-                      subscriptionId={externalId}
+                      subscriptionId={id}
+                      subscriptionExternalId={externalId}
                       subscriptionName={nextName}
                       date={nextPendingStartDate}
                       plan={nextPlan}
@@ -126,7 +127,8 @@ export const CustomerSubscriptionsList = forwardRef<
                   )}
                   <SubscriptionItem
                     ref={subscriptionItemRef}
-                    subscriptionId={externalId}
+                    subscriptionId={id}
+                    subscriptionExternalId={externalId}
                     subscriptionName={name}
                     date={startedAt}
                     plan={plan}
