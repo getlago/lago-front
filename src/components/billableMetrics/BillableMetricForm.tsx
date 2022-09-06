@@ -21,6 +21,11 @@ interface BillableMetricFormProps {
   onSave: (values: CreateBillableMetricInput) => Promise<void>
 }
 
+enum AGGREGATION_GROUP_ENUM {
+  Metered = 'metered',
+  Persistent = 'persistent',
+}
+
 export const BillableMetricForm = ({
   billableMetric,
   loading,
@@ -154,22 +159,33 @@ export const BillableMetricForm = ({
                   label={translate('text_623b42ff8ee4e000ba87d0ce')}
                   infoText={translate('text_624d9adba93343010cd14c56')}
                   placeholder={translate('text_623b42ff8ee4e000ba87d0d0')}
+                  virtualized={false}
                   data={[
                     {
                       label: translate('text_623c4a8c599213014cacc9de'),
                       value: AggregationTypeEnum.CountAgg,
+                      group: AGGREGATION_GROUP_ENUM.Metered,
                     },
                     {
                       label: translate('text_62694d9181be8d00a33f20f0'),
                       value: AggregationTypeEnum.UniqueCountAgg,
+                      group: AGGREGATION_GROUP_ENUM.Metered,
                     },
                     {
                       label: translate('text_62694d9181be8d00a33f20f8'),
                       value: AggregationTypeEnum.MaxAgg,
+                      group: AGGREGATION_GROUP_ENUM.Metered,
                     },
                     {
                       label: translate('text_62694d9181be8d00a33f2100'),
                       value: AggregationTypeEnum.SumAgg,
+                      group: AGGREGATION_GROUP_ENUM.Metered,
+                    },
+
+                    {
+                      label: translate('text_63105dbdd88c7432a3b255eb'),
+                      value: AggregationTypeEnum.RecurringCountAgg,
+                      group: AGGREGATION_GROUP_ENUM.Persistent,
                     },
                   ]}
                   helperText={
@@ -183,6 +199,28 @@ export const BillableMetricForm = ({
                       ? translate('text_62694d9181be8d00a33f20ec')
                       : undefined
                   }
+                  renderGroupHeader={{
+                    [AGGREGATION_GROUP_ENUM.Metered]: (
+                      <ComboboxHeader>
+                        <Typography variant="captionHl" color="textSecondary">
+                          {translate('text_6310755befed49627644222b')}
+                        </Typography>
+                        <Typography component="span" variant="caption" noWrap>
+                          {translate('text_6310755befed49627644222d')}
+                        </Typography>
+                      </ComboboxHeader>
+                    ),
+                    [AGGREGATION_GROUP_ENUM.Persistent]: (
+                      <ComboboxHeader>
+                        <Typography variant="captionHl" color="textSecondary">
+                          {translate('text_6310755befed49627644222f')}
+                        </Typography>
+                        <Typography component="span" variant="caption" noWrap>
+                          {translate('text_6310755befed496276442231')}
+                        </Typography>
+                      </ComboboxHeader>
+                    ),
+                  }}
                   formikProps={formikProps}
                 />
 
@@ -292,4 +330,20 @@ const Main = styled.div`
 
 const SkeletonHeader = styled.div`
   padding: 0 ${theme.spacing(8)};
+`
+
+const ComboboxHeader = styled.div`
+  display: flex;
+  min-width: 0;
+
+  > * {
+    white-space: nowrap;
+
+    &:first-child {
+      margin-right: ${theme.spacing(1)};
+    }
+    &:last-child {
+      min-width: 0;
+    }
+  }
 `

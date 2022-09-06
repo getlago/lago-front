@@ -67,5 +67,7 @@ projects:
     id: 6304e74718860633c15905f2
   - name: '⚙️ [WIP] - Credits - Create prepaid credits'
     id: 62d175018d4659c9a3eec929
+  - name: "\U0001F44D [Ready for dev] - B.metrics - Persistent bm in aggregation type"
+    id: 63105dba2074ec779d08c6b4
 format: flat
 variants: true

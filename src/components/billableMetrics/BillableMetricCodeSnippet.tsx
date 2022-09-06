@@ -62,6 +62,25 @@ const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
   }'
 
 # To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__, __EXTERNAL_SUBSCRIPTION_ID__ and __EXTERNAL_CUSTOMER_ID__`
+    case AggregationTypeEnum.RecurringCountAgg:
+      return `curl --location --request POST "${apiUrl}/api/v1/events" \\
+  --header "Authorization: Bearer $__YOUR_API_KEY__" \\
+  --header 'Content-Type: application/json' \\
+  --data-raw '{
+    "event": { 
+      "transaction_id": "__UNIQUE_ID__", 
+      "subscription_id": "__SUBSCRIPTION_ID__",
+      "customer_id": "__CUSTOMER_ID__", 
+      "code": "${code}", 
+      "timestamp": $(date +%s), 
+      "properties":  { 
+        "${fieldName}": "__VALUE__" ,
+        "operation_type": "add"
+      }
+    }
+  }'
+  
+# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__, __SUBSCRIPTION_ID__, __CUSTOMER_ID__ and __VALUE__`
     default:
       return '# Fill the form to generate the code snippet'
   }
