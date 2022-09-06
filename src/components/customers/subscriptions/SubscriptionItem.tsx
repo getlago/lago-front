@@ -33,6 +33,7 @@ gql`
 
 interface SubscriptionItemProps {
   subscriptionId: string
+  subscriptionExternalId: string
   subscriptionName?: string | null
   date: string
   plan: SubscriptionItemPlanFragment
@@ -46,7 +47,17 @@ export interface SubscriptionItemRef {
 }
 
 export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItemProps>(
-  ({ subscriptionId, subscriptionName, date, plan, isPending }: SubscriptionItemProps, ref) => {
+  (
+    {
+      subscriptionId,
+      subscriptionExternalId,
+      subscriptionName,
+      date,
+      plan,
+      isPending,
+    }: SubscriptionItemProps,
+    ref
+  ) => {
     const { translate } = useInternationalization()
     const { addSubscriptionDialogRef, editSubscriptionDialogRef, terminateSubscriptionDialogRef } =
       (ref as MutableRefObject<SubscriptionItemRef>)?.current
@@ -134,7 +145,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
                   variant="quaternary"
                   align="left"
                   onClick={() => {
-                    navigator.clipboard.writeText(subscriptionId)
+                    navigator.clipboard.writeText(subscriptionExternalId)
                     addToast({
                       severity: 'info',
                       translateKey: 'text_62d94cc9ccc5eebcc03160a0',
