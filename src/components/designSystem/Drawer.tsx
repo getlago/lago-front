@@ -18,6 +18,7 @@ export interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
   opener?: ReactElement
   forceOpen?: boolean
   children: (({ closeDrawer }: { closeDrawer: () => void }) => ReactNode) | ReactNode
+  onOpen?: () => void
   onClose?: () => void
 }
 
@@ -27,11 +28,17 @@ export interface DrawerRef {
 }
 
 export const Drawer = forwardRef<DrawerRef, DrawerProps>(
-  ({ forceOpen = false, children, opener, anchor = 'right', title, onClose }: DrawerProps, ref) => {
+  (
+    { forceOpen = false, children, opener, anchor = 'right', title, onOpen, onClose }: DrawerProps,
+    ref
+  ) => {
     const [isOpen, setIsOpen] = useState(forceOpen)
 
     useImperativeHandle(ref, () => ({
-      openDrawer: () => setIsOpen(true),
+      openDrawer: () => {
+        setIsOpen(true)
+        onOpen && onOpen()
+      },
       closeDrawer: () => setIsOpen(false),
     }))
 
@@ -102,6 +109,9 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0 ${theme.spacing(12)};
+  position: sticky;
+  top: 0;
+  background-color: ${theme.palette.common.white};
 
   ${theme.breakpoints.down('md')} {
     padding: 0 ${theme.spacing(4)};

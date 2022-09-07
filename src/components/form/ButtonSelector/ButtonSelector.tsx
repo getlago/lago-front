@@ -52,15 +52,13 @@ export const ButtonSelector = ({
       <ButtonGroup>
         {options.map(({ value: optionValue, label: optionLabel, disabled: optionDisabled }) => {
           return (
-            <>
-              <TabButton
-                disabled={disabled || optionDisabled}
-                key={`button-selector-${optionValue}`}
-                title={optionLabel ?? optionValue}
-                active={value === optionValue}
-                onClick={() => onChange(optionValue)}
-              />
-            </>
+            <TabButton
+              disabled={disabled || optionDisabled}
+              key={`button-selector-${optionValue}`}
+              title={optionLabel ?? optionValue}
+              active={value === optionValue}
+              onClick={() => onChange(optionValue)}
+            />
           )
         })}
       </ButtonGroup>

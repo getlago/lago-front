@@ -19,7 +19,7 @@ import {
 } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 
-import { AddPlanToCustomerDialogRef } from './AddPlanToCustomerDialog'
+import { AddSubscriptionToCustomerDrawerRef } from './AddSubscriptionToCustomerDrawer'
 import { EditCustomerSubscriptionDialogRef } from './EditCustomerSubscriptionDialog'
 import { TerminateCustomerSubscriptionDialogRef } from './TerminateCustomerSubscriptionDialog'
 
@@ -41,7 +41,7 @@ interface SubscriptionItemProps {
 }
 
 export interface SubscriptionItemRef {
-  addSubscriptionDialogRef: ForwardedRef<AddPlanToCustomerDialogRef> | null
+  addSubscriptionDialogRef: ForwardedRef<AddSubscriptionToCustomerDrawerRef> | null
   editSubscriptionDialogRef: ForwardedRef<EditCustomerSubscriptionDialogRef> | null
   terminateSubscriptionDialogRef: ForwardedRef<TerminateCustomerSubscriptionDialogRef> | null
 }
@@ -130,8 +130,8 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
                   align="left"
                   onClick={() => {
                     ;(
-                      addSubscriptionDialogRef as MutableRefObject<AddPlanToCustomerDialogRef>
-                    )?.current?.openDialog({
+                      addSubscriptionDialogRef as MutableRefObject<AddSubscriptionToCustomerDrawerRef>
+                    )?.current?.openDrawer({
                       subscriptionId,
                       existingPlanId: plan.id,
                     })

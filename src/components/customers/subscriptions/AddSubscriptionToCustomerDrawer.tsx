@@ -5,11 +5,11 @@ import { useFormik } from 'formik'
 import { object, string } from 'yup'
 import { DateTime } from 'luxon'
 
-import { Dialog, Button, DialogRef, Alert, Typography } from '~/components/designSystem'
+import { Drawer, DrawerRef, Button, Alert, Typography } from '~/components/designSystem'
 import { ComboBoxField, TextInputField, DatePicker, ButtonSelectorField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
-import { theme } from '~/styles'
+import { theme, Card } from '~/styles'
 import {
   useCreateSubscriptionMutation,
   CustomerSubscriptionListFragmentDoc,
@@ -20,9 +20,9 @@ import {
   BillingTimeEnum,
 } from '~/generated/graphql'
 
-export interface AddPlanToCustomerDialogRef {
-  openDialog: (existingInfos?: { subscriptionId: string; existingPlanId: string }) => unknown
-  closeDialog: () => unknown
+export interface AddSubscriptionToCustomerDrawerRef {
+  openDrawer: (existingInfos?: { subscriptionId: string; existingPlanId: string }) => unknown
+  closeDrawer: () => unknown
 }
 
 gql`
@@ -46,16 +46,16 @@ gql`
   ${CustomerSubscriptionListFragmentDoc}
 `
 
-interface AddPlanToCustomerDialogProps {
+interface AddSubscriptionToCustomerDrawerProps {
   customerName: string
   customerId: string
 }
 
-export const AddPlanToCustomerDialog = forwardRef<
-  AddPlanToCustomerDialogRef,
-  AddPlanToCustomerDialogProps
->(({ customerId, customerName }: AddPlanToCustomerDialogProps, ref) => {
-  const dialogRef = useRef<DialogRef>(null)
+export const AddSubscriptionToCustomerDrawer = forwardRef<
+  AddSubscriptionToCustomerDrawerRef,
+  AddSubscriptionToCustomerDrawerProps
+>(({ customerId, customerName }: AddSubscriptionToCustomerDrawerProps, ref) => {
+  const drawerRef = useRef<DrawerRef>(null)
   const currentDateRef = useRef<DateTime>(DateTime.now())
   const [existingInfos, setExistingInfos] = useState<
     | {
@@ -111,7 +111,7 @@ export const AddPlanToCustomerDialog = forwardRef<
       if (!!apiError && apiError?.code === Lago_Api_Error.CurrenciesDoesNotMatch) {
         formikBag.setFieldError('planId', translate('text_62d904d38619b00b6681a3c6'))
       } else {
-        ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()
+        ;(ref as unknown as RefObject<DrawerRef>)?.current?.closeDrawer()
         formikBag.resetForm()
       }
     },
@@ -178,112 +178,124 @@ export const AddPlanToCustomerDialog = forwardRef<
   }, [selectedPlan, formikProps.values.billingTime, translate])
 
   useImperativeHandle(ref, () => ({
-    openDialog: (infos) => {
+    openDrawer: (infos) => {
       setExistingInfos(infos)
-      dialogRef.current?.openDialog()
+      drawerRef.current?.openDrawer()
     },
-    closeDialog: () => dialogRef.current?.closeDialog(),
+    closeDrawer: () => drawerRef.current?.closeDrawer(),
   }))
 
   return (
-    <Dialog
-      ref={dialogRef}
+    <Drawer
+      ref={drawerRef}
       title={translate(
-        existingInfos ? 'text_62559eef7b0ccc015127e38b' : 'text_625434c7bb2cb40124c81a19',
+        existingInfos ? 'text_631894c5378934166c854030' : 'text_625434c7bb2cb40124c81a19',
         { customerName }
       )}
-      onClickAway={() => formikProps.resetForm()}
-      description={translate(
-        existingInfos ? 'text_62559eef7b0ccc015127e38d' : 'text_625434c7bb2cb40124c81a21'
-      )}
+      onClose={() => formikProps.resetForm()}
       onOpen={() => {
         if (!loading) {
           getPlans()
         }
       }}
-      actions={({ closeDialog }) => (
-        <>
-          <Button
-            variant="quaternary"
-            onClick={() => {
-              closeDialog()
-              formikProps.resetForm()
-            }}
-          >
-            {translate('text_6244277fe0975300fe3fb94a')}
-          </Button>
-          <Button disabled={!formikProps.isValid} onClick={formikProps.submitForm}>
-            {translate(
-              existingInfos ? 'text_62559eef7b0ccc015127e3a1' : 'text_625434c7bb2cb40124c81a41'
-            )}
-          </Button>
-        </>
-      )}
     >
-      <Content>
-        <ComboBoxField
-          name="planId"
-          formikProps={formikProps}
-          label={translate('text_625434c7bb2cb40124c81a29')}
-          data={comboboxPlansData}
-          loading={loading}
-          isEmptyNull={false}
-          loadingText={translate('text_625434c7bb2cb40124c81a35')}
-          placeholder={translate('text_625434c7bb2cb40124c81a31')}
-          emptyText={translate('text_625434c7bb2cb40124c81a37')}
-          PopperProps={{ displayInDialog: true }}
-        />
-        {!!formikProps?.values?.planId && (
-          <>
-            <TextInputField
-              name="name"
+      <>
+        <Content>
+          <Title>
+            <Typography variant="headline">
+              {translate(
+                existingInfos ? 'text_631894c5378934166c854032' : 'text_625434c7bb2cb40124c81a19',
+                { customerName }
+              )}
+            </Typography>
+            <Typography>
+              {translate(
+                existingInfos ? 'text_631894c5378934166c854034' : 'text_63185bc45c245fd640b329ff'
+              )}
+            </Typography>
+          </Title>
+
+          <Card>
+            <Typography variant="subhead">{translate('text_63185bc45c245fd640b32a01')}</Typography>
+            <ComboBoxField
+              name="planId"
               formikProps={formikProps}
-              label={translate('text_62d7f6178ec94cd09370e2b9')}
-              placeholder={translate('text_62d7f6178ec94cd09370e2cb')}
-              helperText={translate('text_62d7f6178ec94cd09370e2d9')}
+              label={translate('text_625434c7bb2cb40124c81a29')}
+              data={comboboxPlansData}
+              loading={loading}
+              isEmptyNull={false}
+              loadingText={translate('text_625434c7bb2cb40124c81a35')}
+              placeholder={translate('text_625434c7bb2cb40124c81a31')}
+              emptyText={translate('text_625434c7bb2cb40124c81a37')}
+              PopperProps={{ displayInDialog: true }}
             />
-            {!existingInfos && (
+            {!!formikProps?.values?.planId && (
               <>
-                <DatePicker
-                  disabled
-                  name="anniversaryDate"
-                  value={currentDateRef?.current}
-                  label={translate('text_62ea7cd44cd4b14bb9ac1dbb')}
-                  onChange={() => {}}
-                />
-                <ButtonSelectorField
-                  name="billingTime"
-                  label={translate('text_62ea7cd44cd4b14bb9ac1db7')}
+                <TextInputField
+                  name="name"
                   formikProps={formikProps}
-                  helperText={billingTimeHelper}
-                  options={[
-                    {
-                      label:
-                        selectedPlan?.interval === PlanInterval.Yearly
-                          ? translate('text_62ebd597d5d5130a03ced107')
-                          : selectedPlan?.interval === PlanInterval.Weekly
-                          ? translate('text_62ebd597d5d5130a03ced101')
-                          : translate('text_62ea7cd44cd4b14bb9ac1db9'),
-                      value: BillingTimeEnum.Calendar,
-                    },
-                    {
-                      label: translate('text_62ea7cd44cd4b14bb9ac1dbb'),
-                      value: BillingTimeEnum.Anniversary,
-                    },
-                  ]}
+                  label={translate('text_62d7f6178ec94cd09370e2b9')}
+                  placeholder={translate('text_62d7f6178ec94cd09370e2cb')}
+                  helperText={translate('text_62d7f6178ec94cd09370e2d9')}
                 />
+                {!existingInfos && (
+                  <>
+                    <DatePicker
+                      disabled
+                      name="anniversaryDate"
+                      value={currentDateRef?.current}
+                      label={translate('text_62ea7cd44cd4b14bb9ac1dbb')}
+                      onChange={() => {}}
+                    />
+                    <ButtonSelectorField
+                      name="billingTime"
+                      label={translate('text_62ea7cd44cd4b14bb9ac1db7')}
+                      formikProps={formikProps}
+                      helperText={billingTimeHelper}
+                      options={[
+                        {
+                          label:
+                            selectedPlan?.interval === PlanInterval.Yearly
+                              ? translate('text_62ebd597d5d5130a03ced107')
+                              : selectedPlan?.interval === PlanInterval.Weekly
+                              ? translate('text_62ebd597d5d5130a03ced101')
+                              : translate('text_62ea7cd44cd4b14bb9ac1db9'),
+                          value: BillingTimeEnum.Calendar,
+                        },
+                        {
+                          label: translate('text_62ea7cd44cd4b14bb9ac1dbb'),
+                          value: BillingTimeEnum.Anniversary,
+                        },
+                      ]}
+                    />
+                  </>
+                )}
               </>
             )}
-          </>
-        )}
 
-        {!!formikProps.errors.planId ? (
-          <Alert type="danger">{formikProps.errors.planId}</Alert>
-        ) : (
-          !!existingInfos && <Alert type="info">{translate('text_62d7f6178ec94cd09370e3d1')}</Alert>
-        )}
-      </Content>
-    </Dialog>
+            {!!formikProps.errors.planId ? (
+              <Alert type="danger">{formikProps.errors.planId}</Alert>
+            ) : (
+              !!existingInfos && (
+                <Alert type="info">{translate('text_62d7f6178ec94cd09370e3d1')}</Alert>
+              )
+            )}
+          </Card>
+        </Content>
+        <SubmitButton>
+          <Button
+            size="large"
+            fullWidth
+            disabled={!formikProps.isValid}
+            onClick={formikProps.submitForm}
+          >
+            {existingInfos
+              ? translate('text_62559eef7b0ccc015127e3a1')
+              : translate('text_63185bc45c245fd640b32a1f', { customerName })}
+          </Button>
+        </SubmitButton>
+      </>
+    </Drawer>
   )
 })
 
@@ -300,4 +312,12 @@ const Content = styled.div`
   }
 `
 
-AddPlanToCustomerDialog.displayName = 'AddPlanToCustomerDialog'
+const Title = styled.div`
+  padding: 0 ${theme.spacing(8)};
+`
+
+const SubmitButton = styled.div`
+  margin: 0 ${theme.spacing(8)};
+`
+
+AddSubscriptionToCustomerDrawer.displayName = 'AddSubscriptionToCustomerDrawer'
