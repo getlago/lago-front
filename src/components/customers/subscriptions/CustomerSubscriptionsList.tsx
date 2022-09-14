@@ -72,9 +72,7 @@ export const CustomerSubscriptionsList = forwardRef<
           onClick={() =>
             (
               addSubscriptionDialogRef as MutableRefObject<AddSubscriptionToCustomerDrawerRef>
-            )?.current?.openDrawer({
-              hasNoSubscription: !subscriptions || subscriptions.length < 1,
-            })
+            )?.current?.openDrawer()
           }
         >
           {translate('text_6250304370f0f700a8fdc28b')}

@@ -17,7 +17,6 @@ interface PlanModelBlockFormProps {
   type?: keyof typeof PlanModelBlockFormTypeEnum
   values?: Omit<PlanInput, 'charges'>
   canBeDeleted?: boolean
-  hasNoSubscription?: boolean
   onChange: (field: string, value: unknown) => void
 }
 
@@ -26,7 +25,6 @@ export const PlanModelBlockForm = ({
   type = PlanModelBlockFormTypeEnum.creation,
   values,
   canBeDeleted,
-  hasNoSubscription,
   onChange,
 }: PlanModelBlockFormProps) => {
   const { translate } = useInternationalization()
@@ -70,7 +68,7 @@ export const PlanModelBlockForm = ({
           onChange={(value) => onChange('amountCents', value)}
         />
         <ComboBox
-          disabled={(isEdition && !canBeDeleted) || (isOverride && !hasNoSubscription)}
+          disabled={(isEdition && !canBeDeleted) || isOverride}
           name="amountCurrency"
           data={Object.values(CurrencyEnum).map((currencyType) => ({
             value: currencyType,

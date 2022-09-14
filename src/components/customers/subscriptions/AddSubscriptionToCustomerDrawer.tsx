@@ -99,10 +99,9 @@ gql`
 
 export interface AddSubscriptionToCustomerDrawerRef {
   openDrawer: (drawerInfos?: {
-    subscriptionId?: string
-    existingPlanId?: string
-    hasNoSubscription?: boolean
-    endDate?: string
+    subscriptionId: string
+    existingPlanId: string
+    endDate: string
   }) => unknown
   closeDrawer: () => unknown
 }
@@ -122,7 +121,6 @@ export const AddSubscriptionToCustomerDrawer = forwardRef<
     | {
         subscriptionId?: string
         existingPlanId?: string
-        hasNoSubscription?: boolean
         endDate?: string
       }
     | undefined
@@ -228,11 +226,10 @@ export const AddSubscriptionToCustomerDrawer = forwardRef<
 
   const updatePlanOverride: (planId?: string) => Promise<void> = async (planId) => {
     if (!planId) {
-      formikProps.setFieldValue('plan', undefined)
-      formikProps.setFieldValue('overriddenPlanId', undefined)
+      // @ts-ignore
+      formikProps.setValues({ ...formikProps.values, plan: undefined, overriddenPlanId: undefined })
     } else {
       formikProps.setFieldValue('overriddenPlanId', planId)
-
       const { data: planData } = await getPlanToOverride({ variables: { id: planId } })
 
       formikProps.setFieldValue('plan', {
@@ -341,52 +338,53 @@ export const AddSubscriptionToCustomerDrawer = forwardRef<
                 <Skeleton variant="text" height={12} width={256} />
               </Card>
             ))}
-          {!!formikProps?.values?.plan && !!formikProps.values.plan.charges?.length && (
+          {!!formikProps?.values?.plan && (
             <>
               <PlanModelBlockForm
-                hasNoSubscription={subscriptionInfos?.hasNoSubscription}
                 title={translate('text_631a0306fa3bc539f0e8a641')}
                 values={formikProps?.values?.plan}
                 type="override"
                 onChange={(field, value) => formikProps.setFieldValue(`plan.${field}`, value)}
               />
 
-              <Card>
-                <Typography variant="subhead">
-                  {translate('text_631a0306fa3bc539f0e8a65b')}
-                </Typography>
+              {!!formikProps.values.plan.charges?.length && (
+                <Card>
+                  <Typography variant="subhead">
+                    {translate('text_631a0306fa3bc539f0e8a65b')}
+                  </Typography>
 
-                {formikProps.values.plan.charges.map((charge, i) => {
-                  return (
-                    <ChargeAccordion
-                      id={charge.id || `override-charge-${i}`}
-                      key={charge.id}
-                      currency={formikProps.values.plan.amountCurrency || CurrencyEnum.Usd}
-                      index={i}
-                      preventDelete
-                      formikIdentifier="plan.charges"
-                      formikProps={formikProps}
-                    />
-                  )
-                })}
+                  {formikProps.values.plan.charges.map((charge, i) => {
+                    return (
+                      <ChargeAccordion
+                        id={charge.id || `override-charge-${i}`}
+                        key={charge.id}
+                        currency={formikProps.values.plan.amountCurrency || CurrencyEnum.Usd}
+                        index={i}
+                        preventDelete
+                        formikIdentifier="plan.charges"
+                        formikProps={formikProps}
+                      />
+                    )
+                  })}
 
-                {formikProps.values.plan.interval === PlanInterval.Yearly && (
-                  <ChargeInvoiceLine>
-                    <SwitchField
-                      labelPosition="left"
-                      label={translate('text_62a30bc79dae432fb055330b')}
-                      name="plan.billChargesMonthly"
-                      formikProps={formikProps}
-                    />
-                    <ChargeInvoiceTooltip
-                      title={translate('text_62a30bc79dae432fb055330f')}
-                      placement="top-end"
-                    >
-                      <Icon name="info-circle" />
-                    </ChargeInvoiceTooltip>
-                  </ChargeInvoiceLine>
-                )}
-              </Card>
+                  {formikProps.values.plan.interval === PlanInterval.Yearly && (
+                    <ChargeInvoiceLine>
+                      <SwitchField
+                        labelPosition="left"
+                        label={translate('text_62a30bc79dae432fb055330b')}
+                        name="plan.billChargesMonthly"
+                        formikProps={formikProps}
+                      />
+                      <ChargeInvoiceTooltip
+                        title={translate('text_62a30bc79dae432fb055330f')}
+                        placement="top-end"
+                      >
+                        <Icon name="info-circle" />
+                      </ChargeInvoiceTooltip>
+                    </ChargeInvoiceLine>
+                  )}
+                </Card>
+              )}
             </>
           )}
         </Content>
