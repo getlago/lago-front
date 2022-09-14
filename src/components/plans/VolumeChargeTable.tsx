@@ -12,8 +12,6 @@ import { CurrencyEnum } from '~/generated/graphql'
 import { useVolumeChargeForm } from '~/hooks/plans/useVolumeChargeForm'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
 
-import { PlanFormInput } from './types'
-
 gql`
   fragment VolumeRanges on Charge {
     volumeRanges {
@@ -25,19 +23,21 @@ gql`
   }
 `
 
-interface VolumeChargeTableProps {
+interface VolumeChargeTableProps<T> {
   currency: CurrencyEnum
   chargeIndex: number
-  formikProps: FormikProps<PlanFormInput>
+  formikProps: FormikProps<T>
   disabled?: boolean
+  formikIdentifier: string
 }
 
-export const VolumeChargeTable = ({
+export const VolumeChargeTable = <T extends Record<string, unknown>>({
   currency,
   chargeIndex,
   formikProps,
   disabled,
-}: VolumeChargeTableProps) => {
+  formikIdentifier,
+}: VolumeChargeTableProps<T>) => {
   const { translate } = useInternationalization()
   const [errorIndex, setErrorIndex] = useState<number | undefined>()
   const { tableDatas, addRange, handleUpdate, deleteRange, infosCalculation } = useVolumeChargeForm(
@@ -45,6 +45,7 @@ export const VolumeChargeTable = ({
       formikProps,
       chargeIndex,
       disabled,
+      formikIdentifier,
     }
   )
 

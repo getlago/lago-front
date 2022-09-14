@@ -12,7 +12,7 @@ enum LabelPositionEnum {
 
 type LabelPosition = keyof typeof LabelPositionEnum
 export interface SwitchProps {
-  name: string
+  name?: string
   disabled?: boolean
   checked?: boolean
   label?: string

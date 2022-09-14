@@ -5,6 +5,6 @@ export type LocalChargeInput = Omit<ChargeInput, 'billableMetricId'> & {
   id?: string
 }
 
-export interface PlanFormInput extends Omit<CreatePlanInput, 'clientMutationId' | 'charges'> {
+export type PlanFormInput = Omit<CreatePlanInput, 'clientMutationId' | 'charges'> & {
   charges: LocalChargeInput[]
 }

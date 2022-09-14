@@ -112,6 +112,7 @@ const Header = styled.div`
   position: sticky;
   top: 0;
   background-color: ${theme.palette.common.white};
+  z-index: ${theme.zIndex.drawer};
 
   ${theme.breakpoints.down('md')} {
     padding: 0 ${theme.spacing(4)};

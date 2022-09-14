@@ -2,6 +2,7 @@ import { useState, useCallback, MouseEvent } from 'react'
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
 import { FormikProps } from 'formik'
 import styled from 'styled-components'
+import _get from 'lodash/get'
 
 import { theme, NAV_HEIGHT } from '~/styles'
 import { Button, Typography, Tooltip } from '~/components/designSystem'
@@ -12,31 +13,37 @@ import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
 
-import { PlanFormInput } from './types'
+import { LocalChargeInput } from './types'
 import { VolumeChargeTable } from './VolumeChargeTable'
 
-interface ChargeAccordionProps {
+interface ChargeAccordionProps<T> {
   id: string
   index: number
   currency: CurrencyEnum
   disabled?: boolean
-  formikProps: FormikProps<PlanFormInput>
+  formikProps: FormikProps<T>
+  formikIdentifier: string
+  preventDelete?: boolean
 }
 
-export const ChargeAccordion = ({
+export const ChargeAccordion = <T extends Record<string, unknown>>({
   id,
   index,
   currency,
   disabled,
   formikProps,
-}: ChargeAccordionProps) => {
-  const [isOpen, setIsOpen] = useState(!formikProps.values.charges?.[index]?.id ? true : false)
+  formikIdentifier,
+  preventDelete = false,
+}: ChargeAccordionProps<T>) => {
+  const [isOpen, setIsOpen] = useState(
+    !_get(formikProps.values, `${formikIdentifier}.${index}.id`) ? true : false
+  )
   const { translate } = useInternationalization()
-  const localCharge = formikProps.values.charges[index]
+  const localCharge = _get(formikProps.values, `${formikIdentifier}.${index}`) as LocalChargeInput
 
   const handleUpdate = useCallback(
     (name: string, value: string) => {
-      formikProps.setFieldValue(`charges.${index}.${name}`, value)
+      formikProps.setFieldValue(`${formikIdentifier}.${index}.${name}`, value)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [index, formikProps.setFieldValue]
@@ -66,7 +73,7 @@ export const ChargeAccordion = ({
               {localCharge?.billableMetric?.code}
             </Typography>
           </Title>
-          {!disabled && (
+          {!disabled && !preventDelete && (
             <Tooltip
               placement="top-end"
               title={
@@ -82,10 +89,12 @@ export const ChargeAccordion = ({
                 onClick={(e: MouseEvent<HTMLButtonElement>) => {
                   e.stopPropagation()
                   e.preventDefault()
-                  const charges = [...formikProps.values.charges]
+                  const charges = [
+                    ...(_get(formikProps.values, formikIdentifier) as LocalChargeInput[]),
+                  ]
 
                   charges.splice(index, 1)
-                  formikProps.setFieldValue('charges', charges)
+                  formikProps.setFieldValue(formikIdentifier, charges)
                 }}
               />
             </Tooltip>
@@ -163,6 +172,7 @@ export const ChargeAccordion = ({
               disabled={disabled}
               chargeIndex={index}
               formikProps={formikProps}
+              formikIdentifier={formikIdentifier}
             />
           )}
           {localCharge.chargeModel === ChargeModelEnum.Graduated && (
@@ -171,6 +181,7 @@ export const ChargeAccordion = ({
               chargeIndex={index}
               currency={currency}
               formikProps={formikProps}
+              formikIdentifier={formikIdentifier}
             />
           )}
           {localCharge.chargeModel === ChargeModelEnum.Percentage && (
@@ -179,6 +190,7 @@ export const ChargeAccordion = ({
               disabled={disabled}
               chargeIndex={index}
               formikProps={formikProps}
+              formikIdentifier={formikIdentifier}
             />
           )}
           {localCharge.chargeModel === ChargeModelEnum.Volume && (
@@ -187,6 +199,7 @@ export const ChargeAccordion = ({
               disabled={disabled}
               chargeIndex={index}
               formikProps={formikProps}
+              formikIdentifier={formikIdentifier}
             />
           )}
         </Details>

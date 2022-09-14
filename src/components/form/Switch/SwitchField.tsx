@@ -1,10 +1,12 @@
 import { memo } from 'react'
 import { FormikProps } from 'formik'
 import _isEqual from 'lodash/isEqual'
+import _get from 'lodash/get'
 
 import { Switch, SwitchProps } from './Switch'
 
-interface SwitchFieldFormProps extends SwitchProps {
+interface SwitchFieldFormProps extends Omit<SwitchProps, 'name'> {
+  name: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formikProps: FormikProps<any>
 }
@@ -14,7 +16,7 @@ export const SwitchField = memo(
     return (
       <Switch
         name={name}
-        checked={!!formikProps.values[name]}
+        checked={!!_get(formikProps.values, name)}
         onChange={(value) => {
           formikProps.setFieldValue(name, value)
         }}

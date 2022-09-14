@@ -11,27 +11,32 @@ import { theme } from '~/styles'
 import { CurrencyEnum } from '~/generated/graphql'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
 
-import { PlanFormInput } from './types'
+import { LocalChargeInput } from './types'
 
-interface PackageChargeProps {
+interface PackageChargeProps<T> {
   disabled?: boolean
   chargeIndex: number
   currency: CurrencyEnum
-  formikProps: FormikProps<PlanFormInput>
+  formikProps: FormikProps<T>
+  formikIdentifier: string
 }
 
-export const PackageCharge = ({
+export const PackageCharge = <T extends Record<string, unknown>>({
   currency,
   disabled,
   chargeIndex,
   formikProps,
-}: PackageChargeProps) => {
+  formikIdentifier,
+}: PackageChargeProps<T>) => {
   const { translate } = useInternationalization()
-  const localCharge = formikProps.values.charges[chargeIndex]
+  const localCharge = _get(
+    formikProps.values,
+    `${formikIdentifier}.${chargeIndex}`
+  ) as LocalChargeInput
 
   const handleUpdate = useCallback(
     (name: string, value: string) => {
-      formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
+      formikProps.setFieldValue(`${formikIdentifier}.${chargeIndex}.${name}`, value)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [chargeIndex]
@@ -39,7 +44,7 @@ export const PackageCharge = ({
 
   useEffect(() => {
     if (!localCharge.packageSize) {
-      formikProps.setFieldValue(`charges.${chargeIndex}.packageSize`, 10)
+      formikProps.setFieldValue(`${formikIdentifier}.${chargeIndex}.packageSize`, 10)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -70,7 +75,7 @@ export const PackageCharge = ({
       <TextInput
         name="packageSize"
         beforeChangeFormatter={['positiveNumber', 'int']}
-        error={_get(formikProps.errors, `charges.${chargeIndex}.packageSize`)}
+        error={_get(formikProps.errors, `${formikIdentifier}.${chargeIndex}.packageSize`) as string}
         disabled={disabled}
         value={localCharge.packageSize as number | undefined}
         onChange={(value) => handleUpdate('packageSize', value)}

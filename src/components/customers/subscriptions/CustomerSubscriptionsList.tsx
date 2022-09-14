@@ -32,6 +32,7 @@ gql`
     name
     nextName
     externalId
+    periodEndDate
     plan {
       ...SubscriptionItemPlan
     }
@@ -71,7 +72,9 @@ export const CustomerSubscriptionsList = forwardRef<
           onClick={() =>
             (
               addSubscriptionDialogRef as MutableRefObject<AddSubscriptionToCustomerDrawerRef>
-            )?.current?.openDrawer()
+            )?.current?.openDrawer({
+              hasNoSubscription: !subscriptions || subscriptions.length < 1,
+            })
           }
         >
           {translate('text_6250304370f0f700a8fdc28b')}
@@ -109,6 +112,7 @@ export const CustomerSubscriptionsList = forwardRef<
                 nextName,
                 nextPendingStartDate,
                 nextPlan,
+                periodEndDate,
               } = subscription
               const isDowngrading = !!nextPlan
 
@@ -120,6 +124,7 @@ export const CustomerSubscriptionsList = forwardRef<
                       subscriptionId={id}
                       subscriptionExternalId={externalId}
                       subscriptionName={nextName}
+                      endDate={periodEndDate}
                       date={nextPendingStartDate}
                       plan={nextPlan}
                       isPending
@@ -130,6 +135,7 @@ export const CustomerSubscriptionsList = forwardRef<
                     subscriptionId={id}
                     subscriptionExternalId={externalId}
                     subscriptionName={name}
+                    endDate={periodEndDate}
                     date={startedAt}
                     plan={plan}
                   />

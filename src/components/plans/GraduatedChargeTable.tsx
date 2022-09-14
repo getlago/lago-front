@@ -11,21 +11,21 @@ import { CurrencyEnum } from '~/generated/graphql'
 import { useGraduatedChargeForm } from '~/hooks/plans/useGraduatedChargeForm'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
 
-import { PlanFormInput } from './types'
-
-interface GraduatedChargeTableProps {
+interface GraduatedChargeTableProps<T> {
   currency: CurrencyEnum
   chargeIndex: number
-  formikProps: FormikProps<PlanFormInput>
+  formikProps: FormikProps<T>
   disabled?: boolean
+  formikIdentifier: string
 }
 
-export const GraduatedChargeTable = ({
+export const GraduatedChargeTable = <T extends Record<string, unknown>>({
   currency,
   chargeIndex,
   formikProps,
   disabled,
-}: GraduatedChargeTableProps) => {
+  formikIdentifier,
+}: GraduatedChargeTableProps<T>) => {
   const { translate } = useInternationalization()
   const [errorIndex, setErrorIndex] = useState<number | undefined>()
   const { tableDatas, addRange, handleUpdate, deleteRange, infosCaclucation } =
@@ -33,6 +33,7 @@ export const GraduatedChargeTable = ({
       formikProps,
       chargeIndex,
       disabled,
+      formikIdentifier,
     })
 
   return (

@@ -10,23 +10,28 @@ import { Alert, Typography, Button, Tooltip, Popper } from '~/components/designS
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CurrencyEnum } from '~/generated/graphql'
 
-import { PlanFormInput } from './types'
+import { LocalChargeInput } from './types'
 
-interface ChargePercentageProps {
+interface ChargePercentageProps<T> {
   disabled?: boolean
   chargeIndex: number
   currency: CurrencyEnum
-  formikProps: FormikProps<PlanFormInput>
+  formikProps: FormikProps<T>
+  formikIdentifier: string
 }
 
-export const ChargePercentage = ({
+export const ChargePercentage = <T extends Record<string, unknown>>({
   currency,
   disabled,
   chargeIndex,
   formikProps,
-}: ChargePercentageProps) => {
+  formikIdentifier,
+}: ChargePercentageProps<T>) => {
   const { translate } = useInternationalization()
-  const localCharge = formikProps.values.charges[chargeIndex]
+  const localCharge = _get(
+    formikProps.values,
+    `${formikIdentifier}.${chargeIndex}`
+  ) as LocalChargeInput
   const showFixedAmount = localCharge.fixedAmount !== undefined
   const showFreeUnitsPerEvents = localCharge.freeUnitsPerEvents !== undefined
   const showFreeUnitsPerTotalAggregation = localCharge.freeUnitsPerTotalAggregation !== undefined
@@ -39,7 +44,7 @@ export const ChargePercentage = ({
   })
   const handleUpdate = useCallback(
     (name: string, value: string | number) => {
-      formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
+      formikProps.setFieldValue(`${formikIdentifier}.${chargeIndex}.${name}`, value)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [chargeIndex]
@@ -59,7 +64,7 @@ export const ChargePercentage = ({
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
         beforeChangeFormatter={['positiveNumber', 'decimal']}
-        error={_get(formikProps.errors, `charges.${chargeIndex}.rate`)}
+        error={_get(formikProps.errors, `${formikIdentifier}.${chargeIndex}.rate`) as string}
         disabled={disabled}
         placeholder={translate('text_62a0b7107afa2700a65ef700')}
         value={localCharge.rate as number | undefined}
@@ -101,7 +106,7 @@ export const ChargePercentage = ({
               disabled={disabled}
               variant="quaternary"
               onClick={() => {
-                formikProps.setFieldValue(`charges.${chargeIndex}`, {
+                formikProps.setFieldValue(`${formikIdentifier}.${chargeIndex}`, {
                   ...localCharge,
                   fixedAmount: undefined,
                 })
@@ -142,7 +147,7 @@ export const ChargePercentage = ({
               disabled={disabled}
               variant="quaternary"
               onClick={() => {
-                formikProps.setFieldValue(`charges.${chargeIndex}`, {
+                formikProps.setFieldValue(`${formikIdentifier}.${chargeIndex}`, {
                   ...localCharge,
                   freeUnitsPerEvents: undefined,
                 })
@@ -183,7 +188,7 @@ export const ChargePercentage = ({
               disabled={disabled}
               variant="quaternary"
               onClick={() => {
-                formikProps.setFieldValue(`charges.${chargeIndex}`, {
+                formikProps.setFieldValue(`${formikIdentifier}.${chargeIndex}`, {
                   ...localCharge,
                   freeUnitsPerTotalAggregation: undefined,
                 })
@@ -199,7 +204,7 @@ export const ChargePercentage = ({
           variant="quaternary"
           disabled={disabled || localCharge.fixedAmount !== undefined}
           onClick={() =>
-            formikProps.setFieldValue(`charges.${chargeIndex}`, {
+            formikProps.setFieldValue(`${formikIdentifier}.${chargeIndex}`, {
               ...localCharge,
               fixedAmount: '',
             })
@@ -231,7 +236,7 @@ export const ChargePercentage = ({
                 variant="quaternary"
                 disabled={disabled || localCharge.freeUnitsPerEvents !== undefined}
                 onClick={() => {
-                  formikProps.setFieldValue(`charges.${chargeIndex}`, {
+                  formikProps.setFieldValue(`${formikIdentifier}.${chargeIndex}`, {
                     ...localCharge,
                     freeUnitsPerEvents: '',
                   })
@@ -244,7 +249,7 @@ export const ChargePercentage = ({
                 variant="quaternary"
                 disabled={disabled || localCharge.freeUnitsPerTotalAggregation !== undefined}
                 onClick={() => {
-                  formikProps.setFieldValue(`charges.${chargeIndex}`, {
+                  formikProps.setFieldValue(`${formikIdentifier}.${chargeIndex}`, {
                     ...localCharge,
                     freeUnitsPerTotalAggregation: '',
                   })

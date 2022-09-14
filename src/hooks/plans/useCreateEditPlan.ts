@@ -9,12 +9,12 @@ import {
   useGetSinglePlanQuery,
   useCreatePlanMutation,
   useUpdatePlanMutation,
-  ChargeModelEnum,
   VolumeRangesFragmentDoc,
 } from '~/generated/graphql'
 import { ERROR_404_ROUTE, PLANS_ROUTE } from '~/core/router'
 import { addToast } from '~/core/apolloClient'
 import { PlanFormInput } from '~/components/plans/types'
+import { serializePlanCreateInput } from '~/serializers/serializePlanInput'
 
 gql`
   fragment EditPlan on PlanDetails {
@@ -87,62 +87,6 @@ type UseCreateEditPlanReturn = {
   onSave: (values: PlanFormInput) => Promise<void>
 }
 
-const formatPlanInput = (values: PlanFormInput) => {
-  const { amountCents, trialPeriod, charges, ...otherValues } = values
-
-  return {
-    amountCents: Math.round(Number(amountCents) * 100),
-    trialPeriod: Number(trialPeriod || 0),
-    charges: charges.map(
-      ({
-        billableMetric,
-        amount: chargeAmount,
-        graduatedRanges,
-        volumeRanges,
-        chargeModel,
-        freeUnits,
-        freeUnitsPerEvents,
-        ...charge
-      }) => {
-        return {
-          chargeModel,
-          billableMetricId: billableMetric.id,
-          ...(chargeModel === ChargeModelEnum.Graduated
-            ? {
-                graduatedRanges: (graduatedRanges || []).map(
-                  ({ flatAmount, fromValue, perUnitAmount, ...range }) => ({
-                    flatAmount: String(flatAmount || '0'),
-                    fromValue: fromValue || 0,
-                    perUnitAmount: String(perUnitAmount || '0'),
-                    ...range,
-                  })
-                ),
-              }
-            : { amount: chargeAmount }),
-          ...(chargeModel === ChargeModelEnum.Volume
-            ? {
-                volumeRanges: (volumeRanges || []).map(
-                  ({ flatAmount, fromValue, perUnitAmount, ...range }) => ({
-                    flatAmount: String(flatAmount || '0'),
-                    fromValue: fromValue || 0,
-                    perUnitAmount: String(perUnitAmount || '0'),
-                    ...range,
-                  })
-                ),
-              }
-            : { amount: chargeAmount }),
-          ...(chargeModel === ChargeModelEnum.Package ? { freeUnits: freeUnits || 0 } : {}),
-          ...(chargeModel === ChargeModelEnum.Percentage
-            ? { freeUnitsPerEvents: Number(freeUnitsPerEvents) || undefined }
-            : {}),
-          ...charge,
-        }
-      }
-    ),
-    ...otherValues,
-  }
-}
-
 export const useCreateEditPlan: () => UseCreateEditPlanReturn = () => {
   const navigate = useNavigate()
   const { id } = useParams()
@@ -186,14 +130,14 @@ export const useCreateEditPlan: () => UseCreateEditPlanReturn = () => {
         ? async (values) => {
             await update({
               variables: {
-                input: { id, ...formatPlanInput(values) },
+                input: { id, ...serializePlanCreateInput(values) },
               },
             })
           }
         : async (values) => {
             await create({
               variables: {
-                input: formatPlanInput(values),
+                input: serializePlanCreateInput(values),
               },
             })
           },

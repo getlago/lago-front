@@ -39,6 +39,7 @@ const prepare = async ({ chargeIndex = 0, disabled = false, volumeRanges = [] }:
       }),
       chargeIndex,
       disabled,
+      formikIdentifier: `charges`,
     })
   )
 

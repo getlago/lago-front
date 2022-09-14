@@ -1,12 +1,12 @@
-import { ReactNode, useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { useFormik } from 'formik'
-import { object, string, number, array } from 'yup'
+import { object, string, number } from 'yup'
 import styled from 'styled-components'
 
 import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
 import { EditPlanFragment } from '~/generated/graphql'
 import { PlanInterval, CurrencyEnum, ChargeModelEnum } from '~/generated/graphql'
-import { TextInputField, ButtonSelectorField, ComboBoxField, SwitchField } from '~/components/form'
+import { TextInputField, SwitchField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   Typography,
@@ -19,20 +19,21 @@ import {
 import { theme, NAV_HEIGHT, Card } from '~/styles'
 import { AddChargeDialog, AddChargeDialogRef } from '~/components/plans/AddChargeDialog'
 import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
+import { chargesValidationSchema } from '~/formValidationSchemas'
 
 import { PlanFormInput, LocalChargeInput } from './types'
+import { PlanModelBlockForm } from './PlanModelBlockForm'
 
 interface PlanFormProps {
   plan?: EditPlanFragment
   isEdition?: boolean
   loading?: boolean
-  children?: ReactNode
   onSave: (values: PlanFormInput) => Promise<void>
 }
 
 const getNewChargeId = (id: string, index: number) => `plan-charge-${id}-${index}`
 
-export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFormProps) => {
+export const PlanForm = ({ loading, plan, onSave, isEdition }: PlanFormProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const addChargeDialogRef = useRef<AddChargeDialogRef>(null)
   const { translate } = useInternationalization()
@@ -90,112 +91,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
       amountCents: string().required(''),
       trialPeriod: number().typeError(translate('text_624ea7c29103fd010732ab7d')),
       amountCurrency: string().required(''),
-      charges: array().of(
-        object().shape({
-          chargeModel: string().required(''),
-          amount: number().when('chargeModel', {
-            is: (chargeModel: ChargeModelEnum) =>
-              !!chargeModel &&
-              [ChargeModelEnum.Standard, ChargeModelEnum.Package].includes(chargeModel),
-            then: number().typeError(translate('text_624ea7c29103fd010732ab7d')).required(''),
-          }),
-          packageSize: number().when('chargeModel', {
-            is: (chargeModel: ChargeModelEnum) =>
-              !!chargeModel && ChargeModelEnum.Package === chargeModel,
-            then: number()
-              .min(1, 'text_6282085b4f283b0102655888')
-              .required('text_6282085b4f283b0102655888'),
-          }),
-          rate: number().when('chargeModel', {
-            is: (chargeModel: ChargeModelEnum) =>
-              !!chargeModel && ChargeModelEnum.Percentage === chargeModel,
-            then: number().min(0.001, 'text_62a0b7107afa2700a65ef70e').required(''),
-          }),
-          fixedAmount: number().when('chargeModel', {
-            is: (chargeModel: ChargeModelEnum) =>
-              !!chargeModel && ChargeModelEnum.Percentage === chargeModel,
-            then: number().min(0.001, 'text_62a0b7107afa2700a65ef70e'),
-          }),
-          freeUnitsPerEvents: number().when('chargeModel', {
-            is: (chargeModel: ChargeModelEnum) =>
-              !!chargeModel && ChargeModelEnum.Percentage === chargeModel,
-            then: number(),
-          }),
-          freeUnitsPerTotalAggregation: number().when('chargeModel', {
-            is: (chargeModel: ChargeModelEnum) =>
-              !!chargeModel && ChargeModelEnum.Percentage === chargeModel,
-            then: number(),
-          }),
-          graduatedRanges: array()
-            .when('chargeModel', {
-              is: (chargeModel: ChargeModelEnum) =>
-                !!chargeModel && chargeModel === ChargeModelEnum.Graduated,
-              then: array()
-                .test({
-                  test: (graduatedRange) => {
-                    let isValid = true
-
-                    graduatedRange?.every(
-                      ({ fromValue, toValue, perUnitAmount, flatAmount }, i) => {
-                        if (isNaN(Number(perUnitAmount)) && isNaN(Number(flatAmount))) {
-                          isValid = false
-                          return false
-                        }
-
-                        if (
-                          i < graduatedRange.length - 1 &&
-                          (typeof fromValue !== 'number' || (fromValue || 0) > toValue)
-                        ) {
-                          isValid = false
-                          return false
-                        }
-
-                        return true
-                      }
-                    )
-
-                    return isValid
-                  },
-                })
-                .min(2)
-                .required(''),
-            })
-            .nullable(),
-          volumeRanges: array()
-            .when('chargeModel', {
-              is: (chargeModel: ChargeModelEnum) =>
-                !!chargeModel && chargeModel === ChargeModelEnum.Volume,
-              then: array()
-                .test({
-                  test: (volumeRange) => {
-                    let isValid = true
-
-                    volumeRange?.every(({ fromValue, toValue, perUnitAmount, flatAmount }, i) => {
-                      if (isNaN(Number(perUnitAmount)) && isNaN(Number(flatAmount))) {
-                        isValid = false
-                        return false
-                      }
-
-                      if (
-                        i < volumeRange.length - 1 &&
-                        (typeof fromValue !== 'number' || (fromValue || 0) > toValue)
-                      ) {
-                        isValid = false
-                        return false
-                      }
-
-                      return true
-                    })
-
-                    return isValid
-                  },
-                })
-                .min(2)
-                .required(''),
-            })
-            .nullable(),
-        })
-      ),
+      charges: chargesValidationSchema,
     }),
     enableReinitialize: true,
     validateOnMount: true,
@@ -319,76 +215,14 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                     formikProps={formikProps}
                   />
                 </Card>
-                <Card>
-                  <SectionTitle variant="subhead">
-                    {translate('text_624453d52e945301380e49a6')}
-                  </SectionTitle>
-                  <ButtonSelectorField
-                    disabled={isEdition && !plan?.canBeDeleted}
-                    name="interval"
-                    label={translate('text_624c5eadff7db800acc4c9ad')}
-                    infoText={translate('text_624d9adba93343010cd14ca3')}
-                    formikProps={formikProps}
-                    options={[
-                      {
-                        label: translate('text_624453d52e945301380e49aa'),
-                        value: PlanInterval.Monthly,
-                      },
-                      {
-                        label: translate('text_624453d52e945301380e49ac'),
-                        value: PlanInterval.Yearly,
-                      },
-                      {
-                        label: translate('text_62b32ec6b0434070791c2d4c'),
-                        value: PlanInterval.Weekly,
-                      },
-                    ]}
-                  />
 
-                  <LineAmount>
-                    <TextInputField
-                      name="amountCents"
-                      beforeChangeFormatter={['positiveNumber', 'decimal']}
-                      disabled={isEdition && !plan?.canBeDeleted}
-                      label={translate('text_624453d52e945301380e49b6')}
-                      placeholder={translate('text_624453d52e945301380e49b8')}
-                      formikProps={formikProps}
-                    />
-                    <ComboBoxField
-                      disabled={isEdition && !plan?.canBeDeleted}
-                      name="amountCurrency"
-                      data={Object.values(CurrencyEnum).map((currencyType) => ({
-                        value: currencyType,
-                      }))}
-                      disableClearable
-                      formikProps={formikProps}
-                    />
-                  </LineAmount>
+                <PlanModelBlockForm
+                  title={translate('text_624453d52e945301380e49a6')}
+                  values={formikProps.values}
+                  canBeDeleted={plan?.canBeDeleted}
+                  onChange={formikProps.setFieldValue}
+                />
 
-                  <SwitchField
-                    name="payInAdvance"
-                    disabled={isEdition && !plan?.canBeDeleted}
-                    label={translate('text_624d90e6a93343010cd14b40')}
-                    subLabel={translate('text_624d90e6a93343010cd14b4c')}
-                    formikProps={formikProps}
-                  />
-
-                  <TextInputField
-                    name="trialPeriod"
-                    disabled={isEdition && !plan?.canBeDeleted}
-                    label={translate('text_624453d52e945301380e49c2')}
-                    beforeChangeFormatter={['positiveNumber', 'decimal']}
-                    placeholder={translate('text_624453d52e945301380e49c4')}
-                    formikProps={formikProps}
-                    InputProps={{
-                      endAdornment: (
-                        <InputEnd color={!plan?.canBeDeleted ? 'textPrimary' : 'textSecondary'}>
-                          {translate('text_624453d52e945301380e49c6')}
-                        </InputEnd>
-                      ),
-                    }}
-                  />
-                </Card>
                 <Card ref={containerRef}>
                   <SectionTitle variant="subhead">
                     <div>{translate('text_624453d52e945301380e49ce')}</div>
@@ -406,6 +240,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                             key={id}
                             currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
                             index={i}
+                            formikIdentifier="charges"
                             disabled={isEdition && !plan?.canBeDeleted && chargeEditIndexLimit > i}
                             formikProps={formikProps}
                           />
@@ -441,7 +276,6 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                       )}
                   </ChargeFooter>
                 </Card>
-                {children}
                 <ButtonContainer>
                   <Button
                     disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
@@ -494,10 +328,6 @@ const Subtitle = styled(Typography)`
   padding: 0 ${theme.spacing(8)};
 `
 
-const InputEnd = styled(Typography)`
-  margin-right: ${theme.spacing(4)};
-`
-
 const ButtonContainer = styled.div`
   margin: 0 ${theme.spacing(6)} ${theme.spacing(20)} ${theme.spacing(6)};
 `
@@ -505,20 +335,6 @@ const ButtonContainer = styled.div`
 const Charges = styled.div`
   > * {
     margin-bottom: ${theme.spacing(6)};
-  }
-`
-
-const LineAmount = styled.div`
-  display: flex;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-    flex: 1;
-  }
-
-  > *:last-child {
-    max-width: 120px;
-    margin-top: 24px;
   }
 `
 
