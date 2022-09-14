@@ -1,6 +1,7 @@
 import { FormikProps } from 'formik'
 import { forwardRef, memo } from 'react'
 import _isEqual from 'lodash/isEqual'
+import _get from 'lodash/get'
 
 import { Radio, RadioProps } from './Radio'
 
@@ -35,9 +36,9 @@ export const RadioField = memo(
     return (
       _isEqual(prev, next) &&
       prevName === nextName &&
-      prevFormikProps.values[prevName] === nextformikProps.values[nextName] &&
-      prevFormikProps.errors[prevName] === nextformikProps.errors[nextName] &&
-      prevFormikProps.touched[prevName] === nextformikProps.touched[nextName]
+      _get(prevFormikProps.values, prevName) === _get(nextformikProps.values, nextName) &&
+      _get(prevFormikProps.errors, prevName) === _get(nextformikProps.errors, nextName) &&
+      _get(prevFormikProps.touched, prevName) === _get(nextformikProps.touched, nextName)
     )
   }
 )

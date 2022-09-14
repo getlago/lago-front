@@ -117,6 +117,7 @@ export const AddSubscriptionToCustomerDrawer = forwardRef<
   AddSubscriptionToCustomerDrawerProps
 >(({ customerId, customerName }: AddSubscriptionToCustomerDrawerProps, ref) => {
   const drawerRef = useRef<DrawerRef>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [subscriptionInfos, setSubscriptionInfos] = useState<
     | {
         subscriptionId?: string
@@ -217,6 +218,7 @@ export const AddSubscriptionToCustomerDrawer = forwardRef<
 
       if (!!apiError && apiError?.code === Lago_Api_Error.CurrenciesDoesNotMatch) {
         formikBag.setFieldError('planId', translate('text_62d904d38619b00b6681a3c6'))
+        containerRef.current?.scrollIntoView()
       } else {
         ;(ref as unknown as RefObject<DrawerRef>)?.current?.closeDrawer()
         formikBag.resetForm()
@@ -266,51 +268,6 @@ export const AddSubscriptionToCustomerDrawer = forwardRef<
     }
   }
 
-  // useEffect(() => {
-  //   if (!!formikProps.values.overriddenPlanId) {
-  //     getPlanToOverride({ variables: { id: formikProps.values.overriddenPlanId } })
-  //   } else {
-  //     formikProps.setFieldValue('plan', undefined)
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [formikProps.values.overriddenPlanId, getPlanToOverride])
-
-  // useEffect(() => {
-  //   if (data?.plan && formikProps.values.overriddenPlanId) {
-  //     formikProps.setFieldValue('plan', {
-  //       ...data?.plan,
-  //       charges: data?.plan.charges?.map(
-  //         ({
-  //           amount,
-  //           fixedAmount,
-  //           freeUnitsPerEvents,
-  //           freeUnitsPerTotalAggregation,
-  //           graduatedRanges,
-  //           volumeRanges,
-  //           packageSize,
-  //           rate,
-  //           freeUnits,
-  //           ...charge
-  //         }) => ({
-  //           // Amount can be null and this breaks the validation
-  //           amount: amount || undefined,
-  //           freeUnits: freeUnits || undefined,
-  //           packageSize:
-  //             packageSize === null || packageSize === undefined ? undefined : packageSize,
-  //           fixedAmount: fixedAmount || undefined,
-  //           freeUnitsPerEvents: freeUnitsPerEvents || undefined,
-  //           freeUnitsPerTotalAggregation: freeUnitsPerTotalAggregation || undefined,
-  //           graduatedRanges: !graduatedRanges ? null : graduatedRanges,
-  //           volumeRanges: !volumeRanges ? null : volumeRanges,
-  //           rate: rate || undefined,
-  //           ...charge,
-  //         })
-  //       ),
-  //     })
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [data, formikProps.values.overriddenPlanId])
-
   useEffect(() => {
     if (!!formikProps.values.overriddenPlanId) {
       updatePlanOverride(formikProps.values.planId)
@@ -338,7 +295,7 @@ export const AddSubscriptionToCustomerDrawer = forwardRef<
       onClose={() => formikProps.resetForm()}
     >
       <>
-        <Content>
+        <Content ref={containerRef}>
           <Title>
             <Typography variant="headline">
               {translate(
