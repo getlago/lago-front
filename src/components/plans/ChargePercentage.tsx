@@ -214,7 +214,7 @@ export const ChargePercentage = <T extends Record<string, unknown>>({
         </Button>
 
         <Popper
-          PopperProps={{ placement: 'bottom-end' }}
+          PopperProps={{ placement: 'bottom-start' }}
           opener={
             <Button
               startIcon="plus"
@@ -234,6 +234,7 @@ export const ChargePercentage = <T extends Record<string, unknown>>({
             <MenuPopper>
               <FreeUnitButton
                 variant="quaternary"
+                align="left"
                 disabled={disabled || localCharge.freeUnitsPerEvents !== undefined}
                 onClick={() => {
                   formikProps.setFieldValue(`${formikIdentifier}.${chargeIndex}`, {
@@ -247,6 +248,7 @@ export const ChargePercentage = <T extends Record<string, unknown>>({
               </FreeUnitButton>
               <FreeUnitButton
                 variant="quaternary"
+                align="left"
                 disabled={disabled || localCharge.freeUnitsPerTotalAggregation !== undefined}
                 onClick={() => {
                   formikProps.setFieldValue(`${formikIdentifier}.${chargeIndex}`, {

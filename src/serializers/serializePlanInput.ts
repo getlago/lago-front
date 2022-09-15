@@ -11,11 +11,17 @@ const serializeChargesInput: (charge: LocalChargeInput) => ChargeInput = ({
   chargeModel,
   freeUnits,
   freeUnitsPerEvents,
+  fixedAmount,
+  rate,
+  freeUnitsPerTotalAggregation,
   ...charge
 }) => {
   return {
     chargeModel,
     billableMetricId: billableMetric.id,
+    ...([ChargeModelEnum.Package, ChargeModelEnum.Standard].includes(chargeModel)
+      ? { amount: String(chargeAmount) }
+      : {}),
     ...(chargeModel === ChargeModelEnum.Graduated
       ? {
           graduatedRanges: (graduatedRanges || []).map(
@@ -27,7 +33,7 @@ const serializeChargesInput: (charge: LocalChargeInput) => ChargeInput = ({
             })
           ),
         }
-      : { amount: chargeAmount }),
+      : {}),
     ...(chargeModel === ChargeModelEnum.Volume
       ? {
           volumeRanges: (volumeRanges || []).map(
@@ -39,10 +45,18 @@ const serializeChargesInput: (charge: LocalChargeInput) => ChargeInput = ({
             })
           ),
         }
-      : { amount: chargeAmount }),
+      : {}),
     ...(chargeModel === ChargeModelEnum.Package ? { freeUnits: freeUnits || 0 } : {}),
     ...(chargeModel === ChargeModelEnum.Percentage
-      ? { freeUnitsPerEvents: Number(freeUnitsPerEvents) || undefined }
+      ? {
+          freeUnitsPerEvents: Number(freeUnitsPerEvents) || undefined,
+          fixedAmount: fixedAmount !== undefined ? String(fixedAmount) : undefined,
+          rate: rate ? String(rate) : undefined,
+          freeUnitsPerTotalAggregation:
+            freeUnitsPerTotalAggregation !== undefined
+              ? String(freeUnitsPerTotalAggregation)
+              : undefined,
+        }
       : {}),
     ...charge,
   }

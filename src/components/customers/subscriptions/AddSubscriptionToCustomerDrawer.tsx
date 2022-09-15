@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { useFormik } from 'formik'
 import { object, string } from 'yup'
 import { gql } from '@apollo/client'
+import _isEqual from 'lodash/isEqual'
 
 import {
   Drawer,
@@ -33,6 +34,7 @@ import {
   CurrencyEnum,
   PlanInterval,
   useCreateSubscriptionWithOverrideMutation,
+  PlanInput,
 } from '~/generated/graphql'
 import { chargesValidationSchema } from '~/formValidationSchemas'
 
@@ -117,6 +119,7 @@ export const AddSubscriptionToCustomerDrawer = forwardRef<
 >(({ customerId, customerName }: AddSubscriptionToCustomerDrawerProps, ref) => {
   const drawerRef = useRef<DrawerRef>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const formattedPlanRef = useRef<PlanInput | undefined>()
   const [subscriptionInfos, setSubscriptionInfos] = useState<
     | {
         subscriptionId?: string
@@ -172,13 +175,21 @@ export const AddSubscriptionToCustomerDrawer = forwardRef<
     },
     validationSchema: object().shape({
       planId: string().required(''),
-      plan: object().when('overriddenPlanId', {
-        is: (overriddenPlanId: string) => !!overriddenPlanId,
-        then: object().shape({
-          amountCents: string().required(''),
-          charges: chargesValidationSchema,
+      plan: object()
+        .when('overriddenPlanId', {
+          is: (overriddenPlanId: string) => !!overriddenPlanId,
+          then: object().shape({
+            amountCents: string().required(''),
+            charges: chargesValidationSchema,
+          }),
+        })
+        .test({
+          test: function (plan) {
+            const { overriddenPlanId } = this?.parent
+
+            return !!overriddenPlanId ? !!plan && !_isEqual(plan, formattedPlanRef?.current) : true
+          },
         }),
-      }),
     }),
     validateOnMount: true,
     enableReinitialize: true,
@@ -232,8 +243,24 @@ export const AddSubscriptionToCustomerDrawer = forwardRef<
       formikProps.setFieldValue('overriddenPlanId', planId)
       const { data: planData } = await getPlanToOverride({ variables: { id: planId } })
 
-      formikProps.setFieldValue('plan', {
-        ...planData?.plan,
+      if (!planData?.plan) return
+
+      const { amountCents, ...plan } = planData?.plan
+
+      formattedPlanRef.current = {
+        ...plan,
+        // @ts-ignore
+        amountCents: String(amountCents / 100),
+        name: plan?.name || '',
+        code: plan?.code || '',
+        description: plan?.description || undefined,
+        interval: plan?.interval || PlanInterval.Monthly,
+        payInAdvance: plan?.payInAdvance || false,
+        amountCurrency: plan?.amountCurrency || CurrencyEnum.Usd,
+        trialPeriod:
+          plan?.trialPeriod === null || plan?.trialPeriod === undefined ? 0 : plan?.trialPeriod,
+        billChargesMonthly: plan?.billChargesMonthly || undefined,
+        // @ts-ignore
         charges: planData?.plan?.charges?.map(
           ({
             amount,
@@ -248,20 +275,22 @@ export const AddSubscriptionToCustomerDrawer = forwardRef<
             ...charge
           }) => ({
             // Amount can be null and this breaks the validation
-            amount: amount || undefined,
+            amount: Number(amount) || undefined,
             freeUnits: freeUnits || undefined,
             packageSize:
               packageSize === null || packageSize === undefined ? undefined : packageSize,
-            fixedAmount: fixedAmount || undefined,
+            fixedAmount: Number(fixedAmount) || undefined,
             freeUnitsPerEvents: freeUnitsPerEvents || undefined,
-            freeUnitsPerTotalAggregation: freeUnitsPerTotalAggregation || undefined,
+            freeUnitsPerTotalAggregation: Number(freeUnitsPerTotalAggregation) || undefined,
             graduatedRanges: !graduatedRanges ? null : graduatedRanges,
             volumeRanges: !volumeRanges ? null : volumeRanges,
-            rate: rate || undefined,
+            rate: Number(rate) || undefined,
             ...charge,
           })
         ),
-      })
+      }
+
+      formikProps.setFieldValue('plan', formattedPlanRef?.current)
     }
   }
 
@@ -415,6 +444,10 @@ const Content = styled.div`
 
 const Title = styled.div`
   padding: 0 ${theme.spacing(8)};
+
+  > *:first-child {
+    margin-bottom: ${theme.spacing(1)};
+  }
 `
 
 const SubmitButton = styled.div`

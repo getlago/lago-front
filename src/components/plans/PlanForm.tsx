@@ -219,7 +219,8 @@ export const PlanForm = ({ loading, plan, onSave, isEdition }: PlanFormProps) =>
                 <PlanModelBlockForm
                   title={translate('text_624453d52e945301380e49a6')}
                   values={formikProps.values}
-                  canBeDeleted={plan?.canBeDeleted}
+                  type={isEdition ? 'edition' : 'creation'}
+                  canBeDeleted={isEdition && plan?.canBeDeleted}
                   onChange={formikProps.setFieldValue}
                 />
 
