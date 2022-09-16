@@ -6,7 +6,7 @@ import { theme } from '~/styles'
 
 export interface GenericPlaceholderProps {
   className?: string
-  title: string
+  title?: string
   subtitle: string
   image: ReactNode
   buttonTitle: string
@@ -34,7 +34,7 @@ export const GenericPlaceholder = ({
 }: GenericPlaceholderProps | GenericPlaceholderNoButtonProps) => (
   <Container className={className} $noMargins={noMargins}>
     {image}
-    <Title variant="subhead">{title}</Title>
+    {title && <Title variant="subhead">{title}</Title>}
     <Body $withButton={!!buttonTitle && !!buttonAction}>{subtitle}</Body>
 
     {!!buttonTitle && !!buttonAction && (
