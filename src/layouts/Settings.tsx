@@ -5,10 +5,11 @@ import { PageHeader } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, NavigationTab } from '~/components/designSystem'
 import {
+  INTEGRATIONS_ROUTE,
+  MEMBERS_ROUTE,
   ORGANIZATION_INFORMATIONS_ROUTE,
   SETTINGS_ROUTE,
   VAT_RATE_ROUTE,
-  INTEGRATIONS_ROUTE,
 } from '~/core/router'
 import { NAV_HEIGHT } from '~/styles'
 
@@ -27,6 +28,10 @@ const Settings = () => {
     {
       title: translate('text_62b1edddbf5f461ab9712733'),
       link: INTEGRATIONS_ROUTE,
+    },
+    {
+      title: translate('text_63208b630aaf8df6bbfb2655'),
+      link: MEMBERS_ROUTE,
     },
   ]
 

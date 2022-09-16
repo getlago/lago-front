@@ -36,6 +36,7 @@ const Integrations = lazy(
 const StripeIntegration = lazy(
   () => import(/* webpackChunkName: 'stripe-integration' */ '~/pages/settings/StripeIntegration')
 )
+const Members = lazy(() => import(/* webpackChunkName: 'members' */ '~/pages/settings/Members'))
 
 const BillableMetricsList = lazy(
   () => import(/* webpackChunkName: 'billable-metrics' */ '~/pages/BillableMetricsList')
@@ -117,6 +118,7 @@ export const VAT_RATE_ROUTE = `${SETTINGS_ROUTE}/tax-rate`
 export const ORGANIZATION_INFORMATIONS_ROUTE = `${SETTINGS_ROUTE}/organization-informations`
 export const INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
 export const STRIPE_INTEGRATION_ROUTE = `${SETTINGS_ROUTE}/integrations/stripe`
+export const MEMBERS_ROUTE = `${SETTINGS_ROUTE}/members`
 
 // *********************** Route Available only on dev mode
 const DesignSystem = lazy(
@@ -183,6 +185,11 @@ export const routes: CustomRouteObject[] = [
             path: INTEGRATIONS_ROUTE,
             private: true,
             element: <Integrations />,
+          },
+          {
+            path: MEMBERS_ROUTE,
+            private: true,
+            element: <Members />,
           },
         ],
       },
