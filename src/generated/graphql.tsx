@@ -2884,6 +2884,20 @@ export type CustomersQueryVariables = Exact<{
 
 export type CustomersQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Customer', id: string, name?: string | null, externalId: string, createdAt: any, canBeDeleted: boolean, activeSubscriptionCount: number, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null }> } };
 
+export type GetinviteQueryVariables = Exact<{
+  token: Scalars['String'];
+}>;
+
+
+export type GetinviteQuery = { __typename?: 'Query', invite?: { __typename?: 'Invite', id: string, email: string, organization: { __typename?: 'Organization', id: string, name: string } } | null };
+
+export type AcceptInviteMutationVariables = Exact<{
+  input: AcceptInviteInput;
+}>;
+
+
+export type AcceptInviteMutation = { __typename?: 'Mutation', acceptInvite?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, apiKey: string, vatRate: number }> | null } } | null };
+
 export type PlansQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -5624,6 +5638,82 @@ export function useCustomersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<
 export type CustomersQueryHookResult = ReturnType<typeof useCustomersQuery>;
 export type CustomersLazyQueryHookResult = ReturnType<typeof useCustomersLazyQuery>;
 export type CustomersQueryResult = Apollo.QueryResult<CustomersQuery, CustomersQueryVariables>;
+export const GetinviteDocument = gql`
+    query getinvite($token: String!) {
+  invite(token: $token) {
+    id
+    email
+    organization {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetinviteQuery__
+ *
+ * To run a query within a React component, call `useGetinviteQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetinviteQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetinviteQuery({
+ *   variables: {
+ *      token: // value for 'token'
+ *   },
+ * });
+ */
+export function useGetinviteQuery(baseOptions: Apollo.QueryHookOptions<GetinviteQuery, GetinviteQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetinviteQuery, GetinviteQueryVariables>(GetinviteDocument, options);
+      }
+export function useGetinviteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetinviteQuery, GetinviteQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetinviteQuery, GetinviteQueryVariables>(GetinviteDocument, options);
+        }
+export type GetinviteQueryHookResult = ReturnType<typeof useGetinviteQuery>;
+export type GetinviteLazyQueryHookResult = ReturnType<typeof useGetinviteLazyQuery>;
+export type GetinviteQueryResult = Apollo.QueryResult<GetinviteQuery, GetinviteQueryVariables>;
+export const AcceptInviteDocument = gql`
+    mutation acceptInvite($input: AcceptInviteInput!) {
+  acceptInvite(input: $input) {
+    token
+    user {
+      ...CurrentUser
+    }
+  }
+}
+    ${CurrentUserFragmentDoc}`;
+export type AcceptInviteMutationFn = Apollo.MutationFunction<AcceptInviteMutation, AcceptInviteMutationVariables>;
+
+/**
+ * __useAcceptInviteMutation__
+ *
+ * To run a mutation, you first call `useAcceptInviteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAcceptInviteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [acceptInviteMutation, { data, loading, error }] = useAcceptInviteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAcceptInviteMutation(baseOptions?: Apollo.MutationHookOptions<AcceptInviteMutation, AcceptInviteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AcceptInviteMutation, AcceptInviteMutationVariables>(AcceptInviteDocument, options);
+      }
+export type AcceptInviteMutationHookResult = ReturnType<typeof useAcceptInviteMutation>;
+export type AcceptInviteMutationResult = Apollo.MutationResult<AcceptInviteMutation>;
+export type AcceptInviteMutationOptions = Apollo.BaseMutationOptions<AcceptInviteMutation, AcceptInviteMutationVariables>;
 export const PlansDocument = gql`
     query plans($page: Int, $limit: Int) {
   plans(page: $page, limit: $limit) {
