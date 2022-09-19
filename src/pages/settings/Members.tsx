@@ -121,7 +121,7 @@ const Members = () => {
         </LoadingListWrapper>
       ) : (
         <InvitationsListWrapper>
-          {!invitesLoading && !!invitesError ? (
+          {!!invitesError ? (
             <ErrorPlaceholder
               noMargins
               title={translate('text_6321a076b94bd1b32494e9e6')}
