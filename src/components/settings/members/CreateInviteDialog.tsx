@@ -29,6 +29,7 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
   const { currentOrganization } = useCurrentUserInfosVar()
   const [inviteToken, setInviteToken] = useState<string>()
   const [createInvite, { error }] = useCreateInviteMutation({
+    context: { silentErrorCodes: [Lago_Api_Error.UnprocessableEntity] },
     onCompleted(res) {
       if (res?.createInvite?.token) {
         setInviteToken(res.createInvite.token)
