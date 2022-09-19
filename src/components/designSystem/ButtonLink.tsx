@@ -54,6 +54,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
       children,
       canBeClickedOnActive,
       onClick,
+      ...props
     }: ButtonLinkProps,
     ref
   ) => {
@@ -82,6 +83,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
             ref={ref}
             rel="noopener noreferrer"
             target="_blank"
+            {...props}
           >
             {wrapperChildren}
           </ExternalButtonLink>
@@ -93,7 +95,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
         )}
       >
         {/* @ts-ignore */}
-        <Button onClick={onClick} disabled={disabled} {...updatedButtonProps}>
+        <Button onClick={onClick} disabled={disabled} {...props} {...updatedButtonProps}>
           {children}
         </Button>
       </ConditionalWrapper>

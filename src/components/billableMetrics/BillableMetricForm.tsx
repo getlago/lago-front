@@ -240,6 +240,7 @@ export const BillableMetricForm = ({
                 <SubmitButton
                   disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
                   fullWidth
+                  data-test="submit"
                   size="large"
                   onClick={formikProps.submitForm}
                 >

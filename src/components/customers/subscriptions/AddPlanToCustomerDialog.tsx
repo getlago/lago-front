@@ -212,7 +212,11 @@ export const AddPlanToCustomerDialog = forwardRef<
           >
             {translate('text_6244277fe0975300fe3fb94a')}
           </Button>
-          <Button disabled={!formikProps.isValid} onClick={formikProps.submitForm}>
+          <Button
+            data-test="submit"
+            disabled={!formikProps.isValid}
+            onClick={formikProps.submitForm}
+          >
             {translate(
               existingInfos ? 'text_62559eef7b0ccc015127e3a1' : 'text_625434c7bb2cb40124c81a41'
             )}

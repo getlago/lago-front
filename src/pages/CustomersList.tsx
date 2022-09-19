@@ -48,7 +48,10 @@ const CustomersList = () => {
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_624efab67eb2570101d117a5')}
         </Typography>
-        <Button onClick={() => addCustomerDialogRef.current?.openDialog()}>
+        <Button
+          data-test="create-customer"
+          onClick={() => addCustomerDialogRef.current?.openDialog()}
+        >
           {translate('text_624efab67eb2570101d117bc')}
         </Button>
       </Header>
