@@ -54,7 +54,7 @@ export const RevokeInviteDialog = forwardRef<RevokeInviteDialogRef>((_, ref) => 
         <Typography>
           {translate('text_63208c701ce25db78140743c', {
             memberEmail: inviteInfos?.email,
-            organisationName: inviteInfos?.organizationName,
+            organizationName: inviteInfos?.organizationName,
           })}
         </Typography>
       }

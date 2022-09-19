@@ -54,7 +54,7 @@ export const RevokeMembershipDialog = forwardRef<RevokeMembershipDialogRef>((_, 
         <Typography>
           {translate('text_63208bfc99e69a28211ec7a6', {
             memberEmail: membershipInfos?.email,
-            organisationName: membershipInfos?.organizationName,
+            organizationName: membershipInfos?.organizationName,
           })}
         </Typography>
       }
