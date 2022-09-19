@@ -35,7 +35,9 @@ export const InviteItem = forwardRef<RevokeInviteDialogRef, InviteItemProps>(
       <ItemContainer>
         <LeftBlock>
           <Avatar variant="user" identifier={email.charAt(0)} size="medium" />
-          <Typography variant="body">{email}</Typography>
+          <Typography variant="body" color="grey700">
+            {email}
+          </Typography>
         </LeftBlock>
         <RightBlock>
           <Chip label={translate('text_63208b630aaf8df6bbfb2665')} />

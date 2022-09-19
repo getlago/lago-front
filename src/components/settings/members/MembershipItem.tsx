@@ -38,7 +38,9 @@ export const MembershipItem = forwardRef<RevokeMembershipDialogRef, MembershipIt
       <ItemContainer>
         <LeftBlock>
           <Avatar variant="user" identifier={(user.email || '').charAt(0)} size="medium" />
-          <Typography variant="body">{user.email}</Typography>
+          <Typography variant="body" color="grey700">
+            {user.email}
+          </Typography>
         </LeftBlock>
         {currentUser?.id !== user.id && (
           <RightBlock>
