@@ -13,6 +13,8 @@ const ForgotPassword = lazy(
   () => import(/* webpackChunkName: 'forgot-password' */ '~/pages/auth/ForgotPassword')
 )
 
+const Invitation = lazy(() => import(/* webpackChunkName: 'invitation' */ '~/pages/Invitation'))
+
 const Developpers = lazy(
   () => import(/* webpackChunkName: 'developpers-layout' */ '~/layouts/Developpers')
 )
@@ -78,6 +80,9 @@ export const LOGIN_ROUTE = '/login'
 export const FORGOT_PASSWORD_ROUTE = '/forgot-password'
 export const SIGN_UP_ROUTE = '/sign-up'
 export const HOME_ROUTE = '/'
+
+// Invitation route
+export const INVITATION_ROUTE = '/invitation/:token'
 
 // Billable metrics routes
 export const BILLABLE_METRICS_ROUTE = '/billable-metrics'
@@ -272,4 +277,9 @@ export const routes: CustomRouteObject[] = [
         },
       ]
     : []),
+  {
+    path: INVITATION_ROUTE,
+    element: <Invitation />,
+    onlyPublic: true,
+  },
 ]
