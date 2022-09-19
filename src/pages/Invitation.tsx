@@ -134,7 +134,7 @@ const Invitation = () => {
         {!!error && !loading ? (
           <>
             <Title variant="headline">{translate('text_63246f875e2228ab7b63dcf4')}</Title>
-            <Subtitle>{translate('text_63246f875e2228ab7b63dcfe')}</Subtitle>
+            <Subtitle $noMargins>{translate('text_63246f875e2228ab7b63dcfe')}</Subtitle>
           </>
         ) : !!loading ? (
           <>
