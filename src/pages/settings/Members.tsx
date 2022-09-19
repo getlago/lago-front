@@ -84,7 +84,6 @@ const Members = () => {
   const invitesMetadata = invitesData?.invites.metadata
   const membersMetadata = membersData?.memberships.metadata
   const hasInvites = !!invitesMetadata?.totalCount
-  const hasMembers = !!membersMetadata?.totalCount
 
   return (
     <Page>
@@ -131,7 +130,7 @@ const Members = () => {
               buttonAction={invitesRefetch}
               image={<ErrorImage width="136" height="104" />}
             />
-          ) : (
+          ) : !!hasInvites ? (
             <>
               <ListWrapper>
                 {invitesData?.invites.collection.map((invite, i) => (
@@ -159,7 +158,7 @@ const Members = () => {
                 </Loadmore>
               )}
             </>
-          )}
+          ) : null}
         </InvitationsListWrapper>
       )}
 
@@ -182,7 +181,13 @@ const Members = () => {
           </>
         )}
       </Head>
-      {!!membersError ? (
+      {!!membersLoading ? (
+        <LoadingListWrapper>
+          {[1, 2, 3].map((i) => (
+            <MembershipItemSkeleton key={i} />
+          ))}
+        </LoadingListWrapper>
+      ) : !!membersError ? (
         <ErrorPlaceholder
           noMargins
           title={translate('text_6321a076b94bd1b32494e9ee')}
@@ -192,7 +197,7 @@ const Members = () => {
           buttonAction={membersRefetch}
           image={<ErrorImage width="136" height="104" />}
         />
-      ) : !!hasMembers ? (
+      ) : (
         <InfiniteScroll
           onBottom={() => {
             const { currentPage = 0, totalPages = 0 } = membersMetadata || {}
@@ -214,13 +219,7 @@ const Members = () => {
             ))}
           </ListWrapper>
         </InfiniteScroll>
-      ) : !!membersLoading ? (
-        <LoadingListWrapper>
-          {[1, 2, 3].map((i) => (
-            <MembershipItemSkeleton key={i} />
-          ))}
-        </LoadingListWrapper>
-      ) : null}
+      )}
 
       {!!hasInvites && <RevokeInviteDialog ref={revokeInviteDialogRef} />}
       <RevokeMembershipDialog ref={revokeMembershipDialogRef} />
