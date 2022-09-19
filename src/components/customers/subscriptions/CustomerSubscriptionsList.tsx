@@ -13,7 +13,7 @@ import { theme, HEADER_TABLE_HEIGHT } from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
 
 import { SubscriptionItem, SubscriptionItemSkeleton, SubscriptionItemRef } from './SubscriptionItem'
-import { AddPlanToCustomerDialogRef } from './AddPlanToCustomerDialog'
+import { AddSubscriptionDrawerRef } from './AddSubscriptionDrawer'
 import {
   EditCustomerSubscriptionDialog,
   EditCustomerSubscriptionDialogRef,
@@ -49,7 +49,7 @@ interface CustomerSubscriptionsListProps {
 }
 
 export const CustomerSubscriptionsList = forwardRef<
-  AddPlanToCustomerDialogRef,
+  AddSubscriptionDrawerRef,
   CustomerSubscriptionsListProps
 >(({ subscriptions, loading }: CustomerSubscriptionsListProps, addSubscriptionDialogRef) => {
   const { translate } = useInternationalization()
@@ -71,7 +71,7 @@ export const CustomerSubscriptionsList = forwardRef<
           variant="quaternary"
           onClick={() =>
             (
-              addSubscriptionDialogRef as MutableRefObject<AddPlanToCustomerDialogRef>
+              addSubscriptionDialogRef as MutableRefObject<AddSubscriptionDrawerRef>
             )?.current?.openDialog()
           }
         >

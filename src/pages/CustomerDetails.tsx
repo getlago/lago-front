@@ -58,9 +58,9 @@ import {
   AddAddOnToCustomerDialogRef,
 } from '~/components/customers/AddAddOnToCustomerDialog'
 import {
-  AddPlanToCustomerDialog,
-  AddPlanToCustomerDialogRef,
-} from '~/components/customers/subscriptions/AddPlanToCustomerDialog'
+  AddSubscriptionDrawer,
+  AddSubscriptionDrawerRef,
+} from '~/components/customers/subscriptions/AddSubscriptionDrawer'
 import {
   AddWalletToCustomerDialog,
   AddWalletToCustomerDialogRef,
@@ -124,7 +124,7 @@ const CustomerDetails = () => {
   const editDialogRef = useRef<AddCustomerDialogRef>(null)
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
   const addOnDialogRef = useRef<AddAddOnToCustomerDialogRef>(null)
-  const subscriptionsDialogRef = useRef<AddPlanToCustomerDialogRef>(null)
+  const subscriptionsDialogRef = useRef<AddSubscriptionDrawerRef>(null)
   const addWalletToCustomerDialogRef = useRef<AddWalletToCustomerDialogRef>(null)
   const { translate } = useInternationalization()
   const navigate = useNavigate()
@@ -417,7 +417,7 @@ const CustomerDetails = () => {
           />
           <AddCouponToCustomerDialog ref={addCouponDialogRef} customerId={id as string} />
           <AddAddOnToCustomerDialog ref={addOnDialogRef} customerId={id as string} />
-          <AddPlanToCustomerDialog
+          <AddSubscriptionDrawer
             ref={subscriptionsDialogRef}
             customerName={name as string}
             customerId={id as string}
