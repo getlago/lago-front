@@ -61,7 +61,7 @@ export const RevokeMembershipDialog = forwardRef<RevokeMembershipDialogRef>((_, 
       onContinue={async () =>
         await revokeMembership({
           variables: { input: { id: membershipInfos?.id as string } },
-          refetchQueries: ['getMemberships'],
+          refetchQueries: ['getMembers'],
         })
       }
       continueText={translate('text_63208bfc99e69a28211ec7b4')}
