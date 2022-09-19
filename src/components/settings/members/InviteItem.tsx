@@ -1,5 +1,6 @@
 import { forwardRef, MutableRefObject } from 'react'
 import styled from 'styled-components'
+import { generatePath } from 'react-router-dom'
 import { gql } from '@apollo/client'
 
 import { theme } from '~/styles'
@@ -7,6 +8,7 @@ import { Avatar, Typography, Skeleton, Button, Tooltip, Chip } from '~/component
 import { InviteItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
+import { INVITATION_ROUTE } from '~/core/router'
 
 import { RevokeInviteDialogRef } from './RevokeInviteDialog'
 
@@ -46,7 +48,11 @@ export const InviteItem = forwardRef<RevokeInviteDialogRef, InviteItemProps>(
               icon="duplicate"
               variant="quaternary"
               onClick={() => {
-                navigator.clipboard.writeText(`${window.location.origin}/invitation/${token}`)
+                navigator.clipboard.writeText(
+                  `${window.location.origin}${generatePath(INVITATION_ROUTE, {
+                    token,
+                  })}`
+                )
                 addToast({
                   severity: 'info',
                   translateKey: 'text_63208b630aaf8df6bbfb2679',

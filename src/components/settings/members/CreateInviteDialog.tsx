@@ -1,4 +1,5 @@
 import { forwardRef, useState } from 'react'
+import { generatePath } from 'react-router-dom'
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { object, string } from 'yup'
@@ -12,6 +13,7 @@ import { CreateInviteInput, Lago_Api_Error, useCreateInviteMutation } from '~/ge
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { addToast, LagoGQLError, useCurrentUserInfosVar } from '~/core/apolloClient'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { INVITATION_ROUTE } from '~/core/router'
 
 gql`
   mutation createInvite($input: CreateInviteInput!) {
@@ -27,8 +29,10 @@ export interface CreateInviteDialogRef extends DialogRef {}
 export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const { currentOrganization } = useCurrentUserInfosVar()
-  const [inviteToken, setInviteToken] = useState<string>()
-  const invitationUrl = `${window.location.origin}/invitation/${inviteToken}`
+  const [inviteToken, setInviteToken] = useState<string>('')
+  const invitationUrl = `${window.location.origin}${generatePath(INVITATION_ROUTE, {
+    token: inviteToken,
+  })}`
   const [createInvite, { error }] = useCreateInviteMutation({
     context: { silentErrorCodes: [Lago_Api_Error.UnprocessableEntity] },
     onCompleted(res) {
