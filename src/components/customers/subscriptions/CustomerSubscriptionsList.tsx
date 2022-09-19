@@ -67,6 +67,7 @@ export const CustomerSubscriptionsList = forwardRef<
       <Header variant="subhead" $loading={loading}>
         {translate('text_6250304370f0f700a8fdc28d')}
         <Button
+          data-test="add-subscription"
           variant="quaternary"
           onClick={() =>
             (

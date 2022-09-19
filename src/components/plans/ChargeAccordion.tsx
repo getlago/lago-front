@@ -53,6 +53,7 @@ export const ChargeAccordion = ({
             )}
           >
             <Button
+              data-test="open-charge"
               variant="quaternary"
               size="small"
               icon={isOpen ? 'chevron-down' : 'chevron-right'}
@@ -79,6 +80,7 @@ export const ChargeAccordion = ({
                 variant="quaternary"
                 size="small"
                 icon="trash"
+                data-test="remove-charge"
                 onClick={(e: MouseEvent<HTMLButtonElement>) => {
                   e.stopPropagation()
                   e.preventDefault()

@@ -38,12 +38,13 @@ export const ComboBoxItem = ({
         },
         className
       )}
+      data-test={value}
       key={value}
       {...allProps}
     >
       {customValue ? (
         <>
-          <AddCustomValueIcon name={'plus'} />
+          <AddCustomValueIcon name="plus" />
           <Typography variant="body" noWrap>
             {labelNode ?? label}
           </Typography>

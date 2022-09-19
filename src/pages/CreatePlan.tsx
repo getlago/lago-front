@@ -43,7 +43,12 @@ const CreatePlan = () => {
             <Button variant="secondary" onClick={resetIsCreated}>
               {translate('text_624455d859b1b000a8e17bf7')}
             </Button>
-            <ButtonLink type="button" to={PLANS_ROUTE} buttonProps={{ variant: 'secondary' }}>
+            <ButtonLink
+              data-test="go-back"
+              type="button"
+              to={PLANS_ROUTE}
+              buttonProps={{ variant: 'secondary' }}
+            >
               {translate('text_624455d859b1b000a8e17bf9')}
             </ButtonLink>
           </div>

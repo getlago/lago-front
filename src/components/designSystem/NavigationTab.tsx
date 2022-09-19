@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
 import styled, { css } from 'styled-components'
 import { useLocation, matchPath } from 'react-router-dom'
+import _omit from 'lodash/omit'
 
 import { theme, NAV_HEIGHT } from '~/styles'
 
@@ -68,7 +69,7 @@ export const NavigationTab = ({
               type="tab"
               active={link === activeTab?.link}
               onClick={!!onClick ? () => onClick(tab) : undefined}
-              {...props}
+              {..._omit(props, ['component', 'match'])}
             >
               {title}
             </ButtonLink>

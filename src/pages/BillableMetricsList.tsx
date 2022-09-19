@@ -52,7 +52,7 @@ const BillableMetricsList = () => {
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_623b497ad05b960101be3438')}
         </Typography>
-        <StyledButton type="button" to={CREATE_BILLABLE_METRIC_ROUTE}>
+        <StyledButton data-test="create-bm" type="button" to={CREATE_BILLABLE_METRIC_ROUTE}>
           {translate('text_623b497ad05b960101be343a')}
         </StyledButton>
       </Header>

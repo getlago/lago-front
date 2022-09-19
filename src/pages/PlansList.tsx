@@ -49,7 +49,7 @@ const PlansList = () => {
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_62442e40cea25600b0b6d84a')}
         </Typography>
-        <ButtonLink type="button" to={CREATE_PLAN_ROUTE}>
+        <ButtonLink type="button" to={CREATE_PLAN_ROUTE} data-test="create-plan">
           {translate('text_62442e40cea25600b0b6d84c')}
         </ButtonLink>
       </Header>
@@ -65,6 +65,7 @@ const PlansList = () => {
         />
       ) : !loading && (!list || !list.length) ? (
         <GenericPlaceholder
+          data-test="empty"
           title={translate('text_624451f920b6a500aab37618')}
           subtitle={translate('text_624451f920b6a500aab3761c')}
           buttonTitle={translate('text_624451f920b6a500aab37620')}
