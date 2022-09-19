@@ -28,6 +28,7 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const { currentOrganization } = useCurrentUserInfosVar()
   const [inviteToken, setInviteToken] = useState<string>()
+  const invitationUrl = `${window.location.origin}/invitation/${inviteToken}`
   const [createInvite, { error }] = useCreateInviteMutation({
     context: { silentErrorCodes: [Lago_Api_Error.UnprocessableEntity] },
     onCompleted(res) {
@@ -109,7 +110,7 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
             <Button
               disabled={!!error}
               onClick={() => {
-                navigator.clipboard.writeText(`${window.location.origin}/invitation/${inviteToken}`)
+                navigator.clipboard.writeText(invitationUrl)
                 addToast({
                   severity: 'info',
                   translateKey: 'text_63208c711ce25db781407536',
@@ -152,7 +153,7 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
                 {translate('text_63208c701ce25db781407475')}
               </Label>
               <Typography variant="body" color="grey700" noWrap>
-                {`${window.location.origin}/invitation/${inviteToken}`}
+                {invitationUrl}
               </Typography>
             </Line>
           </>
