@@ -1,15 +1,15 @@
-import { forwardRef, useMemo, RefObject, useState, useImperativeHandle, useRef } from 'react'
+import { forwardRef, useMemo, useState, useImperativeHandle, useRef } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { useFormik } from 'formik'
 import { object, string } from 'yup'
 import { DateTime } from 'luxon'
 
-import { Dialog, Button, DialogRef, Alert, Typography } from '~/components/designSystem'
+import { Drawer, DrawerRef, Button, Alert, Typography } from '~/components/designSystem'
 import { ComboBoxField, TextInputField, DatePicker, ButtonSelectorField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
-import { theme } from '~/styles'
+import { theme, Card } from '~/styles'
 import {
   useCreateSubscriptionMutation,
   CustomerSubscriptionListFragmentDoc,
@@ -20,7 +20,7 @@ import {
   BillingTimeEnum,
 } from '~/generated/graphql'
 
-export interface AddPlanToCustomerDialogRef {
+export interface AddSubscriptionDrawerRef {
   openDialog: (existingInfos?: { subscriptionId: string; existingPlanId: string }) => unknown
   closeDialog: () => unknown
 }
@@ -46,16 +46,16 @@ gql`
   ${CustomerSubscriptionListFragmentDoc}
 `
 
-interface AddPlanToCustomerDialogProps {
+interface AddSubscriptionDrawerProps {
   customerName: string
   customerId: string
 }
 
-export const AddPlanToCustomerDialog = forwardRef<
-  AddPlanToCustomerDialogRef,
-  AddPlanToCustomerDialogProps
->(({ customerId, customerName }: AddPlanToCustomerDialogProps, ref) => {
-  const dialogRef = useRef<DialogRef>(null)
+export const AddSubscriptionDrawer = forwardRef<
+  AddSubscriptionDrawerRef,
+  AddSubscriptionDrawerProps
+>(({ customerId, customerName }: AddSubscriptionDrawerProps, ref) => {
+  const drawerRef = useRef<DrawerRef>(null)
   const currentDateRef = useRef<DateTime>(DateTime.now())
   const [existingInfos, setExistingInfos] = useState<
     | {
@@ -66,7 +66,7 @@ export const AddPlanToCustomerDialog = forwardRef<
   >(undefined)
   const { translate } = useInternationalization()
   const [getPlans, { loading, data }] = useGetPlansLazyQuery()
-  const [create] = useCreateSubscriptionMutation({
+  const [create, { error }] = useCreateSubscriptionMutation({
     context: {
       silentErrorCodes: [Lago_Api_Error.CurrenciesDoesNotMatch],
     },
@@ -81,6 +81,7 @@ export const AddPlanToCustomerDialog = forwardRef<
       }
     },
   })
+
   const formikProps = useFormik<Omit<CreateSubscriptionInput, 'customerId'>>({
     initialValues: {
       // @ts-ignore
@@ -108,10 +109,8 @@ export const AddPlanToCustomerDialog = forwardRef<
       const { errors } = answer
       const apiError = !errors ? undefined : (errors[0]?.extensions as LagoGQLError['extensions'])
 
-      if (!!apiError && apiError?.code === Lago_Api_Error.CurrenciesDoesNotMatch) {
-        formikBag.setFieldError('planId', translate('text_62d904d38619b00b6681a3c6'))
-      } else {
-        ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()
+      if (!apiError || apiError?.code !== Lago_Api_Error.CurrenciesDoesNotMatch) {
+        drawerRef?.current?.closeDrawer()
         formikBag.resetForm()
       }
     },
@@ -180,114 +179,132 @@ export const AddPlanToCustomerDialog = forwardRef<
   useImperativeHandle(ref, () => ({
     openDialog: (infos) => {
       setExistingInfos(infos)
-      dialogRef.current?.openDialog()
+      drawerRef.current?.openDrawer()
     },
-    closeDialog: () => dialogRef.current?.closeDialog(),
+    closeDialog: () => drawerRef.current?.closeDrawer(),
   }))
 
   return (
-    <Dialog
-      ref={dialogRef}
+    <Drawer
+      ref={drawerRef}
       title={translate(
-        existingInfos ? 'text_62559eef7b0ccc015127e38b' : 'text_625434c7bb2cb40124c81a19',
+        existingInfos ? 'text_6328e70de459381ed4ba50be' : 'text_6328e70de459381ed4ba50bc',
         { customerName }
       )}
-      onClickAway={() => formikProps.resetForm()}
-      description={translate(
-        existingInfos ? 'text_62559eef7b0ccc015127e38d' : 'text_625434c7bb2cb40124c81a21'
-      )}
+      onClose={formikProps.resetForm}
       onOpen={() => {
         if (!loading) {
           getPlans()
         }
       }}
-      actions={({ closeDialog }) => (
-        <>
+    >
+      <>
+        <Content>
+          <Title>
+            <Typography variant="headline">
+              {translate(
+                existingInfos ? 'text_6328e70de459381ed4ba50c2' : 'text_6328e70de459381ed4ba50c0',
+                { customerName }
+              )}
+            </Typography>
+            <Typography>
+              {translate(
+                existingInfos ? 'text_6328e70de459381ed4ba50c6' : 'text_6328e70de459381ed4ba50c4'
+              )}
+            </Typography>
+          </Title>
+
+          <Card>
+            <Typography variant="subhead">{translate('text_6328e70de459381ed4ba50ca')}</Typography>
+            <PlanBlock>
+              <ComboBoxField
+                name="planId"
+                formikProps={formikProps}
+                label={translate('text_625434c7bb2cb40124c81a29')}
+                data={comboboxPlansData}
+                loading={loading}
+                isEmptyNull={false}
+                loadingText={translate('text_625434c7bb2cb40124c81a35')}
+                placeholder={translate('text_625434c7bb2cb40124c81a31')}
+                emptyText={translate('text_625434c7bb2cb40124c81a37')}
+                PopperProps={{ displayInDialog: true }}
+              />
+              {!!formikProps?.values?.planId && (
+                <Button variant="quaternary" startIcon="pen" size="large">
+                  {translate('text_6328e911e1eede3a429e8861')}
+                </Button>
+              )}
+            </PlanBlock>
+            {!!formikProps?.values?.planId && (
+              <>
+                <TextInputField
+                  name="name"
+                  formikProps={formikProps}
+                  label={translate('text_62d7f6178ec94cd09370e2b9')}
+                  placeholder={translate('text_62d7f6178ec94cd09370e2cb')}
+                  helperText={translate('text_62d7f6178ec94cd09370e2d9')}
+                />
+                {!existingInfos && (
+                  <>
+                    <DatePicker
+                      disabled
+                      name="anniversaryDate"
+                      value={currentDateRef?.current}
+                      label={translate('text_62ea7cd44cd4b14bb9ac1dbb')}
+                      onChange={() => {}}
+                    />
+                    <ButtonSelectorField
+                      name="billingTime"
+                      label={translate('text_62ea7cd44cd4b14bb9ac1db7')}
+                      formikProps={formikProps}
+                      helperText={billingTimeHelper}
+                      options={[
+                        {
+                          label:
+                            selectedPlan?.interval === PlanInterval.Yearly
+                              ? translate('text_62ebd597d5d5130a03ced107')
+                              : selectedPlan?.interval === PlanInterval.Weekly
+                              ? translate('text_62ebd597d5d5130a03ced101')
+                              : translate('text_62ea7cd44cd4b14bb9ac1db9'),
+                          value: BillingTimeEnum.Calendar,
+                        },
+                        {
+                          label: translate('text_62ea7cd44cd4b14bb9ac1dbb'),
+                          value: BillingTimeEnum.Anniversary,
+                        },
+                      ]}
+                    />
+                  </>
+                )}
+              </>
+            )}
+
+            {((error?.graphQLErrors || [])[0]?.extensions as LagoGQLError['extensions'])?.code ===
+            Lago_Api_Error.CurrenciesDoesNotMatch ? (
+              <Alert type="danger">{translate('text_62d904d38619b00b6681a3c6')}</Alert>
+            ) : (
+              !!existingInfos && (
+                <Alert type="info">
+                  {translate('text_6328e70de459381ed4ba50d6', { subscriptionEndDate: 'TODO' })}
+                </Alert>
+              )
+            )}
+          </Card>
+        </Content>
+        <SubmitButton>
           <Button
-            variant="quaternary"
-            onClick={() => {
-              closeDialog()
-              formikProps.resetForm()
-            }}
-          >
-            {translate('text_6244277fe0975300fe3fb94a')}
-          </Button>
-          <Button
-            data-test="submit"
+            size="large"
+            fullWidth
             disabled={!formikProps.isValid}
             onClick={formikProps.submitForm}
           >
-            {translate(
-              existingInfos ? 'text_62559eef7b0ccc015127e3a1' : 'text_625434c7bb2cb40124c81a41'
-            )}
+            {existingInfos
+              ? translate('text_6328e70de459381ed4ba50da')
+              : translate('text_6328e70de459381ed4ba50d4', { customerName })}
           </Button>
-        </>
-      )}
-    >
-      <Content>
-        <ComboBoxField
-          name="planId"
-          formikProps={formikProps}
-          label={translate('text_625434c7bb2cb40124c81a29')}
-          data={comboboxPlansData}
-          loading={loading}
-          isEmptyNull={false}
-          loadingText={translate('text_625434c7bb2cb40124c81a35')}
-          placeholder={translate('text_625434c7bb2cb40124c81a31')}
-          emptyText={translate('text_625434c7bb2cb40124c81a37')}
-          PopperProps={{ displayInDialog: true }}
-        />
-        {!!formikProps?.values?.planId && (
-          <>
-            <TextInputField
-              name="name"
-              formikProps={formikProps}
-              label={translate('text_62d7f6178ec94cd09370e2b9')}
-              placeholder={translate('text_62d7f6178ec94cd09370e2cb')}
-              helperText={translate('text_62d7f6178ec94cd09370e2d9')}
-            />
-            {!existingInfos && (
-              <>
-                <DatePicker
-                  disabled
-                  name="anniversaryDate"
-                  value={currentDateRef?.current}
-                  label={translate('text_62ea7cd44cd4b14bb9ac1dbb')}
-                  onChange={() => {}}
-                />
-                <ButtonSelectorField
-                  name="billingTime"
-                  label={translate('text_62ea7cd44cd4b14bb9ac1db7')}
-                  formikProps={formikProps}
-                  helperText={billingTimeHelper}
-                  options={[
-                    {
-                      label:
-                        selectedPlan?.interval === PlanInterval.Yearly
-                          ? translate('text_62ebd597d5d5130a03ced107')
-                          : selectedPlan?.interval === PlanInterval.Weekly
-                          ? translate('text_62ebd597d5d5130a03ced101')
-                          : translate('text_62ea7cd44cd4b14bb9ac1db9'),
-                      value: BillingTimeEnum.Calendar,
-                    },
-                    {
-                      label: translate('text_62ea7cd44cd4b14bb9ac1dbb'),
-                      value: BillingTimeEnum.Anniversary,
-                    },
-                  ]}
-                />
-              </>
-            )}
-          </>
-        )}
-
-        {!!formikProps.errors.planId ? (
-          <Alert type="danger">{formikProps.errors.planId}</Alert>
-        ) : (
-          !!existingInfos && <Alert type="info">{translate('text_62d7f6178ec94cd09370e3d1')}</Alert>
-        )}
-      </Content>
-    </Dialog>
+        </SubmitButton>
+      </>
+    </Drawer>
   )
 })
 
@@ -304,4 +321,25 @@ const Content = styled.div`
   }
 `
 
-AddPlanToCustomerDialog.displayName = 'AddPlanToCustomerDialog'
+const Title = styled.div`
+  padding: 0 ${theme.spacing(8)};
+`
+
+const SubmitButton = styled.div`
+  margin: 0 ${theme.spacing(8)};
+`
+
+const PlanBlock = styled.div`
+  display: flex;
+  align-items: flex-end;
+
+  > *:first-child {
+    flex: 1;
+  }
+
+  > *:first-child:not(:last-child) {
+    margin-right: ${theme.spacing(3)};
+  }
+`
+
+AddSubscriptionDrawer.displayName = 'AddSubscriptionDrawer'
