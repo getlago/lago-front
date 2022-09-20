@@ -42,7 +42,7 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
       email: '',
     },
     validationSchema: object().shape({
-      email: string().email().required(''),
+      email: string().email('text_620bc4d4269a55014d493fc3').required(''),
     }),
     enableReinitialize: true,
     validateOnMount: true,
