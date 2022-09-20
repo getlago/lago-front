@@ -54,6 +54,6 @@ module.exports = {
     API_URL: 'http://localhost:3000',
     APP_VERSION: '1.0.0',
     IS_REACT_ACT_ENVIRONMENT: true,
-    LAGO_SIGNUP_DISABLED: false,
+    LAGO_DISABLE_SIGNUP: false,
   },
 }

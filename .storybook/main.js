@@ -43,7 +43,7 @@ module.exports = {
       new webpack.DefinePlugin({
         APP_ENV: JSON.stringify('production'),
         API_URL: JSON.stringify(process.env.API_URL),
-        LAGO_SIGNUP_DISABLED: process.env.LAGO_SIGNUP_DISABLED,
+        LAGO_DISABLE_SIGNUP: process.env.LAGO_DISABLE_SIGNUP,
         APP_VERSION: JSON.stringify('0.0'),
       })
     )
