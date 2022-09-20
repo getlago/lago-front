@@ -1,12 +1,15 @@
 name: TestE2E
 
 on:
-  pull_request:
-    types: [opened, reopened, review_requested, ready_for_review, synchronize]
+  workflow_run:
+    branches:
+      - '**'
+    workflows: [Build node_modules]        
+    types:
+      - completed
 
 jobs:
   cypress-run: 
-    if: github.event.pull_request.draft == false
     name: Run Test E2E
     runs-on: ubuntu-latest
     steps:
@@ -18,8 +21,13 @@ jobs:
         with:
           node-version: 14
 
-      - name: Install Node.js dependencies
-        run: yarn
+      - name: Download node_modules artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: node-modules-artifact
+
+      - name: unzip artifact for node_modules
+        run: unzip node_modules.zip
 
       - name: Build Front local image
         run: |

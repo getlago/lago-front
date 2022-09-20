@@ -7,7 +7,6 @@ on:
       - 'src/components/designSystem/**'
 jobs:
   build-and-deploy:
-    if: github.event.pull_request.draft == false
     name: Build ad Deploy
     runs-on: ubuntu-latest
     steps:

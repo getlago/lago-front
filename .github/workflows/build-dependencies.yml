@@ -1,0 +1,31 @@
+name: Build node_modules
+
+on:
+  pull_request:
+    types: [opened, reopened, review_requested, ready_for_review, synchronize]
+
+jobs:
+  build-dependencies:
+    if: github.event.pull_request.draft == false
+    name: Build node_modules
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - name: Install Node.js dependencies
+        run: yarn
+
+      - name: Zip node_modules artifact for other jobs
+        run: zip node_modules.zip ./node_modules/* -r
+
+      - name: Upload node_modules artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: node-modules-artifact
+          path: node_modules.zip

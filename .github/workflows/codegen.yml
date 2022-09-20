@@ -1,12 +1,15 @@
 name: Run Codegen
 
 on:
-  pull_request:
-    types: [opened, reopened, review_requested, ready_for_review, synchronize]
+  workflow_run:
+    branches:
+      - '**'
+    workflows: [Build node_modules]
+    types:
+      - completed
 
 jobs:
   codegen:
-    if: github.event.pull_request.draft == false
     name: Run Codegen
     runs-on: ubuntu-latest
     steps:
@@ -36,9 +39,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 14
+      
+      - name: Download node_modules artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: node-modules-artifact
 
-      - name: Install Node.js dependencies
-        run: yarn
+      - name: unzip artifact for node_modules
+        run: unzip node_modules.zip
 
       - name: Run codegen
         env:
