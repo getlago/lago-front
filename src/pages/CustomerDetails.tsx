@@ -310,6 +310,7 @@ const CustomerDetails = () => {
                         id,
                         tab: TabsOptions.overview,
                       }),
+                      routerState: { disableScrollTop: true },
                       match: [
                         generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                           id,
@@ -339,6 +340,7 @@ const CustomerDetails = () => {
                         id,
                         tab: TabsOptions.wallet,
                       }),
+                      routerState: { disableScrollTop: true },
                       component: (
                         <SideBlock>
                           <CustomerWalletsList
@@ -356,6 +358,7 @@ const CustomerDetails = () => {
                         id,
                         tab: TabsOptions.usage,
                       }),
+                      routerState: { disableScrollTop: true },
                       hidden: !hasSubscription,
                       component: (
                         <SideBlock>
@@ -373,6 +376,7 @@ const CustomerDetails = () => {
                         id,
                         tab: TabsOptions.invoices,
                       }),
+                      routerState: { disableScrollTop: true },
                       component: (
                         <SideBlock>
                           <CustomerInvoicesList invoices={invoices} />
@@ -385,6 +389,7 @@ const CustomerDetails = () => {
                         id,
                         tab: TabsOptions.taxRate,
                       }),
+                      routerState: { disableScrollTop: true },
                       component: (
                         <SideBlock>
                           <CustomerVatRate customer={data?.customer as CustomerVatRateFragment} />

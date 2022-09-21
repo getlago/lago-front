@@ -72,7 +72,6 @@ const SideNav = () => {
   useEffect(() => {
     // Avoid weird scroll behaviour on navigation
     if (!contentRef.current || state?.disableScrollTop) return
-
     contentRef.current?.scrollTo(0, 0)
   }, [pathname, contentRef, state?.disableScrollTop])
 
