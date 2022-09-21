@@ -32,6 +32,6 @@ export const Card = styled.div`
 export const Title = styled(Typography)`
   margin-bottom: ${theme.spacing(3)};
 `
-export const Subtitle = styled(Typography)`
-  margin-bottom: ${theme.spacing(8)};
+export const Subtitle = styled(Typography)<{ $noMargins?: boolean }>`
+  margin-bottom: ${({ $noMargins }) => ($noMargins ? 0 : theme.spacing(8))};
 `

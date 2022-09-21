@@ -1476,6 +1476,7 @@ export enum Lago_Api_Error {
   Forbidden = 'forbidden',
   IncorrectLoginOrPassword = 'incorrect_login_or_password',
   InternalError = 'internal_error',
+  InviteNotFound = 'invite_not_found',
   NotFound = 'not_found',
   NotOrganizationMember = 'not_organization_member',
   TokenEncodingError = 'token_encoding_error',
@@ -2106,6 +2107,7 @@ export type Subscription = {
   nextName?: Maybe<Scalars['String']>;
   nextPendingStartDate?: Maybe<Scalars['ISO8601Date']>;
   nextPlan?: Maybe<Plan>;
+  periodEndDate?: Maybe<Scalars['ISO8601Date']>;
   plan: Plan;
   startedAt?: Maybe<Scalars['ISO8601DateTime']>;
   status?: Maybe<StatusTypeEnum>;
@@ -2640,6 +2642,31 @@ export type DeleteStripeMutationVariables = Exact<{
 
 export type DeleteStripeMutation = { __typename?: 'Mutation', destroyPaymentProvider?: { __typename?: 'DestroyPaymentProviderPayload', id?: string | null } | null };
 
+export type CreateInviteMutationVariables = Exact<{
+  input: CreateInviteInput;
+}>;
+
+
+export type CreateInviteMutation = { __typename?: 'Mutation', createInvite?: { __typename?: 'Invite', id: string, token: string } | null };
+
+export type InviteItemFragment = { __typename?: 'Invite', id: string, email: string, token: string, organization: { __typename?: 'Organization', id: string, name: string } };
+
+export type MembershipItemFragment = { __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null }, organization: { __typename?: 'Organization', id: string, name: string } };
+
+export type RevokeInviteMutationVariables = Exact<{
+  input: RevokeInviteInput;
+}>;
+
+
+export type RevokeInviteMutation = { __typename?: 'Mutation', revokeInvite?: { __typename?: 'Invite', id: string } | null };
+
+export type RevokeMembershipMutationVariables = Exact<{
+  input: RevokeMembershipInput;
+}>;
+
+
+export type RevokeMembershipMutation = { __typename?: 'Mutation', revokeMembership?: { __typename?: 'Membership', id: string } | null };
+
 export type CreateCustomerWalletMutationVariables = Exact<{
   input: CreateCustomerWalletInput;
 }>;
@@ -2859,6 +2886,20 @@ export type CustomersQueryVariables = Exact<{
 
 export type CustomersQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Customer', id: string, name?: string | null, externalId: string, createdAt: any, canBeDeleted: boolean, activeSubscriptionCount: number, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, logoUrl?: string | null, url?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null }> } };
 
+export type GetinviteQueryVariables = Exact<{
+  token: Scalars['String'];
+}>;
+
+
+export type GetinviteQuery = { __typename?: 'Query', invite?: { __typename?: 'Invite', id: string, email: string, organization: { __typename?: 'Organization', id: string, name: string } } | null };
+
+export type AcceptInviteMutationVariables = Exact<{
+  input: AcceptInviteInput;
+}>;
+
+
+export type AcceptInviteMutation = { __typename?: 'Mutation', acceptInvite?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, apiKey: string, vatRate: number }> | null } } | null };
+
 export type PlansQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -2902,6 +2943,22 @@ export type IntegrationsSettingQueryVariables = Exact<{ [key: string]: never; }>
 
 
 export type IntegrationsSettingQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, stripePaymentProvider?: { __typename?: 'StripeProvider', id: string } | null }> | null } };
+
+export type GetInvitesQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']>;
+  limit?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type GetInvitesQuery = { __typename?: 'Query', invites: { __typename?: 'InviteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invite', id: string, email: string, token: string, organization: { __typename?: 'Organization', id: string, name: string } }> } };
+
+export type GetMembersQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']>;
+  limit?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type GetMembersQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null }, organization: { __typename?: 'Organization', id: string, name: string } }> } };
 
 export type OrganizationInformationsFragment = { __typename?: 'Organization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null };
 
@@ -3105,6 +3162,30 @@ export const EditOrganizationInformationsDialogFragmentDoc = gql`
 export const EditOrganizationInvoiceTemplateDialogFragmentDoc = gql`
     fragment EditOrganizationInvoiceTemplateDialog on Organization {
   invoiceFooter
+}
+    `;
+export const InviteItemFragmentDoc = gql`
+    fragment InviteItem on Invite {
+  id
+  email
+  token
+  organization {
+    id
+    name
+  }
+}
+    `;
+export const MembershipItemFragmentDoc = gql`
+    fragment MembershipItem on Membership {
+  id
+  user {
+    id
+    email
+  }
+  organization {
+    id
+    name
+  }
 }
     `;
 export const WalletForTopupFragmentDoc = gql`
@@ -4473,6 +4554,106 @@ export function useDeleteStripeMutation(baseOptions?: Apollo.MutationHookOptions
 export type DeleteStripeMutationHookResult = ReturnType<typeof useDeleteStripeMutation>;
 export type DeleteStripeMutationResult = Apollo.MutationResult<DeleteStripeMutation>;
 export type DeleteStripeMutationOptions = Apollo.BaseMutationOptions<DeleteStripeMutation, DeleteStripeMutationVariables>;
+export const CreateInviteDocument = gql`
+    mutation createInvite($input: CreateInviteInput!) {
+  createInvite(input: $input) {
+    id
+    token
+  }
+}
+    `;
+export type CreateInviteMutationFn = Apollo.MutationFunction<CreateInviteMutation, CreateInviteMutationVariables>;
+
+/**
+ * __useCreateInviteMutation__
+ *
+ * To run a mutation, you first call `useCreateInviteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateInviteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createInviteMutation, { data, loading, error }] = useCreateInviteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateInviteMutation(baseOptions?: Apollo.MutationHookOptions<CreateInviteMutation, CreateInviteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateInviteMutation, CreateInviteMutationVariables>(CreateInviteDocument, options);
+      }
+export type CreateInviteMutationHookResult = ReturnType<typeof useCreateInviteMutation>;
+export type CreateInviteMutationResult = Apollo.MutationResult<CreateInviteMutation>;
+export type CreateInviteMutationOptions = Apollo.BaseMutationOptions<CreateInviteMutation, CreateInviteMutationVariables>;
+export const RevokeInviteDocument = gql`
+    mutation revokeInvite($input: RevokeInviteInput!) {
+  revokeInvite(input: $input) {
+    id
+  }
+}
+    `;
+export type RevokeInviteMutationFn = Apollo.MutationFunction<RevokeInviteMutation, RevokeInviteMutationVariables>;
+
+/**
+ * __useRevokeInviteMutation__
+ *
+ * To run a mutation, you first call `useRevokeInviteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRevokeInviteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [revokeInviteMutation, { data, loading, error }] = useRevokeInviteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useRevokeInviteMutation(baseOptions?: Apollo.MutationHookOptions<RevokeInviteMutation, RevokeInviteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RevokeInviteMutation, RevokeInviteMutationVariables>(RevokeInviteDocument, options);
+      }
+export type RevokeInviteMutationHookResult = ReturnType<typeof useRevokeInviteMutation>;
+export type RevokeInviteMutationResult = Apollo.MutationResult<RevokeInviteMutation>;
+export type RevokeInviteMutationOptions = Apollo.BaseMutationOptions<RevokeInviteMutation, RevokeInviteMutationVariables>;
+export const RevokeMembershipDocument = gql`
+    mutation revokeMembership($input: RevokeMembershipInput!) {
+  revokeMembership(input: $input) {
+    id
+  }
+}
+    `;
+export type RevokeMembershipMutationFn = Apollo.MutationFunction<RevokeMembershipMutation, RevokeMembershipMutationVariables>;
+
+/**
+ * __useRevokeMembershipMutation__
+ *
+ * To run a mutation, you first call `useRevokeMembershipMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRevokeMembershipMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [revokeMembershipMutation, { data, loading, error }] = useRevokeMembershipMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useRevokeMembershipMutation(baseOptions?: Apollo.MutationHookOptions<RevokeMembershipMutation, RevokeMembershipMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RevokeMembershipMutation, RevokeMembershipMutationVariables>(RevokeMembershipDocument, options);
+      }
+export type RevokeMembershipMutationHookResult = ReturnType<typeof useRevokeMembershipMutation>;
+export type RevokeMembershipMutationResult = Apollo.MutationResult<RevokeMembershipMutation>;
+export type RevokeMembershipMutationOptions = Apollo.BaseMutationOptions<RevokeMembershipMutation, RevokeMembershipMutationVariables>;
 export const CreateCustomerWalletDocument = gql`
     mutation createCustomerWallet($input: CreateCustomerWalletInput!) {
   createCustomerWallet(input: $input) {
@@ -5459,6 +5640,82 @@ export function useCustomersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<
 export type CustomersQueryHookResult = ReturnType<typeof useCustomersQuery>;
 export type CustomersLazyQueryHookResult = ReturnType<typeof useCustomersLazyQuery>;
 export type CustomersQueryResult = Apollo.QueryResult<CustomersQuery, CustomersQueryVariables>;
+export const GetinviteDocument = gql`
+    query getinvite($token: String!) {
+  invite(token: $token) {
+    id
+    email
+    organization {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetinviteQuery__
+ *
+ * To run a query within a React component, call `useGetinviteQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetinviteQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetinviteQuery({
+ *   variables: {
+ *      token: // value for 'token'
+ *   },
+ * });
+ */
+export function useGetinviteQuery(baseOptions: Apollo.QueryHookOptions<GetinviteQuery, GetinviteQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetinviteQuery, GetinviteQueryVariables>(GetinviteDocument, options);
+      }
+export function useGetinviteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetinviteQuery, GetinviteQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetinviteQuery, GetinviteQueryVariables>(GetinviteDocument, options);
+        }
+export type GetinviteQueryHookResult = ReturnType<typeof useGetinviteQuery>;
+export type GetinviteLazyQueryHookResult = ReturnType<typeof useGetinviteLazyQuery>;
+export type GetinviteQueryResult = Apollo.QueryResult<GetinviteQuery, GetinviteQueryVariables>;
+export const AcceptInviteDocument = gql`
+    mutation acceptInvite($input: AcceptInviteInput!) {
+  acceptInvite(input: $input) {
+    token
+    user {
+      ...CurrentUser
+    }
+  }
+}
+    ${CurrentUserFragmentDoc}`;
+export type AcceptInviteMutationFn = Apollo.MutationFunction<AcceptInviteMutation, AcceptInviteMutationVariables>;
+
+/**
+ * __useAcceptInviteMutation__
+ *
+ * To run a mutation, you first call `useAcceptInviteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAcceptInviteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [acceptInviteMutation, { data, loading, error }] = useAcceptInviteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAcceptInviteMutation(baseOptions?: Apollo.MutationHookOptions<AcceptInviteMutation, AcceptInviteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AcceptInviteMutation, AcceptInviteMutationVariables>(AcceptInviteDocument, options);
+      }
+export type AcceptInviteMutationHookResult = ReturnType<typeof useAcceptInviteMutation>;
+export type AcceptInviteMutationResult = Apollo.MutationResult<AcceptInviteMutation>;
+export type AcceptInviteMutationOptions = Apollo.BaseMutationOptions<AcceptInviteMutation, AcceptInviteMutationVariables>;
 export const PlansDocument = gql`
     query plans($page: Int, $limit: Int) {
   plans(page: $page, limit: $limit) {
@@ -5697,6 +5954,92 @@ export function useIntegrationsSettingLazyQuery(baseOptions?: Apollo.LazyQueryHo
 export type IntegrationsSettingQueryHookResult = ReturnType<typeof useIntegrationsSettingQuery>;
 export type IntegrationsSettingLazyQueryHookResult = ReturnType<typeof useIntegrationsSettingLazyQuery>;
 export type IntegrationsSettingQueryResult = Apollo.QueryResult<IntegrationsSettingQuery, IntegrationsSettingQueryVariables>;
+export const GetInvitesDocument = gql`
+    query getInvites($page: Int, $limit: Int) {
+  invites(page: $page, limit: $limit) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      ...InviteItem
+    }
+  }
+}
+    ${InviteItemFragmentDoc}`;
+
+/**
+ * __useGetInvitesQuery__
+ *
+ * To run a query within a React component, call `useGetInvitesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInvitesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetInvitesQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetInvitesQuery(baseOptions?: Apollo.QueryHookOptions<GetInvitesQuery, GetInvitesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetInvitesQuery, GetInvitesQueryVariables>(GetInvitesDocument, options);
+      }
+export function useGetInvitesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetInvitesQuery, GetInvitesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetInvitesQuery, GetInvitesQueryVariables>(GetInvitesDocument, options);
+        }
+export type GetInvitesQueryHookResult = ReturnType<typeof useGetInvitesQuery>;
+export type GetInvitesLazyQueryHookResult = ReturnType<typeof useGetInvitesLazyQuery>;
+export type GetInvitesQueryResult = Apollo.QueryResult<GetInvitesQuery, GetInvitesQueryVariables>;
+export const GetMembersDocument = gql`
+    query getMembers($page: Int, $limit: Int) {
+  memberships(page: $page, limit: $limit) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      ...MembershipItem
+    }
+  }
+}
+    ${MembershipItemFragmentDoc}`;
+
+/**
+ * __useGetMembersQuery__
+ *
+ * To run a query within a React component, call `useGetMembersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMembersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMembersQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetMembersQuery(baseOptions?: Apollo.QueryHookOptions<GetMembersQuery, GetMembersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetMembersQuery, GetMembersQueryVariables>(GetMembersDocument, options);
+      }
+export function useGetMembersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMembersQuery, GetMembersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetMembersQuery, GetMembersQueryVariables>(GetMembersDocument, options);
+        }
+export type GetMembersQueryHookResult = ReturnType<typeof useGetMembersQuery>;
+export type GetMembersLazyQueryHookResult = ReturnType<typeof useGetMembersLazyQuery>;
+export type GetMembersQueryResult = Apollo.QueryResult<GetMembersQuery, GetMembersQueryVariables>;
 export const GetOrganizationInformationsDocument = gql`
     query getOrganizationInformations {
   currentUser {
