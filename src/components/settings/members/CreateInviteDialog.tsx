@@ -87,6 +87,9 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
           : translate('text_63208c701ce25db78140749b')
       }
       onOpen={() => {
+        formikProps.validateForm()
+      }}
+      onClickAway={() => {
         setInviteToken('')
         formikProps.resetForm()
         formikProps.validateForm()
@@ -97,6 +100,9 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
             variant="quaternary"
             onClick={() => {
               closeDialog()
+              setInviteToken('')
+              formikProps.resetForm()
+              formikProps.validateForm()
             }}
           >
             {translate('text_63208c711ce25db7814074cd')}
@@ -120,6 +126,9 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
                   translateKey: 'text_63208c711ce25db781407536',
                 })
                 closeDialog()
+                setInviteToken('')
+                formikProps.resetForm()
+                formikProps.validateForm()
               }}
             >
               {translate('text_63208c701ce25db7814074a3')}
