@@ -1,50 +1,28 @@
-import { forwardRef, useMemo, useState, useImperativeHandle, useRef } from 'react'
-import { gql } from '@apollo/client'
+import { forwardRef, useState, useImperativeHandle, useRef, useEffect } from 'react'
 import styled from 'styled-components'
 import { useFormik } from 'formik'
 import { object, string } from 'yup'
 import { DateTime } from 'luxon'
+import { useNavigate } from 'react-router-dom'
 
 import { Drawer, DrawerRef, Button, Alert, Typography } from '~/components/designSystem'
 import { ComboBoxField, TextInputField, DatePicker, ButtonSelectorField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { addToast, LagoGQLError } from '~/core/apolloClient'
-import { theme, Card } from '~/styles'
 import {
-  useCreateSubscriptionMutation,
-  CustomerSubscriptionListFragmentDoc,
-  useGetPlansLazyQuery,
-  CreateSubscriptionInput,
-  Lago_Api_Error,
-  PlanInterval,
-  BillingTimeEnum,
-} from '~/generated/graphql'
+  updateOverwritePlanVar,
+  overwritePlanVar,
+  resetOverwritePlanVar,
+  SubscriptionUpdateInfo,
+} from '~/core/apolloClient'
+import { theme, Card } from '~/styles'
+import { CREATE_PLAN_ROUTE } from '~/core/router'
+import { CreateSubscriptionInput, BillingTimeEnum, PlanInterval } from '~/generated/graphql'
+import { useAddSubscription } from '~/hooks/customer/useAddSubscription'
 
 export interface AddSubscriptionDrawerRef {
-  openDialog: (existingInfos?: { subscriptionId: string; existingPlanId: string }) => unknown
+  openDialog: (existingSubscripiton?: SubscriptionUpdateInfo) => unknown
   closeDialog: () => unknown
 }
-
-gql`
-  query getPlans($page: Int, $limit: Int) {
-    plans(page: $page, limit: $limit) {
-      collection {
-        id
-        name
-        code
-        interval
-      }
-    }
-  }
-
-  mutation createSubscription($input: CreateSubscriptionInput!) {
-    createSubscription(input: $input) {
-      ...CustomerSubscriptionList
-    }
-  }
-
-  ${CustomerSubscriptionListFragmentDoc}
-`
 
 interface AddSubscriptionDrawerProps {
   customerName: string
@@ -55,33 +33,13 @@ export const AddSubscriptionDrawer = forwardRef<
   AddSubscriptionDrawerRef,
   AddSubscriptionDrawerProps
 >(({ customerId, customerName }: AddSubscriptionDrawerProps, ref) => {
+  const navigate = useNavigate()
   const drawerRef = useRef<DrawerRef>(null)
   const currentDateRef = useRef<DateTime>(DateTime.now())
-  const [existingInfos, setExistingInfos] = useState<
-    | {
-        subscriptionId: string
-        existingPlanId: string
-      }
-    | undefined
+  const [existingSubscripiton, setExistingSubscripiton] = useState<
+    SubscriptionUpdateInfo | undefined
   >(undefined)
   const { translate } = useInternationalization()
-  const [getPlans, { loading, data }] = useGetPlansLazyQuery()
-  const [create, { error }] = useCreateSubscriptionMutation({
-    context: {
-      silentErrorCodes: [Lago_Api_Error.CurrenciesDoesNotMatch],
-    },
-    onCompleted: async ({ createSubscription }) => {
-      if (!!createSubscription) {
-        addToast({
-          message: existingInfos
-            ? translate('text_62d7f6178ec94cd09370e69a')
-            : translate('text_62544f170d205200f09d5938'),
-          severity: 'success',
-        })
-      }
-    },
-  })
-
   const formikProps = useFormik<Omit<CreateSubscriptionInput, 'customerId'>>({
     initialValues: {
       // @ts-ignore
@@ -95,121 +53,86 @@ export const AddSubscriptionDrawer = forwardRef<
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: async (values, formikBag) => {
-      const answer = await create({
-        variables: {
-          input: {
-            customerId,
-            ...(existingInfos ? { subscriptionId: existingInfos.subscriptionId } : {}),
-            ...values,
-          },
-        },
-        refetchQueries: ['getCustomer'],
-      })
+      const canClose = await onCreate(customerId, values)
 
-      const { errors } = answer
-      const apiError = !errors ? undefined : (errors[0]?.extensions as LagoGQLError['extensions'])
-
-      if (!apiError || apiError?.code !== Lago_Api_Error.CurrenciesDoesNotMatch) {
+      if (canClose) {
         drawerRef?.current?.closeDrawer()
         formikBag.resetForm()
       }
     },
   })
-  const comboboxPlansData = useMemo(() => {
-    if (!data || !data?.plans || !data?.plans?.collection) return []
-
-    return data?.plans?.collection.map(({ id, name, code }) => {
-      return {
-        label: `${name} - (${code})`,
-        labelNode: (
-          <PlanItem>
-            {name} <Typography color="textPrimary">({code})</Typography>
-          </PlanItem>
-        ),
-        value: id,
-        disabled: !!existingInfos?.existingPlanId && existingInfos?.existingPlanId === id,
-      }
-    })
-  }, [data, existingInfos?.existingPlanId])
-
-  const selectedPlan = useMemo(() => {
-    if (!data?.plans?.collection || !formikProps.values.planId) return undefined
-
-    return (data?.plans?.collection || []).find((plan) => plan.id === formikProps.values.planId)
-  }, [data?.plans, formikProps.values.planId])
-
-  const billingTimeHelper = useMemo(() => {
-    const billingTime = formikProps.values.billingTime
-    const currentDate = DateTime.now().setLocale('en-gb')
-    const formattedCurrentDate = currentDate.toFormat('LL/dd/yyyy')
-    const february29 = '02/29/2020'
-    const currentDay = currentDate.get('day')
-
-    if (!selectedPlan) return undefined
-
-    switch (selectedPlan?.interval) {
-      case PlanInterval.Monthly:
-        if (billingTime === BillingTimeEnum.Calendar)
-          return translate('text_62ea7cd44cd4b14bb9ac1d7e')
-
-        if (currentDay <= 28) {
-          return translate('text_62ea7cd44cd4b14bb9ac1d82', { day: currentDay })
-        } else if (currentDay === 29) {
-          return translate('text_62ea7cd44cd4b14bb9ac1d86')
-        } else if (currentDay === 30) {
-          return translate('text_62ea7cd44cd4b14bb9ac1d8a')
-        }
-        return translate('text_62ea7cd44cd4b14bb9ac1d8e')
-
-      case PlanInterval.Yearly:
-        return billingTime === BillingTimeEnum.Calendar
-          ? translate('text_62ea7cd44cd4b14bb9ac1d92')
-          : formattedCurrentDate === february29
-          ? translate('text_62ea7cd44cd4b14bb9ac1d9a')
-          : translate('text_62ea7cd44cd4b14bb9ac1d96', { date: currentDate.toFormat('LLL. dd') })
-
-      case PlanInterval.Weekly:
-      default:
-        return billingTime === BillingTimeEnum.Calendar
-          ? translate('text_62ea7cd44cd4b14bb9ac1d9e')
-          : translate('text_62ea7cd44cd4b14bb9ac1da2', { day: currentDate.weekdayLong })
-    }
-  }, [selectedPlan, formikProps.values.billingTime, translate])
+  const {
+    loading,
+    selectedPlan,
+    comboboxPlansData,
+    billingTimeHelper,
+    errorCode,
+    onCreate,
+    onOpenDrawer,
+  } = useAddSubscription({
+    existingSubscripiton,
+    planId: formikProps.values.planId,
+    billingTime: formikProps.values.billingTime,
+  })
 
   useImperativeHandle(ref, () => ({
     openDialog: (infos) => {
-      setExistingInfos(infos)
+      setExistingSubscripiton(infos)
       drawerRef.current?.openDrawer()
     },
     closeDialog: () => drawerRef.current?.closeDrawer(),
   }))
 
+  useEffect(() => {
+    const { subscriptionInput, updateInfo } = overwritePlanVar()
+
+    if (!!subscriptionInput) {
+      const { planId, name, billingTime } = subscriptionInput
+
+      formikProps.setValues({
+        planId: planId || '',
+        name: name || undefined,
+        billingTime: billingTime || BillingTimeEnum.Calendar,
+      })
+      if (!!updateInfo) {
+        setExistingSubscripiton({
+          subscriptionId: updateInfo?.subscriptionId as string,
+          existingPlanId: updateInfo?.existingPlanId as string,
+          periodEndDate: updateInfo?.periodEndDate as string,
+        })
+      }
+      resetOverwritePlanVar()
+      drawerRef?.current?.openDrawer()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <Drawer
       ref={drawerRef}
       title={translate(
-        existingInfos ? 'text_6328e70de459381ed4ba50be' : 'text_6328e70de459381ed4ba50bc',
+        existingSubscripiton ? 'text_6328e70de459381ed4ba50be' : 'text_6328e70de459381ed4ba50bc',
         { customerName }
       )}
       onClose={formikProps.resetForm}
-      onOpen={() => {
-        if (!loading) {
-          getPlans()
-        }
-      }}
+      onOpen={onOpenDrawer}
     >
       <>
         <Content>
           <Title>
             <Typography variant="headline">
               {translate(
-                existingInfos ? 'text_6328e70de459381ed4ba50c2' : 'text_6328e70de459381ed4ba50c0',
+                existingSubscripiton
+                  ? 'text_6328e70de459381ed4ba50c2'
+                  : 'text_6328e70de459381ed4ba50c0',
                 { customerName }
               )}
             </Typography>
             <Typography>
               {translate(
-                existingInfos ? 'text_6328e70de459381ed4ba50c6' : 'text_6328e70de459381ed4ba50c4'
+                existingSubscripiton
+                  ? 'text_6328e70de459381ed4ba50c6'
+                  : 'text_6328e70de459381ed4ba50c4'
               )}
             </Typography>
           </Title>
@@ -230,7 +153,20 @@ export const AddSubscriptionDrawer = forwardRef<
                 PopperProps={{ displayInDialog: true }}
               />
               {!!formikProps?.values?.planId && (
-                <Button variant="quaternary" startIcon="pen" size="large">
+                <Button
+                  variant="quaternary"
+                  startIcon="pen"
+                  size="large"
+                  onClick={() => {
+                    updateOverwritePlanVar({
+                      parentId: formikProps?.values?.planId,
+                      subscriptionInput: formikProps?.values,
+                      customerId: customerId,
+                      updateInfo: existingSubscripiton,
+                    })
+                    navigate(CREATE_PLAN_ROUTE)
+                  }}
+                >
                   {translate('text_6328e911e1eede3a429e8861')}
                 </Button>
               )}
@@ -244,7 +180,7 @@ export const AddSubscriptionDrawer = forwardRef<
                   placeholder={translate('text_62d7f6178ec94cd09370e2cb')}
                   helperText={translate('text_62d7f6178ec94cd09370e2d9')}
                 />
-                {!existingInfos && (
+                {!existingSubscripiton && (
                   <>
                     <DatePicker
                       disabled
@@ -279,13 +215,16 @@ export const AddSubscriptionDrawer = forwardRef<
               </>
             )}
 
-            {((error?.graphQLErrors || [])[0]?.extensions as LagoGQLError['extensions'])?.code ===
-            Lago_Api_Error.CurrenciesDoesNotMatch ? (
+            {!!errorCode ? (
               <Alert type="danger">{translate('text_62d904d38619b00b6681a3c6')}</Alert>
             ) : (
-              !!existingInfos && (
+              !!existingSubscripiton && (
                 <Alert type="info">
-                  {translate('text_6328e70de459381ed4ba50d6', { subscriptionEndDate: 'TODO' })}
+                  {translate('text_6328e70de459381ed4ba50d6', {
+                    subscriptionEndDate: DateTime.fromISO(
+                      existingSubscripiton?.periodEndDate as string
+                    ).toFormat('LLL. dd, yyyy'),
+                  })}
                 </Alert>
               )
             )}
@@ -297,8 +236,9 @@ export const AddSubscriptionDrawer = forwardRef<
             fullWidth
             disabled={!formikProps.isValid}
             onClick={formikProps.submitForm}
+            data-test="submit"
           >
-            {existingInfos
+            {existingSubscripiton
               ? translate('text_6328e70de459381ed4ba50da')
               : translate('text_6328e70de459381ed4ba50d4', { customerName })}
           </Button>
@@ -307,11 +247,6 @@ export const AddSubscriptionDrawer = forwardRef<
     </Drawer>
   )
 })
-
-const PlanItem = styled.span`
-  display: flex;
-  white-space: pre;
-`
 
 const Content = styled.div`
   margin-bottom: ${theme.spacing(8)};

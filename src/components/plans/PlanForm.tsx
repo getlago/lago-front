@@ -4,7 +4,6 @@ import { object, string, number, array } from 'yup'
 import styled from 'styled-components'
 
 import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
-import { EditPlanFragment } from '~/generated/graphql'
 import { PlanInterval, CurrencyEnum, ChargeModelEnum } from '~/generated/graphql'
 import { TextInputField, ButtonSelectorField, ComboBoxField, SwitchField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -19,24 +18,34 @@ import {
 import { theme, NAV_HEIGHT, Card } from '~/styles'
 import { AddChargeDialog, AddChargeDialogRef } from '~/components/plans/AddChargeDialog'
 import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
+import { PLAN_FORM_TYPE_ENUM, UsePlanFormReturn, FORM_ERRORS_ENUM } from '~/hooks/plans/usePlanForm'
 
 import { PlanFormInput, LocalChargeInput } from './types'
 
-interface PlanFormProps {
-  plan?: EditPlanFragment
-  isEdition?: boolean
-  loading?: boolean
+interface PlanFormProps
+  extends Pick<
+    UsePlanFormReturn,
+    'type' | 'plan' | 'parentPlanName' | 'onSave' | 'loading' | 'errorCode'
+  > {
   children?: ReactNode
-  onSave: (values: PlanFormInput) => Promise<void>
 }
 
 const getNewChargeId = (id: string, index: number) => `plan-charge-${id}-${index}`
 
-export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFormProps) => {
+export const PlanForm = ({
+  loading,
+  plan,
+  type,
+  children,
+  parentPlanName,
+  errorCode,
+  onSave,
+}: PlanFormProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const addChargeDialogRef = useRef<AddChargeDialogRef>(null)
   const { translate } = useInternationalization()
   const [newChargeId, setNewChargeId] = useState<string | null>(null)
+  const isEdition = type === PLAN_FORM_TYPE_ENUM.edition
   const formikProps = useFormik<PlanFormInput>({
     initialValues: {
       name: plan?.name || '',
@@ -204,6 +213,17 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
   const chargeEditIndexLimit = plan?.charges?.length || 0
 
   useEffect(() => {
+    if (errorCode === FORM_ERRORS_ENUM.existingCode) {
+      formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
+      const rootElement = document.getElementById('root')
+
+      if (!rootElement) return
+      rootElement.scrollTo({ top: 0 })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorCode])
+
+  useEffect(() => {
     // When adding a new charge, scroll to the new charge element
     if (!!newChargeId) {
       const element = document.getElementById(newChargeId)
@@ -211,7 +231,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
 
       if (!element || !rootElement) return
 
-      rootElement.scrollTo({ top: element.offsetTop - 72 - 16, behavior: 'smooth' })
+      rootElement.scrollTo({ top: element.offsetTop - 72 - 16 })
     }
   }, [newChargeId])
 
@@ -276,13 +296,21 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
               <>
                 <div>
                   <Title variant="headline">
-                    {translate(
-                      isEdition ? 'text_625fd165963a7b00c8f59771' : 'text_624453d52e945301380e498a'
-                    )}
+                    {type === PLAN_FORM_TYPE_ENUM.override
+                      ? translate('text_6329fd60c32c30152678a6f4', { planName: parentPlanName })
+                      : translate(
+                          isEdition
+                            ? 'text_625fd165963a7b00c8f59771'
+                            : 'text_624453d52e945301380e498a'
+                        )}
                   </Title>
                   <Subtitle>
                     {translate(
-                      isEdition ? 'text_625fd165963a7b00c8f5977b' : 'text_624453d52e945301380e498e'
+                      type === PLAN_FORM_TYPE_ENUM.override
+                        ? 'text_6329fd60c32c30152678a6f6'
+                        : type === PLAN_FORM_TYPE_ENUM.edition
+                        ? 'text_625fd165963a7b00c8f5977b'
+                        : 'text_624453d52e945301380e498e'
                     )}
                   </Subtitle>
                 </div>
@@ -452,7 +480,11 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                     data-test="submit"
                   >
                     {translate(
-                      isEdition ? 'text_625fd165963a7b00c8f598aa' : 'text_62ff5d01a306e274d4ffcc75'
+                      type === PLAN_FORM_TYPE_ENUM.override
+                        ? 'text_6329fd60c32c30152678a73c'
+                        : type === PLAN_FORM_TYPE_ENUM.edition
+                        ? 'text_625fd165963a7b00c8f598aa'
+                        : 'text_62ff5d01a306e274d4ffcc75'
                     )}
                   </Button>
                 </ButtonContainer>

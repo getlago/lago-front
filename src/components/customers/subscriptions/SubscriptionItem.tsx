@@ -38,6 +38,7 @@ interface SubscriptionItemProps {
   date: string
   plan: SubscriptionItemPlanFragment
   isPending?: boolean
+  periodEndDate: string
 }
 
 export interface SubscriptionItemRef {
@@ -54,6 +55,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
       subscriptionName,
       date,
       plan,
+      periodEndDate,
       isPending,
     }: SubscriptionItemProps,
     ref
@@ -134,6 +136,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
                     )?.current?.openDialog({
                       subscriptionId,
                       existingPlanId: plan.id,
+                      periodEndDate: periodEndDate,
                     })
                     closePopper()
                   }}

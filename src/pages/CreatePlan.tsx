@@ -1,5 +1,4 @@
 import { useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { theme, PageHeader, Card } from '~/styles'
@@ -9,26 +8,38 @@ import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { PLANS_ROUTE } from '~/core/router'
 import SuccessImage from '~/public/images/maneki/success.svg'
 import { PlanForm } from '~/components/plans/PlanForm'
-import { useCreateEditPlan } from '~/hooks/plans/useCreateEditPlan'
+import { usePlanForm, PLAN_FORM_TYPE_ENUM } from '~/hooks/plans/usePlanForm'
 
 const CreatePlan = () => {
-  const { loading, isEdition, isCreated, plan, onSave, resetIsCreated } = useCreateEditPlan()
+  const {
+    loading,
+    type,
+    isCreated,
+    plan,
+    parentPlanName,
+    errorCode,
+    onSave,
+    onClose,
+    resetIsCreated,
+  } = usePlanForm()
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const { translate } = useInternationalization()
-  let navigate = useNavigate()
+  const isEdition = type === PLAN_FORM_TYPE_ENUM?.edition
 
   return (
     <div>
       <PageHeader>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {translate(isEdition ? 'text_625fd165963a7b00c8f59767' : 'text_624453d52e945301380e4988')}
+          {type === PLAN_FORM_TYPE_ENUM.override
+            ? translate('text_6329fd60c32c30152678a6e8', { planName: parentPlanName })
+            : translate(
+                isEdition ? 'text_625fd165963a7b00c8f59767' : 'text_624453d52e945301380e4988'
+              )}
         </Typography>
         <Button
           variant="quaternary"
           icon="close"
-          onClick={() =>
-            isCreated ? navigate(PLANS_ROUTE) : warningDialogRef.current?.openDialog()
-          }
+          onClick={() => (isCreated ? onClose() : warningDialogRef.current?.openDialog())}
         />
       </PageHeader>
 
@@ -54,7 +65,14 @@ const CreatePlan = () => {
           </div>
         </SuccessCard>
       ) : (
-        <PlanForm loading={loading} isEdition={isEdition} plan={plan} onSave={onSave} />
+        <PlanForm
+          loading={loading}
+          type={type}
+          parentPlanName={parentPlanName}
+          plan={plan}
+          errorCode={errorCode}
+          onSave={onSave}
+        />
       )}
 
       <WarningDialog
@@ -68,7 +86,7 @@ const CreatePlan = () => {
         continueText={translate(
           isEdition ? 'text_625fd165963a7b00c8f59795' : 'text_624454dd67656e00c534bc41'
         )}
-        onContinue={() => navigate(PLANS_ROUTE)}
+        onContinue={onClose}
       />
     </div>
   )

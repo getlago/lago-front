@@ -1,8 +1,8 @@
-import { customerName } from '../support/reusableConstants'
+import { customerName, userEmail, userPassword } from '../support/reusableConstants'
 
 describe('Create customer', () => {
   beforeEach(() => {
-    cy.login('usertest@lago.com', 'P@ssw0rd')
+    cy.login(userEmail, userPassword)
     cy.visit('/customers')
   })
 

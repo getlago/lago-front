@@ -32,6 +32,7 @@ gql`
     name
     nextName
     externalId
+    periodEndDate
     plan {
       ...SubscriptionItemPlan
     }
@@ -110,6 +111,7 @@ export const CustomerSubscriptionsList = forwardRef<
                 nextName,
                 nextPendingStartDate,
                 nextPlan,
+                periodEndDate,
               } = subscription
               const isDowngrading = !!nextPlan
 
@@ -123,6 +125,7 @@ export const CustomerSubscriptionsList = forwardRef<
                       subscriptionName={nextName}
                       date={nextPendingStartDate}
                       plan={nextPlan}
+                      periodEndDate={periodEndDate}
                       isPending
                     />
                   )}
@@ -132,6 +135,7 @@ export const CustomerSubscriptionsList = forwardRef<
                     subscriptionExternalId={externalId}
                     subscriptionName={name}
                     date={startedAt}
+                    periodEndDate={periodEndDate}
                     plan={plan}
                   />
                   {isDowngrading && !!nextPlan && (

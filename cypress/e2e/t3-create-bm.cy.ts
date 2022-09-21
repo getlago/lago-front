@@ -1,6 +1,8 @@
+import { userEmail, userPassword } from '../support/reusableConstants'
+
 describe('Create billable metrics', () => {
   beforeEach(() => {
-    cy.login('usertest@lago.com', 'P@ssw0rd')
+    cy.login(userEmail, userPassword)
     cy.visit('/billable-metrics')
   })
 
