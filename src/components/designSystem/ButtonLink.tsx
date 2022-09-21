@@ -12,9 +12,11 @@ enum ButtonLinkTypeEnum {
   tab = 'tab',
   button = 'button',
 }
+
 export interface ButtonLinkBaseProps {
   className?: string
   to: string
+  routerState?: Record<string, string | boolean>
   type: keyof typeof ButtonLinkTypeEnum
   disabled?: boolean
   external?: boolean
@@ -45,6 +47,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
     {
       className,
       to,
+      routerState,
       icon,
       active,
       disabled,
@@ -89,7 +92,13 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
           </ExternalButtonLink>
         )}
         invalidWrapper={(wrapperChildren) => (
-          <InternalButtonLink tabIndex={-1} className={classNames} to={to} ref={ref}>
+          <InternalButtonLink
+            tabIndex={-1}
+            className={classNames}
+            to={to}
+            state={routerState}
+            ref={ref}
+          >
             {wrapperChildren}
           </InternalButtonLink>
         )}
