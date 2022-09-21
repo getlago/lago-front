@@ -65,7 +65,10 @@ const PASSWORD_VALIDATION = [
 const Invitation = () => {
   const { translate } = useInternationalization()
   const { token } = useParams()
-  const { data, error, loading } = useGetinviteQuery({ variables: { token: token || '' } })
+  const { data, error, loading } = useGetinviteQuery({
+    context: { silentErrorCodes: [Lago_Api_Error.InviteNotFound] },
+    variables: { token: token || '' },
+  })
   const email = data?.invite?.email
   const [acceptInvite, { error: acceptInviteError }] = useAcceptInviteMutation({
     context: { silentErrorCodes: [Lago_Api_Error.UserAlreadyExists] },
@@ -131,7 +134,7 @@ const Invitation = () => {
     <Page>
       <Card>
         <StyledLogo height={24} />
-        {!!error && !loading ? (
+        {(!!error || !data?.invite) && !loading ? (
           <>
             <Title variant="headline">{translate('text_63246f875e2228ab7b63dcf4')}</Title>
             <Subtitle $noMargins>{translate('text_63246f875e2228ab7b63dcfe')}</Subtitle>

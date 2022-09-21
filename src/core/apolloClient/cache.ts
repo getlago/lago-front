@@ -51,6 +51,14 @@ export const cache = new InMemoryCache({
           keyArgs: ['walletId'],
           merge: mergePaginatedCollection,
         },
+        invites: {
+          keyArgs: false,
+          merge: mergePaginatedCollection,
+        },
+        memberships: {
+          keyArgs: false,
+          merge: mergePaginatedCollection,
+        },
       },
     },
   },

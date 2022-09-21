@@ -1476,6 +1476,7 @@ export enum Lago_Api_Error {
   Forbidden = 'forbidden',
   IncorrectLoginOrPassword = 'incorrect_login_or_password',
   InternalError = 'internal_error',
+  InviteNotFound = 'invite_not_found',
   NotFound = 'not_found',
   NotOrganizationMember = 'not_organization_member',
   TokenEncodingError = 'token_encoding_error',
@@ -2106,6 +2107,7 @@ export type Subscription = {
   nextName?: Maybe<Scalars['String']>;
   nextPendingStartDate?: Maybe<Scalars['ISO8601Date']>;
   nextPlan?: Maybe<Plan>;
+  periodEndDate?: Maybe<Scalars['ISO8601Date']>;
   plan: Plan;
   startedAt?: Maybe<Scalars['ISO8601DateTime']>;
   status?: Maybe<StatusTypeEnum>;

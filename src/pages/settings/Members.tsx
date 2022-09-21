@@ -84,6 +84,8 @@ const Members = () => {
   const invitesMetadata = invitesData?.invites.metadata
   const membersMetadata = membersData?.memberships.metadata
   const hasInvites = !!invitesMetadata?.totalCount
+  const { currentPage: inviteCurrentPage = 0, totalPages: inviteTotalPages = 0 } =
+    invitesMetadata || {}
 
   return (
     <Page>
@@ -91,7 +93,7 @@ const Members = () => {
       <Subtitle>{translate('text_63208b630aaf8df6bbfb2659')}</Subtitle>
       {(!!invitesLoading || !!invitesError || !!hasInvites) && (
         <Head>
-          {!!invitesLoading ? (
+          {!!invitesLoading && !hasInvites ? (
             <TitleSkeleton variant="text" height={12} width={160} />
           ) : (
             <>
@@ -112,55 +114,50 @@ const Members = () => {
           )}
         </Head>
       )}
-      {!!invitesLoading ? (
-        <LoadingListWrapper>
-          {[1, 2].map((i) => (
-            <InviteItemSkeleton key={i} />
-          ))}
-        </LoadingListWrapper>
-      ) : (
-        <InvitationsListWrapper>
-          {!!invitesError ? (
-            <ErrorPlaceholder
-              noMargins
-              title={translate('text_6321a076b94bd1b32494e9e6')}
-              subtitle={translate('text_6321a076b94bd1b32494e9e8')}
-              buttonTitle={translate('text_6321a076b94bd1b32494e9ea')}
-              buttonVariant="primary"
-              buttonAction={invitesRefetch}
-              image={<ErrorImage width="136" height="104" />}
-            />
-          ) : !!hasInvites ? (
-            <>
-              <ListWrapper>
-                {invitesData?.invites.collection.map((invite, i) => (
-                  <InviteItem
-                    key={`invite-item-${i}`}
-                    ref={revokeInviteDialogRef}
-                    invite={invite}
-                  />
-                ))}
-              </ListWrapper>
-              {(invitesMetadata?.currentPage || 0) < (invitesMetadata?.totalPages || 0) && (
-                <Loadmore>
-                  <Button
-                    variant="quaternary"
-                    onClick={() =>
-                      invitesFetchMore({
-                        variables: { page: (invitesMetadata?.currentPage || 0) + 1 },
-                      })
-                    }
-                  >
-                    <Typography variant="body" color="grey600">
-                      {translate('text_63208bfc99e69a28211ec7fd')}
-                    </Typography>
-                  </Button>
-                </Loadmore>
+      <InvitationsListWrapper>
+        {!!invitesError ? (
+          <ErrorPlaceholder
+            noMargins
+            title={translate('text_6321a076b94bd1b32494e9e6')}
+            subtitle={translate('text_6321a076b94bd1b32494e9e8')}
+            buttonTitle={translate('text_6321a076b94bd1b32494e9ea')}
+            buttonVariant="primary"
+            buttonAction={invitesRefetch}
+            image={<ErrorImage width="136" height="104" />}
+          />
+        ) : !!hasInvites ? (
+          <>
+            <ListWrapper>
+              {invitesData?.invites.collection.map((invite, i) => (
+                <InviteItem key={`invite-item-${i}`} ref={revokeInviteDialogRef} invite={invite} />
+              ))}
+              {!!invitesLoading && (
+                <LoadingListWrapper>
+                  {[1, 2].map((i) => (
+                    <InviteItemSkeleton key={`invite-item-skeleton-${i}`} />
+                  ))}
+                </LoadingListWrapper>
               )}
-            </>
-          ) : null}
-        </InvitationsListWrapper>
-      )}
+            </ListWrapper>
+            {inviteCurrentPage < inviteTotalPages && (
+              <Loadmore>
+                <Button
+                  variant="quaternary"
+                  onClick={() =>
+                    invitesFetchMore({
+                      variables: { page: inviteCurrentPage + 1 },
+                    })
+                  }
+                >
+                  <Typography variant="body" color="grey600">
+                    {translate('text_63208bfc99e69a28211ec7fd')}
+                  </Typography>
+                </Button>
+              </Loadmore>
+            )}
+          </>
+        ) : null}
+      </InvitationsListWrapper>
 
       <Head>
         {!!membersLoading ? (
@@ -181,13 +178,7 @@ const Members = () => {
           </>
         )}
       </Head>
-      {!!membersLoading ? (
-        <LoadingListWrapper>
-          {[1, 2, 3].map((i) => (
-            <MembershipItemSkeleton key={i} />
-          ))}
-        </LoadingListWrapper>
-      ) : !!membersError ? (
+      {!!membersError ? (
         <ErrorPlaceholder
           noMargins
           title={translate('text_6321a076b94bd1b32494e9ee')}
@@ -217,6 +208,14 @@ const Members = () => {
                 membership={membership}
               />
             ))}
+
+            {!!membersLoading && (
+              <LoadingListWrapper>
+                {[1, 2, 3].map((i) => (
+                  <MembershipItemSkeleton key={`membership-item-skeleton-${i}`} />
+                ))}
+              </LoadingListWrapper>
+            )}
           </ListWrapper>
         </InfiniteScroll>
       )}
