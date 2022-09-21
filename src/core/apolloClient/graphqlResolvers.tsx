@@ -23,6 +23,9 @@ export const typeDefs = gql`
     coupon_already_applied
     currencies_does_not_match
     invite_not_found
+
+    # Object not found
+    plan_not_found
   }
 `
 

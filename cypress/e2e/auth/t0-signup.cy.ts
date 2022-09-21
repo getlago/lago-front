@@ -1,3 +1,5 @@
+import { userEmail, userPassword } from '../../support/reusableConstants'
+
 describe('Sign up page test', () => {
   it('should be able to visit app', () => {
     cy.visit('sign-up')
@@ -7,8 +9,8 @@ describe('Sign up page test', () => {
     cy.visit('sign-up')
 
     cy.get('input[name="organizationName"]').type('Company name')
-    cy.get('input[name="email"]').type('usertest@lago.com')
-    cy.get('input[name="password"]').type('P@ssw0rd')
+    cy.get('input[name="email"]').type(userEmail)
+    cy.get('input[name="password"]').type(userPassword)
     cy.get('[data-test="submit-button"]').click()
 
     cy.url().should('be.equal', Cypress.config().baseUrl + '/')
@@ -24,7 +26,7 @@ describe('Sign up page test', () => {
     cy.get('input[name="organizationName"]').type('Lago')
     cy.get('[data-test="submit-button"]').should('be.disabled')
 
-    cy.get('input[name="email"]').type('usertest@lago.com')
+    cy.get('input[name="email"]').type(userEmail)
     cy.get('[data-test="submit-button"]').should('be.disabled')
 
     cy.get('input[name="password"]').type('P@ss')
@@ -40,7 +42,7 @@ describe('Sign up page test', () => {
 
     cy.get('[data-test="success"]').should('not.exist')
     cy.get('input[name="organizationName"]').type('Lago')
-    cy.get('input[name="email"]').type('usertest@lago.com')
+    cy.get('input[name="email"]').type(userEmail)
     cy.get('input[name="password"]').type('P@ssw0rdd')
     cy.get('[data-test="submit-button"]').click()
     cy.get('[data-test="error-alert"]').should('exist')

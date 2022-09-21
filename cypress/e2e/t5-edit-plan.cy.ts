@@ -1,8 +1,13 @@
-import { planWithChargesName, customerName } from '../support/reusableConstants'
+import {
+  planWithChargesName,
+  customerName,
+  userEmail,
+  userPassword,
+} from '../support/reusableConstants'
 
 describe('Create plan', () => {
   beforeEach(() => {
-    cy.login('usertest@lago.com', 'P@ssw0rd')
+    cy.login(userEmail, userPassword)
   })
 
   it('should be able to update all information of unused plan', () => {

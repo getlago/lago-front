@@ -1,9 +1,11 @@
+import { userEmail, userPassword } from '../../support/reusableConstants'
+
 describe('Log in page test', () => {
   it('should redirect to home page when right credentials', () => {
     cy.visit('login')
 
-    cy.get('input[name="email"]').type('usertest@lago.com')
-    cy.get('input[name="password"]').type('P@ssw0rd')
+    cy.get('input[name="email"]').type(userEmail)
+    cy.get('input[name="password"]').type(userPassword)
     cy.get('[data-test="submit"]').click()
     cy.url().should('be.equal', Cypress.config().baseUrl + '/')
     cy.get('[data-test="error-alert"]').should('not.exist')
@@ -12,7 +14,7 @@ describe('Log in page test', () => {
   it('should display an error when wrong credentials', () => {
     cy.visit('/login')
 
-    cy.get('input[name="email"]').type('usertest@lago.com')
+    cy.get('input[name="email"]').type(userEmail)
     cy.get('input[name="password"]').type('IHateLago')
     cy.get('[data-test="submit"]').click()
     cy.url().should('be.equal', Cypress.config().baseUrl + '/login')
