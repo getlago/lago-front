@@ -1,7 +1,10 @@
-name: Release
+name: Manual Release
 on:
-  repository_dispatch:
-    types: [release]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version
+        required: true
 jobs:
   build-image:
     name: Build Image
@@ -21,8 +24,8 @@ jobs:
         with:
           context: .
           push: true
-          tags: getlago/front:${{ github.event.client_payload.version }}
-
+          tags: getlago/front:${{ github.event.inputs.version }}
+      
       - name: Build and Push ARM64 Docker Image
         uses: docker/build-push-action@v3
         with:
@@ -30,4 +33,4 @@ jobs:
           file: ./Dockerfile.arm64
           push: true
           platforms: linux/arm64
-          tags: getlago/front-arm64v8:${{ github.event.client_payload.version }}
+          tags: getlago/front-arm64v8:${{ github.event.inputs.version }}
