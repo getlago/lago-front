@@ -1,19 +1,18 @@
-import { forwardRef, useState } from 'react'
-import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
+import { forwardRef } from 'react'
 import styled, { css } from 'styled-components'
 import { DateTime } from 'luxon'
 import { gql } from '@apollo/client'
 
-import { NAV_HEIGHT, theme } from '~/styles'
+import { theme } from '~/styles'
 import {
   Avatar,
-  Button,
   Icon,
   Skeleton,
   Status,
   StatusEnum,
   Tooltip,
   Typography,
+  Accordion,
 } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { WalletAccordionFragment, WalletStatusEnum } from '~/generated/graphql'
@@ -84,24 +83,13 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
     const { translate } = useInternationalization()
     const isWalletActive = status === WalletStatusEnum.Active
     // All active wallets should be opened by default on first render
-    const [isOpen, setIsOpen] = useState(isWalletActive)
 
     return (
-      <Container>
-        <StyledAccordion
-          expanded={isOpen}
-          onChange={(_, expanded) => {
-            setIsOpen(expanded)
-          }}
-          square
-        >
-          <Summary $isOpen={isOpen}>
+      <Accordion
+        noContentMargin
+        summary={
+          <SummaryContainer>
             <SummaryLeft>
-              <Button
-                variant="quaternary"
-                size="small"
-                icon={isOpen ? 'chevron-down' : 'chevron-right'}
-              />
               <Avatar variant="connector">
                 <Icon name="wallet" color="dark" />
               </Avatar>
@@ -124,9 +112,11 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
             <SummaryRight>
               <Status type={statusMap.type} label={translate(statusMap.label)} />
             </SummaryRight>
-          </Summary>
-
-          <Details>
+          </SummaryContainer>
+        }
+      >
+        {({ isOpen }) => (
+          <>
             <DetailSummary>
               <DetailSummaryBlock>
                 <DetailSummaryLine>
@@ -249,69 +239,39 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
             </DetailSummary>
 
             <WalletTransactionList isOpen={isOpen} wallet={wallet} ref={ref} />
-          </Details>
-        </StyledAccordion>
-      </Container>
+          </>
+        )}
+      </Accordion>
     )
   }
 )
 
 export const WalletAccordionSkeleton = () => {
   return (
-    <Container>
-      <Summary disabled>
-        <SummaryLeft>
-          <Icon name="chevron-right" color="disabled" />
-          <Skeleton variant="connectorAvatar" size="medium" />
-          <SummaryInfos $isLoading>
-            <Skeleton variant="text" height={12} width={240} marginBottom={theme.spacing(3)} />
-            <Skeleton variant="text" height={12} width={120} />
-          </SummaryInfos>
-        </SummaryLeft>
-      </Summary>
-    </Container>
+    <SkeletonContainer>
+      <SummaryLeft>
+        <Icon name="chevron-right" color="disabled" />
+        <Skeleton variant="connectorAvatar" size="medium" />
+        <SummaryInfos $isLoading>
+          <Skeleton variant="text" height={12} width={240} marginBottom={theme.spacing(3)} />
+          <Skeleton variant="text" height={12} width={120} />
+        </SummaryInfos>
+      </SummaryLeft>
+    </SkeletonContainer>
   )
 }
 
-const Container = styled.div`
+const SkeletonContainer = styled.div`
+  border-radius: 12px;
   border: 1px solid ${theme.palette.grey[400]};
-  border-radius: 12px;
-  margin-bottom: ${theme.spacing(4)};
+  padding: ${theme.spacing(4)};
 `
 
-const StyledAccordion = styled(Accordion)`
-  border-radius: 12px;
-  overflow: hidden;
-
-  &.MuiAccordionDetails-root {
-    margin: ${theme.spacing(3)} ${theme.spacing(4)} 0 ${theme.spacing(4)};
-  }
-`
-
-const Summary = styled(AccordionSummary)<{ $isOpen?: boolean }>`
-  min-height: ${NAV_HEIGHT}px;
-  box-shadow: ${({ $isOpen }) => ($isOpen ? theme.shadows[7] : undefined)};
-
-  border-radius: ${({ $isOpen }) => ($isOpen ? '12px 12px 0 0' : '12px')};
-
-  &.Mui-disabled {
-    opacity: 1;
-  }
-
-  .MuiAccordionSummary-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: ${theme.spacing(3)} ${theme.spacing(4)} ${theme.spacing(3)} ${theme.spacing(4)};
-
-    &:hover {
-      background-color: ${theme.palette.grey[100]};
-    }
-
-    > *:first-child {
-      margin-right: ${theme.spacing(4)};
-    }
-  }
+const SummaryContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex: 1;
+  align-items: center;
 `
 
 const SummaryLeft = styled.div`
@@ -323,7 +283,6 @@ const SummaryLeft = styled.div`
   }
 `
 const SummaryRight = styled.div`
-  text-align: left;
   min-width: 120px;
 `
 
@@ -342,17 +301,6 @@ const SummaryInfos = styled.div<{ $isLoading?: boolean }>`
       height: 40px;
       justify-content: flex-end;
     `}
-`
-
-const Details = styled(AccordionDetails)`
-  display: flex;
-  flex-direction: column;
-
-  &.MuiAccordionDetails-root {
-    > *:not(:last-child) {
-      box-shadow: ${theme.shadows[7]};
-    }
-  }
 `
 
 const DetailSummary = styled.div`

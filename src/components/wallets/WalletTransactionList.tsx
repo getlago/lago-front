@@ -72,7 +72,7 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
 
     return (
       <>
-        {!error && !!hasData && (
+        {(loading || (!error && !!hasData)) && (
           <TransactionListHeader>
             <Typography variant="bodyHl" color="grey500">
               {translate('text_62da6ec24a8e24e44f81288e')}
@@ -229,6 +229,7 @@ const TransactionListHeader = styled.div`
   display: flex;
   padding: 10px ${theme.spacing(4)};
   justify-content: space-between;
+  box-shadow: ${theme.shadows[5]}, ${theme.shadows[7]};
 `
 
 const TransactionListWrapper = styled.div`
@@ -244,13 +245,14 @@ const GenericState = styled(GenericPlaceholder)`
 `
 
 const ListItemWrapper = styled.div`
-  padding: ${theme.spacing(3)} ${theme.spacing(4)};
   display: flex;
   justify-content: space-between;
+  padding: ${theme.spacing(3)} ${theme.spacing(4)};
 `
 
 const ListLeftWrapper = styled.div`
   display: flex;
+  align-items: center;
 
   &:last-child {
     align-items: flex-end;
