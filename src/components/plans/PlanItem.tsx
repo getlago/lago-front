@@ -56,7 +56,12 @@ export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
 
   return (
     <ItemContainer>
-      <ListItemLink tabIndex={0} to={generatePath(UPDATE_PLAN_ROUTE, { id })} {...navigationProps}>
+      <ListItemLink
+        tabIndex={0}
+        to={generatePath(UPDATE_PLAN_ROUTE, { id })}
+        data-test={name}
+        {...navigationProps}
+      >
         <PlanNameSection>
           <ListAvatar variant="connector">
             <Icon name="board" color="dark" />
@@ -182,6 +187,7 @@ const SmallCell = styled(Typography)`
 
 const ButtonMock = styled.div`
   width: 40px;
+  min-width: 40px;
 `
 
 PlanItem.displayName = 'PlanItem'

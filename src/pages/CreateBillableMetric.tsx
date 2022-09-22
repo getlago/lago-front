@@ -46,6 +46,7 @@ const CreateBillableMetric = () => {
             <ButtonLink
               type="button"
               to={BILLABLE_METRICS_ROUTE}
+              data-test="go-back"
               buttonProps={{ variant: 'secondary' }}
             >
               {translate('text_623dfd731788a100ec660f1a')}

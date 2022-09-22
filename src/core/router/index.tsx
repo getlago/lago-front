@@ -13,6 +13,8 @@ const ForgotPassword = lazy(
   () => import(/* webpackChunkName: 'forgot-password' */ '~/pages/auth/ForgotPassword')
 )
 
+const Invitation = lazy(() => import(/* webpackChunkName: 'invitation' */ '~/pages/Invitation'))
+
 const Developpers = lazy(
   () => import(/* webpackChunkName: 'developpers-layout' */ '~/layouts/Developpers')
 )
@@ -36,6 +38,7 @@ const Integrations = lazy(
 const StripeIntegration = lazy(
   () => import(/* webpackChunkName: 'stripe-integration' */ '~/pages/settings/StripeIntegration')
 )
+const Members = lazy(() => import(/* webpackChunkName: 'members' */ '~/pages/settings/Members'))
 
 const BillableMetricsList = lazy(
   () => import(/* webpackChunkName: 'billable-metrics' */ '~/pages/BillableMetricsList')
@@ -78,6 +81,9 @@ export const FORGOT_PASSWORD_ROUTE = '/forgot-password'
 export const SIGN_UP_ROUTE = '/sign-up'
 export const HOME_ROUTE = '/'
 
+// Invitation route
+export const INVITATION_ROUTE = '/invitation/:token'
+
 // Billable metrics routes
 export const BILLABLE_METRICS_ROUTE = '/billable-metrics'
 export const CREATE_BILLABLE_METRIC_ROUTE = '/create/billable-metrics'
@@ -117,6 +123,7 @@ export const VAT_RATE_ROUTE = `${SETTINGS_ROUTE}/tax-rate`
 export const ORGANIZATION_INFORMATIONS_ROUTE = `${SETTINGS_ROUTE}/organization-informations`
 export const INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
 export const STRIPE_INTEGRATION_ROUTE = `${SETTINGS_ROUTE}/integrations/stripe`
+export const MEMBERS_ROUTE = `${SETTINGS_ROUTE}/members`
 
 // *********************** Route Available only on dev mode
 const DesignSystem = lazy(
@@ -183,6 +190,11 @@ export const routes: CustomRouteObject[] = [
             path: INTEGRATIONS_ROUTE,
             private: true,
             element: <Integrations />,
+          },
+          {
+            path: MEMBERS_ROUTE,
+            private: true,
+            element: <Members />,
           },
         ],
       },
@@ -265,4 +277,9 @@ export const routes: CustomRouteObject[] = [
         },
       ]
     : []),
+  {
+    path: INVITATION_ROUTE,
+    element: <Invitation />,
+    onlyPublic: true,
+  },
 ]

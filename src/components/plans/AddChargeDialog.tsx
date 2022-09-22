@@ -75,6 +75,7 @@ export const AddChargeDialog = forwardRef<DialogRef, AddChargeDialogProps>(
               {translate('text_6244277fe0975300fe3fb94a')}
             </Button>
             <Button
+              data-test="submit-add-charge"
               disabled={!selectedId}
               onClick={async () => {
                 const selectedItem = data?.billableMetrics?.collection.find(
@@ -95,6 +96,7 @@ export const AddChargeDialog = forwardRef<DialogRef, AddChargeDialogProps>(
           label={translate('text_624c5eadff7db800acc4c995')}
           value={selectedId}
           data={billableMetrics}
+          name="billableMetricId"
           loading={loading}
           loadingText={translate('text_6246b6bc6b25f500b779aa84')}
           placeholder={translate('text_6246b6bc6b25f500b779aa6e')}

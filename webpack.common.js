@@ -30,7 +30,7 @@ module.exports = () => {
         APP_ENV: JSON.stringify(APP_ENV),
         API_URL: JSON.stringify(process.env.API_URL),
         APP_VERSION: JSON.stringify(version),
-        LAGO_SIGNUP_DISABLED: process.env.LAGO_SIGNUP_DISABLED,
+        LAGO_DISABLE_SIGNUP: process.env.LAGO_DISABLE_SIGNUP,
       }),
     ],
   }

@@ -49,7 +49,12 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
 
   return (
     <ItemContainer>
-      <Item id={rowId} to={generatePath(CUSTOMER_DETAILS_ROUTE, { id })} tabIndex={0}>
+      <Item
+        id={rowId}
+        to={generatePath(CUSTOMER_DETAILS_ROUTE, { id })}
+        tabIndex={0}
+        data-test={name}
+      >
         <CustomerNameSection>
           <ListAvatar
             variant="user"

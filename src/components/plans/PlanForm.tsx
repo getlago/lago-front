@@ -417,6 +417,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                     <Button
                       startIcon="plus"
                       variant="quaternary"
+                      data-test="add-charge"
                       onClick={() => addChargeDialogRef.current?.openDialog()}
                     >
                       {translate('text_624453d52e945301380e49d2')}
@@ -448,6 +449,7 @@ export const PlanForm = ({ loading, plan, children, onSave, isEdition }: PlanFor
                     fullWidth
                     size="large"
                     onClick={formikProps.submitForm}
+                    data-test="submit"
                   >
                     {translate(
                       isEdition ? 'text_625fd165963a7b00c8f598aa' : 'text_62ff5d01a306e274d4ffcc75'

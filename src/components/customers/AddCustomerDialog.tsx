@@ -173,6 +173,7 @@ export const AddCustomerDialog = forwardRef<DialogRef, AddCustomerDialogProps>(
             <Button
               disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
               loading={formikProps.isSubmitting}
+              data-test="submit"
               onClick={formikProps.submitForm}
             >
               {translate(
