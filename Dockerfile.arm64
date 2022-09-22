@@ -8,6 +8,7 @@ ARG API_URL
 
 ENV API_URL $API_URL
 
+RUN npm config rm proxy && npm config rm https-proxy
 RUN yarn && yarn build && npm prune --production
 
 FROM arm64v8/nginx:1.23-alpine
