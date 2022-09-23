@@ -1,5 +1,6 @@
 import { forwardRef, MutableRefObject, useRef } from 'react'
 import { gql } from '@apollo/client'
+import styled from 'styled-components'
 
 import { Button, InfiniteScroll, Popper, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -14,7 +15,7 @@ import {
   WalletInfosForTransactionsFragmentDoc,
   WalletStatusEnum,
 } from '~/generated/graphql'
-import { MenuPopper } from '~/styles'
+import { MenuPopper, theme } from '~/styles'
 
 import { AddWalletToCustomerDialogRef } from './AddWalletToCustomerDialog'
 import { WalletAccordion, WalletAccordionSkeleton } from './WalletAccordion'
@@ -59,13 +60,12 @@ gql`
 interface CustommerWalletListProps {
   customerId: string
   hasActiveWallet: boolean
-  hasActiveSubscription: boolean
 }
 
 export const CustomerWalletsList = forwardRef<
   AddWalletToCustomerDialogRef,
   CustommerWalletListProps
->(({ customerId, hasActiveWallet, hasActiveSubscription }: CustommerWalletListProps, ref) => {
+>(({ customerId, hasActiveWallet }: CustommerWalletListProps, ref) => {
   const { translate } = useInternationalization()
   const updateCustomerWalletDialogRef = useRef<UpdateCustomerWalletDialogRef>(null)
   const terminateCustomerWalletDialogRef = useRef<TerminateCustomerWalletDialogRef>(null)
@@ -97,7 +97,6 @@ export const CustomerWalletsList = forwardRef<
         {!hasActiveWallet ? (
           <Button
             variant="quaternary"
-            disabled={!hasActiveSubscription}
             onClick={() =>
               (ref as MutableRefObject<AddWalletToCustomerDialogRef>)?.current?.openDialog()
             }
@@ -152,11 +151,11 @@ export const CustomerWalletsList = forwardRef<
       </SectionHeader>
 
       {!!loading ? (
-        <>
+        <WalletList>
           {[1, 2, 3].map((i) => (
             <WalletAccordionSkeleton key={`customer-wallet-skeleton-${i}`} />
           ))}
-        </>
+        </WalletList>
       ) : !loading && !!hasNoWallet ? (
         <Typography>{translate('text_62d175066d2dbf1d50bc9386')}</Typography>
       ) : (
@@ -171,7 +170,7 @@ export const CustomerWalletsList = forwardRef<
               })
           }}
         >
-          <>
+          <WalletList>
             {list.map((wallet) => (
               <WalletAccordion
                 key={`wallet-${wallet.id}`}
@@ -179,7 +178,7 @@ export const CustomerWalletsList = forwardRef<
                 ref={topupWalletDialogRef}
               />
             ))}
-          </>
+          </WalletList>
         </InfiniteScroll>
       )}
 
@@ -196,5 +195,11 @@ export const CustomerWalletsList = forwardRef<
     </SideSection>
   )
 })
+
+const WalletList = styled.div`
+  > * {
+    margin-bottom: ${theme.spacing(4)};
+  }
+`
 
 CustomerWalletsList.displayName = 'CustomerWalletsList'

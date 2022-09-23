@@ -9,7 +9,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import EmptyImage from '~/public/images/maneki/empty.svg'
-import { AddCustomerDialog, AddCustomerDialogRef } from '~/components/customers/AddCustomerDialog'
+import { AddCustomerDrawer, AddCustomerDrawerRef } from '~/components/customers/AddCustomerDrawer'
 import { CustomerItemSkeleton, CustomerItem } from '~/components/customers/CustomerItem'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 
@@ -30,7 +30,7 @@ gql`
 `
 
 const CustomersList = () => {
-  const addCustomerDialogRef = useRef<AddCustomerDialogRef>(null)
+  const addCustomerDrawerRef = useRef<AddCustomerDrawerRef>(null)
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `customer-item-${i}`,
   })
@@ -50,7 +50,7 @@ const CustomersList = () => {
         </Typography>
         <Button
           data-test="create-customer"
-          onClick={() => addCustomerDialogRef.current?.openDialog()}
+          onClick={() => addCustomerDrawerRef.current?.openDrawer()}
         >
           {translate('text_624efab67eb2570101d117bc')}
         </Button>
@@ -71,7 +71,7 @@ const CustomersList = () => {
           subtitle={translate('text_624efab67eb2570101d117af')}
           buttonTitle={translate('text_624efab67eb2570101d117b9')}
           buttonVariant="primary"
-          buttonAction={() => addCustomerDialogRef.current?.openDialog()}
+          buttonAction={() => addCustomerDrawerRef.current?.openDrawer()}
           image={<EmptyImage width="136" height="104" />}
         />
       ) : (
@@ -122,7 +122,7 @@ const CustomersList = () => {
         </ListContainer>
       )}
 
-      <AddCustomerDialog ref={addCustomerDialogRef} />
+      <AddCustomerDrawer ref={addCustomerDrawerRef} />
     </div>
   )
 }

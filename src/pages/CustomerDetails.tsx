@@ -23,14 +23,13 @@ import {
   useGetCustomerQuery,
   CustomerSubscriptionListFragmentDoc,
   CustomerInvoiceListFragmentDoc,
-  AddCustomerDialogDetailFragmentDoc,
+  AddCustomerDrawerDetailFragmentDoc,
   CustomerVatRateFragmentDoc,
   CustomerVatRateFragment,
   CustomerCouponFragmentDoc,
   CustomerMainInfosFragmentDoc,
   CustomerAddOnsFragmentDoc,
   CustomerUsageSubscriptionFragmentDoc,
-  StatusTypeEnum,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -44,7 +43,7 @@ import {
   DeleteCustomerDialog,
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
-import { AddCustomerDialog, AddCustomerDialogRef } from '~/components/customers/AddCustomerDialog'
+import { AddCustomerDrawer, AddCustomerDrawerRef } from '~/components/customers/AddCustomerDrawer'
 import { CustomerCoupons } from '~/components/customers/CustomerCoupons'
 import { CustomerAddOns } from '~/components/customers/CustomerAddOns'
 import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
@@ -73,6 +72,7 @@ gql`
     externalId
     canBeDeleted
     hasActiveWallet
+    currency
     subscriptions(status: [active]) {
       plan {
         id
@@ -91,7 +91,7 @@ gql`
       ...CustomerAddOns
     }
     ...CustomerVatRate
-    ...AddCustomerDialogDetail
+    ...AddCustomerDrawerDetail
     ...CustomerMainInfos
   }
 
@@ -103,7 +103,7 @@ gql`
 
   ${CustomerSubscriptionListFragmentDoc}
   ${CustomerInvoiceListFragmentDoc}
-  ${AddCustomerDialogDetailFragmentDoc}
+  ${AddCustomerDrawerDetailFragmentDoc}
   ${CustomerVatRateFragmentDoc}
   ${CustomerCouponFragmentDoc}
   ${CustomerAddOnsFragmentDoc}
@@ -121,7 +121,7 @@ enum TabsOptions {
 
 const CustomerDetails = () => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
-  const editDialogRef = useRef<AddCustomerDialogRef>(null)
+  const editDialogRef = useRef<AddCustomerDrawerRef>(null)
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
   const addOnDialogRef = useRef<AddAddOnToCustomerDialogRef>(null)
   const subscriptionsDialogRef = useRef<AddSubscriptionDrawerRef>(null)
@@ -144,11 +144,6 @@ const CustomerDetails = () => {
     subscriptions,
   } = data?.customer || {}
   const hasSubscription = !!(subscriptions || []).length
-  const hasActiveSubscription = !!(subscriptions || []).find(
-    (subscription) => subscription.status === StatusTypeEnum.Active
-  )
-
-  const userCurrency = (subscriptions || [])[0]?.plan?.amountCurrency
 
   return (
     <div>
@@ -189,7 +184,7 @@ const CustomerDetails = () => {
                 variant="quaternary"
                 align="left"
                 onClick={() => {
-                  editDialogRef.current?.openDialog()
+                  editDialogRef.current?.openDrawer()
                   closePopper()
                 }}
               >
@@ -198,7 +193,6 @@ const CustomerDetails = () => {
               <Button
                 variant="quaternary"
                 align="left"
-                disabled={!hasSubscription}
                 onClick={() => {
                   addOnDialogRef.current?.openDialog()
                   closePopper()
@@ -209,7 +203,7 @@ const CustomerDetails = () => {
               <Button
                 variant="quaternary"
                 align="left"
-                disabled={!hasSubscription || (appliedCoupons || []).length > 0}
+                disabled={(appliedCoupons || []).length > 0}
                 onClick={() => {
                   addCouponDialogRef.current?.openDialog()
                   closePopper()
@@ -220,7 +214,7 @@ const CustomerDetails = () => {
               <Button
                 variant="quaternary"
                 align="left"
-                disabled={!hasSubscription || !!hasActiveWallet}
+                disabled={!!hasActiveWallet}
                 onClick={() => {
                   addWalletToCustomerDialogRef.current?.openDialog()
                   closePopper()
@@ -298,7 +292,7 @@ const CustomerDetails = () => {
               <CustomerMainInfos
                 loading={loading}
                 customer={data?.customer}
-                onEdit={editDialogRef.current?.openDialog}
+                onEdit={editDialogRef.current?.openDrawer}
               />
               <div>
                 <NavigationTab
@@ -347,7 +341,6 @@ const CustomerDetails = () => {
                             ref={addWalletToCustomerDialogRef}
                             customerId={id as string}
                             hasActiveWallet={!!hasActiveWallet}
-                            hasActiveSubscription={hasActiveSubscription}
                           />
                         </SideBlock>
                       ),
@@ -413,7 +406,7 @@ const CustomerDetails = () => {
               </div>
             </Infos>
           </Content>
-          <AddCustomerDialog ref={editDialogRef} customer={data?.customer} />
+          <AddCustomerDrawer ref={editDialogRef} customer={data?.customer} />
           <DeleteCustomerDialog
             ref={deleteDialogRef}
             onDeleted={() => navigate(CUSTOMERS_LIST_ROUTE)}
@@ -427,13 +420,11 @@ const CustomerDetails = () => {
             customerName={name as string}
             customerId={id as string}
           />
-          {!!userCurrency && (
-            <AddWalletToCustomerDialog
-              customerId={id as string}
-              userCurrency={userCurrency}
-              ref={addWalletToCustomerDialogRef}
-            />
-          )}
+          <AddWalletToCustomerDialog
+            customerId={id as string}
+            userCurrency={data?.customer?.currency || undefined}
+            ref={addWalletToCustomerDialogRef}
+          />
         </>
       )}
     </div>

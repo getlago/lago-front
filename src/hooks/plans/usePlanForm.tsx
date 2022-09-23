@@ -24,7 +24,7 @@ import { ERROR_404_ROUTE, PLANS_ROUTE, CUSTOMER_DETAILS_ROUTE } from '~/core/rou
 import { serializePlanInput } from '~/core/serializers'
 
 export enum FORM_ERRORS_ENUM {
-  existingCode = 'existingCome',
+  existingCode = 'existingCode',
 }
 
 gql`
