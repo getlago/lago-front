@@ -18,8 +18,7 @@ gql`
     legalNumber
     phone
     email
-    logoUrl
-    url
+    currency
     addressLine1
     addressLine2
     state
@@ -38,12 +37,6 @@ interface CustomerMainInfosProps {
   loading?: boolean
   customer?: CustomerMainInfosFragment | null
   onEdit?: () => unknown
-}
-
-const formatUrl: (url: string) => string = (url) => {
-  if (url.length < 16) return url
-
-  return url.slice(0, 10) + '...' + url.slice(-6)
 }
 
 export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInfosProps) => {
@@ -73,8 +66,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     legalNumber,
     phone,
     email,
-    logoUrl,
-    url,
+    currency,
     addressLine1,
     addressLine2,
     state,
@@ -105,6 +97,12 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
         <Typography variant="caption">{translate('text_6250304370f0f700a8fdc283')}</Typography>
         <Typography color="textSecondary">{externalId}</Typography>
       </div>
+      {currency && (
+        <div>
+          <Typography variant="caption">{translate('text_632b4acf0c41206cbcb8c324')}</Typography>
+          <Typography color="textSecondary">{currency}</Typography>
+        </div>
+      )}
       {legalName && (
         <div>
           <Typography variant="caption">{translate('text_626c0c301a16a600ea061471')}</Typography>
@@ -127,22 +125,6 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
         <div>
           <Typography variant="caption">{translate('text_626c0c301a16a600ea06147d')}</Typography>
           <Typography color="textSecondary">{phone}</Typography>
-        </div>
-      )}
-      {url && (
-        <div>
-          <Typography variant="caption">{translate('text_626c0c301a16a600ea061481')}</Typography>
-          <Typography>
-            <a href={url}>{formatUrl(url)}</a>
-          </Typography>
-        </div>
-      )}
-      {logoUrl && (
-        <div>
-          <Typography variant="caption">{translate('text_626c0c301a16a600ea061485')}</Typography>
-          <Typography>
-            <a href={logoUrl}>{formatUrl(logoUrl)}</a>
-          </Typography>
         </div>
       )}
       {(addressLine1 || addressLine2 || state || country || city || zipcode) && (

@@ -1,4 +1,4 @@
-import { forwardRef, useMemo, RefObject } from 'react'
+import { forwardRef, useMemo, RefObject, useState } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { object, string, number } from 'yup'
@@ -53,15 +53,13 @@ export const AddCouponToCustomerDialog = forwardRef<
   AddCouponToCustomerDialogProps
 >(({ customerId }: AddCouponToCustomerDialogProps, ref) => {
   const { translate } = useInternationalization()
+  const [currencyError, setCurrencyError] = useState(false)
   const [getCoupons, { loading, data }] = useGetCouponForCustomerLazyQuery({
     variables: { limit: 50, status: CouponStatusEnum.Active },
   })
   const [addCoupon] = useAddCouponMutation({
     context: {
-      silentErrorCodes: [
-        Lago_Api_Error.CouponAlreadyApplied,
-        Lago_Api_Error.CurrenciesDoesNotMatch,
-      ],
+      silentErrorCodes: [Lago_Api_Error.CouponAlreadyApplied, Lago_Api_Error.UnprocessableEntity],
     },
     onCompleted({ createAppliedCoupon }) {
       if (createAppliedCoupon) {
@@ -85,6 +83,7 @@ export const AddCouponToCustomerDialog = forwardRef<
       couponId: string().required(''),
     }),
     validateOnMount: true,
+    enableReinitialize: true,
     onSubmit: async ({ amountCents, ...values }, formikBag) => {
       const answer = await addCoupon({
         variables: {
@@ -102,11 +101,15 @@ export const AddCouponToCustomerDialog = forwardRef<
 
       if (!!error && error?.code === Lago_Api_Error.CouponAlreadyApplied) {
         formikBag.setFieldError('couponId', translate('text_628b8c693e464200e00e46c5'))
-      } else if (!!error && error?.code === Lago_Api_Error.CurrenciesDoesNotMatch) {
-        formikBag.setFieldError('amountCurrency', translate('text_628b8c693e464200e00e46c3'))
+      } else if (
+        !!error &&
+        error?.details?.currency.includes(Lago_Api_Error.CurrenciesDoesNotMatch)
+      ) {
+        setCurrencyError(true)
       } else {
         ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()
         formikBag.resetForm()
+        setCurrencyError(false)
       }
     },
   })
@@ -137,8 +140,6 @@ export const AddCouponToCustomerDialog = forwardRef<
     })
   }, [data, translate])
 
-  const error = formikProps.errors?.couponId || formikProps.errors?.amountCurrency
-
   return (
     <Dialog
       ref={ref}
@@ -157,6 +158,7 @@ export const AddCouponToCustomerDialog = forwardRef<
             onClick={() => {
               closeDialog()
               formikProps.resetForm()
+              setCurrencyError(false)
             }}
           >
             {translate('text_628b8c693e464200e00e4693')}
@@ -211,7 +213,12 @@ export const AddCouponToCustomerDialog = forwardRef<
             />
           </LineAmount>
         )}
-        {!!error && <Alert type="danger">{error}</Alert>}
+        {!!formikProps.errors?.couponId && (
+          <Alert type="danger">{formikProps.errors?.couponId}</Alert>
+        )}
+        {!!currencyError && (
+          <Alert type="danger">{translate('text_632c88c97af78294bc02ea9d')}</Alert>
+        )}
       </Container>
     </Dialog>
   )

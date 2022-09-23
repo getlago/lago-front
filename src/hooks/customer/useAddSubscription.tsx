@@ -43,16 +43,12 @@ gql`
   ${CustomerSubscriptionListFragmentDoc}
 `
 
-export enum FORM_ERROR_ENUM {
-  currencyError = 'currencyError',
-}
-
 interface UseAddSubscriptionReturn {
   loading: boolean
   comboboxPlansData: ComboBoxProps['data']
   selectedPlan?: AddSubscriptionPlanFragment
   billingTimeHelper?: string
-  errorCode?: FORM_ERROR_ENUM
+  errorCode?: Lago_Api_Error
   onOpenDrawer: () => void
   onCreate: (
     customerId: string,
@@ -75,7 +71,7 @@ export const useAddSubscription: UseAddSubscription = ({
   const { translate } = useInternationalization()
   const [create, { error }] = useCreateSubscriptionMutation({
     context: {
-      silentErrorCodes: [Lago_Api_Error.CurrenciesDoesNotMatch],
+      silentErrorCodes: [Lago_Api_Error.UnprocessableEntity],
     },
     onCompleted: async ({ createSubscription }) => {
       if (!!createSubscription) {
@@ -152,11 +148,11 @@ export const useAddSubscription: UseAddSubscription = ({
             : translate('text_62ea7cd44cd4b14bb9ac1da2', { day: currentDate.weekdayLong })
       }
     }, [selectedPlan, billingTime, translate]),
-    errorCode:
-      ((error?.graphQLErrors || [])[0]?.extensions as LagoGQLError['extensions'])?.code ===
-      Lago_Api_Error.CurrenciesDoesNotMatch
-        ? FORM_ERROR_ENUM.currencyError
-        : undefined,
+    errorCode: (
+      (error?.graphQLErrors || [])[0]?.extensions as LagoGQLError['extensions']
+    )?.details?.currency.includes(Lago_Api_Error.CurrenciesDoesNotMatch)
+      ? Lago_Api_Error.CurrenciesDoesNotMatch
+      : undefined,
     onOpenDrawer: () => {
       !loading && getPlans()
     },
@@ -176,8 +172,9 @@ export const useAddSubscription: UseAddSubscription = ({
 
       if (
         !errors ||
-        (errors[0]?.extensions as LagoGQLError['extensions'])?.code !==
+        !(errors[0]?.extensions as LagoGQLError['extensions'])?.details?.currency.includes(
           Lago_Api_Error.CurrenciesDoesNotMatch
+        )
       ) {
         return true
       }

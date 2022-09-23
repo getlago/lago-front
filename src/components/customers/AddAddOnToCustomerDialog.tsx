@@ -1,4 +1,4 @@
-import { forwardRef, useMemo, RefObject } from 'react'
+import { forwardRef, useMemo, RefObject, useState } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { object, string, number } from 'yup'
@@ -51,13 +51,14 @@ export const AddAddOnToCustomerDialog = forwardRef<
   AddAddOnToCustomerDialogRef,
   AddAddOnToCustomerDialogProps
 >(({ customerId }: AddAddOnToCustomerDialogProps, ref) => {
+  const [currencyError, setCurrencyError] = useState(false)
   const { translate } = useInternationalization()
   const [getAddOns, { loading, data }] = useGetAddOnsForCustomerLazyQuery({
     variables: { limit: 50 },
   })
   const [addCoupon] = useAddAddOnMutation({
     context: {
-      silentErrorCodes: [Lago_Api_Error.CurrenciesDoesNotMatch],
+      silentErrorCodes: [Lago_Api_Error.UnprocessableEntity],
     },
     onCompleted({ createAppliedAddOn }) {
       if (createAppliedAddOn) {
@@ -96,11 +97,12 @@ export const AddAddOnToCustomerDialog = forwardRef<
       const { errors } = answer
       const error = !errors ? undefined : (errors[0]?.extensions as LagoGQLError['extensions'])
 
-      if (!!error && error?.code === Lago_Api_Error.CurrenciesDoesNotMatch) {
-        formikBag.setFieldError('amountCurrency', translate('text_629781ec7c6c1500d94fbb18'))
+      if (!!error && error?.details?.currency.includes(Lago_Api_Error.CurrenciesDoesNotMatch)) {
+        setCurrencyError(true)
       } else {
         ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()
         formikBag.resetForm()
+        setCurrencyError(false)
       }
     },
   })
@@ -131,15 +133,12 @@ export const AddAddOnToCustomerDialog = forwardRef<
     })
   }, [data, translate])
 
-  const error = formikProps.errors?.addOnId || formikProps.errors?.amountCurrency
-
   return (
     <Dialog
       ref={ref}
       title={translate('text_629781ec7c6c1500d94fbb00')}
       description={translate('text_629781ec7c6c1500d94fbb08')}
       onOpen={() => {
-        // TODO get addOns
         if (!loading && !data) {
           getAddOns()
         }
@@ -151,6 +150,7 @@ export const AddAddOnToCustomerDialog = forwardRef<
             onClick={() => {
               closeDialog()
               formikProps.resetForm()
+              setCurrencyError(false)
             }}
           >
             {translate('text_629781ec7c6c1500d94fbb1c')}
@@ -204,7 +204,7 @@ export const AddAddOnToCustomerDialog = forwardRef<
             />
           </LineAmount>
         )}
-        {!!error && <Alert type="danger">{error}</Alert>}
+        {currencyError && <Alert type="danger">{translate('text_632c88c97af78294bc02eaa1')}</Alert>}
       </Container>
     </Dialog>
   )

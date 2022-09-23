@@ -32,7 +32,7 @@ type MuiColor =
   | undefined
 
 interface SimpleButtonProps
-  extends Pick<MuiButtonProps, 'disabled' | 'children' | 'onClick' | 'fullWidth'> {
+  extends Pick<MuiButtonProps, 'disabled' | 'children' | 'onClick' | 'fullWidth' | 'tabIndex'> {
   size?: ButtonSize
   variant?: ButtonVariant
   danger?: boolean

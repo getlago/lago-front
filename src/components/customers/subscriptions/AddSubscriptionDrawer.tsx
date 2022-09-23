@@ -216,7 +216,7 @@ export const AddSubscriptionDrawer = forwardRef<
             )}
 
             {!!errorCode ? (
-              <Alert type="danger">{translate('text_62d904d38619b00b6681a3c6')}</Alert>
+              <Alert type="danger">{translate('text_632dbaf1d577afb32ae751f5')}</Alert>
             ) : (
               !!existingSubscripiton && (
                 <Alert type="info">

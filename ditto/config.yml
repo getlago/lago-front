@@ -73,5 +73,7 @@ projects:
     id: 63208b60a9b2a4c6186bbd26
   - name: '⚙️ [WIP] - Customers - Overwrite subscription per customer'
     id: 6328e70891e49d4d9732180d
+  - name: '⚙️ [WIP] - Customers - Customer hold currency'
+    id: 632b49dccdbed9536c8497ab
 format: flat
 variants: true

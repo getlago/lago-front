@@ -13,14 +13,14 @@ import {
   ItemContainer,
 } from '~/styles'
 import { Avatar, Typography, Skeleton, Popper, Button, Tooltip } from '~/components/designSystem'
-import { CustomerItemFragment, AddCustomerDialogFragmentDoc } from '~/generated/graphql'
+import { CustomerItemFragment, AddCustomerDrawerFragmentDoc } from '~/generated/graphql'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   DeleteCustomerDialog,
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
-import { AddCustomerDialog, AddCustomerDialogRef } from '~/components/customers/AddCustomerDialog'
+import { AddCustomerDrawer, AddCustomerDrawerRef } from '~/components/customers/AddCustomerDrawer'
 
 gql`
   fragment CustomerItem on Customer {
@@ -30,10 +30,10 @@ gql`
     createdAt
     canBeDeleted
     activeSubscriptionCount
-    ...AddCustomerDialog
+    ...AddCustomerDrawer
   }
 
-  ${AddCustomerDialogFragmentDoc}
+  ${AddCustomerDrawerFragmentDoc}
 `
 
 interface CustomerItemProps {
@@ -43,7 +43,7 @@ interface CustomerItemProps {
 
 export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
-  const editDialogRef = useRef<AddCustomerDialogRef>(null)
+  const editDialogRef = useRef<AddCustomerDrawerRef>(null)
   const { id, name, externalId, createdAt, canBeDeleted, activeSubscriptionCount } = customer
   const { translate } = useInternationalization()
 
@@ -100,7 +100,7 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
               variant="quaternary"
               align="left"
               onClick={() => {
-                editDialogRef.current?.openDialog()
+                editDialogRef.current?.openDrawer()
                 closePopper()
               }}
             >
@@ -127,7 +127,7 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
           </MenuPopper>
         )}
       </Popper>
-      <AddCustomerDialog ref={editDialogRef} customer={customer} />
+      <AddCustomerDrawer ref={editDialogRef} customer={customer} />
       <DeleteCustomerDialog ref={deleteDialogRef} customer={customer} />
     </ItemContainer>
   )

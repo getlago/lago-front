@@ -99,7 +99,7 @@ export const SelectorSkeleton = ({ fullWidth = false }: { fullWidth?: boolean } 
 export const SELECTOR_HEIGHT = 72
 
 const MainIcon = styled.div`
-  margin-right: ${theme.spacing(4)};
+  margin-right: ${theme.spacing(3)};
 `
 
 const ICON_CONTAINER_SIZE = 40

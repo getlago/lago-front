@@ -1,6 +1,5 @@
 import { gql, FetchResult } from '@apollo/client'
 import { useNavigate, generatePath } from 'react-router-dom'
-import _omit from 'lodash/omit'
 
 import {
   useCreateCustomerMutation,
@@ -8,12 +7,10 @@ import {
   useUpdateCustomerMutation,
   CreateCustomerInput,
   UpdateCustomerInput,
-  AddCustomerDialogDetailFragmentDoc,
+  AddCustomerDrawerDetailFragmentDoc,
   Lago_Api_Error,
-  useGetBillingInfosLazyQuery,
-  BillingInfosFragment,
-  AddCustomerDialogFragment,
-  AddCustomerDialogDetailFragment,
+  AddCustomerDrawerFragment,
+  AddCustomerDrawerDetailFragment,
   UpdateCustomerMutation,
   CreateCustomerMutation,
 } from '~/generated/graphql'
@@ -22,7 +19,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 
 gql`
-  fragment AddCustomerDialog on Customer {
+  fragment AddCustomerDrawer on Customer {
     id
     name
     externalId
@@ -31,12 +28,12 @@ gql`
     legalNumber
     phone
     email
-    logoUrl
-    url
     addressLine1
     addressLine2
     state
     country
+    currency
+    canEditAttributes
     city
     zipcode
     paymentProvider
@@ -46,7 +43,7 @@ gql`
     }
   }
 
-  fragment AddCustomerDialogDetail on CustomerDetails {
+  fragment AddCustomerDrawerDetail on CustomerDetails {
     id
     name
     externalId
@@ -55,8 +52,8 @@ gql`
     legalNumber
     phone
     email
-    logoUrl
-    url
+    currency
+    canEditAttributes
     addressLine1
     addressLine2
     state
@@ -67,46 +64,19 @@ gql`
     stripeCustomer {
       id
       providerCustomerId
-    }
-  }
-
-  fragment BillingInfos on CustomerDetails {
-    id
-    legalName
-    legalNumber
-    phone
-    email
-    logoUrl
-    url
-    addressLine1
-    addressLine2
-    state
-    country
-    city
-    zipcode
-    paymentProvider
-    stripeCustomer {
-      id
-      providerCustomerId
-    }
-  }
-
-  query getBillingInfos($id: ID!) {
-    customer(id: $id) {
-      ...BillingInfos
     }
   }
 
   mutation createCustomer($input: CreateCustomerInput!) {
     createCustomer(input: $input) {
-      ...AddCustomerDialog
+      ...AddCustomerDrawer
       ...CustomerItem
     }
   }
 
   mutation updateCustomer($input: UpdateCustomerInput!) {
     updateCustomer(input: $input) {
-      ...AddCustomerDialog
+      ...AddCustomerDrawer
       ...CustomerItem
     }
   }
@@ -115,18 +85,15 @@ gql`
 `
 
 type UseCreateEditCustomer = (props: {
-  customer?: AddCustomerDialogFragment | AddCustomerDialogDetailFragment | null
+  customer?: AddCustomerDrawerFragment | AddCustomerDrawerDetailFragment | null
 }) => {
-  loading: boolean
   isEdition: boolean
-  billingInfos?: BillingInfosFragment | null
   onSave: (
     values: CreateCustomerInput | UpdateCustomerInput
   ) => Promise<
     | FetchResult<UpdateCustomerMutation, Record<string, unknown>, Record<string, unknown>>
     | FetchResult<CreateCustomerMutation, Record<string, unknown>, Record<string, unknown>>
   >
-  loadBillingInfos?: () => void
 }
 
 export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
@@ -159,36 +126,36 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
 
       cache.writeFragment({
         data: { ...data?.updateCustomer, __typename: 'CustomerDetails' },
-        fragment: AddCustomerDialogDetailFragmentDoc,
+        fragment: AddCustomerDrawerDetailFragmentDoc,
       })
     },
-  })
-  const [getBillingInfos, { loading, data }] = useGetBillingInfosLazyQuery({
-    variables: { id: customer?.id as string },
   })
 
   return {
     isEdition: !!customer,
-    loading,
-    billingInfos: data?.customer,
-    loadBillingInfos: !!customer ? getBillingInfos : undefined,
     onSave: !!customer
-      ? async ({ stripeCustomer, ...values }) =>
+      ? async ({ stripeCustomer, paymentProvider, ...values }) =>
           await update({
             variables: {
               input: {
                 id: customer?.id as string,
-                stripeCustomer: { ..._omit(stripeCustomer, 'id') },
+                paymentProvider,
+                stripeCustomer: {
+                  providerCustomerId: !paymentProvider ? null : stripeCustomer?.providerCustomerId,
+                },
                 ...values,
               },
             },
           })
-      : async ({ stripeCustomer, ...values }) =>
+      : async ({ stripeCustomer, paymentProvider, ...values }) =>
           await create({
             variables: {
               input: {
                 ...values,
-                stripeCustomer: { ..._omit(stripeCustomer, 'id') },
+                paymentProvider,
+                stripeCustomer: {
+                  providerCustomerId: !paymentProvider ? null : stripeCustomer?.providerCustomerId,
+                },
               },
             },
           }),

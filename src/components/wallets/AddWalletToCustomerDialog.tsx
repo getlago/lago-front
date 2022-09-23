@@ -1,4 +1,4 @@
-import { forwardRef } from 'react'
+import { forwardRef, RefObject, useState } from 'react'
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { object, string, date } from 'yup'
@@ -7,14 +7,15 @@ import { DateTime } from 'luxon'
 
 import { theme } from '~/styles'
 import { Alert, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
-import { DatePickerField, TextInput, TextInputField } from '~/components/form'
+import { DatePickerField, TextInput, TextInputField, ComboBoxField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   CreateCustomerWalletInput,
   CurrencyEnum,
   useCreateCustomerWalletMutation,
+  Lago_Api_Error,
 } from '~/generated/graphql'
-import { addToast } from '~/core/apolloClient'
+import { addToast, LagoGQLError } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
 
 gql`
@@ -29,13 +30,17 @@ export interface AddWalletToCustomerDialogRef extends DialogRef {}
 
 interface AddWalletToCustomerDialogProps {
   customerId: string
-  userCurrency: CurrencyEnum
+  userCurrency?: CurrencyEnum
 }
 
 export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustomerDialogProps>(
   ({ customerId, userCurrency }: AddWalletToCustomerDialogProps, ref) => {
     const { translate } = useInternationalization()
+    const [currencyError, setCurrencyError] = useState(false)
     const [createWallet] = useCreateCustomerWalletMutation({
+      context: {
+        silentErrorCodes: [Lago_Api_Error.UnprocessableEntity],
+      },
       onCompleted(res) {
         if (res?.createCustomerWallet) {
           addToast({
@@ -52,6 +57,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
         grantedCredits: '',
         name: '',
         paidCredits: '',
+        currency: userCurrency || CurrencyEnum.Usd,
         rateAmount: '1.00',
       },
       validationSchema: object().shape({
@@ -79,8 +85,9 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
         rateAmount: string().required(''),
       }),
       validateOnMount: true,
-      onSubmit: async ({ grantedCredits, paidCredits, ...values }) => {
-        await createWallet({
+      enableReinitialize: true,
+      onSubmit: async ({ grantedCredits, paidCredits, ...values }, formikBag) => {
+        const { errors } = await createWallet({
           variables: {
             input: {
               customerId,
@@ -91,6 +98,19 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
           },
           refetchQueries: ['getCustomer', 'getCustomerWalletList'],
         })
+
+        if (
+          !errors ||
+          !(errors[0]?.extensions as LagoGQLError['extensions'])?.details?.currency.includes(
+            Lago_Api_Error.CurrenciesDoesNotMatch
+          )
+        ) {
+          ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()
+          formikBag.resetForm()
+          setCurrencyError(false)
+        } else {
+          setCurrencyError(true)
+        }
       },
     })
 
@@ -102,6 +122,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
         onClickAway={() => {
           formikProps.resetForm()
           formikProps.validateForm()
+          setCurrencyError(false)
         }}
         actions={({ closeDialog }) => (
           <>
@@ -119,8 +140,6 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
               disabled={!formikProps.isValid}
               onClick={async () => {
                 await formikProps.submitForm()
-                closeDialog()
-                formikProps.resetForm()
               }}
             >
               {translate(
@@ -147,20 +166,24 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
               disabled={true}
             />
             <TextInput value="=" disabled={true} />
-            <TextInputField
-              name="rateAmount"
-              beforeChangeFormatter={['positiveNumber', 'decimal']}
-              label={translate('text_62d18855b22699e5cf55f87d')}
-              placeholder={translate('text_62d18855b22699e5cf55f87f')}
-              formikProps={formikProps}
-              InputProps={{
-                endAdornment: (
-                  <InputEnd variant="body" color="textSecondary">
-                    {userCurrency}
-                  </InputEnd>
-                ),
-              }}
-            />
+            <LineAmount>
+              <TextInputField
+                name="rateAmount"
+                beforeChangeFormatter={['positiveNumber', 'decimal']}
+                label={translate('text_62d18855b22699e5cf55f87d')}
+                placeholder={translate('text_62d18855b22699e5cf55f87f')}
+                formikProps={formikProps}
+              />
+              <ComboBoxField
+                name="currency"
+                data={Object.values(CurrencyEnum).map((currencyType) => ({
+                  value: currencyType,
+                }))}
+                disableClearable
+                formikProps={formikProps}
+                PopperProps={{ displayInDialog: true }}
+              />
+            </LineAmount>
           </InlineFields>
 
           <TextInputField
@@ -179,7 +202,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
                       100,
                 {
                   currencyDisplay: 'code',
-                  currency: userCurrency,
+                  currency: formikProps?.values?.currency || CurrencyEnum.Usd,
                 }
               ),
             })}
@@ -208,7 +231,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
                       100,
                 {
                   currencyDisplay: 'code',
-                  currency: userCurrency,
+                  currency: formikProps?.values?.currency || CurrencyEnum.Usd,
                 }
               ),
             })}
@@ -244,6 +267,10 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
             formikProps={formikProps}
           />
         </Content>
+
+        {currencyError && (
+          <StyledAlert type="danger">{translate('text_632c88c97af78294bc02eb29')}</StyledAlert>
+        )}
       </Dialog>
     )
   }
@@ -286,6 +313,24 @@ const InlineFields = styled.div`
 
 const InputEnd = styled(Typography)`
   margin-right: ${theme.spacing(4)};
+`
+
+const LineAmount = styled.div`
+  display: flex;
+
+  > *:first-child {
+    margin-right: ${theme.spacing(3)};
+    flex: 1;
+  }
+
+  > *:last-child {
+    max-width: 120px;
+    margin-top: 24px;
+  }
+`
+
+const StyledAlert = styled(Alert)`
+  margin-bottom: ${theme.spacing(8)};
 `
 
 AddWalletToCustomerDialog.displayName = 'AddWalletToCustomerDialog'
