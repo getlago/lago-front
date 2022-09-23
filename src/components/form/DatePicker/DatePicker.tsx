@@ -92,9 +92,9 @@ export const DatePicker = ({
                     // Removes the input width and twice the picker icon "box" (24*2)
                     if (placement.includes('left')) {
                       return [0, -(reference.width - 48)]
-                    } else {
-                      return [0, 8]
                     }
+
+                    return [0, 8]
                   },
                 },
               },
