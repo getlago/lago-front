@@ -3,7 +3,7 @@ declare type AppEnvEnum = import('./src/globalTypes').AppEnvEnum
 declare var APP_ENV: AppEnvEnum
 declare var API_URL: string;
 declare var APP_VERSION: string;
-declare var LAGO_DISABLE_SIGNUP: boolean;
+declare var LAGO_DISABLE_SIGNUP: string;
 
 declare module "*.svg" {
   const content: any;
