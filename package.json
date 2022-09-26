@@ -59,7 +59,7 @@
     "@types/lodash": "4.14.185",
     "@types/luxon": "3.0.1",
     "@types/prismjs": "1.26.0",
-    "@types/react": "18.0.20",
+    "@types/react": "18.0.21",
     "@types/react-dom": "18.0.6",
     "@types/react-router-dom": "5.3.3",
     "@types/react-window": "1.8.5",
