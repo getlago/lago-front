@@ -132,7 +132,7 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
           updateOverwritePlanVar({
             subscriptionInput: { ...subscriptionInput, planId: createPlan?.id },
           })
-          navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: customerId }))
+          navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: customerId as string }))
         } else {
           setIsCreated(true)
         }
@@ -206,7 +206,7 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
             },
       onClose: () => {
         if (type === PLAN_FORM_TYPE_ENUM.override) {
-          navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: customerId }))
+          navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: customerId as string }))
         } else {
           navigate(PLANS_ROUTE)
         }

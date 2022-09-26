@@ -311,7 +311,7 @@ const CustomerDetails = () => {
                           tab: TabsOptions.overview,
                         }),
                         generatePath(CUSTOMER_DETAILS_ROUTE, {
-                          id,
+                          id: id as string,
                         }),
                       ],
                       component: (
