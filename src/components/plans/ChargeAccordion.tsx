@@ -1,6 +1,7 @@
 import { useCallback, MouseEvent } from 'react'
 import { FormikProps } from 'formik'
 import styled from 'styled-components'
+import { InputAdornment } from '@mui/material'
 
 import { theme } from '~/styles'
 import { Button, Typography, Tooltip, Accordion } from '~/components/designSystem'
@@ -10,6 +11,7 @@ import { ComboBox, TextInput } from '~/components/form'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
+import { getCurrencySymbol } from '~/core/intlFormatNumber'
 
 import { PlanFormInput } from './types'
 import { VolumeChargeTable } from './VolumeChargeTable'
@@ -126,27 +128,20 @@ export const ChargeAccordion = ({
         />
 
         {localCharge.chargeModel === ChargeModelEnum.Standard && (
-          <LineAmount>
-            <TextInput
-              name="amount"
-              beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
-              disabled={disabled}
-              label={translate('text_624453d52e945301380e49b6')}
-              placeholder={translate('text_624453d52e945301380e49b8')}
-              value={localCharge.amount || ''}
-              onChange={(value) => handleUpdate('amount', value)}
-            />
-            <ComboBox
-              name="amountCurrency"
-              disabled
-              data={Object.values(CurrencyEnum).map((currencyType) => ({
-                value: currencyType,
-              }))}
-              disableClearable
-              value={currency}
-              onChange={() => {}}
-            />
-          </LineAmount>
+          <TextInput
+            name="amount"
+            beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
+            disabled={disabled}
+            label={translate('text_624453d52e945301380e49b6')}
+            placeholder={translate('text_624453d52e945301380e49b8')}
+            value={localCharge.amount || ''}
+            onChange={(value) => handleUpdate('amount', value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
+              ),
+            }}
+          />
         )}
         {localCharge.chargeModel === ChargeModelEnum.Package && (
           <PackageCharge
@@ -197,18 +192,4 @@ const Title = styled.div`
   white-space: pre;
   min-width: 20px;
   margin-right: auto;
-`
-
-const LineAmount = styled.div`
-  display: flex;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-    flex: 1;
-  }
-
-  > *:last-child {
-    max-width: 120px;
-    margin-top: 24px;
-  }
 `

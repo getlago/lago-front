@@ -83,6 +83,9 @@ export const theme = createTheme({
               color: palette.grey[600],
               '-webkit-text-fill-color': 'inherit',
             },
+            '.MuiInputAdornment-root, .MuiInputAdornment-root > *': {
+              color: palette.grey[400],
+            },
           },
           '& .MuiInputAdornment-positionStart': {
             paddingLeft: '16px',
@@ -90,20 +93,21 @@ export const theme = createTheme({
           '& .MuiInputBase-inputAdornedStart': {
             paddingLeft: '8px',
           },
-        },
-        inputAdornedEnd: {
-          paddingRight: '16px',
+          '& .MuiInputBase-inputAdornedEnd': {
+            paddingRight: '0px',
+          },
+          '.MuiInputAdornment-positionEnd': {
+            marginRight: '16px',
+          },
         },
         adornedEnd: {
           paddingRight: 0,
           '& .MuiButton-root': {
-            marginRight: '4px',
             '& .svg-icon': {
               padding: '0',
             },
           },
           '& .MuiInputAdornment-positionEnd': {
-            marginRight: '12px',
             '& .svg-icon': {
               padding: '0 0 0 0',
             },
@@ -300,7 +304,7 @@ export const theme = createTheme({
         },
         root: {
           '.MuiOutlinedInput-root': {
-            padding: '0 12px 0 0 !important',
+            padding: '0 0 0 0 !important',
             '&.Mui-disabled': {
               backgroundColor: palette.grey[100],
 

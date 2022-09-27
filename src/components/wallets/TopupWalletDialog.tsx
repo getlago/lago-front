@@ -3,6 +3,7 @@ import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { object, string } from 'yup'
 import styled from 'styled-components'
+import { InputAdornment } from '@mui/material'
 
 import { theme } from '~/styles'
 import { Alert, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
@@ -14,7 +15,7 @@ import {
   WalletForTopupFragment,
 } from '~/generated/graphql'
 import { addToast } from '~/core/apolloClient'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber, getCurrencySymbol } from '~/core/intlFormatNumber'
 
 gql`
   mutation createCustomerWalletTransaction($input: CreateCustomerWalletTransactionInput!) {
@@ -137,7 +138,11 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
               placeholder={translate('text_62d18855b22699e5cf55f87f')}
               value={wallet.rateAmount}
               InputProps={{
-                endAdornment: <InputEnd variant="body">{wallet.currency}</InputEnd>,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    {getCurrencySymbol(wallet.currency)}
+                  </InputAdornment>
+                ),
               }}
               disabled
             />
@@ -156,16 +161,16 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
                   ? 0
                   : Number(formikProps.values.paidCredits) * Number(wallet.rateAmount) * 100,
                 {
-                  currencyDisplay: 'code',
+                  currencyDisplay: 'symbol',
                   currency: wallet.currency,
                 }
               ),
             })}
             InputProps={{
               endAdornment: (
-                <InputEnd variant="body" color="textSecondary">
+                <InputAdornment position="end">
                   {translate('text_62e79671d23ae6ff149de94c')}
-                </InputEnd>
+                </InputAdornment>
               ),
             }}
           />
@@ -183,16 +188,16 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
                   ? 0
                   : Number(formikProps.values.grantedCredits) * Number(wallet.rateAmount) * 100,
                 {
-                  currencyDisplay: 'code',
+                  currencyDisplay: 'symbol',
                   currency: wallet.currency,
                 }
               ),
             })}
             InputProps={{
               endAdornment: (
-                <InputEnd variant="body" color="textSecondary">
+                <InputAdornment position="end">
                   {translate('text_62e79671d23ae6ff149de95c')}
-                </InputEnd>
+                </InputAdornment>
               ),
             }}
           />
@@ -245,10 +250,6 @@ const InlineFields = styled.div`
   > div:nth-child(3) {
     flex: 1;
   }
-`
-
-const InputEnd = styled(Typography)`
-  margin-right: ${theme.spacing(4)};
 `
 
 TopupWalletDialog.displayName = 'TopupWalletDialog'

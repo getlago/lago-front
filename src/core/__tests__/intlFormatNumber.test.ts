@@ -1,6 +1,6 @@
 import { CurrencyEnum } from '~/generated/graphql'
 
-import { intlFormatNumber } from '../intlFormatNumber'
+import { intlFormatNumber, getCurrencySymbol } from '../intlFormatNumber'
 
 describe('Currency tools', () => {
   describe('intlFormatNumber()', () => {
@@ -9,11 +9,11 @@ describe('Currency tools', () => {
 
       // Needs to be done that way as whitespaces breaks the tests
       expect(formattedEUR).toMatch('1,000.50')
-      expect(formattedEUR).toMatch('EUR')
+      expect(formattedEUR).toMatch('€')
 
       const formattedUSD = intlFormatNumber(150050, { currency: CurrencyEnum.Usd })
 
-      expect(formattedUSD).toMatch('USD')
+      expect(formattedUSD).toMatch('$')
       expect(formattedUSD).toMatch('1,500.50')
     })
 
@@ -22,7 +22,7 @@ describe('Currency tools', () => {
 
       // Needs to be done that way as whitespaces breaks the tests
       expect(formattedEUR).toMatch('1,000.50')
-      expect(formattedEUR).toMatch('EUR')
+      expect(formattedEUR).toMatch('€')
 
       const formattedEURCent = intlFormatNumber(150050, {
         initialUnit: 'standard',
@@ -30,7 +30,16 @@ describe('Currency tools', () => {
       })
 
       expect(formattedEURCent).toMatch('150,050.00')
-      expect(formattedEURCent).toMatch('EUR')
+      expect(formattedEURCent).toMatch('€')
+    })
+  })
+
+  describe('getCurrencySymbol', () => {
+    it('should return only currency synbol', () => {
+      expect(getCurrencySymbol(CurrencyEnum.Usd)).toBe('$')
+      expect(getCurrencySymbol(CurrencyEnum.Yer)).toMatch('YER')
+      expect(getCurrencySymbol(CurrencyEnum.Gbp)).toBe('£')
+      expect(getCurrencySymbol(CurrencyEnum.Eur)).toBe('€')
     })
   })
 })

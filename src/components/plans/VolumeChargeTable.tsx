@@ -10,7 +10,7 @@ import { TextInput } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useVolumeChargeForm } from '~/hooks/plans/useVolumeChargeForm'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber, getCurrencySymbol } from '~/core/intlFormatNumber'
 
 import { PlanFormInput } from './types'
 
@@ -127,7 +127,7 @@ export const VolumeChargeTable = ({
               content: (row, i) =>
                 disabled ? (
                   <DisabledAmountCell>
-                    <Typography color="textSecondary">{currency}</Typography>
+                    <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
                     <Typography color="disabled" noWrap>
                       {row.perUnitAmount || '0.0'}
                     </Typography>
@@ -139,7 +139,11 @@ export const VolumeChargeTable = ({
                     value={row.perUnitAmount}
                     onChange={(value) => handleUpdate(i, 'perUnitAmount', value)}
                     InputProps={{
-                      startAdornment: <InputAdornment position="start">{currency}</InputAdornment>,
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          {getCurrencySymbol(currency)}
+                        </InputAdornment>
+                      ),
                     }}
                   />
                 ),
@@ -154,7 +158,7 @@ export const VolumeChargeTable = ({
               content: (row, i) =>
                 disabled ? (
                   <DisabledAmountCell>
-                    <Typography color="textSecondary">{currency}</Typography>
+                    <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
                     <Typography color="disabled" noWrap>
                       {row.flatAmount || '0.0'}
                     </Typography>
@@ -166,7 +170,11 @@ export const VolumeChargeTable = ({
                     value={row.flatAmount}
                     onChange={(value) => handleUpdate(i, 'flatAmount', value)}
                     InputProps={{
-                      startAdornment: <InputAdornment position="start">{currency}</InputAdornment>,
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          {getCurrencySymbol(currency)}
+                        </InputAdornment>
+                      ),
                     }}
                   />
                 ),

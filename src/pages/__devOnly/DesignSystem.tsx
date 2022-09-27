@@ -2,6 +2,7 @@ import styled, { css } from 'styled-components'
 import { useFormik } from 'formik'
 import { generatePath } from 'react-router-dom'
 import { object, string } from 'yup'
+import { InputAdornment } from '@mui/material'
 
 import Stripe from '~/public/images/stripe.svg'
 import {
@@ -839,6 +840,9 @@ const DesignSystem = () => {
                       placeholder="Type something"
                       name="input"
                       formikProps={formikProps}
+                      InputProps={{
+                        endAdornment: <InputAdornment position="end">Dias</InputAdornment>,
+                      }}
                     />
                     <TextInputField
                       label="With formatter"
@@ -874,6 +878,9 @@ const DesignSystem = () => {
                       name="input"
                       formikProps={formikProps}
                       disabled
+                      InputProps={{
+                        endAdornment: <InputAdornment position="end">Dias</InputAdornment>,
+                      }}
                     />
                     <TextInputField
                       label="With helpertext"

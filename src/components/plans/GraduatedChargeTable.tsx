@@ -9,7 +9,7 @@ import { TextInput } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useGraduatedChargeForm } from '~/hooks/plans/useGraduatedChargeForm'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber, getCurrencySymbol } from '~/core/intlFormatNumber'
 
 import { PlanFormInput } from './types'
 
@@ -116,7 +116,7 @@ export const GraduatedChargeTable = ({
               content: (row, i) =>
                 disabled ? (
                   <DisabledAmountCell>
-                    <Typography color="textSecondary">{currency}</Typography>
+                    <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
                     <Typography color="disabled" noWrap>
                       {row.perUnitAmount || '0.0'}
                     </Typography>
@@ -128,7 +128,11 @@ export const GraduatedChargeTable = ({
                     value={row.perUnitAmount}
                     onChange={(value) => handleUpdate(i, 'perUnitAmount', value)}
                     InputProps={{
-                      startAdornment: <InputAdornment position="start">{currency}</InputAdornment>,
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          {getCurrencySymbol(currency)}
+                        </InputAdornment>
+                      ),
                     }}
                   />
                 ),
@@ -143,7 +147,7 @@ export const GraduatedChargeTable = ({
               content: (row, i) =>
                 disabled ? (
                   <DisabledAmountCell>
-                    <Typography color="textSecondary">{currency}</Typography>
+                    <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
                     <Typography color="disabled" noWrap>
                       {row.flatAmount || '0.0'}
                     </Typography>
@@ -155,7 +159,11 @@ export const GraduatedChargeTable = ({
                     value={row.flatAmount}
                     onChange={(value) => handleUpdate(i, 'flatAmount', value)}
                     InputProps={{
-                      startAdornment: <InputAdornment position="start">{currency}</InputAdornment>,
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          {getCurrencySymbol(currency)}
+                        </InputAdornment>
+                      ),
                     }}
                   />
                 ),
@@ -173,7 +181,7 @@ export const GraduatedChargeTable = ({
                   {translate('text_627b69c9fe95530136833956', {
                     lastRowUnit: calculation.firstUnit,
                     value: intlFormatNumber(calculation.total, {
-                      currencyDisplay: 'code',
+                      currencyDisplay: 'symbol',
                       initialUnit: 'standard',
                       maximumFractionDigits: 5,
                       currency,
@@ -188,19 +196,19 @@ export const GraduatedChargeTable = ({
                   {translate('text_627b69c9fe95530136833958', {
                     tier1LastUnit: calculation.units,
                     tier1PerUnit: intlFormatNumber(calculation.perUnit, {
-                      currencyDisplay: 'code',
+                      currencyDisplay: 'symbol',
                       initialUnit: 'standard',
                       maximumFractionDigits: 5,
                       currency,
                     }),
                     tier1FlatFee: intlFormatNumber(calculation.flatFee, {
-                      currencyDisplay: 'code',
+                      currencyDisplay: 'symbol',
                       initialUnit: 'standard',
                       maximumFractionDigits: 5,
                       currency,
                     }),
                     totalTier1: intlFormatNumber(calculation.total, {
-                      currencyDisplay: 'code',
+                      currencyDisplay: 'symbol',
                       initialUnit: 'standard',
                       maximumFractionDigits: 5,
                       currency,
@@ -215,19 +223,19 @@ export const GraduatedChargeTable = ({
                 {translate('text_627b69c9fe9553013683395a', {
                   unitCount: calculation.units,
                   tierPerUnit: intlFormatNumber(calculation.perUnit, {
-                    currencyDisplay: 'code',
+                    currencyDisplay: 'symbol',
                     initialUnit: 'standard',
                     maximumFractionDigits: 5,
                     currency,
                   }),
                   tierFlatFee: intlFormatNumber(calculation.flatFee, {
-                    currencyDisplay: 'code',
+                    currencyDisplay: 'symbol',
                     initialUnit: 'standard',
                     maximumFractionDigits: 5,
                     currency,
                   }),
                   totalTier: intlFormatNumber(calculation.total, {
-                    currencyDisplay: 'code',
+                    currencyDisplay: 'symbol',
                     initialUnit: 'standard',
                     maximumFractionDigits: 5,
                     currency,

@@ -22,7 +22,6 @@ describe('Create plan', () => {
     cy.get('[data-test="open-charge"]').click()
     cy.get('input[name="chargeModel"]').should('not.be.disabled')
     cy.get('input[name="amount"]').should('not.be.disabled')
-    cy.get('input[name="amountCurrency"]').eq(1).should('be.disabled')
     cy.get('[data-test="submit"]').should('be.disabled')
 
     cy.get('input[name="code"]').type('new code plan with charge')
@@ -53,7 +52,6 @@ describe('Create plan', () => {
     cy.get('[data-test="open-charge"]').click()
     cy.get('input[name="chargeModel"]').should('be.disabled')
     cy.get('input[name="amount"]').should('be.disabled')
-    cy.get('input[name="amountCurrency"]').eq(1).should('be.disabled')
     cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="open-charge"]').click()
 
@@ -67,9 +65,6 @@ describe('Create plan', () => {
     cy.get('input[name="chargeModel"]').eq(1).should('have.value', 'Standard pricing')
     cy.get('input[name="amount"]').eq(1).type('3000')
     cy.get('[data-test="submit"]').should('not.be.disabled')
-    cy.get('input[name="amountCurrency"]').eq(2).should('be.disabled')
-    cy.get('input[name="amountCurrency"]').eq(2).should('have.value', 'UAH')
-
     cy.get('[data-test="submit"]').click()
   })
 })

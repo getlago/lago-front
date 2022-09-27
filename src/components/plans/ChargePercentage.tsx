@@ -2,8 +2,9 @@ import { useCallback } from 'react'
 import { FormikProps } from 'formik'
 import _get from 'lodash/get'
 import styled from 'styled-components'
+import { InputAdornment } from '@mui/material'
 
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber, getCurrencySymbol } from '~/core/intlFormatNumber'
 import { TextInput } from '~/components/form'
 import { MenuPopper, theme } from '~/styles'
 import { Alert, Typography, Button, Tooltip, Popper } from '~/components/designSystem'
@@ -66,9 +67,9 @@ export const ChargePercentage = ({
         onChange={(value) => handleUpdate('rate', value)}
         InputProps={{
           endAdornment: (
-            <InputEnd color={disabled ? 'disabled' : 'textSecondary'}>
+            <InputAdornment position="end">
               {translate('text_62a0b7107afa2700a65ef70a')}
-            </InputEnd>
+            </InputAdornment>
           ),
         }}
       />
@@ -86,7 +87,9 @@ export const ChargePercentage = ({
             value={localCharge.fixedAmount || ''}
             onChange={(value) => handleUpdate('fixedAmount', value)}
             InputProps={{
-              endAdornment: <InputEnd color="textSecondary">{currency}</InputEnd>,
+              endAdornment: (
+                <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
+              ),
             }}
             helperText={translate('text_62ff5d01a306e274d4ffcc30')}
           />
@@ -125,9 +128,9 @@ export const ChargePercentage = ({
             onChange={(value) => handleUpdate('freeUnitsPerEvents', value)}
             InputProps={{
               endAdornment: (
-                <InputEnd color="textSecondary">
+                <InputAdornment position="end">
                   {translate('text_62ff5d01a306e274d4ffcc42')}
-                </InputEnd>
+                </InputAdornment>
               ),
             }}
           />
@@ -169,7 +172,9 @@ export const ChargePercentage = ({
             value={localCharge.freeUnitsPerTotalAggregation || ''}
             onChange={(value) => handleUpdate('freeUnitsPerTotalAggregation', value)}
             InputProps={{
-              endAdornment: <InputEnd color="textSecondary">{currency}</InputEnd>,
+              endAdornment: (
+                <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
+              ),
             }}
           />
           <Tooltip
@@ -319,10 +324,6 @@ const Container = styled.div`
 
 const Input = styled(TextInput)`
   flex: 1;
-`
-
-const InputEnd = styled(Typography)`
-  margin-right: ${theme.spacing(4)};
 `
 
 const LineAmount = styled.div`
