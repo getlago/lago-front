@@ -191,7 +191,7 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
                       </Typography>
                       <Typography variant="caption" color="grey600">
                         {intlFormatNumber(Number(amount) || 0, {
-                          currencyDisplay: 'code',
+                          currencyDisplay: 'symbol',
                           initialUnit: 'standard',
                           maximumFractionDigits: 5,
                           currency: wallet?.currency,

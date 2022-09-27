@@ -145,7 +145,7 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
                     </MainInfos>
                     <Typography color="textSecondary">
                       {intlFormatNumber(data?.customerUsage?.amountCents || 0, {
-                        currencyDisplay: 'code',
+                        currencyDisplay: 'symbol',
                         currency,
                       })}
                     </Typography>
@@ -181,7 +181,7 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
                             </Typography>
                             <Typography color="textSecondary">
                               {intlFormatNumber(amountCents || 0, {
-                                currencyDisplay: 'code',
+                                currencyDisplay: 'symbol',
                                 currency,
                               })}
                             </Typography>

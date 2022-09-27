@@ -73,7 +73,7 @@ export const CustomerCoupons = memo(({ coupons }: CustomerCouponsProps) => {
                 <Typography variant="caption" noWrap>
                   {translate('text_62865498824cc10126ab2976', {
                     amount: intlFormatNumber(amountCents || 0, {
-                      currencyDisplay: 'code',
+                      currencyDisplay: 'symbol',
                       currency: amountCurrency,
                     }),
                   })}

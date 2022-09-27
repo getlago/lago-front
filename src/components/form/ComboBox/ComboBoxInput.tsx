@@ -3,7 +3,7 @@ import { InputAdornment } from '@mui/material'
 import clsns from 'classnames'
 import styled from 'styled-components'
 
-import { Button, Icon } from '~/components/designSystem'
+import { Button } from '~/components/designSystem'
 
 import { ComboBoxInputProps } from './types'
 
@@ -57,9 +57,10 @@ export const ComboBoxInput = ({
                 }}
               />
             )}
-            <Icon
-              size="medium"
-              name="chevron-up-down"
+            <Button
+              variant="quaternary"
+              size="small"
+              icon="chevron-up-down"
               onClick={restParams.disabled ? undefined : () => inputProps.onMouseDown()}
             />
           </InputAdornment>

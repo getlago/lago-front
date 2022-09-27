@@ -2,6 +2,7 @@ import { ReactNode, useRef, useEffect, useState } from 'react'
 import { useFormik } from 'formik'
 import { object, string, number, array } from 'yup'
 import styled from 'styled-components'
+import { InputAdornment } from '@mui/material'
 
 import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
 import { PlanInterval, CurrencyEnum, ChargeModelEnum } from '~/generated/graphql'
@@ -410,9 +411,9 @@ export const PlanForm = ({
                     formikProps={formikProps}
                     InputProps={{
                       endAdornment: (
-                        <InputEnd color={!plan?.canBeDeleted ? 'textPrimary' : 'textSecondary'}>
+                        <InputAdornment position="end">
                           {translate('text_624453d52e945301380e49c6')}
-                        </InputEnd>
+                        </InputAdornment>
                       ),
                     }}
                   />
@@ -526,10 +527,6 @@ const Title = styled(Typography)`
 const Subtitle = styled(Typography)`
   margin-bottom: ${theme.spacing(8)};
   padding: 0 ${theme.spacing(8)};
-`
-
-const InputEnd = styled(Typography)`
-  margin-right: ${theme.spacing(4)};
 `
 
 const ButtonContainer = styled.div`

@@ -51,8 +51,6 @@ describe('Create plan', () => {
     cy.get('input[name="chargeModel"]').should('have.value', 'Standard pricing')
     cy.get('input[name="amount"]').type('5000')
     cy.get('[data-test="submit"]').should('not.be.disabled')
-    cy.get('input[name="amountCurrency"]').eq(1).should('be.disabled')
-    cy.get('input[name="amountCurrency"]').eq(1).should('have.value', 'UAH')
 
     cy.get('[data-test="submit"]').click()
     cy.get('[data-test="go-back"]').click()

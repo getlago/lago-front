@@ -1,6 +1,7 @@
 import { useFormik } from 'formik'
 import { object, string, number } from 'yup'
 import styled from 'styled-components'
+import { InputAdornment } from '@mui/material'
 
 import {
   CreateCouponInput,
@@ -177,9 +178,9 @@ export const CouponForm = ({ isEdition, loading, coupon, onSave }: CouponFormPro
                     formikProps={formikProps}
                     InputProps={{
                       endAdornment: (
-                        <InputEnd color="textSecondary">
+                        <InputAdornment position="end">
                           {translate('text_62876e85e32e0300e1803178')}
-                        </InputEnd>
+                        </InputAdornment>
                       ),
                     }}
                   />
@@ -283,8 +284,4 @@ const LineAmount = styled.div`
     max-width: 120px;
     margin-top: 24px;
   }
-`
-
-const InputEnd = styled(Typography)`
-  margin-right: ${theme.spacing(4)};
 `

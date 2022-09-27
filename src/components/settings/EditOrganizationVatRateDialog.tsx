@@ -1,8 +1,9 @@
 import { forwardRef, useState, useEffect } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
+import { InputAdornment } from '@mui/material'
 
-import { Dialog, Button, DialogRef, Typography } from '~/components/designSystem'
+import { Dialog, Button, DialogRef } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useUpdateVatRateOrganizationMutation, Lago_Api_Error } from '~/generated/graphql'
@@ -100,9 +101,9 @@ export const EditOrganizationVatRateDialog = forwardRef<
           }}
           InputProps={{
             endAdornment: (
-              <InputEnd color="textSecondary">
+              <InputAdornment position="end">
                 {translate('text_62728ff857d47b013204c7ce')}
-              </InputEnd>
+              </InputAdornment>
             ),
           }}
         />
@@ -113,10 +114,6 @@ export const EditOrganizationVatRateDialog = forwardRef<
 
 const Content = styled.div`
   margin-bottom: ${theme.spacing(8)};
-`
-
-const InputEnd = styled(Typography)`
-  margin-right: ${theme.spacing(4)};
 `
 
 EditOrganizationVatRateDialog.displayName = 'forwardRef'

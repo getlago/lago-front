@@ -4,6 +4,7 @@ import { useFormik } from 'formik'
 import { object, string, date } from 'yup'
 import styled from 'styled-components'
 import { DateTime } from 'luxon'
+import { InputAdornment } from '@mui/material'
 
 import { theme } from '~/styles'
 import { Alert, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
@@ -201,16 +202,16 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
                       Number(formikProps.values.rateAmount) *
                       100,
                 {
-                  currencyDisplay: 'code',
+                  currencyDisplay: 'symbol',
                   currency: formikProps?.values?.currency || CurrencyEnum.Usd,
                 }
               ),
             })}
             InputProps={{
               endAdornment: (
-                <InputEnd variant="body" color="textSecondary">
+                <InputAdornment position="end">
                   {translate('text_62d18855b22699e5cf55f889')}
-                </InputEnd>
+                </InputAdornment>
               ),
             }}
           />
@@ -230,16 +231,16 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
                       Number(formikProps.values.rateAmount) *
                       100,
                 {
-                  currencyDisplay: 'code',
+                  currencyDisplay: 'symbol',
                   currency: formikProps?.values?.currency || CurrencyEnum.Usd,
                 }
               ),
             })}
             InputProps={{
               endAdornment: (
-                <InputEnd variant="body" color="textSecondary">
+                <InputAdornment position="end">
                   {translate('text_62d18855b22699e5cf55f891')}
-                </InputEnd>
+                </InputAdornment>
               ),
             }}
           />
@@ -309,10 +310,6 @@ const InlineFields = styled.div`
   > div:nth-child(3) {
     flex: 1;
   }
-`
-
-const InputEnd = styled(Typography)`
-  margin-right: ${theme.spacing(4)};
 `
 
 const LineAmount = styled.div`

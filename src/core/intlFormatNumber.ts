@@ -30,7 +30,7 @@ export const intlFormatNumber: (
   let formattedToUnit = amount
   const {
     initialUnit = 'cent',
-    currencyDisplay = CurrencyDisplay.code,
+    currencyDisplay = CurrencyDisplay.symbol,
     style = AmountStyle.currency,
     ...otherOptions
   } = options || {}
@@ -44,4 +44,14 @@ export const intlFormatNumber: (
     currencyDisplay,
     ...otherOptions,
   })
+}
+
+export const getCurrencySymbol = (currencyCode: CurrencyEnum) => {
+  return (1)
+    .toLocaleString('en-US', {
+      style: 'currency',
+      currency: currencyCode,
+      currencyDisplay: 'symbol',
+    })
+    .replace(/[\d\., ]/g, '')
 }

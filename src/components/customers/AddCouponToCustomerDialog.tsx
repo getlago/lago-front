@@ -127,7 +127,7 @@ export const AddCouponToCustomerDialog = forwardRef<
               (
               {translate('text_628c83763b29a500a8785d0c', {
                 amount: intlFormatNumber(amountCents || 0, {
-                  currencyDisplay: 'code',
+                  currencyDisplay: 'symbol',
                   currency: amountCurrency,
                 }),
               })}
