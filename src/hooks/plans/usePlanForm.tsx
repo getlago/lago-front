@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { gql } from '@apollo/client'
 import { useParams, useNavigate, generatePath } from 'react-router-dom'
 import _omit from 'lodash/omit'
@@ -100,11 +100,9 @@ export type PLAN_FORM_TYPE = keyof typeof PLAN_FORM_TYPE_ENUM
 export interface UsePlanFormReturn {
   loading: boolean
   type: keyof typeof PLAN_FORM_TYPE_ENUM
-  isCreated: boolean
   parentPlanName?: string
   errorCode?: string
   plan?: Omit<EditPlanFragment, 'name' | 'code'> & { name?: string; code?: string }
-  resetIsCreated: () => void
   onSave: (values: PlanFormInput) => Promise<void>
   onClose: () => void
 }
@@ -113,7 +111,6 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
   const navigate = useNavigate()
   const { id } = useParams()
   const { parentId, subscriptionInput, customerId } = useOverwritePlanVar()
-  const [isCreated, setIsCreated] = useState<boolean>(false)
   const { data, loading, error } = useGetSinglePlanQuery({
     variables: { id: (id as string) || (parentId as string) },
     skip: !id && !parentId,
@@ -134,7 +131,11 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
           })
           navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: customerId as string }))
         } else {
-          setIsCreated(true)
+          addToast({
+            severity: 'success',
+            translateKey: 'text_633336532bdf72cb62dc0694',
+          })
+          navigate(PLANS_ROUTE)
         }
       }
     },
@@ -183,8 +184,6 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
         type === PLAN_FORM_TYPE_ENUM.override
           ? _omit(data?.plan || undefined, ['name', 'code'])
           : data?.plan || undefined,
-      isCreated,
-      resetIsCreated: () => setIsCreated(false),
       onSave:
         type === PLAN_FORM_TYPE_ENUM.edition
           ? async (values) => {
@@ -213,6 +212,6 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
       },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [loading, id, customerId, parentId, isCreated, type, data?.plan, errorCode, update, create]
+    [loading, id, customerId, parentId, type, data?.plan, errorCode, update, create]
   )
 }

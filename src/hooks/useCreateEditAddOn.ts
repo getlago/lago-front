@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { gql } from '@apollo/client'
 import { useParams, useNavigate } from 'react-router-dom'
 
@@ -49,8 +49,6 @@ type UseCreateEditAddOnReturn = {
   loading: boolean
   isEdition: boolean
   addOn?: EditAddOnFragment
-  isCreated: boolean
-  resetIsCreated: () => void
   onSave: (value: CreateAddOnInput | UpdateAddOnInput) => Promise<void>
 }
 
@@ -66,7 +64,6 @@ const formatCouponInput = (values: CreateAddOnInput | UpdateAddOnInput) => {
 export const useCreateEditAddOn: () => UseCreateEditAddOnReturn = () => {
   const navigate = useNavigate()
   const { id } = useParams()
-  const [isCreated, setIsCreated] = useState<boolean>(false)
   const { data, loading, error } = useGetSingleAddOnQuery({
     // @ts-ignore
     variables: { id },
@@ -75,7 +72,11 @@ export const useCreateEditAddOn: () => UseCreateEditAddOnReturn = () => {
   const [create] = useCreateAddOnMutation({
     onCompleted({ createAddOn }) {
       if (!!createAddOn) {
-        setIsCreated(true)
+        addToast({
+          severity: 'success',
+          translateKey: 'text_633336532bdf72cb62dc0692',
+        })
+        navigate(ADD_ONS_ROUTE)
       }
     },
   })
@@ -100,8 +101,6 @@ export const useCreateEditAddOn: () => UseCreateEditAddOnReturn = () => {
       loading,
       isEdition: !!id,
       addOn: !data?.addOn ? undefined : data?.addOn,
-      isCreated,
-      resetIsCreated: () => setIsCreated(false),
       onSave: !!id
         ? async (values) => {
             await update({
@@ -121,6 +120,6 @@ export const useCreateEditAddOn: () => UseCreateEditAddOnReturn = () => {
             })
           },
     }),
-    [isCreated, id, data, loading, create, update, setIsCreated]
+    [id, data, loading, create, update]
   )
 }

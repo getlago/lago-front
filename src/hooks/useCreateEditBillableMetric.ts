@@ -53,8 +53,6 @@ type UseCreateEditBillableMetricReturn = {
   loading: boolean
   isEdition: boolean
   billableMetric?: EditBillableMetricFragment
-  isCreated: boolean
-  resetIsCreated: () => void
   onSave: (value: CreateBillableMetricInput | UpdateBillableMetricInput) => Promise<void>
 }
 
@@ -70,7 +68,11 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
   const [create] = useCreateBillableMetricMutation({
     onCompleted({ createBillableMetric }) {
       if (!!createBillableMetric) {
-        setIsCreated(true)
+        addToast({
+          severity: 'success',
+          translateKey: 'text_633336532bdf72cb62dc0696',
+        })
+        navigate(BILLABLE_METRICS_ROUTE)
       }
     },
   })
@@ -95,8 +97,6 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
       loading,
       isEdition: !!id,
       billableMetric: !data?.billableMetric ? undefined : data?.billableMetric,
-      isCreated,
-      resetIsCreated: () => setIsCreated(false),
       onSave: !!id
         ? async (values) => {
             await update({

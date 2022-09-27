@@ -1,20 +1,18 @@
 import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
-import { theme, PageHeader, Card } from '~/styles'
+import { PageHeader } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Typography, Button, ButtonLink } from '~/components/designSystem'
+import { Typography, Button } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import SuccessImage from '~/public/images/maneki/success.svg'
 import { COUPONS_ROUTE } from '~/core/router'
 import { CouponForm } from '~/components/coupons/CouponForm'
 
 const CreateCoupon = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
-  const { isEdition, loading, coupon, isCreated, resetIsCreated, onSave } = useCreateEditCoupon()
+  const { isEdition, loading, coupon, onSave } = useCreateEditCoupon()
   const warningDialogRef = useRef<WarningDialogRef>(null)
 
   return (
@@ -26,30 +24,12 @@ const CreateCoupon = () => {
         <Button
           variant="quaternary"
           icon="close"
-          onClick={() =>
-            isCreated ? navigate(COUPONS_ROUTE) : warningDialogRef.current?.openDialog()
-          }
+          onClick={() => warningDialogRef.current?.openDialog()}
         />
       </PageHeader>
-      {isCreated ? (
-        <SuccessCard $disableChildSpacing>
-          <SuccessImage width="136" height="104" />
-          <SuccessTitle variant="subhead">
-            {translate('text_62876e85e32e0300e18030f3')}
-          </SuccessTitle>
-          <SuccessDescription>{translate('text_62876e85e32e0300e18030fa')}</SuccessDescription>
-          <div>
-            <Button variant="secondary" onClick={resetIsCreated}>
-              {translate('text_62876e85e32e0300e1803102')}
-            </Button>
-            <ButtonLink type="button" to={COUPONS_ROUTE} buttonProps={{ variant: 'secondary' }}>
-              {translate('text_62876e85e32e0300e180310a')}
-            </ButtonLink>
-          </div>
-        </SuccessCard>
-      ) : (
-        <CouponForm loading={loading} coupon={coupon} onSave={onSave} isEdition={isEdition} />
-      )}
+
+      <CouponForm loading={loading} coupon={coupon} onSave={onSave} isEdition={isEdition} />
+
       <WarningDialog
         ref={warningDialogRef}
         title={translate(
@@ -66,31 +46,5 @@ const CreateCoupon = () => {
     </div>
   )
 }
-
-const SuccessCard = styled(Card)`
-  max-width: 672px;
-  margin: ${theme.spacing(12)} auto 0;
-
-  > img {
-    width: 40px;
-    height: 40px;
-    margin-bottom: ${theme.spacing(5)};
-  }
-
-  > *:last-child {
-    display: flex;
-    > *:first-child {
-      margin-right: ${theme.spacing(3)};
-    }
-  }
-`
-
-const SuccessTitle = styled(Typography)`
-  margin-bottom: ${theme.spacing(3)};
-`
-
-const SuccessDescription = styled(Typography)`
-  margin-bottom: ${theme.spacing(5)};
-`
 
 export default CreateCoupon

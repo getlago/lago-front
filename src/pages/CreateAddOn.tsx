@@ -1,20 +1,18 @@
 import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
-import { theme, PageHeader, Card } from '~/styles'
+import { PageHeader } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Typography, Button, ButtonLink } from '~/components/designSystem'
+import { Typography, Button } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import SuccessImage from '~/public/images/maneki/success.svg'
 import { ADD_ONS_ROUTE } from '~/core/router'
 import { AddOnForm } from '~/components/addOns/AddOnForm'
 
 const CreateAddOn = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
-  const { isEdition, loading, addOn, isCreated, resetIsCreated, onSave } = useCreateEditAddOn()
+  const { isEdition, loading, addOn, onSave } = useCreateEditAddOn()
   const warningDialogRef = useRef<WarningDialogRef>(null)
 
   return (
@@ -26,30 +24,12 @@ const CreateAddOn = () => {
         <Button
           variant="quaternary"
           icon="close"
-          onClick={() =>
-            isCreated ? navigate(ADD_ONS_ROUTE) : warningDialogRef.current?.openDialog()
-          }
+          onClick={() => warningDialogRef.current?.openDialog()}
         />
       </PageHeader>
-      {isCreated ? (
-        <SuccessCard $disableChildSpacing>
-          <SuccessImage width="136" height="104" />
-          <SuccessTitle variant="subhead">
-            {translate('text_629728388c4d2300e2d37fd8')}
-          </SuccessTitle>
-          <SuccessDescription>{translate('text_629728388c4d2300e2d37ff2')}</SuccessDescription>
-          <div>
-            <Button variant="secondary" onClick={resetIsCreated}>
-              {translate('text_629728388c4d2300e2d3800c')}
-            </Button>
-            <ButtonLink type="button" to={ADD_ONS_ROUTE} buttonProps={{ variant: 'secondary' }}>
-              {translate('text_629728388c4d2300e2d38026')}
-            </ButtonLink>
-          </div>
-        </SuccessCard>
-      ) : (
-        <AddOnForm loading={loading} addOn={addOn} onSave={onSave} isEdition={isEdition} />
-      )}
+
+      <AddOnForm loading={loading} addOn={addOn} onSave={onSave} isEdition={isEdition} />
+
       <WarningDialog
         ref={warningDialogRef}
         title={translate(
@@ -66,31 +46,5 @@ const CreateAddOn = () => {
     </div>
   )
 }
-
-const SuccessCard = styled(Card)`
-  max-width: 672px;
-  margin: ${theme.spacing(12)} auto 0;
-
-  > img {
-    width: 40px;
-    height: 40px;
-    margin-bottom: ${theme.spacing(5)};
-  }
-
-  > *:last-child {
-    display: flex;
-    > *:first-child {
-      margin-right: ${theme.spacing(3)};
-    }
-  }
-`
-
-const SuccessTitle = styled(Typography)`
-  margin-bottom: ${theme.spacing(3)};
-`
-
-const SuccessDescription = styled(Typography)`
-  margin-bottom: ${theme.spacing(5)};
-`
 
 export default CreateAddOn
