@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components'
 import { useFormik } from 'formik'
 import { generatePath } from 'react-router-dom'
-import { object, string } from 'yup'
+import { boolean, object, string } from 'yup'
 import { InputAdornment } from '@mui/material'
 
 import Stripe from '~/public/images/stripe.svg'
@@ -28,6 +28,7 @@ import {
 } from '~/components/designSystem'
 import { theme, PageHeader, MenuPopper } from '~/styles'
 import {
+  CheckboxField,
   DatePickerField,
   TextInputField,
   ComboBoxField,
@@ -84,6 +85,7 @@ const TABLE_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'tab
 const DesignSystem = () => {
   const formikProps = useFormik({
     initialValues: {
+      checkbox: false,
       date: undefined,
       input: undefined,
       inputNumber: undefined,
@@ -94,6 +96,7 @@ const DesignSystem = () => {
       buttonSelector2: 'time',
     },
     validationSchema: object().shape({
+      checkbox: boolean().required(),
       date: string()
         .required()
         .matches(/1992-05-26/, 'Sorry, you owe her a beer 🍺'),
@@ -809,6 +812,38 @@ const DesignSystem = () => {
                       formikProps={formikProps}
                       label="Disabled"
                       disabled
+                    />
+                  </Block>
+
+                  <GroupTitle variant="subhead">Checkbox</GroupTitle>
+                  <Block $marginBottom={theme.spacing(6)}>
+                    <CheckboxField
+                      name="checkbox"
+                      formikProps={formikProps}
+                      value={formikProps.values.checkbox}
+                      label="Surf"
+                    />
+                    <CheckboxField
+                      name="checkbox"
+                      formikProps={formikProps}
+                      canBeIndeterminate={true}
+                      value={undefined}
+                      label="Kite surf"
+                    />
+                    <CheckboxField
+                      value={formikProps.values.checkbox}
+                      name="checkbox"
+                      formikProps={formikProps}
+                      label="Skate"
+                      error="You should learn first"
+                    />
+                    <CheckboxField
+                      disabled
+                      value={formikProps.values.checkbox}
+                      name="checkbox"
+                      formikProps={formikProps}
+                      canBeIndeterminate={true}
+                      label="Roller blade"
                     />
                   </Block>
 
