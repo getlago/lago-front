@@ -22,7 +22,6 @@ describe('Create plan', () => {
     cy.get('textarea[name="description"]').type('I am a description')
     cy.get('input[name="amountCents"]').type('30000')
     cy.get('[data-test="submit"]').click()
-    cy.get('[data-test="go-back"]').click()
     cy.url().should('be.equal', Cypress.config().baseUrl + '/plans')
     cy.contains(planName).should('exist')
   })
@@ -53,7 +52,6 @@ describe('Create plan', () => {
     cy.get('[data-test="submit"]').should('not.be.disabled')
 
     cy.get('[data-test="submit"]').click()
-    cy.get('[data-test="go-back"]').click()
     cy.url().should('be.equal', Cypress.config().baseUrl + '/plans')
     cy.contains(planWithChargesName).should('exist')
   })
