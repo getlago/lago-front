@@ -77,5 +77,7 @@ projects:
     id: 632b49dccdbed9536c8497ab
   - name: "\U0001F44D [Ready for dev] - Coupons - Create % and recurring coupons"
     id: 632d6831010fafe9382b616d
+  - name: "\U0001F44D [Ready for dev] - All - Replace success screen by success toast"
+    id: 633336529ca3243d15ac9df4
 format: flat
 variants: true

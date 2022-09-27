@@ -101,6 +101,9 @@ module.exports = {
   "project_62ff5cfec490a4767eccdf6e": {
     "base": require('./👍 [Ready for dev] - Add Percentage in charge model__base.json')
   },
+  "project_633336529ca3243d15ac9df4": {
+    "base": require('./👍 [Ready for dev] - All - Replace success screen by success toast__base.json')
+  },
   "project_63105dba2074ec779d08c6b4": {
     "base": require('./👍 [Ready for dev] - B.metrics - Persistent bm in aggregation type__base.json')
   },

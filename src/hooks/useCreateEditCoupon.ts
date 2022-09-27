@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { gql } from '@apollo/client'
 import { useParams, useNavigate } from 'react-router-dom'
 
@@ -58,8 +58,6 @@ type UseCreateEditCouponReturn = {
   loading: boolean
   isEdition: boolean
   coupon?: EditCouponFragment
-  isCreated: boolean
-  resetIsCreated: () => void
   onSave: (value: CreateCouponInput | UpdateCouponInput) => Promise<void>
 }
 
@@ -94,7 +92,6 @@ const formatCouponInput = (values: CreateCouponInput | UpdateCouponInput) => {
 export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
   const navigate = useNavigate()
   const { id } = useParams()
-  const [isCreated, setIsCreated] = useState<boolean>(false)
   const { data, loading, error } = useGetSingleCouponQuery({
     // @ts-ignore
     variables: { id },
@@ -103,7 +100,11 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
   const [create] = useCreateCouponMutation({
     onCompleted({ createCoupon }) {
       if (!!createCoupon) {
-        setIsCreated(true)
+        addToast({
+          severity: 'success',
+          translateKey: 'text_633336532bdf72cb62dc0690',
+        })
+        navigate(COUPONS_ROUTE)
       }
     },
   })
@@ -128,8 +129,6 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
       loading,
       isEdition: !!id,
       coupon: !data?.coupon ? undefined : data?.coupon,
-      isCreated,
-      resetIsCreated: () => setIsCreated(false),
       onSave: !!id
         ? async (values) => {
             await update({
@@ -149,6 +148,6 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
             })
           },
     }),
-    [isCreated, id, data, loading, create, update, setIsCreated]
+    [id, data, loading, create, update]
   )
 }
