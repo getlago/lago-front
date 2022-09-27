@@ -79,7 +79,7 @@ const SignUp = () => {
           .matches(RegExp('(.*[a-z].*)'), FORM_ERRORS.LOWERCASE)
           .matches(RegExp('(.*[A-Z].*)'), FORM_ERRORS.UPPERCASE)
           .matches(RegExp('(.*\\d.*)'), FORM_ERRORS.NUMBER)
-          .matches(RegExp('[!@#$%^&*(),.?":{}|<>]'), FORM_ERRORS.SPECIAL),
+          .matches(RegExp('[/_!@#$%^&*(),.?":{}|<>/-]'), FORM_ERRORS.SPECIAL),
       }),
     []
   )
