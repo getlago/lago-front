@@ -1,4 +1,5 @@
 export * from './ButtonSelector'
+export * from './Checkbox'
 export * from './ComboBox'
 export * from './DatePicker'
 export * from './Radio'
