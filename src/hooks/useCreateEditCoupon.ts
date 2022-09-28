@@ -10,6 +10,9 @@ import {
   CouponItemFragmentDoc,
   useUpdateCouponMutation,
   UpdateCouponInput,
+  CouponExpiration,
+  CouponTypeEnum,
+  CouponFrequency,
 } from '~/generated/graphql'
 import { ERROR_404_ROUTE, COUPONS_ROUTE } from '~/core/router'
 import { addToast } from '~/core/apolloClient'
@@ -22,8 +25,12 @@ gql`
     amountCurrency
     code
     expiration
-    expirationDuration
+    expirationDate
     canBeDeleted
+    couponType
+    percentageRate
+    frequency
+    frequencyDuration
   }
 
   query getSingleCoupon($id: ID!) {
@@ -57,10 +64,29 @@ type UseCreateEditCouponReturn = {
 }
 
 const formatCouponInput = (values: CreateCouponInput | UpdateCouponInput) => {
-  const { amountCents, ...others } = values
+  const {
+    amountCents,
+    amountCurrency,
+    expirationDate,
+    percentageRate,
+    frequencyDuration,
+    ...others
+  } = values
 
   return {
-    amountCents: Math.round(Number(amountCents) * 100),
+    amountCents:
+      values.couponType === CouponTypeEnum.FixedAmount
+        ? Math.round(Number(amountCents) * 100)
+        : undefined,
+    amountCurrency: values.couponType === CouponTypeEnum.FixedAmount ? amountCurrency : undefined,
+    percentageRate:
+      values.couponType === CouponTypeEnum.Percentage ? Number(percentageRate) : undefined,
+    expirationDate:
+      values.expiration === CouponExpiration.NoExpiration && expirationDate
+        ? undefined
+        : expirationDate,
+    frequencyDuration:
+      values.frequency === CouponFrequency.Recurring ? frequencyDuration : undefined,
     ...others,
   }
 }

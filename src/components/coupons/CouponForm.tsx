@@ -1,18 +1,20 @@
 import { useFormik } from 'formik'
-import { object, string, number } from 'yup'
+import { object, string, number, date } from 'yup'
 import styled from 'styled-components'
-import { InputAdornment } from '@mui/material'
+import { DateTime } from 'luxon'
 
 import {
   CreateCouponInput,
   CurrencyEnum,
   CouponExpiration,
   EditCouponFragment,
+  CouponTypeEnum,
+  CouponFrequency,
 } from '~/generated/graphql'
 import { theme, NAV_HEIGHT, Card } from '~/styles'
-import { Typography, Button, Skeleton } from '~/components/designSystem'
+import { Typography, Button, Skeleton, Alert } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { TextInputField, ComboBoxField } from '~/components/form'
+import { TextInputField, ComboBoxField, DatePickerField, Checkbox } from '~/components/form'
 
 import { CouponCodeSnippet } from './CouponCodeSnippet'
 
@@ -31,22 +33,57 @@ export const CouponForm = ({ isEdition, loading, coupon, onSave }: CouponFormPro
       amountCents: coupon?.amountCents
         ? coupon?.amountCents / 100
         : coupon?.amountCents || undefined,
+      couponType: coupon?.couponType || CouponTypeEnum.FixedAmount,
+      percentageRate: coupon?.percentageRate || undefined,
       name: coupon?.name || '',
+      frequency: coupon?.frequency || CouponFrequency.Once,
+      frequencyDuration: coupon?.frequencyDuration || undefined,
       amountCurrency: coupon?.amountCurrency || CurrencyEnum.Usd,
       code: coupon?.code || '',
       expiration: coupon?.expiration || CouponExpiration.NoExpiration,
-      expirationDuration: coupon?.expirationDuration || undefined,
+      expirationDate: coupon?.expirationDate || undefined,
     },
     validationSchema: object().shape({
-      amountCents: number().min(1, 'text_62978f2c197cea009ab0b7d4').required(''),
+      amountCents: number().when('couponType', {
+        is: (couponType: CouponTypeEnum) =>
+          !!couponType && couponType === CouponTypeEnum.FixedAmount,
+        then: number()
+          .typeError(translate('text_624ea7c29103fd010732ab7d'))
+          .min(0.001, 'text_632d68358f1fedc68eed3e91')
+          .required(''),
+      }),
+      percentageRate: number().when('couponType', {
+        is: (couponType: CouponTypeEnum) =>
+          !!couponType && couponType === CouponTypeEnum.Percentage,
+        then: number()
+          .typeError(translate('text_624ea7c29103fd010732ab7d'))
+          .min(0.001, 'text_633445d00315a713775f02a6')
+          .required(''),
+      }),
       name: string().required(''),
       amountCurrency: string().required(''),
       code: string().required(''),
+      couponType: string().required(''),
+      frequency: string().required(''),
+      frequencyDuration: number().when('frequency', {
+        is: (frequency: CouponFrequency) => !!frequency && frequency === CouponFrequency.Recurring,
+        then: number()
+          .typeError(translate('text_63314cfeb607e57577d894c9'))
+          .min(1, 'text_63314cfeb607e57577d894c9')
+          .required(''),
+      }),
       expiration: string().required(''),
-      expirationDuration: number().when('expiration', {
+      expirationDate: date().when('expiration', {
         is: (expiration: CouponExpiration) =>
           !!expiration && expiration === CouponExpiration.TimeLimit,
-        then: number().min(1, 'text_62876e85e32e0300e180317b').required(''),
+        then: date()
+          .min(
+            DateTime.now().plus({ days: -1 }),
+            translate('text_632d68358f1fedc68eed3ef2', {
+              date: DateTime.now().plus({ days: -1 }).toFormat('LLL. dd, yyyy').toLocaleString(),
+            })
+          )
+          .required(''),
       }),
     }),
     enableReinitialize: true,
@@ -131,60 +168,130 @@ export const CouponForm = ({ isEdition, loading, coupon, onSave }: CouponFormPro
                   {translate('text_62876e85e32e0300e1803137')}
                 </Typography>
 
-                <LineAmount>
+                <ComboBoxField
+                  disableClearable
+                  name="couponType"
+                  label={translate('text_632d68358f1fedc68eed3e5a')}
+                  disabled={isEdition && !coupon?.canBeDeleted}
+                  data={[
+                    {
+                      value: CouponTypeEnum.FixedAmount,
+                      label: translate('text_632d68358f1fedc68eed3e60'),
+                    },
+                    {
+                      value: CouponTypeEnum.Percentage,
+                      label: translate('text_632d68358f1fedc68eed3e66'),
+                    },
+                  ]}
+                  formikProps={formikProps}
+                />
+
+                {formikProps.values.couponType === CouponTypeEnum.FixedAmount ? (
+                  <LineAmount>
+                    <TextInputField
+                      name="amountCents"
+                      beforeChangeFormatter={['positiveNumber', 'decimal']}
+                      disabled={isEdition && !coupon?.canBeDeleted}
+                      label={translate('text_62978f2c197cea009ab0b7d0')}
+                      placeholder={translate('text_62978f2c197cea009ab0b7d2')}
+                      formikProps={formikProps}
+                    />
+                    <ComboBoxField
+                      disabled={isEdition && !coupon?.canBeDeleted}
+                      name="amountCurrency"
+                      data={Object.values(CurrencyEnum).map((currencyType) => ({
+                        value: currencyType,
+                      }))}
+                      disableClearable
+                      formikProps={formikProps}
+                    />
+                  </LineAmount>
+                ) : (
                   <TextInputField
-                    name="amountCents"
+                    name="percentageRate"
                     beforeChangeFormatter={['positiveNumber', 'decimal']}
                     disabled={isEdition && !coupon?.canBeDeleted}
-                    label={translate('text_62978f2c197cea009ab0b7d0')}
-                    placeholder={translate('text_62978f2c197cea009ab0b7d2')}
+                    label={translate('text_632d68358f1fedc68eed3e76')}
+                    placeholder={translate('text_632d68358f1fedc68eed3e86')}
                     formikProps={formikProps}
+                    InputProps={{
+                      endAdornment: (
+                        <InputEnd variant="body" color="textSecondary">
+                          {translate('text_632d68358f1fedc68eed3e93')}
+                        </InputEnd>
+                      ),
+                    }}
                   />
-                  <ComboBoxField
-                    disabled={isEdition && !coupon?.canBeDeleted}
-                    name="amountCurrency"
-                    data={Object.values(CurrencyEnum).map((currencyType) => ({
-                      value: currencyType,
-                    }))}
-                    disableClearable
-                    formikProps={formikProps}
-                  />
-                </LineAmount>
+                )}
 
                 <ComboBoxField
                   disabled={isEdition && !coupon?.canBeDeleted}
-                  name="expiration"
+                  name="frequency"
+                  label={translate('text_632d68358f1fedc68eed3e9d')}
+                  helperText={translate('text_632d68358f1fedc68eed3eab')}
                   data={[
                     {
-                      value: CouponExpiration.TimeLimit,
-                      label: translate('text_62876e85e32e0300e1803165'),
+                      value: CouponFrequency.Once,
+                      label: translate('text_632d68358f1fedc68eed3ea3'),
                     },
                     {
-                      value: CouponExpiration.NoExpiration,
-                      label: translate('text_62876e85e32e0300e1803157'),
+                      value: CouponFrequency.Recurring,
+                      label: translate('text_632d68358f1fedc68eed3e64'),
                     },
                   ]}
                   disableClearable
                   formikProps={formikProps}
                 />
 
-                {formikProps.values.expiration === CouponExpiration.TimeLimit && (
+                {formikProps.values.frequency === CouponFrequency.Recurring && (
                   <TextInputField
-                    name="expirationDuration"
-                    beforeChangeFormatter={['int', 'positiveNumber']}
+                    name="frequencyDuration"
+                    beforeChangeFormatter={['positiveNumber', 'int']}
                     disabled={isEdition && !coupon?.canBeDeleted}
-                    label={translate('text_62876e85e32e0300e180316c')}
-                    placeholder={translate('text_62876e85e32e0300e1803172')}
+                    label={translate('text_632d68358f1fedc68eed3e80')}
+                    placeholder={translate('text_632d68358f1fedc68eed3e88')}
                     formikProps={formikProps}
                     InputProps={{
                       endAdornment: (
-                        <InputAdornment position="end">
-                          {translate('text_62876e85e32e0300e1803178')}
-                        </InputAdornment>
+                        <InputEnd variant="body" color="textSecondary">
+                          {translate('text_632d68358f1fedc68eed3e95')}
+                        </InputEnd>
                       ),
                     }}
                   />
                 )}
+
+                <Checkbox
+                  name="hasLimit"
+                  value={formikProps.values.expiration === CouponExpiration.TimeLimit}
+                  label={translate('text_632d68358f1fedc68eed3eb7')}
+                  onChange={(_, checked) => {
+                    formikProps.setFieldValue(
+                      'expiration',
+                      checked ? CouponExpiration.TimeLimit : CouponExpiration.NoExpiration
+                    )
+                  }}
+                />
+
+                {formikProps.values.expiration === CouponExpiration.TimeLimit && (
+                  <ExpirationLine>
+                    <Typography variant="body" color="grey700">
+                      {translate('text_632d68358f1fedc68eed3eb1')}
+                    </Typography>
+                    <DatePickerField
+                      disablePast
+                      name="expirationDate"
+                      placement="top-end"
+                      placeholder={translate('text_632d68358f1fedc68eed3ea5')}
+                      formikProps={formikProps}
+                    />
+                  </ExpirationLine>
+                )}
+
+                {formikProps.values.couponType === CouponTypeEnum.FixedAmount &&
+                  formikProps.values.frequency === CouponFrequency.Recurring && (
+                    <Alert type="info">{translate('text_632d68358f1fedc68eed3ebd')}</Alert>
+                  )}
               </Card>
 
               <ButtonContainer>
@@ -284,4 +391,23 @@ const LineAmount = styled.div`
     max-width: 120px;
     margin-top: 24px;
   }
+`
+
+const ExpirationLine = styled.div`
+  display: flex;
+  align-items: center;
+
+  > *:first-child {
+    margin-right: ${theme.spacing(3)};
+    flex-shrink: 0;
+  }
+
+  > *:last-child {
+    flex: 1;
+  }
+`
+
+const InputEnd = styled(Typography)`
+  flex-shrink: 0;
+  margin-right: ${theme.spacing(4)};
 `

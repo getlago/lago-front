@@ -27,9 +27,9 @@ import {
 import { UPDATE_COUPON_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { CouponStatusEnum, CouponItemFragment } from '~/generated/graphql'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DeleteCouponDialog, DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
+import { CouponCaption } from '~/components/coupons/CouponCaption'
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import {
   TerminateCouponDialog,
@@ -45,7 +45,12 @@ gql`
     amountCurrency
     amountCents
     canBeDeleted
+    expiration
     expirationDate
+    couponType
+    percentageRate
+    frequency
+    frequencyDuration
   }
 `
 
@@ -70,16 +75,7 @@ const mapStatus = (type?: CouponStatusEnum | undefined) => {
 }
 
 export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
-  const {
-    id,
-    name,
-    amountCurrency,
-    amountCents,
-    customerCount,
-    status,
-    canBeDeleted,
-    expirationDate,
-  } = coupon
+  const { id, name, customerCount, status, canBeDeleted, expirationDate } = coupon
   const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
   const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
   const { translate } = useInternationalization()
@@ -108,14 +104,7 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
             <Typography color="textSecondary" variant="bodyHl" noWrap>
               {name}
             </Typography>
-            <Typography variant="caption" noWrap>
-              {translate('text_62865498824cc10126ab2976', {
-                amount: intlFormatNumber(amountCents || 0, {
-                  currencyDisplay: 'symbol',
-                  currency: amountCurrency,
-                }),
-              })}
-            </Typography>
+            <CouponCaption coupon={coupon} variant="caption" />
           </NameBlock>
         </CouponNameSection>
         <CouponInfosSection>
