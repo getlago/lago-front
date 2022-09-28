@@ -1,11 +1,27 @@
 import { CodeSnippet } from '~/components/CodeSnippet'
-import { CreateCouponInput } from '~/generated/graphql'
+import {
+  CouponExpiration,
+  CouponFrequency,
+  CouponTypeEnum,
+  CreateCouponInput,
+} from '~/generated/graphql'
 import { envGlobalVar } from '~/core/apolloClient'
 
 const { apiUrl } = envGlobalVar()
 
 const getSnippets = (coupon?: CreateCouponInput) => {
   if (!coupon || !coupon.code) return '# Fill the form to generate the code snippet'
+  const {
+    amountCents,
+    amountCurrency,
+    code,
+    couponType,
+    expiration,
+    expirationDate,
+    frequency,
+    frequencyDuration,
+    percentageRate,
+  } = coupon
 
   return `# Assign a coupon to a customer
 curl --location --request POST "${apiUrl}/api/v1/applied_coupons" \\
@@ -14,9 +30,27 @@ curl --location --request POST "${apiUrl}/api/v1/applied_coupons" \\
   --data-raw '{
     "applied_coupon": {
       "external_customer_id": "__EXTERNAL_CUSTOMER_ID__",
-      "coupon_code": "${coupon.code}",
-      "amount_cents": ${coupon.amountCents * 100},
-      "amount_currency": "${coupon.amountCurrency}"
+      "coupon_code": "${code}",
+      ${
+        couponType === CouponTypeEnum.FixedAmount
+          ? `"coupon_type": "${couponType}",
+      "amount_cents": ${(amountCents || 0) * 100},
+      "amount_currency": "${amountCurrency}",`
+          : `"coupon_type": "${couponType}",
+      "percentage_rate": ${percentageRate ? percentageRate : '__MUST_BE_DEFINED__'},`
+      }
+      ${
+        frequency === CouponFrequency.Recurring
+          ? `"frequency": "${frequency}",
+      "frequency_duration": ${frequencyDuration ? frequencyDuration : '__MUST_BE_DEFINED__'},`
+          : `"frequency": "${frequency}",`
+      }
+      ${
+        expiration === CouponExpiration.TimeLimit
+          ? `"expiration": "${expiration}",
+      "expiration_date": ${expirationDate ? expirationDate : '__MUST_BE_DEFINED__'},`
+          : `"expiration": "${expiration}",`
+      }
     }
   }'
   

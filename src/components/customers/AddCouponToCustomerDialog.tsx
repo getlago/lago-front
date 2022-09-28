@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { object, string, number } from 'yup'
 import { useFormik } from 'formik'
 
-import { Dialog, Button, DialogRef, Typography, Alert } from '~/components/designSystem'
+import { Dialog, Button, DialogRef, Alert, Typography } from '~/components/designSystem'
 import { ComboBoxField, TextInputField, ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
@@ -14,10 +14,14 @@ import {
   useAddCouponMutation,
   Lago_Api_Error,
   CouponStatusEnum,
+  CouponCaptionFragmentDoc,
+  CouponItemFragment,
+  CouponTypeEnum,
+  CouponFrequency,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
+import { CouponCaption } from '~/components/coupons/CouponCaption'
 
 gql`
   query getCouponForCustomer($page: Int, $limit: Int, $status: CouponStatusEnum) {
@@ -31,6 +35,11 @@ gql`
         name
         amountCurrency
         amountCents
+        couponType
+        percentageRate
+        frequency
+        frequencyDuration
+        ...CouponCaption
       }
     }
   }
@@ -40,7 +49,13 @@ gql`
       id
     }
   }
+
+  ${CouponCaptionFragmentDoc}
 `
+
+type FormType = CreateAppliedCouponInput & {
+  couponType: CouponTypeEnum
+}
 
 export interface AddCouponToCustomerDialogRef extends DialogRef {}
 
@@ -70,27 +85,80 @@ export const AddCouponToCustomerDialog = forwardRef<
       }
     },
   })
-  const formikProps = useFormik<Omit<CreateAppliedCouponInput, 'customerId'>>({
+  const formikProps = useFormik<Omit<FormType, 'customerId'>>({
     initialValues: {
       // @ts-ignore
       couponId: undefined,
       amountCents: undefined,
-      amountCurrency: CurrencyEnum.Usd,
+      percentageRate: undefined,
+      couponType: CouponTypeEnum.FixedAmount,
+      frequency: undefined,
+      frequencyDuration: undefined,
+      amountCurrency: undefined,
     },
     validationSchema: object().shape({
-      amountCents: number().required(''),
-      amountCurrency: string().required(''),
       couponId: string().required(''),
+      amountCents: number().when('couponType', {
+        is: (couponType: CouponTypeEnum) =>
+          !!couponType && couponType === CouponTypeEnum.FixedAmount,
+        then: number()
+          .typeError(translate('text_624ea7c29103fd010732ab7d'))
+          .min(0.001, 'text_632d68358f1fedc68eed3e91')
+          .required(''),
+      }),
+      amountCurrency: string()
+        .when('couponType', {
+          is: (couponType: CouponTypeEnum) =>
+            !!couponType && couponType === CouponTypeEnum.FixedAmount,
+          then: string().required(''),
+        })
+        .nullable(),
+      percentageRate: number()
+        .when('couponType', {
+          is: (couponType: CouponTypeEnum) =>
+            !!couponType && couponType === CouponTypeEnum.Percentage,
+          then: number()
+            .typeError(translate('text_624ea7c29103fd010732ab7d'))
+            .min(0.001, 'text_633445d00315a713775f02a6')
+            .required(''),
+        })
+        .nullable(),
+      couponType: string().required('').nullable(),
+      frequency: string().required('').nullable(),
+      frequencyDuration: number()
+        .when('frequency', {
+          is: (frequency: CouponFrequency) =>
+            !!frequency && frequency === CouponFrequency.Recurring,
+          then: number()
+            .typeError(translate('text_63314cfeb607e57577d894c9'))
+            .min(1, 'text_63314cfeb607e57577d894c9')
+            .required(''),
+        })
+        .nullable(),
     }),
     validateOnMount: true,
     enableReinitialize: true,
-    onSubmit: async ({ amountCents, ...values }, formikBag) => {
+    onSubmit: async (
+      { amountCents, amountCurrency, percentageRate, frequencyDuration, ...values },
+      formikBag
+    ) => {
+      const couponValues = { ...values, couponType: undefined }
+
       const answer = await addCoupon({
         variables: {
           input: {
-            amountCents: (amountCents || 0) * 100,
             customerId,
-            ...values,
+            amountCents:
+              values.couponType === CouponTypeEnum.FixedAmount
+                ? Math.round(Number(amountCents || 0) * 100)
+                : undefined,
+            amountCurrency:
+              values.couponType === CouponTypeEnum.FixedAmount ? amountCurrency : undefined,
+            percentageRate:
+              values.couponType === CouponTypeEnum.Percentage ? Number(percentageRate) : undefined,
+            frequencyDuration:
+              values.frequency === CouponFrequency.Recurring ? frequencyDuration : undefined,
+            ...couponValues,
           },
         },
         refetchQueries: ['getCustomer'],
@@ -117,28 +185,20 @@ export const AddCouponToCustomerDialog = forwardRef<
   const coupons = useMemo(() => {
     if (!data || !data?.coupons || !data?.coupons?.collection) return []
 
-    return data?.coupons?.collection.map(({ id, name, amountCents, amountCurrency }) => {
+    return data?.coupons?.collection.map((coupon) => {
+      const { id, name } = coupon
+
       return {
         label: name,
         labelNode: (
           <Item>
-            {name} -{' '}
-            <Typography color="textPrimary">
-              (
-              {translate('text_628c83763b29a500a8785d0c', {
-                amount: intlFormatNumber(amountCents || 0, {
-                  currencyDisplay: 'symbol',
-                  currency: amountCurrency,
-                }),
-              })}
-              )
-            </Typography>
+            {name} - <CouponCaption coupon={coupon as CouponItemFragment} variant="body" />
           </Item>
         ),
         value: id,
       }
     })
-  }, [data, translate])
+  }, [data])
 
   return (
     <Dialog
@@ -146,7 +206,6 @@ export const AddCouponToCustomerDialog = forwardRef<
       title={translate('text_628b8c693e464200e00e465b')}
       description={translate('text_628b8c693e464200e00e4669')}
       onOpen={() => {
-        // TODO get coupons
         if (!loading && !data) {
           getCoupons()
         }
@@ -182,8 +241,12 @@ export const AddCouponToCustomerDialog = forwardRef<
             if (!!coupon) {
               formikProps.setValues({
                 couponId: coupon.id,
-                amountCents: coupon.amountCents / 100,
+                amountCents: (coupon.amountCents || 0) / 100,
                 amountCurrency: coupon.amountCurrency,
+                percentageRate: coupon.percentageRate,
+                couponType: coupon.couponType,
+                frequency: coupon.frequency,
+                frequencyDuration: coupon.frequencyDuration,
               })
             } else {
               formikProps.setFieldValue('couponId', undefined)
@@ -193,25 +256,80 @@ export const AddCouponToCustomerDialog = forwardRef<
         />
 
         {!!formikProps.values.couponId && (
-          <LineAmount>
-            <TextInputField
-              name="amountCents"
-              beforeChangeFormatter={['positiveNumber', 'decimal']}
-              label={translate('text_628b8c693e464200e00e469b')}
-              placeholder={translate('text_62876e85e32e0300e1803143')}
-              formikProps={formikProps}
-            />
+          <>
+            {formikProps.values.couponType === CouponTypeEnum.FixedAmount ? (
+              <LineAmount>
+                <TextInputField
+                  name="amountCents"
+                  beforeChangeFormatter={['positiveNumber', 'decimal']}
+                  label={translate('text_628b8c693e464200e00e469b')}
+                  placeholder={translate('text_62876e85e32e0300e1803143')}
+                  formikProps={formikProps}
+                />
+                <ComboBoxField
+                  name="amountCurrency"
+                  data={Object.values(CurrencyEnum).map((currencyType) => ({
+                    value: currencyType,
+                  }))}
+                  isEmptyNull={false}
+                  disableClearable
+                  formikProps={formikProps}
+                  PopperProps={{ displayInDialog: true }}
+                />
+              </LineAmount>
+            ) : (
+              <TextInputField
+                name="percentageRate"
+                beforeChangeFormatter={['positiveNumber', 'decimal']}
+                label={translate('text_632d68358f1fedc68eed3e76')}
+                placeholder={translate('text_632d68358f1fedc68eed3e86')}
+                formikProps={formikProps}
+                InputProps={{
+                  endAdornment: (
+                    <InputEnd variant="body" color="textSecondary">
+                      {translate('text_632d68358f1fedc68eed3e93')}
+                    </InputEnd>
+                  ),
+                }}
+              />
+            )}
+
             <ComboBoxField
-              name="amountCurrency"
-              data={Object.values(CurrencyEnum).map((currencyType) => ({
-                value: currencyType,
-              }))}
-              isEmptyNull={false}
+              name="frequency"
+              label={translate('text_632d68358f1fedc68eed3e9d')}
+              helperText={translate('text_632d68358f1fedc68eed3eab')}
+              data={[
+                {
+                  value: CouponFrequency.Once,
+                  label: translate('text_632d68358f1fedc68eed3ea3'),
+                },
+                {
+                  value: CouponFrequency.Recurring,
+                  label: translate('text_632d68358f1fedc68eed3e64'),
+                },
+              ]}
               disableClearable
               formikProps={formikProps}
               PopperProps={{ displayInDialog: true }}
             />
-          </LineAmount>
+
+            {formikProps.values.frequency === CouponFrequency.Recurring && (
+              <TextInputField
+                name="frequencyDuration"
+                beforeChangeFormatter={['positiveNumber', 'int']}
+                label={translate('text_632d68358f1fedc68eed3e80')}
+                placeholder={translate('text_632d68358f1fedc68eed3e88')}
+                formikProps={formikProps}
+                InputProps={{
+                  endAdornment: (
+                    <InputEnd variant="body" color="textSecondary">
+                      {translate('text_632d68358f1fedc68eed3e95')}
+                    </InputEnd>
+                  ),
+                }}
+              />
+            )}
+          </>
         )}
         {!!formikProps.errors?.couponId && (
           <Alert type="danger">{formikProps.errors?.couponId}</Alert>
@@ -249,6 +367,11 @@ const LineAmount = styled.div`
     max-width: 120px;
     margin-top: 24px;
   }
+`
+
+const InputEnd = styled(Typography)`
+  flex-shrink: 0;
+  margin-right: ${theme.spacing(4)};
 `
 
 AddCouponToCustomerDialog.displayName = 'AddCouponToCustomerDialog'

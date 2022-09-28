@@ -3,20 +3,23 @@ import { useRef, memo } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
-import { CustomerCouponFragment, useRemoveCouponMutation } from '~/generated/graphql'
+import {
+  AppliedCouponCaptionFragmentDoc,
+  CustomerCouponFragment,
+  useRemoveCouponMutation,
+} from '~/generated/graphql'
 import { SectionHeader } from '~/styles/customer'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, Avatar, Icon, Button, Tooltip } from '~/components/designSystem'
+import { CouponCaption } from '~/components/coupons/CouponCaption'
 import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 
 gql`
   fragment CustomerCoupon on AppliedCoupon {
     id
-    amountCents
-    amountCurrency
+    ...AppliedCouponCaption
     coupon {
       id
       name
@@ -28,6 +31,8 @@ gql`
       id
     }
   }
+
+  ${AppliedCouponCaptionFragmentDoc}
 `
 
 interface CustomerCouponsProps {
@@ -61,30 +66,23 @@ export const CustomerCoupons = memo(({ coupons }: CustomerCouponsProps) => {
               {translate('text_628b8c693e464200e00e46ab')}
             </Typography>
           </ListHeader>
-          {(coupons || []).map(({ amountCents, amountCurrency, coupon, id }) => (
-            <CouponNameSection key={id}>
+          {(coupons || []).map((appliedCoupon) => (
+            <CouponNameSection key={appliedCoupon.id}>
               <ListAvatar variant="connector">
                 <Icon name="coupon" color="dark" />
               </ListAvatar>
               <NameBlock>
                 <Typography color="textSecondary" variant="bodyHl" noWrap>
-                  {coupon?.name}
+                  {appliedCoupon.coupon?.name}
                 </Typography>
-                <Typography variant="caption" noWrap>
-                  {translate('text_62865498824cc10126ab2976', {
-                    amount: intlFormatNumber(amountCents || 0, {
-                      currencyDisplay: 'symbol',
-                      currency: amountCurrency,
-                    }),
-                  })}
-                </Typography>
+                <CouponCaption coupon={appliedCoupon as CustomerCouponFragment} variant="caption" />
               </NameBlock>
               <DeleteTooltip placement="top-end" title={translate('text_628b8c693e464200e00e4a10')}>
                 <Button
                   variant="quaternary"
                   icon="trash"
                   onClick={() => {
-                    deleteCouponId.current = id
+                    deleteCouponId.current = appliedCoupon.id
                     removeDialogRef?.current?.openDialog()
                   }}
                 />

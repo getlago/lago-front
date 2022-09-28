@@ -75,5 +75,7 @@ projects:
     id: 6328e70891e49d4d9732180d
   - name: '⚙️ [WIP] - Customers - Customer hold currency'
     id: 632b49dccdbed9536c8497ab
+  - name: "\U0001F44D [Ready for dev] - Coupons - Create % and recurring coupons"
+    id: 632d6831010fafe9382b616d
 format: flat
 variants: true

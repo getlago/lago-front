@@ -10,7 +10,11 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import { CouponItem, CouponItemSkeleton } from '~/components/coupons/CouponItem'
-import { CouponItemFragmentDoc, useCouponsQuery } from '~/generated/graphql'
+import {
+  CouponItemFragmentDoc,
+  useCouponsQuery,
+  CouponCaptionFragmentDoc,
+} from '~/generated/graphql'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 
 gql`
@@ -22,11 +26,13 @@ gql`
       }
       collection {
         ...CouponItem
+        ...CouponCaption
       }
     }
   }
 
   ${CouponItemFragmentDoc}
+  ${CouponCaptionFragmentDoc}
 `
 
 const CouponsList = () => {
