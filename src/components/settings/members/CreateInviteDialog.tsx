@@ -68,7 +68,7 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
       if (
         !!apiError &&
         apiError?.code === Lago_Api_Error.UnprocessableEntity &&
-        !!apiError?.details?.invite
+        (!!apiError?.details?.invite || !!apiError?.details?.email)
       ) {
         formikBag.setFieldError('email', translate('text_63208c701ce25db781407456'))
       }
