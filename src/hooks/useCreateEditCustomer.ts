@@ -8,7 +8,7 @@ import {
   CreateCustomerInput,
   UpdateCustomerInput,
   AddCustomerDrawerDetailFragmentDoc,
-  Lago_Api_Error,
+  LagoApiError,
   AddCustomerDrawerFragment,
   AddCustomerDrawerDetailFragment,
   UpdateCustomerMutation,
@@ -100,7 +100,7 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const [create] = useCreateCustomerMutation({
-    context: { silentErrorCodes: [Lago_Api_Error.UnprocessableEntity] },
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ createCustomer }) {
       if (!!createCustomer) {
         addToast({
@@ -112,7 +112,7 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
     },
   })
   const [update] = useUpdateCustomerMutation({
-    context: { silentErrorCodes: [Lago_Api_Error.UnprocessableEntity] },
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ updateCustomer }) {
       if (!!updateCustomer) {
         addToast({

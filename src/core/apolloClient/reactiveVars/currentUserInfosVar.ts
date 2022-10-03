@@ -2,7 +2,7 @@ import { makeVar, useReactiveVar } from '@apollo/client'
 
 import { CurrentUserFragment, CurrentOrganizationFragment } from '~/generated/graphql'
 
-import { getItemFromLS, setItemFromLS } from '../utils'
+import { getItemFromLS, setItemFromLS } from '../cacheUtils'
 
 export const ORGANIZATION_LS_KEY = 'currentOrganization'
 const CURRENT_USER_LS_KEY = 'currentUser'

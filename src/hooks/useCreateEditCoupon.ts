@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import { gql } from '@apollo/client'
 import { useParams, useNavigate } from 'react-router-dom'
 
@@ -13,9 +13,14 @@ import {
   CouponExpiration,
   CouponTypeEnum,
   CouponFrequency,
+  LagoApiError,
 } from '~/generated/graphql'
 import { ERROR_404_ROUTE, COUPONS_ROUTE } from '~/core/router'
-import { addToast } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+
+export enum FORM_ERRORS_ENUM {
+  existingCode = 'existingCode',
+}
 
 gql`
   fragment EditCoupon on CouponDetails {
@@ -58,6 +63,7 @@ type UseCreateEditCouponReturn = {
   loading: boolean
   isEdition: boolean
   coupon?: EditCouponFragment
+  errorCode?: string
   onSave: (value: CreateCouponInput | UpdateCouponInput) => Promise<void>
 }
 
@@ -93,11 +99,12 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
   const navigate = useNavigate()
   const { id } = useParams()
   const { data, loading, error } = useGetSingleCouponQuery({
-    // @ts-ignore
-    variables: { id },
+    context: { silentError: LagoApiError.NotFound },
+    variables: { id: id as string },
     skip: !id,
   })
-  const [create] = useCreateCouponMutation({
+  const [create, { error: createError }] = useCreateCouponMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ createCoupon }) {
       if (!!createCoupon) {
         addToast({
@@ -108,7 +115,8 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
       }
     },
   })
-  const [update] = useUpdateCouponMutation({
+  const [update, { error: updateError }] = useUpdateCouponMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ updateCoupon }) {
       if (!!updateCoupon) {
         addToast({
@@ -120,14 +128,26 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
     },
   })
 
-  if (error) {
-    navigate(ERROR_404_ROUTE) // TODO on error "not_found"
-  }
+  useEffect(() => {
+    if (hasDefinedGQLError('NotFound', error, 'coupon')) {
+      navigate(ERROR_404_ROUTE)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error])
+
+  const errorCode = useMemo(() => {
+    if (hasDefinedGQLError('ValueAlreadyExist', createError || updateError)) {
+      return FORM_ERRORS_ENUM.existingCode
+    }
+
+    return undefined
+  }, [createError, updateError])
 
   return useMemo(
     () => ({
       loading,
       isEdition: !!id,
+      errorCode,
       coupon: !data?.coupon ? undefined : data?.coupon,
       onSave: !!id
         ? async (values) => {
@@ -148,6 +168,6 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
             })
           },
     }),
-    [id, data, loading, create, update]
+    [id, data, loading, errorCode, create, update]
   )
 }

@@ -14,9 +14,9 @@ import {
   CreateCustomerWalletInput,
   CurrencyEnum,
   useCreateCustomerWalletMutation,
-  Lago_Api_Error,
+  LagoApiError,
 } from '~/generated/graphql'
-import { addToast, LagoGQLError } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
 
 gql`
@@ -40,7 +40,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
     const [currencyError, setCurrencyError] = useState(false)
     const [createWallet] = useCreateCustomerWalletMutation({
       context: {
-        silentErrorCodes: [Lago_Api_Error.UnprocessableEntity],
+        silentErrorCodes: [LagoApiError.UnprocessableEntity],
       },
       onCompleted(res) {
         if (res?.createCustomerWallet) {
@@ -100,12 +100,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
           refetchQueries: ['getCustomer', 'getCustomerWalletList'],
         })
 
-        if (
-          !errors ||
-          !(errors[0]?.extensions as LagoGQLError['extensions'])?.details?.currency.includes(
-            Lago_Api_Error.CurrenciesDoesNotMatch
-          )
-        ) {
+        if (!hasDefinedGQLError('CurrenciesDoesNotMatch', errors)) {
           ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()
           formikBag.resetForm()
           setCurrencyError(false)

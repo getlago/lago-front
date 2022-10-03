@@ -6,14 +6,13 @@ import { object, string } from 'yup'
 import { Drawer, Button, DrawerRef, Typography, Accordion } from '~/components/designSystem'
 import { TextInputField, ComboBoxField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { LagoGQLError } from '~/core/apolloClient'
+import { hasDefinedGQLError } from '~/core/apolloClient'
 import { theme, Card } from '~/styles'
 import {
   AddCustomerDrawerFragment,
   AddCustomerDrawerDetailFragment,
   CreateCustomerInput,
   UpdateCustomerInput,
-  Lago_Api_Error,
   ProviderTypeEnum,
   CurrencyEnum,
 } from '~/generated/graphql'
@@ -79,13 +78,8 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
       onSubmit: async (values, formikBag) => {
         const answer = await onSave(values)
         const { errors } = answer
-        const error = !errors ? undefined : (errors[0]?.extensions as LagoGQLError['extensions'])
 
-        if (
-          !!error &&
-          error?.code === Lago_Api_Error.UnprocessableEntity &&
-          !!error?.details?.externalId
-        ) {
+        if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
           formikBag.setFieldError('externalId', translate('text_626162c62f790600f850b728'))
         } else {
           ;(ref as unknown as RefObject<DrawerRef>)?.current?.closeDrawer()

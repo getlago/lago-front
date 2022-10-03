@@ -12,7 +12,7 @@ import {
   CreateAppliedCouponInput,
   CurrencyEnum,
   useAddCouponMutation,
-  Lago_Api_Error,
+  LagoApiError,
   CouponStatusEnum,
   CouponCaptionFragmentDoc,
   CouponItemFragment,
@@ -20,7 +20,7 @@ import {
   CouponFrequency,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
-import { addToast, LagoGQLError } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { CouponCaption } from '~/components/coupons/CouponCaption'
 
 gql`
@@ -74,7 +74,7 @@ export const AddCouponToCustomerDialog = forwardRef<
   })
   const [addCoupon] = useAddCouponMutation({
     context: {
-      silentErrorCodes: [Lago_Api_Error.CouponAlreadyApplied, Lago_Api_Error.UnprocessableEntity],
+      silentErrorCodes: [LagoApiError.CouponAlreadyApplied, LagoApiError.UnprocessableEntity],
     },
     onCompleted({ createAppliedCoupon }) {
       if (createAppliedCoupon) {
@@ -165,14 +165,10 @@ export const AddCouponToCustomerDialog = forwardRef<
       })
 
       const { errors } = answer
-      const error = !errors ? undefined : (errors[0]?.extensions as LagoGQLError['extensions'])
 
-      if (!!error && error?.code === Lago_Api_Error.CouponAlreadyApplied) {
+      if (hasDefinedGQLError('CouponAlreadyApplied', errors)) {
         formikBag.setFieldError('couponId', translate('text_628b8c693e464200e00e46c5'))
-      } else if (
-        !!error &&
-        error?.details?.currency.includes(Lago_Api_Error.CurrenciesDoesNotMatch)
-      ) {
+      } else if (hasDefinedGQLError('CurrenciesDoesNotMatch', errors, 'currency')) {
         setCurrencyError(true)
       } else {
         ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()

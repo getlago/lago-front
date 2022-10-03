@@ -1,6 +1,6 @@
 import { makeVar, useReactiveVar } from '@apollo/client'
 
-import { getItemFromLS, setItemFromLS } from '../utils'
+import { getItemFromLS, setItemFromLS } from '../cacheUtils'
 
 const LOCALE_LS_KEY = 'locale'
 

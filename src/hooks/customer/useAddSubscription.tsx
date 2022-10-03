@@ -10,10 +10,10 @@ import {
   BillingTimeEnum,
   PlanInterval,
   useCreateSubscriptionMutation,
-  Lago_Api_Error,
+  LagoApiError,
   CreateSubscriptionInput,
 } from '~/generated/graphql'
-import { SubscriptionUpdateInfo, addToast, LagoGQLError } from '~/core/apolloClient'
+import { SubscriptionUpdateInfo, addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { ComboBoxProps } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography } from '~/components/designSystem'
@@ -48,7 +48,7 @@ interface UseAddSubscriptionReturn {
   comboboxPlansData: ComboBoxProps['data']
   selectedPlan?: AddSubscriptionPlanFragment
   billingTimeHelper?: string
-  errorCode?: Lago_Api_Error
+  errorCode?: LagoApiError
   onOpenDrawer: () => void
   onCreate: (
     customerId: string,
@@ -71,7 +71,7 @@ export const useAddSubscription: UseAddSubscription = ({
   const { translate } = useInternationalization()
   const [create, { error }] = useCreateSubscriptionMutation({
     context: {
-      silentErrorCodes: [Lago_Api_Error.UnprocessableEntity],
+      silentErrorCodes: [LagoApiError.UnprocessableEntity],
     },
     onCompleted: async ({ createSubscription }) => {
       if (!!createSubscription) {
@@ -148,10 +148,8 @@ export const useAddSubscription: UseAddSubscription = ({
             : translate('text_62ea7cd44cd4b14bb9ac1da2', { day: currentDate.weekdayLong })
       }
     }, [selectedPlan, billingTime, translate]),
-    errorCode: (
-      (error?.graphQLErrors || [])[0]?.extensions as LagoGQLError['extensions']
-    )?.details?.currency.includes(Lago_Api_Error.CurrenciesDoesNotMatch)
-      ? Lago_Api_Error.CurrenciesDoesNotMatch
+    errorCode: hasDefinedGQLError('CurrenciesDoesNotMatch', error)
+      ? LagoApiError.CurrenciesDoesNotMatch
       : undefined,
     onOpenDrawer: () => {
       !loading && getPlans()
@@ -170,12 +168,7 @@ export const useAddSubscription: UseAddSubscription = ({
         refetchQueries: ['getCustomer'],
       })
 
-      if (
-        !errors ||
-        !(errors[0]?.extensions as LagoGQLError['extensions'])?.details?.currency.includes(
-          Lago_Api_Error.CurrenciesDoesNotMatch
-        )
-      ) {
+      if (!hasDefinedGQLError('CurrenciesDoesNotMatch', errors)) {
         return true
       }
 

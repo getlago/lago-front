@@ -3,22 +3,15 @@ import { onError } from '@apollo/client/link/error'
 import ApolloLinkTimeout from 'apollo-link-timeout'
 import { createUploadLink } from 'apollo-upload-client'
 import { persistCache, LocalForageWrapper } from 'apollo3-cache-persist'
-import { GraphQLError } from 'graphql'
 import localForage from 'localforage'
 
-import { Lago_Api_Error } from '~/generated/graphql'
+import { LagoApiError } from '~/generated/graphql'
 
 import { cache } from './cache'
 import { AUTH_TOKEN_LS_KEY, ORGANIZATION_LS_KEY, addToast, envGlobalVar } from './reactiveVars'
-import { logOut, getItemFromLS, omitDeep } from './utils'
+import { logOut, getItemFromLS, omitDeep } from './cacheUtils'
+import { LagoGQLError } from './errorUtils'
 import { typeDefs, resolvers } from './graphqlResolvers'
-
-export interface LagoGQLError extends GraphQLError {
-  extensions: {
-    code: Lago_Api_Error
-    details: Record<string, string[]>
-  }
-}
 
 let globalApolloClient: ApolloClient<NormalizedCacheObject> | null = null
 
@@ -60,9 +53,9 @@ export const initializeApolloClient = async () => {
           const isUnauthorized =
             extensions &&
             [
-              Lago_Api_Error.Unauthorized,
-              Lago_Api_Error.ExpiredJwtToken,
-              Lago_Api_Error.TokenEncodingError,
+              LagoApiError.Unauthorized,
+              LagoApiError.ExpiredJwtToken,
+              LagoApiError.TokenEncodingError,
             ].includes(extensions?.code)
 
           if (isUnauthorized && globalApolloClient) {
@@ -95,7 +88,6 @@ export const initializeApolloClient = async () => {
         // eslint-disable-next-line no-console
         console.warn(`[Network error]: ${JSON.stringify(networkError)}`)
       }
-
       return forward(operation)
     }),
     // afterwareLink.concat(

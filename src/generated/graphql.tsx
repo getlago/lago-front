@@ -1500,13 +1500,15 @@ export enum InvoiceTypeEnum {
   Subscription = 'subscription'
 }
 
-export enum Lago_Api_Error {
+export enum LagoApiError {
   CouponAlreadyApplied = 'coupon_already_applied',
   CurrenciesDoesNotMatch = 'currencies_does_not_match',
+  EmailAlreadyUsed = 'email_already_used',
   ExpiredJwtToken = 'expired_jwt_token',
   Forbidden = 'forbidden',
   IncorrectLoginOrPassword = 'incorrect_login_or_password',
   InternalError = 'internal_error',
+  InviteAlreadyExists = 'invite_already_exists',
   InviteNotFound = 'invite_not_found',
   NotFound = 'not_found',
   NotOrganizationMember = 'not_organization_member',
@@ -1514,7 +1516,10 @@ export enum Lago_Api_Error {
   TokenEncodingError = 'token_encoding_error',
   Unauthorized = 'unauthorized',
   UnprocessableEntity = 'unprocessable_entity',
-  UserAlreadyExists = 'user_already_exists'
+  UrlIsInvalid = 'url_is_invalid',
+  UserAlreadyExists = 'user_already_exists',
+  ValueAlreadyExist = 'value_already_exist',
+  ValueIsOutOfRange = 'value_is_out_of_range'
 }
 
 export type LoginUser = {

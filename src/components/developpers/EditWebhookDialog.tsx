@@ -5,9 +5,9 @@ import styled from 'styled-components'
 import { Dialog, Button, DialogRef, Typography } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useUpdateOrganizationMutation, Lago_Api_Error } from '~/generated/graphql'
+import { useUpdateOrganizationMutation, LagoApiError } from '~/generated/graphql'
 import { theme } from '~/styles'
-import { LagoGQLError, addToast } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 
 gql`
   mutation updateOrganization($input: UpdateOrganizationInput!) {
@@ -30,7 +30,7 @@ export const EditWebhookDialog = forwardRef<DialogRef, EditWebhookDialogProps>(
     const [localWebhook, setLocalWebhook] = useState<string | undefined>(webhook || undefined)
     const isEdition = !!webhook
     const [updateWebhook] = useUpdateOrganizationMutation({
-      context: { silentErrorCodes: [Lago_Api_Error.UnprocessableEntity] },
+      context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     })
 
     useEffect(() => {
@@ -65,15 +65,8 @@ export const EditWebhookDialog = forwardRef<DialogRef, EditWebhookDialogProps>(
                   variables: { input: { webhookUrl: localWebhook } },
                 })
                 const { errors } = res
-                const error = !errors
-                  ? undefined
-                  : (errors[0]?.extensions as LagoGQLError['extensions'])
 
-                if (
-                  !!error &&
-                  error?.code === Lago_Api_Error.UnprocessableEntity &&
-                  !!error?.details?.webhookUrl
-                ) {
+                if (hasDefinedGQLError('UrlIsInvalid', errors)) {
                   setMutationError(translate('text_6271200984178801ba8bdf58'))
                 } else if (!errors) {
                   addToast({

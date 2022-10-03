@@ -14,10 +14,10 @@ import { LOGIN_ROUTE } from '~/core/router'
 import {
   useAcceptInviteMutation,
   CurrentUserFragmentDoc,
-  Lago_Api_Error,
+  LagoApiError,
   useGetinviteQuery,
 } from '~/generated/graphql'
-import { onLogIn } from '~/core/apolloClient'
+import { onLogIn, hasDefinedGQLError } from '~/core/apolloClient'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
 
 gql`
@@ -66,12 +66,12 @@ const Invitation = () => {
   const { translate } = useInternationalization()
   const { token } = useParams()
   const { data, error, loading } = useGetinviteQuery({
-    context: { silentErrorCodes: [Lago_Api_Error.InviteNotFound] },
+    context: { silentErrorCodes: [LagoApiError.InviteNotFound] },
     variables: { token: token || '' },
   })
   const email = data?.invite?.email
   const [acceptInvite, { error: acceptInviteError }] = useAcceptInviteMutation({
-    context: { silentErrorCodes: [Lago_Api_Error.UserAlreadyExists] },
+    context: { silentErrorCodes: [LagoApiError.UserAlreadyExists] },
     onCompleted(res) {
       if (!!res?.acceptInvite) {
         onLogIn(res?.acceptInvite.token, res?.acceptInvite.user)
@@ -154,17 +154,14 @@ const Invitation = () => {
             </Title>
             <Subtitle>{translate('text_63246f875e2228ab7b63dcd4')}</Subtitle>
 
-            {!!acceptInviteError?.graphQLErrors &&
-              acceptInviteError?.graphQLErrors[0] &&
-              acceptInviteError?.graphQLErrors[0]?.extensions?.code ===
-                Lago_Api_Error.UserAlreadyExists && (
-                <ErrorAlert type="danger" data-test="error-alert">
-                  <Typography
-                    color="inherit"
-                    html={translate('text_622f7a3dc32ce100c46a5131', { link: LOGIN_ROUTE })}
-                  />
-                </ErrorAlert>
-              )}
+            {hasDefinedGQLError('UserAlreadyExists', acceptInviteError) && (
+              <ErrorAlert type="danger" data-test="error-alert">
+                <Typography
+                  color="inherit"
+                  html={translate('text_622f7a3dc32ce100c46a5131', { link: LOGIN_ROUTE })}
+                />
+              </ErrorAlert>
+            )}
             <form>
               <Input
                 disabled
