@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { gql } from '@apollo/client'
 import { useParams, useNavigate, generatePath } from 'react-router-dom'
 import _omit from 'lodash/omit'
@@ -12,13 +12,13 @@ import {
   useGetSinglePlanQuery,
   useCreatePlanMutation,
   useUpdatePlanMutation,
-  Lago_Api_Error,
+  LagoApiError,
 } from '~/generated/graphql'
 import {
   useOverwritePlanVar,
   addToast,
   updateOverwritePlanVar,
-  LagoGQLError,
+  hasDefinedGQLError,
 } from '~/core/apolloClient'
 import { ERROR_404_ROUTE, PLANS_ROUTE, CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { serializePlanInput } from '~/core/serializers'
@@ -112,13 +112,14 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
   const { id } = useParams()
   const { parentId, subscriptionInput, customerId } = useOverwritePlanVar()
   const { data, loading, error } = useGetSinglePlanQuery({
+    context: { silentError: LagoApiError.NotFound },
     variables: { id: (id as string) || (parentId as string) },
     skip: !id && !parentId,
   })
   const isOverride = !!parentId
   const type = !!id ? 'edition' : isOverride ? 'override' : 'creation'
   const [create, { error: createError }] = useCreatePlanMutation({
-    context: { silentErrorCodes: [Lago_Api_Error.UnprocessableEntity] },
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ createPlan }) {
       if (!!createPlan) {
         if (type === PLAN_FORM_TYPE_ENUM.override) {
@@ -141,7 +142,7 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
     },
   })
   const [update, { error: updateError }] = useUpdatePlanMutation({
-    context: { silentErrorCodes: [Lago_Api_Error.UnprocessableEntity] },
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ updatePlan }) {
       if (!!updatePlan) {
         addToast({
@@ -153,21 +154,15 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
     },
   })
 
-  if (
-    (error?.graphQLErrors[0]?.extensions as LagoGQLError['extensions'])?.code ===
-    Lago_Api_Error.PlanNotFound
-  ) {
-    navigate(ERROR_404_ROUTE)
-  }
+  useEffect(() => {
+    if (hasDefinedGQLError('NotFound', error, 'plan')) {
+      navigate(ERROR_404_ROUTE)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error])
 
   const errorCode = useMemo(() => {
-    const errorExtension = (createError || updateError)?.graphQLErrors[0]
-      ?.extensions as LagoGQLError['extensions']
-
-    if (
-      errorExtension?.code === Lago_Api_Error?.UnprocessableEntity &&
-      !!errorExtension?.details?.code
-    ) {
+    if (hasDefinedGQLError('ValueAlreadyExist', createError || updateError)) {
       return FORM_ERRORS_ENUM.existingCode
     }
 

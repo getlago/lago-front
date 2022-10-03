@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFormik } from 'formik'
 import { object, string, number, date } from 'yup'
@@ -6,7 +6,7 @@ import { DateTime } from 'luxon'
 import { InputAdornment } from '@mui/material'
 import styled from 'styled-components'
 
-import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
+import { useCreateEditCoupon, FORM_ERRORS_ENUM } from '~/hooks/useCreateEditCoupon'
 import { PageHeader, Card, theme } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, Button, Skeleton, Alert } from '~/components/designSystem'
@@ -36,7 +36,7 @@ import { CouponCodeSnippet } from '../components/coupons/CouponCodeSnippet'
 const CreateCoupon = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
-  const { isEdition, loading, coupon, onSave } = useCreateEditCoupon()
+  const { isEdition, loading, coupon, errorCode, onSave } = useCreateEditCoupon()
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const formikProps = useFormik<CreateCouponInput>({
     initialValues: {
@@ -101,6 +101,17 @@ const CreateCoupon = () => {
     validateOnMount: true,
     onSubmit: onSave,
   })
+
+  useEffect(() => {
+    if (errorCode === FORM_ERRORS_ENUM.existingCode) {
+      formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
+      const rootElement = document.getElementById('root')
+
+      if (!rootElement) return
+      rootElement.scrollTo({ top: 0 })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorCode])
 
   return (
     <div>

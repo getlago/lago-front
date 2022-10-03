@@ -9,9 +9,9 @@ import { theme } from '~/styles'
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { CreateInviteInput, Lago_Api_Error, useCreateInviteMutation } from '~/generated/graphql'
+import { CreateInviteInput, LagoApiError, useCreateInviteMutation } from '~/generated/graphql'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { addToast, LagoGQLError, useCurrentUserInfosVar } from '~/core/apolloClient'
+import { addToast, useCurrentUserInfosVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { INVITATION_ROUTE } from '~/core/router'
 
@@ -34,7 +34,7 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
     token: inviteToken,
   })}`
   const [createInvite, { error }] = useCreateInviteMutation({
-    context: { silentErrorCodes: [Lago_Api_Error.UnprocessableEntity] },
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted(res) {
       if (res?.createInvite?.token) {
         setInviteToken(res.createInvite.token)
@@ -63,12 +63,9 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
 
       const { errors } = result
 
-      const apiError = !errors ? undefined : (errors[0]?.extensions as LagoGQLError['extensions'])
-
       if (
-        !!apiError &&
-        apiError?.code === Lago_Api_Error.UnprocessableEntity &&
-        (!!apiError?.details?.invite || !!apiError?.details?.email)
+        hasDefinedGQLError('InviteAlreadyExists', errors) ||
+        hasDefinedGQLError('EmailAlreadyUsed', errors)
       ) {
         formikBag.setFieldError('email', translate('text_63208c701ce25db781407456'))
       }

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { gql } from '@apollo/client'
 import { useParams, useNavigate } from 'react-router-dom'
 
@@ -10,9 +10,14 @@ import {
   AddOnItemFragmentDoc,
   CreateAddOnInput,
   UpdateAddOnInput,
+  LagoApiError,
 } from '~/generated/graphql'
 import { ERROR_404_ROUTE, ADD_ONS_ROUTE } from '~/core/router'
-import { addToast } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+
+export enum FORM_ERRORS_ENUM {
+  existingCode = 'existingCode',
+}
 
 gql`
   fragment EditAddOn on AddOnDetails {
@@ -49,6 +54,7 @@ type UseCreateEditAddOnReturn = {
   loading: boolean
   isEdition: boolean
   addOn?: EditAddOnFragment
+  errorCode?: string
   onSave: (value: CreateAddOnInput | UpdateAddOnInput) => Promise<void>
 }
 
@@ -65,11 +71,13 @@ export const useCreateEditAddOn: () => UseCreateEditAddOnReturn = () => {
   const navigate = useNavigate()
   const { id } = useParams()
   const { data, loading, error } = useGetSingleAddOnQuery({
+    context: { silentError: LagoApiError.NotFound },
     // @ts-ignore
-    variables: { id },
+    variables: { id: id as string },
     skip: !id,
   })
-  const [create] = useCreateAddOnMutation({
+  const [create, { error: createError }] = useCreateAddOnMutation({
+    context: { silentError: LagoApiError.UnprocessableEntity },
     onCompleted({ createAddOn }) {
       if (!!createAddOn) {
         addToast({
@@ -80,7 +88,8 @@ export const useCreateEditAddOn: () => UseCreateEditAddOnReturn = () => {
       }
     },
   })
-  const [update] = useUpdateAddOnMutation({
+  const [update, { error: updateError }] = useUpdateAddOnMutation({
+    context: { silentError: LagoApiError.UnprocessableEntity },
     onCompleted({ updateAddOn }) {
       if (!!updateAddOn) {
         addToast({
@@ -92,14 +101,26 @@ export const useCreateEditAddOn: () => UseCreateEditAddOnReturn = () => {
     },
   })
 
-  if (error) {
-    navigate(ERROR_404_ROUTE) // TODO on error "not_found"
-  }
+  useEffect(() => {
+    if (hasDefinedGQLError('NotFound', error, 'addOn')) {
+      navigate(ERROR_404_ROUTE)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error])
+
+  const errorCode = useMemo(() => {
+    if (hasDefinedGQLError('ValueAlreadyExist', createError || updateError)) {
+      return FORM_ERRORS_ENUM.existingCode
+    }
+
+    return undefined
+  }, [createError, updateError])
 
   return useMemo(
     () => ({
       loading,
       isEdition: !!id,
+      errorCode,
       addOn: !data?.addOn ? undefined : data?.addOn,
       onSave: !!id
         ? async (values) => {
@@ -120,6 +141,6 @@ export const useCreateEditAddOn: () => UseCreateEditAddOnReturn = () => {
             })
           },
     }),
-    [id, data, loading, create, update]
+    [id, data, loading, errorCode, create, update]
   )
 }

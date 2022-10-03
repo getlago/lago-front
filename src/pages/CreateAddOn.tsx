@@ -1,10 +1,10 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFormik } from 'formik'
 import { object, string, number } from 'yup'
 import styled from 'styled-components'
 
-import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
+import { useCreateEditAddOn, FORM_ERRORS_ENUM } from '~/hooks/useCreateEditAddOn'
 import { PageHeader } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
@@ -30,7 +30,7 @@ import { AddOnCodeSnippet } from '../components/addOns/AddOnCodeSnippet'
 const CreateAddOn = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
-  const { isEdition, loading, addOn, onSave } = useCreateEditAddOn()
+  const { isEdition, loading, addOn, errorCode, onSave } = useCreateEditAddOn()
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const formikProps = useFormik<CreateAddOnInput>({
     initialValues: {
@@ -51,6 +51,17 @@ const CreateAddOn = () => {
     validateOnMount: true,
     onSubmit: onSave,
   })
+
+  useEffect(() => {
+    if (errorCode === FORM_ERRORS_ENUM.existingCode) {
+      formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
+      const rootElement = document.getElementById('root')
+
+      if (!rootElement) return
+      rootElement.scrollTo({ top: 0 })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorCode])
 
   return (
     <div>

@@ -6,9 +6,9 @@ import { InputAdornment } from '@mui/material'
 import { Dialog, Button, DialogRef } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useUpdateVatRateOrganizationMutation, Lago_Api_Error } from '~/generated/graphql'
+import { useUpdateVatRateOrganizationMutation, LagoApiError } from '~/generated/graphql'
 import { theme } from '~/styles'
-import { LagoGQLError, addToast } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 
 gql`
   mutation updateVatRateOrganization($input: UpdateOrganizationInput!) {
@@ -32,7 +32,7 @@ export const EditOrganizationVatRateDialog = forwardRef<
   const [mutationError, setMutationError] = useState<string | undefined>(undefined)
   const [localVatRate, setLocalVatRate] = useState<number>(vatRate)
   const [updateVatRate] = useUpdateVatRateOrganizationMutation({
-    context: { silentErrorCodes: [Lago_Api_Error.UnprocessableEntity] },
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
   })
 
   useEffect(() => {
@@ -65,15 +65,8 @@ export const EditOrganizationVatRateDialog = forwardRef<
                 variables: { input: { vatRate: localVatRate } },
               })
               const { errors } = res
-              const error = !errors
-                ? undefined
-                : (errors[0]?.extensions as LagoGQLError['extensions'])
 
-              if (
-                !!error &&
-                error?.code === Lago_Api_Error.UnprocessableEntity &&
-                !!error?.details?.vatRate
-              ) {
+              if (hasDefinedGQLError('ValueIsOutOfRange', errors)) {
                 setMutationError(translate('text_6272a16eea94bd01089abaa7'))
               } else if (!errors) {
                 addToast({

@@ -2,7 +2,7 @@ import { makeVar, useReactiveVar } from '@apollo/client'
 
 import { CreateSubscriptionInput } from '~/generated/graphql'
 
-import { getItemFromLS, setItemFromLS } from '../utils'
+import { getItemFromLS, setItemFromLS } from '../cacheUtils'
 
 export const OVERWRITE_PLAN_LS_KEY = 'overwritePlan'
 

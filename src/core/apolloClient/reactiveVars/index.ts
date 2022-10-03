@@ -1,6 +1,6 @@
 import { makeVar } from '@apollo/client'
 
-import { getItemFromLS } from '../utils'
+import { getItemFromLS } from '../cacheUtils'
 
 export const AUTH_TOKEN_LS_KEY = 'authToken'
 export const isAuthenticatedVar = makeVar<boolean>(!!getItemFromLS(AUTH_TOKEN_LS_KEY))

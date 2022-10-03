@@ -6,8 +6,8 @@ import { useFormik } from 'formik'
 import { theme } from '~/styles'
 import { Typography, Button, Alert } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useLoginUserMutation, Lago_Api_Error, CurrentUserFragmentDoc } from '~/generated/graphql'
-import { onLogIn, envGlobalVar } from '~/core/apolloClient'
+import { useLoginUserMutation, LagoApiError, CurrentUserFragmentDoc } from '~/generated/graphql'
+import { onLogIn, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { TextInputField } from '~/components/form'
 import { FORGOT_PASSWORD_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import { Page, Title, Subtitle, StyledLogo, Card } from '~/styles/auth'
@@ -31,7 +31,7 @@ gql`
 const Login = () => {
   const { translate } = useInternationalization()
   const [login, { error: loginError }] = useLoginUserMutation({
-    context: { silentErrorCodes: [Lago_Api_Error.IncorrectLoginOrPassword] },
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted(res) {
       if (!!res?.loginUser) {
         onLogIn(res.loginUser.token, res.loginUser.user)
@@ -77,14 +77,11 @@ const Login = () => {
         <Title variant="headline">{translate('text_620bc4d4269a55014d493f08')}</Title>
         <Subtitle>{translate('text_620bc4d4269a55014d493f81')}</Subtitle>
 
-        {!!loginError?.graphQLErrors &&
-          loginError?.graphQLErrors[0] &&
-          loginError?.graphQLErrors[0]?.extensions?.code ===
-            Lago_Api_Error.IncorrectLoginOrPassword && (
-            <ErrorAlert data-test="error-alert" type="danger">
-              {translate('text_620bc4d4269a55014d493fb7')}
-            </ErrorAlert>
-          )}
+        {hasDefinedGQLError('IncorrectLoginOrPassword', loginError) && (
+          <ErrorAlert data-test="error-alert" type="danger">
+            {translate('text_620bc4d4269a55014d493fb7')}
+          </ErrorAlert>
+        )}
 
         <form>
           <EmailInput

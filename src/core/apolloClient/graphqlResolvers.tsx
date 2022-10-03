@@ -5,7 +5,7 @@ export const typeDefs = gql`
     token: Boolean!
   }
 
-  enum LAGO_API_ERROR {
+  enum LagoApiError {
     internal_error
     unauthorized
     forbidden
@@ -23,6 +23,11 @@ export const typeDefs = gql`
     coupon_already_applied
     currencies_does_not_match
     invite_not_found
+    value_already_exist
+    value_is_out_of_range
+    url_is_invalid
+    invite_already_exists
+    email_already_used
 
     # Object not found
     plan_not_found

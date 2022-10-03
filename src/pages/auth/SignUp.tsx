@@ -10,8 +10,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { TextInput } from '~/components/form'
 import { LOGIN_ROUTE } from '~/core/router'
-import { useSignupMutation, CurrentUserFragmentDoc, Lago_Api_Error } from '~/generated/graphql'
-import { onLogIn } from '~/core/apolloClient'
+import { useSignupMutation, CurrentUserFragmentDoc, LagoApiError } from '~/generated/graphql'
+import { onLogIn, hasDefinedGQLError } from '~/core/apolloClient'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
 
 gql`
@@ -55,7 +55,7 @@ const PASSWORD_VALIDATION = [
 const SignUp = () => {
   const { translate } = useInternationalization()
   const [signUp, { error: signUpError }] = useSignupMutation({
-    context: { silentErrorCodes: [Lago_Api_Error.UserAlreadyExists] },
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted(res) {
       if (!!res?.registerUser) {
         onLogIn(res.registerUser.token, res.registerUser.user)
@@ -119,16 +119,14 @@ const SignUp = () => {
         <Title variant="headline">{translate('text_620bc4d4269a55014d493f12')}</Title>
         <Subtitle>{translate('text_620bc4d4269a55014d493fc9')}</Subtitle>
 
-        {!!signUpError?.graphQLErrors &&
-          signUpError?.graphQLErrors[0] &&
-          signUpError?.graphQLErrors[0]?.extensions?.code === Lago_Api_Error.UserAlreadyExists && (
-            <ErrorAlert type="danger" data-test="error-alert">
-              <Typography
-                color="inherit"
-                html={translate('text_622f7a3dc32ce100c46a5131', { link: LOGIN_ROUTE })}
-              />
-            </ErrorAlert>
-          )}
+        {hasDefinedGQLError('UserAlreadyExists', signUpError) && (
+          <ErrorAlert type="danger" data-test="error-alert">
+            <Typography
+              color="inherit"
+              html={translate('text_622f7a3dc32ce100c46a5131', { link: LOGIN_ROUTE })}
+            />
+          </ErrorAlert>
+        )}
         <form>
           <Input
             name="organizationName"

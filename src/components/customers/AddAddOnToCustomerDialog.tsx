@@ -12,11 +12,11 @@ import {
   useGetAddOnsForCustomerLazyQuery,
   CreateAppliedAddOnInput,
   CurrencyEnum,
-  Lago_Api_Error,
+  LagoApiError,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
-import { addToast, LagoGQLError } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 
 gql`
   query getAddOnsForCustomer($page: Int, $limit: Int) {
@@ -58,7 +58,7 @@ export const AddAddOnToCustomerDialog = forwardRef<
   })
   const [addCoupon] = useAddAddOnMutation({
     context: {
-      silentErrorCodes: [Lago_Api_Error.UnprocessableEntity],
+      silentErrorCodes: [LagoApiError.UnprocessableEntity],
     },
     onCompleted({ createAppliedAddOn }) {
       if (createAppliedAddOn) {
@@ -95,9 +95,8 @@ export const AddAddOnToCustomerDialog = forwardRef<
       })
 
       const { errors } = answer
-      const error = !errors ? undefined : (errors[0]?.extensions as LagoGQLError['extensions'])
 
-      if (!!error && error?.details?.currency.includes(Lago_Api_Error.CurrenciesDoesNotMatch)) {
+      if (hasDefinedGQLError('CurrenciesDoesNotMatch', errors)) {
         setCurrencyError(true)
       } else {
         ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()

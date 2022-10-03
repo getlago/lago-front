@@ -52,6 +52,13 @@
     "body": "import clsns from 'classnames'"
   },
 
+  // Linter ignore
+  "Ignore exhaustive deps if needed": {
+    "scope": "typescript, typescriptreact",
+    "prefix": "exhaustive-deps",
+    "body": "// eslint-disable-next-line react-hooks/exhaustive-deps"
+  },
+
   // In styles
   "Add theme spacing in px": {
     "scope": "css, styled, typescript, typescriptreact",
