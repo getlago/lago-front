@@ -3,7 +3,8 @@ import { InputAdornment } from '@mui/material'
 import clsns from 'classnames'
 import styled from 'styled-components'
 
-import { Button } from '~/components/designSystem'
+import { Button, Typography } from '~/components/designSystem'
+import { theme } from '~/styles'
 
 import { ComboBoxInputProps } from './types'
 
@@ -19,6 +20,7 @@ export const ComboBoxInput = ({
   infoText,
   params,
   disableClearable,
+  startAdornmentValue,
 }: ComboBoxInputProps) => {
   const { inputProps, InputProps, ...restParams } = params
 
@@ -65,6 +67,14 @@ export const ComboBoxInput = ({
             />
           </InputAdornment>
         ),
+        startAdornment: startAdornmentValue && (
+          <InputAdornment position="start">
+            <StartAdornmentTypography noWrap variant="body" color="grey700">
+              <span>{startAdornmentValue}</span>
+              <span>•</span>
+            </StartAdornmentTypography>
+          </InputAdornment>
+        ),
       }}
       inputProps={_omit(inputProps, 'className')}
       {...restParams}
@@ -88,5 +98,11 @@ const StyledTextInput = styled(TextInput)`
     .MuiAutocomplete-clearIndicatorDirty {
       visibility: visible;
     }
+  }
+`
+
+const StartAdornmentTypography = styled(Typography)`
+  > span:first-child {
+    margin-right: ${theme.spacing(2)};
   }
 `

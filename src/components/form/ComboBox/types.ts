@@ -31,6 +31,7 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params'> {
   emptyText?: string
   virtualized?: boolean
   disableClearable?: boolean
+  renderGroupInputStartAdornment?: { [key: string]: string }
   PopperProps?: Pick<MuiPopperProps, 'placement'> & {
     minWidth?: number
     maxWidth?: number
@@ -50,7 +51,14 @@ export type ComboBoxProps = BasicComboboxProps | GroupedComboboxProps
 
 export type ComboBoxInputProps = Pick<
   TextInputProps,
-  'error' | 'label' | 'name' | 'placeholder' | 'helperText' | 'className' | 'infoText'
+  | 'error'
+  | 'label'
+  | 'name'
+  | 'placeholder'
+  | 'helperText'
+  | 'className'
+  | 'infoText'
+  | 'startAdornmentValue'
 > & {
   disableClearable?: boolean
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -33,6 +33,7 @@ export const ComboBox = ({
   disableClearable = false,
   renderGroupHeader,
   virtualized = true,
+  renderGroupInputStartAdornment,
   onChange,
 }: ComboBoxProps) => {
   const { translate } = useInternationalization()
@@ -73,6 +74,13 @@ export const ComboBox = ({
     matchFrom: allowAddValue ? 'start' : 'any',
     stringify: (option) => option.label || option.value,
   })
+  const startAdornmentValue = useMemo(() => {
+    if (!renderGroupInputStartAdornment || !value) return undefined
+
+    let foundGroup = data.find((item) => item.value === value)?.group
+
+    return foundGroup ? renderGroupInputStartAdornment[foundGroup] : undefined
+  }, [data, renderGroupInputStartAdornment, value])
 
   return (
     <Autocomplete
@@ -89,6 +97,7 @@ export const ComboBox = ({
             infoText={infoText}
             name={name}
             placeholder={placeholder}
+            startAdornmentValue={startAdornmentValue}
             params={params}
           />
         )

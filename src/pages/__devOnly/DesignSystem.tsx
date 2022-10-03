@@ -772,6 +772,54 @@ const DesignSystem = () => {
                       placeholder="Placeholder"
                       formikProps={formikProps}
                     />
+                    <ComboBoxField
+                      name="combobox"
+                      virtualized={false}
+                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
+                        value: `${letter}-${i}`,
+                        group: Math.round(i / 5) + '',
+                      }))}
+                      renderGroupHeader={{
+                        '0': (
+                          <ComboboxHeader>
+                            <Typography variant="captionHl" color="textSecondary">
+                              The good •&#32;
+                            </Typography>
+                            <Typography component="span" variant="caption" noWrap>
+                              Based on several survey
+                            </Typography>
+                          </ComboboxHeader>
+                        ),
+                        '1': (
+                          <ComboboxHeader>
+                            <Typography variant="captionHl" color="textSecondary">
+                              The bad •&#32;
+                            </Typography>
+                            <Typography component="span" variant="caption" noWrap>
+                              Because I say so
+                            </Typography>
+                          </ComboboxHeader>
+                        ),
+                        '2': (
+                          <ComboboxHeader>
+                            <Typography variant="captionHl" color="textSecondary">
+                              The ugly •&#32;
+                            </Typography>
+                            <Typography component="span" variant="caption" noWrap>
+                              Don&apos;t look at it
+                            </Typography>
+                          </ComboboxHeader>
+                        ),
+                      }}
+                      renderGroupInputStartAdornment={{
+                        0: 'The good',
+                        1: 'The bad',
+                        2: 'The ugly',
+                      }}
+                      label="Grouped by - normal - custom headers - Input start adornment"
+                      placeholder="Placeholder"
+                      formikProps={formikProps}
+                    />
 
                     <ComboBoxField
                       name="combobox"
