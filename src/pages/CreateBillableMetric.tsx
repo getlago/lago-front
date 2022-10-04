@@ -255,6 +255,12 @@ const CreateBillableMetric = () => {
                         </ComboboxHeader>
                       ),
                     }}
+                    renderGroupInputStartAdornment={{
+                      [AGGREGATION_GROUP_ENUM.Metered]: translate('text_6310755befed49627644222b'),
+                      [AGGREGATION_GROUP_ENUM.Persistent]: translate(
+                        'text_6310755befed49627644222f'
+                      ),
+                    }}
                     formikProps={formikProps}
                   />
 

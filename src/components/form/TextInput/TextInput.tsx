@@ -33,6 +33,7 @@ export interface TextInputProps
   value?: string | number
   beforeChangeFormatter?: ValueFormatterType[] | ValueFormatterType
   infoText?: string
+  startAdornmentValue?: string
   onChange?: (value: string, e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | null) => void
 }
 
