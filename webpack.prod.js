@@ -50,10 +50,17 @@ const config = {
       },
       {
         test: /\.(jpg|png|jpeg)$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'url-loader',
-        },
+        include: path.resolve(__dirname, 'src'),
+        type: 'asset/inline',
+      },
+      {
+        test: /\.(js)$/i,
+        include: '/node_modules/',
+        use: [
+          {
+            loader: 'file-loader',
+          },
+        ],
       },
     ],
   },
