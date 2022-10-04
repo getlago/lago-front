@@ -35,6 +35,7 @@ import {
   SwitchField,
   RadioField,
   ButtonSelectorField,
+  JsonEditorField,
 } from '~/components/form'
 import { ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
 import { addToast, TToast } from '~/core/apolloClient'
@@ -94,9 +95,11 @@ const DesignSystem = () => {
       radio: false,
       buttonSelector: undefined,
       buttonSelector2: 'time',
+      json: undefined,
     },
     validationSchema: object().shape({
       checkbox: boolean().required(),
+      json: string().required(),
       date: string()
         .required()
         .matches(/1992-05-26/, 'Sorry, you owe her a beer 🍺'),
@@ -638,6 +641,29 @@ const DesignSystem = () => {
               <Container>
                 <Form onSubmit={(e) => e.preventDefault()}>
                   <GroupTitle variant="headline">Form</GroupTitle>
+
+                  <GroupTitle variant="subhead">Code Editor</GroupTitle>
+                  <Block $marginBottom={theme.spacing(6)}>
+                    <JsonEditorField
+                      label="Default"
+                      name="json"
+                      formikProps={formikProps}
+                      infoText="Testing testing"
+                      helperText="Helper text"
+                      placeholder="Type or paste your JSON snippet, consult the doc to see examples"
+                      customInvalidError="text_633b622c201ca8b521bcad59"
+                    />
+                    <JsonEditorField
+                      label="Disabled"
+                      name="json"
+                      formikProps={formikProps}
+                      disabled
+                      infoText="Testing testing"
+                      helperText="Helper text"
+                      placeholder="Type or paste your JSON snippet, consult the doc to see examples"
+                      customInvalidError="text_633b622c201ca8b521bcad59"
+                    />
+                  </Block>
 
                   <GroupTitle variant="subhead">ButtonSelector</GroupTitle>
                   <Block $marginBottom={theme.spacing(6)}>

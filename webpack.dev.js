@@ -50,9 +50,16 @@ module.exports = (env) =>
         {
           test: /\.(jpg|png|jpeg)$/,
           include: path.resolve(__dirname, 'src'),
-          use: {
-            loader: 'url-loader',
-          },
+          type: 'asset/inline',
+        },
+        {
+          test: /\.(js)$/i,
+          include: '/node_modules/',
+          use: [
+            {
+              loader: 'file-loader',
+            },
+          ],
         },
       ],
     },

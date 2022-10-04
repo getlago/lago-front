@@ -1,4 +1,5 @@
 import { FormikProps } from 'formik'
+import _get from 'lodash/get'
 
 import { Checkbox, CheckboxProps } from './Checkbox'
 
@@ -12,8 +13,8 @@ interface CheckboxFieldProps extends Omit<CheckboxProps, 'onChange' | 'name'> {
 export const CheckboxField = ({
   name,
   canBeIndeterminate,
-  onChange,
   formikProps,
+  onChange,
   ...props
 }: CheckboxFieldProps) => {
   const { values, errors, touched, setFieldValue } = formikProps
@@ -21,7 +22,7 @@ export const CheckboxField = ({
   return (
     <Checkbox
       name={name}
-      value={values[name]}
+      value={_get(values, name)}
       onChange={(event) => {
         if (canBeIndeterminate && typeof values[name] !== 'boolean') {
           setFieldValue(name, false)
@@ -31,7 +32,7 @@ export const CheckboxField = ({
         onChange && onChange(event.target.checked)
       }}
       canBeIndeterminate={canBeIndeterminate}
-      error={touched[name] ? (errors[name] as string) : undefined}
+      error={_get(touched, name) ? (_get(errors, name) as string) : undefined}
       {...props}
     />
   )
