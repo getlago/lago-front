@@ -102,7 +102,7 @@
     "webpack-merge": "5.8.0"
   },
   "dependencies": {
-    "@apollo/client": "3.6.9",
+    "@apollo/client": "3.7.0",
     "@date-io/luxon": "2.16.0",
     "@mui/material": "5.10.7",
     "@mui/styled-engine": "5.10.7",
