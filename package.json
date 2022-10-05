@@ -136,7 +136,10 @@
     "styled-components": "5.3.6",
     "@mui/styled-engine": "5.10.7",
     "lodash": "4.17.21",
-    "axios": "0.27.2"
+    "axios": "0.27.2",
+    "trim-newlines": "3.0.1",
+    "glob-parent": "6.0.1",
+    "trim": "0.0.3"
   },
   "engines": {
     "node": ">=14.13"
