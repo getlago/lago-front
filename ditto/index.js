@@ -29,6 +29,9 @@ module.exports = {
   "project_626c0c056054aa00f9967401": {
     "base": require('./Customer - Add invoice data to customer creation and edition__base.json')
   },
+  "project_6335e508a4f742dfb05f54fd": {
+    "base": require('./Customer - Subscription on past - future date__base.json')
+  },
   "project_624ef2f26583e200fe08b6fd": {
     "base": require('./Customers - Customers list and details__base.json')
   },

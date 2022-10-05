@@ -4,7 +4,7 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 
 import {
-  CustomerSubscriptionListFragmentDoc,
+  SubscriptionItemFragmentDoc,
   useGetPlansLazyQuery,
   AddSubscriptionPlanFragment,
   BillingTimeEnum,
@@ -36,11 +36,11 @@ gql`
 
   mutation createSubscription($input: CreateSubscriptionInput!) {
     createSubscription(input: $input) {
-      ...CustomerSubscriptionList
+      ...SubscriptionItem
     }
   }
 
-  ${CustomerSubscriptionListFragmentDoc}
+  ${SubscriptionItemFragmentDoc}
 `
 
 interface UseAddSubscriptionReturn {
@@ -57,7 +57,7 @@ interface UseAddSubscriptionReturn {
 }
 
 type UseAddSubscription = (args: {
-  existingSubscripiton?: SubscriptionUpdateInfo
+  existingSubscription?: SubscriptionUpdateInfo
   planId?: string
   billingTime?: BillingTimeEnum
 }) => UseAddSubscriptionReturn
@@ -65,7 +65,7 @@ type UseAddSubscription = (args: {
 export const useAddSubscription: UseAddSubscription = ({
   planId,
   billingTime,
-  existingSubscripiton,
+  existingSubscription,
 }) => {
   const [getPlans, { loading, data }] = useGetPlansLazyQuery()
   const { translate } = useInternationalization()
@@ -76,7 +76,7 @@ export const useAddSubscription: UseAddSubscription = ({
     onCompleted: async ({ createSubscription }) => {
       if (!!createSubscription) {
         addToast({
-          message: existingSubscripiton
+          message: existingSubscription
             ? translate('text_62d7f6178ec94cd09370e69a')
             : translate('text_62544f170d205200f09d5938'),
           severity: 'success',
@@ -106,11 +106,11 @@ export const useAddSubscription: UseAddSubscription = ({
           ),
           value: id,
           disabled:
-            !!existingSubscripiton?.existingPlanId && existingSubscripiton?.existingPlanId === id,
+            !!existingSubscription?.existingPlanId && existingSubscription?.existingPlanId === id,
         }
       })
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data, existingSubscripiton?.existingPlanId]),
+    }, [data, existingSubscription?.existingPlanId]),
     selectedPlan,
     billingTimeHelper: useMemo(() => {
       const currentDate = DateTime.now().setLocale('en-gb')
@@ -154,14 +154,14 @@ export const useAddSubscription: UseAddSubscription = ({
     onOpenDrawer: () => {
       !loading && getPlans()
     },
-    onCreate: async (customerId, values) => {
+    onCreate: async (customerId, { subscriptionDate, ...values }) => {
       const { errors } = await create({
         variables: {
           input: {
             customerId,
-            ...(existingSubscripiton
-              ? { subscriptionId: existingSubscripiton.subscriptionId }
-              : {}),
+            ...(!existingSubscription
+              ? { subscriptionDate }
+              : { subscriptionId: existingSubscription.subscriptionId }),
             ...values,
           },
         },

@@ -127,7 +127,7 @@ export const DatePicker = ({
             return (
               <TextInput
                 {...props}
-                error={isInvalid ? translate('text_62cd78ea9bff25e3391b2459') : error}
+                error={isInvalid ? 'text_62cd78ea9bff25e3391b2459' : error}
                 ref={inputRef}
                 placeholder={placeholder || translate('text_62cd78ea9bff25e3391b243d')}
                 inputProps={_omit(inputProps, 'placeholder', 'error')}

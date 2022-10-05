@@ -21,7 +21,7 @@ import {
 } from '~/core/router'
 import {
   useGetCustomerQuery,
-  CustomerSubscriptionListFragmentDoc,
+  SubscriptionItemFragmentDoc,
   CustomerInvoiceListFragmentDoc,
   AddCustomerDrawerDetailFragmentDoc,
   CustomerVatRateFragmentDoc,
@@ -73,12 +73,12 @@ gql`
     canBeDeleted
     hasActiveWallet
     currency
-    subscriptions(status: [active]) {
+    subscriptions(status: [active, pending]) {
       plan {
         id
         amountCurrency
       }
-      ...CustomerSubscriptionList
+      ...SubscriptionItem
       ...CustomerUsageSubscription
     }
     invoices {
@@ -101,7 +101,7 @@ gql`
     }
   }
 
-  ${CustomerSubscriptionListFragmentDoc}
+  ${SubscriptionItemFragmentDoc}
   ${CustomerInvoiceListFragmentDoc}
   ${AddCustomerDrawerDetailFragmentDoc}
   ${CustomerVatRateFragmentDoc}

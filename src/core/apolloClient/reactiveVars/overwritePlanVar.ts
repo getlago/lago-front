@@ -1,6 +1,6 @@
 import { makeVar, useReactiveVar } from '@apollo/client'
 
-import { CreateSubscriptionInput } from '~/generated/graphql'
+import { CreateSubscriptionInput, StatusTypeEnum } from '~/generated/graphql'
 
 import { getItemFromLS, setItemFromLS } from '../cacheUtils'
 
@@ -10,6 +10,8 @@ export type SubscriptionUpdateInfo = {
   subscriptionId?: string
   existingPlanId?: string
   periodEndDate?: string
+  startDate?: string
+  status: StatusTypeEnum
 }
 
 interface OverwritePlanVar {
