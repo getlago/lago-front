@@ -1,12 +1,7 @@
 import { forwardRef, MutableRefObject, useRef } from 'react'
-import { gql } from '@apollo/client'
 import styled, { css } from 'styled-components'
-import { DateTime } from 'luxon'
 
-import {
-  CustomerSubscriptionListFragment,
-  SubscriptionItemPlanFragmentDoc,
-} from '~/generated/graphql'
+import { SubscriptionItemFragment } from '~/generated/graphql'
 import { Typography, Button } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme, HEADER_TABLE_HEIGHT } from '~/styles'
@@ -15,37 +10,16 @@ import { SectionHeader, SideSection } from '~/styles/customer'
 import { SubscriptionItem, SubscriptionItemSkeleton, SubscriptionItemRef } from './SubscriptionItem'
 import { AddSubscriptionDrawerRef } from './AddSubscriptionDrawer'
 import {
-  EditCustomerSubscriptionDialog,
-  EditCustomerSubscriptionDialogRef,
-} from './EditCustomerSubscriptionDialog'
+  EditCustomerSubscriptionDrawer,
+  EditCustomerSubscriptionDrawerRef,
+} from './EditCustomerSubscriptionDrawer'
 import {
   TerminateCustomerSubscriptionDialog,
   TerminateCustomerSubscriptionDialogRef,
 } from './TerminateCustomerSubscriptionDialog'
 
-gql`
-  fragment CustomerSubscriptionList on Subscription {
-    id
-    status
-    startedAt
-    nextPendingStartDate
-    name
-    nextName
-    externalId
-    periodEndDate
-    plan {
-      ...SubscriptionItemPlan
-    }
-    nextPlan {
-      ...SubscriptionItemPlan
-    }
-  }
-
-  ${SubscriptionItemPlanFragmentDoc}
-`
-
 interface CustomerSubscriptionsListProps {
-  subscriptions?: CustomerSubscriptionListFragment[]
+  subscriptions?: SubscriptionItemFragment[]
   loading?: boolean
 }
 
@@ -55,11 +29,11 @@ export const CustomerSubscriptionsList = forwardRef<
 >(({ subscriptions, loading }: CustomerSubscriptionsListProps, addSubscriptionDialogRef) => {
   const { translate } = useInternationalization()
   const hasNoSubscription = !subscriptions || !subscriptions.length
-  const editSubscriptionDialogRef = useRef<EditCustomerSubscriptionDialogRef>(null)
+  const editSubscriptionDrawerRef = useRef<EditCustomerSubscriptionDrawerRef>(null)
   const terminateSubscriptionDialogRef = useRef<TerminateCustomerSubscriptionDialogRef>(null)
   const subscriptionItemRef = useRef<SubscriptionItemRef>({
     addSubscriptionDialogRef,
-    editSubscriptionDialogRef,
+    editSubscriptionDrawerRef,
     terminateSubscriptionDialogRef,
   })
 
@@ -102,59 +76,18 @@ export const CustomerSubscriptionsList = forwardRef<
           </ListHeader>
           <List>
             {subscriptions.map((subscription) => {
-              const {
-                id,
-                externalId,
-                name,
-                plan,
-                startedAt,
-                nextName,
-                nextPendingStartDate,
-                nextPlan,
-                periodEndDate,
-              } = subscription
-              const isDowngrading = !!nextPlan
-
               return (
-                <SubscriptionContainer key={id}>
-                  {isDowngrading && !!nextPlan && (
-                    <SubscriptionItem
-                      ref={subscriptionItemRef}
-                      subscriptionId={id}
-                      subscriptionExternalId={externalId}
-                      subscriptionName={nextName}
-                      date={nextPendingStartDate}
-                      plan={nextPlan}
-                      periodEndDate={periodEndDate}
-                      isPending
-                    />
-                  )}
-                  <SubscriptionItem
-                    ref={subscriptionItemRef}
-                    subscriptionId={id}
-                    subscriptionExternalId={externalId}
-                    subscriptionName={name}
-                    date={startedAt}
-                    periodEndDate={periodEndDate}
-                    plan={plan}
-                  />
-                  {isDowngrading && !!nextPlan && (
-                    <DowngradeInfo variant="caption">
-                      {translate('text_62681c60582e4f00aa82938a', {
-                        planName: nextPlan?.name,
-                        dateStartNewPlan: !nextPendingStartDate
-                          ? '-'
-                          : DateTime.fromISO(nextPendingStartDate).toFormat('LLL. dd, yyyy'),
-                      })}
-                    </DowngradeInfo>
-                  )}
-                </SubscriptionContainer>
+                <SubscriptionItem
+                  ref={subscriptionItemRef}
+                  key={subscription?.id}
+                  subscription={subscription}
+                />
               )
             })}
           </List>
         </>
       )}
-      <EditCustomerSubscriptionDialog ref={editSubscriptionDialogRef} />
+      <EditCustomerSubscriptionDrawer ref={editSubscriptionDrawerRef} />
       <TerminateCustomerSubscriptionDialog ref={terminateSubscriptionDialogRef} />
     </SideSection>
   )
@@ -187,15 +120,6 @@ const List = styled.div`
   }
 `
 
-const SubscriptionContainer = styled.div`
-  border: 1px solid ${theme.palette.grey[400]};
-  border-radius: 12px;
-
-  > *:not(:last-child) {
-    box-shadow: ${theme.shadows[7]};
-  }
-`
-
 const CellBigHeader = styled(Typography)`
   flex: 1;
 `
@@ -206,14 +130,6 @@ const CellSmall = styled(Typography)`
 
 const CellStatusHeader = styled(Typography)`
   width: 88px;
-`
-
-const DowngradeInfo = styled(Typography)`
-  height: ${HEADER_TABLE_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  justify-content: end;
-  padding: 0 ${theme.spacing(4)};
 `
 
 const LoadingContent = styled.div`

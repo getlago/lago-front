@@ -79,5 +79,7 @@ projects:
     id: 632d6831010fafe9382b616d
   - name: "\U0001F44D [Ready for dev] - All - Replace success screen by success toast"
     id: 633336529ca3243d15ac9df4
+  - name: Customer - Subscription on past - future date
+    id: 6335e508a4f742dfb05f54fd
 format: flat
 variants: true

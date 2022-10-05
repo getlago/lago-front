@@ -1,184 +1,116 @@
-import { forwardRef, MutableRefObject, ForwardedRef } from 'react'
+import { forwardRef, ForwardedRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 
-import { theme, NAV_HEIGHT, MenuPopper } from '~/styles'
+import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { SubscriptionItemPlanFragment } from '~/generated/graphql'
 import {
-  Typography,
-  Button,
-  Avatar,
-  Icon,
-  Status,
-  StatusEnum,
-  Popper,
-  Tooltip,
-  Skeleton,
-} from '~/components/designSystem'
-import { addToast } from '~/core/apolloClient'
+  SubscriptionLinePlanFragmentDoc,
+  SubscriptionItemFragment,
+  StatusTypeEnum,
+} from '~/generated/graphql'
+import { Typography, Skeleton } from '~/components/designSystem'
 
 import { AddSubscriptionDrawerRef } from './AddSubscriptionDrawer'
-import { EditCustomerSubscriptionDialogRef } from './EditCustomerSubscriptionDialog'
+import { EditCustomerSubscriptionDrawerRef } from './EditCustomerSubscriptionDrawer'
 import { TerminateCustomerSubscriptionDialogRef } from './TerminateCustomerSubscriptionDialog'
+import { SubscriptionLine } from './SubscriptionLine'
 
 gql`
-  fragment SubscriptionItemPlan on Plan {
+  fragment SubscriptionItem on Subscription {
     id
+    status
+    startedAt
+    nextPendingStartDate
     name
-    code
+    nextName
+    externalId
+    periodEndDate
+    subscriptionDate
+    plan {
+      ...SubscriptionLinePlan
+    }
+    nextPlan {
+      ...SubscriptionLinePlan
+    }
   }
+
+  ${SubscriptionLinePlanFragmentDoc}
 `
 
 interface SubscriptionItemProps {
-  subscriptionId: string
-  subscriptionExternalId: string
-  subscriptionName?: string | null
-  date: string
-  plan: SubscriptionItemPlanFragment
-  isPending?: boolean
-  periodEndDate: string
+  subscription: SubscriptionItemFragment
 }
 
 export interface SubscriptionItemRef {
   addSubscriptionDialogRef: ForwardedRef<AddSubscriptionDrawerRef> | null
-  editSubscriptionDialogRef: ForwardedRef<EditCustomerSubscriptionDialogRef> | null
+  editSubscriptionDrawerRef: ForwardedRef<EditCustomerSubscriptionDrawerRef> | null
   terminateSubscriptionDialogRef: ForwardedRef<TerminateCustomerSubscriptionDialogRef> | null
 }
 
 export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItemProps>(
-  (
-    {
-      subscriptionId,
-      subscriptionExternalId,
-      subscriptionName,
-      date,
+  ({ subscription }: SubscriptionItemProps, ref) => {
+    const { translate } = useInternationalization()
+    const {
+      id,
       plan,
       periodEndDate,
-      isPending,
-    }: SubscriptionItemProps,
-    ref
-  ) => {
-    const { translate } = useInternationalization()
-    const { addSubscriptionDialogRef, editSubscriptionDialogRef, terminateSubscriptionDialogRef } =
-      (ref as MutableRefObject<SubscriptionItemRef>)?.current
+      status,
+      nextPlan,
+      nextPendingStartDate,
+      externalId,
+      nextName,
+      name,
+      startedAt,
+      subscriptionDate,
+    } = subscription
+    const isDowngrading = !!nextPlan
 
     return (
-      <Item>
-        <CellBig>
-          <Avatar variant="connector">
-            <Icon name="clock" color="dark" />
-          </Avatar>
-          <NameBlock>
-            <Typography color="textSecondary" variant="bodyHl" noWrap>
-              {subscriptionName || plan.name}
-            </Typography>
-            <Typography variant="caption" noWrap>
-              {plan.code}
-            </Typography>
-          </NameBlock>
-        </CellBig>
-        <CellStatus
-          type={isPending ? StatusEnum.paused : StatusEnum.running}
-          label={
-            isPending
-              ? translate('text_624efab67eb2570101d117f6')
-              : translate('text_624efab67eb2570101d1180e')
-          }
-        />
-        <CellSmall align="right" color="textSecondary">
-          {DateTime.fromISO(date).toFormat('LLL. dd, yyyy')}
-        </CellSmall>
-        {isPending ? (
-          <Button disabled icon="dots-horizontal" variant="quaternary" />
-        ) : (
-          <Popper
-            PopperProps={{ placement: 'bottom-end' }}
-            opener={({ isOpen }) => (
-              <div>
-                <Tooltip
-                  placement="top-end"
-                  disableHoverListener={isOpen}
-                  title={translate('text_62d7f6178ec94cd09370e6cf')}
-                >
-                  <Button icon="dots-horizontal" variant="quaternary" />
-                </Tooltip>
-              </div>
-            )}
-          >
-            {({ closePopper }) => (
-              <MenuPopper>
-                <Button
-                  startIcon="text"
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    ;(
-                      editSubscriptionDialogRef as MutableRefObject<EditCustomerSubscriptionDialogRef>
-                    )?.current?.openDialog({
-                      id: subscriptionId,
-                      name: subscriptionName,
-                    })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_62d7f6178ec94cd09370e63c')}
-                </Button>
-
-                <Button
-                  startIcon="pen"
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    ;(
-                      addSubscriptionDialogRef as MutableRefObject<AddSubscriptionDrawerRef>
-                    )?.current?.openDialog({
-                      subscriptionId,
-                      existingPlanId: plan.id,
-                      periodEndDate: periodEndDate,
-                    })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_62d7f6178ec94cd09370e64a')}
-                </Button>
-                <Button
-                  startIcon="duplicate"
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    navigator.clipboard.writeText(subscriptionExternalId)
-                    addToast({
-                      severity: 'info',
-                      translateKey: 'text_62d94cc9ccc5eebcc03160a0',
-                    })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_62d7f6178ec94cd09370e65b')}
-                </Button>
-                <Button
-                  startIcon="trash"
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    ;(
-                      terminateSubscriptionDialogRef as MutableRefObject<TerminateCustomerSubscriptionDialogRef>
-                    )?.current?.openDialog({
-                      id: subscriptionId,
-                      name: subscriptionName || plan.name,
-                    })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_62d904b97e690a881f2b867c')}
-                </Button>
-              </MenuPopper>
-            )}
-          </Popper>
+      <SubscriptionContainer key={id}>
+        {isDowngrading && !!nextPlan && (
+          <SubscriptionLine
+            ref={ref}
+            subscriptionId={id}
+            subscriptionExternalId={externalId}
+            subscriptionName={nextName}
+            date={nextPendingStartDate}
+            plan={nextPlan}
+            periodEndDate={periodEndDate}
+            status={StatusTypeEnum.Pending}
+            isDowngrade
+          />
         )}
-      </Item>
+        <SubscriptionLine
+          ref={ref}
+          subscriptionId={id}
+          subscriptionExternalId={externalId}
+          subscriptionName={name}
+          date={startedAt || subscriptionDate}
+          periodEndDate={periodEndDate}
+          plan={plan}
+          status={status}
+        />
+        {isDowngrading && !!nextPlan && (
+          <DateInfos variant="caption">
+            {translate('text_62681c60582e4f00aa82938a', {
+              planName: nextPlan?.name,
+              dateStartNewPlan: !nextPendingStartDate
+                ? '-'
+                : DateTime.fromISO(nextPendingStartDate).toFormat('LLL. dd, yyyy'),
+            })}
+          </DateInfos>
+        )}
+        {status === StatusTypeEnum.Pending && (
+          <DateInfos variant="caption">
+            {translate('text_6335e50b0b089e1d8ed50960', {
+              planName: plan?.name,
+              startDate: DateTime.fromISO(subscriptionDate).toFormat('LLL. dd, yyyy'),
+            })}
+          </DateInfos>
+        )}
+      </SubscriptionContainer>
     )
   }
 )
@@ -206,40 +138,19 @@ const SkeletonItem = styled.div`
   border-radius: 12px;
 `
 
-const Item = styled.div`
-  height: ${NAV_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  padding: 0 ${theme.spacing(4)};
+const SubscriptionContainer = styled.div`
+  border: 1px solid ${theme.palette.grey[400]};
+  border-radius: 12px;
 
   > *:not(:last-child) {
-    margin-right: ${theme.spacing(4)};
+    box-shadow: ${theme.shadows[7]};
   }
 `
 
-const CellBig = styled(Typography)`
-  flex: 1;
+const DateInfos = styled(Typography)`
+  height: ${HEADER_TABLE_HEIGHT}px;
   display: flex;
   align-items: center;
-  min-width: 0;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-
-    ${theme.breakpoints.down('md')} {
-      display: none;
-    }
-  }
-`
-
-const CellStatus = styled(Status)`
-  width: 88px;
-`
-
-const CellSmall = styled(Typography)`
-  width: 112px;
-`
-
-const NameBlock = styled.div`
-  min-width: 0;
+  justify-content: end;
+  padding: 0 ${theme.spacing(4)};
 `

@@ -7,7 +7,7 @@ import { Drawer, Button, DrawerRef, Typography, Accordion } from '~/components/d
 import { TextInputField, ComboBoxField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { hasDefinedGQLError } from '~/core/apolloClient'
-import { theme, Card } from '~/styles'
+import { theme, Card, DrawerTitle, DrawerContent, DrawerSubmitButton } from '~/styles'
 import {
   AddCustomerDrawerFragment,
   AddCustomerDrawerDetailFragment,
@@ -127,8 +127,8 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
           formikProps.validateForm()
         }}
       >
-        <Content>
-          <Title>
+        <DrawerContent>
+          <DrawerTitle>
             <Typography variant="headline">
               {translate(
                 isEdition ? 'text_632b4acf0c41206cbcb8c2f8' : 'text_632b49e2620ea4c6d96c9652'
@@ -139,7 +139,8 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                 isEdition ? 'text_632b4acf0c41206cbcb8c2fa' : 'text_632b49e2620ea4c6d96c9654'
               )}
             </Typography>
-          </Title>
+          </DrawerTitle>
+
           <Card>
             <Typography variant="subhead">{translate('text_626c0c09812bbc00e4c59df1')}</Typography>
             <TextInputField
@@ -279,7 +280,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
             </BillingBlock>
           </Accordion>
 
-          <SubmitButton>
+          <DrawerSubmitButton>
             <Button
               size="large"
               disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
@@ -292,22 +293,12 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                 isEdition ? 'text_632b4acf0c41206cbcb8c30c' : 'text_632b49e2620ea4c6d96c9666'
               )}
             </Button>
-          </SubmitButton>
-        </Content>
+          </DrawerSubmitButton>
+        </DrawerContent>
       </Drawer>
     )
   }
 )
-
-const Content = styled.div`
-  > * {
-    margin-bottom: ${theme.spacing(8)};
-
-    &:first-child {
-      margin-bottom: ${theme.spacing(6)};
-    }
-  }
-`
 
 const BillingBlock = styled.div<{ $first?: boolean }>`
   margin-bottom: ${({ $first }) => ($first ? theme.spacing(6) : 0)};
@@ -315,14 +306,6 @@ const BillingBlock = styled.div<{ $first?: boolean }>`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(6)};
   }
-`
-
-const Title = styled.div`
-  padding: 0 ${theme.spacing(8)};
-`
-
-const SubmitButton = styled.div`
-  margin: 0 ${theme.spacing(8)};
 `
 
 AddCustomerDrawer.displayName = 'AddCustomerDrawer'
