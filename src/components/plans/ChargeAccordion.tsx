@@ -2,11 +2,19 @@ import { useCallback, MouseEvent } from 'react'
 import { FormikProps } from 'formik'
 import styled from 'styled-components'
 import { InputAdornment } from '@mui/material'
+import { gql } from '@apollo/client'
 
 import { theme } from '~/styles'
 import { Button, Typography, Tooltip, Accordion } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
+import {
+  ChargeModelEnum,
+  CurrencyEnum,
+  VolumeRangesFragmentDoc,
+  GraduatedChargeFragmentDoc,
+  PackageChargeFragmentDoc,
+  PercentageChargeFragmentDoc,
+} from '~/generated/graphql'
 import { ComboBox, TextInput } from '~/components/form'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
@@ -23,6 +31,27 @@ interface ChargeAccordionProps {
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
 }
+
+gql`
+  fragment ChargeAccordion on Charge {
+    id
+    amount
+    chargeModel
+    billableMetric {
+      id
+      name
+      code
+    }
+    ...GraduatedCharge
+    ...VolumeRanges
+    ...PackageCharge
+    ...PercentageCharge
+  }
+  ${GraduatedChargeFragmentDoc}
+  ${VolumeRangesFragmentDoc}
+  ${PackageChargeFragmentDoc}
+  ${PercentageChargeFragmentDoc}
+`
 
 export const ChargeAccordion = ({
   id,

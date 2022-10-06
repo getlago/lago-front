@@ -3,6 +3,7 @@ import { FormikProps } from 'formik'
 import _get from 'lodash/get'
 import styled from 'styled-components'
 import { InputAdornment } from '@mui/material'
+import { gql } from '@apollo/client'
 
 import { intlFormatNumber, getCurrencySymbol } from '~/core/intlFormatNumber'
 import { TextInput } from '~/components/form'
@@ -12,6 +13,16 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CurrencyEnum } from '~/generated/graphql'
 
 import { PlanFormInput } from './types'
+
+gql`
+  fragment PercentageCharge on Charge {
+    id
+    fixedAmount
+    freeUnitsPerEvents
+    freeUnitsPerTotalAggregation
+    rate
+  }
+`
 
 interface ChargePercentageProps {
   disabled?: boolean

@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react'
 import { FormikProps } from 'formik'
 import _get from 'lodash/get'
 import { InputAdornment } from '@mui/material'
+import { gql } from '@apollo/client'
 
 import { TextInput } from '~/components/form'
 import { Alert, Typography } from '~/components/designSystem'
@@ -10,6 +11,15 @@ import { CurrencyEnum } from '~/generated/graphql'
 import { intlFormatNumber, getCurrencySymbol } from '~/core/intlFormatNumber'
 
 import { PlanFormInput } from './types'
+
+gql`
+  fragment PackageCharge on Charge {
+    id
+    amount
+    packageSize
+    freeUnits
+  }
+`
 
 interface PackageChargeProps {
   disabled?: boolean

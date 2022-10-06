@@ -3,9 +3,15 @@ import { useFormik } from 'formik'
 import { object, string, number } from 'yup'
 import styled from 'styled-components'
 import { InputAdornment } from '@mui/material'
+import { gql } from '@apollo/client'
 
 import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
-import { PlanInterval, CurrencyEnum, ChargeModelEnum } from '~/generated/graphql'
+import {
+  PlanInterval,
+  CurrencyEnum,
+  ChargeModelEnum,
+  ChargeAccordionFragmentDoc,
+} from '~/generated/graphql'
 import { TextInputField, ButtonSelectorField, ComboBoxField, SwitchField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
@@ -35,6 +41,32 @@ import {
 } from '~/styles/mainObjectsForm'
 
 import { PlanFormInput, LocalChargeInput } from '../components/plans/types'
+
+gql`
+  fragment EditPlan on PlanDetails {
+    id
+    name
+    code
+    description
+    interval
+    payInAdvance
+    amountCents
+    amountCurrency
+    trialPeriod
+    canBeDeleted
+    billChargesMonthly
+    charges {
+      id
+      billableMetric {
+        id
+      }
+      ...ChargeAccordion
+      chargeModel
+    }
+  }
+
+  ${ChargeAccordionFragmentDoc}
+`
 
 const getNewChargeId = (id: string, index: number) => `plan-charge-${id}-${index}`
 

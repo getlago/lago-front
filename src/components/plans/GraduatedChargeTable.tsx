@@ -2,6 +2,7 @@ import { useState } from 'react'
 import styled from 'styled-components'
 import { FormikProps } from 'formik'
 import { InputAdornment } from '@mui/material'
+import { gql } from '@apollo/client'
 
 import { theme } from '~/styles'
 import { Table, Typography, Button, Tooltip, Alert } from '~/components/designSystem'
@@ -12,6 +13,18 @@ import { useGraduatedChargeForm } from '~/hooks/plans/useGraduatedChargeForm'
 import { intlFormatNumber, getCurrencySymbol } from '~/core/intlFormatNumber'
 
 import { PlanFormInput } from './types'
+
+gql`
+  fragment GraduatedCharge on Charge {
+    id
+    graduatedRanges {
+      flatAmount
+      fromValue
+      perUnitAmount
+      toValue
+    }
+  }
+`
 
 interface GraduatedChargeTableProps {
   currency: CurrencyEnum
