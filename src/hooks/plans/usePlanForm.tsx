@@ -6,7 +6,7 @@ import _omit from 'lodash/omit'
 import { PlanFormInput } from '~/components/plans/types'
 import {
   EditPlanFragment,
-  VolumeRangesFragmentDoc,
+  EditPlanFragmentDoc,
   DeletePlanDialogFragmentDoc,
   PlanItemFragmentDoc,
   useGetSinglePlanQuery,
@@ -28,43 +28,6 @@ export enum FORM_ERRORS_ENUM {
 }
 
 gql`
-  fragment EditPlan on PlanDetails {
-    id
-    name
-    code
-    description
-    interval
-    payInAdvance
-    amountCents
-    amountCurrency
-    trialPeriod
-    canBeDeleted
-    billChargesMonthly
-    charges {
-      id
-      billableMetric {
-        id
-        name
-        code
-      }
-      graduatedRanges {
-        flatAmount
-        fromValue
-        perUnitAmount
-        toValue
-      }
-      ...VolumeRanges
-      amount
-      chargeModel
-      freeUnits
-      packageSize
-      rate
-      fixedAmount
-      freeUnitsPerEvents
-      freeUnitsPerTotalAggregation
-    }
-  }
-
   query getSinglePlan($id: ID!) {
     plan(id: $id) {
       ...EditPlan
@@ -86,7 +49,7 @@ gql`
 
   ${PlanItemFragmentDoc}
   ${DeletePlanDialogFragmentDoc}
-  ${VolumeRangesFragmentDoc}
+  ${EditPlanFragmentDoc}
 `
 
 export enum PLAN_FORM_TYPE_ENUM {

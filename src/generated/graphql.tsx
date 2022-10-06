@@ -2620,6 +2620,10 @@ export type GetbillableMetricsQueryVariables = Exact<{
 
 export type GetbillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> } };
 
+export type ChargeAccordionFragment = { __typename?: 'Charge', id: string, amount?: string | null, chargeModel: ChargeModelEnum, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null };
+
+export type PercentageChargeFragment = { __typename?: 'Charge', id: string, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null };
+
 export type DeletePlanDialogFragment = { __typename?: 'Plan', id: string, name: string };
 
 export type DeletePlanMutationVariables = Exact<{
@@ -2628,6 +2632,10 @@ export type DeletePlanMutationVariables = Exact<{
 
 
 export type DeletePlanMutation = { __typename?: 'Mutation', destroyPlan?: { __typename?: 'DestroyPlanPayload', id?: string | null } | null };
+
+export type GraduatedChargeFragment = { __typename?: 'Charge', id: string, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null };
+
+export type PackageChargeFragment = { __typename?: 'Charge', id: string, amount?: string | null, packageSize?: number | null, freeUnits?: number | null };
 
 export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, canBeDeleted: boolean };
 
@@ -2768,14 +2776,12 @@ export type CreateSubscriptionMutationVariables = Exact<{
 
 export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null } | null };
 
-export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, billChargesMonthly?: boolean | null, charges?: Array<{ __typename?: 'Charge', id: string, amount?: string | null, chargeModel: ChargeModelEnum, freeUnits?: number | null, packageSize?: number | null, rate?: string | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null }> | null };
-
 export type GetSinglePlanQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetSinglePlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, billChargesMonthly?: boolean | null, charges?: Array<{ __typename?: 'Charge', id: string, amount?: string | null, chargeModel: ChargeModelEnum, freeUnits?: number | null, packageSize?: number | null, rate?: string | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null }> | null } | null };
+export type GetSinglePlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, billChargesMonthly?: boolean | null, charges?: Array<{ __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, amount?: string | null, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null }> | null } | null };
 
 export type CreatePlanMutationVariables = Exact<{
   input: CreatePlanInput;
@@ -2906,6 +2912,8 @@ export type CouponsQueryVariables = Exact<{
 
 
 export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, canBeDeleted: boolean, expiration: CouponExpiration, expirationDate?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null }> } };
+
+export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, billChargesMonthly?: boolean | null, charges?: Array<{ __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, amount?: string | null, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string }, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null }> | null };
 
 export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, hasActiveWallet: boolean, currency?: CurrencyEnum | null, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, canEditAttributes: boolean, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null };
 
@@ -3289,54 +3297,6 @@ export const AddSubscriptionPlanFragmentDoc = gql`
   interval
 }
     `;
-export const VolumeRangesFragmentDoc = gql`
-    fragment VolumeRanges on Charge {
-  volumeRanges {
-    flatAmount
-    fromValue
-    perUnitAmount
-    toValue
-  }
-}
-    `;
-export const EditPlanFragmentDoc = gql`
-    fragment EditPlan on PlanDetails {
-  id
-  name
-  code
-  description
-  interval
-  payInAdvance
-  amountCents
-  amountCurrency
-  trialPeriod
-  canBeDeleted
-  billChargesMonthly
-  charges {
-    id
-    billableMetric {
-      id
-      name
-      code
-    }
-    graduatedRanges {
-      flatAmount
-      fromValue
-      perUnitAmount
-      toValue
-    }
-    ...VolumeRanges
-    amount
-    chargeModel
-    freeUnits
-    packageSize
-    rate
-    fixedAmount
-    freeUnitsPerEvents
-    freeUnitsPerTotalAggregation
-  }
-}
-    ${VolumeRangesFragmentDoc}`;
 export const EditAddOnFragmentDoc = gql`
     fragment EditAddOn on AddOnDetails {
   id
@@ -3374,6 +3334,86 @@ export const EditCouponFragmentDoc = gql`
   frequencyDuration
 }
     `;
+export const GraduatedChargeFragmentDoc = gql`
+    fragment GraduatedCharge on Charge {
+  id
+  graduatedRanges {
+    flatAmount
+    fromValue
+    perUnitAmount
+    toValue
+  }
+}
+    `;
+export const VolumeRangesFragmentDoc = gql`
+    fragment VolumeRanges on Charge {
+  volumeRanges {
+    flatAmount
+    fromValue
+    perUnitAmount
+    toValue
+  }
+}
+    `;
+export const PackageChargeFragmentDoc = gql`
+    fragment PackageCharge on Charge {
+  id
+  amount
+  packageSize
+  freeUnits
+}
+    `;
+export const PercentageChargeFragmentDoc = gql`
+    fragment PercentageCharge on Charge {
+  id
+  fixedAmount
+  freeUnitsPerEvents
+  freeUnitsPerTotalAggregation
+  rate
+}
+    `;
+export const ChargeAccordionFragmentDoc = gql`
+    fragment ChargeAccordion on Charge {
+  id
+  amount
+  chargeModel
+  billableMetric {
+    id
+    name
+    code
+  }
+  ...GraduatedCharge
+  ...VolumeRanges
+  ...PackageCharge
+  ...PercentageCharge
+}
+    ${GraduatedChargeFragmentDoc}
+${VolumeRangesFragmentDoc}
+${PackageChargeFragmentDoc}
+${PercentageChargeFragmentDoc}`;
+export const EditPlanFragmentDoc = gql`
+    fragment EditPlan on PlanDetails {
+  id
+  name
+  code
+  description
+  interval
+  payInAdvance
+  amountCents
+  amountCurrency
+  trialPeriod
+  canBeDeleted
+  billChargesMonthly
+  charges {
+    id
+    billableMetric {
+      id
+    }
+    ...ChargeAccordion
+    chargeModel
+  }
+}
+    ${ChargeAccordionFragmentDoc}`;
 export const SubscriptionItemPlanFragmentDoc = gql`
     fragment SubscriptionItemPlan on Plan {
   id
