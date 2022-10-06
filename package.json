@@ -139,7 +139,7 @@
     "axios": "0.27.2",
     "trim-newlines": "3.0.1",
     "glob-parent": "6.0.2",
-    "trim": "0.0.3"
+    "trim": "1.0.1"
   },
   "engines": {
     "node": ">=14.13"
