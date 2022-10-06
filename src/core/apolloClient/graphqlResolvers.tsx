@@ -24,6 +24,7 @@ export const typeDefs = gql`
     currencies_does_not_match
     invite_not_found
     value_already_exist
+    value_is_invalid
     value_is_out_of_range
     url_is_invalid
     invite_already_exists
