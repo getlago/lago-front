@@ -1672,6 +1672,7 @@ export enum LagoApiError {
   UrlIsInvalid = 'url_is_invalid',
   UserAlreadyExists = 'user_already_exists',
   ValueAlreadyExist = 'value_already_exist',
+  ValueIsInvalid = 'value_is_invalid',
   ValueIsOutOfRange = 'value_is_out_of_range'
 }
 
@@ -2829,6 +2830,13 @@ export type TerminateCustomerSubscriptionMutationVariables = Exact<{
 
 export type TerminateCustomerSubscriptionMutation = { __typename?: 'Mutation', terminateSubscription?: { __typename?: 'Subscription', id: string } | null };
 
+export type GetBmDetailQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetBmDetailQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetricDetail', id: string, name: string } | null };
+
 export type CustomerUsageSubscriptionFragment = { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } };
 
 export type CustomerUsageQueryVariables = Exact<{
@@ -3065,21 +3073,21 @@ export type UpdateAddOnMutationVariables = Exact<{
 
 export type UpdateAddOnMutation = { __typename?: 'Mutation', updateAddOn?: { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: number, customerCount: number, createdAt: any, canBeDeleted: boolean } | null };
 
-export type EditBillableMetricFragment = { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean, fieldName?: string | null };
+export type EditBillableMetricFragment = { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, group?: any | null, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean, fieldName?: string | null };
 
 export type GetSingleBillableMetricQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetSingleBillableMetricQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean, fieldName?: string | null } | null };
+export type GetSingleBillableMetricQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, group?: any | null, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean, fieldName?: string | null } | null };
 
 export type CreateBillableMetricMutationVariables = Exact<{
   input: CreateBillableMetricInput;
 }>;
 
 
-export type CreateBillableMetricMutation = { __typename?: 'Mutation', createBillableMetric?: { __typename?: 'BillableMetric', id: string } | null };
+export type CreateBillableMetricMutation = { __typename?: 'Mutation', createBillableMetric?: { __typename?: 'BillableMetric', id: string, group?: any | null } | null };
 
 export type UpdateBillableMetricMutationVariables = Exact<{
   input: UpdateBillableMetricInput;
@@ -3571,6 +3579,7 @@ export const EditBillableMetricFragmentDoc = gql`
   id
   name
   code
+  group
   description
   aggregationType
   canBeDeleted
@@ -4493,6 +4502,42 @@ export function useTerminateCustomerSubscriptionMutation(baseOptions?: Apollo.Mu
 export type TerminateCustomerSubscriptionMutationHookResult = ReturnType<typeof useTerminateCustomerSubscriptionMutation>;
 export type TerminateCustomerSubscriptionMutationResult = Apollo.MutationResult<TerminateCustomerSubscriptionMutation>;
 export type TerminateCustomerSubscriptionMutationOptions = Apollo.BaseMutationOptions<TerminateCustomerSubscriptionMutation, TerminateCustomerSubscriptionMutationVariables>;
+export const GetBmDetailDocument = gql`
+    query getBmDetail($id: ID!) {
+  billableMetric(id: $id) {
+    id
+    name
+  }
+}
+    `;
+
+/**
+ * __useGetBmDetailQuery__
+ *
+ * To run a query within a React component, call `useGetBmDetailQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBmDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBmDetailQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetBmDetailQuery(baseOptions: Apollo.QueryHookOptions<GetBmDetailQuery, GetBmDetailQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetBmDetailQuery, GetBmDetailQueryVariables>(GetBmDetailDocument, options);
+      }
+export function useGetBmDetailLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBmDetailQuery, GetBmDetailQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetBmDetailQuery, GetBmDetailQueryVariables>(GetBmDetailDocument, options);
+        }
+export type GetBmDetailQueryHookResult = ReturnType<typeof useGetBmDetailQuery>;
+export type GetBmDetailLazyQueryHookResult = ReturnType<typeof useGetBmDetailLazyQuery>;
+export type GetBmDetailQueryResult = Apollo.QueryResult<GetBmDetailQuery, GetBmDetailQueryVariables>;
 export const CustomerUsageDocument = gql`
     query customerUsage($customerId: ID!, $subscriptionId: ID!) {
   customerUsage(customerId: $customerId, subscriptionId: $subscriptionId) {
@@ -5500,6 +5545,7 @@ export const CreateBillableMetricDocument = gql`
     mutation createBillableMetric($input: CreateBillableMetricInput!) {
   createBillableMetric(input: $input) {
     id
+    group
   }
 }
     `;
