@@ -50,12 +50,24 @@ export const JsonEditor = ({
   onError,
   onBlur,
 }: JsonEditorProps) => {
-  const [jsonQuery, setJsonQuery] = useState<string | undefined>(initialValue)
+  const [jsonQuery, setJsonQuery] = useState<string | undefined>()
   const { translate } = useInternationalization()
 
   useEffect(() => {
     setJsonQuery(value)
   }, [value])
+
+  useEffect(() => {
+    if (!initialValue) return
+    try {
+      const parsedInitialValue = JSON.stringify(JSON.parse(initialValue), null, 2)
+
+      onChange ? onChange(parsedInitialValue) : setJsonQuery(parsedInitialValue)
+    } catch (e) {
+      // Nothing is supposed to happen here
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialValue])
 
   return (
     <Container>
@@ -101,7 +113,6 @@ export const JsonEditor = ({
           fontSize={15}
           width="100%"
           height="60%"
-          defaultValue={initialValue ?? ''}
           placeholder={placeholder}
           setOptions={{
             useWorker: true,
