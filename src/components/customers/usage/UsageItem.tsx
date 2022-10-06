@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
@@ -12,6 +12,11 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
+
+import {
+  CustomerBMUsageDetailDrawer,
+  CustomerBMUsageDetailDrawerRef,
+} from './CustomerBMUsageDetailDrawer'
 
 gql`
   query customerUsage($customerId: ID!, $subscriptionId: ID!) {
@@ -42,6 +47,7 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
   const { id, name, plan } = subscription
   const [isOpen, setIsOpen] = useState(false)
   const { translate } = useInternationalization()
+  const customerBMUsageDetailDrawerRef = useRef<CustomerBMUsageDetailDrawerRef>(null)
   const [fetchUsage, { data, error, loading, refetch }] = useCustomerUsageLazyQuery({
     variables: { customerId: customerId, subscriptionId: id },
   })
@@ -171,10 +177,28 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
 
                       return (
                         <ItemContainer key={`customer-usage-${i}`}>
-                          <Typography variant="bodyHl" color="textSecondary">
-                            {billableMetric?.name}
-                          </Typography>
-                          <UsageSubtitle variant="caption">{billableMetric?.code}</UsageSubtitle>
+                          <BillableMetricHeaderLine>
+                            <div>
+                              <Typography variant="bodyHl" color="textSecondary">
+                                {billableMetric?.name}
+                              </Typography>
+                              <UsageSubtitle variant="caption">
+                                {billableMetric?.code}
+                              </UsageSubtitle>
+                            </div>
+                            <Tooltip title={translate('TODO:')} placement="top-end">
+                              <Button
+                                icon="info-circle"
+                                size="small"
+                                variant="secondary"
+                                onClick={() => {
+                                  customerBMUsageDetailDrawerRef.current?.openDrawer(
+                                    billableMetric.id
+                                  )
+                                }}
+                              />
+                            </Tooltip>
+                          </BillableMetricHeaderLine>
                           <Line>
                             <Typography variant="caption">
                               {translate('text_62c3f3fca8a1625624e8338d', { units })}
@@ -194,6 +218,8 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
           )}
         </Details>
       </StyledAccordion>
+
+      <CustomerBMUsageDetailDrawer ref={customerBMUsageDetailDrawerRef} />
     </Container>
   )
 }
@@ -349,8 +375,15 @@ const Line = styled.div`
   }
 `
 
-const UsageSubtitle = styled(Typography)`
+const BillableMetricHeaderLine = styled.div`
+  justify-content: space-between;
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
   margin-bottom: ${theme.spacing(8)};
+`
+
+const UsageSubtitle = styled(Typography)`
   min-width: 0;
 `
 

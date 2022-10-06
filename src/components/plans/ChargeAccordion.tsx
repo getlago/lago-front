@@ -158,6 +158,27 @@ export const ChargeAccordion = ({
           onChange={(value) => handleUpdate('chargeModel', value)}
         />
 
+        {/* <ComboBoxField
+          name="group"
+          disabled={disabled}
+          label={translate('text_624c5eadff7db800acc4ca0d')}
+          data={[
+            {
+              label: 'TODO:',
+              value: 'data',
+            },
+          ]}
+          disableClearable
+          value={localCharge.chargeModel} // 'TODO: set a default value selected on mount'
+          helperText={'TODO:'}
+          renderGroupHeader={{
+            TODO: 'TODO:',
+          }}
+          renderGroupInputStartAdornment={{
+            TODO: 'TODO:',
+          }}
+        /> */}
+
         {localCharge.chargeModel === ChargeModelEnum.Standard && (
           <TextInput
             name="properties.amount"

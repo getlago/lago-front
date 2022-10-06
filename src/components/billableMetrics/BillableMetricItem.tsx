@@ -42,6 +42,7 @@ gql`
     code
     createdAt
     canBeDeleted
+    group
     ...DeleteBillableMetricDialog
   }
 
