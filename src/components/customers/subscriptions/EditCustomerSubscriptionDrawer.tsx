@@ -18,6 +18,9 @@ gql`
     updateSubscription(input: $input) {
       id
       name
+      status
+      startedAt
+      subscriptionDate
     }
   }
 `
@@ -103,6 +106,7 @@ export const EditCustomerSubscriptionDrawer = forwardRef<EditCustomerSubscriptio
 
           <DrawerSubmitButton>
             <Button
+              data-test="submit-edit-subscription"
               size="large"
               fullWidth
               disabled={!formikProps.isValid || !formikProps.dirty}

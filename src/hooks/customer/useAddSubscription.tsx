@@ -60,12 +60,14 @@ type UseAddSubscription = (args: {
   existingSubscription?: SubscriptionUpdateInfo
   planId?: string
   billingTime?: BillingTimeEnum
+  subscriptionDate?: string
 }) => UseAddSubscriptionReturn
 
 export const useAddSubscription: UseAddSubscription = ({
   planId,
   billingTime,
   existingSubscription,
+  subscriptionDate,
 }) => {
   const [getPlans, { loading, data }] = useGetPlansLazyQuery()
   const { translate } = useInternationalization()
@@ -113,7 +115,9 @@ export const useAddSubscription: UseAddSubscription = ({
     }, [data, existingSubscription?.existingPlanId]),
     selectedPlan,
     billingTimeHelper: useMemo(() => {
-      const currentDate = DateTime.now().setLocale('en-gb')
+      const currentDate = subscriptionDate
+        ? DateTime.fromISO(subscriptionDate)
+        : DateTime.now().setLocale('en-gb')
       const formattedCurrentDate = currentDate.toFormat('LL/dd/yyyy')
       const february29 = '02/29/2020'
       const currentDay = currentDate.get('day')
@@ -147,20 +151,20 @@ export const useAddSubscription: UseAddSubscription = ({
             ? translate('text_62ea7cd44cd4b14bb9ac1d9e')
             : translate('text_62ea7cd44cd4b14bb9ac1da2', { day: currentDate.weekdayLong })
       }
-    }, [selectedPlan, billingTime, translate]),
+    }, [selectedPlan, billingTime, subscriptionDate, translate]),
     errorCode: hasDefinedGQLError('CurrenciesDoesNotMatch', error)
       ? LagoApiError.CurrenciesDoesNotMatch
       : undefined,
     onOpenDrawer: () => {
       !loading && getPlans()
     },
-    onCreate: async (customerId, { subscriptionDate, ...values }) => {
+    onCreate: async (customerId, { subscriptionDate: subsDate, ...values }) => {
       const { errors } = await create({
         variables: {
           input: {
             customerId,
             ...(!existingSubscription
-              ? { subscriptionDate }
+              ? { subscriptionDate: subsDate }
               : { subscriptionId: existingSubscription.subscriptionId }),
             ...values,
           },
