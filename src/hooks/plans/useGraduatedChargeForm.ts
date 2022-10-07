@@ -29,6 +29,21 @@ type UseGraduatedChargeForm = ({
   infosCaclucation: InfoCalculationRow[]
 }
 
+export const DEFAULT_GRADUATED_CHARGES = [
+  {
+    fromValue: 0,
+    toValue: 1,
+    flatAmount: undefined,
+    perUnitAmount: undefined,
+  },
+  {
+    fromValue: 2,
+    toValue: null,
+    flatAmount: undefined,
+    perUnitAmount: undefined,
+  },
+]
+
 export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
   formikProps,
   chargeIndex,
@@ -43,20 +58,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
   useEffect(() => {
     if (!graduatedRanges.length) {
       // if no existing charge, initialize it with 2 pre-filled lines
-      formikProps.setFieldValue(formikIdentifier, [
-        {
-          fromValue: 0,
-          toValue: 1,
-          flatAmount: undefined,
-          perUnitAmount: undefined,
-        },
-        {
-          fromValue: 2,
-          toValue: null,
-          flatAmount: undefined,
-          perUnitAmount: undefined,
-        },
-      ])
+      formikProps.setFieldValue(formikIdentifier, DEFAULT_GRADUATED_CHARGES)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
