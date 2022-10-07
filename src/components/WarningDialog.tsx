@@ -33,6 +33,7 @@ export const WarningDialog = forwardRef<DialogRef, WarningDialogProps>(
               {translate('text_6244277fe0975300fe3fb94a')}
             </Button>
             <Button
+              data-test="warning-confirm"
               danger={mode === WarningDialogMode.danger}
               onClick={async () => {
                 onContinue && (await onContinue())

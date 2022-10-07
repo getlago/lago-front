@@ -85,6 +85,7 @@ export const AddSubscriptionDrawer = forwardRef<
     existingSubscription,
     planId: formikProps.values.planId,
     billingTime: formikProps.values.billingTime,
+    subscriptionDate: formikProps.values.subscriptionDate,
   })
 
   useImperativeHandle(ref, () => ({

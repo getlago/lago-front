@@ -2638,7 +2638,7 @@ export type UpdateCustomerSubscriptionMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCustomerSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, name?: string | null } | null };
+export type UpdateCustomerSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, startedAt?: any | null, subscriptionDate?: any | null } | null };
 
 export type SubscriptionItemFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null };
 
@@ -4226,6 +4226,9 @@ export const UpdateCustomerSubscriptionDocument = gql`
   updateSubscription(input: $input) {
     id
     name
+    status
+    startedAt
+    subscriptionDate
   }
 }
     `;

@@ -67,7 +67,7 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
       (ref as MutableRefObject<SubscriptionLineRef>)?.current
 
     return (
-      <Item>
+      <Item data-test={subscriptionName}>
         <CellBig>
           <Avatar variant="connector">
             <Icon name="clock" color="dark" />
@@ -104,7 +104,11 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
                   disableHoverListener={isOpen}
                   title={translate('text_62d7f6178ec94cd09370e6cf')}
                 >
-                  <Button icon="dots-horizontal" variant="quaternary" />
+                  <Button
+                    data-test="menu-subscription"
+                    icon="dots-horizontal"
+                    variant="quaternary"
+                  />
                 </Tooltip>
               </div>
             )}
@@ -114,6 +118,7 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
                 <Button
                   startIcon="text"
                   variant="quaternary"
+                  data-test="edit-subscription"
                   align="left"
                   onClick={() => {
                     ;(
@@ -168,6 +173,7 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
                   startIcon="trash"
                   variant="quaternary"
                   align="left"
+                  data-test="terminate-subscription"
                   onClick={() => {
                     ;(
                       terminateSubscriptionDialogRef as MutableRefObject<TerminateCustomerSubscriptionDialogRef>

@@ -5,7 +5,7 @@ import {
   userPassword,
 } from '../support/reusableConstants'
 
-describe('Create plan', () => {
+describe('Edit plan', () => {
   beforeEach(() => {
     cy.login(userEmail, userPassword)
   })
