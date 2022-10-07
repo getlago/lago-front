@@ -104,8 +104,8 @@
   "dependencies": {
     "@apollo/client": "3.7.0",
     "@date-io/luxon": "2.16.0",
-    "@mui/material": "5.10.7",
-    "@mui/styled-engine": "5.10.7",
+    "@mui/material": "5.10.8",
+    "@mui/styled-engine": "5.10.8",
     "@mui/styled-engine-sc": "5.10.6",
     "@mui/x-date-pickers": "5.0.3",
     "@sentry/react": "7.14.1",
@@ -134,7 +134,7 @@
   },
   "resolutions": {
     "styled-components": "5.3.6",
-    "@mui/styled-engine": "5.10.7",
+    "@mui/styled-engine": "5.10.8",
     "lodash": "4.17.21",
     "axios": "0.27.2",
     "trim-newlines": "3.0.1",
