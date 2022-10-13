@@ -15,7 +15,7 @@ import {
   PackageChargeFragmentDoc,
   PercentageChargeFragmentDoc,
 } from '~/generated/graphql'
-import { ComboBox, TextInput } from '~/components/form'
+import { ComboBox, ComboBoxField, TextInput } from '~/components/form'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
@@ -43,6 +43,7 @@ gql`
       id
       name
       code
+      flatGroups
     }
     ...GraduatedCharge
     ...VolumeRanges
@@ -64,6 +65,35 @@ export const ChargeAccordion = ({
 }: ChargeAccordionProps) => {
   const { translate } = useInternationalization()
   const localCharge = formikProps.values.charges[index]
+
+  const groupData = localCharge?.billableMetric?.flatGroups?.reduce(
+    (acc, cur) => {
+      let value = cur.value
+
+      if (typeof value === 'string') {
+        value = [value]
+      }
+
+      for (let i = 0; i < value.length; i++) {
+        const val = value[i]
+
+        acc.data.push({
+          label: val,
+          value: cur.id,
+          group: cur.key,
+        })
+      }
+
+      if (!acc.group.includes(cur.key)) {
+        acc.group.push(cur.key)
+      }
+
+      return acc
+    },
+    { data: [], group: [] }
+  )
+
+  console.log('groupData', groupData)
 
   const handleUpdate = useCallback(
     (name: string, value: string) => {
@@ -158,26 +188,32 @@ export const ChargeAccordion = ({
           onChange={(value) => handleUpdate('chargeModel', value)}
         />
 
-        {/* <ComboBoxField
-          name="group"
-          disabled={disabled}
-          label={translate('text_624c5eadff7db800acc4ca0d')}
-          data={[
-            {
-              label: 'TODO:',
-              value: 'data',
-            },
-          ]}
-          disableClearable
-          value={localCharge.chargeModel} // 'TODO: set a default value selected on mount'
-          helperText={'TODO:'}
-          renderGroupHeader={{
-            TODO: 'TODO:',
-          }}
-          renderGroupInputStartAdornment={{
-            TODO: 'TODO:',
-          }}
-        /> */}
+        {!!groupData.data.length && (
+          <ComboBoxField
+            name="groupProperties"
+            disabled={disabled}
+            label={translate('TODO:')}
+            infoText={translate('TODO:')}
+            placeholder={translate('TODO:')}
+            virtualized={false}
+            data={groupData.data}
+            // helperText={}
+            renderGroupHeader={groupData.group.map((g: string, i: number) => (
+              <ComboboxHeader key={i}>
+                <Typography variant="captionHl" color="textSecondary">
+                  {g}
+                </Typography>
+              </ComboboxHeader>
+            ))}
+            renderGroupInputStartAdornment={Object.assign(
+              {},
+              ...groupData.group.map((g: string) => {
+                return { [g]: g }
+              })
+            )}
+            formikProps={formikProps}
+          />
+        )}
 
         {localCharge.chargeModel === ChargeModelEnum.Standard && (
           <TextInput
@@ -244,4 +280,20 @@ const Title = styled.div`
   white-space: pre;
   min-width: 20px;
   margin-right: auto;
+`
+
+const ComboboxHeader = styled.div`
+  display: flex;
+  width: 100%;
+
+  > * {
+    white-space: nowrap;
+
+    &:first-child {
+      margin-right: ${theme.spacing(1)};
+    }
+    &:last-child {
+      min-width: 0;
+    }
+  }
 `
