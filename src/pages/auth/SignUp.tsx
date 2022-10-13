@@ -67,7 +67,6 @@ const SignUp = () => {
     password: '',
     organizationName: '',
   })
-  const [isPswFocused, setIsPswFocused] = useState(false)
   const [errors, setErrors] = useState<FORM_ERRORS[]>([])
   const validationSchema = useMemo(
     () =>
@@ -151,14 +150,14 @@ const SignUp = () => {
               onChange={(value) => setFormFields((prev) => ({ ...prev, password: value }))}
               label={translate('text_620bc4d4269a55014d493f53')}
               placeholder={translate('text_620bc4d4269a55014d493f5b')}
-              onFocus={() => setIsPswFocused(true)}
-              onBlur={() => setIsPswFocused(false)}
             />
             <PasswordValidation
               data-test={
-                isPswFocused ? 'password-validation--visible' : 'password-validation--hidden'
+                !!formFields.password
+                  ? 'password-validation--visible'
+                  : 'password-validation--hidden'
               }
-              $visible={isPswFocused}
+              $visible={!!formFields.password}
             >
               {errors.some((err) => PASSWORD_VALIDATION.includes(err)) ? (
                 PASSWORD_VALIDATION.map((err) => {
