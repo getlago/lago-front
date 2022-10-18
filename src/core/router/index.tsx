@@ -56,6 +56,14 @@ const CustomerDetails = lazy(
   () => import(/* webpackChunkName: 'customer-details' */ '~/pages/CustomerDetails')
 )
 
+const CustomerInvoiceDetails = lazy(
+  () => import(/* webpackChunkName: 'customer-details' */ '~/layouts/CustomerInvoiceDetails')
+)
+const InvoiceOverview = lazy(
+  () =>
+    import(/* webpackChunkName: 'invoice-overview' */ '~/pages/settings/invoices/InvoiceOverview')
+)
+
 const CouponsList = lazy(() => import(/* webpackChunkName: 'coupons-list' */ '~/pages/CouponsList'))
 const CreateCoupon = lazy(
   () => import(/* webpackChunkName: 'create-coupon' */ '~/pages/CreateCoupon')
@@ -98,6 +106,9 @@ export const UPDATE_PLAN_ROUTE = '/update/plan/:id'
 export const CUSTOMERS_LIST_ROUTE = '/customers'
 export const CUSTOMER_DETAILS_ROUTE = '/customer/:id'
 export const CUSTOMER_DETAILS_TAB_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/:tab`
+export const CUSTOMER_INVOICE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId`
+export const CUSTOMER_INVOICE_OVERVIEW_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/overview`
+export const CUSTOMER_INVOICE_DETAILS_CREDIT_NOTE_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/credit-notes`
 
 // Coupons routes
 export const COUPONS_ROUTE = '/coupons'
@@ -217,6 +228,22 @@ export const routes: CustomRouteObject[] = [
         path: [CUSTOMER_DETAILS_ROUTE, CUSTOMER_DETAILS_TAB_ROUTE],
         private: true,
         element: <CustomerDetails />,
+      },
+      {
+        private: true,
+        element: <CustomerInvoiceDetails />,
+        children: [
+          {
+            path: [CUSTOMER_INVOICE_DETAILS_ROUTE, CUSTOMER_INVOICE_OVERVIEW_ROUTE],
+            private: true,
+            element: <InvoiceOverview />,
+          },
+          {
+            path: CUSTOMER_INVOICE_DETAILS_CREDIT_NOTE_ROUTE,
+            private: true,
+            element: <div>TODO</div>,
+          },
+        ],
       },
       {
         path: COUPONS_ROUTE,

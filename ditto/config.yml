@@ -81,5 +81,7 @@ projects:
     id: 633336529ca3243d15ac9df4
   - name: Customer - Subscription on past - future date
     id: 6335e508a4f742dfb05f54fd
+  - name: "\U0001F44D [Ready for dev] - Customers - Invoice detail page"
+    id: 634687058efb4a10996fdbdc
 format: flat
 variants: true

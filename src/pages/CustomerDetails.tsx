@@ -372,7 +372,7 @@ const CustomerDetails = () => {
                       routerState: { disableScrollTop: true },
                       component: (
                         <SideBlock>
-                          <CustomerInvoicesList invoices={invoices} />
+                          <CustomerInvoicesList customerId={id as string} invoices={invoices} />
                         </SideBlock>
                       ),
                     },
