@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { DateTime } from 'luxon'
+import { generatePath, useNavigate } from 'react-router-dom'
 
 import {
   CustomerInvoiceListFragment,
@@ -9,10 +10,18 @@ import {
 } from '~/generated/graphql'
 import { Button, Popper, Status, StatusEnum, Tooltip, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { HEADER_TABLE_HEIGHT, MenuPopper, NAV_HEIGHT, theme } from '~/styles'
+import {
+  HEADER_TABLE_HEIGHT,
+  ItemContainer,
+  MenuPopper,
+  NAV_HEIGHT,
+  PopperOpener,
+  theme,
+} from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 
 gql`
   fragment CustomerInvoiceList on Invoice {
@@ -33,6 +42,7 @@ gql`
 `
 
 interface CustomerInvoicesListProps {
+  customerId: string
   invoices?: CustomerInvoiceListFragment[] | null
 }
 
@@ -56,7 +66,8 @@ const mapStatus = (type?: InvoiceStatusTypeEnum | undefined) => {
   }
 }
 
-export const CustomerInvoicesList = ({ invoices }: CustomerInvoicesListProps) => {
+export const CustomerInvoicesList = ({ customerId, invoices }: CustomerInvoicesListProps) => {
+  let navigate = useNavigate()
   const { translate } = useInternationalization()
   const [downloadInvoice] = useDownloadInvoiceMutation({
     onCompleted({ downloadInvoice: data }) {
@@ -102,72 +113,83 @@ export const CustomerInvoicesList = ({ invoices }: CustomerInvoicesListProps) =>
             <PaymentCell variant="bodyHl" color="disabled" noWrap>
               {translate('text_62b31e1f6a5b8b1b745ece08')}
             </PaymentCell>
-            <ActionCell></ActionCell>
+            <ButtonMock />
           </ListHeader>
           {invoices.map(({ amountCurrency, id, issuingDate, number, totalAmountCents, status }) => {
             const formattedStatus = mapStatus(status)
 
             return (
-              <Item key={`invoice-${id}`}>
-                <IssuingDateCell noWrap>
-                  {DateTime.fromISO(issuingDate).toFormat('LLL. dd, yyyy')}
-                </IssuingDateCell>
-                <NumberCell color="textSecondary">{number}</NumberCell>
-                <AmountCell color="textSecondary" align="right">
-                  {intlFormatNumber(totalAmountCents, { currency: amountCurrency })}
-                </AmountCell>
-                <PaymentCell>
-                  <Status type={formattedStatus.type} label={translate(formattedStatus.label)} />
-                </PaymentCell>
-                <ActionCell>
-                  <Popper
-                    PopperProps={{ placement: 'bottom-end' }}
-                    opener={({ isOpen }) => (
-                      <div>
-                        <Tooltip
-                          placement="top-end"
-                          disableHoverListener={isOpen}
-                          title={translate('text_62b31e1f6a5b8b1b745ece3c')}
-                        >
-                          <Button icon="dots-horizontal" variant="quaternary" />
-                        </Tooltip>
-                      </div>
-                    )}
-                  >
-                    {({ closePopper }) => (
-                      <MenuPopper>
-                        <Button
-                          startIcon="download"
-                          variant="quaternary"
-                          align="left"
-                          onClick={async () => {
-                            await downloadInvoice({
-                              variables: { input: { id } },
-                            })
-                          }}
-                        >
-                          {translate('text_62b31e1f6a5b8b1b745ece42')}
-                        </Button>
-                        <Button
-                          startIcon="duplicate"
-                          variant="quaternary"
-                          align="left"
-                          onClick={() => {
-                            navigator.clipboard.writeText(id)
-                            addToast({
-                              severity: 'info',
-                              translateKey: 'text_6253f11816f710014600ba1f',
-                            })
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_62b31e1f6a5b8b1b745ece46')}
-                        </Button>
-                      </MenuPopper>
-                    )}
-                  </Popper>
-                </ActionCell>
-              </Item>
+              <ItemContainer key={`invoice-${id}`}>
+                <Item
+                  tabIndex={0}
+                  onClick={() =>
+                    navigate(
+                      generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+                        id: customerId,
+                        invoiceId: id,
+                      })
+                    )
+                  }
+                >
+                  <IssuingDateCell noWrap>
+                    {DateTime.fromISO(issuingDate).toFormat('LLL. dd, yyyy')}
+                  </IssuingDateCell>
+                  <NumberCell color="textSecondary">{number}</NumberCell>
+                  <AmountCell color="textSecondary" align="right">
+                    {intlFormatNumber(totalAmountCents, { currency: amountCurrency })}
+                  </AmountCell>
+                  <PaymentCell>
+                    <Status type={formattedStatus.type} label={translate(formattedStatus.label)} />
+                  </PaymentCell>
+                  <ButtonMock />
+                </Item>
+                <Popper
+                  PopperProps={{ placement: 'bottom-end' }}
+                  opener={({ isOpen }) => (
+                    <DotsOpener>
+                      <Tooltip
+                        placement="top-end"
+                        disableHoverListener={isOpen}
+                        title={translate('text_62b31e1f6a5b8b1b745ece3c')}
+                      >
+                        <Button icon="dots-horizontal" variant="quaternary" />
+                      </Tooltip>
+                    </DotsOpener>
+                  )}
+                >
+                  {({ closePopper }) => (
+                    <MenuPopper>
+                      <Button
+                        startIcon="download"
+                        variant="quaternary"
+                        align="left"
+                        onClick={async () => {
+                          await downloadInvoice({
+                            variables: { input: { id } },
+                          })
+                        }}
+                      >
+                        {translate('text_62b31e1f6a5b8b1b745ece42')}
+                      </Button>
+                      <Button
+                        startIcon="duplicate"
+                        variant="quaternary"
+                        align="left"
+                        onClick={() => {
+                          navigator.clipboard.writeText(id)
+                          addToast({
+                            severity: 'info',
+                            translateKey: 'text_6253f11816f710014600ba1f',
+                          })
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_62b31e1f6a5b8b1b745ece46')}
+                      </Button>
+                    </MenuPopper>
+                  )}
+                </Popper>
+              </ItemContainer>
             )
           })}
         </>
@@ -204,14 +226,22 @@ const NumberCell = styled(Typography)`
 
 const PaymentCell = styled(Typography)`
   width: 112px;
+
+  > *:not(:last-child) {
+    margin-right: ${theme.spacing(4)};
+  }
 `
 
 const AmountCell = styled(Typography)`
   flex: 1;
 `
 
-const ActionCell = styled.div`
-  min-width: 40px;
+const ButtonMock = styled.div`
+  width: 40px;
+`
+
+const DotsOpener = styled(PopperOpener)`
+  right: 0;
 `
 
 const Item = styled.div`
@@ -222,5 +252,10 @@ const Item = styled.div`
 
   > *:not(:last-child) {
     margin-right: ${theme.spacing(4)};
+  }
+
+  &:hover {
+    cursor: pointer;
+    background-color: ${theme.palette.grey[100]};
   }
 `
