@@ -1,4 +1,4 @@
-FROM arm64v8/node:14-alpine as build
+FROM arm64v8/node:19-alpine as build
 
 WORKDIR /app
 
