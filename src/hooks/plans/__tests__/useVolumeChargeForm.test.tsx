@@ -31,7 +31,7 @@ const prepare = async ({ chargeIndex = 0, disabled = false, volumeRanges = [] }:
                 name: 'volume',
                 code: 'volume',
               },
-              volumeRanges,
+              properties: { volumeRanges },
             },
           ],
         },

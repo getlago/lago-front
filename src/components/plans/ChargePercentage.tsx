@@ -17,10 +17,12 @@ import { PlanFormInput } from './types'
 gql`
   fragment PercentageCharge on Charge {
     id
-    fixedAmount
-    freeUnitsPerEvents
-    freeUnitsPerTotalAggregation
-    rate
+    properties {
+      fixedAmount
+      freeUnitsPerEvents
+      freeUnitsPerTotalAggregation
+      rate
+    }
   }
 `
 
@@ -39,15 +41,19 @@ export const ChargePercentage = ({
 }: ChargePercentageProps) => {
   const { translate } = useInternationalization()
   const localCharge = formikProps.values.charges[chargeIndex]
-  const showFixedAmount = localCharge.fixedAmount !== undefined
-  const showFreeUnitsPerEvents = localCharge.freeUnitsPerEvents !== undefined
-  const showFreeUnitsPerTotalAggregation = localCharge.freeUnitsPerTotalAggregation !== undefined
+  const showFixedAmount = localCharge.properties?.fixedAmount !== undefined
+  const showFreeUnitsPerEvents = localCharge.properties?.freeUnitsPerEvents !== undefined
+  const showFreeUnitsPerTotalAggregation =
+    localCharge.properties?.freeUnitsPerTotalAggregation !== undefined
   let freeUnitsPerTotalAggregationTranslation = translate('text_6303351deffd2a0d70498677', {
-    freeAmountUnits: intlFormatNumber(Number(localCharge.freeUnitsPerTotalAggregation) * 100 || 0, {
-      currencyDisplay: 'symbol',
-      currency,
-      maximumFractionDigits: 5,
-    }),
+    freeAmountUnits: intlFormatNumber(
+      Number(localCharge.properties?.freeUnitsPerTotalAggregation) * 100 || 0,
+      {
+        currencyDisplay: 'symbol',
+        currency,
+        maximumFractionDigits: 5,
+      }
+    ),
   })
   const handleUpdate = useCallback(
     (name: string, value: string | number) => {
@@ -67,15 +73,15 @@ export const ChargePercentage = ({
     <Container>
       <Input
         label={translate('text_62a0b7107afa2700a65ef6f6')}
-        name="rate"
+        name="properties.rate"
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
         beforeChangeFormatter={['positiveNumber', 'decimal']}
-        error={_get(formikProps.errors, `charges.${chargeIndex}.rate`)}
+        error={_get(formikProps.errors, `charges.${chargeIndex}.properties.rate`)}
         disabled={disabled}
         placeholder={translate('text_62a0b7107afa2700a65ef700')}
-        value={localCharge.rate as number | undefined}
-        onChange={(value) => handleUpdate('rate', value)}
+        value={localCharge.properties?.rate as number | undefined}
+        onChange={(value) => handleUpdate('properties.rate', value)}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -85,18 +91,18 @@ export const ChargePercentage = ({
         }}
       />
 
-      {localCharge.fixedAmount !== undefined && (
+      {localCharge.properties?.fixedAmount !== undefined && (
         <LineAmount>
           <Input
-            name="fixedAmount"
+            name="properties.fixedAmount"
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
             disabled={disabled}
             label={translate('text_62ff5d01a306e274d4ffcc1e')}
             placeholder={translate('text_62ff5d01a306e274d4ffcc24')}
-            value={localCharge.fixedAmount || ''}
-            onChange={(value) => handleUpdate('fixedAmount', value)}
+            value={localCharge.properties?.fixedAmount || ''}
+            onChange={(value) => handleUpdate('properties.fixedAmount', value)}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
@@ -115,7 +121,7 @@ export const ChargePercentage = ({
               disabled={disabled}
               variant="quaternary"
               onClick={() => {
-                formikProps.setFieldValue(`charges.${chargeIndex}`, {
+                formikProps.setFieldValue(`charges.${chargeIndex}.properties`, {
                   ...localCharge,
                   fixedAmount: undefined,
                 })
@@ -125,18 +131,18 @@ export const ChargePercentage = ({
         </LineAmount>
       )}
 
-      {localCharge.freeUnitsPerEvents !== undefined && (
+      {localCharge.properties?.freeUnitsPerEvents !== undefined && (
         <LineAmount>
           <Input
-            name="freeUnitsPerEvents"
+            name="properties.freeUnitsPerEvents"
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             beforeChangeFormatter={['positiveNumber', 'int']}
             disabled={disabled}
             label={translate('text_62ff5d01a306e274d4ffcc36')}
             placeholder={translate('text_62ff5d01a306e274d4ffcc3c')}
-            value={localCharge.freeUnitsPerEvents || ''}
-            onChange={(value) => handleUpdate('freeUnitsPerEvents', value)}
+            value={localCharge.properties?.freeUnitsPerEvents || ''}
+            onChange={(value) => handleUpdate('properties.freeUnitsPerEvents', value)}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -156,7 +162,7 @@ export const ChargePercentage = ({
               disabled={disabled}
               variant="quaternary"
               onClick={() => {
-                formikProps.setFieldValue(`charges.${chargeIndex}`, {
+                formikProps.setFieldValue(`charges.${chargeIndex}.properties`, {
                   ...localCharge,
                   freeUnitsPerEvents: undefined,
                 })
@@ -166,22 +172,22 @@ export const ChargePercentage = ({
         </LineAmount>
       )}
 
-      {localCharge.freeUnitsPerTotalAggregation !== undefined && (
+      {localCharge.properties?.freeUnitsPerTotalAggregation !== undefined && (
         <LineAmount>
-          {localCharge.freeUnitsPerEvents !== undefined &&
-            localCharge.freeUnitsPerTotalAggregation !== undefined && (
+          {localCharge.properties?.freeUnitsPerEvents !== undefined &&
+            localCharge.properties?.freeUnitsPerTotalAggregation !== undefined && (
               <OrText variant="body">{translate('text_62ff5d01a306e274d4ffcc59')}</OrText>
             )}
           <Input
-            name="freeUnitsPerTotalAggregation"
+            name="properties.freeUnitsPerTotalAggregation"
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
             disabled={disabled}
             label={translate('text_62ff5d01a306e274d4ffcc48')}
             placeholder={translate('text_62ff5d01a306e274d4ffcc4e')}
-            value={localCharge.freeUnitsPerTotalAggregation || ''}
-            onChange={(value) => handleUpdate('freeUnitsPerTotalAggregation', value)}
+            value={localCharge.properties?.freeUnitsPerTotalAggregation || ''}
+            onChange={(value) => handleUpdate('properties.freeUnitsPerTotalAggregation', value)}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
@@ -199,7 +205,7 @@ export const ChargePercentage = ({
               disabled={disabled}
               variant="quaternary"
               onClick={() => {
-                formikProps.setFieldValue(`charges.${chargeIndex}`, {
+                formikProps.setFieldValue(`charges.${chargeIndex}.properties`, {
                   ...localCharge,
                   freeUnitsPerTotalAggregation: undefined,
                 })
@@ -213,11 +219,11 @@ export const ChargePercentage = ({
         <Button
           startIcon="plus"
           variant="quaternary"
-          disabled={disabled || localCharge.fixedAmount !== undefined}
+          disabled={disabled || localCharge.properties?.fixedAmount !== undefined}
           onClick={() =>
             formikProps.setFieldValue(`charges.${chargeIndex}`, {
               ...localCharge,
-              fixedAmount: '',
+              properties: { ...localCharge.properties, fixedAmount: '' },
             })
           }
         >
@@ -233,8 +239,8 @@ export const ChargePercentage = ({
               variant="quaternary"
               disabled={
                 disabled ||
-                (localCharge.freeUnitsPerEvents !== undefined &&
-                  localCharge.freeUnitsPerTotalAggregation !== undefined)
+                (localCharge.properties?.freeUnitsPerEvents !== undefined &&
+                  localCharge.properties?.freeUnitsPerTotalAggregation !== undefined)
               }
             >
               {translate('text_62ff5d01a306e274d4ffcc61')}
@@ -245,11 +251,11 @@ export const ChargePercentage = ({
             <MenuPopper>
               <FreeUnitButton
                 variant="quaternary"
-                disabled={disabled || localCharge.freeUnitsPerEvents !== undefined}
+                disabled={disabled || localCharge.properties?.freeUnitsPerEvents !== undefined}
                 onClick={() => {
                   formikProps.setFieldValue(`charges.${chargeIndex}`, {
                     ...localCharge,
-                    freeUnitsPerEvents: '',
+                    properties: { ...localCharge.properties, freeUnitsPerEvents: '' },
                   })
                   closePopper()
                 }}
@@ -258,11 +264,13 @@ export const ChargePercentage = ({
               </FreeUnitButton>
               <FreeUnitButton
                 variant="quaternary"
-                disabled={disabled || localCharge.freeUnitsPerTotalAggregation !== undefined}
+                disabled={
+                  disabled || localCharge.properties?.freeUnitsPerTotalAggregation !== undefined
+                }
                 onClick={() => {
                   formikProps.setFieldValue(`charges.${chargeIndex}`, {
                     ...localCharge,
-                    freeUnitsPerTotalAggregation: '',
+                    properties: { ...localCharge.properties, freeUnitsPerTotalAggregation: '' },
                   })
                   closePopper()
                 }}
@@ -277,7 +285,7 @@ export const ChargePercentage = ({
       <Alert type="info">
         <Typography color="textSecondary">
           {translate('text_62ff5d01a306e274d4ffcc65', {
-            percentageFee: intlFormatNumber(Number(localCharge.rate) || 0, {
+            percentageFee: intlFormatNumber(Number(localCharge.properties?.rate) || 0, {
               minimumFractionDigits: 2,
               style: 'percent',
             }),
@@ -287,11 +295,14 @@ export const ChargePercentage = ({
         {showFixedAmount && (
           <Typography color="textSecondary">
             {translate('text_62ff5d01a306e274d4ffcc69', {
-              fixedFeeValue: intlFormatNumber(Number(localCharge.fixedAmount) * 100 || 0, {
-                currencyDisplay: 'symbol',
-                currency,
-                maximumFractionDigits: 5,
-              }),
+              fixedFeeValue: intlFormatNumber(
+                Number(localCharge.properties?.fixedAmount) * 100 || 0,
+                {
+                  currencyDisplay: 'symbol',
+                  currency,
+                  maximumFractionDigits: 5,
+                }
+              ),
             })}
           </Typography>
         )}
@@ -301,9 +312,9 @@ export const ChargePercentage = ({
               translate(
                 'text_62ff5d01a306e274d4ffcc6d',
                 {
-                  freeEventUnits: localCharge.freeUnitsPerEvents || 0,
+                  freeEventUnits: localCharge.properties?.freeUnitsPerEvents || 0,
                 },
-                Math.max(Number(localCharge.freeUnitsPerEvents) || 0)
+                Math.max(Number(localCharge.properties?.freeUnitsPerEvents) || 0)
               )}
 
             {/* Spaces bellow are important */}
@@ -316,9 +327,12 @@ export const ChargePercentage = ({
             {` ${translate(
               'text_6303351deffd2a0d70498679',
               {
-                freeEventUnits: localCharge.freeUnitsPerEvents || 0,
+                freeEventUnits: localCharge.properties?.freeUnitsPerEvents || 0,
               },
-              (localCharge.freeUnitsPerEvents || 0) < 2 && !showFreeUnitsPerTotalAggregation ? 1 : 2
+              (localCharge.properties?.freeUnitsPerEvents || 0) < 2 &&
+                !showFreeUnitsPerTotalAggregation
+                ? 1
+                : 2
             )}`}
           </Typography>
         )}
@@ -350,7 +364,7 @@ const LineAmount = styled.div`
 `
 
 const FreeUnitButton = styled(Button)`
-  justify-content: flex-start;
+  justify-content: flex-start !important;
 `
 
 const OrText = styled(Typography)`

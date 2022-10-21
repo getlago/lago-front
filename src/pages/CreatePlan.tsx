@@ -97,31 +97,24 @@ const CreatePlan = () => {
       billChargesMonthly: plan?.billChargesMonthly || undefined,
       // @ts-ignore
       charges: plan?.charges
-        ? plan?.charges.map(
-            ({
-              amount,
-              fixedAmount,
-              freeUnitsPerEvents,
-              freeUnitsPerTotalAggregation,
-              graduatedRanges,
-              volumeRanges,
-              packageSize,
-              rate,
-              ...charge
-            }) => ({
+        ? plan?.charges.map(({ properties, ...charge }) => ({
+            properties: {
               // Amount can be null and this breaks the validation
-              amount: amount || undefined,
+              amount: properties?.amount || undefined,
               packageSize:
-                packageSize === null || packageSize === undefined ? undefined : packageSize,
-              fixedAmount: fixedAmount || undefined,
-              freeUnitsPerEvents: freeUnitsPerEvents || undefined,
-              freeUnitsPerTotalAggregation: freeUnitsPerTotalAggregation || undefined,
-              graduatedRanges: !graduatedRanges ? null : graduatedRanges,
-              volumeRanges: !volumeRanges ? null : volumeRanges,
-              rate: rate || undefined,
-              ...charge,
-            })
-          )
+                properties?.packageSize === null || properties?.packageSize === undefined
+                  ? undefined
+                  : properties?.packageSize,
+              fixedAmount: properties?.fixedAmount || undefined,
+              freeUnitsPerEvents: properties?.freeUnitsPerEvents || undefined,
+              freeUnitsPerTotalAggregation: properties?.freeUnitsPerTotalAggregation || undefined,
+              freeUnits: properties?.freeUnits || undefined,
+              graduatedRanges: properties?.graduatedRanges || undefined,
+              volumeRanges: properties?.volumeRanges || undefined,
+              rate: properties?.rate || undefined,
+            },
+            ...charge,
+          }))
         : ([] as LocalChargeInput[]),
     },
     validationSchema: object().shape({
