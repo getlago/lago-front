@@ -16,11 +16,13 @@ import { PlanFormInput } from './types'
 
 gql`
   fragment VolumeRanges on Charge {
-    volumeRanges {
-      flatAmount
-      fromValue
-      perUnitAmount
-      toValue
+    properties {
+      volumeRanges {
+        flatAmount
+        fromValue
+        perUnitAmount
+        toValue
+      }
     }
   }
 `

@@ -7,55 +7,53 @@ export const serializePlanInput = (values: PlanFormInput) => {
   return {
     amountCents: Math.round(Number(amountCents) * 100),
     trialPeriod: Number(trialPeriod || 0),
-    charges: charges.map(
-      ({
-        billableMetric,
-        amount: chargeAmount,
-        graduatedRanges,
-        volumeRanges,
+    charges: charges.map(({ billableMetric, chargeModel, properties, ...charge }) => {
+      return {
         chargeModel,
-        freeUnits,
-        freeUnitsPerEvents,
-        ...charge
-      }) => {
-        return {
-          chargeModel,
-          billableMetricId: billableMetric.id,
+        billableMetricId: billableMetric.id,
+        properties: {
+          ...properties,
           ...([ChargeModelEnum.Package, ChargeModelEnum.Standard].includes(chargeModel)
-            ? { amount: String(chargeAmount) }
+            ? { amount: String(properties?.amount) }
             : {}),
           ...(chargeModel === ChargeModelEnum.Graduated
             ? {
-                graduatedRanges: (graduatedRanges || []).map(
-                  ({ flatAmount, fromValue, perUnitAmount, ...range }) => ({
-                    flatAmount: String(flatAmount || '0'),
-                    fromValue: fromValue || 0,
-                    perUnitAmount: String(perUnitAmount || '0'),
-                    ...range,
-                  })
-                ),
+                graduatedRanges: properties?.graduatedRanges
+                  ? (properties?.graduatedRanges || []).map(
+                      ({ flatAmount, fromValue, perUnitAmount, ...range }) => ({
+                        flatAmount: String(flatAmount || '0'),
+                        fromValue: fromValue || 0,
+                        perUnitAmount: String(perUnitAmount || '0'),
+                        ...range,
+                      })
+                    )
+                  : undefined,
               }
             : {}),
           ...(chargeModel === ChargeModelEnum.Volume
             ? {
-                volumeRanges: (volumeRanges || []).map(
-                  ({ flatAmount, fromValue, perUnitAmount, ...range }) => ({
-                    flatAmount: String(flatAmount || '0'),
-                    fromValue: fromValue || 0,
-                    perUnitAmount: String(perUnitAmount || '0'),
-                    ...range,
-                  })
-                ),
+                volumeRanges: properties?.volumeRanges
+                  ? (properties?.volumeRanges || []).map(
+                      ({ flatAmount, fromValue, perUnitAmount, ...range }) => ({
+                        flatAmount: String(flatAmount || '0'),
+                        fromValue: fromValue || 0,
+                        perUnitAmount: String(perUnitAmount || '0'),
+                        ...range,
+                      })
+                    )
+                  : undefined,
               }
             : {}),
-          ...(chargeModel === ChargeModelEnum.Package ? { freeUnits: freeUnits || 0 } : {}),
-          ...(chargeModel === ChargeModelEnum.Percentage
-            ? { freeUnitsPerEvents: Number(freeUnitsPerEvents) || undefined }
+          ...(chargeModel === ChargeModelEnum.Package
+            ? { freeUnits: properties?.freeUnits || 0 }
             : {}),
-          ...charge,
-        }
+          ...(chargeModel === ChargeModelEnum.Percentage
+            ? { freeUnitsPerEvents: Number(properties?.freeUnitsPerEvents) || undefined }
+            : {}),
+        },
+        ...charge,
       }
-    ),
+    }),
     ...otherValues,
   }
 }

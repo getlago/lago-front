@@ -17,11 +17,13 @@ import { PlanFormInput } from './types'
 gql`
   fragment GraduatedCharge on Charge {
     id
-    graduatedRanges {
-      flatAmount
-      fromValue
-      perUnitAmount
-      toValue
+    properties {
+      graduatedRanges {
+        flatAmount
+        fromValue
+        perUnitAmount
+        toValue
+      }
     }
   }
 `

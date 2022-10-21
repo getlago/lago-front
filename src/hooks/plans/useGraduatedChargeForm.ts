@@ -49,9 +49,9 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
   chargeIndex,
   disabled,
 }) => {
-  const formikIdentifier = `charges.${chargeIndex}.graduatedRanges`
+  const formikIdentifier = `charges.${chargeIndex}.properties.graduatedRanges`
   const graduatedRanges = useMemo(
-    () => formikProps.values.charges[chargeIndex].graduatedRanges || [],
+    () => formikProps.values.charges[chargeIndex].properties?.graduatedRanges || [],
     [formikProps.values.charges, chargeIndex]
   )
 
@@ -143,7 +143,10 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
         []
       )
 
-      formikProps.setFieldValue(`charges.${chargeIndex}.graduatedRanges`, newGraduatedRanges)
+      formikProps.setFieldValue(
+        `charges.${chargeIndex}.properties.graduatedRanges`,
+        newGraduatedRanges
+      )
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       const safeValue = Number(value || 0)
