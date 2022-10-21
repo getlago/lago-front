@@ -21,7 +21,7 @@ describe('Edit plan', () => {
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('[data-test="open-charge"]').click()
     cy.get('input[name="chargeModel"]').should('not.be.disabled')
-    cy.get('input[name="amount"]').should('not.be.disabled')
+    cy.get('input[name="properties.amount"]').should('not.be.disabled')
     cy.get('[data-test="submit"]').should('be.disabled')
 
     cy.get('input[name="code"]').type('new code plan with charge')
@@ -51,7 +51,7 @@ describe('Edit plan', () => {
     cy.get('[data-test="remove-charge"]').should('not.exist')
     cy.get('[data-test="open-charge"]').click()
     cy.get('input[name="chargeModel"]').should('be.disabled')
-    cy.get('input[name="amount"]').should('be.disabled')
+    cy.get('input[name="properties.amount"]').should('be.disabled')
     cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="open-charge"]').click()
 
@@ -63,7 +63,7 @@ describe('Edit plan', () => {
     cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').eq(1).should('have.value', 'Standard pricing')
-    cy.get('input[name="amount"]').eq(1).type('3000')
+    cy.get('input[name="properties.amount"]').eq(1).type('3000')
     cy.get('[data-test="submit"]').should('not.be.disabled')
     cy.get('[data-test="submit"]').click()
   })

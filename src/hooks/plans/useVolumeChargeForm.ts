@@ -48,9 +48,9 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
   chargeIndex,
   disabled,
 }) => {
-  const formikIdentifier = `charges.${chargeIndex}.volumeRanges`
+  const formikIdentifier = `charges.${chargeIndex}.properties.volumeRanges`
   const volumeRanges = useMemo(
-    () => formikProps.values.charges[chargeIndex].volumeRanges || [],
+    () => formikProps.values.charges[chargeIndex].properties?.volumeRanges || [],
     [formikProps.values.charges, chargeIndex]
   )
 
@@ -107,7 +107,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
         return acc
       }, [])
 
-      formikProps.setFieldValue(`charges.${chargeIndex}.volumeRanges`, newVolumeRanges)
+      formikProps.setFieldValue(`charges.${chargeIndex}.properties.volumeRanges`, newVolumeRanges)
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       const safeValue = Number(value || 0)

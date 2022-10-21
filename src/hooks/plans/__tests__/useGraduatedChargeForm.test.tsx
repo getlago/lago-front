@@ -40,7 +40,7 @@ const prepare = async ({
                 name: 'graduated',
                 code: 'graduated',
               },
-              graduatedRanges,
+              properties: { graduatedRanges },
             },
           ],
         },

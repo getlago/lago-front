@@ -15,9 +15,11 @@ import { PlanFormInput } from './types'
 gql`
   fragment PackageCharge on Charge {
     id
-    amount
-    packageSize
-    freeUnits
+    properties {
+      amount
+      packageSize
+      freeUnits
+    }
   }
 `
 
@@ -46,8 +48,8 @@ export const PackageCharge = ({
   )
 
   useEffect(() => {
-    if (!localCharge.packageSize) {
-      formikProps.setFieldValue(`charges.${chargeIndex}.packageSize`, 10)
+    if (!localCharge?.properties?.packageSize) {
+      formikProps.setFieldValue(`charges.${chargeIndex}.properties.packageSize`, 10)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -55,13 +57,13 @@ export const PackageCharge = ({
   return (
     <>
       <TextInput
-        name="amountCents"
+        name="properties.amount"
         beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
         disabled={disabled}
         label={translate('text_6282085b4f283b0102655870')}
         placeholder={translate('text_62824f0e5d93bc008d268cf4')}
-        value={localCharge.amount || ''}
-        onChange={(value) => handleUpdate('amount', value)}
+        value={localCharge?.properties?.amount || ''}
+        onChange={(value) => handleUpdate('properties.amount', value)}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
@@ -69,12 +71,12 @@ export const PackageCharge = ({
         }}
       />
       <TextInput
-        name="packageSize"
+        name="properties.packageSize"
         beforeChangeFormatter={['positiveNumber', 'int']}
-        error={_get(formikProps.errors, `charges.${chargeIndex}.packageSize`)}
+        error={_get(formikProps.errors, `charges.${chargeIndex}.properties.packageSize`)}
         disabled={disabled}
-        value={localCharge.packageSize as number | undefined}
-        onChange={(value) => handleUpdate('packageSize', value)}
+        value={localCharge?.properties?.packageSize as number | undefined}
+        onChange={(value) => handleUpdate('properties.packageSize', value)}
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
@@ -91,13 +93,13 @@ export const PackageCharge = ({
         }}
       />
       <TextInput
-        name="freeUnits"
+        name="properties.freeUnits"
         label={translate('text_6282085b4f283b010265588c')}
         placeholder={translate('text_62824f0e5d93bc008d268d00')}
         beforeChangeFormatter={['positiveNumber', 'int']}
         disabled={disabled}
-        value={localCharge.freeUnits as number | undefined}
-        onChange={(value) => handleUpdate('freeUnits', value)}
+        value={localCharge?.properties?.freeUnits as number | undefined}
+        onChange={(value) => handleUpdate('properties.freeUnits', value)}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -107,7 +109,7 @@ export const PackageCharge = ({
         }}
       />
       <Alert type="info">
-        {!localCharge.packageSize ? (
+        {!localCharge?.properties?.packageSize ? (
           <Typography color="textSecondary">
             {translate('text_6282085b4f283b0102655898')}
           </Typography>
@@ -115,8 +117,11 @@ export const PackageCharge = ({
           <>
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_6282085b4f283b0102655892', {
-                units: localCharge.packageSize + (localCharge.freeUnits || 0) + 1,
-                cost: intlFormatNumber(Number(localCharge.amount || 0) * 2, {
+                units:
+                  localCharge?.properties?.packageSize +
+                  (localCharge?.properties?.freeUnits || 0) +
+                  1,
+                cost: intlFormatNumber(Number(localCharge?.properties?.amount || 0) * 2, {
                   currencyDisplay: 'symbol',
                   initialUnit: 'standard',
                   maximumFractionDigits: 5,
@@ -124,11 +129,11 @@ export const PackageCharge = ({
                 }),
               })}
             </Typography>
-            {!!localCharge.freeUnits && (
+            {!!localCharge?.properties?.freeUnits && (
               <Typography color="textSecondary">
                 {translate('text_6282085b4f283b0102655896', {
                   unit: 1,
-                  unitInPackage: localCharge.freeUnits,
+                  unitInPackage: localCharge?.properties?.freeUnits,
                   cost: intlFormatNumber(0, {
                     currencyDisplay: 'symbol',
                     initialUnit: 'standard',
@@ -141,9 +146,10 @@ export const PackageCharge = ({
 
             <Typography color="textSecondary">
               {translate('text_6282085b4f283b0102655896', {
-                unit: (localCharge.freeUnits || 0) + 1,
-                unitInPackage: localCharge.packageSize + (localCharge.freeUnits || 0),
-                cost: intlFormatNumber(Number(localCharge.amount || 0), {
+                unit: (localCharge?.properties?.freeUnits || 0) + 1,
+                unitInPackage:
+                  localCharge?.properties?.packageSize + (localCharge?.properties?.freeUnits || 0),
+                cost: intlFormatNumber(Number(localCharge?.properties?.amount || 0), {
                   currencyDisplay: 'symbol',
                   initialUnit: 'standard',
                   maximumFractionDigits: 5,
@@ -153,9 +159,14 @@ export const PackageCharge = ({
             </Typography>
             <Typography color="textSecondary">
               {translate('text_6282085b4f283b0102655896', {
-                unit: (localCharge.freeUnits || 0) + localCharge.packageSize + 1,
-                unitInPackage: localCharge.packageSize * 2 + (localCharge.freeUnits || 0),
-                cost: intlFormatNumber(Number(localCharge.amount || 0) * 2, {
+                unit:
+                  (localCharge?.properties?.freeUnits || 0) +
+                  localCharge?.properties?.packageSize +
+                  1,
+                unitInPackage:
+                  localCharge?.properties?.packageSize * 2 +
+                  (localCharge?.properties?.freeUnits || 0),
+                cost: intlFormatNumber(Number(localCharge?.properties?.amount || 0) * 2, {
                   currencyDisplay: 'symbol',
                   initialUnit: 'standard',
                   maximumFractionDigits: 5,

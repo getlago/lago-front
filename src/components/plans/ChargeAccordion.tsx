@@ -35,8 +35,10 @@ interface ChargeAccordionProps {
 gql`
   fragment ChargeAccordion on Charge {
     id
-    amount
     chargeModel
+    properties {
+      amount
+    }
     billableMetric {
       id
       name
@@ -158,13 +160,13 @@ export const ChargeAccordion = ({
 
         {localCharge.chargeModel === ChargeModelEnum.Standard && (
           <TextInput
-            name="amount"
+            name="properties.amount"
             beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
             disabled={disabled}
             label={translate('text_624453d52e945301380e49b6')}
             placeholder={translate('text_624453d52e945301380e49b8')}
-            value={localCharge.amount || ''}
-            onChange={(value) => handleUpdate('amount', value)}
+            value={localCharge?.properties?.amount || ''}
+            onChange={(value) => handleUpdate('properties.amount', value)}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>

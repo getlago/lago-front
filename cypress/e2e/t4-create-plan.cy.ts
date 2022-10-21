@@ -48,7 +48,7 @@ describe('Create plan', () => {
     cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').should('have.value', 'Standard pricing')
-    cy.get('input[name="amount"]').type('5000')
+    cy.get('input[name="properties.amount"]').type('5000')
     cy.get('[data-test="submit"]').should('not.be.disabled')
 
     cy.get('[data-test="submit"]').click()
