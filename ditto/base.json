@@ -713,7 +713,7 @@
   "text_620bc4d4269a55014d493fb7": "Sorry, that email and password combination is incorrect.",
   "text_620bc4d4269a55014d493fc3": "This value is not an email address, please enter a valid email.",
   "text_620bc4d4269a55014d493f16": "Reset your password",
-  "text_620bc4d4269a55014d493f42": "Fear not, we got your back. To reset your password please contact us, we’ll reset it manually and share you all the instructions to follow.",
+  "text_620bc4d4269a55014d493f42": "Fear not, we got your back. To reset your password please contact an admin, who’ll be able to invite you to the organization. Please contact Lago for any issues.",
   "text_620bc4d4269a55014d493f2a": "Return to login",
   "text_622f7a3dc32ce100c46a5131": "An account with this email and organization name already exists. Please <a data-text=\"login\" href=\"{{link}}\">-</a> to join the workspace.",
   "text_622f7a3dc32ce100c46a5154": "An error occured, please reload the application",
