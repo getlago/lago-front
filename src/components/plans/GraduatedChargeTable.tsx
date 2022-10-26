@@ -8,7 +8,7 @@ import { theme } from '~/styles'
 import { Table, Typography, Button, Tooltip, Alert } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { CurrencyEnum } from '~/generated/graphql'
+import { CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
 import { useGraduatedChargeForm } from '~/hooks/plans/useGraduatedChargeForm'
 import { intlFormatNumber, getCurrencySymbol } from '~/core/intlFormatNumber'
 
@@ -25,29 +25,46 @@ gql`
         toValue
       }
     }
+    groupProperties {
+      groupId
+      values {
+        graduatedRanges {
+          flatAmount
+          fromValue
+          perUnitAmount
+          toValue
+        }
+      }
+    }
   }
 `
 
 interface GraduatedChargeTableProps {
-  currency: CurrencyEnum
   chargeIndex: number
-  formikProps: FormikProps<PlanFormInput>
+  currency: CurrencyEnum
   disabled?: boolean
+  formikProps: FormikProps<PlanFormInput>
+  propertyCursor: string
+  valuePointer: InputMaybe<PropertiesInput> | undefined
 }
 
 export const GraduatedChargeTable = ({
-  currency,
   chargeIndex,
-  formikProps,
+  currency,
   disabled,
+  formikProps,
+  propertyCursor,
+  valuePointer,
 }: GraduatedChargeTableProps) => {
   const { translate } = useInternationalization()
   const [errorIndex, setErrorIndex] = useState<number | undefined>()
   const { tableDatas, addRange, handleUpdate, deleteRange, infosCaclucation } =
     useGraduatedChargeForm({
-      formikProps,
       chargeIndex,
       disabled,
+      formikProps,
+      propertyCursor,
+      valuePointer,
     })
 
   return (

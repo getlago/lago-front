@@ -2873,9 +2873,9 @@ export type GetbillableMetricsQueryVariables = Exact<{
 
 export type GetbillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, flatGroups?: Array<any> | null }> } };
 
-export type ChargeAccordionFragment = { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, flatGroups?: Array<any> | null } };
+export type ChargeAccordionFragment = { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, flatGroups?: Array<any> | null } };
 
-export type PercentageChargeFragment = { __typename?: 'Charge', id: string, properties?: { __typename?: 'Properties', fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null } | null };
+export type PercentageChargeFragment = { __typename?: 'Charge', id: string, properties?: { __typename?: 'Properties', fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null } }> | null };
 
 export type DeletePlanDialogFragment = { __typename?: 'Plan', id: string, name: string };
 
@@ -2886,13 +2886,13 @@ export type DeletePlanMutationVariables = Exact<{
 
 export type DeletePlanMutation = { __typename?: 'Mutation', destroyPlan?: { __typename?: 'DestroyPlanPayload', id?: string | null } | null };
 
-export type GraduatedChargeFragment = { __typename?: 'Charge', id: string, properties?: { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } | null };
+export type GraduatedChargeFragment = { __typename?: 'Charge', id: string, properties?: { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } }> | null };
 
-export type PackageChargeFragment = { __typename?: 'Charge', id: string, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null } | null };
+export type PackageChargeFragment = { __typename?: 'Charge', id: string, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null } }> | null };
 
 export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, canBeDeleted: boolean };
 
-export type VolumeRangesFragment = { __typename?: 'Charge', properties?: { __typename?: 'Properties', volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } | null };
+export type VolumeRangesFragment = { __typename?: 'Charge', properties?: { __typename?: 'Properties', volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } }> | null };
 
 export type EditOrganizationInformationsDialogFragment = { __typename?: 'Organization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null };
 
@@ -3034,7 +3034,7 @@ export type GetSinglePlanQueryVariables = Exact<{
 }>;
 
 
-export type GetSinglePlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, billChargesMonthly?: boolean | null, charges?: Array<{ __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, flatGroups?: Array<any> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } | null }> | null } | null };
+export type GetSinglePlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, billChargesMonthly?: boolean | null, charges?: Array<{ __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, flatGroups?: Array<any> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } }> | null }> | null } | null };
 
 export type CreatePlanMutationVariables = Exact<{
   input: CreatePlanInput;
@@ -3173,7 +3173,7 @@ export type CouponsQueryVariables = Exact<{
 
 export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, canBeDeleted: boolean, expiration: CouponExpiration, expirationDate?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null }> } };
 
-export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, billChargesMonthly?: boolean | null, charges?: Array<{ __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, flatGroups?: Array<any> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } | null }> | null };
+export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, billChargesMonthly?: boolean | null, charges?: Array<{ __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, flatGroups?: Array<any> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } }> | null }> | null };
 
 export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, hasActiveWallet: boolean, currency?: CurrencyEnum | null, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, canEditAttributes: boolean, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionDate?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, stripeCustomer?: { __typename?: 'StripeCustomer', id: string, providerCustomerId?: string | null } | null };
 
@@ -3614,6 +3614,17 @@ export const GraduatedChargeFragmentDoc = gql`
       toValue
     }
   }
+  groupProperties {
+    groupId
+    values {
+      graduatedRanges {
+        flatAmount
+        fromValue
+        perUnitAmount
+        toValue
+      }
+    }
+  }
 }
     `;
 export const VolumeRangesFragmentDoc = gql`
@@ -3626,6 +3637,17 @@ export const VolumeRangesFragmentDoc = gql`
       toValue
     }
   }
+  groupProperties {
+    groupId
+    values {
+      volumeRanges {
+        flatAmount
+        fromValue
+        perUnitAmount
+        toValue
+      }
+    }
+  }
 }
     `;
 export const PackageChargeFragmentDoc = gql`
@@ -3635,6 +3657,14 @@ export const PackageChargeFragmentDoc = gql`
     amount
     packageSize
     freeUnits
+  }
+  groupProperties {
+    groupId
+    values {
+      amount
+      packageSize
+      freeUnits
+    }
   }
 }
     `;
@@ -3647,6 +3677,15 @@ export const PercentageChargeFragmentDoc = gql`
     freeUnitsPerTotalAggregation
     rate
   }
+  groupProperties {
+    groupId
+    values {
+      fixedAmount
+      freeUnitsPerEvents
+      freeUnitsPerTotalAggregation
+      rate
+    }
+  }
 }
     `;
 export const ChargeAccordionFragmentDoc = gql`
@@ -3655,6 +3694,12 @@ export const ChargeAccordionFragmentDoc = gql`
   chargeModel
   properties {
     amount
+  }
+  groupProperties {
+    groupId
+    values {
+      amount
+    }
   }
   billableMetric {
     id

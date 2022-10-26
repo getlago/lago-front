@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { FormikProps } from 'formik'
 
 import { PlanFormInput } from '~/components/plans/types'
-import { GraduatedRangeInput } from '~/generated/graphql'
+import { GraduatedRangeInput, InputMaybe, PropertiesInput } from '~/generated/graphql'
 
 type RangeType = GraduatedRangeInput & { disabledDelete: boolean }
 type InfoCalculationRow = {
@@ -17,10 +17,14 @@ type UseGraduatedChargeForm = ({
   formikProps,
   chargeIndex,
   disabled,
+  propertyCursor,
+  valuePointer,
 }: {
-  formikProps: FormikProps<PlanFormInput>
   chargeIndex: number
   disabled?: boolean
+  formikProps: FormikProps<PlanFormInput>
+  propertyCursor: string
+  valuePointer: InputMaybe<PropertiesInput> | undefined
 }) => {
   handleUpdate: (rangeIndex: number, fieldName: string, value?: number | string) => void
   addRange: () => void
@@ -45,15 +49,14 @@ export const DEFAULT_GRADUATED_CHARGES = [
 ]
 
 export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
-  formikProps,
   chargeIndex,
   disabled,
+  formikProps,
+  propertyCursor,
+  valuePointer,
 }) => {
-  const formikIdentifier = `charges.${chargeIndex}.properties.graduatedRanges`
-  const graduatedRanges = useMemo(
-    () => formikProps.values.charges[chargeIndex].properties?.graduatedRanges || [],
-    [formikProps.values.charges, chargeIndex]
-  )
+  const formikIdentifier = `charges.${chargeIndex}.${propertyCursor}.graduatedRanges`
+  const graduatedRanges = useMemo(() => valuePointer?.graduatedRanges || [], [valuePointer])
 
   useEffect(() => {
     if (!graduatedRanges.length) {
@@ -61,7 +64,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
       formikProps.setFieldValue(formikIdentifier, DEFAULT_GRADUATED_CHARGES)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [formikIdentifier])
 
   return {
     tableDatas: useMemo(
@@ -144,7 +147,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
       )
 
       formikProps.setFieldValue(
-        `charges.${chargeIndex}.properties.graduatedRanges`,
+        `charges.${chargeIndex}.${propertyCursor}.graduatedRanges`,
         newGraduatedRanges
       )
     },
