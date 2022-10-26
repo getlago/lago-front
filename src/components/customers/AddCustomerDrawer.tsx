@@ -100,7 +100,14 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
       <Drawer
         ref={ref}
         title={translate(
-          isEdition ? 'text_632b4acf0c41206cbcb8c2f6' : 'text_632b49e2620ea4c6d96c9650'
+          isEdition
+            ? 'text_632b4acf0c41206cbcb8c2f6'
+            : customer?.name
+            ? 'text_632b49e2620ea4c6d96c9650'
+            : 'text_632b49e2620ea4c6d96c9652',
+          {
+            customerName: customer?.name || '',
+          }
         )}
         onClose={() => {
           formikProps.resetForm({
