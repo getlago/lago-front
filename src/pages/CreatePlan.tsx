@@ -11,6 +11,7 @@ import {
   CurrencyEnum,
   ChargeModelEnum,
   ChargeAccordionFragmentDoc,
+  PropertiesInput,
 } from '~/generated/graphql'
 import { TextInputField, ButtonSelectorField, ComboBoxField, SwitchField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -70,6 +71,23 @@ gql`
 
 const getNewChargeId = (id: string, index: number) => `plan-charge-${id}-${index}`
 
+const getPropertyShape = (properties: PropertiesInput) => {
+  return {
+    amount: properties?.amount || undefined,
+    packageSize:
+      properties?.packageSize === null || properties?.packageSize === undefined
+        ? 10
+        : properties?.packageSize,
+    fixedAmount: properties?.fixedAmount || undefined,
+    freeUnitsPerEvents: properties?.freeUnitsPerEvents || undefined,
+    freeUnitsPerTotalAggregation: properties?.freeUnitsPerTotalAggregation || undefined,
+    freeUnits: properties?.freeUnits || undefined,
+    graduatedRanges: properties?.graduatedRanges || undefined,
+    volumeRanges: properties?.volumeRanges || undefined,
+    rate: properties?.rate || undefined,
+  }
+}
+
 const CreatePlan = () => {
   const { loading, type, plan, parentPlanName, errorCode, onSave, onClose } = usePlanForm()
   const warningDialogRef = useRef<WarningDialogRef>(null)
@@ -97,22 +115,20 @@ const CreatePlan = () => {
       billChargesMonthly: plan?.billChargesMonthly || undefined,
       // @ts-ignore
       charges: plan?.charges
-        ? plan?.charges.map(({ properties, ...charge }) => ({
-            properties: {
-              // Amount can be null and this breaks the validation
-              amount: properties?.amount || undefined,
-              packageSize:
-                properties?.packageSize === null || properties?.packageSize === undefined
-                  ? undefined
-                  : properties?.packageSize,
-              fixedAmount: properties?.fixedAmount || undefined,
-              freeUnitsPerEvents: properties?.freeUnitsPerEvents || undefined,
-              freeUnitsPerTotalAggregation: properties?.freeUnitsPerTotalAggregation || undefined,
-              freeUnits: properties?.freeUnits || undefined,
-              graduatedRanges: properties?.graduatedRanges || undefined,
-              volumeRanges: properties?.volumeRanges || undefined,
-              rate: properties?.rate || undefined,
-            },
+        ? plan?.charges.map(({ properties, groupProperties, ...charge }) => ({
+            properties:
+              properties && !charge.billableMetric.flatGroups?.length
+                ? getPropertyShape(properties)
+                : undefined,
+            groupProperties:
+              groupProperties?.length && !!charge.billableMetric.flatGroups?.length
+                ? groupProperties?.map((prop) => {
+                    return {
+                      groupId: prop.groupId,
+                      values: getPropertyShape(prop.values),
+                    }
+                  })
+                : undefined,
             ...charge,
           }))
         : ([] as LocalChargeInput[]),
@@ -434,6 +450,17 @@ const CreatePlan = () => {
                       ...previousCharges,
                       {
                         billableMetric: newCharge,
+                        properties: !newCharge.flatGroups?.length
+                          ? getPropertyShape({})
+                          : undefined,
+                        groupProperties: newCharge.flatGroups?.length
+                          ? newCharge?.flatGroups.map((group) => {
+                              return {
+                                groupId: group.id,
+                                values: getPropertyShape({}),
+                              }
+                            })
+                          : undefined,
                         chargeModel: ChargeModelEnum.Standard,
                         amountCents: undefined,
                       },

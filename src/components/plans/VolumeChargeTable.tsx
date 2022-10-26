@@ -8,7 +8,7 @@ import { theme } from '~/styles'
 import { Table, Typography, Button, Tooltip, Alert } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { CurrencyEnum } from '~/generated/graphql'
+import { CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
 import { useVolumeChargeForm } from '~/hooks/plans/useVolumeChargeForm'
 import { intlFormatNumber, getCurrencySymbol } from '~/core/intlFormatNumber'
 
@@ -24,29 +24,46 @@ gql`
         toValue
       }
     }
+    groupProperties {
+      groupId
+      values {
+        volumeRanges {
+          flatAmount
+          fromValue
+          perUnitAmount
+          toValue
+        }
+      }
+    }
   }
 `
 
 interface VolumeChargeTableProps {
-  currency: CurrencyEnum
   chargeIndex: number
-  formikProps: FormikProps<PlanFormInput>
+  currency: CurrencyEnum
   disabled?: boolean
+  formikProps: FormikProps<PlanFormInput>
+  propertyCursor: string
+  valuePointer: InputMaybe<PropertiesInput> | undefined
 }
 
 export const VolumeChargeTable = ({
-  currency,
   chargeIndex,
-  formikProps,
+  currency,
   disabled,
+  formikProps,
+  propertyCursor,
+  valuePointer,
 }: VolumeChargeTableProps) => {
   const { translate } = useInternationalization()
   const [errorIndex, setErrorIndex] = useState<number | undefined>()
   const { tableDatas, addRange, handleUpdate, deleteRange, infosCalculation } = useVolumeChargeForm(
     {
-      formikProps,
       chargeIndex,
       disabled,
+      formikProps,
+      propertyCursor,
+      valuePointer,
     }
   )
 

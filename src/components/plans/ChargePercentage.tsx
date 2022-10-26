@@ -10,7 +10,7 @@ import { TextInput } from '~/components/form'
 import { MenuPopper, theme } from '~/styles'
 import { Alert, Typography, Button, Tooltip, Popper } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { CurrencyEnum } from '~/generated/graphql'
+import { CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
 
 import { PlanFormInput } from './types'
 
@@ -23,6 +23,15 @@ gql`
       freeUnitsPerTotalAggregation
       rate
     }
+    groupProperties {
+      groupId
+      values {
+        fixedAmount
+        freeUnitsPerEvents
+        freeUnitsPerTotalAggregation
+        rate
+      }
+    }
   }
 `
 
@@ -31,6 +40,8 @@ interface ChargePercentageProps {
   chargeIndex: number
   currency: CurrencyEnum
   formikProps: FormikProps<PlanFormInput>
+  propertyCursor: string
+  valuePointer: InputMaybe<PropertiesInput> | undefined
 }
 
 export const ChargePercentage = ({
@@ -38,16 +49,17 @@ export const ChargePercentage = ({
   disabled,
   chargeIndex,
   formikProps,
+  propertyCursor,
+  valuePointer,
 }: ChargePercentageProps) => {
   const { translate } = useInternationalization()
   const localCharge = formikProps.values.charges[chargeIndex]
-  const showFixedAmount = localCharge.properties?.fixedAmount !== undefined
-  const showFreeUnitsPerEvents = localCharge.properties?.freeUnitsPerEvents !== undefined
-  const showFreeUnitsPerTotalAggregation =
-    localCharge.properties?.freeUnitsPerTotalAggregation !== undefined
+  const showFixedAmount = valuePointer?.fixedAmount !== undefined
+  const showFreeUnitsPerEvents = valuePointer?.freeUnitsPerEvents !== undefined
+  const showFreeUnitsPerTotalAggregation = valuePointer?.freeUnitsPerTotalAggregation !== undefined
   let freeUnitsPerTotalAggregationTranslation = translate('text_6303351deffd2a0d70498677', {
     freeAmountUnits: intlFormatNumber(
-      Number(localCharge.properties?.freeUnitsPerTotalAggregation) * 100 || 0,
+      Number(valuePointer?.freeUnitsPerTotalAggregation) * 100 || 0,
       {
         currencyDisplay: 'symbol',
         currency,
@@ -72,16 +84,16 @@ export const ChargePercentage = ({
   return (
     <Container>
       <Input
+        name={`${propertyCursor}.rate`}
         label={translate('text_62a0b7107afa2700a65ef6f6')}
-        name="properties.rate"
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
         beforeChangeFormatter={['positiveNumber', 'decimal']}
-        error={_get(formikProps.errors, `charges.${chargeIndex}.properties.rate`)}
+        error={_get(formikProps.errors, `charges.${chargeIndex}.${propertyCursor}.rate`)}
         disabled={disabled}
         placeholder={translate('text_62a0b7107afa2700a65ef700')}
-        value={localCharge.properties?.rate as number | undefined}
-        onChange={(value) => handleUpdate('properties.rate', value)}
+        value={valuePointer?.rate as number | undefined}
+        onChange={(value) => handleUpdate(`${propertyCursor}.rate`, value)}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -91,18 +103,18 @@ export const ChargePercentage = ({
         }}
       />
 
-      {localCharge.properties?.fixedAmount !== undefined && (
+      {valuePointer?.fixedAmount !== undefined && (
         <LineAmount>
           <Input
-            name="properties.fixedAmount"
+            name={`${propertyCursor}.fixedAmount`}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
             disabled={disabled}
             label={translate('text_62ff5d01a306e274d4ffcc1e')}
             placeholder={translate('text_62ff5d01a306e274d4ffcc24')}
-            value={localCharge.properties?.fixedAmount || ''}
-            onChange={(value) => handleUpdate('properties.fixedAmount', value)}
+            value={valuePointer?.fixedAmount || ''}
+            onChange={(value) => handleUpdate(`${propertyCursor}.fixedAmount`, value)}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
@@ -121,7 +133,7 @@ export const ChargePercentage = ({
               disabled={disabled}
               variant="quaternary"
               onClick={() => {
-                formikProps.setFieldValue(`charges.${chargeIndex}.properties`, {
+                formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
                   ...localCharge,
                   fixedAmount: undefined,
                 })
@@ -131,18 +143,18 @@ export const ChargePercentage = ({
         </LineAmount>
       )}
 
-      {localCharge.properties?.freeUnitsPerEvents !== undefined && (
+      {valuePointer?.freeUnitsPerEvents !== undefined && (
         <LineAmount>
           <Input
-            name="properties.freeUnitsPerEvents"
+            name={`${propertyCursor}.freeUnitsPerEvents`}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             beforeChangeFormatter={['positiveNumber', 'int']}
             disabled={disabled}
             label={translate('text_62ff5d01a306e274d4ffcc36')}
             placeholder={translate('text_62ff5d01a306e274d4ffcc3c')}
-            value={localCharge.properties?.freeUnitsPerEvents || ''}
-            onChange={(value) => handleUpdate('properties.freeUnitsPerEvents', value)}
+            value={valuePointer?.freeUnitsPerEvents || ''}
+            onChange={(value) => handleUpdate(`${propertyCursor}.freeUnitsPerEvents`, value)}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -162,7 +174,7 @@ export const ChargePercentage = ({
               disabled={disabled}
               variant="quaternary"
               onClick={() => {
-                formikProps.setFieldValue(`charges.${chargeIndex}.properties`, {
+                formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
                   ...localCharge,
                   freeUnitsPerEvents: undefined,
                 })
@@ -172,22 +184,24 @@ export const ChargePercentage = ({
         </LineAmount>
       )}
 
-      {localCharge.properties?.freeUnitsPerTotalAggregation !== undefined && (
+      {valuePointer?.freeUnitsPerTotalAggregation !== undefined && (
         <LineAmount>
-          {localCharge.properties?.freeUnitsPerEvents !== undefined &&
-            localCharge.properties?.freeUnitsPerTotalAggregation !== undefined && (
+          {valuePointer?.freeUnitsPerEvents !== undefined &&
+            valuePointer?.freeUnitsPerTotalAggregation !== undefined && (
               <OrText variant="body">{translate('text_62ff5d01a306e274d4ffcc59')}</OrText>
             )}
           <Input
-            name="properties.freeUnitsPerTotalAggregation"
+            name={`${propertyCursor}.freeUnitsPerTotalAggregation`}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
             disabled={disabled}
             label={translate('text_62ff5d01a306e274d4ffcc48')}
             placeholder={translate('text_62ff5d01a306e274d4ffcc4e')}
-            value={localCharge.properties?.freeUnitsPerTotalAggregation || ''}
-            onChange={(value) => handleUpdate('properties.freeUnitsPerTotalAggregation', value)}
+            value={valuePointer?.freeUnitsPerTotalAggregation || ''}
+            onChange={(value) =>
+              handleUpdate(`${propertyCursor}.freeUnitsPerTotalAggregation`, value)
+            }
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
@@ -205,7 +219,7 @@ export const ChargePercentage = ({
               disabled={disabled}
               variant="quaternary"
               onClick={() => {
-                formikProps.setFieldValue(`charges.${chargeIndex}.properties`, {
+                formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
                   ...localCharge,
                   freeUnitsPerTotalAggregation: undefined,
                 })
@@ -219,11 +233,11 @@ export const ChargePercentage = ({
         <Button
           startIcon="plus"
           variant="quaternary"
-          disabled={disabled || localCharge.properties?.fixedAmount !== undefined}
+          disabled={disabled || valuePointer?.fixedAmount !== undefined}
           onClick={() =>
-            formikProps.setFieldValue(`charges.${chargeIndex}`, {
-              ...localCharge,
-              properties: { ...localCharge.properties, fixedAmount: '' },
+            formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
+              ...valuePointer,
+              fixedAmount: '',
             })
           }
         >
@@ -239,8 +253,8 @@ export const ChargePercentage = ({
               variant="quaternary"
               disabled={
                 disabled ||
-                (localCharge.properties?.freeUnitsPerEvents !== undefined &&
-                  localCharge.properties?.freeUnitsPerTotalAggregation !== undefined)
+                (valuePointer?.freeUnitsPerEvents !== undefined &&
+                  valuePointer?.freeUnitsPerTotalAggregation !== undefined)
               }
             >
               {translate('text_62ff5d01a306e274d4ffcc61')}
@@ -251,11 +265,11 @@ export const ChargePercentage = ({
             <MenuPopper>
               <FreeUnitButton
                 variant="quaternary"
-                disabled={disabled || localCharge.properties?.freeUnitsPerEvents !== undefined}
+                disabled={disabled || valuePointer?.freeUnitsPerEvents !== undefined}
                 onClick={() => {
-                  formikProps.setFieldValue(`charges.${chargeIndex}`, {
-                    ...localCharge,
-                    properties: { ...localCharge.properties, freeUnitsPerEvents: '' },
+                  formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
+                    ...valuePointer,
+                    freeUnitsPerEvents: '',
                   })
                   closePopper()
                 }}
@@ -264,14 +278,13 @@ export const ChargePercentage = ({
               </FreeUnitButton>
               <FreeUnitButton
                 variant="quaternary"
-                disabled={
-                  disabled || localCharge.properties?.freeUnitsPerTotalAggregation !== undefined
-                }
+                disabled={disabled || valuePointer?.freeUnitsPerTotalAggregation !== undefined}
                 onClick={() => {
-                  formikProps.setFieldValue(`charges.${chargeIndex}`, {
-                    ...localCharge,
-                    properties: { ...localCharge.properties, freeUnitsPerTotalAggregation: '' },
+                  formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
+                    ...valuePointer,
+                    freeUnitsPerTotalAggregation: '',
                   })
+
                   closePopper()
                 }}
               >
@@ -285,7 +298,7 @@ export const ChargePercentage = ({
       <Alert type="info">
         <Typography color="textSecondary">
           {translate('text_62ff5d01a306e274d4ffcc65', {
-            percentageFee: intlFormatNumber(Number(localCharge.properties?.rate) || 0, {
+            percentageFee: intlFormatNumber(Number(valuePointer?.rate) || 0, {
               minimumFractionDigits: 2,
               style: 'percent',
             }),
@@ -295,14 +308,11 @@ export const ChargePercentage = ({
         {showFixedAmount && (
           <Typography color="textSecondary">
             {translate('text_62ff5d01a306e274d4ffcc69', {
-              fixedFeeValue: intlFormatNumber(
-                Number(localCharge.properties?.fixedAmount) * 100 || 0,
-                {
-                  currencyDisplay: 'symbol',
-                  currency,
-                  maximumFractionDigits: 5,
-                }
-              ),
+              fixedFeeValue: intlFormatNumber(Number(valuePointer?.fixedAmount) * 100 || 0, {
+                currencyDisplay: 'symbol',
+                currency,
+                maximumFractionDigits: 5,
+              }),
             })}
           </Typography>
         )}
@@ -312,9 +322,9 @@ export const ChargePercentage = ({
               translate(
                 'text_62ff5d01a306e274d4ffcc6d',
                 {
-                  freeEventUnits: localCharge.properties?.freeUnitsPerEvents || 0,
+                  freeEventUnits: valuePointer?.freeUnitsPerEvents || 0,
                 },
-                Math.max(Number(localCharge.properties?.freeUnitsPerEvents) || 0)
+                Math.max(Number(valuePointer?.freeUnitsPerEvents) || 0)
               )}
 
             {/* Spaces bellow are important */}
@@ -327,10 +337,9 @@ export const ChargePercentage = ({
             {` ${translate(
               'text_6303351deffd2a0d70498679',
               {
-                freeEventUnits: localCharge.properties?.freeUnitsPerEvents || 0,
+                freeEventUnits: valuePointer?.freeUnitsPerEvents || 0,
               },
-              (localCharge.properties?.freeUnitsPerEvents || 0) < 2 &&
-                !showFreeUnitsPerTotalAggregation
+              (valuePointer?.freeUnitsPerEvents || 0) < 2 && !showFreeUnitsPerTotalAggregation
                 ? 1
                 : 2
             )}`}
