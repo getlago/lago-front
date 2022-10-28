@@ -100,9 +100,10 @@ export const AddSubscriptionDrawer = forwardRef<
     const { subscriptionInput, updateInfo } = overwritePlanVar()
 
     if (!!subscriptionInput) {
-      const { planId, name, billingTime } = subscriptionInput
+      const { planId, name, billingTime, subscriptionDate } = subscriptionInput
 
       formikProps.setValues({
+        subscriptionDate: subscriptionDate || currentDateRef?.current,
         planId: planId || '',
         name: name || undefined,
         billingTime: billingTime || BillingTimeEnum.Calendar,
