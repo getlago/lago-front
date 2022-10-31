@@ -291,12 +291,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                 formikProps={formikProps}
                 helperText={
                   !isEdition && (
-                    <>
-                      {'Connect Payment service provider in the '}
-                      <Link
-                        to={generatePath(INTEGRATIONS_ROUTE)}>{'integrations section'}
-                      </Link>
-                    </>
+                    <HelperText html={translate('text_635bdbda84c98758f9bba8a0', { link: INTEGRATIONS_ROUTE })} />
                   )
                 }
                 PopperProps={{ displayInDialog: true }}
@@ -347,6 +342,11 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
     )
   }
 )
+
+const HelperText = styled(Typography)`
+  font-size: 14px;
+  line-height: 20px;
+`
 
 const BillingBlock = styled.div<{ $first?: boolean }>`
   margin-bottom: ${({ $first }) => ($first ? theme.spacing(6) : 0)};
