@@ -11,7 +11,7 @@ import {
   Skeleton,
   Avatar,
   Chip,
-  NavigationTab, Button, Icon,
+  NavigationTab, Button, Icon, Tooltip,
 } from '~/components/designSystem'
 import {
   useGocardlessIntegrationsSettingQuery,
@@ -54,7 +54,7 @@ const GocardlessIntegration = () => {
   const [webhookSecretKey, setWebhookSecretKey] = useState('')
   const tabsOptions = [
     {
-      title: translate('text_62b1edddbf5f461ab9712725'),
+      title: translate('text_634ea0ecc6147de10ddb6635'),
       link: GOCARDLESS_INTEGRATION_ROUTE,
     },
   ]
@@ -128,11 +128,11 @@ const GocardlessIntegration = () => {
             <div>
               <Line>
                 <Typography variant="headline">
-                  {translate('text_634ea0ecc6147de10ddb6629')}
+                  {translate('text_634ea0ecc6147de10ddb6648')}
                 </Typography>
                 {isConnectionEstablished && <Chip label={translate('text_634ea0ecc6147de10ddb662d')} />}
               </Line>
-              <Typography>{translate('text_634ea0ecc6147de10ddb6631')}</Typography>
+              <Typography>{translate('text_634ea0ecc6147de10ddb6643')}</Typography>
             </div>
           </>
         )}
@@ -143,7 +143,7 @@ const GocardlessIntegration = () => {
           <Title variant="subhead">{translate('text_634ea0ecc6147de10ddb663d')}</Title>
           <Button
             disabled={!isConnectionEstablished}
-            variant="secondary"
+            variant="quaternary"
             onClick={() => window.open('https://proxy.lago.dev/gocardless/auth', '_blank') }
           >
             {translate('text_635bd8acb686f18909a57c87')}
@@ -154,7 +154,7 @@ const GocardlessIntegration = () => {
       <Settings>
         <Title variant="subhead">{translate('text_635bd8acb686f18909a57c89')}</Title>
         <SubtitleSecretKey variant="bodyHl" color="disabled">
-          {translate('text_635bd8acb686f18909a57c89')}
+          {translate('text_635bd8acb686f18909a57c8d')}
         </SubtitleSecretKey>
         <SecretKeyItem>
           {loading ? (
@@ -169,18 +169,20 @@ const GocardlessIntegration = () => {
                 <Icon color="dark" name="key" />
               </Avatar>
               <SecretKey color="textSecondary">{webhookSecretKey}</SecretKey>
-              <Button
-                variant="quaternary"
-                onClick={() => {
-                  navigator.clipboard.writeText(webhookSecretKey)
-                  addToast({
-                    severity: 'info',
-                    translateKey: 'text_6227a2e847fcd700e9038952',
-                  })
-                }}
-              >
-                <Icon color="dark" name="duplicate" />
-              </Button>
+              <Tooltip title={'Copy text'} placement="top-end">
+                <Button
+                  variant="quaternary"
+                  onClick={() => {
+                    navigator.clipboard.writeText(webhookSecretKey)
+                    addToast({
+                      severity: 'info',
+                      translateKey: 'text_6227a2e847fcd700e9038952',
+                    })
+                  }}
+                >
+                  <Icon color="dark" name="duplicate" />
+                </Button>
+              </Tooltip>
             </>
           )}
         </SecretKeyItem>

@@ -15,10 +15,8 @@ import {
   NavigationTab,
   Popper,
 } from '~/components/designSystem'
-import { Switch } from '~/components/form'
 import {
   useStripeIntegrationsSettingQuery,
-  useUpdateStripeIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Stripe from '~/public/images/stripe.svg'
@@ -30,7 +28,6 @@ import {
   DeleteStripeIntegrationDialog,
   DeleteStripeIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteStripeIntegrationDialog'
-import { addToast } from '~/core/apolloClient'
 
 gql`
   fragment StripeIntegration on StripeProvider {
@@ -63,16 +60,6 @@ const StripeIntegration = () => {
   const deleteDialogRef = useRef<DeleteStripeIntegrationDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useStripeIntegrationsSettingQuery()
-  const [update] = useUpdateStripeIntegrationMutation({
-    onCompleted({ addStripePaymentProvider }) {
-      if (addStripePaymentProvider?.id) {
-        addToast({
-          message: translate('text_62b1edddbf5f461ab9712819'),
-          severity: 'success',
-        })
-      }
-    },
-  })
   const tabsOptions = [
     {
       title: translate('text_62b1edddbf5f461ab9712725'),
@@ -195,15 +182,6 @@ const HeaderBlock = styled.div`
   }
 `
 
-const SwitchBlock = styled.div`
-  > * {
-    margin-bottom: ${theme.spacing(6)};
-    &:last-child {
-      margin-bottom: ${theme.spacing(20)};
-    }
-  }
-`
-
 const MainInfos = styled.div`
   display: flex;
   align-items: center;
@@ -228,10 +206,6 @@ const Subtitle = styled(Typography)`
   box-shadow: ${theme.shadows[7]};
   display: flex;
   align-items: center;
-`
-
-const TitleWithMargin = styled(Title)`
-  margin-bottom: ${theme.spacing(6)};
 `
 
 const ApiKeyItem = styled.div`
