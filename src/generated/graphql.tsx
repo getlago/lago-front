@@ -3222,6 +3222,13 @@ export type GocardlessIntegrationsSettingQueryVariables = Exact<{ [key: string]:
 
 export type GocardlessIntegrationsSettingQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, gocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string, hasAccessToken: boolean } | null }> | null } };
 
+export type AddGocardlessPaymentProviderMutationVariables = Exact<{
+  input: AddGocardlessPaymentProviderInput;
+}>;
+
+
+export type AddGocardlessPaymentProviderMutation = { __typename?: 'Mutation', addGocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string, hasAccessToken: boolean } | null };
+
 export type IntegrationsSettingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -6315,6 +6322,40 @@ export function useGocardlessIntegrationsSettingLazyQuery(baseOptions?: Apollo.L
 export type GocardlessIntegrationsSettingQueryHookResult = ReturnType<typeof useGocardlessIntegrationsSettingQuery>;
 export type GocardlessIntegrationsSettingLazyQueryHookResult = ReturnType<typeof useGocardlessIntegrationsSettingLazyQuery>;
 export type GocardlessIntegrationsSettingQueryResult = Apollo.QueryResult<GocardlessIntegrationsSettingQuery, GocardlessIntegrationsSettingQueryVariables>;
+export const AddGocardlessPaymentProviderDocument = gql`
+    mutation addGocardlessPaymentProvider($input: AddGocardlessPaymentProviderInput!) {
+  addGocardlessPaymentProvider(input: $input) {
+    id
+    hasAccessToken
+  }
+}
+    `;
+export type AddGocardlessPaymentProviderMutationFn = Apollo.MutationFunction<AddGocardlessPaymentProviderMutation, AddGocardlessPaymentProviderMutationVariables>;
+
+/**
+ * __useAddGocardlessPaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useAddGocardlessPaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddGocardlessPaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addGocardlessPaymentProviderMutation, { data, loading, error }] = useAddGocardlessPaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddGocardlessPaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<AddGocardlessPaymentProviderMutation, AddGocardlessPaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddGocardlessPaymentProviderMutation, AddGocardlessPaymentProviderMutationVariables>(AddGocardlessPaymentProviderDocument, options);
+      }
+export type AddGocardlessPaymentProviderMutationHookResult = ReturnType<typeof useAddGocardlessPaymentProviderMutation>;
+export type AddGocardlessPaymentProviderMutationResult = Apollo.MutationResult<AddGocardlessPaymentProviderMutation>;
+export type AddGocardlessPaymentProviderMutationOptions = Apollo.BaseMutationOptions<AddGocardlessPaymentProviderMutation, AddGocardlessPaymentProviderMutationVariables>;
 export const IntegrationsSettingDocument = gql`
     query integrationsSetting {
   currentUser {
