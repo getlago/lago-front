@@ -179,24 +179,6 @@ const StripeIntegration = () => {
             </>
           )}
         </ApiKeyItem>
-        {!loading && (
-          <>
-            <TitleWithMargin variant="subhead">
-              {translate('text_62b1edddbf5f461ab97127b4')}
-            </TitleWithMargin>
-            <SwitchBlock>
-              <Switch
-                name="createCustomers"
-                checked={!stripePaymentProvider ? false : stripePaymentProvider?.createCustomers}
-                onChange={async (value) =>
-                  await update({ variables: { input: { createCustomers: value } } })
-                }
-                label={translate('text_62b1edddbf5f461ab97127c8')}
-                subLabel={translate('text_62b1edddbf5f461ab97127d8')}
-              />
-            </SwitchBlock>
-          </>
-        )}
       </Settings>
       <AddStripeDialog isEdition ref={addDialogRef} />
       <DeleteStripeIntegrationDialog id={stripePaymentProvider?.id || ''} ref={deleteDialogRef} />
