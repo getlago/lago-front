@@ -57,7 +57,6 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
       formikProps.setFieldValue('providerCustomer.syncWithProvider', checked)
       if (!isEdition && checked) {
         formikProps.setFieldValue('providerCustomer.providerCustomerId', undefined)
-        formikProps.setFieldValue('providerCustomer.providerMandateId', undefined)
       }
     }
     const formikProps = useFormik<CreateCustomerInput | UpdateCustomerInput>({
@@ -77,7 +76,6 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
         zipcode: customer?.zipcode ?? undefined,
         providerCustomer: {
           providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? undefined,
-          providerMandateId: customer?.providerCustomer?.providerMandateId ?? undefined,
           syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
         },
         paymentProvider: customer?.paymentProvider ?? undefined,
@@ -105,7 +103,6 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
       if (!formikProps.values.paymentProvider) {
         // If no payment provider, reset stripe customer
         formikProps.setFieldValue('providerCustomer.providerCustomerId', undefined)
-        formikProps.setFieldValue('providerCustomer.providerMandateId', undefined)
         formikProps.setFieldValue('providerCustomer.syncWithProvider', false)
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -142,7 +139,6 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
               zipcode: customer?.zipcode ?? undefined,
               providerCustomer: {
                 providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? undefined,
-                providerMandateId: customer?.providerCustomer?.providerMandateId ?? undefined,
                 syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
               },
               paymentProvider: customer?.paymentProvider ?? undefined,
@@ -295,41 +291,17 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                 formikProps={formikProps}
                 helperText={
                   !isEdition && (
-                    <p>
+                    <>
                       {'Connect Payment service provider in the '}
                       <Link
                         to={generatePath(INTEGRATIONS_ROUTE)}>{'integrations section'}
                       </Link>
-                    </p>
+                    </>
                   )
                 }
                 PopperProps={{ displayInDialog: true }}
               />
-              {formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless && (
-                <>
-                  <TextInputField
-                    name="providerCustomer.providerCustomerId"
-                    disabled={isDisabled}
-                    label={translate('text_62b328ead9a4caef81cd9ca0')}
-                    placeholder={translate('text_62b328ead9a4caef81cd9ca2')}
-                    formikProps={formikProps}
-                  />
-                  <TextInputField
-                    name="providerCustomer.providerMandateId"
-                    disabled={isDisabled}
-                    label={'GoCardless mandate ID'}
-                    placeholder={'Type the GoCardless mandate ID'}
-                    formikProps={formikProps}
-                  />
-                  <Checkbox
-                    name="providerCustomer.syncWithProvider"
-                    value={formikProps.values.providerCustomer?.syncWithProvider}
-                    label={'Create automatically this customer in GoCardless'}
-                    onChange={(_, checked) => handleChange(checked)}
-                  />
-                </>
-              )}
-              {formikProps.values.paymentProvider === ProviderTypeEnum.Stripe && (
+              {(formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless || formikProps.values.paymentProvider === ProviderTypeEnum.Stripe) && (
                 <>
                   <TextInputField
                     name="providerCustomer.providerCustomerId"
@@ -341,13 +313,17 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                   <Checkbox
                     name="providerCustomer.syncWithProvider"
                     value={formikProps.values.providerCustomer?.syncWithProvider}
-                    label={'Create automatically this customer in Stripe'}
+                    label={
+                      formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless ?
+                        translate('text_635bdbda84c98758f9bba8aa') :
+                        translate('text_635bdbda84c98758f9bba89e')
+                    }
                     onChange={(_, checked) => handleChange(checked)}
                   />
                 </>
               )}
               {isDisabled && formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless && (
-                <Alert type="info">{'To create a customer in GoCardless you must fill in an email address'}</Alert>
+                <Alert type="info">{translate('text_635bdbda84c98758f9bba8ae')}</Alert>
               )}
             </BillingBlock>
           </Accordion>

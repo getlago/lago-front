@@ -40,7 +40,6 @@ gql`
     providerCustomer {
       id
       providerCustomerId
-      providerMandateId
       syncWithProvider
     }
   }
@@ -66,7 +65,6 @@ gql`
     providerCustomer {
       id
       providerCustomerId
-      providerMandateId
       syncWithProvider
     }
   }
@@ -146,7 +144,6 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
                 paymentProvider,
                 providerCustomer: {
                   providerCustomerId: !paymentProvider ? null : providerCustomer?.providerCustomerId,
-                  providerMandateId: !paymentProvider ? null : providerCustomer?.providerMandateId,
                   syncWithProvider: !paymentProvider ? null : providerCustomer?.syncWithProvider,
                 },
                 ...values,
@@ -161,7 +158,6 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
                 paymentProvider,
                 providerCustomer: {
                   providerCustomerId: !paymentProvider ? null : providerCustomer?.providerCustomerId,
-                  providerMandateId: !paymentProvider ? null : providerCustomer?.providerMandateId,
                   syncWithProvider: !paymentProvider ? null : providerCustomer?.syncWithProvider,
                 },
               },

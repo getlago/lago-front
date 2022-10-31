@@ -11,7 +11,7 @@ import {
   Skeleton,
   Avatar,
   Chip,
-  NavigationTab, Button,
+  NavigationTab, Button, Icon,
 } from '~/components/designSystem'
 import {
   useGocardlessIntegrationsSettingQuery,
@@ -30,6 +30,7 @@ gql`
         gocardlessPaymentProvider {
           id
           hasAccessToken
+          webhookSecret
         }
       }
     }
@@ -39,6 +40,7 @@ gql`
     addGocardlessPaymentProvider(input: $input) {
       id
       hasAccessToken
+      webhookSecret
     }
   }
 `
@@ -49,6 +51,7 @@ const GocardlessIntegration = () => {
   const query = new URLSearchParams(useLocation().search);
   const code = query.get('code');
   const [isConnectionEstablished, setIsConnectionEstablished] = useState(false)
+  const [webhookSecretKey, setWebhookSecretKey] = useState('')
   const tabsOptions = [
     {
       title: translate('text_62b1edddbf5f461ab9712725'),
@@ -58,8 +61,9 @@ const GocardlessIntegration = () => {
   const gocardlessPaymentProvider = (data?.currentUser?.organizations || [])[0]?.gocardlessPaymentProvider
   const [addPaymentProvider] = useAddGocardlessPaymentProviderMutation({
     onCompleted({ addGocardlessPaymentProvider }) {
-      if (addGocardlessPaymentProvider?.id) {
+      if (addGocardlessPaymentProvider?.id && addGocardlessPaymentProvider?.webhookSecret) {
         setIsConnectionEstablished(true)
+        setWebhookSecretKey(addGocardlessPaymentProvider?.webhookSecret)
         addToast({
           message: translate(
              'text_634ea0ecc6147de10ddb6645'
@@ -83,8 +87,9 @@ const GocardlessIntegration = () => {
   }, [])
 
   useEffect(() => {
-    if (gocardlessPaymentProvider) {
+    if (gocardlessPaymentProvider && gocardlessPaymentProvider.webhookSecret) {
       setIsConnectionEstablished(true)
+      setWebhookSecretKey(gocardlessPaymentProvider.webhookSecret)
     }
   }, [gocardlessPaymentProvider])
 
@@ -134,17 +139,52 @@ const GocardlessIntegration = () => {
       </MainInfos>
       <NavigationTab tabs={tabsOptions} />
       <Settings>
-        <Head $empty={!!gocardlessPaymentProvider && !loading}>
+        <Head>
           <Title variant="subhead">{translate('text_634ea0ecc6147de10ddb663d')}</Title>
           <Button
             disabled={!isConnectionEstablished}
             variant="secondary"
             onClick={() => window.open('https://proxy.lago.dev/gocardless/auth', '_blank') }
           >
-            {translate('text_634ea0ecc6147de10ddb6639')}
+            {translate('text_635bd8acb686f18909a57c87')}
           </Button>
         </Head>
         {isConnectionEstablished && <Subtitle>{translate('text_634ea0ecc6147de10ddb6641')}</Subtitle>}
+      </Settings>
+      <Settings>
+        <Title variant="subhead">{translate('text_635bd8acb686f18909a57c89')}</Title>
+        <SubtitleSecretKey variant="bodyHl" color="disabled">
+          {translate('text_635bd8acb686f18909a57c89')}
+        </SubtitleSecretKey>
+        <SecretKeyItem>
+          {loading ? (
+            <>
+              <Skeleton variant="connectorAvatar" size="medium" marginRight="16px" />
+              <Skeleton variant="text" width={240} height={12} />
+            </>
+          ) : (
+            isConnectionEstablished &&
+            <>
+              <Avatar variant="connector" size="medium">
+                <Icon color="dark" name="key" />
+              </Avatar>
+              <SecretKey color="textSecondary">{webhookSecretKey}</SecretKey>
+              <Button
+                variant="quaternary"
+                onClick={() => {
+                  navigator.clipboard.writeText(webhookSecretKey)
+                  addToast({
+                    severity: 'info',
+                    translateKey: 'text_6227a2e847fcd700e9038952',
+                  })
+                }}
+              >
+                <Icon color="dark" name="duplicate" />
+              </Button>
+            </>
+          )}
+        </SecretKeyItem>
+        {!loading && <Info variant="caption">{translate('text_635bd8acb686f18909a57c93')}</Info>}
       </Settings>
     </div>
   )
@@ -167,6 +207,7 @@ const MainInfos = styled.div`
 
 const Settings = styled.div`
   padding: 0 ${theme.spacing(12)};
+  margin-bottom: ${theme.spacing(12)};
 `
 
 const Title = styled(Typography)`
@@ -177,19 +218,51 @@ const Title = styled(Typography)`
   align-items: center;
 `
 
-const Head = styled.div<{ $empty?: boolean }>`
+const Head = styled.div`
   height: ${NAV_HEIGHT}px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   box-shadow: ${theme.shadows[7]};
-  margin-bottom: ${({ $empty }) => ($empty ? theme.spacing(4) : 0)};
+  margin-bottom: ${theme.spacing(4)};
 `
 
 const Subtitle = styled(Typography)`
   height: ${HEADER_TABLE_HEIGHT}px;
   width: 100%;
   display: flex;
+  align-items: center;
+`
+
+const SubtitleSecretKey = styled(Typography)`
+  height: ${HEADER_TABLE_HEIGHT}px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  box-shadow: ${theme.shadows[7]};
+`
+
+const SecretKeyItem = styled.div`
+  height: ${NAV_HEIGHT}px;
+  width: 100%;
+  box-shadow: ${theme.shadows[7]};
+  display: flex;
+  align-items: center;
+
+  > *:first-child {
+    margin-right: ${theme.spacing(3)};
+  }
+`
+
+const SecretKey = styled(Typography)`
+  margin-right: auto;
+`
+
+const Info = styled(Typography)`
+  height: ${HEADER_TABLE_HEIGHT}px;
+  box-shadow: ${theme.shadows[7]};
+  display: flex;
+  justify-content: flex-start;
   align-items: center;
 `
 
