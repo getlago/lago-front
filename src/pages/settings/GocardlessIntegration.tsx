@@ -12,7 +12,7 @@ import {
   NavigationTab, Button,
 } from '~/components/designSystem'
 import {
-  useStripeIntegrationsSettingQuery,
+  useGocardlessIntegrationsSettingQuery,
   useUpdateStripeIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -36,7 +36,7 @@ gql`
 
 const GocardlessIntegration = () => {
   const { translate } = useInternationalization()
-  const { data, loading } = useStripeIntegrationsSettingQuery()
+  const { data, loading } = useGocardlessIntegrationsSettingQuery()
   const [update] = useUpdateStripeIntegrationMutation({
     onCompleted({ addStripePaymentProvider }) {
       if (addStripePaymentProvider?.id) {
@@ -54,7 +54,7 @@ const GocardlessIntegration = () => {
     },
   ]
 
-  const gocardlessPaymentProvider = (data?.currentUser?.organizations || [])[0]?.stripePaymentProvider
+  const gocardlessPaymentProvider = (data?.currentUser?.organizations || [])[0]?.gocardlessPaymentProvider
 
   return (
     <div>

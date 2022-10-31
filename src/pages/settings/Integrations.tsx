@@ -39,7 +39,8 @@ const Integrations = () => {
   const { data, loading } = useIntegrationsSettingQuery()
   const hasStripeIntegration = !!(data?.currentUser?.organizations || [])[0]?.stripePaymentProvider
     ?.id
-  const hasGocardlessIntegration = false
+  const hasGocardlessIntegration = !!(data?.currentUser?.organizations || [])[0]?.gocardlessPaymentProvider
+    ?.id
 
   return (
     <Page>

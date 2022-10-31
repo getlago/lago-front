@@ -869,8 +869,8 @@ export type CreateCustomerInput = {
   name: Scalars['String'];
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   phone?: InputMaybe<Scalars['String']>;
+  providerCustomer?: InputMaybe<ProviderCustomerInput>;
   state?: InputMaybe<Scalars['String']>;
-  stripeCustomer?: InputMaybe<StripeCustomerInput>;
   url?: InputMaybe<Scalars['String']>;
   vatRate?: InputMaybe<Scalars['Float']>;
   zipcode?: InputMaybe<Scalars['String']>;
@@ -1290,6 +1290,7 @@ export type Customer = {
   currency?: Maybe<CurrencyEnum>;
   email?: Maybe<Scalars['String']>;
   externalId: Scalars['String'];
+  gocardlessCustomer?: Maybe<GocardlessCustomer>;
   /** Define if a customer has an active wallet */
   hasActiveWallet: Scalars['Boolean'];
   id: Scalars['ID'];
@@ -1335,6 +1336,7 @@ export type CustomerDetails = {
   currency?: Maybe<CurrencyEnum>;
   email?: Maybe<Scalars['String']>;
   externalId: Scalars['String'];
+  gocardlessCustomer?: Maybe<GocardlessCustomer>;
   /** Define if a customer has an active wallet */
   hasActiveWallet: Scalars['Boolean'];
   id: Scalars['ID'];
@@ -1527,6 +1529,14 @@ export enum FeeTypesEnum {
   Credit = 'credit',
   Subscription = 'subscription'
 }
+
+export type GocardlessCustomer = {
+  __typename?: 'GocardlessCustomer';
+  id: Scalars['ID'];
+  mandateId?: Maybe<Scalars['String']>;
+  providerCustomerId?: Maybe<Scalars['ID']>;
+  syncWithProvider?: Maybe<Scalars['Boolean']>;
+};
 
 export type GocardlessProvider = {
   __typename?: 'GocardlessProvider';
@@ -1999,6 +2009,7 @@ export type Organization = {
   country?: Maybe<CountryCode>;
   createdAt: Scalars['ISO8601DateTime'];
   email?: Maybe<Scalars['String']>;
+  gocardlessPaymentProvider?: Maybe<GocardlessProvider>;
   id: Scalars['ID'];
   invoiceFooter?: Maybe<Scalars['String']>;
   legalName?: Maybe<Scalars['String']>;
@@ -2100,7 +2111,14 @@ export type PropertiesInput = {
   volumeRanges?: InputMaybe<Array<VolumeRangeInput>>;
 };
 
+export type ProviderCustomerInput = {
+  gocardlessMandateId?: InputMaybe<Scalars['String']>;
+  providerCustomerId?: InputMaybe<Scalars['ID']>;
+  syncWithProvider?: InputMaybe<Scalars['Boolean']>;
+};
+
 export enum ProviderTypeEnum {
+  Gocardless = 'gocardless',
   Stripe = 'stripe'
 }
 
@@ -2326,10 +2344,7 @@ export type StripeCustomer = {
   __typename?: 'StripeCustomer';
   id: Scalars['ID'];
   providerCustomerId?: Maybe<Scalars['ID']>;
-};
-
-export type StripeCustomerInput = {
-  providerCustomerId?: InputMaybe<Scalars['ID']>;
+  syncWithProvider?: Maybe<Scalars['Boolean']>;
 };
 
 export type StripeProvider = {
@@ -2449,8 +2464,8 @@ export type UpdateCustomerInput = {
   name: Scalars['String'];
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   phone?: InputMaybe<Scalars['String']>;
+  providerCustomer?: InputMaybe<ProviderCustomerInput>;
   state?: InputMaybe<Scalars['String']>;
-  stripeCustomer?: InputMaybe<StripeCustomerInput>;
   url?: InputMaybe<Scalars['String']>;
   vatRate?: InputMaybe<Scalars['Float']>;
   zipcode?: InputMaybe<Scalars['String']>;
@@ -3202,10 +3217,15 @@ export type WehbookSettingQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type WehbookSettingQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, webhookUrl?: string | null }> | null } };
 
+export type GocardlessIntegrationsSettingQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GocardlessIntegrationsSettingQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, gocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string, hasAccessToken: boolean } | null }> | null } };
+
 export type IntegrationsSettingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type IntegrationsSettingQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, stripePaymentProvider?: { __typename?: 'StripeProvider', id: string } | null }> | null } };
+export type IntegrationsSettingQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, stripePaymentProvider?: { __typename?: 'StripeProvider', id: string } | null, gocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string } | null }> | null } };
 
 export type GetInvitesQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -6254,6 +6274,47 @@ export function useWehbookSettingLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 export type WehbookSettingQueryHookResult = ReturnType<typeof useWehbookSettingQuery>;
 export type WehbookSettingLazyQueryHookResult = ReturnType<typeof useWehbookSettingLazyQuery>;
 export type WehbookSettingQueryResult = Apollo.QueryResult<WehbookSettingQuery, WehbookSettingQueryVariables>;
+export const GocardlessIntegrationsSettingDocument = gql`
+    query gocardlessIntegrationsSetting {
+  currentUser {
+    id
+    organizations {
+      id
+      gocardlessPaymentProvider {
+        id
+        hasAccessToken
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGocardlessIntegrationsSettingQuery__
+ *
+ * To run a query within a React component, call `useGocardlessIntegrationsSettingQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGocardlessIntegrationsSettingQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGocardlessIntegrationsSettingQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGocardlessIntegrationsSettingQuery(baseOptions?: Apollo.QueryHookOptions<GocardlessIntegrationsSettingQuery, GocardlessIntegrationsSettingQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GocardlessIntegrationsSettingQuery, GocardlessIntegrationsSettingQueryVariables>(GocardlessIntegrationsSettingDocument, options);
+      }
+export function useGocardlessIntegrationsSettingLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GocardlessIntegrationsSettingQuery, GocardlessIntegrationsSettingQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GocardlessIntegrationsSettingQuery, GocardlessIntegrationsSettingQueryVariables>(GocardlessIntegrationsSettingDocument, options);
+        }
+export type GocardlessIntegrationsSettingQueryHookResult = ReturnType<typeof useGocardlessIntegrationsSettingQuery>;
+export type GocardlessIntegrationsSettingLazyQueryHookResult = ReturnType<typeof useGocardlessIntegrationsSettingLazyQuery>;
+export type GocardlessIntegrationsSettingQueryResult = Apollo.QueryResult<GocardlessIntegrationsSettingQuery, GocardlessIntegrationsSettingQueryVariables>;
 export const IntegrationsSettingDocument = gql`
     query integrationsSetting {
   currentUser {
@@ -6261,6 +6322,9 @@ export const IntegrationsSettingDocument = gql`
     organizations {
       id
       stripePaymentProvider {
+        id
+      }
+      gocardlessPaymentProvider {
         id
       }
     }
