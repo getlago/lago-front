@@ -134,6 +134,7 @@ export const VAT_RATE_ROUTE = `${SETTINGS_ROUTE}/tax-rate`
 export const ORGANIZATION_INFORMATIONS_ROUTE = `${SETTINGS_ROUTE}/organization-informations`
 export const INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
 export const STRIPE_INTEGRATION_ROUTE = `${SETTINGS_ROUTE}/integrations/stripe`
+export const GOCARDLESS_INTEGRATION_ROUTE = `${SETTINGS_ROUTE}/integrations/gocardless`
 export const MEMBERS_ROUTE = `${SETTINGS_ROUTE}/members`
 
 // *********************** Route Available only on dev mode
