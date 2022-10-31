@@ -37,9 +37,11 @@ gql`
     city
     zipcode
     paymentProvider
-    stripeCustomer {
+    providerCustomer {
       id
       providerCustomerId
+      providerMandateId
+      syncWithProvider
     }
   }
 
@@ -61,9 +63,11 @@ gql`
     city
     zipcode
     paymentProvider
-    stripeCustomer {
+    providerCustomer {
       id
       providerCustomerId
+      providerMandateId
+      syncWithProvider
     }
   }
 
@@ -134,27 +138,31 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
   return {
     isEdition: !!customer,
     onSave: !!customer
-      ? async ({ stripeCustomer, paymentProvider, ...values }) =>
+      ? async ({ providerCustomer, paymentProvider, ...values }) =>
           await update({
             variables: {
               input: {
                 id: customer?.id as string,
                 paymentProvider,
-                stripeCustomer: {
-                  providerCustomerId: !paymentProvider ? null : stripeCustomer?.providerCustomerId,
+                providerCustomer: {
+                  providerCustomerId: !paymentProvider ? null : providerCustomer?.providerCustomerId,
+                  providerMandateId: !paymentProvider ? null : providerCustomer?.providerMandateId,
+                  syncWithProvider: !paymentProvider ? null : providerCustomer?.syncWithProvider,
                 },
                 ...values,
               },
             },
           })
-      : async ({ stripeCustomer, paymentProvider, ...values }) =>
+      : async ({ providerCustomer, paymentProvider, ...values }) =>
           await create({
             variables: {
               input: {
                 ...values,
                 paymentProvider,
-                stripeCustomer: {
-                  providerCustomerId: !paymentProvider ? null : stripeCustomer?.providerCustomerId,
+                providerCustomer: {
+                  providerCustomerId: !paymentProvider ? null : providerCustomer?.providerCustomerId,
+                  providerMandateId: !paymentProvider ? null : providerCustomer?.providerMandateId,
+                  syncWithProvider: !paymentProvider ? null : providerCustomer?.syncWithProvider,
                 },
               },
             },

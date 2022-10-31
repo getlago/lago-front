@@ -1,10 +1,11 @@
-import { forwardRef, useEffect, RefObject } from 'react'
+import { forwardRef, useEffect, useState, RefObject } from 'react'
+import { generatePath, Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { useFormik } from 'formik'
 import { object, string } from 'yup'
 
-import { Drawer, Button, DrawerRef, Typography, Accordion } from '~/components/designSystem'
-import { TextInputField, ComboBoxField } from '~/components/form'
+import { Drawer, Button, DrawerRef, Typography, Accordion, Alert } from '~/components/designSystem'
+import { TextInputField, ComboBoxField, Checkbox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { theme, Card, DrawerTitle, DrawerContent, DrawerSubmitButton } from '~/styles'
@@ -18,6 +19,7 @@ import {
 } from '~/generated/graphql'
 import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
 import CountryCodes from '~/public/countryCode.json'
+import { INTEGRATIONS_ROUTE } from '~/core/router'
 
 const countryData: { value: string; label: string }[] = Object.keys(CountryCodes).map(
   (countryKey) => {
@@ -49,6 +51,15 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
     const { isEdition, onSave } = useCreateEditCustomer({
       customer,
     })
+    const [isDisabled, setIsDisabled] = useState<boolean>(false)
+    const handleChange = (checked:boolean) => {
+      setIsDisabled(checked)
+      formikProps.setFieldValue('providerCustomer.syncWithProvider', checked)
+      if (!isEdition && checked) {
+        formikProps.setFieldValue('providerCustomer.providerCustomerId', undefined)
+        formikProps.setFieldValue('providerCustomer.providerMandateId', undefined)
+      }
+    }
     const formikProps = useFormik<CreateCustomerInput | UpdateCustomerInput>({
       initialValues: {
         name: customer?.name ?? '',
@@ -64,8 +75,10 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
         country: customer?.country ?? undefined,
         city: customer?.city ?? undefined,
         zipcode: customer?.zipcode ?? undefined,
-        stripeCustomer: {
-          providerCustomerId: customer?.stripeCustomer?.providerCustomerId ?? undefined,
+        providerCustomer: {
+          providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? undefined,
+          providerMandateId: customer?.providerCustomer?.providerMandateId ?? undefined,
+          syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
         },
         paymentProvider: customer?.paymentProvider ?? undefined,
       },
@@ -91,7 +104,9 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
     useEffect(() => {
       if (!formikProps.values.paymentProvider) {
         // If no payment provider, reset stripe customer
-        formikProps.setFieldValue('stripeCustomer.providerCustomerId', undefined)
+        formikProps.setFieldValue('providerCustomer.providerCustomerId', undefined)
+        formikProps.setFieldValue('providerCustomer.providerMandateId', undefined)
+        formikProps.setFieldValue('providerCustomer.syncWithProvider', false)
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formikProps.values.paymentProvider])
@@ -125,8 +140,10 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
               country: customer?.country ?? undefined,
               city: customer?.city ?? undefined,
               zipcode: customer?.zipcode ?? undefined,
-              stripeCustomer: {
-                providerCustomerId: customer?.stripeCustomer?.providerCustomerId ?? undefined,
+              providerCustomer: {
+                providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? undefined,
+                providerMandateId: customer?.providerCustomer?.providerMandateId ?? undefined,
+                syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
               },
               paymentProvider: customer?.paymentProvider ?? undefined,
             },
@@ -276,14 +293,62 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                 label={translate('text_62b328ead9a4caef81cd9c9c')}
                 placeholder={translate('text_62b328ead9a4caef81cd9c9e')}
                 formikProps={formikProps}
+                helperText={
+                  !isEdition && (
+                    <p>
+                      {'Connect Payment service provider in the '}
+                      <Link
+                        to={generatePath(INTEGRATIONS_ROUTE)}>{'integrations section'}
+                      </Link>
+                    </p>
+                  )
+                }
                 PopperProps={{ displayInDialog: true }}
               />
-              <TextInputField
-                name="stripeCustomer.providerCustomerId"
-                label={translate('text_62b328ead9a4caef81cd9ca0')}
-                placeholder={translate('text_62b328ead9a4caef81cd9ca2')}
-                formikProps={formikProps}
-              />
+              {formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless && (
+                <>
+                  <TextInputField
+                    name="providerCustomer.providerCustomerId"
+                    disabled={isDisabled}
+                    label={translate('text_62b328ead9a4caef81cd9ca0')}
+                    placeholder={translate('text_62b328ead9a4caef81cd9ca2')}
+                    formikProps={formikProps}
+                  />
+                  <TextInputField
+                    name="providerCustomer.providerMandateId"
+                    disabled={isDisabled}
+                    label={'GoCardless mandate ID'}
+                    placeholder={'Type the GoCardless mandate ID'}
+                    formikProps={formikProps}
+                  />
+                  <Checkbox
+                    name="providerCustomer.syncWithProvider"
+                    value={formikProps.values.providerCustomer?.syncWithProvider}
+                    label={'Create automatically this customer in GoCardless'}
+                    onChange={(_, checked) => handleChange(checked)}
+                  />
+                </>
+              )}
+              {formikProps.values.paymentProvider === ProviderTypeEnum.Stripe && (
+                <>
+                  <TextInputField
+                    name="providerCustomer.providerCustomerId"
+                    disabled={isDisabled}
+                    label={translate('text_62b328ead9a4caef81cd9ca0')}
+                    placeholder={translate('text_62b328ead9a4caef81cd9ca2')}
+                    formikProps={formikProps}
+                  />
+                  <Checkbox
+                    name="providerCustomer.syncWithProvider"
+                    value={formikProps.values.providerCustomer?.syncWithProvider}
+                    label={'Create automatically this customer in Stripe'}
+                    onChange={(_, checked) => handleChange(checked)}
+                  />
+                </>
+              )}
+              {isDisabled && formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless && (
+                <Alert type="info">{'To create a customer in GoCardless you must fill in an email address'}</Alert>
+              )}
             </BillingBlock>
           </Accordion>
 

@@ -26,7 +26,7 @@ gql`
     city
     zipcode
     paymentProvider
-    stripeCustomer {
+    providerCustomer {
       id
       providerCustomerId
     }
@@ -74,7 +74,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     city,
     zipcode,
     paymentProvider,
-    stripeCustomer,
+    providerCustomer,
   } = customer
 
   return (
@@ -146,10 +146,10 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
           </Typography>
         </div>
       )}
-      {!!stripeCustomer && !!stripeCustomer?.providerCustomerId && (
+      {!!providerCustomer && !!providerCustomer?.providerCustomerId && (
         <div>
           <Typography variant="caption">{translate('text_62b5c912506c4905fa75524c')}</Typography>
-          <Typography color="textSecondary">{stripeCustomer?.providerCustomerId}</Typography>
+          <Typography color="textSecondary">{providerCustomer?.providerCustomerId}</Typography>
         </div>
       )}
     </DetailsBlock>
