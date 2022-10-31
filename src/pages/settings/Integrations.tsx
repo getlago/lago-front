@@ -2,7 +2,6 @@ import { useRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 import { useNavigate } from 'react-router'
-import { Link } from 'react-router-dom'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
@@ -25,6 +24,9 @@ gql`
         stripePaymentProvider {
           id
         }
+        gocardlessPaymentProvider {
+          id
+        }
       }
     }
   }
@@ -37,7 +39,7 @@ const Integrations = () => {
   const { data, loading } = useIntegrationsSettingQuery()
   const hasStripeIntegration = !!(data?.currentUser?.organizations || [])[0]?.stripePaymentProvider
     ?.id
-  const hasGoCardlessIntegration = false
+  const hasGocardlessIntegration = false
 
   return (
     <Page>
@@ -86,12 +88,12 @@ const Integrations = () => {
               </Avatar>
             }
             endIcon={
-              hasGoCardlessIntegration ? (
+              hasGocardlessIntegration ? (
                   <Chip label={translate('text_634ea0ecc6147de10ddb6646')} />
               ) : undefined
             }
             onClick={() => {
-              if (hasGoCardlessIntegration) {
+              if (hasGocardlessIntegration) {
                 navigate(GOCARDLESS_INTEGRATION_ROUTE)
               } else {
                 window.open('https://proxy.lago.dev/gocardless/auth', '_blank')

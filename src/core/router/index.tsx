@@ -38,6 +38,9 @@ const Integrations = lazy(
 const StripeIntegration = lazy(
   () => import(/* webpackChunkName: 'stripe-integration' */ '~/pages/settings/StripeIntegration')
 )
+const GocardlessIntegration = lazy(
+  () => import(/* webpackChunkName: 'gocardless-integration' */ '~/pages/settings/GocardlessIntegration')
+)
 const Members = lazy(() => import(/* webpackChunkName: 'members' */ '~/pages/settings/Members'))
 
 const BillableMetricsList = lazy(
@@ -214,6 +217,11 @@ export const routes: CustomRouteObject[] = [
         path: STRIPE_INTEGRATION_ROUTE,
         private: true,
         element: <StripeIntegration />,
+      },
+      {
+        path: GOCARDLESS_INTEGRATION_ROUTE,
+        private: true,
+        element: <GocardlessIntegration />,
       },
       {
         path: PLANS_ROUTE,
