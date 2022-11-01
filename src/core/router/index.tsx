@@ -39,7 +39,10 @@ const StripeIntegration = lazy(
   () => import(/* webpackChunkName: 'stripe-integration' */ '~/pages/settings/StripeIntegration')
 )
 const GocardlessIntegration = lazy(
-  () => import(/* webpackChunkName: 'gocardless-integration' */ '~/pages/settings/GocardlessIntegration')
+  () =>
+    import(
+      /* webpackChunkName: 'gocardless-integration' */ '~/pages/settings/GocardlessIntegration'
+    )
 )
 const Members = lazy(() => import(/* webpackChunkName: 'members' */ '~/pages/settings/Members'))
 

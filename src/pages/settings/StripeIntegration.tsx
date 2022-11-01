@@ -15,9 +15,7 @@ import {
   NavigationTab,
   Popper,
 } from '~/components/designSystem'
-import {
-  useStripeIntegrationsSettingQuery,
-} from '~/generated/graphql'
+import { useStripeIntegrationsSettingQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Stripe from '~/public/images/stripe.svg'
 import {

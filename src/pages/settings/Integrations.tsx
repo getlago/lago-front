@@ -39,8 +39,8 @@ const Integrations = () => {
   const { data, loading } = useIntegrationsSettingQuery()
   const hasStripeIntegration = !!(data?.currentUser?.organizations || [])[0]?.stripePaymentProvider
     ?.id
-  const hasGocardlessIntegration = !!(data?.currentUser?.organizations || [])[0]?.gocardlessPaymentProvider
-    ?.id
+  const hasGocardlessIntegration = !!(data?.currentUser?.organizations || [])[0]
+    ?.gocardlessPaymentProvider?.id
 
   return (
     <Page>
@@ -60,12 +60,12 @@ const Integrations = () => {
             subtitle={translate('text_62b1edddbf5f461ab9712795')}
             icon={
               <Avatar variant="connector">
-                  <Stripe />
+                <Stripe />
               </Avatar>
             }
             endIcon={
               hasStripeIntegration ? (
-                  <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+                <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
               ) : undefined
             }
             onClick={() => {
@@ -85,12 +85,12 @@ const Integrations = () => {
             subtitle={translate('text_634ea0ecc6147de10ddb6631')}
             icon={
               <Avatar variant="connector">
-                  <GoCardless />
+                <GoCardless />
               </Avatar>
             }
             endIcon={
               hasGocardlessIntegration ? (
-                  <Chip label={translate('text_634ea0ecc6147de10ddb6646')} />
+                <Chip label={translate('text_634ea0ecc6147de10ddb6646')} />
               ) : undefined
             }
             onClick={() => {

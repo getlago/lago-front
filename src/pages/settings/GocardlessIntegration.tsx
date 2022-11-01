@@ -11,7 +11,10 @@ import {
   Skeleton,
   Avatar,
   Chip,
-  NavigationTab, Button, Icon, Tooltip,
+  NavigationTab,
+  Button,
+  Icon,
+  Tooltip,
 } from '~/components/designSystem'
 import {
   useGocardlessIntegrationsSettingQuery,
@@ -35,7 +38,7 @@ gql`
       }
     }
   }
-  
+
   mutation addGocardlessPaymentProvider($input: AddGocardlessPaymentProviderInput!) {
     addGocardlessPaymentProvider(input: $input) {
       id
@@ -48,8 +51,8 @@ gql`
 const GocardlessIntegration = () => {
   const { translate } = useInternationalization()
   const { data, loading } = useGocardlessIntegrationsSettingQuery()
-  const query = new URLSearchParams(useLocation().search);
-  const code = query.get('code');
+  const query = new URLSearchParams(useLocation().search)
+  const code = query.get('code')
   const [isConnectionEstablished, setIsConnectionEstablished] = useState(false)
   const [webhookSecretKey, setWebhookSecretKey] = useState('')
   const tabsOptions = [
@@ -58,16 +61,15 @@ const GocardlessIntegration = () => {
       link: GOCARDLESS_INTEGRATION_ROUTE,
     },
   ]
-  const gocardlessPaymentProvider = (data?.currentUser?.organizations || [])[0]?.gocardlessPaymentProvider
+  const gocardlessPaymentProvider = (data?.currentUser?.organizations || [])[0]
+    ?.gocardlessPaymentProvider
   const [addPaymentProvider] = useAddGocardlessPaymentProviderMutation({
     onCompleted({ addGocardlessPaymentProvider }) {
       if (addGocardlessPaymentProvider?.id && addGocardlessPaymentProvider?.webhookSecret) {
         setIsConnectionEstablished(true)
         setWebhookSecretKey(addGocardlessPaymentProvider?.webhookSecret)
         addToast({
-          message: translate(
-             'text_634ea0ecc6147de10ddb6645'
-          ),
+          message: translate('text_634ea0ecc6147de10ddb6645'),
           severity: 'success',
         })
       }
@@ -84,6 +86,7 @@ const GocardlessIntegration = () => {
         },
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -130,7 +133,9 @@ const GocardlessIntegration = () => {
                 <Typography variant="headline">
                   {translate('text_634ea0ecc6147de10ddb6648')}
                 </Typography>
-                {isConnectionEstablished && <Chip label={translate('text_634ea0ecc6147de10ddb662d')} />}
+                {isConnectionEstablished && (
+                  <Chip label={translate('text_634ea0ecc6147de10ddb662d')} />
+                )}
               </Line>
               <Typography>{translate('text_634ea0ecc6147de10ddb6643')}</Typography>
             </div>
@@ -144,12 +149,14 @@ const GocardlessIntegration = () => {
           <Button
             disabled={!isConnectionEstablished}
             variant="quaternary"
-            onClick={() => window.open('https://proxy.lago.dev/gocardless/auth', '_blank') }
+            onClick={() => window.open('https://proxy.lago.dev/gocardless/auth', '_blank')}
           >
             {translate('text_635bd8acb686f18909a57c87')}
           </Button>
         </Head>
-        {isConnectionEstablished && <Subtitle>{translate('text_634ea0ecc6147de10ddb6641')}</Subtitle>}
+        {isConnectionEstablished && (
+          <Subtitle>{translate('text_634ea0ecc6147de10ddb6641')}</Subtitle>
+        )}
       </Settings>
       <Settings>
         <Title variant="subhead">{translate('text_635bd8acb686f18909a57c89')}</Title>
@@ -163,27 +170,28 @@ const GocardlessIntegration = () => {
               <Skeleton variant="text" width={240} height={12} />
             </>
           ) : (
-            isConnectionEstablished &&
-            <>
-              <Avatar variant="connector" size="medium">
-                <Icon color="dark" name="key" />
-              </Avatar>
-              <SecretKey color="textSecondary">{webhookSecretKey}</SecretKey>
-              <Tooltip title={'Copy text'} placement="top-end">
-                <Button
-                  variant="quaternary"
-                  onClick={() => {
-                    navigator.clipboard.writeText(webhookSecretKey)
-                    addToast({
-                      severity: 'info',
-                      translateKey: 'text_6227a2e847fcd700e9038952',
-                    })
-                  }}
-                >
-                  <Icon color="dark" name="duplicate" />
-                </Button>
-              </Tooltip>
-            </>
+            isConnectionEstablished && (
+              <>
+                <Avatar variant="connector" size="medium">
+                  <Icon color="dark" name="key" />
+                </Avatar>
+                <SecretKey color="textSecondary">{webhookSecretKey}</SecretKey>
+                <Tooltip title={translate('text_6360ddae753a8b3e11c80c66')} placement="top-end">
+                  <Button
+                    variant="quaternary"
+                    onClick={() => {
+                      navigator.clipboard.writeText(webhookSecretKey)
+                      addToast({
+                        severity: 'info',
+                        translateKey: 'text_6360ddae753a8b3e11c80c6c',
+                      })
+                    }}
+                  >
+                    <Icon color="dark" name="duplicate" />
+                  </Button>
+                </Tooltip>
+              </>
+            )
           )}
         </SecretKeyItem>
         {!loading && <Info variant="caption">{translate('text_635bd8acb686f18909a57c93')}</Info>}

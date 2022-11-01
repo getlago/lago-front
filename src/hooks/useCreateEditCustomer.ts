@@ -143,7 +143,9 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
                 id: customer?.id as string,
                 paymentProvider,
                 providerCustomer: {
-                  providerCustomerId: !paymentProvider ? null : providerCustomer?.providerCustomerId,
+                  providerCustomerId: !paymentProvider
+                    ? null
+                    : providerCustomer?.providerCustomerId,
                   syncWithProvider: !paymentProvider ? null : providerCustomer?.syncWithProvider,
                 },
                 ...values,
@@ -157,7 +159,9 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
                 ...values,
                 paymentProvider,
                 providerCustomer: {
-                  providerCustomerId: !paymentProvider ? null : providerCustomer?.providerCustomerId,
+                  providerCustomerId: !paymentProvider
+                    ? null
+                    : providerCustomer?.providerCustomerId,
                   syncWithProvider: !paymentProvider ? null : providerCustomer?.syncWithProvider,
                 },
               },

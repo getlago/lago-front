@@ -51,7 +51,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
       customer,
     })
     const [isDisabled, setIsDisabled] = useState<boolean>(false)
-    const handleChange = (checked:boolean) => {
+    const handleChange = (checked: boolean) => {
       setIsDisabled(checked)
       formikProps.setFieldValue('providerCustomer.syncWithProvider', checked)
       if (!isEdition && checked) {
@@ -290,12 +290,17 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                 formikProps={formikProps}
                 helperText={
                   !isEdition && (
-                    <HelperText html={translate('text_635bdbda84c98758f9bba8a0', { link: INTEGRATIONS_ROUTE })} />
+                    <HelperText
+                      html={translate('text_635bdbda84c98758f9bba8a0', {
+                        link: INTEGRATIONS_ROUTE,
+                      })}
+                    />
                   )
                 }
                 PopperProps={{ displayInDialog: true }}
               />
-              {(formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless || formikProps.values.paymentProvider === ProviderTypeEnum.Stripe) && (
+              {(formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless ||
+                formikProps.values.paymentProvider === ProviderTypeEnum.Stripe) && (
                 <>
                   <TextInputField
                     name="providerCustomer.providerCustomerId"
@@ -308,9 +313,9 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                     name="providerCustomer.syncWithProvider"
                     value={formikProps.values.providerCustomer?.syncWithProvider}
                     label={
-                      formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless ?
-                        translate('text_635bdbda84c98758f9bba8aa') :
-                        translate('text_635bdbda84c98758f9bba89e')
+                      formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless
+                        ? translate('text_635bdbda84c98758f9bba8aa')
+                        : translate('text_635bdbda84c98758f9bba89e')
                     }
                     onChange={(_, checked) => handleChange(checked)}
                   />
