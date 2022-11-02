@@ -39,11 +39,7 @@ const prepare = async ({
               code: 'volume',
               flatGroups:
                 propertyType === 'groupProperties'
-                  ? [
-                      {
-                        groups: [{ id: '1', key: null, value: 'France' }],
-                      },
-                    ]
+                  ? [{ id: '1', key: null, value: 'France' }]
                   : undefined,
             },
             properties: propertyType === 'properties' ? { volumeRanges } : undefined,
