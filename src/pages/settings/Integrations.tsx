@@ -97,7 +97,7 @@ const Integrations = () => {
               if (hasGocardlessIntegration) {
                 navigate(GOCARDLESS_INTEGRATION_ROUTE)
               } else {
-                window.open('https://proxy.lago.dev/gocardless/auth', '_blank')
+                window.open(`${LAGO_OAUTH_PROXY_URL}/gocardless/auth`, '_blank')
               }
             }}
             fullWidth

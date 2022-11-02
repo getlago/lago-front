@@ -51,13 +51,6 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
       customer,
     })
     const [isDisabled, setIsDisabled] = useState<boolean>(false)
-    const handleChange = (checked: boolean) => {
-      setIsDisabled(checked)
-      formikProps.setFieldValue('providerCustomer.syncWithProvider', checked)
-      if (!isEdition && checked) {
-        formikProps.setFieldValue('providerCustomer.providerCustomerId', undefined)
-      }
-    }
     const formikProps = useFormik<CreateCustomerInput | UpdateCustomerInput>({
       initialValues: {
         name: customer?.name ?? '',
@@ -317,7 +310,13 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                         ? translate('text_635bdbda84c98758f9bba8aa')
                         : translate('text_635bdbda84c98758f9bba89e')
                     }
-                    onChange={(_, checked) => handleChange(checked)}
+                    onChange={(_, checked) => {
+                      setIsDisabled(checked)
+                      formikProps.setFieldValue('providerCustomer.syncWithProvider', checked)
+                      if (!isEdition && checked) {
+                        formikProps.setFieldValue('providerCustomer.providerCustomerId', undefined)
+                      }
+                    }}
                   />
                 </>
               )}

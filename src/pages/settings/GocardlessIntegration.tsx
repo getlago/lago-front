@@ -149,7 +149,7 @@ const GocardlessIntegration = () => {
           <Button
             disabled={!isConnectionEstablished}
             variant="quaternary"
-            onClick={() => window.open('https://proxy.lago.dev/gocardless/auth', '_blank')}
+            onClick={() => window.open(`${LAGO_OAUTH_PROXY_URL}/gocardless/auth`, '_blank')}
           >
             {translate('text_635bd8acb686f18909a57c87')}
           </Button>
