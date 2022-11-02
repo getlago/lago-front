@@ -50,7 +50,11 @@ gql`
       id
       name
       code
-      flatGroups
+      flatGroups {
+        id
+        key
+        value
+      }
     }
     ...GraduatedCharge
     ...VolumeRanges
