@@ -44,11 +44,7 @@ const prepare = async ({
               code: 'graduated',
               flatGroups:
                 propertyType === 'groupProperties'
-                  ? [
-                      {
-                        groups: [{ id: '1', key: null, value: 'France' }],
-                      },
-                    ]
+                  ? [{ id: '1', key: null, value: 'France' }]
                   : undefined,
             },
             properties: propertyType === 'properties' ? { graduatedRanges } : undefined,
