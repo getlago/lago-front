@@ -383,12 +383,12 @@ export const InvoiceOverview = () => {
               })}
               <table id="table">
                 <tfoot>
-                  {true && (
+                  {Number(invoice?.creditAmountCents) > 0 && (
                     <tr>
                       <td></td>
                       <td>
                         <Typography variant="bodyHl" color="grey600">
-                          {translate('text_634d76a690b89f2d81f95975')}
+                          {translate('text_634687079be251fdb4383473')}
                         </Typography>
                       </td>
                       <td>
@@ -405,7 +405,7 @@ export const InvoiceOverview = () => {
                     <td></td>
                     <td>
                       <Typography variant="bodyHl" color="grey600">
-                        {translate('text_634687079be251fdb4383473')}
+                        {translate('text_63514a6f675da7e1c44fc6a9')}
                       </Typography>
                     </td>
                     <td>
