@@ -195,6 +195,7 @@ export type ChargeUsage = {
   amountCents: Scalars['BigInt'];
   billableMetric: BillableMetric;
   charge: Charge;
+  groups?: Maybe<Array<GroupUsage>>;
   units: Scalars['Float'];
 };
 
@@ -1574,6 +1575,15 @@ export type GroupPropertiesInput = {
   values: PropertiesInput;
 };
 
+export type GroupUsage = {
+  __typename?: 'GroupUsage';
+  amountCents: Scalars['BigInt'];
+  id: Scalars['ID'];
+  key?: Maybe<Scalars['String']>;
+  units: Scalars['Float'];
+  value: Scalars['String'];
+};
+
 export type Invite = {
   __typename?: 'Invite';
   acceptedAt: Scalars['ISO8601DateTime'];
@@ -2839,14 +2849,9 @@ export type TerminateCustomerSubscriptionMutationVariables = Exact<{
 
 export type TerminateCustomerSubscriptionMutation = { __typename?: 'Mutation', terminateSubscription?: { __typename?: 'Subscription', id: string } | null };
 
-export type GetBmDetailQueryVariables = Exact<{
-  id: Scalars['ID'];
-}>;
-
-
-export type GetBmDetailQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetricDetail', id: string, name: string } | null };
-
 export type CustomerUsageSubscriptionFragment = { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } };
+
+export type CustomerUsageForUsageDetailsFragment = { __typename?: 'CustomerUsage', fromDate: any, toDate: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', billableMetric: { __typename?: 'BillableMetric', name: string }, groups?: Array<{ __typename?: 'GroupUsage', id: string, amountCents: any, key?: string | null, units: number, value: string }> | null }> };
 
 export type CustomerUsageQueryVariables = Exact<{
   customerId: Scalars['ID'];
@@ -2854,7 +2859,7 @@ export type CustomerUsageQueryVariables = Exact<{
 }>;
 
 
-export type CustomerUsageQuery = { __typename?: 'Query', customerUsage: { __typename?: 'CustomerUsage', amountCents: any, amountCurrency: CurrencyEnum, fromDate: any, toDate: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', units: number, amountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string } }> } };
+export type CustomerUsageQuery = { __typename?: 'Query', customerUsage: { __typename?: 'CustomerUsage', amountCents: any, amountCurrency: CurrencyEnum, fromDate: any, toDate: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', units: number, amountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, groups?: Array<{ __typename?: 'GroupUsage', id: string, amountCents: any, key?: string | null, units: number, value: string }> | null }> } };
 
 export type EventItemFragment = { __typename?: 'Event', id: string, code: string, externalCustomerId: string, timestamp?: any | null, matchBillableMetric: boolean, matchCustomField: boolean };
 
@@ -3454,6 +3459,24 @@ export const DeleteCustomerDialogFragmentDoc = gql`
     fragment DeleteCustomerDialog on Customer {
   id
   name
+}
+    `;
+export const CustomerUsageForUsageDetailsFragmentDoc = gql`
+    fragment CustomerUsageForUsageDetails on CustomerUsage {
+  fromDate
+  toDate
+  chargesUsage {
+    billableMetric {
+      name
+    }
+    groups {
+      id
+      amountCents
+      key
+      units
+      value
+    }
+  }
 }
     `;
 export const BillableMetricForPlanFragmentDoc = gql`
@@ -4566,42 +4589,6 @@ export function useTerminateCustomerSubscriptionMutation(baseOptions?: Apollo.Mu
 export type TerminateCustomerSubscriptionMutationHookResult = ReturnType<typeof useTerminateCustomerSubscriptionMutation>;
 export type TerminateCustomerSubscriptionMutationResult = Apollo.MutationResult<TerminateCustomerSubscriptionMutation>;
 export type TerminateCustomerSubscriptionMutationOptions = Apollo.BaseMutationOptions<TerminateCustomerSubscriptionMutation, TerminateCustomerSubscriptionMutationVariables>;
-export const GetBmDetailDocument = gql`
-    query getBmDetail($id: ID!) {
-  billableMetric(id: $id) {
-    id
-    name
-  }
-}
-    `;
-
-/**
- * __useGetBmDetailQuery__
- *
- * To run a query within a React component, call `useGetBmDetailQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetBmDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetBmDetailQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetBmDetailQuery(baseOptions: Apollo.QueryHookOptions<GetBmDetailQuery, GetBmDetailQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetBmDetailQuery, GetBmDetailQueryVariables>(GetBmDetailDocument, options);
-      }
-export function useGetBmDetailLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBmDetailQuery, GetBmDetailQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetBmDetailQuery, GetBmDetailQueryVariables>(GetBmDetailDocument, options);
-        }
-export type GetBmDetailQueryHookResult = ReturnType<typeof useGetBmDetailQuery>;
-export type GetBmDetailLazyQueryHookResult = ReturnType<typeof useGetBmDetailLazyQuery>;
-export type GetBmDetailQueryResult = Apollo.QueryResult<GetBmDetailQuery, GetBmDetailQueryVariables>;
 export const CustomerUsageDocument = gql`
     query customerUsage($customerId: ID!, $subscriptionId: ID!) {
   customerUsage(customerId: $customerId, subscriptionId: $subscriptionId) {
@@ -4618,9 +4605,10 @@ export const CustomerUsageDocument = gql`
         name
       }
     }
+    ...CustomerUsageForUsageDetails
   }
 }
-    `;
+    ${CustomerUsageForUsageDetailsFragmentDoc}`;
 
 /**
  * __useCustomerUsageQuery__
