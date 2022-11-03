@@ -4,7 +4,13 @@ import styled from 'styled-components'
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
 import { DateTime } from 'luxon'
 
-import { CustomerUsageSubscriptionFragment, useCustomerUsageLazyQuery } from '~/generated/graphql'
+import {
+  ChargeUsage,
+  CurrencyEnum,
+  CustomerUsageForUsageDetailsFragmentDoc,
+  CustomerUsageSubscriptionFragment,
+  useCustomerUsageLazyQuery,
+} from '~/generated/graphql'
 import { Skeleton, Icon, Button, Tooltip, Avatar, Typography } from '~/components/designSystem'
 import { theme, NAV_HEIGHT } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -14,9 +20,9 @@ import EmptyImage from '~/public/images/maneki/empty.svg'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
 
 import {
-  CustomerBMUsageDetailDrawer,
-  CustomerBMUsageDetailDrawerRef,
-} from './CustomerBMUsageDetailDrawer'
+  CustomerUsageDetailDrawer,
+  CustomerUsageDetailDrawerRef,
+} from './CustomerUsageDetailDrawer'
 
 gql`
   query customerUsage($customerId: ID!, $subscriptionId: ID!) {
@@ -34,8 +40,11 @@ gql`
           name
         }
       }
+      ...CustomerUsageForUsageDetails
     }
   }
+
+  ${CustomerUsageForUsageDetailsFragmentDoc}
 `
 
 interface UsageItemProps {
@@ -47,11 +56,11 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
   const { id, name, plan } = subscription
   const [isOpen, setIsOpen] = useState(false)
   const { translate } = useInternationalization()
-  const customerBMUsageDetailDrawerRef = useRef<CustomerBMUsageDetailDrawerRef>(null)
+  const customerUsageDetailDrawerRef = useRef<CustomerUsageDetailDrawerRef>(null)
   const [fetchUsage, { data, error, loading, refetch }] = useCustomerUsageLazyQuery({
     variables: { customerId: customerId, subscriptionId: id },
   })
-  const currency = data?.customerUsage?.amountCurrency
+  const currency = data?.customerUsage?.amountCurrency || CurrencyEnum.Usd
 
   return (
     <Container>
@@ -186,18 +195,23 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
                                 {billableMetric?.code}
                               </UsageSubtitle>
                             </div>
-                            <Tooltip title={translate('TODO:')} placement="top-end">
-                              <Button
-                                icon="info-circle"
-                                size="small"
-                                variant="secondary"
-                                onClick={() => {
-                                  customerBMUsageDetailDrawerRef.current?.openDrawer(
-                                    billableMetric.id
-                                  )
-                                }}
-                              />
-                            </Tooltip>
+                            {!!usage.groups?.length && (
+                              <Tooltip
+                                title={translate('text_633dae57ca9a923dd53c2135')}
+                                placement="top-end"
+                              >
+                                <Button
+                                  icon="info-circle"
+                                  size="small"
+                                  variant="secondary"
+                                  onClick={() => {
+                                    customerUsageDetailDrawerRef.current?.openDrawer(
+                                      usage as ChargeUsage
+                                    )
+                                  }}
+                                />
+                              </Tooltip>
+                            )}
                           </BillableMetricHeaderLine>
                           <Line>
                             <Typography variant="caption">
@@ -219,7 +233,12 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
         </Details>
       </StyledAccordion>
 
-      <CustomerBMUsageDetailDrawer ref={customerBMUsageDetailDrawerRef} />
+      <CustomerUsageDetailDrawer
+        ref={customerUsageDetailDrawerRef}
+        currency={currency}
+        fromDate={data?.customerUsage?.fromDate}
+        toDate={data?.customerUsage?.toDate}
+      />
     </Container>
   )
 }

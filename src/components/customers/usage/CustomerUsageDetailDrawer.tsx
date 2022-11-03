@@ -93,12 +93,8 @@ export const CustomerUsageDetailDrawer = forwardRef<
                         <Typography variant="bodyHl" color="grey700">
                           {value.value}
                         </Typography>
-                        <Typography variant="caption" color="grey600">
-                          {translate(
-                            'text_633dae57ca9a923dd53c20a3',
-                            { totalUnits: value.units },
-                            Number(value.units) || 0
-                          )}
+                        <Typography variant="body" color="grey600">
+                          {translate('text_633dae57ca9a923dd53c20a3', { totalUnits: value.units })}
                         </Typography>
                       </div>
                       <Typography variant="body" color="grey700" noWrap>
