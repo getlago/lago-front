@@ -10,6 +10,7 @@ import Stripe from '~/public/images/stripe.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import { useIntegrationsSettingQuery } from '~/generated/graphql'
 import { STRIPE_INTEGRATION_ROUTE, GOCARDLESS_INTEGRATION_ROUTE } from '~/core/router'
+import { envGlobalVar } from '~/core/apolloClient'
 import {
   AddStripeDialog,
   AddStripeDialogRef,
@@ -41,6 +42,7 @@ const Integrations = () => {
     ?.id
   const hasGocardlessIntegration = !!(data?.currentUser?.organizations || [])[0]
     ?.gocardlessPaymentProvider?.id
+  const { lagoOauthProxyUrl } = envGlobalVar()
 
   return (
     <Page>
@@ -97,7 +99,7 @@ const Integrations = () => {
               if (hasGocardlessIntegration) {
                 navigate(GOCARDLESS_INTEGRATION_ROUTE)
               } else {
-                window.open(`${LAGO_OAUTH_PROXY_URL}/gocardless/auth`, '_blank')
+                window.open(`${lagoOauthProxyUrl}/gocardless/auth`, '_blank')
               }
             }}
             fullWidth
