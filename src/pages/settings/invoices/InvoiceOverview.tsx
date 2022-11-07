@@ -2,6 +2,7 @@ import React from 'react'
 import { generatePath, useParams, Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
+import _ from 'lodash'
 import { DateTime } from 'luxon'
 
 import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
@@ -77,6 +78,11 @@ gql`
               name
               aggregationType
             }
+          }
+          group {
+            id
+            key
+            value
           }
         }
       }
@@ -345,39 +351,82 @@ export const InvoiceOverview = () => {
                           </table>
                         )
                       })}
-                    {invoiceSubscription.fees
+                    {_.chain(invoiceSubscription.fees)
                       ?.filter((fee) => fee.feeType !== FeeTypesEnum.Subscription)
-                      .map((fee, j) => {
+                      .groupBy((fee) => fee?.charge?.id)
+                      .map((fees, j) => {
+                        const totalAmountCents = fees.reduce(
+                          (acc, cur) => (acc += Number(cur.amountCents)),
+                          0
+                        )
+                        const totalUnits = fees.reduce((acc, cur) => (acc += Number(cur.units)), 0)
+
+                        if (totalAmountCents === 0) return
+
                         return (
-                          <table key={`invoiceSubscription-${i}-charge-${j}`}>
+                          <table key={`invoiceSubscription-${i}-fee-${j}`}>
                             <tbody>
                               <tr>
                                 <td>
                                   <Typography variant="body" color="grey700">
-                                    {fee?.charge?.billableMetric.name}
+                                    {fees[0]?.charge?.billableMetric.name}
                                   </Typography>
                                 </td>
                                 <td>
                                   <Typography variant="body" color="grey700">
-                                    {fee?.charge?.billableMetric?.aggregationType ===
+                                    {fees[0]?.charge?.billableMetric?.aggregationType ===
                                     AggregationTypeEnum.RecurringCountAgg
                                       ? '-'
-                                      : `${fee.units}`}
+                                      : `${totalUnits}`}
                                   </Typography>
                                 </td>
                                 <td>
-                                  <Typography variant="body" color="grey700">
-                                    {intlFormatNumber(fee.amountCents || 0, {
-                                      currencyDisplay: 'symbol',
-                                      currency: customer?.currency || CurrencyEnum.Usd,
-                                    })}
-                                  </Typography>
+                                  {fees.length === 1 && (
+                                    <Typography variant="body" color="grey700">
+                                      {intlFormatNumber(fees[0].amountCents || 0, {
+                                        currencyDisplay: 'symbol',
+                                        currency: customer?.currency || CurrencyEnum.Usd,
+                                      })}
+                                    </Typography>
+                                  )}
                                 </td>
                               </tr>
+                              {fees.length > 1 &&
+                                fees.map((fee, k) => {
+                                  if (Number(fee.units) === 0) return
+
+                                  return (
+                                    <tr key={`invoiceSubscription-${i}-fee-${j}-charge-${k}`}>
+                                      <PaddedTd>
+                                        <Typography variant="body" color="grey700">
+                                          <span>{fee.group?.key && `${fee.group?.key} • `}</span>
+                                          <span>{fee.group?.value}</span>
+                                        </Typography>
+                                      </PaddedTd>
+                                      <PaddedTd>
+                                        <Typography variant="body" color="grey700">
+                                          {fee?.charge?.billableMetric?.aggregationType ===
+                                          AggregationTypeEnum.RecurringCountAgg
+                                            ? '-'
+                                            : `${fee.units}`}
+                                        </Typography>
+                                      </PaddedTd>
+                                      <PaddedTd>
+                                        <Typography variant="body" color="grey700">
+                                          {intlFormatNumber(fee.amountCents || 0, {
+                                            currencyDisplay: 'symbol',
+                                            currency: customer?.currency || CurrencyEnum.Usd,
+                                          })}
+                                        </Typography>
+                                      </PaddedTd>
+                                    </tr>
+                                  )
+                                })}
                             </tbody>
                           </table>
                         )
-                      })}
+                      })
+                      .value()}
                   </React.Fragment>
                 )
               })}
@@ -600,6 +649,10 @@ const TableSection = styled(Section)`
       padding-top: ${theme.spacing(6)};
     }
   }
+`
+
+const PaddedTd = styled.td`
+  padding-left: ${theme.spacing(8)};
 `
 
 export default InvoiceOverview
