@@ -5,6 +5,7 @@ import { gql } from '@apollo/client'
 
 import { theme, PageHeader, NAV_HEIGHT, HEADER_TABLE_HEIGHT } from '~/styles'
 import { INTEGRATIONS_ROUTE, GOCARDLESS_INTEGRATION_ROUTE } from '~/core/router'
+import { envGlobalVar } from '~/core/apolloClient'
 import {
   Typography,
   ButtonLink,
@@ -63,6 +64,7 @@ const GocardlessIntegration = () => {
   ]
   const gocardlessPaymentProvider = (data?.currentUser?.organizations || [])[0]
     ?.gocardlessPaymentProvider
+  const { lagoOauthProxyUrl } = envGlobalVar()
   const [addPaymentProvider] = useAddGocardlessPaymentProviderMutation({
     onCompleted({ addGocardlessPaymentProvider }) {
       if (addGocardlessPaymentProvider?.id && addGocardlessPaymentProvider?.webhookSecret) {
@@ -149,7 +151,7 @@ const GocardlessIntegration = () => {
           <Button
             disabled={!isConnectionEstablished}
             variant="quaternary"
-            onClick={() => window.open(`${LAGO_OAUTH_PROXY_URL}/gocardless/auth`, '_blank')}
+            onClick={() => window.open(`${lagoOauthProxyUrl}/gocardless/auth`, '_blank')}
           >
             {translate('text_635bd8acb686f18909a57c87')}
           </Button>
