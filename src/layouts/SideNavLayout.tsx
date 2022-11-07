@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Outlet } from 'react-router-dom'
+import { useNavigate, Outlet } from 'react-router-dom'
 import { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
 import { ClickAwayListener } from '@mui/material'
@@ -7,7 +7,12 @@ import { useApolloClient } from '@apollo/client'
 import { useLocation, Location } from 'react-router-dom'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { logOut, useCurrentUserInfosVar, envGlobalVar } from '~/core/apolloClient'
+import {
+  logOut,
+  useCurrentUserInfosVar,
+  envGlobalVar,
+  switchCurrentOrganization,
+} from '~/core/apolloClient'
 import { AppEnvEnum } from '~/globalTypes'
 import {
   Avatar,
@@ -61,7 +66,8 @@ interface TabProps {
 
 const SideNav = () => {
   const client = useApolloClient()
-  const { currentOrganization } = useCurrentUserInfosVar()
+  const navigate = useNavigate()
+  const { currentOrganization, organizations, user } = useCurrentUserInfosVar()
   const { translate } = useInternationalization()
   const [open, setOpen] = useState(false)
   const location = useLocation()
@@ -120,8 +126,41 @@ const SideNav = () => {
                 </HeaderButton>
               }
             >
-              {() => (
+              {({ closePopper }) => (
                 <StyledMenuPopper>
+                  <UserEmail variant="captionHl" noWrap>
+                    {user?.email}
+                  </UserEmail>
+                  {organizations && (
+                    <OrganizationList>
+                      {organizations?.map(({ id, name, logoUrl }) => (
+                        <Button
+                          key={id}
+                          align="left"
+                          variant={id === currentOrganization?.id ? 'secondary' : 'quaternary'}
+                          onClick={async () => {
+                            await switchCurrentOrganization(client, id)
+                            navigate(BILLABLE_METRICS_ROUTE)
+                            closePopper()
+                          }}
+                        >
+                          {logoUrl ? (
+                            <OrganizationAvatar size="small" variant="connector">
+                              <img src={logoUrl as string} alt={`${name}'s logo`} />
+                            </OrganizationAvatar>
+                          ) : (
+                            <OrganizationAvatar
+                              variant="company"
+                              identifier={name || ''}
+                              size="small"
+                              initials={(name ?? 'Lago')[0]}
+                            />
+                          )}
+                          <Typography noWrap>{name}</Typography>
+                        </Button>
+                      ))}
+                    </OrganizationList>
+                  )}
                   <Logout>
                     <Button
                       variant="quaternary"
@@ -131,25 +170,24 @@ const SideNav = () => {
                     >
                       {translate('text_623b497ad05b960101be3444')}
                     </Button>
+                    {!!loading && !error ? (
+                      <Version>
+                        <Skeleton variant="text" height={12} width={48} />
+                        <Skeleton variant="text" height={12} width={120} />
+                      </Version>
+                    ) : !!data && !error ? (
+                      <Version>
+                        <ExternalLink
+                          href={data?.currentVersion?.githubUrl}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                        >
+                          {data?.currentVersion?.number}
+                          <ExternalLinkIcon name="outside" size="small" />
+                        </ExternalLink>
+                      </Version>
+                    ) : undefined}
                   </Logout>
-                  {!!loading && !error ? (
-                    <Version>
-                      <Skeleton variant="text" height={12} width={48} />
-                      <Skeleton variant="text" height={12} width={120} />
-                    </Version>
-                  ) : !!data && !error ? (
-                    <Version>
-                      <Typography>{translate('text_62c6c95fe73d08be5b86c334')}</Typography>
-                      <ExternalLink
-                        href={data?.currentVersion?.githubUrl}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                      >
-                        {data?.currentVersion?.number}
-                        <ExternalLinkIcon name="outside" size="small" />
-                      </ExternalLink>
-                    </Version>
-                  ) : undefined}
                 </StyledMenuPopper>
               )}
             </Popper>
@@ -358,18 +396,43 @@ const StyledMenuPopper = styled(MenuPopper)`
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  max-width: 320px;
 
-  > :first-child {
-    margin-bottom: 0;
+  & > *:not(:last-child) {
+    margin-bottom: 0px;
   }
 `
 
-const Logout = styled.div`
-  box-shadow: ${theme.shadows[7]};
-  padding: ${theme.spacing(2)};
+const UserEmail = styled(Typography)`
+  padding: ${theme.spacing(4)} ${theme.spacing(5)} ${theme.spacing(2)};
+  min-height: 44px;
+  box-sizing: border-box;
+`
 
-  > * {
-    width: 100%;
+const OrganizationList = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: ${theme.spacing(0)} ${theme.spacing(2)} ${theme.spacing(2)};
+  max-height: calc(100vh - 80px);
+  overflow: scroll;
+
+  > *:not(:last-child) {
+    margin-bottom: ${theme.spacing(1)};
+  }
+`
+
+const OrganizationAvatar = styled(Avatar)`
+  margin-right: ${theme.spacing(2)};
+`
+
+const Logout = styled.div`
+  box-shadow: ${theme.shadows[5]};
+  padding: ${theme.spacing(2)};
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  > *:first-child {
     text-align: left;
   }
 `
@@ -378,7 +441,7 @@ const Version = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
+  padding: ${theme.spacing(3)} ${theme.spacing(2)} ${theme.spacing(3)} ${theme.spacing(5)};
   height: ${theme.spacing(5)};
 `
 

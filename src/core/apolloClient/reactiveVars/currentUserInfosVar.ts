@@ -1,4 +1,5 @@
-import { makeVar, useReactiveVar } from '@apollo/client'
+import _sortBy from 'lodash/sortBy'
+import { makeVar, useReactiveVar, ApolloClient } from '@apollo/client'
 
 import { CurrentUserFragment, CurrentOrganizationFragment } from '~/generated/graphql'
 
@@ -10,6 +11,7 @@ const CURRENT_USER_LS_KEY = 'currentUser'
 interface CurrentUserInfos {
   user?: CurrentUserFragment
   currentOrganization?: CurrentOrganizationFragment
+  organizations?: CurrentOrganizationFragment[]
 }
 
 export const currentUserInfosVar = makeVar<CurrentUserInfos>({
@@ -20,8 +22,12 @@ export const currentUserInfosVar = makeVar<CurrentUserInfos>({
 export const updateCurrentUserInfosVar = (params: CurrentUserInfos) => {
   const currentState = currentUserInfosVar()
   let user = currentState.user
-  let currentOrganization =
-    (params.user?.organizations || [])[0] ?? currentState.currentOrganization
+  const currentOrganizationIsValid = !!(params?.user?.organizations || []).find(
+    (o) => o.id === currentState?.currentOrganization?.id
+  )
+  const currentOrganization = currentOrganizationIsValid
+    ? currentState?.currentOrganization
+    : (params.user?.organizations || [])[0]
 
   if (!!params.user) {
     user = {
@@ -32,18 +38,40 @@ export const updateCurrentUserInfosVar = (params: CurrentUserInfos) => {
 
   if (!user) return
 
-  if (!!params.user?.organizations && !!params.user?.organizations[0]) {
+  if (!!currentOrganization && currentOrganization?.id !== currentState?.currentOrganization?.id) {
     setItemFromLS(ORGANIZATION_LS_KEY, currentOrganization)
   }
 
   currentUserInfosVar({
     user,
     currentOrganization,
+    organizations: _sortBy(user?.organizations || [], 'name'),
   })
 }
 
+export const switchCurrentOrganization = async (
+  client: ApolloClient<object>,
+  organizationId: string
+) => {
+  const currentState = currentUserInfosVar()
+  const newCurrentOrganization = (currentState?.organizations || []).find(
+    (o) => o.id === organizationId
+  )
+
+  if (!!newCurrentOrganization) {
+    setItemFromLS(ORGANIZATION_LS_KEY, newCurrentOrganization)
+
+    currentUserInfosVar({
+      ...currentState,
+      currentOrganization: newCurrentOrganization,
+    })
+  }
+
+  await client.resetStore()
+}
+
 export const resetCurrentUserInfosVar = () => {
-  currentUserInfosVar({ user: undefined, currentOrganization: undefined })
+  currentUserInfosVar({ user: undefined, currentOrganization: undefined, organizations: undefined })
 }
 
 export const useCurrentUserInfosVar = () => useReactiveVar(currentUserInfosVar)
