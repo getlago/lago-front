@@ -33,7 +33,7 @@ import {
   PLANS_ROUTE,
   CUSTOMERS_LIST_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
-  DEVELOPPERS_ROUTE,
+  DEVELOPERS_ROUTE,
   SETTINGS_ROUTE,
   HOME_ROUTE,
   COUPONS_ROUTE,
@@ -256,7 +256,7 @@ const SideNav = () => {
                   {
                     title: translate('text_6271200984178801ba8bdeac'),
                     icon: 'laptop',
-                    link: DEVELOPPERS_ROUTE,
+                    link: DEVELOPERS_ROUTE,
                   },
                   {
                     title: translate('text_62728ff857d47b013204c726'),
