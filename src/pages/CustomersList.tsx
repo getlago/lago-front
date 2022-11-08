@@ -143,7 +143,7 @@ const ListHead = styled(ListHeader)`
 
 const MediumCell = styled(Typography)`
   text-align: right;
-  width: 200px;
+  width: 140px;
 `
 
 const SmallCell = styled(Typography)<{ $alignLeft?: boolean }>`

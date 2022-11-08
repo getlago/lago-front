@@ -71,7 +71,7 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
           </NameBlock>
         </CustomerNameSection>
         <PlanInfosSection>
-          <MediumCell align="right">{activeSubscriptionCount}</MediumCell>
+          <Typography align="right">{activeSubscriptionCount}</Typography>
           <SmallCell align="right">
             {DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy')}
           </SmallCell>
@@ -149,10 +149,6 @@ const Item = styled(ListItemLink)`
   > *:not(:last-child) {
     margin-right: ${theme.spacing(6)};
   }
-`
-
-const MediumCell = styled(Typography)`
-  width: 200px;
 `
 
 const SmallCell = styled(Typography)<{ $alignLeft?: boolean }>`
