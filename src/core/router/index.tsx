@@ -15,13 +15,13 @@ const ForgotPassword = lazy(
 
 const Invitation = lazy(() => import(/* webpackChunkName: 'invitation' */ '~/pages/Invitation'))
 
-const Developpers = lazy(
-  () => import(/* webpackChunkName: 'developpers-layout' */ '~/layouts/Developpers')
+const Developers = lazy(
+  () => import(/* webpackChunkName: 'developers-layout' */ '~/layouts/Developers')
 )
-const ApiKeys = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/developpers/ApiKeys'))
-const Webhook = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/developpers/Webhook'))
+const ApiKeys = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/developers/ApiKeys'))
+const Webhook = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/developers/Webhook'))
 const Debugger = lazy(
-  () => import(/* webpackChunkName: 'api-keys' */ '~/pages/developpers/Debugger')
+  () => import(/* webpackChunkName: 'api-keys' */ '~/pages/developers/Debugger')
 )
 
 const Settings = lazy(() => import(/* webpackChunkName: 'settings' */ '~/layouts/Settings'))
@@ -122,11 +122,11 @@ export const UPDATE_ADD_ON_ROUTE = '/update/add-on/:id'
 
 export const ERROR_404_ROUTE = '/404'
 
-// Developpers routes
-export const DEVELOPPERS_ROUTE = '/developpers'
-export const API_KEYS_ROUTE = `${DEVELOPPERS_ROUTE}/api-keys`
-export const WEBHOOK_ROUTE = `${DEVELOPPERS_ROUTE}/webhook`
-export const DEBUGGER_ROUTE = `${DEVELOPPERS_ROUTE}/debugger`
+// Developers routes
+export const DEVELOPERS_ROUTE = '/developers'
+export const API_KEYS_ROUTE = `${DEVELOPERS_ROUTE}/api-keys`
+export const WEBHOOK_ROUTE = `${DEVELOPERS_ROUTE}/webhook`
+export const DEBUGGER_ROUTE = `${DEVELOPERS_ROUTE}/debugger`
 
 // Settings route
 export const SETTINGS_ROUTE = '/settings'
@@ -164,10 +164,10 @@ export const routes: CustomRouteObject[] = [
       },
       {
         private: true,
-        element: <Developpers />,
+        element: <Developers />,
         children: [
           {
-            path: [API_KEYS_ROUTE, DEVELOPPERS_ROUTE],
+            path: [API_KEYS_ROUTE, DEVELOPERS_ROUTE],
             private: true,
             element: <ApiKeys />,
           },
