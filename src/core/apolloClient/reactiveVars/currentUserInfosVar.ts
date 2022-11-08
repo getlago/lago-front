@@ -1,4 +1,3 @@
-import _sortBy from 'lodash/sortBy'
 import { makeVar, useReactiveVar, ApolloClient } from '@apollo/client'
 
 import { CurrentUserFragment, CurrentOrganizationFragment } from '~/generated/graphql'
@@ -45,7 +44,7 @@ export const updateCurrentUserInfosVar = (params: CurrentUserInfos) => {
   currentUserInfosVar({
     user,
     currentOrganization,
-    organizations: _sortBy(user?.organizations || [], 'name'),
+    organizations: user?.organizations || [],
   })
 }
 

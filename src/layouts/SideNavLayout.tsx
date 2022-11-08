@@ -156,7 +156,9 @@ const SideNav = () => {
                               initials={(name ?? 'Lago')[0]}
                             />
                           )}
-                          <Typography noWrap>{name}</Typography>
+                          <Typography noWrap color="inherit">
+                            {name}
+                          </Typography>
                         </Button>
                       ))}
                     </OrganizationList>
@@ -334,11 +336,6 @@ const HeaderButton = styled(Button)`
   max-width: calc(${NAV_WIDTH}px - ${theme.spacing(8)});
   text-align: left;
 
-  :focus:not(:active) {
-    box-shadow: none;
-    border-radius: 12px;
-  }
-
   > *:first-child {
     margin-right: ${theme.spacing(2)};
   }
@@ -404,7 +401,7 @@ const StyledMenuPopper = styled(MenuPopper)`
 `
 
 const UserEmail = styled(Typography)`
-  padding: ${theme.spacing(4)} ${theme.spacing(5)} ${theme.spacing(2)};
+  padding: ${theme.spacing(4)} ${theme.spacing(5)} ${theme.spacing(0)};
   min-height: 44px;
   box-sizing: border-box;
 `
@@ -412,7 +409,7 @@ const UserEmail = styled(Typography)`
 const OrganizationList = styled.div`
   display: flex;
   flex-direction: column;
-  padding: ${theme.spacing(0)} ${theme.spacing(2)} ${theme.spacing(2)};
+  padding: ${theme.spacing(2)};
   max-height: calc(100vh - 80px);
   overflow: scroll;
 
