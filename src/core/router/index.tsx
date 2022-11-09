@@ -60,8 +60,8 @@ const CustomerInvoiceDetails = lazy(
   () => import(/* webpackChunkName: 'customer-details' */ '~/layouts/CustomerInvoiceDetails')
 )
 const InvoiceOverview = lazy(
-  () =>
-    import(/* webpackChunkName: 'invoice-overview' */ '~/pages/settings/invoices/InvoiceOverview')
+  () => import(/* webpackChunkName: 'invoice-overview' */ '~/pages/InvoiceOverview')
+)
 )
 
 const CouponsList = lazy(() => import(/* webpackChunkName: 'coupons-list' */ '~/pages/CouponsList'))
