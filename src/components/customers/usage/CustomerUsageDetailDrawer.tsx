@@ -8,7 +8,7 @@ import { Drawer, DrawerRef, Button, Typography } from '~/components/designSystem
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NAV_HEIGHT, theme } from '~/styles'
 import { ChargeUsage, CurrencyEnum } from '~/generated/graphql'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 
 gql`
   fragment CustomerUsageForUsageDetails on CustomerUsage {

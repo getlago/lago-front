@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { gql } from '@apollo/client'
 import { TypographyProps } from '@mui/material'
 
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CouponItemFragment, CouponTypeEnum, CouponFrequency } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography } from '~/components/designSystem'

@@ -951,6 +951,7 @@ export type CreditNote = {
   creditAmountCents: Scalars['BigInt'];
   creditAmountCurrency: CurrencyEnum;
   creditStatus?: Maybe<CreditNoteCreditStatusEnum>;
+  customer: Customer;
   description?: Maybe<Scalars['String']>;
   fileUrl?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -974,6 +975,12 @@ export type CreditNote = {
   voidedAt?: Maybe<Scalars['ISO8601DateTime']>;
 };
 
+export type CreditNoteCollection = {
+  __typename?: 'CreditNoteCollection';
+  collection: Array<CreditNote>;
+  metadata: CollectionMetadata;
+};
+
 export enum CreditNoteCreditStatusEnum {
   Available = 'available',
   Consumed = 'consumed',
@@ -987,6 +994,10 @@ export type CreditNoteItem = {
   createdAt: Scalars['ISO8601DateTime'];
   fee: Fee;
   id: Scalars['ID'];
+  totalAmountCents: Scalars['BigInt'];
+  totalAmountCurrency: CurrencyEnum;
+  vatAmountCents: Scalars['BigInt'];
+  vatAmountCurrency: CurrencyEnum;
 };
 
 export type CreditNoteItemInput = {
@@ -1304,11 +1315,17 @@ export type Customer = {
   city?: Maybe<Scalars['String']>;
   country?: Maybe<CountryCode>;
   createdAt: Scalars['ISO8601DateTime'];
+  /** Credit notes credits balance available per customer */
+  creditNotesBalanceAmountCents: Scalars['BigInt'];
+  /** Number of available credits from credit notes per customer */
+  creditNotesCreditsAvailableCount: Scalars['Int'];
   currency?: Maybe<CurrencyEnum>;
   email?: Maybe<Scalars['String']>;
   externalId: Scalars['String'];
   /** Define if a customer has an active wallet */
   hasActiveWallet: Scalars['Boolean'];
+  /** Define if a customer has any credit note */
+  hasCreditNotes: Scalars['Boolean'];
   id: Scalars['ID'];
   invoiceGracePeriod: Scalars['Int'];
   legalName?: Maybe<Scalars['String']>;
@@ -1352,11 +1369,17 @@ export type CustomerDetails = {
   country?: Maybe<CountryCode>;
   createdAt: Scalars['ISO8601DateTime'];
   creditNotes?: Maybe<Array<CreditNote>>;
+  /** Credit notes credits balance available per customer */
+  creditNotesBalanceAmountCents: Scalars['BigInt'];
+  /** Number of available credits from credit notes per customer */
+  creditNotesCreditsAvailableCount: Scalars['Int'];
   currency?: Maybe<CurrencyEnum>;
   email?: Maybe<Scalars['String']>;
   externalId: Scalars['String'];
   /** Define if a customer has an active wallet */
   hasActiveWallet: Scalars['Boolean'];
+  /** Define if a customer has any credit note */
+  hasCreditNotes: Scalars['Boolean'];
   id: Scalars['ID'];
   invoiceGracePeriod: Scalars['Int'];
   invoices?: Maybe<Array<Invoice>>;
@@ -1634,9 +1657,13 @@ export type Invoice = {
   amountCents: Scalars['Int'];
   amountCurrency: CurrencyEnum;
   chargeAmountCents: Scalars['Int'];
+  couponTotalAmountCents: Scalars['Int'];
   createdAt: Scalars['ISO8601DateTime'];
   creditAmountCents: Scalars['Int'];
   creditAmountCurrency: CurrencyEnum;
+  creditNoteTotalAmountCents: Scalars['Int'];
+  creditNotes?: Maybe<Array<CreditNote>>;
+  creditableAmountCents: Scalars['Int'];
   customer: Customer;
   fees?: Maybe<Array<Fee>>;
   fileUrl?: Maybe<Scalars['String']>;
@@ -1644,10 +1671,14 @@ export type Invoice = {
   invoiceSubscriptions?: Maybe<Array<InvoiceSubscription>>;
   invoiceType: InvoiceTypeEnum;
   issuingDate: Scalars['ISO8601Date'];
+  legacy: Scalars['Boolean'];
   number: Scalars['String'];
   paymentStatus: InvoicePaymentStatusTypeEnum;
   plan?: Maybe<Plan>;
+  refundableAmountCents: Scalars['Int'];
   sequentialId: Scalars['ID'];
+  subTotalVatExcludedAmountCents: Scalars['Int'];
+  subTotalVatIncludedAmountCents: Scalars['Int'];
   subscriptions?: Maybe<Array<Subscription>>;
   subtotalBeforePrepaidCredits: Scalars['String'];
   totalAmountCents: Scalars['Int'];
@@ -1655,6 +1686,7 @@ export type Invoice = {
   updatedAt: Scalars['ISO8601DateTime'];
   vatAmountCents: Scalars['Int'];
   vatAmountCurrency: CurrencyEnum;
+  vatRate: Scalars['Float'];
   walletTransactionAmountCents: Scalars['Int'];
 };
 
@@ -2205,6 +2237,8 @@ export type Query = {
   currentVersion: CurrentVersion;
   /** Query a single customer of an organization */
   customer?: Maybe<CustomerDetails>;
+  /** Query customer's credit note */
+  customerCreditNotes?: Maybe<CreditNoteCollection>;
   /** Query the usage of the customer on the current billing period */
   customerUsage: CustomerUsage;
   /** Query customers of an organization */
@@ -2217,6 +2251,8 @@ export type Query = {
   invites: InviteCollection;
   /** Query a single Invoice of an organization */
   invoice?: Maybe<Invoice>;
+  /** Query invoice's credit note */
+  invoiceCreditNotes?: Maybe<CreditNoteCollection>;
   /** Query memberships of an organization */
   memberships: MembershipCollection;
   /** Query a single plan of an organization */
@@ -2282,6 +2318,14 @@ export type QueryCustomerArgs = {
 };
 
 
+export type QueryCustomerCreditNotesArgs = {
+  customerId: Scalars['ID'];
+  ids?: InputMaybe<Array<Scalars['String']>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  page?: InputMaybe<Scalars['Int']>;
+};
+
+
 export type QueryCustomerUsageArgs = {
   customerId?: InputMaybe<Scalars['ID']>;
   subscriptionId: Scalars['ID'];
@@ -2314,6 +2358,13 @@ export type QueryInvitesArgs = {
 
 export type QueryInvoiceArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryInvoiceCreditNotesArgs = {
+  invoiceId: Scalars['ID'];
+  limit?: InputMaybe<Scalars['Int']>;
+  page?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -3091,6 +3142,15 @@ export type RemoveCouponMutationVariables = Exact<{
 
 export type RemoveCouponMutation = { __typename?: 'Mutation', terminateAppliedCoupon?: { __typename?: 'AppliedCoupon', id: string } | null };
 
+export type GetCustomerCreditNotesQueryVariables = Exact<{
+  customerId: Scalars['ID'];
+  page?: InputMaybe<Scalars['Int']>;
+  limit?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type GetCustomerCreditNotesQuery = { __typename?: 'Query', customerCreditNotes?: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'CreditNote', id: string, canBeVoided: boolean, createdAt: any, creditStatus?: CreditNoteCreditStatusEnum | null, number: string, totalAmountCents: any, totalAmountCurrency: CurrencyEnum }> } | null };
+
 export type CustomerInvoiceListFragment = { __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, totalAmountCents: number };
 
 export type DownloadInvoiceMutationVariables = Exact<{
@@ -3134,6 +3194,22 @@ export type UpdateCustomerVatRateMutationVariables = Exact<{
 export type UpdateCustomerVatRateMutation = { __typename?: 'Mutation', updateCustomerVatRate?: { __typename?: 'CustomerDetails', id: string, vatRate?: number | null } | null };
 
 export type EditCustomerVatRateFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, vatRate?: number | null };
+
+export type CreditNotesForListFragment = { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'CreditNote', id: string, canBeVoided: boolean, createdAt: any, creditStatus?: CreditNoteCreditStatusEnum | null, number: string, totalAmountCents: any, totalAmountCurrency: CurrencyEnum }> };
+
+export type DownloadCreditNoteMutationVariables = Exact<{
+  input: DownloadCreditNoteInput;
+}>;
+
+
+export type DownloadCreditNoteMutation = { __typename?: 'Mutation', downloadCreditNote?: { __typename?: 'CreditNote', id: string, fileUrl?: string | null } | null };
+
+export type VoidCreditNoteMutationVariables = Exact<{
+  input: VoidCreditNoteInput;
+}>;
+
+
+export type VoidCreditNoteMutation = { __typename?: 'Mutation', voidCreditNote?: { __typename?: 'CreditNote', id: string } | null };
 
 export type UpdateCustomerSubscriptionMutationVariables = Exact<{
   input: UpdateSubscriptionInput;
@@ -3180,6 +3256,12 @@ export type UpdateOrganizationMutationVariables = Exact<{
 
 
 export type UpdateOrganizationMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string, webhookUrl?: string | null } | null };
+
+export type InvoiceForCreditNotesTableFragment = { __typename?: 'Invoice', id: string, totalAmountCents: number, customer: { __typename?: 'Customer', id: string }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, creditAmountCurrency: CurrencyEnum, number: string, subTotalVatExcludedAmountCents: any, subTotalVatExcludedAmountCurrency: CurrencyEnum, totalAmountCents: any, vatAmountCents: any, vatAmountCurrency: CurrencyEnum, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, amountCurrency: CurrencyEnum, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null } }> }> | null };
+
+export type InvoiceForInvoiceInfosFragment = { __typename?: 'Invoice', number: string, issuingDate: any, customer: { __typename?: 'Customer', id: string, name?: string | null, legalName?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null } };
+
+export type InvoiceForDetailsTableFragment = { __typename?: 'Invoice', couponTotalAmountCents: number, creditAmountCurrency: CurrencyEnum, creditNoteTotalAmountCents: number, subTotalVatExcludedAmountCents: number, subTotalVatIncludedAmountCents: number, totalAmountCents: number, totalAmountCurrency: CurrencyEnum, vatAmountCents: number, vatAmountCurrency: CurrencyEnum, walletTransactionAmountCents: number, customer: { __typename?: 'Customer', currency?: CurrencyEnum | null }, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, name?: string | null, subscriptionDate?: any | null, periodEndDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: number, amountCurrency: CurrencyEnum } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null }> | null }> | null };
 
 export type BillableMetricForPlanFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null };
 
@@ -3460,7 +3542,7 @@ export type GetInvoiceDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceDetailsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, totalAmountCents: number, totalAmountCurrency: CurrencyEnum } | null };
+export type GetInvoiceDetailsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, totalAmountCents: number, totalAmountCurrency: CurrencyEnum } | null };
 
 export type CurrentVersionQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3493,14 +3575,21 @@ export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'Coup
 
 export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, billChargesMonthly?: boolean | null, charges?: Array<{ __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } }> | null }> | null };
 
-export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, hasActiveWallet: boolean, currency?: CurrencyEnum | null, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, canEditAttributes: boolean, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionDate?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, amountCentsRemaining?: number | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null };
+export type GetCreditNoteQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetCreditNoteQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, canBeVoided: boolean, createdAt: any, creditAmountCents: any, creditAmountCurrency: CurrencyEnum, creditStatus?: CreditNoteCreditStatusEnum | null, number: string, refundAmountCents: any, refundedAt?: any | null, refundStatus?: CreditNoteRefundStatusEnum | null, subTotalVatExcludedAmountCents: any, subTotalVatExcludedAmountCurrency: CurrencyEnum, totalAmountCents: any, totalAmountCurrency: CurrencyEnum, vatAmountCents: any, vatAmountCurrency: CurrencyEnum, customer: { __typename?: 'Customer', id: string, name?: string | null }, invoice?: { __typename?: 'Invoice', id: string, number: string } | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, amountCurrency: CurrencyEnum, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null } }> } | null };
+
+export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, canEditAttributes: boolean, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionDate?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, amountCentsRemaining?: number | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null };
 
 export type GetCustomerQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, hasActiveWallet: boolean, currency?: CurrencyEnum | null, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, canEditAttributes: boolean, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionDate?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, amountCentsRemaining?: number | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null } | null };
+export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, canEditAttributes: boolean, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionDate?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, amountCentsRemaining?: number | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null } | null };
 
 export type CustomersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -3523,6 +3612,22 @@ export type AcceptInviteMutationVariables = Exact<{
 
 
 export type AcceptInviteMutation = { __typename?: 'Mutation', acceptInvite?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, apiKey: string, vatRate: number }> | null } } | null };
+
+export type GetInvoiceCreditNotesQueryVariables = Exact<{
+  invoiceId: Scalars['ID'];
+  page?: InputMaybe<Scalars['Int']>;
+  limit?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type GetInvoiceCreditNotesQuery = { __typename?: 'Query', invoiceCreditNotes?: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'CreditNote', id: string, canBeVoided: boolean, createdAt: any, creditStatus?: CreditNoteCreditStatusEnum | null, number: string, totalAmountCents: any, totalAmountCurrency: CurrencyEnum }> } | null };
+
+export type GetAllInvoiceDetailsQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetAllInvoiceDetailsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, totalAmountCents: number, couponTotalAmountCents: number, creditAmountCurrency: CurrencyEnum, creditNoteTotalAmountCents: number, subTotalVatExcludedAmountCents: number, subTotalVatIncludedAmountCents: number, totalAmountCurrency: CurrencyEnum, vatAmountCents: number, vatAmountCurrency: CurrencyEnum, walletTransactionAmountCents: number, number: string, issuingDate: any, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, name?: string | null, legalName?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, creditAmountCurrency: CurrencyEnum, number: string, subTotalVatExcludedAmountCents: any, subTotalVatExcludedAmountCurrency: CurrencyEnum, totalAmountCents: any, vatAmountCents: any, vatAmountCurrency: CurrencyEnum, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, amountCurrency: CurrencyEnum, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null } }> }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, name?: string | null, subscriptionDate?: any | null, periodEndDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: number, amountCurrency: CurrencyEnum } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null }> | null }> | null } | null };
 
 export type PlansQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -3623,13 +3728,6 @@ export type GetOrganizationInvoiceAndTaxInformationsQueryVariables = Exact<{ [ke
 
 
 export type GetOrganizationInvoiceAndTaxInformationsQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, vatRate: number, invoiceFooter?: string | null }> | null } };
-
-export type GetAllInvoiceDetailsQueryVariables = Exact<{
-  id: Scalars['ID'];
-}>;
-
-
-export type GetAllInvoiceDetailsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, number: string, issuingDate: any, vatAmountCents: number, vatAmountCurrency: CurrencyEnum, totalAmountCents: number, totalAmountCurrency: CurrencyEnum, walletTransactionAmountCents: number, subtotalBeforePrepaidCredits: string, creditAmountCents: number, creditAmountCurrency: CurrencyEnum, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, name?: string | null, legalName?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null }, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, name?: string | null, subscriptionDate?: any | null, periodEndDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: number, amountCurrency: CurrencyEnum } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null }> | null }> | null } | null };
 
 export const ApiKeyOrganizationFragmentDoc = gql`
     fragment ApiKeyOrganization on Organization {
@@ -3778,6 +3876,23 @@ export const DeleteCustomerDialogFragmentDoc = gql`
   name
 }
     `;
+export const CreditNotesForListFragmentDoc = gql`
+    fragment CreditNotesForList on CreditNoteCollection {
+  metadata {
+    currentPage
+    totalPages
+  }
+  collection {
+    id
+    canBeVoided
+    createdAt
+    creditStatus
+    number
+    totalAmountCents
+    totalAmountCurrency
+  }
+}
+    `;
 export const CustomerUsageForUsageDetailsFragmentDoc = gql`
     fragment CustomerUsageForUsageDetails on CustomerUsage {
   fromDate
@@ -3792,6 +3907,128 @@ export const CustomerUsageForUsageDetailsFragmentDoc = gql`
       key
       units
       value
+    }
+  }
+}
+    `;
+export const InvoiceForCreditNotesTableFragmentDoc = gql`
+    fragment InvoiceForCreditNotesTable on Invoice {
+  id
+  totalAmountCents
+  customer {
+    id
+  }
+  creditNotes {
+    id
+    creditAmountCurrency
+    number
+    subTotalVatExcludedAmountCents
+    subTotalVatExcludedAmountCurrency
+    totalAmountCents
+    vatAmountCents
+    vatAmountCurrency
+    items {
+      amountCents
+      amountCurrency
+      fee {
+        id
+        amountCents
+        amountCurrency
+        eventsCount
+        units
+        feeType
+        charge {
+          id
+          billableMetric {
+            id
+            name
+            aggregationType
+          }
+        }
+        subscription {
+          id
+          name
+          plan {
+            id
+            name
+          }
+        }
+        group {
+          id
+          key
+          value
+        }
+      }
+    }
+  }
+}
+    `;
+export const InvoiceForInvoiceInfosFragmentDoc = gql`
+    fragment InvoiceForInvoiceInfos on Invoice {
+  number
+  issuingDate
+  customer {
+    id
+    name
+    legalName
+    email
+    addressLine1
+    addressLine2
+    state
+    country
+    city
+    zipcode
+  }
+}
+    `;
+export const InvoiceForDetailsTableFragmentDoc = gql`
+    fragment InvoiceForDetailsTable on Invoice {
+  couponTotalAmountCents
+  creditAmountCurrency
+  creditNoteTotalAmountCents
+  subTotalVatExcludedAmountCents
+  subTotalVatIncludedAmountCents
+  totalAmountCents
+  totalAmountCurrency
+  vatAmountCents
+  vatAmountCurrency
+  walletTransactionAmountCents
+  customer {
+    currency
+  }
+  invoiceSubscriptions {
+    subscription {
+      id
+      name
+      subscriptionDate
+      periodEndDate
+      plan {
+        id
+        name
+        interval
+        amountCents
+        amountCurrency
+      }
+    }
+    fees {
+      id
+      amountCents
+      eventsCount
+      units
+      feeType
+      charge {
+        id
+        billableMetric {
+          id
+          name
+          aggregationType
+        }
+      }
+      group {
+        id
+        key
+        value
+      }
     }
   }
 }
@@ -4259,6 +4496,9 @@ export const CustomerDetailsFragmentDoc = gql`
   canBeDeleted
   hasActiveWallet
   currency
+  hasCreditNotes
+  creditNotesCreditsAvailableCount
+  creditNotesBalanceAmountCents
   subscriptions(status: [active, pending]) {
     plan {
       id
@@ -4705,6 +4945,43 @@ export function useRemoveCouponMutation(baseOptions?: Apollo.MutationHookOptions
 export type RemoveCouponMutationHookResult = ReturnType<typeof useRemoveCouponMutation>;
 export type RemoveCouponMutationResult = Apollo.MutationResult<RemoveCouponMutation>;
 export type RemoveCouponMutationOptions = Apollo.BaseMutationOptions<RemoveCouponMutation, RemoveCouponMutationVariables>;
+export const GetCustomerCreditNotesDocument = gql`
+    query getCustomerCreditNotes($customerId: ID!, $page: Int, $limit: Int) {
+  customerCreditNotes(customerId: $customerId, page: $page, limit: $limit) {
+    ...CreditNotesForList
+  }
+}
+    ${CreditNotesForListFragmentDoc}`;
+
+/**
+ * __useGetCustomerCreditNotesQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerCreditNotesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerCreditNotesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerCreditNotesQuery({
+ *   variables: {
+ *      customerId: // value for 'customerId'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetCustomerCreditNotesQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>(GetCustomerCreditNotesDocument, options);
+      }
+export function useGetCustomerCreditNotesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>(GetCustomerCreditNotesDocument, options);
+        }
+export type GetCustomerCreditNotesQueryHookResult = ReturnType<typeof useGetCustomerCreditNotesQuery>;
+export type GetCustomerCreditNotesLazyQueryHookResult = ReturnType<typeof useGetCustomerCreditNotesLazyQuery>;
+export type GetCustomerCreditNotesQueryResult = Apollo.QueryResult<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>;
 export const DownloadInvoiceDocument = gql`
     mutation downloadInvoice($input: DownloadInvoiceInput!) {
   downloadInvoice(input: $input) {
@@ -4840,6 +5117,73 @@ export function useUpdateCustomerVatRateMutation(baseOptions?: Apollo.MutationHo
 export type UpdateCustomerVatRateMutationHookResult = ReturnType<typeof useUpdateCustomerVatRateMutation>;
 export type UpdateCustomerVatRateMutationResult = Apollo.MutationResult<UpdateCustomerVatRateMutation>;
 export type UpdateCustomerVatRateMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerVatRateMutation, UpdateCustomerVatRateMutationVariables>;
+export const DownloadCreditNoteDocument = gql`
+    mutation downloadCreditNote($input: DownloadCreditNoteInput!) {
+  downloadCreditNote(input: $input) {
+    id
+    fileUrl
+  }
+}
+    `;
+export type DownloadCreditNoteMutationFn = Apollo.MutationFunction<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>;
+
+/**
+ * __useDownloadCreditNoteMutation__
+ *
+ * To run a mutation, you first call `useDownloadCreditNoteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDownloadCreditNoteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [downloadCreditNoteMutation, { data, loading, error }] = useDownloadCreditNoteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDownloadCreditNoteMutation(baseOptions?: Apollo.MutationHookOptions<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>(DownloadCreditNoteDocument, options);
+      }
+export type DownloadCreditNoteMutationHookResult = ReturnType<typeof useDownloadCreditNoteMutation>;
+export type DownloadCreditNoteMutationResult = Apollo.MutationResult<DownloadCreditNoteMutation>;
+export type DownloadCreditNoteMutationOptions = Apollo.BaseMutationOptions<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>;
+export const VoidCreditNoteDocument = gql`
+    mutation voidCreditNote($input: VoidCreditNoteInput!) {
+  voidCreditNote(input: $input) {
+    id
+  }
+}
+    `;
+export type VoidCreditNoteMutationFn = Apollo.MutationFunction<VoidCreditNoteMutation, VoidCreditNoteMutationVariables>;
+
+/**
+ * __useVoidCreditNoteMutation__
+ *
+ * To run a mutation, you first call `useVoidCreditNoteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVoidCreditNoteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [voidCreditNoteMutation, { data, loading, error }] = useVoidCreditNoteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useVoidCreditNoteMutation(baseOptions?: Apollo.MutationHookOptions<VoidCreditNoteMutation, VoidCreditNoteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<VoidCreditNoteMutation, VoidCreditNoteMutationVariables>(VoidCreditNoteDocument, options);
+      }
+export type VoidCreditNoteMutationHookResult = ReturnType<typeof useVoidCreditNoteMutation>;
+export type VoidCreditNoteMutationResult = Apollo.MutationResult<VoidCreditNoteMutation>;
+export type VoidCreditNoteMutationOptions = Apollo.BaseMutationOptions<VoidCreditNoteMutation, VoidCreditNoteMutationVariables>;
 export const UpdateCustomerSubscriptionDocument = gql`
     mutation updateCustomerSubscription($input: UpdateSubscriptionInput!) {
   updateSubscription(input: $input) {
@@ -6159,6 +6503,7 @@ export const GetInvoiceDetailsDocument = gql`
     query getInvoiceDetails($id: ID!) {
   invoice(id: $id) {
     id
+    invoiceType
     number
     paymentStatus
     totalAmountCents
@@ -6358,6 +6703,97 @@ export function useCouponsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Co
 export type CouponsQueryHookResult = ReturnType<typeof useCouponsQuery>;
 export type CouponsLazyQueryHookResult = ReturnType<typeof useCouponsLazyQuery>;
 export type CouponsQueryResult = Apollo.QueryResult<CouponsQuery, CouponsQueryVariables>;
+export const GetCreditNoteDocument = gql`
+    query getCreditNote($id: ID!) {
+  creditNote(id: $id) {
+    id
+    canBeVoided
+    createdAt
+    creditAmountCents
+    creditAmountCurrency
+    creditStatus
+    number
+    refundAmountCents
+    refundedAt
+    refundStatus
+    subTotalVatExcludedAmountCents
+    subTotalVatExcludedAmountCurrency
+    totalAmountCents
+    totalAmountCurrency
+    vatAmountCents
+    vatAmountCurrency
+    customer {
+      id
+      name
+    }
+    invoice {
+      id
+      number
+    }
+    items {
+      amountCents
+      amountCurrency
+      fee {
+        id
+        amountCents
+        amountCurrency
+        eventsCount
+        units
+        feeType
+        charge {
+          id
+          billableMetric {
+            id
+            name
+            aggregationType
+          }
+        }
+        subscription {
+          id
+          name
+          plan {
+            id
+            name
+          }
+        }
+        group {
+          id
+          key
+          value
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCreditNoteQuery__
+ *
+ * To run a query within a React component, call `useGetCreditNoteQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCreditNoteQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCreditNoteQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetCreditNoteQuery(baseOptions: Apollo.QueryHookOptions<GetCreditNoteQuery, GetCreditNoteQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCreditNoteQuery, GetCreditNoteQueryVariables>(GetCreditNoteDocument, options);
+      }
+export function useGetCreditNoteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCreditNoteQuery, GetCreditNoteQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCreditNoteQuery, GetCreditNoteQueryVariables>(GetCreditNoteDocument, options);
+        }
+export type GetCreditNoteQueryHookResult = ReturnType<typeof useGetCreditNoteQuery>;
+export type GetCreditNoteLazyQueryHookResult = ReturnType<typeof useGetCreditNoteLazyQuery>;
+export type GetCreditNoteQueryResult = Apollo.QueryResult<GetCreditNoteQuery, GetCreditNoteQueryVariables>;
 export const GetCustomerDocument = gql`
     query getCustomer($id: ID!) {
   customer(id: $id) {
@@ -6511,6 +6947,87 @@ export function useAcceptInviteMutation(baseOptions?: Apollo.MutationHookOptions
 export type AcceptInviteMutationHookResult = ReturnType<typeof useAcceptInviteMutation>;
 export type AcceptInviteMutationResult = Apollo.MutationResult<AcceptInviteMutation>;
 export type AcceptInviteMutationOptions = Apollo.BaseMutationOptions<AcceptInviteMutation, AcceptInviteMutationVariables>;
+export const GetInvoiceCreditNotesDocument = gql`
+    query getInvoiceCreditNotes($invoiceId: ID!, $page: Int, $limit: Int) {
+  invoiceCreditNotes(invoiceId: $invoiceId, page: $page, limit: $limit) {
+    ...CreditNotesForList
+  }
+}
+    ${CreditNotesForListFragmentDoc}`;
+
+/**
+ * __useGetInvoiceCreditNotesQuery__
+ *
+ * To run a query within a React component, call `useGetInvoiceCreditNotesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInvoiceCreditNotesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetInvoiceCreditNotesQuery({
+ *   variables: {
+ *      invoiceId: // value for 'invoiceId'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetInvoiceCreditNotesQuery(baseOptions: Apollo.QueryHookOptions<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>(GetInvoiceCreditNotesDocument, options);
+      }
+export function useGetInvoiceCreditNotesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>(GetInvoiceCreditNotesDocument, options);
+        }
+export type GetInvoiceCreditNotesQueryHookResult = ReturnType<typeof useGetInvoiceCreditNotesQuery>;
+export type GetInvoiceCreditNotesLazyQueryHookResult = ReturnType<typeof useGetInvoiceCreditNotesLazyQuery>;
+export type GetInvoiceCreditNotesQueryResult = Apollo.QueryResult<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>;
+export const GetAllInvoiceDetailsDocument = gql`
+    query getAllInvoiceDetails($id: ID!) {
+  invoice(id: $id) {
+    id
+    totalAmountCents
+    customer {
+      id
+    }
+    ...InvoiceForCreditNotesTable
+    ...InvoiceForDetailsTable
+    ...InvoiceForInvoiceInfos
+  }
+}
+    ${InvoiceForCreditNotesTableFragmentDoc}
+${InvoiceForDetailsTableFragmentDoc}
+${InvoiceForInvoiceInfosFragmentDoc}`;
+
+/**
+ * __useGetAllInvoiceDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetAllInvoiceDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllInvoiceDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllInvoiceDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetAllInvoiceDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetAllInvoiceDetailsQuery, GetAllInvoiceDetailsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAllInvoiceDetailsQuery, GetAllInvoiceDetailsQueryVariables>(GetAllInvoiceDetailsDocument, options);
+      }
+export function useGetAllInvoiceDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAllInvoiceDetailsQuery, GetAllInvoiceDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAllInvoiceDetailsQuery, GetAllInvoiceDetailsQueryVariables>(GetAllInvoiceDetailsDocument, options);
+        }
+export type GetAllInvoiceDetailsQueryHookResult = ReturnType<typeof useGetAllInvoiceDetailsQuery>;
+export type GetAllInvoiceDetailsLazyQueryHookResult = ReturnType<typeof useGetAllInvoiceDetailsLazyQuery>;
+export type GetAllInvoiceDetailsQueryResult = Apollo.QueryResult<GetAllInvoiceDetailsQuery, GetAllInvoiceDetailsQueryVariables>;
 export const PlansDocument = gql`
     query plans($page: Int, $limit: Int) {
   plans(page: $page, limit: $limit) {
@@ -7067,96 +7584,3 @@ export function useGetOrganizationInvoiceAndTaxInformationsLazyQuery(baseOptions
 export type GetOrganizationInvoiceAndTaxInformationsQueryHookResult = ReturnType<typeof useGetOrganizationInvoiceAndTaxInformationsQuery>;
 export type GetOrganizationInvoiceAndTaxInformationsLazyQueryHookResult = ReturnType<typeof useGetOrganizationInvoiceAndTaxInformationsLazyQuery>;
 export type GetOrganizationInvoiceAndTaxInformationsQueryResult = Apollo.QueryResult<GetOrganizationInvoiceAndTaxInformationsQuery, GetOrganizationInvoiceAndTaxInformationsQueryVariables>;
-export const GetAllInvoiceDetailsDocument = gql`
-    query getAllInvoiceDetails($id: ID!) {
-  invoice(id: $id) {
-    id
-    number
-    issuingDate
-    vatAmountCents
-    vatAmountCurrency
-    totalAmountCents
-    totalAmountCurrency
-    walletTransactionAmountCents
-    subtotalBeforePrepaidCredits
-    creditAmountCents
-    creditAmountCurrency
-    customer {
-      id
-      currency
-      name
-      legalName
-      email
-      addressLine1
-      addressLine2
-      state
-      country
-      city
-      zipcode
-    }
-    invoiceSubscriptions {
-      subscription {
-        id
-        name
-        subscriptionDate
-        periodEndDate
-        plan {
-          id
-          name
-          interval
-          amountCents
-          amountCurrency
-        }
-      }
-      fees {
-        id
-        amountCents
-        eventsCount
-        units
-        feeType
-        charge {
-          id
-          billableMetric {
-            id
-            name
-            aggregationType
-          }
-        }
-        group {
-          id
-          key
-          value
-        }
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useGetAllInvoiceDetailsQuery__
- *
- * To run a query within a React component, call `useGetAllInvoiceDetailsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAllInvoiceDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetAllInvoiceDetailsQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetAllInvoiceDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetAllInvoiceDetailsQuery, GetAllInvoiceDetailsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetAllInvoiceDetailsQuery, GetAllInvoiceDetailsQueryVariables>(GetAllInvoiceDetailsDocument, options);
-      }
-export function useGetAllInvoiceDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAllInvoiceDetailsQuery, GetAllInvoiceDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetAllInvoiceDetailsQuery, GetAllInvoiceDetailsQueryVariables>(GetAllInvoiceDetailsDocument, options);
-        }
-export type GetAllInvoiceDetailsQueryHookResult = ReturnType<typeof useGetAllInvoiceDetailsQuery>;
-export type GetAllInvoiceDetailsLazyQueryHookResult = ReturnType<typeof useGetAllInvoiceDetailsLazyQuery>;
-export type GetAllInvoiceDetailsQueryResult = Apollo.QueryResult<GetAllInvoiceDetailsQuery, GetAllInvoiceDetailsQueryVariables>;

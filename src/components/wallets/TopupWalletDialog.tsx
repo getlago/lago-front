@@ -15,7 +15,7 @@ import {
   WalletForTopupFragment,
 } from '~/generated/graphql'
 import { addToast } from '~/core/apolloClient'
-import { intlFormatNumber, getCurrencySymbol } from '~/core/intlFormatNumber'
+import { intlFormatNumber, getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 
 gql`
   mutation createCustomerWalletTransaction($input: CreateCustomerWalletTransactionInput!) {
