@@ -17,6 +17,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   CUSTOMER_DETAILS_TAB_ROUTE,
+  CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_OVERVIEW_ROUTE,
 } from '~/core/router'
@@ -119,10 +120,10 @@ const CustomerInvoiceDetails = () => {
       link: CUSTOMER_INVOICE_DETAILS_ROUTE,
       match: [CUSTOMER_INVOICE_DETAILS_ROUTE, CUSTOMER_INVOICE_OVERVIEW_ROUTE],
     },
-    // {
-    //   title: translate(''),
-    //   link: CUSTOMER_INVOICE_DETAILS_CREDIT_NOTE_ROUTE,
-    // },
+    {
+      title: translate('text_636bdef6565341dcb9cfb125'),
+      link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE, { id, invoiceId }),
+    },
   ]
 
   return (
