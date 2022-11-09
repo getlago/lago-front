@@ -62,6 +62,14 @@ const CustomerInvoiceDetails = lazy(
 const InvoiceOverview = lazy(
   () => import(/* webpackChunkName: 'invoice-overview' */ '~/pages/InvoiceOverview')
 )
+
+const InvoiceCreditNoteList = lazy(
+  () => import(/* webpackChunkName: 'invoice-credit-note-list' */ '~/pages/InvoiceCreditNoteList')
+)
+
+const InvoiceCreditNoteDetails = lazy(
+  () =>
+    import(/* webpackChunkName: 'invoice-credit-note-details' */ '~/pages/InvoiceCreditNoteDetails')
 )
 
 const CouponsList = lazy(() => import(/* webpackChunkName: 'coupons-list' */ '~/pages/CouponsList'))
@@ -108,7 +116,11 @@ export const CUSTOMER_DETAILS_ROUTE = '/customer/:id'
 export const CUSTOMER_DETAILS_TAB_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/:tab`
 export const CUSTOMER_INVOICE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId`
 export const CUSTOMER_INVOICE_OVERVIEW_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/overview`
-export const CUSTOMER_INVOICE_DETAILS_CREDIT_NOTE_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/credit-notes`
+
+// Credit note
+export const CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/credit-notes`
+export const CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/credit-notes`
+export const CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/credit-notes/:creditNoteId`
 
 // Coupons routes
 export const COUPONS_ROUTE = '/coupons'
@@ -239,9 +251,14 @@ export const routes: CustomRouteObject[] = [
             element: <InvoiceOverview />,
           },
           {
-            path: CUSTOMER_INVOICE_DETAILS_CREDIT_NOTE_ROUTE,
+            path: [CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE],
             private: true,
-            element: <div>TODO</div>,
+            element: <InvoiceCreditNoteList />,
+          },
+          {
+            path: [CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE],
+            private: true,
+            element: <InvoiceCreditNoteDetails />,
           },
         ],
       },
