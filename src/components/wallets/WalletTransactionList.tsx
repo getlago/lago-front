@@ -16,7 +16,7 @@ import {
   WalletTransactionStatusEnum,
   WalletTransactionTransactionTypeEnum,
 } from '~/generated/graphql'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 
 import { TopupWalletDialogRef } from './TopupWalletDialog'
 

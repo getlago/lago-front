@@ -119,6 +119,9 @@ module.exports = {
   "project_632d6831010fafe9382b616d": {
     "base": require('./👍 [Ready for dev] - Coupons - Create % and recurring coupons__base.json')
   },
+  "project_636bdeec2ea28ae182faa50e": {
+    "base": require('./👍 [Ready for dev] - Credit note - Create and apply credit note to a customer__base.json')
+  },
   "project_634687058efb4a10996fdbdc": {
     "base": require('./👍 [Ready for dev] - Customers - Invoice detail page__base.json')
   },

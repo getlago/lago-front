@@ -17,7 +17,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import EmptyImage from '~/public/images/maneki/empty.svg'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 
 import {
   CustomerUsageDetailDrawer,

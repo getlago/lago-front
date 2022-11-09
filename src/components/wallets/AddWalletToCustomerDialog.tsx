@@ -17,7 +17,7 @@ import {
   LagoApiError,
 } from '~/generated/graphql'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 
 gql`
   mutation createCustomerWallet($input: CreateCustomerWalletInput!) {
