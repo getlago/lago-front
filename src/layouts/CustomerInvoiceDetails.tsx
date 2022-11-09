@@ -117,7 +117,7 @@ const CustomerInvoiceDetails = () => {
   const tabsOptions = [
     {
       title: translate('text_634687079be251fdb43833b7'),
-      link: CUSTOMER_INVOICE_DETAILS_ROUTE,
+      link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, { id, invoiceId }),
       match: [CUSTOMER_INVOICE_DETAILS_ROUTE, CUSTOMER_INVOICE_OVERVIEW_ROUTE],
     },
     {
