@@ -119,7 +119,7 @@ export const CUSTOMER_INVOICE_OVERVIEW_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoic
 
 // Credit note
 export const CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/credit-notes`
-export const CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/credit-notes`
+export const CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/credit-notes/:creditNoteId`
 export const CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/credit-notes/:creditNoteId`
 
 // Coupons routes
