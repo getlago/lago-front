@@ -957,9 +957,13 @@ export type CreditNote = {
   refundAmountCurrency: CurrencyEnum;
   refundStatus?: Maybe<CreditNoteRefundStatusEnum>;
   sequentialId: Scalars['ID'];
+  subTotalVatExcludedAmountCents: Scalars['BigInt'];
+  subTotalVatExcludedAmountCurrency: CurrencyEnum;
   totalAmountCents: Scalars['BigInt'];
   totalAmountCurrency: CurrencyEnum;
   updatedAt: Scalars['ISO8601DateTime'];
+  vatAmountCents: Scalars['BigInt'];
+  vatAmountCurrency: CurrencyEnum;
 };
 
 export enum CreditNoteCreditStatusEnum {
