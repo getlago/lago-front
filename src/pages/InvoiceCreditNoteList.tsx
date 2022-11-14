@@ -177,7 +177,11 @@ const InvoiceCreditNoteList = () => {
                           <Tooltip
                             placement="top-end"
                             disableHoverListener={isOpen}
-                            title={translate('text_62b31e1f6a5b8b1b745ece3c')}
+                            title={translate(
+                              creditNote.canBeVoided
+                                ? 'text_63728c6434e1344aea76347d'
+                                : 'text_63728c6434e1344aea76347f'
+                            )}
                           >
                             <Button icon="dots-horizontal" variant="quaternary" />
                           </Tooltip>
