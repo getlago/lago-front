@@ -65,6 +65,7 @@ import {
   AddWalletToCustomerDialog,
   AddWalletToCustomerDialogRef,
 } from '~/components/wallets/AddWalletToCustomerDialog'
+import { CustomerCreditNotesList } from '~/components/customers/CustomerCreditNotesList'
 
 gql`
   fragment CustomerDetails on CustomerDetails {
@@ -74,6 +75,9 @@ gql`
     canBeDeleted
     hasActiveWallet
     currency
+    hasCreditNotes
+    creditNotesCreditsAvailableCount
+    creditNotesBalanceAmountCents
     subscriptions(status: [active, pending]) {
       plan {
         id
@@ -113,6 +117,7 @@ gql`
 `
 
 enum TabsOptions {
+  creditNotes = 'creditNotes',
   overview = 'overview',
   wallet = 'wallet',
   invoices = 'invoices',
@@ -138,8 +143,11 @@ const CustomerDetails = () => {
     appliedAddOns,
     appliedCoupons,
     canBeDeleted,
+    creditNotesCreditsAvailableCount,
+    creditNotesBalanceAmountCents,
     externalId,
     hasActiveWallet,
+    hasCreditNotes,
     invoices,
     name,
     subscriptions,
@@ -376,6 +384,25 @@ const CustomerDetails = () => {
                       component: (
                         <SideBlock>
                           <CustomerInvoicesList customerId={id as string} invoices={invoices} />
+                        </SideBlock>
+                      ),
+                    },
+                    {
+                      title: translate('text_63725b30957fd5b26b308dd3'),
+                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                        id,
+                        tab: TabsOptions.creditNotes,
+                      }),
+                      routerState: { disableScrollTop: true },
+                      hidden: !hasCreditNotes,
+                      component: (
+                        <SideBlock>
+                          <CustomerCreditNotesList
+                            customerId={id as string}
+                            creditNotesCreditsAvailableCount={creditNotesCreditsAvailableCount}
+                            creditNotesBalanceAmountCents={creditNotesBalanceAmountCents}
+                            userCurrency={data?.customer?.currency || undefined}
+                          />
                         </SideBlock>
                       ),
                     },

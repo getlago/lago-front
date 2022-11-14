@@ -63,6 +63,10 @@ export const cache = new InMemoryCache({
           keyArgs: false,
           merge: mergePaginatedCollection,
         },
+        customerCreditNotes: {
+          keyArgs: false,
+          merge: mergePaginatedCollection,
+        },
       },
     },
   },
