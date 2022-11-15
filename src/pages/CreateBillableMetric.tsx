@@ -286,26 +286,30 @@ const CreateBillableMetric = () => {
                     </Typography>
                   }
                 >
-                  <AccordionContent>
-                    <JsonEditorField
-                      name="group"
-                      label={translate('text_633d410368cc8282af232131')}
-                      helperText={<Typography html={translate('text_633d410368cc8282af232143')} />}
-                      placeholder={translate('text_633d410368cc8282af23213d')}
-                      disabled={isEdition && !billableMetric?.canBeDeleted}
-                      customInvalidError={translate('text_633b622c201ca8b521bcad59')}
-                      formikProps={formikProps}
-                    />
+                  <JsonEditorField
+                    name="group"
+                    label={translate('text_633d410368cc8282af232131')}
+                    helperText={
+                      <Typography
+                        variant="caption"
+                        color="grey600"
+                        html={translate('text_633d410368cc8282af232143')}
+                      />
+                    }
+                    placeholder={translate('text_633d410368cc8282af23213d')}
+                    disabled={isEdition && !billableMetric?.canBeDeleted}
+                    customInvalidError={translate('text_633b622c201ca8b521bcad59')}
+                    formikProps={formikProps}
+                  />
 
-                    {errorCode === FORM_ERRORS_ENUM.invalidGroupValue && (
-                      <GroupAlert type="danger">
-                        <Typography
-                          color="inherit"
-                          html={translate('text_633d410368cc8282af23214e')}
-                        />
-                      </GroupAlert>
-                    )}
-                  </AccordionContent>
+                  {errorCode === FORM_ERRORS_ENUM.invalidGroupValue && (
+                    <GroupAlert type="danger">
+                      <Typography
+                        color="inherit"
+                        html={translate('text_633d410368cc8282af23214e')}
+                      />
+                    </GroupAlert>
+                  )}
                 </Accordion>
 
                 <ButtonContainer>
@@ -361,10 +365,6 @@ const ComboboxHeader = styled.div`
       min-width: 0;
     }
   }
-`
-
-const AccordionContent = styled.div`
-  padding: ${theme.spacing(4)};
 `
 
 const GroupAlert = styled(Alert)`

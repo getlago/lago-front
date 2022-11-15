@@ -121,7 +121,7 @@ export const ChargeAccordion = memo(
                       : translate('text_624aa732d6af4e0103d40e65')
                   }
                 >
-                  <Button
+                  <TrashButton
                     variant="quaternary"
                     size="small"
                     icon="trash"
@@ -277,5 +277,8 @@ const Title = styled.div`
 const ValidationIcon = styled(Icon)`
   display: flex;
   align-items: center;
-  margin-right: ${theme.spacing(3)};
+`
+
+const TrashButton = styled(Button)`
+  margin-left: ${theme.spacing(3)};
 `
