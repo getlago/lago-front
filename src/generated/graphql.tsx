@@ -2843,14 +2843,7 @@ export type GetCustomerCreditNotesQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerCreditNotesQuery = { __typename?: 'Query', customerCreditNotes?: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'CreditNote', id: string, canBeVoided: boolean, createdAt: any, number: string, totalAmountCents: any, totalAmountCurrency: CurrencyEnum }> } | null };
-
-export type DownloadCreditNoteMutationVariables = Exact<{
-  input: DownloadCreditNoteInput;
-}>;
-
-
-export type DownloadCreditNoteMutation = { __typename?: 'Mutation', downloadCreditNote?: { __typename?: 'CreditNote', id: string, fileUrl?: string | null } | null };
+export type GetCustomerCreditNotesQuery = { __typename?: 'Query', customerCreditNotes?: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'CreditNote', id: string, canBeVoided: boolean, createdAt: any, creditStatus?: CreditNoteCreditStatusEnum | null, number: string, totalAmountCents: any, totalAmountCurrency: CurrencyEnum }> } | null };
 
 export type CustomerInvoiceListFragment = { __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number };
 
@@ -2895,6 +2888,15 @@ export type UpdateCustomerVatRateMutationVariables = Exact<{
 export type UpdateCustomerVatRateMutation = { __typename?: 'Mutation', updateCustomerVatRate?: { __typename?: 'CustomerDetails', id: string, vatRate?: number | null } | null };
 
 export type EditCustomerVatRateFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, vatRate?: number | null };
+
+export type CreditNotesForListFragment = { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'CreditNote', id: string, canBeVoided: boolean, createdAt: any, creditStatus?: CreditNoteCreditStatusEnum | null, number: string, totalAmountCents: any, totalAmountCurrency: CurrencyEnum }> };
+
+export type DownloadCreditNoteMutationVariables = Exact<{
+  input: DownloadCreditNoteInput;
+}>;
+
+
+export type DownloadCreditNoteMutation = { __typename?: 'Mutation', downloadCreditNote?: { __typename?: 'CreditNote', id: string, fileUrl?: string | null } | null };
 
 export type VoidCreditNoteMutationVariables = Exact<{
   input: VoidCreditNoteInput;
@@ -3540,6 +3542,23 @@ export const DeleteCustomerDialogFragmentDoc = gql`
     fragment DeleteCustomerDialog on Customer {
   id
   name
+}
+    `;
+export const CreditNotesForListFragmentDoc = gql`
+    fragment CreditNotesForList on CreditNoteCollection {
+  metadata {
+    currentPage
+    totalPages
+  }
+  collection {
+    id
+    canBeVoided
+    createdAt
+    creditStatus
+    number
+    totalAmountCents
+    totalAmountCurrency
+  }
 }
     `;
 export const CustomerUsageForUsageDetailsFragmentDoc = gql`
@@ -4472,21 +4491,10 @@ export type RemoveCouponMutationOptions = Apollo.BaseMutationOptions<RemoveCoupo
 export const GetCustomerCreditNotesDocument = gql`
     query getCustomerCreditNotes($customerId: ID!, $page: Int, $limit: Int) {
   customerCreditNotes(customerId: $customerId, page: $page, limit: $limit) {
-    metadata {
-      currentPage
-      totalPages
-    }
-    collection {
-      id
-      canBeVoided
-      createdAt
-      number
-      totalAmountCents
-      totalAmountCurrency
-    }
+    ...CreditNotesForList
   }
 }
-    `;
+    ${CreditNotesForListFragmentDoc}`;
 
 /**
  * __useGetCustomerCreditNotesQuery__
@@ -4517,40 +4525,6 @@ export function useGetCustomerCreditNotesLazyQuery(baseOptions?: Apollo.LazyQuer
 export type GetCustomerCreditNotesQueryHookResult = ReturnType<typeof useGetCustomerCreditNotesQuery>;
 export type GetCustomerCreditNotesLazyQueryHookResult = ReturnType<typeof useGetCustomerCreditNotesLazyQuery>;
 export type GetCustomerCreditNotesQueryResult = Apollo.QueryResult<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>;
-export const DownloadCreditNoteDocument = gql`
-    mutation downloadCreditNote($input: DownloadCreditNoteInput!) {
-  downloadCreditNote(input: $input) {
-    id
-    fileUrl
-  }
-}
-    `;
-export type DownloadCreditNoteMutationFn = Apollo.MutationFunction<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>;
-
-/**
- * __useDownloadCreditNoteMutation__
- *
- * To run a mutation, you first call `useDownloadCreditNoteMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDownloadCreditNoteMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [downloadCreditNoteMutation, { data, loading, error }] = useDownloadCreditNoteMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useDownloadCreditNoteMutation(baseOptions?: Apollo.MutationHookOptions<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>(DownloadCreditNoteDocument, options);
-      }
-export type DownloadCreditNoteMutationHookResult = ReturnType<typeof useDownloadCreditNoteMutation>;
-export type DownloadCreditNoteMutationResult = Apollo.MutationResult<DownloadCreditNoteMutation>;
-export type DownloadCreditNoteMutationOptions = Apollo.BaseMutationOptions<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>;
 export const DownloadInvoiceDocument = gql`
     mutation downloadInvoice($input: DownloadInvoiceInput!) {
   downloadInvoice(input: $input) {
@@ -4686,6 +4660,40 @@ export function useUpdateCustomerVatRateMutation(baseOptions?: Apollo.MutationHo
 export type UpdateCustomerVatRateMutationHookResult = ReturnType<typeof useUpdateCustomerVatRateMutation>;
 export type UpdateCustomerVatRateMutationResult = Apollo.MutationResult<UpdateCustomerVatRateMutation>;
 export type UpdateCustomerVatRateMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerVatRateMutation, UpdateCustomerVatRateMutationVariables>;
+export const DownloadCreditNoteDocument = gql`
+    mutation downloadCreditNote($input: DownloadCreditNoteInput!) {
+  downloadCreditNote(input: $input) {
+    id
+    fileUrl
+  }
+}
+    `;
+export type DownloadCreditNoteMutationFn = Apollo.MutationFunction<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>;
+
+/**
+ * __useDownloadCreditNoteMutation__
+ *
+ * To run a mutation, you first call `useDownloadCreditNoteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDownloadCreditNoteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [downloadCreditNoteMutation, { data, loading, error }] = useDownloadCreditNoteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDownloadCreditNoteMutation(baseOptions?: Apollo.MutationHookOptions<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>(DownloadCreditNoteDocument, options);
+      }
+export type DownloadCreditNoteMutationHookResult = ReturnType<typeof useDownloadCreditNoteMutation>;
+export type DownloadCreditNoteMutationResult = Apollo.MutationResult<DownloadCreditNoteMutation>;
+export type DownloadCreditNoteMutationOptions = Apollo.BaseMutationOptions<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>;
 export const VoidCreditNoteDocument = gql`
     mutation voidCreditNote($input: VoidCreditNoteInput!) {
   voidCreditNote(input: $input) {
@@ -6392,22 +6400,10 @@ export type AcceptInviteMutationOptions = Apollo.BaseMutationOptions<AcceptInvit
 export const GetInvoiceCreditNotesDocument = gql`
     query getInvoiceCreditNotes($invoiceId: ID!, $page: Int, $limit: Int) {
   invoiceCreditNotes(invoiceId: $invoiceId, page: $page, limit: $limit) {
-    metadata {
-      currentPage
-      totalPages
-    }
-    collection {
-      id
-      canBeVoided
-      createdAt
-      creditStatus
-      number
-      totalAmountCents
-      totalAmountCurrency
-    }
+    ...CreditNotesForList
   }
 }
-    `;
+    ${CreditNotesForListFragmentDoc}`;
 
 /**
  * __useGetInvoiceCreditNotesQuery__
