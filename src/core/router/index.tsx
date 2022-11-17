@@ -67,9 +67,8 @@ const InvoiceCreditNoteList = lazy(
   () => import(/* webpackChunkName: 'invoice-credit-note-list' */ '~/pages/InvoiceCreditNoteList')
 )
 
-const InvoiceCreditNoteDetails = lazy(
-  () =>
-    import(/* webpackChunkName: 'invoice-credit-note-details' */ '~/pages/InvoiceCreditNoteDetails')
+const CreditNoteDetails = lazy(
+  () => import(/* webpackChunkName: 'credit-note-details' */ '~/pages/CreditNoteDetails')
 )
 
 const CouponsList = lazy(() => import(/* webpackChunkName: 'coupons-list' */ '~/pages/CouponsList'))
@@ -255,12 +254,12 @@ export const routes: CustomRouteObject[] = [
             private: true,
             element: <InvoiceCreditNoteList />,
           },
-          {
-            path: [CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE],
-            private: true,
-            element: <InvoiceCreditNoteDetails />,
-          },
         ],
+      },
+      {
+        path: [CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE],
+        private: true,
+        element: <CreditNoteDetails />,
       },
       {
         path: COUPONS_ROUTE,

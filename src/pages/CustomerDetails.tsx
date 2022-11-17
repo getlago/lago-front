@@ -116,7 +116,7 @@ gql`
   ${CustomerUsageSubscriptionFragmentDoc}
 `
 
-enum TabsOptions {
+export enum CustomerDetailsTabsOptions {
   creditNotes = 'creditNotes',
   overview = 'overview',
   wallet = 'wallet',
@@ -313,13 +313,13 @@ const CustomerDetails = () => {
                       title: translate('text_628cf761cbe6820138b8f2e4'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                         id,
-                        tab: TabsOptions.overview,
+                        tab: CustomerDetailsTabsOptions.overview,
                       }),
                       routerState: { disableScrollTop: true },
                       match: [
                         generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                           id,
-                          tab: TabsOptions.overview,
+                          tab: CustomerDetailsTabsOptions.overview,
                         }),
                         generatePath(CUSTOMER_DETAILS_ROUTE, {
                           id: id as string,
@@ -343,7 +343,7 @@ const CustomerDetails = () => {
                       title: translate('text_62d175066d2dbf1d50bc937c'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                         id,
-                        tab: TabsOptions.wallet,
+                        tab: CustomerDetailsTabsOptions.wallet,
                       }),
                       routerState: { disableScrollTop: true },
                       component: (
@@ -360,7 +360,7 @@ const CustomerDetails = () => {
                       title: translate('text_62c3f3fca8a1625624e83365'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                         id,
-                        tab: TabsOptions.usage,
+                        tab: CustomerDetailsTabsOptions.usage,
                       }),
                       routerState: { disableScrollTop: true },
                       hidden: !hasActiveSubscription,
@@ -378,7 +378,7 @@ const CustomerDetails = () => {
                       title: translate('text_628cf761cbe6820138b8f2e6'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                         id,
-                        tab: TabsOptions.invoices,
+                        tab: CustomerDetailsTabsOptions.invoices,
                       }),
                       routerState: { disableScrollTop: true },
                       component: (
@@ -391,7 +391,7 @@ const CustomerDetails = () => {
                       title: translate('text_63725b30957fd5b26b308dd3'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                         id,
-                        tab: TabsOptions.creditNotes,
+                        tab: CustomerDetailsTabsOptions.creditNotes,
                       }),
                       routerState: { disableScrollTop: true },
                       hidden: !hasCreditNotes,
@@ -410,7 +410,7 @@ const CustomerDetails = () => {
                       title: translate('text_628cf761cbe6820138b8f2e8'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                         id,
-                        tab: TabsOptions.taxRate,
+                        tab: CustomerDetailsTabsOptions.taxRate,
                       }),
                       routerState: { disableScrollTop: true },
                       component: (
@@ -429,8 +429,10 @@ const CustomerDetails = () => {
                     </SideLoadingSection>
                   }
                   loading={
-                    ![TabsOptions.overview, TabsOptions.usage].includes(tab as TabsOptions) &&
-                    loading
+                    ![
+                      CustomerDetailsTabsOptions.overview,
+                      CustomerDetailsTabsOptions.usage,
+                    ].includes(tab as CustomerDetailsTabsOptions) && loading
                   }
                 />
               </div>
