@@ -87,5 +87,7 @@ projects:
     id: 633b622919283cdbfb2f7233
   - name: "\U0001F44D [Ready for dev] - Settings - Customers - Lago gocardless connection"
     id: 634ea0e94c99df2bb59820d9
+  - name: "\U0001F44D [Ready for dev] - Coupons - Apply several coupons to customer"
+    id: 637b4d9f764dcb190431ad4d
 format: flat
 variants: true

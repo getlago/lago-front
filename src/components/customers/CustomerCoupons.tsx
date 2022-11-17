@@ -11,10 +11,15 @@ import {
 import { SectionHeader } from '~/styles/customer'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, Avatar, Icon, Button, Tooltip } from '~/components/designSystem'
-import { CouponCaption } from '~/components/coupons/CouponCaption'
+import { CouponCaption, CouponMixedType } from '~/components/coupons/CouponCaption'
 import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
+
+import {
+  AddCouponToCustomerDialog,
+  AddCouponToCustomerDialogRef,
+} from './AddCouponToCustomerDialog'
 
 gql`
   fragment CustomerCoupon on AppliedCoupon {
@@ -37,10 +42,12 @@ gql`
 
 interface CustomerCouponsProps {
   coupons?: CustomerCouponFragment[] | null | undefined
+  customerId: string
 }
 
-export const CustomerCoupons = memo(({ coupons }: CustomerCouponsProps) => {
+export const CustomerCoupons = memo(({ coupons, customerId }: CustomerCouponsProps) => {
   const removeDialogRef = useRef<WarningDialogRef>(null)
+  const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
   const deleteCouponId = useRef<string | null>(null)
   const { translate } = useInternationalization()
   const [removeCoupon] = useRemoveCouponMutation({
@@ -60,6 +67,15 @@ export const CustomerCoupons = memo(({ coupons }: CustomerCouponsProps) => {
         <Container>
           <SectionHeader variant="subhead">
             {translate('text_628b8c693e464200e00e469d')}
+            <Button
+              variant="quaternary"
+              align="left"
+              onClick={() => {
+                addCouponDialogRef.current?.openDialog()
+              }}
+            >
+              {translate('text_628b8dc14c71840130f8d8a1')}
+            </Button>
           </SectionHeader>
           <ListHeader>
             <Typography variant="bodyHl" color="disabled" noWrap>
@@ -75,7 +91,10 @@ export const CustomerCoupons = memo(({ coupons }: CustomerCouponsProps) => {
                 <Typography color="textSecondary" variant="bodyHl" noWrap>
                   {appliedCoupon.coupon?.name}
                 </Typography>
-                <CouponCaption coupon={appliedCoupon as CustomerCouponFragment} variant="caption" />
+                <CouponCaption
+                  coupon={appliedCoupon as unknown as CouponMixedType}
+                  variant="caption"
+                />
               </NameBlock>
               <DeleteTooltip placement="top-end" title={translate('text_628b8c693e464200e00e4a10')}>
                 <Button
@@ -105,6 +124,8 @@ export const CustomerCoupons = memo(({ coupons }: CustomerCouponsProps) => {
         }}
         continueText={translate('text_628b8c693e464200e00e4689')}
       />
+
+      <AddCouponToCustomerDialog ref={addCouponDialogRef} customerId={customerId} />
     </>
   )
 })

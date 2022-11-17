@@ -193,6 +193,7 @@
   "text_6310755befed49627644222f": "Persistent",
   "text_6310755befed496276442231": "• The calculated value is not reset to 0, it persists over all billing periods",
   "text_63105dbdd88c7432a3b255eb": "Recurring count",
+  "text_637b4da08cd0118cd0c4486f": "{{amount}} remaining",
   "text_632d68358f1fedc68eed3e5a": "Type",
   "text_632d68358f1fedc68eed3e60": "Fixed amount discount",
   "text_632d68358f1fedc68eed3e9d": "Frequency",

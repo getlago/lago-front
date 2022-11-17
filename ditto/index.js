@@ -113,6 +113,9 @@ module.exports = {
   "project_63105dba2074ec779d08c6b4": {
     "base": require('./👍 [Ready for dev] - B.metrics - Persistent bm in aggregation type__base.json')
   },
+  "project_637b4d9f764dcb190431ad4d": {
+    "base": require('./👍 [Ready for dev] - Coupons - Apply several coupons to customer__base.json')
+  },
   "project_632d6831010fafe9382b616d": {
     "base": require('./👍 [Ready for dev] - Coupons - Create % and recurring coupons__base.json')
   },
