@@ -84,7 +84,7 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "file-loader": "6.2.0",
     "fork-ts-checker-webpack-plugin": "7.2.13",
-    "gettext-extractor": "3.5.4",
+    "gettext-extractor": "3.6.0",
     "html-webpack-plugin": "5.5.0",
     "jest": "29.2.2",
     "jest-environment-jsdom": "29.2.2",
