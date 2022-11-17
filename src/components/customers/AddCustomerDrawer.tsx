@@ -1,10 +1,10 @@
-import { forwardRef, useEffect, RefObject } from 'react'
+import { forwardRef, useEffect, useState, RefObject } from 'react'
 import styled from 'styled-components'
 import { useFormik } from 'formik'
 import { object, string } from 'yup'
 
-import { Drawer, Button, DrawerRef, Typography, Accordion } from '~/components/designSystem'
-import { TextInputField, ComboBoxField } from '~/components/form'
+import { Drawer, Button, DrawerRef, Typography, Accordion, Alert } from '~/components/designSystem'
+import { TextInputField, ComboBoxField, Checkbox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { theme, Card, DrawerTitle, DrawerContent, DrawerSubmitButton } from '~/styles'
@@ -18,6 +18,7 @@ import {
 } from '~/generated/graphql'
 import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
 import CountryCodes from '~/public/countryCode.json'
+import { INTEGRATIONS_ROUTE } from '~/core/router'
 
 const countryData: { value: string; label: string }[] = Object.keys(CountryCodes).map(
   (countryKey) => {
@@ -49,6 +50,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
     const { isEdition, onSave } = useCreateEditCustomer({
       customer,
     })
+    const [isDisabled, setIsDisabled] = useState<boolean>(false)
     const formikProps = useFormik<CreateCustomerInput | UpdateCustomerInput>({
       initialValues: {
         name: customer?.name ?? '',
@@ -64,8 +66,9 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
         country: customer?.country ?? undefined,
         city: customer?.city ?? undefined,
         zipcode: customer?.zipcode ?? undefined,
-        stripeCustomer: {
-          providerCustomerId: customer?.stripeCustomer?.providerCustomerId ?? undefined,
+        providerCustomer: {
+          providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? undefined,
+          syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
         },
         paymentProvider: customer?.paymentProvider ?? undefined,
       },
@@ -91,7 +94,8 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
     useEffect(() => {
       if (!formikProps.values.paymentProvider) {
         // If no payment provider, reset stripe customer
-        formikProps.setFieldValue('stripeCustomer.providerCustomerId', undefined)
+        formikProps.setFieldValue('providerCustomer.providerCustomerId', undefined)
+        formikProps.setFieldValue('providerCustomer.syncWithProvider', false)
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formikProps.values.paymentProvider])
@@ -125,8 +129,9 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
               country: customer?.country ?? undefined,
               city: customer?.city ?? undefined,
               zipcode: customer?.zipcode ?? undefined,
-              stripeCustomer: {
-                providerCustomerId: customer?.stripeCustomer?.providerCustomerId ?? undefined,
+              providerCustomer: {
+                providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? undefined,
+                syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
               },
               paymentProvider: customer?.paymentProvider ?? undefined,
             },
@@ -276,14 +281,48 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                 label={translate('text_62b328ead9a4caef81cd9c9c')}
                 placeholder={translate('text_62b328ead9a4caef81cd9c9e')}
                 formikProps={formikProps}
+                helperText={
+                  !isEdition && (
+                    <HelperText
+                      html={translate('text_635bdbda84c98758f9bba8a0', {
+                        link: INTEGRATIONS_ROUTE,
+                      })}
+                    />
+                  )
+                }
                 PopperProps={{ displayInDialog: true }}
               />
-              <TextInputField
-                name="stripeCustomer.providerCustomerId"
-                label={translate('text_62b328ead9a4caef81cd9ca0')}
-                placeholder={translate('text_62b328ead9a4caef81cd9ca2')}
-                formikProps={formikProps}
-              />
+              {(formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless ||
+                formikProps.values.paymentProvider === ProviderTypeEnum.Stripe) && (
+                <>
+                  <TextInputField
+                    name="providerCustomer.providerCustomerId"
+                    disabled={isDisabled}
+                    label={translate('text_62b328ead9a4caef81cd9ca0')}
+                    placeholder={translate('text_62b328ead9a4caef81cd9ca2')}
+                    formikProps={formikProps}
+                  />
+                  <Checkbox
+                    name="providerCustomer.syncWithProvider"
+                    value={formikProps.values.providerCustomer?.syncWithProvider}
+                    label={
+                      formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless
+                        ? translate('text_635bdbda84c98758f9bba8aa')
+                        : translate('text_635bdbda84c98758f9bba89e')
+                    }
+                    onChange={(_, checked) => {
+                      setIsDisabled(checked)
+                      formikProps.setFieldValue('providerCustomer.syncWithProvider', checked)
+                      if (!isEdition && checked) {
+                        formikProps.setFieldValue('providerCustomer.providerCustomerId', undefined)
+                      }
+                    }}
+                  />
+                </>
+              )}
+              {isDisabled && formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless && (
+                <Alert type="info">{translate('text_635bdbda84c98758f9bba8ae')}</Alert>
+              )}
             </BillingBlock>
           </Accordion>
 
@@ -306,6 +345,11 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
     )
   }
 )
+
+const HelperText = styled(Typography)`
+  font-size: 14px;
+  line-height: 20px;
+`
 
 const BillingBlock = styled.div<{ $first?: boolean }>`
   margin-bottom: ${({ $first }) => ($first ? theme.spacing(6) : 0)};

@@ -7,8 +7,10 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { Typography, Selector, Avatar, SelectorSkeleton, Chip } from '~/components/designSystem'
 import Stripe from '~/public/images/stripe.svg'
+import GoCardless from '~/public/images/gocardless.svg'
 import { useIntegrationsSettingQuery } from '~/generated/graphql'
-import { STRIPE_INTEGRATION_ROUTE } from '~/core/router'
+import { STRIPE_INTEGRATION_ROUTE, GOCARDLESS_INTEGRATION_ROUTE } from '~/core/router'
+import { envGlobalVar } from '~/core/apolloClient'
 import {
   AddStripeDialog,
   AddStripeDialogRef,
@@ -23,6 +25,9 @@ gql`
         stripePaymentProvider {
           id
         }
+        gocardlessPaymentProvider {
+          id
+        }
       }
     }
   }
@@ -35,6 +40,9 @@ const Integrations = () => {
   const { data, loading } = useIntegrationsSettingQuery()
   const hasStripeIntegration = !!(data?.currentUser?.organizations || [])[0]?.stripePaymentProvider
     ?.id
+  const hasGocardlessIntegration = !!(data?.currentUser?.organizations || [])[0]
+    ?.gocardlessPaymentProvider?.id
+  const { lagoOauthProxyUrl } = envGlobalVar()
 
   return (
     <Page>
@@ -48,31 +56,55 @@ const Integrations = () => {
           ))}
         </LoadingContainer>
       ) : (
-        <Selector
-          title={translate('text_62b1edddbf5f461ab971277d')}
-          subtitle={translate('text_62b1edddbf5f461ab9712795')}
-          icon={
-            <Avatar variant="connector">
-              <Stripe />
-            </Avatar>
-          }
-          endIcon={
-            hasStripeIntegration ? (
-              <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-            ) : undefined
-          }
-          onClick={() => {
-            if (hasStripeIntegration) {
-              navigate(STRIPE_INTEGRATION_ROUTE)
-            } else {
-              const element = document.activeElement as HTMLElement
-
-              element.blur && element.blur()
-              addDialogRef.current?.openDialog()
+        <>
+          <StyledSelector
+            title={translate('text_62b1edddbf5f461ab971277d')}
+            subtitle={translate('text_62b1edddbf5f461ab9712795')}
+            icon={
+              <Avatar variant="connector">
+                <Stripe />
+              </Avatar>
             }
-          }}
-          fullWidth
-        />
+            endIcon={
+              hasStripeIntegration ? (
+                <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+              ) : undefined
+            }
+            onClick={() => {
+              if (hasStripeIntegration) {
+                navigate(STRIPE_INTEGRATION_ROUTE)
+              } else {
+                const element = document.activeElement as HTMLElement
+
+                element.blur && element.blur()
+                addDialogRef.current?.openDialog()
+              }
+            }}
+            fullWidth
+          />
+          <StyledSelector
+            title={translate('text_634ea0ecc6147de10ddb6625')}
+            subtitle={translate('text_634ea0ecc6147de10ddb6631')}
+            icon={
+              <Avatar variant="connector">
+                <GoCardless />
+              </Avatar>
+            }
+            endIcon={
+              hasGocardlessIntegration ? (
+                <Chip label={translate('text_634ea0ecc6147de10ddb6646')} />
+              ) : undefined
+            }
+            onClick={() => {
+              if (hasGocardlessIntegration) {
+                navigate(GOCARDLESS_INTEGRATION_ROUTE)
+              } else {
+                window.open(`${lagoOauthProxyUrl}/gocardless/auth`, '_blank')
+              }
+            }}
+            fullWidth
+          />
+        </>
       )}
       <AddStripeDialog ref={addDialogRef} />
     </Page>
@@ -85,6 +117,10 @@ const Page = styled.div`
 
 const Title = styled(Typography)`
   margin-bottom: ${theme.spacing(2)};
+`
+
+const StyledSelector = styled(Selector)`
+  margin-bottom: ${theme.spacing(4)};
 `
 
 const Subtitle = styled(Typography)`

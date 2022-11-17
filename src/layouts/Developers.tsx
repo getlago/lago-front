@@ -11,7 +11,7 @@ const Developers = () => {
   const { translate } = useInternationalization()
   const tabsOptions = [
     {
-      title: translate('text_6271200984178801ba8bdeca'),
+      title: translate('text_636df520279a9e1b3c68cc67'),
       link: API_KEYS_ROUTE,
       match: [DEVELOPERS_ROUTE, API_KEYS_ROUTE],
     },

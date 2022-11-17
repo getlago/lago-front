@@ -15,11 +15,7 @@ import {
   NavigationTab,
   Popper,
 } from '~/components/designSystem'
-import { Switch } from '~/components/form'
-import {
-  useStripeIntegrationsSettingQuery,
-  useUpdateStripeIntegrationMutation,
-} from '~/generated/graphql'
+import { useStripeIntegrationsSettingQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Stripe from '~/public/images/stripe.svg'
 import {
@@ -30,7 +26,6 @@ import {
   DeleteStripeIntegrationDialog,
   DeleteStripeIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteStripeIntegrationDialog'
-import { addToast } from '~/core/apolloClient'
 
 gql`
   fragment StripeIntegration on StripeProvider {
@@ -63,16 +58,6 @@ const StripeIntegration = () => {
   const deleteDialogRef = useRef<DeleteStripeIntegrationDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useStripeIntegrationsSettingQuery()
-  const [update] = useUpdateStripeIntegrationMutation({
-    onCompleted({ addStripePaymentProvider }) {
-      if (addStripePaymentProvider?.id) {
-        addToast({
-          message: translate('text_62b1edddbf5f461ab9712819'),
-          severity: 'success',
-        })
-      }
-    },
-  })
   const tabsOptions = [
     {
       title: translate('text_62b1edddbf5f461ab9712725'),
@@ -179,24 +164,6 @@ const StripeIntegration = () => {
             </>
           )}
         </ApiKeyItem>
-        {!loading && (
-          <>
-            <TitleWithMargin variant="subhead">
-              {translate('text_62b1edddbf5f461ab97127b4')}
-            </TitleWithMargin>
-            <SwitchBlock>
-              <Switch
-                name="createCustomers"
-                checked={!stripePaymentProvider ? false : stripePaymentProvider?.createCustomers}
-                onChange={async (value) =>
-                  await update({ variables: { input: { createCustomers: value } } })
-                }
-                label={translate('text_62b1edddbf5f461ab97127c8')}
-                subLabel={translate('text_62b1edddbf5f461ab97127d8')}
-              />
-            </SwitchBlock>
-          </>
-        )}
       </Settings>
       <AddStripeDialog isEdition ref={addDialogRef} />
       <DeleteStripeIntegrationDialog id={stripePaymentProvider?.id || ''} ref={deleteDialogRef} />
@@ -210,15 +177,6 @@ const HeaderBlock = styled.div`
 
   > *:first-child  {
     margin-right: ${theme.spacing(3)};
-  }
-`
-
-const SwitchBlock = styled.div`
-  > * {
-    margin-bottom: ${theme.spacing(6)};
-    &:last-child {
-      margin-bottom: ${theme.spacing(20)};
-    }
   }
 `
 
@@ -246,10 +204,6 @@ const Subtitle = styled(Typography)`
   box-shadow: ${theme.shadows[7]};
   display: flex;
   align-items: center;
-`
-
-const TitleWithMargin = styled(Title)`
-  margin-bottom: ${theme.spacing(6)};
 `
 
 const ApiKeyItem = styled.div`

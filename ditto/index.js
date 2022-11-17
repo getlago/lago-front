@@ -127,5 +127,8 @@ module.exports = {
   },
   "project_6304e74718860633c15905f2": {
     "base": require('./👍 [Ready for dev] - Plans - Add Volume in charge model__base.json')
+  },
+  "project_634ea0e94c99df2bb59820d9": {
+    "base": require('./👍 [Ready for dev] - Settings - Customers - Lago gocardless connection__base.json')
   }
 }
