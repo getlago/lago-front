@@ -30,6 +30,7 @@ import {
   CustomerMainInfosFragmentDoc,
   CustomerAddOnsFragmentDoc,
   CustomerUsageSubscriptionFragmentDoc,
+  StatusTypeEnum,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -143,7 +144,9 @@ const CustomerDetails = () => {
     name,
     subscriptions,
   } = data?.customer || {}
-  const hasSubscription = !!(subscriptions || []).length
+  const hasActiveSubscription = !!(subscriptions || [])?.filter(
+    (s) => s.status === StatusTypeEnum.Active
+  ).length
 
   return (
     <div>
@@ -352,7 +355,7 @@ const CustomerDetails = () => {
                         tab: TabsOptions.usage,
                       }),
                       routerState: { disableScrollTop: true },
-                      hidden: !hasSubscription,
+                      hidden: !hasActiveSubscription,
                       component: (
                         <SideBlock>
                           <CustomerUsage

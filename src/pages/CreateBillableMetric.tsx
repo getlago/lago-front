@@ -6,9 +6,9 @@ import styled from 'styled-components'
 
 import { AggregationTypeEnum, CreateBillableMetricInput } from '~/generated/graphql'
 import { PageHeader, theme, Card } from '~/styles'
-import { Typography, Button, Skeleton } from '~/components/designSystem'
+import { Typography, Button, Skeleton, Accordion, Alert } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { TextInputField, ComboBoxField } from '~/components/form'
+import { TextInputField, ComboBoxField, JsonEditorField } from '~/components/form'
 import { BILLABLE_METRICS_ROUTE } from '~/core/router'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { useCreateEditBillableMetric, FORM_ERRORS_ENUM } from '~/hooks/useCreateEditBillableMetric'
@@ -39,6 +39,7 @@ const CreateBillableMetric = () => {
       name: billableMetric?.name || '',
       code: billableMetric?.code || '',
       description: billableMetric?.description || '',
+      group: JSON.stringify(billableMetric?.group || undefined, null, 2),
       // @ts-ignore
       aggregationType: billableMetric?.aggregationType || '',
       fieldName: billableMetric?.fieldName || undefined,
@@ -76,6 +77,7 @@ const CreateBillableMetric = () => {
       if (!rootElement) return
       rootElement.scrollTo({ top: 0 })
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorCode])
 
@@ -276,6 +278,40 @@ const CreateBillableMetric = () => {
                     )}
                 </Card>
 
+                <Accordion
+                  size="large"
+                  summary={
+                    <Typography variant="subhead" color="grey700">
+                      {translate('text_633d410368cc8282af23212b')}
+                    </Typography>
+                  }
+                >
+                  <JsonEditorField
+                    name="group"
+                    label={translate('text_633d410368cc8282af232131')}
+                    helperText={
+                      <Typography
+                        variant="caption"
+                        color="grey600"
+                        html={translate('text_633d410368cc8282af232143')}
+                      />
+                    }
+                    placeholder={translate('text_633d410368cc8282af23213d')}
+                    disabled={isEdition && !billableMetric?.canBeDeleted}
+                    customInvalidError={translate('text_633b622c201ca8b521bcad59')}
+                    formikProps={formikProps}
+                  />
+
+                  {errorCode === FORM_ERRORS_ENUM.invalidGroupValue && (
+                    <GroupAlert type="danger">
+                      <Typography
+                        color="inherit"
+                        html={translate('text_633d410368cc8282af23214e')}
+                      />
+                    </GroupAlert>
+                  )}
+                </Accordion>
+
                 <ButtonContainer>
                   <Button
                     disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
@@ -329,6 +365,10 @@ const ComboboxHeader = styled.div`
       min-width: 0;
     }
   }
+`
+
+const GroupAlert = styled(Alert)`
+  margin-top: ${theme.spacing(6)};
 `
 
 export default CreateBillableMetric

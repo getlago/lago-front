@@ -23,8 +23,7 @@ export interface JsonEditorProps {
   label: string
   name?: string
   placeholder?: string
-  initialValue?: string
-  value?: string
+  value?: string | Record<string, unknown>
   infoText?: string
   error?: string
   helperText?: string | ReactNode
@@ -39,7 +38,6 @@ export const JsonEditor = ({
   name,
   value,
   placeholder,
-  initialValue,
   label,
   infoText,
   helperText,
@@ -50,11 +48,17 @@ export const JsonEditor = ({
   onError,
   onBlur,
 }: JsonEditorProps) => {
-  const [jsonQuery, setJsonQuery] = useState<string | undefined>(initialValue)
+  const [jsonQuery, setJsonQuery] = useState<string | undefined>()
   const { translate } = useInternationalization()
 
   useEffect(() => {
-    setJsonQuery(value)
+    if (typeof value === 'object') {
+      try {
+        setJsonQuery(JSON.stringify(value, null, 2))
+      } catch (e) {} // Nothing is supposed to happen here
+    } else {
+      setJsonQuery(value)
+    }
   }, [value])
 
   return (
@@ -101,7 +105,6 @@ export const JsonEditor = ({
           fontSize={15}
           width="100%"
           height="60%"
-          defaultValue={initialValue ?? ''}
           placeholder={placeholder}
           setOptions={{
             useWorker: true,

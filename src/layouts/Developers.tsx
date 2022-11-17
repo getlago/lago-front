@@ -4,16 +4,16 @@ import styled from 'styled-components'
 import { PageHeader } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, NavigationTab } from '~/components/designSystem'
-import { API_KEYS_ROUTE, WEBHOOK_ROUTE, DEVELOPPERS_ROUTE, DEBUGGER_ROUTE } from '~/core/router'
+import { API_KEYS_ROUTE, WEBHOOK_ROUTE, DEVELOPERS_ROUTE, DEBUGGER_ROUTE } from '~/core/router'
 import { NAV_HEIGHT } from '~/styles'
 
-const Developpers = () => {
+const Developers = () => {
   const { translate } = useInternationalization()
   const tabsOptions = [
     {
       title: translate('text_636df520279a9e1b3c68cc67'),
       link: API_KEYS_ROUTE,
-      match: [DEVELOPPERS_ROUTE, API_KEYS_ROUTE],
+      match: [DEVELOPERS_ROUTE, API_KEYS_ROUTE],
     },
     {
       title: translate('text_6271200984178801ba8bdede'),
@@ -47,4 +47,4 @@ const Content = styled.div`
   flex-direction: column;
 `
 
-export default Developpers
+export default Developers

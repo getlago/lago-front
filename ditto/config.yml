@@ -83,6 +83,8 @@ projects:
     id: 6335e508a4f742dfb05f54fd
   - name: "\U0001F44D [Ready for dev] - Customers - Invoice detail page"
     id: 634687058efb4a10996fdbdc
+  - name: '⚙️ [WIP] - B.Metrics and Plans - Dimension'
+    id: 633b622919283cdbfb2f7233
   - name: "\U0001F44D [Ready for dev] - Settings - Customers - Lago gocardless connection"
     id: 634ea0e94c99df2bb59820d9
 format: flat

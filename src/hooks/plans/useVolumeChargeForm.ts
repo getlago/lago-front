@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { FormikProps } from 'formik'
 
 import { PlanFormInput } from '~/components/plans/types'
-import { VolumeRangeInput } from '~/generated/graphql'
+import { InputMaybe, PropertiesInput, VolumeRangeInput } from '~/generated/graphql'
 
 export const DEFAULT_VOLUME_CHARGES = [
   {
@@ -28,13 +28,17 @@ type InfoCalculationRow = {
 }
 
 type UseVolumeChargeForm = ({
-  formikProps,
   chargeIndex,
   disabled,
+  formikProps,
+  propertyCursor,
+  valuePointer,
 }: {
-  formikProps: FormikProps<PlanFormInput>
   chargeIndex: number
   disabled?: boolean
+  formikProps: FormikProps<PlanFormInput>
+  propertyCursor: string
+  valuePointer: InputMaybe<PropertiesInput> | undefined
 }) => {
   handleUpdate: (rangeIndex: number, fieldName: string, value?: number | string) => void
   addRange: () => void
@@ -44,15 +48,14 @@ type UseVolumeChargeForm = ({
 }
 
 export const useVolumeChargeForm: UseVolumeChargeForm = ({
-  formikProps,
   chargeIndex,
   disabled,
+  formikProps,
+  propertyCursor,
+  valuePointer,
 }) => {
-  const formikIdentifier = `charges.${chargeIndex}.properties.volumeRanges`
-  const volumeRanges = useMemo(
-    () => formikProps.values.charges[chargeIndex].properties?.volumeRanges || [],
-    [formikProps.values.charges, chargeIndex]
-  )
+  const formikIdentifier = `charges.${chargeIndex}.${propertyCursor}.volumeRanges`
+  const volumeRanges = useMemo(() => valuePointer?.volumeRanges || [], [valuePointer])
 
   useEffect(() => {
     if (!volumeRanges.length) {
@@ -60,7 +63,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
       formikProps.setFieldValue(formikIdentifier, DEFAULT_VOLUME_CHARGES)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [formikIdentifier])
 
   return {
     tableDatas: useMemo(
@@ -107,7 +110,10 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
         return acc
       }, [])
 
-      formikProps.setFieldValue(`charges.${chargeIndex}.properties.volumeRanges`, newVolumeRanges)
+      formikProps.setFieldValue(
+        `charges.${chargeIndex}.${propertyCursor}.volumeRanges`,
+        newVolumeRanges
+      )
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       const safeValue = Number(value || 0)

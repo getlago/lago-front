@@ -15,6 +15,11 @@ gql`
     id
     name
     code
+    flatGroups {
+      id
+      key
+      value
+    }
   }
 
   query getbillableMetrics($page: Int, $limit: Int) {

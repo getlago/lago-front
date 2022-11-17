@@ -14,11 +14,11 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT, MenuPopper } from '~/styles'
 import { useWehbookSettingQuery } from '~/generated/graphql'
-import { EditWebhookDialog, EditWebhookDialogRef } from '~/components/developpers/EditWebhookDialog'
+import { EditWebhookDialog, EditWebhookDialogRef } from '~/components/developers/EditWebhookDialog'
 import {
   DeleteWebhookDialog,
   DeleteWebhookDialogRef,
-} from '~/components/developpers/DeleteWebhookDialog'
+} from '~/components/developers/DeleteWebhookDialog'
 
 gql`
   query wehbookSetting {

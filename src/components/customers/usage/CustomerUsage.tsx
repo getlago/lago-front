@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
-import { CustomerUsageSubscriptionFragment } from '~/generated/graphql'
+import { CustomerUsageSubscriptionFragment, StatusTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme, NAV_HEIGHT } from '~/styles'
 import { Typography } from '~/components/designSystem'
@@ -12,6 +12,7 @@ gql`
   fragment CustomerUsageSubscription on Subscription {
     id
     name
+    status
     plan {
       id
       name
@@ -42,9 +43,11 @@ export const CustomerUsage = ({ loading, id, subscriptions }: CustomerUsageProps
         </Content>
       ) : (
         <Content>
-          {subscriptions?.map((subscription) => (
-            <UsageItem key={subscription?.id} customerId={id} subscription={subscription} />
-          ))}
+          {subscriptions
+            ?.filter((s) => s.status === StatusTypeEnum.Active)
+            .map((subscription) => (
+              <UsageItem key={subscription?.id} customerId={id} subscription={subscription} />
+            ))}
         </Content>
       )}
     </div>

@@ -1,10 +1,16 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
 import { DateTime } from 'luxon'
 
-import { CustomerUsageSubscriptionFragment, useCustomerUsageLazyQuery } from '~/generated/graphql'
+import {
+  ChargeUsage,
+  CurrencyEnum,
+  CustomerUsageForUsageDetailsFragmentDoc,
+  CustomerUsageSubscriptionFragment,
+  useCustomerUsageLazyQuery,
+} from '~/generated/graphql'
 import { Skeleton, Icon, Button, Tooltip, Avatar, Typography } from '~/components/designSystem'
 import { theme, NAV_HEIGHT } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -12,6 +18,11 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
+
+import {
+  CustomerUsageDetailDrawer,
+  CustomerUsageDetailDrawerRef,
+} from './CustomerUsageDetailDrawer'
 
 gql`
   query customerUsage($customerId: ID!, $subscriptionId: ID!) {
@@ -29,8 +40,11 @@ gql`
           name
         }
       }
+      ...CustomerUsageForUsageDetails
     }
   }
+
+  ${CustomerUsageForUsageDetailsFragmentDoc}
 `
 
 interface UsageItemProps {
@@ -42,10 +56,11 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
   const { id, name, plan } = subscription
   const [isOpen, setIsOpen] = useState(false)
   const { translate } = useInternationalization()
+  const customerUsageDetailDrawerRef = useRef<CustomerUsageDetailDrawerRef>(null)
   const [fetchUsage, { data, error, loading, refetch }] = useCustomerUsageLazyQuery({
     variables: { customerId: customerId, subscriptionId: id },
   })
-  const currency = data?.customerUsage?.amountCurrency
+  const currency = data?.customerUsage?.amountCurrency || CurrencyEnum.Usd
 
   return (
     <Container>
@@ -171,13 +186,36 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
 
                       return (
                         <ItemContainer key={`customer-usage-${i}`}>
-                          <Typography variant="bodyHl" color="textSecondary">
-                            {billableMetric?.name}
-                          </Typography>
-                          <UsageSubtitle variant="caption">{billableMetric?.code}</UsageSubtitle>
+                          <BillableMetricHeaderLine>
+                            <div>
+                              <Typography variant="bodyHl" color="textSecondary">
+                                {billableMetric?.name}
+                              </Typography>
+                              <UsageSubtitle variant="caption">
+                                {billableMetric?.code}
+                              </UsageSubtitle>
+                            </div>
+                            {!!usage.groups?.length && (
+                              <Tooltip
+                                title={translate('text_633dae57ca9a923dd53c2135')}
+                                placement="top-end"
+                              >
+                                <Button
+                                  icon="info-circle"
+                                  size="small"
+                                  variant="secondary"
+                                  onClick={() => {
+                                    customerUsageDetailDrawerRef.current?.openDrawer(
+                                      usage as ChargeUsage
+                                    )
+                                  }}
+                                />
+                              </Tooltip>
+                            )}
+                          </BillableMetricHeaderLine>
                           <Line>
                             <Typography variant="caption">
-                              {translate('text_62c3f3fca8a1625624e8338d', { units })}
+                              {translate('text_633dae57ca9a923dd53c2121', { units }, units)}
                             </Typography>
                             <Typography color="textSecondary">
                               {intlFormatNumber(amountCents || 0, {
@@ -194,6 +232,13 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
           )}
         </Details>
       </StyledAccordion>
+
+      <CustomerUsageDetailDrawer
+        ref={customerUsageDetailDrawerRef}
+        currency={currency}
+        fromDate={data?.customerUsage?.fromDate}
+        toDate={data?.customerUsage?.toDate}
+      />
     </Container>
   )
 }
@@ -349,8 +394,15 @@ const Line = styled.div`
   }
 `
 
-const UsageSubtitle = styled(Typography)`
+const BillableMetricHeaderLine = styled.div`
+  justify-content: space-between;
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
   margin-bottom: ${theme.spacing(8)};
+`
+
+const UsageSubtitle = styled(Typography)`
   min-width: 0;
 `
 

@@ -55,6 +55,7 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
     const [isOpen, setIsOpen] = useState(false)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const openerRef = useRef<any>(null)
+    const cardRef = useRef<HTMLDivElement>(null)
 
     const updateIsOpen = useCallback(
       (open: boolean) => {
@@ -63,7 +64,14 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
       [setIsOpen]
     )
 
-    const toggle = useCallback(() => updateIsOpen(!isOpen), [updateIsOpen, isOpen])
+    const toggle = useCallback(() => {
+      updateIsOpen(!isOpen)
+      if (!isOpen) {
+        setTimeout(() => {
+          cardRef?.current?.focus()
+        }, 200)
+      }
+    }, [updateIsOpen, isOpen])
 
     const onClickAwayProxy = useCallback(() => {
       updateIsOpen(false)
@@ -115,7 +123,7 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
             ]}
             {...PopperProps}
           >
-            <StyledCard $maxHeight={maxHeight}>
+            <StyledCard ref={cardRef} tabIndex={0} $maxHeight={maxHeight}>
               {typeof children === 'function'
                 ? children({ closePopper: () => updateIsOpen(false) })
                 : children}
@@ -144,6 +152,10 @@ const StyledCard = styled.div<{ $maxHeight?: number | string }>`
   scroll-behavior: smooth;
   max-height: ${({ $maxHeight }) =>
     $maxHeight ? (typeof $maxHeight === 'string' ? $maxHeight : `${$maxHeight}px`) : '90vh'};
+
+  :focus {
+    outline: none;
+  }
 
   > :not(:last-child) {
     margin-bottom: ${theme.spacing(1)};

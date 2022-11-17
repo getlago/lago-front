@@ -21,6 +21,7 @@ gql`
     id
     name
     code
+    group
     description
     aggregationType
     canBeDeleted
@@ -36,6 +37,7 @@ gql`
   mutation createBillableMetric($input: CreateBillableMetricInput!) {
     createBillableMetric(input: $input) {
       id
+      group
     }
   }
 
@@ -60,6 +62,7 @@ type UseCreateEditBillableMetricReturn = {
 
 export enum FORM_ERRORS_ENUM {
   existingCode = 'existingCode',
+  invalidGroupValue = 'invalidGroupValue',
 }
 
 export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricReturn = () => {
@@ -105,6 +108,8 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
   const errorCode = useMemo(() => {
     if (hasDefinedGQLError('ValueAlreadyExist', createError || updateError)) {
       return FORM_ERRORS_ENUM.existingCode
+    } else if (hasDefinedGQLError('ValueIsInvalid', createError || updateError)) {
+      return FORM_ERRORS_ENUM.invalidGroupValue
     }
 
     return undefined
@@ -120,14 +125,14 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
         ? async (values) => {
             await update({
               variables: {
-                input: { id, ...values },
+                input: { id, ...values, group: JSON.parse(values.group || '{}') },
               },
             })
           }
         : async (values) => {
             await create({
               variables: {
-                input: values,
+                input: { ...values, group: JSON.parse(values.group || '{}') },
               },
             })
           },
