@@ -91,7 +91,7 @@ export const CustomerCreditNotesList = ({
           buttonAction={() => location.reload()}
           image={<ErrorImage width="136" height="104" />}
         />
-      ) : !!creditNotes && !!creditNotes?.length ? (
+      ) : (
         <CreditNotesList
           creditNotes={creditNotes}
           fetchMore={fetchMore}
@@ -99,7 +99,7 @@ export const CustomerCreditNotesList = ({
           loading={loading}
           metadata={data?.customerCreditNotes?.metadata}
         />
-      ) : undefined}
+      )}
       <VoidCreditNoteDialog ref={voidCreditNoteDialogRef} />
     </SideSection>
   )
