@@ -206,7 +206,6 @@ const CustomerDetails = () => {
               <Button
                 variant="quaternary"
                 align="left"
-                disabled={(appliedCoupons || []).length > 0}
                 onClick={() => {
                   addCouponDialogRef.current?.openDialog()
                   closePopper()
@@ -319,7 +318,9 @@ const CustomerDetails = () => {
                       ],
                       component: (
                         <SideBlock>
-                          {!loading && <CustomerCoupons coupons={appliedCoupons} />}
+                          {!loading && (
+                            <CustomerCoupons coupons={appliedCoupons} customerId={id as string} />
+                          )}
                           {!loading && (
                             <CustomerAddOns ref={addOnDialogRef} addOns={appliedAddOns} />
                           )}

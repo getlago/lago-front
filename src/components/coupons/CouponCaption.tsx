@@ -3,12 +3,7 @@ import { gql } from '@apollo/client'
 import { TypographyProps } from '@mui/material'
 
 import { intlFormatNumber } from '~/core/intlFormatNumber'
-import {
-  CouponItemFragment,
-  CouponTypeEnum,
-  CouponFrequency,
-  CustomerCouponFragment,
-} from '~/generated/graphql'
+import { CouponItemFragment, CouponTypeEnum, CouponFrequency } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography } from '~/components/designSystem'
 
@@ -27,14 +22,21 @@ gql`
     id
     amountCurrency
     amountCents
+    amountCentsRemaining
     percentageRate
     frequency
     frequencyDuration
+    frequencyDurationRemaining
   }
 `
 
+export interface CouponMixedType extends CouponItemFragment {
+  amountCentsRemaining?: number
+  frequencyDurationRemaining?: number
+}
+
 interface CouponCaptionProps {
-  coupon: CouponItemFragment | CustomerCouponFragment
+  coupon: CouponMixedType
   variant?: TypographyProps['variant']
 }
 
@@ -42,16 +44,27 @@ export const CouponCaption = memo(({ coupon, variant = 'caption' }: CouponCaptio
   const { translate } = useInternationalization()
 
   const getCaption = () => {
-    const { amountCurrency, amountCents, percentageRate, frequency, frequencyDuration } = coupon
+    const {
+      amountCurrency,
+      amountCents,
+      amountCentsRemaining,
+      percentageRate,
+      frequency,
+      frequencyDuration,
+      frequencyDurationRemaining,
+    } = coupon
     let couponType = amountCents ? CouponTypeEnum.FixedAmount : CouponTypeEnum.Percentage
 
     if (couponType === CouponTypeEnum.FixedAmount && frequency === CouponFrequency.Once) {
-      return translate('text_632d68358f1fedc68eed3e70', {
-        amount: intlFormatNumber(amountCents || 0, {
-          currencyDisplay: 'symbol',
-          currency: amountCurrency || undefined,
-        }),
-      })
+      return translate(
+        amountCentsRemaining ? 'text_637b4da08cd0118cd0c4486f' : 'text_632d68358f1fedc68eed3e70',
+        {
+          amount: intlFormatNumber(amountCentsRemaining || amountCents || 0, {
+            currencyDisplay: 'symbol',
+            currency: amountCurrency || undefined,
+          }),
+        }
+      )
     } else if (couponType === CouponTypeEnum.Percentage && frequency === CouponFrequency.Once) {
       return translate('text_632d68358f1fedc68eed3eb5', {
         rate: intlFormatNumber(Number(percentageRate) || 0, {
@@ -66,13 +79,13 @@ export const CouponCaption = memo(({ coupon, variant = 'caption' }: CouponCaptio
       return translate(
         'text_632d68358f1fedc68eed3ede',
         {
-          amount: intlFormatNumber(amountCents || 0, {
+          amount: intlFormatNumber(amountCentsRemaining || amountCents || 0, {
             currencyDisplay: 'symbol',
             currency: amountCurrency || undefined,
           }),
-          duration: frequencyDuration,
+          duration: frequencyDurationRemaining || frequencyDuration,
         },
-        frequencyDuration || 1
+        frequencyDurationRemaining || frequencyDuration || 1
       )
     } else if (
       couponType === CouponTypeEnum.Percentage &&
@@ -85,9 +98,9 @@ export const CouponCaption = memo(({ coupon, variant = 'caption' }: CouponCaptio
             minimumFractionDigits: 2,
             style: 'percent',
           }),
-          duration: frequencyDuration,
+          duration: frequencyDurationRemaining || frequencyDuration,
         },
-        frequencyDuration || 1
+        frequencyDurationRemaining || frequencyDuration || 1
       )
     }
   }

@@ -108,11 +108,13 @@ export type AppliedAddOn = {
 export type AppliedCoupon = {
   __typename?: 'AppliedCoupon';
   amountCents?: Maybe<Scalars['Int']>;
+  amountCentsRemaining?: Maybe<Scalars['Int']>;
   amountCurrency?: Maybe<CurrencyEnum>;
   coupon: Coupon;
   createdAt: Scalars['ISO8601DateTime'];
   frequency: CouponFrequency;
   frequencyDuration?: Maybe<Scalars['Int']>;
+  frequencyDurationRemaining?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   percentageRate?: Maybe<Scalars['Float']>;
   terminatedAt: Scalars['ISO8601DateTime'];
@@ -865,6 +867,7 @@ export type CreateCustomerInput = {
   currency?: InputMaybe<CurrencyEnum>;
   email?: InputMaybe<Scalars['String']>;
   externalId: Scalars['String'];
+  invoiceGracePeriod?: InputMaybe<Scalars['Int']>;
   legalName?: InputMaybe<Scalars['String']>;
   legalNumber?: InputMaybe<Scalars['String']>;
   logoUrl?: InputMaybe<Scalars['String']>;
@@ -1291,6 +1294,7 @@ export type Customer = {
   activeSubscriptionCount: Scalars['Int'];
   addressLine1?: Maybe<Scalars['String']>;
   addressLine2?: Maybe<Scalars['String']>;
+  applicableTimezone: TimezoneEnum;
   /** Check if customer is deletable */
   canBeDeleted: Scalars['Boolean'];
   /** Check if customer attributes are editable */
@@ -1304,6 +1308,7 @@ export type Customer = {
   /** Define if a customer has an active wallet */
   hasActiveWallet: Scalars['Boolean'];
   id: Scalars['ID'];
+  invoiceGracePeriod: Scalars['Int'];
   legalName?: Maybe<Scalars['String']>;
   legalNumber?: Maybe<Scalars['String']>;
   logoUrl?: Maybe<Scalars['String']>;
@@ -1315,6 +1320,7 @@ export type Customer = {
   slug: Scalars['String'];
   state?: Maybe<Scalars['String']>;
   subscriptions?: Maybe<Array<Subscription>>;
+  timezone?: Maybe<TimezoneEnum>;
   updatedAt: Scalars['ISO8601DateTime'];
   url?: Maybe<Scalars['String']>;
   vatRate?: Maybe<Scalars['Float']>;
@@ -1333,6 +1339,7 @@ export type CustomerDetails = {
   activeSubscriptionCount: Scalars['Int'];
   addressLine1?: Maybe<Scalars['String']>;
   addressLine2?: Maybe<Scalars['String']>;
+  applicableTimezone: TimezoneEnum;
   appliedAddOns?: Maybe<Array<AppliedAddOn>>;
   appliedCoupons?: Maybe<Array<AppliedCoupon>>;
   /** Check if customer is deletable */
@@ -1349,6 +1356,7 @@ export type CustomerDetails = {
   /** Define if a customer has an active wallet */
   hasActiveWallet: Scalars['Boolean'];
   id: Scalars['ID'];
+  invoiceGracePeriod: Scalars['Int'];
   invoices?: Maybe<Array<Invoice>>;
   legalName?: Maybe<Scalars['String']>;
   legalNumber?: Maybe<Scalars['String']>;
@@ -1362,6 +1370,7 @@ export type CustomerDetails = {
   state?: Maybe<Scalars['String']>;
   /** Query subscriptions of a customer */
   subscriptions: Array<Subscription>;
+  timezone?: Maybe<TimezoneEnum>;
   updatedAt: Scalars['ISO8601DateTime'];
   url?: Maybe<Scalars['String']>;
   vatRate?: Maybe<Scalars['Float']>;
@@ -2047,12 +2056,14 @@ export type Organization = {
   gocardlessPaymentProvider?: Maybe<GocardlessProvider>;
   id: Scalars['ID'];
   invoiceFooter?: Maybe<Scalars['String']>;
+  invoiceGracePeriod: Scalars['Int'];
   legalName?: Maybe<Scalars['String']>;
   legalNumber?: Maybe<Scalars['String']>;
   logoUrl?: Maybe<Scalars['String']>;
   name: Scalars['String'];
   state?: Maybe<Scalars['String']>;
   stripePaymentProvider?: Maybe<StripeProvider>;
+  timezone?: Maybe<TimezoneEnum>;
   updatedAt: Scalars['ISO8601DateTime'];
   vatRate: Scalars['Float'];
   webhookUrl?: Maybe<Scalars['String']>;
@@ -2438,6 +2449,279 @@ export type TerminateSubscriptionInput = {
   id: Scalars['ID'];
 };
 
+export enum TimezoneEnum {
+  /** Africa/Algiers (+01:00) */
+  TzAfricaAlgiers = 'TZ_AFRICA_ALGIERS',
+  /** Africa/Cairo (+02:00) */
+  TzAfricaCairo = 'TZ_AFRICA_CAIRO',
+  /** Africa/Casablanca (+01:00) */
+  TzAfricaCasablanca = 'TZ_AFRICA_CASABLANCA',
+  /** Africa/Harare (+02:00) */
+  TzAfricaHarare = 'TZ_AFRICA_HARARE',
+  /** Africa/Johannesburg (+02:00) */
+  TzAfricaJohannesburg = 'TZ_AFRICA_JOHANNESBURG',
+  /** Africa/Monrovia (+00:00) */
+  TzAfricaMonrovia = 'TZ_AFRICA_MONROVIA',
+  /** Africa/Nairobi (+03:00) */
+  TzAfricaNairobi = 'TZ_AFRICA_NAIROBI',
+  /** America/Argentina/Buenos_Aires (-03:00) */
+  TzAmericaArgentinaBuenosAires = 'TZ_AMERICA_ARGENTINA_BUENOS_AIRES',
+  /** America/Bogota (-05:00) */
+  TzAmericaBogota = 'TZ_AMERICA_BOGOTA',
+  /** America/Caracas (-04:00) */
+  TzAmericaCaracas = 'TZ_AMERICA_CARACAS',
+  /** America/Chicago (-06:00) */
+  TzAmericaChicago = 'TZ_AMERICA_CHICAGO',
+  /** America/Chihuahua (-07:00) */
+  TzAmericaChihuahua = 'TZ_AMERICA_CHIHUAHUA',
+  /** America/Denver (-07:00) */
+  TzAmericaDenver = 'TZ_AMERICA_DENVER',
+  /** America/Godthab (-03:00) */
+  TzAmericaGodthab = 'TZ_AMERICA_GODTHAB',
+  /** America/Guatemala (-06:00) */
+  TzAmericaGuatemala = 'TZ_AMERICA_GUATEMALA',
+  /** America/Guyana (-04:00) */
+  TzAmericaGuyana = 'TZ_AMERICA_GUYANA',
+  /** America/Halifax (-04:00) */
+  TzAmericaHalifax = 'TZ_AMERICA_HALIFAX',
+  /** America/Indiana/Indianapolis (-05:00) */
+  TzAmericaIndianaIndianapolis = 'TZ_AMERICA_INDIANA_INDIANAPOLIS',
+  /** America/Juneau (-09:00) */
+  TzAmericaJuneau = 'TZ_AMERICA_JUNEAU',
+  /** America/La_Paz (-04:00) */
+  TzAmericaLaPaz = 'TZ_AMERICA_LA_PAZ',
+  /** America/Lima (-05:00) */
+  TzAmericaLima = 'TZ_AMERICA_LIMA',
+  /** America/Los_Angeles (-08:00) */
+  TzAmericaLosAngeles = 'TZ_AMERICA_LOS_ANGELES',
+  /** America/Mazatlan (-07:00) */
+  TzAmericaMazatlan = 'TZ_AMERICA_MAZATLAN',
+  /** America/Mexico_City (-06:00) */
+  TzAmericaMexicoCity = 'TZ_AMERICA_MEXICO_CITY',
+  /** America/Monterrey (-06:00) */
+  TzAmericaMonterrey = 'TZ_AMERICA_MONTERREY',
+  /** America/Montevideo (-03:00) */
+  TzAmericaMontevideo = 'TZ_AMERICA_MONTEVIDEO',
+  /** America/New_York (-05:00) */
+  TzAmericaNewYork = 'TZ_AMERICA_NEW_YORK',
+  /** America/Phoenix (-07:00) */
+  TzAmericaPhoenix = 'TZ_AMERICA_PHOENIX',
+  /** America/Puerto_Rico (-04:00) */
+  TzAmericaPuertoRico = 'TZ_AMERICA_PUERTO_RICO',
+  /** America/Regina (-06:00) */
+  TzAmericaRegina = 'TZ_AMERICA_REGINA',
+  /** America/Santiago (-04:00) */
+  TzAmericaSantiago = 'TZ_AMERICA_SANTIAGO',
+  /** America/Sao_Paulo (-03:00) */
+  TzAmericaSaoPaulo = 'TZ_AMERICA_SAO_PAULO',
+  /** America/St_Johns (-03:30) */
+  TzAmericaStJohns = 'TZ_AMERICA_ST_JOHNS',
+  /** America/Tijuana (-08:00) */
+  TzAmericaTijuana = 'TZ_AMERICA_TIJUANA',
+  /** Asia/Almaty (+06:00) */
+  TzAsiaAlmaty = 'TZ_ASIA_ALMATY',
+  /** Asia/Baghdad (+03:00) */
+  TzAsiaBaghdad = 'TZ_ASIA_BAGHDAD',
+  /** Asia/Baku (+04:00) */
+  TzAsiaBaku = 'TZ_ASIA_BAKU',
+  /** Asia/Bangkok (+07:00) */
+  TzAsiaBangkok = 'TZ_ASIA_BANGKOK',
+  /** Asia/Chongqing (+08:00) */
+  TzAsiaChongqing = 'TZ_ASIA_CHONGQING',
+  /** Asia/Colombo (+05:30) */
+  TzAsiaColombo = 'TZ_ASIA_COLOMBO',
+  /** Asia/Dhaka (+06:00) */
+  TzAsiaDhaka = 'TZ_ASIA_DHAKA',
+  /** Asia/Hong_Kong (+08:00) */
+  TzAsiaHongKong = 'TZ_ASIA_HONG_KONG',
+  /** Asia/Irkutsk (+08:00) */
+  TzAsiaIrkutsk = 'TZ_ASIA_IRKUTSK',
+  /** Asia/Jakarta (+07:00) */
+  TzAsiaJakarta = 'TZ_ASIA_JAKARTA',
+  /** Asia/Jerusalem (+02:00) */
+  TzAsiaJerusalem = 'TZ_ASIA_JERUSALEM',
+  /** Asia/Kabul (+04:30) */
+  TzAsiaKabul = 'TZ_ASIA_KABUL',
+  /** Asia/Kamchatka (+12:00) */
+  TzAsiaKamchatka = 'TZ_ASIA_KAMCHATKA',
+  /** Asia/Karachi (+05:00) */
+  TzAsiaKarachi = 'TZ_ASIA_KARACHI',
+  /** Asia/Kathmandu (+05:45) */
+  TzAsiaKathmandu = 'TZ_ASIA_KATHMANDU',
+  /** Asia/Kolkata (+05:30) */
+  TzAsiaKolkata = 'TZ_ASIA_KOLKATA',
+  /** Asia/Krasnoyarsk (+07:00) */
+  TzAsiaKrasnoyarsk = 'TZ_ASIA_KRASNOYARSK',
+  /** Asia/Kuala_Lumpur (+08:00) */
+  TzAsiaKualaLumpur = 'TZ_ASIA_KUALA_LUMPUR',
+  /** Asia/Kuwait (+03:00) */
+  TzAsiaKuwait = 'TZ_ASIA_KUWAIT',
+  /** Asia/Magadan (+11:00) */
+  TzAsiaMagadan = 'TZ_ASIA_MAGADAN',
+  /** Asia/Muscat (+04:00) */
+  TzAsiaMuscat = 'TZ_ASIA_MUSCAT',
+  /** Asia/Novosibirsk (+07:00) */
+  TzAsiaNovosibirsk = 'TZ_ASIA_NOVOSIBIRSK',
+  /** Asia/Rangoon (+06:30) */
+  TzAsiaRangoon = 'TZ_ASIA_RANGOON',
+  /** Asia/Riyadh (+03:00) */
+  TzAsiaRiyadh = 'TZ_ASIA_RIYADH',
+  /** Asia/Seoul (+09:00) */
+  TzAsiaSeoul = 'TZ_ASIA_SEOUL',
+  /** Asia/Shanghai (+08:00) */
+  TzAsiaShanghai = 'TZ_ASIA_SHANGHAI',
+  /** Asia/Singapore (+08:00) */
+  TzAsiaSingapore = 'TZ_ASIA_SINGAPORE',
+  /** Asia/Srednekolymsk (+11:00) */
+  TzAsiaSrednekolymsk = 'TZ_ASIA_SREDNEKOLYMSK',
+  /** Asia/Taipei (+08:00) */
+  TzAsiaTaipei = 'TZ_ASIA_TAIPEI',
+  /** Asia/Tashkent (+05:00) */
+  TzAsiaTashkent = 'TZ_ASIA_TASHKENT',
+  /** Asia/Tbilisi (+04:00) */
+  TzAsiaTbilisi = 'TZ_ASIA_TBILISI',
+  /** Asia/Tehran (+03:30) */
+  TzAsiaTehran = 'TZ_ASIA_TEHRAN',
+  /** Asia/Tokyo (+09:00) */
+  TzAsiaTokyo = 'TZ_ASIA_TOKYO',
+  /** Asia/Ulaanbaatar (+08:00) */
+  TzAsiaUlaanbaatar = 'TZ_ASIA_ULAANBAATAR',
+  /** Asia/Urumqi (+06:00) */
+  TzAsiaUrumqi = 'TZ_ASIA_URUMQI',
+  /** Asia/Vladivostok (+10:00) */
+  TzAsiaVladivostok = 'TZ_ASIA_VLADIVOSTOK',
+  /** Asia/Yakutsk (+09:00) */
+  TzAsiaYakutsk = 'TZ_ASIA_YAKUTSK',
+  /** Asia/Yekaterinburg (+05:00) */
+  TzAsiaYekaterinburg = 'TZ_ASIA_YEKATERINBURG',
+  /** Asia/Yerevan (+04:00) */
+  TzAsiaYerevan = 'TZ_ASIA_YEREVAN',
+  /** Atlantic/Azores (-01:00) */
+  TzAtlanticAzores = 'TZ_ATLANTIC_AZORES',
+  /** Atlantic/Cape_Verde (-01:00) */
+  TzAtlanticCapeVerde = 'TZ_ATLANTIC_CAPE_VERDE',
+  /** Atlantic/South_Georgia (-02:00) */
+  TzAtlanticSouthGeorgia = 'TZ_ATLANTIC_SOUTH_GEORGIA',
+  /** Australia/Adelaide (+09:30) */
+  TzAustraliaAdelaide = 'TZ_AUSTRALIA_ADELAIDE',
+  /** Australia/Brisbane (+10:00) */
+  TzAustraliaBrisbane = 'TZ_AUSTRALIA_BRISBANE',
+  /** Australia/Darwin (+09:30) */
+  TzAustraliaDarwin = 'TZ_AUSTRALIA_DARWIN',
+  /** Australia/Hobart (+10:00) */
+  TzAustraliaHobart = 'TZ_AUSTRALIA_HOBART',
+  /** Australia/Melbourne (+10:00) */
+  TzAustraliaMelbourne = 'TZ_AUSTRALIA_MELBOURNE',
+  /** Australia/Perth (+08:00) */
+  TzAustraliaPerth = 'TZ_AUSTRALIA_PERTH',
+  /** Australia/Sydney (+10:00) */
+  TzAustraliaSydney = 'TZ_AUSTRALIA_SYDNEY',
+  /** Europe/Amsterdam (+01:00) */
+  TzEuropeAmsterdam = 'TZ_EUROPE_AMSTERDAM',
+  /** Europe/Athens (+02:00) */
+  TzEuropeAthens = 'TZ_EUROPE_ATHENS',
+  /** Europe/Belgrade (+01:00) */
+  TzEuropeBelgrade = 'TZ_EUROPE_BELGRADE',
+  /** Europe/Berlin (+01:00) */
+  TzEuropeBerlin = 'TZ_EUROPE_BERLIN',
+  /** Europe/Bratislava (+01:00) */
+  TzEuropeBratislava = 'TZ_EUROPE_BRATISLAVA',
+  /** Europe/Brussels (+01:00) */
+  TzEuropeBrussels = 'TZ_EUROPE_BRUSSELS',
+  /** Europe/Bucharest (+02:00) */
+  TzEuropeBucharest = 'TZ_EUROPE_BUCHAREST',
+  /** Europe/Budapest (+01:00) */
+  TzEuropeBudapest = 'TZ_EUROPE_BUDAPEST',
+  /** Europe/Copenhagen (+01:00) */
+  TzEuropeCopenhagen = 'TZ_EUROPE_COPENHAGEN',
+  /** Europe/Dublin (+01:00) */
+  TzEuropeDublin = 'TZ_EUROPE_DUBLIN',
+  /** Europe/Helsinki (+02:00) */
+  TzEuropeHelsinki = 'TZ_EUROPE_HELSINKI',
+  /** Europe/Istanbul (+03:00) */
+  TzEuropeIstanbul = 'TZ_EUROPE_ISTANBUL',
+  /** Europe/Kaliningrad (+02:00) */
+  TzEuropeKaliningrad = 'TZ_EUROPE_KALININGRAD',
+  /** Europe/Kiev (+02:00) */
+  TzEuropeKiev = 'TZ_EUROPE_KIEV',
+  /** Europe/Lisbon (+00:00) */
+  TzEuropeLisbon = 'TZ_EUROPE_LISBON',
+  /** Europe/Ljubljana (+01:00) */
+  TzEuropeLjubljana = 'TZ_EUROPE_LJUBLJANA',
+  /** Europe/London (+00:00) */
+  TzEuropeLondon = 'TZ_EUROPE_LONDON',
+  /** Europe/Madrid (+01:00) */
+  TzEuropeMadrid = 'TZ_EUROPE_MADRID',
+  /** Europe/Minsk (+03:00) */
+  TzEuropeMinsk = 'TZ_EUROPE_MINSK',
+  /** Europe/Moscow (+03:00) */
+  TzEuropeMoscow = 'TZ_EUROPE_MOSCOW',
+  /** Europe/Paris (+01:00) */
+  TzEuropeParis = 'TZ_EUROPE_PARIS',
+  /** Europe/Prague (+01:00) */
+  TzEuropePrague = 'TZ_EUROPE_PRAGUE',
+  /** Europe/Riga (+02:00) */
+  TzEuropeRiga = 'TZ_EUROPE_RIGA',
+  /** Europe/Rome (+01:00) */
+  TzEuropeRome = 'TZ_EUROPE_ROME',
+  /** Europe/Samara (+04:00) */
+  TzEuropeSamara = 'TZ_EUROPE_SAMARA',
+  /** Europe/Sarajevo (+01:00) */
+  TzEuropeSarajevo = 'TZ_EUROPE_SARAJEVO',
+  /** Europe/Skopje (+01:00) */
+  TzEuropeSkopje = 'TZ_EUROPE_SKOPJE',
+  /** Europe/Sofia (+02:00) */
+  TzEuropeSofia = 'TZ_EUROPE_SOFIA',
+  /** Europe/Stockholm (+01:00) */
+  TzEuropeStockholm = 'TZ_EUROPE_STOCKHOLM',
+  /** Europe/Tallinn (+02:00) */
+  TzEuropeTallinn = 'TZ_EUROPE_TALLINN',
+  /** Europe/Vienna (+01:00) */
+  TzEuropeVienna = 'TZ_EUROPE_VIENNA',
+  /** Europe/Vilnius (+02:00) */
+  TzEuropeVilnius = 'TZ_EUROPE_VILNIUS',
+  /** Europe/Volgograd (+03:00) */
+  TzEuropeVolgograd = 'TZ_EUROPE_VOLGOGRAD',
+  /** Europe/Warsaw (+01:00) */
+  TzEuropeWarsaw = 'TZ_EUROPE_WARSAW',
+  /** Europe/Zagreb (+01:00) */
+  TzEuropeZagreb = 'TZ_EUROPE_ZAGREB',
+  /** Europe/Zurich (+01:00) */
+  TzEuropeZurich = 'TZ_EUROPE_ZURICH',
+  /** GMT+12 (-12:00) */
+  TzGmt_12 = 'TZ_GMT_12',
+  /** Pacific/Apia (+13:00) */
+  TzPacificApia = 'TZ_PACIFIC_APIA',
+  /** Pacific/Auckland (+12:00) */
+  TzPacificAuckland = 'TZ_PACIFIC_AUCKLAND',
+  /** Pacific/Chatham (+12:45) */
+  TzPacificChatham = 'TZ_PACIFIC_CHATHAM',
+  /** Pacific/Fakaofo (+13:00) */
+  TzPacificFakaofo = 'TZ_PACIFIC_FAKAOFO',
+  /** Pacific/Fiji (+12:00) */
+  TzPacificFiji = 'TZ_PACIFIC_FIJI',
+  /** Pacific/Guadalcanal (+11:00) */
+  TzPacificGuadalcanal = 'TZ_PACIFIC_GUADALCANAL',
+  /** Pacific/Guam (+10:00) */
+  TzPacificGuam = 'TZ_PACIFIC_GUAM',
+  /** Pacific/Honolulu (-10:00) */
+  TzPacificHonolulu = 'TZ_PACIFIC_HONOLULU',
+  /** Pacific/Majuro (+12:00) */
+  TzPacificMajuro = 'TZ_PACIFIC_MAJURO',
+  /** Pacific/Midway (-11:00) */
+  TzPacificMidway = 'TZ_PACIFIC_MIDWAY',
+  /** Pacific/Noumea (+11:00) */
+  TzPacificNoumea = 'TZ_PACIFIC_NOUMEA',
+  /** Pacific/Pago_Pago (-11:00) */
+  TzPacificPagoPago = 'TZ_PACIFIC_PAGO_PAGO',
+  /** Pacific/Port_Moresby (+10:00) */
+  TzPacificPortMoresby = 'TZ_PACIFIC_PORT_MORESBY',
+  /** Pacific/Tongatapu (+13:00) */
+  TzPacificTongatapu = 'TZ_PACIFIC_TONGATAPU',
+  /** UTC (+00:00) */
+  TzUtc = 'TZ_UTC'
+}
+
 /** Autogenerated input type of UpdateAddOn */
 export type UpdateAddOnInput = {
   amountCents: Scalars['Int'];
@@ -2500,6 +2784,7 @@ export type UpdateCustomerInput = {
   email?: InputMaybe<Scalars['String']>;
   externalId: Scalars['String'];
   id: Scalars['ID'];
+  invoiceGracePeriod?: InputMaybe<Scalars['Int']>;
   legalName?: InputMaybe<Scalars['String']>;
   legalNumber?: InputMaybe<Scalars['String']>;
   logoUrl?: InputMaybe<Scalars['String']>;
@@ -2540,6 +2825,7 @@ export type UpdateOrganizationInput = {
   country?: InputMaybe<CountryCode>;
   email?: InputMaybe<Scalars['String']>;
   invoiceFooter?: InputMaybe<Scalars['String']>;
+  invoiceGracePeriod?: InputMaybe<Scalars['Int']>;
   legalName?: InputMaybe<Scalars['String']>;
   legalNumber?: InputMaybe<Scalars['String']>;
   logo?: InputMaybe<Scalars['String']>;
@@ -2732,7 +3018,7 @@ export type DeleteBillableMetricMutation = { __typename?: 'Mutation', destroyBil
 
 export type CouponCaptionFragment = { __typename?: 'Coupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
 
-export type AppliedCouponCaptionFragment = { __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
+export type AppliedCouponCaptionFragment = { __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, amountCentsRemaining?: number | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null };
 
 export type CouponItemFragment = { __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, canBeDeleted: boolean, expiration: CouponExpiration, expirationDate?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
 
@@ -2787,7 +3073,7 @@ export type AddCouponMutation = { __typename?: 'Mutation', createAppliedCoupon?:
 
 export type CustomerAddOnsFragment = { __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } };
 
-export type CustomerCouponFragment = { __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } };
+export type CustomerCouponFragment = { __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, amountCentsRemaining?: number | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } };
 
 export type RemoveCouponMutationVariables = Exact<{
   input: TerminateAppliedCouponInput;
@@ -3198,14 +3484,14 @@ export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'Coup
 
 export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, billChargesMonthly?: boolean | null, charges?: Array<{ __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } }> | null }> | null };
 
-export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, hasActiveWallet: boolean, currency?: CurrencyEnum | null, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, canEditAttributes: boolean, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionDate?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null };
+export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, hasActiveWallet: boolean, currency?: CurrencyEnum | null, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, canEditAttributes: boolean, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionDate?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, amountCentsRemaining?: number | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null };
 
 export type GetCustomerQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, hasActiveWallet: boolean, currency?: CurrencyEnum | null, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, canEditAttributes: boolean, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionDate?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null } | null };
+export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, hasActiveWallet: boolean, currency?: CurrencyEnum | null, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, canEditAttributes: boolean, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionDate?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, invoices?: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number }> | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, amountCentsRemaining?: number | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: number, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null } | null };
 
 export type CustomersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -3854,9 +4140,11 @@ export const AppliedCouponCaptionFragmentDoc = gql`
   id
   amountCurrency
   amountCents
+  amountCentsRemaining
   percentageRate
   frequency
   frequencyDuration
+  frequencyDurationRemaining
 }
     `;
 export const CustomerCouponFragmentDoc = gql`
