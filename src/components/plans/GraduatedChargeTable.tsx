@@ -10,7 +10,7 @@ import { TextInput } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
 import { useGraduatedChargeForm } from '~/hooks/plans/useGraduatedChargeForm'
-import { intlFormatNumber, getCurrencySymbol } from '~/core/intlFormatNumber'
+import { intlFormatNumber, getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 
 import { PlanFormInput } from './types'
 

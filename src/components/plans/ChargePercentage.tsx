@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { InputAdornment } from '@mui/material'
 import { gql } from '@apollo/client'
 
-import { intlFormatNumber, getCurrencySymbol } from '~/core/intlFormatNumber'
+import { intlFormatNumber, getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { TextInput } from '~/components/form'
 import { MenuPopper, theme } from '~/styles'
 import { Alert, Typography, Button, Tooltip, Popper } from '~/components/designSystem'

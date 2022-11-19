@@ -9,7 +9,7 @@ import { SectionHeader } from '~/styles/customer'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, Avatar, Icon, Button } from '~/components/designSystem'
 import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 
 import { AddAddOnToCustomerDialogRef } from './AddAddOnToCustomerDialog'
 

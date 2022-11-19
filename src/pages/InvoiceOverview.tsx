@@ -21,7 +21,7 @@ import { SectionHeader } from '~/styles/customer'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import CountryCodes from '~/public/countryCode.json'
 
 gql`

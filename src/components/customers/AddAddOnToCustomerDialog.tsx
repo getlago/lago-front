@@ -15,7 +15,7 @@ import {
   LagoApiError,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 
 gql`

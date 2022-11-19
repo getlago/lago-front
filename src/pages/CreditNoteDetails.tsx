@@ -35,7 +35,7 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme, PageHeader, MenuPopper, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { addToast } from '~/core/apolloClient'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   VoidCreditNoteDialog,
   VoidCreditNoteDialogRef,

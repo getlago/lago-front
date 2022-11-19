@@ -13,7 +13,7 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { useDownloadCreditNoteMutation, CreditNotesForListFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {

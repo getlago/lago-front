@@ -19,7 +19,7 @@ import { ComboBox, TextInput } from '~/components/form'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
-import { getCurrencySymbol } from '~/core/intlFormatNumber'
+import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 
 import { PlanFormInput } from './types'
 import { VolumeChargeTable } from './VolumeChargeTable'
