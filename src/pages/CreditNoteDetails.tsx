@@ -4,7 +4,6 @@ import { gql } from '@apollo/client'
 import { useParams, generatePath } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
-import _ from 'lodash'
 
 import {
   Typography,
@@ -26,6 +25,7 @@ import {
 } from '~/core/router'
 import {
   CreditNoteCreditStatusEnum,
+  CreditNoteItem,
   CreditNoteRefundStatusEnum,
   CurrencyEnum,
   useDownloadCreditNoteMutation,
@@ -36,6 +36,7 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme, PageHeader, MenuPopper, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
 import {
   VoidCreditNoteDialog,
   VoidCreditNoteDialogRef,
@@ -193,12 +194,7 @@ const CreditNoteDetails = () => {
   const status = isRefunded ? consumedFormattedStatus : creditedFormattedStatus
   const hasError = (!!error || !creditNote) && !loading
 
-  const groupedData = Object.values(
-    _.chain(creditNote?.items)
-      .groupBy((item) => item?.fee?.subscription?.id)
-      .map((item) => Object.values(_.groupBy(item, (element) => element?.fee?.charge?.id)))
-      .value()
-  )
+  const groupedData = formatCreditNotesItems(creditNote?.items as CreditNoteItem[])
 
   return (
     <>
