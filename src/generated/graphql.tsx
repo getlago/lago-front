@@ -3319,7 +3319,7 @@ export type GetAllInvoiceDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetAllInvoiceDetailsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, number: string, issuingDate: any, vatAmountCents: number, vatAmountCurrency: CurrencyEnum, totalAmountCents: number, totalAmountCurrency: CurrencyEnum, walletTransactionAmountCents: number, subtotalBeforePrepaidCredits: string, creditAmountCents: number, creditAmountCurrency: CurrencyEnum, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, name?: string | null, legalName?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null }, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, name?: string | null, subscriptionDate?: any | null, periodEndDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: number, amountCurrency: CurrencyEnum } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null }> | null }> | null } | null };
+export type GetAllInvoiceDetailsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, number: string, issuingDate: any, vatAmountCents: number, vatAmountCurrency: CurrencyEnum, totalAmountCents: number, totalAmountCurrency: CurrencyEnum, walletTransactionAmountCents: number, subtotalBeforePrepaidCredits: string, creditAmountCents: number, creditAmountCurrency: CurrencyEnum, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, name?: string | null, legalName?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null }, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, name?: string | null, subscriptionDate?: any | null, periodEndDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: number, amountCurrency: CurrencyEnum } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null }> | null }> | null, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, balanceAmountCents: any, balanceAmountCurrency: CurrencyEnum, creditAmountCents: any, creditAmountCurrency: CurrencyEnum, number: string, subTotalVatExcludedAmountCents: any, subTotalVatExcludedAmountCurrency: CurrencyEnum, vatAmountCents: any, vatAmountCurrency: CurrencyEnum, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, fee: { __typename?: 'Fee', id: string, amountCents: any, amountCurrency: CurrencyEnum, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null } }> }> | null } | null };
 
 export type PlansQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -6595,6 +6595,50 @@ export const GetAllInvoiceDetailsDocument = gql`
           id
           key
           value
+        }
+      }
+    }
+    creditNotes {
+      id
+      balanceAmountCents
+      balanceAmountCurrency
+      creditAmountCents
+      creditAmountCurrency
+      number
+      subTotalVatExcludedAmountCents
+      subTotalVatExcludedAmountCurrency
+      vatAmountCents
+      vatAmountCurrency
+      items {
+        amountCents
+        fee {
+          id
+          amountCents
+          amountCurrency
+          eventsCount
+          units
+          feeType
+          charge {
+            id
+            billableMetric {
+              id
+              name
+              aggregationType
+            }
+          }
+          subscription {
+            id
+            name
+            plan {
+              id
+              name
+            }
+          }
+          group {
+            id
+            key
+            value
+          }
         }
       }
     }

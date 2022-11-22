@@ -2,7 +2,7 @@ import _ from 'lodash'
 
 import { CreditNoteItem } from '~/generated/graphql'
 
-const formatCreditNotesItems = (items: CreditNoteItem[]) => {
+const formatCreditNotesItems = (items: CreditNoteItem[] | null | undefined) => {
   return Object.values(
     _.chain(items)
       .groupBy((item) => item?.fee?.subscription?.id)

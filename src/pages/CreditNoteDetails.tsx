@@ -527,7 +527,7 @@ const CreditNoteDetails = () => {
                 )
               })}
               {!loading && (
-                <table id="table">
+                <table>
                   <tfoot>
                     <tr>
                       <td>
