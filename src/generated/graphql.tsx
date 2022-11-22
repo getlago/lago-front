@@ -2955,6 +2955,12 @@ export type UpdateOrganizationMutationVariables = Exact<{
 
 export type UpdateOrganizationMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string, webhookUrl?: string | null } | null };
 
+export type InvoiceForCreditNotesTableFragment = { __typename?: 'Invoice', id: string, totalAmountCents: number, customer: { __typename?: 'Customer', id: string }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, creditAmountCents: any, creditAmountCurrency: CurrencyEnum, number: string, subTotalVatExcludedAmountCents: any, subTotalVatExcludedAmountCurrency: CurrencyEnum, vatAmountCents: any, vatAmountCurrency: CurrencyEnum, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, fee: { __typename?: 'Fee', id: string, amountCents: any, amountCurrency: CurrencyEnum, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null } }> }> | null };
+
+export type InvoiceForInvoiceInfosFragment = { __typename?: 'Invoice', number: string, issuingDate: any, customer: { __typename?: 'Customer', id: string, name?: string | null, legalName?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null } };
+
+export type InvoiceForDetailsTableFragment = { __typename?: 'Invoice', creditAmountCents: number, creditAmountCurrency: CurrencyEnum, subtotalBeforePrepaidCredits: string, totalAmountCents: number, totalAmountCurrency: CurrencyEnum, vatAmountCents: number, vatAmountCurrency: CurrencyEnum, walletTransactionAmountCents: number, customer: { __typename?: 'Customer', currency?: CurrencyEnum | null }, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, name?: string | null, subscriptionDate?: any | null, periodEndDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: number, amountCurrency: CurrencyEnum } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null }> | null }> | null };
+
 export type BillableMetricForPlanFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null };
 
 export type GetbillableMetricsQueryVariables = Exact<{
@@ -3319,7 +3325,7 @@ export type GetAllInvoiceDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetAllInvoiceDetailsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, number: string, issuingDate: any, vatAmountCents: number, vatAmountCurrency: CurrencyEnum, totalAmountCents: number, totalAmountCurrency: CurrencyEnum, walletTransactionAmountCents: number, subtotalBeforePrepaidCredits: string, creditAmountCents: number, creditAmountCurrency: CurrencyEnum, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, name?: string | null, legalName?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null }, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, name?: string | null, subscriptionDate?: any | null, periodEndDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: number, amountCurrency: CurrencyEnum } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null }> | null }> | null, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, balanceAmountCents: any, balanceAmountCurrency: CurrencyEnum, creditAmountCents: any, creditAmountCurrency: CurrencyEnum, number: string, subTotalVatExcludedAmountCents: any, subTotalVatExcludedAmountCurrency: CurrencyEnum, vatAmountCents: any, vatAmountCurrency: CurrencyEnum, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, fee: { __typename?: 'Fee', id: string, amountCents: any, amountCurrency: CurrencyEnum, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null } }> }> | null } | null };
+export type GetAllInvoiceDetailsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, totalAmountCents: number, creditAmountCents: number, creditAmountCurrency: CurrencyEnum, subtotalBeforePrepaidCredits: string, totalAmountCurrency: CurrencyEnum, vatAmountCents: number, vatAmountCurrency: CurrencyEnum, walletTransactionAmountCents: number, number: string, issuingDate: any, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, name?: string | null, legalName?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, creditAmountCents: any, creditAmountCurrency: CurrencyEnum, number: string, subTotalVatExcludedAmountCents: any, subTotalVatExcludedAmountCurrency: CurrencyEnum, vatAmountCents: any, vatAmountCurrency: CurrencyEnum, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, fee: { __typename?: 'Fee', id: string, amountCents: any, amountCurrency: CurrencyEnum, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null } }> }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, name?: string | null, subscriptionDate?: any | null, periodEndDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: number, amountCurrency: CurrencyEnum } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null }> | null }> | null } | null };
 
 export type PlansQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -3586,6 +3592,125 @@ export const CustomerUsageForUsageDetailsFragmentDoc = gql`
       key
       units
       value
+    }
+  }
+}
+    `;
+export const InvoiceForCreditNotesTableFragmentDoc = gql`
+    fragment InvoiceForCreditNotesTable on Invoice {
+  id
+  totalAmountCents
+  customer {
+    id
+  }
+  creditNotes {
+    id
+    creditAmountCents
+    creditAmountCurrency
+    number
+    subTotalVatExcludedAmountCents
+    subTotalVatExcludedAmountCurrency
+    vatAmountCents
+    vatAmountCurrency
+    items {
+      amountCents
+      fee {
+        id
+        amountCents
+        amountCurrency
+        eventsCount
+        units
+        feeType
+        charge {
+          id
+          billableMetric {
+            id
+            name
+            aggregationType
+          }
+        }
+        subscription {
+          id
+          name
+          plan {
+            id
+            name
+          }
+        }
+        group {
+          id
+          key
+          value
+        }
+      }
+    }
+  }
+}
+    `;
+export const InvoiceForInvoiceInfosFragmentDoc = gql`
+    fragment InvoiceForInvoiceInfos on Invoice {
+  number
+  issuingDate
+  customer {
+    id
+    name
+    legalName
+    email
+    addressLine1
+    addressLine2
+    state
+    country
+    city
+    zipcode
+  }
+}
+    `;
+export const InvoiceForDetailsTableFragmentDoc = gql`
+    fragment InvoiceForDetailsTable on Invoice {
+  creditAmountCents
+  creditAmountCurrency
+  subtotalBeforePrepaidCredits
+  totalAmountCents
+  totalAmountCurrency
+  vatAmountCents
+  vatAmountCurrency
+  walletTransactionAmountCents
+  customer {
+    currency
+  }
+  invoiceSubscriptions {
+    subscription {
+      id
+      name
+      subscriptionDate
+      periodEndDate
+      plan {
+        id
+        name
+        interval
+        amountCents
+        amountCurrency
+      }
+    }
+    fees {
+      id
+      amountCents
+      eventsCount
+      units
+      feeType
+      charge {
+        id
+        billableMetric {
+          id
+          name
+          aggregationType
+        }
+      }
+      group {
+        id
+        key
+        value
+      }
     }
   }
 }
@@ -6540,111 +6665,18 @@ export const GetAllInvoiceDetailsDocument = gql`
     query getAllInvoiceDetails($id: ID!) {
   invoice(id: $id) {
     id
-    number
-    issuingDate
-    vatAmountCents
-    vatAmountCurrency
     totalAmountCents
-    totalAmountCurrency
-    walletTransactionAmountCents
-    subtotalBeforePrepaidCredits
-    creditAmountCents
-    creditAmountCurrency
     customer {
       id
-      currency
-      name
-      legalName
-      email
-      addressLine1
-      addressLine2
-      state
-      country
-      city
-      zipcode
     }
-    invoiceSubscriptions {
-      subscription {
-        id
-        name
-        subscriptionDate
-        periodEndDate
-        plan {
-          id
-          name
-          interval
-          amountCents
-          amountCurrency
-        }
-      }
-      fees {
-        id
-        amountCents
-        eventsCount
-        units
-        feeType
-        charge {
-          id
-          billableMetric {
-            id
-            name
-            aggregationType
-          }
-        }
-        group {
-          id
-          key
-          value
-        }
-      }
-    }
-    creditNotes {
-      id
-      balanceAmountCents
-      balanceAmountCurrency
-      creditAmountCents
-      creditAmountCurrency
-      number
-      subTotalVatExcludedAmountCents
-      subTotalVatExcludedAmountCurrency
-      vatAmountCents
-      vatAmountCurrency
-      items {
-        amountCents
-        fee {
-          id
-          amountCents
-          amountCurrency
-          eventsCount
-          units
-          feeType
-          charge {
-            id
-            billableMetric {
-              id
-              name
-              aggregationType
-            }
-          }
-          subscription {
-            id
-            name
-            plan {
-              id
-              name
-            }
-          }
-          group {
-            id
-            key
-            value
-          }
-        }
-      }
-    }
+    ...InvoiceForCreditNotesTable
+    ...InvoiceForDetailsTable
+    ...InvoiceForInvoiceInfos
   }
 }
-    `;
+    ${InvoiceForCreditNotesTableFragmentDoc}
+${InvoiceForDetailsTableFragmentDoc}
+${InvoiceForInvoiceInfosFragmentDoc}`;
 
 /**
  * __useGetAllInvoiceDetailsQuery__
