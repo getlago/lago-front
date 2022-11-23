@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { gql } from '@apollo/client'
 import { useParams, generatePath, Outlet } from 'react-router-dom'
 import styled from 'styled-components'
@@ -23,6 +24,7 @@ import {
 } from '~/core/router'
 import {
   InvoiceStatusTypeEnum,
+  InvoiceTypeEnum,
   useDownloadInvoiceMutation,
   useGetInvoiceDetailsQuery,
 } from '~/generated/graphql'
@@ -36,6 +38,7 @@ gql`
   query getInvoiceDetails($id: ID!) {
     invoice(id: $id) {
       id
+      invoiceType
       number
       status
       totalAmountCents
@@ -110,21 +113,29 @@ const CustomerInvoiceDetails = () => {
     variables: { id: invoiceId as string },
     skip: !invoiceId,
   })
-  const { number, status, totalAmountCents, totalAmountCurrency } = data?.invoice || {}
+  const { invoiceType, number, status, totalAmountCents, totalAmountCurrency } = data?.invoice || {}
   const formattedStatus = mapStatus(status)
   const hasError = (!!error || !data?.invoice) && !loading
 
-  const tabsOptions = [
-    {
-      title: translate('text_634687079be251fdb43833b7'),
-      link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, { id, invoiceId }),
-      match: [CUSTOMER_INVOICE_DETAILS_ROUTE, CUSTOMER_INVOICE_OVERVIEW_ROUTE],
-    },
-    {
-      title: translate('text_636bdef6565341dcb9cfb125'),
-      link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE, { id, invoiceId }),
-    },
-  ]
+  const tabsOptions = useMemo(() => {
+    const tabs = [
+      {
+        title: translate('text_634687079be251fdb43833b7'),
+        link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, { id, invoiceId }),
+        match: [CUSTOMER_INVOICE_DETAILS_ROUTE, CUSTOMER_INVOICE_OVERVIEW_ROUTE],
+      },
+    ]
+
+    if (invoiceType !== InvoiceTypeEnum.Credit) {
+      tabs.push({
+        title: translate('text_636bdef6565341dcb9cfb125'),
+        link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE, { id, invoiceId }),
+        match: [CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE],
+      })
+    }
+
+    return tabs
+  }, [id, invoiceId, invoiceType, translate])
 
   return (
     <>

@@ -3233,7 +3233,7 @@ export type GetInvoiceDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceDetailsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number, totalAmountCurrency: CurrencyEnum } | null };
+export type GetInvoiceDetailsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, status: InvoiceStatusTypeEnum, totalAmountCents: number, totalAmountCurrency: CurrencyEnum } | null };
 
 export type CurrentVersionQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -6055,6 +6055,7 @@ export const GetInvoiceDetailsDocument = gql`
     query getInvoiceDetails($id: ID!) {
   invoice(id: $id) {
     id
+    invoiceType
     number
     status
     totalAmountCents
