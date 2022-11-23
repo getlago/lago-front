@@ -48,8 +48,6 @@ gql`
   query getCreditNote($id: ID!) {
     creditNote(id: $id) {
       id
-      balanceAmountCents
-      balanceAmountCurrency
       canBeVoided
       createdAt
       creditAmountCents
@@ -569,21 +567,40 @@ const CreditNoteDetails = () => {
                         </Typography>
                       </td>
                     </tr>
-                    <tr>
-                      <td>
-                        <Typography variant="bodyHl" color="grey700">
-                          {translate('text_637655cb50f04bf1c8379d28')}
-                        </Typography>
-                      </td>
-                      <td>
-                        <Typography variant="body" color="success600">
-                          {intlFormatNumber(creditNote?.balanceAmountCents || 0, {
-                            currencyDisplay: 'symbol',
-                            currency: creditNote?.balanceAmountCurrency || CurrencyEnum.Usd,
-                          })}
-                        </Typography>
-                      </td>
-                    </tr>
+                    {!!creditNote?.creditAmountCents && (
+                      <tr>
+                        <td>
+                          <Typography variant="bodyHl" color="grey700">
+                            {translate('text_637655cb50f04bf1c8379d28')}
+                          </Typography>
+                        </td>
+                        <td>
+                          <Typography variant="body" color="success600">
+                            {intlFormatNumber(creditNote?.creditAmountCents || 0, {
+                              currencyDisplay: 'symbol',
+                              currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
+                            })}
+                          </Typography>
+                        </td>
+                      </tr>
+                    )}
+                    {!!creditNote?.refundAmountCents && (
+                      <tr>
+                        <td>
+                          <Typography variant="bodyHl" color="grey700">
+                            {translate('text_637de077dca2f885da839287')}
+                          </Typography>
+                        </td>
+                        <td>
+                          <Typography variant="body" color="success600">
+                            {intlFormatNumber(creditNote?.refundAmountCents || 0, {
+                              currencyDisplay: 'symbol',
+                              currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
+                            })}
+                          </Typography>
+                        </td>
+                      </tr>
+                    )}
                     <tr>
                       <td>
                         <Typography variant="bodyHl" color="grey600">
@@ -592,9 +609,9 @@ const CreditNoteDetails = () => {
                       </td>
                       <td>
                         <Typography variant="body" color="success600">
-                          {intlFormatNumber(Number(creditNote?.creditAmountCents) || 0, {
+                          {intlFormatNumber(Number(creditNote?.totalAmountCents) || 0, {
                             currencyDisplay: 'symbol',
-                            currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
+                            currency: creditNote?.totalAmountCurrency || CurrencyEnum.Usd,
                           })}
                         </Typography>
                       </td>
