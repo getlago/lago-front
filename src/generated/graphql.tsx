@@ -2450,275 +2450,275 @@ export type TerminateSubscriptionInput = {
 };
 
 export enum TimezoneEnum {
-  /** Africa/Algiers (+01:00) */
+  /** Africa/Algiers */
   TzAfricaAlgiers = 'TZ_AFRICA_ALGIERS',
-  /** Africa/Cairo (+02:00) */
+  /** Africa/Cairo */
   TzAfricaCairo = 'TZ_AFRICA_CAIRO',
-  /** Africa/Casablanca (+01:00) */
+  /** Africa/Casablanca */
   TzAfricaCasablanca = 'TZ_AFRICA_CASABLANCA',
-  /** Africa/Harare (+02:00) */
+  /** Africa/Harare */
   TzAfricaHarare = 'TZ_AFRICA_HARARE',
-  /** Africa/Johannesburg (+02:00) */
+  /** Africa/Johannesburg */
   TzAfricaJohannesburg = 'TZ_AFRICA_JOHANNESBURG',
-  /** Africa/Monrovia (+00:00) */
+  /** Africa/Monrovia */
   TzAfricaMonrovia = 'TZ_AFRICA_MONROVIA',
-  /** Africa/Nairobi (+03:00) */
+  /** Africa/Nairobi */
   TzAfricaNairobi = 'TZ_AFRICA_NAIROBI',
-  /** America/Argentina/Buenos_Aires (-03:00) */
+  /** America/Argentina/Buenos_Aires */
   TzAmericaArgentinaBuenosAires = 'TZ_AMERICA_ARGENTINA_BUENOS_AIRES',
-  /** America/Bogota (-05:00) */
+  /** America/Bogota */
   TzAmericaBogota = 'TZ_AMERICA_BOGOTA',
-  /** America/Caracas (-04:00) */
+  /** America/Caracas */
   TzAmericaCaracas = 'TZ_AMERICA_CARACAS',
-  /** America/Chicago (-06:00) */
+  /** America/Chicago */
   TzAmericaChicago = 'TZ_AMERICA_CHICAGO',
-  /** America/Chihuahua (-07:00) */
+  /** America/Chihuahua */
   TzAmericaChihuahua = 'TZ_AMERICA_CHIHUAHUA',
-  /** America/Denver (-07:00) */
+  /** America/Denver */
   TzAmericaDenver = 'TZ_AMERICA_DENVER',
-  /** America/Godthab (-03:00) */
+  /** America/Godthab */
   TzAmericaGodthab = 'TZ_AMERICA_GODTHAB',
-  /** America/Guatemala (-06:00) */
+  /** America/Guatemala */
   TzAmericaGuatemala = 'TZ_AMERICA_GUATEMALA',
-  /** America/Guyana (-04:00) */
+  /** America/Guyana */
   TzAmericaGuyana = 'TZ_AMERICA_GUYANA',
-  /** America/Halifax (-04:00) */
+  /** America/Halifax */
   TzAmericaHalifax = 'TZ_AMERICA_HALIFAX',
-  /** America/Indiana/Indianapolis (-05:00) */
+  /** America/Indiana/Indianapolis */
   TzAmericaIndianaIndianapolis = 'TZ_AMERICA_INDIANA_INDIANAPOLIS',
-  /** America/Juneau (-09:00) */
+  /** America/Juneau */
   TzAmericaJuneau = 'TZ_AMERICA_JUNEAU',
-  /** America/La_Paz (-04:00) */
+  /** America/La_Paz */
   TzAmericaLaPaz = 'TZ_AMERICA_LA_PAZ',
-  /** America/Lima (-05:00) */
+  /** America/Lima */
   TzAmericaLima = 'TZ_AMERICA_LIMA',
-  /** America/Los_Angeles (-08:00) */
+  /** America/Los_Angeles */
   TzAmericaLosAngeles = 'TZ_AMERICA_LOS_ANGELES',
-  /** America/Mazatlan (-07:00) */
+  /** America/Mazatlan */
   TzAmericaMazatlan = 'TZ_AMERICA_MAZATLAN',
-  /** America/Mexico_City (-06:00) */
+  /** America/Mexico_City */
   TzAmericaMexicoCity = 'TZ_AMERICA_MEXICO_CITY',
-  /** America/Monterrey (-06:00) */
+  /** America/Monterrey */
   TzAmericaMonterrey = 'TZ_AMERICA_MONTERREY',
-  /** America/Montevideo (-03:00) */
+  /** America/Montevideo */
   TzAmericaMontevideo = 'TZ_AMERICA_MONTEVIDEO',
-  /** America/New_York (-05:00) */
+  /** America/New_York */
   TzAmericaNewYork = 'TZ_AMERICA_NEW_YORK',
-  /** America/Phoenix (-07:00) */
+  /** America/Phoenix */
   TzAmericaPhoenix = 'TZ_AMERICA_PHOENIX',
-  /** America/Puerto_Rico (-04:00) */
+  /** America/Puerto_Rico */
   TzAmericaPuertoRico = 'TZ_AMERICA_PUERTO_RICO',
-  /** America/Regina (-06:00) */
+  /** America/Regina */
   TzAmericaRegina = 'TZ_AMERICA_REGINA',
-  /** America/Santiago (-04:00) */
+  /** America/Santiago */
   TzAmericaSantiago = 'TZ_AMERICA_SANTIAGO',
-  /** America/Sao_Paulo (-03:00) */
+  /** America/Sao_Paulo */
   TzAmericaSaoPaulo = 'TZ_AMERICA_SAO_PAULO',
-  /** America/St_Johns (-03:30) */
+  /** America/St_Johns */
   TzAmericaStJohns = 'TZ_AMERICA_ST_JOHNS',
-  /** America/Tijuana (-08:00) */
+  /** America/Tijuana */
   TzAmericaTijuana = 'TZ_AMERICA_TIJUANA',
-  /** Asia/Almaty (+06:00) */
+  /** Asia/Almaty */
   TzAsiaAlmaty = 'TZ_ASIA_ALMATY',
-  /** Asia/Baghdad (+03:00) */
+  /** Asia/Baghdad */
   TzAsiaBaghdad = 'TZ_ASIA_BAGHDAD',
-  /** Asia/Baku (+04:00) */
+  /** Asia/Baku */
   TzAsiaBaku = 'TZ_ASIA_BAKU',
-  /** Asia/Bangkok (+07:00) */
+  /** Asia/Bangkok */
   TzAsiaBangkok = 'TZ_ASIA_BANGKOK',
-  /** Asia/Chongqing (+08:00) */
+  /** Asia/Chongqing */
   TzAsiaChongqing = 'TZ_ASIA_CHONGQING',
-  /** Asia/Colombo (+05:30) */
+  /** Asia/Colombo */
   TzAsiaColombo = 'TZ_ASIA_COLOMBO',
-  /** Asia/Dhaka (+06:00) */
+  /** Asia/Dhaka */
   TzAsiaDhaka = 'TZ_ASIA_DHAKA',
-  /** Asia/Hong_Kong (+08:00) */
+  /** Asia/Hong_Kong */
   TzAsiaHongKong = 'TZ_ASIA_HONG_KONG',
-  /** Asia/Irkutsk (+08:00) */
+  /** Asia/Irkutsk */
   TzAsiaIrkutsk = 'TZ_ASIA_IRKUTSK',
-  /** Asia/Jakarta (+07:00) */
+  /** Asia/Jakarta */
   TzAsiaJakarta = 'TZ_ASIA_JAKARTA',
-  /** Asia/Jerusalem (+02:00) */
+  /** Asia/Jerusalem */
   TzAsiaJerusalem = 'TZ_ASIA_JERUSALEM',
-  /** Asia/Kabul (+04:30) */
+  /** Asia/Kabul */
   TzAsiaKabul = 'TZ_ASIA_KABUL',
-  /** Asia/Kamchatka (+12:00) */
+  /** Asia/Kamchatka */
   TzAsiaKamchatka = 'TZ_ASIA_KAMCHATKA',
-  /** Asia/Karachi (+05:00) */
+  /** Asia/Karachi */
   TzAsiaKarachi = 'TZ_ASIA_KARACHI',
-  /** Asia/Kathmandu (+05:45) */
+  /** Asia/Kathmandu */
   TzAsiaKathmandu = 'TZ_ASIA_KATHMANDU',
-  /** Asia/Kolkata (+05:30) */
+  /** Asia/Kolkata */
   TzAsiaKolkata = 'TZ_ASIA_KOLKATA',
-  /** Asia/Krasnoyarsk (+07:00) */
+  /** Asia/Krasnoyarsk */
   TzAsiaKrasnoyarsk = 'TZ_ASIA_KRASNOYARSK',
-  /** Asia/Kuala_Lumpur (+08:00) */
+  /** Asia/Kuala_Lumpur */
   TzAsiaKualaLumpur = 'TZ_ASIA_KUALA_LUMPUR',
-  /** Asia/Kuwait (+03:00) */
+  /** Asia/Kuwait */
   TzAsiaKuwait = 'TZ_ASIA_KUWAIT',
-  /** Asia/Magadan (+11:00) */
+  /** Asia/Magadan */
   TzAsiaMagadan = 'TZ_ASIA_MAGADAN',
-  /** Asia/Muscat (+04:00) */
+  /** Asia/Muscat */
   TzAsiaMuscat = 'TZ_ASIA_MUSCAT',
-  /** Asia/Novosibirsk (+07:00) */
+  /** Asia/Novosibirsk */
   TzAsiaNovosibirsk = 'TZ_ASIA_NOVOSIBIRSK',
-  /** Asia/Rangoon (+06:30) */
+  /** Asia/Rangoon */
   TzAsiaRangoon = 'TZ_ASIA_RANGOON',
-  /** Asia/Riyadh (+03:00) */
+  /** Asia/Riyadh */
   TzAsiaRiyadh = 'TZ_ASIA_RIYADH',
-  /** Asia/Seoul (+09:00) */
+  /** Asia/Seoul */
   TzAsiaSeoul = 'TZ_ASIA_SEOUL',
-  /** Asia/Shanghai (+08:00) */
+  /** Asia/Shanghai */
   TzAsiaShanghai = 'TZ_ASIA_SHANGHAI',
-  /** Asia/Singapore (+08:00) */
+  /** Asia/Singapore */
   TzAsiaSingapore = 'TZ_ASIA_SINGAPORE',
-  /** Asia/Srednekolymsk (+11:00) */
+  /** Asia/Srednekolymsk */
   TzAsiaSrednekolymsk = 'TZ_ASIA_SREDNEKOLYMSK',
-  /** Asia/Taipei (+08:00) */
+  /** Asia/Taipei */
   TzAsiaTaipei = 'TZ_ASIA_TAIPEI',
-  /** Asia/Tashkent (+05:00) */
+  /** Asia/Tashkent */
   TzAsiaTashkent = 'TZ_ASIA_TASHKENT',
-  /** Asia/Tbilisi (+04:00) */
+  /** Asia/Tbilisi */
   TzAsiaTbilisi = 'TZ_ASIA_TBILISI',
-  /** Asia/Tehran (+03:30) */
+  /** Asia/Tehran */
   TzAsiaTehran = 'TZ_ASIA_TEHRAN',
-  /** Asia/Tokyo (+09:00) */
+  /** Asia/Tokyo */
   TzAsiaTokyo = 'TZ_ASIA_TOKYO',
-  /** Asia/Ulaanbaatar (+08:00) */
+  /** Asia/Ulaanbaatar */
   TzAsiaUlaanbaatar = 'TZ_ASIA_ULAANBAATAR',
-  /** Asia/Urumqi (+06:00) */
+  /** Asia/Urumqi */
   TzAsiaUrumqi = 'TZ_ASIA_URUMQI',
-  /** Asia/Vladivostok (+10:00) */
+  /** Asia/Vladivostok */
   TzAsiaVladivostok = 'TZ_ASIA_VLADIVOSTOK',
-  /** Asia/Yakutsk (+09:00) */
+  /** Asia/Yakutsk */
   TzAsiaYakutsk = 'TZ_ASIA_YAKUTSK',
-  /** Asia/Yekaterinburg (+05:00) */
+  /** Asia/Yekaterinburg */
   TzAsiaYekaterinburg = 'TZ_ASIA_YEKATERINBURG',
-  /** Asia/Yerevan (+04:00) */
+  /** Asia/Yerevan */
   TzAsiaYerevan = 'TZ_ASIA_YEREVAN',
-  /** Atlantic/Azores (-01:00) */
+  /** Atlantic/Azores */
   TzAtlanticAzores = 'TZ_ATLANTIC_AZORES',
-  /** Atlantic/Cape_Verde (-01:00) */
+  /** Atlantic/Cape_Verde */
   TzAtlanticCapeVerde = 'TZ_ATLANTIC_CAPE_VERDE',
-  /** Atlantic/South_Georgia (-02:00) */
+  /** Atlantic/South_Georgia */
   TzAtlanticSouthGeorgia = 'TZ_ATLANTIC_SOUTH_GEORGIA',
-  /** Australia/Adelaide (+09:30) */
+  /** Australia/Adelaide */
   TzAustraliaAdelaide = 'TZ_AUSTRALIA_ADELAIDE',
-  /** Australia/Brisbane (+10:00) */
+  /** Australia/Brisbane */
   TzAustraliaBrisbane = 'TZ_AUSTRALIA_BRISBANE',
-  /** Australia/Darwin (+09:30) */
+  /** Australia/Darwin */
   TzAustraliaDarwin = 'TZ_AUSTRALIA_DARWIN',
-  /** Australia/Hobart (+10:00) */
+  /** Australia/Hobart */
   TzAustraliaHobart = 'TZ_AUSTRALIA_HOBART',
-  /** Australia/Melbourne (+10:00) */
+  /** Australia/Melbourne */
   TzAustraliaMelbourne = 'TZ_AUSTRALIA_MELBOURNE',
-  /** Australia/Perth (+08:00) */
+  /** Australia/Perth */
   TzAustraliaPerth = 'TZ_AUSTRALIA_PERTH',
-  /** Australia/Sydney (+10:00) */
+  /** Australia/Sydney */
   TzAustraliaSydney = 'TZ_AUSTRALIA_SYDNEY',
-  /** Europe/Amsterdam (+01:00) */
+  /** Europe/Amsterdam */
   TzEuropeAmsterdam = 'TZ_EUROPE_AMSTERDAM',
-  /** Europe/Athens (+02:00) */
+  /** Europe/Athens */
   TzEuropeAthens = 'TZ_EUROPE_ATHENS',
-  /** Europe/Belgrade (+01:00) */
+  /** Europe/Belgrade */
   TzEuropeBelgrade = 'TZ_EUROPE_BELGRADE',
-  /** Europe/Berlin (+01:00) */
+  /** Europe/Berlin */
   TzEuropeBerlin = 'TZ_EUROPE_BERLIN',
-  /** Europe/Bratislava (+01:00) */
+  /** Europe/Bratislava */
   TzEuropeBratislava = 'TZ_EUROPE_BRATISLAVA',
-  /** Europe/Brussels (+01:00) */
+  /** Europe/Brussels */
   TzEuropeBrussels = 'TZ_EUROPE_BRUSSELS',
-  /** Europe/Bucharest (+02:00) */
+  /** Europe/Bucharest */
   TzEuropeBucharest = 'TZ_EUROPE_BUCHAREST',
-  /** Europe/Budapest (+01:00) */
+  /** Europe/Budapest */
   TzEuropeBudapest = 'TZ_EUROPE_BUDAPEST',
-  /** Europe/Copenhagen (+01:00) */
+  /** Europe/Copenhagen */
   TzEuropeCopenhagen = 'TZ_EUROPE_COPENHAGEN',
-  /** Europe/Dublin (+01:00) */
+  /** Europe/Dublin */
   TzEuropeDublin = 'TZ_EUROPE_DUBLIN',
-  /** Europe/Helsinki (+02:00) */
+  /** Europe/Helsinki */
   TzEuropeHelsinki = 'TZ_EUROPE_HELSINKI',
-  /** Europe/Istanbul (+03:00) */
+  /** Europe/Istanbul */
   TzEuropeIstanbul = 'TZ_EUROPE_ISTANBUL',
-  /** Europe/Kaliningrad (+02:00) */
+  /** Europe/Kaliningrad */
   TzEuropeKaliningrad = 'TZ_EUROPE_KALININGRAD',
-  /** Europe/Kiev (+02:00) */
+  /** Europe/Kiev */
   TzEuropeKiev = 'TZ_EUROPE_KIEV',
-  /** Europe/Lisbon (+00:00) */
+  /** Europe/Lisbon */
   TzEuropeLisbon = 'TZ_EUROPE_LISBON',
-  /** Europe/Ljubljana (+01:00) */
+  /** Europe/Ljubljana */
   TzEuropeLjubljana = 'TZ_EUROPE_LJUBLJANA',
-  /** Europe/London (+00:00) */
+  /** Europe/London */
   TzEuropeLondon = 'TZ_EUROPE_LONDON',
-  /** Europe/Madrid (+01:00) */
+  /** Europe/Madrid */
   TzEuropeMadrid = 'TZ_EUROPE_MADRID',
-  /** Europe/Minsk (+03:00) */
+  /** Europe/Minsk */
   TzEuropeMinsk = 'TZ_EUROPE_MINSK',
-  /** Europe/Moscow (+03:00) */
+  /** Europe/Moscow */
   TzEuropeMoscow = 'TZ_EUROPE_MOSCOW',
-  /** Europe/Paris (+01:00) */
+  /** Europe/Paris */
   TzEuropeParis = 'TZ_EUROPE_PARIS',
-  /** Europe/Prague (+01:00) */
+  /** Europe/Prague */
   TzEuropePrague = 'TZ_EUROPE_PRAGUE',
-  /** Europe/Riga (+02:00) */
+  /** Europe/Riga */
   TzEuropeRiga = 'TZ_EUROPE_RIGA',
-  /** Europe/Rome (+01:00) */
+  /** Europe/Rome */
   TzEuropeRome = 'TZ_EUROPE_ROME',
-  /** Europe/Samara (+04:00) */
+  /** Europe/Samara */
   TzEuropeSamara = 'TZ_EUROPE_SAMARA',
-  /** Europe/Sarajevo (+01:00) */
+  /** Europe/Sarajevo */
   TzEuropeSarajevo = 'TZ_EUROPE_SARAJEVO',
-  /** Europe/Skopje (+01:00) */
+  /** Europe/Skopje */
   TzEuropeSkopje = 'TZ_EUROPE_SKOPJE',
-  /** Europe/Sofia (+02:00) */
+  /** Europe/Sofia */
   TzEuropeSofia = 'TZ_EUROPE_SOFIA',
-  /** Europe/Stockholm (+01:00) */
+  /** Europe/Stockholm */
   TzEuropeStockholm = 'TZ_EUROPE_STOCKHOLM',
-  /** Europe/Tallinn (+02:00) */
+  /** Europe/Tallinn */
   TzEuropeTallinn = 'TZ_EUROPE_TALLINN',
-  /** Europe/Vienna (+01:00) */
+  /** Europe/Vienna */
   TzEuropeVienna = 'TZ_EUROPE_VIENNA',
-  /** Europe/Vilnius (+02:00) */
+  /** Europe/Vilnius */
   TzEuropeVilnius = 'TZ_EUROPE_VILNIUS',
-  /** Europe/Volgograd (+03:00) */
+  /** Europe/Volgograd */
   TzEuropeVolgograd = 'TZ_EUROPE_VOLGOGRAD',
-  /** Europe/Warsaw (+01:00) */
+  /** Europe/Warsaw */
   TzEuropeWarsaw = 'TZ_EUROPE_WARSAW',
-  /** Europe/Zagreb (+01:00) */
+  /** Europe/Zagreb */
   TzEuropeZagreb = 'TZ_EUROPE_ZAGREB',
-  /** Europe/Zurich (+01:00) */
+  /** Europe/Zurich */
   TzEuropeZurich = 'TZ_EUROPE_ZURICH',
-  /** GMT+12 (-12:00) */
+  /** GMT+12 */
   TzGmt_12 = 'TZ_GMT_12',
-  /** Pacific/Apia (+13:00) */
+  /** Pacific/Apia */
   TzPacificApia = 'TZ_PACIFIC_APIA',
-  /** Pacific/Auckland (+12:00) */
+  /** Pacific/Auckland */
   TzPacificAuckland = 'TZ_PACIFIC_AUCKLAND',
-  /** Pacific/Chatham (+12:45) */
+  /** Pacific/Chatham */
   TzPacificChatham = 'TZ_PACIFIC_CHATHAM',
-  /** Pacific/Fakaofo (+13:00) */
+  /** Pacific/Fakaofo */
   TzPacificFakaofo = 'TZ_PACIFIC_FAKAOFO',
-  /** Pacific/Fiji (+12:00) */
+  /** Pacific/Fiji */
   TzPacificFiji = 'TZ_PACIFIC_FIJI',
-  /** Pacific/Guadalcanal (+11:00) */
+  /** Pacific/Guadalcanal */
   TzPacificGuadalcanal = 'TZ_PACIFIC_GUADALCANAL',
-  /** Pacific/Guam (+10:00) */
+  /** Pacific/Guam */
   TzPacificGuam = 'TZ_PACIFIC_GUAM',
-  /** Pacific/Honolulu (-10:00) */
+  /** Pacific/Honolulu */
   TzPacificHonolulu = 'TZ_PACIFIC_HONOLULU',
-  /** Pacific/Majuro (+12:00) */
+  /** Pacific/Majuro */
   TzPacificMajuro = 'TZ_PACIFIC_MAJURO',
-  /** Pacific/Midway (-11:00) */
+  /** Pacific/Midway */
   TzPacificMidway = 'TZ_PACIFIC_MIDWAY',
-  /** Pacific/Noumea (+11:00) */
+  /** Pacific/Noumea */
   TzPacificNoumea = 'TZ_PACIFIC_NOUMEA',
-  /** Pacific/Pago_Pago (-11:00) */
+  /** Pacific/Pago_Pago */
   TzPacificPagoPago = 'TZ_PACIFIC_PAGO_PAGO',
-  /** Pacific/Port_Moresby (+10:00) */
+  /** Pacific/Port_Moresby */
   TzPacificPortMoresby = 'TZ_PACIFIC_PORT_MORESBY',
-  /** Pacific/Tongatapu (+13:00) */
+  /** Pacific/Tongatapu */
   TzPacificTongatapu = 'TZ_PACIFIC_TONGATAPU',
-  /** UTC (+00:00) */
+  /** UTC */
   TzUtc = 'TZ_UTC'
 }
 
@@ -3226,7 +3226,7 @@ export type UpdateVatRateOrganizationMutationVariables = Exact<{
 }>;
 
 
-export type UpdateVatRateOrganizationMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string, vatRate: number } | null };
+export type UpdateVatRateOrganizationMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string, vatRate: number, name: string, logoUrl?: string | null, apiKey: string } | null };
 
 export type AddStripeApiKeyMutationVariables = Exact<{
   input: AddStripePaymentProviderInput;
@@ -5165,9 +5165,10 @@ export const UpdateVatRateOrganizationDocument = gql`
   updateOrganization(input: $input) {
     id
     vatRate
+    ...CurrentOrganization
   }
 }
-    `;
+    ${CurrentOrganizationFragmentDoc}`;
 export type UpdateVatRateOrganizationMutationFn = Apollo.MutationFunction<UpdateVatRateOrganizationMutation, UpdateVatRateOrganizationMutationVariables>;
 
 /**

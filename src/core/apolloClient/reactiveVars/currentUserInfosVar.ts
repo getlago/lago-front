@@ -48,6 +48,22 @@ export const updateCurrentUserInfosVar = (params: CurrentUserInfos) => {
   })
 }
 
+export const udpateCurrentOrganizationInfosVar = (params: CurrentOrganizationFragment) => {
+  const currentState = currentUserInfosVar()
+  const isUpdatingCurrentOrga = params?.id === currentState?.currentOrganization?.id
+
+  if (!isUpdatingCurrentOrga) return
+
+  const newOrga = { ...currentState?.currentOrganization, ...params }
+
+  setItemFromLS(ORGANIZATION_LS_KEY, newOrga)
+
+  currentUserInfosVar({
+    ...currentState,
+    currentOrganization: newOrga,
+  })
+}
+
 export const switchCurrentOrganization = async (
   client: ApolloClient<object>,
   organizationId: string
