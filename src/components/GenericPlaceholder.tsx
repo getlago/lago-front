@@ -49,7 +49,7 @@ export const GenericPlaceholder = ({
 const Container = styled.div<{ $noMargins?: boolean }>`
   margin: ${({ $noMargins }) => ($noMargins ? 0 : '0 auto')};
   padding: ${({ $noMargins }) =>
-    $noMargins ? 0 : `${theme.spacing(20)} ${theme.spacing(4)} ${theme.spacing(4)}`};
+    $noMargins ? 0 : `${theme.spacing(12)} ${theme.spacing(4)} ${theme.spacing(4)}`};
   max-width: 496px;
 
   img {
