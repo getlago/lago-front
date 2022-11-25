@@ -40,7 +40,7 @@ export const AddChargeDialog = forwardRef<DialogRef, AddChargeDialogProps>(
     const [selectedId, setSelectedId] = useState<string>()
     const { translate } = useInternationalization()
     const [getBillableMetrics, { loading, data }] = useGetbillableMetricsLazyQuery({
-      variables: { limit: 50 },
+      variables: { limit: 500 },
     })
     const billableMetrics = useMemo(() => {
       if (!data || !data?.billableMetrics || !data?.billableMetrics?.collection) return []
