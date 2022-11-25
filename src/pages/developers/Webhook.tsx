@@ -12,7 +12,7 @@ import {
   Icon,
 } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT, MenuPopper } from '~/styles'
+import { theme, NAV_HEIGHT, MenuPopper } from '~/styles'
 import { useWehbookSettingQuery } from '~/generated/graphql'
 import { EditWebhookDialog, EditWebhookDialogRef } from '~/components/developers/EditWebhookDialog'
 import {
@@ -45,11 +45,13 @@ const Webhook = () => {
     <Page>
       <Typography variant="headline">{translate('text_6271200984178801ba8bdef2')}</Typography>
       <Subtitle>{translate('text_6271200984178801ba8bdf06')}</Subtitle>
-      <Head $empty={!webhookUrl && !loading}>
-        <Typography variant="subhead">{translate('text_6271200984178801ba8bdf40')}</Typography>
+      <Head>
+        <Typography variant="subhead" color="grey700">
+          {translate('text_6271200984178801ba8bdf40')}
+        </Typography>
         <Button
           disabled={!!webhookUrl}
-          variant="secondary"
+          variant="quaternary"
           onClick={editDialogRef?.current?.openDialog}
         >
           {translate('text_6271200984178801ba8bdf1a')}
@@ -57,81 +59,76 @@ const Webhook = () => {
       </Head>
 
       {!webhookUrl && !loading ? (
-        <Typography color="disabled">{translate('text_62ce85fb3fb6842020331d85')}</Typography>
+        <EmptyText variant="caption" color="grey600">
+          {translate('text_62ce85fb3fb6842020331d85')}
+        </EmptyText>
       ) : (
-        <>
-          <ListHead>
-            <Typography variant="bodyHl" color="disabled">
-              {translate('text_6271200984178801ba8bdf3a')}
-            </Typography>
-          </ListHead>
-          <WebhookItem>
-            {loading ? (
-              <>
-                <LeftBlock>
-                  <Skeleton variant="connectorAvatar" size="medium" />
-                  <Skeleton variant="text" width={240} height={12} />
-                </LeftBlock>
-                <RightSkeleton variant="text" width={160} height={12} />
-              </>
-            ) : (
-              <>
-                <LeftBlock>
-                  <Avatar variant="connector">
-                    <Icon color="dark" name="globe" />
-                  </Avatar>
-                  <Typography variant="bodyHl" color="textSecondary" noWrap>
-                    {webhookUrl}
-                  </Typography>
-                </LeftBlock>
-                <RightBlock>
-                  <Popper
-                    PopperProps={{ placement: 'bottom-end' }}
-                    opener={({ isOpen }) => (
-                      // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-                      <div>
-                        <Tooltip
-                          placement="top-end"
-                          disableHoverListener={isOpen}
-                          title={translate('text_6271200984178801ba8bdf8f')}
-                        >
-                          <Button icon="dots-horizontal" variant="quaternary" />
-                        </Tooltip>
-                      </div>
-                    )}
-                  >
-                    {({ closePopper }) => (
-                      <MenuPopper>
-                        <Button
-                          startIcon="pen"
-                          variant="quaternary"
-                          align="left"
-                          onClick={() => {
-                            editDialogRef.current?.openDialog()
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_6271200984178801ba8bdf88')}
-                        </Button>
-                        <Button
-                          startIcon="trash"
-                          variant="quaternary"
-                          align="left"
-                          onClick={() => {
-                            deleleDialogRef.current?.openDialog()
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_6271200984178801ba8bdf8e')}
-                        </Button>
-                      </MenuPopper>
-                    )}
-                  </Popper>
-                </RightBlock>
-              </>
-            )}
-          </WebhookItem>
-        </>
+        <WebhookItem>
+          {loading ? (
+            <>
+              <LeftBlock>
+                <Skeleton variant="connectorAvatar" size="medium" />
+                <Skeleton variant="text" width={240} height={12} />
+              </LeftBlock>
+              <RightSkeleton variant="text" width={160} height={12} />
+            </>
+          ) : (
+            <>
+              <LeftBlock>
+                <Avatar variant="connector">
+                  <Icon color="dark" name="globe" />
+                </Avatar>
+                <Typography variant="body" color="grey700" noWrap>
+                  {webhookUrl}
+                </Typography>
+              </LeftBlock>
+              <RightBlock>
+                <Popper
+                  PopperProps={{ placement: 'bottom-end' }}
+                  opener={({ isOpen }) => (
+                    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+                    <div>
+                      <Tooltip
+                        placement="top-end"
+                        disableHoverListener={isOpen}
+                        title={translate('text_6271200984178801ba8bdf8f')}
+                      >
+                        <Button icon="dots-horizontal" variant="quaternary" />
+                      </Tooltip>
+                    </div>
+                  )}
+                >
+                  {({ closePopper }) => (
+                    <MenuPopper>
+                      <Button
+                        startIcon="pen"
+                        variant="quaternary"
+                        align="left"
+                        onClick={() => {
+                          editDialogRef.current?.openDialog()
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_6271200984178801ba8bdf88')}
+                      </Button>
+                      <Button
+                        startIcon="trash"
+                        variant="quaternary"
+                        align="left"
+                        onClick={() => {
+                          deleleDialogRef.current?.openDialog()
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_6271200984178801ba8bdf8e')}
+                      </Button>
+                    </MenuPopper>
+                  )}
+                </Popper>
+              </RightBlock>
+            </>
+          )}
+        </WebhookItem>
       )}
       <EditWebhookDialog ref={editDialogRef} webhook={webhookUrl} />
       <DeleteWebhookDialog ref={deleleDialogRef} />
@@ -140,10 +137,11 @@ const Webhook = () => {
 }
 
 const Page = styled.div`
-  padding: ${theme.spacing(12)};
+  padding: ${theme.spacing(8)} ${theme.spacing(12)};
+  max-width: ${theme.spacing(168)};
 
   > *:first-child {
-    margin-bottom: ${theme.spacing(2)};
+    margin-bottom: ${theme.spacing(1)};
   }
 `
 
@@ -151,22 +149,16 @@ const Subtitle = styled(Typography)`
   margin-bottom: ${theme.spacing(8)};
 `
 
-const Head = styled.div<{ $empty?: boolean }>`
+const Head = styled.div`
   height: ${NAV_HEIGHT}px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: ${theme.shadows[7]};
-  margin-bottom: ${({ $empty }) => ($empty ? theme.spacing(6) : 0)};
 `
 
-const ListHead = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+const EmptyText = styled(Typography)`
+  padding-bottom: ${theme.spacing(8)};
   box-shadow: ${theme.shadows[7]};
-  height: ${HEADER_TABLE_HEIGHT}px;
-  padding-right: ${theme.spacing(16)};
 `
 
 const WebhookItem = styled.div`
