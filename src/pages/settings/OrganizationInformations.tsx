@@ -66,15 +66,15 @@ const OrganizationInformations = () => {
   return (
     <Page>
       <Title variant="headline">{translate('text_62ab2d0396dd6b0361614d2c')}</Title>
-      <Subtitle>{translate('text_62ab2d0396dd6b0361614d34')}</Subtitle>
+      <Subtitle>{translate('text_6380d7e60f081e5b777c4b22')}</Subtitle>
       <Head>
         <Typography variant="subhead">{translate('text_62ab2d0396dd6b0361614d44')}</Typography>
         <Button
-          variant="secondary"
+          variant="quaternary"
           disabled={!!loading}
           onClick={editDialogRef?.current?.openDialog}
         >
-          {translate('text_62ab2d0396dd6b0361614d3c')}
+          {translate('text_6380d7e60f081e5b777c4b24')}
         </Button>
       </Head>
       {!!loading ? (
@@ -266,7 +266,8 @@ const OrganizationInformations = () => {
 }
 
 const Page = styled.div`
-  padding: ${theme.spacing(12)};
+  max-width: ${theme.spacing(168)};
+  padding: ${theme.spacing(8)} ${theme.spacing(12)};
 `
 
 const Title = styled(Typography)`
@@ -282,8 +283,6 @@ const Head = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: ${theme.shadows[7]};
-  margin-bottom: ${theme.spacing(6)};
 `
 
 const SkeletonLine = styled.div`
