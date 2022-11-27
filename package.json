@@ -56,7 +56,7 @@
     "@testing-library/user-event": "14.4.3",
     "@types/apollo-upload-client": "17.0.2",
     "@types/jest": "29.2.3",
-    "@types/lodash": "4.14.189",
+    "@types/lodash": "4.14.190",
     "@types/luxon": "3.1.0",
     "@types/prismjs": "1.26.0",
     "@types/react": "18.0.25",
