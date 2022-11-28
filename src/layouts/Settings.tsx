@@ -22,7 +22,7 @@ const Settings = () => {
       match: [ORGANIZATION_INFORMATIONS_ROUTE, SETTINGS_ROUTE],
     },
     {
-      title: translate('text_62ab2d0396dd6b0361614d24'),
+      title: translate('text_62bb10ad2a10bd182d00202d'),
       link: VAT_RATE_ROUTE,
     },
     {
