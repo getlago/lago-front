@@ -89,5 +89,7 @@ projects:
     id: 634ea0e94c99df2bb59820d9
   - name: "\U0001F44D [Ready for dev] - Coupons - Apply several coupons to customer"
     id: 637b4d9f764dcb190431ad4d
+  - name: "\U0001F44D [Ready for dev] - Customers - Invoice grace period"
+    id: 637f813a9ec65c29fc3ceef3
 format: flat
 variants: true
