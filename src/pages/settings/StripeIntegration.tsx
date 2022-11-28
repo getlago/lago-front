@@ -2,8 +2,8 @@ import { useRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 
-import { theme, PageHeader, NAV_HEIGHT, HEADER_TABLE_HEIGHT, MenuPopper } from '~/styles'
-import { INTEGRATIONS_ROUTE, STRIPE_INTEGRATION_ROUTE } from '~/core/router'
+import { theme, PageHeader, NAV_HEIGHT, MenuPopper } from '~/styles'
+import { INTEGRATIONS_ROUTE } from '~/core/router'
 import {
   Typography,
   Button,
@@ -12,7 +12,6 @@ import {
   Avatar,
   Chip,
   Icon,
-  NavigationTab,
   Popper,
 } from '~/components/designSystem'
 import { useStripeIntegrationsSettingQuery } from '~/generated/graphql'
@@ -58,13 +57,6 @@ const StripeIntegration = () => {
   const deleteDialogRef = useRef<DeleteStripeIntegrationDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useStripeIntegrationsSettingQuery()
-  const tabsOptions = [
-    {
-      title: translate('text_62b1edddbf5f461ab9712725'),
-      link: STRIPE_INTEGRATION_ROUTE,
-    },
-  ]
-
   const stripePaymentProvider = (data?.currentUser?.organizations || [])[0]?.stripePaymentProvider
 
   return (
@@ -111,12 +103,9 @@ const StripeIntegration = () => {
           </>
         )}
       </MainInfos>
-      <NavigationTab tabs={tabsOptions} />
+
       <Settings>
         <Title variant="subhead">{translate('text_62b1edddbf5f461ab971273f')}</Title>
-        <Subtitle variant="bodyHl" color="disabled">
-          {translate('text_62b1edddbf5f461ab971275b')}
-        </Subtitle>
         <ApiKeyItem>
           {loading ? (
             <>
@@ -164,6 +153,9 @@ const StripeIntegration = () => {
             </>
           )}
         </ApiKeyItem>
+        <Typography variant="caption" color="grey600">
+          {translate('text_637f813d31381b1ed90ab30e')}
+        </Typography>
       </Settings>
       <AddStripeDialog isEdition ref={addDialogRef} />
       <DeleteStripeIntegrationDialog id={stripePaymentProvider?.id || ''} ref={deleteDialogRef} />
@@ -193,26 +185,17 @@ const Settings = styled.div`
 const Title = styled(Typography)`
   height: ${NAV_HEIGHT}px;
   width: 100%;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-`
-
-const Subtitle = styled(Typography)`
-  height: ${HEADER_TABLE_HEIGHT}px;
-  width: 100%;
-  box-shadow: ${theme.shadows[7]};
   display: flex;
   align-items: center;
 `
 
 const ApiKeyItem = styled.div`
   height: ${NAV_HEIGHT}px;
-  width: 100%;
+  max-width: ${theme.spacing(168)};
   box-shadow: ${theme.shadows[7]};
   display: flex;
   align-items: center;
-  margin-bottom: ${theme.spacing(12)};
+  margin-bottom: ${theme.spacing(3)};
 
   > *:first-child {
     margin-right: ${theme.spacing(3)};

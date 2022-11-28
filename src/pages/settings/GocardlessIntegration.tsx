@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { gql } from '@apollo/client'
 
 import { theme, PageHeader, NAV_HEIGHT, HEADER_TABLE_HEIGHT } from '~/styles'
-import { INTEGRATIONS_ROUTE, GOCARDLESS_INTEGRATION_ROUTE } from '~/core/router'
+import { INTEGRATIONS_ROUTE } from '~/core/router'
 import { envGlobalVar } from '~/core/apolloClient'
 import {
   Typography,
@@ -12,7 +12,6 @@ import {
   Skeleton,
   Avatar,
   Chip,
-  NavigationTab,
   Button,
   Icon,
   Tooltip,
@@ -56,12 +55,6 @@ const GocardlessIntegration = () => {
   const code = query.get('code')
   const [isConnectionEstablished, setIsConnectionEstablished] = useState(false)
   const [webhookSecretKey, setWebhookSecretKey] = useState('')
-  const tabsOptions = [
-    {
-      title: translate('text_634ea0ecc6147de10ddb6635'),
-      link: GOCARDLESS_INTEGRATION_ROUTE,
-    },
-  ]
   const gocardlessPaymentProvider = (data?.currentUser?.organizations || [])[0]
     ?.gocardlessPaymentProvider
   const { lagoOauthProxyUrl } = envGlobalVar()
@@ -144,8 +137,8 @@ const GocardlessIntegration = () => {
           </>
         )}
       </MainInfos>
-      <NavigationTab tabs={tabsOptions} />
-      <Settings>
+
+      <MainHeader>
         <Head>
           <Title variant="subhead">{translate('text_634ea0ecc6147de10ddb663d')}</Title>
           <Button
@@ -159,12 +152,10 @@ const GocardlessIntegration = () => {
         {isConnectionEstablished && (
           <Subtitle>{translate('text_634ea0ecc6147de10ddb6641')}</Subtitle>
         )}
-      </Settings>
+      </MainHeader>
+
       <Settings>
-        <Title variant="subhead">{translate('text_635bd8acb686f18909a57c89')}</Title>
-        <SubtitleSecretKey variant="bodyHl" color="disabled">
-          {translate('text_635bd8acb686f18909a57c8d')}
-        </SubtitleSecretKey>
+        <Title variant="subhead">{translate('text_637f813d31381b1ed90ab315')}</Title>
         <SecretKeyItem>
           {loading ? (
             <>
@@ -177,9 +168,12 @@ const GocardlessIntegration = () => {
                 <Avatar variant="connector" size="medium">
                   <Icon color="dark" name="key" />
                 </Avatar>
-                <SecretKey color="textSecondary">{webhookSecretKey}</SecretKey>
+                <SecretKey variant="body" color="grey700">
+                  {webhookSecretKey}
+                </SecretKey>
                 <Tooltip title={translate('text_6360ddae753a8b3e11c80c66')} placement="top-end">
                   <Button
+                    startIcon="duplicate"
                     variant="quaternary"
                     onClick={() => {
                       navigator.clipboard.writeText(webhookSecretKey)
@@ -189,7 +183,7 @@ const GocardlessIntegration = () => {
                       })
                     }}
                   >
-                    <Icon color="dark" name="duplicate" />
+                    {translate('text_637f813d31381b1ed90ab322')}
                   </Button>
                 </Tooltip>
               </>
@@ -218,14 +212,17 @@ const MainInfos = styled.div`
 `
 
 const Settings = styled.div`
-  padding: 0 ${theme.spacing(12)};
-  margin-bottom: ${theme.spacing(12)};
+  margin: 0 ${theme.spacing(12)};
+`
+
+const MainHeader = styled(Settings)`
+  box-shadow: ${theme.shadows[7]};
+  padding-bottom: ${theme.spacing(8)};
 `
 
 const Title = styled(Typography)`
   height: ${NAV_HEIGHT}px;
   width: 100%;
-  box-shadow: ${theme.shadows[7]};
   display: flex;
   align-items: center;
 `
@@ -235,8 +232,6 @@ const Head = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: ${theme.shadows[7]};
-  margin-bottom: ${theme.spacing(4)};
 `
 
 const Subtitle = styled(Typography)`
@@ -246,17 +241,9 @@ const Subtitle = styled(Typography)`
   align-items: center;
 `
 
-const SubtitleSecretKey = styled(Typography)`
-  height: ${HEADER_TABLE_HEIGHT}px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  box-shadow: ${theme.shadows[7]};
-`
-
 const SecretKeyItem = styled.div`
   height: ${NAV_HEIGHT}px;
-  width: 100%;
+  max-width: ${theme.spacing(168)};
   box-shadow: ${theme.shadows[7]};
   display: flex;
   align-items: center;
@@ -272,7 +259,6 @@ const SecretKey = styled(Typography)`
 
 const Info = styled(Typography)`
   height: ${HEADER_TABLE_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
   display: flex;
   justify-content: flex-start;
   align-items: center;

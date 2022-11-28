@@ -112,7 +112,7 @@ const Integrations = () => {
 }
 
 const Page = styled.div`
-  padding: ${theme.spacing(12)};
+  padding: ${theme.spacing(8)} ${theme.spacing(12)};
 `
 
 const Title = styled(Typography)`
