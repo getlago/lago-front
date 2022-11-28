@@ -2,11 +2,11 @@ import { useRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 
-import { Typography, Button, Skeleton, Avatar, Icon, ShowMoreText } from '~/components/designSystem'
+import { Typography, Button, Skeleton, ShowMoreText } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT } from '~/styles'
+import { theme, NAV_HEIGHT } from '~/styles'
 import {
   EditOrganizationInvoiceTemplateDialogFragmentDoc,
   useGetOrganizationInvoiceAndTaxInformationsQuery,
@@ -19,6 +19,7 @@ import {
   EditOrganizationInvoiceTemplateDialog,
   EditOrganizationInvoiceTemplateDialogRef,
 } from '~/components/settings/EditOrganizationInvoiceTemplateDialog'
+import { intlFormatNumber } from '~/core/intlFormatNumber'
 
 const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
 
@@ -66,74 +67,83 @@ const VatRate = () => {
 
   return (
     <Page>
-      <Title variant="headline">{translate('text_62bb10ad2a10bd182d00202d')}</Title>
-      <Subtitle>{translate('text_62bb10ad2a10bd182d002033')}</Subtitle>
-      <Head $empty={true}>
-        <Typography variant="subhead">{translate('text_62bb10ad2a10bd182d00203d')}</Typography>
-        <Button variant="secondary" onClick={editInvoiceTemplateDialogRef?.current?.openDialog}>
-          {translate('text_62bb10ad2a10bd182d002039')}
-        </Button>
-      </Head>
+      <Title variant="headline">{translate('text_62ab2d0396dd6b0361614d24')}</Title>
+      <Subtitle>{translate('text_637f819eff19cd55a56d55e2')}</Subtitle>
 
-      <CustomFooterWrapper $loading={loading}>
-        {loading ? (
-          <>
-            <SkeletonLabel variant="text" width={80} height={12} />
-            <Skeleton variant="text" width={240} height={12} />
-          </>
-        ) : (
-          <>
-            <CustomFooterLabel>{translate('text_62bb10ad2a10bd182d002045')}</CustomFooterLabel>
-            <CustomFooterValue>
-              {invoiceFooter ? (
-                <ShowMoreText text={invoiceFooter} limit={MAX_FOOTER_LENGTH_DISPLAY_LIMIT} />
-              ) : (
-                translate('text_62ab2d0396dd6b0361614d64')
-              )}
-            </CustomFooterValue>
-          </>
-        )}
-      </CustomFooterWrapper>
-
-      <Title variant="headline">{translate('text_62728ff857d47b013204c776')}</Title>
-      <Subtitle>{translate('text_62728ff857d47b013204c782')}</Subtitle>
-      <Head $empty={typeof vatRate !== 'number' && !loading}>
-        <Typography variant="subhead">{translate('text_62728ff857d47b013204c7ae')}</Typography>
-        <Button variant="secondary" onClick={editVATDialogRef?.current?.openDialog}>
-          {translate('text_62728ff857d47b013204c798')}
-        </Button>
-      </Head>
-
-      <ListHead>
-        <Typography variant="bodyHl" color="disabled">
-          {translate('text_62728ff857d47b013204c7c4')}
+      <InlineSectionTitle>
+        <Typography variant="subhead" color="grey700">
+          {translate('text_637f819eff19cd55a56d55e6')}
         </Typography>
-      </ListHead>
-      <VatRateItem>
+        <Button
+          variant="quaternary"
+          size="large"
+          disabled={loading}
+          onClick={editVATDialogRef?.current?.openDialog}
+        >
+          {translate('text_637f819eff19cd55a56d55e4')}
+        </Button>
+      </InlineSectionTitle>
+
+      <InfoBlock>
         {loading ? (
           <>
-            <LeftBlock>
-              <Skeleton variant="connectorAvatar" size="medium" />
-              <Skeleton variant="text" width={240} height={12} />
-            </LeftBlock>
+            <Skeleton variant="text" width={320} height={12} marginBottom={theme.spacing(4)} />
+            <Skeleton variant="text" width={160} height={12} />
           </>
         ) : (
-          <LeftBlock>
-            <Avatar variant="connector">
-              <Icon color="dark" name="percentage" />
-            </Avatar>
-            <div>
-              <Typography variant="bodyHl" color="textSecondary" noWrap>
-                {translate('text_62728ff857d47b013204c7da', { taxRate: vatRate })}
-              </Typography>
-              <Typography variant="caption">
-                {translate('text_62728ff857d47b013204c7f0')}
-              </Typography>
-            </div>
-          </LeftBlock>
+          <>
+            <Typography variant="body" color="grey700">
+              {intlFormatNumber(vatRate || 0, {
+                minimumFractionDigits: 2,
+                style: 'percent',
+              })}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {translate('text_637f819eff19cd55a56d55ea')}
+            </Typography>
+          </>
         )}
-      </VatRateItem>
-      {!loading && <Info variant="caption">{translate('text_62728ff857d47b013204c806')}</Info>}
+      </InfoBlock>
+
+      <InlineSectionTitle>
+        <Typography variant="subhead" color="grey700">
+          {translate('text_637f819eff19cd55a56d55f6')}
+        </Typography>
+        <Button
+          variant="quaternary"
+          size="large"
+          disabled={loading}
+          onClick={editInvoiceTemplateDialogRef?.current?.openDialog}
+        >
+          {translate('text_6380d7e60f081e5b777c4b24')}
+        </Button>
+      </InlineSectionTitle>
+
+      <InfoBlock>
+        {loading ? (
+          <>
+            <Skeleton variant="text" width={320} height={12} marginBottom={theme.spacing(4)} />
+            <Skeleton variant="text" width={160} height={12} />
+          </>
+        ) : !invoiceFooter ? (
+          <>
+            <Typography variant="body" color="grey700">
+              {translate('text_637f819eff19cd55a56d55f8')}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {translate('text_637f819eff19cd55a56d55fa')}
+            </Typography>
+          </>
+        ) : (
+          <ShowMoreText
+            variant="body"
+            color="grey700"
+            text={invoiceFooter}
+            limit={MAX_FOOTER_LENGTH_DISPLAY_LIMIT}
+          />
+        )}
+      </InfoBlock>
+
       <EditOrganizationVatRateDialog ref={editVATDialogRef} vatRate={vatRate as number} />
       <EditOrganizationInvoiceTemplateDialog
         ref={editInvoiceTemplateDialogRef}
@@ -144,7 +154,8 @@ const VatRate = () => {
 }
 
 const Page = styled.div`
-  padding: ${theme.spacing(12)};
+  max-width: ${theme.spacing(168)};
+  padding: ${theme.spacing(8)} ${theme.spacing(12)};
 `
 
 const Title = styled(Typography)`
@@ -155,67 +166,21 @@ const Subtitle = styled(Typography)`
   margin-bottom: ${theme.spacing(8)};
 `
 
-const Head = styled.div<{ $empty?: boolean }>`
+const InlineSectionTitle = styled.div`
   height: ${NAV_HEIGHT}px;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
+`
+
+const InfoBlock = styled.div<{ $loading?: boolean }>`
+  padding-top: ${({ $loading }) => ($loading ? theme.spacing(1) : 0)};
+  padding-bottom: ${({ $loading }) => ($loading ? theme.spacing(9) : theme.spacing(8))};
   box-shadow: ${theme.shadows[7]};
-  margin-bottom: ${({ $empty }) => ($empty ? theme.spacing(6) : 0)};
-`
 
-const CustomFooterWrapper = styled.div<{ $loading?: boolean }>`
-  min-height: ${({ $loading }) => ($loading ? theme.spacing(5) : 0)};
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: ${theme.spacing(12)};
-`
-
-const CustomFooterLabel = styled(Typography)`
-  width: 140px;
-  flex-shrink: 0;
-  margin-right: ${theme.spacing(4)};
-`
-const CustomFooterValue = styled(Typography)`
-  flex: 1;
-`
-
-const SkeletonLabel = styled(Skeleton)`
-  margin-right: ${theme.spacing(18)};
-`
-
-const ListHead = styled.div`
-  display: flex;
-  align-items: center;
-  box-shadow: ${theme.shadows[7]};
-  height: ${HEADER_TABLE_HEIGHT}px;
-`
-
-const VatRateItem = styled.div`
-  height: ${NAV_HEIGHT}px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: ${theme.shadows[7]};
-`
-
-const LeftBlock = styled.div`
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  margin-right: ${theme.spacing(4)};
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
+  > *:not(:last-child) {
+    margin-bottom: ${theme.spacing(1)};
   }
-`
-
-const Info = styled(Typography)`
-  height: ${HEADER_TABLE_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
 `
 
 export default VatRate

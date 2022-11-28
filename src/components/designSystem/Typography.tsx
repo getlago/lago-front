@@ -33,7 +33,7 @@ enum ColorTypeEnum {
 }
 
 type Color = keyof typeof ColorTypeEnum
-interface TypographyProps
+export interface TypographyProps
   extends Pick<MuiTypographyProps, 'variant' | 'children' | 'noWrap' | 'align'> {
   className?: string
   component?: ElementType
