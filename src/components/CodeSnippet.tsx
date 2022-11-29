@@ -56,7 +56,6 @@ export const CodeSnippet = memo(
               <Code ref={codeRef} className={`language-${language}`}>
                 {code}
               </Code>
-              <span />
             </Pre>
             {canCopy && (
               <CopyButton
@@ -96,6 +95,9 @@ const Pre = styled.pre<{ $withHeader?: boolean }>`
   background-color: transparent !important;
   height: ${({ $withHeader }) => ($withHeader ? `calc(100% - ${NAV_HEIGHT}px)` : '100%')};
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: ${theme.spacing(30)};
 `
 
 const Code = styled.code`
@@ -119,7 +121,7 @@ const Content = styled.div`
   height: 100%;
 
   pre[class*='language-'] {
-    margin: 0 0 ${theme.spacing(3)} 0;
+    margin: 0 ${theme.spacing(3)} ${theme.spacing(4)} 0;
     display: flex;
   }
 
@@ -162,6 +164,8 @@ const Content = styled.div`
 
   > span {
     width: ${theme.spacing(3)};
+    height: 80px;
+    background-color: red;
   }
 
   /**

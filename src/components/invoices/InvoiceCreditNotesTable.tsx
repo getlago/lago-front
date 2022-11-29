@@ -13,7 +13,7 @@ import { CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
 gql`
   fragment InvoiceForCreditNotesTable on Invoice {
     id
-    totalAmountCents
+    subTotalVatExcludedAmountCents
     customer {
       id
     }
@@ -70,7 +70,7 @@ interface InvoiceCreditNotesTableProps {
     creditNote: CreditNote
     items: CreditNoteItem[][][]
   }[]
-  totalAmountCents: number
+  subTotalVatExcludedAmountCents: number
 }
 
 export const InvoiceCreditNotesTable = memo(
@@ -78,7 +78,7 @@ export const InvoiceCreditNotesTable = memo(
     customerId,
     formatedCreditNotes,
     invoiceId,
-    totalAmountCents,
+    subTotalVatExcludedAmountCents,
   }: InvoiceCreditNotesTableProps) => {
     const { translate } = useInternationalization()
 
@@ -86,186 +86,193 @@ export const InvoiceCreditNotesTable = memo(
       <Wrapper>
         {formatedCreditNotes.map((formatedCreditNote, i) => {
           const creditNote = formatedCreditNote.creditNote
-          const substractRemainingAmount = (initialValue: number, valueToRemove: number) => {
-            return initialValue - valueToRemove
-          }
-          let remainingAmountAfterCreditNote = totalAmountCents || 0
+          let remainingAmountAfterCreditNote = subTotalVatExcludedAmountCents || 0
 
           for (let l = 0; l < i + 1; l++) {
             const element = formatedCreditNotes[l]
 
-            remainingAmountAfterCreditNote = substractRemainingAmount(
-              remainingAmountAfterCreditNote,
-
-              Number(element.creditNote.totalAmountCents)
-            )
+            remainingAmountAfterCreditNote =
+              remainingAmountAfterCreditNote -
+              Number(element.creditNote.subTotalVatExcludedAmountCents)
           }
 
-          return formatedCreditNote?.items.map((subscriptionItem, j) => {
-            const subscription = subscriptionItem[0][0]
-              ? subscriptionItem[0][0].fee.subscription
-              : undefined
-            const creditNoteDisplayName = !!subscription
-              ? subscription?.name || subscription?.plan?.name
-              : ''
+          return (
+            <React.Fragment key={`formatedCreditNote-${i}`}>
+              {formatedCreditNote?.items.map((subscriptionItem, j) => {
+                const subscription = subscriptionItem[j][0]
+                  ? subscriptionItem[j][0]?.fee.subscription
+                  : undefined
+                const creditNoteDisplayName = !!subscription
+                  ? subscription?.name || subscription?.plan?.name
+                  : ''
 
-            return (
-              <React.Fragment key={`formatedCreditNote-${i}-subscriptionItem-${j}`}>
-                <table className="main-table">
-                  <thead>
-                    <tr>
-                      <InlineTh>
-                        <Typography
-                          variant="bodyHl"
-                          color="grey500"
-                          html={translate('text_637cd81348c50c26dd05a767', {
-                            link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
-                              id: customerId,
-                              invoiceId,
-                              creditNoteId: creditNote.id,
-                            }),
-                            CreditNoteNumber: creditNote.number,
-                            displayName: creditNoteDisplayName,
-                          })}
-                          noWrap
-                        />
-                      </InlineTh>
-                      <th>
-                        <Typography variant="bodyHl" color="grey500">
-                          {translate('text_637cd81348c50c26dd05a769')}
-                        </Typography>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {subscriptionItem?.map((charge, k) => {
-                      const groupDimension = charge[0].fee.group
-                        ? charge[0].fee.group.key
-                          ? 2
-                          : 1
-                        : 0
+                return (
+                  <React.Fragment key={`formatedCreditNote-${i}-subscriptionItem-${j}`}>
+                    <table>
+                      <thead>
+                        <tr>
+                          <InlineTh>
+                            <Typography
+                              variant="bodyHl"
+                              color="grey500"
+                              html={translate('text_637cd81348c50c26dd05a767', {
+                                link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
+                                  id: customerId,
+                                  invoiceId,
+                                  creditNoteId: creditNote.id,
+                                }),
+                                CreditNoteNumber: creditNote.number,
+                                displayName: creditNoteDisplayName,
+                              })}
+                              noWrap
+                            />
+                          </InlineTh>
+                          <th>
+                            <Typography variant="bodyHl" color="grey500">
+                              {translate('text_637cd81348c50c26dd05a769')}
+                            </Typography>
+                          </th>
+                        </tr>
+                      </thead>
 
-                      return charge.map((item, l) => {
-                        return (
-                          <React.Fragment
-                            key={`formatedCreditNote-${i}-subscriptionItem-${j}-charge-${k}-item-${l}`}
-                          >
-                            {groupDimension !== 0 && k === 0 && (
-                              <tr key={`formatedCreditNote-${i}-parent-charge-${j}-item-${k}`}>
-                                <td>
-                                  <Typography variant="body" color="grey700">
-                                    {charge[k].fee.charge?.billableMetric.name}
-                                  </Typography>
-                                </td>
-                                <td></td>
-                              </tr>
-                            )}
-                            <tr key={`formatedCreditNote-${i}-charge-${j}-item-${k}`}>
-                              <TD $pad={groupDimension > 0}>
-                                <Typography variant="body" color="grey700">
-                                  {groupDimension === 0 ? (
-                                    item.fee.charge?.billableMetric.name || creditNoteDisplayName
-                                  ) : (
-                                    <>
-                                      <span>
-                                        {groupDimension === 2 && `${item.fee.group?.key} • `}
-                                      </span>
-                                      <span>{item.fee.group?.value}</span>
-                                    </>
-                                  )}
-                                </Typography>
-                              </TD>
-                              <td>
-                                <Typography variant="body" color="success600">
-                                  {intlFormatNumber(item.amountCents || 0, {
-                                    currencyDisplay: 'symbol',
-                                    currency: item.amountCurrency,
-                                  })}
-                                </Typography>
-                              </td>
-                            </tr>
-                          </React.Fragment>
-                        )
-                      })
-                    })}
-                  </tbody>
+                      <tbody>
+                        {subscriptionItem?.map((charge, k) => {
+                          const groupDimension = charge[0].fee.group
+                            ? charge[0].fee.group.key
+                              ? 2
+                              : 1
+                            : 0
 
-                  <tfoot>
-                    <tr>
-                      <td></td>
-                      <td>
-                        <Typography variant="bodyHl" color="grey600">
-                          {translate('text_637ccf8133d2c9a7d11ce73d')}
-                        </Typography>
-                      </td>
-                      <td>
-                        <Typography variant="body" color="success600">
-                          {intlFormatNumber(
-                            Number(creditNote?.subTotalVatExcludedAmountCents) || 0,
-                            {
-                              currencyDisplay: 'symbol',
-                              currency:
-                                creditNote?.subTotalVatExcludedAmountCurrency || CurrencyEnum.Usd,
-                            }
-                          )}
-                        </Typography>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td></td>
-                      <td>
-                        <Typography variant="bodyHl" color="grey600">
-                          {translate('text_637ccf8133d2c9a7d11ce741')}
-                        </Typography>
-                      </td>
-                      <td>
-                        <Typography variant="body" color="success600">
-                          {intlFormatNumber(creditNote?.vatAmountCents || 0, {
-                            currencyDisplay: 'symbol',
-                            currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
-                          })}
-                        </Typography>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td></td>
-                      <td>
-                        <Typography variant="bodyHl" color="grey700">
-                          {translate('text_637ccf8133d2c9a7d11ce745')}
-                        </Typography>
-                      </td>
-                      <td>
-                        <Typography variant="body" color="success600">
-                          {intlFormatNumber(creditNote?.totalAmountCents || 0, {
-                            currencyDisplay: 'symbol',
-                            currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
-                          })}
-                        </Typography>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td></td>
-                      <td>
-                        <Typography variant="bodyHl" color="grey700">
-                          {translate('text_637ccf8133d2c9a7d11ce749', {
-                            creditNotePrefix: creditNote.number.split('-').at(-1),
-                          })}
-                        </Typography>
-                      </td>
-                      <td>
-                        <Typography variant="body" color="grey700">
-                          {intlFormatNumber(remainingAmountAfterCreditNote || 0, {
-                            currencyDisplay: 'symbol',
-                            currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
-                          })}
-                        </Typography>
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </React.Fragment>
-            )
-          })
+                          return (
+                            <React.Fragment
+                              key={`formatedCreditNote-${i}-subscriptionItem-${j}-charge-${k}`}
+                            >
+                              {groupDimension !== 0 && (
+                                <tr key={`formatedCreditNote-${i}-parent-charge-${j}-item-${k}`}>
+                                  <td>
+                                    <Typography variant="body" color="grey700">
+                                      {charge[k].fee.charge?.billableMetric.name}
+                                    </Typography>
+                                  </td>
+                                  <td></td>
+                                </tr>
+                              )}
+                              {charge.map((item, l) => {
+                                return (
+                                  <React.Fragment
+                                    key={`formatedCreditNote-${i}-subscriptionItem-${j}-charge-${k}-item-${l}`}
+                                  >
+                                    <tr key={`formatedCreditNote-${i}-charge-${j}-item-${k}`}>
+                                      <TD $pad={groupDimension > 0}>
+                                        <Typography variant="body" color="grey700">
+                                          {groupDimension === 0 ? (
+                                            item.fee.charge?.billableMetric.name ||
+                                            creditNoteDisplayName
+                                          ) : (
+                                            <>
+                                              <span>
+                                                {groupDimension === 2 &&
+                                                  `${item.fee.group?.key} • `}
+                                              </span>
+                                              <span>{item.fee.group?.value}</span>
+                                            </>
+                                          )}
+                                        </Typography>
+                                      </TD>
+                                      <td>
+                                        <Typography variant="body" color="success600">
+                                          {intlFormatNumber(item.amountCents || 0, {
+                                            currencyDisplay: 'symbol',
+                                            currency: item.amountCurrency,
+                                          })}
+                                        </Typography>
+                                      </td>
+                                    </tr>
+                                  </React.Fragment>
+                                )
+                              })}
+                            </React.Fragment>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </React.Fragment>
+                )
+              })}
+
+              <table>
+                <tfoot>
+                  <tr>
+                    <td></td>
+                    <td>
+                      <Typography variant="bodyHl" color="grey600">
+                        {translate('text_637ccf8133d2c9a7d11ce73d')}
+                      </Typography>
+                    </td>
+                    <td>
+                      <Typography variant="body" color="success600">
+                        {intlFormatNumber(Number(creditNote?.subTotalVatExcludedAmountCents) || 0, {
+                          currencyDisplay: 'symbol',
+                          currency:
+                            creditNote?.subTotalVatExcludedAmountCurrency || CurrencyEnum.Usd,
+                        })}
+                      </Typography>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>
+                      <Typography variant="bodyHl" color="grey600">
+                        {translate('text_637ccf8133d2c9a7d11ce741')}
+                      </Typography>
+                    </td>
+                    <td>
+                      <Typography variant="body" color="success600">
+                        {intlFormatNumber(creditNote?.vatAmountCents || 0, {
+                          currencyDisplay: 'symbol',
+                          currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
+                        })}
+                      </Typography>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>
+                      <Typography variant="bodyHl" color="grey700">
+                        {translate('text_637ccf8133d2c9a7d11ce745')}
+                      </Typography>
+                    </td>
+                    <td>
+                      <Typography variant="body" color="success600">
+                        {intlFormatNumber(creditNote?.totalAmountCents || 0, {
+                          currencyDisplay: 'symbol',
+                          currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
+                        })}
+                      </Typography>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>
+                      <Typography variant="bodyHl" color="grey700">
+                        {translate('text_637ccf8133d2c9a7d11ce749', {
+                          creditNotePrefix: creditNote.number.split('-').at(-1),
+                        })}
+                      </Typography>
+                    </td>
+                    <td>
+                      <Typography variant="body" color="grey700">
+                        {intlFormatNumber(remainingAmountAfterCreditNote || 0, {
+                          currencyDisplay: 'symbol',
+                          currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
+                        })}
+                      </Typography>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </React.Fragment>
+          )
         })}
       </Wrapper>
     )
@@ -276,10 +283,6 @@ InvoiceCreditNotesTable.displayName = 'InvoiceCreditNotesTable'
 
 const Wrapper = styled.section`
   margin-bottom: ${theme.spacing(6)};
-
-  .main-table:not(:first-child) {
-    margin-top: ${theme.spacing(10)};
-  }
 
   > table {
     width: 100%;
@@ -335,6 +338,10 @@ const Wrapper = styled.section`
     > thead > tr {
       height: ${HEADER_TABLE_HEIGHT}px;
       box-shadow: ${theme.shadows[7]};
+    }
+
+    > thead > tr > th {
+      height: ${HEADER_TABLE_HEIGHT}px;
     }
 
     > tbody > tr > td {

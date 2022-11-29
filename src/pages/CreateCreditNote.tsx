@@ -12,9 +12,10 @@ import {
   CurrencyEnum,
   LagoApiError,
   CreditNoteFormFragmentDoc,
+  InvoiceTypeEnum,
 } from '~/generated/graphql'
 import { hasDefinedGQLError } from '~/core/apolloClient'
-import { generateFeesSchema } from '~/formValidationSchemas/feesSchema'
+import { generateFeesSchema, simpleFeeSchema } from '~/formValidationSchemas/feesSchema'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CUSTOMER_INVOICE_OVERVIEW_ROUTE } from '~/core/router'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -87,7 +88,7 @@ const mapStatus = (type?: InvoicePaymentStatusTypeEnum | undefined) => {
     default:
       return {
         type: StatusEnum.error,
-        label: 'text_62da6ec24a8e24e44f8128b0',
+        label: 'text_6386477f5cf9042813d9e000',
       }
   }
 }
@@ -97,7 +98,7 @@ const CreateCreditNote = () => {
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const { id, invoiceId } = useParams()
   const navigate = useNavigate()
-  const { loading, invoice, feesPerInvoice, onCreate } = useCreateCreditNote()
+  const { loading, invoice, feesPerInvoice, feeForAddOn, onCreate } = useCreateCreditNote()
 
   const feesValidation = useMemo(() => generateFeesSchema(feesPerInvoice || {}), [feesPerInvoice])
 
@@ -107,6 +108,7 @@ const CreateCreditNote = () => {
       description: undefined,
       reason: undefined,
       fees: feesPerInvoice,
+      addOnFee: feeForAddOn,
       payBack: [{ type: undefined, value: undefined }],
       creditAmount: undefined,
       refundAmount: undefined,
@@ -114,6 +116,11 @@ const CreateCreditNote = () => {
     validationSchema: object().shape({
       reason: string().required(''),
       fees: feesValidation,
+      addOnFee: object().when('maxAmount', (_, schema) => {
+        return invoice?.invoiceType === InvoiceTypeEnum.AddOn
+          ? simpleFeeSchema(feeForAddOn?.maxAmount || 0)
+          : schema.default(undefined)
+      }),
       payBack: array().of(
         object().shape({
           type: string().required(''),
@@ -345,6 +352,17 @@ const CreateCreditNote = () => {
                       })}
                     </Typography>
                   </div>
+
+                  {feeForAddOn && (
+                    <CreditNoteFormItem
+                      key={feeForAddOn?.id}
+                      formikProps={formikProps}
+                      currency={invoice?.amountCurrency || CurrencyEnum.Usd}
+                      feeName={feeForAddOn?.name}
+                      formikKey={`addOnFee`}
+                      maxValue={feeForAddOn?.maxAmount}
+                    />
+                  )}
 
                   {feesPerInvoice &&
                     Object.keys(feesPerInvoice).map((subKey) => {

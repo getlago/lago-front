@@ -6,6 +6,7 @@ import { gql } from '@apollo/client'
 import { theme } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
+  CreditNote,
   CreditNoteItem,
   Customer,
   Invoice,
@@ -62,13 +63,15 @@ export const InvoiceOverview = memo(() => {
   const invoice = data?.invoice
   const customer = invoice?.customer
   const hasError = (!!error || !invoice) && !loading
-  const formatedCreditNotes = invoice?.creditNotes?.reduce((acc, cur) => {
-    const newItems = formatCreditNotesItems(cur.items as CreditNoteItem[])
+  const formatedCreditNotes = invoice?.creditNotes
+    ?.reduce<{ creditNote: CreditNote; items: CreditNoteItem[][][] }[]>((acc, cur) => {
+      const newItems = formatCreditNotesItems(cur.items as CreditNoteItem[])
 
-    // @ts-ignore
-    acc.push({ creditNote: cur, items: newItems })
-    return acc
-  }, [])
+      // @ts-ignore
+      acc.push({ creditNote: cur, items: newItems })
+      return acc
+    }, [])
+    .sort((a, b) => (a.creditNote.number < b.creditNote.number ? -1 : 1))
 
   const [downloadInvoice, { loading: loadingInvoiceDownload }] = useDownloadInvoiceMutation({
     onCompleted({ downloadInvoice: downloadInvoiceData }) {
@@ -147,7 +150,7 @@ export const InvoiceOverview = memo(() => {
                 customerId={customer?.id || ''}
                 invoiceId={invoiceId || ''}
                 formatedCreditNotes={formatedCreditNotes}
-                totalAmountCents={invoice?.totalAmountCents || 0}
+                subTotalVatExcludedAmountCents={invoice?.subTotalVatExcludedAmountCents || 0}
               />
             )}
           </>

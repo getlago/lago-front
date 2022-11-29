@@ -49,69 +49,74 @@ export const CreditNoteFormCalculation = ({
   const canOnlyCredit = invoice?.paymentStatus !== InvoicePaymentStatusTypeEnum.Succeeded
   const hasFeeError = !!formikProps.errors.fees
   const calculation = useMemo(() => {
-    return hasFeeError
-      ? { totalExcludedVat: undefined, vatAmount: undefined }
-      : Object.keys(formikProps?.values.fees || {}).reduce<{
+    if (hasFeeError) return { totalExcludedVat: undefined, vatAmount: undefined }
+
+    const feeTotal = Object.keys(formikProps?.values.fees || {}).reduce<{
+      totalExcludedVat: number
+      vatAmount: number
+    }>(
+      (accSub, subKey) => {
+        const subChild = ((formikProps?.values.fees as FeesPerInvoice) || {})[subKey]
+        const subValues = Object.keys(subChild?.fees || {}).reduce<{
           totalExcludedVat: number
           vatAmount: number
         }>(
-          (accSub, subKey) => {
-            const subChild = ((formikProps?.values.fees as FeesPerInvoice) || {})[subKey]
-            const subValues = Object.keys(subChild?.fees || {}).reduce<{
+          (accGroup, groupKey) => {
+            const child = subChild?.fees[groupKey] as FromFee
+
+            if (typeof child.checked === 'boolean') {
+              const childExcludedVat = Number(child.value as number)
+
+              return !child.checked
+                ? accGroup
+                : (accGroup = {
+                    totalExcludedVat: accGroup.totalExcludedVat + childExcludedVat,
+                    vatAmount:
+                      accGroup.vatAmount + Math.ceil(childExcludedVat * child.vatRate) / 100,
+                  })
+            }
+
+            const grouped = (child as unknown as GroupedFee)?.grouped
+            const groupedValues = Object.keys(grouped || {}).reduce<{
               totalExcludedVat: number
               vatAmount: number
             }>(
-              (accGroup, groupKey) => {
-                const child = subChild?.fees[groupKey] as FromFee
+              (accFee, feeKey) => {
+                const fee = grouped[feeKey]
+                const feeExcludedVat = Number(fee.value)
 
-                if (typeof child.checked === 'boolean') {
-                  const childExcludedVat = Number(child.value as number)
-
-                  return !child.checked
-                    ? accGroup
-                    : (accGroup = {
-                        totalExcludedVat: accGroup.totalExcludedVat + childExcludedVat,
-                        vatAmount:
-                          accGroup.vatAmount + Math.ceil(childExcludedVat * child.vatRate) / 100,
-                      })
-                }
-
-                const grouped = (child as unknown as GroupedFee)?.grouped
-                const groupedValues = Object.keys(grouped || {}).reduce<{
-                  totalExcludedVat: number
-                  vatAmount: number
-                }>(
-                  (accFee, feeKey) => {
-                    const fee = grouped[feeKey]
-                    const feeExcludedVat = Number(fee.value)
-
-                    return !fee.checked
-                      ? accFee
-                      : (accFee = {
-                          totalExcludedVat: accFee.totalExcludedVat + feeExcludedVat,
-                          vatAmount:
-                            accFee.vatAmount + Math.ceil(feeExcludedVat * fee.vatRate) / 100,
-                        })
-                  },
-                  { totalExcludedVat: 0, vatAmount: 0 }
-                )
-
-                return {
-                  totalExcludedVat: accGroup.totalExcludedVat + groupedValues.totalExcludedVat,
-                  vatAmount: accGroup.vatAmount + groupedValues.vatAmount,
-                }
+                return !fee.checked
+                  ? accFee
+                  : (accFee = {
+                      totalExcludedVat: accFee.totalExcludedVat + feeExcludedVat,
+                      vatAmount: accFee.vatAmount + Math.ceil(feeExcludedVat * fee.vatRate) / 100,
+                    })
               },
               { totalExcludedVat: 0, vatAmount: 0 }
             )
 
             return {
-              totalExcludedVat: accSub?.totalExcludedVat + subValues.totalExcludedVat,
-              vatAmount: accSub?.vatAmount + subValues.vatAmount,
+              totalExcludedVat: accGroup.totalExcludedVat + groupedValues.totalExcludedVat,
+              vatAmount: accGroup.vatAmount + groupedValues.vatAmount,
             }
           },
           { totalExcludedVat: 0, vatAmount: 0 }
         )
-  }, [formikProps?.values.fees, hasFeeError])
+
+        return {
+          totalExcludedVat: accSub?.totalExcludedVat + subValues.totalExcludedVat,
+          vatAmount: accSub?.vatAmount + subValues.vatAmount,
+        }
+      },
+      { totalExcludedVat: 0, vatAmount: 0 }
+    )
+    const { value, vatRate } = formikProps.values.addOnFee || {}
+
+    return {
+      totalExcludedVat: feeTotal.totalExcludedVat + Number(value || 0),
+      vatAmount: feeTotal.vatAmount + Math.ceil(Number(value || 0) * Number(vatRate || 0)) / 100,
+    }
+  }, [formikProps?.values.fees, formikProps.values.addOnFee, hasFeeError])
 
   const { totalExcludedVat, vatAmount } = calculation
   const hasCreditOrCoupon =
