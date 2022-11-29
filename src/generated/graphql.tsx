@@ -1730,6 +1730,7 @@ export enum InvoiceTypeEnum {
 export enum LagoApiError {
   CouponAlreadyApplied = 'coupon_already_applied',
   CurrenciesDoesNotMatch = 'currencies_does_not_match',
+  DoesNotMatchItemAmounts = 'does_not_match_item_amounts',
   EmailAlreadyUsed = 'email_already_used',
   ExpiredJwtToken = 'expired_jwt_token',
   Forbidden = 'forbidden',
@@ -3100,6 +3101,8 @@ export type TerminateCouponMutationVariables = Exact<{
 
 export type TerminateCouponMutation = { __typename?: 'Mutation', terminateCoupon?: { __typename?: 'Coupon', id: string } | null };
 
+export type CreditNoteFormFragment = { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, creditableAmountCents: number, refundableAmountCents: number, vatRate: number, amountCurrency: CurrencyEnum };
+
 export type GetAddOnsForCustomerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -3450,6 +3453,24 @@ export type UpdatePlanMutationVariables = Exact<{
 
 export type UpdatePlanMutation = { __typename?: 'Mutation', updatePlan?: { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, canBeDeleted: boolean } | null };
 
+export type InvoiceFeeFragment = { __typename?: 'Fee', id: string, feeType: FeeTypesEnum, vatRate?: number | null, creditableAmountCents: number, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, group?: { __typename?: 'Group', key?: string | null, value: string } | null };
+
+export type InvoiceCreateCreditNoteFragment = { __typename?: 'Invoice', id: string, refundableAmountCents: number, creditableAmountCents: number, amountCurrency: CurrencyEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, subTotalVatIncludedAmountCents: number, vatRate: number, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string } }, fees?: Array<{ __typename?: 'Fee', id: string, feeType: FeeTypesEnum, vatRate?: number | null, creditableAmountCents: number, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, group?: { __typename?: 'Group', key?: string | null, value: string } | null }> | null }> | null };
+
+export type GetInvoiceCreateCreditNoteQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetInvoiceCreateCreditNoteQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, refundableAmountCents: number, creditableAmountCents: number, amountCurrency: CurrencyEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, subTotalVatIncludedAmountCents: number, vatRate: number, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string } }, fees?: Array<{ __typename?: 'Fee', id: string, feeType: FeeTypesEnum, vatRate?: number | null, creditableAmountCents: number, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, group?: { __typename?: 'Group', key?: string | null, value: string } | null }> | null }> | null } | null };
+
+export type CreateCreditNoteMutationVariables = Exact<{
+  input: CreateCreditNoteInput;
+}>;
+
+
+export type CreateCreditNoteMutation = { __typename?: 'Mutation', createCreditNote?: { __typename?: 'CreditNote', id: string } | null };
+
 export type EditAddOnFragment = { __typename?: 'AddOnDetails', id: string, name: string, code: string, description?: string | null, amountCents: number, amountCurrency: CurrencyEnum };
 
 export type GetSingleAddOnQueryVariables = Exact<{
@@ -3572,6 +3593,8 @@ export type CouponsQueryVariables = Exact<{
 
 
 export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: number | null, canBeDeleted: boolean, expiration: CouponExpiration, expirationDate?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null }> } };
+
+export type CreateCreditNoteInvoiceFragment = { __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, creditableAmountCents: number, refundableAmountCents: number, subTotalVatIncludedAmountCents: number, vatRate: number };
 
 export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: number, amountCurrency: CurrencyEnum, trialPeriod?: number | null, canBeDeleted: boolean, billChargesMonthly?: boolean | null, charges?: Array<{ __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', amount?: string | null, packageSize?: number | null, freeUnits?: number | null, fixedAmount?: string | null, freeUnitsPerEvents?: number | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } }> | null }> | null };
 
@@ -4155,6 +4178,69 @@ export const AddSubscriptionPlanFragmentDoc = gql`
   interval
 }
     `;
+export const InvoiceFeeFragmentDoc = gql`
+    fragment InvoiceFee on Fee {
+  id
+  feeType
+  vatRate
+  creditableAmountCents
+  charge {
+    id
+    billableMetric {
+      id
+      name
+    }
+  }
+  group {
+    key
+    value
+  }
+}
+    `;
+export const CreditNoteFormFragmentDoc = gql`
+    fragment CreditNoteForm on Invoice {
+  id
+  paymentStatus
+  creditableAmountCents
+  refundableAmountCents
+  vatRate
+  amountCurrency
+}
+    `;
+export const CreateCreditNoteInvoiceFragmentDoc = gql`
+    fragment CreateCreditNoteInvoice on Invoice {
+  id
+  amountCurrency
+  number
+  paymentStatus
+  creditableAmountCents
+  refundableAmountCents
+  subTotalVatIncludedAmountCents
+  ...CreditNoteForm
+}
+    ${CreditNoteFormFragmentDoc}`;
+export const InvoiceCreateCreditNoteFragmentDoc = gql`
+    fragment InvoiceCreateCreditNote on Invoice {
+  id
+  refundableAmountCents
+  creditableAmountCents
+  invoiceSubscriptions {
+    subscription {
+      id
+      name
+      plan {
+        id
+        name
+      }
+    }
+    fees {
+      ...InvoiceFee
+    }
+  }
+  ...CreateCreditNoteInvoice
+}
+    ${InvoiceFeeFragmentDoc}
+${CreateCreditNoteInvoiceFragmentDoc}`;
 export const EditAddOnFragmentDoc = gql`
     fragment EditAddOn on AddOnDetails {
   id
@@ -6123,6 +6209,74 @@ export function useUpdatePlanMutation(baseOptions?: Apollo.MutationHookOptions<U
 export type UpdatePlanMutationHookResult = ReturnType<typeof useUpdatePlanMutation>;
 export type UpdatePlanMutationResult = Apollo.MutationResult<UpdatePlanMutation>;
 export type UpdatePlanMutationOptions = Apollo.BaseMutationOptions<UpdatePlanMutation, UpdatePlanMutationVariables>;
+export const GetInvoiceCreateCreditNoteDocument = gql`
+    query getInvoiceCreateCreditNote($id: ID!) {
+  invoice(id: $id) {
+    ...InvoiceCreateCreditNote
+  }
+}
+    ${InvoiceCreateCreditNoteFragmentDoc}`;
+
+/**
+ * __useGetInvoiceCreateCreditNoteQuery__
+ *
+ * To run a query within a React component, call `useGetInvoiceCreateCreditNoteQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInvoiceCreateCreditNoteQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetInvoiceCreateCreditNoteQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetInvoiceCreateCreditNoteQuery(baseOptions: Apollo.QueryHookOptions<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables>(GetInvoiceCreateCreditNoteDocument, options);
+      }
+export function useGetInvoiceCreateCreditNoteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables>(GetInvoiceCreateCreditNoteDocument, options);
+        }
+export type GetInvoiceCreateCreditNoteQueryHookResult = ReturnType<typeof useGetInvoiceCreateCreditNoteQuery>;
+export type GetInvoiceCreateCreditNoteLazyQueryHookResult = ReturnType<typeof useGetInvoiceCreateCreditNoteLazyQuery>;
+export type GetInvoiceCreateCreditNoteQueryResult = Apollo.QueryResult<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables>;
+export const CreateCreditNoteDocument = gql`
+    mutation createCreditNote($input: CreateCreditNoteInput!) {
+  createCreditNote(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateCreditNoteMutationFn = Apollo.MutationFunction<CreateCreditNoteMutation, CreateCreditNoteMutationVariables>;
+
+/**
+ * __useCreateCreditNoteMutation__
+ *
+ * To run a mutation, you first call `useCreateCreditNoteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCreditNoteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCreditNoteMutation, { data, loading, error }] = useCreateCreditNoteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCreditNoteMutation(baseOptions?: Apollo.MutationHookOptions<CreateCreditNoteMutation, CreateCreditNoteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCreditNoteMutation, CreateCreditNoteMutationVariables>(CreateCreditNoteDocument, options);
+      }
+export type CreateCreditNoteMutationHookResult = ReturnType<typeof useCreateCreditNoteMutation>;
+export type CreateCreditNoteMutationResult = Apollo.MutationResult<CreateCreditNoteMutation>;
+export type CreateCreditNoteMutationOptions = Apollo.BaseMutationOptions<CreateCreditNoteMutation, CreateCreditNoteMutationVariables>;
 export const GetSingleAddOnDocument = gql`
     query getSingleAddOn($id: ID!) {
   addOn(id: $id) {

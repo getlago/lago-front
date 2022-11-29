@@ -1,5 +1,6 @@
 import { Checkbox as MuiCheckbox, FormControlLabel } from '@mui/material'
 import styled from 'styled-components'
+import clsx from 'clsx'
 
 import { Typography } from '~/components/designSystem'
 import CheckedIcon from '~/public/icons/forms/checkbox-checked.svg'
@@ -7,6 +8,10 @@ import IndeterminateIcon from '~/public/icons/forms/checkbox-indeterminate.svg'
 import Icon from '~/public/icons/forms/checkbox.svg'
 import { theme } from '~/styles'
 
+enum LabelAlignmentEnum {
+  top = 'top',
+  center = 'center',
+}
 export interface CheckboxProps {
   canBeIndeterminate?: boolean
   value?: boolean | null
@@ -15,6 +20,7 @@ export interface CheckboxProps {
   name?: string
   error?: string
   className?: string
+  labelAlignment?: keyof typeof LabelAlignmentEnum
   onChange?: (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void
 }
 
@@ -38,10 +44,15 @@ export const Checkbox = ({
   name,
   error,
   className,
+  labelAlignment,
   onChange,
 }: CheckboxProps) => {
   return (
-    <Container className={className}>
+    <Container
+      className={clsx(className, {
+        'checkbox-align--center': labelAlignment === LabelAlignmentEnum.center,
+      })}
+    >
       <FormControlLabel
         disabled={disabled}
         control={
@@ -77,6 +88,14 @@ export const Checkbox = ({
 const Container = styled.div`
   display: flex;
   flex-direction: column;
+
+  &.checkbox-align--center > * {
+    align-items: center;
+
+    .MuiCheckbox-root {
+      margin-top: 0;
+    }
+  }
 `
 
 const StyledTypography = styled(Typography)`

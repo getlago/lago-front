@@ -6,13 +6,15 @@ import { envGlobalVar } from '~/core/apolloClient'
 
 const { appEnv } = envGlobalVar()
 
+export type TranslateFunc = (
+  key: string,
+  data?: Record<string, string | number | undefined | null>,
+  plural?: number
+) => string
+
 type UseInternationalization = () => {
   locale: IntlLocale
-  translate: (
-    key: string,
-    data?: Record<string, string | number | undefined | null>,
-    plural?: number
-  ) => string
+  translate: TranslateFunc
   updateLocale: (locale: IntlLocale) => void
 }
 
