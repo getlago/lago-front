@@ -1,4 +1,4 @@
-import { object, number, boolean } from 'yup'
+import { object, number, boolean, NumberSchema } from 'yup'
 import _get from 'lodash/get'
 
 import {
@@ -8,20 +8,23 @@ import {
   GroupedFee,
 } from '~/components/creditNote/types'
 
-const simpleFeeSchema = (formikInitialFees: FeesPerInvoice, feeKey: string) =>
+export const simpleFeeSchema = (maxAmount: number) =>
   object().shape({
     checked: boolean(),
-    value: number().when('checked', (checked: boolean, schema) => {
-      return !!checked
-        ? number()
-            .min(0.000001, CreditNoteFeeErrorEnum.minZero)
-            .max(
-              _get(formikInitialFees || {}, feeKey) as unknown as number,
-              CreditNoteFeeErrorEnum.overMax
-            )
-            .required('')
-        : schema
-    }),
+    value: number()
+      .default(0)
+      .when(
+        'checked',
+        // @ts-ignore
+        (checked: boolean, schema: NumberSchema) => {
+          return !!checked
+            ? number()
+                .min(0.000001, CreditNoteFeeErrorEnum.minZero)
+                .max(maxAmount / 100, CreditNoteFeeErrorEnum.overMax)
+                .required('')
+            : schema
+        }
+      ),
   })
 
 export const generateFeesSchema = (formikInitialFees: FeesPerInvoice) =>
@@ -40,8 +43,10 @@ export const generateFeesSchema = (formikInitialFees: FeesPerInvoice) =>
                 return {
                   ...feeGroupAcc,
                   [feeGroupKey]: simpleFeeSchema(
-                    formikInitialFees,
-                    `${subKey}.fees.${feeGroupKey}.value`
+                    _get(
+                      formikInitialFees || {},
+                      `${subKey}.fees.${feeGroupKey}.maxAmount`
+                    ) as unknown as number
                   ),
                 }
               }
@@ -55,8 +60,10 @@ export const generateFeesSchema = (formikInitialFees: FeesPerInvoice) =>
                       return {
                         ...feeAcc,
                         [feeKey]: simpleFeeSchema(
-                          formikInitialFees,
-                          `${subKey}.fees.${feeGroupKey}.grouped.${feeKey}.value`
+                          _get(
+                            formikInitialFees || {},
+                            `${subKey}.fees.${feeGroupKey}.grouped.${feeKey}.maxAmount`
+                          ) as unknown as number
                         ),
                       }
                     }, {})

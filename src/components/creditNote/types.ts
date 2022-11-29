@@ -30,12 +30,13 @@ export enum CreditTypeEnum {
 }
 
 export interface CreditNoteForm {
-  description?: string
   reason: CreditNoteReasonEnum
-  fees: FeesPerInvoice
   creditAmount: number
   refundAmount: number
   payBack: { type?: CreditTypeEnum; value?: number }[]
+  description?: string
+  fees?: FeesPerInvoice
+  addOnFee?: FromFee
 }
 
 export enum CreditNoteFeeErrorEnum {

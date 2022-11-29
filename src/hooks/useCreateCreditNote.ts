@@ -11,10 +11,11 @@ import {
   useCreateCreditNoteMutation,
   InvoiceFeeFragment,
   CreateCreditNoteInvoiceFragmentDoc,
+  InvoiceTypeEnum,
 } from '~/generated/graphql'
 import { ERROR_404_ROUTE, CUSTOMER_INVOICE_OVERVIEW_ROUTE } from '~/core/router'
 import { hasDefinedGQLError, addToast } from '~/core/apolloClient'
-import { FeesPerInvoice, CreditNoteForm } from '~/components/creditNote/types'
+import { FeesPerInvoice, CreditNoteForm, FromFee } from '~/components/creditNote/types'
 import { serializeCreditNoteInput } from '~/core/serializers'
 
 gql`
@@ -40,6 +41,14 @@ gql`
     id
     refundableAmountCents
     creditableAmountCents
+    invoiceType
+    fees {
+      id
+      itemCode
+      itemName
+      creditableAmountCents
+      vatRate
+    }
     invoiceSubscriptions {
       subscription {
         id
@@ -75,6 +84,7 @@ type UseCreateCreditNoteReturn = {
   loading: boolean
   invoice?: InvoiceCreateCreditNoteFragment
   feesPerInvoice?: FeesPerInvoice
+  feeForAddOn?: FromFee
   onCreate: (
     value: CreditNoteForm
   ) => Promise<{ data?: { createCreditNote?: { id?: string } }; errors?: ApolloError }>
@@ -92,7 +102,9 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
     skip: !invoiceId,
   })
   const [create] = useCreateCreditNoteMutation({
-    context: {},
+    context: {
+      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+    },
     onCompleted({ createCreditNote }) {
       if (!!createCreditNote) {
         addToast({
@@ -113,94 +125,115 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
     navigate(ERROR_404_ROUTE)
   }
 
+  const feeForAddOn = useMemo(() => {
+    if (data?.invoice?.invoiceType === InvoiceTypeEnum.AddOn) {
+      const addOnFee = (data?.invoice?.fees || [])[0]
+
+      return {
+        id: addOnFee?.id,
+        checked: true,
+        value: addOnFee?.creditableAmountCents / 100,
+        name: addOnFee?.itemName,
+        maxAmount: addOnFee?.creditableAmountCents,
+        vatRate: addOnFee?.vatRate || 0,
+      }
+    }
+
+    return undefined
+  }, [data?.invoice])
+
   const feesPerInvoice = useMemo(() => {
     return data?.invoice?.invoiceSubscriptions?.reduce<FeesPerInvoice>(
       (subAcc, invoiceSubscription) => {
         const groupedFees = _groupBy(invoiceSubscription?.fees, 'charge.id') as {
           [key: string]: InvoiceFeeFragment[]
         }
-        const subscriptionName =
+        const subscriptionName: string =
           invoiceSubscription?.subscription?.name || invoiceSubscription?.subscription?.plan?.name
 
-        return {
-          ...subAcc,
-          [invoiceSubscription?.subscription?.id]: {
-            subscriptionName,
-            fees: Object.keys(groupedFees).reduce((groupApp, groupKey, index) => {
-              if (groupKey === 'undefined') {
-                const fee = groupedFees[groupKey][0]
+        const subscriptionFees = Object.keys(groupedFees).reduce((groupApp, groupKey, index) => {
+          if (groupKey === 'undefined') {
+            const fee = groupedFees[groupKey][0]
 
-                if (fee?.creditableAmountCents > 0) {
-                  return {
-                    [`0_${fee?.id}`]: {
-                      id: fee?.id,
-                      checked: true,
-                      value: fee?.creditableAmountCents / 100,
-                      name: subscriptionName,
-                      maxAmount: fee?.creditableAmountCents,
-                      vatRate: fee?.vatRate,
-                    },
-                    ...groupApp,
-                  }
-                }
-
-                return groupApp
+            if (fee?.creditableAmountCents > 0) {
+              return {
+                [`0_${fee?.id}`]: {
+                  id: fee?.id,
+                  checked: true,
+                  value: fee?.creditableAmountCents / 100,
+                  name: subscriptionName,
+                  maxAmount: fee?.creditableAmountCents,
+                  vatRate: fee?.vatRate,
+                },
+                ...groupApp,
               }
-              const feeGroup = groupedFees[groupKey] as InvoiceFeeFragment[]
-              const firstFee = groupedFees[groupKey][0]
+            }
 
-              if (
-                feeGroup.length === 1 &&
-                [FeeTypesEnum.Charge, FeeTypesEnum.Subscription].includes(feeGroup[0]?.feeType) &&
-                firstFee?.creditableAmountCents > 0
-              ) {
-                return {
-                  ...groupApp,
-                  [`${index}_${firstFee?.id}`]: {
-                    id: firstFee?.id,
-                    checked: true,
-                    value: firstFee?.creditableAmountCents / 100,
-                    name: firstFee?.charge?.billableMetric?.name,
-                    maxAmount: firstFee?.creditableAmountCents,
-                    vatRate: firstFee?.vatRate,
-                  },
-                }
+            return groupApp
+          }
+          const feeGroup = groupedFees[groupKey] as InvoiceFeeFragment[]
+          const firstFee = groupedFees[groupKey][0]
+
+          if (
+            feeGroup.length === 1 &&
+            [FeeTypesEnum.Charge, FeeTypesEnum.Subscription].includes(feeGroup[0]?.feeType) &&
+            firstFee?.creditableAmountCents > 0
+          ) {
+            return {
+              ...groupApp,
+              [`${index}_${firstFee?.id}`]: {
+                id: firstFee?.id,
+                checked: true,
+                value: firstFee?.creditableAmountCents / 100,
+                name: firstFee?.charge?.billableMetric?.name,
+                maxAmount: firstFee?.creditableAmountCents,
+                vatRate: firstFee?.vatRate,
+              },
+            }
+          }
+          const grouped = feeGroup.reduce((accFee, feeGrouped) => {
+            if (
+              feeGrouped?.creditableAmountCents === 0 ||
+              ![FeeTypesEnum.Charge, FeeTypesEnum.Subscription].includes(feeGrouped.feeType)
+            ) {
+              return accFee
+            }
+
+            return {
+              ...accFee,
+              [feeGrouped?.id]: {
+                id: feeGrouped?.id,
+                checked: true,
+                value: feeGrouped?.creditableAmountCents / 100,
+                name: feeGrouped?.group?.key
+                  ? `${feeGrouped?.group?.key} • ${feeGrouped?.group?.value}`
+                  : (feeGrouped?.group?.value as string),
+                maxAmount: feeGrouped?.creditableAmountCents,
+                vatRate: feeGrouped?.vatRate,
+              },
+            }
+          }, {})
+
+          return Object.keys(grouped).length > 0
+            ? {
+                ...groupApp,
+                [groupKey]: {
+                  name: firstFee?.charge?.billableMetric?.name as string,
+                  grouped,
+                },
               }
-              const grouped = feeGroup.reduce((accFee, feeGrouped) => {
-                if (
-                  feeGrouped?.creditableAmountCents === 0 ||
-                  ![FeeTypesEnum.Charge, FeeTypesEnum.Subscription].includes(feeGrouped.feeType)
-                ) {
-                  return accFee
-                }
+            : groupApp
+        }, {})
 
-                return {
-                  ...accFee,
-                  [feeGrouped?.id]: {
-                    id: feeGrouped?.id,
-                    checked: true,
-                    value: feeGrouped?.creditableAmountCents / 100,
-                    name: feeGrouped?.group?.key
-                      ? `${feeGrouped?.group?.key} • ${feeGrouped?.group?.value}`
-                      : (feeGrouped?.group?.value as string),
-                    maxAmount: feeGrouped?.creditableAmountCents,
-                    vatRate: feeGrouped?.vatRate,
-                  },
-                }
-              }, {})
-
-              return Object.keys(grouped).length > 0
-                ? {
-                    ...groupApp,
-                    [groupKey]: {
-                      name: firstFee?.charge?.billableMetric?.name as string,
-                      grouped,
-                    },
-                  }
-                : groupApp
-            }, {}),
-          },
-        }
+        return Object.keys(subscriptionFees).length > 0
+          ? {
+              ...subAcc,
+              [invoiceSubscription?.subscription?.id]: {
+                subscriptionName,
+                fees: subscriptionFees,
+              },
+            }
+          : subAcc
       },
       {}
     )
@@ -210,6 +243,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
     loading,
     invoice: data?.invoice || undefined,
     feesPerInvoice,
+    feeForAddOn,
     onCreate: async (values) => {
       const answer = await create({
         variables: {

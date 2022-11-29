@@ -49,6 +49,7 @@ gql`
   query getCreditNote($id: ID!) {
     creditNote(id: $id) {
       id
+      balanceAmountCents
       canBeVoided
       createdAt
       creditAmountCents
@@ -420,7 +421,7 @@ const CreditNoteDetails = () => {
                         {translate('text_637655cb50f04bf1c8379d0a')}
                       </Typography>
                       <Typography variant="body" color="grey700">
-                        {intlFormatNumber(creditNote?.creditAmountCents || 0, {
+                        {intlFormatNumber(creditNote?.balanceAmountCents || 0, {
                           currencyDisplay: 'symbol',
                           currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
                         })}
@@ -434,7 +435,12 @@ const CreditNoteDetails = () => {
                         : translate('text_637655cb50f04bf1c8379d0e')}
                     </Typography>
                     <Typography variant="body" color="grey700">
-                      <Status type={status.type} label={translate(status.label)} />
+                      <Status
+                        type={status.type}
+                        label={translate(status.label, {
+                          date: DateTime.fromISO(creditNote?.refundedAt).toFormat('LLL. dd, yyyy'),
+                        })}
+                      />
                     </Typography>
                   </InfoLine>
                 </div>
@@ -566,7 +572,7 @@ const CreditNoteDetails = () => {
                         </Typography>
                       </td>
                     </tr>
-                    {!!creditNote?.creditAmountCents && (
+                    {Number(creditNote?.creditAmountCents || 0) > 0 && (
                       <tr>
                         <td></td>
                         <td>
@@ -584,7 +590,7 @@ const CreditNoteDetails = () => {
                         </td>
                       </tr>
                     )}
-                    {!!creditNote?.refundAmountCents && (
+                    {Number(creditNote?.refundAmountCents || 0) > 0 && (
                       <tr>
                         <td></td>
                         <td>
@@ -605,7 +611,7 @@ const CreditNoteDetails = () => {
                     <tr>
                       <td></td>
                       <td>
-                        <Typography variant="bodyHl" color="grey600">
+                        <Typography variant="bodyHl" color="grey700">
                           {translate('text_637655cb50f04bf1c8379d2c')}
                         </Typography>
                       </td>

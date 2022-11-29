@@ -63,7 +63,7 @@ export const VoidCreditNoteDialog = forwardRef<VoidCreditNoteDialogRef>((_, ref)
       onContinue={async () =>
         await voidCreditNote({
           variables: { input: { id: creditNote?.id as string } },
-          refetchQueries: ['getCustomer'],
+          refetchQueries: ['getCustomer', 'getCreditNote'],
         })
       }
       continueText={translate('text_63720bd734e1344aea75b7e9')}

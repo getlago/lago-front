@@ -24,6 +24,12 @@ gql`
     invoiceCreditNotes(invoiceId: $invoiceId, page: $page, limit: $limit) {
       ...CreditNotesForList
     }
+
+    invoice(id: $invoiceId) {
+      id
+      refundableAmountCents
+      creditableAmountCents
+    }
   }
 
   mutation downloadCreditNote($input: DownloadCreditNoteInput!) {
@@ -53,6 +59,10 @@ const InvoiceCreditNoteList = () => {
           <Typography variant="subhead">{translate('text_636bdef6565341dcb9cfb129')}</Typography>
           <ButtonLink
             type="button"
+            disabled={
+              data?.invoice?.creditableAmountCents === 0 &&
+              data?.invoice?.refundableAmountCents === 0
+            }
             buttonProps={{ variant: 'quaternary' }}
             to={generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, { id, invoiceId })}
           >

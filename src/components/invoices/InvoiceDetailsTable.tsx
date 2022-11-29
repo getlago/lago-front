@@ -10,16 +10,21 @@ import {
   Customer,
   FeeTypesEnum,
   Invoice,
+  InvoiceForDetailsTableFooterFragmentDoc,
+  InvoiceTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 
+import { InvoiceDetailsTableHeader } from './InvoiceDetailsTableHeader'
+import { InvoiceDetailsTableFooter } from './InvoiceDetailsTableFooter'
+
 gql`
   fragment InvoiceForDetailsTable on Invoice {
     couponTotalAmountCents
     creditAmountCurrency
-    creditNoteTotalAmountCents
+    invoiceType
     subTotalVatExcludedAmountCents
     subTotalVatIncludedAmountCents
     totalAmountCents
@@ -27,6 +32,16 @@ gql`
     vatAmountCents
     vatAmountCurrency
     walletTransactionAmountCents
+
+    ...InvoiceForDetailsTableFooter
+
+    fees {
+      id
+      amountCents
+      itemName
+      units
+      feeType
+    }
     customer {
       currency
     }
@@ -66,6 +81,8 @@ gql`
       }
     }
   }
+
+  ${InvoiceForDetailsTableFooterFragmentDoc}
 `
 
 interface InvoiceDetailsTableProps {
@@ -75,6 +92,44 @@ interface InvoiceDetailsTableProps {
 
 export const InvoiceDetailsTable = memo(({ customer, invoice }: InvoiceDetailsTableProps) => {
   const { translate } = useInternationalization()
+
+  if ([InvoiceTypeEnum.AddOn, InvoiceTypeEnum.Credit].includes(invoice.invoiceType)) {
+    return (
+      <Wrapper>
+        <table className="main-table">
+          <InvoiceDetailsTableHeader displayName={translate('text_6388b923e514213fed58331c')} />
+
+          <tbody>
+            {invoice.fees?.map((fee, i) => (
+              <tr key={`fee-${i}`}>
+                <td>
+                  <Typography variant="body" color="grey700">
+                    {invoice.invoiceType === InvoiceTypeEnum.AddOn
+                      ? translate('text_6388baa2e514213fed583611', { name: fee.itemName })
+                      : translate('text_637ccf8133d2c9a7d11ce6e1')}
+                  </Typography>
+                </td>
+                <td>
+                  <Typography variant="body" color="grey700">
+                    {fee.units}
+                  </Typography>
+                </td>
+                <td>
+                  <Typography variant="body" color="grey700">
+                    {intlFormatNumber(fee.amountCents || 0, {
+                      currencyDisplay: 'symbol',
+                      currency: customer?.currency || CurrencyEnum.Usd,
+                    })}
+                  </Typography>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <InvoiceDetailsTableFooter invoice={invoice} />
+        </table>
+      </Wrapper>
+    )
+  }
 
   return (
     <Wrapper>
@@ -87,27 +142,11 @@ export const InvoiceDetailsTable = memo(({ customer, invoice }: InvoiceDetailsTa
         return (
           <React.Fragment key={`invoiceSubscription=${i}`}>
             <table className="main-table">
-              <thead>
-                <tr>
-                  <th>
-                    <Typography variant="bodyHl" color="grey500">
-                      {translate('text_634d631acf4dce7b0127a39a', {
-                        invoiceDisplayName,
-                      })}
-                    </Typography>
-                  </th>
-                  <th>
-                    <Typography variant="bodyHl" color="grey500">
-                      {translate('text_634d631acf4dce7b0127a3a0')}
-                    </Typography>
-                  </th>
-                  <th>
-                    <Typography variant="bodyHl" color="grey500">
-                      {translate('text_634d631acf4dce7b0127a3a6')}
-                    </Typography>
-                  </th>
-                </tr>
-              </thead>
+              <InvoiceDetailsTableHeader
+                displayName={translate('text_634d631acf4dce7b0127a39a', {
+                  invoiceDisplayName,
+                })}
+              />
             </table>
             {invoiceSubscription.fees
               ?.filter((fee) => fee.feeType === FeeTypesEnum.Subscription)
@@ -224,108 +263,7 @@ export const InvoiceDetailsTable = memo(({ customer, invoice }: InvoiceDetailsTa
         )
       })}
       <table id="table">
-        <tfoot>
-          <tr>
-            <td></td>
-            <td>
-              <Typography variant="bodyHl" color="grey600">
-                {translate('text_637ccf8133d2c9a7d11ce6f9')}
-              </Typography>
-            </td>
-            <td>
-              <Typography variant="body" color="grey700">
-                {intlFormatNumber(Number(invoice?.subTotalVatExcludedAmountCents) || 0, {
-                  currencyDisplay: 'symbol',
-                  currency: invoice?.totalAmountCurrency || CurrencyEnum.Usd,
-                })}
-              </Typography>
-            </td>
-          </tr>
-          <tr>
-            <td></td>
-            <td>
-              <Typography variant="bodyHl" color="grey600">
-                {translate('text_637ccf8133d2c9a7d11ce6fd')}
-              </Typography>
-            </td>
-            <td>
-              <Typography variant="body" color="grey700">
-                {intlFormatNumber(Number(invoice?.vatAmountCents) || 0, {
-                  currencyDisplay: 'symbol',
-                  currency: invoice?.totalAmountCurrency || CurrencyEnum.Usd,
-                })}
-              </Typography>
-            </td>
-          </tr>
-          <tr>
-            <td></td>
-            <td>
-              <Typography variant="bodyHl" color="grey700">
-                {translate('text_637ccf8133d2c9a7d11ce701')}
-              </Typography>
-            </td>
-            <td>
-              <Typography variant="body" color="grey700">
-                {intlFormatNumber(Number(invoice?.subTotalVatIncludedAmountCents) || 0, {
-                  currencyDisplay: 'symbol',
-                  currency: invoice?.totalAmountCurrency || CurrencyEnum.Usd,
-                })}
-              </Typography>
-            </td>
-          </tr>
-          {!!Number(invoice?.couponTotalAmountCents) && (
-            <tr>
-              <td></td>
-              <td>
-                <Typography variant="bodyHl" color="grey600">
-                  {translate('text_637ccf8133d2c9a7d11ce705')}
-                </Typography>
-              </td>
-              <td>
-                <Typography variant="body" color="success600">
-                  {intlFormatNumber(Number(invoice?.couponTotalAmountCents) || 0, {
-                    currencyDisplay: 'symbol',
-                    currency: invoice?.totalAmountCurrency || CurrencyEnum.Usd,
-                  })}
-                </Typography>
-              </td>
-            </tr>
-          )}
-          {!!Number(invoice?.creditNoteTotalAmountCents) && (
-            <tr>
-              <td></td>
-              <td>
-                <Typography variant="bodyHl" color="grey600">
-                  {translate('text_637ccf8133d2c9a7d11ce709')}
-                </Typography>
-              </td>
-              <td>
-                <Typography variant="body" color="success600">
-                  {intlFormatNumber(Number(invoice?.creditNoteTotalAmountCents) || 0, {
-                    currencyDisplay: 'symbol',
-                    currency: invoice?.totalAmountCurrency || CurrencyEnum.Usd,
-                  })}
-                </Typography>
-              </td>
-            </tr>
-          )}
-          <tr>
-            <td></td>
-            <td>
-              <Typography variant="bodyHl" color="grey700">
-                {translate('text_637ccf8133d2c9a7d11ce70d')}
-              </Typography>
-            </td>
-            <td>
-              <Typography variant="body" color="grey700">
-                {intlFormatNumber(Number(invoice?.totalAmountCents) || 0, {
-                  currencyDisplay: 'symbol',
-                  currency: invoice?.totalAmountCurrency || CurrencyEnum.Usd,
-                })}
-              </Typography>
-            </td>
-          </tr>
-        </tfoot>
+        <InvoiceDetailsTableFooter invoice={invoice} />
       </table>
     </Wrapper>
   )
