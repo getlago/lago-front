@@ -19,7 +19,7 @@ import {
   EditOrganizationInvoiceTemplateDialog,
   EditOrganizationInvoiceTemplateDialogRef,
 } from '~/components/settings/EditOrganizationInvoiceTemplateDialog'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 
 const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
 

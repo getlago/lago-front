@@ -1,15 +1,18 @@
 import { useRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
-import { useParams } from 'react-router-dom'
+import { useParams, generatePath } from 'react-router-dom'
 
 import { theme, NAV_HEIGHT } from '~/styles'
-import { Typography, Button } from '~/components/designSystem'
+import { Typography, ButtonLink } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useGetInvoiceCreditNotesQuery, CreditNotesForListFragmentDoc } from '~/generated/graphql'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
+  CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
+} from '~/core/router'
 import {
   VoidCreditNoteDialog,
   VoidCreditNoteDialogRef,
@@ -34,7 +37,7 @@ gql`
 `
 
 const InvoiceCreditNoteList = () => {
-  const { invoiceId } = useParams()
+  const { invoiceId, id } = useParams()
   const { translate } = useInternationalization()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const { data, loading, error, fetchMore } = useGetInvoiceCreditNotesQuery({
@@ -45,10 +48,16 @@ const InvoiceCreditNoteList = () => {
 
   return (
     <div>
-      {(loading || !!creditNotes?.length) && (
+      {(!loading || !!creditNotes?.length) && (
         <Header>
           <Typography variant="subhead">{translate('text_636bdef6565341dcb9cfb129')}</Typography>
-          <Button variant="quaternary">{translate('text_636bdef6565341dcb9cfb127')} </Button>
+          <ButtonLink
+            type="button"
+            buttonProps={{ variant: 'quaternary' }}
+            to={generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, { id, invoiceId })}
+          >
+            {translate('text_636bdef6565341dcb9cfb127')}
+          </ButtonLink>
         </Header>
       )}
       <>

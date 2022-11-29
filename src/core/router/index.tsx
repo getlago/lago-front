@@ -72,6 +72,9 @@ const InvoiceOverview = lazy(
 const InvoiceCreditNoteList = lazy(
   () => import(/* webpackChunkName: 'invoice-credit-note-list' */ '~/pages/InvoiceCreditNoteList')
 )
+const CreateCreditNote = lazy(
+  () => import(/* webpackChunkName: 'create-credit-note' */ '~/pages/CreateCreditNote')
+)
 
 const CreditNoteDetails = lazy(
   () => import(/* webpackChunkName: 'credit-note-details' */ '~/pages/CreditNoteDetails')
@@ -126,6 +129,7 @@ export const CUSTOMER_INVOICE_OVERVIEW_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoic
 export const CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/credit-notes`
 export const CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/credit-notes/:creditNoteId`
 export const CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/credit-notes/:creditNoteId`
+export const CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE = `${CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE}/create`
 
 // Coupons routes
 export const COUPONS_ROUTE = '/coupons'
@@ -292,6 +296,11 @@ export const routes: CustomRouteObject[] = [
           ]
         : []),
     ],
+  },
+  {
+    path: CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
+    private: true,
+    element: <CreateCreditNote />,
   },
   {
     path: [CREATE_ADD_ON_ROUTE, UPDATE_ADD_ON_ROUTE],
