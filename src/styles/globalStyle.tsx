@@ -35,6 +35,7 @@ export const inputGlobalStyles = (
         },
       },
       button: {
+        fontFamily: 'Inter, Arial , Verdana , Helvetica , sans-serif',
         padding: '6px 12px',
         height: '40px',
         border: 'none',
