@@ -126,7 +126,7 @@ const GroupHeader = styled.div<{ $isFirst?: boolean; $virtualized?: boolean }>`
   ${({ $virtualized, $isFirst }) =>
     !$virtualized
       ? css`
-          z-index: ${theme.zIndex.dialog} + 2;
+          z-index: ${theme.zIndex.dialog + 2};
           position: sticky;
           top: 0;
           margin: ${$isFirst ? 0 : theme.spacing(2)} 0 ${theme.spacing(2)};
