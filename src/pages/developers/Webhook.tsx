@@ -19,6 +19,7 @@ import {
   DeleteWebhookDialog,
   DeleteWebhookDialogRef,
 } from '~/components/developers/DeleteWebhookDialog'
+import { useCurrentUserInfosVar } from '~/core/apolloClient'
 
 gql`
   query wehbookSetting {
@@ -34,12 +35,14 @@ gql`
 
 const Webhook = () => {
   const { translate } = useInternationalization()
+  const { currentOrganization } = useCurrentUserInfosVar()
   const editDialogRef = useRef<EditWebhookDialogRef>(null)
   const deleleDialogRef = useRef<DeleteWebhookDialogRef>(null)
   const { data, loading } = useWehbookSettingQuery()
-  const webhookUrl = data?.currentUser?.organizations
-    ? data?.currentUser?.organizations[0]?.webhookUrl
-    : undefined
+  const resultCurrentOrga = data?.currentUser.organizations?.find(
+    (orga) => orga.id === currentOrganization?.id
+  )
+  const webhookUrl = resultCurrentOrga ? resultCurrentOrga?.webhookUrl : undefined
 
   return (
     <Page>
