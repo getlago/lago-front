@@ -69,7 +69,9 @@ export const useAddSubscription: UseAddSubscription = ({
   existingSubscription,
   subscriptionDate,
 }) => {
-  const [getPlans, { loading, data }] = useGetPlansLazyQuery()
+  const [getPlans, { loading, data }] = useGetPlansLazyQuery({
+    variables: { limit: 500 },
+  })
   const { translate } = useInternationalization()
   const [create, { error }] = useCreateSubscriptionMutation({
     context: {
