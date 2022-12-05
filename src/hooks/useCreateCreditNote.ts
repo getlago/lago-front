@@ -14,11 +14,12 @@ import {
   InvoiceTypeEnum,
   CurrencyEnum,
 } from '~/generated/graphql'
-import { ERROR_404_ROUTE, CUSTOMER_INVOICE_OVERVIEW_ROUTE } from '~/core/router'
+import { ERROR_404_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { hasDefinedGQLError, addToast } from '~/core/apolloClient'
 import { FeesPerInvoice, CreditNoteForm, FromFee } from '~/components/creditNote/types'
 import { serializeCreditNoteInput } from '~/core/serializers'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 
 gql`
   fragment InvoiceFee on Fee {
@@ -116,7 +117,13 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
           translateKey: 'text_63763e61409e0d55b268a590',
         })
 
-        navigate(generatePath(CUSTOMER_INVOICE_OVERVIEW_ROUTE, { invoiceId, id }))
+        navigate(
+          generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+            id,
+            invoiceId,
+            tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+          })
+        )
       }
     },
   })

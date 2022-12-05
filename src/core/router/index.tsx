@@ -61,16 +61,12 @@ const CustomersList = lazy(
 const CustomerDetails = lazy(
   () => import(/* webpackChunkName: 'customer-details' */ '~/pages/CustomerDetails')
 )
+const CustomerDraftInvoicesList = lazy(
+  () => import(/* webpackChunkName: 'customer-details' */ '~/pages/CustomerDraftInvoicesList')
+)
 
 const CustomerInvoiceDetails = lazy(
   () => import(/* webpackChunkName: 'customer-details' */ '~/layouts/CustomerInvoiceDetails')
-)
-const InvoiceOverview = lazy(
-  () => import(/* webpackChunkName: 'invoice-overview' */ '~/pages/InvoiceOverview')
-)
-
-const InvoiceCreditNoteList = lazy(
-  () => import(/* webpackChunkName: 'invoice-credit-note-list' */ '~/pages/InvoiceCreditNoteList')
 )
 const CreateCreditNote = lazy(
   () => import(/* webpackChunkName: 'create-credit-note' */ '~/pages/CreateCreditNote')
@@ -122,14 +118,13 @@ export const UPDATE_PLAN_ROUTE = '/update/plan/:id'
 export const CUSTOMERS_LIST_ROUTE = '/customers'
 export const CUSTOMER_DETAILS_ROUTE = '/customer/:id'
 export const CUSTOMER_DETAILS_TAB_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/:tab`
-export const CUSTOMER_INVOICE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId`
-export const CUSTOMER_INVOICE_OVERVIEW_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/overview`
+export const CUSTOMER_DRAFT_INVOICES_LIST_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/draft-invoices`
+export const CUSTOMER_INVOICE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/:tab`
 
 // Credit note
-export const CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/credit-notes`
 export const CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/credit-notes/:creditNoteId`
 export const CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/credit-notes/:creditNoteId`
-export const CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE = `${CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE}/create`
+export const CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/create/credit-notes`
 
 // Coupons routes
 export const COUPONS_ROUTE = '/coupons'
@@ -257,20 +252,14 @@ export const routes: CustomRouteObject[] = [
         element: <CustomerDetails />,
       },
       {
+        path: CUSTOMER_DRAFT_INVOICES_LIST_ROUTE,
+        private: true,
+        element: <CustomerDraftInvoicesList />,
+      },
+      {
+        path: CUSTOMER_INVOICE_DETAILS_ROUTE,
         private: true,
         element: <CustomerInvoiceDetails />,
-        children: [
-          {
-            path: [CUSTOMER_INVOICE_DETAILS_ROUTE, CUSTOMER_INVOICE_OVERVIEW_ROUTE],
-            private: true,
-            element: <InvoiceOverview />,
-          },
-          {
-            path: [CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE],
-            private: true,
-            element: <InvoiceCreditNoteList />,
-          },
-        ],
       },
       {
         path: [CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE],

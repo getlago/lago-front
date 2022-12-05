@@ -22,23 +22,23 @@ import {
 import {
   useGetCustomerQuery,
   SubscriptionItemFragmentDoc,
-  CustomerInvoiceListFragmentDoc,
   AddCustomerDrawerDetailFragmentDoc,
   CustomerVatRateFragmentDoc,
-  CustomerVatRateFragment,
   CustomerCouponFragmentDoc,
   CustomerMainInfosFragmentDoc,
   CustomerAddOnsFragmentDoc,
   CustomerUsageSubscriptionFragmentDoc,
   StatusTypeEnum,
   TimezoneEnum,
+  CustomerInvoiceGracePeriodFragmentDoc,
+  CustomerInvoiceGracePeriodFragment,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { CustomerSubscriptionsList } from '~/components/customers/subscriptions/CustomerSubscriptionsList'
 import { CustomerWalletsList } from '~/components/wallets/CustomerWalletList'
 import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
-import { CustomerVatRate } from '~/components/customers/CustomerVatRate'
+import { CustomerSettings } from '~/components/customers/CustomerSettings'
 import { theme, PageHeader, MenuPopper } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
 import {
@@ -88,9 +88,6 @@ gql`
       ...SubscriptionItem
       ...CustomerUsageSubscription
     }
-    invoices {
-      ...CustomerInvoiceList
-    }
     appliedCoupons {
       ...CustomerCoupon
     }
@@ -100,6 +97,7 @@ gql`
     ...CustomerVatRate
     ...AddCustomerDrawerDetail
     ...CustomerMainInfos
+    ...CustomerInvoiceGracePeriod
   }
 
   query getCustomer($id: ID!) {
@@ -109,13 +107,13 @@ gql`
   }
 
   ${SubscriptionItemFragmentDoc}
-  ${CustomerInvoiceListFragmentDoc}
   ${AddCustomerDrawerDetailFragmentDoc}
   ${CustomerVatRateFragmentDoc}
   ${CustomerCouponFragmentDoc}
   ${CustomerAddOnsFragmentDoc}
   ${CustomerMainInfosFragmentDoc}
   ${CustomerUsageSubscriptionFragmentDoc}
+  ${CustomerInvoiceGracePeriodFragmentDoc}
 `
 
 export enum CustomerDetailsTabsOptions {
@@ -123,7 +121,7 @@ export enum CustomerDetailsTabsOptions {
   overview = 'overview',
   wallet = 'wallet',
   invoices = 'invoices',
-  taxRate = 'taxRate',
+  settings = 'settings',
   usage = 'usage',
 }
 
@@ -141,6 +139,7 @@ const CustomerDetails = () => {
     variables: { id: id as string },
     skip: !id,
   })
+
   const {
     appliedAddOns,
     appliedCoupons,
@@ -150,7 +149,6 @@ const CustomerDetails = () => {
     externalId,
     hasActiveWallet,
     hasCreditNotes,
-    invoices,
     name,
     subscriptions,
     applicableTimezone,
@@ -401,7 +399,6 @@ const CustomerDetails = () => {
                         <SideBlock>
                           <CustomerInvoicesList
                             customerId={id as string}
-                            invoices={invoices}
                             customerTimezone={safeTimezone}
                           />
                         </SideBlock>
@@ -428,15 +425,17 @@ const CustomerDetails = () => {
                       ),
                     },
                     {
-                      title: translate('text_628cf761cbe6820138b8f2e8'),
+                      title: translate('text_638dff9779fb99299bee9126'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                         id,
-                        tab: CustomerDetailsTabsOptions.taxRate,
+                        tab: CustomerDetailsTabsOptions.settings,
                       }),
                       routerState: { disableScrollTop: true },
                       component: (
                         <SideBlock>
-                          <CustomerVatRate customer={data?.customer as CustomerVatRateFragment} />
+                          <CustomerSettings
+                            customer={data?.customer as CustomerInvoiceGracePeriodFragment}
+                          />
                         </SideBlock>
                       ),
                     },
