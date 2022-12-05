@@ -38,7 +38,7 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { CustomerSubscriptionsList } from '~/components/customers/subscriptions/CustomerSubscriptionsList'
 import { CustomerWalletsList } from '~/components/wallets/CustomerWalletList'
 import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
-import { CustomerVatRate } from '~/components/customers/CustomerVatRate'
+import { CustomerSettings } from '~/components/customers/CustomerSettings'
 import { theme, PageHeader, MenuPopper } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
 import {
@@ -119,7 +119,7 @@ enum TabsOptions {
   overview = 'overview',
   wallet = 'wallet',
   invoices = 'invoices',
-  taxRate = 'taxRate',
+  settings = 'settings',
   usage = 'usage',
 }
 
@@ -387,12 +387,12 @@ const CustomerDetails = () => {
                       title: translate('text_638dff9779fb99299bee9126'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                         id,
-                        tab: TabsOptions.taxRate,
+                        tab: TabsOptions.settings,
                       }),
                       routerState: { disableScrollTop: true },
                       component: (
                         <SideBlock>
-                          <CustomerVatRate
+                          <CustomerSettings
                             customer={data?.customer as CustomerInvoiceGracePeriodFragment}
                           />
                         </SideBlock>
