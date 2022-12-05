@@ -21,7 +21,7 @@ import {
   CUSTOMER_INVOICE_OVERVIEW_ROUTE,
 } from '~/core/router'
 import {
-  InvoiceStatusTypeEnum,
+  InvoicePaymentStatusTypeEnum,
   useDownloadInvoiceMutation,
   useGetInvoiceDetailsQuery,
 } from '~/generated/graphql'
@@ -36,7 +36,7 @@ gql`
     invoice(id: $id) {
       id
       number
-      status
+      paymentStatus
       totalAmountCents
       totalAmountCurrency
     }
@@ -58,14 +58,14 @@ enum TabsOptions {
   usage = 'usage',
 }
 
-const mapStatus = (type?: InvoiceStatusTypeEnum | undefined) => {
+const mapStatus = (type?: InvoicePaymentStatusTypeEnum | undefined) => {
   switch (type) {
-    case InvoiceStatusTypeEnum.Succeeded:
+    case InvoicePaymentStatusTypeEnum.Succeeded:
       return {
         type: StatusEnum.running,
         label: 'text_634687079be251fdb43833a7',
       }
-    case InvoiceStatusTypeEnum.Failed:
+    case InvoicePaymentStatusTypeEnum.Failed:
       return {
         type: StatusEnum.failed,
         label: 'text_634687079be251fdb438339d',
@@ -109,8 +109,8 @@ const CustomerInvoiceDetails = () => {
     variables: { id: invoiceId as string },
     skip: !invoiceId,
   })
-  const { number, status, totalAmountCents, totalAmountCurrency } = data?.invoice || {}
-  const formattedStatus = mapStatus(status)
+  const { number, paymentStatus, totalAmountCents, totalAmountCurrency } = data?.invoice || {}
+  const formattedStatus = mapStatus(paymentStatus)
   const hasError = (!!error || !data?.invoice) && !loading
 
   const tabsOptions = [
