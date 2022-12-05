@@ -1648,6 +1648,7 @@ export type Invoice = {
   paymentStatus: InvoicePaymentStatusTypeEnum;
   plan?: Maybe<Plan>;
   sequentialId: Scalars['ID'];
+  status: InvoiceStatusTypeEnum;
   subscriptions?: Maybe<Array<Subscription>>;
   subtotalBeforePrepaidCredits: Scalars['String'];
   totalAmountCents: Scalars['Int'];
@@ -1656,6 +1657,12 @@ export type Invoice = {
   vatAmountCents: Scalars['Int'];
   vatAmountCurrency: CurrencyEnum;
   walletTransactionAmountCents: Scalars['Int'];
+};
+
+export type InvoiceCollection = {
+  __typename?: 'InvoiceCollection';
+  collection: Array<Invoice>;
+  metadata: CollectionMetadata;
 };
 
 /** Invoice Item */
@@ -1673,6 +1680,11 @@ export enum InvoicePaymentStatusTypeEnum {
   Failed = 'failed',
   Pending = 'pending',
   Succeeded = 'succeeded'
+}
+
+export enum InvoiceStatusTypeEnum {
+  Draft = 'draft',
+  Finalized = 'finalized'
 }
 
 export type InvoiceSubscription = {
@@ -2205,6 +2217,8 @@ export type Query = {
   currentVersion: CurrentVersion;
   /** Query a single customer of an organization */
   customer?: Maybe<CustomerDetails>;
+  /** Query invoices of a customer */
+  customerInvoices: InvoiceCollection;
   /** Query the usage of the customer on the current billing period */
   customerUsage: CustomerUsage;
   /** Query customers of an organization */
@@ -2279,6 +2293,14 @@ export type QueryCreditNoteArgs = {
 
 export type QueryCustomerArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryCustomerInvoicesArgs = {
+  customerId: Scalars['ID'];
+  limit?: InputMaybe<Scalars['Int']>;
+  page?: InputMaybe<Scalars['Int']>;
+  status?: InputMaybe<InvoiceStatusTypeEnum>;
 };
 
 
@@ -3126,6 +3148,13 @@ export type DeleteCustomerVatRateMutation = { __typename?: 'Mutation', updateCus
 
 export type DeleteCustomerVatRateFragment = { __typename?: 'CustomerDetails', id: string, vatRate?: number | null, name?: string | null };
 
+export type UpdateCustomerGracePeriodMutationVariables = Exact<{
+  input: UpdateCustomerInput;
+}>;
+
+
+export type UpdateCustomerGracePeriodMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, invoiceGracePeriod: number } | null };
+
 export type UpdateCustomerVatRateMutationVariables = Exact<{
   input: UpdateCustomerVatRateInput;
 }>;
@@ -3211,6 +3240,13 @@ export type PackageChargeFragment = { __typename?: 'Charge', id: string, propert
 export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, canBeDeleted: boolean };
 
 export type VolumeRangesFragment = { __typename?: 'Charge', properties?: { __typename?: 'Properties', volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } }> | null };
+
+export type UpdateOrganizationGracePeriodMutationVariables = Exact<{
+  input: UpdateOrganizationInput;
+}>;
+
+
+export type UpdateOrganizationGracePeriodMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string, invoiceGracePeriod: number } | null };
 
 export type EditOrganizationInformationsDialogFragment = { __typename?: 'Organization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null };
 
@@ -3622,7 +3658,7 @@ export type OrganizationInvoiceTemplateFragment = { __typename?: 'Organization',
 export type GetOrganizationInvoiceAndTaxInformationsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetOrganizationInvoiceAndTaxInformationsQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, vatRate: number, invoiceFooter?: string | null }> | null } };
+export type GetOrganizationInvoiceAndTaxInformationsQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, vatRate: number, invoiceGracePeriod: number, invoiceFooter?: string | null }> | null } };
 
 export type GetAllInvoiceDetailsQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -4806,6 +4842,40 @@ export function useDeleteCustomerVatRateMutation(baseOptions?: Apollo.MutationHo
 export type DeleteCustomerVatRateMutationHookResult = ReturnType<typeof useDeleteCustomerVatRateMutation>;
 export type DeleteCustomerVatRateMutationResult = Apollo.MutationResult<DeleteCustomerVatRateMutation>;
 export type DeleteCustomerVatRateMutationOptions = Apollo.BaseMutationOptions<DeleteCustomerVatRateMutation, DeleteCustomerVatRateMutationVariables>;
+export const UpdateCustomerGracePeriodDocument = gql`
+    mutation updateCustomerGracePeriod($input: UpdateCustomerInput!) {
+  updateCustomer(input: $input) {
+    id
+    invoiceGracePeriod
+  }
+}
+    `;
+export type UpdateCustomerGracePeriodMutationFn = Apollo.MutationFunction<UpdateCustomerGracePeriodMutation, UpdateCustomerGracePeriodMutationVariables>;
+
+/**
+ * __useUpdateCustomerGracePeriodMutation__
+ *
+ * To run a mutation, you first call `useUpdateCustomerGracePeriodMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCustomerGracePeriodMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCustomerGracePeriodMutation, { data, loading, error }] = useUpdateCustomerGracePeriodMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCustomerGracePeriodMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerGracePeriodMutation, UpdateCustomerGracePeriodMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCustomerGracePeriodMutation, UpdateCustomerGracePeriodMutationVariables>(UpdateCustomerGracePeriodDocument, options);
+      }
+export type UpdateCustomerGracePeriodMutationHookResult = ReturnType<typeof useUpdateCustomerGracePeriodMutation>;
+export type UpdateCustomerGracePeriodMutationResult = Apollo.MutationResult<UpdateCustomerGracePeriodMutation>;
+export type UpdateCustomerGracePeriodMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerGracePeriodMutation, UpdateCustomerGracePeriodMutationVariables>;
 export const UpdateCustomerVatRateDocument = gql`
     mutation updateCustomerVatRate($input: UpdateCustomerVatRateInput!) {
   updateCustomerVatRate(input: $input) {
@@ -5098,6 +5168,40 @@ export function useDeletePlanMutation(baseOptions?: Apollo.MutationHookOptions<D
 export type DeletePlanMutationHookResult = ReturnType<typeof useDeletePlanMutation>;
 export type DeletePlanMutationResult = Apollo.MutationResult<DeletePlanMutation>;
 export type DeletePlanMutationOptions = Apollo.BaseMutationOptions<DeletePlanMutation, DeletePlanMutationVariables>;
+export const UpdateOrganizationGracePeriodDocument = gql`
+    mutation updateOrganizationGracePeriod($input: UpdateOrganizationInput!) {
+  updateOrganization(input: $input) {
+    id
+    invoiceGracePeriod
+  }
+}
+    `;
+export type UpdateOrganizationGracePeriodMutationFn = Apollo.MutationFunction<UpdateOrganizationGracePeriodMutation, UpdateOrganizationGracePeriodMutationVariables>;
+
+/**
+ * __useUpdateOrganizationGracePeriodMutation__
+ *
+ * To run a mutation, you first call `useUpdateOrganizationGracePeriodMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOrganizationGracePeriodMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOrganizationGracePeriodMutation, { data, loading, error }] = useUpdateOrganizationGracePeriodMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOrganizationGracePeriodMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationGracePeriodMutation, UpdateOrganizationGracePeriodMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateOrganizationGracePeriodMutation, UpdateOrganizationGracePeriodMutationVariables>(UpdateOrganizationGracePeriodDocument, options);
+      }
+export type UpdateOrganizationGracePeriodMutationHookResult = ReturnType<typeof useUpdateOrganizationGracePeriodMutation>;
+export type UpdateOrganizationGracePeriodMutationResult = Apollo.MutationResult<UpdateOrganizationGracePeriodMutation>;
+export type UpdateOrganizationGracePeriodMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationGracePeriodMutation, UpdateOrganizationGracePeriodMutationVariables>;
 export const UpdateOrganizationInformationsDocument = gql`
     mutation updateOrganizationInformations($input: UpdateOrganizationInput!) {
   updateOrganization(input: $input) {
@@ -7033,6 +7137,7 @@ export const GetOrganizationInvoiceAndTaxInformationsDocument = gql`
     organizations {
       id
       vatRate
+      invoiceGracePeriod
       ...OrganizationInvoiceTemplate
       ...EditOrganizationInvoiceTemplateDialog
     }
