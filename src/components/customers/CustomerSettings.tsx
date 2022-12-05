@@ -43,11 +43,11 @@ gql`
   ${EditCustomerVatRateFragmentDoc}
 `
 
-interface CustomerVatRateProps {
+interface CustomerSettingsProps {
   customer: CustomerVatRateFragment & CustomerInvoiceGracePeriodFragment
 }
 
-export const CustomerVatRate = ({ customer }: CustomerVatRateProps) => {
+export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
   const { translate } = useInternationalization()
   // const { currentOrganization } = useCurrentUserInfosVar()
   const editDialogRef = useRef<EditCustomerVatRateDialogRef>(null)
