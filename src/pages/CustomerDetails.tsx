@@ -25,12 +25,13 @@ import {
   CustomerInvoiceListFragmentDoc,
   AddCustomerDrawerDetailFragmentDoc,
   CustomerVatRateFragmentDoc,
-  CustomerVatRateFragment,
   CustomerCouponFragmentDoc,
   CustomerMainInfosFragmentDoc,
   CustomerAddOnsFragmentDoc,
   CustomerUsageSubscriptionFragmentDoc,
   StatusTypeEnum,
+  CustomerInvoiceGracePeriodFragmentDoc,
+  CustomerInvoiceGracePeriodFragment,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -94,6 +95,7 @@ gql`
     ...CustomerVatRate
     ...AddCustomerDrawerDetail
     ...CustomerMainInfos
+    ...CustomerInvoiceGracePeriod
   }
 
   query getCustomer($id: ID!) {
@@ -110,6 +112,7 @@ gql`
   ${CustomerAddOnsFragmentDoc}
   ${CustomerMainInfosFragmentDoc}
   ${CustomerUsageSubscriptionFragmentDoc}
+  ${CustomerInvoiceGracePeriodFragmentDoc}
 `
 
 enum TabsOptions {
@@ -381,7 +384,7 @@ const CustomerDetails = () => {
                       ),
                     },
                     {
-                      title: translate('text_628cf761cbe6820138b8f2e8'),
+                      title: translate('text_638dff9779fb99299bee9126'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                         id,
                         tab: TabsOptions.taxRate,
@@ -389,7 +392,9 @@ const CustomerDetails = () => {
                       routerState: { disableScrollTop: true },
                       component: (
                         <SideBlock>
-                          <CustomerVatRate customer={data?.customer as CustomerVatRateFragment} />
+                          <CustomerVatRate
+                            customer={data?.customer as CustomerInvoiceGracePeriodFragment}
+                          />
                         </SideBlock>
                       ),
                     },

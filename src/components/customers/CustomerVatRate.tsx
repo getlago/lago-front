@@ -2,25 +2,26 @@ import { useRef } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
-import { SectionHeader, SideSection } from '~/styles/customer'
+import { SideSection } from '~/styles/customer'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Button, Typography, Avatar, Icon, Popper, Tooltip } from '~/components/designSystem'
-import { useCurrentUserInfosVar } from '~/core/apolloClient'
-import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT, MenuPopper } from '~/styles'
+import { Button, Typography } from '~/components/designSystem'
+import { theme, NAV_HEIGHT } from '~/styles'
 import {
   EditCustomerVatRateFragmentDoc,
   CustomerVatRateFragment,
-  DeleteCustomerVatRateFragmentDoc,
+  CustomerInvoiceGracePeriodFragment,
 } from '~/generated/graphql'
 import { VAT_RATE_ROUTE } from '~/core/router'
+import { intlFormatNumber } from '~/core/intlFormatNumber'
 import {
   EditCustomerVatRateDialog,
   EditCustomerVatRateDialogRef,
 } from '~/components/customers/EditCustomerVatRateDialog'
+
 import {
-  DeleteCustomerVatRateDialog,
-  DeleteCustomerVatRateDialogRef,
-} from '~/components/customers/DeleteCustomerVatRateDialog'
+  EditCustomerInvoiceGracePeriodDialog,
+  EditCustomerInvoiceGracePeriodDialogRef,
+} from './EditCustomerInvoiceGracePeriodDialog'
 
 gql`
   fragment VatRateOrganization on Organization {
@@ -32,185 +33,117 @@ gql`
     id
     vatRate
     ...EditCustomerVatRate
-    ...DeleteCustomerVatRate
+  }
+
+  fragment CustomerInvoiceGracePeriod on CustomerDetails {
+    id
+    invoiceGracePeriod
   }
 
   ${EditCustomerVatRateFragmentDoc}
-  ${DeleteCustomerVatRateFragmentDoc}
 `
 
 interface CustomerVatRateProps {
-  customer: CustomerVatRateFragment
+  customer: CustomerVatRateFragment & CustomerInvoiceGracePeriodFragment
 }
 
 export const CustomerVatRate = ({ customer }: CustomerVatRateProps) => {
   const { translate } = useInternationalization()
-  const { currentOrganization } = useCurrentUserInfosVar()
-  const hasNoVatRate = typeof customer?.vatRate !== 'number'
+  // const { currentOrganization } = useCurrentUserInfosVar()
   const editDialogRef = useRef<EditCustomerVatRateDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteCustomerVatRateDialogRef>(null)
+  const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
 
   return (
     <SideSection>
-      <Header $hasNoData={hasNoVatRate} variant="subhead">
-        {translate('text_62728ff857d47b013204cac1')}
+      <InlineSectionTitle>
+        <Typography variant="subhead" color="grey700">
+          {translate('text_637f819eff19cd55a56d55e6')}
+        </Typography>
         <Button
           variant="quaternary"
-          disabled={!hasNoVatRate}
+          size="large"
           onClick={() => editDialogRef?.current?.openDialog()}
         >
           {translate('text_62728ff857d47b013204cab3')}
         </Button>
-      </Header>
-      {hasNoVatRate ? (
-        <Typography
-          color="disabled"
-          html={translate('text_62728ff857d47b013204cadd', {
-            link: VAT_RATE_ROUTE,
-            orgTaxRate: currentOrganization?.vatRate,
+      </InlineSectionTitle>
+
+      <InfoBlock>
+        <Typography variant="body" color="grey700">
+          {intlFormatNumber(customer?.vatRate || 0, {
+            minimumFractionDigits: 2,
+            style: 'percent',
           })}
+        </Typography>
+        <Typography
+          variant="caption"
+          color="grey600"
+          html={
+            !customer?.vatRate
+              ? translate('text_638e13576861f3be8a3d448a', {
+                  link: VAT_RATE_ROUTE,
+                })
+              : translate('text_638dff9779fb99299bee9146')
+          }
         />
-      ) : (
-        <>
-          <ListHead>
-            <Typography variant="bodyHl" color="disabled">
-              {translate('text_62728ff857d47b013204c7c4')}
-            </Typography>
-          </ListHead>
-          <ItemContainer>
-            <VatRateItem onClick={() => editDialogRef?.current?.openDialog()}>
-              <LeftBlock>
-                <Avatar variant="connector">
-                  <Icon color="dark" name="percentage" />
-                </Avatar>
-                <div>
-                  <Typography variant="bodyHl" color="textSecondary" noWrap>
-                    {translate('text_62728ff857d47b013204cb25', { taxRate: customer?.vatRate })}
-                  </Typography>
-                  <Typography variant="caption">
-                    {translate('text_62728ff857d47b013204cb3f')}
-                  </Typography>
-                </div>
-              </LeftBlock>
-              <ButtonMock />
-            </VatRateItem>
-            <Popper
-              PopperProps={{ placement: 'bottom-end' }}
-              opener={({ isOpen }) => (
-                // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-                <PopperOpener>
-                  <div>
-                    <Tooltip
-                      placement="top-end"
-                      disableHoverListener={isOpen}
-                      title={translate('text_62728ff857d47b013204cc4e')}
-                    >
-                      <Button icon="dots-horizontal" variant="quaternary" />
-                    </Tooltip>
-                  </div>
-                </PopperOpener>
-              )}
-            >
-              {({ closePopper }) => (
-                <MenuPopper>
-                  <Button
-                    startIcon="pen"
-                    variant="quaternary"
-                    align="left"
-                    onClick={() => {
-                      editDialogRef?.current?.openDialog()
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_62728ff857d47b013204cc35')}
-                  </Button>
-                  <Button
-                    startIcon="trash"
-                    variant="quaternary"
-                    align="left"
-                    onClick={() => {
-                      deleteDialogRef.current?.openDialog()
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_62728ff857d47b013204cc43')}
-                  </Button>
-                </MenuPopper>
-              )}
-            </Popper>
-          </ItemContainer>
-          <Info
-            variant="caption"
-            html={translate('text_62728ff857d47b013204cb59', {
-              link: VAT_RATE_ROUTE,
-              organisactionTaxRate: currentOrganization?.vatRate,
-            })}
-          />
-        </>
-      )}
+      </InfoBlock>
+
+      <InlineSectionTitle>
+        <Typography variant="subhead" color="grey700">
+          {translate('text_638dff9779fb99299bee912e')}
+        </Typography>
+        <Button
+          variant="quaternary"
+          size="large"
+          onClick={() => editInvoiceGracePeriodDialogRef?.current?.openDialog()}
+        >
+          {translate('text_638dff9779fb99299bee912a')}
+        </Button>
+      </InlineSectionTitle>
+
+      <InfoBlock>
+        <Typography variant="body" color="grey700">
+          {translate(
+            'text_638dff9779fb99299bee9132',
+            {
+              invoiceGracePeriod: customer.invoiceGracePeriod,
+            },
+            customer.invoiceGracePeriod
+          )}
+        </Typography>
+        <Typography
+          variant="caption"
+          color="grey600"
+          html={
+            !customer.invoiceGracePeriod
+              ? translate('text_638e13576861f3be8a3d4492', { link: VAT_RATE_ROUTE })
+              : translate('text_638dff9779fb99299bee9136')
+          }
+        />
+      </InfoBlock>
+
       <EditCustomerVatRateDialog ref={editDialogRef} customer={customer} />
-      <DeleteCustomerVatRateDialog ref={deleteDialogRef} customer={customer} />
+      <EditCustomerInvoiceGracePeriodDialog
+        ref={editInvoiceGracePeriodDialogRef}
+        invoiceGracePeriod={customer.invoiceGracePeriod}
+      />
     </SideSection>
   )
 }
 
-const Header = styled(SectionHeader)<{ $hasNoData?: boolean }>`
-  && {
-    margin-bottom: ${({ $hasNoData }) => ($hasNoData ? theme.spacing(6) : 0)};
-  }
-`
-
-const LeftBlock = styled.div`
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  margin-right: ${theme.spacing(4)};
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const VatRateItem = styled.div`
+const InlineSectionTitle = styled.div`
   height: ${NAV_HEIGHT}px;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  box-shadow: ${theme.shadows[7]};
-  cursor: pointer;
+`
 
-  &:hover {
-    background-color: ${theme.palette.grey[100]};
+const InfoBlock = styled.div<{ $loading?: boolean }>`
+  padding-top: ${({ $loading }) => ($loading ? theme.spacing(1) : 0)};
+  padding-bottom: ${({ $loading }) => ($loading ? theme.spacing(9) : theme.spacing(8))};
+  box-shadow: ${theme.shadows[7]};
+
+  > *:not(:last-child) {
+    margin-bottom: ${theme.spacing(1)};
   }
-`
-
-const ItemContainer = styled.div`
-  position: relative;
-`
-
-const ListHead = styled.div`
-  display: flex;
-  align-items: center;
-  box-shadow: ${theme.shadows[7]};
-  height: ${HEADER_TABLE_HEIGHT}px;
-`
-
-const PopperOpener = styled.div`
-  position: absolute;
-  right: 0;
-  top: ${NAV_HEIGHT / 2 - 20}px;
-  z-index: 1;
-`
-
-const ButtonMock = styled.div`
-  width: 40px;
-`
-
-const Info = styled(Typography)`
-  height: ${HEADER_TABLE_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  white-space: pre;
 `
