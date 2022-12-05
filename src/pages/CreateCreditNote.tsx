@@ -17,7 +17,7 @@ import {
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { generateFeesSchema, simpleFeeSchema } from '~/formValidationSchemas/feesSchema'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { CUSTOMER_INVOICE_OVERVIEW_ROUTE } from '~/core/router'
+import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { useCreateCreditNote } from '~/hooks/useCreateCreditNote'
 import {
@@ -44,6 +44,7 @@ import {
 import { Main, Content, Title, Subtitle, Side } from '~/styles/mainObjectsForm'
 import { PageHeader, theme, Card, HEADER_TABLE_HEIGHT } from '~/styles'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 
 gql`
   fragment CreateCreditNoteInvoice on Invoice {
@@ -224,7 +225,13 @@ const CreateCreditNote = () => {
           onClick={() =>
             formikProps.dirty
               ? warningDialogRef.current?.openDialog()
-              : navigate(generatePath(CUSTOMER_INVOICE_OVERVIEW_ROUTE, { id, invoiceId }))
+              : navigate(
+                  generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+                    id,
+                    invoiceId,
+                    tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+                  })
+                )
           }
         />
       </PageHeader>
@@ -527,7 +534,13 @@ const CreateCreditNote = () => {
         description={translate('text_636bed940028096908b735ed')}
         continueText={translate('text_636beda08285f03477c7e25e')}
         onContinue={() =>
-          navigate(generatePath(CUSTOMER_INVOICE_OVERVIEW_ROUTE, { id, invoiceId }))
+          navigate(
+            generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+              id,
+              invoiceId,
+              tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+            })
+          )
         }
       />
     </div>

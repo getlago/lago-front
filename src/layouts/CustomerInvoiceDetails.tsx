@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { gql } from '@apollo/client'
 import { useParams, generatePath, Outlet, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
@@ -14,40 +14,68 @@ import {
   Icon,
   Status,
   StatusEnum,
+  Chip,
 } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   CUSTOMER_DETAILS_TAB_ROUTE,
-  // CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
-  CUSTOMER_INVOICE_OVERVIEW_ROUTE,
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
 } from '~/core/router'
 import {
+  AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
+  AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
   CurrencyEnum,
+  Invoice,
+  InvoiceDetailsForInvoiceOverviewFragmentDoc,
+  InvoiceForCreditNotesTableFragmentDoc,
+  InvoiceForDetailsTableFragmentDoc,
+  InvoiceForFinalizeInvoiceFragment,
+  InvoiceForFinalizeInvoiceFragmentDoc,
+  InvoiceForInvoiceInfosFragmentDoc,
   InvoicePaymentStatusTypeEnum,
+  InvoiceStatusTypeEnum,
+  InvoiceTypeEnum,
   useDownloadInvoiceMutation,
   useGetInvoiceDetailsQuery,
+  useRefreshInvoiceMutation,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme, PageHeader, MenuPopper } from '~/styles'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import InvoiceOverview from '~/pages/InvoiceOverview'
+import InvoiceCreditNoteList from '~/pages/InvoiceCreditNoteList'
+import { CustomerDetailsTabsOptions } from '~/pages/CustomerDetails'
+import {
+  FinalizeInvoiceDialog,
+  FinalizeInvoiceDialogRef,
+} from '~/components/invoices/FinalizeInvoiceDialog'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 
 gql`
+  fragment AllInvoiceDetailsForCustomerInvoiceDetails on Invoice {
+    invoiceType
+    number
+    paymentStatus
+    status
+    totalAmountCents
+    totalAmountCurrency
+    refundableAmountCents
+    creditableAmountCents
+    ...InvoiceDetailsForInvoiceOverview
+    ...InvoiceForCreditNotesTable
+    ...InvoiceForDetailsTable
+    ...InvoiceForInvoiceInfos
+    ...InvoiceForFinalizeInvoice
+  }
+
   query getInvoiceDetails($id: ID!) {
     invoice(id: $id) {
       id
-      invoiceType
-      number
-      paymentStatus
-      totalAmountCents
-      totalAmountCurrency
-      refundableAmountCents
-      creditableAmountCents
+      ...AllInvoiceDetailsForCustomerInvoiceDetails
     }
   }
 
@@ -57,14 +85,25 @@ gql`
       fileUrl
     }
   }
+
+  mutation refreshInvoice($input: RefreshInvoiceInput!) {
+    refreshInvoice(input: $input) {
+      id
+      ...AllInvoiceDetailsForCustomerInvoiceDetails
+    }
+  }
+
+  ${InvoiceForCreditNotesTableFragmentDoc}
+  ${InvoiceForDetailsTableFragmentDoc}
+  ${InvoiceForInvoiceInfosFragmentDoc}
+  ${InvoiceDetailsForInvoiceOverviewFragmentDoc}
+  ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}
+  ${InvoiceForFinalizeInvoiceFragmentDoc}
 `
 
-enum TabsOptions {
+export enum CustomerInvoiceDetailsTabsOptionsEnum {
   overview = 'overview',
-  wallet = 'wallet',
-  invoices = 'invoices',
-  taxRate = 'taxRate',
-  usage = 'usage',
+  creditNotes = 'credit-notes',
 }
 
 const mapStatus = (type?: InvoicePaymentStatusTypeEnum | undefined) => {
@@ -91,6 +130,10 @@ const CustomerInvoiceDetails = () => {
   const { translate } = useInternationalization()
   const { id, invoiceId } = useParams()
   let navigate = useNavigate()
+  const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
+  const [refreshInvoice, { loading: loadingRefreshInvoice }] = useRefreshInvoiceMutation({
+    variables: { input: { id: invoiceId || '' } },
+  })
   const [downloadInvoice, { loading: loadingInvoiceDownload }] = useDownloadInvoiceMutation({
     onCompleted({ downloadInvoice: downloadInvoiceData }) {
       const fileUrl = downloadInvoiceData?.fileUrl
@@ -119,8 +162,18 @@ const CustomerInvoiceDetails = () => {
     variables: { id: invoiceId as string },
     skip: !invoiceId,
   })
-  const { /* invoiceType, */ number, paymentStatus, totalAmountCents, totalAmountCurrency } =
-    data?.invoice || {}
+
+  const {
+    invoiceType,
+    number,
+    paymentStatus,
+    totalAmountCents,
+    totalAmountCurrency,
+    status,
+    // creditableAmountCents,
+    // refundableAmountCents,
+  } = (data?.invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
+
   const formattedStatus = mapStatus(paymentStatus)
   const hasError = (!!error || !data?.invoice) && !loading
 
@@ -128,21 +181,67 @@ const CustomerInvoiceDetails = () => {
     const tabs = [
       {
         title: translate('text_634687079be251fdb43833b7'),
-        link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, { id, invoiceId }),
-        match: [CUSTOMER_INVOICE_DETAILS_ROUTE, CUSTOMER_INVOICE_OVERVIEW_ROUTE],
+        link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+          id,
+          invoiceId,
+          tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+        }),
+        routerState: { disableScrollTop: true },
+        match: [
+          generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+            id,
+            invoiceId,
+            tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+          }),
+        ],
+        component: (
+          <InvoiceOverview
+            downloadInvoice={downloadInvoice}
+            hasError={hasError}
+            invoice={data?.invoice as Invoice}
+            loading={loading}
+            loadingInvoiceDownload={loadingInvoiceDownload}
+            loadingRefreshInvoice={loadingRefreshInvoice}
+            refreshInvoice={refreshInvoice}
+          />
+        ),
       },
     ]
 
-    // if (invoiceType !== InvoiceTypeEnum.Credit) {
-    //   tabs.push({
-    //     title: translate('text_636bdef6565341dcb9cfb125'),
-    //     link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE, { id, invoiceId }),
-    //     match: [CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE],
-    //   })
-    // }
+    if (invoiceType !== InvoiceTypeEnum.Credit) {
+      tabs.push({
+        title: translate('text_636bdef6565341dcb9cfb125'),
+        link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+          id,
+          invoiceId,
+          tab: CustomerInvoiceDetailsTabsOptionsEnum.creditNotes,
+        }),
+        routerState: { disableScrollTop: true },
+        match: [
+          generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+            id,
+            invoiceId,
+            tab: CustomerInvoiceDetailsTabsOptionsEnum.creditNotes,
+          }),
+        ],
+        component: <InvoiceCreditNoteList />,
+      })
+    }
 
     return tabs
-  }, [id, invoiceId, /* invoiceType, */ translate])
+  }, [
+    downloadInvoice,
+    id,
+    invoiceId,
+    invoiceType,
+    loadingInvoiceDownload,
+    translate,
+    refreshInvoice,
+    loadingRefreshInvoice,
+    hasError,
+    loading,
+    data,
+  ])
 
   return (
     <>
@@ -151,7 +250,7 @@ const CustomerInvoiceDetails = () => {
           <ButtonLink
             to={generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
               id,
-              tab: TabsOptions.invoices,
+              tab: CustomerDetailsTabsOptions.invoices,
             })}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
@@ -173,39 +272,66 @@ const CustomerInvoiceDetails = () => {
           >
             {({ closePopper }) => (
               <MenuPopper>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  disabled={!!loadingInvoiceDownload}
-                  onClick={async () => {
-                    await downloadInvoice({
-                      variables: { input: { id: invoiceId || '' } },
-                    })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_634687079be251fdb4383395')}
-                </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  disabled={
-                    // TODO: Hidden before liscence release
-                    true
-                    // data?.invoice?.creditableAmountCents === 0 &&
-                    // data?.invoice?.refundableAmountCents === 0
-                  }
-                  onClick={async () => {
-                    navigate(
-                      generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
-                        id,
-                        invoiceId,
-                      })
-                    )
-                  }}
-                >
-                  {translate('text_6386589e4e82fa85eadcaa7a')}
-                </Button>
+                {status === InvoiceStatusTypeEnum.Draft ? (
+                  <>
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      onClick={async () => {
+                        finalizeInvoiceRef.current?.openDialog(
+                          data?.invoice as InvoiceForFinalizeInvoiceFragment
+                        )
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_63a41a8eabb9ae67047c1c08')}
+                    </Button>
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      disabled={!!loadingRefreshInvoice}
+                      onClick={async () => {
+                        refreshInvoice()
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_63a41a8eabb9ae67047c1c06')}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      disabled={!!loadingInvoiceDownload}
+                      onClick={async () => {
+                        await downloadInvoice({
+                          variables: { input: { id: invoiceId || '' } },
+                        })
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_634687079be251fdb4383395')}
+                    </Button>
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      disabled={
+                        true /* TODO - change this when licences are released creditableAmountCents === 0 && refundableAmountCents === 0 */
+                      }
+                      onClick={async () => {
+                        navigate(
+                          generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+                            id,
+                            invoiceId,
+                          })
+                        )
+                      }}
+                    >
+                      {translate('text_6386589e4e82fa85eadcaa7a')}
+                    </Button>
+                  </>
+                )}
                 <Button
                   variant="quaternary"
                   align="left"
@@ -255,7 +381,11 @@ const CustomerInvoiceDetails = () => {
                   <Typography variant="headline" color="grey700">
                     {number}
                   </Typography>
-                  <Status type={formattedStatus.type} label={translate(formattedStatus.label)} />
+                  {status === InvoiceStatusTypeEnum.Draft ? (
+                    <Chip label={translate('text_63a41a8eabb9ae67047c1bfe')} />
+                  ) : (
+                    <Status type={formattedStatus.type} label={translate(formattedStatus.label)} />
+                  )}
                 </MainInfoLine>
                 <MainInfoLine>
                   <InlineTripleTypography variant="body" color="grey600">
@@ -285,6 +415,7 @@ const CustomerInvoiceDetails = () => {
           </NavigationTab>
         </Content>
       )}
+      <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
     </>
   )
 }

@@ -19,7 +19,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
-  CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
 } from '~/core/router'
 import {
@@ -44,6 +43,7 @@ import { SectionHeader } from '~/styles/customer'
 import { formatDateToTZ } from '~/core/timezone'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 
 import { CustomerDetailsTabsOptions } from './CustomerDetails'
 
@@ -212,9 +212,10 @@ const CreditNoteDetails = () => {
           <ButtonLink
             to={
               !!invoiceId
-                ? generatePath(CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE, {
+                ? generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
                     id: customerId,
                     invoiceId,
+                    tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
                   })
                 : generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                     id: customerId,
@@ -409,6 +410,7 @@ const CreditNoteDetails = () => {
                             to={generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
                               id: creditNote?.customer?.id,
                               invoiceId: creditNote?.invoice.id,
+                              tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
                             })}
                           >
                             <Typography variant="body" color="grey700">
