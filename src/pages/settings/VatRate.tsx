@@ -20,6 +20,7 @@ import {
   EditOrganizationInvoiceTemplateDialogRef,
 } from '~/components/settings/EditOrganizationInvoiceTemplateDialog'
 import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { EditOrganizationGracePeriodDialog } from '~/components/settings/EditOrganizationGracePeriodDialog'
 
 const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
 
@@ -34,6 +35,7 @@ gql`
       organizations {
         id
         vatRate
+        invoiceGracePeriod
         ...OrganizationInvoiceTemplate
         ...EditOrganizationInvoiceTemplateDialog
       }
@@ -47,10 +49,12 @@ const VatRate = () => {
   const { translate } = useInternationalization()
   const editVATDialogRef = useRef<EditOrganizationVatRateDialogRef>(null)
   const editInvoiceTemplateDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
+  const editGracePeriodDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
   const { data, error, loading } = useGetOrganizationInvoiceAndTaxInformationsQuery()
   const organization = (data?.currentUser?.organizations || [])[0]
   const vatRate = organization?.vatRate || 0
   const invoiceFooter = organization?.invoiceFooter || ''
+  const invoiceGracePeriod = organization?.invoiceGracePeriod || 0
 
   if (!!error && !loading) {
     return (
@@ -107,6 +111,42 @@ const VatRate = () => {
 
       <InlineSectionTitle>
         <Typography variant="subhead" color="grey700">
+          {translate('text_638dc196fb209d551f3d8141')}
+        </Typography>
+        <Button
+          variant="quaternary"
+          size="large"
+          disabled={loading}
+          onClick={editGracePeriodDialogRef?.current?.openDialog}
+        >
+          {translate('text_637f819eff19cd55a56d55e4')}
+        </Button>
+      </InlineSectionTitle>
+
+      <InfoBlock>
+        {loading ? (
+          <>
+            <Skeleton variant="text" width={320} height={12} marginBottom={theme.spacing(4)} />
+            <Skeleton variant="text" width={160} height={12} />
+          </>
+        ) : (
+          <>
+            <Typography variant="body" color="grey700">
+              {translate(
+                'text_638dc196fb209d551f3d81a2',
+                { gracePeriod: invoiceGracePeriod },
+                invoiceGracePeriod
+              )}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {translate('text_638dc196fb209d551f3d81a6')}
+            </Typography>
+          </>
+        )}
+      </InfoBlock>
+
+      <InlineSectionTitle>
+        <Typography variant="subhead" color="grey700">
           {translate('text_637f819eff19cd55a56d55f6')}
         </Typography>
         <Button
@@ -148,6 +188,10 @@ const VatRate = () => {
       <EditOrganizationInvoiceTemplateDialog
         ref={editInvoiceTemplateDialogRef}
         invoiceFooter={invoiceFooter}
+      />
+      <EditOrganizationGracePeriodDialog
+        ref={editGracePeriodDialogRef}
+        invoiceGracePeriod={invoiceGracePeriod}
       />
     </Page>
   )
