@@ -50,7 +50,7 @@ gql`
   }
 `
 
-enum TabsOptions {
+export enum CustomerInvoiceDetailsTabsOptionsEnum {
   overview = 'overview',
   wallet = 'wallet',
   invoices = 'invoices',
@@ -132,7 +132,7 @@ const CustomerInvoiceDetails = () => {
           <ButtonLink
             to={generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
               id,
-              tab: TabsOptions.invoices,
+              tab: CustomerInvoiceDetailsTabsOptionsEnum.invoices,
             })}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}

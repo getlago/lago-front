@@ -49,7 +49,6 @@ interface CustomerSettingsProps {
 
 export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
   const { translate } = useInternationalization()
-  // const { currentOrganization } = useCurrentUserInfosVar()
   const editDialogRef = useRef<EditCustomerVatRateDialogRef>(null)
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
 

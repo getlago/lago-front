@@ -1,266 +1,128 @@
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
-import { DateTime } from 'luxon'
-import { generatePath, useNavigate } from 'react-router-dom'
 
 import {
-  CustomerInvoiceListFragment,
-  InvoicePaymentStatusTypeEnum,
-  useDownloadInvoiceMutation,
+  InvoiceInfosForCustomerDraftInvoicesListFragmentDoc,
+  InvoiceInfosForInvoiceListFragmentDoc,
+  InvoiceStatusTypeEnum,
+  useGetCustomerInvoicesQuery,
 } from '~/generated/graphql'
-import { Button, Popper, Status, StatusEnum, Tooltip, Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem'
+import { theme } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  HEADER_TABLE_HEIGHT,
-  ItemContainer,
-  MenuPopper,
-  NAV_HEIGHT,
-  PopperOpener,
-  theme,
-} from '~/styles'
-import { SectionHeader, SideSection } from '~/styles/customer'
-import { addToast } from '~/core/apolloClient'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
-import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+
+import { InvoicesList } from './InvoicesList'
+
+const DRAFT_INVOICES_ITEMS_COUNT = 5
 
 gql`
-  fragment CustomerInvoiceList on Invoice {
-    id
-    amountCurrency
-    issuingDate
-    number
-    paymentStatus
-    totalAmountCents
+  query getCustomerInvoices(
+    $customerId: ID!
+    $limit: Int
+    $page: Int
+    $status: InvoiceStatusTypeEnum
+  ) {
+    customerInvoices(customerId: $customerId, limit: $limit, page: $page, status: $status) {
+      ...InvoiceInfosForInvoiceList
+      collection {
+        status
+      }
+    }
   }
-
   mutation downloadInvoice($input: DownloadInvoiceInput!) {
     downloadInvoice(input: $input) {
       id
       fileUrl
     }
   }
+
+  ${InvoiceInfosForCustomerDraftInvoicesListFragmentDoc}
+  ${InvoiceInfosForInvoiceListFragmentDoc}
 `
 
 interface CustomerInvoicesListProps {
   customerId: string
-  invoices?: CustomerInvoiceListFragment[] | null
 }
 
-const mapStatus = (type?: InvoicePaymentStatusTypeEnum | undefined) => {
-  switch (type) {
-    case InvoicePaymentStatusTypeEnum.Succeeded:
-      return {
-        type: StatusEnum.running,
-        label: 'text_62b31e1f6a5b8b1b745ece18',
-      }
-    case InvoicePaymentStatusTypeEnum.Failed:
-      return {
-        type: StatusEnum.failed,
-        label: 'text_62b31e1f6a5b8b1b745ece38',
-      }
-    default:
-      return {
-        type: StatusEnum.paused,
-        label: 'text_62b31e1f6a5b8b1b745ece28',
-      }
-  }
-}
-
-export const CustomerInvoicesList = ({ customerId, invoices }: CustomerInvoicesListProps) => {
-  let navigate = useNavigate()
+export const CustomerInvoicesList = ({ customerId }: CustomerInvoicesListProps) => {
   const { translate } = useInternationalization()
-  const [downloadInvoice] = useDownloadInvoiceMutation({
-    onCompleted({ downloadInvoice: data }) {
-      const fileUrl = data?.fileUrl
-
-      if (fileUrl) {
-        // We open a window, add url then focus on different lines, in order to prevent browsers to block page opening
-        // It could be seen as unexpected popup as not immediatly done on user action
-        // https://stackoverflow.com/questions/2587677/avoid-browser-popup-blockers
-        const myWindow = window.open('', '_blank')
-
-        if (myWindow?.location?.href) {
-          myWindow.location.href = fileUrl
-          return myWindow?.focus()
-        }
-
-        myWindow?.close()
-        addToast({
-          severity: 'danger',
-          translateKey: 'text_62b31e1f6a5b8b1b745ece48',
-        })
-      }
+  const {
+    data: dataDraft,
+    error: errorDraft,
+    loading: loadingDraft,
+  } = useGetCustomerInvoicesQuery({
+    variables: {
+      customerId,
+      limit: DRAFT_INVOICES_ITEMS_COUNT,
+      status: InvoiceStatusTypeEnum.Draft,
     },
   })
+  const {
+    data: dataFinalized,
+    error: errorFinalized,
+    fetchMore: fetchMoreFinalized,
+    loading: loadingFinalized,
+  } = useGetCustomerInvoicesQuery({
+    variables: { customerId, limit: 20, status: InvoiceStatusTypeEnum.Finalized },
+  })
+  const initialLoad = loadingDraft && loadingFinalized
+  const invoicesDraft = dataDraft?.customerInvoices.collection
+  const invoicesFinalized = dataFinalized?.customerInvoices.collection
+
+  if (errorDraft || errorFinalized) {
+    return (
+      <GenericPlaceholder
+        title={translate('text_634812d6f16b31ce5cbf4111')}
+        subtitle={translate('text_634812d6f16b31ce5cbf411f')}
+        buttonTitle={translate('text_634812d6f16b31ce5cbf4123')}
+        buttonVariant="primary"
+        buttonAction={location.reload}
+        image={<ErrorImage width="136" height="104" />}
+      />
+    )
+  }
 
   return (
-    <SideSection $empty={!invoices || !invoices.length}>
-      <SectionHeader variant="subhead">{translate('text_6250304370f0f700a8fdc291')}</SectionHeader>
-      {!invoices || !invoices.length ? (
-        <Typography>{translate('text_6250304370f0f700a8fdc293')}</Typography>
+    <>
+      {initialLoad ? (
+        <InvoicesList customerId={customerId} loadingItemCount={4} loading />
       ) : (
         <>
-          <ListHeader>
-            <IssuingDateCell variant="bodyHl" color="disabled" noWrap>
-              {translate('text_62544c1db13ca10187214d7f')}
-            </IssuingDateCell>
-            <NumberCellHeader variant="bodyHl" color="disabled">
-              {translate('text_62b31e1f6a5b8b1b745ece00')}
-            </NumberCellHeader>
-            <AmountCell variant="bodyHl" color="disabled" align="right">
-              {translate('text_62544c1db13ca10187214d85')}
-            </AmountCell>
-            <PaymentCell variant="bodyHl" color="disabled" noWrap>
-              {translate('text_62b31e1f6a5b8b1b745ece08')}
-            </PaymentCell>
-            <ButtonMock />
-          </ListHeader>
-          {invoices.map(
-            ({ amountCurrency, id, issuingDate, number, totalAmountCents, paymentStatus }) => {
-              const formattedStatus = mapStatus(paymentStatus)
-
-              return (
-                <ItemContainer key={`invoice-${id}`}>
-                  <Item
-                    tabIndex={0}
-                    onClick={() =>
-                      navigate(
-                        generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                          id: customerId,
-                          invoiceId: id,
-                        })
-                      )
-                    }
-                  >
-                    <IssuingDateCell noWrap>
-                      {DateTime.fromISO(issuingDate).toFormat('LLL. dd, yyyy')}
-                    </IssuingDateCell>
-                    <NumberCell color="textSecondary">{number}</NumberCell>
-                    <AmountCell color="textSecondary" align="right">
-                      {intlFormatNumber(totalAmountCents, { currency: amountCurrency })}
-                    </AmountCell>
-                    <PaymentCell>
-                      <Status
-                        type={formattedStatus.type}
-                        label={translate(formattedStatus.label)}
-                      />
-                    </PaymentCell>
-                    <ButtonMock />
-                  </Item>
-                  <Popper
-                    PopperProps={{ placement: 'bottom-end' }}
-                    opener={({ isOpen }) => (
-                      <DotsOpener>
-                        <Tooltip
-                          placement="top-end"
-                          disableHoverListener={isOpen}
-                          title={translate('text_62b31e1f6a5b8b1b745ece3c')}
-                        >
-                          <Button icon="dots-horizontal" variant="quaternary" />
-                        </Tooltip>
-                      </DotsOpener>
-                    )}
-                  >
-                    {({ closePopper }) => (
-                      <MenuPopper>
-                        <Button
-                          startIcon="download"
-                          variant="quaternary"
-                          align="left"
-                          onClick={async () => {
-                            await downloadInvoice({
-                              variables: { input: { id } },
-                            })
-                          }}
-                        >
-                          {translate('text_62b31e1f6a5b8b1b745ece42')}
-                        </Button>
-                        <Button
-                          startIcon="duplicate"
-                          variant="quaternary"
-                          align="left"
-                          onClick={() => {
-                            navigator.clipboard.writeText(id)
-                            addToast({
-                              severity: 'info',
-                              translateKey: 'text_6253f11816f710014600ba1f',
-                            })
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_62b31e1f6a5b8b1b745ece46')}
-                        </Button>
-                      </MenuPopper>
-                    )}
-                  </Popper>
-                </ItemContainer>
-              )
-            }
+          {!invoicesDraft?.length && !invoicesFinalized?.length ? (
+            <EmptyTitle>{translate('text_6250304370f0f700a8fdc293')}</EmptyTitle>
+          ) : (
+            <>
+              {!!invoicesDraft?.length && (
+                <InvoicesList
+                  customerId={customerId}
+                  invoices={invoicesDraft}
+                  label={translate('text_638f4d756d899445f18a49ee')}
+                  loading={loadingDraft}
+                  itemDisplayLimit={DRAFT_INVOICES_ITEMS_COUNT}
+                  metadata={dataDraft?.customerInvoices.metadata}
+                />
+              )}
+              {!!invoicesFinalized?.length && (
+                <InvoicesList
+                  customerId={customerId}
+                  fetchMore={fetchMoreFinalized}
+                  invoices={invoicesFinalized}
+                  label={translate('text_6250304370f0f700a8fdc291')}
+                  loading={loadingFinalized}
+                  metadata={dataFinalized?.customerInvoices.metadata}
+                  showPaymentCell
+                />
+              )}
+            </>
           )}
         </>
       )}
-    </SideSection>
+    </>
   )
 }
 
-const ListHeader = styled.div`
-  height: ${HEADER_TABLE_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  box-shadow: ${theme.shadows[7]};
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(4)};
-  }
-`
-
-const IssuingDateCell = styled(Typography)`
-  min-width: 100px;
-`
-const NumberCellHeader = styled(Typography)`
-  box-sizing: border-box;
-  flex: 1;
-`
-
-const NumberCell = styled(Typography)`
-  flex: 1;
-  white-space: pre;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-`
-
-const PaymentCell = styled(Typography)`
-  width: 112px;
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(4)};
-  }
-`
-
-const AmountCell = styled(Typography)`
-  flex: 1;
-`
-
-const ButtonMock = styled.div`
-  width: 40px;
-`
-
-const DotsOpener = styled(PopperOpener)`
-  right: 0;
-`
-
-const Item = styled.div`
-  height: ${NAV_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  box-shadow: ${theme.shadows[7]};
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(4)};
-  }
-
-  &:hover {
-    cursor: pointer;
-    background-color: ${theme.palette.grey[100]};
-  }
+const EmptyTitle = styled(Typography)`
+  margin-top: ${theme.spacing(6)};
 `

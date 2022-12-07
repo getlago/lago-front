@@ -22,7 +22,6 @@ import {
 import {
   useGetCustomerQuery,
   SubscriptionItemFragmentDoc,
-  CustomerInvoiceListFragmentDoc,
   AddCustomerDrawerDetailFragmentDoc,
   CustomerVatRateFragmentDoc,
   CustomerCouponFragmentDoc,
@@ -83,9 +82,6 @@ gql`
       ...SubscriptionItem
       ...CustomerUsageSubscription
     }
-    invoices {
-      ...CustomerInvoiceList
-    }
     appliedCoupons {
       ...CustomerCoupon
     }
@@ -105,7 +101,6 @@ gql`
   }
 
   ${SubscriptionItemFragmentDoc}
-  ${CustomerInvoiceListFragmentDoc}
   ${AddCustomerDrawerDetailFragmentDoc}
   ${CustomerVatRateFragmentDoc}
   ${CustomerCouponFragmentDoc}
@@ -137,13 +132,13 @@ const CustomerDetails = () => {
     variables: { id: id as string },
     skip: !id,
   })
+
   const {
     appliedAddOns,
     appliedCoupons,
     canBeDeleted,
     externalId,
     hasActiveWallet,
-    invoices,
     name,
     subscriptions,
   } = data?.customer || {}
@@ -379,7 +374,7 @@ const CustomerDetails = () => {
                       routerState: { disableScrollTop: true },
                       component: (
                         <SideBlock>
-                          <CustomerInvoicesList customerId={id as string} invoices={invoices} />
+                          <CustomerInvoicesList customerId={id as string} />
                         </SideBlock>
                       ),
                     },

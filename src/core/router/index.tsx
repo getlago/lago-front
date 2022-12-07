@@ -61,6 +61,9 @@ const CustomersList = lazy(
 const CustomerDetails = lazy(
   () => import(/* webpackChunkName: 'customer-details' */ '~/pages/CustomerDetails')
 )
+const CustomerDraftInvoicesList = lazy(
+  () => import(/* webpackChunkName: 'customer-details' */ '~/pages/CustomerDraftInvoicesList')
+)
 
 const CustomerInvoiceDetails = lazy(
   () => import(/* webpackChunkName: 'customer-details' */ '~/layouts/CustomerInvoiceDetails')
@@ -112,6 +115,7 @@ export const UPDATE_PLAN_ROUTE = '/update/plan/:id'
 export const CUSTOMERS_LIST_ROUTE = '/customers'
 export const CUSTOMER_DETAILS_ROUTE = '/customer/:id'
 export const CUSTOMER_DETAILS_TAB_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/:tab`
+export const CUSTOMER_DRAFT_INVOICES_LIST_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/draft-invoices`
 export const CUSTOMER_INVOICE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId`
 export const CUSTOMER_INVOICE_OVERVIEW_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/overview`
 export const CUSTOMER_INVOICE_DETAILS_CREDIT_NOTE_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/credit-notes`
@@ -240,6 +244,11 @@ export const routes: CustomRouteObject[] = [
         path: [CUSTOMER_DETAILS_ROUTE, CUSTOMER_DETAILS_TAB_ROUTE],
         private: true,
         element: <CustomerDetails />,
+      },
+      {
+        path: CUSTOMER_DRAFT_INVOICES_LIST_ROUTE,
+        private: true,
+        element: <CustomerDraftInvoicesList />,
       },
       {
         private: true,
