@@ -15,7 +15,7 @@ import {
   PackageChargeFragmentDoc,
   PercentageChargeFragmentDoc,
 } from '~/generated/graphql'
-import { ComboBox, TextInput } from '~/components/form'
+import { AmountInput, ComboBox } from '~/components/form'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
@@ -192,12 +192,12 @@ export const ChargeAccordion = memo(
             {({ propertyCursor, valuePointer }) => (
               <>
                 {localCharge.chargeModel === ChargeModelEnum.Standard && (
-                  <TextInput
+                  <AmountInput
                     name={`${propertyCursor}.amount`}
+                    currency={currency}
                     beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
                     disabled={disabled}
                     label={translate('text_624453d52e945301380e49b6')}
-                    placeholder={translate('text_624453d52e945301380e49b8')}
                     value={valuePointer?.amount || ''}
                     onChange={(value) => handleUpdate(`${propertyCursor}.amount`, value)}
                     InputProps={{

@@ -10,6 +10,7 @@ import { Typography, Avatar, Icon, Button } from '~/components/designSystem'
 import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { TimezoneDate } from '~/components/TimezoneDate'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 import { AddAddOnToCustomerDialogRef } from './AddAddOnToCustomerDialog'
 
@@ -71,10 +72,13 @@ export const CustomerAddOns = memo(
                       </Typography>
                       <Typography variant="caption" noWrap>
                         {translate('text_629781ec7c6c1500d94fbc16', {
-                          amountWithCurrency: intlFormatNumber(amountCents || 0, {
-                            currencyDisplay: 'symbol',
-                            currency: amountCurrency,
-                          }),
+                          amountWithCurrency: intlFormatNumber(
+                            deserializeAmount(amountCents, amountCurrency) || 0,
+                            {
+                              currencyDisplay: 'symbol',
+                              currency: amountCurrency,
+                            }
+                          ),
                         })}
                       </Typography>
                     </NameBlock>

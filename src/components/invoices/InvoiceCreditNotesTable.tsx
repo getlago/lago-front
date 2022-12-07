@@ -9,6 +9,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
   fragment InvoiceForCreditNotesTable on Invoice {
@@ -181,10 +182,16 @@ export const InvoiceCreditNotesTable = memo(
                                       </TD>
                                       <td>
                                         <Typography variant="body" color="success600">
-                                          {intlFormatNumber(item.amountCents || 0, {
-                                            currencyDisplay: 'symbol',
-                                            currency: item.amountCurrency,
-                                          })}
+                                          {intlFormatNumber(
+                                            deserializeAmount(
+                                              item.amountCents,
+                                              item.amountCurrency
+                                            ) || 0,
+                                            {
+                                              currencyDisplay: 'symbol',
+                                              currency: item.amountCurrency,
+                                            }
+                                          )}
                                         </Typography>
                                       </td>
                                     </tr>
@@ -211,11 +218,17 @@ export const InvoiceCreditNotesTable = memo(
                     </td>
                     <td>
                       <Typography variant="body" color="success600">
-                        {intlFormatNumber(Number(creditNote?.subTotalVatExcludedAmountCents) || 0, {
-                          currencyDisplay: 'symbol',
-                          currency:
-                            creditNote?.subTotalVatExcludedAmountCurrency || CurrencyEnum.Usd,
-                        })}
+                        {intlFormatNumber(
+                          deserializeAmount(
+                            creditNote?.subTotalVatExcludedAmountCents || 0,
+                            creditNote?.subTotalVatExcludedAmountCurrency || CurrencyEnum.Usd
+                          ),
+                          {
+                            currencyDisplay: 'symbol',
+                            currency:
+                              creditNote?.subTotalVatExcludedAmountCurrency || CurrencyEnum.Usd,
+                          }
+                        )}
                       </Typography>
                     </td>
                   </tr>
@@ -228,10 +241,16 @@ export const InvoiceCreditNotesTable = memo(
                     </td>
                     <td>
                       <Typography variant="body" color="success600">
-                        {intlFormatNumber(creditNote?.vatAmountCents || 0, {
-                          currencyDisplay: 'symbol',
-                          currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
-                        })}
+                        {intlFormatNumber(
+                          deserializeAmount(
+                            creditNote?.vatAmountCents || 0,
+                            creditNote?.creditAmountCurrency || CurrencyEnum.Usd
+                          ),
+                          {
+                            currencyDisplay: 'symbol',
+                            currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
+                          }
+                        )}
                       </Typography>
                     </td>
                   </tr>
@@ -244,10 +263,16 @@ export const InvoiceCreditNotesTable = memo(
                     </td>
                     <td>
                       <Typography variant="body" color="success600">
-                        {intlFormatNumber(creditNote?.totalAmountCents || 0, {
-                          currencyDisplay: 'symbol',
-                          currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
-                        })}
+                        {intlFormatNumber(
+                          deserializeAmount(
+                            creditNote?.totalAmountCents || 0,
+                            creditNote?.creditAmountCurrency || CurrencyEnum.Usd
+                          ),
+                          {
+                            currencyDisplay: 'symbol',
+                            currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
+                          }
+                        )}
                       </Typography>
                     </td>
                   </tr>
@@ -262,10 +287,16 @@ export const InvoiceCreditNotesTable = memo(
                     </td>
                     <td>
                       <Typography variant="body" color="grey700">
-                        {intlFormatNumber(remainingAmountAfterCreditNote || 0, {
-                          currencyDisplay: 'symbol',
-                          currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
-                        })}
+                        {intlFormatNumber(
+                          deserializeAmount(
+                            remainingAmountAfterCreditNote || 0,
+                            creditNote?.creditAmountCurrency || CurrencyEnum.Usd
+                          ),
+                          {
+                            currencyDisplay: 'symbol',
+                            currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
+                          }
+                        )}
                       </Typography>
                     </td>
                   </tr>

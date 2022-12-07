@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components'
 import { useFormik } from 'formik'
 import { generatePath } from 'react-router-dom'
-import { boolean, object, string } from 'yup'
+import { boolean, number, object, string } from 'yup'
 import { InputAdornment } from '@mui/material'
 
 import Stripe from '~/public/images/stripe.svg'
@@ -39,6 +39,8 @@ import {
 } from '~/components/form'
 import { ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
 import { addToast, TToast } from '~/core/apolloClient'
+import { CurrencyEnum } from '~/generated/graphql'
+import { AmountInputField } from '~/components/form/AmountInput'
 
 const POSSIBLE_TOAST: TToast[] = [
   {
@@ -87,6 +89,8 @@ const DesignSystem = () => {
   const formikProps = useFormik({
     initialValues: {
       checkbox: false,
+      amountCents: undefined,
+      amountCurrency: CurrencyEnum.Usd,
       date: undefined,
       input: undefined,
       inputNumber: undefined,
@@ -99,6 +103,8 @@ const DesignSystem = () => {
     },
     validationSchema: object().shape({
       checkbox: boolean().required(),
+      amountCurrency: string().required(),
+      amountCents: number().required(),
       json: string().required(),
       date: string()
         .required()
@@ -938,6 +944,28 @@ const DesignSystem = () => {
                       name="date"
                       label="DatePicker disabled"
                       disabled
+                      formikProps={formikProps}
+                    />
+                  </Block>
+
+                  <GroupTitle variant="subhead">AmountInput</GroupTitle>
+                  <Block $marginBottom={theme.spacing(6)}>
+                    <AmountInputField
+                      beforeChangeFormatter={['positiveNumber']}
+                      currency={formikProps.values.amountCurrency}
+                      formikProps={formikProps}
+                      label="Amount"
+                      name="amountCents"
+                    />
+                    <ComboBoxField
+                      name="amountCurrency"
+                      data={Object.values(CurrencyEnum).map((currencyType) => ({
+                        value: currencyType,
+                      }))}
+                      label="currency"
+                      placeholder="Placeholder"
+                      isEmptyNull={false}
+                      disableClearable
                       formikProps={formikProps}
                     />
                   </Block>

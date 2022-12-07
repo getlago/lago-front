@@ -42,6 +42,7 @@ import {
 } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
 import { SectionHeader } from '~/styles/customer'
 import { formatDateToTZ } from '~/core/timezone'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 import { CustomerDetailsTabsOptions } from './CustomerDetails'
 
@@ -331,10 +332,16 @@ const CreditNoteDetails = () => {
                   <InlineTripleTypography variant="body" color="grey600">
                     <span>
                       {translate('text_637655cb50f04bf1c8379cf2', {
-                        amount: intlFormatNumber(creditNote?.totalAmountCents || 0, {
-                          currencyDisplay: 'symbol',
-                          currency: creditNote?.totalAmountCurrency || CurrencyEnum.Usd,
-                        }),
+                        amount: intlFormatNumber(
+                          deserializeAmount(
+                            creditNote?.totalAmountCents || 0,
+                            creditNote?.totalAmountCurrency || CurrencyEnum.Usd
+                          ),
+                          {
+                            currencyDisplay: 'symbol',
+                            currency: creditNote?.totalAmountCurrency || CurrencyEnum.Usd,
+                          }
+                        ),
                       })}
                     </span>
                     <span>•</span>
@@ -429,10 +436,16 @@ const CreditNoteDetails = () => {
                         {translate('text_637655cb50f04bf1c8379d0a')}
                       </Typography>
                       <Typography variant="body" color="grey700">
-                        {intlFormatNumber(creditNote?.balanceAmountCents || 0, {
-                          currencyDisplay: 'symbol',
-                          currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
-                        })}
+                        {intlFormatNumber(
+                          deserializeAmount(
+                            creditNote?.balanceAmountCents || 0,
+                            creditNote?.creditAmountCurrency || CurrencyEnum.Usd
+                          ),
+                          {
+                            currencyDisplay: 'symbol',
+                            currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
+                          }
+                        )}
                       </Typography>
                     </InfoLine>
                   )}
@@ -528,10 +541,16 @@ const CreditNoteDetails = () => {
                                   </TD>
                                   <td>
                                     <Typography variant="body" color="success600">
-                                      {intlFormatNumber(item.amountCents || 0, {
-                                        currencyDisplay: 'symbol',
-                                        currency: item.amountCurrency,
-                                      })}
+                                      {intlFormatNumber(
+                                        deserializeAmount(
+                                          item.amountCents || 0,
+                                          item.amountCurrency
+                                        ),
+                                        {
+                                          currencyDisplay: 'symbol',
+                                          currency: item.amountCurrency,
+                                        }
+                                      )}
                                     </Typography>
                                   </td>
                                 </tr>
@@ -557,7 +576,10 @@ const CreditNoteDetails = () => {
                       <td>
                         <Typography variant="body" color="success600">
                           {intlFormatNumber(
-                            Number(creditNote?.subTotalVatExcludedAmountCents) || 0,
+                            deserializeAmount(
+                              creditNote?.subTotalVatExcludedAmountCents || 0,
+                              creditNote?.subTotalVatExcludedAmountCurrency || CurrencyEnum.Usd
+                            ),
                             {
                               currencyDisplay: 'symbol',
                               currency:
@@ -576,10 +598,16 @@ const CreditNoteDetails = () => {
                       </td>
                       <td>
                         <Typography variant="body" color="success600">
-                          {intlFormatNumber(creditNote?.vatAmountCents || 0, {
-                            currencyDisplay: 'symbol',
-                            currency: creditNote?.vatAmountCurrency || CurrencyEnum.Usd,
-                          })}
+                          {intlFormatNumber(
+                            deserializeAmount(
+                              creditNote?.vatAmountCents || 0,
+                              creditNote?.vatAmountCurrency || CurrencyEnum.Usd
+                            ),
+                            {
+                              currencyDisplay: 'symbol',
+                              currency: creditNote?.vatAmountCurrency || CurrencyEnum.Usd,
+                            }
+                          )}
                         </Typography>
                       </td>
                     </tr>
@@ -593,10 +621,16 @@ const CreditNoteDetails = () => {
                         </td>
                         <td>
                           <Typography variant="body" color="success600">
-                            {intlFormatNumber(creditNote?.creditAmountCents || 0, {
-                              currencyDisplay: 'symbol',
-                              currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
-                            })}
+                            {intlFormatNumber(
+                              deserializeAmount(
+                                creditNote?.creditAmountCents || 0,
+                                creditNote?.creditAmountCurrency || CurrencyEnum.Usd
+                              ),
+                              {
+                                currencyDisplay: 'symbol',
+                                currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
+                              }
+                            )}
                           </Typography>
                         </td>
                       </tr>
@@ -611,10 +645,16 @@ const CreditNoteDetails = () => {
                         </td>
                         <td>
                           <Typography variant="body" color="success600">
-                            {intlFormatNumber(creditNote?.refundAmountCents || 0, {
-                              currencyDisplay: 'symbol',
-                              currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
-                            })}
+                            {intlFormatNumber(
+                              deserializeAmount(
+                                creditNote?.refundAmountCents || 0,
+                                creditNote?.creditAmountCurrency || CurrencyEnum.Usd
+                              ),
+                              {
+                                currencyDisplay: 'symbol',
+                                currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
+                              }
+                            )}
                           </Typography>
                         </td>
                       </tr>
@@ -628,10 +668,16 @@ const CreditNoteDetails = () => {
                       </td>
                       <td>
                         <Typography variant="body" color="success600">
-                          {intlFormatNumber(Number(creditNote?.totalAmountCents) || 0, {
-                            currencyDisplay: 'symbol',
-                            currency: creditNote?.totalAmountCurrency || CurrencyEnum.Usd,
-                          })}
+                          {intlFormatNumber(
+                            deserializeAmount(
+                              creditNote?.totalAmountCents || 0,
+                              creditNote?.totalAmountCurrency || CurrencyEnum.Usd
+                            ),
+                            {
+                              currencyDisplay: 'symbol',
+                              currency: creditNote?.totalAmountCurrency || CurrencyEnum.Usd,
+                            }
+                          )}
                         </Typography>
                       </td>
                     </tr>

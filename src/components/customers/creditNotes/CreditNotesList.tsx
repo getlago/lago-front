@@ -28,6 +28,7 @@ import {
   theme,
 } from '~/styles'
 import { getTimezoneConfig, formatDateToTZ } from '~/core/timezone'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 import { VoidCreditNoteDialog, VoidCreditNoteDialogRef } from './VoidCreditNoteDialog'
 
@@ -158,10 +159,16 @@ const CreditNotesList = memo(
                     {creditNote.number}
                   </NumberCell>
                   <AmountCell variant="body" color="success600" align="right" noWrap>
-                    {intlFormatNumber(creditNote.totalAmountCents || 0, {
-                      currencyDisplay: 'symbol',
-                      currency: creditNote.totalAmountCurrency,
-                    })}
+                    {intlFormatNumber(
+                      deserializeAmount(
+                        creditNote.totalAmountCents || 0,
+                        creditNote.totalAmountCurrency
+                      ),
+                      {
+                        currencyDisplay: 'symbol',
+                        currency: creditNote.totalAmountCurrency,
+                      }
+                    )}
                   </AmountCell>
                   <ButtonMock />
                 </Item>

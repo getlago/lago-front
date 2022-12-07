@@ -12,7 +12,7 @@ import { ADD_ONS_ROUTE } from '~/core/router'
 import { CreateAddOnInput, CurrencyEnum } from '~/generated/graphql'
 import { theme, Card } from '~/styles'
 import { Typography, Button, Skeleton } from '~/components/designSystem'
-import { TextInputField, ComboBoxField } from '~/components/form'
+import { TextInputField, ComboBoxField, AmountInputField } from '~/components/form'
 import {
   Main,
   Content,
@@ -24,6 +24,7 @@ import {
   ButtonContainer,
   LineAmount,
 } from '~/styles/mainObjectsForm'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 import { AddOnCodeSnippet } from '../components/addOns/AddOnCodeSnippet'
 
@@ -38,7 +39,9 @@ const CreateAddOn = () => {
       code: addOn?.code || '',
       description: addOn?.description || '',
       // @ts-ignore
-      amountCents: addOn?.amountCents ? addOn?.amountCents / 100 : addOn?.amountCents || undefined,
+      amountCents: addOn?.amountCents
+        ? deserializeAmount(addOn?.amountCents, addOn?.amountCurrency)
+        : addOn?.amountCents || undefined,
       amountCurrency: addOn?.amountCurrency || CurrencyEnum.Usd,
     },
     validationSchema: object().shape({
@@ -169,11 +172,11 @@ const CreateAddOn = () => {
                   </SectionTitle>
 
                   <LineAmount>
-                    <TextInputField
+                    <AmountInputField
                       name="amountCents"
-                      beforeChangeFormatter={['positiveNumber', 'decimal']}
+                      currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
+                      beforeChangeFormatter={['positiveNumber']}
                       label={translate('text_629728388c4d2300e2d3812d')}
-                      placeholder={translate('text_629728388c4d2300e2d3813d')}
                       formikProps={formikProps}
                     />
                     <ComboBoxField

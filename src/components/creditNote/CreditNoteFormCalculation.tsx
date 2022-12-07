@@ -12,9 +12,10 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { intlFormatNumber, getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { ComboBoxField, TextInputField, ComboBox } from '~/components/form'
+import { ComboBoxField, ComboBox, AmountInputField } from '~/components/form'
 import { Typography, Button, Tooltip, Alert } from '~/components/designSystem'
 import { theme } from '~/styles'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 import {
   CreditNoteForm,
@@ -147,9 +148,7 @@ export const CreditNoteFormCalculation = ({
             {!totalExcludedVat
               ? '-'
               : intlFormatNumber(totalExcludedVat, {
-                  initialUnit: 'standard',
                   currency: invoice?.amountCurrency,
-                  minimumFractionDigits: 2,
                 })}
           </Typography>
         </Line>
@@ -159,9 +158,7 @@ export const CreditNoteFormCalculation = ({
             {vatAmount === undefined
               ? '-'
               : intlFormatNumber(vatAmount, {
-                  initialUnit: 'standard',
                   currency: invoice?.amountCurrency,
-                  minimumFractionDigits: 2,
                 })}
           </Typography>
         </Line>
@@ -173,9 +170,7 @@ export const CreditNoteFormCalculation = ({
             {!totalTaxIncluded
               ? '-'
               : intlFormatNumber(totalTaxIncluded, {
-                  initialUnit: 'standard',
                   currency: invoice?.amountCurrency,
-                  minimumFractionDigits: 2,
                 })}
           </Typography>
         </Line>
@@ -188,9 +183,7 @@ export const CreditNoteFormCalculation = ({
               {totalTaxIncluded === undefined
                 ? '-'
                 : intlFormatNumber(totalTaxIncluded, {
-                    initialUnit: 'standard',
                     currency: invoice?.amountCurrency,
-                    minimumFractionDigits: 2,
                   })}
             </Typography>
           </Line>
@@ -205,7 +198,10 @@ export const CreditNoteFormCalculation = ({
               onChange={(value) => {
                 if (value === CreditTypeEnum.refund && hasCreditOrCoupon) {
                   formikProps.setFieldValue('payBack', [
-                    { type: value, value: Number(invoice?.refundableAmountCents || 0) / 100 },
+                    {
+                      type: value,
+                      value: Number(invoice?.refundableAmountCents || 0),
+                    },
                     {
                       type: CreditTypeEnum.credit,
                       value:
@@ -235,10 +231,15 @@ export const CreditNoteFormCalculation = ({
                       ? 'text_637d10c83077eff6e8c79cd0'
                       : 'text_637d0e6d94c87b04785fc6d2',
                     {
-                      max: intlFormatNumber(Number(invoice?.refundableAmountCents || 0), {
-                        initialUnit: 'cent',
-                        currency: invoice?.amountCurrency,
-                      }),
+                      max: intlFormatNumber(
+                        deserializeAmount(
+                          invoice?.refundableAmountCents || 0,
+                          invoice?.amountCurrency
+                        ),
+                        {
+                          currency: invoice?.amountCurrency,
+                        }
+                      ),
                     }
                   ),
                 },
@@ -248,11 +249,12 @@ export const CreditNoteFormCalculation = ({
               <>
                 <Tooltip
                   title={translate('text_637e23e47a15bf0bd71e0d03', {
-                    max: intlFormatNumber(invoice?.refundableAmountCents, {
-                      initialUnit: 'cent',
-                      currency: invoice?.amountCurrency,
-                      minimumFractionDigits: 2,
-                    }),
+                    max: intlFormatNumber(
+                      deserializeAmount(invoice?.refundableAmountCents, invoice?.amountCurrency),
+                      {
+                        currency: invoice?.amountCurrency,
+                      }
+                    ),
                   })}
                   placement="top-end"
                   disableHoverListener={
@@ -261,9 +263,9 @@ export const CreditNoteFormCalculation = ({
                 >
                   <StyledTextInput
                     name="payBack.0.value"
-                    placeholder={translate('text_637d0e83ce390e1eca392f77')}
+                    currency={invoice?.amountCurrency}
                     formikProps={formikProps}
-                    beforeChangeFormatter={['decimal', 'positiveNumber']}
+                    beforeChangeFormatter={['positiveNumber']}
                     displayErrorText={false}
                     InputProps={{
                       startAdornment: (
@@ -291,11 +293,12 @@ export const CreditNoteFormCalculation = ({
               <Typography color="grey700">
                 {!totalTaxIncluded
                   ? '-'
-                  : intlFormatNumber(payBack[0]?.value || 0, {
-                      initialUnit: 'standard',
-                      currency: invoice?.amountCurrency,
-                      minimumFractionDigits: 2,
-                    })}
+                  : intlFormatNumber(
+                      deserializeAmount(payBack[0]?.value || 0, invoice?.amountCurrency),
+                      {
+                        currency: invoice?.amountCurrency,
+                      }
+                    )}
               </Typography>
             )}
           </PayBackLine>
@@ -340,10 +343,15 @@ export const CreditNoteFormCalculation = ({
                         ? 'text_637d10c83077eff6e8c79cd0'
                         : 'text_637d0e6d94c87b04785fc6d2',
                       {
-                        max: intlFormatNumber(Number(invoice?.refundableAmountCents || 0), {
-                          initialUnit: 'cent',
-                          currency: invoice?.amountCurrency,
-                        }),
+                        max: intlFormatNumber(
+                          deserializeAmount(
+                            invoice?.refundableAmountCents || 0,
+                            invoice?.amountCurrency
+                          ),
+                          {
+                            currency: invoice?.amountCurrency,
+                          }
+                        ),
                       }
                     ),
                   },
@@ -351,11 +359,12 @@ export const CreditNoteFormCalculation = ({
               />
               <Tooltip
                 title={translate('text_637e23e47a15bf0bd71e0d03', {
-                  max: intlFormatNumber(invoice?.refundableAmountCents, {
-                    initialUnit: 'cent',
-                    currency: invoice?.amountCurrency,
-                    minimumFractionDigits: 2,
-                  }),
+                  max: intlFormatNumber(
+                    deserializeAmount(invoice?.refundableAmountCents || 0, invoice?.amountCurrency),
+                    {
+                      currency: invoice?.amountCurrency,
+                    }
+                  ),
                 })}
                 placement="top-end"
                 disableHoverListener={
@@ -364,9 +373,9 @@ export const CreditNoteFormCalculation = ({
               >
                 <StyledTextInput
                   name="payBack.1.value"
-                  placeholder={translate('text_637d0e83ce390e1eca392f77')}
+                  currency={invoice?.amountCurrency}
                   formikProps={formikProps}
-                  beforeChangeFormatter={['decimal', 'positiveNumber']}
+                  beforeChangeFormatter={['positiveNumber']}
                   displayErrorText={false}
                   InputProps={{
                     startAdornment: (
@@ -397,11 +406,12 @@ export const CreditNoteFormCalculation = ({
       {_get(formikProps.errors, 'payBack.0.value') === LagoApiError.DoesNotMatchItemAmounts && (
         <StyledAlert type="danger">
           {translate('text_637e334680481f653e8caa9d', {
-            total: intlFormatNumber(totalTaxIncluded || 0, {
-              initialUnit: 'standard',
-              currency: invoice?.amountCurrency,
-              minimumFractionDigits: 2,
-            }),
+            total: intlFormatNumber(
+              deserializeAmount(totalTaxIncluded || 0, invoice?.amountCurrency),
+              {
+                currency: invoice?.amountCurrency,
+              }
+            ),
           })}
         </StyledAlert>
       )}
@@ -454,7 +464,7 @@ const PayBackBlock = styled.div`
   }
 `
 
-const StyledTextInput = styled(TextInputField)`
+const StyledTextInput = styled(AmountInputField)`
   max-width: 152px;
 
   input {

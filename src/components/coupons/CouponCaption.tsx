@@ -3,9 +3,15 @@ import { gql } from '@apollo/client'
 import { TypographyProps } from '@mui/material'
 
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CouponItemFragment, CouponTypeEnum, CouponFrequency } from '~/generated/graphql'
+import {
+  CouponItemFragment,
+  CouponTypeEnum,
+  CouponFrequency,
+  CurrencyEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography } from '~/components/designSystem'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
   fragment CouponCaption on Coupon {
@@ -59,15 +65,21 @@ export const CouponCaption = memo(({ coupon, variant = 'caption' }: CouponCaptio
       return translate(
         amountCentsRemaining ? 'text_637b4da08cd0118cd0c4486f' : 'text_632d68358f1fedc68eed3e70',
         {
-          amount: intlFormatNumber(amountCentsRemaining || amountCents || 0, {
-            currencyDisplay: 'symbol',
-            currency: amountCurrency || undefined,
-          }),
+          amount: intlFormatNumber(
+            deserializeAmount(
+              Number(amountCentsRemaining) || Number(amountCents),
+              amountCurrency || CurrencyEnum.Usd
+            ) || 0,
+            {
+              currencyDisplay: 'symbol',
+              currency: amountCurrency || undefined,
+            }
+          ),
         }
       )
     } else if (couponType === CouponTypeEnum.Percentage && frequency === CouponFrequency.Once) {
       return translate('text_632d68358f1fedc68eed3eb5', {
-        rate: intlFormatNumber(Number(percentageRate) || 0, {
+        rate: intlFormatNumber(Number(percentageRate) / 100 || 0, {
           minimumFractionDigits: 2,
           style: 'percent',
         }),
@@ -79,10 +91,16 @@ export const CouponCaption = memo(({ coupon, variant = 'caption' }: CouponCaptio
       return translate(
         'text_632d68358f1fedc68eed3ede',
         {
-          amount: intlFormatNumber(amountCentsRemaining || amountCents || 0, {
-            currencyDisplay: 'symbol',
-            currency: amountCurrency || undefined,
-          }),
+          amount: intlFormatNumber(
+            deserializeAmount(
+              Number(amountCentsRemaining) || Number(amountCents),
+              amountCurrency || CurrencyEnum.Usd
+            ) || 0,
+            {
+              currencyDisplay: 'symbol',
+              currency: amountCurrency || undefined,
+            }
+          ),
           duration: frequencyDurationRemaining || frequencyDuration,
         },
         frequencyDurationRemaining || frequencyDuration || 1
@@ -94,7 +112,7 @@ export const CouponCaption = memo(({ coupon, variant = 'caption' }: CouponCaptio
       return translate(
         'text_632d68358f1fedc68eed3ef9',
         {
-          rate: intlFormatNumber(Number(percentageRate) || 0, {
+          rate: intlFormatNumber(Number(percentageRate) / 100 || 0, {
             minimumFractionDigits: 2,
             style: 'percent',
           }),

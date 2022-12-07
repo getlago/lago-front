@@ -85,6 +85,26 @@ describe('Text input formatValue', () => {
     expect(writtingDecimals).toBe('-29.')
   })
 
+  it('should return a number with 3 decimals for "triDecimal" formatter', () => {
+    const negativeValue = formatValue(-12, 'triDecimal')
+    const value = formatValue(15, 'triDecimal')
+    const zeroValue = formatValue(0, 'triDecimal')
+    const negativeDecimalValue = formatValue(-13.459484, 'triDecimal')
+    const minus = formatValue('-', 'triDecimal')
+    const decimalValue = formatValue(11.459484, 'triDecimal')
+    const stringValue = formatValue('random string', 'triDecimal')
+    const writtingDecimals = formatValue('-29.', 'triDecimal')
+
+    expect(negativeValue).toBe('-12')
+    expect(value).toBe('15')
+    expect(zeroValue).toBe('0')
+    expect(negativeDecimalValue).toBe('-13.459')
+    expect(decimalValue).toBe('11.459')
+    expect(stringValue).toBe(null)
+    expect(minus).toBe('-')
+    expect(writtingDecimals).toBe('-29.')
+  })
+
   it('should return a string with no spaces for "code" formatter', () => {
     const longString = formatValue('I just wanna have fun', 'code')
     const number = formatValue(938884, 'code')

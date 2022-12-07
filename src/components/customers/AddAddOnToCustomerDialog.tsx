@@ -5,7 +5,7 @@ import { object, string, number } from 'yup'
 import { useFormik } from 'formik'
 
 import { Dialog, Button, DialogRef, Typography, Alert } from '~/components/designSystem'
-import { ComboBoxField, TextInputField, ComboBox } from '~/components/form'
+import { ComboBoxField, ComboBox, AmountInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   useAddAddOnMutation,
@@ -17,6 +17,7 @@ import {
 import { theme } from '~/styles'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
   query getAddOnsForCustomer($page: Int, $limit: Int) {
@@ -82,11 +83,12 @@ export const AddAddOnToCustomerDialog = forwardRef<
       addOnId: string().required(''),
     }),
     validateOnMount: true,
-    onSubmit: async ({ amountCents, ...values }, formikBag) => {
+    onSubmit: async ({ amountCents, amountCurrency, ...values }, formikBag) => {
       const answer = await addCoupon({
         variables: {
           input: {
-            amountCents: (amountCents || 0) * 100,
+            amountCents: serializeAmount(amountCents || 0, amountCurrency || CurrencyEnum.Usd),
+            amountCurrency,
             customerId,
             ...values,
           },
@@ -118,10 +120,13 @@ export const AddAddOnToCustomerDialog = forwardRef<
             <Typography color="textPrimary">
               (
               {translate('text_629781ec7c6c1500d94fbc16', {
-                amountWithCurrency: intlFormatNumber(amountCents || 0, {
-                  currencyDisplay: 'symbol',
-                  currency: amountCurrency,
-                }),
+                amountWithCurrency: intlFormatNumber(
+                  deserializeAmount(amountCents, amountCurrency) || 0,
+                  {
+                    currencyDisplay: 'symbol',
+                    currency: amountCurrency,
+                  }
+                ),
               })}
               )
             </Typography>
@@ -173,7 +178,7 @@ export const AddAddOnToCustomerDialog = forwardRef<
             if (!!addOn) {
               formikProps.setValues({
                 addOnId: addOn.id,
-                amountCents: addOn.amountCents / 100,
+                amountCents: deserializeAmount(addOn.amountCents, addOn.amountCurrency),
                 amountCurrency: addOn.amountCurrency,
               })
             } else {
@@ -185,9 +190,10 @@ export const AddAddOnToCustomerDialog = forwardRef<
 
         {!!formikProps.values.addOnId && (
           <LineAmount>
-            <TextInputField
+            <AmountInputField
               name="amountCents"
-              beforeChangeFormatter={['positiveNumber', 'decimal']}
+              currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
+              beforeChangeFormatter={['positiveNumber']}
               label={translate('text_629781ec7c6c1500d94fbb04')}
               formikProps={formikProps}
             />

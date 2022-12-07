@@ -6,7 +6,7 @@ import { InputAdornment } from '@mui/material'
 import { gql } from '@apollo/client'
 
 import { intlFormatNumber, getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { TextInput } from '~/components/form'
+import { AmountInput, TextInput } from '~/components/form'
 import { MenuPopper, theme } from '~/styles'
 import { Alert, Typography, Button, Tooltip, Popper } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -58,14 +58,11 @@ export const ChargePercentage = ({
   const showFreeUnitsPerEvents = valuePointer?.freeUnitsPerEvents !== undefined
   const showFreeUnitsPerTotalAggregation = valuePointer?.freeUnitsPerTotalAggregation !== undefined
   let freeUnitsPerTotalAggregationTranslation = translate('text_6303351deffd2a0d70498677', {
-    freeAmountUnits: intlFormatNumber(
-      Number(valuePointer?.freeUnitsPerTotalAggregation) * 100 || 0,
-      {
-        currencyDisplay: 'symbol',
-        currency,
-        maximumFractionDigits: 5,
-      }
-    ),
+    freeAmountUnits: intlFormatNumber(Number(valuePointer?.freeUnitsPerTotalAggregation) || 0, {
+      currencyDisplay: 'symbol',
+      currency,
+      maximumFractionDigits: 5,
+    }),
   })
   const handleUpdate = useCallback(
     (name: string, value: string | number) => {
@@ -105,14 +102,14 @@ export const ChargePercentage = ({
 
       {valuePointer?.fixedAmount !== undefined && (
         <LineAmount>
-          <Input
+          <Amount
             name={`${propertyCursor}.fixedAmount`}
+            currency={currency}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
             disabled={disabled}
             label={translate('text_62ff5d01a306e274d4ffcc1e')}
-            placeholder={translate('text_62ff5d01a306e274d4ffcc24')}
             value={valuePointer?.fixedAmount || ''}
             onChange={(value) => handleUpdate(`${propertyCursor}.fixedAmount`, value)}
             InputProps={{
@@ -191,14 +188,14 @@ export const ChargePercentage = ({
             valuePointer?.freeUnitsPerTotalAggregation !== undefined && (
               <OrText variant="body">{translate('text_62ff5d01a306e274d4ffcc59')}</OrText>
             )}
-          <Input
+          <Amount
             name={`${propertyCursor}.freeUnitsPerTotalAggregation`}
+            currency={currency}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
             disabled={disabled}
             label={translate('text_62ff5d01a306e274d4ffcc48')}
-            placeholder={translate('text_62ff5d01a306e274d4ffcc4e')}
             value={valuePointer?.freeUnitsPerTotalAggregation || ''}
             onChange={(value) =>
               handleUpdate(`${propertyCursor}.freeUnitsPerTotalAggregation`, value)
@@ -304,7 +301,7 @@ export const ChargePercentage = ({
       <Alert type="info">
         <Typography color="textSecondary">
           {translate('text_62ff5d01a306e274d4ffcc65', {
-            percentageFee: intlFormatNumber(Number(valuePointer?.rate) || 0, {
+            percentageFee: intlFormatNumber(Number(valuePointer?.rate) / 100 || 0, {
               minimumFractionDigits: 2,
               style: 'percent',
             }),
@@ -314,7 +311,7 @@ export const ChargePercentage = ({
         {showFixedAmount && (
           <Typography color="textSecondary">
             {translate('text_62ff5d01a306e274d4ffcc69', {
-              fixedFeeValue: intlFormatNumber(Number(valuePointer?.fixedAmount) * 100 || 0, {
+              fixedFeeValue: intlFormatNumber(Number(valuePointer?.fixedAmount) || 0, {
                 currencyDisplay: 'symbol',
                 currency,
                 maximumFractionDigits: 5,
@@ -363,6 +360,10 @@ const Container = styled.div`
 `
 
 const Input = styled(TextInput)`
+  flex: 1;
+`
+
+const Amount = styled(AmountInput)`
   flex: 1;
 `
 

@@ -1,13 +1,15 @@
 /* eslint-disable react/prop-types */
 import { forwardRef, memo } from 'react'
-import { FormikProps } from 'formik'
 import _get from 'lodash/get'
 import _isEqual from 'lodash/isEqual'
-import styled, { css } from 'styled-components'
+import { FormikProps } from 'formik'
 
-import { TextInput, TextInputProps } from './TextInput'
+import { CurrencyEnum } from '~/generated/graphql'
 
-export interface TextInputFieldProps extends Omit<TextInputProps, 'onChange' | 'name'> {
+import { AmountInput, AmountInputProps } from './AmountInput'
+
+export interface AmountInputFieldProps extends AmountInputProps {
+  currency: CurrencyEnum
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formikProps: FormikProps<any>
   name: string
@@ -15,8 +17,8 @@ export interface TextInputFieldProps extends Omit<TextInputProps, 'onChange' | '
   displayErrorText?: boolean
 }
 
-export const TextInputField = memo(
-  forwardRef<HTMLDivElement, TextInputFieldProps>(
+export const AmountInputField = memo(
+  forwardRef<HTMLDivElement, AmountInputFieldProps>(
     (
       {
         name,
@@ -25,19 +27,19 @@ export const TextInputField = memo(
         formikProps,
         displayErrorText = true,
         ...props
-      }: TextInputFieldProps,
+      }: AmountInputFieldProps,
       ref
     ) => {
       const { values, errors, touched, handleBlur, setFieldValue } = formikProps
 
       return (
-        <StyledTextInput
-          $displayErrorText={displayErrorText}
+        <AmountInput
           name={name}
           value={_get(values, name)}
           ref={ref}
           onBlur={handleBlur}
           cleanable={cleanable}
+          displayErrorText={displayErrorText}
           error={
             !silentError
               ? displayErrorText
@@ -67,14 +69,4 @@ export const TextInputField = memo(
   }
 )
 
-TextInputField.displayName = 'TextInputField'
-
-const StyledTextInput = styled(TextInput)<{ $displayErrorText?: boolean }>`
-  ${({ $displayErrorText }) =>
-    !$displayErrorText &&
-    css`
-      .MuiTextField-root {
-        margin-bottom: 0 !important;
-      }
-    `}
-`
+AmountInputField.displayName = 'AmountInputField'

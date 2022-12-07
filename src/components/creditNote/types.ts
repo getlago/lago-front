@@ -1,4 +1,4 @@
-import { CreditNoteReasonEnum } from '~/generated/graphql'
+import { CreditNoteReasonEnum, CurrencyEnum } from '~/generated/graphql'
 
 export type FromFee = {
   id: string
@@ -32,6 +32,7 @@ export enum CreditTypeEnum {
 export interface CreditNoteForm {
   reason: CreditNoteReasonEnum
   creditAmount: number
+  amountCurrency: CurrencyEnum
   refundAmount: number
   payBack: { type?: CreditTypeEnum; value?: number }[]
   description?: string

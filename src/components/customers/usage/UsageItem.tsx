@@ -19,6 +19,7 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { getTimezoneConfig, formatDateToTZ } from '~/core/timezone'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 import {
   CustomerUsageDetailDrawer,
@@ -175,10 +176,13 @@ export const UsageItem = ({ customerId, subscription, customerTimezone }: UsageI
                       </Block>
                     </MainInfos>
                     <Typography color="textSecondary">
-                      {intlFormatNumber(data?.customerUsage?.amountCents || 0, {
-                        currencyDisplay: 'symbol',
-                        currency,
-                      })}
+                      {intlFormatNumber(
+                        deserializeAmount(data?.customerUsage?.amountCents, currency) || 0,
+                        {
+                          currencyDisplay: 'symbol',
+                          currency,
+                        }
+                      )}
                     </Typography>
                   </UsageHeader>
                 )}
@@ -234,7 +238,7 @@ export const UsageItem = ({ customerId, subscription, customerTimezone }: UsageI
                               {translate('text_633dae57ca9a923dd53c2121', { units }, units)}
                             </Typography>
                             <Typography color="textSecondary">
-                              {intlFormatNumber(amountCents || 0, {
+                              {intlFormatNumber(deserializeAmount(amountCents, currency) || 0, {
                                 currencyDisplay: 'symbol',
                                 currency,
                               })}

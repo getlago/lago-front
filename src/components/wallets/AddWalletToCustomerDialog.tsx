@@ -8,7 +8,13 @@ import { InputAdornment } from '@mui/material'
 
 import { theme } from '~/styles'
 import { Alert, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
-import { DatePickerField, TextInput, TextInputField, ComboBoxField } from '~/components/form'
+import {
+  DatePickerField,
+  TextInput,
+  TextInputField,
+  ComboBoxField,
+  AmountInputField,
+} from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   CreateCustomerWalletInput,
@@ -18,6 +24,7 @@ import {
 } from '~/generated/graphql'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 
 gql`
   mutation createCustomerWallet($input: CreateCustomerWalletInput!) {
@@ -59,7 +66,9 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
         name: '',
         paidCredits: '',
         currency: userCurrency || CurrencyEnum.Usd,
-        rateAmount: '1.00',
+        rateAmount: `1${
+          getCurrencyPrecision(userCurrency || CurrencyEnum.Usd) === 3 ? '.000' : '.00'
+        }`,
       },
       validationSchema: object().shape({
         expirationAt: date().min(
@@ -87,13 +96,14 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
       }),
       validateOnMount: true,
       enableReinitialize: true,
-      onSubmit: async ({ grantedCredits, paidCredits, ...values }, formikBag) => {
+      onSubmit: async ({ grantedCredits, paidCredits, rateAmount, ...values }, formikBag) => {
         const { errors } = await createWallet({
           variables: {
             input: {
               customerId,
-              grantedCredits: grantedCredits === '' ? '0' : grantedCredits,
-              paidCredits: paidCredits === '' ? '0' : paidCredits,
+              rateAmount: String(rateAmount),
+              grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
+              paidCredits: paidCredits === '' ? '0' : String(paidCredits),
               ...values,
             },
           },
@@ -163,11 +173,11 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
             />
             <TextInput value="=" disabled={true} />
             <LineAmount>
-              <TextInputField
+              <AmountInputField
                 name="rateAmount"
-                beforeChangeFormatter={['positiveNumber', 'decimal']}
+                currency={formikProps.values.currency}
+                beforeChangeFormatter={['positiveNumber']}
                 label={translate('text_62d18855b22699e5cf55f87d')}
-                placeholder={translate('text_62d18855b22699e5cf55f87f')}
                 formikProps={formikProps}
               />
               <ComboBoxField
@@ -182,20 +192,18 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
             </LineAmount>
           </InlineFields>
 
-          <TextInputField
+          <AmountInputField
             name="paidCredits"
-            beforeChangeFormatter={['positiveNumber', 'decimal']}
+            currency={formikProps.values.currency}
+            beforeChangeFormatter={['positiveNumber']}
             label={translate('text_62d18855b22699e5cf55f885')}
-            placeholder={translate('text_62d18855b22699e5cf55f887')}
             formikProps={formikProps}
             silentError={true}
             helperText={translate('text_62d18855b22699e5cf55f88b', {
               paidCredits: intlFormatNumber(
                 isNaN(Number(formikProps.values.paidCredits))
                   ? 0
-                  : Number(formikProps.values.paidCredits) *
-                      Number(formikProps.values.rateAmount) *
-                      100,
+                  : Number(formikProps.values.paidCredits) * Number(formikProps.values.rateAmount),
                 {
                   currencyDisplay: 'symbol',
                   currency: formikProps?.values?.currency || CurrencyEnum.Usd,
@@ -211,11 +219,11 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
             }}
           />
 
-          <TextInputField
+          <AmountInputField
             name="grantedCredits"
-            beforeChangeFormatter={['positiveNumber', 'decimal']}
+            currency={formikProps.values.currency}
+            beforeChangeFormatter={['positiveNumber']}
             label={translate('text_62d18855b22699e5cf55f88d')}
-            placeholder={translate('text_62d18855b22699e5cf55f88f')}
             formikProps={formikProps}
             silentError={true}
             helperText={translate('text_62d18855b22699e5cf55f893', {
@@ -223,8 +231,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
                 isNaN(Number(formikProps.values.grantedCredits))
                   ? 0
                   : Number(formikProps.values.grantedCredits) *
-                      Number(formikProps.values.rateAmount) *
-                      100,
+                      Number(formikProps.values.rateAmount),
                 {
                   currencyDisplay: 'symbol',
                   currency: formikProps?.values?.currency || CurrencyEnum.Usd,
@@ -244,8 +251,10 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
             <Typography color="textSecondary">
               {translate('text_630df52b4f665b2452363ae2', {
                 totalCreditCount:
-                  Number(formikProps.values.paidCredits || 0) +
-                  Number(formikProps.values.grantedCredits || 0),
+                  Math.round(
+                    Number(formikProps.values.paidCredits || 0) * 100 +
+                      Number(formikProps.values.grantedCredits || 0) * 100
+                  ) / 100,
               })}
             </Typography>
             <Typography color="textSecondary">

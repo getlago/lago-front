@@ -23,6 +23,7 @@ import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { getTimezoneConfig, formatDateToTZ } from '~/core/timezone'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
   fragment CustomerInvoiceList on Invoice {
@@ -150,7 +151,9 @@ export const CustomerInvoicesList = ({
                     </IssuingDateCell>
                     <NumberCell color="textSecondary">{number}</NumberCell>
                     <AmountCell color="textSecondary" align="right">
-                      {intlFormatNumber(totalAmountCents, { currency: amountCurrency })}
+                      {intlFormatNumber(deserializeAmount(totalAmountCents, amountCurrency), {
+                        currency: amountCurrency,
+                      })}
                     </AmountCell>
                     <PaymentCell>
                       <Status

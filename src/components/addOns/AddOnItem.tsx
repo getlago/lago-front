@@ -28,6 +28,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
 import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
   fragment AddOnItem on AddOn {
@@ -69,10 +70,13 @@ export const AddOnItem = ({ addOn, navigationProps }: AddOnItemProps) => {
             </Typography>
             <Typography variant="caption" noWrap>
               {translate('text_629728388c4d2300e2d3810b', {
-                amountWithCurrency: intlFormatNumber(amountCents || 0, {
-                  currencyDisplay: 'symbol',
-                  currency: amountCurrency,
-                }),
+                amountWithCurrency: intlFormatNumber(
+                  deserializeAmount(amountCents, amountCurrency) || 0,
+                  {
+                    currencyDisplay: 'symbol',
+                    currency: amountCurrency,
+                  }
+                ),
               })}
             </Typography>
           </NameBlock>

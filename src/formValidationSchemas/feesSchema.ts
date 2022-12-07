@@ -7,8 +7,10 @@ import {
   FromFee,
   GroupedFee,
 } from '~/components/creditNote/types'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { CurrencyEnum } from '~/generated/graphql'
 
-export const simpleFeeSchema = (maxAmount: number) =>
+export const simpleFeeSchema = (maxAmount: number, currency: CurrencyEnum) =>
   object().shape({
     checked: boolean(),
     value: number()
@@ -20,14 +22,14 @@ export const simpleFeeSchema = (maxAmount: number) =>
           return !!checked
             ? number()
                 .min(0.000001, CreditNoteFeeErrorEnum.minZero)
-                .max(maxAmount / 100, CreditNoteFeeErrorEnum.overMax)
+                .max(deserializeAmount(maxAmount, currency), CreditNoteFeeErrorEnum.overMax)
                 .required('')
             : schema
         }
       ),
   })
 
-export const generateFeesSchema = (formikInitialFees: FeesPerInvoice) =>
+export const generateFeesSchema = (formikInitialFees: FeesPerInvoice, currency: CurrencyEnum) =>
   object().shape(
     Object.keys(formikInitialFees || {}).reduce((accSub, subKey) => {
       const subChilds = formikInitialFees[subKey]?.fees
@@ -46,7 +48,8 @@ export const generateFeesSchema = (formikInitialFees: FeesPerInvoice) =>
                     _get(
                       formikInitialFees || {},
                       `${subKey}.fees.${feeGroupKey}.maxAmount`
-                    ) as unknown as number
+                    ) as unknown as number,
+                    currency
                   ),
                 }
               }
@@ -63,7 +66,8 @@ export const generateFeesSchema = (formikInitialFees: FeesPerInvoice) =>
                           _get(
                             formikInitialFees || {},
                             `${subKey}.fees.${feeGroupKey}.grouped.${feeKey}.maxAmount`
-                          ) as unknown as number
+                          ) as unknown as number,
+                          currency
                         ),
                       }
                     }, {})

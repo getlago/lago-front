@@ -24,8 +24,8 @@ import {
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
 } from '~/core/router'
 import {
+  CurrencyEnum,
   InvoicePaymentStatusTypeEnum,
-  // InvoiceTypeEnum,
   useDownloadInvoiceMutation,
   useGetInvoiceDetailsQuery,
 } from '~/generated/graphql'
@@ -34,6 +34,7 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme, PageHeader, MenuPopper } from '~/styles'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
   query getInvoiceDetails($id: ID!) {
@@ -256,10 +257,16 @@ const CustomerInvoiceDetails = () => {
                   <InlineTripleTypography variant="body" color="grey600">
                     <span>
                       {translate('text_634687079be251fdb43833ad', {
-                        totalAmount: intlFormatNumber(totalAmountCents || 0, {
-                          currencyDisplay: 'symbol',
-                          currency: totalAmountCurrency,
-                        }),
+                        totalAmount: intlFormatNumber(
+                          deserializeAmount(
+                            totalAmountCents || 0,
+                            totalAmountCurrency || CurrencyEnum.Usd
+                          ),
+                          {
+                            currencyDisplay: 'symbol',
+                            currency: totalAmountCurrency,
+                          }
+                        ),
                       })}
                     </span>
                     <span>•</span>

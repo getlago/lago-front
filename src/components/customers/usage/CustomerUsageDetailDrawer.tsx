@@ -9,6 +9,7 @@ import { NAV_HEIGHT, theme } from '~/styles'
 import { ChargeUsage, CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { formatDateToTZ } from '~/core/timezone'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
   fragment CustomerUsageForUsageDetails on CustomerUsage {
@@ -105,7 +106,7 @@ export const CustomerUsageDetailDrawer = forwardRef<
                           </Typography>
                         </div>
                         <Typography variant="body" color="grey700" noWrap>
-                          {intlFormatNumber(Number(value.amountCents) || 0, {
+                          {intlFormatNumber(deserializeAmount(value.amountCents, currency) || 0, {
                             currencyDisplay: 'symbol',
                             currency,
                           })}

@@ -6,7 +6,7 @@ import { gql } from '@apollo/client'
 
 import { theme } from '~/styles'
 import { Table, Typography, Button, Tooltip, Alert } from '~/components/designSystem'
-import { TextInput } from '~/components/form'
+import { AmountInput, TextInput } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
 import { useVolumeChargeForm } from '~/hooks/plans/useVolumeChargeForm'
@@ -160,7 +160,7 @@ export const VolumeChargeTable = ({
                 ) : (
                   <CellAmount
                     beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
-                    placeholder="0.00"
+                    currency={currency}
                     value={row.perUnitAmount}
                     onChange={(value) => handleUpdate(i, 'perUnitAmount', value)}
                     InputProps={{
@@ -192,7 +192,7 @@ export const VolumeChargeTable = ({
                 ) : (
                   <CellAmount
                     beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
-                    placeholder="0.00"
+                    currency={currency}
                     value={row.flatAmount}
                     onChange={(value) => handleUpdate(i, 'flatAmount', value)}
                     InputProps={{
@@ -213,7 +213,7 @@ export const VolumeChargeTable = ({
         <Typography variant="bodyHl" color="textSecondary">
           {translate('text_6304e74aab6dbc18d615f412', {
             lastRowFirstUnit: infosCalculation.lastRowFirstUnit,
-            value: intlFormatNumber(infosCalculation.value * 100, {
+            value: intlFormatNumber(infosCalculation.value, {
               currencyDisplay: 'symbol',
               maximumFractionDigits: 5,
               currency,
@@ -223,17 +223,17 @@ export const VolumeChargeTable = ({
         <Typography variant="body" color="textSecondary">
           {translate('text_6304e74aab6dbc18d615f416', {
             lastRowFirstUnit: infosCalculation.lastRowFirstUnit,
-            lastRowPerUnit: intlFormatNumber(infosCalculation.lastRowPerUnit * 100, {
+            lastRowPerUnit: intlFormatNumber(infosCalculation.lastRowPerUnit, {
               currencyDisplay: 'symbol',
               maximumFractionDigits: 5,
               currency,
             }),
-            lastRowFlatFee: intlFormatNumber(infosCalculation.lastRowFlatFee * 100, {
+            lastRowFlatFee: intlFormatNumber(infosCalculation.lastRowFlatFee, {
               currencyDisplay: 'symbol',
               maximumFractionDigits: 5,
               currency,
             }),
-            value: intlFormatNumber(infosCalculation.value * 100, {
+            value: intlFormatNumber(infosCalculation.value, {
               currencyDisplay: 'symbol',
               maximumFractionDigits: 5,
               currency,
@@ -297,7 +297,7 @@ const CellInput = styled(TextInput)`
   }
 `
 
-const CellAmount = styled(TextInput)`
+const CellAmount = styled(AmountInput)`
   && {
     > * {
       margin-bottom: 0;

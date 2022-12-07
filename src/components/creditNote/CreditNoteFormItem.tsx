@@ -4,12 +4,13 @@ import { FormikProps } from 'formik'
 import { InputAdornment } from '@mui/material'
 
 import { theme } from '~/styles'
-import { TextInputField, CheckboxField } from '~/components/form'
+import { CheckboxField, AmountInputField } from '~/components/form'
 import { intlFormatNumber, getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CurrencyEnum } from '~/generated/graphql'
 import { Typography, Tooltip } from '~/components/designSystem'
 import { CreditNoteFeeErrorEnum } from '~/components/creditNote/types'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 import { CreditNoteForm } from './types'
 
@@ -44,9 +45,8 @@ export const CreditNoteFormItem = ({
             {feeName}
             <Typography variant="caption">
               {translate('text_636bedf292786b19d3398efc', {
-                max: intlFormatNumber(maxValue, {
+                max: intlFormatNumber(deserializeAmount(maxValue || 0, currency), {
                   currencyDisplay: 'symbol',
-                  initialUnit: 'cent',
                   currency,
                 }),
               })}
@@ -61,17 +61,13 @@ export const CreditNoteFormItem = ({
             ? translate('text_6374e868262bab8719eac121', {
                 min: intlFormatNumber(0, {
                   currencyDisplay: 'symbol',
-                  initialUnit: 'cent',
                   currency,
-                  minimumFractionDigits: 2,
                 }),
               })
             : translate('text_6374e868262bab8719eac11f', {
-                max: intlFormatNumber(maxValue, {
+                max: intlFormatNumber(deserializeAmount(maxValue || 0, currency), {
                   currencyDisplay: 'symbol',
-                  initialUnit: 'cent',
                   currency,
-                  minimumFractionDigits: 2,
                 }),
               })
         }
@@ -79,9 +75,10 @@ export const CreditNoteFormItem = ({
       >
         <StyledAmountField
           name={`${formikKey}.value`}
+          currency={currency}
           displayErrorText={false}
           disabled={!_get(formikProps.values, `${formikKey}.checked`)}
-          beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
+          beforeChangeFormatter={['positiveNumber']}
           InputProps={
             currency
               ? {
@@ -98,7 +95,7 @@ export const CreditNoteFormItem = ({
   )
 }
 
-const StyledAmountField = styled(TextInputField)`
+const StyledAmountField = styled(AmountInputField)`
   max-width: 168px;
   .MuiOutlinedInput-input {
     text-align: right;
