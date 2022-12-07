@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { gql } from '@apollo/client'
-import { useParams, generatePath, Outlet, useNavigate } from 'react-router-dom'
+import { useParams, generatePath, Outlet /* useNavigate */ } from 'react-router-dom'
 import styled from 'styled-components'
 
 import {
@@ -18,14 +18,14 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   CUSTOMER_DETAILS_TAB_ROUTE,
-  CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE,
+  // CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_OVERVIEW_ROUTE,
-  CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
+  // CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
 } from '~/core/router'
 import {
   InvoicePaymentStatusTypeEnum,
-  InvoiceTypeEnum,
+  // InvoiceTypeEnum,
   useDownloadInvoiceMutation,
   useGetInvoiceDetailsQuery,
 } from '~/generated/graphql'
@@ -88,7 +88,7 @@ const mapStatus = (type?: InvoicePaymentStatusTypeEnum | undefined) => {
 const CustomerInvoiceDetails = () => {
   const { translate } = useInternationalization()
   const { id, invoiceId } = useParams()
-  let navigate = useNavigate()
+  // let navigate = useNavigate()
   const [downloadInvoice, { loading: loadingInvoiceDownload }] = useDownloadInvoiceMutation({
     onCompleted({ downloadInvoice: downloadInvoiceData }) {
       const fileUrl = downloadInvoiceData?.fileUrl
@@ -117,7 +117,7 @@ const CustomerInvoiceDetails = () => {
     variables: { id: invoiceId as string },
     skip: !invoiceId,
   })
-  const { invoiceType, number, paymentStatus, totalAmountCents, totalAmountCurrency } =
+  const { /* invoiceType, */ number, paymentStatus, totalAmountCents, totalAmountCurrency } =
     data?.invoice || {}
   const formattedStatus = mapStatus(paymentStatus)
   const hasError = (!!error || !data?.invoice) && !loading
@@ -131,16 +131,16 @@ const CustomerInvoiceDetails = () => {
       },
     ]
 
-    if (invoiceType !== InvoiceTypeEnum.Credit) {
-      tabs.push({
-        title: translate('text_636bdef6565341dcb9cfb125'),
-        link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE, { id, invoiceId }),
-        match: [CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE],
-      })
-    }
+    // if (invoiceType !== InvoiceTypeEnum.Credit) {
+    //   tabs.push({
+    //     title: translate('text_636bdef6565341dcb9cfb125'),
+    //     link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE, { id, invoiceId }),
+    //     match: [CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE],
+    //   })
+    // }
 
     return tabs
-  }, [id, invoiceId, invoiceType, translate])
+  }, [id, invoiceId /* invoiceType */, , translate])
 
   return (
     <>
@@ -184,7 +184,7 @@ const CustomerInvoiceDetails = () => {
                 >
                   {translate('text_634687079be251fdb4383395')}
                 </Button>
-                <Button
+                {/* <Button
                   variant="quaternary"
                   align="left"
                   disabled={
@@ -201,7 +201,7 @@ const CustomerInvoiceDetails = () => {
                   }}
                 >
                   {translate('text_6386589e4e82fa85eadcaa7a')}
-                </Button>
+                </Button> */}
                 <Button
                   variant="quaternary"
                   align="left"
