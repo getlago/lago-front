@@ -7,7 +7,7 @@ import { InputAdornment } from '@mui/material'
 
 import { theme } from '~/styles'
 import { Alert, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
-import { TextInput, TextInputField } from '~/components/form'
+import { AmountInputField, TextInput } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   CreateCustomerWalletTransactionInput,
@@ -148,18 +148,19 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
             />
           </InlineFields>
 
-          <TextInputField
+          <AmountInputField
             name="paidCredits"
-            beforeChangeFormatter={['positiveNumber', 'decimal']}
+            currency={wallet.currency}
+            beforeChangeFormatter={['positiveNumber']}
             label={translate('text_62e79671d23ae6ff149de944')}
-            placeholder={translate('text_62d18855b22699e5cf55f887')}
             formikProps={formikProps}
             silentError={true}
             helperText={translate('text_62d18855b22699e5cf55f88b', {
               paidCredits: intlFormatNumber(
                 isNaN(Number(formikProps.values.paidCredits))
                   ? 0
-                  : Number(formikProps.values.paidCredits) * Number(wallet.rateAmount) * 100,
+                  : Number(formikProps.values.paidCredits) * Number(wallet.rateAmount),
+
                 {
                   currencyDisplay: 'symbol',
                   currency: wallet.currency,
@@ -175,18 +176,18 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
             }}
           />
 
-          <TextInputField
+          <AmountInputField
             name="grantedCredits"
-            beforeChangeFormatter={['positiveNumber', 'decimal']}
+            currency={wallet.currency}
+            beforeChangeFormatter={['positiveNumber']}
             label={translate('text_62e79671d23ae6ff149de954')}
-            placeholder={translate('text_62d18855b22699e5cf55f88f')}
             formikProps={formikProps}
             silentError={true}
             helperText={translate('text_62d18855b22699e5cf55f893', {
               grantedCredits: intlFormatNumber(
                 isNaN(Number(formikProps.values.grantedCredits))
                   ? 0
-                  : Number(formikProps.values.grantedCredits) * Number(wallet.rateAmount) * 100,
+                  : Number(formikProps.values.grantedCredits) * Number(wallet.rateAmount),
                 {
                   currencyDisplay: 'symbol',
                   currency: wallet.currency,
@@ -206,8 +207,10 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
             <Typography color="textSecondary">
               {translate('text_630df52b4f665b2452363ae2', {
                 totalCreditCount:
-                  Number(formikProps.values.paidCredits || 0) +
-                  Number(formikProps.values.grantedCredits || 0),
+                  Math.round(
+                    Number(formikProps.values.paidCredits || 0) * 100 +
+                      Number(formikProps.values.grantedCredits || 0) * 100
+                  ) / 100,
               })}
             </Typography>
           </Alert>

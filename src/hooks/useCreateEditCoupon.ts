@@ -14,9 +14,11 @@ import {
   CouponTypeEnum,
   CouponFrequency,
   LagoApiError,
+  CurrencyEnum,
 } from '~/generated/graphql'
 import { ERROR_404_ROUTE, COUPONS_ROUTE } from '~/core/router'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { serializeAmount } from '~/core/serializers/serializeAmount'
 
 export enum FORM_ERRORS_ENUM {
   existingCode = 'existingCode',
@@ -81,7 +83,7 @@ const formatCouponInput = (values: CreateCouponInput | UpdateCouponInput) => {
   return {
     amountCents:
       values.couponType === CouponTypeEnum.FixedAmount
-        ? Math.round(Number(amountCents) * 100)
+        ? serializeAmount(Number(amountCents), amountCurrency || CurrencyEnum.Usd)
         : undefined,
     amountCurrency: values.couponType === CouponTypeEnum.FixedAmount ? amountCurrency : undefined,
     percentageRate:

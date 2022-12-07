@@ -6,7 +6,7 @@ import { gql } from '@apollo/client'
 
 import { theme } from '~/styles'
 import { Table, Typography, Button, Tooltip, Alert } from '~/components/designSystem'
-import { TextInput } from '~/components/form'
+import { AmountInput, TextInput } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
 import { useGraduatedChargeForm } from '~/hooks/plans/useGraduatedChargeForm'
@@ -162,7 +162,7 @@ export const GraduatedChargeTable = ({
                 ) : (
                   <CellAmount
                     beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
-                    placeholder="0.00"
+                    currency={currency}
                     value={row.perUnitAmount}
                     onChange={(value) => handleUpdate(i, 'perUnitAmount', value)}
                     InputProps={{
@@ -194,7 +194,7 @@ export const GraduatedChargeTable = ({
                 ) : (
                   <CellAmount
                     beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
-                    placeholder="0.00"
+                    currency={currency}
                     value={row.flatAmount}
                     onChange={(value) => handleUpdate(i, 'flatAmount', value)}
                     InputProps={{
@@ -221,7 +221,6 @@ export const GraduatedChargeTable = ({
                     lastRowUnit: calculation.firstUnit,
                     value: intlFormatNumber(calculation.total, {
                       currencyDisplay: 'symbol',
-                      initialUnit: 'standard',
                       maximumFractionDigits: 5,
                       currency,
                     }),
@@ -236,19 +235,16 @@ export const GraduatedChargeTable = ({
                     tier1LastUnit: calculation.units,
                     tier1PerUnit: intlFormatNumber(calculation.perUnit, {
                       currencyDisplay: 'symbol',
-                      initialUnit: 'standard',
                       maximumFractionDigits: 5,
                       currency,
                     }),
                     tier1FlatFee: intlFormatNumber(calculation.flatFee, {
                       currencyDisplay: 'symbol',
-                      initialUnit: 'standard',
                       maximumFractionDigits: 5,
                       currency,
                     }),
                     totalTier1: intlFormatNumber(calculation.total, {
                       currencyDisplay: 'symbol',
-                      initialUnit: 'standard',
                       maximumFractionDigits: 5,
                       currency,
                     }),
@@ -263,19 +259,16 @@ export const GraduatedChargeTable = ({
                   unitCount: calculation.units,
                   tierPerUnit: intlFormatNumber(calculation.perUnit, {
                     currencyDisplay: 'symbol',
-                    initialUnit: 'standard',
                     maximumFractionDigits: 5,
                     currency,
                   }),
                   tierFlatFee: intlFormatNumber(calculation.flatFee, {
                     currencyDisplay: 'symbol',
-                    initialUnit: 'standard',
                     maximumFractionDigits: 5,
                     currency,
                   }),
                   totalTier: intlFormatNumber(calculation.total, {
                     currencyDisplay: 'symbol',
-                    initialUnit: 'standard',
                     maximumFractionDigits: 5,
                     currency,
                   }),
@@ -341,7 +334,7 @@ const CellInput = styled(TextInput)`
   }
 `
 
-const CellAmount = styled(TextInput)`
+const CellAmount = styled(AmountInput)`
   && {
     > * {
       margin-bottom: 0;

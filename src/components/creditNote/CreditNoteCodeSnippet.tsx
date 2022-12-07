@@ -1,5 +1,5 @@
 import { serializeCreditNoteInput } from '~/core/serializers'
-import { CreateCreditNoteInput } from '~/generated/graphql'
+import { CreateCreditNoteInput, CurrencyEnum } from '~/generated/graphql'
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { CreditNoteForm } from '~/components/creditNote/types'
 import { envGlobalVar } from '~/core/apolloClient'
@@ -10,6 +10,7 @@ interface CreditNoteCodeSnippetProps {
   loading: boolean
   invoiceId: string
   formValues: CreditNoteForm
+  currency: CurrencyEnum
 }
 
 const getSnippet = (infos: CreateCreditNoteInput) => {
@@ -63,8 +64,9 @@ export const CreditNoteCodeSnippet = ({
   loading,
   invoiceId,
   formValues,
+  currency,
 }: CreditNoteCodeSnippetProps) => {
-  const serializedInfos = serializeCreditNoteInput(invoiceId, formValues)
+  const serializedInfos = serializeCreditNoteInput(invoiceId, formValues, currency)
 
   return <CodeSnippet loading={loading} language="bash" code={getSnippet(serializedInfos)} />
 }

@@ -12,15 +12,18 @@ import {
   InvoiceFeeFragment,
   CreateCreditNoteInvoiceFragmentDoc,
   InvoiceTypeEnum,
+  CurrencyEnum,
 } from '~/generated/graphql'
 import { ERROR_404_ROUTE, CUSTOMER_INVOICE_OVERVIEW_ROUTE } from '~/core/router'
 import { hasDefinedGQLError, addToast } from '~/core/apolloClient'
 import { FeesPerInvoice, CreditNoteForm, FromFee } from '~/components/creditNote/types'
 import { serializeCreditNoteInput } from '~/core/serializers'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
   fragment InvoiceFee on Fee {
     id
+    amountCurrency
     feeType
     vatRate
     creditableAmountCents
@@ -44,6 +47,7 @@ gql`
     invoiceType
     fees {
       id
+      amountCurrency
       itemCode
       itemName
       creditableAmountCents
@@ -132,7 +136,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
       return {
         id: addOnFee?.id,
         checked: true,
-        value: addOnFee?.creditableAmountCents / 100,
+        value: deserializeAmount(addOnFee?.creditableAmountCents, addOnFee.amountCurrency),
         name: addOnFee?.itemName,
         maxAmount: addOnFee?.creditableAmountCents,
         vatRate: addOnFee?.vatRate || 0,
@@ -160,7 +164,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
                 [`0_${fee?.id}`]: {
                   id: fee?.id,
                   checked: true,
-                  value: fee?.creditableAmountCents / 100,
+                  value: deserializeAmount(fee?.creditableAmountCents, fee.amountCurrency),
                   name: subscriptionName,
                   maxAmount: fee?.creditableAmountCents,
                   vatRate: fee?.vatRate,
@@ -184,7 +188,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
               [`${index}_${firstFee?.id}`]: {
                 id: firstFee?.id,
                 checked: true,
-                value: firstFee?.creditableAmountCents / 100,
+                value: deserializeAmount(firstFee?.creditableAmountCents, firstFee.amountCurrency),
                 name: firstFee?.charge?.billableMetric?.name,
                 maxAmount: firstFee?.creditableAmountCents,
                 vatRate: firstFee?.vatRate,
@@ -204,7 +208,10 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
               [feeGrouped?.id]: {
                 id: feeGrouped?.id,
                 checked: true,
-                value: feeGrouped?.creditableAmountCents / 100,
+                value: deserializeAmount(
+                  feeGrouped?.creditableAmountCents,
+                  feeGrouped.amountCurrency
+                ),
                 name: feeGrouped?.group?.key
                   ? `${feeGrouped?.group?.key} • ${feeGrouped?.group?.value}`
                   : (feeGrouped?.group?.value as string),
@@ -247,7 +254,11 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
     onCreate: async (values) => {
       const answer = await create({
         variables: {
-          input: serializeCreditNoteInput(invoiceId as string, values),
+          input: serializeCreditNoteInput(
+            invoiceId as string,
+            values,
+            data?.invoice?.amountCurrency || CurrencyEnum.Usd
+          ),
         },
       })
 

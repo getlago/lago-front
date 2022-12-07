@@ -7,6 +7,7 @@ import { addToast } from '~/core/apolloClient'
 import { CurrencyEnum, useVoidCreditNoteMutation } from '~/generated/graphql'
 import { WarningDialog } from '~/components/WarningDialog'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
   mutation voidCreditNote($input: VoidCreditNoteInput!) {
@@ -55,10 +56,16 @@ export const VoidCreditNoteDialog = forwardRef<VoidCreditNoteDialogRef>((_, ref)
       ref={dialogRef}
       title={translate('text_63720bd734e1344aea75b7db')}
       description={translate('text_63720bd734e1344aea75b7e1', {
-        amount: intlFormatNumber(creditNote?.totalAmountCents || 0, {
-          currencyDisplay: 'symbol',
-          currency: creditNote?.totalAmountCurrency || CurrencyEnum.Usd,
-        }),
+        amount: intlFormatNumber(
+          deserializeAmount(
+            creditNote?.totalAmountCents || 0,
+            creditNote?.totalAmountCurrency || CurrencyEnum.Usd
+          ),
+          {
+            currencyDisplay: 'symbol',
+            currency: creditNote?.totalAmountCurrency || CurrencyEnum.Usd,
+          }
+        ),
       })}
       onContinue={async () =>
         await voidCreditNote({

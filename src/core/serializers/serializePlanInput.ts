@@ -1,6 +1,8 @@
 import { PlanFormInput } from '~/components/plans/types'
 import { ChargeModelEnum, Properties } from '~/generated/graphql'
 
+import { serializeAmount } from './serializeAmount'
+
 const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnum) => {
   if (!properties) return
 
@@ -40,13 +42,13 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
       : { volumeRanges: undefined }),
     ...(chargeModel === ChargeModelEnum.Package
       ? { freeUnits: properties?.freeUnits || 0 }
-      : { packageSize: undefined }),
+      : { packageSize: undefined, freeUnits: undefined }),
     ...(chargeModel === ChargeModelEnum.Percentage
       ? {
           freeUnitsPerEvents: Number(properties?.freeUnitsPerEvents) || undefined,
-          fixedAmount: Number(properties?.fixedAmount) || undefined,
+          fixedAmount: String(properties?.fixedAmount) || undefined,
           freeUnitsPerTotalAggregation:
-            Number(properties?.freeUnitsPerTotalAggregation) || undefined,
+            String(properties?.freeUnitsPerTotalAggregation) || undefined,
         }
       : {}),
   }
@@ -56,7 +58,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
   const { amountCents, trialPeriod, charges, ...otherValues } = values
 
   return {
-    amountCents: Math.round(Number(amountCents) * 100),
+    amountCents: Number(serializeAmount(amountCents, values.amountCurrency)),
     trialPeriod: Number(trialPeriod || 0),
     charges: charges.map(
       ({ billableMetric, chargeModel, properties, groupProperties, ...charge }) => {

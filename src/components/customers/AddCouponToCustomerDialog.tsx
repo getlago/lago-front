@@ -5,7 +5,7 @@ import { object, string, number } from 'yup'
 import { useFormik } from 'formik'
 
 import { Dialog, Button, DialogRef, Alert, Typography } from '~/components/designSystem'
-import { ComboBoxField, TextInputField, ComboBox } from '~/components/form'
+import { ComboBoxField, TextInputField, ComboBox, AmountInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   useGetCouponForCustomerLazyQuery,
@@ -22,6 +22,7 @@ import {
 import { theme } from '~/styles'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { CouponCaption } from '~/components/coupons/CouponCaption'
+import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
   query getCouponForCustomer($page: Int, $limit: Int, $status: CouponStatusEnum) {
@@ -151,7 +152,7 @@ export const AddCouponToCustomerDialog = forwardRef<
             customerId,
             amountCents:
               values.couponType === CouponTypeEnum.FixedAmount
-                ? Math.round(Number(amountCents || 0) * 100)
+                ? serializeAmount(amountCents || 0, amountCurrency || CurrencyEnum.Usd)
                 : undefined,
             amountCurrency:
               values.couponType === CouponTypeEnum.FixedAmount ? amountCurrency : undefined,
@@ -245,7 +246,10 @@ export const AddCouponToCustomerDialog = forwardRef<
             if (!!coupon) {
               formikProps.setValues({
                 couponId: coupon.id,
-                amountCents: (coupon.amountCents || 0) / 100,
+                amountCents: deserializeAmount(
+                  coupon.amountCents || 0,
+                  coupon.amountCurrency || CurrencyEnum.Usd
+                ),
                 amountCurrency: coupon.amountCurrency,
                 percentageRate: coupon.percentageRate,
                 couponType: coupon.couponType,
@@ -263,11 +267,11 @@ export const AddCouponToCustomerDialog = forwardRef<
           <>
             {formikProps.values.couponType === CouponTypeEnum.FixedAmount ? (
               <LineAmount>
-                <TextInputField
+                <AmountInputField
                   name="amountCents"
-                  beforeChangeFormatter={['positiveNumber', 'decimal']}
+                  currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
+                  beforeChangeFormatter={['positiveNumber']}
                   label={translate('text_628b8c693e464200e00e469b')}
-                  placeholder={translate('text_62876e85e32e0300e1803143')}
                   formikProps={formikProps}
                 />
                 <ComboBoxField

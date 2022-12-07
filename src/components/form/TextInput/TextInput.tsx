@@ -11,15 +11,17 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, Button, Tooltip, Icon } from '~/components/designSystem'
 import { theme } from '~/styles'
 
-enum ValueFormatter {
+export enum ValueFormatter {
   int = 'int',
+  number = 'number',
   decimal = 'decimal', // Truncate numbers to 2 decimals
+  triDecimal = 'triDecimal', // Truncate numbers to 3 decimals
   positiveNumber = 'positiveNumber',
   code = 'code', // Replace all the spaces by "_"
   chargeDecimal = 'chargeDecimal', // Truncate charge numbers to 5 decimals
 }
 
-type ValueFormatterType = keyof typeof ValueFormatter
+export type ValueFormatterType = keyof typeof ValueFormatter
 export interface TextInputProps
   extends Omit<
     MuiTextFieldProps,
@@ -38,7 +40,7 @@ export interface TextInputProps
 }
 
 const numberFormatter = new RegExp(
-  `${ValueFormatter.int}|${ValueFormatter.decimal}|${ValueFormatter.positiveNumber}`
+  `${ValueFormatter.int}|${ValueFormatter.decimal}|${ValueFormatter.triDecimal}|${ValueFormatter.positiveNumber}`
 )
 
 export const formatValue = (
@@ -76,6 +78,12 @@ export const formatValue = (
     }
   }
 
+  if (formatterFunctions.includes(ValueFormatter.triDecimal)) {
+    if (formattedValue !== '-') {
+      formattedValue = (String(formattedValue).match(/^-?\d+(?:\.\d{0,3})?/) || [])[0]
+    }
+  }
+
   if (formatterFunctions.includes(ValueFormatter.chargeDecimal)) {
     if (formattedValue !== '-') {
       formattedValue = (String(formattedValue).match(/^-?\d+(?:\.\d{0,5})?/) || [])[0]
@@ -84,6 +92,10 @@ export const formatValue = (
 
   if (formatterFunctions.includes(ValueFormatter.code)) {
     formattedValue = String(value).replace(/\s/g, '_')
+  }
+
+  if (formatterFunctions.includes(ValueFormatter.number)) {
+    formattedValue = Number(formattedValue)
   }
 
   return !formattedValue && formattedValue !== 0 ? '' : formattedValue
@@ -114,6 +126,24 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
     const { translate } = useInternationalization()
     const [localValue, setLocalValue] = useState<string | number>('')
     const [isVisible, setIsVisible] = useState(!password)
+    const joinedBeforeChangeFormatter =
+      typeof beforeChangeFormatter === 'string'
+        ? beforeChangeFormatter
+        : (beforeChangeFormatter || ['']).join('')
+
+    const udpateValue = (
+      newValue: string | number,
+      event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | null
+    ) => {
+      const formattedValue = formatValue(newValue, beforeChangeFormatter)
+
+      if (formattedValue === null || formattedValue === undefined) return
+
+      setLocalValue(formattedValue)
+      // formattedValue is casted to string to avoid the need to type every TextInput when used (either number or string)
+      // We will need to uniformize this later
+      onChange && onChange(formattedValue as string, event)
+    }
 
     useEffect(() => {
       if (value !== null || value !== undefined) {
@@ -123,18 +153,20 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
       }
     }, [value])
 
+    useEffect(() => {
+      if (!joinedBeforeChangeFormatter) return
+
+      udpateValue(value, null)
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [joinedBeforeChangeFormatter])
+
     const handleChange = useCallback(
       (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         event.persist()
-        const formattedValue = formatValue(event.currentTarget.value, beforeChangeFormatter)
 
-        if (formattedValue === null || formattedValue === undefined) return
-
-        setLocalValue(formattedValue)
-        // formattedValue is casted to string to avoid the need to type every TextInput when used (either number or string)
-        // We will need to uniformize this later
-        onChange && onChange(formattedValue as string, event)
+        udpateValue(event.currentTarget.value, event)
       },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       [onChange, beforeChangeFormatter]
     )
 

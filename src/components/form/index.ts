@@ -1,3 +1,4 @@
+export * from './AmountInput'
 export * from './ButtonSelector'
 export * from './Checkbox'
 export * from './JsonEditor'

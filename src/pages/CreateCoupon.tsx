@@ -12,7 +12,13 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, Button, Skeleton, Alert } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { COUPONS_ROUTE } from '~/core/router'
-import { TextInputField, ComboBoxField, DatePickerField, Checkbox } from '~/components/form'
+import {
+  TextInputField,
+  ComboBoxField,
+  DatePickerField,
+  Checkbox,
+  AmountInputField,
+} from '~/components/form'
 import {
   CreateCouponInput,
   CurrencyEnum,
@@ -30,6 +36,7 @@ import {
   ButtonContainer,
   LineAmount,
 } from '~/styles/mainObjectsForm'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 import { CouponCodeSnippet } from '../components/coupons/CouponCodeSnippet'
 
@@ -42,7 +49,7 @@ const CreateCoupon = () => {
     initialValues: {
       // @ts-ignore
       amountCents: coupon?.amountCents
-        ? coupon?.amountCents / 100
+        ? deserializeAmount(coupon?.amountCents, coupon?.amountCurrency || CurrencyEnum.Usd)
         : coupon?.amountCents || undefined,
       couponType: coupon?.couponType || CouponTypeEnum.FixedAmount,
       percentageRate: coupon?.percentageRate || undefined,
@@ -231,12 +238,12 @@ const CreateCoupon = () => {
 
                   {formikProps.values.couponType === CouponTypeEnum.FixedAmount ? (
                     <LineAmount>
-                      <TextInputField
+                      <AmountInputField
                         name="amountCents"
-                        beforeChangeFormatter={['positiveNumber', 'decimal']}
+                        currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
+                        beforeChangeFormatter={['positiveNumber']}
                         disabled={isEdition && !coupon?.canBeDeleted}
                         label={translate('text_62978f2c197cea009ab0b7d0')}
-                        placeholder={translate('text_62978f2c197cea009ab0b7d2')}
                         formikProps={formikProps}
                       />
                       <ComboBoxField

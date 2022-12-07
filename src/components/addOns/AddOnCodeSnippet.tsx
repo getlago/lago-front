@@ -1,6 +1,7 @@
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { CreateAddOnInput } from '~/generated/graphql'
 import { envGlobalVar } from '~/core/apolloClient'
+import { serializeAmount } from '~/core/serializers/serializeAmount'
 
 const { apiUrl } = envGlobalVar()
 
@@ -15,7 +16,7 @@ curl --location --request POST "${apiUrl}/api/v1/applied_add_ons" \\
     "applied_add_on": {
       "external_customer_id": "__EXTERNAL_CUSTOMER_ID__",
       "add_on_code": "${addOn.code}",
-      "amount_cents": ${addOn.amountCents},
+      "amount_cents": ${serializeAmount(addOn.amountCents || 0, addOn.amountCurrency)},
       "amount_currency": "EUR"
     }
   }'

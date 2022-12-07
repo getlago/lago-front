@@ -5,9 +5,11 @@ import {
   CouponTypeEnum,
   CreateCouponInput,
   TimezoneEnum,
+  CurrencyEnum,
 } from '~/generated/graphql'
 import { formatDateToTZ } from '~/core/timezone'
 import { envGlobalVar } from '~/core/apolloClient'
+import { serializeAmount } from '~/core/serializers/serializeAmount'
 
 const { apiUrl } = envGlobalVar()
 
@@ -36,7 +38,7 @@ curl --location --request POST "${apiUrl}/api/v1/applied_coupons" \\
       ${
         couponType === CouponTypeEnum.FixedAmount
           ? `"coupon_type": "${couponType}",
-      "amount_cents": ${(amountCents || 0) * 100},
+      "amount_cents": ${serializeAmount(amountCents || 0, amountCurrency || CurrencyEnum.Usd)},
       "amount_currency": "${amountCurrency}",`
           : `"coupon_type": "${couponType}",
       "percentage_rate": ${percentageRate ? percentageRate : '__MUST_BE_DEFINED__'},`

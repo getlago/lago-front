@@ -14,6 +14,8 @@ import { intlFormatNumber, getCurrencySymbol } from '~/core/formats/intlFormatNu
 
 import { PlanFormInput } from './types'
 
+import { AmountInput } from '../form/AmountInput/AmountInput'
+
 gql`
   fragment PackageCharge on Charge {
     id
@@ -61,12 +63,12 @@ export const PackageCharge = ({
 
   return (
     <Container>
-      <TextInput
+      <AmountInput
         name={`${propertyCursor}.amount`}
+        currency={currency}
         beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
         disabled={disabled}
         label={translate('text_6282085b4f283b0102655870')}
-        placeholder={translate('text_62824f0e5d93bc008d268cf4')}
         value={valuePointer?.amount || ''}
         onChange={(value) => handleUpdate(`${propertyCursor}.amount`, value)}
         InputProps={{
@@ -125,7 +127,6 @@ export const PackageCharge = ({
                 units: valuePointer?.packageSize + (valuePointer?.freeUnits || 0) + 1,
                 cost: intlFormatNumber(Number(valuePointer?.amount || 0) * 2, {
                   currencyDisplay: 'symbol',
-                  initialUnit: 'standard',
                   maximumFractionDigits: 5,
                   currency,
                 }),
@@ -138,7 +139,6 @@ export const PackageCharge = ({
                   unitInPackage: valuePointer?.freeUnits,
                   cost: intlFormatNumber(0, {
                     currencyDisplay: 'symbol',
-                    initialUnit: 'standard',
                     maximumFractionDigits: 5,
                     currency,
                   }),
@@ -152,7 +152,6 @@ export const PackageCharge = ({
                 unitInPackage: valuePointer?.packageSize + (valuePointer?.freeUnits || 0),
                 cost: intlFormatNumber(Number(valuePointer?.amount || 0), {
                   currencyDisplay: 'symbol',
-                  initialUnit: 'standard',
                   maximumFractionDigits: 5,
                   currency,
                 }),
@@ -164,7 +163,6 @@ export const PackageCharge = ({
                 unitInPackage: valuePointer?.packageSize * 2 + (valuePointer?.freeUnits || 0),
                 cost: intlFormatNumber(Number(valuePointer?.amount || 0) * 2, {
                   currencyDisplay: 'symbol',
-                  initialUnit: 'standard',
                   maximumFractionDigits: 5,
                   currency,
                 }),

@@ -103,6 +103,8 @@ projects:
     id: 639c334bcee914d26afecf69
   - name: "\U0001F44D [Ready for dev] - All - Custom ≠ timezones"
     id: 638906e129a144b0c4c27c83
+  - name: Amount placeholder
+    id: 639710434b2a96dba29b9140
 format: flat
 variants: true
 components: true

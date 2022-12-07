@@ -14,6 +14,9 @@ module.exports = {
   "project_624d9ad91a1c4d0149998c5b": {
     "base": require('./All - Give more context in creation flows__base.json')
   },
+  "project_639710434b2a96dba29b9140": {
+    "base": require('./Amount placeholder__base.json')
+  },
   "project_62694d8eb0d327016e05c5b5": {
     "base": require('./Billable metrics - Add Sum, Max, Count unique aggregation type__base.json')
   },

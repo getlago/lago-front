@@ -16,6 +16,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 import { InvoiceDetailsTableHeader } from './InvoiceDetailsTableHeader'
 import { InvoiceDetailsTableFooter } from './InvoiceDetailsTableFooter'
@@ -116,10 +117,16 @@ export const InvoiceDetailsTable = memo(({ customer, invoice }: InvoiceDetailsTa
                 </td>
                 <td>
                   <Typography variant="body" color="grey700">
-                    {intlFormatNumber(fee.amountCents || 0, {
-                      currencyDisplay: 'symbol',
-                      currency: customer?.currency || CurrencyEnum.Usd,
-                    })}
+                    {intlFormatNumber(
+                      deserializeAmount(
+                        fee.amountCents || 0,
+                        customer?.currency || CurrencyEnum.Usd
+                      ),
+                      {
+                        currencyDisplay: 'symbol',
+                        currency: customer?.currency || CurrencyEnum.Usd,
+                      }
+                    )}
                   </Typography>
                 </td>
               </tr>
@@ -172,10 +179,13 @@ export const InvoiceDetailsTable = memo(({ customer, invoice }: InvoiceDetailsTa
                         </td>
                         <td>
                           <Typography variant="body" color="grey700">
-                            {intlFormatNumber(fee.amountCents || 0, {
-                              currencyDisplay: 'symbol',
-                              currency: plan?.amountCurrency,
-                            })}
+                            {intlFormatNumber(
+                              deserializeAmount(fee.amountCents || 0, plan?.amountCurrency),
+                              {
+                                currencyDisplay: 'symbol',
+                                currency: plan?.amountCurrency,
+                              }
+                            )}
                           </Typography>
                         </td>
                       </tr>
@@ -215,10 +225,16 @@ export const InvoiceDetailsTable = memo(({ customer, invoice }: InvoiceDetailsTa
                         <td>
                           {fees.length === 1 && (
                             <Typography variant="body" color="grey700">
-                              {intlFormatNumber(fees[0].amountCents || 0, {
-                                currencyDisplay: 'symbol',
-                                currency: customer?.currency || CurrencyEnum.Usd,
-                              })}
+                              {intlFormatNumber(
+                                deserializeAmount(
+                                  fees[0].amountCents || 0,
+                                  customer?.currency || CurrencyEnum.Usd
+                                ),
+                                {
+                                  currencyDisplay: 'symbol',
+                                  currency: customer?.currency || CurrencyEnum.Usd,
+                                }
+                              )}
                             </Typography>
                           )}
                         </td>
@@ -245,10 +261,16 @@ export const InvoiceDetailsTable = memo(({ customer, invoice }: InvoiceDetailsTa
                               </PaddedTd>
                               <PaddedTd>
                                 <Typography variant="body" color="grey700">
-                                  {intlFormatNumber(fee.amountCents || 0, {
-                                    currencyDisplay: 'symbol',
-                                    currency: customer?.currency || CurrencyEnum.Usd,
-                                  })}
+                                  {intlFormatNumber(
+                                    deserializeAmount(
+                                      fee.amountCents || 0,
+                                      customer?.currency || CurrencyEnum.Usd
+                                    ),
+                                    {
+                                      currencyDisplay: 'symbol',
+                                      currency: customer?.currency || CurrencyEnum.Usd,
+                                    }
+                                  )}
                                 </Typography>
                               </PaddedTd>
                             </tr>

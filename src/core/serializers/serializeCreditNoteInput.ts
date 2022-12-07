@@ -2,6 +2,7 @@ import {
   CreditNoteItemInput,
   CreateCreditNoteInput,
   CreditNoteReasonEnum,
+  CurrencyEnum,
 } from '~/generated/graphql'
 import {
   CreditNoteForm,
@@ -10,11 +11,13 @@ import {
   FeesPerInvoice,
   GroupedFee,
 } from '~/components/creditNote/types'
+import { serializeAmount } from '~/core/serializers/serializeAmount'
 
 export const serializeCreditNoteInput: (
   invoiceId: string,
-  formValues: CreditNoteForm
-) => CreateCreditNoteInput = (invoiceId, formValues) => {
+  formValues: CreditNoteForm,
+  currency: CurrencyEnum
+) => CreateCreditNoteInput = (invoiceId, formValues, currency) => {
   const { reason, description, payBack, fees = [], addOnFee } = formValues
 
   return {
@@ -23,13 +26,24 @@ export const serializeCreditNoteInput: (
     description: description,
     creditAmountCents: !payBack
       ? 0
-      : Math.round((payBack.find((p) => p.type === CreditTypeEnum.credit)?.value || 0) * 100 || 0),
+      : serializeAmount(
+          payBack.find((p) => p.type === CreditTypeEnum.credit)?.value || 0,
+          currency
+        ),
     refundAmountCents: !payBack
       ? 0
-      : Math.round((payBack.find((p) => p.type === CreditTypeEnum.refund)?.value || 0) * 100 || 0),
+      : serializeAmount(
+          payBack.find((p) => p.type === CreditTypeEnum.refund)?.value || 0,
+          currency
+        ) || 0,
     items: [
       ...(addOnFee?.value
-        ? [{ feeId: addOnFee.id, amountCents: Math.round(Number(addOnFee.value) * 100) }]
+        ? [
+            {
+              feeId: addOnFee.id,
+              amountCents: serializeAmount(addOnFee.value, currency),
+            },
+          ]
         : []),
       ...Object.keys(fees).reduce<CreditNoteItemInput[]>((subAcc, subKey) => {
         const subChild = (fees as FeesPerInvoice)[subKey]
@@ -46,7 +60,7 @@ export const serializeCreditNoteInput: (
                     ...groupAcc,
                     {
                       feeId: child?.id,
-                      amountCents: Math.round(Number(child.value) * 100),
+                      amountCents: serializeAmount(child.value, currency),
                     },
                   ]
             }
@@ -64,7 +78,7 @@ export const serializeCreditNoteInput: (
                       ...feeAcc,
                       {
                         feeId: fee.id,
-                        amountCents: Math.round(Number(fee.value) * 100),
+                        amountCents: serializeAmount(fee.value, currency),
                       },
                     ]
               }, []),

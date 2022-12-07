@@ -17,6 +17,7 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
 import CreditNotesList from '~/components/customers/creditNotes/CreditNotesList'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 import { VoidCreditNoteDialog, VoidCreditNoteDialogRef } from './creditNotes/VoidCreditNoteDialog'
 
@@ -75,10 +76,16 @@ export const CustomerCreditNotesList = ({
           </div>
         </TotalCreditAmountLeftWrapper>
         <Typography variant="body" color="grey700">
-          {intlFormatNumber(creditNotesBalanceAmountCents || 0, {
-            currencyDisplay: 'symbol',
-            currency: userCurrency,
-          })}
+          {intlFormatNumber(
+            deserializeAmount(
+              creditNotesBalanceAmountCents || 0,
+              userCurrency || CurrencyEnum.Usd
+            ) || 0,
+            {
+              currencyDisplay: 'symbol',
+              currency: userCurrency,
+            }
+          )}
         </Typography>
       </TotalCreditAmountWrapper>
 

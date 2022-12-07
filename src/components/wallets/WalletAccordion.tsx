@@ -109,7 +109,6 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                   {translate('text_62da6ec24a8e24e44f812872', {
                     rateAmount: intlFormatNumber(Number(rateAmount) || 0, {
                       currencyDisplay: 'symbol',
-                      initialUnit: 'standard',
                       currency,
                     }),
                   })}
@@ -165,8 +164,6 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                   <Typography color="grey600" variant="caption">
                     {intlFormatNumber(Number(balance), {
                       currencyDisplay: 'symbol',
-                      initialUnit: 'standard',
-                      maximumFractionDigits: 2,
                       currency,
                     })}
                   </Typography>
@@ -213,8 +210,6 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                   <Typography color="grey600" variant="caption">
                     {intlFormatNumber(Number(consumedAmount), {
                       currencyDisplay: 'symbol',
-                      initialUnit: 'standard',
-                      maximumFractionDigits: 2,
                       currency,
                     })}
                   </Typography>

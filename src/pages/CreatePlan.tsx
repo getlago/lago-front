@@ -13,7 +13,13 @@ import {
   ChargeAccordionFragmentDoc,
   PropertiesInput,
 } from '~/generated/graphql'
-import { TextInputField, ButtonSelectorField, ComboBoxField, SwitchField } from '~/components/form'
+import {
+  TextInputField,
+  ButtonSelectorField,
+  ComboBoxField,
+  SwitchField,
+  AmountInputField,
+} from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import {
@@ -40,6 +46,7 @@ import {
   ButtonContainer,
   LineAmount,
 } from '~/styles/mainObjectsForm'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 import { PlanFormInput, LocalChargeInput } from '../components/plans/types'
 
@@ -81,7 +88,7 @@ const getPropertyShape = (properties: PropertiesInput) => {
     fixedAmount: properties?.fixedAmount || undefined,
     freeUnitsPerEvents: properties?.freeUnitsPerEvents || undefined,
     freeUnitsPerTotalAggregation: properties?.freeUnitsPerTotalAggregation || undefined,
-    freeUnits: properties?.freeUnits || undefined,
+    freeUnits: properties?.freeUnits || 0,
     graduatedRanges: properties?.graduatedRanges || undefined,
     volumeRanges: properties?.volumeRanges || undefined,
     rate: properties?.rate || undefined,
@@ -104,7 +111,9 @@ const CreatePlan = () => {
       interval: plan?.interval || PlanInterval.Monthly,
       payInAdvance: plan?.payInAdvance || false,
       // @ts-ignore
-      amountCents: isNaN(plan?.amountCents) ? undefined : plan?.amountCents / 100,
+      amountCents: isNaN(plan?.amountCents)
+        ? undefined
+        : deserializeAmount(plan?.amountCents || 0, plan?.amountCurrency || CurrencyEnum.Usd),
       amountCurrency: plan?.amountCurrency || CurrencyEnum.Usd,
       trialPeriod:
         plan?.trialPeriod === null || plan?.trialPeriod === undefined
@@ -325,12 +334,12 @@ const CreatePlan = () => {
                   />
 
                   <LineAmount>
-                    <TextInputField
+                    <AmountInputField
                       name="amountCents"
-                      beforeChangeFormatter={['positiveNumber', 'decimal']}
+                      currency={formikProps.values.amountCurrency}
+                      beforeChangeFormatter={['positiveNumber']}
                       disabled={isEdition && !plan?.canBeDeleted}
                       label={translate('text_624453d52e945301380e49b6')}
-                      placeholder={translate('text_624453d52e945301380e49b8')}
                       formikProps={formikProps}
                     />
                     <ComboBoxField
@@ -356,7 +365,7 @@ const CreatePlan = () => {
                     name="trialPeriod"
                     disabled={isEdition && !plan?.canBeDeleted}
                     label={translate('text_624453d52e945301380e49c2')}
-                    beforeChangeFormatter={['positiveNumber', 'decimal']}
+                    beforeChangeFormatter={['positiveNumber', 'int']}
                     placeholder={translate('text_624453d52e945301380e49c4')}
                     formikProps={formikProps}
                     InputProps={{

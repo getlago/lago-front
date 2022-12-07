@@ -43,6 +43,7 @@ import {
 } from '~/components/creditNote/types'
 import { Main, Content, Title, Subtitle, Side } from '~/styles/mainObjectsForm'
 import { PageHeader, theme, Card, HEADER_TABLE_HEIGHT } from '~/styles'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
   fragment CreateCreditNoteInvoice on Invoice {
@@ -100,7 +101,10 @@ const CreateCreditNote = () => {
   const navigate = useNavigate()
   const { loading, invoice, feesPerInvoice, feeForAddOn, onCreate } = useCreateCreditNote()
 
-  const feesValidation = useMemo(() => generateFeesSchema(feesPerInvoice || {}), [feesPerInvoice])
+  const feesValidation = useMemo(
+    () => generateFeesSchema(feesPerInvoice || {}, invoice?.amountCurrency || CurrencyEnum.Usd),
+    [feesPerInvoice, invoice?.amountCurrency]
+  )
 
   const statusMap = mapStatus(invoice?.paymentStatus)
   const formikProps = useFormik<Partial<CreditNoteForm>>({
@@ -118,7 +122,7 @@ const CreateCreditNote = () => {
       fees: feesValidation,
       addOnFee: object().when('maxAmount', (_, schema) => {
         return invoice?.invoiceType === InvoiceTypeEnum.AddOn
-          ? simpleFeeSchema(feeForAddOn?.maxAmount || 0)
+          ? simpleFeeSchema(feeForAddOn?.maxAmount || 0, invoice?.amountCurrency)
           : schema.default(undefined)
       }),
       payBack: array().of(
@@ -128,14 +132,8 @@ const CreateCreditNote = () => {
             .required('')
             .when('type', (type: CreditTypeEnum) => {
               return type === CreditTypeEnum.refund
-                ? number().max(
-                    (invoice?.refundableAmountCents || 0) / 100,
-                    PayBackErrorEnum.maxRefund
-                  )
-                : number().max(
-                    (invoice?.creditableAmountCents || 0) / 100,
-                    PayBackErrorEnum.maxRefund
-                  )
+                ? number().max(invoice?.refundableAmountCents || 0, PayBackErrorEnum.maxRefund)
+                : number().max(invoice?.creditableAmountCents || 0, PayBackErrorEnum.maxRefund)
             }),
         })
       ),
@@ -272,9 +270,11 @@ const CreateCreditNote = () => {
                       {translate('text_636bedf292786b19d3398eca', {
                         invoiceNumber: invoice?.number,
                         subtotal: intlFormatNumber(
-                          Number(invoice?.subTotalVatIncludedAmountCents),
+                          deserializeAmount(
+                            invoice?.subTotalVatIncludedAmountCents || 0,
+                            invoice?.amountCurrency || CurrencyEnum.Usd
+                          ),
                           {
-                            initialUnit: 'cent',
                             currency: invoice?.amountCurrency,
                           }
                         ),
@@ -345,10 +345,15 @@ const CreateCreditNote = () => {
                     <Typography variant="bodyHl" color="grey700">
                       {translate('text_636bedf292786b19d3398edc', {
                         invoiceNumber: invoice?.number,
-                        subtotal: intlFormatNumber(Number(invoice?.creditableAmountCents), {
-                          initialUnit: 'cent',
-                          currency: invoice?.amountCurrency,
-                        }),
+                        subtotal: intlFormatNumber(
+                          deserializeAmount(
+                            invoice?.creditableAmountCents || 0,
+                            invoice?.amountCurrency || CurrencyEnum.Usd
+                          ),
+                          {
+                            currency: invoice?.amountCurrency,
+                          }
+                        ),
                       })}
                     </Typography>
                   </div>
@@ -511,6 +516,7 @@ const CreateCreditNote = () => {
             loading={loading}
             invoiceId={invoiceId as string}
             formValues={formikProps.values as CreditNoteForm}
+            currency={invoice?.amountCurrency || CurrencyEnum.Usd}
           />
         </Side>
       </Content>

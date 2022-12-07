@@ -14,6 +14,7 @@ import {
 } from '~/generated/graphql'
 import { ERROR_404_ROUTE, ADD_ONS_ROUTE } from '~/core/router'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { serializeAmount } from '~/core/serializers/serializeAmount'
 
 export enum FORM_ERRORS_ENUM {
   existingCode = 'existingCode',
@@ -59,10 +60,11 @@ type UseCreateEditAddOnReturn = {
 }
 
 const formatCouponInput = (values: CreateAddOnInput | UpdateAddOnInput) => {
-  const { amountCents, ...others } = values
+  const { amountCents, amountCurrency, ...others } = values
 
   return {
-    amountCents: Math.round(Number(amountCents) * 100),
+    amountCents: serializeAmount(Number(amountCents), amountCurrency),
+    amountCurrency,
     ...others,
   }
 }
