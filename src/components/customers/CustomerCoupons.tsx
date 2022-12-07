@@ -43,9 +43,10 @@ gql`
 interface CustomerCouponsProps {
   coupons?: CustomerCouponFragment[] | null | undefined
   customerId: string
+  customerName: string
 }
 
-export const CustomerCoupons = memo(({ coupons, customerId }: CustomerCouponsProps) => {
+export const CustomerCoupons = memo(({ coupons, customerId, customerName }: CustomerCouponsProps) => {
   const removeDialogRef = useRef<WarningDialogRef>(null)
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
   const deleteCouponId = useRef<string | null>(null)
@@ -125,7 +126,7 @@ export const CustomerCoupons = memo(({ coupons, customerId }: CustomerCouponsPro
         continueText={translate('text_628b8c693e464200e00e4689')}
       />
 
-      <AddCouponToCustomerDialog ref={addCouponDialogRef} customerId={customerId} />
+      <AddCouponToCustomerDialog ref={addCouponDialogRef} customerId={customerId} customerName={customerName} />
     </>
   )
 })

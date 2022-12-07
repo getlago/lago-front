@@ -20,7 +20,7 @@ export const typeDefs = gql`
 
     # Validation errors
     user_already_exists
-    coupon_already_applied
+    coupon_is_not_reusable
     currencies_does_not_match
     invite_not_found
     value_already_exist

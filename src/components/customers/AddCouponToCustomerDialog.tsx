@@ -61,12 +61,13 @@ export interface AddCouponToCustomerDialogRef extends DialogRef {}
 
 interface AddCouponToCustomerDialogProps {
   customerId: string
+  customerName: string
 }
 
 export const AddCouponToCustomerDialog = forwardRef<
   AddCouponToCustomerDialogRef,
   AddCouponToCustomerDialogProps
->(({ customerId }: AddCouponToCustomerDialogProps, ref) => {
+>(({ customerId, customerName }: AddCouponToCustomerDialogProps, ref) => {
   const { translate } = useInternationalization()
   const [currencyError, setCurrencyError] = useState(false)
   const [getCoupons, { loading, data }] = useGetCouponForCustomerLazyQuery({
@@ -74,7 +75,7 @@ export const AddCouponToCustomerDialog = forwardRef<
   })
   const [addCoupon] = useAddCouponMutation({
     context: {
-      silentErrorCodes: [LagoApiError.CouponAlreadyApplied, LagoApiError.UnprocessableEntity],
+      silentErrorCodes: [LagoApiError.CouponIsNotReusable, LagoApiError.UnprocessableEntity],
     },
     onCompleted({ createAppliedCoupon }) {
       if (createAppliedCoupon) {
@@ -166,8 +167,10 @@ export const AddCouponToCustomerDialog = forwardRef<
 
       const { errors } = answer
 
-      if (hasDefinedGQLError('CouponAlreadyApplied', errors)) {
-        formikBag.setFieldError('couponId', translate('text_628b8c693e464200e00e46c5'))
+      if (hasDefinedGQLError('CouponIsNotReusable', errors)) {
+        formikBag.setFieldError(
+          'couponId', translate('text_638f48274d41e3f1d01fc119', {customerFullName: customerName})
+        )
       } else if (hasDefinedGQLError('CurrenciesDoesNotMatch', errors, 'currency')) {
         setCurrencyError(true)
       } else {

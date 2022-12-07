@@ -119,6 +119,9 @@ module.exports = {
   "project_632d6831010fafe9382b616d": {
     "base": require('./👍 [Ready for dev] - Coupons - Create % and recurring coupons__base.json')
   },
+  "project_638f4825992c44e4381e7a1f": {
+    "base": require('./👍 [Ready for dev] - Coupons - Option to apply several times the same coupon__base.json')
+  },
   "project_634687058efb4a10996fdbdc": {
     "base": require('./👍 [Ready for dev] - Customers - Invoice detail page__base.json')
   },

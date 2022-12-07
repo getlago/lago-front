@@ -51,6 +51,7 @@ const CreateCoupon = () => {
       frequencyDuration: coupon?.frequencyDuration || undefined,
       amountCurrency: coupon?.amountCurrency || CurrencyEnum.Usd,
       code: coupon?.code || '',
+      reusable: coupon?.reusable === undefined ? true : coupon.reusable,
       expiration: coupon?.expiration || CouponExpiration.NoExpiration,
       expirationDate: coupon?.expirationDate || undefined,
     },
@@ -83,6 +84,7 @@ const CreateCoupon = () => {
           .min(1, 'text_63314cfeb607e57577d894c9')
           .required(''),
       }),
+      reusable: string().required(''),
       expiration: string().required(''),
       expirationDate: date().when('expiration', {
         is: (expiration: CouponExpiration) =>
@@ -301,6 +303,16 @@ const CreateCoupon = () => {
                       }}
                     />
                   )}
+
+                  <Checkbox
+                    name="isReusable"
+                    value={formikProps.values.reusable}
+                    disabled={isEdition && !coupon?.canBeDeleted}
+                    label={translate('text_638f48274d41e3f1d01fc16a')}
+                    onChange={(_, checked) => {
+                      formikProps.setFieldValue('reusable', checked)
+                    }}
+                  />
 
                   <Checkbox
                     name="hasLimit"
