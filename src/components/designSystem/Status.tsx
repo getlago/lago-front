@@ -52,7 +52,7 @@ export const Status = ({ type, className, label }: StatusProps) => {
           <svg height={STATUS_SIZE} width={STATUS_SIZE}>
             <circle cx="6" cy="6" r="5" fill="none" stroke={config.color} strokeWidth="2" />
           </svg>
-          <Typography color="disabled">{label ?? translate(config.label)}</Typography>
+          {!!label && <Typography color="disabled">{translate(config.label)}</Typography>}
         </Container>
       )
     default:
@@ -61,7 +61,7 @@ export const Status = ({ type, className, label }: StatusProps) => {
           <svg height={STATUS_SIZE} width={STATUS_SIZE}>
             <circle cx="6" cy="6" r="6" fill={config.color} />
           </svg>
-          <Typography color="textSecondary">{label ?? translate(config.label)}</Typography>
+          {!!label && <Typography color="textSecondary">{translate(config.label)}</Typography>}
         </Container>
       )
   }
