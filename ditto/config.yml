@@ -93,5 +93,7 @@ projects:
     id: 637f813a9ec65c29fc3ceef3
   - name: "\U0001F44D [Ready for dev] - Coupons - Option to apply several times the same coupon"
     id: 638f4825992c44e4381e7a1f
+  - name: "\U0001F44D [Ready for dev] - Credit note - Create and apply credit note to a customer"
+    id: 636bdeec2ea28ae182faa50e
 format: flat
 variants: true

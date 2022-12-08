@@ -59,6 +59,14 @@ export const cache = new InMemoryCache({
           keyArgs: false,
           merge: mergePaginatedCollection,
         },
+        invoiceCreditNotes: {
+          keyArgs: ['invoiceId'],
+          merge: mergePaginatedCollection,
+        },
+        customerCreditNotes: {
+          keyArgs: ['invoiceId'],
+          merge: mergePaginatedCollection,
+        },
       },
     },
   },

@@ -1,5 +1,6 @@
+import { useMemo } from 'react'
 import { gql } from '@apollo/client'
-import { useParams, generatePath, Outlet } from 'react-router-dom'
+import { useParams, generatePath, Outlet /* useNavigate */ } from 'react-router-dom'
 import styled from 'styled-components'
 
 import {
@@ -17,11 +18,14 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   CUSTOMER_DETAILS_TAB_ROUTE,
+  // CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_OVERVIEW_ROUTE,
+  // CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
 } from '~/core/router'
 import {
-  InvoiceStatusTypeEnum,
+  InvoicePaymentStatusTypeEnum,
+  // InvoiceTypeEnum,
   useDownloadInvoiceMutation,
   useGetInvoiceDetailsQuery,
 } from '~/generated/graphql'
@@ -29,16 +33,19 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme, PageHeader, MenuPopper } from '~/styles'
 import { addToast } from '~/core/apolloClient'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 
 gql`
   query getInvoiceDetails($id: ID!) {
     invoice(id: $id) {
       id
+      invoiceType
       number
-      status
+      paymentStatus
       totalAmountCents
       totalAmountCurrency
+      refundableAmountCents
+      creditableAmountCents
     }
   }
 
@@ -58,14 +65,14 @@ enum TabsOptions {
   usage = 'usage',
 }
 
-const mapStatus = (type?: InvoiceStatusTypeEnum | undefined) => {
+const mapStatus = (type?: InvoicePaymentStatusTypeEnum | undefined) => {
   switch (type) {
-    case InvoiceStatusTypeEnum.Succeeded:
+    case InvoicePaymentStatusTypeEnum.Succeeded:
       return {
         type: StatusEnum.running,
         label: 'text_634687079be251fdb43833a7',
       }
-    case InvoiceStatusTypeEnum.Failed:
+    case InvoicePaymentStatusTypeEnum.Failed:
       return {
         type: StatusEnum.failed,
         label: 'text_634687079be251fdb438339d',
@@ -81,6 +88,7 @@ const mapStatus = (type?: InvoiceStatusTypeEnum | undefined) => {
 const CustomerInvoiceDetails = () => {
   const { translate } = useInternationalization()
   const { id, invoiceId } = useParams()
+  // let navigate = useNavigate()
   const [downloadInvoice, { loading: loadingInvoiceDownload }] = useDownloadInvoiceMutation({
     onCompleted({ downloadInvoice: downloadInvoiceData }) {
       const fileUrl = downloadInvoiceData?.fileUrl
@@ -109,21 +117,30 @@ const CustomerInvoiceDetails = () => {
     variables: { id: invoiceId as string },
     skip: !invoiceId,
   })
-  const { number, status, totalAmountCents, totalAmountCurrency } = data?.invoice || {}
-  const formattedStatus = mapStatus(status)
+  const { /* invoiceType, */ number, paymentStatus, totalAmountCents, totalAmountCurrency } =
+    data?.invoice || {}
+  const formattedStatus = mapStatus(paymentStatus)
   const hasError = (!!error || !data?.invoice) && !loading
 
-  const tabsOptions = [
-    {
-      title: translate('text_634687079be251fdb43833b7'),
-      link: CUSTOMER_INVOICE_DETAILS_ROUTE,
-      match: [CUSTOMER_INVOICE_DETAILS_ROUTE, CUSTOMER_INVOICE_OVERVIEW_ROUTE],
-    },
-    // {
-    //   title: translate(''),
-    //   link: CUSTOMER_INVOICE_DETAILS_CREDIT_NOTE_ROUTE,
-    // },
-  ]
+  const tabsOptions = useMemo(() => {
+    const tabs = [
+      {
+        title: translate('text_634687079be251fdb43833b7'),
+        link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, { id, invoiceId }),
+        match: [CUSTOMER_INVOICE_DETAILS_ROUTE, CUSTOMER_INVOICE_OVERVIEW_ROUTE],
+      },
+    ]
+
+    // if (invoiceType !== InvoiceTypeEnum.Credit) {
+    //   tabs.push({
+    //     title: translate('text_636bdef6565341dcb9cfb125'),
+    //     link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE, { id, invoiceId }),
+    //     match: [CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE],
+    //   })
+    // }
+
+    return tabs
+  }, [id, invoiceId /* invoiceType */, , translate])
 
   return (
     <>
@@ -167,6 +184,24 @@ const CustomerInvoiceDetails = () => {
                 >
                   {translate('text_634687079be251fdb4383395')}
                 </Button>
+                {/* <Button
+                  variant="quaternary"
+                  align="left"
+                  disabled={
+                    data?.invoice?.creditableAmountCents === 0 &&
+                    data?.invoice?.refundableAmountCents === 0
+                  }
+                  onClick={async () => {
+                    navigate(
+                      generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+                        id,
+                        invoiceId,
+                      })
+                    )
+                  }}
+                >
+                  {translate('text_6386589e4e82fa85eadcaa7a')}
+                </Button> */}
                 <Button
                   variant="quaternary"
                   align="left"

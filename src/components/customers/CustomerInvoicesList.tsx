@@ -5,7 +5,7 @@ import { generatePath, useNavigate } from 'react-router-dom'
 
 import {
   CustomerInvoiceListFragment,
-  InvoiceStatusTypeEnum,
+  InvoicePaymentStatusTypeEnum,
   useDownloadInvoiceMutation,
 } from '~/generated/graphql'
 import { Button, Popper, Status, StatusEnum, Tooltip, Typography } from '~/components/designSystem'
@@ -20,7 +20,7 @@ import {
 } from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
 import { addToast } from '~/core/apolloClient'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 
 gql`
@@ -29,7 +29,7 @@ gql`
     amountCurrency
     issuingDate
     number
-    status
+    paymentStatus
     totalAmountCents
   }
 
@@ -46,14 +46,14 @@ interface CustomerInvoicesListProps {
   invoices?: CustomerInvoiceListFragment[] | null
 }
 
-const mapStatus = (type?: InvoiceStatusTypeEnum | undefined) => {
+const mapStatus = (type?: InvoicePaymentStatusTypeEnum | undefined) => {
   switch (type) {
-    case InvoiceStatusTypeEnum.Succeeded:
+    case InvoicePaymentStatusTypeEnum.Succeeded:
       return {
         type: StatusEnum.running,
         label: 'text_62b31e1f6a5b8b1b745ece18',
       }
-    case InvoiceStatusTypeEnum.Failed:
+    case InvoicePaymentStatusTypeEnum.Failed:
       return {
         type: StatusEnum.failed,
         label: 'text_62b31e1f6a5b8b1b745ece38',
@@ -115,83 +115,88 @@ export const CustomerInvoicesList = ({ customerId, invoices }: CustomerInvoicesL
             </PaymentCell>
             <ButtonMock />
           </ListHeader>
-          {invoices.map(({ amountCurrency, id, issuingDate, number, totalAmountCents, status }) => {
-            const formattedStatus = mapStatus(status)
+          {invoices.map(
+            ({ amountCurrency, id, issuingDate, number, totalAmountCents, paymentStatus }) => {
+              const formattedStatus = mapStatus(paymentStatus)
 
-            return (
-              <ItemContainer key={`invoice-${id}`}>
-                <Item
-                  tabIndex={0}
-                  onClick={() =>
-                    navigate(
-                      generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                        id: customerId,
-                        invoiceId: id,
-                      })
-                    )
-                  }
-                >
-                  <IssuingDateCell noWrap>
-                    {DateTime.fromISO(issuingDate).toFormat('LLL. dd, yyyy')}
-                  </IssuingDateCell>
-                  <NumberCell color="textSecondary">{number}</NumberCell>
-                  <AmountCell color="textSecondary" align="right">
-                    {intlFormatNumber(totalAmountCents, { currency: amountCurrency })}
-                  </AmountCell>
-                  <PaymentCell>
-                    <Status type={formattedStatus.type} label={translate(formattedStatus.label)} />
-                  </PaymentCell>
-                  <ButtonMock />
-                </Item>
-                <Popper
-                  PopperProps={{ placement: 'bottom-end' }}
-                  opener={({ isOpen }) => (
-                    <DotsOpener>
-                      <Tooltip
-                        placement="top-end"
-                        disableHoverListener={isOpen}
-                        title={translate('text_62b31e1f6a5b8b1b745ece3c')}
-                      >
-                        <Button icon="dots-horizontal" variant="quaternary" />
-                      </Tooltip>
-                    </DotsOpener>
-                  )}
-                >
-                  {({ closePopper }) => (
-                    <MenuPopper>
-                      <Button
-                        startIcon="download"
-                        variant="quaternary"
-                        align="left"
-                        onClick={async () => {
-                          await downloadInvoice({
-                            variables: { input: { id } },
-                          })
-                        }}
-                      >
-                        {translate('text_62b31e1f6a5b8b1b745ece42')}
-                      </Button>
-                      <Button
-                        startIcon="duplicate"
-                        variant="quaternary"
-                        align="left"
-                        onClick={() => {
-                          navigator.clipboard.writeText(id)
-                          addToast({
-                            severity: 'info',
-                            translateKey: 'text_6253f11816f710014600ba1f',
-                          })
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_62b31e1f6a5b8b1b745ece46')}
-                      </Button>
-                    </MenuPopper>
-                  )}
-                </Popper>
-              </ItemContainer>
-            )
-          })}
+              return (
+                <ItemContainer key={`invoice-${id}`}>
+                  <Item
+                    tabIndex={0}
+                    onClick={() =>
+                      navigate(
+                        generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+                          id: customerId,
+                          invoiceId: id,
+                        })
+                      )
+                    }
+                  >
+                    <IssuingDateCell noWrap>
+                      {DateTime.fromISO(issuingDate).toFormat('LLL. dd, yyyy')}
+                    </IssuingDateCell>
+                    <NumberCell color="textSecondary">{number}</NumberCell>
+                    <AmountCell color="textSecondary" align="right">
+                      {intlFormatNumber(totalAmountCents, { currency: amountCurrency })}
+                    </AmountCell>
+                    <PaymentCell>
+                      <Status
+                        type={formattedStatus.type}
+                        label={translate(formattedStatus.label)}
+                      />
+                    </PaymentCell>
+                    <ButtonMock />
+                  </Item>
+                  <Popper
+                    PopperProps={{ placement: 'bottom-end' }}
+                    opener={({ isOpen }) => (
+                      <DotsOpener>
+                        <Tooltip
+                          placement="top-end"
+                          disableHoverListener={isOpen}
+                          title={translate('text_62b31e1f6a5b8b1b745ece3c')}
+                        >
+                          <Button icon="dots-horizontal" variant="quaternary" />
+                        </Tooltip>
+                      </DotsOpener>
+                    )}
+                  >
+                    {({ closePopper }) => (
+                      <MenuPopper>
+                        <Button
+                          startIcon="download"
+                          variant="quaternary"
+                          align="left"
+                          onClick={async () => {
+                            await downloadInvoice({
+                              variables: { input: { id } },
+                            })
+                          }}
+                        >
+                          {translate('text_62b31e1f6a5b8b1b745ece42')}
+                        </Button>
+                        <Button
+                          startIcon="duplicate"
+                          variant="quaternary"
+                          align="left"
+                          onClick={() => {
+                            navigator.clipboard.writeText(id)
+                            addToast({
+                              severity: 'info',
+                              translateKey: 'text_6253f11816f710014600ba1f',
+                            })
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_62b31e1f6a5b8b1b745ece46')}
+                        </Button>
+                      </MenuPopper>
+                    )}
+                  </Popper>
+                </ItemContainer>
+              )
+            }
+          )}
         </>
       )}
     </SideSection>

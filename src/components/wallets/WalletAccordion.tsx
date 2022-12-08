@@ -16,7 +16,7 @@ import {
 } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { WalletAccordionFragment, WalletStatusEnum } from '~/generated/graphql'
-import { intlFormatNumber } from '~/core/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 
 import { WalletTransactionList } from './WalletTransactionList'
 import { TopupWalletDialogRef } from './TopupWalletDialog'

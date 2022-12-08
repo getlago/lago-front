@@ -32,6 +32,7 @@ export const intlFormatNumber: (
     initialUnit = 'cent',
     currencyDisplay = CurrencyDisplay.symbol,
     style = AmountStyle.currency,
+    currency = CurrencyEnum.Usd,
     ...otherOptions
   } = options || {}
 
@@ -42,6 +43,7 @@ export const intlFormatNumber: (
   return Number(formattedToUnit).toLocaleString('en-US', {
     style,
     currencyDisplay,
+    currency,
     ...otherOptions,
   })
 }

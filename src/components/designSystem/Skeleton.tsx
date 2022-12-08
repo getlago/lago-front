@@ -94,6 +94,8 @@ const StyledSkeleton = styled(MuiSkeleton)<{
         css`
           margin-right: ${$marginRight};
         `}
+
+        max-width: 100%;
     }
 
     &.skeleton-variant--text {
