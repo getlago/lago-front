@@ -65,7 +65,7 @@ import {
   AddWalletToCustomerDialog,
   AddWalletToCustomerDialogRef,
 } from '~/components/wallets/AddWalletToCustomerDialog'
-// import { CustomerCreditNotesList } from '~/components/customers/CustomerCreditNotesList'
+import { CustomerCreditNotesList } from '~/components/customers/CustomerCreditNotesList'
 
 gql`
   fragment CustomerDetails on CustomerDetails {
@@ -143,11 +143,11 @@ const CustomerDetails = () => {
     appliedAddOns,
     appliedCoupons,
     canBeDeleted,
-    // creditNotesCreditsAvailableCount,
-    // creditNotesBalanceAmountCents,
+    creditNotesCreditsAvailableCount,
+    creditNotesBalanceAmountCents,
     externalId,
     hasActiveWallet,
-    // hasCreditNotes,
+    hasCreditNotes,
     invoices,
     name,
     subscriptions,
@@ -388,25 +388,25 @@ const CustomerDetails = () => {
                         </SideBlock>
                       ),
                     },
-                    // {
-                    //   title: translate('text_63725b30957fd5b26b308dd3'),
-                    //   link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                    //     id,
-                    //     tab: CustomerDetailsTabsOptions.creditNotes,
-                    //   }),
-                    //   routerState: { disableScrollTop: true },
-                    //   hidden: !hasCreditNotes,
-                    //   component: (
-                    //     <SideBlock>
-                    //       <CustomerCreditNotesList
-                    //         customerId={id as string}
-                    //         creditNotesCreditsAvailableCount={creditNotesCreditsAvailableCount}
-                    //         creditNotesBalanceAmountCents={creditNotesBalanceAmountCents}
-                    //         userCurrency={data?.customer?.currency || undefined}
-                    //       />
-                    //     </SideBlock>
-                    //   ),
-                    // },
+                    {
+                      title: translate('text_63725b30957fd5b26b308dd3'),
+                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                        id,
+                        tab: CustomerDetailsTabsOptions.creditNotes,
+                      }),
+                      routerState: { disableScrollTop: true },
+                      hidden: !hasCreditNotes,
+                      component: (
+                        <SideBlock>
+                          <CustomerCreditNotesList
+                            customerId={id as string}
+                            creditNotesCreditsAvailableCount={creditNotesCreditsAvailableCount}
+                            creditNotesBalanceAmountCents={creditNotesBalanceAmountCents}
+                            userCurrency={data?.customer?.currency || undefined}
+                          />
+                        </SideBlock>
+                      ),
+                    },
                     {
                       title: translate('text_628cf761cbe6820138b8f2e8'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
