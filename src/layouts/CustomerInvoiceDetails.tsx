@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { gql } from '@apollo/client'
-import { useParams, generatePath, Outlet /* useNavigate */ } from 'react-router-dom'
+import { useParams, generatePath, Outlet, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 import {
@@ -21,7 +21,7 @@ import {
   // CUSTOMER_INVOICE_CREDIT_NOTES_LIST_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_OVERVIEW_ROUTE,
-  // CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
+  CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
 } from '~/core/router'
 import {
   InvoicePaymentStatusTypeEnum,
@@ -88,7 +88,7 @@ const mapStatus = (type?: InvoicePaymentStatusTypeEnum | undefined) => {
 const CustomerInvoiceDetails = () => {
   const { translate } = useInternationalization()
   const { id, invoiceId } = useParams()
-  // let navigate = useNavigate()
+  let navigate = useNavigate()
   const [downloadInvoice, { loading: loadingInvoiceDownload }] = useDownloadInvoiceMutation({
     onCompleted({ downloadInvoice: downloadInvoiceData }) {
       const fileUrl = downloadInvoiceData?.fileUrl
@@ -140,7 +140,7 @@ const CustomerInvoiceDetails = () => {
     // }
 
     return tabs
-  }, [id, invoiceId /* invoiceType */, , translate])
+  }, [id, invoiceId, /* invoiceType, */ translate])
 
   return (
     <>
@@ -184,7 +184,7 @@ const CustomerInvoiceDetails = () => {
                 >
                   {translate('text_634687079be251fdb4383395')}
                 </Button>
-                {/* <Button
+                <Button
                   variant="quaternary"
                   align="left"
                   disabled={
@@ -201,7 +201,7 @@ const CustomerInvoiceDetails = () => {
                   }}
                 >
                   {translate('text_6386589e4e82fa85eadcaa7a')}
-                </Button> */}
+                </Button>
                 <Button
                   variant="quaternary"
                   align="left"

@@ -318,6 +318,7 @@
   "text_637ccf8133d2c9a7d11ce701": "Subtotal (incl. tax)",
   "text_637ccf8133d2c9a7d11ce705": "Coupons",
   "text_637ccf8133d2c9a7d11ce709": "Credits",
+  "text_637ccf8133d2c9a7d11ce708": "Credit notes",
   "text_637ccf8133d2c9a7d11ce70d": "Total amount due",
   "text_63887b52e514213fed57fc1c": "Total due",
   "text_637cd81348c50c26dd05a767": "Credit note <a href=\"{{link}}\">{{CreditNoteNumber}}</a> on {{displayName}}",
