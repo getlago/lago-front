@@ -29,8 +29,8 @@ gql`
     customerUsage(customerId: $customerId, subscriptionId: $subscriptionId) {
       amountCents
       amountCurrency
-      fromDate
-      toDate
+      fromDatetime
+      toDatetime
       chargesUsage {
         units
         amountCents
@@ -148,10 +148,10 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
                         </Typography>
                         <Typography variant="caption" noWrap>
                           {translate('text_62c3f3fca8a1625624e83383', {
-                            fromDate: DateTime.fromISO(data?.customerUsage?.fromDate).toFormat(
-                              'LLL. dd yyyy'
-                            ),
-                            toDate: DateTime.fromISO(data?.customerUsage?.toDate).toFormat(
+                            fromDatetime: DateTime.fromISO(
+                              data?.customerUsage?.fromDatetime
+                            ).toFormat('LLL. dd yyyy'),
+                            toDatetime: DateTime.fromISO(data?.customerUsage?.toDatetime).toFormat(
                               'LLL. dd yyyy'
                             ),
                           })}
@@ -236,8 +236,8 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
       <CustomerUsageDetailDrawer
         ref={customerUsageDetailDrawerRef}
         currency={currency}
-        fromDate={data?.customerUsage?.fromDate}
-        toDate={data?.customerUsage?.toDate}
+        fromDatetime={data?.customerUsage?.fromDatetime}
+        toDatetime={data?.customerUsage?.toDatetime}
       />
     </Container>
   )

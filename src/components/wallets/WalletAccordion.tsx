@@ -30,7 +30,7 @@ gql`
     createdAt
     creditsBalance
     currency
-    expirationDate
+    expirationAt
     lastBalanceSyncAt
     lastConsumedCreditAt
     name
@@ -68,7 +68,7 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
       createdAt,
       creditsBalance,
       currency,
-      expirationDate,
+      expirationAt,
       lastBalanceSyncAt,
       lastConsumedCreditAt,
       name,
@@ -233,8 +233,8 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                   <Typography color="grey700" variant="caption">
                     {!isWalletActive
                       ? DateTime.fromISO(terminatedAt).toFormat('LLL. dd, yyyy')
-                      : expirationDate
-                      ? DateTime.fromISO(expirationDate).toFormat('LLL. dd, yyyy')
+                      : expirationAt
+                      ? DateTime.fromISO(expirationAt).toFormat('LLL. dd, yyyy')
                       : translate('text_62da6ec24a8e24e44f81288c')}
                   </Typography>
                 </DetailSummaryLine>

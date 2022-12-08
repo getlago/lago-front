@@ -31,7 +31,7 @@ gql`
     code
     reusable
     expiration
-    expirationDate
+    expirationAt
     canBeDeleted
     couponType
     percentageRate
@@ -72,7 +72,7 @@ const formatCouponInput = (values: CreateCouponInput | UpdateCouponInput) => {
   const {
     amountCents,
     amountCurrency,
-    expirationDate,
+    expirationAt,
     percentageRate,
     frequencyDuration,
     ...others
@@ -86,10 +86,10 @@ const formatCouponInput = (values: CreateCouponInput | UpdateCouponInput) => {
     amountCurrency: values.couponType === CouponTypeEnum.FixedAmount ? amountCurrency : undefined,
     percentageRate:
       values.couponType === CouponTypeEnum.Percentage ? Number(percentageRate) : undefined,
-    expirationDate:
-      values.expiration === CouponExpiration.NoExpiration && expirationDate
+    expirationAt:
+      values.expiration === CouponExpiration.NoExpiration && expirationAt
         ? undefined
-        : expirationDate,
+        : expirationAt,
     frequencyDuration:
       values.frequency === CouponFrequency.Recurring ? frequencyDuration : undefined,
     ...others,

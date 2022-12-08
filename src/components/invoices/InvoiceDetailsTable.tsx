@@ -49,7 +49,7 @@ gql`
       subscription {
         id
         name
-        subscriptionDate
+        subscriptionAt
         periodEndDate
         plan {
           id

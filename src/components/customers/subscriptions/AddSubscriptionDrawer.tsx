@@ -55,12 +55,12 @@ export const AddSubscriptionDrawer = forwardRef<
       // @ts-ignore
       planId: undefined,
       name: '',
-      subscriptionDate: currentDateRef?.current,
+      subscriptionAt: currentDateRef?.current,
       billingTime: BillingTimeEnum.Calendar,
     },
     validationSchema: object().shape({
       planId: string().required(''),
-      subscriptionDate: string().required(''),
+      subscriptionAt: string().required(''),
     }),
     validateOnMount: true,
     enableReinitialize: true,
@@ -85,7 +85,7 @@ export const AddSubscriptionDrawer = forwardRef<
     existingSubscription,
     planId: formikProps.values.planId,
     billingTime: formikProps.values.billingTime,
-    subscriptionDate: formikProps.values.subscriptionDate,
+    subscriptionAt: formikProps.values.subscriptionAt,
   })
 
   useImperativeHandle(ref, () => ({
@@ -100,10 +100,10 @@ export const AddSubscriptionDrawer = forwardRef<
     const { subscriptionInput, updateInfo } = overwritePlanVar()
 
     if (!!subscriptionInput) {
-      const { planId, name, billingTime, subscriptionDate } = subscriptionInput
+      const { planId, name, billingTime, subscriptionAt } = subscriptionInput
 
       formikProps.setValues({
-        subscriptionDate: subscriptionDate || currentDateRef?.current,
+        subscriptionAt: subscriptionAt || currentDateRef?.current,
         planId: planId || '',
         name: name || undefined,
         billingTime: billingTime || BillingTimeEnum.Calendar,
@@ -198,7 +198,7 @@ export const AddSubscriptionDrawer = forwardRef<
                 {!existingSubscription && (
                   <>
                     <DatePickerField
-                      name="subscriptionDate"
+                      name="subscriptionAt"
                       label={translate('text_62ea7cd44cd4b14bb9ac1dbb')}
                       formikProps={formikProps}
                     />
@@ -244,7 +244,7 @@ export const AddSubscriptionDrawer = forwardRef<
                 {existingSubscription?.status === StatusTypeEnum.Pending && (
                   <Alert type="info">
                     {translate('text_6335e50b0b089e1d8ed508da', {
-                      subscriptionDate: DateTime.fromISO(
+                      subscriptionAt: DateTime.fromISO(
                         existingSubscription?.startDate as string
                       ).toFormat('LLL. dd, yyyy'),
                     })}
