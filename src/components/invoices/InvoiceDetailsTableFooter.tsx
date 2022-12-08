@@ -121,7 +121,7 @@ export const InvoiceDetailsTableFooter = memo(({ invoice }: InvoiceDetailsTableF
           <td></td>
           <td>
             <Typography variant="bodyHl" color="grey600">
-              {translate('text_637ccf8133d2c9a7d11ce709')}
+              {translate('text_6391f05df4bf96d81f3660a7')}
             </Typography>
           </td>
           <td>
