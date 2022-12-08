@@ -17,7 +17,7 @@ const getSnippets = (coupon?: CreateCouponInput) => {
     code,
     couponType,
     expiration,
-    expirationDate,
+    expirationAt,
     frequency,
     frequencyDuration,
     percentageRate,
@@ -48,7 +48,7 @@ curl --location --request POST "${apiUrl}/api/v1/applied_coupons" \\
       ${
         expiration === CouponExpiration.TimeLimit
           ? `"expiration": "${expiration}",
-      "expiration_date": ${expirationDate ? expirationDate : '__MUST_BE_DEFINED__'},`
+      "expiration_date": ${expirationAt ? expirationAt : '__MUST_BE_DEFINED__'},`
           : `"expiration": "${expiration}",`
       }
     }

@@ -12,8 +12,8 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 
 gql`
   fragment CustomerUsageForUsageDetails on CustomerUsage {
-    fromDate
-    toDate
+    fromDatetime
+    toDatetime
     chargesUsage {
       billableMetric {
         name
@@ -36,14 +36,14 @@ export interface CustomerUsageDetailDrawerRef {
 
 interface CustomerUsageDetailDrawerProps {
   currency: CurrencyEnum
-  fromDate: string
-  toDate: string
+  fromDatetime: string
+  toDatetime: string
 }
 
 export const CustomerUsageDetailDrawer = forwardRef<
   CustomerUsageDetailDrawerRef,
   CustomerUsageDetailDrawerProps
->(({ currency, fromDate, toDate }: CustomerUsageDetailDrawerProps, ref) => {
+>(({ currency, fromDatetime, toDatetime }: CustomerUsageDetailDrawerProps, ref) => {
   const { translate } = useInternationalization()
   const drawerRef = useRef<DrawerRef>(null)
   const [usage, setUsage] = useState<ChargeUsage>()
@@ -73,8 +73,8 @@ export const CustomerUsageDetailDrawer = forwardRef<
             </Typography>
             <Typography>
               {translate('text_633dae57ca9a923dd53c2097', {
-                fromDate: DateTime.fromISO(fromDate).toFormat('LLL. dd yyyy'),
-                toDate: DateTime.fromISO(toDate).toFormat('LLL. dd yyyy'),
+                fromDate: DateTime.fromISO(fromDatetime).toFormat('LLL. dd yyyy'),
+                toDate: DateTime.fromISO(toDatetime).toFormat('LLL. dd yyyy'),
               })}
             </Typography>
           </Title>

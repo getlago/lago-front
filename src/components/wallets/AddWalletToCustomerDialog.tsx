@@ -54,7 +54,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
 
     const formikProps = useFormik<Omit<CreateCustomerWalletInput, 'customerId'>>({
       initialValues: {
-        expirationDate: undefined,
+        expirationAt: undefined,
         grantedCredits: '',
         name: '',
         paidCredits: '',
@@ -62,7 +62,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
         rateAmount: '1.00',
       },
       validationSchema: object().shape({
-        expirationDate: date().min(
+        expirationAt: date().min(
           DateTime.now().plus({ days: -1 }),
           translate('text_630ccd87b251590eaa5f9831', {
             date: DateTime.now().plus({ days: -1 }).toFormat('LLL. dd, yyyy').toLocaleString(),
@@ -255,7 +255,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
 
           <DatePickerField
             disablePast
-            name="expirationDate"
+            name="expirationAt"
             placement="top-end"
             label={translate('text_62d18855b22699e5cf55f897')}
             placeholder={translate('text_62d18855b22699e5cf55f899')}

@@ -53,7 +53,7 @@ const CreateCoupon = () => {
       code: coupon?.code || '',
       reusable: coupon?.reusable === undefined ? true : coupon.reusable,
       expiration: coupon?.expiration || CouponExpiration.NoExpiration,
-      expirationDate: coupon?.expirationDate || undefined,
+      expirationAt: coupon?.expirationAt || undefined,
     },
     validationSchema: object().shape({
       amountCents: number().when('couponType', {
@@ -86,7 +86,7 @@ const CreateCoupon = () => {
       }),
       reusable: string().required(''),
       expiration: string().required(''),
-      expirationDate: date().when('expiration', {
+      expirationAt: date().when('expiration', {
         is: (expiration: CouponExpiration) =>
           !!expiration && expiration === CouponExpiration.TimeLimit,
         then: date()
@@ -334,7 +334,7 @@ const CreateCoupon = () => {
                         </Typography>
                         <DatePickerField
                           disablePast
-                          name="expirationDate"
+                          name="expirationAt"
                           placement="top-end"
                           placeholder={translate('text_632d68358f1fedc68eed3ea5')}
                           formikProps={formikProps}

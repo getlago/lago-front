@@ -60,14 +60,14 @@ type UseAddSubscription = (args: {
   existingSubscription?: SubscriptionUpdateInfo
   planId?: string
   billingTime?: BillingTimeEnum
-  subscriptionDate?: string
+  subscriptionAt?: string
 }) => UseAddSubscriptionReturn
 
 export const useAddSubscription: UseAddSubscription = ({
   planId,
   billingTime,
   existingSubscription,
-  subscriptionDate,
+  subscriptionAt,
 }) => {
   const [getPlans, { loading, data }] = useGetPlansLazyQuery({
     variables: { limit: 500 },
@@ -117,8 +117,8 @@ export const useAddSubscription: UseAddSubscription = ({
     }, [data, existingSubscription?.existingPlanId]),
     selectedPlan,
     billingTimeHelper: useMemo(() => {
-      const currentDate = subscriptionDate
-        ? DateTime.fromISO(subscriptionDate)
+      const currentDate = subscriptionAt
+        ? DateTime.fromISO(subscriptionAt)
         : DateTime.now().setLocale('en-gb')
       const formattedCurrentDate = currentDate.toFormat('LL/dd/yyyy')
       const february29 = '02/29/2020'
@@ -153,20 +153,20 @@ export const useAddSubscription: UseAddSubscription = ({
             ? translate('text_62ea7cd44cd4b14bb9ac1d9e')
             : translate('text_62ea7cd44cd4b14bb9ac1da2', { day: currentDate.weekdayLong })
       }
-    }, [selectedPlan, billingTime, subscriptionDate, translate]),
+    }, [selectedPlan, billingTime, subscriptionAt, translate]),
     errorCode: hasDefinedGQLError('CurrenciesDoesNotMatch', error)
       ? LagoApiError.CurrenciesDoesNotMatch
       : undefined,
     onOpenDrawer: () => {
       !loading && getPlans()
     },
-    onCreate: async (customerId, { subscriptionDate: subsDate, ...values }) => {
+    onCreate: async (customerId, { subscriptionAt: subsDate, ...values }) => {
       const { errors } = await create({
         variables: {
           input: {
             customerId,
             ...(!existingSubscription
-              ? { subscriptionDate: subsDate }
+              ? { subscriptionAt: subsDate }
               : { subscriptionId: existingSubscription.subscriptionId }),
             ...values,
           },

@@ -27,7 +27,7 @@ gql`
     nextName
     externalId
     periodEndDate
-    subscriptionDate
+    subscriptionAt
     plan {
       ...SubscriptionLinePlan
     }
@@ -63,7 +63,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
       nextName,
       name,
       startedAt,
-      subscriptionDate,
+      subscriptionAt,
     } = subscription
     const isDowngrading = !!nextPlan
 
@@ -87,7 +87,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
           subscriptionId={id}
           subscriptionExternalId={externalId}
           subscriptionName={name}
-          date={startedAt || subscriptionDate}
+          date={startedAt || subscriptionAt}
           periodEndDate={periodEndDate}
           plan={plan}
           status={status}
@@ -106,7 +106,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
           <DateInfos variant="caption">
             {translate('text_6335e50b0b089e1d8ed50960', {
               planName: plan?.name,
-              startDate: DateTime.fromISO(subscriptionDate).toFormat('LLL. dd, yyyy'),
+              startDate: DateTime.fromISO(subscriptionAt).toFormat('LLL. dd, yyyy'),
             })}
           </DateInfos>
         )}

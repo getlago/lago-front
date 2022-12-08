@@ -27,7 +27,7 @@ gql`
   fragment WalletForUpdate on Wallet {
     id
     name
-    expirationDate
+    expirationAt
   }
 
   ${WalletForUpdateFragmentDoc}
@@ -56,13 +56,13 @@ export const UpdateCustomerWalletDialog = forwardRef<DialogRef, UpdateCustomerWa
     const formikProps = useFormik<Omit<UpdateCustomerWalletInput, 'id'>>({
       initialValues: {
         name: wallet.name || '',
-        expirationDate: wallet.expirationDate || undefined,
+        expirationAt: wallet.expirationAt || undefined,
       },
       enableReinitialize: true,
       validateOnMount: true,
       validationSchema: object().shape({
         name: string(),
-        expirationDate: date().min(
+        expirationAt: date().min(
           DateTime.now().plus({ days: -1 }),
           translate('text_630ccd87b251590eaa5f9831', {
             date: DateTime.now().plus({ days: -1 }).toFormat('LLL. dd, yyyy').toLocaleString(),
@@ -124,7 +124,7 @@ export const UpdateCustomerWalletDialog = forwardRef<DialogRef, UpdateCustomerWa
           />
           <DatePickerField
             disablePast
-            name="expirationDate"
+            name="expirationAt"
             placement="left-start"
             label={translate('text_62d94fc982c82f068d3753c7')}
             placeholder={translate('text_62d94fc982c82f068d3753c9')}

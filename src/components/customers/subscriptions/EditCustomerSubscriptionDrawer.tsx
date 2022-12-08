@@ -20,7 +20,7 @@ gql`
       name
       status
       startedAt
-      subscriptionDate
+      subscriptionAt
     }
   }
 `
@@ -52,10 +52,10 @@ export const EditCustomerSubscriptionDrawer = forwardRef<EditCustomerSubscriptio
     })
     const [subscription, setSubscription] = useState<SubscriptionInfos | undefined>(undefined)
     const { translate } = useInternationalization()
-    const formikProps = useFormik<Pick<UpdateSubscriptionInput, 'name' | 'subscriptionDate'>>({
+    const formikProps = useFormik<Pick<UpdateSubscriptionInput, 'name' | 'subscriptionAt'>>({
       initialValues: {
         name: subscription?.name || '',
-        subscriptionDate: subscription?.startDate || undefined,
+        subscriptionAt: subscription?.startDate || undefined,
       },
       validateOnMount: true,
       enableReinitialize: true,
@@ -98,7 +98,7 @@ export const EditCustomerSubscriptionDrawer = forwardRef<EditCustomerSubscriptio
 
             <DatePickerField
               disabled={subscription?.status === StatusTypeEnum.Active}
-              name="subscriptionDate"
+              name="subscriptionAt"
               label={translate('text_6335e8900c69f8ebdfef5318')}
               formikProps={formikProps}
             />

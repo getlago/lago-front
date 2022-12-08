@@ -46,7 +46,7 @@ gql`
     amountCents
     canBeDeleted
     expiration
-    expirationDate
+    expirationAt
     couponType
     percentageRate
     frequency
@@ -75,7 +75,7 @@ const mapStatus = (type?: CouponStatusEnum | undefined) => {
 }
 
 export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
-  const { id, name, customerCount, status, canBeDeleted, expirationDate } = coupon
+  const { id, name, customerCount, status, canBeDeleted, expirationAt } = coupon
   const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
   const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
   const { translate } = useInternationalization()
@@ -110,9 +110,9 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
         <CouponInfosSection>
           <SmallCell>{customerCount}</SmallCell>
           <MediumCell>
-            {!expirationDate
+            {!expirationAt
               ? translate('text_62876a50ea3bba00b56d2c2c')
-              : DateTime.fromISO(expirationDate).toFormat('LLL. dd, yyyy')}
+              : DateTime.fromISO(expirationAt).toFormat('LLL. dd, yyyy')}
           </MediumCell>
           <MediumCell>
             {<Status type={formattedStatus.type} label={translate(formattedStatus.label)} />}
