@@ -104,7 +104,7 @@
   "dependencies": {
     "@apollo/client": "3.7.2",
     "@date-io/luxon": "2.16.1",
-    "@mui/material": "5.10.16",
+    "@mui/material": "5.10.17",
     "@mui/styled-engine": "5.10.16",
     "@mui/styled-engine-sc": "5.10.16",
     "@mui/x-date-pickers": "5.0.9",
