@@ -15,10 +15,13 @@ import {
   UpdateCustomerInput,
   ProviderTypeEnum,
   CurrencyEnum,
+  TimezoneEnum,
 } from '~/generated/graphql'
 import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
 import CountryCodes from '~/public/countryCode.json'
-import { INTEGRATIONS_ROUTE } from '~/core/router'
+import { INTEGRATIONS_ROUTE, ORGANIZATION_INFORMATIONS_ROUTE } from '~/core/router'
+import { getTimezoneConfig } from '~/core/timezone'
+import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
 
 const countryData: { value: string; label: string }[] = Object.keys(CountryCodes).map(
   (countryKey) => {
@@ -66,6 +69,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
         country: customer?.country ?? undefined,
         city: customer?.city ?? undefined,
         zipcode: customer?.zipcode ?? undefined,
+        timezone: customer?.timezone ?? undefined,
         providerCustomer: {
           providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? undefined,
           syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
@@ -90,6 +94,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
         }
       },
     })
+    const { timezoneConfig } = useOrganizationTimezone()
 
     useEffect(() => {
       if (!formikProps.values.paymentProvider) {
@@ -171,6 +176,32 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                 translate('text_624efab67eb2570101d117de')
               }
               formikProps={formikProps}
+            />
+
+            <ComboBoxField
+              name="timezone"
+              label={translate('text_6390a4ffef9227ba45daca90')}
+              placeholder={translate('text_6390a4ffef9227ba45daca92')}
+              helperText={
+                <Typography
+                  html={translate('text_6390a4ffef9227ba45daca94', {
+                    timezone: translate('text_638f743fa9a2a9545ee6409a', {
+                      zone: translate(timezoneConfig.name),
+                      offset: timezoneConfig.offset,
+                    }),
+                    link: ORGANIZATION_INFORMATIONS_ROUTE,
+                  })}
+                />
+              }
+              formikProps={formikProps}
+              PopperProps={{ displayInDialog: true }}
+              data={Object.values(TimezoneEnum).map((timezoneValue) => ({
+                value: timezoneValue,
+                label: translate('text_638f743fa9a2a9545ee6409a', {
+                  zone: translate(timezoneValue),
+                  offset: getTimezoneConfig(timezoneValue).offset,
+                }),
+              }))}
             />
           </Card>
           <Accordion

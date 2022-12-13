@@ -2,14 +2,14 @@
 import { forwardRef, memo, MutableRefObject } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
-import { DateTime } from 'luxon'
 
-import { CustomerAddOnsFragment } from '~/generated/graphql'
+import { CustomerAddOnsFragment, TimezoneEnum } from '~/generated/graphql'
 import { SectionHeader } from '~/styles/customer'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, Avatar, Icon, Button } from '~/components/designSystem'
 import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { TimezoneDate } from '~/components/TimezoneDate'
 
 import { AddAddOnToCustomerDialogRef } from './AddAddOnToCustomerDialog'
 
@@ -28,11 +28,12 @@ gql`
 
 interface CustomerAddOnsProps {
   addOns?: CustomerAddOnsFragment[] | null | undefined
+  customerTimezone: TimezoneEnum
 }
 
 export const CustomerAddOns = memo(
   forwardRef<AddAddOnToCustomerDialogRef, CustomerAddOnsProps>(
-    ({ addOns }: CustomerAddOnsProps, ref) => {
+    ({ addOns, customerTimezone }: CustomerAddOnsProps, ref) => {
       const { translate } = useInternationalization()
 
       return (
@@ -78,9 +79,7 @@ export const CustomerAddOns = memo(
                       </Typography>
                     </NameBlock>
                   </NameSection>
-                  <Typography color="textSecondary" variant="body" noWrap>
-                    {DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy')}
-                  </Typography>
+                  <TimezoneDate date={createdAt} customerTimezone={customerTimezone} />
                 </Item>
               ))}
             </Container>

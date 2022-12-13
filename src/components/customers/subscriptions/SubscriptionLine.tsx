@@ -1,11 +1,10 @@
 import { forwardRef, MutableRefObject, ForwardedRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
-import { DateTime } from 'luxon'
 
 import { theme, NAV_HEIGHT, MenuPopper } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { SubscriptionLinePlanFragment, StatusTypeEnum } from '~/generated/graphql'
+import { SubscriptionLinePlanFragment, StatusTypeEnum, TimezoneEnum } from '~/generated/graphql'
 import {
   Typography,
   Button,
@@ -18,6 +17,7 @@ import {
   Skeleton,
 } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
+import { TimezoneDate } from '~/components/TimezoneDate'
 
 import { AddSubscriptionDrawerRef } from './AddSubscriptionDrawer'
 import { EditCustomerSubscriptionDrawerRef } from './EditCustomerSubscriptionDrawer'
@@ -40,6 +40,7 @@ interface SubscriptionLineProps {
   periodEndDate: string
   isDowngrade?: boolean
   status?: StatusTypeEnum | null
+  customerTimezone: TimezoneEnum
 }
 
 export interface SubscriptionLineRef {
@@ -59,6 +60,7 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
       periodEndDate,
       isDowngrade,
       status,
+      customerTimezone,
     }: SubscriptionLineProps,
     ref
   ) => {
@@ -90,7 +92,7 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
           }
         />
         <CellSmall align="right" color="textSecondary">
-          {DateTime.fromISO(date).toFormat('LLL. dd, yyyy')}
+          <TimezoneDate date={date} customerTimezone={customerTimezone} />
         </CellSmall>
         {isDowngrade ? (
           <Button disabled icon="dots-horizontal" variant="quaternary" />

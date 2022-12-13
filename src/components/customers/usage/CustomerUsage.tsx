@@ -1,7 +1,11 @@
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
-import { CustomerUsageSubscriptionFragment, StatusTypeEnum } from '~/generated/graphql'
+import {
+  CustomerUsageSubscriptionFragment,
+  StatusTypeEnum,
+  TimezoneEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme, NAV_HEIGHT } from '~/styles'
 import { Typography } from '~/components/designSystem'
@@ -25,9 +29,15 @@ interface CustomerUsageProps {
   id: string
   subscriptions: CustomerUsageSubscriptionFragment[]
   loading?: boolean
+  customerTimezone: TimezoneEnum
 }
 
-export const CustomerUsage = ({ loading, id, subscriptions }: CustomerUsageProps) => {
+export const CustomerUsage = ({
+  loading,
+  id,
+  subscriptions,
+  customerTimezone,
+}: CustomerUsageProps) => {
   const { translate } = useInternationalization()
 
   return (
@@ -46,7 +56,12 @@ export const CustomerUsage = ({ loading, id, subscriptions }: CustomerUsageProps
           {subscriptions
             ?.filter((s) => s.status === StatusTypeEnum.Active)
             .map((subscription) => (
-              <UsageItem key={subscription?.id} customerId={id} subscription={subscription} />
+              <UsageItem
+                key={subscription?.id}
+                customerId={id}
+                subscription={subscription}
+                customerTimezone={customerTimezone}
+              />
             ))}
         </Content>
       )}

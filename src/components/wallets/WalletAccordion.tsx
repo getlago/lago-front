@@ -15,8 +15,10 @@ import {
   Accordion,
 } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { WalletAccordionFragment, WalletStatusEnum } from '~/generated/graphql'
+import { WalletAccordionFragment, WalletStatusEnum, TimezoneEnum } from '~/generated/graphql'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { TimezoneDate } from '~/components/TimezoneDate'
+import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
 
 import { WalletTransactionList } from './WalletTransactionList'
 import { TopupWalletDialogRef } from './TopupWalletDialog'
@@ -42,6 +44,7 @@ gql`
 
 interface WalletAccordionProps {
   wallet: WalletAccordionFragment
+  customerTimezone: TimezoneEnum
 }
 
 const mapStatus = (type?: WalletStatusEnum | undefined) => {
@@ -60,7 +63,7 @@ const mapStatus = (type?: WalletStatusEnum | undefined) => {
 }
 
 export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionProps>(
-  ({ wallet }: WalletAccordionProps, ref) => {
+  ({ wallet, customerTimezone }: WalletAccordionProps, ref) => {
     const {
       balance,
       consumedAmount,
@@ -76,6 +79,7 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
       status,
       terminatedAt,
     } = wallet
+    const { formatTimeOrgaTZ } = useOrganizationTimezone()
 
     const statusMap = mapStatus(status)
     let [creditAmountUnit = '0', creditAmountCents = '00'] = creditsBalance.split('.')
@@ -98,7 +102,7 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                   {name
                     ? name
                     : translate('text_62da6ec24a8e24e44f8128b2', {
-                        createdAt: DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy'),
+                        createdAt: formatTimeOrgaTZ(createdAt),
                       })}
                 </Typography>
                 <Typography variant="caption">
@@ -129,9 +133,7 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                   <TooltipIcon
                     placement="bottom-start"
                     title={translate('text_62da6db136909f52c2704c40', {
-                      date: DateTime.fromISO(lastBalanceSyncAt || DateTime.now()).toFormat(
-                        'LLL. dd, yyyy'
-                      ),
+                      date: formatTimeOrgaTZ(lastBalanceSyncAt || DateTime.now()),
                     })}
                   >
                     <Icon name="info-circle" />
@@ -179,9 +181,7 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                   <TooltipIcon
                     placement="bottom-start"
                     title={translate('text_62da6db136909f52c2704c40', {
-                      date: DateTime.fromISO(lastConsumedCreditAt || DateTime.now()).toFormat(
-                        'LLL. dd, yyyy'
-                      ),
+                      date: formatTimeOrgaTZ(lastConsumedCreditAt || DateTime.now()),
                     })}
                   >
                     <Icon name="info-circle" />
@@ -230,18 +230,33 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                   </Typography>
                 </DetailSummaryLine>
                 <DetailSummaryLine>
-                  <Typography color="grey700" variant="caption">
-                    {!isWalletActive
-                      ? DateTime.fromISO(terminatedAt).toFormat('LLL. dd, yyyy')
-                      : expirationAt
-                      ? DateTime.fromISO(expirationAt).toFormat('LLL. dd, yyyy')
-                      : translate('text_62da6ec24a8e24e44f81288c')}
-                  </Typography>
+                  {!isWalletActive ? (
+                    <TimezoneDate
+                      mainTypographyProps={{ variant: 'caption' }}
+                      date={terminatedAt}
+                      customerTimezone={customerTimezone}
+                    />
+                  ) : expirationAt ? (
+                    <TimezoneDate
+                      mainTypographyProps={{ variant: 'caption' }}
+                      date={expirationAt}
+                      customerTimezone={customerTimezone}
+                    />
+                  ) : (
+                    <Typography color="grey700" variant="caption">
+                      {translate('text_62da6ec24a8e24e44f81288c')}
+                    </Typography>
+                  )}
                 </DetailSummaryLine>
               </DetailSummaryBlock>
             </DetailSummary>
 
-            <WalletTransactionList isOpen={isOpen} wallet={wallet} ref={ref} />
+            <WalletTransactionList
+              isOpen={isOpen}
+              wallet={wallet}
+              ref={ref}
+              customerTimezone={customerTimezone}
+            />
           </>
         )}
       </Accordion>

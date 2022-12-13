@@ -1,4 +1,4 @@
-import { forwardRef, useState, useImperativeHandle, useRef, useEffect } from 'react'
+import { forwardRef, useState, useImperativeHandle, useRef, useEffect, useMemo } from 'react'
 import styled from 'styled-components'
 import { useFormik } from 'formik'
 import { object, string } from 'yup'
@@ -26,8 +26,11 @@ import {
   BillingTimeEnum,
   PlanInterval,
   StatusTypeEnum,
+  TimezoneEnum,
 } from '~/generated/graphql'
 import { useAddSubscription } from '~/hooks/customer/useAddSubscription'
+import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
+import { getTimezoneConfig, formatDateToTZ } from '~/core/timezone'
 
 export interface AddSubscriptionDrawerRef {
   openDialog: (existingSubscription?: SubscriptionUpdateInfo) => unknown
@@ -37,15 +40,21 @@ export interface AddSubscriptionDrawerRef {
 interface AddSubscriptionDrawerProps {
   customerName: string
   customerId: string
+  customerTimezone: TimezoneEnum
 }
 
 export const AddSubscriptionDrawer = forwardRef<
   AddSubscriptionDrawerRef,
   AddSubscriptionDrawerProps
->(({ customerId, customerName }: AddSubscriptionDrawerProps, ref) => {
+>(({ customerId, customerName, customerTimezone }: AddSubscriptionDrawerProps, ref) => {
   const navigate = useNavigate()
   const drawerRef = useRef<DrawerRef>(null)
-  const currentDateRef = useRef<string>(DateTime.now().toISO())
+  const {
+    timezone,
+    timezoneConfig: orgaTimezoneConfig,
+    formatTimeOrgaTZ,
+  } = useOrganizationTimezone()
+  const currentDateRef = useRef<string>(DateTime.now().setZone(orgaTimezoneConfig.name).toISO())
   const [existingSubscription, setExistingSubscription] = useState<
     SubscriptionUpdateInfo | undefined
   >(undefined)
@@ -121,6 +130,37 @@ export const AddSubscriptionDrawer = forwardRef<
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const subscriptionAtHelperText = useMemo(() => {
+    if (customerTimezone === timezone || !formikProps.values.subscriptionAt) return undefined
+    const timezoneConfig = getTimezoneConfig(customerTimezone)
+    const customerDate = DateTime.fromISO(formikProps.values.subscriptionAt, {
+      zone: timezoneConfig.name,
+    })
+    const today = DateTime.now().setZone(timezoneConfig.name).startOf('day').toMillis()
+
+    if (
+      customerDate.startOf('day').toMillis() ===
+      DateTime.fromISO(formikProps.values.subscriptionAt, {
+        zone: orgaTimezoneConfig.name,
+      })
+        .startOf('day')
+        .toMillis()
+    )
+      return undefined
+
+    const translationKey =
+      customerDate.startOf('day').toMillis() < today
+        ? 'text_6390f44d26d6143fdecde7bd'
+        : customerDate.startOf('day').toMillis() === today
+        ? 'text_6391dcf25d51f88062e60dfe'
+        : 'text_6391dccb54b2b26d0585b1da'
+
+    return translate(translationKey, {
+      date: formatDateToTZ(formikProps.values.subscriptionAt, customerTimezone),
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formikProps.values.subscriptionAt, timezone, customerTimezone, orgaTimezoneConfig])
 
   return (
     <Drawer
@@ -201,6 +241,7 @@ export const AddSubscriptionDrawer = forwardRef<
                       name="subscriptionAt"
                       label={translate('text_62ea7cd44cd4b14bb9ac1dbb')}
                       formikProps={formikProps}
+                      helperText={subscriptionAtHelperText}
                     />
                     <ButtonSelectorField
                       name="billingTime"
@@ -235,18 +276,16 @@ export const AddSubscriptionDrawer = forwardRef<
                 {existingSubscription?.status === StatusTypeEnum.Active && (
                   <Alert type="info">
                     {translate('text_6328e70de459381ed4ba50d6', {
-                      subscriptionEndDate: DateTime.fromISO(
+                      subscriptionEndDate: formatTimeOrgaTZ(
                         existingSubscription?.periodEndDate as string
-                      ).toFormat('LLL. dd, yyyy'),
+                      ),
                     })}
                   </Alert>
                 )}
                 {existingSubscription?.status === StatusTypeEnum.Pending && (
                   <Alert type="info">
                     {translate('text_6335e50b0b089e1d8ed508da', {
-                      subscriptionAt: DateTime.fromISO(
-                        existingSubscription?.startDate as string
-                      ).toFormat('LLL. dd, yyyy'),
+                      subscriptionAt: formatTimeOrgaTZ(existingSubscription?.startDate as string),
                     })}
                   </Alert>
                 )}

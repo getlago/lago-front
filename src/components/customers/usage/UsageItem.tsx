@@ -2,7 +2,6 @@ import { useRef, useState } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
-import { DateTime } from 'luxon'
 
 import {
   ChargeUsage,
@@ -10,6 +9,7 @@ import {
   CustomerUsageForUsageDetailsFragmentDoc,
   CustomerUsageSubscriptionFragment,
   useCustomerUsageLazyQuery,
+  TimezoneEnum,
 } from '~/generated/graphql'
 import { Skeleton, Icon, Button, Tooltip, Avatar, Typography } from '~/components/designSystem'
 import { theme, NAV_HEIGHT } from '~/styles'
@@ -18,6 +18,7 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { getTimezoneConfig, formatDateToTZ } from '~/core/timezone'
 
 import {
   CustomerUsageDetailDrawer,
@@ -50,9 +51,10 @@ gql`
 interface UsageItemProps {
   customerId: string
   subscription: CustomerUsageSubscriptionFragment
+  customerTimezone: TimezoneEnum
 }
 
-export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
+export const UsageItem = ({ customerId, subscription, customerTimezone }: UsageItemProps) => {
   const { id, name, plan } = subscription
   const [isOpen, setIsOpen] = useState(false)
   const { translate } = useInternationalization()
@@ -146,16 +148,30 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
                         <Typography variant="bodyHl" color="textSecondary" noWrap>
                           {translate('text_62c3f3fca8a1625624e83380')}
                         </Typography>
-                        <Typography variant="caption" noWrap>
-                          {translate('text_62c3f3fca8a1625624e83383', {
-                            fromDatetime: DateTime.fromISO(
-                              data?.customerUsage?.fromDatetime
-                            ).toFormat('LLL. dd yyyy'),
-                            toDatetime: DateTime.fromISO(data?.customerUsage?.toDatetime).toFormat(
-                              'LLL. dd yyyy'
-                            ),
-                          })}
-                        </Typography>
+                        <DateLine variant="caption" noWrap>
+                          <span>{translate('text_6390eacb5c755f61a1f7aed2')}</span>
+                          <Tooltip
+                            placement="top-start"
+                            title={translate('text_6390ea10cf97ec5780001c9d', {
+                              offset: getTimezoneConfig(customerTimezone).offset,
+                            })}
+                          >
+                            <Date variant="caption">
+                              {formatDateToTZ(data?.customerUsage?.fromDatetime, customerTimezone)}
+                            </Date>
+                          </Tooltip>
+                          <span>{translate('text_6390eacf6dedf13adadf71b3')}</span>
+                          <Tooltip
+                            placement="top-start"
+                            title={translate('text_6390ea10cf97ec5780001c9d', {
+                              offset: getTimezoneConfig(customerTimezone).offset,
+                            })}
+                          >
+                            <Date variant="caption">
+                              {formatDateToTZ(data?.customerUsage?.toDatetime, customerTimezone)}
+                            </Date>
+                          </Tooltip>
+                        </DateLine>
                       </Block>
                     </MainInfos>
                     <Typography color="textSecondary">
@@ -238,6 +254,7 @@ export const UsageItem = ({ customerId, subscription }: UsageItemProps) => {
         currency={currency}
         fromDatetime={data?.customerUsage?.fromDatetime}
         toDatetime={data?.customerUsage?.toDatetime}
+        customerTimezone={customerTimezone}
       />
     </Container>
   )
@@ -424,5 +441,18 @@ const UsageHeader = styled.div<{ $hasCharge?: boolean }>`
 
   > *:first-child {
     margin-right: auto;
+  }
+`
+
+const Date = styled(Typography)`
+  border-bottom: 1px dotted ${theme.palette.grey[400]};
+  width: fit-content;
+`
+
+const DateLine = styled(Typography)`
+  display: flex;
+  align-items: baseline;
+  > *:not(:last-child) {
+    margin-right: ${theme.spacing(1)};
   }
 `

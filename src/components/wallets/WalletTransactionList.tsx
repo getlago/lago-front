@@ -1,6 +1,5 @@
 import { forwardRef, MutableRefObject, useEffect } from 'react'
 import styled from 'styled-components'
-import { DateTime } from 'luxon'
 import { gql } from '@apollo/client'
 
 import { theme } from '~/styles'
@@ -15,8 +14,10 @@ import {
   WalletStatusEnum,
   WalletTransactionStatusEnum,
   WalletTransactionTransactionTypeEnum,
+  TimezoneEnum,
 } from '~/generated/graphql'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { TimezoneDate } from '~/components/TimezoneDate'
 
 import { TopupWalletDialogRef } from './TopupWalletDialog'
 
@@ -50,10 +51,11 @@ gql`
 interface WalletTransactionListProps {
   isOpen: boolean
   wallet: WalletInfosForTransactionsFragment
+  customerTimezone: TimezoneEnum
 }
 
 export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTransactionListProps>(
-  ({ isOpen, wallet }: WalletTransactionListProps, ref) => {
+  ({ isOpen, wallet, customerTimezone }: WalletTransactionListProps, ref) => {
     const { translate } = useInternationalization()
     const [getWalletTransactions, { data, error, fetchMore, loading, refetch }] =
       useGetWalletTransactionsLazyQuery({
@@ -163,12 +165,14 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
                                 Number(creditAmount) || 0
                               )}
                         </Typography>
-                        <Typography variant="caption" color="grey600">
-                          {isPending
-                            ? DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy')
-                            : DateTime.fromISO(settledAt).toFormat('LLL. dd, yyyy')}
+                        <DateBlock variant="caption" color="grey600">
+                          <TimezoneDate
+                            mainTypographyProps={{ variant: 'caption', color: 'grey600' }}
+                            date={isPending ? createdAt : settledAt}
+                            customerTimezone={customerTimezone}
+                          />
                           {isPending && ` • ${translate('text_62da6db136909f52c2704c30')}`}
-                        </Typography>
+                        </DateBlock>
                       </ColumnWrapper>
                     </ListLeftWrapper>
                     <ListRightWrapper>
@@ -279,6 +283,15 @@ const ColumnWrapper = styled.div`
 const Loadmore = styled.div`
   margin: ${theme.spacing(1)} 0;
   text-align: center;
+`
+
+const DateBlock = styled(Typography)`
+  display: flex;
+  align-items: baseline;
+
+  > * {
+    margin-right: ${theme.spacing(1)};
+  }
 `
 
 WalletTransactionList.displayName = 'WalletTransactionList'

@@ -54,14 +54,16 @@ export const DatePicker = ({
      * Date will be passed to the parent as ISO
      * So we need to make sure to re-transform to DateTime for the component to read it
      */
-    !!value ? (typeof value === 'string' ? DateTime.fromISO(value) : value) : null
+    !!value ? (typeof value === 'string' ? DateTime.fromISO(value).endOf('day') : value) : null
   )
 
   const isInvalid = !!localDate && !localDate.isValid
   const { translate } = useInternationalization()
 
   useEffect(() => {
-    setLocalDate(!!value ? (typeof value === 'string' ? DateTime.fromISO(value) : value) : null)
+    setLocalDate(
+      !!value ? (typeof value === 'string' ? DateTime.fromISO(value).endOf('day') : value) : null
+    )
   }, [value])
 
   return (
@@ -111,10 +113,10 @@ export const DatePicker = ({
             },
           }}
           onChange={(date) => {
-            setLocalDate(date as unknown as DateTime)
+            setLocalDate((date as unknown as DateTime).toUTC())
 
             // To avoid breaking dates in the parent, we do not pass it unless it's valid
-            const formattedDate = (date as unknown as DateTime)?.toISO()
+            const formattedDate = (date as unknown as DateTime).endOf('day')?.toUTC().toISO()
 
             if ((date as unknown as DateTime)?.isValid || !date) {
               onError && onError(undefined)

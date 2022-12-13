@@ -41,6 +41,13 @@ import {
   ADD_ONS_ROUTE,
   ONLY_DEV_DESIGN_SYSTEM_ROUTE,
   ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE,
+  API_KEYS_ROUTE,
+  WEBHOOK_ROUTE,
+  DEBUGGER_ROUTE,
+  VAT_RATE_ROUTE,
+  MEMBERS_ROUTE,
+  INTEGRATIONS_ROUTE,
+  ORGANIZATION_INFORMATIONS_ROUTE,
 } from '~/core/router'
 import { useCurrentVersionQuery } from '~/generated/graphql'
 
@@ -259,11 +266,18 @@ const SideNav = () => {
                     title: translate('text_6271200984178801ba8bdeac'),
                     icon: 'laptop',
                     link: DEVELOPERS_ROUTE,
+                    match: [API_KEYS_ROUTE, WEBHOOK_ROUTE, DEBUGGER_ROUTE],
                   },
                   {
                     title: translate('text_62728ff857d47b013204c726'),
                     icon: 'settings',
                     link: SETTINGS_ROUTE,
+                    match: [
+                      VAT_RATE_ROUTE,
+                      MEMBERS_ROUTE,
+                      INTEGRATIONS_ROUTE,
+                      ORGANIZATION_INFORMATIONS_ROUTE,
+                    ],
                   },
                 ]}
                 orientation="vertical"

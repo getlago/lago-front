@@ -18,13 +18,11 @@ const ApiKeys = () => {
   const { translate } = useInternationalization()
 
   return (
-    <Wrapper>
-      <Header>
-        <Typography variant="headline">{translate('text_637f813d31381b1ed90ab2f6')}</Typography>
-        <Typography variant="body" color="grey600">
-          {translate('text_637f813d31381b1ed90ab300')}
-        </Typography>
-      </Header>
+    <Page>
+      <Title variant="headline">{translate('text_637f813d31381b1ed90ab2f6')}</Title>
+      <Subtitle variant="body" color="grey600">
+        {translate('text_637f813d31381b1ed90ab300')}
+      </Subtitle>
 
       <InlineSectionTitle>
         <Typography variant="subhead" color="grey700">
@@ -83,16 +81,20 @@ const ApiKeys = () => {
           {translate('text_637f813d31381b1ed90ab332')}
         </Typography>
       </InfoBlock>
-    </Wrapper>
+    </Page>
   )
 }
 
-const Wrapper = styled.div`
+const Page = styled.div`
   padding: ${theme.spacing(8)} ${theme.spacing(12)};
   max-width: ${theme.spacing(168)};
 `
 
-const Header = styled.div`
+const Title = styled(Typography)`
+  margin-bottom: ${theme.spacing(2)};
+`
+
+const Subtitle = styled(Typography)`
   margin-bottom: ${theme.spacing(8)};
 `
 

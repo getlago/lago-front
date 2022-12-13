@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
 import styled, { css } from 'styled-components'
-import { DateTime } from 'luxon'
 
 import { EventItemFragment } from '~/generated/graphql'
 import { theme, BaseListItem, ListItem, ItemContainer } from '~/styles'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { Skeleton, Icon, Typography, Avatar } from '~/components/designSystem'
+import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
 
 gql`
   fragment EventItem on Event {
@@ -28,6 +28,7 @@ interface EventItemProps {
 export const EventItem = ({ event, navigationProps, selected, onClick }: EventItemProps) => {
   const { code, externalCustomerId, timestamp, matchBillableMetric, matchCustomField } = event
   const hasWarning = !matchBillableMetric || !matchCustomField
+  const { formatTimeOrgaTZ } = useOrganizationTimezone()
 
   return (
     <ItemContainer>
@@ -48,7 +49,7 @@ export const EventItem = ({ event, navigationProps, selected, onClick }: EventIt
             </Typography>
           </NameBlock>
         </NameSection>
-        <Typography>{DateTime.fromISO(timestamp).toFormat('HH:mm:ss')}</Typography>
+        <Typography>{formatTimeOrgaTZ(timestamp, 'HH:mm:ss')}</Typography>
       </Item>
     </ItemContainer>
   )

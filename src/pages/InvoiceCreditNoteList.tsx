@@ -6,7 +6,11 @@ import { useParams, generatePath } from 'react-router-dom'
 import { theme, NAV_HEIGHT } from '~/styles'
 import { Typography, ButtonLink } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useGetInvoiceCreditNotesQuery, CreditNotesForListFragmentDoc } from '~/generated/graphql'
+import {
+  useGetInvoiceCreditNotesQuery,
+  CreditNotesForListFragmentDoc,
+  TimezoneEnum,
+} from '~/generated/graphql'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import {
@@ -20,7 +24,7 @@ import {
 import CreditNotesList from '~/components/customers/creditNotes/CreditNotesList'
 
 gql`
-  query getInvoiceCreditNotes($invoiceId: ID!, $page: Int, $limit: Int) {
+  query getInvoiceCreditNotes($customerId: ID!, $invoiceId: ID!, $page: Int, $limit: Int) {
     invoiceCreditNotes(invoiceId: $invoiceId, page: $page, limit: $limit) {
       ...CreditNotesForList
     }
@@ -29,6 +33,11 @@ gql`
       id
       refundableAmountCents
       creditableAmountCents
+    }
+
+    customer(id: $customerId) {
+      id
+      applicableTimezone
     }
   }
 
@@ -47,8 +56,8 @@ const InvoiceCreditNoteList = () => {
   const { translate } = useInternationalization()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const { data, loading, error, fetchMore } = useGetInvoiceCreditNotesQuery({
-    variables: { invoiceId: invoiceId as string, limit: 20 },
-    skip: !invoiceId,
+    variables: { customerId: id as string, invoiceId: invoiceId as string, limit: 20 },
+    skip: !invoiceId || !id,
   })
   const creditNotes = data?.invoiceCreditNotes?.collection
 
@@ -91,6 +100,7 @@ const InvoiceCreditNoteList = () => {
             itemClickRedirection={CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE}
             loading={loading}
             metadata={data?.invoiceCreditNotes?.metadata}
+            customerTimezone={data?.customer?.applicableTimezone || TimezoneEnum.TzUtc}
           />
         )}
       </>

@@ -1,6 +1,6 @@
 import { makeVar, useReactiveVar, ApolloClient } from '@apollo/client'
 
-import { CurrentUserFragment, CurrentOrganizationFragment } from '~/generated/graphql'
+import { CurrentUserFragment, CurrentOrganizationFragment, TimezoneEnum } from '~/generated/graphql'
 
 import { getItemFromLS, setItemFromLS } from '../cacheUtils'
 
@@ -45,6 +45,21 @@ export const updateCurrentUserInfosVar = (params: CurrentUserInfos) => {
     user,
     currentOrganization,
     organizations: user?.organizations || [],
+  })
+}
+
+export const updateOrganizationTimezone = (timezone: TimezoneEnum) => {
+  const currentState = currentUserInfosVar() // TODO !!!! Update also the rest
+  const updatedOrganization = {
+    ...currentState?.currentOrganization,
+    timezone: timezone || TimezoneEnum.TzUtc,
+  }
+
+  setItemFromLS(ORGANIZATION_LS_KEY, updatedOrganization)
+
+  currentUserInfosVar({
+    ...currentState,
+    currentOrganization: updatedOrganization as CurrentOrganizationFragment,
   })
 }
 

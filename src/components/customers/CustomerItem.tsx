@@ -1,7 +1,6 @@
 import { memo, useRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
-import { DateTime } from 'luxon'
 import { generatePath } from 'react-router-dom'
 
 import {
@@ -21,6 +20,7 @@ import {
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
 import { AddCustomerDrawer, AddCustomerDrawerRef } from '~/components/customers/AddCustomerDrawer'
+import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
 
 gql`
   fragment CustomerItem on Customer {
@@ -46,6 +46,7 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
   const editDialogRef = useRef<AddCustomerDrawerRef>(null)
   const { id, name, externalId, createdAt, canBeDeleted, activeSubscriptionCount } = customer
   const { translate } = useInternationalization()
+  const { formatTimeOrgaTZ } = useOrganizationTimezone()
 
   return (
     <ItemContainer>
@@ -72,9 +73,7 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
         </CustomerNameSection>
         <PlanInfosSection>
           <Typography align="right">{activeSubscriptionCount}</Typography>
-          <SmallCell align="right">
-            {DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy')}
-          </SmallCell>
+          <SmallCell align="right">{formatTimeOrgaTZ(createdAt)}</SmallCell>
         </PlanInfosSection>
         <ButtonMock />
       </Item>

@@ -5,8 +5,9 @@ import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
-import { CustomerMainInfosFragment, ProviderTypeEnum } from '~/generated/graphql'
+import { CustomerMainInfosFragment, ProviderTypeEnum, TimezoneEnum } from '~/generated/graphql'
 import CountryCodes from '~/public/countryCode.json'
+import { getTimezoneConfig } from '~/core/timezone'
 
 gql`
   fragment CustomerMainInfos on CustomerDetails {
@@ -26,6 +27,7 @@ gql`
     city
     zipcode
     paymentProvider
+    timezone
     providerCustomer {
       id
       providerCustomerId
@@ -75,6 +77,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     zipcode,
     paymentProvider,
     providerCustomer,
+    timezone,
   } = customer
 
   return (
@@ -97,6 +100,17 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
         <Typography variant="caption">{translate('text_6250304370f0f700a8fdc283')}</Typography>
         <Typography color="textSecondary">{externalId}</Typography>
       </div>
+      {timezone && (
+        <div>
+          <Typography variant="caption">{translate('text_6390a767b79591bc70ba39f7')}</Typography>
+          <Typography color="textSecondary">
+            {translate('text_638f743fa9a2a9545ee6409a', {
+              zone: translate(timezone || TimezoneEnum.TzUtc),
+              offset: getTimezoneConfig(timezone).offset,
+            })}
+          </Typography>
+        </div>
+      )}
       {currency && (
         <div>
           <Typography variant="caption">{translate('text_632b4acf0c41206cbcb8c324')}</Typography>
