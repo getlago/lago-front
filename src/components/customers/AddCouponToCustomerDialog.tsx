@@ -169,7 +169,8 @@ export const AddCouponToCustomerDialog = forwardRef<
 
       if (hasDefinedGQLError('CouponIsNotReusable', errors)) {
         formikBag.setFieldError(
-          'couponId', translate('text_638f48274d41e3f1d01fc119', {customerFullName: customerName})
+          'couponId',
+          translate('text_638f48274d41e3f1d01fc119', { customerFullName: customerName })
         )
       } else if (hasDefinedGQLError('CurrenciesDoesNotMatch', errors, 'currency')) {
         setCurrencyError(true)
