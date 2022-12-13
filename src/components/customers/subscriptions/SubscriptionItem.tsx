@@ -1,7 +1,6 @@
 import { forwardRef, ForwardedRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
-import { DateTime } from 'luxon'
 
 import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -9,8 +8,10 @@ import {
   SubscriptionLinePlanFragmentDoc,
   SubscriptionItemFragment,
   StatusTypeEnum,
+  TimezoneEnum,
 } from '~/generated/graphql'
 import { Typography, Skeleton } from '~/components/designSystem'
+import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
 
 import { AddSubscriptionDrawerRef } from './AddSubscriptionDrawer'
 import { EditCustomerSubscriptionDrawerRef } from './EditCustomerSubscriptionDrawer'
@@ -41,6 +42,7 @@ gql`
 
 interface SubscriptionItemProps {
   subscription: SubscriptionItemFragment
+  customerTimezone: TimezoneEnum
 }
 
 export interface SubscriptionItemRef {
@@ -50,7 +52,7 @@ export interface SubscriptionItemRef {
 }
 
 export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItemProps>(
-  ({ subscription }: SubscriptionItemProps, ref) => {
+  ({ subscription, customerTimezone }: SubscriptionItemProps, ref) => {
     const { translate } = useInternationalization()
     const {
       id,
@@ -65,6 +67,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
       startedAt,
       subscriptionAt,
     } = subscription
+    const { formatTimeOrgaTZ } = useOrganizationTimezone()
     const isDowngrading = !!nextPlan
 
     return (
@@ -80,6 +83,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
             periodEndDate={periodEndDate}
             status={StatusTypeEnum.Pending}
             isDowngrade
+            customerTimezone={customerTimezone}
           />
         )}
         <SubscriptionLine
@@ -91,6 +95,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
           periodEndDate={periodEndDate}
           plan={plan}
           status={status}
+          customerTimezone={customerTimezone}
         />
         {isDowngrading && !!nextPlan && (
           <DateInfos variant="caption">
@@ -98,7 +103,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
               planName: nextPlan?.name,
               dateStartNewPlan: !nextPendingStartDate
                 ? '-'
-                : DateTime.fromISO(nextPendingStartDate).toFormat('LLL. dd, yyyy'),
+                : formatTimeOrgaTZ(nextPendingStartDate),
             })}
           </DateInfos>
         )}
@@ -106,7 +111,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
           <DateInfos variant="caption">
             {translate('text_6335e50b0b089e1d8ed50960', {
               planName: plan?.name,
-              startDate: DateTime.fromISO(subscriptionAt).toFormat('LLL. dd, yyyy'),
+              startDate: formatTimeOrgaTZ(subscriptionAt),
             })}
           </DateInfos>
         )}

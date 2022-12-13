@@ -1,15 +1,15 @@
 import { memo } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
-import { DateTime } from 'luxon'
 import { generatePath, Link } from 'react-router-dom'
 
 import { Typography } from '~/components/designSystem'
-import { CountryCode, Customer, Invoice } from '~/generated/graphql'
+import { CountryCode, InvoiceForInvoiceInfosFragment } from '~/generated/graphql'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import CountryCodes from '~/public/countryCode.json'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
+import { formatDateToTZ } from '~/core/timezone'
 
 gql`
   fragment InvoiceForInvoiceInfos on Invoice {
@@ -26,16 +26,17 @@ gql`
       country
       city
       zipcode
+      applicableTimezone
     }
   }
 `
 
 interface InvoiceCustomerInfosProps {
-  customer: Customer
-  invoice: Invoice
+  invoice?: InvoiceForInvoiceInfosFragment | null
 }
 
-export const InvoiceCustomerInfos = memo(({ customer, invoice }: InvoiceCustomerInfosProps) => {
+export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps) => {
+  const { customer } = invoice || {}
   const { translate } = useInternationalization()
 
   return (
@@ -130,7 +131,11 @@ export const InvoiceCustomerInfos = memo(({ customer, invoice }: InvoiceCustomer
                 {translate('text_634687079be251fdb4383407')}
               </Typography>
               <Typography variant="body" color="grey700">
-                {DateTime.fromISO(invoice?.issuingDate).toFormat('LLL. dd, yyyy')}
+                {formatDateToTZ(
+                  invoice?.issuingDate,
+                  customer?.applicableTimezone,
+                  "LLL. dd, yyyy U'T'CZ"
+                )}
               </Typography>
             </InfoLine>
             <InfoLine>
@@ -138,7 +143,11 @@ export const InvoiceCustomerInfos = memo(({ customer, invoice }: InvoiceCustomer
                 {translate('text_634687079be251fdb4383413')}
               </Typography>
               <Typography variant="body" color="grey700">
-                {DateTime.fromISO(invoice?.issuingDate).toFormat('LLL. dd, yyyy')}
+                {formatDateToTZ(
+                  invoice?.issuingDate,
+                  customer?.applicableTimezone,
+                  "LLL. dd, yyyy U'T'CZ"
+                )}
               </Typography>
             </InfoLine>
           </>

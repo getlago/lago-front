@@ -31,6 +31,7 @@ import {
   CustomerAddOnsFragmentDoc,
   CustomerUsageSubscriptionFragmentDoc,
   StatusTypeEnum,
+  TimezoneEnum,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -78,6 +79,7 @@ gql`
     hasCreditNotes
     creditNotesCreditsAvailableCount
     creditNotesBalanceAmountCents
+    applicableTimezone
     subscriptions(status: [active, pending]) {
       plan {
         id
@@ -151,10 +153,12 @@ const CustomerDetails = () => {
     invoices,
     name,
     subscriptions,
+    applicableTimezone,
   } = data?.customer || {}
   const hasActiveSubscription = !!(subscriptions || [])?.filter(
     (s) => s.status === StatusTypeEnum.Active
   ).length
+  const safeTimezone = applicableTimezone || TimezoneEnum.TzUtc
 
   return (
     <div>
@@ -334,12 +338,17 @@ const CustomerDetails = () => {
                             />
                           )}
                           {!loading && (
-                            <CustomerAddOns ref={addOnDialogRef} addOns={appliedAddOns} />
+                            <CustomerAddOns
+                              ref={addOnDialogRef}
+                              addOns={appliedAddOns}
+                              customerTimezone={safeTimezone}
+                            />
                           )}
                           <CustomerSubscriptionsList
                             ref={subscriptionsDialogRef}
                             loading={loading}
                             subscriptions={subscriptions ?? []}
+                            customerTimezone={safeTimezone}
                           />
                         </SideBlock>
                       ),
@@ -357,6 +366,7 @@ const CustomerDetails = () => {
                             ref={addWalletToCustomerDialogRef}
                             customerId={id as string}
                             hasActiveWallet={!!hasActiveWallet}
+                            customerTimezone={safeTimezone}
                           />
                         </SideBlock>
                       ),
@@ -375,6 +385,7 @@ const CustomerDetails = () => {
                             id={id as string}
                             subscriptions={subscriptions ?? []}
                             loading={loading}
+                            customerTimezone={safeTimezone}
                           />
                         </SideBlock>
                       ),
@@ -388,7 +399,11 @@ const CustomerDetails = () => {
                       routerState: { disableScrollTop: true },
                       component: (
                         <SideBlock>
-                          <CustomerInvoicesList customerId={id as string} invoices={invoices} />
+                          <CustomerInvoicesList
+                            customerId={id as string}
+                            invoices={invoices}
+                            customerTimezone={safeTimezone}
+                          />
                         </SideBlock>
                       ),
                     },
@@ -407,6 +422,7 @@ const CustomerDetails = () => {
                             creditNotesCreditsAvailableCount={creditNotesCreditsAvailableCount}
                             creditNotesBalanceAmountCents={creditNotesBalanceAmountCents}
                             userCurrency={data?.customer?.currency || undefined}
+                            customerTimezone={safeTimezone}
                           />
                         </SideBlock>
                       ),
@@ -460,6 +476,7 @@ const CustomerDetails = () => {
             ref={subscriptionsDialogRef}
             customerName={name as string}
             customerId={id as string}
+            customerTimezone={safeTimezone}
           />
           <AddWalletToCustomerDialog
             customerId={id as string}

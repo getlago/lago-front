@@ -1,5 +1,4 @@
 import React, { useRef } from 'react'
-import { DateTime } from 'luxon'
 import { gql } from '@apollo/client'
 import { useParams, generatePath } from 'react-router-dom'
 import { Link } from 'react-router-dom'
@@ -42,11 +41,12 @@ import {
   VoidCreditNoteDialogRef,
 } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
 import { SectionHeader } from '~/styles/customer'
+import { formatDateToTZ } from '~/core/timezone'
 
 import { CustomerDetailsTabsOptions } from './CustomerDetails'
 
 gql`
-  query getCreditNote($id: ID!) {
+  query getCreditNote($id: ID!, $customerId: ID!) {
     creditNote(id: $id) {
       id
       balanceAmountCents
@@ -106,6 +106,11 @@ gql`
           }
         }
       }
+    }
+
+    customer(id: $customerId) {
+      id
+      applicableTimezone
     }
   }
 
@@ -186,8 +191,8 @@ const CreditNoteDetails = () => {
   })
 
   const { data, loading, error } = useGetCreditNoteQuery({
-    variables: { id: creditNoteId as string },
-    skip: !creditNoteId,
+    variables: { id: creditNoteId as string, customerId: customerId as string },
+    skip: !creditNoteId || !customerId,
   })
   const creditNote = data?.creditNote
   const creditedFormattedStatus = creditedMapStatus(creditNote?.creditStatus)
@@ -315,7 +320,10 @@ const CreditNoteDetails = () => {
                   <Status
                     type={status.type}
                     label={translate(status.label, {
-                      date: DateTime.fromISO(creditNote?.refundedAt).toFormat('LLL. dd, yyyy'),
+                      date: formatDateToTZ(
+                        creditNote?.refundedAt,
+                        data?.customer?.applicableTimezone
+                      ),
                     })}
                   />
                 </MainInfoLine>
@@ -409,7 +417,7 @@ const CreditNoteDetails = () => {
                         {translate('text_637655cb50f04bf1c8379d06')}
                       </Typography>
                       <Typography variant="body" color="grey700">
-                        {DateTime.fromISO(creditNote?.createdAt).toFormat('LLL. dd, yyyy')}
+                        {formatDateToTZ(creditNote?.createdAt, data?.customer?.applicableTimezone)}
                       </Typography>
                     </InfoLine>
                   )}
@@ -438,7 +446,10 @@ const CreditNoteDetails = () => {
                       <Status
                         type={status.type}
                         label={translate(status.label, {
-                          date: DateTime.fromISO(creditNote?.refundedAt).toFormat('LLL. dd, yyyy'),
+                          date: formatDateToTZ(
+                            creditNote?.refundedAt,
+                            data?.customer?.applicableTimezone
+                          ),
                         })}
                       />
                     </Typography>

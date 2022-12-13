@@ -2,13 +2,13 @@ import React, { forwardRef, useState, useImperativeHandle, useRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 import _groupBy from 'lodash/groupBy'
-import { DateTime } from 'luxon'
 
 import { Drawer, DrawerRef, Button, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NAV_HEIGHT, theme } from '~/styles'
-import { ChargeUsage, CurrencyEnum } from '~/generated/graphql'
+import { ChargeUsage, CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { formatDateToTZ } from '~/core/timezone'
 
 gql`
   fragment CustomerUsageForUsageDetails on CustomerUsage {
@@ -38,87 +38,95 @@ interface CustomerUsageDetailDrawerProps {
   currency: CurrencyEnum
   fromDatetime: string
   toDatetime: string
+  customerTimezone: TimezoneEnum
 }
 
 export const CustomerUsageDetailDrawer = forwardRef<
   CustomerUsageDetailDrawerRef,
   CustomerUsageDetailDrawerProps
->(({ currency, fromDatetime, toDatetime }: CustomerUsageDetailDrawerProps, ref) => {
-  const { translate } = useInternationalization()
-  const drawerRef = useRef<DrawerRef>(null)
-  const [usage, setUsage] = useState<ChargeUsage>()
+>(
+  (
+    { currency, fromDatetime, toDatetime, customerTimezone }: CustomerUsageDetailDrawerProps,
+    ref
+  ) => {
+    const { translate } = useInternationalization()
+    const drawerRef = useRef<DrawerRef>(null)
+    const [usage, setUsage] = useState<ChargeUsage>()
 
-  useImperativeHandle(ref, () => ({
-    openDrawer: (data) => {
-      setUsage(data)
-      drawerRef.current?.openDrawer()
-    },
-    closeDialog: () => drawerRef.current?.closeDrawer(),
-  }))
+    useImperativeHandle(ref, () => ({
+      openDrawer: (data) => {
+        setUsage(data)
+        drawerRef.current?.openDrawer()
+      },
+      closeDialog: () => drawerRef.current?.closeDrawer(),
+    }))
 
-  return (
-    <Drawer
-      ref={drawerRef}
-      title={translate('text_633dae57ca9a923dd53c208f', {
-        billableMetricName: usage?.billableMetric.name,
-      })}
-    >
-      <>
-        <Content>
-          <Title>
-            <Typography variant="headline">
-              {translate('text_633dae57ca9a923dd53c2093', {
-                billableMetricName: usage?.billableMetric.name,
-              })}
-            </Typography>
-            <Typography>
-              {translate('text_633dae57ca9a923dd53c2097', {
-                fromDate: DateTime.fromISO(fromDatetime).toFormat('LLL. dd yyyy'),
-                toDate: DateTime.fromISO(toDatetime).toFormat('LLL. dd yyyy'),
-              })}
-            </Typography>
-          </Title>
-          <Groups>
-            {Object.entries(_groupBy(usage?.groups, 'key')).map(([key, values], i) => (
-              <React.Fragment key={`usage-group-${i}`}>
-                {key !== 'null' && (
-                  <GroupTitle variant="bodyHl" color="grey600">
-                    {key}
-                  </GroupTitle>
-                )}
-                <ItemsWrapper>
-                  {values.map((value, j) => (
-                    <GroupItem key={`usage-group-${i}-value-${j}`} className="item">
-                      <div>
-                        <Typography variant="bodyHl" color="grey700">
-                          {value.value}
+    return (
+      <Drawer
+        ref={drawerRef}
+        title={translate('text_633dae57ca9a923dd53c208f', {
+          billableMetricName: usage?.billableMetric.name,
+        })}
+      >
+        <>
+          <Content>
+            <Title>
+              <Typography variant="headline">
+                {translate('text_633dae57ca9a923dd53c2093', {
+                  billableMetricName: usage?.billableMetric.name,
+                })}
+              </Typography>
+              <Typography>
+                {translate('text_633dae57ca9a923dd53c2097', {
+                  fromDate: formatDateToTZ(fromDatetime, customerTimezone),
+                  toDate: formatDateToTZ(toDatetime, customerTimezone),
+                })}
+              </Typography>
+            </Title>
+            <Groups>
+              {Object.entries(_groupBy(usage?.groups, 'key')).map(([key, values], i) => (
+                <React.Fragment key={`usage-group-${i}`}>
+                  {key !== 'null' && (
+                    <GroupTitle variant="bodyHl" color="grey600">
+                      {key}
+                    </GroupTitle>
+                  )}
+                  <ItemsWrapper>
+                    {values.map((value, j) => (
+                      <GroupItem key={`usage-group-${i}-value-${j}`} className="item">
+                        <div>
+                          <Typography variant="bodyHl" color="grey700">
+                            {value.value}
+                          </Typography>
+                          <Typography variant="body" color="grey600">
+                            {translate('text_633dae57ca9a923dd53c20a3', {
+                              totalUnits: value.units,
+                            })}
+                          </Typography>
+                        </div>
+                        <Typography variant="body" color="grey700" noWrap>
+                          {intlFormatNumber(Number(value.amountCents) || 0, {
+                            currencyDisplay: 'symbol',
+                            currency,
+                          })}
                         </Typography>
-                        <Typography variant="body" color="grey600">
-                          {translate('text_633dae57ca9a923dd53c20a3', { totalUnits: value.units })}
-                        </Typography>
-                      </div>
-                      <Typography variant="body" color="grey700" noWrap>
-                        {intlFormatNumber(Number(value.amountCents) || 0, {
-                          currencyDisplay: 'symbol',
-                          currency,
-                        })}
-                      </Typography>
-                    </GroupItem>
-                  ))}
-                </ItemsWrapper>
-              </React.Fragment>
-            ))}
-          </Groups>
-        </Content>
-        <SubmitButton>
-          <Button fullWidth size="large" onClick={() => drawerRef.current?.closeDrawer()}>
-            {translate('text_633dae57ca9a923dd53c20cf')}
-          </Button>
-        </SubmitButton>
-      </>
-    </Drawer>
-  )
-})
+                      </GroupItem>
+                    ))}
+                  </ItemsWrapper>
+                </React.Fragment>
+              ))}
+            </Groups>
+          </Content>
+          <SubmitButton>
+            <Button fullWidth size="large" onClick={() => drawerRef.current?.closeDrawer()}>
+              {translate('text_633dae57ca9a923dd53c20cf')}
+            </Button>
+          </SubmitButton>
+        </>
+      </Drawer>
+    )
+  }
+)
 
 const Content = styled.div`
   margin-bottom: ${theme.spacing(8)};

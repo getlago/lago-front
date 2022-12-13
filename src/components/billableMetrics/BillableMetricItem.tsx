@@ -1,5 +1,4 @@
 import { memo, useRef } from 'react'
-import { DateTime } from 'luxon'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { generatePath } from 'react-router-dom'
@@ -29,6 +28,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
+import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
 
 import {
   DeleteBillableMetricDialog,
@@ -58,6 +58,7 @@ export const BillableMetricItem = memo(
     const { id, name, code, createdAt, canBeDeleted } = billableMetric
     const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
     const { translate } = useInternationalization()
+    const { formatTimeOrgaTZ } = useOrganizationTimezone()
 
     return (
       <ItemContainer>
@@ -79,9 +80,7 @@ export const BillableMetricItem = memo(
               </Typography>
             </NameBlock>
           </BillableMetricName>
-          <CellSmall align="right">
-            {DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy')}
-          </CellSmall>
+          <CellSmall align="right">{formatTimeOrgaTZ(createdAt)}</CellSmall>
           <ButtonMock />
         </ListItemLink>
         <Popper

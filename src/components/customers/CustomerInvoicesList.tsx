@@ -1,12 +1,12 @@
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
-import { DateTime } from 'luxon'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import {
   CustomerInvoiceListFragment,
   InvoicePaymentStatusTypeEnum,
   useDownloadInvoiceMutation,
+  TimezoneEnum,
 } from '~/generated/graphql'
 import { Button, Popper, Status, StatusEnum, Tooltip, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -22,6 +22,7 @@ import { SectionHeader, SideSection } from '~/styles/customer'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
+import { getTimezoneConfig, formatDateToTZ } from '~/core/timezone'
 
 gql`
   fragment CustomerInvoiceList on Invoice {
@@ -44,6 +45,7 @@ gql`
 interface CustomerInvoicesListProps {
   customerId: string
   invoices?: CustomerInvoiceListFragment[] | null
+  customerTimezone: TimezoneEnum
 }
 
 const mapStatus = (type?: InvoicePaymentStatusTypeEnum | undefined) => {
@@ -66,7 +68,11 @@ const mapStatus = (type?: InvoicePaymentStatusTypeEnum | undefined) => {
   }
 }
 
-export const CustomerInvoicesList = ({ customerId, invoices }: CustomerInvoicesListProps) => {
+export const CustomerInvoicesList = ({
+  customerId,
+  invoices,
+  customerTimezone,
+}: CustomerInvoicesListProps) => {
   let navigate = useNavigate()
   const { translate } = useInternationalization()
   const [downloadInvoice] = useDownloadInvoiceMutation({
@@ -102,7 +108,14 @@ export const CustomerInvoicesList = ({ customerId, invoices }: CustomerInvoicesL
         <>
           <ListHeader>
             <IssuingDateCell variant="bodyHl" color="disabled" noWrap>
-              {translate('text_62544c1db13ca10187214d7f')}
+              <Tooltip
+                placement="top-start"
+                title={translate('text_6390ea10cf97ec5780001c9d', {
+                  offset: getTimezoneConfig(customerTimezone).offset,
+                })}
+              >
+                <WithTooltip>{translate('text_62544c1db13ca10187214d7f')}</WithTooltip>
+              </Tooltip>
             </IssuingDateCell>
             <NumberCellHeader variant="bodyHl" color="disabled">
               {translate('text_62b31e1f6a5b8b1b745ece00')}
@@ -133,7 +146,7 @@ export const CustomerInvoicesList = ({ customerId, invoices }: CustomerInvoicesL
                     }
                   >
                     <IssuingDateCell noWrap>
-                      {DateTime.fromISO(issuingDate).toFormat('LLL. dd, yyyy')}
+                      {formatDateToTZ(issuingDate, customerTimezone)}
                     </IssuingDateCell>
                     <NumberCell color="textSecondary">{number}</NumberCell>
                     <AmountCell color="textSecondary" align="right">
@@ -263,4 +276,10 @@ const Item = styled.div`
     cursor: pointer;
     background-color: ${theme.palette.grey[100]};
   }
+`
+
+const WithTooltip = styled.div`
+  border-bottom: 2px dotted ${theme.palette.grey[400]};
+  width: fit-content;
+  margin-top: 2px;
 `

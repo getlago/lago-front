@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { DateTime } from 'luxon'
 import { memo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
@@ -14,7 +13,11 @@ import {
 } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { useDownloadCreditNoteMutation, CreditNotesForListFragment } from '~/generated/graphql'
+import {
+  useDownloadCreditNoteMutation,
+  CreditNotesForListFragment,
+  TimezoneEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   HEADER_TABLE_HEIGHT,
@@ -24,6 +27,7 @@ import {
   PopperOpener,
   theme,
 } from '~/styles'
+import { getTimezoneConfig, formatDateToTZ } from '~/core/timezone'
 
 import { VoidCreditNoteDialog, VoidCreditNoteDialogRef } from './VoidCreditNoteDialog'
 
@@ -58,10 +62,18 @@ interface CreditNotesListProps {
   itemClickRedirection: string
   loading: boolean
   metadata: CreditNotesForListFragment['metadata'] | undefined
+  customerTimezone: TimezoneEnum
 }
 
 const CreditNotesList = memo(
-  ({ creditNotes, fetchMore, itemClickRedirection, loading, metadata }: CreditNotesListProps) => {
+  ({
+    creditNotes,
+    fetchMore,
+    itemClickRedirection,
+    loading,
+    metadata,
+    customerTimezone,
+  }: CreditNotesListProps) => {
     const { translate } = useInternationalization()
     const navigate = useNavigate()
     const { id: customerId, invoiceId } = useParams()
@@ -95,8 +107,16 @@ const CreditNotesList = memo(
       <>
         <ListHeader>
           <IssuingDateCell variant="bodyHl" color="disabled" noWrap>
-            {translate('text_62544c1db13ca10187214d7f')}
+            <Tooltip
+              placement="top-start"
+              title={translate('text_6390ea10cf97ec5780001c9d', {
+                offset: getTimezoneConfig(customerTimezone).offset,
+              })}
+            >
+              <WithTooltip>{translate('text_62544c1db13ca10187214d7f')}</WithTooltip>
+            </Tooltip>
           </IssuingDateCell>
+
           <NumberCellHeader variant="bodyHl" color="disabled" noWrap>
             {translate('text_62b31e1f6a5b8b1b745ece00')}
           </NumberCellHeader>
@@ -132,7 +152,7 @@ const CreditNotesList = memo(
                   }
                 >
                   <IssuingDateCell variant="body" color="grey700" noWrap>
-                    {DateTime.fromISO(creditNote.createdAt).toFormat('LLL. dd, yyyy')}
+                    {formatDateToTZ(creditNote.createdAt, customerTimezone)}
                   </IssuingDateCell>
                   <NumberCell variant="body" color="grey700" noWrap>
                     {creditNote.number}
@@ -290,6 +310,12 @@ const Item = styled.div`
 
 const DotsOpener = styled(PopperOpener)`
   right: 0;
+`
+
+const WithTooltip = styled.div`
+  border-bottom: 2px dotted ${theme.palette.grey[400]};
+  width: fit-content;
+  margin-top: 2px;
 `
 
 export default CreditNotesList

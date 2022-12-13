@@ -9,11 +9,15 @@ interface TooltipProps
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children: React.ReactElement<any, any>
   className?: string
+  maxWidth?: string
 }
 
 export const Tooltip = forwardRef(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ({ children, disableHoverListener, className, ...props }: TooltipProps, ref: any) => {
+  (
+    { children, disableHoverListener, className, maxWidth = '320px', ...props }: TooltipProps,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ref: any
+  ) => {
     const [isOpen, setIsOpen] = useState(false)
 
     return (
@@ -23,7 +27,13 @@ export const Tooltip = forwardRef(
         onMouseEnter={() => !disableHoverListener && setIsOpen(true)}
         onMouseLeave={() => setIsOpen(false)}
       >
-        <MuiTooltip open={isOpen} enterDelay={400} leaveDelay={0} {...props}>
+        <MuiTooltip
+          componentsProps={{ tooltip: { style: { maxWidth: maxWidth } } }}
+          open={isOpen}
+          enterDelay={400}
+          leaveDelay={0}
+          {...props}
+        >
           {/* eslint-disable-next-line */}
           <div onClick={() => setIsOpen(false)}>{children}</div>
         </MuiTooltip>

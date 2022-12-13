@@ -37,6 +37,7 @@ gql`
     city
     zipcode
     paymentProvider
+    timezone
     providerCustomer {
       id
       providerCustomerId
@@ -61,7 +62,9 @@ gql`
     country
     city
     zipcode
+    applicableTimezone
     paymentProvider
+    timezone
     providerCustomer {
       id
       providerCustomerId

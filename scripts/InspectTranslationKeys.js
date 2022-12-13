@@ -62,6 +62,8 @@ async function extract() {
     // Get all translation keys from the ditto file
     const dittoTranslations = JSON.parse(fs.readFileSync(file), 'utf-8')
     const dittoKeys = Object.keys(dittoTranslations)
+      // Ignore timzeone keys as they're used in the config without calling translate
+      .filter((key) => key.split('_')[0] !== 'TZ')
     const keysNotInDitto = _.uniq(_.difference(foundKeys, dittoKeys))
     const dittoKeysNotUsed = _.uniq(_.difference(dittoKeys, foundKeys))
 

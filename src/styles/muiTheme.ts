@@ -238,7 +238,6 @@ export const theme = createTheme({
         tooltip: {
           ...typographyCaption,
           backgroundColor: palette.grey[700],
-          maxWidth: '320px',
           padding: '12px 16px',
         },
         // MUI positions poppers using CSS, per position

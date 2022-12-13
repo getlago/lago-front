@@ -1,7 +1,6 @@
 import { memo, useRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
-import { DateTime } from 'luxon'
 import { generatePath } from 'react-router-dom'
 
 import {
@@ -26,6 +25,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PlanItemFragment, DeletePlanDialogFragmentDoc } from '~/generated/graphql'
 import { UPDATE_PLAN_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
+import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
 
 import { DeletePlanDialog, DeletePlanDialogRef } from './DeletePlanDialog'
 
@@ -53,6 +53,7 @@ export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
   const deleteDialogRef = useRef<DeletePlanDialogRef>(null)
   const { id, name, code, customerCount, chargeCount, createdAt, canBeDeleted } = plan
   const { translate } = useInternationalization()
+  const { formatTimeOrgaTZ } = useOrganizationTimezone()
 
   return (
     <ItemContainer>
@@ -78,7 +79,7 @@ export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
         <PlanInfosSection>
           <MediumCell>{customerCount}</MediumCell>
           <SmallCell>{chargeCount}</SmallCell>
-          <MediumCell>{DateTime.fromISO(createdAt).toFormat('LLL. dd, yyyy')}</MediumCell>
+          <MediumCell>{formatTimeOrgaTZ(createdAt)}</MediumCell>
         </PlanInfosSection>
         <ButtonMock />
       </ListItemLink>

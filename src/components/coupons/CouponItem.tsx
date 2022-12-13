@@ -1,7 +1,6 @@
 import { useRef } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
-import { DateTime } from 'luxon'
 import { generatePath } from 'react-router-dom'
 
 import {
@@ -35,6 +34,7 @@ import {
   TerminateCouponDialog,
   TerminateCouponDialogRef,
 } from '~/components/coupons/TerminateCouponDialog'
+import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
 
 gql`
   fragment CouponItem on Coupon {
@@ -80,6 +80,7 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
   const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
   const { translate } = useInternationalization()
   const formattedStatus = mapStatus(status)
+  const { formatTimeOrgaTZ } = useOrganizationTimezone()
 
   return (
     <ItemContainer>
@@ -112,7 +113,7 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
           <MediumCell>
             {!expirationAt
               ? translate('text_62876a50ea3bba00b56d2c2c')
-              : DateTime.fromISO(expirationAt).toFormat('LLL. dd, yyyy')}
+              : formatTimeOrgaTZ(expirationAt)}
           </MediumCell>
           <MediumCell>
             {<Status type={formattedStatus.type} label={translate(formattedStatus.label)} />}

@@ -46,7 +46,7 @@ const Webhook = () => {
 
   return (
     <Page>
-      <Typography variant="headline">{translate('text_6271200984178801ba8bdef2')}</Typography>
+      <Title variant="headline">{translate('text_6271200984178801ba8bdef2')}</Title>
       <Subtitle>{translate('text_6271200984178801ba8bdf06')}</Subtitle>
       <Head>
         <Typography variant="subhead" color="grey700">
@@ -142,10 +142,10 @@ const Webhook = () => {
 const Page = styled.div`
   padding: ${theme.spacing(8)} ${theme.spacing(12)};
   max-width: ${theme.spacing(168)};
+`
 
-  > *:first-child {
-    margin-bottom: ${theme.spacing(1)};
-  }
+const Title = styled(Typography)`
+  margin-bottom: ${theme.spacing(2)};
 `
 
 const Subtitle = styled(Typography)`

@@ -14,6 +14,7 @@ import {
   WalletForUpdateFragmentDoc,
   WalletInfosForTransactionsFragmentDoc,
   WalletStatusEnum,
+  TimezoneEnum,
 } from '~/generated/graphql'
 import { MenuPopper, theme } from '~/styles'
 
@@ -60,12 +61,13 @@ gql`
 interface CustommerWalletListProps {
   customerId: string
   hasActiveWallet: boolean
+  customerTimezone: TimezoneEnum
 }
 
 export const CustomerWalletsList = forwardRef<
   AddWalletToCustomerDialogRef,
   CustommerWalletListProps
->(({ customerId, hasActiveWallet }: CustommerWalletListProps, ref) => {
+>(({ customerId, hasActiveWallet, customerTimezone }: CustommerWalletListProps, ref) => {
   const { translate } = useInternationalization()
   const updateCustomerWalletDialogRef = useRef<UpdateCustomerWalletDialogRef>(null)
   const terminateCustomerWalletDialogRef = useRef<TerminateCustomerWalletDialogRef>(null)
@@ -176,6 +178,7 @@ export const CustomerWalletsList = forwardRef<
                 key={`wallet-${wallet.id}`}
                 wallet={wallet}
                 ref={topupWalletDialogRef}
+                customerTimezone={customerTimezone}
               />
             ))}
           </WalletList>

@@ -6,6 +6,7 @@ import {
   CreditNotesForListFragmentDoc,
   CurrencyEnum,
   useGetCustomerCreditNotesQuery,
+  TimezoneEnum,
 } from '~/generated/graphql'
 import { Avatar, Icon, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -34,6 +35,7 @@ interface CustomerCreditNotesListProps {
   creditNotesCreditsAvailableCount?: number
   creditNotesBalanceAmountCents?: number
   userCurrency?: CurrencyEnum
+  customerTimezone: TimezoneEnum
 }
 
 export const CustomerCreditNotesList = ({
@@ -41,6 +43,7 @@ export const CustomerCreditNotesList = ({
   creditNotesCreditsAvailableCount,
   creditNotesBalanceAmountCents,
   userCurrency,
+  customerTimezone,
 }: CustomerCreditNotesListProps) => {
   const { translate } = useInternationalization()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
@@ -98,6 +101,7 @@ export const CustomerCreditNotesList = ({
           itemClickRedirection={CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE}
           loading={loading}
           metadata={data?.customerCreditNotes?.metadata}
+          customerTimezone={customerTimezone}
         />
       )}
       <VoidCreditNoteDialog ref={voidCreditNoteDialogRef} />

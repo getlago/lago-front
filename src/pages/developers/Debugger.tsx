@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { useMemo, useState, useEffect } from 'react'
-import { DateTime } from 'luxon'
 import styled from 'styled-components'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -21,6 +20,8 @@ import { useEventsQuery, EventListFragment, EventItemFragmentDoc } from '~/gener
 import { EventItem, EventItemSkeleton } from '~/components/debugger/EventItem'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { CodeSnippet } from '~/components/CodeSnippet'
+import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
+import { TimezoneDate } from '~/components/TimezoneDate'
 
 gql`
   fragment EventList on Event {
@@ -37,6 +38,7 @@ gql`
     apiClient
     ipAddress
     externalSubscriptionId
+    customerTimezone
     ...EventItem
   }
 
@@ -72,17 +74,18 @@ const Debugger = () => {
       element.blur && element.blur()
     },
   })
+  const { formatTimeOrgaTZ } = useOrganizationTimezone()
   let index = -1
   const groupedEvent = useMemo(
     () =>
       (data?.events?.collection || []).reduce<Record<string, EventListFragment[]>>((acc, item) => {
-        const date = DateTime.fromISO(item.timestamp).toFormat('LLL. dd, yyyy')
+        const date = formatTimeOrgaTZ(item.timestamp)
 
         acc[date] = [...(acc[date] ? acc[date] : []), item]
 
         return acc
       }, {}),
-    [data?.events?.collection]
+    [data?.events?.collection, formatTimeOrgaTZ]
   )
 
   useEffect(() => {
@@ -162,6 +165,7 @@ const Debugger = () => {
                                 matchBillableMetric,
                                 matchCustomField,
                                 externalSubscriptionId,
+                                customerTimezone,
                               } = event
 
                               index += 1
@@ -203,9 +207,12 @@ const Debugger = () => {
                                             {translate('text_6298bd525e359200d5ea018f')}
                                           </Typography>
                                           <Typography color="textSecondary" noWrap>
-                                            {DateTime.fromISO(timestamp).toFormat(
-                                              'LLL. dd, yyyy HH:mm:ss'
-                                            )}
+                                            <TimezoneDate
+                                              date={timestamp}
+                                              customerTimezone={customerTimezone}
+                                              mainTimezone="utc0"
+                                              mainDateFormat="LLL. dd, yyyy HH:mm:ss 'UTC'"
+                                            />
                                           </Typography>
                                         </EventInfoLine>
                                         <EventInfoLine>

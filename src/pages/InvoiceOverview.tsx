@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import { memo } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
@@ -143,7 +143,7 @@ export const InvoiceOverview = memo(() => {
           </>
         ) : (
           <>
-            <InvoiceCustomerInfos customer={customer as Customer} invoice={invoice as Invoice} />
+            <InvoiceCustomerInfos invoice={invoice} />
             <InvoiceDetailsTable customer={customer as Customer} invoice={invoice as Invoice} />
             {!!formatedCreditNotes?.length && (
               <InvoiceCreditNotesTable
