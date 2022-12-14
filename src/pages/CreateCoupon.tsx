@@ -51,6 +51,7 @@ const CreateCoupon = () => {
       frequencyDuration: coupon?.frequencyDuration || undefined,
       amountCurrency: coupon?.amountCurrency || CurrencyEnum.Usd,
       code: coupon?.code || '',
+      reusable: coupon?.reusable === undefined ? true : coupon.reusable,
       expiration: coupon?.expiration || CouponExpiration.NoExpiration,
       expirationDate: coupon?.expirationDate || undefined,
     },
@@ -83,6 +84,7 @@ const CreateCoupon = () => {
           .min(1, 'text_63314cfeb607e57577d894c9')
           .required(''),
       }),
+      reusable: string().required(''),
       expiration: string().required(''),
       expirationDate: date().when('expiration', {
         is: (expiration: CouponExpiration) =>
@@ -302,32 +304,44 @@ const CreateCoupon = () => {
                     />
                   )}
 
-                  <Checkbox
-                    name="hasLimit"
-                    value={formikProps.values.expiration === CouponExpiration.TimeLimit}
-                    label={translate('text_632d68358f1fedc68eed3eb7')}
-                    onChange={(_, checked) => {
-                      formikProps.setFieldValue(
-                        'expiration',
-                        checked ? CouponExpiration.TimeLimit : CouponExpiration.NoExpiration
-                      )
-                    }}
-                  />
+                  <Settings>
+                    <Checkbox
+                      name="isReusable"
+                      value={formikProps.values.reusable}
+                      disabled={isEdition && !coupon?.canBeDeleted}
+                      label={translate('text_638f48274d41e3f1d01fc16a')}
+                      onChange={(_, checked) => {
+                        formikProps.setFieldValue('reusable', checked)
+                      }}
+                    />
 
-                  {formikProps.values.expiration === CouponExpiration.TimeLimit && (
-                    <ExpirationLine>
-                      <Typography variant="body" color="grey700">
-                        {translate('text_632d68358f1fedc68eed3eb1')}
-                      </Typography>
-                      <DatePickerField
-                        disablePast
-                        name="expirationDate"
-                        placement="top-end"
-                        placeholder={translate('text_632d68358f1fedc68eed3ea5')}
-                        formikProps={formikProps}
-                      />
-                    </ExpirationLine>
-                  )}
+                    <Checkbox
+                      name="hasLimit"
+                      value={formikProps.values.expiration === CouponExpiration.TimeLimit}
+                      label={translate('text_632d68358f1fedc68eed3eb7')}
+                      onChange={(_, checked) => {
+                        formikProps.setFieldValue(
+                          'expiration',
+                          checked ? CouponExpiration.TimeLimit : CouponExpiration.NoExpiration
+                        )
+                      }}
+                    />
+
+                    {formikProps.values.expiration === CouponExpiration.TimeLimit && (
+                      <ExpirationLine>
+                        <Typography variant="body" color="grey700">
+                          {translate('text_632d68358f1fedc68eed3eb1')}
+                        </Typography>
+                        <DatePickerField
+                          disablePast
+                          name="expirationDate"
+                          placement="top-end"
+                          placeholder={translate('text_632d68358f1fedc68eed3ea5')}
+                          formikProps={formikProps}
+                        />
+                      </ExpirationLine>
+                    )}
+                  </Settings>
 
                   {formikProps.values.couponType === CouponTypeEnum.FixedAmount &&
                     formikProps.values.frequency === CouponFrequency.Recurring && (
@@ -384,6 +398,12 @@ const ExpirationLine = styled.div`
 
   > *:last-child {
     flex: 1;
+  }
+`
+
+const Settings = styled.div`
+  > *:not(:last-child) {
+    margin-bottom: ${theme.spacing(3)};
   }
 `
 

@@ -327,7 +327,11 @@ const CustomerDetails = () => {
                       component: (
                         <SideBlock>
                           {!loading && (
-                            <CustomerCoupons coupons={appliedCoupons} customerId={id as string} />
+                            <CustomerCoupons
+                              coupons={appliedCoupons}
+                              customerId={id as string}
+                              customerName={data?.customer?.name as string}
+                            />
                           )}
                           {!loading && (
                             <CustomerAddOns ref={addOnDialogRef} addOns={appliedAddOns} />
@@ -446,7 +450,11 @@ const CustomerDetails = () => {
             // @ts-ignore
             customer={data?.customer}
           />
-          <AddCouponToCustomerDialog ref={addCouponDialogRef} customerId={id as string} />
+          <AddCouponToCustomerDialog
+            ref={addCouponDialogRef}
+            customerId={id as string}
+            customerName={data?.customer?.name as string}
+          />
           <AddAddOnToCustomerDialog ref={addOnDialogRef} customerId={id as string} />
           <AddSubscriptionDrawer
             ref={subscriptionsDialogRef}

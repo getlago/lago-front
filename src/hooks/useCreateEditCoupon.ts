@@ -29,6 +29,7 @@ gql`
     name
     amountCurrency
     code
+    reusable
     expiration
     expirationDate
     canBeDeleted
