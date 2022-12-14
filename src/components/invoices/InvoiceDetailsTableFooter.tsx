@@ -9,6 +9,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 gql`
   fragment InvoiceForDetailsTableFooter on Invoice {
     couponTotalAmountCents
+    creditNoteTotalAmountCents
     subTotalVatExcludedAmountCents
     subTotalVatIncludedAmountCents
     totalAmountCents
@@ -79,6 +80,24 @@ export const InvoiceDetailsTableFooter = memo(({ invoice }: InvoiceDetailsTableF
           </tr>
         </>
       )}
+      {!!Number(invoice?.creditNoteTotalAmountCents) && (
+        <tr>
+          <td></td>
+          <td>
+            <Typography variant="bodyHl" color="grey600">
+              {translate('text_637ccf8133d2c9a7d11ce708')}
+            </Typography>
+          </td>
+          <td>
+            <Typography variant="body" color="success600">
+              {intlFormatNumber(Number(invoice?.creditNoteTotalAmountCents) || 0, {
+                currencyDisplay: 'symbol',
+                currency: invoice?.totalAmountCurrency || CurrencyEnum.Usd,
+              })}
+            </Typography>
+          </td>
+        </tr>
+      )}
       {!!Number(invoice?.couponTotalAmountCents) && (
         <tr>
           <td></td>
@@ -102,7 +121,7 @@ export const InvoiceDetailsTableFooter = memo(({ invoice }: InvoiceDetailsTableF
           <td></td>
           <td>
             <Typography variant="bodyHl" color="grey600">
-              {translate('text_637ccf8133d2c9a7d11ce709')}
+              {translate('text_6391f05df4bf96d81f3660a7')}
             </Typography>
           </td>
           <td>
