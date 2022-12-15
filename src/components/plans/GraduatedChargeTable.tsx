@@ -69,7 +69,13 @@ export const GraduatedChargeTable = ({
 
   return (
     <Container>
-      <AddButton startIcon="plus" variant="quaternary" onClick={addRange} disabled={disabled}>
+      <AddButton
+        startIcon="plus"
+        variant="quaternary"
+        onClick={addRange}
+        disabled={disabled}
+        data-test="add-tier"
+      >
         {translate('text_62793bbb599f1c01522e91a5')}
       </AddButton>
       <TableContainer>
@@ -166,6 +172,7 @@ export const GraduatedChargeTable = ({
                         </InputAdornment>
                       ),
                     }}
+                    data-test={`cell-amount-${i}`}
                   />
                 ),
             },

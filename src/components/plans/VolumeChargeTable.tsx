@@ -69,7 +69,13 @@ export const VolumeChargeTable = ({
 
   return (
     <Container>
-      <AddButton startIcon="plus" variant="quaternary" onClick={addRange} disabled={disabled}>
+      <AddButton
+        startIcon="plus"
+        variant="quaternary"
+        onClick={addRange}
+        disabled={disabled}
+        data-test="add-tier"
+      >
         {translate('text_6304e74aab6dbc18d615f38e')}
       </AddButton>
       <TableContainer>
@@ -164,6 +170,7 @@ export const VolumeChargeTable = ({
                         </InputAdornment>
                       ),
                     }}
+                    data-test={`cell-amount-${i}`}
                   />
                 ),
             },

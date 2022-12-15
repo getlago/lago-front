@@ -69,7 +69,7 @@ export const Table = <T extends Record<string, unknown>>({
       <tbody>
         {data?.map((row, i) => {
           return (
-            <ContentRow key={`table-${name}-head-${i}`}>
+            <ContentRow key={`table-${name}-head-${i}`} data-test={`row-${i}`}>
               <>
                 {columns.map(({ content, mapKey, size = 124 }, j) => {
                   return (
