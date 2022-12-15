@@ -162,6 +162,7 @@ export const ChargePercentage = ({
                 </InputAdornment>
               ),
             }}
+            data-test="free-unit-per-event"
           />
           <Tooltip
             disableHoverListener={disabled}
@@ -207,6 +208,7 @@ export const ChargePercentage = ({
                 <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
               ),
             }}
+            data-test="free-unit-per-total-aggregation"
           />
           <Tooltip
             disableHoverListener={disabled}
@@ -240,6 +242,7 @@ export const ChargePercentage = ({
               fixedAmount: '',
             })
           }
+          data-test="add-fixed-fee"
         >
           {translate('text_62ff5d01a306e274d4ffcc5d')}
         </Button>
@@ -256,6 +259,7 @@ export const ChargePercentage = ({
                 (valuePointer?.freeUnitsPerEvents !== undefined &&
                   valuePointer?.freeUnitsPerTotalAggregation !== undefined)
               }
+              data-test="add-free-units"
             >
               {translate('text_62ff5d01a306e274d4ffcc61')}
             </Button>
@@ -273,6 +277,7 @@ export const ChargePercentage = ({
                   })
                   closePopper()
                 }}
+                data-test="add-free-units-events"
               >
                 {translate('text_62ff5d01a306e274d4ffcc3e')}
               </FreeUnitButton>
@@ -287,6 +292,7 @@ export const ChargePercentage = ({
 
                   closePopper()
                 }}
+                data-test="add-free-units-total-amount"
               >
                 {translate('text_62ff5d01a306e274d4ffcc44')}
               </FreeUnitButton>

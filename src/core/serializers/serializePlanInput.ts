@@ -42,7 +42,12 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
       ? { freeUnits: properties?.freeUnits || 0 }
       : { packageSize: undefined }),
     ...(chargeModel === ChargeModelEnum.Percentage
-      ? { freeUnitsPerEvents: Number(properties?.freeUnitsPerEvents) || undefined }
+      ? {
+          freeUnitsPerEvents: Number(properties?.freeUnitsPerEvents) || undefined,
+          fixedAmount: Number(properties?.fixedAmount) || undefined,
+          freeUnitsPerTotalAggregation:
+            Number(properties?.freeUnitsPerTotalAggregation) || undefined,
+        }
       : {}),
   }
 }
