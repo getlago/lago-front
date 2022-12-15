@@ -2212,10 +2212,10 @@
   resolved "https://registry.npmjs.org/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@dittowords/cli@2.5.2":
-  version "2.5.2"
-  resolved "https://registry.yarnpkg.com/@dittowords/cli/-/cli-2.5.2.tgz#0e90d53b9ee99b9989f86484cf4059a68e135718"
-  integrity sha512-AlRGQK13bFFPqX7+Mdyasz/bIuw6kTbWD0/gb20H/IdcunA6wdduUrTG2ZMSikggW+MvfzzNq4yl5r1p62i/TQ==
+"@dittowords/cli@2.7.1":
+  version "2.7.1"
+  resolved "https://registry.yarnpkg.com/@dittowords/cli/-/cli-2.7.1.tgz#13e645216b22add2ddc4c4090d3978693cc0f0ee"
+  integrity sha512-dD4I0cMrDhxblLbdY2dZAb4sE+x3JheR/Ym2ZA/R92WgUvZLSJ5p3mi6XUxLu+KRK9Obmdqo5ix+gT+UEeQ7aw==
   dependencies:
     axios "^0.27.2"
     boxen "^5.1.2"
