@@ -139,5 +139,8 @@ module.exports = {
   },
   "project_634ea0e94c99df2bb59820d9": {
     "base": require('./👍 [Ready for dev] - Settings - Customers - Lago gocardless connection__base.json')
+  },
+  "project_639c334bcee914d26afecf69": {
+    "base": require('./👍 [Ready for dev] - Settings Customers - Lago x Data Warehouse connection__base.json')
   }
 }

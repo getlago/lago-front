@@ -8,6 +8,7 @@ import { theme } from '~/styles'
 import { Typography, Selector, Avatar, SelectorSkeleton, Chip } from '~/components/designSystem'
 import Stripe from '~/public/images/stripe.svg'
 import GoCardless from '~/public/images/gocardless.svg'
+import Airbyte from '~/public/images/airbyte.svg'
 import { useIntegrationsSettingQuery } from '~/generated/graphql'
 import { STRIPE_INTEGRATION_ROUTE, GOCARDLESS_INTEGRATION_ROUTE } from '~/core/router'
 import { envGlobalVar } from '~/core/apolloClient'
@@ -101,6 +102,15 @@ const Integrations = () => {
               } else {
                 window.open(`${lagoOauthProxyUrl}/gocardless/auth`, '_blank')
               }
+            }}
+            fullWidth
+          />
+          <StyledSelector
+            title={translate('text_639c334c3fa0e9c6ca3512b2')}
+            subtitle={translate('text_639c334c3fa0e9c6ca3512b4')}
+            icon={<Avatar variant="connector">{<Airbyte />}</Avatar>}
+            onClick={() => {
+              window.open('https://docs.airbyte.com/integrations/sources/getlago/', '_blank')
             }}
             fullWidth
           />
