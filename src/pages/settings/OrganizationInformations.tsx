@@ -77,13 +77,14 @@ const OrganizationInformations = () => {
       <Grid>
         <Head>
           <Typography variant="subhead">{translate('text_638906e7b4f1a919cb61d0f4')}</Typography>
+          {/* TODO: Hidden before liscence release
           <Button
             variant="quaternary"
             disabled={!!loading}
             onClick={editTimezoneDialogRef?.current?.openDialog}
           >
             {translate('text_638906e7b4f1a919cb61d0f2')}
-          </Button>
+          </Button> */}
         </Head>
         {!!loading ? (
           <SkeletonLine>
