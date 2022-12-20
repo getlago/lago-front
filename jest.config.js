@@ -56,5 +56,6 @@ module.exports = {
     IS_REACT_ACT_ENVIRONMENT: true,
     LAGO_OAUTH_PROXY_URL: 'https://proxy.lago.dev',
     LAGO_DISABLE_SIGNUP: 'false',
+    SENTRY_DSN: undefined,
   },
 }

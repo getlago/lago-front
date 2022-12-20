@@ -7,6 +7,7 @@ declare var API_URL: string;
 declare var APP_VERSION: string;
 declare var LAGO_OAUTH_PROXY_URL: string;
 declare var LAGO_DISABLE_SIGNUP: string;
+declare var SENTRY_DSN: string;
 
 declare module "*.svg" {
   const content: any;

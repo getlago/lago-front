@@ -7,11 +7,11 @@ import { envGlobalVar } from '~/core/apolloClient'
 
 import { AppEnvEnum } from './globalTypes'
 
-const { appEnv } = envGlobalVar()
+const { appEnv, sentryDsn } = envGlobalVar()
 
-if (appEnv !== AppEnvEnum.development) {
+if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
   Sentry.init({
-    dsn: 'https://3dedf10cc2614403886aa3784388a366@o554090.ingest.sentry.io/6458937',
+    dsn: sentryDsn,
     integrations: [new BrowserTracing()],
     environment: appEnv,
   })
