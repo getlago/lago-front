@@ -162,9 +162,9 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
               <Label variant="caption" color="grey600">
                 {translate('text_63208c701ce25db781407475')}
               </Label>
-              <Typography variant="body" color="grey700" noWrap>
+              <InvitationURL variant="body" color="grey700">
                 {invitationUrl}
-              </Typography>
+              </InvitationURL>
             </Line>
           </>
         )}
@@ -185,12 +185,16 @@ const Content = styled.div`
 
 const Line = styled.div`
   display: flex;
-  align-items: center;
+  align-items: baseline;
 `
 
 const Label = styled(Typography)`
   width: 140px;
   flex-shrink: 0;
+`
+
+const InvitationURL = styled(Typography)`
+  line-break: anywhere;
 `
 
 CreateInviteDialog.displayName = 'CreateInviteDialog'
