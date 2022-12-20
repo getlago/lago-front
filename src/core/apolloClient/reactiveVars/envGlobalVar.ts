@@ -8,6 +8,7 @@ interface EnvGlobal {
   lagoOauthProxyUrl: string
   disableSignUp: boolean
   appVersion: string
+  sentryDsn: string
 }
 
 export const envGlobalVar = makeVar<EnvGlobal>({
@@ -16,4 +17,5 @@ export const envGlobalVar = makeVar<EnvGlobal>({
   lagoOauthProxyUrl: window.LAGO_OAUTH_PROXY_URL || LAGO_OAUTH_PROXY_URL,
   disableSignUp: (window.LAGO_DISABLE_SIGNUP || LAGO_DISABLE_SIGNUP) === 'true',
   appVersion: APP_VERSION,
+  sentryDsn: window.SENTRY_DSN || SENTRY_DSN,
 })
