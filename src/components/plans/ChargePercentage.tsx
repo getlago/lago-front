@@ -61,7 +61,7 @@ export const ChargePercentage = ({
     freeAmountUnits: intlFormatNumber(Number(valuePointer?.freeUnitsPerTotalAggregation) || 0, {
       currencyDisplay: 'symbol',
       currency,
-      maximumFractionDigits: 5,
+      maximumFractionDigits: 15,
     }),
   })
   const handleUpdate = useCallback(
@@ -314,7 +314,7 @@ export const ChargePercentage = ({
               fixedFeeValue: intlFormatNumber(Number(valuePointer?.fixedAmount) || 0, {
                 currencyDisplay: 'symbol',
                 currency,
-                maximumFractionDigits: 5,
+                maximumFractionDigits: 15,
               }),
             })}
           </Typography>

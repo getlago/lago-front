@@ -215,7 +215,7 @@ export const VolumeChargeTable = ({
             lastRowFirstUnit: infosCalculation.lastRowFirstUnit,
             value: intlFormatNumber(infosCalculation.value, {
               currencyDisplay: 'symbol',
-              maximumFractionDigits: 5,
+              maximumFractionDigits: 15,
               currency,
             }),
           })}
@@ -225,17 +225,17 @@ export const VolumeChargeTable = ({
             lastRowFirstUnit: infosCalculation.lastRowFirstUnit,
             lastRowPerUnit: intlFormatNumber(infosCalculation.lastRowPerUnit, {
               currencyDisplay: 'symbol',
-              maximumFractionDigits: 5,
+              maximumFractionDigits: 15,
               currency,
             }),
             lastRowFlatFee: intlFormatNumber(infosCalculation.lastRowFlatFee, {
               currencyDisplay: 'symbol',
-              maximumFractionDigits: 5,
+              maximumFractionDigits: 15,
               currency,
             }),
             value: intlFormatNumber(infosCalculation.value, {
               currencyDisplay: 'symbol',
-              maximumFractionDigits: 5,
+              maximumFractionDigits: 15,
               currency,
             }),
           })}

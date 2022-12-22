@@ -221,7 +221,7 @@ export const GraduatedChargeTable = ({
                     lastRowUnit: calculation.firstUnit,
                     value: intlFormatNumber(calculation.total, {
                       currencyDisplay: 'symbol',
-                      maximumFractionDigits: 5,
+                      maximumFractionDigits: 15,
                       currency,
                     }),
                   })}
@@ -235,17 +235,17 @@ export const GraduatedChargeTable = ({
                     tier1LastUnit: calculation.units,
                     tier1PerUnit: intlFormatNumber(calculation.perUnit, {
                       currencyDisplay: 'symbol',
-                      maximumFractionDigits: 5,
+                      maximumFractionDigits: 15,
                       currency,
                     }),
                     tier1FlatFee: intlFormatNumber(calculation.flatFee, {
                       currencyDisplay: 'symbol',
-                      maximumFractionDigits: 5,
+                      maximumFractionDigits: 15,
                       currency,
                     }),
                     totalTier1: intlFormatNumber(calculation.total, {
                       currencyDisplay: 'symbol',
-                      maximumFractionDigits: 5,
+                      maximumFractionDigits: 15,
                       currency,
                     }),
                   })}
@@ -259,17 +259,17 @@ export const GraduatedChargeTable = ({
                   unitCount: calculation.units,
                   tierPerUnit: intlFormatNumber(calculation.perUnit, {
                     currencyDisplay: 'symbol',
-                    maximumFractionDigits: 5,
+                    maximumFractionDigits: 15,
                     currency,
                   }),
                   tierFlatFee: intlFormatNumber(calculation.flatFee, {
                     currencyDisplay: 'symbol',
-                    maximumFractionDigits: 5,
+                    maximumFractionDigits: 15,
                     currency,
                   }),
                   totalTier: intlFormatNumber(calculation.total, {
                     currencyDisplay: 'symbol',
-                    maximumFractionDigits: 5,
+                    maximumFractionDigits: 15,
                     currency,
                   }),
                 })}

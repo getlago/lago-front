@@ -21,7 +21,7 @@ export const simpleFeeSchema = (maxAmount: number, currency: CurrencyEnum) =>
         (checked: boolean, schema: NumberSchema) => {
           return !!checked
             ? number()
-                .min(0.000001, CreditNoteFeeErrorEnum.minZero)
+                .min(0.0000000000000001, CreditNoteFeeErrorEnum.minZero)
                 .max(deserializeAmount(maxAmount, currency), CreditNoteFeeErrorEnum.overMax)
                 .required('')
             : schema
