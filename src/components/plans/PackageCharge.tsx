@@ -127,7 +127,7 @@ export const PackageCharge = ({
                 units: valuePointer?.packageSize + (valuePointer?.freeUnits || 0) + 1,
                 cost: intlFormatNumber(Number(valuePointer?.amount || 0) * 2, {
                   currencyDisplay: 'symbol',
-                  maximumFractionDigits: 5,
+                  maximumFractionDigits: 15,
                   currency,
                 }),
               })}
@@ -139,7 +139,7 @@ export const PackageCharge = ({
                   unitInPackage: valuePointer?.freeUnits,
                   cost: intlFormatNumber(0, {
                     currencyDisplay: 'symbol',
-                    maximumFractionDigits: 5,
+                    maximumFractionDigits: 15,
                     currency,
                   }),
                 })}
@@ -152,7 +152,7 @@ export const PackageCharge = ({
                 unitInPackage: valuePointer?.packageSize + (valuePointer?.freeUnits || 0),
                 cost: intlFormatNumber(Number(valuePointer?.amount || 0), {
                   currencyDisplay: 'symbol',
-                  maximumFractionDigits: 5,
+                  maximumFractionDigits: 15,
                   currency,
                 }),
               })}
@@ -163,7 +163,7 @@ export const PackageCharge = ({
                 unitInPackage: valuePointer?.packageSize * 2 + (valuePointer?.freeUnits || 0),
                 cost: intlFormatNumber(Number(valuePointer?.amount || 0) * 2, {
                   currencyDisplay: 'symbol',
-                  maximumFractionDigits: 5,
+                  maximumFractionDigits: 15,
                   currency,
                 }),
               })}
