@@ -2,7 +2,7 @@ import { useState, forwardRef, useImperativeHandle, useRef, useEffect, useCallba
 import styled, { css } from 'styled-components'
 import clsns from 'classnames'
 
-import { theme } from '~/styles'
+import { palette, theme } from '~/styles'
 import { removeToast, TToast, TSeverity, ToastSeverityEnum } from '~/core/apolloClient'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -72,7 +72,7 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({ toast }: ToastProps, re
       onMouseLeave={() => startTimeout(AUTO_DISMISS_TIME / 2)}
       data-test={`toast/${severity}`}
     >
-      <Message color="inherit">{translateKey ? translate(translateKey) : message}</Message>
+      <Message color="inherit" html={translateKey ? translate(translateKey) : message} />
       <Button
         onClick={() => setClosing(true)}
         variant="quaternary-light"
@@ -146,5 +146,10 @@ const Message = styled(Typography)`
   && {
     margin-right: ${theme.spacing(4)};
     flex: 1;
+
+    a {
+      color: ${palette.common.white};
+      text-decoration: underline;
+    }
   }
 `
