@@ -74,7 +74,7 @@ const OrganizationInformations = () => {
       <Title variant="headline">{translate('text_62ab2d0396dd6b0361614d2c')}</Title>
       <Subtitle>{translate('text_6380d7e60f081e5b777c4b22')}</Subtitle>
 
-      <Grid>
+      <>
         <Head>
           <Typography variant="subhead">{translate('text_638906e7b4f1a919cb61d0f4')}</Typography>
           {/* TODO: Hidden before liscence release
@@ -125,7 +125,7 @@ const OrganizationInformations = () => {
             ))}
           </div>
         ) : (
-          <>
+          <Grid>
             {organization.logoUrl ? (
               <CompanyAvatar size="medium" variant="connector">
                 <img src={organization.logoUrl} alt={`${organization.name}'s logo`} />
@@ -205,9 +205,9 @@ const OrganizationInformations = () => {
                 ? CountryCodes[organization.country]
                 : translate('text_62ab2d0396dd6b0361614ddd')}
             </SimpleCell>
-          </>
+          </Grid>
         )}
-      </Grid>
+      </>
       <EditOrganizationInformationsDialog ref={editInfosDialogRef} organization={organization} />
       <EditOrganizationTimezoneDialog ref={editTimezoneDialogRef} />
     </Page>
@@ -252,6 +252,8 @@ const Grid = styled.div`
   grid-template-columns: max-content 1fr;
   gap: ${theme.spacing(3)} ${theme.spacing(6)};
   width: 100%;
+  padding-bottom: ${theme.spacing(8)};
+  box-shadow: ${theme.shadows[7]};
 `
 
 const SimpleCell = styled(Typography)`
@@ -265,8 +267,7 @@ const Head = styled.div<{ $withTopSeparator?: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: ${({ $withTopSeparator }) => ($withTopSeparator ? theme.spacing(5) : 0)};
-  margin-bottom: -${theme.spacing(3)};
+  margin-top: ${({ $withTopSeparator }) => ($withTopSeparator ? theme.spacing(8) : 0)};
   grid-column: 1 / span 2;
   box-shadow: ${({ $withTopSeparator }) => ($withTopSeparator ? theme.shadows[5] : 'none')};
 `

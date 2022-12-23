@@ -213,6 +213,7 @@ const MainInfos = styled.div`
 `
 
 const Settings = styled.div`
+  max-width: ${theme.spacing(168)};
   margin: 0 ${theme.spacing(12)};
 `
 

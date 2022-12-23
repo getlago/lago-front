@@ -29,6 +29,7 @@ import { CUSTOMER_DRAFT_INVOICES_LIST_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } fr
 import { formatDateToTZ, getTimezoneConfig } from '~/core/timezone'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 
 import { FinalizeInvoiceDialog, FinalizeInvoiceDialogRef } from '../invoices/FinalizeInvoiceDialog'
 
@@ -278,7 +279,7 @@ export const InvoicesList = ({
                         variant="quaternary"
                         align="left"
                         onClick={() => {
-                          navigator.clipboard.writeText(id)
+                          copyToClipboard(id)
                           addToast({
                             severity: 'info',
                             translateKey: 'text_6253f11816f710014600ba1f',
