@@ -186,10 +186,6 @@ const LeftBlock = styled.div`
 const RightBlock = styled.div`
   display: flex;
   align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(6)};
-  }
 `
 
 const RightSkeleton = styled(Skeleton)`

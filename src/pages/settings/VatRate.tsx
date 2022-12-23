@@ -80,7 +80,6 @@ const VatRate = () => {
         </Typography>
         <Button
           variant="quaternary"
-          size="large"
           disabled={loading}
           onClick={editVATDialogRef?.current?.openDialog}
         >
@@ -97,7 +96,7 @@ const VatRate = () => {
         ) : (
           <>
             <Typography variant="body" color="grey700">
-              {intlFormatNumber(vatRate || 0, {
+              {intlFormatNumber((vatRate || 0) / 100, {
                 minimumFractionDigits: 2,
                 style: 'percent',
               })}
@@ -151,7 +150,6 @@ const VatRate = () => {
         </Typography>
         <Button
           variant="quaternary"
-          size="large"
           disabled={loading}
           onClick={editInvoiceTemplateDialogRef?.current?.openDialog}
         >
