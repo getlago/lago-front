@@ -29,6 +29,7 @@ import {
 } from '~/styles'
 import { getTimezoneConfig, formatDateToTZ } from '~/core/timezone'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 
 import { VoidCreditNoteDialog, VoidCreditNoteDialogRef } from './VoidCreditNoteDialog'
 
@@ -224,7 +225,8 @@ const CreditNotesList = memo(
                         variant="quaternary"
                         align="left"
                         onClick={() => {
-                          navigator.clipboard.writeText(creditNote.id)
+                          copyToClipboard(creditNote.id)
+
                           addToast({
                             severity: 'info',
                             translateKey: 'text_63720bd734e1344aea75b82d',

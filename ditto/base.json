@@ -630,6 +630,7 @@
   "text_6244277fe0975300fe3fb946": "By clicking ‘Leave’, the plan and data you’re creating will be deleted. Are you sure you want to leave?",
   "text_6244277fe0975300fe3fb94a": "Cancel",
   "text_6244277fe0975300fe3fb94c": "Leave",
+  "text_63a5ba11eb4e7e17ef88e9f0": "You're running this app in an <a rel=\"noopener noreferrer external\" target=\"_blank\" href=\"https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts\">unsecure context</a>. Clipboard access is disabled",
   "text_628b8c693e464200e00e465b": "Apply a coupon to this customer",
   "text_628b8c693e464200e00e4669": "By applying a coupon to this customer, they will benefit instantly from the discount defined on this coupon.",
   "text_628b8c693e464200e00e4677": "Coupon",

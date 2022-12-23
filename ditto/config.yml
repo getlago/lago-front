@@ -101,10 +101,12 @@ projects:
     id: 636bdeec2ea28ae182faa50e
   - name: 👍 [Ready for dev] - Settings Customers - Lago x Data Warehouse connection
     id: 639c334bcee914d26afecf69
-  - name: "\U0001F44D [Ready for dev] - All - Custom ≠ timezones"
+  - name: 👍 [Ready for dev] - All - Custom ≠ timezones
     id: 638906e129a144b0c4c27c83
   - name: Amount placeholder
     id: 639710434b2a96dba29b9140
+  - name: Copy to clipboard
+    id: 63a5ba118e83e2c695c6f7c6
 format: flat
 variants: true
 components: true

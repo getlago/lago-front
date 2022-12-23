@@ -18,6 +18,7 @@ import {
 } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import { TimezoneDate } from '~/components/TimezoneDate'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 
 import { AddSubscriptionDrawerRef } from './AddSubscriptionDrawer'
 import { EditCustomerSubscriptionDrawerRef } from './EditCustomerSubscriptionDrawer'
@@ -161,7 +162,8 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
                   variant="quaternary"
                   align="left"
                   onClick={() => {
-                    navigator.clipboard.writeText(subscriptionExternalId)
+                    copyToClipboard(subscriptionExternalId)
+
                     addToast({
                       severity: 'info',
                       translateKey: 'text_62d94cc9ccc5eebcc03160a0',

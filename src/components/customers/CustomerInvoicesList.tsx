@@ -24,6 +24,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { getTimezoneConfig, formatDateToTZ } from '~/core/timezone'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 
 gql`
   fragment CustomerInvoiceList on Invoice {
@@ -196,7 +197,8 @@ export const CustomerInvoicesList = ({
                           variant="quaternary"
                           align="left"
                           onClick={() => {
-                            navigator.clipboard.writeText(id)
+                            copyToClipboard(id)
+
                             addToast({
                               severity: 'info',
                               translateKey: 'text_6253f11816f710014600ba1f',

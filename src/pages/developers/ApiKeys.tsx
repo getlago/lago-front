@@ -5,6 +5,7 @@ import { useCurrentUserInfosVar, addToast } from '~/core/apolloClient'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, Button } from '~/components/designSystem'
 import { NAV_HEIGHT, theme } from '~/styles'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 
 gql`
   fragment ApiKeyOrganization on Organization {
@@ -33,7 +34,7 @@ const ApiKeys = () => {
           size="large"
           startIcon="duplicate"
           onClick={() => {
-            navigator.clipboard.writeText(currentOrganization?.apiKey || '')
+            copyToClipboard(currentOrganization?.apiKey || '')
             addToast({
               severity: 'info',
               translateKey: 'text_6227a2e847fcd700e9038952',
@@ -62,7 +63,7 @@ const ApiKeys = () => {
           size="large"
           startIcon="duplicate"
           onClick={() => {
-            navigator.clipboard.writeText(currentOrganization?.id || '')
+            copyToClipboard(currentOrganization?.id || '')
             addToast({
               severity: 'info',
               translateKey: 'text_636df520279a9e1b3c68cc7d',

@@ -23,6 +23,9 @@ module.exports = {
   "project_623b42fddc2f2c017440cb5b": {
     "base": require('./Billable metrics - Create a billable metric__base.json')
   },
+  "project_63a5ba118e83e2c695c6f7c6": {
+    "base": require('./Copy to clipboard__base.json')
+  },
   "project_628b8c5f8161d800e7c1c562": {
     "base": require('./Coupons - Apply coupons to customers__base.json')
   },

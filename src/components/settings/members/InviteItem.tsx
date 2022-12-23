@@ -9,6 +9,7 @@ import { InviteItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 import { INVITATION_ROUTE } from '~/core/router'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 
 import { RevokeInviteDialogRef } from './RevokeInviteDialog'
 
@@ -48,7 +49,7 @@ export const InviteItem = forwardRef<RevokeInviteDialogRef, InviteItemProps>(
               icon="duplicate"
               variant="quaternary"
               onClick={() => {
-                navigator.clipboard.writeText(
+                copyToClipboard(
                   `${window.location.origin}${generatePath(INVITATION_ROUTE, {
                     token,
                   })}`

@@ -14,6 +14,7 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { addToast, useCurrentUserInfosVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { INVITATION_ROUTE } from '~/core/router'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 
 gql`
   mutation createInvite($input: CreateInviteInput!) {
@@ -117,7 +118,8 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
             <Button
               disabled={!!error}
               onClick={() => {
-                navigator.clipboard.writeText(invitationUrl)
+                copyToClipboard(invitationUrl)
+
                 addToast({
                   severity: 'info',
                   translateKey: 'text_63208c711ce25db781407536',

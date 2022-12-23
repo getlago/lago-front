@@ -35,6 +35,7 @@ import { theme, PageHeader, MenuPopper } from '~/styles'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 
 gql`
   query getInvoiceDetails($id: ID!) {
@@ -207,7 +208,8 @@ const CustomerInvoiceDetails = () => {
                   variant="quaternary"
                   align="left"
                   onClick={() => {
-                    navigator.clipboard.writeText(invoiceId || '')
+                    copyToClipboard(invoiceId || '')
+
                     addToast({
                       severity: 'info',
                       translateKey: 'text_6253f11816f710014600ba1f',
