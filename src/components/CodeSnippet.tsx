@@ -11,6 +11,7 @@ import { Typography, Button } from '~/components/designSystem'
 import { theme, NAV_HEIGHT } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 
 Prism.manual = true
 
@@ -62,7 +63,7 @@ export const CodeSnippet = memo(
                 variant="secondary"
                 startIcon="duplicate"
                 onClick={() => {
-                  navigator.clipboard.writeText(code)
+                  copyToClipboard(code)
 
                   addToast({
                     severity: 'info',

@@ -5,6 +5,7 @@ import { Dialog, DialogRef, Typography, Button } from '~/components/designSystem
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { envGlobalVar, useCurrentUserInfosVar, addToast } from '~/core/apolloClient'
 import { theme } from '~/styles'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 
 const { appEnv, apiUrl, appVersion } = envGlobalVar()
 
@@ -26,7 +27,7 @@ export const DebugInfoDialog = forwardRef<DialogRef>(({}, ref) => {
           </Button>
           <Button
             onClick={() => {
-              navigator.clipboard.writeText(
+              copyToClipboard(
                 `### Environment informations
 **App environment :** ${appEnv}
 **API URL :** ${apiUrl} 

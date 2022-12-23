@@ -23,6 +23,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import GoCardless from '~/public/images/gocardless-large.svg'
 import { addToast } from '~/core/apolloClient'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 
 gql`
   query gocardlessIntegrationsSetting {
@@ -176,7 +177,7 @@ const GocardlessIntegration = () => {
                     startIcon="duplicate"
                     variant="quaternary"
                     onClick={() => {
-                      navigator.clipboard.writeText(webhookSecretKey)
+                      copyToClipboard(webhookSecretKey)
                       addToast({
                         severity: 'info',
                         translateKey: 'text_6360ddae753a8b3e11c80c6c',

@@ -43,6 +43,7 @@ import {
 import { SectionHeader } from '~/styles/customer'
 import { formatDateToTZ } from '~/core/timezone'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 
 import { CustomerDetailsTabsOptions } from './CustomerDetails'
 
@@ -274,7 +275,7 @@ const CreditNoteDetails = () => {
                   variant="quaternary"
                   align="left"
                   onClick={() => {
-                    navigator.clipboard.writeText(creditNote?.id || '')
+                    copyToClipboard(creditNote?.id || '')
                     addToast({
                       severity: 'info',
                       translateKey: 'text_63766b1c4eeb35667c48f26d',
