@@ -8605,10 +8605,10 @@ cyclist@^1.0.1:
   resolved "https://registry.npmjs.org/cyclist/-/cyclist-1.0.1.tgz"
   integrity sha512-NJGVKPS81XejHcLhaLJS7plab0fK3slPh11mESeeDq2W4ZI5kUKK/LRRdVDvjJseojbPB7ZwjnyOybg3Igea/A==
 
-cypress@10.11.0:
-  version "10.11.0"
-  resolved "https://registry.yarnpkg.com/cypress/-/cypress-10.11.0.tgz#e9fbdd7638bae3d8fb7619fd75a6330d11ebb4e8"
-  integrity sha512-lsaE7dprw5DoXM00skni6W5ElVVLGAdRUUdZjX2dYsGjbY/QnpzWZ95Zom1mkGg0hAaO/QVTZoFVS7Jgr/GUPA==
+cypress@12.2.0:
+  version "12.2.0"
+  resolved "https://registry.yarnpkg.com/cypress/-/cypress-12.2.0.tgz#86ddc1ecfffadf57a8689e211cfb4437735f4e92"
+  integrity sha512-kvl95ri95KK8mAy++tEU/wUgzAOMiIciZSL97LQvnOinb532m7dGvwN0mDSIGbOd71RREtmT9o4h088RjK5pKw==
   dependencies:
     "@cypress/request" "^2.88.10"
     "@cypress/xvfb" "^1.2.4"
