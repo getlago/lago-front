@@ -3259,6 +3259,24 @@ export type DeleteCustomerMutationVariables = Exact<{
 
 export type DeleteCustomerMutation = { __typename?: 'Mutation', destroyCustomer?: { __typename?: 'DestroyCustomerPayload', id?: string | null } | null };
 
+export type DeleteCustomerGracePeriodMutationVariables = Exact<{
+  input: UpdateCustomerInvoiceGracePeriodInput;
+}>;
+
+
+export type DeleteCustomerGracePeriodMutation = { __typename?: 'Mutation', updateCustomerInvoiceGracePeriod?: { __typename?: 'CustomerDetails', id: string, invoiceGracePeriod: number } | null };
+
+export type DeleteCustomerGracePeriodFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null };
+
+export type DeleteCustomerVatRateMutationVariables = Exact<{
+  input: UpdateCustomerVatRateInput;
+}>;
+
+
+export type DeleteCustomerVatRateMutation = { __typename?: 'Mutation', updateCustomerVatRate?: { __typename?: 'CustomerDetails', id: string, vatRate?: number | null } | null };
+
+export type DeleteCustomerVatRateFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null };
+
 export type UpdateCustomerInvoiceGracePeriodMutationVariables = Exact<{
   input: UpdateCustomerInvoiceGracePeriodInput;
 }>;
@@ -4026,6 +4044,18 @@ export const CustomerItemFragmentDoc = gql`
     ${AddCustomerDrawerFragmentDoc}`;
 export const DeleteCustomerDialogFragmentDoc = gql`
     fragment DeleteCustomerDialog on Customer {
+  id
+  name
+}
+    `;
+export const DeleteCustomerGracePeriodFragmentDoc = gql`
+    fragment DeleteCustomerGracePeriod on CustomerDetails {
+  id
+  name
+}
+    `;
+export const DeleteCustomerVatRateFragmentDoc = gql`
+    fragment DeleteCustomerVatRate on CustomerDetails {
   id
   name
 }
@@ -5408,6 +5438,74 @@ export function useDeleteCustomerMutation(baseOptions?: Apollo.MutationHookOptio
 export type DeleteCustomerMutationHookResult = ReturnType<typeof useDeleteCustomerMutation>;
 export type DeleteCustomerMutationResult = Apollo.MutationResult<DeleteCustomerMutation>;
 export type DeleteCustomerMutationOptions = Apollo.BaseMutationOptions<DeleteCustomerMutation, DeleteCustomerMutationVariables>;
+export const DeleteCustomerGracePeriodDocument = gql`
+    mutation deleteCustomerGracePeriod($input: UpdateCustomerInvoiceGracePeriodInput!) {
+  updateCustomerInvoiceGracePeriod(input: $input) {
+    id
+    invoiceGracePeriod
+  }
+}
+    `;
+export type DeleteCustomerGracePeriodMutationFn = Apollo.MutationFunction<DeleteCustomerGracePeriodMutation, DeleteCustomerGracePeriodMutationVariables>;
+
+/**
+ * __useDeleteCustomerGracePeriodMutation__
+ *
+ * To run a mutation, you first call `useDeleteCustomerGracePeriodMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCustomerGracePeriodMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCustomerGracePeriodMutation, { data, loading, error }] = useDeleteCustomerGracePeriodMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteCustomerGracePeriodMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCustomerGracePeriodMutation, DeleteCustomerGracePeriodMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteCustomerGracePeriodMutation, DeleteCustomerGracePeriodMutationVariables>(DeleteCustomerGracePeriodDocument, options);
+      }
+export type DeleteCustomerGracePeriodMutationHookResult = ReturnType<typeof useDeleteCustomerGracePeriodMutation>;
+export type DeleteCustomerGracePeriodMutationResult = Apollo.MutationResult<DeleteCustomerGracePeriodMutation>;
+export type DeleteCustomerGracePeriodMutationOptions = Apollo.BaseMutationOptions<DeleteCustomerGracePeriodMutation, DeleteCustomerGracePeriodMutationVariables>;
+export const DeleteCustomerVatRateDocument = gql`
+    mutation deleteCustomerVatRate($input: UpdateCustomerVatRateInput!) {
+  updateCustomerVatRate(input: $input) {
+    id
+    vatRate
+  }
+}
+    `;
+export type DeleteCustomerVatRateMutationFn = Apollo.MutationFunction<DeleteCustomerVatRateMutation, DeleteCustomerVatRateMutationVariables>;
+
+/**
+ * __useDeleteCustomerVatRateMutation__
+ *
+ * To run a mutation, you first call `useDeleteCustomerVatRateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCustomerVatRateMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCustomerVatRateMutation, { data, loading, error }] = useDeleteCustomerVatRateMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteCustomerVatRateMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCustomerVatRateMutation, DeleteCustomerVatRateMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteCustomerVatRateMutation, DeleteCustomerVatRateMutationVariables>(DeleteCustomerVatRateDocument, options);
+      }
+export type DeleteCustomerVatRateMutationHookResult = ReturnType<typeof useDeleteCustomerVatRateMutation>;
+export type DeleteCustomerVatRateMutationResult = Apollo.MutationResult<DeleteCustomerVatRateMutation>;
+export type DeleteCustomerVatRateMutationOptions = Apollo.BaseMutationOptions<DeleteCustomerVatRateMutation, DeleteCustomerVatRateMutationVariables>;
 export const UpdateCustomerInvoiceGracePeriodDocument = gql`
     mutation updateCustomerInvoiceGracePeriod($input: UpdateCustomerInvoiceGracePeriodInput!) {
   updateCustomerInvoiceGracePeriod(input: $input) {
