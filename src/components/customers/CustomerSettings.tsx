@@ -150,6 +150,7 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
           <Button
             variant="quaternary"
             size="large"
+            disabled // TODO - change when pricing is set
             onClick={() => editInvoiceGracePeriodDialogRef?.current?.openDialog()}
           >
             {translate('text_638dff9779fb99299bee912a')}
