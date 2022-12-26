@@ -115,7 +115,8 @@ const VatRate = () => {
         <Button
           variant="quaternary"
           size="large"
-          disabled={loading}
+          disabled // TODO - change when pricing is set
+          // disabled={loading}
           onClick={editGracePeriodDialogRef?.current?.openDialog}
         >
           {translate('text_637f819eff19cd55a56d55e4')}
