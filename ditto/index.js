@@ -137,6 +137,9 @@ module.exports = {
   "project_636bdeec2ea28ae182faa50e": {
     "base": require('./👍 [Ready for dev] - Credit note - Create and apply credit note to a customer__base.json')
   },
+  "project_63aa085ae8d6be2e0e0ee38b": {
+    "base": require('./👍 [Ready for dev] - Customer - Improve tax and grace period on customer__base.json')
+  },
   "project_634687058efb4a10996fdbdc": {
     "base": require('./👍 [Ready for dev] - Customers - Invoice detail page__base.json')
   },

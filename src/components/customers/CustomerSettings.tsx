@@ -4,8 +4,8 @@ import styled from 'styled-components'
 
 import { SideSection } from '~/styles/customer'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Button, Typography } from '~/components/designSystem'
-import { theme, NAV_HEIGHT } from '~/styles'
+import { Button, Typography, Popper } from '~/components/designSystem'
+import { theme, NAV_HEIGHT, MenuPopper } from '~/styles'
 import {
   EditCustomerVatRateFragmentDoc,
   CustomerVatRateFragment,
@@ -23,6 +23,14 @@ import {
   EditCustomerInvoiceGracePeriodDialog,
   EditCustomerInvoiceGracePeriodDialogRef,
 } from './EditCustomerInvoiceGracePeriodDialog'
+import {
+  DeleteCustomerVatRateDialog,
+  DeleteCustomerVatRateDialogRef,
+} from './DeleteCustomerVatRateDialog'
+import {
+  DeleteCustomerGracePeriodeDialog,
+  DeleteCustomerGracePeriodeDialogRef,
+} from './DeleteCustomerGracePeriodeDialog'
 
 gql`
   fragment VatRateOrganization on Organization {
@@ -54,7 +62,9 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
   const { currentOrganization } = useCurrentUserInfosVar()
 
   const editDialogRef = useRef<EditCustomerVatRateDialogRef>(null)
+  const deleteVatRateDialogRef = useRef<DeleteCustomerVatRateDialogRef>(null)
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
+  const deleteGracePeriodDialogRef = useRef<DeleteCustomerGracePeriodeDialogRef>(null)
 
   return (
     <SideSection>
@@ -62,21 +72,62 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
         <Typography variant="subhead" color="grey700">
           {translate('text_637f819eff19cd55a56d55e6')}
         </Typography>
-        <Button
-          variant="quaternary"
-          size="large"
-          onClick={() => editDialogRef?.current?.openDialog()}
-        >
-          {translate('text_62728ff857d47b013204cab3')}
-        </Button>
+        {typeof customer?.vatRate !== 'number' ? (
+          <Button
+            variant="quaternary"
+            size="large"
+            onClick={() => editDialogRef?.current?.openDialog()}
+          >
+            {translate('text_62728ff857d47b013204cab3')}
+          </Button>
+        ) : (
+          <Popper
+            PopperProps={{ placement: 'bottom-end' }}
+            opener={<Button icon="dots-horizontal" variant="quaternary" />}
+          >
+            {({ closePopper }) => (
+              <MenuPopper>
+                <Button
+                  startIcon="pen"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    editDialogRef.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_63aa085d28b8510cd46443f7')}
+                </Button>
+                <Button
+                  startIcon="trash"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    deleteVatRateDialogRef.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_63aa085d28b8510cd46443ff')}
+                </Button>
+              </MenuPopper>
+            )}
+          </Popper>
+        )}
       </InlineSectionTitle>
 
       <InfoBlock>
         <Typography variant="body" color="grey700">
-          {intlFormatNumber((customer?.vatRate || 0) / 100, {
-            minimumFractionDigits: 2,
-            style: 'percent',
-          })}
+          {typeof customer?.vatRate !== 'number'
+            ? translate('text_63aa085d28b8510cd46443ed', {
+                rate: intlFormatNumber((currentOrganization?.vatRate || 0) / 100, {
+                  minimumFractionDigits: 2,
+                  style: 'percent',
+                }),
+              })
+            : intlFormatNumber((customer?.vatRate || 0) / 100, {
+                minimumFractionDigits: 2,
+                style: 'percent',
+              })}
         </Typography>
         <Typography
           variant="caption"
@@ -95,25 +146,66 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
         <Typography variant="subhead" color="grey700">
           {translate('text_638dff9779fb99299bee912e')}
         </Typography>
-        <Button
-          variant="quaternary"
-          size="large"
-          onClick={() => editInvoiceGracePeriodDialogRef?.current?.openDialog()}
-        >
-          {translate('text_638dff9779fb99299bee912a')}
-        </Button>
+        {!customer.invoiceGracePeriod ? (
+          <Button
+            variant="quaternary"
+            size="large"
+            onClick={() => editInvoiceGracePeriodDialogRef?.current?.openDialog()}
+          >
+            {translate('text_638dff9779fb99299bee912a')}
+          </Button>
+        ) : (
+          <Popper
+            PopperProps={{ placement: 'bottom-end' }}
+            opener={<Button icon="dots-horizontal" variant="quaternary" />}
+          >
+            {({ closePopper }) => (
+              <MenuPopper>
+                <Button
+                  startIcon="pen"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    editInvoiceGracePeriodDialogRef.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_63aa15caab5b16980b21b0b8')}
+                </Button>
+                <Button
+                  startIcon="trash"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    deleteGracePeriodDialogRef.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_63aa15caab5b16980b21b0ba')}
+                </Button>
+              </MenuPopper>
+            )}
+          </Popper>
+        )}
       </InlineSectionTitle>
 
       <InfoBlock>
         <Typography variant="body" color="grey700">
-          {translate(
-            'text_638dff9779fb99299bee9132',
-            {
-              invoiceGracePeriod:
-                customer.invoiceGracePeriod || currentOrganization?.invoiceGracePeriod || 0,
-            },
-            customer.invoiceGracePeriod || currentOrganization?.invoiceGracePeriod || 0
-          )}
+          {!!customer.invoiceGracePeriod
+            ? translate(
+                'text_638dff9779fb99299bee9132',
+                {
+                  invoiceGracePeriod: customer.invoiceGracePeriod,
+                },
+                customer.invoiceGracePeriod
+              )
+            : translate(
+                'text_63aa085d28b8510cd464440d',
+                {
+                  invoiceGracePeriod: currentOrganization?.invoiceGracePeriod || 0,
+                },
+                currentOrganization?.invoiceGracePeriod || 0
+              )}
         </Typography>
         <Typography
           variant="caption"
@@ -127,10 +219,13 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
       </InfoBlock>
 
       <EditCustomerVatRateDialog ref={editDialogRef} customer={customer} />
+      <DeleteCustomerVatRateDialog ref={deleteVatRateDialogRef} customer={customer} />
+
       <EditCustomerInvoiceGracePeriodDialog
         ref={editInvoiceGracePeriodDialogRef}
         invoiceGracePeriod={customer.invoiceGracePeriod}
       />
+      <DeleteCustomerGracePeriodeDialog ref={deleteGracePeriodDialogRef} customer={customer} />
     </SideSection>
   )
 }
