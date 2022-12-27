@@ -8,7 +8,7 @@ import localForage from 'localforage'
 import { LagoApiError } from '~/generated/graphql'
 
 import { cache } from './cache'
-import { AUTH_TOKEN_LS_KEY, ORGANIZATION_LS_KEY, addToast, envGlobalVar } from './reactiveVars'
+import { AUTH_TOKEN_LS_KEY, ORGANIZATION_LS_KEY_ID, addToast, envGlobalVar } from './reactiveVars'
 import { logOut, getItemFromLS, omitDeep } from './cacheUtils'
 import { LagoGQLError } from './errorUtils'
 import { typeDefs, resolvers } from './graphqlResolvers'
@@ -35,7 +35,7 @@ export const initializeApolloClient = async () => {
       headers: {
         ...headers,
         ...(!token ? {} : { authorization: `Bearer ${getItemFromLS(AUTH_TOKEN_LS_KEY)}` }),
-        'x-lago-organization': getItemFromLS(ORGANIZATION_LS_KEY)?.id,
+        'x-lago-organization': getItemFromLS(ORGANIZATION_LS_KEY_ID),
       },
     })
 

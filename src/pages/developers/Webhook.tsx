@@ -13,36 +13,28 @@ import {
 } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme, NAV_HEIGHT, MenuPopper } from '~/styles'
-import { useWehbookSettingQuery } from '~/generated/graphql'
+import { useGetWehbookSettingQuery } from '~/generated/graphql'
 import { EditWebhookDialog, EditWebhookDialogRef } from '~/components/developers/EditWebhookDialog'
 import {
   DeleteWebhookDialog,
   DeleteWebhookDialogRef,
 } from '~/components/developers/DeleteWebhookDialog'
-import { useCurrentUserInfosVar } from '~/core/apolloClient'
 
 gql`
-  query wehbookSetting {
-    currentUser {
+  query getWehbookSetting {
+    organization {
       id
-      organizations {
-        id
-        webhookUrl
-      }
+      webhookUrl
     }
   }
 `
 
 const Webhook = () => {
   const { translate } = useInternationalization()
-  const { currentOrganization } = useCurrentUserInfosVar()
   const editDialogRef = useRef<EditWebhookDialogRef>(null)
   const deleleDialogRef = useRef<DeleteWebhookDialogRef>(null)
-  const { data, loading } = useWehbookSettingQuery()
-  const resultCurrentOrga = data?.currentUser.organizations?.find(
-    (orga) => orga.id === currentOrganization?.id
-  )
-  const webhookUrl = resultCurrentOrga ? resultCurrentOrga?.webhookUrl : undefined
+  const { data, loading } = useGetWehbookSettingQuery()
+  const { webhookUrl } = data?.organization || {}
 
   return (
     <Page>

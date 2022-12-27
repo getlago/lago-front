@@ -9,7 +9,7 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { theme, NAV_HEIGHT } from '~/styles'
 import {
   EditOrganizationInvoiceTemplateDialogFragmentDoc,
-  useGetOrganizationInvoiceAndTaxInformationsQuery,
+  useGetOrganizationSettingsQuery,
 } from '~/generated/graphql'
 import {
   EditOrganizationVatRateDialog,
@@ -25,33 +25,26 @@ import { EditOrganizationGracePeriodDialog } from '~/components/settings/EditOrg
 const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
 
 gql`
-  fragment OrganizationInvoiceTemplate on Organization {
-    invoiceFooter
-  }
-
-  query getOrganizationInvoiceAndTaxInformations {
-    currentUser {
+  query getOrganizationSettings {
+    organization {
       id
-      organizations {
-        id
-        vatRate
-        invoiceGracePeriod
-        ...OrganizationInvoiceTemplate
-        ...EditOrganizationInvoiceTemplateDialog
-      }
+      vatRate
+      invoiceGracePeriod
+      invoiceFooter
+      ...EditOrganizationInvoiceTemplateDialog
     }
   }
 
   ${EditOrganizationInvoiceTemplateDialogFragmentDoc}
 `
 
-const VatRate = () => {
+const InvoiceSettings = () => {
   const { translate } = useInternationalization()
   const editVATDialogRef = useRef<EditOrganizationVatRateDialogRef>(null)
   const editInvoiceTemplateDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
   const editGracePeriodDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
-  const { data, error, loading } = useGetOrganizationInvoiceAndTaxInformationsQuery()
-  const organization = (data?.currentUser?.organizations || [])[0]
+  const { data, error, loading } = useGetOrganizationSettingsQuery()
+  const organization = data?.organization
   const vatRate = organization?.vatRate || 0
   const invoiceFooter = organization?.invoiceFooter || ''
   const invoiceGracePeriod = organization?.invoiceGracePeriod || 0
@@ -226,4 +219,4 @@ const InfoBlock = styled.div<{ $loading?: boolean }>`
   }
 `
 
-export default VatRate
+export default InvoiceSettings

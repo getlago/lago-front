@@ -1,19 +1,29 @@
+import { gql } from '@apollo/client'
 import { forwardRef } from 'react'
 import styled from 'styled-components'
 
 import { Dialog, DialogRef, Typography, Button } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { envGlobalVar, useCurrentUserInfosVar, addToast } from '~/core/apolloClient'
+import { envGlobalVar, addToast } from '~/core/apolloClient'
 import { theme } from '~/styles'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { useGetUserDebugInfoDialogQuery } from '~/generated/graphql'
 
 const { appEnv, apiUrl, appVersion } = envGlobalVar()
+
+gql`
+  query getUserDebugInfoDialog {
+    currentUser {
+      id
+    }
+  }
+`
 
 export interface DebugInfoDialogRef extends DialogRef {}
 
 export const DebugInfoDialog = forwardRef<DialogRef>(({}, ref) => {
   const { translate } = useInternationalization()
-  const { user } = useCurrentUserInfosVar()
+  const { data } = useGetUserDebugInfoDialogQuery({ fetchPolicy: 'cache-first' })
 
   return (
     <Dialog
@@ -32,9 +42,9 @@ export const DebugInfoDialog = forwardRef<DialogRef>(({}, ref) => {
 **App environment :** ${appEnv}
 **API URL :** ${apiUrl} 
 **Version :** ${appVersion}` +
-                  (!!user?.id
+                  (!!data?.currentUser?.id
                     ? `
-**User Id :** ${user?.id}`
+**User Id :** ${data?.currentUser?.id}`
                     : '')
               )
 
@@ -63,10 +73,10 @@ export const DebugInfoDialog = forwardRef<DialogRef>(({}, ref) => {
           <Typography variant="caption">{translate('text_62f50d26c989ab03196884aa')}</Typography>
           <Typography color="textSecondary">{appVersion}</Typography>
         </Line>
-        {user?.id && (
+        {data?.currentUser?.id && (
           <Line>
             <Typography variant="caption">{translate('text_62f50d26c989ab03196884a6')}</Typography>
-            <Typography color="textSecondary">{user?.id}</Typography>
+            <Typography color="textSecondary">{data?.currentUser?.id}</Typography>
           </Line>
         )}
       </Content>

@@ -10,14 +10,14 @@ import {
   EditCustomerVatRateFragmentDoc,
   CustomerVatRateFragment,
   CustomerInvoiceGracePeriodFragment,
+  useGetOrganizationSettingsForCustomerQuery,
 } from '~/generated/graphql'
-import { VAT_RATE_ROUTE } from '~/core/router'
+import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   EditCustomerVatRateDialog,
   EditCustomerVatRateDialogRef,
 } from '~/components/customers/EditCustomerVatRateDialog'
-import { useCurrentUserInfosVar } from '~/core/apolloClient'
 
 import {
   EditCustomerInvoiceGracePeriodDialog,
@@ -33,12 +33,6 @@ import {
 } from './DeleteCustomerGracePeriodeDialog'
 
 gql`
-  fragment VatRateOrganization on Organization {
-    id
-    vatRate
-    invoiceGracePeriod
-  }
-
   fragment CustomerVatRate on CustomerDetails {
     id
     vatRate
@@ -50,6 +44,14 @@ gql`
     invoiceGracePeriod
   }
 
+  query getOrganizationSettingsForCustomer {
+    organization {
+      id
+      vatRate
+      invoiceGracePeriod
+    }
+  }
+
   ${EditCustomerVatRateFragmentDoc}
 `
 
@@ -59,7 +61,8 @@ interface CustomerSettingsProps {
 
 export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
   const { translate } = useInternationalization()
-  const { currentOrganization } = useCurrentUserInfosVar()
+  const { data } = useGetOrganizationSettingsForCustomerQuery()
+  const currentOrganization = data?.organization
 
   const editDialogRef = useRef<EditCustomerVatRateDialogRef>(null)
   const deleteVatRateDialogRef = useRef<DeleteCustomerVatRateDialogRef>(null)
@@ -135,7 +138,7 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
           html={
             !customer?.vatRate
               ? translate('text_638e13576861f3be8a3d448a', {
-                  link: VAT_RATE_ROUTE,
+                  link: INVOICE_SETTINGS_ROUTE,
                 })
               : translate('text_638dff9779fb99299bee9146')
           }
@@ -146,7 +149,7 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
         <Typography variant="subhead" color="grey700">
           {translate('text_638dff9779fb99299bee912e')}
         </Typography>
-        {!customer.invoiceGracePeriod ? (
+        {typeof customer.invoiceGracePeriod !== 'number' ? (
           <Button
             variant="quaternary"
             size="large"
@@ -192,7 +195,7 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
 
       <InfoBlock>
         <Typography variant="body" color="grey700">
-          {!!customer.invoiceGracePeriod
+          {typeof customer.invoiceGracePeriod === 'number'
             ? translate(
                 'text_638dff9779fb99299bee9132',
                 {
@@ -213,7 +216,7 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
           color="grey600"
           html={
             !customer.invoiceGracePeriod
-              ? translate('text_638e13576861f3be8a3d4492', { link: VAT_RATE_ROUTE })
+              ? translate('text_638e13576861f3be8a3d4492', { link: INVOICE_SETTINGS_ROUTE })
               : translate('text_638dff9779fb99299bee9136')
           }
         />
@@ -224,7 +227,7 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
 
       <EditCustomerInvoiceGracePeriodDialog
         ref={editInvoiceGracePeriodDialogRef}
-        invoiceGracePeriod={customer.invoiceGracePeriod}
+        invoiceGracePeriod={customer.invoiceGracePeriod || 0}
       />
       <DeleteCustomerGracePeriodeDialog ref={deleteGracePeriodDialogRef} customer={customer} />
     </SideSection>

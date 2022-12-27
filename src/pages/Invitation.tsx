@@ -13,9 +13,9 @@ import { TextInput } from '~/components/form'
 import { LOGIN_ROUTE } from '~/core/router'
 import {
   useAcceptInviteMutation,
-  CurrentUserFragmentDoc,
   LagoApiError,
   useGetinviteQuery,
+  CurrentUserFragmentDoc,
 } from '~/generated/graphql'
 import { onLogIn, hasDefinedGQLError } from '~/core/apolloClient'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
@@ -36,6 +36,7 @@ gql`
     acceptInvite(input: $input) {
       token
       user {
+        id
         ...CurrentUser
       }
     }
@@ -74,7 +75,7 @@ const Invitation = () => {
     context: { silentErrorCodes: [LagoApiError.UserAlreadyExists] },
     onCompleted(res) {
       if (!!res?.acceptInvite) {
-        onLogIn(res?.acceptInvite.token, res?.acceptInvite.user)
+        onLogIn(res?.acceptInvite.token, res?.acceptInvite?.user)
       }
     },
   })

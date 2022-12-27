@@ -31,7 +31,9 @@ const OrganizationInformations = lazy(
       /* webpackChunkName: 'organization-informations' */ '~/pages/settings/OrganizationInformations'
     )
 )
-const VatRate = lazy(() => import(/* webpackChunkName: 'tax-rate' */ '~/pages/settings/VatRate'))
+const InvoiceSettings = lazy(
+  () => import(/* webpackChunkName: 'tax-rate' */ '~/pages/settings/InvoiceSettings')
+)
 const Integrations = lazy(
   () => import(/* webpackChunkName: 'integrations' */ '~/pages/settings/Integrations')
 )
@@ -146,7 +148,8 @@ export const DEBUGGER_ROUTE = `${DEVELOPERS_ROUTE}/debugger`
 
 // Settings route
 export const SETTINGS_ROUTE = '/settings'
-export const VAT_RATE_ROUTE = `${SETTINGS_ROUTE}/tax-rate`
+export const INVOICE_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/invoice`
+export const VAT_RATE_ROUTE = `${SETTINGS_ROUTE}/tax-rate` // TODO - to maintain old route for now
 export const ORGANIZATION_INFORMATIONS_ROUTE = `${SETTINGS_ROUTE}/organization-informations`
 export const INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
 export const STRIPE_INTEGRATION_ROUTE = `${SETTINGS_ROUTE}/integrations/stripe`
@@ -210,9 +213,9 @@ export const routes: CustomRouteObject[] = [
             element: <OrganizationInformations />,
           },
           {
-            path: [VAT_RATE_ROUTE],
+            path: [INVOICE_SETTINGS_ROUTE, VAT_RATE_ROUTE],
             private: true,
-            element: <VatRate />,
+            element: <InvoiceSettings />,
           },
           {
             path: INTEGRATIONS_ROUTE,

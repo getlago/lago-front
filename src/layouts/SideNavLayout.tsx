@@ -7,12 +7,7 @@ import { useApolloClient } from '@apollo/client'
 import { useLocation, Location } from 'react-router-dom'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  logOut,
-  useCurrentUserInfosVar,
-  envGlobalVar,
-  switchCurrentOrganization,
-} from '~/core/apolloClient'
+import { logOut, envGlobalVar, switchCurrentOrganization } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/globalTypes'
 import {
   Avatar,
@@ -44,21 +39,35 @@ import {
   API_KEYS_ROUTE,
   WEBHOOK_ROUTE,
   DEBUGGER_ROUTE,
-  VAT_RATE_ROUTE,
+  INVOICE_SETTINGS_ROUTE,
   MEMBERS_ROUTE,
   INTEGRATIONS_ROUTE,
   ORGANIZATION_INFORMATIONS_ROUTE,
 } from '~/core/router'
-import { useCurrentVersionQuery } from '~/generated/graphql'
+import { useSideNavInfosQuery } from '~/generated/graphql'
 
 const NAV_WIDTH = 240
 const { appEnv } = envGlobalVar()
 
 gql`
-  query CurrentVersion {
+  query SideNavInfos {
     currentVersion {
       githubUrl
       number
+    }
+    organization {
+      id
+      name
+      logoUrl
+    }
+    currentUser {
+      id
+      email
+      organizations {
+        id
+        name
+        logoUrl
+      }
     }
   }
 `
@@ -74,13 +83,13 @@ interface TabProps {
 const SideNav = () => {
   const client = useApolloClient()
   const navigate = useNavigate()
-  const { currentOrganization, organizations, user } = useCurrentUserInfosVar()
   const { translate } = useInternationalization()
   const [open, setOpen] = useState(false)
   const location = useLocation()
-  const { data, loading, error } = useCurrentVersionQuery()
+  const { data, loading, error } = useSideNavInfosQuery()
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
   const contentRef = useRef<HTMLDivElement>(null)
+  const { currentUser: user, organization: currentOrganization } = data || {}
 
   useEffect(() => {
     // Avoid weird scroll behaviour on navigation
@@ -138,9 +147,9 @@ const SideNav = () => {
                   <UserEmail variant="captionHl" noWrap>
                     {user?.email}
                   </UserEmail>
-                  {organizations && (
+                  {user?.organizations && (
                     <OrganizationList>
-                      {organizations?.map(({ id, name, logoUrl }) => (
+                      {user?.organizations?.map(({ id, name, logoUrl }) => (
                         <Button
                           key={id}
                           align="left"
@@ -273,7 +282,7 @@ const SideNav = () => {
                     icon: 'settings',
                     link: SETTINGS_ROUTE,
                     match: [
-                      VAT_RATE_ROUTE,
+                      INVOICE_SETTINGS_ROUTE,
                       MEMBERS_ROUTE,
                       INTEGRATIONS_ROUTE,
                       ORGANIZATION_INFORMATIONS_ROUTE,
