@@ -10,6 +10,7 @@ import { theme, NAV_HEIGHT } from '~/styles'
 import {
   useGetOrganizationInformationsQuery,
   EditOrganizationInformationsDialogFragmentDoc,
+  EditOrganizationInformationsDialogFragment,
 } from '~/generated/graphql'
 import {
   EditOrganizationInformationsDialog,
@@ -20,7 +21,7 @@ import {
   EditOrganizationTimezoneDialogRef,
 } from '~/components/settings/EditOrganizationTimezoneDialog'
 import CountryCodes from '~/public/countryCode.json'
-import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
+import { getTimezoneConfig } from '~/core/timezone'
 
 gql`
   fragment OrganizationInformations on Organization {
@@ -36,14 +37,14 @@ gql`
     city
     state
     country
+    timezone
   }
 
   query getOrganizationInformations {
-    currentUser {
-      organizations {
-        ...OrganizationInformations
-        ...EditOrganizationInformationsDialog
-      }
+    organization {
+      id
+      ...OrganizationInformations
+      ...EditOrganizationInformationsDialog
     }
   }
   ${EditOrganizationInformationsDialogFragmentDoc}
@@ -54,8 +55,21 @@ const OrganizationInformations = () => {
   const editInfosDialogRef = useRef<EditOrganizationInformationsDialogRef>(null)
   const editTimezoneDialogRef = useRef<EditOrganizationTimezoneDialogRef>(null)
   const { data, loading, error } = useGetOrganizationInformationsQuery()
-  const organization = (data?.currentUser?.organizations || [])[0]
-  const { timezoneConfig, timezone } = useOrganizationTimezone()
+  const {
+    logoUrl,
+    name,
+    legalName,
+    legalNumber,
+    email,
+    addressLine1,
+    addressLine2,
+    zipcode,
+    city,
+    state,
+    country,
+    timezone,
+  } = data?.organization || {}
+  const timezoneConfig = getTimezoneConfig(timezone)
 
   if (!!error && !loading) {
     return (
@@ -126,90 +140,75 @@ const OrganizationInformations = () => {
           </div>
         ) : (
           <Grid>
-            {organization.logoUrl ? (
+            {logoUrl ? (
               <CompanyAvatar size="medium" variant="connector">
-                <img src={organization.logoUrl} alt={`${organization.name}'s logo`} />
+                <img src={logoUrl} alt={`${name}'s logo`} />
               </CompanyAvatar>
             ) : (
               <CompanyAvatar
                 size="medium"
                 variant="company"
-                identifier={organization.name || ''}
-                initials={(organization.name || '')
-                  .split(' ')
-                  .reduce((acc, n) => (acc = acc + n[0]), '')}
+                identifier={name || ''}
+                initials={(name || '').split(' ').reduce((acc, n) => (acc = acc + n[0]), '')}
               />
             )}
             <SimpleCell variant="caption">{translate('text_62ab2d0396dd6b0361614d5c')}</SimpleCell>
             <SimpleCell variant="body" color="grey700">
-              {organization.name}
+              {name}
             </SimpleCell>
 
             <SimpleCell variant="caption">{translate('text_62ab2d0396dd6b0361614d6c')}</SimpleCell>
-            <SimpleCell variant="body" color={organization?.legalName ? 'grey700' : 'grey500'}>
-              {organization?.legalName
-                ? organization.legalName
-                : translate('text_62ab2d0396dd6b0361614d64')}
+            <SimpleCell variant="body" color={legalName ? 'grey700' : 'grey500'}>
+              {legalName ? legalName : translate('text_62ab2d0396dd6b0361614d64')}
             </SimpleCell>
 
             <SimpleCell variant="caption">{translate('text_62ab2d0396dd6b0361614d7c')}</SimpleCell>
-            <SimpleCell variant="body" color={organization?.legalNumber ? 'grey700' : 'grey500'}>
-              {organization?.legalNumber
-                ? organization.legalNumber
-                : translate('text_62ab2d0396dd6b0361614d74')}
+            <SimpleCell variant="body" color={legalNumber ? 'grey700' : 'grey500'}>
+              {legalNumber ? legalNumber : translate('text_62ab2d0396dd6b0361614d74')}
             </SimpleCell>
 
             <SimpleCell variant="caption">{translate('text_62ab2d0396dd6b0361614d8c')}</SimpleCell>
-            <SimpleCell variant="body" color={organization?.email ? 'grey700' : 'grey500'}>
-              {organization?.email
-                ? organization.email
-                : translate('text_62ab2d0396dd6b0361614d84')}
+            <SimpleCell variant="body" color={email ? 'grey700' : 'grey500'}>
+              {email ? email : translate('text_62ab2d0396dd6b0361614d84')}
             </SimpleCell>
 
             <SimpleCell variant="caption">{translate('text_62ab2d0396dd6b0361614d9c')}</SimpleCell>
-            <SimpleCell variant="body" color={organization?.addressLine1 ? 'grey700' : 'grey500'}>
-              {organization?.addressLine1
-                ? organization.addressLine1
-                : translate('text_62ab2d0396dd6b0361614d94')}
+            <SimpleCell variant="body" color={addressLine1 ? 'grey700' : 'grey500'}>
+              {addressLine1 ? addressLine1 : translate('text_62ab2d0396dd6b0361614d94')}
             </SimpleCell>
 
             <SimpleCell variant="caption">{translate('text_62ab2d0396dd6b0361614dac')}</SimpleCell>
-            <SimpleCell variant="body" color={organization?.addressLine2 ? 'grey700' : 'grey500'}>
-              {organization?.addressLine2
-                ? organization.addressLine2
-                : translate('text_62ab2d0396dd6b0361614da4')}
+            <SimpleCell variant="body" color={addressLine2 ? 'grey700' : 'grey500'}>
+              {addressLine2 ? addressLine2 : translate('text_62ab2d0396dd6b0361614da4')}
             </SimpleCell>
 
             <SimpleCell variant="caption">{translate('text_62ab2d0396dd6b0361614dc8')}</SimpleCell>
-            <SimpleCell variant="body" color={organization?.zipcode ? 'grey700' : 'grey500'}>
-              {organization?.zipcode
-                ? organization.zipcode
-                : translate('text_62ab2d0396dd6b0361614dc0')}
+            <SimpleCell variant="body" color={zipcode ? 'grey700' : 'grey500'}>
+              {zipcode ? zipcode : translate('text_62ab2d0396dd6b0361614dc0')}
             </SimpleCell>
 
             <SimpleCell variant="caption">{translate('text_62ab2d0396dd6b0361614dd6')}</SimpleCell>
-            <SimpleCell variant="body" color={organization?.city ? 'grey700' : 'grey500'}>
-              {organization?.city ? organization.city : translate('text_62ab2d0396dd6b0361614dd0')}
+            <SimpleCell variant="body" color={city ? 'grey700' : 'grey500'}>
+              {city ? city : translate('text_62ab2d0396dd6b0361614dd0')}
             </SimpleCell>
 
             <SimpleCell variant="caption">{translate('text_62ab2d0396dd6b0361614db6')}</SimpleCell>
-            <SimpleCell variant="body" color={organization?.state ? 'grey700' : 'grey500'}>
-              {organization?.state
-                ? organization.state
-                : translate('text_62ab2d0396dd6b0361614db0')}
+            <SimpleCell variant="body" color={state ? 'grey700' : 'grey500'}>
+              {state ? state : translate('text_62ab2d0396dd6b0361614db0')}
             </SimpleCell>
 
             <SimpleCell variant="caption">{translate('text_62ab2d0396dd6b0361614de3')}</SimpleCell>
-            <SimpleCell variant="body" color={organization?.country ? 'grey700' : 'grey500'}>
-              {organization?.country
-                ? CountryCodes[organization.country]
-                : translate('text_62ab2d0396dd6b0361614ddd')}
+            <SimpleCell variant="body" color={country ? 'grey700' : 'grey500'}>
+              {country ? CountryCodes[country] : translate('text_62ab2d0396dd6b0361614ddd')}
             </SimpleCell>
           </Grid>
         )}
       </>
-      <EditOrganizationInformationsDialog ref={editInfosDialogRef} organization={organization} />
-      <EditOrganizationTimezoneDialog ref={editTimezoneDialogRef} />
+      <EditOrganizationInformationsDialog
+        ref={editInfosDialogRef}
+        organization={data?.organization as EditOrganizationInformationsDialogFragment}
+      />
+      <EditOrganizationTimezoneDialog ref={editTimezoneDialogRef} timezone={timezone} />
     </Page>
   )
 }

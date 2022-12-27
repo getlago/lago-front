@@ -19,6 +19,7 @@ gql`
   mutation loginUser($input: LoginUserInput!) {
     loginUser(input: $input) {
       user {
+        id
         ...CurrentUser
       }
       token
@@ -34,7 +35,7 @@ const Login = () => {
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted(res) {
       if (!!res?.loginUser) {
-        onLogIn(res.loginUser.token, res.loginUser.user)
+        onLogIn(res.loginUser.token, res?.loginUser?.user)
       }
     },
   })

@@ -6,28 +6,17 @@ import { InputAdornment } from '@mui/material'
 import { Dialog, Button, DialogRef } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  useUpdateVatRateOrganizationMutation,
-  LagoApiError,
-  CurrentOrganizationFragmentDoc,
-} from '~/generated/graphql'
+import { useUpdateVatRateOrganizationMutation, LagoApiError } from '~/generated/graphql'
 import { theme } from '~/styles'
-import {
-  addToast,
-  hasDefinedGQLError,
-  udpateCurrentOrganizationInfosVar,
-} from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 
 gql`
   mutation updateVatRateOrganization($input: UpdateOrganizationInput!) {
     updateOrganization(input: $input) {
       id
       vatRate
-      ...CurrentOrganization
     }
   }
-
-  ${CurrentOrganizationFragmentDoc}
 `
 export interface EditOrganizationVatRateDialogRef extends DialogRef {}
 
@@ -80,10 +69,6 @@ export const EditOrganizationVatRateDialog = forwardRef<
               if (hasDefinedGQLError('ValueIsOutOfRange', errors)) {
                 setMutationError(translate('text_6272a16eea94bd01089abaa7'))
               } else if (!errors) {
-                if (res.data?.updateOrganization) {
-                  udpateCurrentOrganizationInfosVar(res.data?.updateOrganization)
-                }
-
                 addToast({
                   message: translate('text_62728ff857d47b013204c86f'),
                   severity: 'success',

@@ -9,23 +9,19 @@ import { Dialog, Button, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
-  CurrentOrganizationFragmentDoc,
   UpdateOrganizationInput,
   useUpdateOrganizationGracePeriodMutation,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
-import { addToast, udpateCurrentOrganizationInfosVar } from '~/core/apolloClient'
+import { addToast } from '~/core/apolloClient'
 
 gql`
   mutation updateOrganizationGracePeriod($input: UpdateOrganizationInput!) {
     updateOrganization(input: $input) {
       id
       invoiceGracePeriod
-      ...CurrentOrganization
     }
   }
-
-  ${CurrentOrganizationFragmentDoc}
 `
 
 export interface EditOrganizationGracePeriodDialogRef extends DialogRef {}
@@ -59,21 +55,13 @@ export const EditOrganizationGracePeriodDialog = forwardRef<
     enableReinitialize: true,
     validateOnMount: true,
     onSubmit: async (values) => {
-      const res = await updateOrganizationGracePeriod({
+      await updateOrganizationGracePeriod({
         variables: {
           input: {
             ...values,
           },
         },
       })
-
-      const { errors } = res
-
-      if (!errors) {
-        if (res.data?.updateOrganization) {
-          udpateCurrentOrganizationInfosVar(res.data?.updateOrganization)
-        }
-      }
     },
   })
 

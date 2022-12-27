@@ -4,9 +4,8 @@ import { gql } from '@apollo/client'
 
 import { theme } from '~/styles'
 import { Avatar, Typography, Skeleton, Button, Tooltip } from '~/components/designSystem'
-import { MembershipItemFragment } from '~/generated/graphql'
+import { MembershipItemFragment, useGetCurrentUserMembersQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useCurrentUserInfosVar } from '~/core/apolloClient'
 
 import { RevokeMembershipDialogRef } from './RevokeMembershipDialog'
 
@@ -22,6 +21,12 @@ gql`
       name
     }
   }
+
+  query getCurrentUserMembers {
+    currentUser {
+      id
+    }
+  }
 `
 
 interface MembershipItemProps {
@@ -30,7 +35,7 @@ interface MembershipItemProps {
 
 export const MembershipItem = forwardRef<RevokeMembershipDialogRef, MembershipItemProps>(
   ({ membership }: MembershipItemProps, ref) => {
-    const { user: currentUser } = useCurrentUserInfosVar()
+    const { data } = useGetCurrentUserMembersQuery({ fetchPolicy: 'cache-first' })
     const { id, user, organization } = membership
     const { translate } = useInternationalization()
 
@@ -42,7 +47,7 @@ export const MembershipItem = forwardRef<RevokeMembershipDialogRef, MembershipIt
             {user.email}
           </Typography>
         </LeftBlock>
-        {currentUser?.id !== user.id && (
+        {data?.currentUser?.id !== user.id && (
           <RightBlock>
             <Tooltip placement="bottom-end" title={translate('text_63208bfc99e69a28211ec7f0')}>
               <ActionButtonIcon

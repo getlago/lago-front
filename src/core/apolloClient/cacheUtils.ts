@@ -1,13 +1,21 @@
+import { gql } from '@apollo/client'
 import { ApolloClient } from '@apollo/client'
+import { Settings } from 'luxon'
 
+import { getTimezoneConfig } from '~/core/timezone'
 import { CurrentUserFragment } from '~/generated/graphql'
 
-import {
-  updateAuthTokenVar,
-  updateCurrentUserInfosVar,
-  resetCurrentUserInfosVar,
-  resetLocationHistoryVar,
-} from './reactiveVars'
+import { updateAuthTokenVar, resetLocationHistoryVar, ORGANIZATION_LS_KEY_ID } from './reactiveVars'
+
+gql`
+  fragment CurrentUser on User {
+    id
+    organizations {
+      id
+      timezone
+    }
+  }
+`
 
 // --------------------- Local storage utils ---------------------
 export const getItemFromLS = (key: string) => {
@@ -36,13 +44,24 @@ export const logOut = async (client: ApolloClient<object>, resetLocationHistory?
 
   await client.cache.reset()
   updateAuthTokenVar()
-  resetCurrentUserInfosVar()
   resetLocationHistory && resetLocationHistoryVar()
 }
 
 export const onLogIn = (token: string, user: CurrentUserFragment) => {
-  updateCurrentUserInfosVar({ user })
   updateAuthTokenVar(token)
+  const organization = (user?.organizations || [])[0]
+
+  setItemFromLS(ORGANIZATION_LS_KEY_ID, organization?.id)
+  Settings.defaultZone = getTimezoneConfig(organization.timezone).name
+}
+
+export const switchCurrentOrganization = async (
+  client: ApolloClient<object>,
+  organizationId: string
+) => {
+  setItemFromLS(ORGANIZATION_LS_KEY_ID, organizationId)
+
+  await client.resetStore()
 }
 
 // --------------------- Omit __typename ---------------------

@@ -2,7 +2,7 @@ import { InMemoryCache } from '@apollo/client'
 
 import { CollectionMetadata, OrganizationWithTimezoneFragmentDoc } from '~/generated/graphql'
 
-import { ORGANIZATION_LS_KEY } from './reactiveVars'
+import { ORGANIZATION_LS_KEY_ID } from './reactiveVars'
 import { getItemFromLS } from './cacheUtils'
 
 type PaginatedCollection = { metadata: CollectionMetadata; collection: Record<string, unknown>[] }
@@ -24,7 +24,7 @@ export const cache = new InMemoryCache({
       fields: {
         selectedOrganization: {
           read(_, { cache: localCache }) {
-            const id = getItemFromLS(ORGANIZATION_LS_KEY)?.id
+            const id = getItemFromLS(ORGANIZATION_LS_KEY_ID)
 
             return localCache.readFragment({
               id: localCache.identify({

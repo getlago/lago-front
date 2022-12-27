@@ -10,7 +10,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { TextInput } from '~/components/form'
 import { LOGIN_ROUTE } from '~/core/router'
-import { useSignupMutation, CurrentUserFragmentDoc, LagoApiError } from '~/generated/graphql'
+import { useSignupMutation, LagoApiError, CurrentUserFragmentDoc } from '~/generated/graphql'
 import { onLogIn, hasDefinedGQLError } from '~/core/apolloClient'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
 
@@ -19,11 +19,8 @@ gql`
     registerUser(input: $input) {
       token
       user {
-        ...CurrentUser
-      }
-      organization {
         id
-        name
+        ...CurrentUser
       }
     }
   }
@@ -58,7 +55,7 @@ const SignUp = () => {
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted(res) {
       if (!!res?.registerUser) {
-        onLogIn(res.registerUser.token, res.registerUser.user)
+        onLogIn(res.registerUser.token, res?.registerUser?.user)
       }
     },
   })

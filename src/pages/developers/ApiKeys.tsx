@@ -1,22 +1,26 @@
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
-import { useCurrentUserInfosVar, addToast } from '~/core/apolloClient'
+import { addToast } from '~/core/apolloClient'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Typography, Button } from '~/components/designSystem'
+import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { NAV_HEIGHT, theme } from '~/styles'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { useGetOrganizationApiKeyQuery } from '~/generated/graphql'
 
 gql`
-  fragment ApiKeyOrganization on Organization {
-    id
-    apiKey
+  query getOrganizationApiKey {
+    organization {
+      id
+      apiKey
+    }
   }
 `
 
 const ApiKeys = () => {
-  const { currentOrganization } = useCurrentUserInfosVar()
+  const { data, loading } = useGetOrganizationApiKeyQuery()
   const { translate } = useInternationalization()
+  const { id, apiKey } = data?.organization || {}
 
   return (
     <Page>
@@ -29,59 +33,77 @@ const ApiKeys = () => {
         <Typography variant="subhead" color="grey700">
           {translate('text_637f813d31381b1ed90ab313')}
         </Typography>
-        <Button
-          variant="quaternary"
-          size="large"
-          startIcon="duplicate"
-          onClick={() => {
-            copyToClipboard(currentOrganization?.apiKey || '')
-            addToast({
-              severity: 'info',
-              translateKey: 'text_6227a2e847fcd700e9038952',
-            })
-          }}
-        >
-          {translate('text_637f813d31381b1ed90ab30a')}
-        </Button>
+        {!loading && (
+          <Button
+            variant="quaternary"
+            size="large"
+            startIcon="duplicate"
+            onClick={() => {
+              copyToClipboard(apiKey || '')
+              addToast({
+                severity: 'info',
+                translateKey: 'text_6227a2e847fcd700e9038952',
+              })
+            }}
+          >
+            {translate('text_637f813d31381b1ed90ab30a')}
+          </Button>
+        )}
       </InlineSectionTitle>
 
-      <InfoBlock>
-        <Typography variant="body" color="grey700">
-          {currentOrganization?.apiKey}
-        </Typography>
-        <Typography variant="caption" color="grey600">
-          {translate('text_637f813d31381b1ed90ab320')}
-        </Typography>
-      </InfoBlock>
+      {loading ? (
+        <>
+          <Skeleton variant="text" height={12} width={240} marginBottom={theme.spacing(3)} />
+          <Skeleton variant="text" height={12} width={160} />
+        </>
+      ) : (
+        <InfoBlock>
+          <Typography variant="body" color="grey700">
+            {apiKey}
+          </Typography>
+          <Typography variant="caption" color="grey600">
+            {translate('text_637f813d31381b1ed90ab320')}
+          </Typography>
+        </InfoBlock>
+      )}
 
       <InlineSectionTitle>
         <Typography variant="subhead" color="grey700">
           {translate('text_636df520279a9e1b3c68cc75')}
         </Typography>
-        <Button
-          variant="quaternary"
-          size="large"
-          startIcon="duplicate"
-          onClick={() => {
-            copyToClipboard(currentOrganization?.id || '')
-            addToast({
-              severity: 'info',
-              translateKey: 'text_636df520279a9e1b3c68cc7d',
-            })
-          }}
-        >
-          {translate('text_637f813d31381b1ed90ab326')}
-        </Button>
+        {!loading && (
+          <Button
+            variant="quaternary"
+            size="large"
+            startIcon="duplicate"
+            onClick={() => {
+              copyToClipboard(id || '')
+              addToast({
+                severity: 'info',
+                translateKey: 'text_636df520279a9e1b3c68cc7d',
+              })
+            }}
+          >
+            {translate('text_637f813d31381b1ed90ab326')}
+          </Button>
+        )}
       </InlineSectionTitle>
 
-      <InfoBlock>
-        <Typography variant="body" color="grey700">
-          {currentOrganization?.id}
-        </Typography>
-        <Typography variant="caption" color="grey600">
-          {translate('text_637f813d31381b1ed90ab332')}
-        </Typography>
-      </InfoBlock>
+      {loading ? (
+        <>
+          <Skeleton variant="text" height={12} width={240} marginBottom={theme.spacing(3)} />
+          <Skeleton variant="text" height={12} width={160} />
+        </>
+      ) : (
+        <InfoBlock>
+          <Typography variant="body" color="grey700">
+            {id}
+          </Typography>
+          <Typography variant="caption" color="grey600">
+            {translate('text_637f813d31381b1ed90ab332')}
+          </Typography>
+        </InfoBlock>
+      )}
     </Page>
   )
 }

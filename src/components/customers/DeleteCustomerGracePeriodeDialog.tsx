@@ -59,7 +59,7 @@ export const DeleteCustomerGracePeriodeDialog = forwardRef<
       }
       onContinue={async () =>
         await deleteGracePeriode({
-          variables: { input: { id: customer?.id, invoiceGracePeriod: 0 } },
+          variables: { input: { id: customer?.id, invoiceGracePeriod: null } },
         })
       }
       continueText={translate('text_63aa085d28b8510cd46441a5')}

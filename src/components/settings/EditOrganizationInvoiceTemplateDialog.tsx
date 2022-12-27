@@ -10,7 +10,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   UpdateOrganizationInput,
   useUpdateOrganizationInvoiceTemplateMutation,
-  OrganizationInvoiceTemplateFragmentDoc,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
 import { addToast } from '~/core/apolloClient'
@@ -25,11 +24,9 @@ gql`
   mutation updateOrganizationInvoiceTemplate($input: UpdateOrganizationInput!) {
     updateOrganization(input: $input) {
       id
-      ...OrganizationInvoiceTemplate
       ...EditOrganizationInvoiceTemplateDialog
     }
   }
-  ${OrganizationInvoiceTemplateFragmentDoc}
 `
 
 export interface EditOrganizationInvoiceTemplateDialogRef extends DialogRef {}
