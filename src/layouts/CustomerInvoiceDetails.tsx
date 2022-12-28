@@ -190,8 +190,10 @@ const CustomerInvoiceDetails = () => {
                   variant="quaternary"
                   align="left"
                   disabled={
-                    data?.invoice?.creditableAmountCents === 0 &&
-                    data?.invoice?.refundableAmountCents === 0
+                    // TODO: Hidden before liscence release
+                    true
+                    // data?.invoice?.creditableAmountCents === 0 &&
+                    // data?.invoice?.refundableAmountCents === 0
                   }
                   onClick={async () => {
                     navigate(
