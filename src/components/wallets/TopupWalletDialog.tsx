@@ -80,8 +80,8 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
           variables: {
             input: {
               walletId: wallet.id,
-              grantedCredits: grantedCredits === '' ? '0' : grantedCredits,
-              paidCredits: paidCredits === '' ? '0' : paidCredits,
+              grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
+              paidCredits: paidCredits === '' ? '0' : String(paidCredits),
             },
           },
           refetchQueries: ['getCustomerWalletList', 'getWalletTransactions'],
