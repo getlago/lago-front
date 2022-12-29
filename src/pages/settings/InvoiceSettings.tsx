@@ -101,6 +101,7 @@ const InvoiceSettings = () => {
         )}
       </InfoBlock>
 
+      {/* TODO - Release when pricing is out
       <InlineSectionTitle>
         <Typography variant="subhead" color="grey700">
           {translate('text_638dc196fb209d551f3d8141')}
@@ -136,7 +137,7 @@ const InvoiceSettings = () => {
             </Typography>
           </>
         )}
-      </InfoBlock>
+      </InfoBlock> */}
 
       <InlineSectionTitle>
         <Typography variant="subhead" color="grey700">
