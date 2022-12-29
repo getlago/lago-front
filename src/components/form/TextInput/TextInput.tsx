@@ -13,7 +13,6 @@ import { theme } from '~/styles'
 
 export enum ValueFormatter {
   int = 'int',
-  number = 'number',
   decimal = 'decimal', // Truncate numbers to 2 decimals
   triDecimal = 'triDecimal', // Truncate numbers to 3 decimals
   positiveNumber = 'positiveNumber',
@@ -92,10 +91,6 @@ export const formatValue = (
 
   if (formatterFunctions.includes(ValueFormatter.code)) {
     formattedValue = String(value).replace(/\s/g, '_')
-  }
-
-  if (formatterFunctions.includes(ValueFormatter.number)) {
-    formattedValue = Number(formattedValue)
   }
 
   return !formattedValue && formattedValue !== 0 ? '' : formattedValue

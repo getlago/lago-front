@@ -41,8 +41,6 @@ const defineNewBeforeChangeFormatter = (
     newBeforeChangeFormatter.push('decimal')
   }
 
-  newBeforeChangeFormatter.push('number')
-
   return newBeforeChangeFormatter
 }
 
