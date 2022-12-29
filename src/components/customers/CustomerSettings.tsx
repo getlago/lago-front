@@ -145,7 +145,8 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
         />
       </InfoBlock>
 
-      <InlineSectionTitle>
+      {/* TODO - Release when pricing is out
+       <InlineSectionTitle>
         <Typography variant="subhead" color="grey700">
           {translate('text_638dff9779fb99299bee912e')}
         </Typography>
@@ -220,7 +221,7 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
               : translate('text_638dff9779fb99299bee9136')
           }
         />
-      </InfoBlock>
+      </InfoBlock> */}
 
       <EditCustomerVatRateDialog ref={editDialogRef} customer={customer} />
       <DeleteCustomerVatRateDialog ref={deleteVatRateDialogRef} customer={customer} />
