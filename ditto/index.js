@@ -119,6 +119,9 @@ module.exports = {
   "project_638906e129a144b0c4c27c83": {
     "base": require('./👍 [Ready for dev] - All - Custom ≠ timezones__base.json')
   },
+  "project_63b315558a78f7b5a6551de7": {
+    "base": require('./👍 [Ready for dev] - All - License key__base.json')
+  },
   "project_633336529ca3243d15ac9df4": {
     "base": require('./👍 [Ready for dev] - All - Replace success screen by success toast__base.json')
   },
