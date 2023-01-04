@@ -2999,6 +2999,7 @@ export type User = {
   email?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   organizations?: Maybe<Array<Organization>>;
+  premium: Scalars['Boolean'];
   updatedAt: Scalars['ISO8601DateTime'];
 };
 
@@ -3571,6 +3572,11 @@ export type CreateSubscriptionMutationVariables = Exact<{
 
 
 export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null } | null };
+
+export type GetCurrentUserPremiumQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCurrentUserPremiumQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, premium: boolean } };
 
 export type GetSinglePlanQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -6711,6 +6717,41 @@ export function useCreateSubscriptionMutation(baseOptions?: Apollo.MutationHookO
 export type CreateSubscriptionMutationHookResult = ReturnType<typeof useCreateSubscriptionMutation>;
 export type CreateSubscriptionMutationResult = Apollo.MutationResult<CreateSubscriptionMutation>;
 export type CreateSubscriptionMutationOptions = Apollo.BaseMutationOptions<CreateSubscriptionMutation, CreateSubscriptionMutationVariables>;
+export const GetCurrentUserPremiumDocument = gql`
+    query getCurrentUserPremium {
+  currentUser {
+    id
+    premium
+  }
+}
+    `;
+
+/**
+ * __useGetCurrentUserPremiumQuery__
+ *
+ * To run a query within a React component, call `useGetCurrentUserPremiumQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCurrentUserPremiumQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCurrentUserPremiumQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetCurrentUserPremiumQuery(baseOptions?: Apollo.QueryHookOptions<GetCurrentUserPremiumQuery, GetCurrentUserPremiumQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCurrentUserPremiumQuery, GetCurrentUserPremiumQueryVariables>(GetCurrentUserPremiumDocument, options);
+      }
+export function useGetCurrentUserPremiumLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCurrentUserPremiumQuery, GetCurrentUserPremiumQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCurrentUserPremiumQuery, GetCurrentUserPremiumQueryVariables>(GetCurrentUserPremiumDocument, options);
+        }
+export type GetCurrentUserPremiumQueryHookResult = ReturnType<typeof useGetCurrentUserPremiumQuery>;
+export type GetCurrentUserPremiumLazyQueryHookResult = ReturnType<typeof useGetCurrentUserPremiumLazyQuery>;
+export type GetCurrentUserPremiumQueryResult = Apollo.QueryResult<GetCurrentUserPremiumQuery, GetCurrentUserPremiumQueryVariables>;
 export const GetSinglePlanDocument = gql`
     query getSinglePlan($id: ID!) {
   plan(id: $id) {
