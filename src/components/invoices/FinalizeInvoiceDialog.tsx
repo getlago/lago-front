@@ -43,6 +43,14 @@ export const FinalizeInvoiceDialog = forwardRef<FinalizeInvoiceDialogRef>((_, re
   const [finalizeInvoice] = useFinalizeInvoiceMutation({
     variables: { input: { id: invoice?.id || '' } },
     refetchQueries: ['getCustomerInvoices'],
+    onCompleted({ finalizeInvoice: finalizeInvoiceRes }) {
+      if (finalizeInvoiceRes?.id) {
+        addToast({
+          message: translate('text_63a41b3a01db40c7fff551e1'),
+          severity: 'success',
+        })
+      }
+    },
   })
 
   useImperativeHandle(ref, () => ({
@@ -78,10 +86,6 @@ export const FinalizeInvoiceDialog = forwardRef<FinalizeInvoiceDialogRef>((_, re
             variant="primary"
             onClick={async () => {
               await finalizeInvoice()
-              addToast({
-                message: translate('text_63a41b3a01db40c7fff551e1'),
-                severity: 'success',
-              })
               closeDialog()
             }}
           >

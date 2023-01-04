@@ -149,6 +149,9 @@ module.exports = {
   "project_637f813a9ec65c29fc3ceef3": {
     "base": require('./👍 [Ready for dev] - Customers - Invoice grace period__base.json')
   },
+  "project_63ac86d51bd1437a2a21f1f9": {
+    "base": require('./👍 [Ready for dev] - Invoices- Invoice list__base.json')
+  },
   "project_63208b60a9b2a4c6186bbd26": {
     "base": require('./👍 [Ready for dev] - Onboarding - Invite member to organisation__base.json')
   },

@@ -34,8 +34,8 @@ const getPreviousLocation = ({
         // If exclude, find index of the first location that doesn't match
         const isExluded =
           typeof exclude === 'string'
-            ? matchPath(location.pathname, exclude)
-            : exclude.some((pathToExclude) => matchPath(location.pathname, pathToExclude))
+            ? matchPath(exclude, location.pathname)
+            : exclude.some((pathToExclude) => matchPath(pathToExclude, location.pathname))
 
         return !isExluded
       })

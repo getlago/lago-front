@@ -4,49 +4,47 @@ import { gql } from '@apollo/client'
 
 import { Typography, Skeleton, ButtonLink, Avatar, Icon } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
+import { CUSTOMER_DETAILS_TAB_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import {
   InvoiceStatusTypeEnum,
   TimezoneEnum,
-  useGetCustomerInfosForDraftInvoicesListQuery,
-  useGetCustomerInvoicesQuery,
+  useGetCustomerDraftInvoicesQuery,
+  InvoiceForInvoiceListFragmentDoc,
 } from '~/generated/graphql'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 import { PageHeader, theme } from '~/styles'
-import { InvoicesList } from '~/components/customers/InvoicesList'
+import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
 
 import { CustomerDetailsTabsOptions } from './CustomerDetails'
 
 gql`
-  fragment InvoiceInfosForCustomerDraftInvoicesList on InvoiceCollection {
-    collection {
-      id
-      status
+  query getCustomerDraftInvoices(
+    $customerId: ID!
+    $limit: Int
+    $page: Int
+    $status: InvoiceStatusTypeEnum
+  ) {
+    customerInvoices(customerId: $customerId, limit: $limit, page: $page, status: $status) {
+      ...InvoiceForInvoiceList
     }
-    metadata {
-      totalCount
-    }
-  }
-
-  query getCustomerInfosForDraftInvoicesList($id: ID!) {
-    customer(id: $id) {
+    customer(id: $customerId) {
       id
       name
       externalId
       applicableTimezone
     }
   }
+
+  ${InvoiceForInvoiceListFragmentDoc}
 `
 
 const CustomerDraftInvoicesList = () => {
   const { id: customerId = '' } = useParams()
   const { translate } = useInternationalization()
-  const { data: dataCustomer } = useGetCustomerInfosForDraftInvoicesListQuery({
-    variables: { id: customerId },
-  })
-  const { data, loading, fetchMore } = useGetCustomerInvoicesQuery({
+  const { data, loading, fetchMore } = useGetCustomerDraftInvoicesQuery({
     variables: { customerId, limit: 20, status: InvoiceStatusTypeEnum.Draft },
   })
-  const safeTimezone = dataCustomer?.customer?.applicableTimezone || TimezoneEnum.TzUtc
+  const safeTimezone = data?.customer?.applicableTimezone || TimezoneEnum.TzUtc
 
   return (
     <>
@@ -87,7 +85,7 @@ const CustomerDraftInvoicesList = () => {
             <div>
               <Name color="textSecondary" variant="headline">
                 {translate('text_638f74bb4d41e3f1d0201649', {
-                  customerName: dataCustomer?.customer?.name,
+                  customerName: data?.customer?.name,
                 })}
               </Name>
               <Typography>
@@ -99,14 +97,18 @@ const CustomerDraftInvoicesList = () => {
           </MainInfos>
         )}
 
-        <InvoicesList
-          customerTimezone={safeTimezone}
-          customerId={customerId}
-          fetchMore={fetchMore}
-          invoices={data?.customerInvoices.collection}
-          label={translate('text_638f4d756d899445f18a49ee')}
+        <CustomerInvoicesList
           loading={loading}
-          metadata={data?.customerInvoices.metadata}
+          customerTimezone={safeTimezone}
+          invoiceData={data?.customerInvoices}
+          getOnClickLink={(id) =>
+            generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+              id: customerId,
+              invoiceId: id,
+              tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+            })
+          }
+          fetchMore={fetchMore}
         />
       </Wrapper>
     </>

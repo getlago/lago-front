@@ -108,6 +108,12 @@ const CreditNotesList = memo(
     return (
       <>
         <ListHeader>
+          <NumberCellHeader variant="bodyHl" color="disabled" noWrap>
+            {translate('text_62b31e1f6a5b8b1b745ece00')}
+          </NumberCellHeader>
+          <AmountCell variant="bodyHl" color="disabled" align="right" noWrap>
+            {translate('text_62544c1db13ca10187214d85')}
+          </AmountCell>
           <IssuingDateCell variant="bodyHl" color="disabled" noWrap>
             <Tooltip
               placement="top-start"
@@ -118,13 +124,6 @@ const CreditNotesList = memo(
               <WithTooltip>{translate('text_62544c1db13ca10187214d7f')}</WithTooltip>
             </Tooltip>
           </IssuingDateCell>
-
-          <NumberCellHeader variant="bodyHl" color="disabled" noWrap>
-            {translate('text_62b31e1f6a5b8b1b745ece00')}
-          </NumberCellHeader>
-          <AmountCell variant="bodyHl" color="disabled" align="right" noWrap>
-            {translate('text_62544c1db13ca10187214d85')}
-          </AmountCell>
           <ButtonMock />
         </ListHeader>
         <InfiniteScroll
@@ -153,10 +152,7 @@ const CreditNotesList = memo(
                     )
                   }
                 >
-                  <IssuingDateCell variant="body" color="grey700" noWrap>
-                    {formatDateToTZ(creditNote.createdAt, customerTimezone)}
-                  </IssuingDateCell>
-                  <NumberCell variant="body" color="grey700" noWrap>
+                  <NumberCell variant="captionCode" color="grey700" noWrap>
                     {creditNote.number}
                   </NumberCell>
                   <AmountCell variant="body" color="success600" align="right" noWrap>
@@ -171,6 +167,9 @@ const CreditNotesList = memo(
                       }
                     )}
                   </AmountCell>
+                  <IssuingDateCell variant="body" color="grey700" noWrap>
+                    {formatDateToTZ(creditNote.createdAt, customerTimezone)}
+                  </IssuingDateCell>
                   <ButtonMock />
                 </Item>
                 <Popper

@@ -10,7 +10,6 @@ import {
   Avatar,
   Popper,
   Tooltip,
-  ButtonLink,
   NavigationTab,
 } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -37,7 +36,8 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { CustomerSubscriptionsList } from '~/components/customers/subscriptions/CustomerSubscriptionsList'
 import { CustomerWalletsList } from '~/components/wallets/CustomerWalletList'
-import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { CustomerInvoicesTab } from '~/components/customers/CustomerInvoicesTab'
 import { CustomerSettings } from '~/components/customers/CustomerSettings'
 import { theme, PageHeader, MenuPopper } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
@@ -139,7 +139,7 @@ const CustomerDetails = () => {
     variables: { id: id as string },
     skip: !id,
   })
-
+  const { goBack } = useLocationHistory()
   const {
     appliedAddOns,
     appliedCoupons,
@@ -162,10 +162,14 @@ const CustomerDetails = () => {
     <div>
       <PageHeader $withSide>
         <HeaderLeft>
-          <ButtonLink
-            to={CUSTOMERS_LIST_ROUTE}
-            type="button"
-            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
+          <Button
+            icon="arrow-left"
+            variant="quaternary"
+            onClick={() =>
+              goBack(CUSTOMERS_LIST_ROUTE, {
+                exclude: [CUSTOMER_DETAILS_TAB_ROUTE, CUSTOMER_DETAILS_ROUTE],
+              })
+            }
           />
           {loading ? (
             <Skeleton variant="text" height={12} width={120} />
@@ -397,7 +401,7 @@ const CustomerDetails = () => {
                       routerState: { disableScrollTop: true },
                       component: (
                         <SideBlock>
-                          <CustomerInvoicesList
+                          <CustomerInvoicesTab
                             customerId={id as string}
                             customerTimezone={safeTimezone}
                           />
