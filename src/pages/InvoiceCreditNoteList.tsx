@@ -4,12 +4,13 @@ import { gql } from '@apollo/client'
 import { useParams, generatePath } from 'react-router-dom'
 
 import { theme, NAV_HEIGHT } from '~/styles'
-import { Typography, ButtonLink } from '~/components/designSystem'
+import { Typography, ButtonLink, Button } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   useGetInvoiceCreditNotesQuery,
   CreditNotesForListFragmentDoc,
   TimezoneEnum,
+  InvoiceStatusTypeEnum,
 } from '~/generated/graphql'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -22,6 +23,8 @@ import {
   VoidCreditNoteDialogRef,
 } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
 import CreditNotesList from '~/components/customers/creditNotes/CreditNotesList'
+import { useIsPremiumUser } from '~/hooks/customer/useIsPremiumUser'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 
 gql`
   query getInvoiceCreditNotes($customerId: ID!, $invoiceId: ID!, $page: Int, $limit: Int) {
@@ -33,6 +36,7 @@ gql`
       id
       refundableAmountCents
       creditableAmountCents
+      status
     }
 
     customer(id: $customerId) {
@@ -47,7 +51,9 @@ gql`
 const InvoiceCreditNoteList = () => {
   const { invoiceId, id } = useParams()
   const { translate } = useInternationalization()
+  const isPremium = useIsPremiumUser()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
+  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { data, loading, error, fetchMore } = useGetInvoiceCreditNotesQuery({
     variables: { customerId: id as string, invoiceId: invoiceId as string, limit: 20 },
     skip: !invoiceId || !id,
@@ -59,19 +65,31 @@ const InvoiceCreditNoteList = () => {
       {(!loading || !!creditNotes?.length) && (
         <Header>
           <Typography variant="subhead">{translate('text_636bdef6565341dcb9cfb129')}</Typography>
-          <ButtonLink
-            type="button"
-            disabled={
-              true
-              // TODO: Hidden before liscence release
-              // data?.invoice?.creditableAmountCents === 0 &&
-              // data?.invoice?.refundableAmountCents === 0
-            }
-            buttonProps={{ variant: 'quaternary' }}
-            to={generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, { id, invoiceId })}
-          >
-            {translate('text_636bdef6565341dcb9cfb127')}
-          </ButtonLink>
+          {data?.invoice?.status !== InvoiceStatusTypeEnum.Draft && (
+            <>
+              {isPremium ? (
+                <ButtonLink
+                  type="button"
+                  disabled={
+                    data?.invoice?.creditableAmountCents === 0 &&
+                    data?.invoice?.refundableAmountCents === 0
+                  }
+                  buttonProps={{ variant: 'quaternary' }}
+                  to={generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, { id, invoiceId })}
+                >
+                  {translate('text_636bdef6565341dcb9cfb127')}
+                </ButtonLink>
+              ) : (
+                <Button
+                  variant="quaternary"
+                  onClick={premiumWarningDialogRef.current?.openDialog}
+                  endIcon="sparkles"
+                >
+                  {translate('text_636bdef6565341dcb9cfb127')}
+                </Button>
+              )}
+            </>
+          )}
         </Header>
       )}
       <>
@@ -100,6 +118,7 @@ const InvoiceCreditNoteList = () => {
         )}
       </>
       <VoidCreditNoteDialog ref={voidCreditNoteDialogRef} />
+      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </div>
   )
 }

@@ -22,6 +22,8 @@ import {
 } from '~/components/settings/EditOrganizationTimezoneDialog'
 import CountryCodes from '~/public/countryCode.json'
 import { getTimezoneConfig } from '~/core/timezone'
+import { useIsPremiumUser } from '~/hooks/customer/useIsPremiumUser'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 
 gql`
   fragment OrganizationInformations on Organization {
@@ -52,8 +54,10 @@ gql`
 
 const OrganizationInformations = () => {
   const { translate } = useInternationalization()
+  const isPremium = useIsPremiumUser()
   const editInfosDialogRef = useRef<EditOrganizationInformationsDialogRef>(null)
   const editTimezoneDialogRef = useRef<EditOrganizationTimezoneDialogRef>(null)
+  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { data, loading, error } = useGetOrganizationInformationsQuery()
   const {
     logoUrl,
@@ -91,14 +95,18 @@ const OrganizationInformations = () => {
       <>
         <Head>
           <Typography variant="subhead">{translate('text_638906e7b4f1a919cb61d0f4')}</Typography>
-          {/* TODO: Hidden before liscence release
           <Button
             variant="quaternary"
             disabled={!!loading}
-            onClick={editTimezoneDialogRef?.current?.openDialog}
+            endIcon={isPremium ? undefined : 'sparkles'}
+            onClick={
+              isPremium
+                ? editTimezoneDialogRef?.current?.openDialog
+                : premiumWarningDialogRef.current?.openDialog
+            }
           >
             {translate('text_638906e7b4f1a919cb61d0f2')}
-          </Button> */}
+          </Button>
         </Head>
         {!!loading ? (
           <SkeletonLine>
@@ -209,6 +217,7 @@ const OrganizationInformations = () => {
         organization={data?.organization as EditOrganizationInformationsDialogFragment}
       />
       <EditOrganizationTimezoneDialog ref={editTimezoneDialogRef} timezone={timezone} />
+      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </Page>
   )
 }

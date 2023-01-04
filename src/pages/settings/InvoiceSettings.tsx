@@ -21,6 +21,8 @@ import {
 } from '~/components/settings/EditOrganizationInvoiceTemplateDialog'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { EditOrganizationGracePeriodDialog } from '~/components/settings/EditOrganizationGracePeriodDialog'
+import { useIsPremiumUser } from '~/hooks/customer/useIsPremiumUser'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 
 const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
 
@@ -40,9 +42,11 @@ gql`
 
 const InvoiceSettings = () => {
   const { translate } = useInternationalization()
+  const isPremium = useIsPremiumUser()
   const editVATDialogRef = useRef<EditOrganizationVatRateDialogRef>(null)
   const editInvoiceTemplateDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
   const editGracePeriodDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
+  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { data, error, loading } = useGetOrganizationSettingsQuery()
   const organization = data?.organization
   const vatRate = organization?.vatRate || 0
@@ -101,17 +105,19 @@ const InvoiceSettings = () => {
         )}
       </InfoBlock>
 
-      {/* TODO - Release when pricing is out
       <InlineSectionTitle>
         <Typography variant="subhead" color="grey700">
           {translate('text_638dc196fb209d551f3d8141')}
         </Typography>
         <Button
           variant="quaternary"
-          size="large"
-          disabled // TODO - change when pricing is set
-          // disabled={loading}
-          onClick={editGracePeriodDialogRef?.current?.openDialog}
+          endIcon={isPremium ? undefined : 'sparkles'}
+          disabled={loading}
+          onClick={
+            isPremium
+              ? editGracePeriodDialogRef?.current?.openDialog
+              : premiumWarningDialogRef.current?.openDialog
+          }
         >
           {translate('text_637f819eff19cd55a56d55e4')}
         </Button>
@@ -137,7 +143,7 @@ const InvoiceSettings = () => {
             </Typography>
           </>
         )}
-      </InfoBlock> */}
+      </InfoBlock>
 
       <InlineSectionTitle>
         <Typography variant="subhead" color="grey700">
@@ -186,6 +192,7 @@ const InvoiceSettings = () => {
         ref={editGracePeriodDialogRef}
         invoiceGracePeriod={invoiceGracePeriod}
       />
+      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </Page>
   )
 }
