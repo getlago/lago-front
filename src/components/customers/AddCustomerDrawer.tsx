@@ -15,13 +15,14 @@ import {
   UpdateCustomerInput,
   ProviderTypeEnum,
   CurrencyEnum,
-  // TimezoneEnum,
+  TimezoneEnum,
 } from '~/generated/graphql'
 import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
 import CountryCodes from '~/public/countryCode.json'
-import { INTEGRATIONS_ROUTE /* ORGANIZATION_INFORMATIONS_ROUTE */ } from '~/core/router'
-// import { getTimezoneConfig } from '~/core/timezone'
-// import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
+import { INTEGRATIONS_ROUTE, ORGANIZATION_INFORMATIONS_ROUTE } from '~/core/router'
+import { getTimezoneConfig } from '~/core/timezone'
+import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
+import { useIsPremiumUser } from '~/hooks/customer/useIsPremiumUser'
 
 const countryData: { value: string; label: string }[] = Object.keys(CountryCodes).map(
   (countryKey) => {
@@ -50,6 +51,7 @@ interface AddCustomerDrawerProps {
 export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
   ({ customer }: AddCustomerDrawerProps, ref) => {
     const { translate } = useInternationalization()
+    const isPremium = useIsPremiumUser()
     const { isEdition, onSave } = useCreateEditCustomer({
       customer,
     })
@@ -94,7 +96,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
         }
       },
     })
-    // const { timezoneConfig } = useOrganizationTimezone()
+    const { timezoneConfig } = useOrganizationTimezone()
 
     useEffect(() => {
       if (!formikProps.values.paymentProvider) {
@@ -178,12 +180,14 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
               formikProps={formikProps}
             />
 
-            {/* <ComboBoxField
+            <ComboBoxField
               name="timezone"
               label={translate('text_6390a4ffef9227ba45daca90')}
               placeholder={translate('text_6390a4ffef9227ba45daca92')}
+              disabled={!isPremium}
               helperText={
                 <Typography
+                  variant="caption"
                   html={translate('text_6390a4ffef9227ba45daca94', {
                     timezone: translate('text_638f743fa9a2a9545ee6409a', {
                       zone: translate(timezoneConfig.name),
@@ -202,7 +206,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                   offset: getTimezoneConfig(timezoneValue).offset,
                 }),
               }))}
-            /> */}
+            />
           </Card>
           <Accordion
             size="large"

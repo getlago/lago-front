@@ -56,26 +56,28 @@ export const NavigationTab = ({
 
   return (
     <Container $vertical={orientation === NavigationTabOrientationEnum.vertical}>
-      <TabsBlock className={`navigation-tab--${orientation}`} $align={align}>
-        {tabs.map((tab, i) => {
-          const { link, hidden, title, ...props } = tab
+      {tabs.length > 1 && (
+        <TabsBlock className={`navigation-tab--${orientation}`} $align={align}>
+          {tabs.map((tab, i) => {
+            const { link, hidden, title, ...props } = tab
 
-          if (hidden) return null
+            if (hidden) return null
 
-          return (
-            <ButtonLink
-              key={`${i}-${name}-${link}`}
-              to={link}
-              type="tab"
-              active={link === activeTab?.link}
-              onClick={!!onClick ? () => onClick(tab) : undefined}
-              {..._omit(props, ['component', 'match'])}
-            >
-              {title}
-            </ButtonLink>
-          )
-        })}
-      </TabsBlock>
+            return (
+              <ButtonLink
+                key={`${i}-${name}-${link}`}
+                to={link}
+                type="tab"
+                active={link === activeTab?.link}
+                onClick={!!onClick ? () => onClick(tab) : undefined}
+                {..._omit(props, ['component', 'match'])}
+              >
+                {title}
+              </ButtonLink>
+            )
+          })}
+        </TabsBlock>
+      )}
       {loading ? (
         loadingComponent ? (
           loadingComponent

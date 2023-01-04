@@ -54,6 +54,8 @@ import {
 } from '~/components/invoices/FinalizeInvoiceDialog'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { useIsPremiumUser } from '~/hooks/customer/useIsPremiumUser'
 
 gql`
   fragment AllInvoiceDetailsForCustomerInvoiceDetails on Invoice {
@@ -133,7 +135,9 @@ const CustomerInvoiceDetails = () => {
   const { translate } = useInternationalization()
   const { id, invoiceId } = useParams()
   let navigate = useNavigate()
+  const isPremium = useIsPremiumUser()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
+  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const [refreshInvoice, { loading: loadingRefreshInvoice }] = useRefreshInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
   })
@@ -323,21 +327,31 @@ const CustomerInvoiceDetails = () => {
                     >
                       {translate('text_634687079be251fdb4383395')}
                     </Button>
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      disabled={creditableAmountCents === 0 && refundableAmountCents === 0}
-                      onClick={async () => {
-                        navigate(
-                          generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
-                            id,
-                            invoiceId,
-                          })
-                        )
-                      }}
-                    >
-                      {translate('text_6386589e4e82fa85eadcaa7a')}
-                    </Button>
+                    {isPremium ? (
+                      <Button
+                        variant="quaternary"
+                        align="left"
+                        disabled={creditableAmountCents === 0 && refundableAmountCents === 0}
+                        onClick={async () => {
+                          navigate(
+                            generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+                              id,
+                              invoiceId,
+                            })
+                          )
+                        }}
+                      >
+                        {translate('text_6386589e4e82fa85eadcaa7a')}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="quaternary"
+                        onClick={premiumWarningDialogRef.current?.openDialog}
+                        endIcon="sparkles"
+                      >
+                        {translate('text_6386589e4e82fa85eadcaa7a')}
+                      </Button>
+                    )}
                   </>
                 )}
                 <Button
@@ -424,6 +438,7 @@ const CustomerInvoiceDetails = () => {
         </Content>
       )}
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
+      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }
