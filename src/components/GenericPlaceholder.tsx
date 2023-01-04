@@ -7,7 +7,7 @@ import { theme } from '~/styles'
 export interface GenericPlaceholderProps {
   className?: string
   title?: string
-  subtitle: string
+  subtitle: string | ReactNode
   image: ReactNode
   buttonTitle: string
   buttonVariant?: ButtonVariant

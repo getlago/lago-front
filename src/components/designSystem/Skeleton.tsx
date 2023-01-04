@@ -65,7 +65,7 @@ export const Skeleton = ({
       })}
       variant={mapVariant(variant)}
       height={size ? mapAvatarSize(size) : height}
-      width={size ? mapAvatarSize(size) : width}
+      $width={size ? mapAvatarSize(size) : width}
       $minSize={
         size && ['connectorAvatar', 'companyAvatar'].includes(variant) ? mapAvatarSize(size) : null
       }
@@ -80,6 +80,7 @@ const StyledSkeleton = styled(MuiSkeleton)<{
   $minSize?: number | null
   $marginBottom?: number | string | null
   $marginRight?: number | string | null
+  $width?: number | string | null
 }>`
   && {
     &.MuiSkeleton-root {
@@ -95,7 +96,8 @@ const StyledSkeleton = styled(MuiSkeleton)<{
           margin-right: ${$marginRight};
         `}
 
-        max-width: 100%;
+      width: 100%;
+      max-width: ${({ $width }) => (typeof $width === 'number' ? `${$width}px` : $width)};
     }
 
     &.skeleton-variant--text {

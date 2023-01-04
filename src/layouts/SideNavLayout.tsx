@@ -43,6 +43,8 @@ import {
   MEMBERS_ROUTE,
   INTEGRATIONS_ROUTE,
   ORGANIZATION_INFORMATIONS_ROUTE,
+  INVOICES_ROUTE,
+  INVOICES_TAB_ROUTE,
 } from '~/core/router'
 import { useSideNavInfosQuery } from '~/generated/graphql'
 
@@ -246,6 +248,12 @@ const SideNav = () => {
                       CUSTOMER_DETAILS_ROUTE,
                       CUSTOMER_DETAILS_TAB_ROUTE,
                     ],
+                  },
+                  {
+                    title: translate('text_63ac86d797f728a87b2f9f85'),
+                    icon: 'document',
+                    link: INVOICES_ROUTE,
+                    match: [INVOICES_ROUTE, INVOICES_TAB_ROUTE],
                   },
                 ]}
                 orientation="vertical"

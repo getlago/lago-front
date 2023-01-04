@@ -10,6 +10,9 @@ const BillableMetricsList = lazy(
 const PlansList = lazy(() => import(/* webpackChunkName: 'plans-list' */ '~/pages/PlansList'))
 const CouponsList = lazy(() => import(/* webpackChunkName: 'coupons-list' */ '~/pages/CouponsList'))
 const AddOnsList = lazy(() => import(/* webpackChunkName: 'add-ons-list' */ '~/pages/AddOnsList'))
+const InvoicesList = lazy(
+  () => import(/* webpackChunkName: 'invoices-list' */ '~/pages/InvoicesList')
+)
 
 // Creation
 const CreateBillableMetric = lazy(
@@ -30,6 +33,8 @@ export const BILLABLE_METRICS_ROUTE = '/billable-metrics'
 export const PLANS_ROUTE = '/plans'
 export const COUPONS_ROUTE = '/coupons'
 export const ADD_ONS_ROUTE = '/add-ons'
+export const INVOICES_ROUTE = '/invoices'
+export const INVOICES_TAB_ROUTE = '/invoices/:tab'
 
 // Creation
 export const CREATE_BILLABLE_METRIC_ROUTE = '/create/billable-metrics'
@@ -64,6 +69,11 @@ export const objectListRoutes: CustomRouteObject[] = [
     path: ADD_ONS_ROUTE,
     private: true,
     element: <AddOnsList />,
+  },
+  {
+    path: [INVOICES_ROUTE, INVOICES_TAB_ROUTE],
+    private: true,
+    element: <InvoicesList />,
   },
 ]
 

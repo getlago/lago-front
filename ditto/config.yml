@@ -111,6 +111,8 @@ projects:
     id: 63aa085ae8d6be2e0e0ee38b
   - name: 👍 [Ready for dev] - All - License key
     id: 63b315558a78f7b5a6551de7
+  - name: "\U0001F44D [Ready for dev] - Invoices- Invoice list"
+    id: 63ac86d51bd1437a2a21f1f9
 format: flat
 variants: true
 components: true

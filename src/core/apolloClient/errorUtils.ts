@@ -24,13 +24,19 @@ export const hasDefinedGQLError = (
 
   if (!errors?.length) return false
 
-  const details = (errors[0]?.extensions as LagoGQLError['extensions'])?.details
+  const { code, details } = errors[0]?.extensions as LagoGQLError['extensions']
 
-  return key
-    ? (details[key] || '').includes(LagoApiError[errorCode])
-    : Object.values(details)
-        .reduce((acc, fieldKey) => {
-          return [...acc, ...fieldKey]
-        }, [])
-        .includes(LagoApiError[errorCode])
+  if (!!details) {
+    return key
+      ? (details[key] || '').includes(LagoApiError[errorCode])
+      : Object.values(details)
+          .reduce((acc, fieldKey) => {
+            return [...acc, ...fieldKey]
+          }, [])
+          .includes(LagoApiError[errorCode])
+  }
+
+  if (!!code) {
+    return code === LagoApiError[errorCode]
+  }
 }

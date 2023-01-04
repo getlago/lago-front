@@ -30,6 +30,7 @@ export const typeDefs = gql`
     invite_already_exists
     email_already_used
     does_not_match_item_amounts
+    payment_processor_is_currently_handling_payment
 
     # Object not found
     plan_not_found
