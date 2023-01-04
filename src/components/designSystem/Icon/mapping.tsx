@@ -84,6 +84,7 @@ import Scissor from '~/public/icons/scissor.svg'
 import Settings from '~/public/icons/settings.svg'
 import Share from '~/public/icons/share.svg'
 import StarFilled from '~/public/icons/star-filled.svg'
+import Sparkles from '~/public/icons/sparkles.svg'
 import Stop from '~/public/icons/stop.svg'
 import SwitchOff from '~/public/icons/switch-off.svg'
 import Switch from '~/public/icons/switch.svg'
@@ -189,6 +190,7 @@ export const ALL_ICONS = {
   scissor: Scissor,
   settings: Settings,
   share: Share,
+  sparkles: Sparkles,
   'star-filled': StarFilled,
   stop: Stop,
   switch: Switch,
