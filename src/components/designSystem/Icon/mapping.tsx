@@ -55,7 +55,7 @@ import KeyboardEnter from '~/public/icons/keyboard-enter.svg'
 import Laptop from '~/public/icons/laptop.svg'
 import Lock from '~/public/icons/lock.svg'
 import Logout from '~/public/icons/log-out.svg'
-import Loupe from '~/public/icons/loupe.svg'
+import MagnifyingGlass from '~/public/icons/magnifying-glass.svg'
 import Map from '~/public/icons/map.svg'
 import Micro from '~/public/icons/micro.svg'
 import Minus from '~/public/icons/minus.svg'
@@ -161,7 +161,7 @@ export const ALL_ICONS = {
   laptop: Laptop,
   lock: Lock,
   logout: Logout,
-  loupe: Loupe,
+  'magnifying-glass': MagnifyingGlass,
   map: Map,
   micro: Micro,
   minus: Minus,
