@@ -227,7 +227,7 @@ export const InvoicesList = ({
                   {showPaymentCell && (
                     <PaymentCell>
                       <Tooltip placement="top-end" title={translate(formattedStatus.label)}>
-                        <Status type={formattedStatus.type} />
+                        <Status type={formattedStatus.type} hideLabel />
                       </Tooltip>
                     </PaymentCell>
                   )}
