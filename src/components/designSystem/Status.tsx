@@ -17,6 +17,7 @@ interface StatusProps {
   type: StatusType
   className?: string
   label?: string
+  hideLabel?: boolean
 }
 
 const STATUS_CONFIG = {
@@ -41,7 +42,7 @@ const STATUS_CONFIG = {
 export const STATUS_WIDTH = 84
 const STATUS_SIZE = 12
 
-export const Status = ({ type, className, label }: StatusProps) => {
+export const Status = ({ type, className, label, hideLabel = false }: StatusProps) => {
   const { translate } = useInternationalization()
   const config = STATUS_CONFIG[type]
 
@@ -52,7 +53,9 @@ export const Status = ({ type, className, label }: StatusProps) => {
           <svg height={STATUS_SIZE} width={STATUS_SIZE}>
             <circle cx="6" cy="6" r="5" fill="none" stroke={config.color} strokeWidth="2" />
           </svg>
-          <Typography color="disabled">{label ?? translate(config.label)}</Typography>
+          {!hideLabel && (
+            <Typography color="disabled">{label ?? translate(config.label)}</Typography>
+          )}
         </Container>
       )
     default:
@@ -61,7 +64,9 @@ export const Status = ({ type, className, label }: StatusProps) => {
           <svg height={STATUS_SIZE} width={STATUS_SIZE}>
             <circle cx="6" cy="6" r="6" fill={config.color} />
           </svg>
-          <Typography color="textSecondary">{label ?? translate(config.label)}</Typography>
+          {!hideLabel && (
+            <Typography color="textSecondary">{label ?? translate(config.label)}</Typography>
+          )}
         </Container>
       )
   }
