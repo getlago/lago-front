@@ -459,6 +459,7 @@
   "text_63a4269f72ead1bda4bed108": "You won’t be able to adjust items anymore, the invoice will be generated instantly. Are you sure?   \n\nOtherwise, the invoice will be generated automatically on {{issuingDate}}.",
   "text_63a4269f72ead1bda4bed10a": "Cancel",
   "text_63a4269f72ead1bda4bed10c": "Finalize invoice",
+  "text_63b6f4e9b074e3b8beebb97f": "Coupons and prepaid credit will impact the invoice once it’s finalized.",
   "text_63208b630aaf8df6bbfb2655": "Members",
   "text_63208b630aaf8df6bbfb2657": "Members",
   "text_63208b630aaf8df6bbfb2659": "Find the list of all members and invite them via a private link",

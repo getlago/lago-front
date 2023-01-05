@@ -2,10 +2,10 @@ import { gql } from '@apollo/client'
 import { memo } from 'react'
 import styled from 'styled-components'
 
-import { Skeleton, Typography } from '~/components/designSystem'
+import { Alert, Skeleton, Typography } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { CurrencyEnum, Invoice, InvoiceTypeEnum } from '~/generated/graphql'
+import { CurrencyEnum, Invoice, InvoiceStatusTypeEnum, InvoiceTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
@@ -143,53 +143,57 @@ export const InvoiceDetailsTableFooter = memo(
                 </td>
               </tr>
             )}
-            {!!Number(invoice?.couponTotalAmountCents) && (
-              <tr>
-                <td></td>
-                <td>
-                  <Typography variant="bodyHl" color="grey600">
-                    {translate('text_637ccf8133d2c9a7d11ce705')}
-                  </Typography>
-                </td>
-                <td>
-                  <Typography variant="body" color="success600">
-                    {intlFormatNumber(
-                      deserializeAmount(
-                        invoice?.couponTotalAmountCents || 0,
-                        invoice?.totalAmountCurrency || CurrencyEnum.Usd
-                      ),
-                      {
-                        currencyDisplay: 'symbol',
-                        currency: invoice?.totalAmountCurrency || CurrencyEnum.Usd,
-                      }
-                    )}
-                  </Typography>
-                </td>
-              </tr>
-            )}
-            {!!Number(invoice?.walletTransactionAmountCents) && (
-              <tr>
-                <td></td>
-                <td>
-                  <Typography variant="bodyHl" color="grey600">
-                    {translate('text_6391f05df4bf96d81f3660a7')}
-                  </Typography>
-                </td>
-                <td>
-                  <Typography variant="body" color="success600">
-                    {intlFormatNumber(
-                      deserializeAmount(
-                        invoice?.walletTransactionAmountCents || 0,
-                        invoice?.totalAmountCurrency || CurrencyEnum.Usd
-                      ),
-                      {
-                        currencyDisplay: 'symbol',
-                        currency: invoice?.totalAmountCurrency || CurrencyEnum.Usd,
-                      }
-                    )}
-                  </Typography>
-                </td>
-              </tr>
+            {invoice.status !== InvoiceStatusTypeEnum.Draft && (
+              <>
+                {!!Number(invoice?.couponTotalAmountCents) && (
+                  <tr>
+                    <td></td>
+                    <td>
+                      <Typography variant="bodyHl" color="grey600">
+                        {translate('text_637ccf8133d2c9a7d11ce705')}
+                      </Typography>
+                    </td>
+                    <td>
+                      <Typography variant="body" color="success600">
+                        {intlFormatNumber(
+                          deserializeAmount(
+                            invoice?.couponTotalAmountCents || 0,
+                            invoice?.totalAmountCurrency || CurrencyEnum.Usd
+                          ),
+                          {
+                            currencyDisplay: 'symbol',
+                            currency: invoice?.totalAmountCurrency || CurrencyEnum.Usd,
+                          }
+                        )}
+                      </Typography>
+                    </td>
+                  </tr>
+                )}
+                {!!Number(invoice?.walletTransactionAmountCents) && (
+                  <tr>
+                    <td></td>
+                    <td>
+                      <Typography variant="bodyHl" color="grey600">
+                        {translate('text_6391f05df4bf96d81f3660a7')}
+                      </Typography>
+                    </td>
+                    <td>
+                      <Typography variant="body" color="success600">
+                        {intlFormatNumber(
+                          deserializeAmount(
+                            invoice?.walletTransactionAmountCents || 0,
+                            invoice?.totalAmountCurrency || CurrencyEnum.Usd
+                          ),
+                          {
+                            currencyDisplay: 'symbol',
+                            currency: invoice?.totalAmountCurrency || CurrencyEnum.Usd,
+                          }
+                        )}
+                      </Typography>
+                    </td>
+                  </tr>
+                )}
+              </>
             )}
             <tr>
               <td></td>
@@ -215,6 +219,14 @@ export const InvoiceDetailsTableFooter = memo(
                 </Typography>
               </td>
             </tr>
+            {invoice.status === InvoiceStatusTypeEnum.Draft && (
+              <tr>
+                <td></td>
+                <td colSpan={2}>
+                  <Alert type="info">{translate('text_63b6f4e9b074e3b8beebb97f')}</Alert>
+                </td>
+              </tr>
+            )}
           </>
         )}
       </tfoot>
