@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Autocomplete, createFilterOptions } from '@mui/material'
 import _sortBy from 'lodash/sortBy'
 import styled from 'styled-components'
@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Icon, Typography } from '~/components/designSystem'
 import { theme } from '~/styles'
+import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
 
 import { ComboBoxItem } from './ComboBoxItem'
 import { ComboBoxInput } from './ComboBoxInput'
@@ -29,6 +30,7 @@ export const ComboBox = ({
   PopperProps,
   className,
   loadingText,
+  searchQuery,
   emptyText,
   disableClearable = false,
   renderGroupHeader,
@@ -37,6 +39,17 @@ export const ComboBox = ({
   onChange,
 }: ComboBoxProps) => {
   const { translate } = useInternationalization()
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    // This is to prenvent loading blink if the loading time is really small
+    if (searchQuery) {
+      setIsLoading(true)
+    }
+    setTimeout(() => {
+      setIsLoading(loading || false)
+    }, DEBOUNCE_SEARCH_MS)
+  }, [searchQuery, loading])
 
   // By default, we want to sort `options` alphabetically (by value)
   const data = useMemo(() => {
@@ -92,6 +105,7 @@ export const ComboBox = ({
             disableClearable={disableClearable}
             className={className}
             error={error}
+            searchQuery={searchQuery}
             helperText={helperText}
             label={label}
             infoText={infoText}
@@ -114,7 +128,7 @@ export const ComboBox = ({
       // pass `null` to force Autocomplete in controlled mode
       //  (`undefined` value at initial render puts Autocomplete in uncontrolled mode)
       value={value || null}
-      loading={loading}
+      loading={isLoading}
       loadingText={
         <LoadingContainer>
           <Loader color="primary" name="processing" animation="spin" />
@@ -143,6 +157,8 @@ export const ComboBox = ({
         )
       }}
       filterOptions={(options, params) => {
+        if (searchQuery) return options
+
         const filtered = filter(
           options,
           params.inputValue !== value

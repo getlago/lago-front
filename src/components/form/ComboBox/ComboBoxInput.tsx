@@ -5,6 +5,7 @@ import styled from 'styled-components'
 
 import { Button, Typography } from '~/components/designSystem'
 import { theme } from '~/styles'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
 import { ComboBoxInputProps } from './types'
 
@@ -16,6 +17,7 @@ export const ComboBoxInput = ({
   helperText,
   label,
   name,
+  searchQuery,
   placeholder,
   infoText,
   params,
@@ -23,12 +25,14 @@ export const ComboBoxInput = ({
   startAdornmentValue,
 }: ComboBoxInputProps) => {
   const { inputProps, InputProps, ...restParams } = params
+  const debouncedSearch = useDebouncedSearch(searchQuery as Function)
 
   return (
     <StyledTextInput
       onChange={(newVal) => {
         // needed because useAutocomplete expect a DOM onChange listener...
         inputProps.onChange({ target: { value: newVal } })
+        searchQuery && debouncedSearch(newVal)
       }}
       className={className}
       name={name}
