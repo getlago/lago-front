@@ -145,30 +145,6 @@ export const InvoiceDetailsTableFooter = memo(
             )}
             {invoice.status !== InvoiceStatusTypeEnum.Draft && (
               <>
-                {!!Number(invoice?.couponTotalAmountCents) && (
-                  <tr>
-                    <td></td>
-                    <td>
-                      <Typography variant="bodyHl" color="grey600">
-                        {translate('text_637ccf8133d2c9a7d11ce705')}
-                      </Typography>
-                    </td>
-                    <td>
-                      <Typography variant="body" color="success600">
-                        {intlFormatNumber(
-                          deserializeAmount(
-                            invoice?.couponTotalAmountCents || 0,
-                            invoice?.totalAmountCurrency || CurrencyEnum.Usd
-                          ),
-                          {
-                            currencyDisplay: 'symbol',
-                            currency: invoice?.totalAmountCurrency || CurrencyEnum.Usd,
-                          }
-                        )}
-                      </Typography>
-                    </td>
-                  </tr>
-                )}
                 {!!Number(invoice?.walletTransactionAmountCents) && (
                   <tr>
                     <td></td>
@@ -182,6 +158,30 @@ export const InvoiceDetailsTableFooter = memo(
                         {intlFormatNumber(
                           deserializeAmount(
                             invoice?.walletTransactionAmountCents || 0,
+                            invoice?.totalAmountCurrency || CurrencyEnum.Usd
+                          ),
+                          {
+                            currencyDisplay: 'symbol',
+                            currency: invoice?.totalAmountCurrency || CurrencyEnum.Usd,
+                          }
+                        )}
+                      </Typography>
+                    </td>
+                  </tr>
+                )}
+                {!!Number(invoice?.couponTotalAmountCents) && (
+                  <tr>
+                    <td></td>
+                    <td>
+                      <Typography variant="bodyHl" color="grey600">
+                        {translate('text_637ccf8133d2c9a7d11ce705')}
+                      </Typography>
+                    </td>
+                    <td>
+                      <Typography variant="body" color="success600">
+                        {intlFormatNumber(
+                          deserializeAmount(
+                            invoice?.couponTotalAmountCents || 0,
                             invoice?.totalAmountCurrency || CurrencyEnum.Usd
                           ),
                           {
