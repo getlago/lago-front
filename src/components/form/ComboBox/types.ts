@@ -61,6 +61,7 @@ export type ComboBoxInputProps = Pick<
   | 'startAdornmentValue'
 > & {
   disableClearable?: boolean
+  searchQuery?: Function
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: Omit<AutocompleteRenderInputParams, 'inputProps'> & { inputProps: any }
 }
