@@ -95,6 +95,9 @@ module.exports = {
   "ditto_component_library": {
     "base": require('./ditto-component-library__base.json')
   },
+  "project_63ba9ee502cfb90849074f4b": {
+    "base": require('./⚙️ [WIP] - All - Search bar in app__base.json')
+  },
   "project_633b622919283cdbfb2f7233": {
     "base": require('./⚙️ [WIP] - B.Metrics and Plans - Dimension__base.json')
   },

@@ -113,6 +113,8 @@ projects:
     id: 63b315558a78f7b5a6551de7
   - name: "\U0001F44D [Ready for dev] - Invoices- Invoice list"
     id: 63ac86d51bd1437a2a21f1f9
+  - name: ⚙️ [WIP] - All - Search bar in app
+    id: 63ba9ee502cfb90849074f4b
 format: flat
 variants: true
 components: true

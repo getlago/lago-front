@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { useNavigate, generatePath } from 'react-router-dom'
@@ -7,7 +8,7 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
 import { CREATE_BILLABLE_METRIC_ROUTE, UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
-import { useBillableMetricsQuery, BillableMetricItemFragmentDoc } from '~/generated/graphql'
+import { BillableMetricItemFragmentDoc, useBillableMetricsLazyQuery } from '~/generated/graphql'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import {
@@ -15,10 +16,12 @@ import {
   BillableMetricItemSkeleton,
 } from '~/components/billableMetrics/BillableMetricItem'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
+import { SearchInput } from '~/components/SearchInput'
+import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
 
 gql`
-  query billableMetrics($page: Int, $limit: Int) {
-    billableMetrics(page: $page, limit: $limit) {
+  query billableMetrics($page: Int, $limit: Int, $searchTerm: String) {
+    billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
       metadata {
         currentPage
         totalPages
@@ -35,10 +38,12 @@ gql`
 const BillableMetricsList = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
-  const { data, error, loading, fetchMore } = useBillableMetricsQuery({
-    variables: { limit: 20 },
-    notifyOnNetworkStatusChange: true,
-  })
+  const [isLoading, setIsLoading] = useState(false)
+  const [getBillableMetrics, { data, error, loading, fetchMore, variables }] =
+    useBillableMetricsLazyQuery({
+      variables: { limit: 50 },
+      notifyOnNetworkStatusChange: true,
+    })
   const list = data?.billableMetrics?.collection || []
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `billable-metric-item-${i}`,
@@ -46,51 +51,99 @@ const BillableMetricsList = () => {
   })
   let index = -1
 
+  useEffect(() => {
+    // This is to prenvent loading blink if the loading time is really small
+    if (variables?.searchTerm) {
+      setIsLoading(true)
+      setTimeout(() => {
+        setIsLoading(loading || false)
+      }, DEBOUNCE_SEARCH_MS)
+    }
+  }, [variables?.searchTerm, loading])
+
+  useEffect(() => {
+    getBillableMetrics()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <div role="grid" tabIndex={-1} onKeyDown={onKeyDown}>
       <Header $withSide>
-        <Typography variant="bodyHl" color="textSecondary" noWrap>
+        <Typography variant="bodyHl" color="textSecondary">
           {translate('text_623b497ad05b960101be3438')}
         </Typography>
-        <StyledButton data-test="create-bm" type="button" to={CREATE_BILLABLE_METRIC_ROUTE}>
-          {translate('text_623b497ad05b960101be343a')}
-        </StyledButton>
+        <HeaderRigthBlock>
+          <SearchInput
+            searchQuery={getBillableMetrics}
+            placeholder={translate('text_63ba9ee977a67c9693f50aea')}
+          />
+          <StyledButton data-test="create-bm" type="button" to={CREATE_BILLABLE_METRIC_ROUTE}>
+            {translate('text_623b497ad05b960101be343a')}
+          </StyledButton>
+        </HeaderRigthBlock>
       </Header>
 
-      {!loading && !!error ? (
-        <GenericPlaceholder
-          title={translate('text_623b53fea66c76017eaebb6e')}
-          subtitle={translate('text_623b53fea66c76017eaebb76')}
-          buttonTitle={translate('text_623b53fea66c76017eaebb7a')}
-          buttonVariant="primary"
-          buttonAction={() => location.reload()}
-          image={<ErrorImage width="136" height="104" />}
-        />
-      ) : !loading && (!list || !list.length) ? (
-        <GenericPlaceholder
-          title={translate('text_623b53fea66c76017eaebb70')}
-          subtitle={translate('text_623b53fea66c76017eaebb78')}
-          buttonTitle={translate('text_623b53fea66c76017eaebb7c')}
-          buttonVariant="primary"
-          buttonAction={() => navigate(CREATE_BILLABLE_METRIC_ROUTE)}
-          image={<EmptyImage width="136" height="104" />}
-        />
-      ) : (
-        <ListContainer>
-          <ListHead $withActions>
-            <Typography color="disabled" variant="bodyHl">
-              {translate('text_623b497ad05b960101be343e')}
-            </Typography>
-            <CellSmall align="right" color="disabled" variant="bodyHl">
-              {translate('text_623b497ad05b960101be3440')}
-            </CellSmall>
-          </ListHead>
+      <ListContainer>
+        <ListHead $withActions>
+          <Typography color="disabled" variant="bodyHl">
+            {translate('text_623b497ad05b960101be343e')}
+          </Typography>
+          <CellSmall align="right" color="disabled" variant="bodyHl">
+            {translate('text_623b497ad05b960101be3440')}
+          </CellSmall>
+        </ListHead>
+        {!!isLoading && variables?.searchTerm ? (
+          <>
+            {isLoading &&
+              [0, 1, 2].map((i) => (
+                <BillableMetricItemSkeleton key={`billable-metric-item-skeleton-${i}`} />
+              ))}
+          </>
+        ) : !isLoading && !!error ? (
+          <>
+            {!!variables?.searchTerm ? (
+              <GenericPlaceholder
+                title={translate('text_623b53fea66c76017eaebb6e')}
+                subtitle={translate('text_63bab307a61c62af497e0599')}
+                image={<ErrorImage width="136" height="104" />}
+              />
+            ) : (
+              <GenericPlaceholder
+                title={translate('text_623b53fea66c76017eaebb6e')}
+                subtitle={translate('text_623b53fea66c76017eaebb76')}
+                buttonTitle={translate('text_623b53fea66c76017eaebb7a')}
+                buttonVariant="primary"
+                buttonAction={() => location.reload()}
+                image={<ErrorImage width="136" height="104" />}
+              />
+            )}
+          </>
+        ) : !isLoading && (!list || !list.length) ? (
+          <>
+            {!!variables?.searchTerm ? (
+              <GenericPlaceholder
+                title={translate('text_63bab307a61c62af497e05a2')}
+                subtitle={translate('text_63bab307a61c62af497e05a4')}
+                image={<EmptyImage width="136" height="104" />}
+              />
+            ) : (
+              <GenericPlaceholder
+                title={translate('text_623b53fea66c76017eaebb70')}
+                subtitle={translate('text_623b53fea66c76017eaebb78')}
+                buttonTitle={translate('text_623b53fea66c76017eaebb7c')}
+                buttonVariant="primary"
+                buttonAction={() => navigate(CREATE_BILLABLE_METRIC_ROUTE)}
+                image={<EmptyImage width="136" height="104" />}
+              />
+            )}
+          </>
+        ) : (
           <InfiniteScroll
             onBottom={() => {
               const { currentPage = 0, totalPages = 0 } = data?.billableMetrics?.metadata || {}
 
               currentPage < totalPages &&
-                !loading &&
+                !isLoading &&
                 fetchMore({
                   variables: { page: currentPage + 1 },
                 })
@@ -111,13 +164,13 @@ const BillableMetricsList = () => {
                   />
                 )
               })}
-            {loading &&
+            {isLoading &&
               [0, 1, 2].map((i) => (
                 <BillableMetricItemSkeleton key={`billable-metric-item-skeleton-${i}`} />
               ))}
           </InfiniteScroll>
-        </ListContainer>
-      )}
+        )}
+      </ListContainer>
     </div>
   )
 }
@@ -129,6 +182,15 @@ const Header = styled(PageHeader)`
     &:first-child {
       margin-right: ${theme.spacing(4)};
     }
+  }
+`
+
+const HeaderRigthBlock = styled.div`
+  display: flex;
+  align-items: center;
+
+  > :first-child {
+    margin-right: ${theme.spacing(3)};
   }
 `
 
