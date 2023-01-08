@@ -3806,6 +3806,7 @@ export type AddOnsQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnC
 export type BillableMetricsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
+  searchTerm?: InputMaybe<Scalars['String']>;
 }>;
 
 
@@ -7667,8 +7668,8 @@ export type AddOnsQueryHookResult = ReturnType<typeof useAddOnsQuery>;
 export type AddOnsLazyQueryHookResult = ReturnType<typeof useAddOnsLazyQuery>;
 export type AddOnsQueryResult = Apollo.QueryResult<AddOnsQuery, AddOnsQueryVariables>;
 export const BillableMetricsDocument = gql`
-    query billableMetrics($page: Int, $limit: Int) {
-  billableMetrics(page: $page, limit: $limit) {
+    query billableMetrics($page: Int, $limit: Int, $searchTerm: String) {
+  billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
     metadata {
       currentPage
       totalPages
@@ -7694,6 +7695,7 @@ export const BillableMetricsDocument = gql`
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
  *   },
  * });
  */
