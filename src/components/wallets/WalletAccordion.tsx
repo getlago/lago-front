@@ -18,7 +18,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { WalletAccordionFragment, WalletStatusEnum, TimezoneEnum } from '~/generated/graphql'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { TimezoneDate } from '~/components/TimezoneDate'
-import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { WalletTransactionList } from './WalletTransactionList'
 import { TopupWalletDialogRef } from './TopupWalletDialog'
@@ -79,7 +79,7 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
       status,
       terminatedAt,
     } = wallet
-    const { formatTimeOrgaTZ } = useOrganizationTimezone()
+    const { formatTimeOrgaTZ } = useOrganizationInfos()
 
     const statusMap = mapStatus(status)
     let [creditAmountUnit = '0', creditAmountCents = '00'] = creditsBalance.split('.')

@@ -20,7 +20,7 @@ import { useEventsQuery, EventListFragment, EventItemFragmentDoc } from '~/gener
 import { EventItem, EventItemSkeleton } from '~/components/debugger/EventItem'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { CodeSnippet } from '~/components/CodeSnippet'
-import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { TimezoneDate } from '~/components/TimezoneDate'
 
 gql`
@@ -74,7 +74,7 @@ const Debugger = () => {
       element.blur && element.blur()
     },
   })
-  const { formatTimeOrgaTZ } = useOrganizationTimezone()
+  const { formatTimeOrgaTZ } = useOrganizationInfos()
   let index = -1
   const groupedEvent = useMemo(
     () =>

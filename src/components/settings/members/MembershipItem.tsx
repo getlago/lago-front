@@ -6,6 +6,7 @@ import { theme } from '~/styles'
 import { Avatar, Typography, Skeleton, Button, Tooltip } from '~/components/designSystem'
 import { MembershipItemFragment, useGetCurrentUserMembersQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { RevokeMembershipDialogRef } from './RevokeMembershipDialog'
 
@@ -15,10 +16,6 @@ gql`
     user {
       id
       email
-    }
-    organization {
-      id
-      name
     }
   }
 
@@ -36,8 +33,9 @@ interface MembershipItemProps {
 export const MembershipItem = forwardRef<RevokeMembershipDialogRef, MembershipItemProps>(
   ({ membership }: MembershipItemProps, ref) => {
     const { data } = useGetCurrentUserMembersQuery({ fetchPolicy: 'cache-first' })
-    const { id, user, organization } = membership
+    const { id, user } = membership
     const { translate } = useInternationalization()
+    const { organization } = useOrganizationInfos()
 
     return (
       <ItemContainer>
@@ -57,7 +55,7 @@ export const MembershipItem = forwardRef<RevokeMembershipDialogRef, MembershipIt
                   ;(ref as MutableRefObject<RevokeMembershipDialogRef>)?.current?.openDialog({
                     id,
                     email: user.email || '',
-                    organizationName: organization.name,
+                    organizationName: organization?.name || '',
                   })
                 }}
               />

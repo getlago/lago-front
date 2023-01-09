@@ -5,7 +5,7 @@ import { EventItemFragment } from '~/generated/graphql'
 import { theme, BaseListItem, ListItem, ItemContainer } from '~/styles'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { Skeleton, Icon, Typography, Avatar } from '~/components/designSystem'
-import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment EventItem on Event {
@@ -28,7 +28,7 @@ interface EventItemProps {
 export const EventItem = ({ event, navigationProps, selected, onClick }: EventItemProps) => {
   const { code, externalCustomerId, timestamp, matchBillableMetric, matchCustomField } = event
   const hasWarning = !matchBillableMetric || !matchCustomField
-  const { formatTimeOrgaTZ } = useOrganizationTimezone()
+  const { formatTimeOrgaTZ } = useOrganizationInfos()
 
   return (
     <ItemContainer>

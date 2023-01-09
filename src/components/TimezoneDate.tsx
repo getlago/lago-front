@@ -4,7 +4,7 @@ import { Typography, Tooltip, Icon, TypographyProps } from '~/components/designS
 import { TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
-import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { getTimezoneConfig, formatDateToTZ } from '~/core/timezone'
 
 enum MainTimezoneEnum {
@@ -29,7 +29,7 @@ export const TimezoneDate = ({
   mainTypographyProps,
 }: TimezoneDateProps) => {
   const { translate } = useInternationalization()
-  const { timezone, timezoneConfig, formatTimeOrgaTZ } = useOrganizationTimezone()
+  const { timezone, timezoneConfig, formatTimeOrgaTZ } = useOrganizationInfos()
   const formattedCustomerTZ = getTimezoneConfig(customerTimezone || timezone)
 
   return (

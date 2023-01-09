@@ -10,9 +10,9 @@ import {
   EditCustomerVatRateFragmentDoc,
   CustomerVatRateFragment,
   CustomerInvoiceGracePeriodFragment,
-  useGetOrganizationSettingsForCustomerQuery,
 } from '~/generated/graphql'
 import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   EditCustomerVatRateDialog,
@@ -46,14 +46,6 @@ gql`
     invoiceGracePeriod
   }
 
-  query getOrganizationSettingsForCustomer {
-    organization {
-      id
-      vatRate
-      invoiceGracePeriod
-    }
-  }
-
   ${EditCustomerVatRateFragmentDoc}
 `
 
@@ -64,9 +56,7 @@ interface CustomerSettingsProps {
 export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
   const { translate } = useInternationalization()
   const isPremium = useIsPremiumUser()
-
-  const { data } = useGetOrganizationSettingsForCustomerQuery()
-  const currentOrganization = data?.organization
+  const { organization: currentOrganization } = useOrganizationInfos()
 
   const editDialogRef = useRef<EditCustomerVatRateDialogRef>(null)
   const deleteVatRateDialogRef = useRef<DeleteCustomerVatRateDialogRef>(null)

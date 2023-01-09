@@ -9,25 +9,15 @@ import { theme } from '~/styles'
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  CreateInviteInput,
-  LagoApiError,
-  useCreateInviteMutation,
-  useGetOrganizationNameQuery,
-} from '~/generated/graphql'
+import { CreateInviteInput, LagoApiError, useCreateInviteMutation } from '~/generated/graphql'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { INVITATION_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
-  query getOrganizationName {
-    organization {
-      id
-      name
-    }
-  }
   mutation createInvite($input: CreateInviteInput!) {
     createInvite(input: $input) {
       id
@@ -40,11 +30,11 @@ export interface CreateInviteDialogRef extends DialogRef {}
 
 export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
   const { translate } = useInternationalization()
-  const { data } = useGetOrganizationNameQuery({ fetchPolicy: 'cache-first' })
   const [inviteToken, setInviteToken] = useState<string>('')
   const invitationUrl = `${window.location.origin}${generatePath(INVITATION_ROUTE, {
     token: inviteToken,
   })}`
+  const { organization } = useOrganizationInfos()
   const [createInvite, { error }] = useCreateInviteMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted(res) {
@@ -91,7 +81,7 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
       description={
         inviteToken
           ? translate('text_63208c701ce25db78140743a', {
-              organizationName: data?.organization?.name,
+              organizationName: organization?.name,
             })
           : translate('text_63208c701ce25db78140749b')
       }

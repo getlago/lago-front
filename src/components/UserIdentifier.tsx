@@ -4,7 +4,7 @@ import * as Sentry from '@sentry/browser'
 
 import { addToast } from '~/core/apolloClient'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
-import { useUserIdentifierQuery } from '~/generated/graphql'
+import { useUserIdentifierQuery, MainOrganizationInfosFragmentDoc } from '~/generated/graphql'
 
 gql`
   query UserIdentifier {
@@ -12,7 +12,12 @@ gql`
       id
       email
     }
+    organization {
+      ...MainOrganizationInfos
+    }
   }
+
+  ${MainOrganizationInfosFragmentDoc}
 `
 
 export const UserIdentifier = () => {

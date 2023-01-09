@@ -25,7 +25,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PlanItemFragment, DeletePlanDialogFragmentDoc } from '~/generated/graphql'
 import { UPDATE_PLAN_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
-import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { DeletePlanDialog, DeletePlanDialogRef } from './DeletePlanDialog'
 
@@ -53,7 +53,7 @@ export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
   const deleteDialogRef = useRef<DeletePlanDialogRef>(null)
   const { id, name, code, customerCount, chargeCount, createdAt, canBeDeleted } = plan
   const { translate } = useInternationalization()
-  const { formatTimeOrgaTZ } = useOrganizationTimezone()
+  const { formatTimeOrgaTZ } = useOrganizationInfos()
 
   return (
     <ItemContainer>
