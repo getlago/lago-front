@@ -107,7 +107,7 @@
     "@mui/material": "5.10.17",
     "@mui/styled-engine": "5.10.16",
     "@mui/styled-engine-sc": "5.10.16",
-    "@mui/x-date-pickers": "5.0.12",
+    "@mui/x-date-pickers": "5.0.13",
     "@sentry/react": "7.28.1",
     "@sentry/tracing": "7.28.1",
     "add": "2.0.6",
