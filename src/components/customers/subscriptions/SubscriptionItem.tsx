@@ -11,7 +11,7 @@ import {
   TimezoneEnum,
 } from '~/generated/graphql'
 import { Typography, Skeleton } from '~/components/designSystem'
-import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { AddSubscriptionDrawerRef } from './AddSubscriptionDrawer'
 import { EditCustomerSubscriptionDrawerRef } from './EditCustomerSubscriptionDrawer'
@@ -67,7 +67,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
       startedAt,
       subscriptionAt,
     } = subscription
-    const { formatTimeOrgaTZ } = useOrganizationTimezone()
+    const { formatTimeOrgaTZ } = useOrganizationInfos()
     const isDowngrading = !!nextPlan
 
     return (

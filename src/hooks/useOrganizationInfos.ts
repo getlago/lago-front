@@ -1,37 +1,47 @@
 import { gql } from '@apollo/client'
 
-import { TimezoneEnum, useGetOrganizationTimezoneQuery } from '~/generated/graphql'
+import {
+  TimezoneEnum,
+  useGetOrganizationInfosQuery,
+  MainOrganizationInfosFragment,
+} from '~/generated/graphql'
 import { TimeZonesConfig, TimezoneConfigObject } from '~/core/timezone'
 import { formatDateToTZ } from '~/core/timezone'
 
 gql`
-  fragment OrganizationWithTimezone on Organization {
+  fragment MainOrganizationInfos on Organization {
     id
+    name
+    logoUrl
     timezone
+    vatRate
+    invoiceGracePeriod
   }
 
-  query getOrganizationTimezone {
+  query getOrganizationInfos {
     organization {
-      id
-      timezone
+      ...MainOrganizationInfos
     }
   }
 `
 
-type UseOrganizationTimezone = () => {
+type UseOrganizationInfos = () => {
+  organization?: MainOrganizationInfosFragment
   timezone: TimezoneEnum
   timezoneConfig: TimezoneConfigObject
   formatTimeOrgaTZ: (date: string, format?: string) => string
 }
 
-export const useOrganizationTimezone: UseOrganizationTimezone = () => {
-  const { data } = useGetOrganizationTimezoneQuery({
+export const useOrganizationInfos: UseOrganizationInfos = () => {
+  const { data } = useGetOrganizationInfosQuery({
     fetchPolicy: 'cache-first',
+    canonizeResults: true,
   })
   const orgaTimezone = data?.organization?.timezone || TimezoneEnum.TzUtc
   const timezoneConfig = TimeZonesConfig[orgaTimezone]
 
   return {
+    organization: data?.organization || undefined,
     timezone: orgaTimezone || TimezoneEnum.TzUtc,
     timezoneConfig,
     formatTimeOrgaTZ: (date, format) =>

@@ -1,10 +1,6 @@
 import { gql } from '@apollo/client'
 
 export const typeDefs = gql`
-  extend type Query {
-    selectedOrganization: Organization
-  }
-
   enum LagoApiError {
     internal_error
     unauthorized

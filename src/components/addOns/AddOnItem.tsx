@@ -27,7 +27,7 @@ import { AddOnItemFragment } from '~/generated/graphql'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
-import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
@@ -51,7 +51,7 @@ export const AddOnItem = ({ addOn, navigationProps }: AddOnItemProps) => {
   const { id, name, amountCurrency, amountCents, customerCount, createdAt, canBeDeleted } = addOn
   const deleteDialogRef = useRef<DeleteAddOnDialogRef>(null)
   const { translate } = useInternationalization()
-  const { formatTimeOrgaTZ } = useOrganizationTimezone()
+  const { formatTimeOrgaTZ } = useOrganizationInfos()
 
   return (
     <ItemContainer>

@@ -20,7 +20,7 @@ import {
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
 import { AddCustomerDrawer, AddCustomerDrawerRef } from '~/components/customers/AddCustomerDrawer'
-import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment CustomerItem on Customer {
@@ -46,7 +46,7 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
   const editDialogRef = useRef<AddCustomerDrawerRef>(null)
   const { id, name, externalId, createdAt, canBeDeleted, activeSubscriptionCount } = customer
   const { translate } = useInternationalization()
-  const { formatTimeOrgaTZ } = useOrganizationTimezone()
+  const { formatTimeOrgaTZ } = useOrganizationInfos()
 
   return (
     <ItemContainer>

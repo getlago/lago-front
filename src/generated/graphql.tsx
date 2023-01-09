@@ -2322,7 +2322,6 @@ export type Query = {
   plan?: Maybe<PlanDetails>;
   /** Query plans of an organization */
   plans: PlanCollection;
-  selectedOrganization?: Maybe<Organization>;
   /** Query a single wallet */
   wallet?: Maybe<WalletDetails>;
   /** Query a single wallet transaction */
@@ -3171,7 +3170,7 @@ export type GetUserDebugInfoDialogQuery = { __typename?: 'Query', currentUser: {
 export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null } };
+export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null }, organization?: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, vatRate: number, invoiceGracePeriod: number } | null };
 
 export type AddOnItemFragment = { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: number, customerCount: number, createdAt: any, canBeDeleted: boolean };
 
@@ -3292,11 +3291,6 @@ export type CustomerVatRateFragment = { __typename?: 'CustomerDetails', id: stri
 
 export type CustomerInvoiceGracePeriodFragment = { __typename?: 'CustomerDetails', id: string, invoiceGracePeriod?: number | null };
 
-export type GetOrganizationSettingsForCustomerQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetOrganizationSettingsForCustomerQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, vatRate: number, invoiceGracePeriod: number } | null };
-
 export type DeleteCustomerDialogFragment = { __typename?: 'Customer', id: string, name?: string | null };
 
 export type DeleteCustomerMutationVariables = Exact<{
@@ -3339,15 +3333,6 @@ export type UpdateCustomerVatRateMutationVariables = Exact<{
 export type UpdateCustomerVatRateMutation = { __typename?: 'Mutation', updateCustomerVatRate?: { __typename?: 'CustomerDetails', id: string, vatRate?: number | null } | null };
 
 export type EditCustomerVatRateFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, vatRate?: number | null };
-
-export type InvoiceInfosForInvoiceListFragment = { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, issuingDate: any, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, totalAmountCents: number, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } };
-
-export type DownloadInvoiceMutationVariables = Exact<{
-  input: DownloadInvoiceInput;
-}>;
-
-
-export type DownloadInvoiceMutation = { __typename?: 'Mutation', downloadInvoice?: { __typename?: 'Invoice', id: string, fileUrl?: string | null } | null };
 
 export type CreditNotesForListFragment = { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'CreditNote', id: string, canBeVoided: boolean, createdAt: any, creditStatus?: CreditNoteCreditStatusEnum | null, number: string, totalAmountCents: any, totalAmountCurrency: CurrencyEnum }> };
 
@@ -3528,11 +3513,6 @@ export type DeleteStripeMutationVariables = Exact<{
 
 export type DeleteStripeMutation = { __typename?: 'Mutation', destroyPaymentProvider?: { __typename?: 'DestroyPaymentProviderPayload', id?: string | null } | null };
 
-export type GetOrganizationNameQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetOrganizationNameQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, name: string } | null };
-
 export type CreateInviteMutationVariables = Exact<{
   input: CreateInviteInput;
 }>;
@@ -3542,7 +3522,7 @@ export type CreateInviteMutation = { __typename?: 'Mutation', createInvite?: { _
 
 export type InviteItemFragment = { __typename?: 'Invite', id: string, email: string, token: string, organization: { __typename?: 'Organization', id: string, name: string } };
 
-export type MembershipItemFragment = { __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null }, organization: { __typename?: 'Organization', id: string, name: string } };
+export type MembershipItemFragment = { __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } };
 
 export type GetCurrentUserMembersQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3767,12 +3747,17 @@ export type UpdateCustomerMutationVariables = Exact<{
 
 export type UpdateCustomerMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, canEditAttributes: boolean, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, timezone?: TimezoneEnum | null, createdAt: any, activeSubscriptionCount: number, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null } | null };
 
-export type OrganizationWithTimezoneFragment = { __typename?: 'Organization', id: string, timezone?: TimezoneEnum | null };
-
-export type GetOrganizationTimezoneQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetCurrentUserInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetOrganizationTimezoneQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, timezone?: TimezoneEnum | null } | null };
+export type GetCurrentUserInfosQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> | null } };
+
+export type MainOrganizationInfosFragment = { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, vatRate: number, invoiceGracePeriod: number };
+
+export type GetOrganizationInfosQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetOrganizationInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, vatRate: number, invoiceGracePeriod: number } | null };
 
 export type AllInvoiceDetailsForCustomerInvoiceDetailsFragment = { __typename?: 'Invoice', invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, totalAmountCents: number, totalAmountCurrency: CurrencyEnum, refundableAmountCents: number, creditableAmountCents: number, id: string, issuingDate: any, subTotalVatExcludedAmountCents: number, couponTotalAmountCents: number, creditAmountCurrency: CurrencyEnum, subTotalVatIncludedAmountCents: number, vatAmountCents: number, vatAmountCurrency: CurrencyEnum, walletTransactionAmountCents: number, creditNoteTotalAmountCents: number, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, creditAmountCurrency: CurrencyEnum, number: string, subTotalVatExcludedAmountCents: any, subTotalVatExcludedAmountCurrency: CurrencyEnum, totalAmountCents: any, vatAmountCents: any, vatAmountCurrency: CurrencyEnum, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, amountCurrency: CurrencyEnum, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null } }> }> | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, name?: string | null, legalName?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, itemName: string, units: number, feeType: FeeTypesEnum }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, name?: string | null, subscriptionAt?: any | null, periodEndDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: number, amountCurrency: CurrencyEnum } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null }> | null }> | null };
 
@@ -3782,6 +3767,13 @@ export type GetInvoiceDetailsQueryVariables = Exact<{
 
 
 export type GetInvoiceDetailsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, totalAmountCents: number, totalAmountCurrency: CurrencyEnum, refundableAmountCents: number, creditableAmountCents: number, issuingDate: any, subTotalVatExcludedAmountCents: number, couponTotalAmountCents: number, creditAmountCurrency: CurrencyEnum, subTotalVatIncludedAmountCents: number, vatAmountCents: number, vatAmountCurrency: CurrencyEnum, walletTransactionAmountCents: number, creditNoteTotalAmountCents: number, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, creditAmountCurrency: CurrencyEnum, number: string, subTotalVatExcludedAmountCents: any, subTotalVatExcludedAmountCurrency: CurrencyEnum, totalAmountCents: any, vatAmountCents: any, vatAmountCurrency: CurrencyEnum, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, amountCurrency: CurrencyEnum, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null } }> }> | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, name?: string | null, legalName?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, itemName: string, units: number, feeType: FeeTypesEnum }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, name?: string | null, subscriptionAt?: any | null, periodEndDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: number, amountCurrency: CurrencyEnum } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null }> | null }> | null } | null };
+
+export type DownloadInvoiceMutationVariables = Exact<{
+  input: DownloadInvoiceInput;
+}>;
+
+
+export type DownloadInvoiceMutation = { __typename?: 'Mutation', downloadInvoice?: { __typename?: 'Invoice', id: string, fileUrl?: string | null } | null };
 
 export type RefreshInvoiceMutationVariables = Exact<{
   input: RefreshInvoiceInput;
@@ -3793,7 +3785,7 @@ export type RefreshInvoiceMutation = { __typename?: 'Mutation', refreshInvoice?:
 export type SideNavInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SideNavInfosQuery = { __typename?: 'Query', currentVersion: { __typename?: 'CurrentVersion', githubUrl: string, number: string }, organization?: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null } | null, currentUser: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> | null } };
+export type SideNavInfosQuery = { __typename?: 'Query', currentVersion: { __typename?: 'CurrentVersion', githubUrl: string, number: string }, currentUser: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> | null } };
 
 export type AddOnsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -3979,7 +3971,7 @@ export type GetMembersQueryVariables = Exact<{
 }>;
 
 
-export type GetMembersQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null }, organization: { __typename?: 'Organization', id: string, name: string } }> } };
+export type GetMembersQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } }> } };
 
 export type OrganizationInformationsFragment = { __typename?: 'Organization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, timezone?: TimezoneEnum | null };
 
@@ -4175,25 +4167,6 @@ export const DeleteCustomerVatRateFragmentDoc = gql`
   name
 }
     `;
-export const InvoiceInfosForInvoiceListFragmentDoc = gql`
-    fragment InvoiceInfosForInvoiceList on InvoiceCollection {
-  collection {
-    id
-    amountCurrency
-    issuingDate
-    number
-    paymentStatus
-    status
-    totalAmountCents
-    ...InvoiceForFinalizeInvoice
-  }
-  metadata {
-    currentPage
-    totalCount
-    totalPages
-  }
-}
-    ${InvoiceForFinalizeInvoiceFragmentDoc}`;
 export const CreditNotesForListFragmentDoc = gql`
     fragment CreditNotesForList on CreditNoteCollection {
   metadata {
@@ -4297,10 +4270,6 @@ export const MembershipItemFragmentDoc = gql`
   user {
     id
     email
-  }
-  organization {
-    id
-    name
   }
 }
     `;
@@ -4472,10 +4441,14 @@ export const EditCouponFragmentDoc = gql`
   frequencyDuration
 }
     `;
-export const OrganizationWithTimezoneFragmentDoc = gql`
-    fragment OrganizationWithTimezone on Organization {
+export const MainOrganizationInfosFragmentDoc = gql`
+    fragment MainOrganizationInfos on Organization {
   id
+  name
+  logoUrl
   timezone
+  vatRate
+  invoiceGracePeriod
 }
     `;
 export const InvoiceDetailsForInvoiceOverviewFragmentDoc = gql`
@@ -5073,8 +5046,11 @@ export const UserIdentifierDocument = gql`
     id
     email
   }
+  organization {
+    ...MainOrganizationInfos
+  }
 }
-    `;
+    ${MainOrganizationInfosFragmentDoc}`;
 
 /**
  * __useUserIdentifierQuery__
@@ -5509,42 +5485,6 @@ export function useGetCustomerInvoicesLazyQuery(baseOptions?: Apollo.LazyQueryHo
 export type GetCustomerInvoicesQueryHookResult = ReturnType<typeof useGetCustomerInvoicesQuery>;
 export type GetCustomerInvoicesLazyQueryHookResult = ReturnType<typeof useGetCustomerInvoicesLazyQuery>;
 export type GetCustomerInvoicesQueryResult = Apollo.QueryResult<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>;
-export const GetOrganizationSettingsForCustomerDocument = gql`
-    query getOrganizationSettingsForCustomer {
-  organization {
-    id
-    vatRate
-    invoiceGracePeriod
-  }
-}
-    `;
-
-/**
- * __useGetOrganizationSettingsForCustomerQuery__
- *
- * To run a query within a React component, call `useGetOrganizationSettingsForCustomerQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetOrganizationSettingsForCustomerQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetOrganizationSettingsForCustomerQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetOrganizationSettingsForCustomerQuery(baseOptions?: Apollo.QueryHookOptions<GetOrganizationSettingsForCustomerQuery, GetOrganizationSettingsForCustomerQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetOrganizationSettingsForCustomerQuery, GetOrganizationSettingsForCustomerQueryVariables>(GetOrganizationSettingsForCustomerDocument, options);
-      }
-export function useGetOrganizationSettingsForCustomerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrganizationSettingsForCustomerQuery, GetOrganizationSettingsForCustomerQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetOrganizationSettingsForCustomerQuery, GetOrganizationSettingsForCustomerQueryVariables>(GetOrganizationSettingsForCustomerDocument, options);
-        }
-export type GetOrganizationSettingsForCustomerQueryHookResult = ReturnType<typeof useGetOrganizationSettingsForCustomerQuery>;
-export type GetOrganizationSettingsForCustomerLazyQueryHookResult = ReturnType<typeof useGetOrganizationSettingsForCustomerLazyQuery>;
-export type GetOrganizationSettingsForCustomerQueryResult = Apollo.QueryResult<GetOrganizationSettingsForCustomerQuery, GetOrganizationSettingsForCustomerQueryVariables>;
 export const DeleteCustomerDocument = gql`
     mutation deleteCustomer($input: DestroyCustomerInput!) {
   destroyCustomer(input: $input) {
@@ -5714,40 +5654,6 @@ export function useUpdateCustomerVatRateMutation(baseOptions?: Apollo.MutationHo
 export type UpdateCustomerVatRateMutationHookResult = ReturnType<typeof useUpdateCustomerVatRateMutation>;
 export type UpdateCustomerVatRateMutationResult = Apollo.MutationResult<UpdateCustomerVatRateMutation>;
 export type UpdateCustomerVatRateMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerVatRateMutation, UpdateCustomerVatRateMutationVariables>;
-export const DownloadInvoiceDocument = gql`
-    mutation downloadInvoice($input: DownloadInvoiceInput!) {
-  downloadInvoice(input: $input) {
-    id
-    fileUrl
-  }
-}
-    `;
-export type DownloadInvoiceMutationFn = Apollo.MutationFunction<DownloadInvoiceMutation, DownloadInvoiceMutationVariables>;
-
-/**
- * __useDownloadInvoiceMutation__
- *
- * To run a mutation, you first call `useDownloadInvoiceMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDownloadInvoiceMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [downloadInvoiceMutation, { data, loading, error }] = useDownloadInvoiceMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useDownloadInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<DownloadInvoiceMutation, DownloadInvoiceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DownloadInvoiceMutation, DownloadInvoiceMutationVariables>(DownloadInvoiceDocument, options);
-      }
-export type DownloadInvoiceMutationHookResult = ReturnType<typeof useDownloadInvoiceMutation>;
-export type DownloadInvoiceMutationResult = Apollo.MutationResult<DownloadInvoiceMutation>;
-export type DownloadInvoiceMutationOptions = Apollo.BaseMutationOptions<DownloadInvoiceMutation, DownloadInvoiceMutationVariables>;
 export const DownloadCreditNoteDocument = gql`
     mutation downloadCreditNote($input: DownloadCreditNoteInput!) {
   downloadCreditNote(input: $input) {
@@ -6413,41 +6319,6 @@ export function useDeleteStripeMutation(baseOptions?: Apollo.MutationHookOptions
 export type DeleteStripeMutationHookResult = ReturnType<typeof useDeleteStripeMutation>;
 export type DeleteStripeMutationResult = Apollo.MutationResult<DeleteStripeMutation>;
 export type DeleteStripeMutationOptions = Apollo.BaseMutationOptions<DeleteStripeMutation, DeleteStripeMutationVariables>;
-export const GetOrganizationNameDocument = gql`
-    query getOrganizationName {
-  organization {
-    id
-    name
-  }
-}
-    `;
-
-/**
- * __useGetOrganizationNameQuery__
- *
- * To run a query within a React component, call `useGetOrganizationNameQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetOrganizationNameQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetOrganizationNameQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetOrganizationNameQuery(baseOptions?: Apollo.QueryHookOptions<GetOrganizationNameQuery, GetOrganizationNameQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetOrganizationNameQuery, GetOrganizationNameQueryVariables>(GetOrganizationNameDocument, options);
-      }
-export function useGetOrganizationNameLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrganizationNameQuery, GetOrganizationNameQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetOrganizationNameQuery, GetOrganizationNameQueryVariables>(GetOrganizationNameDocument, options);
-        }
-export type GetOrganizationNameQueryHookResult = ReturnType<typeof useGetOrganizationNameQuery>;
-export type GetOrganizationNameLazyQueryHookResult = ReturnType<typeof useGetOrganizationNameLazyQuery>;
-export type GetOrganizationNameQueryResult = Apollo.QueryResult<GetOrganizationNameQuery, GetOrganizationNameQueryVariables>;
 export const CreateInviteDocument = gql`
     mutation createInvite($input: CreateInviteInput!) {
   createInvite(input: $input) {
@@ -7469,41 +7340,80 @@ export function useUpdateCustomerMutation(baseOptions?: Apollo.MutationHookOptio
 export type UpdateCustomerMutationHookResult = ReturnType<typeof useUpdateCustomerMutation>;
 export type UpdateCustomerMutationResult = Apollo.MutationResult<UpdateCustomerMutation>;
 export type UpdateCustomerMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
-export const GetOrganizationTimezoneDocument = gql`
-    query getOrganizationTimezone {
-  organization {
+export const GetCurrentUserInfosDocument = gql`
+    query getCurrentUserInfos {
+  currentUser {
     id
-    timezone
+    email
+    organizations {
+      id
+      name
+      logoUrl
+    }
   }
 }
     `;
 
 /**
- * __useGetOrganizationTimezoneQuery__
+ * __useGetCurrentUserInfosQuery__
  *
- * To run a query within a React component, call `useGetOrganizationTimezoneQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetOrganizationTimezoneQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetCurrentUserInfosQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCurrentUserInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetOrganizationTimezoneQuery({
+ * const { data, loading, error } = useGetCurrentUserInfosQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetOrganizationTimezoneQuery(baseOptions?: Apollo.QueryHookOptions<GetOrganizationTimezoneQuery, GetOrganizationTimezoneQueryVariables>) {
+export function useGetCurrentUserInfosQuery(baseOptions?: Apollo.QueryHookOptions<GetCurrentUserInfosQuery, GetCurrentUserInfosQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetOrganizationTimezoneQuery, GetOrganizationTimezoneQueryVariables>(GetOrganizationTimezoneDocument, options);
+        return Apollo.useQuery<GetCurrentUserInfosQuery, GetCurrentUserInfosQueryVariables>(GetCurrentUserInfosDocument, options);
       }
-export function useGetOrganizationTimezoneLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrganizationTimezoneQuery, GetOrganizationTimezoneQueryVariables>) {
+export function useGetCurrentUserInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCurrentUserInfosQuery, GetCurrentUserInfosQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetOrganizationTimezoneQuery, GetOrganizationTimezoneQueryVariables>(GetOrganizationTimezoneDocument, options);
+          return Apollo.useLazyQuery<GetCurrentUserInfosQuery, GetCurrentUserInfosQueryVariables>(GetCurrentUserInfosDocument, options);
         }
-export type GetOrganizationTimezoneQueryHookResult = ReturnType<typeof useGetOrganizationTimezoneQuery>;
-export type GetOrganizationTimezoneLazyQueryHookResult = ReturnType<typeof useGetOrganizationTimezoneLazyQuery>;
-export type GetOrganizationTimezoneQueryResult = Apollo.QueryResult<GetOrganizationTimezoneQuery, GetOrganizationTimezoneQueryVariables>;
+export type GetCurrentUserInfosQueryHookResult = ReturnType<typeof useGetCurrentUserInfosQuery>;
+export type GetCurrentUserInfosLazyQueryHookResult = ReturnType<typeof useGetCurrentUserInfosLazyQuery>;
+export type GetCurrentUserInfosQueryResult = Apollo.QueryResult<GetCurrentUserInfosQuery, GetCurrentUserInfosQueryVariables>;
+export const GetOrganizationInfosDocument = gql`
+    query getOrganizationInfos {
+  organization {
+    ...MainOrganizationInfos
+  }
+}
+    ${MainOrganizationInfosFragmentDoc}`;
+
+/**
+ * __useGetOrganizationInfosQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationInfosQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationInfosQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetOrganizationInfosQuery(baseOptions?: Apollo.QueryHookOptions<GetOrganizationInfosQuery, GetOrganizationInfosQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOrganizationInfosQuery, GetOrganizationInfosQueryVariables>(GetOrganizationInfosDocument, options);
+      }
+export function useGetOrganizationInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrganizationInfosQuery, GetOrganizationInfosQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOrganizationInfosQuery, GetOrganizationInfosQueryVariables>(GetOrganizationInfosDocument, options);
+        }
+export type GetOrganizationInfosQueryHookResult = ReturnType<typeof useGetOrganizationInfosQuery>;
+export type GetOrganizationInfosLazyQueryHookResult = ReturnType<typeof useGetOrganizationInfosLazyQuery>;
+export type GetOrganizationInfosQueryResult = Apollo.QueryResult<GetOrganizationInfosQuery, GetOrganizationInfosQueryVariables>;
 export const GetInvoiceDetailsDocument = gql`
     query getInvoiceDetails($id: ID!) {
   invoice(id: $id) {
@@ -7540,6 +7450,40 @@ export function useGetInvoiceDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHook
 export type GetInvoiceDetailsQueryHookResult = ReturnType<typeof useGetInvoiceDetailsQuery>;
 export type GetInvoiceDetailsLazyQueryHookResult = ReturnType<typeof useGetInvoiceDetailsLazyQuery>;
 export type GetInvoiceDetailsQueryResult = Apollo.QueryResult<GetInvoiceDetailsQuery, GetInvoiceDetailsQueryVariables>;
+export const DownloadInvoiceDocument = gql`
+    mutation downloadInvoice($input: DownloadInvoiceInput!) {
+  downloadInvoice(input: $input) {
+    id
+    fileUrl
+  }
+}
+    `;
+export type DownloadInvoiceMutationFn = Apollo.MutationFunction<DownloadInvoiceMutation, DownloadInvoiceMutationVariables>;
+
+/**
+ * __useDownloadInvoiceMutation__
+ *
+ * To run a mutation, you first call `useDownloadInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDownloadInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [downloadInvoiceMutation, { data, loading, error }] = useDownloadInvoiceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDownloadInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<DownloadInvoiceMutation, DownloadInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DownloadInvoiceMutation, DownloadInvoiceMutationVariables>(DownloadInvoiceDocument, options);
+      }
+export type DownloadInvoiceMutationHookResult = ReturnType<typeof useDownloadInvoiceMutation>;
+export type DownloadInvoiceMutationResult = Apollo.MutationResult<DownloadInvoiceMutation>;
+export type DownloadInvoiceMutationOptions = Apollo.BaseMutationOptions<DownloadInvoiceMutation, DownloadInvoiceMutationVariables>;
 export const RefreshInvoiceDocument = gql`
     mutation refreshInvoice($input: RefreshInvoiceInput!) {
   refreshInvoice(input: $input) {
@@ -7579,11 +7523,6 @@ export const SideNavInfosDocument = gql`
   currentVersion {
     githubUrl
     number
-  }
-  organization {
-    id
-    name
-    logoUrl
   }
   currentUser {
     id

@@ -23,6 +23,7 @@ import {
 import { theme } from '~/styles'
 import { DOCUMENTATION_URL } from '~/externalUrls'
 import { MenuPopper } from '~/styles/designSystem'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import {
   BILLABLE_METRICS_ROUTE,
   PLANS_ROUTE,
@@ -57,11 +58,6 @@ gql`
       githubUrl
       number
     }
-    organization {
-      id
-      name
-      logoUrl
-    }
     currentUser {
       id
       email
@@ -91,7 +87,8 @@ const SideNav = () => {
   const { data, loading, error } = useSideNavInfosQuery()
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
   const contentRef = useRef<HTMLDivElement>(null)
-  const { currentUser: user, organization: currentOrganization } = data || {}
+  const { currentUser: user } = data || {}
+  const { organization } = useOrganizationInfos()
 
   useEffect(() => {
     // Avoid weird scroll behaviour on navigation
@@ -123,23 +120,23 @@ const SideNav = () => {
               enableFlip={false}
               opener={
                 <HeaderButton data-test="side-nav-name" variant="quaternary">
-                  {currentOrganization?.logoUrl ? (
+                  {organization?.logoUrl ? (
                     <Avatar size="small" variant="connector">
                       <img
-                        src={currentOrganization?.logoUrl as string}
-                        alt={`${currentOrganization?.name}'s logo`}
+                        src={organization?.logoUrl as string}
+                        alt={`${organization?.name}'s logo`}
                       />
                     </Avatar>
                   ) : (
                     <Avatar
                       variant="company"
-                      identifier={currentOrganization?.name || ''}
+                      identifier={organization?.name || ''}
                       size="small"
-                      initials={(currentOrganization?.name ?? 'Lago')[0]}
+                      initials={(organization?.name ?? 'Lago')[0]}
                     />
                   )}
                   <Typography color="textSecondary" noWrap>
-                    {currentOrganization?.name}
+                    {organization?.name}
                   </Typography>
                 </HeaderButton>
               }
@@ -155,7 +152,7 @@ const SideNav = () => {
                         <Button
                           key={id}
                           align="left"
-                          variant={id === currentOrganization?.id ? 'secondary' : 'quaternary'}
+                          variant={id === organization?.id ? 'secondary' : 'quaternary'}
                           onClick={async () => {
                             await switchCurrentOrganization(client, id)
                             navigate(BILLABLE_METRICS_ROUTE)

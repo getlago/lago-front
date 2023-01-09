@@ -29,7 +29,7 @@ import {
   TimezoneEnum,
 } from '~/generated/graphql'
 import { useAddSubscription } from '~/hooks/customer/useAddSubscription'
-import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { getTimezoneConfig, formatDateToTZ } from '~/core/timezone'
 
 export interface AddSubscriptionDrawerRef {
@@ -49,11 +49,7 @@ export const AddSubscriptionDrawer = forwardRef<
 >(({ customerId, customerName, customerTimezone }: AddSubscriptionDrawerProps, ref) => {
   const navigate = useNavigate()
   const drawerRef = useRef<DrawerRef>(null)
-  const {
-    timezone,
-    timezoneConfig: orgaTimezoneConfig,
-    formatTimeOrgaTZ,
-  } = useOrganizationTimezone()
+  const { timezone, timezoneConfig: orgaTimezoneConfig, formatTimeOrgaTZ } = useOrganizationInfos()
   const currentDateRef = useRef<string>(DateTime.now().setZone(orgaTimezoneConfig.name).toISO())
   const [existingSubscription, setExistingSubscription] = useState<
     SubscriptionUpdateInfo | undefined

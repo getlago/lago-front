@@ -34,7 +34,7 @@ import {
   TerminateCouponDialog,
   TerminateCouponDialogRef,
 } from '~/components/coupons/TerminateCouponDialog'
-import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment CouponItem on Coupon {
@@ -80,7 +80,7 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
   const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
   const { translate } = useInternationalization()
   const formattedStatus = mapStatus(status)
-  const { formatTimeOrgaTZ } = useOrganizationTimezone()
+  const { formatTimeOrgaTZ } = useOrganizationInfos()
 
   return (
     <ItemContainer>

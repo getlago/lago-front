@@ -28,7 +28,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
-import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import {
   DeleteBillableMetricDialog,
@@ -58,7 +58,7 @@ export const BillableMetricItem = memo(
     const { id, name, code, createdAt, canBeDeleted } = billableMetric
     const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
     const { translate } = useInternationalization()
-    const { formatTimeOrgaTZ } = useOrganizationTimezone()
+    const { formatTimeOrgaTZ } = useOrganizationInfos()
 
     return (
       <ItemContainer>
