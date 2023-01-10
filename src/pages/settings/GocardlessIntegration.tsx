@@ -27,15 +27,12 @@ import { copyToClipboard } from '~/core/utils/copyToClipboard'
 
 gql`
   query gocardlessIntegrationsSetting {
-    currentUser {
+    organization {
       id
-      organizations {
+      gocardlessPaymentProvider {
         id
-        gocardlessPaymentProvider {
-          id
-          hasAccessToken
-          webhookSecret
-        }
+        hasAccessToken
+        webhookSecret
       }
     }
   }
@@ -56,8 +53,7 @@ const GocardlessIntegration = () => {
   const code = query.get('code')
   const [isConnectionEstablished, setIsConnectionEstablished] = useState(false)
   const [webhookSecretKey, setWebhookSecretKey] = useState('')
-  const gocardlessPaymentProvider = (data?.currentUser?.organizations || [])[0]
-    ?.gocardlessPaymentProvider
+  const gocardlessPaymentProvider = data?.organization?.gocardlessPaymentProvider
   const { lagoOauthProxyUrl } = envGlobalVar()
   const [addPaymentProvider] = useAddGocardlessPaymentProviderMutation({
     onCompleted({ addGocardlessPaymentProvider }) {

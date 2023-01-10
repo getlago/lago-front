@@ -48,6 +48,7 @@ import {
   INVOICES_TAB_ROUTE,
 } from '~/core/router'
 import { useSideNavInfosQuery } from '~/generated/graphql'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 const NAV_WIDTH = 240
 const { appEnv } = envGlobalVar()
@@ -57,15 +58,6 @@ gql`
     currentVersion {
       githubUrl
       number
-    }
-    currentUser {
-      id
-      email
-      organizations {
-        id
-        name
-        logoUrl
-      }
     }
   }
 `
@@ -87,8 +79,8 @@ const SideNav = () => {
   const { data, loading, error } = useSideNavInfosQuery()
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
   const contentRef = useRef<HTMLDivElement>(null)
-  const { currentUser: user } = data || {}
   const { organization } = useOrganizationInfos()
+  const { currentUser } = useCurrentUser()
 
   useEffect(() => {
     // Avoid weird scroll behaviour on navigation
@@ -144,11 +136,11 @@ const SideNav = () => {
               {({ closePopper }) => (
                 <StyledMenuPopper>
                   <UserEmail variant="captionHl" noWrap>
-                    {user?.email}
+                    {currentUser?.email}
                   </UserEmail>
-                  {user?.organizations && (
+                  {currentUser?.organizations && (
                     <OrganizationList>
-                      {user?.organizations?.map(({ id, name, logoUrl }) => (
+                      {currentUser?.organizations?.map(({ id, name, logoUrl }) => (
                         <Button
                           key={id}
                           align="left"

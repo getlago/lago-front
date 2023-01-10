@@ -4,9 +4,10 @@ import { gql } from '@apollo/client'
 
 import { theme } from '~/styles'
 import { Avatar, Typography, Skeleton, Button, Tooltip } from '~/components/designSystem'
-import { MembershipItemFragment, useGetCurrentUserMembersQuery } from '~/generated/graphql'
+import { MembershipItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 import { RevokeMembershipDialogRef } from './RevokeMembershipDialog'
 
@@ -18,12 +19,6 @@ gql`
       email
     }
   }
-
-  query getCurrentUserMembers {
-    currentUser {
-      id
-    }
-  }
 `
 
 interface MembershipItemProps {
@@ -32,10 +27,10 @@ interface MembershipItemProps {
 
 export const MembershipItem = forwardRef<RevokeMembershipDialogRef, MembershipItemProps>(
   ({ membership }: MembershipItemProps, ref) => {
-    const { data } = useGetCurrentUserMembersQuery({ fetchPolicy: 'cache-first' })
     const { id, user } = membership
     const { translate } = useInternationalization()
     const { organization } = useOrganizationInfos()
+    const { currentUser } = useCurrentUser()
 
     return (
       <ItemContainer>
@@ -45,7 +40,7 @@ export const MembershipItem = forwardRef<RevokeMembershipDialogRef, MembershipIt
             {user.email}
           </Typography>
         </LeftBlock>
-        {data?.currentUser?.id !== user.id && (
+        {currentUser?.id !== user.id && (
           <RightBlock>
             <Tooltip placement="bottom-end" title={translate('text_63208bfc99e69a28211ec7f0')}>
               <ActionButtonIcon

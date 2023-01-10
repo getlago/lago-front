@@ -23,7 +23,7 @@ import {
   VoidCreditNoteDialogRef,
 } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
 import CreditNotesList from '~/components/customers/creditNotes/CreditNotesList'
-import { useIsPremiumUser } from '~/hooks/customer/useIsPremiumUser'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 
 gql`
@@ -51,7 +51,7 @@ gql`
 const InvoiceCreditNoteList = () => {
   const { invoiceId, id } = useParams()
   const { translate } = useInternationalization()
-  const isPremium = useIsPremiumUser()
+  const { isPremium } = useCurrentUser()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { data, loading, error, fetchMore } = useGetInvoiceCreditNotesQuery({

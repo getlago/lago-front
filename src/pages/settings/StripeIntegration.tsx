@@ -34,13 +34,10 @@ gql`
   }
 
   query stripeIntegrationsSetting {
-    currentUser {
+    organization {
       id
-      organizations {
-        id
-        stripePaymentProvider {
-          ...StripeIntegration
-        }
+      stripePaymentProvider {
+        ...StripeIntegration
       }
     }
   }
@@ -57,7 +54,7 @@ const StripeIntegration = () => {
   const deleteDialogRef = useRef<DeleteStripeIntegrationDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useStripeIntegrationsSettingQuery()
-  const stripePaymentProvider = (data?.currentUser?.organizations || [])[0]?.stripePaymentProvider
+  const stripePaymentProvider = data?.organization?.stripePaymentProvider
 
   return (
     <div>

@@ -1,4 +1,3 @@
-import { gql } from '@apollo/client'
 import { forwardRef } from 'react'
 import styled from 'styled-components'
 
@@ -7,23 +6,15 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { envGlobalVar, addToast } from '~/core/apolloClient'
 import { theme } from '~/styles'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { useGetUserDebugInfoDialogQuery } from '~/generated/graphql'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 const { appEnv, apiUrl, appVersion } = envGlobalVar()
-
-gql`
-  query getUserDebugInfoDialog {
-    currentUser {
-      id
-    }
-  }
-`
 
 export interface DebugInfoDialogRef extends DialogRef {}
 
 export const DebugInfoDialog = forwardRef<DialogRef>(({}, ref) => {
   const { translate } = useInternationalization()
-  const { data } = useGetUserDebugInfoDialogQuery({ fetchPolicy: 'cache-first' })
+  const { currentUser } = useCurrentUser()
 
   return (
     <Dialog
@@ -42,9 +33,9 @@ export const DebugInfoDialog = forwardRef<DialogRef>(({}, ref) => {
 **App environment :** ${appEnv}
 **API URL :** ${apiUrl} 
 **Version :** ${appVersion}` +
-                  (!!data?.currentUser?.id
+                  (!!currentUser?.id
                     ? `
-**User Id :** ${data?.currentUser?.id}`
+**User Id :** ${currentUser?.id}`
                     : '')
               )
 
@@ -73,10 +64,10 @@ export const DebugInfoDialog = forwardRef<DialogRef>(({}, ref) => {
           <Typography variant="caption">{translate('text_62f50d26c989ab03196884aa')}</Typography>
           <Typography color="textSecondary">{appVersion}</Typography>
         </Line>
-        {data?.currentUser?.id && (
+        {currentUser?.id && (
           <Line>
             <Typography variant="caption">{translate('text_62f50d26c989ab03196884a6')}</Typography>
-            <Typography color="textSecondary">{data?.currentUser?.id}</Typography>
+            <Typography color="textSecondary">{currentUser?.id}</Typography>
           </Line>
         )}
       </Content>

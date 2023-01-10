@@ -3162,15 +3162,10 @@ export enum WalletTransactionTransactionTypeEnum {
   Outbound = 'outbound'
 }
 
-export type GetUserDebugInfoDialogQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetUserDebugInfoDialogQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string } };
-
 export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null }, organization?: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, vatRate: number, invoiceGracePeriod: number } | null };
+export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> | null }, organization?: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, vatRate: number, invoiceGracePeriod: number } | null };
 
 export type AddOnItemFragment = { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: number, customerCount: number, createdAt: any, canBeDeleted: boolean };
 
@@ -3524,11 +3519,6 @@ export type InviteItemFragment = { __typename?: 'Invite', id: string, email: str
 
 export type MembershipItemFragment = { __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } };
 
-export type GetCurrentUserMembersQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetCurrentUserMembersQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string } };
-
 export type RevokeInviteMutationVariables = Exact<{
   input: RevokeInviteInput;
 }>;
@@ -3615,11 +3605,6 @@ export type CreateSubscriptionMutationVariables = Exact<{
 
 
 export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null } | null };
-
-export type GetCurrentUserPremiumQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetCurrentUserPremiumQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, premium: boolean } };
 
 export type GetSinglePlanQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -3747,10 +3732,12 @@ export type UpdateCustomerMutationVariables = Exact<{
 
 export type UpdateCustomerMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, canEditAttributes: boolean, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, timezone?: TimezoneEnum | null, createdAt: any, activeSubscriptionCount: number, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null } | null };
 
+export type CurrentUserInfosFragment = { __typename?: 'User', id: string, email?: string | null, premium: boolean, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> | null };
+
 export type GetCurrentUserInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCurrentUserInfosQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> | null } };
+export type GetCurrentUserInfosQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, email?: string | null, premium: boolean, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> | null } };
 
 export type MainOrganizationInfosFragment = { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, vatRate: number, invoiceGracePeriod: number };
 
@@ -3785,7 +3772,7 @@ export type RefreshInvoiceMutation = { __typename?: 'Mutation', refreshInvoice?:
 export type SideNavInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SideNavInfosQuery = { __typename?: 'Query', currentVersion: { __typename?: 'CurrentVersion', githubUrl: string, number: string }, currentUser: { __typename?: 'User', id: string, email?: string | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> | null } };
+export type SideNavInfosQuery = { __typename?: 'Query', currentVersion: { __typename?: 'CurrentVersion', githubUrl: string, number: string } };
 
 export type AddOnsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -3938,7 +3925,7 @@ export type GetWehbookSettingQuery = { __typename?: 'Query', organization?: { __
 export type GocardlessIntegrationsSettingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GocardlessIntegrationsSettingQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, gocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string, hasAccessToken: boolean, webhookSecret?: string | null } | null }> | null } };
+export type GocardlessIntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, gocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string, hasAccessToken: boolean, webhookSecret?: string | null } | null } | null };
 
 export type AddGocardlessPaymentProviderMutationVariables = Exact<{
   input: AddGocardlessPaymentProviderInput;
@@ -3950,7 +3937,7 @@ export type AddGocardlessPaymentProviderMutation = { __typename?: 'Mutation', ad
 export type IntegrationsSettingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type IntegrationsSettingQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, stripePaymentProvider?: { __typename?: 'StripeProvider', id: string } | null, gocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string } | null }> | null } };
+export type IntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, stripePaymentProvider?: { __typename?: 'StripeProvider', id: string } | null, gocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string } | null } | null };
 
 export type GetOrganizationSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3985,7 +3972,7 @@ export type StripeIntegrationFragment = { __typename?: 'StripeProvider', id: str
 export type StripeIntegrationsSettingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type StripeIntegrationsSettingQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, stripePaymentProvider?: { __typename?: 'StripeProvider', id: string, secretKey: string, createCustomers: boolean } | null }> | null } };
+export type StripeIntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, stripePaymentProvider?: { __typename?: 'StripeProvider', id: string, secretKey: string, createCustomers: boolean } | null } | null };
 
 export type UpdateStripeIntegrationMutationVariables = Exact<{
   input: AddStripePaymentProviderInput;
@@ -4439,6 +4426,19 @@ export const EditCouponFragmentDoc = gql`
   percentageRate
   frequency
   frequencyDuration
+}
+    `;
+export const CurrentUserInfosFragmentDoc = gql`
+    fragment CurrentUserInfos on User {
+  id
+  email
+  premium
+  email
+  organizations {
+    id
+    name
+    logoUrl
+  }
 }
     `;
 export const MainOrganizationInfosFragmentDoc = gql`
@@ -5006,51 +5006,19 @@ export const StripeIntegrationFragmentDoc = gql`
   createCustomers
 }
     `;
-export const GetUserDebugInfoDialogDocument = gql`
-    query getUserDebugInfoDialog {
-  currentUser {
-    id
-  }
-}
-    `;
-
-/**
- * __useGetUserDebugInfoDialogQuery__
- *
- * To run a query within a React component, call `useGetUserDebugInfoDialogQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetUserDebugInfoDialogQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetUserDebugInfoDialogQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetUserDebugInfoDialogQuery(baseOptions?: Apollo.QueryHookOptions<GetUserDebugInfoDialogQuery, GetUserDebugInfoDialogQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetUserDebugInfoDialogQuery, GetUserDebugInfoDialogQueryVariables>(GetUserDebugInfoDialogDocument, options);
-      }
-export function useGetUserDebugInfoDialogLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUserDebugInfoDialogQuery, GetUserDebugInfoDialogQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetUserDebugInfoDialogQuery, GetUserDebugInfoDialogQueryVariables>(GetUserDebugInfoDialogDocument, options);
-        }
-export type GetUserDebugInfoDialogQueryHookResult = ReturnType<typeof useGetUserDebugInfoDialogQuery>;
-export type GetUserDebugInfoDialogLazyQueryHookResult = ReturnType<typeof useGetUserDebugInfoDialogLazyQuery>;
-export type GetUserDebugInfoDialogQueryResult = Apollo.QueryResult<GetUserDebugInfoDialogQuery, GetUserDebugInfoDialogQueryVariables>;
 export const UserIdentifierDocument = gql`
     query UserIdentifier {
   me: currentUser {
     id
     email
+    ...CurrentUserInfos
   }
   organization {
     ...MainOrganizationInfos
   }
 }
-    ${MainOrganizationInfosFragmentDoc}`;
+    ${CurrentUserInfosFragmentDoc}
+${MainOrganizationInfosFragmentDoc}`;
 
 /**
  * __useUserIdentifierQuery__
@@ -6353,40 +6321,6 @@ export function useCreateInviteMutation(baseOptions?: Apollo.MutationHookOptions
 export type CreateInviteMutationHookResult = ReturnType<typeof useCreateInviteMutation>;
 export type CreateInviteMutationResult = Apollo.MutationResult<CreateInviteMutation>;
 export type CreateInviteMutationOptions = Apollo.BaseMutationOptions<CreateInviteMutation, CreateInviteMutationVariables>;
-export const GetCurrentUserMembersDocument = gql`
-    query getCurrentUserMembers {
-  currentUser {
-    id
-  }
-}
-    `;
-
-/**
- * __useGetCurrentUserMembersQuery__
- *
- * To run a query within a React component, call `useGetCurrentUserMembersQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCurrentUserMembersQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCurrentUserMembersQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetCurrentUserMembersQuery(baseOptions?: Apollo.QueryHookOptions<GetCurrentUserMembersQuery, GetCurrentUserMembersQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetCurrentUserMembersQuery, GetCurrentUserMembersQueryVariables>(GetCurrentUserMembersDocument, options);
-      }
-export function useGetCurrentUserMembersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCurrentUserMembersQuery, GetCurrentUserMembersQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetCurrentUserMembersQuery, GetCurrentUserMembersQueryVariables>(GetCurrentUserMembersDocument, options);
-        }
-export type GetCurrentUserMembersQueryHookResult = ReturnType<typeof useGetCurrentUserMembersQuery>;
-export type GetCurrentUserMembersLazyQueryHookResult = ReturnType<typeof useGetCurrentUserMembersLazyQuery>;
-export type GetCurrentUserMembersQueryResult = Apollo.QueryResult<GetCurrentUserMembersQuery, GetCurrentUserMembersQueryVariables>;
 export const RevokeInviteDocument = gql`
     mutation revokeInvite($input: RevokeInviteInput!) {
   revokeInvite(input: $input) {
@@ -6758,41 +6692,6 @@ export function useCreateSubscriptionMutation(baseOptions?: Apollo.MutationHookO
 export type CreateSubscriptionMutationHookResult = ReturnType<typeof useCreateSubscriptionMutation>;
 export type CreateSubscriptionMutationResult = Apollo.MutationResult<CreateSubscriptionMutation>;
 export type CreateSubscriptionMutationOptions = Apollo.BaseMutationOptions<CreateSubscriptionMutation, CreateSubscriptionMutationVariables>;
-export const GetCurrentUserPremiumDocument = gql`
-    query getCurrentUserPremium {
-  currentUser {
-    id
-    premium
-  }
-}
-    `;
-
-/**
- * __useGetCurrentUserPremiumQuery__
- *
- * To run a query within a React component, call `useGetCurrentUserPremiumQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCurrentUserPremiumQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCurrentUserPremiumQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetCurrentUserPremiumQuery(baseOptions?: Apollo.QueryHookOptions<GetCurrentUserPremiumQuery, GetCurrentUserPremiumQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetCurrentUserPremiumQuery, GetCurrentUserPremiumQueryVariables>(GetCurrentUserPremiumDocument, options);
-      }
-export function useGetCurrentUserPremiumLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCurrentUserPremiumQuery, GetCurrentUserPremiumQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetCurrentUserPremiumQuery, GetCurrentUserPremiumQueryVariables>(GetCurrentUserPremiumDocument, options);
-        }
-export type GetCurrentUserPremiumQueryHookResult = ReturnType<typeof useGetCurrentUserPremiumQuery>;
-export type GetCurrentUserPremiumLazyQueryHookResult = ReturnType<typeof useGetCurrentUserPremiumLazyQuery>;
-export type GetCurrentUserPremiumQueryResult = Apollo.QueryResult<GetCurrentUserPremiumQuery, GetCurrentUserPremiumQueryVariables>;
 export const GetSinglePlanDocument = gql`
     query getSinglePlan($id: ID!) {
   plan(id: $id) {
@@ -7343,16 +7242,10 @@ export type UpdateCustomerMutationOptions = Apollo.BaseMutationOptions<UpdateCus
 export const GetCurrentUserInfosDocument = gql`
     query getCurrentUserInfos {
   currentUser {
-    id
-    email
-    organizations {
-      id
-      name
-      logoUrl
-    }
+    ...CurrentUserInfos
   }
 }
-    `;
+    ${CurrentUserInfosFragmentDoc}`;
 
 /**
  * __useGetCurrentUserInfosQuery__
@@ -7523,15 +7416,6 @@ export const SideNavInfosDocument = gql`
   currentVersion {
     githubUrl
     number
-  }
-  currentUser {
-    id
-    email
-    organizations {
-      id
-      name
-      logoUrl
-    }
   }
 }
     `;
@@ -8355,15 +8239,12 @@ export type GetWehbookSettingLazyQueryHookResult = ReturnType<typeof useGetWehbo
 export type GetWehbookSettingQueryResult = Apollo.QueryResult<GetWehbookSettingQuery, GetWehbookSettingQueryVariables>;
 export const GocardlessIntegrationsSettingDocument = gql`
     query gocardlessIntegrationsSetting {
-  currentUser {
+  organization {
     id
-    organizations {
+    gocardlessPaymentProvider {
       id
-      gocardlessPaymentProvider {
-        id
-        hasAccessToken
-        webhookSecret
-      }
+      hasAccessToken
+      webhookSecret
     }
   }
 }
@@ -8432,16 +8313,13 @@ export type AddGocardlessPaymentProviderMutationResult = Apollo.MutationResult<A
 export type AddGocardlessPaymentProviderMutationOptions = Apollo.BaseMutationOptions<AddGocardlessPaymentProviderMutation, AddGocardlessPaymentProviderMutationVariables>;
 export const IntegrationsSettingDocument = gql`
     query integrationsSetting {
-  currentUser {
+  organization {
     id
-    organizations {
+    stripePaymentProvider {
       id
-      stripePaymentProvider {
-        id
-      }
-      gocardlessPaymentProvider {
-        id
-      }
+    }
+    gocardlessPaymentProvider {
+      id
     }
   }
 }
@@ -8636,13 +8514,10 @@ export type GetOrganizationInformationsLazyQueryHookResult = ReturnType<typeof u
 export type GetOrganizationInformationsQueryResult = Apollo.QueryResult<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>;
 export const StripeIntegrationsSettingDocument = gql`
     query stripeIntegrationsSetting {
-  currentUser {
+  organization {
     id
-    organizations {
-      id
-      stripePaymentProvider {
-        ...StripeIntegration
-      }
+    stripePaymentProvider {
+      ...StripeIntegration
     }
   }
 }

@@ -21,7 +21,7 @@ import {
 } from '~/components/settings/EditOrganizationInvoiceTemplateDialog'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { EditOrganizationGracePeriodDialog } from '~/components/settings/EditOrganizationGracePeriodDialog'
-import { useIsPremiumUser } from '~/hooks/customer/useIsPremiumUser'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 
 const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
@@ -42,7 +42,7 @@ gql`
 
 const InvoiceSettings = () => {
   const { translate } = useInternationalization()
-  const isPremium = useIsPremiumUser()
+  const { isPremium } = useCurrentUser()
   const editVATDialogRef = useRef<EditOrganizationVatRateDialogRef>(null)
   const editInvoiceTemplateDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
   const editGracePeriodDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
