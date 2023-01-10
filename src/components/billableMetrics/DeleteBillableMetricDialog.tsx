@@ -56,7 +56,7 @@ export const DeleteBillableMetricDialog = forwardRef<DialogRef, DeleteBillableMe
       <WarningDialog
         ref={ref}
         title={translate('text_6256f824b6368e01153caa47', {
-          billableMetricName: billableMetric.name,
+          // billableMetricName: billableMetric.name,
         })}
         description={<Typography html={translate('text_6256f824b6368e01153caa49')} />}
         onContinue={async () =>
