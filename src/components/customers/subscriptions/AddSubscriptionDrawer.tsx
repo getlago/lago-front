@@ -202,7 +202,6 @@ export const AddSubscriptionDrawer = forwardRef<
                 data={comboboxPlansData}
                 loading={loading}
                 isEmptyNull={false}
-                loadingText={translate('text_625434c7bb2cb40124c81a35')}
                 placeholder={translate('text_625434c7bb2cb40124c81a31')}
                 emptyText={translate('text_625434c7bb2cb40124c81a37')}
                 PopperProps={{ displayInDialog: true }}

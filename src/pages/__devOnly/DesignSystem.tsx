@@ -859,7 +859,6 @@ const DesignSystem = () => {
                       data={[]}
                       label="Loading"
                       placeholder="But who is it anyway ?"
-                      loadingText="You're clearely overthinking"
                       loading
                       formikProps={formikProps}
                     />

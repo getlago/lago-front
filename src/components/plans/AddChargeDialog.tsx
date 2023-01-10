@@ -104,7 +104,6 @@ export const AddChargeDialog = forwardRef<DialogRef, AddChargeDialogProps>(
           searchQuery={getBillableMetrics}
           name="billableMetricId"
           loading={loading}
-          loadingText={translate('text_6246b6bc6b25f500b779aa84')}
           placeholder={translate('text_6246b6bc6b25f500b779aa6e')}
           emptyText={translate('text_6246b6bc6b25f500b779aa7a')}
           PopperProps={{ displayInDialog: true }}
