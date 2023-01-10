@@ -22,8 +22,8 @@ gql`
     }
   }
 
-  query getbillableMetrics($page: Int, $limit: Int) {
-    billableMetrics(page: $page, limit: $limit) {
+  query getbillableMetrics($page: Int, $limit: Int, $searchTerm: String) {
+    billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
       collection {
         ...billableMetricForPlan
       }
@@ -40,7 +40,7 @@ export const AddChargeDialog = forwardRef<DialogRef, AddChargeDialogProps>(
     const [selectedId, setSelectedId] = useState<string>()
     const { translate } = useInternationalization()
     const [getBillableMetrics, { loading, data }] = useGetbillableMetricsLazyQuery({
-      variables: { limit: 500 },
+      variables: { limit: 50 },
     })
     const billableMetrics = useMemo(() => {
       if (!data || !data?.billableMetrics || !data?.billableMetrics?.collection) return []
@@ -101,6 +101,7 @@ export const AddChargeDialog = forwardRef<DialogRef, AddChargeDialogProps>(
           label={translate('text_624c5eadff7db800acc4c995')}
           value={selectedId}
           data={billableMetrics}
+          searchQuery={getBillableMetrics}
           name="billableMetricId"
           loading={loading}
           loadingText={translate('text_6246b6bc6b25f500b779aa84')}

@@ -3449,6 +3449,7 @@ export type BillableMetricForPlanFragment = { __typename?: 'BillableMetric', id:
 export type GetbillableMetricsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
+  searchTerm?: InputMaybe<Scalars['String']>;
 }>;
 
 
@@ -6106,8 +6107,8 @@ export type RetryInvoicePaymentMutationHookResult = ReturnType<typeof useRetryIn
 export type RetryInvoicePaymentMutationResult = Apollo.MutationResult<RetryInvoicePaymentMutation>;
 export type RetryInvoicePaymentMutationOptions = Apollo.BaseMutationOptions<RetryInvoicePaymentMutation, RetryInvoicePaymentMutationVariables>;
 export const GetbillableMetricsDocument = gql`
-    query getbillableMetrics($page: Int, $limit: Int) {
-  billableMetrics(page: $page, limit: $limit) {
+    query getbillableMetrics($page: Int, $limit: Int, $searchTerm: String) {
+  billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
     collection {
       ...billableMetricForPlan
     }
@@ -6129,6 +6130,7 @@ export const GetbillableMetricsDocument = gql`
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
  *   },
  * });
  */

@@ -60,6 +60,7 @@ export const ComboBoxInput = ({
                   e.preventDefault()
                   e.stopPropagation()
                   inputProps.onChange({ target: { value: '' } })
+                  searchQuery && debouncedSearch('')
                 }}
               />
             )}
