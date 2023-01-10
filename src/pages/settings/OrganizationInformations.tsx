@@ -22,7 +22,7 @@ import {
 } from '~/components/settings/EditOrganizationTimezoneDialog'
 import CountryCodes from '~/public/countryCode.json'
 import { getTimezoneConfig } from '~/core/timezone'
-import { useIsPremiumUser } from '~/hooks/customer/useIsPremiumUser'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 
 gql`
@@ -54,7 +54,7 @@ gql`
 
 const OrganizationInformations = () => {
   const { translate } = useInternationalization()
-  const isPremium = useIsPremiumUser()
+  const { isPremium } = useCurrentUser()
   const editInfosDialogRef = useRef<EditOrganizationInformationsDialogRef>(null)
   const editTimezoneDialogRef = useRef<EditOrganizationTimezoneDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)

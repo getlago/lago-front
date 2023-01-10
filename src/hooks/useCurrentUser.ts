@@ -1,24 +1,39 @@
 import { gql } from '@apollo/client'
 
-import { useGetCurrentUserInfosQuery } from '~/generated/graphql'
+import { useGetCurrentUserInfosQuery, CurrentUserInfosFragment } from '~/generated/graphql'
 
 gql`
+  fragment CurrentUserInfos on User {
+    id
+    email
+    premium
+    email
+    organizations {
+      id
+      name
+      logoUrl
+    }
+  }
   query getCurrentUserInfos {
     currentUser {
-      id
-      email
-      organizations {
-        id
-        name
-        logoUrl
-      }
+      ...CurrentUserInfos
     }
   }
 `
 
-export const useCurrentUser = () => {
+type UseCurrentUser = () => {
+  isPremium: boolean
+  currentUser?: CurrentUserInfosFragment
+}
+
+export const useCurrentUser: UseCurrentUser = () => {
   const { data } = useGetCurrentUserInfosQuery({
     canonizeResults: true,
     fetchPolicy: 'cache-first',
   })
+
+  return {
+    currentUser: data?.currentUser,
+    isPremium: data?.currentUser.premium || false,
+  }
 }

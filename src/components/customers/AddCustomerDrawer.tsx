@@ -21,8 +21,8 @@ import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
 import CountryCodes from '~/public/countryCode.json'
 import { INTEGRATIONS_ROUTE, ORGANIZATION_INFORMATIONS_ROUTE } from '~/core/router'
 import { getTimezoneConfig } from '~/core/timezone'
-import { useOrganizationTimezone } from '~/hooks/useOrganizationTimezone'
-import { useIsPremiumUser } from '~/hooks/customer/useIsPremiumUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 const countryData: { value: string; label: string }[] = Object.keys(CountryCodes).map(
   (countryKey) => {
@@ -51,7 +51,7 @@ interface AddCustomerDrawerProps {
 export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
   ({ customer }: AddCustomerDrawerProps, ref) => {
     const { translate } = useInternationalization()
-    const isPremium = useIsPremiumUser()
+    const { isPremium } = useCurrentUser()
     const { isEdition, onSave } = useCreateEditCustomer({
       customer,
     })
@@ -96,7 +96,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
         }
       },
     })
-    const { timezoneConfig } = useOrganizationTimezone()
+    const { timezoneConfig } = useOrganizationInfos()
 
     useEffect(() => {
       if (!formikProps.values.paymentProvider) {

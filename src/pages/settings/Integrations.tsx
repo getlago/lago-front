@@ -19,16 +19,13 @@ import {
 
 gql`
   query integrationsSetting {
-    currentUser {
+    organization {
       id
-      organizations {
+      stripePaymentProvider {
         id
-        stripePaymentProvider {
-          id
-        }
-        gocardlessPaymentProvider {
-          id
-        }
+      }
+      gocardlessPaymentProvider {
+        id
       }
     }
   }
@@ -39,10 +36,8 @@ const Integrations = () => {
   const navigate = useNavigate()
   const addDialogRef = useRef<AddStripeDialogRef>(null)
   const { data, loading } = useIntegrationsSettingQuery()
-  const hasStripeIntegration = !!(data?.currentUser?.organizations || [])[0]?.stripePaymentProvider
-    ?.id
-  const hasGocardlessIntegration = !!(data?.currentUser?.organizations || [])[0]
-    ?.gocardlessPaymentProvider?.id
+  const hasStripeIntegration = !!data?.organization?.stripePaymentProvider?.id
+  const hasGocardlessIntegration = !!data?.organization?.gocardlessPaymentProvider?.id
   const { lagoOauthProxyUrl } = envGlobalVar()
 
   return (

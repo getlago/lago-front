@@ -18,7 +18,7 @@ import {
   EditCustomerVatRateDialog,
   EditCustomerVatRateDialogRef,
 } from '~/components/customers/EditCustomerVatRateDialog'
-import { useIsPremiumUser } from '~/hooks/customer/useIsPremiumUser'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 
 import {
@@ -55,7 +55,7 @@ interface CustomerSettingsProps {
 
 export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
   const { translate } = useInternationalization()
-  const isPremium = useIsPremiumUser()
+  const { isPremium } = useCurrentUser()
   const { organization: currentOrganization } = useOrganizationInfos()
 
   const editDialogRef = useRef<EditCustomerVatRateDialogRef>(null)

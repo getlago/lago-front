@@ -55,7 +55,7 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { useIsPremiumUser } from '~/hooks/customer/useIsPremiumUser'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 gql`
   fragment AllInvoiceDetailsForCustomerInvoiceDetails on Invoice {
@@ -135,8 +135,8 @@ const CustomerInvoiceDetails = () => {
   const { translate } = useInternationalization()
   const { id, invoiceId } = useParams()
   let navigate = useNavigate()
-  const isPremium = useIsPremiumUser()
   const { goBack } = useLocationHistory()
+  const { isPremium } = useCurrentUser()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const [refreshInvoice, { loading: loadingRefreshInvoice }] = useRefreshInvoiceMutation({
