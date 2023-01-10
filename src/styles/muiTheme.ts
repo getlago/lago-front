@@ -298,6 +298,7 @@ export const theme = createTheme({
           overflow: 'auto',
           scrollBehavior: 'smooth',
         },
+        loading: { padding: 0 },
         listbox: {
           padding: 0,
         },

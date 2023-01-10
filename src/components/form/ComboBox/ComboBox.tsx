@@ -4,11 +4,11 @@ import _sortBy from 'lodash/sortBy'
 import styled from 'styled-components'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Icon, Typography } from '~/components/designSystem'
 import { theme } from '~/styles'
 import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
+import { Skeleton } from '~/components/designSystem'
 
-import { ComboBoxItem } from './ComboBoxItem'
+import { ComboBoxItem, ITEM_HEIGHT } from './ComboBoxItem'
 import { ComboBoxInput } from './ComboBoxInput'
 import { ComboBoxPopperFactory } from './ComboBoxPopperFactory'
 import { ComboboxList } from './ComboboxList'
@@ -29,7 +29,6 @@ export const ComboBox = ({
   error,
   PopperProps,
   className,
-  loadingText,
   searchQuery,
   emptyText,
   disableClearable = false,
@@ -130,10 +129,14 @@ export const ComboBox = ({
       value={value || null}
       loading={isLoading}
       loadingText={
-        <LoadingContainer>
-          <Loader color="primary" name="processing" animation="spin" />
-          <Typography>{loadingText ?? translate('text_623b3acb8ee4e000ba87d084')}</Typography>
-        </LoadingContainer>
+        <>
+          {[1, 2, 3].map((i) => (
+            <LoadingItem key={`combobox-loading-item-${i}`}>
+              <Skeleton variant="circular" width={16} height={16} marginRight="16px" />
+              <Skeleton variant="text" width="100%" height={12} />
+            </LoadingItem>
+          ))}
+        </>
       }
       noOptionsText={emptyText ?? translate('text_623b3acb8ee4e000ba87d082')}
       selectOnFocus={allowAddValue}
@@ -205,9 +208,12 @@ export const ComboBox = ({
   )
 }
 
-const Loader = styled(Icon)`
-  margin-bottom: ${theme.spacing(4)};
-`
-const LoadingContainer = styled.div`
-  text-align: center;
+const LoadingItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: ${ITEM_HEIGHT}px;
+  box-sizing: border-box;
+  margin: 0 ${theme.spacing(2)};
+  padding: 0 ${theme.spacing(4)};
 `

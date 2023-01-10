@@ -27,7 +27,6 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params'> {
   data: BasicComboBoxData[]
   sortValues?: boolean
   allowAddValue?: boolean
-  loadingText?: string
   emptyText?: string
   virtualized?: boolean
   disableClearable?: boolean
