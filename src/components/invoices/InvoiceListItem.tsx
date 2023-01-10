@@ -5,15 +5,15 @@ import { gql } from '@apollo/client'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { Skeleton, Button, Typography, StatusEnum, Status, Popper } from '~/components/designSystem'
 import { theme, BaseListItem, ListItemLink, MenuPopper, NAV_HEIGHT } from '~/styles'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast /* hasDefinedGQLError */ } from '~/core/apolloClient'
 import {
   InvoiceListItemFragment,
   InvoiceStatusTypeEnum,
   InvoicePaymentStatusTypeEnum,
   useDownloadInvoiceItemMutation,
   InvoiceForFinalizeInvoiceFragmentDoc,
-  useRetryInvoicePaymentMutation,
-  LagoApiError,
+  // useRetryInvoicePaymentMutation,
+  // LagoApiError,
 } from '~/generated/graphql'
 import { formatDateToTZ } from '~/core/timezone'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -119,17 +119,17 @@ export const InvoiceListItem = ({
     totalAmountCurrency,
   } = invoice
   const statusConfig = mapStatusConfig(status, paymentStatus)
-  const [retryCollect] = useRetryInvoicePaymentMutation({
-    context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
-    onCompleted({ retryInvoicePayment }) {
-      if (!!retryInvoicePayment?.id) {
-        addToast({
-          severity: 'success',
-          translateKey: 'text_63ac86d897f728a87b2fa0b3',
-        })
-      }
-    },
-  })
+  // const [retryCollect] = useRetryInvoicePaymentMutation({
+  //   context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
+  //   onCompleted({ retryInvoicePayment }) {
+  //     if (!!retryInvoicePayment?.id) {
+  //       addToast({
+  //         severity: 'success',
+  //         translateKey: 'text_63ac86d897f728a87b2fa0b3',
+  //       })
+  //     }
+  //   },
+  // })
   const [downloadInvoice] = useDownloadInvoiceItemMutation({
     onCompleted({ downloadInvoice: data }) {
       const fileUrl = data?.fileUrl
@@ -217,7 +217,8 @@ export const InvoiceListItem = ({
                 {translate('text_63a41a8eabb9ae67047c1c08')}
               </Button>
             )}
-            {status === InvoiceStatusTypeEnum.Finalized &&
+            {/* TODO - re-able this button once backend fix has been done to avoid re-submitting
+             {status === InvoiceStatusTypeEnum.Finalized &&
               [InvoicePaymentStatusTypeEnum.Failed, InvoicePaymentStatusTypeEnum.Pending].includes(
                 paymentStatus
               ) && (
@@ -246,7 +247,7 @@ export const InvoiceListItem = ({
                 >
                   {translate('text_63ac86d897f728a87b2fa039')}
                 </Button>
-              )}
+              )} */}
             <Button
               startIcon="duplicate"
               variant="quaternary"
