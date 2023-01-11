@@ -3780,6 +3780,7 @@ export type SideNavInfosQuery = { __typename?: 'Query', currentVersion: { __type
 export type AddOnsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
+  searchTerm?: InputMaybe<Scalars['String']>;
 }>;
 
 
@@ -7450,8 +7451,8 @@ export type SideNavInfosQueryHookResult = ReturnType<typeof useSideNavInfosQuery
 export type SideNavInfosLazyQueryHookResult = ReturnType<typeof useSideNavInfosLazyQuery>;
 export type SideNavInfosQueryResult = Apollo.QueryResult<SideNavInfosQuery, SideNavInfosQueryVariables>;
 export const AddOnsDocument = gql`
-    query addOns($page: Int, $limit: Int) {
-  addOns(page: $page, limit: $limit) {
+    query addOns($page: Int, $limit: Int, $searchTerm: String) {
+  addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {
     metadata {
       currentPage
       totalPages
@@ -7478,6 +7479,7 @@ export const AddOnsDocument = gql`
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
  *   },
  * });
  */
