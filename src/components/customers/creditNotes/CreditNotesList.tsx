@@ -277,7 +277,7 @@ const ListHeader = styled.div`
 `
 
 const IssuingDateCell = styled(Typography)`
-  min-width: 100px;
+  min-width: 112px;
 `
 const NumberCellHeader = styled(Typography)`
   flex: 1;

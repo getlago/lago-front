@@ -144,10 +144,10 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
           <Button
             variant="quaternary"
             endIcon={isPremium ? undefined : 'sparkles'}
-            onClick={
+            onClick={() =>
               isPremium
-                ? editInvoiceGracePeriodDialogRef?.current?.openDialog
-                : premiumWarningDialogRef.current?.openDialog
+                ? editInvoiceGracePeriodDialogRef?.current?.openDialog()
+                : premiumWarningDialogRef.current?.openDialog()
             }
           >
             {translate('text_638dff9779fb99299bee912a')}
@@ -209,7 +209,7 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
           variant="caption"
           color="grey600"
           html={
-            !customer.invoiceGracePeriod
+            typeof customer.invoiceGracePeriod !== 'number'
               ? translate('text_638e13576861f3be8a3d4492', { link: INVOICE_SETTINGS_ROUTE })
               : translate('text_638dff9779fb99299bee9136')
           }
@@ -221,7 +221,7 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
 
       <EditCustomerInvoiceGracePeriodDialog
         ref={editInvoiceGracePeriodDialogRef}
-        invoiceGracePeriod={customer.invoiceGracePeriod || 0}
+        invoiceGracePeriod={customer.invoiceGracePeriod}
       />
       <DeleteCustomerGracePeriodeDialog ref={deleteGracePeriodDialogRef} customer={customer} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
