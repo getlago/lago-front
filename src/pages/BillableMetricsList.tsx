@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { useNavigate, generatePath } from 'react-router-dom'
@@ -17,7 +16,7 @@ import {
 } from '~/components/billableMetrics/BillableMetricItem'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { SearchInput } from '~/components/SearchInput'
-import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
 gql`
   query billableMetrics($page: Int, $limit: Int, $searchTerm: String) {
@@ -38,33 +37,19 @@ gql`
 const BillableMetricsList = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState(false)
   const [getBillableMetrics, { data, error, loading, fetchMore, variables }] =
     useBillableMetricsLazyQuery({
-      variables: { limit: 50 },
+      variables: { limit: 20 },
       notifyOnNetworkStatusChange: true,
     })
+  const { debouncedSearch, isSearchLoading } = useDebouncedSearch(getBillableMetrics, loading)
+  const isLoading = isSearchLoading || loading
   const list = data?.billableMetrics?.collection || []
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `billable-metric-item-${i}`,
     navigate: (id) => navigate(generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { id: String(id) })),
   })
   let index = -1
-
-  useEffect(() => {
-    // This is to prenvent loading blink if the loading time is really small
-    if (variables?.searchTerm) {
-      setIsLoading(true)
-      setTimeout(() => {
-        setIsLoading(loading || false)
-      }, DEBOUNCE_SEARCH_MS)
-    }
-  }, [variables?.searchTerm, loading])
-
-  useEffect(() => {
-    getBillableMetrics()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   return (
     <div role="grid" tabIndex={-1} onKeyDown={onKeyDown}>
@@ -74,7 +59,7 @@ const BillableMetricsList = () => {
         </Typography>
         <HeaderRigthBlock>
           <SearchInput
-            searchQuery={getBillableMetrics}
+            onChange={debouncedSearch}
             placeholder={translate('text_63ba9ee977a67c9693f50aea')}
           />
           <StyledButton data-test="create-bm" type="button" to={CREATE_BILLABLE_METRIC_ROUTE}>
