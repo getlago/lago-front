@@ -9,7 +9,7 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
   return {
     ...properties,
     ...([ChargeModelEnum.Package, ChargeModelEnum.Standard].includes(chargeModel)
-      ? { amount: String(properties?.amount) }
+      ? { amount: !!properties?.amount ? String(properties?.amount) : undefined }
       : {}),
     ...(chargeModel === ChargeModelEnum.Graduated
       ? {
@@ -45,10 +45,12 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
       : { packageSize: undefined, freeUnits: undefined }),
     ...(chargeModel === ChargeModelEnum.Percentage
       ? {
+          amount: undefined,
           freeUnitsPerEvents: Number(properties?.freeUnitsPerEvents) || undefined,
-          fixedAmount: String(properties?.fixedAmount) || undefined,
-          freeUnitsPerTotalAggregation:
-            String(properties?.freeUnitsPerTotalAggregation) || undefined,
+          fixedAmount: !!properties?.fixedAmount ? String(properties?.fixedAmount) : undefined,
+          freeUnitsPerTotalAggregation: !!properties?.freeUnitsPerTotalAggregation
+            ? String(properties?.freeUnitsPerTotalAggregation)
+            : undefined,
         }
       : {}),
   }
