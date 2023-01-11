@@ -364,6 +364,7 @@
   "text_63aa085d28b8510cd464440d": "{{invoiceGracePeriod}} day (from organization)|{{invoiceGracePeriod}} days (from organization)",
   "text_638dff9779fb99299bee9126": "Settings",
   "text_638dff9779fb99299bee912a": "Add grace period",
+  "text_63bed78ae69de9cad5c348e4": "Grace period cannot exceed 365 days",
   "text_63aa085d28b8510cd46443f7": "Edit",
   "text_63aa085d28b8510cd46443ff": "Delete",
   "text_63aa085d28b8510cd4644181": "You’re about to delete a tax rate",

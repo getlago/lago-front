@@ -112,8 +112,14 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
                       })
                     }
                     invoiceData={dataDraft?.customerInvoices}
-                    onSeeAll={() =>
-                      navigate(generatePath(CUSTOMER_DRAFT_INVOICES_LIST_ROUTE, { id: customerId }))
+                    onSeeAll={
+                      (dataDraft?.customerInvoices?.metadata?.totalCount || 0) >
+                      DRAFT_INVOICES_ITEMS_COUNT
+                        ? () =>
+                            navigate(
+                              generatePath(CUSTOMER_DRAFT_INVOICES_LIST_ROUTE, { id: customerId })
+                            )
+                        : undefined
                     }
                   />
                 </div>

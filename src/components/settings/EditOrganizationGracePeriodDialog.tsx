@@ -50,7 +50,7 @@ export const EditOrganizationGracePeriodDialog = forwardRef<
       invoiceGracePeriod,
     },
     validationSchema: object().shape({
-      invoiceGracePeriod: number().required(''),
+      invoiceGracePeriod: number().required('').max(365, 'text_63bed78ae69de9cad5c348e4'),
     }),
     enableReinitialize: true,
     validateOnMount: true,

@@ -46,7 +46,6 @@ interface InvoiceListProps {
   loading: boolean
   customerTimezone: TimezoneEnum
   invoiceData?: InvoiceForInvoiceListFragment
-  displayItemLimit?: number
   context?: keyof typeof CustomerInvoiceListContextEnum
   getOnClickLink: (id: string) => string
   onSeeAll?: () => void

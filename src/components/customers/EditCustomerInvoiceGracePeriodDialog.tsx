@@ -28,7 +28,7 @@ gql`
 export interface EditCustomerInvoiceGracePeriodDialogRef extends DialogRef {}
 
 interface EditCustomerInvoiceGracePeriodDialogProps {
-  invoiceGracePeriod: number
+  invoiceGracePeriod: number | undefined | null
 }
 
 export const EditCustomerInvoiceGracePeriodDialog = forwardRef<
@@ -52,7 +52,7 @@ export const EditCustomerInvoiceGracePeriodDialog = forwardRef<
       invoiceGracePeriod,
     },
     validationSchema: object().shape({
-      invoiceGracePeriod: number().required(''),
+      invoiceGracePeriod: number().required('').max(365, 'text_63bed78ae69de9cad5c348e4'),
     }),
     enableReinitialize: true,
     validateOnMount: true,
