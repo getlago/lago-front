@@ -2396,6 +2396,7 @@ export type QueryCustomerInvoicesArgs = {
   customerId: Scalars['ID'];
   limit?: InputMaybe<Scalars['Int']>;
   page?: InputMaybe<Scalars['Int']>;
+  searchTerm?: InputMaybe<Scalars['String']>;
   status?: InputMaybe<InvoiceStatusTypeEnum>;
 };
 
@@ -3886,6 +3887,7 @@ export type RetryAllInvoicePaymentsMutation = { __typename?: 'Mutation', retryAl
 export type PlansQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
+  searchTerm?: InputMaybe<Scalars['String']>;
 }>;
 
 
@@ -8012,8 +8014,8 @@ export type RetryAllInvoicePaymentsMutationHookResult = ReturnType<typeof useRet
 export type RetryAllInvoicePaymentsMutationResult = Apollo.MutationResult<RetryAllInvoicePaymentsMutation>;
 export type RetryAllInvoicePaymentsMutationOptions = Apollo.BaseMutationOptions<RetryAllInvoicePaymentsMutation, RetryAllInvoicePaymentsMutationVariables>;
 export const PlansDocument = gql`
-    query plans($page: Int, $limit: Int) {
-  plans(page: $page, limit: $limit) {
+    query plans($page: Int, $limit: Int, $searchTerm: String) {
+  plans(page: $page, limit: $limit, searchTerm: $searchTerm) {
     metadata {
       currentPage
       totalPages
@@ -8039,6 +8041,7 @@ export const PlansDocument = gql`
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
  *   },
  * });
  */
