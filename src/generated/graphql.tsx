@@ -3838,6 +3838,7 @@ export type GetCustomerDraftInvoicesQuery = { __typename?: 'Query', customerInvo
 export type CustomersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
+  searchTerm?: InputMaybe<Scalars['String']>;
 }>;
 
 
@@ -7765,8 +7766,8 @@ export type GetCustomerDraftInvoicesQueryHookResult = ReturnType<typeof useGetCu
 export type GetCustomerDraftInvoicesLazyQueryHookResult = ReturnType<typeof useGetCustomerDraftInvoicesLazyQuery>;
 export type GetCustomerDraftInvoicesQueryResult = Apollo.QueryResult<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>;
 export const CustomersDocument = gql`
-    query customers($page: Int, $limit: Int) {
-  customers(page: $page, limit: $limit) {
+    query customers($page: Int, $limit: Int, $searchTerm: String) {
+  customers(page: $page, limit: $limit, searchTerm: $searchTerm) {
     metadata {
       currentPage
       totalPages
@@ -7792,6 +7793,7 @@ export const CustomersDocument = gql`
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
  *   },
  * });
  */
