@@ -3798,6 +3798,7 @@ export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __
 export type CouponsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
+  searchTerm?: InputMaybe<Scalars['String']>;
 }>;
 
 
@@ -7538,8 +7539,8 @@ export type BillableMetricsQueryHookResult = ReturnType<typeof useBillableMetric
 export type BillableMetricsLazyQueryHookResult = ReturnType<typeof useBillableMetricsLazyQuery>;
 export type BillableMetricsQueryResult = Apollo.QueryResult<BillableMetricsQuery, BillableMetricsQueryVariables>;
 export const CouponsDocument = gql`
-    query coupons($page: Int, $limit: Int) {
-  coupons(page: $page, limit: $limit) {
+    query coupons($page: Int, $limit: Int, $searchTerm: String) {
+  coupons(page: $page, limit: $limit, searchTerm: $searchTerm) {
     metadata {
       currentPage
       totalPages
@@ -7567,6 +7568,7 @@ ${CouponCaptionFragmentDoc}`;
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
  *   },
  * });
  */

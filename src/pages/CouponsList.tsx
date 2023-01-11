@@ -12,14 +12,16 @@ import EmptyImage from '~/public/images/maneki/empty.svg'
 import { CouponItem, CouponItemSkeleton } from '~/components/coupons/CouponItem'
 import {
   CouponItemFragmentDoc,
-  useCouponsQuery,
   CouponCaptionFragmentDoc,
+  useCouponsLazyQuery,
 } from '~/generated/graphql'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { SearchInput } from '~/components/SearchInput'
 
 gql`
-  query coupons($page: Int, $limit: Int) {
-    coupons(page: $page, limit: $limit) {
+  query coupons($page: Int, $limit: Int, $searchTerm: String) {
+    coupons(page: $page, limit: $limit, searchTerm: $searchTerm) {
       metadata {
         currentPage
         totalPages
@@ -42,10 +44,12 @@ const CouponsList = () => {
     getElmId: (i) => `coupon-item-${i}`,
     navigate: (id) => navigate(generatePath(UPDATE_COUPON_ROUTE, { id: String(id) })),
   })
-  const { data, error, loading, fetchMore } = useCouponsQuery({
+  const [getCoupons, { data, error, loading, fetchMore, variables }] = useCouponsLazyQuery({
     variables: { limit: 20 },
     notifyOnNetworkStatusChange: true,
   })
+  const { debouncedSearch, isSearchLoading } = useDebouncedSearch(getCoupons, loading)
+  const isLoading = isSearchLoading || loading
   const list = data?.coupons?.collection || []
   let index = -1
 
@@ -55,55 +59,87 @@ const CouponsList = () => {
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_62865498824cc10126ab2956')}
         </Typography>
-        <ButtonLink type="button" to={CREATE_COUPON_ROUTE}>
-          {translate('text_62865498824cc10126ab2954')}
-        </ButtonLink>
+        <HeaderRigthBlock>
+          <SearchInput
+            onChange={debouncedSearch}
+            placeholder={translate('text_63beebbf4f60e2f553232782')}
+          />
+          <ButtonLink type="button" to={CREATE_COUPON_ROUTE}>
+            {translate('text_62865498824cc10126ab2954')}
+          </ButtonLink>
+        </HeaderRigthBlock>
       </Header>
 
-      {!loading && !!error ? (
-        <GenericPlaceholder
-          title={translate('text_62865498824cc10126ab2962')}
-          subtitle={translate('text_62865498824cc10126ab2968')}
-          buttonTitle={translate('text_62865498824cc10126ab296e')}
-          buttonVariant="primary"
-          buttonAction={() => location.reload()}
-          image={<ErrorImage width="136" height="104" />}
-        />
-      ) : !loading && (!list || !list.length) ? (
-        <GenericPlaceholder
-          title={translate('text_62865498824cc10126ab296c')}
-          subtitle={translate('text_62865498824cc10126ab2971')}
-          buttonTitle={translate('text_62865498824cc10126ab2975')}
-          buttonVariant="primary"
-          buttonAction={() => navigate(CREATE_COUPON_ROUTE)}
-          image={<EmptyImage width="136" height="104" />}
-        />
-      ) : (
-        <ListContainer>
-          <ListHead $withActions>
-            <CouponSection>
-              <Typography color="disabled" variant="bodyHl">
-                {translate('text_62865498824cc10126ab2960')}
-              </Typography>
-            </CouponSection>
-            <CouponInfosSection>
-              <SmallCell color="disabled" variant="bodyHl">
-                {translate('text_62865498824cc10126ab2964')}
-              </SmallCell>
-              <MediumCell color="disabled" variant="bodyHl">
-                {translate('text_62865498824cc10126ab296a')}
-              </MediumCell>
-              <MediumCell color="disabled" variant="bodyHl">
-                {translate('text_62865498824cc10126ab296f')}
-              </MediumCell>
-            </CouponInfosSection>
-          </ListHead>
+      <ListContainer>
+        <ListHead $withActions>
+          <CouponSection>
+            <Typography color="disabled" variant="bodyHl">
+              {translate('text_62865498824cc10126ab2960')}
+            </Typography>
+          </CouponSection>
+          <CouponInfosSection>
+            <SmallCell color="disabled" variant="bodyHl">
+              {translate('text_62865498824cc10126ab2964')}
+            </SmallCell>
+            <MediumCell color="disabled" variant="bodyHl">
+              {translate('text_62865498824cc10126ab296a')}
+            </MediumCell>
+            <MediumCell color="disabled" variant="bodyHl">
+              {translate('text_62865498824cc10126ab296f')}
+            </MediumCell>
+          </CouponInfosSection>
+        </ListHead>
+        {!!isLoading && variables?.searchTerm ? (
+          <>
+            {[0, 1, 2].map((i) => (
+              <CouponItemSkeleton key={`plan-item-skeleton-${i}`} />
+            ))}
+          </>
+        ) : !isLoading && !!error ? (
+          <>
+            {!!variables?.searchTerm ? (
+              <GenericPlaceholder
+                title={translate('text_623b53fea66c76017eaebb6e')}
+                subtitle={translate('text_63bab307a61c62af497e0599')}
+                image={<ErrorImage width="136" height="104" />}
+              />
+            ) : (
+              <GenericPlaceholder
+                title={translate('text_62865498824cc10126ab2962')}
+                subtitle={translate('text_62865498824cc10126ab2968')}
+                buttonTitle={translate('text_62865498824cc10126ab296e')}
+                buttonVariant="primary"
+                buttonAction={() => location.reload()}
+                image={<ErrorImage width="136" height="104" />}
+              />
+            )}
+          </>
+        ) : !isLoading && (!list || !list.length) ? (
+          <>
+            {!!variables?.searchTerm ? (
+              <GenericPlaceholder
+                title={translate('text_63beebbf4f60e2f553232773')}
+                subtitle={translate('text_63beebbf4f60e2f553232775')}
+                image={<EmptyImage width="136" height="104" />}
+              />
+            ) : (
+              <GenericPlaceholder
+                title={translate('text_62865498824cc10126ab296c')}
+                subtitle={translate('text_62865498824cc10126ab2971')}
+                buttonTitle={translate('text_62865498824cc10126ab2975')}
+                buttonVariant="primary"
+                buttonAction={() => navigate(CREATE_COUPON_ROUTE)}
+                image={<EmptyImage width="136" height="104" />}
+              />
+            )}
+          </>
+        ) : (
           <InfiniteScroll
             onBottom={() => {
               const { currentPage = 0, totalPages = 0 } = data?.coupons?.metadata || {}
 
               currentPage < totalPages &&
-                !loading &&
+                !isLoading &&
                 fetchMore({
                   variables: { page: currentPage + 1 },
                 })
@@ -125,12 +161,12 @@ const CouponsList = () => {
                     />
                   )
                 })}
-              {loading &&
+              {isLoading &&
                 [0, 1, 2].map((i) => <CouponItemSkeleton key={`plan-item-skeleton-${i}`} />)}
             </>
           </InfiniteScroll>
-        </ListContainer>
-      )}
+        )}
+      </ListContainer>
     </div>
   )
 }
@@ -173,6 +209,15 @@ const Header = styled(PageHeader)`
     &:first-child {
       margin-right: ${theme.spacing(4)};
     }
+  }
+`
+
+const HeaderRigthBlock = styled.div`
+  display: flex;
+  align-items: center;
+
+  > :first-child {
+    margin-right: ${theme.spacing(3)};
   }
 `
 
