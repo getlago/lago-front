@@ -113,10 +113,12 @@ export const DatePicker = ({
             },
           }}
           onChange={(date) => {
-            setLocalDate((date as unknown as DateTime).toUTC())
+            setLocalDate(!date ? date : (date as unknown as DateTime).toUTC())
 
             // To avoid breaking dates in the parent, we do not pass it unless it's valid
-            const formattedDate = (date as unknown as DateTime).endOf('day')?.toUTC().toISO()
+            const formattedDate = !date
+              ? undefined
+              : (date as unknown as DateTime).endOf('day')?.toUTC().toISO()
 
             if ((date as unknown as DateTime)?.isValid || !date) {
               onError && onError(undefined)

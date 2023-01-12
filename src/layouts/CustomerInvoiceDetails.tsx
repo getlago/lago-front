@@ -20,6 +20,8 @@ import {
   CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
+  CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
+  CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
 } from '~/core/router'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
@@ -272,7 +274,12 @@ const CustomerInvoiceDetails = () => {
                   tab: CustomerDetailsTabsOptions.invoices,
                 }),
                 {
-                  exclude: CUSTOMER_INVOICE_DETAILS_ROUTE,
+                  exclude: [
+                    CUSTOMER_INVOICE_DETAILS_ROUTE,
+                    CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
+                    CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
+                    CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
+                  ],
                 }
               )
             }
