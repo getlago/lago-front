@@ -215,7 +215,6 @@ export const CreditNoteFormCalculation = ({
                   formikProps.setFieldValue('payBack.0.type', value)
                 }
               }}
-              // formikProps={formikProps}
               placeholder={translate('text_637d0e628762bd8fc95f045d')}
               data={[
                 {
@@ -293,12 +292,9 @@ export const CreditNoteFormCalculation = ({
               <Typography color="grey700">
                 {!totalTaxIncluded
                   ? '-'
-                  : intlFormatNumber(
-                      deserializeAmount(payBack[0]?.value || 0, invoice?.amountCurrency),
-                      {
-                        currency: invoice?.amountCurrency,
-                      }
-                    )}
+                  : intlFormatNumber(payBack[0]?.value || 0, {
+                      currency: invoice?.amountCurrency,
+                    })}
               </Typography>
             )}
           </PayBackLine>
@@ -406,12 +402,9 @@ export const CreditNoteFormCalculation = ({
       {_get(formikProps.errors, 'payBack.0.value') === LagoApiError.DoesNotMatchItemAmounts && (
         <StyledAlert type="danger">
           {translate('text_637e334680481f653e8caa9d', {
-            total: intlFormatNumber(
-              deserializeAmount(totalTaxIncluded || 0, invoice?.amountCurrency),
-              {
-                currency: invoice?.amountCurrency,
-              }
-            ),
+            total: intlFormatNumber(totalTaxIncluded || 0, {
+              currency: invoice?.amountCurrency,
+            }),
           })}
         </StyledAlert>
       )}

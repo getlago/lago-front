@@ -160,14 +160,16 @@ export const InvoiceOverview = memo(
                 invoice={invoice as Invoice}
                 loading={loadingRefreshInvoice}
               />
-              {!!formatedCreditNotes?.length && !loadingRefreshInvoice && (
-                <InvoiceCreditNotesTable
-                  customerId={customer?.id || ''}
-                  formatedCreditNotes={formatedCreditNotes}
-                  invoiceId={invoiceId || ''}
-                  subTotalVatExcludedAmountCents={invoice?.subTotalVatExcludedAmountCents || 0}
-                />
-              )}
+              {!!formatedCreditNotes?.length &&
+                invoice?.status !== InvoiceStatusTypeEnum.Draft &&
+                !loadingRefreshInvoice && (
+                  <InvoiceCreditNotesTable
+                    customerId={customer?.id || ''}
+                    formatedCreditNotes={formatedCreditNotes}
+                    invoiceId={invoiceId || ''}
+                    subTotalVatExcludedAmountCents={invoice?.subTotalVatExcludedAmountCents || 0}
+                  />
+                )}
             </>
           )}
         </Content>

@@ -4,10 +4,8 @@ import {
   CouponFrequency,
   CouponTypeEnum,
   CreateCouponInput,
-  TimezoneEnum,
   CurrencyEnum,
 } from '~/generated/graphql'
-import { formatDateToTZ } from '~/core/timezone'
 import { envGlobalVar } from '~/core/apolloClient'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 
@@ -52,8 +50,8 @@ curl --location --request POST "${apiUrl}/api/v1/applied_coupons" \\
       ${
         expiration === CouponExpiration.TimeLimit
           ? `"expiration": "${expiration}",
-      "expiration_date": ${expirationAt ? expirationAt : '__MUST_BE_DEFINED__'},`
-          : `"expiration": "${formatDateToTZ(expiration, TimezoneEnum.TzUtc)}",`
+      "expiration_date": "${expirationAt ? expirationAt : '__MUST_BE_DEFINED__'}",`
+          : `"expiration": "${expiration}",`
       }
     }
   }'
