@@ -422,7 +422,7 @@ export const CreditNoteFormCalculation = ({
 const Line = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center; ;
+  align-items: center;
 `
 
 const CalculationContainer = styled.div`
