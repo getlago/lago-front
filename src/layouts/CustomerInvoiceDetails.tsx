@@ -69,9 +69,6 @@ gql`
     totalAmountCurrency
     refundableAmountCents
     creditableAmountCents
-    creditNotes {
-      id
-    }
     ...InvoiceDetailsForInvoiceOverview
     ...InvoiceForCreditNotesTable
     ...InvoiceForDetailsTable
@@ -182,12 +179,10 @@ const CustomerInvoiceDetails = () => {
     status,
     creditableAmountCents,
     refundableAmountCents,
-    creditNotes,
   } = (data?.invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
 
   const formattedStatus = mapStatus(paymentStatus)
   const hasError = (!!error || !data?.invoice) && !loading
-  const hasCreditNotes = !!creditNotes?.length
 
   const tabsOptions = useMemo(() => {
     const tabs = [
@@ -220,10 +215,7 @@ const CustomerInvoiceDetails = () => {
       },
     ]
 
-    if (
-      invoiceType !== InvoiceTypeEnum.Credit &&
-      (status !== InvoiceStatusTypeEnum.Draft || hasCreditNotes)
-    ) {
+    if (invoiceType !== InvoiceTypeEnum.Credit && status !== InvoiceStatusTypeEnum.Draft) {
       tabs.push({
         title: translate('text_636bdef6565341dcb9cfb125'),
         link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
@@ -256,7 +248,6 @@ const CustomerInvoiceDetails = () => {
     hasError,
     loading,
     data,
-    hasCreditNotes,
     status,
   ])
 
