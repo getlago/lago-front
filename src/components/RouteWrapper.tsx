@@ -1,8 +1,8 @@
 import { Suspense, ReactNode, useEffect } from 'react'
-import { useRoutes } from 'react-router-dom'
+import { IndexRouteProps, useRoutes } from 'react-router-dom'
 import styled from 'styled-components'
 import { useLocation } from 'react-router-dom'
-import type { RouteObject, IndexRouteObject } from 'react-router-dom'
+import type { RouteObject } from 'react-router-dom'
 
 import { Icon } from '~/components/designSystem'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
@@ -51,7 +51,7 @@ export const routesFormatter: (
       acc.push({
         index: true,
         ...routeConfig,
-      } as IndexRouteObject)
+      } as IndexRouteProps)
     } else if (!route.path) {
       acc.push(routeConfig)
     } else if (typeof route.path === 'string') {
