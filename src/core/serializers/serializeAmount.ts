@@ -20,30 +20,28 @@ const CURRENCIES_WITH_0_DECIMALS = [
   'XPF',
 ]
 
-const multiply = (x: number, y: number) => x * y
-const divide = (x: number, y: number) => x / y
-const formatAmount = (
-  value: string | number,
-  currency: CurrencyEnum,
-  operator: (x: number, y: number) => number
-) => {
+export const serializeAmount = (value: string | number, currency: CurrencyEnum) => {
   const precision = getCurrencyPrecision(currency)
 
   if (precision === 0) {
     return Math.round(Number(value))
   } else if (precision === 3) {
-    return Number((String(operator(Number(value), 1000)).match(/^-?\d+(?:\.\d{0,3})?/) || [])[0])
+    return Number((String(Math.round(Number(value) * 1000)).match(/^-?\d+(?:\.\d{0,3})?/) || [])[0])
   }
 
-  return Number((String(operator(Number(value), 100)).match(/^-?\d+(?:\.\d{0,2})?/) || [])[0])
-}
-
-export const serializeAmount = (value: string | number, currency: CurrencyEnum) => {
-  return formatAmount(value, currency, multiply)
+  return Number((String(Math.round(Number(value) * 100)).match(/^-?\d+(?:\.\d{0,2})?/) || [])[0])
 }
 
 export const deserializeAmount = (value: string | number, currency: CurrencyEnum) => {
-  return formatAmount(value, currency, divide)
+  const precision = getCurrencyPrecision(currency)
+
+  if (precision === 0) {
+    return Math.round(Number(value))
+  } else if (precision === 3) {
+    return Number((String(Number(value) / 1000).match(/^-?\d+(?:\.\d{0,3})?/) || [])[0])
+  }
+
+  return Number((String(Number(value) / 100).match(/^-?\d+(?:\.\d{0,2})?/) || [])[0])
 }
 
 export const getCurrencyPrecision = (currency: CurrencyEnum): number => {
