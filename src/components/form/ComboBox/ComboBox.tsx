@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { Autocomplete, createFilterOptions } from '@mui/material'
 import _sortBy from 'lodash/sortBy'
 import styled from 'styled-components'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
-import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { Skeleton } from '~/components/designSystem'
 
 import { ComboBoxItem, ITEM_HEIGHT } from './ComboBoxItem'
@@ -38,17 +38,8 @@ export const ComboBox = ({
   onChange,
 }: ComboBoxProps) => {
   const { translate } = useInternationalization()
-  const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => {
-    // This is to prenvent loading blink if the loading time is really small
-    if (searchQuery) {
-      setIsLoading(true)
-    }
-    setTimeout(() => {
-      setIsLoading(loading || false)
-    }, DEBOUNCE_SEARCH_MS)
-  }, [searchQuery, loading])
+  const { debouncedSearch, isSearchLoading } = useDebouncedSearch(searchQuery, loading)
 
   // By default, we want to sort `options` alphabetically (by value)
   const data = useMemo(() => {
@@ -104,7 +95,8 @@ export const ComboBox = ({
             disableClearable={disableClearable}
             className={className}
             error={error}
-            searchQuery={searchQuery}
+            hasValueSelected={!!value}
+            searchQuery={debouncedSearch}
             helperText={helperText}
             label={label}
             infoText={infoText}
@@ -127,7 +119,7 @@ export const ComboBox = ({
       // pass `null` to force Autocomplete in controlled mode
       //  (`undefined` value at initial render puts Autocomplete in uncontrolled mode)
       value={value || null}
-      loading={isLoading}
+      loading={isSearchLoading}
       loadingText={
         <>
           {[1, 2, 3].map((i) => (

@@ -1,28 +1,27 @@
 import { useState } from 'react'
 import styled from 'styled-components'
 
+import { UseDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { theme } from '~/styles'
-import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
 import { Icon } from './designSystem'
 import { TextInput } from './form'
 
 interface SearchInputProps {
+  onChange: ReturnType<UseDebouncedSearch>['debouncedSearch']
   placeholder?: string
-  searchQuery: Function
 }
 
-export const SearchInput = ({ placeholder, searchQuery }: SearchInputProps) => {
+export const SearchInput = ({ onChange, placeholder }: SearchInputProps) => {
   const [localValue, setLocalValue] = useState<string>('')
-  const debouncedSearch = useDebouncedSearch(searchQuery)
 
   return (
     <TextInputForSearch
       placeholder={placeholder}
       value={localValue}
       onChange={(value) => {
+        onChange && onChange(value)
         setLocalValue(value)
-        debouncedSearch(value)
       }}
       InputProps={{
         startAdornment: <SearchIcon name="magnifying-glass" />,
