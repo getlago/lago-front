@@ -4,7 +4,7 @@ import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Typography, NavigationTab, InfiniteScroll /* Button */ } from '~/components/designSystem'
+import { Typography, NavigationTab, InfiniteScroll, Button } from '~/components/designSystem'
 import {
   INVOICES_TAB_ROUTE,
   INVOICES_ROUTE,
@@ -16,14 +16,14 @@ import {
   InvoiceStatusTypeEnum,
   InvoicePaymentStatusTypeEnum,
   InvoiceListItemFragmentDoc,
-  // useRetryAllInvoicePaymentsMutation,
-  // LagoApiError,
+  useRetryAllInvoicePaymentsMutation,
+  LagoApiError,
 } from '~/generated/graphql'
 import { theme, PageHeader, ListHeader, ListContainer, NAV_HEIGHT } from '~/styles'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import EmptyImage from '~/public/images/maneki/empty.svg'
-// import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   InvoiceListItemSkeleton,
   InvoiceListItem,
@@ -94,17 +94,17 @@ const InvoicesList = () => {
       }),
     },
   })
-  // const [retryAll] = useRetryAllInvoicePaymentsMutation({
-  //   context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
-  //   onCompleted({ retryAllInvoicePayments }) {
-  //     if (retryAllInvoicePayments) {
-  //       addToast({
-  //         severity: 'success',
-  //         translateKey: 'text_63ac86d897f728a87b2fa0a7',
-  //       })
-  //     }
-  //   },
-  // })
+  const [retryAll] = useRetryAllInvoicePaymentsMutation({
+    context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
+    onCompleted({ retryAllInvoicePayments }) {
+      if (retryAllInvoicePayments) {
+        addToast({
+          severity: 'success',
+          translateKey: 'text_63ac86d897f728a87b2fa0a7',
+        })
+      }
+    },
+  })
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `${NAVIGATION_KEY_BASE}${i}`,
     navigate: (id) => {
@@ -134,8 +134,7 @@ const InvoicesList = () => {
           {translate('text_63ac86d797f728a87b2f9f85')}
         </Typography>
 
-        {/* TODO - re-able this button once backend fix has been done to avoid re-submitting
-         {tab === InvoiceListTabEnum.pendingFailed && (
+        {tab === InvoiceListTabEnum.pendingFailed && (
           <Button
             disabled={!data?.invoices?.metadata?.totalCount}
             onClick={async () => {
@@ -151,7 +150,7 @@ const InvoicesList = () => {
           >
             {translate('text_63ac86d797f728a87b2f9fc4')}
           </Button>
-        )} */}
+        )}
       </PageHeader>
       <NavigationTab
         tabs={[
