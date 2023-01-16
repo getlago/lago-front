@@ -1,6 +1,10 @@
 import { ReactNode } from 'react'
 import { AutocompleteRenderInputParams } from '@mui/material'
 import { PopperProps as MuiPopperProps } from '@mui/material'
+import { LazyQueryExecFunction } from '@apollo/client'
+
+import { Exact, InputMaybe } from '~/generated/graphql'
+import { UseDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
 import { TextInputProps } from '../TextInput'
 
@@ -20,7 +24,7 @@ export interface ComboboxDataGrouped extends Omit<BasicComboBoxData, 'group'> {
 
 export type ComboBoxData = BasicComboBoxData | ComboboxDataGrouped
 
-interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params'> {
+interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params' | 'searchQuery'> {
   loading?: boolean
   disabled?: boolean
   value?: string
@@ -39,6 +43,15 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params'> {
   }
   renderGroupHeader?: never
   onChange: (value: string) => unknown
+  searchQuery?: LazyQueryExecFunction<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any,
+    Exact<{
+      page?: InputMaybe<number> | undefined
+      limit?: InputMaybe<number> | undefined
+      searchTerm?: InputMaybe<string> | undefined
+    }>
+  >
 }
 
 interface GroupedComboboxProps extends Omit<BasicComboboxProps, 'data' | 'renderGroupHeader'> {
@@ -60,7 +73,9 @@ export type ComboBoxInputProps = Pick<
   | 'startAdornmentValue'
 > & {
   disableClearable?: boolean
-  searchQuery?: Function
+  hasValueSelected?: boolean
+  loading?: boolean
+  searchQuery?: ReturnType<UseDebouncedSearch>['debouncedSearch']
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: Omit<AutocompleteRenderInputParams, 'inputProps'> & { inputProps: any }
 }
