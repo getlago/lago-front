@@ -86,6 +86,7 @@ export const AddSubscriptionDrawer = forwardRef<
     errorCode,
     onCreate,
     onOpenDrawer,
+    getPlans,
   } = useAddSubscription({
     existingSubscription,
     planId: formikProps.values.planId,
@@ -198,6 +199,7 @@ export const AddSubscriptionDrawer = forwardRef<
                 data={comboboxPlansData}
                 loading={loading}
                 isEmptyNull={false}
+                searchQuery={getPlans}
                 placeholder={translate('text_625434c7bb2cb40124c81a31')}
                 emptyText={translate('text_625434c7bb2cb40124c81a37')}
                 PopperProps={{ displayInDialog: true }}
