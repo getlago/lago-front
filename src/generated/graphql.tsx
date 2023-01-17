@@ -3875,6 +3875,7 @@ export type InvoicesListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   status?: InputMaybe<InvoiceStatusTypeEnum>;
   paymentStatus?: InputMaybe<Array<InvoicePaymentStatusTypeEnum> | InvoicePaymentStatusTypeEnum>;
+  searchTerm?: InputMaybe<Scalars['String']>;
 }>;
 
 
@@ -7934,12 +7935,13 @@ export type GetInvoiceCreditNotesQueryHookResult = ReturnType<typeof useGetInvoi
 export type GetInvoiceCreditNotesLazyQueryHookResult = ReturnType<typeof useGetInvoiceCreditNotesLazyQuery>;
 export type GetInvoiceCreditNotesQueryResult = Apollo.QueryResult<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>;
 export const InvoicesListDocument = gql`
-    query invoicesList($limit: Int, $page: Int, $status: InvoiceStatusTypeEnum, $paymentStatus: [InvoicePaymentStatusTypeEnum!]) {
+    query invoicesList($limit: Int, $page: Int, $status: InvoiceStatusTypeEnum, $paymentStatus: [InvoicePaymentStatusTypeEnum!], $searchTerm: String) {
   invoices(
     limit: $limit
     page: $page
     status: $status
     paymentStatus: $paymentStatus
+    searchTerm: $searchTerm
   ) {
     metadata {
       currentPage
@@ -7970,6 +7972,7 @@ export const InvoicesListDocument = gql`
  *      page: // value for 'page'
  *      status: // value for 'status'
  *      paymentStatus: // value for 'paymentStatus'
+ *      searchTerm: // value for 'searchTerm'
  *   },
  * });
  */
