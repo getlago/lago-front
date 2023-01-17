@@ -3237,6 +3237,7 @@ export type GetCouponForCustomerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
   status?: InputMaybe<CouponStatusEnum>;
+  searchTerm?: InputMaybe<Scalars['String']>;
 }>;
 
 
@@ -5276,8 +5277,8 @@ export type AddAddOnMutationHookResult = ReturnType<typeof useAddAddOnMutation>;
 export type AddAddOnMutationResult = Apollo.MutationResult<AddAddOnMutation>;
 export type AddAddOnMutationOptions = Apollo.BaseMutationOptions<AddAddOnMutation, AddAddOnMutationVariables>;
 export const GetCouponForCustomerDocument = gql`
-    query getCouponForCustomer($page: Int, $limit: Int, $status: CouponStatusEnum) {
-  coupons(page: $page, limit: $limit, status: $status) {
+    query getCouponForCustomer($page: Int, $limit: Int, $status: CouponStatusEnum, $searchTerm: String) {
+  coupons(page: $page, limit: $limit, status: $status, searchTerm: $searchTerm) {
     metadata {
       currentPage
       totalPages
@@ -5312,6 +5313,7 @@ export const GetCouponForCustomerDocument = gql`
  *      page: // value for 'page'
  *      limit: // value for 'limit'
  *      status: // value for 'status'
+ *      searchTerm: // value for 'searchTerm'
  *   },
  * });
  */
