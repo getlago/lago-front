@@ -20,8 +20,8 @@ import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
-  query getAddOnsForCustomer($page: Int, $limit: Int) {
-    addOns(page: $page, limit: $limit) {
+  query getAddOnsForCustomer($page: Int, $limit: Int, $searchTerm: String) {
+    addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {
       metadata {
         currentPage
         totalPages
@@ -171,6 +171,7 @@ export const AddAddOnToCustomerDialog = forwardRef<
           label={translate('text_629781ec7c6c1500d94fbb0e')}
           data={addOns}
           loading={loading}
+          searchQuery={getAddOns}
           placeholder={translate('text_629781ec7c6c1500d94fbb16')}
           onChange={(value) => {
             const addOn = data?.addOns?.collection.find((c) => c.id === value)

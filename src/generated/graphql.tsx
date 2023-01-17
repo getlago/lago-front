@@ -3220,6 +3220,7 @@ export type CreditNoteFormFragment = { __typename?: 'Invoice', id: string, payme
 export type GetAddOnsForCustomerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
+  searchTerm?: InputMaybe<Scalars['String']>;
 }>;
 
 
@@ -5196,8 +5197,8 @@ export type TerminateCouponMutationHookResult = ReturnType<typeof useTerminateCo
 export type TerminateCouponMutationResult = Apollo.MutationResult<TerminateCouponMutation>;
 export type TerminateCouponMutationOptions = Apollo.BaseMutationOptions<TerminateCouponMutation, TerminateCouponMutationVariables>;
 export const GetAddOnsForCustomerDocument = gql`
-    query getAddOnsForCustomer($page: Int, $limit: Int) {
-  addOns(page: $page, limit: $limit) {
+    query getAddOnsForCustomer($page: Int, $limit: Int, $searchTerm: String) {
+  addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {
     metadata {
       currentPage
       totalPages
@@ -5226,6 +5227,7 @@ export const GetAddOnsForCustomerDocument = gql`
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
  *   },
  * });
  */
