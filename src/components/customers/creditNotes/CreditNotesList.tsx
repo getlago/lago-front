@@ -19,6 +19,7 @@ import {
   TimezoneEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import EmptyImage from '~/public/images/maneki/empty.svg'
 import {
   HEADER_TABLE_HEIGHT,
   ItemContainer,
@@ -30,6 +31,7 @@ import {
 import { getTimezoneConfig, formatDateToTZ } from '~/core/timezone'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 
 import { VoidCreditNoteDialog, VoidCreditNoteDialogRef } from './VoidCreditNoteDialog'
 
@@ -63,6 +65,7 @@ interface CreditNotesListProps {
   fetchMore: Function
   itemClickRedirection: string
   loading: boolean
+  hasSearchQuery?: boolean
   metadata: CreditNotesForListFragment['metadata'] | undefined
   customerTimezone: TimezoneEnum
 }
@@ -73,6 +76,7 @@ const CreditNotesList = memo(
     fetchMore,
     itemClickRedirection,
     loading,
+    hasSearchQuery = false,
     metadata,
     customerTimezone,
   }: CreditNotesListProps) => {
@@ -126,134 +130,155 @@ const CreditNotesList = memo(
           </IssuingDateCell>
           <ButtonMock />
         </ListHeader>
-        <InfiniteScroll
-          onBottom={() => {
-            const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-            currentPage < totalPages &&
-              !loading &&
-              fetchMore({
-                variables: { page: currentPage + 1 },
-              })
-          }}
-        >
+        {loading && hasSearchQuery ? (
           <>
-            {creditNotes?.map((creditNote, i) => (
-              <ItemContainer key={`credit-note-${i}`}>
-                <Item
-                  tabIndex={0}
-                  onClick={() =>
-                    navigate(
-                      generatePath(itemClickRedirection, {
-                        id: customerId,
-                        invoiceId: invoiceId,
-                        creditNoteId: creditNote.id,
-                      })
-                    )
-                  }
-                >
-                  <NumberCell variant="captionCode" color="grey700" noWrap>
-                    {creditNote.number}
-                  </NumberCell>
-                  <AmountCell variant="body" color="success600" align="right" noWrap>
-                    {intlFormatNumber(
-                      deserializeAmount(
-                        creditNote.totalAmountCents || 0,
-                        creditNote.totalAmountCurrency
-                      ),
-                      {
-                        currencyDisplay: 'symbol',
-                        currency: creditNote.totalAmountCurrency,
-                      }
+            {[1, 2, 3, 4].map((i) => (
+              <SkeletonLine key={`key-skeleton-line-${i}`}>
+                <Skeleton variant="text" width={140} height={12} />
+                <SkeletonRightBlock>
+                  <Skeleton variant="text" width={80} height={12} />
+                  <Skeleton variant="text" width={90} height={12} />
+                </SkeletonRightBlock>
+              </SkeletonLine>
+            ))}
+          </>
+        ) : !loading && hasSearchQuery && !creditNotes?.length ? (
+          <GenericPlaceholder
+            title={translate('text_63c6edd80c57d0dfaae389a4')}
+            subtitle={translate('text_63c6edd80c57d0dfaae389a8')}
+            image={<EmptyImage width="136" height="104" />}
+          />
+        ) : (
+          <InfiniteScroll
+            onBottom={() => {
+              const { currentPage = 0, totalPages = 0 } = metadata || {}
+
+              currentPage < totalPages &&
+                !loading &&
+                fetchMore({
+                  variables: { page: currentPage + 1 },
+                })
+            }}
+          >
+            <>
+              {creditNotes?.map((creditNote, i) => (
+                <ItemContainer key={`credit-note-${i}`}>
+                  <Item
+                    tabIndex={0}
+                    onClick={() =>
+                      navigate(
+                        generatePath(itemClickRedirection, {
+                          id: customerId,
+                          invoiceId: invoiceId,
+                          creditNoteId: creditNote.id,
+                        })
+                      )
+                    }
+                  >
+                    <NumberCell variant="captionCode" color="grey700" noWrap>
+                      {creditNote.number}
+                    </NumberCell>
+                    <AmountCell variant="body" color="success600" align="right" noWrap>
+                      {intlFormatNumber(
+                        deserializeAmount(
+                          creditNote.totalAmountCents || 0,
+                          creditNote.totalAmountCurrency
+                        ),
+                        {
+                          currencyDisplay: 'symbol',
+                          currency: creditNote.totalAmountCurrency,
+                        }
+                      )}
+                    </AmountCell>
+                    <IssuingDateCell variant="body" color="grey700" noWrap>
+                      {formatDateToTZ(creditNote.createdAt, customerTimezone)}
+                    </IssuingDateCell>
+                    <ButtonMock />
+                  </Item>
+                  <Popper
+                    PopperProps={{ placement: 'bottom-end' }}
+                    opener={({ isOpen }) => (
+                      <DotsOpener>
+                        <Tooltip
+                          placement="top-end"
+                          disableHoverListener={isOpen}
+                          title={translate(
+                            creditNote.canBeVoided
+                              ? 'text_63728c6434e1344aea76347d'
+                              : 'text_63728c6434e1344aea76347f'
+                          )}
+                        >
+                          <Button icon="dots-horizontal" variant="quaternary" />
+                        </Tooltip>
+                      </DotsOpener>
                     )}
-                  </AmountCell>
-                  <IssuingDateCell variant="body" color="grey700" noWrap>
-                    {formatDateToTZ(creditNote.createdAt, customerTimezone)}
-                  </IssuingDateCell>
-                  <ButtonMock />
-                </Item>
-                <Popper
-                  PopperProps={{ placement: 'bottom-end' }}
-                  opener={({ isOpen }) => (
-                    <DotsOpener>
-                      <Tooltip
-                        placement="top-end"
-                        disableHoverListener={isOpen}
-                        title={translate(
-                          creditNote.canBeVoided
-                            ? 'text_63728c6434e1344aea76347d'
-                            : 'text_63728c6434e1344aea76347f'
-                        )}
-                      >
-                        <Button icon="dots-horizontal" variant="quaternary" />
-                      </Tooltip>
-                    </DotsOpener>
-                  )}
-                >
-                  {({ closePopper }) => (
-                    <MenuPopper>
-                      <Button
-                        variant="quaternary"
-                        align="left"
-                        disabled={loadingCreditNoteDownload}
-                        onClick={async () => {
-                          await downloadCreditNote({
-                            variables: { input: { id: creditNote.id } },
-                          })
-                        }}
-                      >
-                        {translate('text_636d12ce54c41fccdf0ef72d')}
-                      </Button>
-                      {creditNote.canBeVoided && (
+                  >
+                    {({ closePopper }) => (
+                      <MenuPopper>
                         <Button
                           variant="quaternary"
                           align="left"
+                          disabled={loadingCreditNoteDownload}
                           onClick={async () => {
-                            voidCreditNoteDialogRef.current?.openDialog({
-                              id: creditNote.id,
-                              totalAmountCents: creditNote.totalAmountCents,
-                              totalAmountCurrency: creditNote.totalAmountCurrency,
+                            await downloadCreditNote({
+                              variables: { input: { id: creditNote.id } },
+                            })
+                          }}
+                        >
+                          {translate('text_636d12ce54c41fccdf0ef72d')}
+                        </Button>
+                        {creditNote.canBeVoided && (
+                          <Button
+                            variant="quaternary"
+                            align="left"
+                            onClick={async () => {
+                              voidCreditNoteDialogRef.current?.openDialog({
+                                id: creditNote.id,
+                                totalAmountCents: creditNote.totalAmountCents,
+                                totalAmountCurrency: creditNote.totalAmountCurrency,
+                              })
+                              closePopper()
+                            }}
+                          >
+                            {translate('text_636d12ce54c41fccdf0ef72f')}
+                          </Button>
+                        )}
+                        <Button
+                          variant="quaternary"
+                          align="left"
+                          onClick={() => {
+                            copyToClipboard(creditNote.id)
+
+                            addToast({
+                              severity: 'info',
+                              translateKey: 'text_63720bd734e1344aea75b82d',
                             })
                             closePopper()
                           }}
                         >
-                          {translate('text_636d12ce54c41fccdf0ef72f')}
+                          {translate('text_636d12ce54c41fccdf0ef731')}
                         </Button>
-                      )}
-                      <Button
-                        variant="quaternary"
-                        align="left"
-                        onClick={() => {
-                          copyToClipboard(creditNote.id)
-
-                          addToast({
-                            severity: 'info',
-                            translateKey: 'text_63720bd734e1344aea75b82d',
-                          })
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_636d12ce54c41fccdf0ef731')}
-                      </Button>
-                    </MenuPopper>
-                  )}
-                </Popper>
-              </ItemContainer>
-            ))}
-            {loading && (
-              <>
-                {[1, 2, 3, 4].map((i) => (
-                  <SkeletonLine key={`key-skeleton-line-${i}`}>
-                    <Skeleton variant="text" width="12%" height={12} marginRight="6.4%" />
-                    <Skeleton variant="text" width="38%" height={12} marginRight="11.2%" />
-                    <Skeleton variant="text" width="12%" height={12} marginRight="6.4%" />
-                    <Skeleton variant="text" width="38%" height={12} marginRight="9.25%" />
-                  </SkeletonLine>
-                ))}
-              </>
-            )}
-          </>
-        </InfiniteScroll>
+                      </MenuPopper>
+                    )}
+                  </Popper>
+                </ItemContainer>
+              ))}
+              {loading && (
+                <>
+                  {[1, 2, 3, 4].map((i) => (
+                    <SkeletonLine key={`key-skeleton-line-${i}`}>
+                      <Skeleton variant="text" width={140} height={12} />
+                      <SkeletonRightBlock>
+                        <Skeleton variant="text" width={80} height={12} />
+                        <Skeleton variant="text" width={90} height={12} />
+                      </SkeletonRightBlock>
+                    </SkeletonLine>
+                  ))}
+                </>
+              )}
+            </>
+          </InfiniteScroll>
+        )}
         <VoidCreditNoteDialog ref={voidCreditNoteDialogRef} />
       </>
     )
@@ -264,8 +289,23 @@ CreditNotesList.displayName = 'CreditNotesList'
 
 const SkeletonLine = styled.div`
   display: flex;
-  margin-top: ${theme.spacing(7)};
+  align-items: center;
+  height: ${NAV_HEIGHT}px;
+  justify-content: space-between;
+  box-shadow: ${theme.shadows[7]};
 `
+
+const SkeletonRightBlock = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-right: ${theme.spacing(14)};
+
+  > * {
+    margin-right: ${theme.spacing(4)};
+  }
+`
+
 const ListHeader = styled.div`
   height: ${HEADER_TABLE_HEIGHT}px;
   display: flex;
