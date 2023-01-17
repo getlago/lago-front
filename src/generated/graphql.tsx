@@ -3598,6 +3598,7 @@ export type AddSubscriptionPlanFragment = { __typename?: 'Plan', id: string, nam
 export type GetPlansQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
+  searchTerm?: InputMaybe<Scalars['String']>;
 }>;
 
 
@@ -6641,8 +6642,8 @@ export type GetWalletTransactionsQueryHookResult = ReturnType<typeof useGetWalle
 export type GetWalletTransactionsLazyQueryHookResult = ReturnType<typeof useGetWalletTransactionsLazyQuery>;
 export type GetWalletTransactionsQueryResult = Apollo.QueryResult<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>;
 export const GetPlansDocument = gql`
-    query getPlans($page: Int, $limit: Int) {
-  plans(page: $page, limit: $limit) {
+    query getPlans($page: Int, $limit: Int, $searchTerm: String) {
+  plans(page: $page, limit: $limit, searchTerm: $searchTerm) {
     collection {
       ...AddSubscriptionPlan
     }
@@ -6664,6 +6665,7 @@ export const GetPlansDocument = gql`
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
  *   },
  * });
  */

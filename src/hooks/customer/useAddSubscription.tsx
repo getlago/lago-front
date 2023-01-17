@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { gql } from '@apollo/client'
+import { gql, LazyQueryExecFunction } from '@apollo/client'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 
@@ -26,8 +26,8 @@ gql`
     interval
   }
 
-  query getPlans($page: Int, $limit: Int) {
-    plans(page: $page, limit: $limit) {
+  query getPlans($page: Int, $limit: Int, $searchTerm: String) {
+    plans(page: $page, limit: $limit, searchTerm: $searchTerm) {
       collection {
         ...AddSubscriptionPlan
       }
@@ -44,6 +44,8 @@ gql`
 `
 
 interface UseAddSubscriptionReturn {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getPlans: LazyQueryExecFunction<any, any>
   loading: boolean
   comboboxPlansData: ComboBoxProps['data']
   selectedPlan?: AddSubscriptionPlanFragment
@@ -97,6 +99,7 @@ export const useAddSubscription: UseAddSubscription = ({
 
   return {
     loading,
+    getPlans,
     comboboxPlansData: useMemo(() => {
       if (!data || !data?.plans || !data?.plans?.collection) return []
 
