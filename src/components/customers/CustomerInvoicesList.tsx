@@ -10,12 +10,16 @@ import { Typography, Tooltip, InfiniteScroll, Button } from '~/components/design
 import { theme, HEADER_TABLE_HEIGHT } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { getTimezoneConfig } from '~/core/timezone'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import EmptyImage from '~/public/images/maneki/empty.svg'
 import {
   InvoiceListItemSkeleton,
   InvoiceListItem,
   InvoiceListItemGridTemplate,
   InvoiceListItemContextEnum,
 } from '~/components/invoices/InvoiceListItem'
+
+import { GenericPlaceholder } from '../GenericPlaceholder'
 
 gql`
   fragment InvoiceForInvoiceList on InvoiceCollection {
@@ -43,7 +47,9 @@ enum CustomerInvoiceListContextEnum {
 }
 
 interface InvoiceListProps {
-  loading: boolean
+  isLoading: boolean
+  hasError?: boolean
+  hasSearchTerm?: boolean
   customerTimezone: TimezoneEnum
   invoiceData?: InvoiceForInvoiceListFragment
   context?: keyof typeof CustomerInvoiceListContextEnum
@@ -53,7 +59,9 @@ interface InvoiceListProps {
 }
 
 export const CustomerInvoicesList = ({
-  loading,
+  isLoading,
+  hasError = false,
+  hasSearchTerm = false,
   invoiceData,
   customerTimezone,
   context = CustomerInvoiceListContextEnum.draft,
@@ -93,45 +101,74 @@ export const CustomerInvoicesList = ({
             </WithTooltip>
           </Tooltip>
         </HeaderLine>
-        <InfiniteScroll
-          onBottom={() => {
-            if (!fetchMore) return
-            const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-            currentPage < totalPages &&
-              !loading &&
-              fetchMore({
-                variables: { page: currentPage + 1 },
-              })
-          }}
-        >
-          {collection &&
-            collection.map((invoice, i) => {
-              const link = getOnClickLink(invoice?.id)
-
-              return (
-                <InvoiceListItem
-                  className={
-                    !loading && !onSeeAll && collection.length - 1 === i
-                      ? 'last-invoice-item--no-border'
-                      : undefined
-                  }
-                  key={invoice?.id}
-                  to={link}
-                  invoice={invoice}
-                  context="customer"
-                />
-              )
-            })}
-          {loading &&
-            [0, 1, 2].map((_, i) => (
+        {isLoading && hasSearchTerm ? (
+          <>
+            {[0, 1, 2].map((i) => (
               <InvoiceListItemSkeleton
                 key={`invoice-item-skeleton-${i}`}
                 className={i === 2 ? 'last-invoice-item--no-border' : undefined}
                 context="customer"
               />
             ))}
-        </InfiniteScroll>
+          </>
+        ) : !isLoading && hasError ? (
+          <StyledGenericPlaceholder
+            noMargins
+            title={translate('text_634812d6f16b31ce5cbf4111')}
+            subtitle={translate('text_634812d6f16b31ce5cbf411f')}
+            buttonTitle={translate('text_634812d6f16b31ce5cbf4123')}
+            buttonVariant="primary"
+            buttonAction={location.reload}
+            image={<ErrorImage width="136" height="104" />}
+          />
+        ) : !isLoading && !collection?.length ? (
+          <StyledGenericPlaceholder
+            noMargins
+            title={translate('text_63bab307a61c62af497e05a2')}
+            subtitle={translate('text_63bab307a61c62af497e05a4')}
+            image={<EmptyImage width="136" height="104" />}
+          />
+        ) : (
+          <InfiniteScroll
+            onBottom={() => {
+              if (!fetchMore) return
+              const { currentPage = 0, totalPages = 0 } = metadata || {}
+
+              currentPage < totalPages &&
+                !isLoading &&
+                fetchMore({
+                  variables: { page: currentPage + 1 },
+                })
+            }}
+          >
+            {!!collection &&
+              collection.map((invoice, i) => {
+                const link = getOnClickLink(invoice?.id)
+
+                return (
+                  <InvoiceListItem
+                    className={
+                      !isLoading && !onSeeAll && collection.length - 1 === i
+                        ? 'last-invoice-item--no-border'
+                        : undefined
+                    }
+                    key={invoice?.id}
+                    to={link}
+                    invoice={invoice}
+                    context="customer"
+                  />
+                )
+              })}
+            {isLoading &&
+              [0, 1, 2].map((_, i) => (
+                <InvoiceListItemSkeleton
+                  key={`invoice-item-skeleton-${i}`}
+                  className={i === 2 ? 'last-invoice-item--no-border' : undefined}
+                  context="customer"
+                />
+              ))}
+          </InfiniteScroll>
+        )}
         {!!onSeeAll && (
           <PlusButtonWrapper>
             <Button variant="quaternary" endIcon="arrow-right" onClick={onSeeAll}>
@@ -160,6 +197,11 @@ const WithTooltip = styled(Typography)`
   width: fit-content;
   margin-top: 2px;
   float: right;
+`
+
+const StyledGenericPlaceholder = styled(GenericPlaceholder)`
+  margin: ${theme.spacing(6)} auto;
+  text-align: center;
 `
 
 const ListWrapper = styled.div`

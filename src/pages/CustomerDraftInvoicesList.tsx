@@ -98,7 +98,7 @@ const CustomerDraftInvoicesList = () => {
         )}
 
         <CustomerInvoicesList
-          loading={loading}
+          isLoading={loading}
           customerTimezone={safeTimezone}
           invoiceData={data?.customerInvoices}
           getOnClickLink={(id) =>
