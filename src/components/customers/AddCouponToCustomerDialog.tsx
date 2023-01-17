@@ -25,8 +25,13 @@ import { CouponCaption } from '~/components/coupons/CouponCaption'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
-  query getCouponForCustomer($page: Int, $limit: Int, $status: CouponStatusEnum) {
-    coupons(page: $page, limit: $limit, status: $status) {
+  query getCouponForCustomer(
+    $page: Int
+    $limit: Int
+    $status: CouponStatusEnum
+    $searchTerm: String
+  ) {
+    coupons(page: $page, limit: $limit, status: $status, searchTerm: $searchTerm) {
       metadata {
         currentPage
         totalPages
@@ -239,6 +244,7 @@ export const AddCouponToCustomerDialog = forwardRef<
           label={translate('text_628b8c693e464200e00e4677')}
           data={coupons}
           loading={loading}
+          searchQuery={getCoupons}
           placeholder={translate('text_628b8c693e464200e00e4685')}
           onChange={(value) => {
             const coupon = data?.coupons?.collection.find((c) => c.id === value)
