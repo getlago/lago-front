@@ -2,19 +2,14 @@ import { useCallback, useEffect, useState } from 'react'
 import { debounce, DebouncedFunc } from 'lodash'
 import { LazyQueryExecFunction } from '@apollo/client'
 
-import { Exact, InputMaybe } from '~/generated/graphql'
-
 export const DEBOUNCE_SEARCH_MS = 500
 
 export type UseDebouncedSearch = (
   searchQuery?: LazyQueryExecFunction<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     any,
-    Exact<{
-      page?: InputMaybe<number> | undefined
-      limit?: InputMaybe<number> | undefined
-      searchTerm?: InputMaybe<string> | undefined
-    }>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any
   >,
   loading?: boolean
 ) => {

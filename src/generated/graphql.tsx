@@ -3275,6 +3275,7 @@ export type GetCustomerInvoicesQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']>;
   page?: InputMaybe<Scalars['Int']>;
   status?: InputMaybe<InvoiceStatusTypeEnum>;
+  searchTerm?: InputMaybe<Scalars['String']>;
 }>;
 
 
@@ -5417,12 +5418,13 @@ export type GetCustomerCreditNotesQueryHookResult = ReturnType<typeof useGetCust
 export type GetCustomerCreditNotesLazyQueryHookResult = ReturnType<typeof useGetCustomerCreditNotesLazyQuery>;
 export type GetCustomerCreditNotesQueryResult = Apollo.QueryResult<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>;
 export const GetCustomerInvoicesDocument = gql`
-    query getCustomerInvoices($customerId: ID!, $limit: Int, $page: Int, $status: InvoiceStatusTypeEnum) {
+    query getCustomerInvoices($customerId: ID!, $limit: Int, $page: Int, $status: InvoiceStatusTypeEnum, $searchTerm: String) {
   customerInvoices(
     customerId: $customerId
     limit: $limit
     page: $page
     status: $status
+    searchTerm: $searchTerm
   ) {
     ...InvoiceForInvoiceList
   }
@@ -5445,6 +5447,7 @@ export const GetCustomerInvoicesDocument = gql`
  *      limit: // value for 'limit'
  *      page: // value for 'page'
  *      status: // value for 'status'
+ *      searchTerm: // value for 'searchTerm'
  *   },
  * });
  */
