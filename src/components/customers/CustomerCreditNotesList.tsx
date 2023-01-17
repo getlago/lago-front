@@ -5,8 +5,8 @@ import styled from 'styled-components'
 import {
   CreditNotesForListFragmentDoc,
   CurrencyEnum,
-  useGetCustomerCreditNotesQuery,
   TimezoneEnum,
+  useGetCustomerCreditNotesLazyQuery,
 } from '~/generated/graphql'
 import { Avatar, Icon, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -18,12 +18,20 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
 import CreditNotesList from '~/components/customers/creditNotes/CreditNotesList'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
 import { VoidCreditNoteDialog, VoidCreditNoteDialogRef } from './creditNotes/VoidCreditNoteDialog'
 
+import { SearchInput } from '../SearchInput'
+
 gql`
-  query getCustomerCreditNotes($customerId: ID!, $page: Int, $limit: Int) {
-    customerCreditNotes(customerId: $customerId, page: $page, limit: $limit) {
+  query getCustomerCreditNotes($customerId: ID!, $page: Int, $limit: Int, $searchTerm: String) {
+    customerCreditNotes(
+      customerId: $customerId
+      page: $page
+      limit: $limit
+      searchTerm: $searchTerm
+    ) {
       ...CreditNotesForList
     }
   }
@@ -48,10 +56,12 @@ export const CustomerCreditNotesList = ({
 }: CustomerCreditNotesListProps) => {
   const { translate } = useInternationalization()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
-  const { data, loading, error, fetchMore } = useGetCustomerCreditNotesQuery({
-    variables: { customerId, limit: 20 },
-    skip: !customerId,
-  })
+  const [getCreditNotes, { data, loading, error, fetchMore, variables }] =
+    useGetCustomerCreditNotesLazyQuery({
+      variables: { customerId, limit: 20 },
+    })
+  const { debouncedSearch, isSearchLoading } = useDebouncedSearch(getCreditNotes, loading)
+  const isLoading = isSearchLoading || loading
   const creditNotes = data?.customerCreditNotes?.collection
 
   return (
@@ -89,10 +99,16 @@ export const CustomerCreditNotesList = ({
         </Typography>
       </TotalCreditAmountWrapper>
 
-      <SectionHeader variant="subhead" color="grey700">
-        {translate('text_63725b30957fd5b26b308ddf')}
-      </SectionHeader>
-      {!!error && !loading ? (
+      <HeaderWithSearch>
+        <Typography variant="subhead" color="grey700">
+          {translate('text_63725b30957fd5b26b308ddf')}
+        </Typography>
+        <SearchInput
+          onChange={debouncedSearch}
+          placeholder={translate('text_63c6edd80c57d0dfaae3898e')}
+        />
+      </HeaderWithSearch>
+      {!!error && !isLoading ? (
         <GenericPlaceholder
           title={translate('text_636d023ce11a9d038819b579')}
           subtitle={translate('text_636d023ce11a9d038819b57b')}
@@ -106,7 +122,8 @@ export const CustomerCreditNotesList = ({
           creditNotes={creditNotes}
           fetchMore={fetchMore}
           itemClickRedirection={CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE}
-          loading={loading}
+          loading={isLoading}
+          hasSearchQuery={!!variables?.searchTerm}
           metadata={data?.customerCreditNotes?.metadata}
           customerTimezone={customerTimezone}
         />
@@ -135,4 +152,12 @@ const TotalCreditAmountLeftWrapper = styled.div`
   > *:first-child {
     margin-right: ${theme.spacing(3)};
   }
+`
+
+const HeaderWithSearch = styled.div`
+  height: ${NAV_HEIGHT}px;
+  box-shadow: ${theme.shadows[7]};
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `

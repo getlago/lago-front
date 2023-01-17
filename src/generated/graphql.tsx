@@ -3265,6 +3265,7 @@ export type GetCustomerCreditNotesQueryVariables = Exact<{
   customerId: Scalars['ID'];
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
+  searchTerm?: InputMaybe<Scalars['String']>;
 }>;
 
 
@@ -5395,8 +5396,13 @@ export type RemoveCouponMutationHookResult = ReturnType<typeof useRemoveCouponMu
 export type RemoveCouponMutationResult = Apollo.MutationResult<RemoveCouponMutation>;
 export type RemoveCouponMutationOptions = Apollo.BaseMutationOptions<RemoveCouponMutation, RemoveCouponMutationVariables>;
 export const GetCustomerCreditNotesDocument = gql`
-    query getCustomerCreditNotes($customerId: ID!, $page: Int, $limit: Int) {
-  customerCreditNotes(customerId: $customerId, page: $page, limit: $limit) {
+    query getCustomerCreditNotes($customerId: ID!, $page: Int, $limit: Int, $searchTerm: String) {
+  customerCreditNotes(
+    customerId: $customerId
+    page: $page
+    limit: $limit
+    searchTerm: $searchTerm
+  ) {
     ...CreditNotesForList
   }
 }
@@ -5417,6 +5423,7 @@ export const GetCustomerCreditNotesDocument = gql`
  *      customerId: // value for 'customerId'
  *      page: // value for 'page'
  *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
  *   },
  * });
  */
