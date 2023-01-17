@@ -8,12 +8,15 @@ import { CUSTOMER_DETAILS_TAB_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/co
 import {
   InvoiceStatusTypeEnum,
   TimezoneEnum,
-  useGetCustomerDraftInvoicesQuery,
   InvoiceForInvoiceListFragmentDoc,
+  useGetCustomerDraftInvoicesLazyQuery,
+  useGetCustomerInfosForDraftInvoicesListQuery,
 } from '~/generated/graphql'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
-import { PageHeader, theme } from '~/styles'
+import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
 import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { SearchInput } from '~/components/SearchInput'
 
 import { CustomerDetailsTabsOptions } from './CustomerDetails'
 
@@ -23,15 +26,30 @@ gql`
     $limit: Int
     $page: Int
     $status: InvoiceStatusTypeEnum
+    $searchTerm: String
   ) {
-    customerInvoices(customerId: $customerId, limit: $limit, page: $page, status: $status) {
+    customerInvoices(
+      customerId: $customerId
+      limit: $limit
+      page: $page
+      status: $status
+      searchTerm: $searchTerm
+    ) {
       ...InvoiceForInvoiceList
     }
+  }
+
+  query getCustomerInfosForDraftInvoicesList($customerId: ID!, $status: InvoiceStatusTypeEnum) {
     customer(id: $customerId) {
       id
       name
-      externalId
       applicableTimezone
+    }
+
+    customerInvoices(customerId: $customerId, status: $status) {
+      metadata {
+        totalCount
+      }
     }
   }
 
@@ -41,10 +59,19 @@ gql`
 const CustomerDraftInvoicesList = () => {
   const { id: customerId = '' } = useParams()
   const { translate } = useInternationalization()
-  const { data, loading, fetchMore } = useGetCustomerDraftInvoicesQuery({
-    variables: { customerId, limit: 20, status: InvoiceStatusTypeEnum.Draft },
-  })
-  const safeTimezone = data?.customer?.applicableTimezone || TimezoneEnum.TzUtc
+  const [getDraftInvoices, { data, error, loading, fetchMore }] =
+    useGetCustomerDraftInvoicesLazyQuery({
+      variables: { customerId, limit: 20, status: InvoiceStatusTypeEnum.Draft },
+    })
+  const { data: customerData, loading: customerLoading } =
+    useGetCustomerInfosForDraftInvoicesListQuery({
+      variables: {
+        customerId,
+        status: InvoiceStatusTypeEnum.Draft,
+      },
+    })
+  const { debouncedSearch, isSearchLoading } = useDebouncedSearch(getDraftInvoices, loading)
+  const safeTimezone = customerData?.customer?.applicableTimezone || TimezoneEnum.TzUtc
 
   return (
     <>
@@ -58,18 +85,14 @@ const CustomerDraftInvoicesList = () => {
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
-          {loading ? (
-            <Skeleton variant="text" height={12} width={120} />
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary">
-              {translate('text_638f74bb4d41e3f1d0201647')}
-            </Typography>
-          )}
+          <Typography variant="bodyHl" color="textSecondary">
+            {translate('text_638f74bb4d41e3f1d0201647')}
+          </Typography>
         </HeaderLeft>
       </PageHeader>
 
       <Wrapper>
-        {loading ? (
+        {customerLoading ? (
           <MainInfos>
             <Skeleton variant="userAvatar" size="large" />
             <div>
@@ -85,20 +108,31 @@ const CustomerDraftInvoicesList = () => {
             <div>
               <Name color="textSecondary" variant="headline">
                 {translate('text_638f74bb4d41e3f1d0201649', {
-                  customerName: data?.customer?.name,
+                  customerName: customerData?.customer?.name,
                 })}
               </Name>
               <Typography>
                 {translate('text_638f74bb4d41e3f1d020164b', {
-                  count: data?.customerInvoices.metadata.totalCount,
+                  count: customerData?.customerInvoices?.metadata.totalCount,
                 })}
               </Typography>
             </div>
           </MainInfos>
         )}
 
+        <ListHeader>
+          <Typography variant="bodyHl" color="textSecondary">
+            {translate('text_63c6cac5c1fc58028d0235dd')}
+          </Typography>
+          <SearchInput
+            onChange={debouncedSearch}
+            placeholder={translate('text_63c6cac5c1fc58028d0235d9')}
+          />
+        </ListHeader>
+
         <CustomerInvoicesList
-          isLoading={loading}
+          isLoading={!!isSearchLoading || loading}
+          hasError={!!error}
           customerTimezone={safeTimezone}
           invoiceData={data?.customerInvoices}
           getOnClickLink={(id) =>
@@ -118,10 +152,18 @@ const CustomerDraftInvoicesList = () => {
 const HeaderLeft = styled.div`
   display: flex;
   align-items: center;
+  width: 100%;
 
   > *:first-child {
     margin-right: ${theme.spacing(3)};
   }
+`
+
+const ListHeader = styled.div`
+  height: ${NAV_HEIGHT}px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `
 
 const Wrapper = styled.div`
