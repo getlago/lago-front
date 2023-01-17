@@ -12,12 +12,12 @@ import {
   INVOICE_SETTINGS_ROUTE,
 } from '~/core/router'
 import {
-  useInvoicesListQuery,
   InvoiceStatusTypeEnum,
   InvoicePaymentStatusTypeEnum,
   InvoiceListItemFragmentDoc,
   useRetryAllInvoicePaymentsMutation,
   LagoApiError,
+  useInvoicesListLazyQuery,
 } from '~/generated/graphql'
 import { theme, PageHeader, ListHeader, ListContainer, NAV_HEIGHT } from '~/styles'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -32,6 +32,8 @@ import {
 } from '~/components/invoices/InvoiceListItem'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { SearchInput } from '~/components/SearchInput'
 
 gql`
   query invoicesList(
@@ -39,8 +41,15 @@ gql`
     $page: Int
     $status: InvoiceStatusTypeEnum
     $paymentStatus: [InvoicePaymentStatusTypeEnum!]
+    $searchTerm: String
   ) {
-    invoices(limit: $limit, page: $page, status: $status, paymentStatus: $paymentStatus) {
+    invoices(
+      limit: $limit
+      page: $page
+      status: $status
+      paymentStatus: $paymentStatus
+      searchTerm: $searchTerm
+    ) {
       metadata {
         currentPage
         totalPages
@@ -79,7 +88,7 @@ const InvoicesList = () => {
   const { tab } = useParams<{ tab?: InvoiceListTabEnum }>()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const { data, loading, error, fetchMore } = useInvoicesListQuery({
+  const [getInvoices, { data, loading, error, fetchMore, variables }] = useInvoicesListLazyQuery({
     notifyOnNetworkStatusChange: true,
     variables: {
       limit: 20,
@@ -94,6 +103,8 @@ const InvoicesList = () => {
       }),
     },
   })
+  const { debouncedSearch, isSearchLoading } = useDebouncedSearch(getInvoices, loading)
+  const isLoading = isSearchLoading || loading
   const [retryAll] = useRetryAllInvoicePaymentsMutation({
     context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
     onCompleted({ retryAllInvoicePayments }) {
@@ -134,23 +145,29 @@ const InvoicesList = () => {
           {translate('text_63ac86d797f728a87b2f9f85')}
         </Typography>
 
-        {tab === InvoiceListTabEnum.pendingFailed && (
-          <Button
-            disabled={!data?.invoices?.metadata?.totalCount}
-            onClick={async () => {
-              const { errors } = await retryAll({ variables: { input: {} } })
+        <HeaderRigthBlock>
+          <SearchInput
+            onChange={debouncedSearch}
+            placeholder={translate('text_63c68131568d582a38233e84')}
+          />
+          {tab === InvoiceListTabEnum.pendingFailed && (
+            <Button
+              disabled={!data?.invoices?.metadata?.totalCount}
+              onClick={async () => {
+                const { errors } = await retryAll({ variables: { input: {} } })
 
-              if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
-                addToast({
-                  severity: 'danger',
-                  translateKey: 'text_63b6d06df1a53b7e2ad973ad',
-                })
-              }
-            }}
-          >
-            {translate('text_63ac86d797f728a87b2f9fc4')}
-          </Button>
-        )}
+                if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
+                  addToast({
+                    severity: 'danger',
+                    translateKey: 'text_63b6d06df1a53b7e2ad973ad',
+                  })
+                }
+              }}
+            >
+              {translate('text_63ac86d797f728a87b2f9fc4')}
+            </Button>
+          )}
+        </HeaderRigthBlock>
       </PageHeader>
       <NavigationTab
         tabs={[
@@ -176,67 +193,106 @@ const InvoicesList = () => {
           },
         ]}
       />
-      {!!error ? (
-        <GenericPlaceholder
-          title={translate('text_63ac86d797f728a87b2f9fea')}
-          subtitle={translate('text_63ac86d797f728a87b2f9ff2')}
-          buttonTitle={translate('text_63ac86d797f728a87b2f9ffa')}
-          buttonVariant="primary"
-          buttonAction={location.reload}
-          image={<ErrorImage width="136" height="104" />}
-        />
-      ) : !loading && !data?.invoices?.collection?.length ? (
-        <GenericPlaceholder
-          title={translate(
-            tab === InvoiceListTabEnum.succeeded
-              ? 'text_63b578e959c1366df5d14559'
-              : tab === InvoiceListTabEnum.draft
-              ? 'text_63b578e959c1366df5d1455b'
-              : tab === InvoiceListTabEnum.pendingFailed
-              ? 'text_63b578e959c1366df5d1456e'
-              : 'text_63b578e959c1366df5d14569'
-          )}
-          subtitle={
-            tab === InvoiceListTabEnum.succeeded ? (
-              translate('text_63b578e959c1366df5d1455f')
-            ) : tab === InvoiceListTabEnum.draft ? (
-              <Typography
-                html={translate('text_63b578e959c1366df5d14566', { link: INVOICE_SETTINGS_ROUTE })}
-              />
-            ) : tab === InvoiceListTabEnum.pendingFailed ? (
-              translate('text_63b578e959c1366df5d14570')
-            ) : (
-              translate('text_63b578e959c1366df5d1456d')
-            )
-          }
-          image={<EmptyImage width="136" height="104" />}
-        />
-      ) : (
-        <ScrollContainer ref={listContainerElementRef}>
-          <List>
-            <GridLine>
-              <Typography variant="bodyHl" color="grey500">
-                {translate('text_63ac86d797f728a87b2f9fa7')}
-              </Typography>
-              <Typography variant="bodyHl" color="grey500" noWrap>
-                {translate('text_63ac86d797f728a87b2f9fad')}
-              </Typography>
-              <CustomerName variant="bodyHl" color="grey500" noWrap>
-                {translate('text_63ac86d797f728a87b2f9fb3')}
-              </CustomerName>
-              <Typography variant="bodyHl" color="grey500" align="right">
-                {translate('text_63ac86d797f728a87b2f9fb9')}
-              </Typography>
-              <Typography variant="bodyHl" color="grey500" align="right">
-                {translate('text_63ac86d797f728a87b2f9fbf')}
-              </Typography>
-            </GridLine>
+      <ScrollContainer ref={listContainerElementRef}>
+        <List>
+          <GridLine>
+            <Typography variant="bodyHl" color="grey500">
+              {translate('text_63ac86d797f728a87b2f9fa7')}
+            </Typography>
+            <Typography variant="bodyHl" color="grey500" noWrap>
+              {translate('text_63ac86d797f728a87b2f9fad')}
+            </Typography>
+            <CustomerName variant="bodyHl" color="grey500" noWrap>
+              {translate('text_63ac86d797f728a87b2f9fb3')}
+            </CustomerName>
+            <Typography variant="bodyHl" color="grey500" align="right">
+              {translate('text_63ac86d797f728a87b2f9fb9')}
+            </Typography>
+            <Typography variant="bodyHl" color="grey500" align="right">
+              {translate('text_63ac86d797f728a87b2f9fbf')}
+            </Typography>
+          </GridLine>
+          {!!isLoading && variables?.searchTerm ? (
+            <>
+              {[0, 1, 2].map((i) => (
+                <InvoiceListItemSkeleton
+                  key={`invoice-item-skeleton-${i}`}
+                  context="organization"
+                />
+              ))}
+            </>
+          ) : !isLoading && !!error ? (
+            <>
+              {!!variables?.searchTerm ? (
+                <GenericPlaceholder
+                  title={translate('text_623b53fea66c76017eaebb6e')}
+                  subtitle={translate('text_63bab307a61c62af497e0599')}
+                  image={<ErrorImage width="136" height="104" />}
+                />
+              ) : (
+                <GenericPlaceholder
+                  title={translate('text_63ac86d797f728a87b2f9fea')}
+                  subtitle={translate('text_63ac86d797f728a87b2f9ff2')}
+                  buttonTitle={translate('text_63ac86d797f728a87b2f9ffa')}
+                  buttonVariant="primary"
+                  buttonAction={location.reload}
+                  image={<ErrorImage width="136" height="104" />}
+                />
+              )}
+            </>
+          ) : !isLoading && !data?.invoices?.collection?.length ? (
+            <>
+              {!!variables?.searchTerm ? (
+                <GenericPlaceholder
+                  title={translate(
+                    tab === InvoiceListTabEnum.succeeded
+                      ? 'text_63c67d2913c20b8d7d05c44c'
+                      : tab === InvoiceListTabEnum.draft
+                      ? 'text_63c67d2913c20b8d7d05c442'
+                      : tab === InvoiceListTabEnum.pendingFailed
+                      ? 'text_63c67d8796db41749ada51ca'
+                      : 'text_63c67d2913c20b8d7d05c43e'
+                  )}
+                  subtitle={translate('text_63c67d2913c20b8d7d05c446')}
+                  image={<EmptyImage width="136" height="104" />}
+                />
+              ) : (
+                <GenericPlaceholder
+                  title={translate(
+                    tab === InvoiceListTabEnum.succeeded
+                      ? 'text_63b578e959c1366df5d14559'
+                      : tab === InvoiceListTabEnum.draft
+                      ? 'text_63b578e959c1366df5d1455b'
+                      : tab === InvoiceListTabEnum.pendingFailed
+                      ? 'text_63b578e959c1366df5d1456e'
+                      : 'text_63b578e959c1366df5d14569'
+                  )}
+                  subtitle={
+                    tab === InvoiceListTabEnum.succeeded ? (
+                      translate('text_63b578e959c1366df5d1455f')
+                    ) : tab === InvoiceListTabEnum.draft ? (
+                      <Typography
+                        html={translate('text_63b578e959c1366df5d14566', {
+                          link: INVOICE_SETTINGS_ROUTE,
+                        })}
+                      />
+                    ) : tab === InvoiceListTabEnum.pendingFailed ? (
+                      translate('text_63b578e959c1366df5d14570')
+                    ) : (
+                      translate('text_63b578e959c1366df5d1456d')
+                    )
+                  }
+                  image={<EmptyImage width="136" height="104" />}
+                />
+              )}
+            </>
+          ) : (
             <InfiniteScroll
               onBottom={() => {
                 const { currentPage = 0, totalPages = 0 } = data?.invoices?.metadata || {}
 
                 currentPage < totalPages &&
-                  !loading &&
+                  !isLoading &&
                   fetchMore({
                     variables: { page: currentPage + 1 },
                   })
@@ -262,7 +318,7 @@ const InvoicesList = () => {
                   />
                 )
               })}
-              {loading &&
+              {isLoading &&
                 [0, 1, 2].map((_, i) => (
                   <InvoiceListItemSkeleton
                     key={`invoice-item-skeleton-${i}`}
@@ -270,14 +326,23 @@ const InvoicesList = () => {
                   />
                 ))}
             </InfiniteScroll>
-          </List>
-        </ScrollContainer>
-      )}
+          )}
+        </List>
+      </ScrollContainer>
     </div>
   )
 }
 
 export default InvoicesList
+
+const HeaderRigthBlock = styled.div`
+  display: flex;
+  align-items: center;
+
+  > :first-child {
+    margin-right: ${theme.spacing(3)};
+  }
+`
 
 const ScrollContainer = styled.div`
   overflow: auto;
