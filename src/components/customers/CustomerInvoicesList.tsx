@@ -124,8 +124,8 @@ export const CustomerInvoicesList = ({
         ) : !isLoading && !collection?.length ? (
           <StyledGenericPlaceholder
             noMargins
-            title={translate('text_63bab307a61c62af497e05a2')}
-            subtitle={translate('text_63bab307a61c62af497e05a4')}
+            title={translate('text_63c6cac5c1fc58028d0235eb')}
+            subtitle={translate('text_63c6cac5c1fc58028d0235ef')}
             image={<EmptyImage width="136" height="104" />}
           />
         ) : (
