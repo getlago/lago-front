@@ -48,8 +48,7 @@ const CouponsList = () => {
     variables: { limit: 20 },
     notifyOnNetworkStatusChange: true,
   })
-  const { debouncedSearch, isSearchLoading } = useDebouncedSearch(getCoupons, loading)
-  const isLoading = isSearchLoading || loading
+  const { debouncedSearch, isLoading } = useDebouncedSearch(getCoupons, loading)
   const list = data?.coupons?.collection || []
   let index = -1
 

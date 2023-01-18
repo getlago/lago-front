@@ -41,8 +41,7 @@ const CustomersList = () => {
     variables: { limit: 20 },
     notifyOnNetworkStatusChange: true,
   })
-  const { debouncedSearch, isSearchLoading } = useDebouncedSearch(getCustomers, loading)
-  const isLoading = isSearchLoading || loading
+  const { debouncedSearch, isLoading } = useDebouncedSearch(getCustomers, loading)
   const list = data?.customers?.collection || []
   let index = -1
 

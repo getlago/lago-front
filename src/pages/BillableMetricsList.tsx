@@ -42,8 +42,7 @@ const BillableMetricsList = () => {
       variables: { limit: 20 },
       notifyOnNetworkStatusChange: true,
     })
-  const { debouncedSearch, isSearchLoading } = useDebouncedSearch(getBillableMetrics, loading)
-  const isLoading = isSearchLoading || loading
+  const { debouncedSearch, isLoading } = useDebouncedSearch(getBillableMetrics, loading)
   const list = data?.billableMetrics?.collection || []
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `billable-metric-item-${i}`,

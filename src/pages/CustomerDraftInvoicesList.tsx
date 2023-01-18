@@ -70,7 +70,7 @@ const CustomerDraftInvoicesList = () => {
         status: InvoiceStatusTypeEnum.Draft,
       },
     })
-  const { debouncedSearch, isSearchLoading } = useDebouncedSearch(getDraftInvoices, loading)
+  const { debouncedSearch, isLoading } = useDebouncedSearch(getDraftInvoices, loading)
   const safeTimezone = customerData?.customer?.applicableTimezone || TimezoneEnum.TzUtc
 
   return (
@@ -131,7 +131,7 @@ const CustomerDraftInvoicesList = () => {
         </ListHeader>
 
         <CustomerInvoicesList
-          isLoading={!!isSearchLoading || loading}
+          isLoading={isLoading}
           hasError={!!error}
           customerTimezone={safeTimezone}
           invoiceData={data?.customerInvoices}

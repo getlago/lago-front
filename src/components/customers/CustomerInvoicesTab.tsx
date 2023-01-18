@@ -80,11 +80,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
     },
     notifyOnNetworkStatusChange: true,
   })
-  const { debouncedSearch, isSearchLoading } = useDebouncedSearch(
-    getFinalizedInvoices,
-    loadingFinalized
-  )
-  const isFinalizedLoading = isSearchLoading || loadingFinalized
+  const { debouncedSearch, isLoading } = useDebouncedSearch(getFinalizedInvoices, loadingFinalized)
   const initialLoad = loadingDraft && loadingFinalized
   const invoicesDraft = dataDraft?.customerInvoices.collection
   const invoicesFinalized = dataFinalized?.customerInvoices.collection
@@ -100,7 +96,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
             getOnClickLink={() => ''}
           />
         </LoadingState>
-      ) : !isFinalizedLoading &&
+      ) : !isLoading &&
         !invoicesDraft?.length &&
         !invoicesFinalized?.length &&
         !variablesFinalized?.searchTerm ? (
@@ -147,7 +143,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
             />
           </HeaderWithSearch>
           <CustomerInvoicesList
-            isLoading={!!isSearchLoading}
+            isLoading={isLoading}
             hasError={!!errorFinalized}
             hasSearchTerm={!!variablesFinalized?.searchTerm}
             customerTimezone={customerTimezone}

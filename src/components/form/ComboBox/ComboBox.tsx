@@ -39,7 +39,7 @@ export const ComboBox = ({
 }: ComboBoxProps) => {
   const { translate } = useInternationalization()
 
-  const { debouncedSearch, isSearchLoading } = useDebouncedSearch(searchQuery, loading)
+  const { debouncedSearch, isLoading } = useDebouncedSearch(searchQuery, loading)
 
   // By default, we want to sort `options` alphabetically (by value)
   const data = useMemo(() => {
@@ -119,7 +119,7 @@ export const ComboBox = ({
       // pass `null` to force Autocomplete in controlled mode
       //  (`undefined` value at initial render puts Autocomplete in uncontrolled mode)
       value={value || null}
-      loading={isSearchLoading}
+      loading={isLoading}
       loadingText={
         <>
           {[1, 2, 3].map((i) => (

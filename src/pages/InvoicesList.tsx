@@ -103,8 +103,7 @@ const InvoicesList = () => {
       }),
     },
   })
-  const { debouncedSearch, isSearchLoading } = useDebouncedSearch(getInvoices, loading)
-  const isLoading = isSearchLoading || loading
+  const { debouncedSearch, isLoading } = useDebouncedSearch(getInvoices, loading)
   const [retryAll] = useRetryAllInvoicePaymentsMutation({
     context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
     onCompleted({ retryAllInvoicePayments }) {
