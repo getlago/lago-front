@@ -43,8 +43,7 @@ const AddOnsList = () => {
     variables: { limit: 20 },
     notifyOnNetworkStatusChange: true,
   })
-  const { debouncedSearch, isSearchLoading } = useDebouncedSearch(getAddOns, loading)
-  const isLoading = isSearchLoading || loading
+  const { debouncedSearch, isLoading } = useDebouncedSearch(getAddOns, loading)
   const list = data?.addOns?.collection || []
   let index = -1
 

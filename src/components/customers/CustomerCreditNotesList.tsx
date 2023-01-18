@@ -60,8 +60,7 @@ export const CustomerCreditNotesList = ({
     useGetCustomerCreditNotesLazyQuery({
       variables: { customerId, limit: 20 },
     })
-  const { debouncedSearch, isSearchLoading } = useDebouncedSearch(getCreditNotes, loading)
-  const isLoading = isSearchLoading || loading
+  const { debouncedSearch, isLoading } = useDebouncedSearch(getCreditNotes, loading)
   const creditNotes = data?.customerCreditNotes?.collection
 
   return (

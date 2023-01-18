@@ -38,8 +38,7 @@ const PlansList = () => {
     variables: { limit: 20 },
     notifyOnNetworkStatusChange: true,
   })
-  const { debouncedSearch, isSearchLoading } = useDebouncedSearch(getPlans, loading)
-  const isLoading = isSearchLoading || loading
+  const { debouncedSearch, isLoading } = useDebouncedSearch(getPlans, loading)
   const list = data?.plans?.collection || []
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `plan-item-${i}`,
