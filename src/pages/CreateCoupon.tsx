@@ -288,10 +288,18 @@ const CreateCoupon = () => {
                         value: CouponFrequency.Recurring,
                         label: translate('text_632d68358f1fedc68eed3e64'),
                       },
+                      {
+                        value: CouponFrequency.Forever,
+                        label: translate('text_63c83a3476e46bc6ab9d85d6'),
+                      },
                     ]}
                     disableClearable
                     formikProps={formikProps}
                   />
+
+                  {formikProps.values.frequency === CouponFrequency.Forever && (
+                    <Alert type="info">{translate('text_63c83a3476e46bc6ab9d85da')}</Alert>
+                  )}
 
                   {formikProps.values.frequency === CouponFrequency.Recurring && (
                     <TextInputField
@@ -310,7 +318,16 @@ const CreateCoupon = () => {
                       }}
                     />
                   )}
+                  {formikProps.values.couponType === CouponTypeEnum.FixedAmount &&
+                    formikProps.values.frequency === CouponFrequency.Recurring && (
+                      <Alert type="info">{translate('text_632d68358f1fedc68eed3ebd')}</Alert>
+                    )}
+                </Card>
 
+                <Card>
+                  <Typography variant="subhead">
+                    {translate('text_63c83d58e697e8e9236da806')}
+                  </Typography>
                   <Settings>
                     <Checkbox
                       name="isReusable"
@@ -349,11 +366,6 @@ const CreateCoupon = () => {
                       </ExpirationLine>
                     )}
                   </Settings>
-
-                  {formikProps.values.couponType === CouponTypeEnum.FixedAmount &&
-                    formikProps.values.frequency === CouponFrequency.Recurring && (
-                      <Alert type="info">{translate('text_632d68358f1fedc68eed3ebd')}</Alert>
-                    )}
                 </Card>
 
                 <ButtonContainer>

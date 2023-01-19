@@ -120,6 +120,23 @@ export const CouponCaption = memo(({ coupon, variant = 'caption' }: CouponCaptio
         },
         frequencyDurationRemaining || frequencyDuration || 1
       )
+    } else if (couponType === CouponTypeEnum.FixedAmount && frequency === CouponFrequency.Forever) {
+      return translate('text_63c946e8bef768ead2fee35c', {
+        amount: intlFormatNumber(
+          deserializeAmount(Number(amountCents), amountCurrency || CurrencyEnum.Usd) || 0,
+          {
+            currencyDisplay: 'symbol',
+            currency: amountCurrency || undefined,
+          }
+        ),
+      })
+    } else if (couponType === CouponTypeEnum.Percentage && frequency === CouponFrequency.Forever) {
+      return translate('text_63c96b18bfbf40e9ef600e99', {
+        rate: intlFormatNumber(Number(percentageRate) / 100 || 0, {
+          minimumFractionDigits: 2,
+          style: 'percent',
+        }),
+      })
     }
   }
 

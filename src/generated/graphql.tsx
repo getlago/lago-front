@@ -127,6 +127,7 @@ export type BillableMetric = {
   canBeDeleted: Scalars['Boolean'];
   code: Scalars['String'];
   createdAt: Scalars['ISO8601DateTime'];
+  deletedAt?: Maybe<Scalars['ISO8601DateTime']>;
   description?: Maybe<Scalars['String']>;
   fieldName?: Maybe<Scalars['String']>;
   flatGroups?: Maybe<Array<Group>>;
@@ -150,6 +151,7 @@ export type BillableMetricDetail = {
   canBeDeleted: Scalars['Boolean'];
   code: Scalars['String'];
   createdAt: Scalars['ISO8601DateTime'];
+  deletedAt?: Maybe<Scalars['ISO8601DateTime']>;
   description?: Maybe<Scalars['String']>;
   fieldName?: Maybe<Scalars['String']>;
   flatGroups?: Maybe<Array<Group>>;
@@ -170,6 +172,7 @@ export type Charge = {
   billableMetric: BillableMetric;
   chargeModel: ChargeModelEnum;
   createdAt: Scalars['ISO8601DateTime'];
+  deletedAt?: Maybe<Scalars['ISO8601DateTime']>;
   groupProperties?: Maybe<Array<GroupProperties>>;
   id: Scalars['ID'];
   properties?: Maybe<Properties>;
@@ -772,6 +775,7 @@ export enum CouponExpiration {
 }
 
 export enum CouponFrequency {
+  Forever = 'forever',
   Once = 'once',
   Recurring = 'recurring'
 }
@@ -1537,6 +1541,7 @@ export type Event = {
   billableMetricName?: Maybe<Scalars['String']>;
   code: Scalars['String'];
   customerTimezone: TimezoneEnum;
+  deletedAt?: Maybe<Scalars['ISO8601DateTime']>;
   externalCustomerId: Scalars['String'];
   externalSubscriptionId: Scalars['String'];
   id: Scalars['ID'];
@@ -1613,6 +1618,7 @@ export type GraduatedRangeInput = {
 
 export type Group = {
   __typename?: 'Group';
+  deletedAt?: Maybe<Scalars['ISO8601DateTime']>;
   id: Scalars['ID'];
   key?: Maybe<Scalars['String']>;
   value: Scalars['String'];
@@ -1620,6 +1626,7 @@ export type Group = {
 
 export type GroupProperties = {
   __typename?: 'GroupProperties';
+  deletedAt?: Maybe<Scalars['ISO8601DateTime']>;
   groupId: Scalars['ID'];
   values: Properties;
 };
