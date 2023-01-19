@@ -495,7 +495,7 @@ export const TimeZonesConfig: Record<string, TimezoneConfigObject> = {
     name: 'Europe/Zurich',
     offset: getOffset('Europe/Zurich'),
   },
-  TZ_GMT_12: {
+  TZ_ETC_GMT_12: {
     name: 'Etc/GMT+12',
     offset: getOffset('Etc/GMT+12'),
   },
