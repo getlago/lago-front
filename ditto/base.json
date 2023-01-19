@@ -692,7 +692,7 @@
   "text_625fd165963a7b00c8f5977b": "Edit charges based on billable metrics and define your pricing system.",
   "text_625fd165963a7b00c8f598aa": "Save plan’s edits",
   "text_625fd165963a7b00c8f59797": "Delete {{planName}}?",
-  "text_625fd165963a7b00c8f597a1": "By deleting this plan, you’ll not be able to retrieve it back. Fortunately, this plan is not link to customers. Are you sure?",
+  "text_625fd165963a7b00c8f597a1": "By deleting this plan, you’ll not be able to retrieve it back. Fortunately, this plan is not linked to customers. Are you sure?",
   "text_625fd165963a7b00c8f597b5": "Delete plan",
   "text_625fd165963a7b00c8f59879": "Plan successfully deleted",
   "text_625fd165963a7b00c8f59777": "Leaving deletes your changes",
