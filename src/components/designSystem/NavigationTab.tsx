@@ -102,7 +102,7 @@ const TabsBlock = styled.div<{
   width: 100%;
 
   &.navigation-tab--horizontal {
-    overflow: auto;
+    overflow: visible;
     box-shadow: ${theme.shadows[7]};
     flex-direction: row;
     height: ${NAV_HEIGHT}px;
