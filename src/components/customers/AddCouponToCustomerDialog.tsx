@@ -321,6 +321,10 @@ export const AddCouponToCustomerDialog = forwardRef<
                   value: CouponFrequency.Recurring,
                   label: translate('text_632d68358f1fedc68eed3e64'),
                 },
+                {
+                  value: CouponFrequency.Forever,
+                  label: translate('text_63c83a3476e46bc6ab9d85d6'),
+                },
               ]}
               disableClearable
               formikProps={formikProps}

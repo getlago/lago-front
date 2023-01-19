@@ -111,10 +111,12 @@ projects:
     id: 63aa085ae8d6be2e0e0ee38b
   - name: 👍 [Ready for dev] - All - License key
     id: 63b315558a78f7b5a6551de7
-  - name: "\U0001F44D [Ready for dev] - Invoices- Invoice list"
+  - name: 👍 [Ready for dev] - Invoices- Invoice list
     id: 63ac86d51bd1437a2a21f1f9
   - name: ⚙️ [WIP] - All - Search bar in app
     id: 63ba9ee502cfb90849074f4b
+  - name: ⚙️ [WIP] - Coupons - Set frequency forever and limited to a specific plan
+    id: 63c83a31e697e8e9236da751
 format: flat
 variants: true
 components: true
