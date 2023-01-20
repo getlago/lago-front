@@ -27,6 +27,9 @@ export interface DrawerRef {
   closeDrawer: () => unknown
 }
 
+// @ts-ignore
+const transitionDuration = window.Cypress ? 0 : 250
+
 export const Drawer = forwardRef<DrawerRef, DrawerProps>(
   (
     { forceOpen = false, children, opener, anchor = 'right', title, onOpen, onClose }: DrawerProps,
@@ -53,7 +56,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
             onClose && onClose()
             setIsOpen(false)
           }}
-          transitionDuration={250}
+          transitionDuration={transitionDuration}
           PaperProps={{ className: 'drawerPaper' }}
         >
           <Header>
