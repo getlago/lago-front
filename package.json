@@ -28,7 +28,8 @@
     "release": "release-it",
     "changelog:update": "auto-changelog --template=.changelog/regular.hbs",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook --no-dll -o storybook-build -s src/stories/assets"
+    "build-storybook": "build-storybook --no-dll -o storybook-build -s src/stories/assets",
+    "postinstall": "npx yarn-deduplicate"
   },
   "devDependencies": {
     "@babel/core": "7.20.12",
