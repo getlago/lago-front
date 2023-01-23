@@ -1,8 +1,5 @@
-import { userEmail, userPassword } from '../support/reusableConstants'
-
 describe('Create billable metrics', () => {
   beforeEach(() => {
-    cy.login(userEmail, userPassword)
     cy.visit('/billable-metrics')
   })
 
