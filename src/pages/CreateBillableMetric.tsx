@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useFormik } from 'formik'
 import { object, string } from 'yup'
 import styled from 'styled-components'
+import { gql } from '@apollo/client'
 
 import { AggregationTypeEnum, CreateBillableMetricInput } from '~/generated/graphql'
 import { PageHeader, theme, Card } from '~/styles'
@@ -23,6 +24,20 @@ import {
   SkeletonHeader,
   ButtonContainer,
 } from '~/styles/mainObjectsForm'
+
+gql`
+  fragment EditBillableMetric on BillableMetricDetail {
+    id
+    name
+    code
+    description
+    group
+    aggregationType
+    fieldName
+    draftInvoicesCount
+    activeSubscriptionsCount
+  }
+`
 
 enum AGGREGATION_GROUP_ENUM {
   Metered = 'metered',
@@ -58,6 +73,8 @@ const CreateBillableMetric = () => {
     validateOnMount: true,
     onSubmit: onSave,
   })
+  const canBeEdited =
+    !billableMetric?.draftInvoicesCount && !billableMetric?.activeSubscriptionsCount
 
   useEffect(() => {
     if (
@@ -168,7 +185,7 @@ const CreateBillableMetric = () => {
                     <TextInputField
                       name="code"
                       beforeChangeFormatter="code"
-                      disabled={isEdition && !billableMetric?.canBeDeleted}
+                      disabled={isEdition && !canBeEdited}
                       label={translate('text_623b42ff8ee4e000ba87d0c0')}
                       placeholder={translate('text_623b42ff8ee4e000ba87d0c4')}
                       formikProps={formikProps}
@@ -191,7 +208,7 @@ const CreateBillableMetric = () => {
 
                   <ComboBoxField
                     name="aggregationType"
-                    disabled={isEdition && !billableMetric?.canBeDeleted}
+                    disabled={isEdition && !canBeEdited}
                     label={translate('text_623b42ff8ee4e000ba87d0ce')}
                     infoText={translate('text_624d9adba93343010cd14c56')}
                     placeholder={translate('text_623b42ff8ee4e000ba87d0d0')}
@@ -270,7 +287,7 @@ const CreateBillableMetric = () => {
                     formikProps.values?.aggregationType !== AggregationTypeEnum.CountAgg && (
                       <TextInputField
                         name="fieldName"
-                        disabled={isEdition && !billableMetric?.canBeDeleted}
+                        disabled={isEdition && !canBeEdited}
                         label={translate('text_62694d9181be8d00a33f20fe')}
                         placeholder={translate('text_62694d9181be8d00a33f2105')}
                         formikProps={formikProps}
@@ -297,7 +314,7 @@ const CreateBillableMetric = () => {
                       />
                     }
                     placeholder={translate('text_633d410368cc8282af23213d')}
-                    disabled={isEdition && !billableMetric?.canBeDeleted}
+                    disabled={isEdition && !canBeEdited}
                     customInvalidError={translate('text_633b622c201ca8b521bcad59')}
                     formikProps={formikProps}
                   />

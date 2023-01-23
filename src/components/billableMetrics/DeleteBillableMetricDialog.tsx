@@ -14,6 +14,8 @@ gql`
   fragment DeleteBillableMetricDialog on BillableMetric {
     id
     name
+    draftInvoicesCount
+    activeSubscriptionsCount
   }
 
   mutation deleteBillableMetric($input: DestroyBillableMetricInput!) {
@@ -31,6 +33,7 @@ interface DeleteBillableMetricDialogProps {
 
 export const DeleteBillableMetricDialog = forwardRef<DialogRef, DeleteBillableMetricDialogProps>(
   ({ billableMetric }: DeleteBillableMetricDialogProps, ref) => {
+    const { id, name, draftInvoicesCount, activeSubscriptionsCount } = billableMetric
     const [deleteBillableMetric] = useDeleteBillableMetricMutation({
       onCompleted(data) {
         if (data && data.destroyBillableMetric) {
@@ -56,12 +59,48 @@ export const DeleteBillableMetricDialog = forwardRef<DialogRef, DeleteBillableMe
       <WarningDialog
         ref={ref}
         title={translate('text_6256f824b6368e01153caa47', {
-          billableMetricName: billableMetric.name,
+          billableMetricName: name,
         })}
-        description={<Typography html={translate('text_6256f824b6368e01153caa49')} />}
+        description={
+          draftInvoicesCount > 0 || activeSubscriptionsCount || 0 ? (
+            translate(
+              'text_63c842d84a91637c3acf0395',
+              draftInvoicesCount > 0 && activeSubscriptionsCount > 0
+                ? {
+                    usedObject1: translate(
+                      'text_63c842ee2cd5dfeb173c2726',
+                      { count: activeSubscriptionsCount },
+                      activeSubscriptionsCount
+                    ),
+                    usedObject2: translate(
+                      'text_63c8431193e8aca80f14cced',
+                      { count: draftInvoicesCount },
+                      draftInvoicesCount
+                    ),
+                  }
+                : {
+                    usedObject1:
+                      activeSubscriptionsCount > 0
+                        ? translate(
+                            'text_63c842ee2cd5dfeb173c2726',
+                            { count: activeSubscriptionsCount },
+                            activeSubscriptionsCount
+                          )
+                        : translate(
+                            'text_63c8431193e8aca80f14cced',
+                            { count: draftInvoicesCount },
+                            draftInvoicesCount
+                          ),
+                  },
+              draftInvoicesCount > 0 && activeSubscriptionsCount > 0 ? 2 : 0
+            )
+          ) : (
+            <Typography html={translate('text_6256f824b6368e01153caa49')} />
+          )
+        }
         onContinue={async () =>
           await deleteBillableMetric({
-            variables: { input: { id: billableMetric.id } },
+            variables: { input: { id } },
           })
         }
         continueText={translate('text_6256f824b6368e01153caa4d')}
