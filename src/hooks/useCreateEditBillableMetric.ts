@@ -12,22 +12,12 @@ import {
   UpdateBillableMetricInput,
   useUpdateBillableMetricMutation,
   LagoApiError,
+  EditBillableMetricFragmentDoc,
 } from '~/generated/graphql'
 import { ERROR_404_ROUTE, BILLABLE_METRICS_ROUTE } from '~/core/router'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 
 gql`
-  fragment EditBillableMetric on BillableMetricDetail {
-    id
-    name
-    code
-    group
-    description
-    aggregationType
-    canBeDeleted
-    fieldName
-  }
-
   query getSingleBillableMetric($id: ID!) {
     billableMetric(id: $id) {
       ...EditBillableMetric
@@ -50,6 +40,7 @@ gql`
 
   ${BillableMetricItemFragmentDoc}
   ${DeleteBillableMetricDialogFragmentDoc}
+  ${EditBillableMetricFragmentDoc}
 `
 
 type UseCreateEditBillableMetricReturn = {

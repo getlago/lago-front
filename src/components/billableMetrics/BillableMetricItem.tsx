@@ -41,7 +41,6 @@ gql`
     name
     code
     createdAt
-    canBeDeleted
     ...DeleteBillableMetricDialog
   }
 
@@ -55,7 +54,7 @@ interface BillableMetricItemProps {
 
 export const BillableMetricItem = memo(
   ({ billableMetric, navigationProps }: BillableMetricItemProps) => {
-    const { id, name, code, createdAt, canBeDeleted } = billableMetric
+    const { id, name, code, createdAt } = billableMetric
     const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
     const { translate } = useInternationalization()
     const { formatTimeOrgaTZ } = useOrganizationInfos()
@@ -112,24 +111,17 @@ export const BillableMetricItem = memo(
               >
                 {translate('text_6256de3bba111e00b3bfa531')}
               </ButtonLink>
-              <Tooltip
-                disableHoverListener={canBeDeleted}
-                title={translate('text_6259912c9fcd1d00e914a93d')}
-                placement="bottom-end"
+              <Button
+                startIcon="trash"
+                variant="quaternary"
+                align="left"
+                onClick={() => {
+                  deleteDialogRef.current?.openDialog()
+                  closePopper()
+                }}
               >
-                <Button
-                  startIcon="trash"
-                  variant="quaternary"
-                  disabled={!canBeDeleted}
-                  align="left"
-                  onClick={() => {
-                    deleteDialogRef.current?.openDialog()
-                    closePopper()
-                  }}
-                >
-                  {translate('text_6256de3bba111e00b3bfa533')}
-                </Button>
-              </Tooltip>
+                {translate('text_6256de3bba111e00b3bfa533')}
+              </Button>
             </MenuPopper>
           )}
         </Popper>

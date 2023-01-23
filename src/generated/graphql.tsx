@@ -122,13 +122,13 @@ export type AppliedCoupon = {
 
 export type BillableMetric = {
   __typename?: 'BillableMetric';
+  activeSubscriptionsCount: Scalars['Int'];
   aggregationType: AggregationTypeEnum;
-  /** Check if billable metric is deletable */
-  canBeDeleted: Scalars['Boolean'];
   code: Scalars['String'];
   createdAt: Scalars['ISO8601DateTime'];
   deletedAt?: Maybe<Scalars['ISO8601DateTime']>;
   description?: Maybe<Scalars['String']>;
+  draftInvoicesCount: Scalars['Int'];
   fieldName?: Maybe<Scalars['String']>;
   flatGroups?: Maybe<Array<Group>>;
   group?: Maybe<Scalars['JSON']>;
@@ -146,13 +146,13 @@ export type BillableMetricCollection = {
 
 export type BillableMetricDetail = {
   __typename?: 'BillableMetricDetail';
+  activeSubscriptionsCount: Scalars['Int'];
   aggregationType: AggregationTypeEnum;
-  /** Check if billable metric is deletable */
-  canBeDeleted: Scalars['Boolean'];
   code: Scalars['String'];
   createdAt: Scalars['ISO8601DateTime'];
   deletedAt?: Maybe<Scalars['ISO8601DateTime']>;
   description?: Maybe<Scalars['String']>;
+  draftInvoicesCount: Scalars['Int'];
   fieldName?: Maybe<Scalars['String']>;
   flatGroups?: Maybe<Array<Group>>;
   group?: Maybe<Scalars['JSON']>;
@@ -3187,9 +3187,9 @@ export type DeleteAddOnMutationVariables = Exact<{
 
 export type DeleteAddOnMutation = { __typename?: 'Mutation', destroyAddOn?: { __typename?: 'DestroyAddOnPayload', id?: string | null } | null };
 
-export type BillableMetricItemFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, canBeDeleted: boolean };
+export type BillableMetricItemFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number };
 
-export type DeleteBillableMetricDialogFragment = { __typename?: 'BillableMetric', id: string, name: string };
+export type DeleteBillableMetricDialogFragment = { __typename?: 'BillableMetric', id: string, name: string, draftInvoicesCount: number, activeSubscriptionsCount: number };
 
 export type DeleteBillableMetricMutationVariables = Exact<{
   input: DestroyBillableMetricInput;
@@ -3683,14 +3683,12 @@ export type UpdateAddOnMutationVariables = Exact<{
 
 export type UpdateAddOnMutation = { __typename?: 'Mutation', updateAddOn?: { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customerCount: number, createdAt: any, canBeDeleted: boolean } | null };
 
-export type EditBillableMetricFragment = { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, group?: any | null, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean, fieldName?: string | null };
-
 export type GetSingleBillableMetricQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetSingleBillableMetricQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, group?: any | null, description?: string | null, aggregationType: AggregationTypeEnum, canBeDeleted: boolean, fieldName?: string | null } | null };
+export type GetSingleBillableMetricQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, description?: string | null, group?: any | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, draftInvoicesCount: number, activeSubscriptionsCount: number } | null };
 
 export type CreateBillableMetricMutationVariables = Exact<{
   input: CreateBillableMetricInput;
@@ -3704,7 +3702,7 @@ export type UpdateBillableMetricMutationVariables = Exact<{
 }>;
 
 
-export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, canBeDeleted: boolean } | null };
+export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number } | null };
 
 export type EditCouponFragment = { __typename?: 'CouponDetails', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, canBeDeleted: boolean, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
 
@@ -3805,7 +3803,7 @@ export type BillableMetricsQueryVariables = Exact<{
 }>;
 
 
-export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, canBeDeleted: boolean }> } };
+export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number }> } };
 
 export type CouponsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -3815,6 +3813,8 @@ export type CouponsQueryVariables = Exact<{
 
 
 export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, canBeDeleted: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null }> } };
+
+export type EditBillableMetricFragment = { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, description?: string | null, group?: any | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, draftInvoicesCount: number, activeSubscriptionsCount: number };
 
 export type CreateCreditNoteInvoiceFragment = { __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, creditableAmountCents: any, refundableAmountCents: any, subTotalVatIncludedAmountCents: any, vatRate: number };
 
@@ -4032,6 +4032,8 @@ export const DeleteBillableMetricDialogFragmentDoc = gql`
     fragment DeleteBillableMetricDialog on BillableMetric {
   id
   name
+  draftInvoicesCount
+  activeSubscriptionsCount
 }
     `;
 export const BillableMetricItemFragmentDoc = gql`
@@ -4040,7 +4042,6 @@ export const BillableMetricItemFragmentDoc = gql`
   name
   code
   createdAt
-  canBeDeleted
   ...DeleteBillableMetricDialog
 }
     ${DeleteBillableMetricDialogFragmentDoc}`;
@@ -4429,18 +4430,6 @@ export const EditAddOnFragmentDoc = gql`
   amountCurrency
 }
     `;
-export const EditBillableMetricFragmentDoc = gql`
-    fragment EditBillableMetric on BillableMetricDetail {
-  id
-  name
-  code
-  group
-  description
-  aggregationType
-  canBeDeleted
-  fieldName
-}
-    `;
 export const EditCouponFragmentDoc = gql`
     fragment EditCoupon on CouponDetails {
   id
@@ -4656,6 +4645,19 @@ ${InvoiceForCreditNotesTableFragmentDoc}
 ${InvoiceForDetailsTableFragmentDoc}
 ${InvoiceForInvoiceInfosFragmentDoc}
 ${InvoiceForFinalizeInvoiceFragmentDoc}`;
+export const EditBillableMetricFragmentDoc = gql`
+    fragment EditBillableMetric on BillableMetricDetail {
+  id
+  name
+  code
+  description
+  group
+  aggregationType
+  fieldName
+  draftInvoicesCount
+  activeSubscriptionsCount
+}
+    `;
 export const GraduatedChargeFragmentDoc = gql`
     fragment GraduatedCharge on Charge {
   id
