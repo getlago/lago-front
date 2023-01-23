@@ -1,3 +1,4 @@
+import { userEmail, userPassword } from './reusableConstants'
 // ***********************************************************
 // This example support/e2e.ts is processed and
 // loaded automatically before your test files.
@@ -15,6 +16,25 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands'
+
+beforeEach(() => {
+  if (
+    // @ts-ignore - prevent to log for all "auth" test suite
+    !Cypress.mocha.getRunner().suite.ctx.test.file.includes('auth') &&
+    // @ts-ignore - In case we ever need to skip login before one test, add '::preventLogin' in the test name
+    !Cypress.mocha.getRunner().suite.ctx.currentTest.title.includes('::preventLogin')
+  ) {
+    cy.session(
+      'LoginTestUser',
+      () => {
+        cy.login(userEmail, userPassword)
+      },
+      {
+        cacheAcrossSpecs: true,
+      }
+    )
+  }
+})
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')

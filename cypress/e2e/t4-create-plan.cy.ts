@@ -1,8 +1,7 @@
-import { planWithChargesName, userEmail, userPassword } from '../support/reusableConstants'
+import { planWithChargesName } from '../support/reusableConstants'
 
 describe('Create plan', () => {
   beforeEach(() => {
-    cy.login(userEmail, userPassword)
     cy.visit('/plans')
   })
 

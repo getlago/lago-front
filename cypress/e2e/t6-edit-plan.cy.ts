@@ -1,15 +1,6 @@
-import {
-  planWithChargesName,
-  customerName,
-  userEmail,
-  userPassword,
-} from '../support/reusableConstants'
+import { planWithChargesName, customerName } from '../support/reusableConstants'
 
 describe('Edit plan', () => {
-  beforeEach(() => {
-    cy.login(userEmail, userPassword)
-  })
-
   it('should be able to update all information of unused plan', () => {
     cy.visit('/plans')
     cy.get(`[data-test="${planWithChargesName}"]`).click()
