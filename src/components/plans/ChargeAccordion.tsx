@@ -1,4 +1,4 @@
-import { useCallback, MouseEvent, memo } from 'react'
+import { useCallback, MouseEvent, memo, useRef } from 'react'
 import { FormikProps } from 'formik'
 import styled from 'styled-components'
 import { InputAdornment } from '@mui/material'
@@ -20,6 +20,7 @@ import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
+import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 
 import { PlanFormInput } from './types'
 import { VolumeChargeTable } from './VolumeChargeTable'
@@ -30,6 +31,7 @@ interface ChargeAccordionProps {
   index: number
   currency: CurrencyEnum
   disabled?: boolean
+  isUsedInSubscription?: boolean
   formikProps: FormikProps<PlanFormInput>
 }
 
@@ -68,7 +70,8 @@ gql`
 `
 
 export const ChargeAccordion = memo(
-  ({ id, index, currency, disabled, formikProps }: ChargeAccordionProps) => {
+  ({ id, index, currency, disabled, isUsedInSubscription, formikProps }: ChargeAccordionProps) => {
+    const warningDialogRef = useRef<WarningDialogRef>(null)
     const { translate } = useInternationalization()
     const localCharge = formikProps.values.charges[index]
 
@@ -112,31 +115,26 @@ export const ChargeAccordion = memo(
                   color={hasErrorInCharges ? 'disabled' : 'success'}
                 />
               </Tooltip>
-              {!disabled && (
-                <Tooltip
-                  placement="top-end"
-                  title={
-                    ChargeModelEnum.Volume
-                      ? translate('text_6304e74aab6dbc18d615f421')
-                      : translate('text_624aa732d6af4e0103d40e65')
-                  }
-                >
-                  <TrashButton
-                    variant="quaternary"
-                    size="small"
-                    icon="trash"
-                    data-test="remove-charge"
-                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                      e.stopPropagation()
-                      e.preventDefault()
+              <Tooltip placement="top-end" title={translate('text_624aa732d6af4e0103d40e65')}>
+                <TrashButton
+                  variant="quaternary"
+                  size="small"
+                  icon="trash"
+                  data-test="remove-charge"
+                  onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                    e.stopPropagation()
+                    e.preventDefault()
+                    if (isUsedInSubscription) {
+                      warningDialogRef?.current?.openDialog()
+                    } else {
                       const charges = [...formikProps.values.charges]
 
                       charges.splice(index, 1)
                       formikProps.setFieldValue('charges', charges)
-                    }}
-                  />
-                </Tooltip>
-              )}
+                    }
+                  }}
+                />
+              </Tooltip>
             </>
           </>
         }
@@ -253,6 +251,18 @@ export const ChargeAccordion = memo(
             )}
           </ConditionalChargeWrapper>
         </Details>
+        <WarningDialog
+          ref={warningDialogRef}
+          title={translate('text_63cfe20ad6c1a53c5352a46e')}
+          description={translate('text_63cfe20ad6c1a53c5352a470')}
+          continueText={translate('text_63cfe20ad6c1a53c5352a474')}
+          onContinue={() => {
+            const charges = [...formikProps.values.charges]
+
+            charges.splice(index, 1)
+            formikProps.setFieldValue('charges', charges)
+          }}
+        />
       </Accordion>
     )
   }

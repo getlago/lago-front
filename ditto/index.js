@@ -95,6 +95,9 @@ module.exports = {
   "ditto_component_library": {
     "base": require('./ditto-component-library__base.json')
   },
+  "project_63cfe207f9f4c2ea8dcf3aa7": {
+    "base": require('./⚙️ [WIP] - All - Delete objects linked to subscription__base.json')
+  },
   "project_63ba9ee502cfb90849074f4b": {
     "base": require('./⚙️ [WIP] - All - Search bar in app__base.json')
   },

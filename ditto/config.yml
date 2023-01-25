@@ -117,6 +117,8 @@ projects:
     id: 63ba9ee502cfb90849074f4b
   - name: ⚙️ [WIP] - Coupons - Set frequency forever and limited to a specific plan
     id: 63c83a31e697e8e9236da751
+  - name: ⚙️ [WIP] - All - Delete objects linked to subscription
+    id: 63cfe207f9f4c2ea8dcf3aa7
 format: flat
 variants: true
 components: true

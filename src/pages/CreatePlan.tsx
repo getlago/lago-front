@@ -387,11 +387,15 @@ const CreatePlan = () => {
                     <Charges>
                       {formikProps.values.charges.map((charge, i) => {
                         const id = getNewChargeId(charge.billableMetric.id, i)
+                        const isNew = !plan?.charges?.find(
+                          (chargeFetched) => chargeFetched?.id === charge.id
+                        )
 
                         return (
                           <ChargeAccordion
                             id={id}
                             key={id}
+                            isUsedInSubscription={!isNew && !plan?.canBeDeleted}
                             currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
                             index={i}
                             disabled={isEdition && !plan?.canBeDeleted && chargeEditIndexLimit > i}
