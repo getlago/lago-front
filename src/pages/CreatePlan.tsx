@@ -61,7 +61,8 @@ gql`
     amountCents
     amountCurrency
     trialPeriod
-    canBeDeleted
+    draftInvoicesCount
+    activeSubscriptionsCount
     billChargesMonthly
     charges {
       id
@@ -156,6 +157,7 @@ const CreatePlan = () => {
     onSubmit: onSave,
   })
   const chargeEditIndexLimit = plan?.charges?.length || 0
+  const canBeEdited = !plan?.draftInvoicesCount && !plan?.activeSubscriptionsCount
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
@@ -291,7 +293,7 @@ const CreatePlan = () => {
                     <TextInputField
                       name="code"
                       beforeChangeFormatter="code"
-                      disabled={isEdition && !plan?.canBeDeleted}
+                      disabled={isEdition && !canBeEdited}
                       label={translate('text_624453d52e945301380e499a')}
                       placeholder={translate('text_624453d52e945301380e499e')}
                       formikProps={formikProps}
@@ -312,7 +314,7 @@ const CreatePlan = () => {
                     {translate('text_624453d52e945301380e49a6')}
                   </SectionTitle>
                   <ButtonSelectorField
-                    disabled={isEdition && !plan?.canBeDeleted}
+                    disabled={isEdition && !canBeEdited}
                     name="interval"
                     label={translate('text_624c5eadff7db800acc4c9ad')}
                     infoText={translate('text_624d9adba93343010cd14ca3')}
@@ -338,12 +340,12 @@ const CreatePlan = () => {
                       name="amountCents"
                       currency={formikProps.values.amountCurrency}
                       beforeChangeFormatter={['positiveNumber']}
-                      disabled={isEdition && !plan?.canBeDeleted}
+                      disabled={isEdition && !canBeEdited}
                       label={translate('text_624453d52e945301380e49b6')}
                       formikProps={formikProps}
                     />
                     <ComboBoxField
-                      disabled={isEdition && !plan?.canBeDeleted}
+                      disabled={isEdition && !canBeEdited}
                       name="amountCurrency"
                       data={Object.values(CurrencyEnum).map((currencyType) => ({
                         value: currencyType,
@@ -355,7 +357,7 @@ const CreatePlan = () => {
 
                   <SwitchField
                     name="payInAdvance"
-                    disabled={isEdition && !plan?.canBeDeleted}
+                    disabled={isEdition && !canBeEdited}
                     label={translate('text_624d90e6a93343010cd14b40')}
                     subLabel={translate('text_624d90e6a93343010cd14b4c')}
                     formikProps={formikProps}
@@ -363,7 +365,7 @@ const CreatePlan = () => {
 
                   <TextInputField
                     name="trialPeriod"
-                    disabled={isEdition && !plan?.canBeDeleted}
+                    disabled={isEdition && !canBeEdited}
                     label={translate('text_624453d52e945301380e49c2')}
                     beforeChangeFormatter={['positiveNumber', 'int']}
                     placeholder={translate('text_624453d52e945301380e49c4')}
@@ -395,10 +397,10 @@ const CreatePlan = () => {
                           <ChargeAccordion
                             id={id}
                             key={id}
-                            isUsedInSubscription={!isNew && !plan?.canBeDeleted}
+                            isUsedInSubscription={!isNew && !canBeEdited}
                             currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
                             index={i}
-                            disabled={isEdition && !plan?.canBeDeleted && chargeEditIndexLimit > i}
+                            disabled={isEdition && !canBeEdited && chargeEditIndexLimit > i}
                             formikProps={formikProps}
                           />
                         )
@@ -421,7 +423,7 @@ const CreatePlan = () => {
                             labelPosition="left"
                             label={translate('text_62a30bc79dae432fb055330b')}
                             name="billChargesMonthly"
-                            disabled={isEdition && !plan?.canBeDeleted}
+                            disabled={isEdition && !canBeEdited}
                             formikProps={formikProps}
                           />
                           <ChargeInvoiceTooltip
