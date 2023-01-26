@@ -37,7 +37,6 @@ gql`
     chargeCount
     customerCount
     createdAt
-    canBeDeleted
     ...DeletePlanDialog
   }
 
@@ -51,7 +50,7 @@ interface PlanItemProps {
 
 export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
   const deleteDialogRef = useRef<DeletePlanDialogRef>(null)
-  const { id, name, code, customerCount, chargeCount, createdAt, canBeDeleted } = plan
+  const { id, name, code, customerCount, chargeCount, createdAt } = plan
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
 
@@ -112,24 +111,18 @@ export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
             >
               {translate('text_625fd39a15394c0117e7d792')}
             </ButtonLink>
-            <Tooltip
-              disableHoverListener={canBeDeleted}
-              title={translate('text_625fd39a15394c0117e7d7aa')}
-              placement="bottom-end"
+
+            <Button
+              startIcon="trash"
+              variant="quaternary"
+              align="left"
+              onClick={() => {
+                deleteDialogRef.current?.openDialog()
+                closePopper()
+              }}
             >
-              <Button
-                startIcon="trash"
-                variant="quaternary"
-                disabled={!canBeDeleted}
-                align="left"
-                onClick={() => {
-                  deleteDialogRef.current?.openDialog()
-                  closePopper()
-                }}
-              >
-                {translate('text_625fd39a15394c0117e7d794')}
-              </Button>
-            </Tooltip>
+              {translate('text_625fd39a15394c0117e7d794')}
+            </Button>
           </MenuPopper>
         )}
       </Popper>

@@ -11,6 +11,8 @@ gql`
   fragment DeletePlanDialog on Plan {
     id
     name
+    draftInvoicesCount
+    activeSubscriptionsCount
   }
 
   mutation deletePlan($input: DestroyPlanInput!) {
@@ -28,6 +30,7 @@ interface DeletePlanDialogProps {
 
 export const DeletePlanDialog = forwardRef<DialogRef, DeletePlanDialogProps>(
   ({ plan }: DeletePlanDialogProps, ref) => {
+    const { id, name, draftInvoicesCount, activeSubscriptionsCount } = plan
     const [deletePlan] = useDeletePlanMutation({
       onCompleted(data) {
         if (data && data.destroyPlan) {
@@ -53,12 +56,48 @@ export const DeletePlanDialog = forwardRef<DialogRef, DeletePlanDialogProps>(
       <WarningDialog
         ref={ref}
         title={translate('text_625fd165963a7b00c8f59797', {
-          planName: plan.name,
+          planName: name,
         })}
-        description={<Typography html={translate('text_625fd165963a7b00c8f597a1')} />}
+        description={
+          draftInvoicesCount > 0 || activeSubscriptionsCount || 0 ? (
+            translate(
+              'text_63d18bdc54f8380e7a97351a',
+              draftInvoicesCount > 0 && activeSubscriptionsCount > 0
+                ? {
+                    usedObject1: translate(
+                      'text_63d18d34f90cc83a038f843b',
+                      { count: activeSubscriptionsCount },
+                      activeSubscriptionsCount
+                    ),
+                    usedObject2: translate(
+                      'text_63d18d3edaed7e11710b4d25',
+                      { count: draftInvoicesCount },
+                      draftInvoicesCount
+                    ),
+                  }
+                : {
+                    usedObject1:
+                      activeSubscriptionsCount > 0
+                        ? translate(
+                            'text_63d18d34f90cc83a038f843b',
+                            { count: activeSubscriptionsCount },
+                            activeSubscriptionsCount
+                          )
+                        : translate(
+                            'text_63d18d3edaed7e11710b4d25',
+                            { count: draftInvoicesCount },
+                            draftInvoicesCount
+                          ),
+                  },
+              draftInvoicesCount > 0 && activeSubscriptionsCount > 0 ? 2 : 0
+            )
+          ) : (
+            <Typography html={translate('text_625fd165963a7b00c8f597a1')} />
+          )
+        }
         onContinue={async () =>
           await deletePlan({
-            variables: { input: { id: plan.id } },
+            variables: { input: { id } },
           })
         }
         continueText={translate('text_625fd165963a7b00c8f597b5')}
