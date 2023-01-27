@@ -19,7 +19,7 @@ export type UseDebouncedSearch = (
 }
 
 export const useDebouncedSearch: UseDebouncedSearch = (searchQuery, loading) => {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const startLoading = useRef<DateTime | null>(null)
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
