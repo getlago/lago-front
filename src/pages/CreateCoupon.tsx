@@ -5,11 +5,20 @@ import { object, string, number, date } from 'yup'
 import { DateTime } from 'luxon'
 import { InputAdornment } from '@mui/material'
 import styled from 'styled-components'
+import isEqual from 'lodash/isEqual'
 
 import { useCreateEditCoupon, FORM_ERRORS_ENUM } from '~/hooks/useCreateEditCoupon'
 import { PageHeader, Card, theme } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Typography, Button, Skeleton, Alert } from '~/components/designSystem'
+import {
+  Typography,
+  Button,
+  Skeleton,
+  Alert,
+  Icon,
+  Avatar,
+  Tooltip,
+} from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { COUPONS_ROUTE } from '~/core/router'
 import {
@@ -25,6 +34,7 @@ import {
   CouponExpiration,
   CouponTypeEnum,
   CouponFrequency,
+  PlansForCouponsFragment,
 } from '~/generated/graphql'
 import {
   Main,
@@ -37,19 +47,33 @@ import {
   LineAmount,
 } from '~/styles/mainObjectsForm'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import {
+  AddPlanToCouponDialog,
+  AddPlanToCouponDialogRef,
+} from '~/components/coupons/AddPlanToCouponDialog'
 
 import { CouponCodeSnippet } from '../components/coupons/CouponCodeSnippet'
 
 const CreateCoupon = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
-  const { isEdition, loading, coupon, errorCode, onSave } = useCreateEditCoupon()
+  const {
+    isEdition,
+    loading,
+    coupon,
+    errorCode,
+    onSave,
+    hasPlanLimit,
+    setHasPlanLimit,
+    limitPlansList,
+    setLimitPlansList,
+  } = useCreateEditCoupon()
   const warningDialogRef = useRef<WarningDialogRef>(null)
+  const addPlanToCouponDialogRef = useRef<AddPlanToCouponDialogRef>(null)
   const formikProps = useFormik<CreateCouponInput>({
     initialValues: {
-      // @ts-ignore
       amountCents: coupon?.amountCents
-        ? deserializeAmount(coupon?.amountCents, coupon?.amountCurrency || CurrencyEnum.Usd)
+        ? String(deserializeAmount(coupon?.amountCents, coupon?.amountCurrency || CurrencyEnum.Usd))
         : coupon?.amountCents || undefined,
       couponType: coupon?.couponType || CouponTypeEnum.FixedAmount,
       percentageRate: coupon?.percentageRate || undefined,
@@ -110,6 +134,10 @@ const CreateCoupon = () => {
     validateOnMount: true,
     onSubmit: onSave,
   })
+
+  const attachPlanToCoupon = (plan: PlansForCouponsFragment) => {
+    setLimitPlansList((oldArray: PlansForCouponsFragment[]) => [...oldArray, plan])
+  }
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
@@ -325,7 +353,7 @@ const CreateCoupon = () => {
                     )}
                 </Card>
 
-                <Card>
+                <LimitationCard $disableChildSpacing>
                   <Typography variant="subhead">
                     {translate('text_63c83d58e697e8e9236da806')}
                   </Typography>
@@ -367,11 +395,78 @@ const CreateCoupon = () => {
                       </ExpirationLine>
                     )}
                   </Settings>
-                </Card>
+
+                  <StyledPlanLimitCheckbox
+                    name="hasPlanLimit"
+                    value={hasPlanLimit}
+                    disabled={isEdition && !!coupon?.appliedCouponsCount}
+                    label={translate('text_63d3a201113866a7fa5e6f61')}
+                    onChange={(_, checked) => {
+                      setHasPlanLimit(checked)
+                    }}
+                  />
+
+                  {hasPlanLimit && (
+                    <>
+                      {!!limitPlansList.length &&
+                        limitPlansList.map((plan) => (
+                          <PlanLine key={`limited-plan-${plan.id}`}>
+                            <PlanLeftBlock>
+                              <Avatar variant="connector">
+                                <Icon name="board" />
+                              </Avatar>
+                              <PlanLeftBlockInfos>
+                                <Typography variant="bodyHl" color="grey700">
+                                  {plan.name}
+                                </Typography>
+                                <Typography variant="caption" color="grey600">
+                                  {plan.code}
+                                </Typography>
+                              </PlanLeftBlockInfos>
+                            </PlanLeftBlock>
+                            {(!isEdition || !coupon?.appliedCouponsCount) && (
+                              <Tooltip
+                                placement="top-end"
+                                title={translate('text_63d3a201113866a7fa5e6f6d')}
+                              >
+                                <Button
+                                  icon="trash"
+                                  variant="quaternary"
+                                  size="small"
+                                  onClick={() =>
+                                    setLimitPlansList((oldArray: PlansForCouponsFragment[]) => [
+                                      ...oldArray.filter((p) => p.id !== plan.id),
+                                    ])
+                                  }
+                                />
+                              </Tooltip>
+                            )}
+                          </PlanLine>
+                        ))}
+
+                      {(!isEdition || !coupon?.appliedCouponsCount) && (
+                        <Button
+                          variant="quaternary"
+                          startIcon="plus"
+                          onClick={addPlanToCouponDialogRef.current?.openDialog}
+                        >
+                          {translate('text_63d3a201113866a7fa5e6f6b')}
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </LimitationCard>
 
                 <ButtonContainer>
                   <Button
-                    disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
+                    disabled={
+                      !formikProps.isValid ||
+                      (isEdition &&
+                        !formikProps.dirty &&
+                        isEqual(coupon?.plans, limitPlansList) &&
+                        hasPlanLimit === !!coupon?.limitedPlans) ||
+                      (hasPlanLimit && !limitPlansList.length)
+                    }
                     fullWidth
                     size="large"
                     onClick={formikProps.submitForm}
@@ -386,7 +481,12 @@ const CreateCoupon = () => {
           </div>
         </Main>
         <Side>
-          <CouponCodeSnippet loading={loading} coupon={formikProps.values} />
+          <CouponCodeSnippet
+            loading={loading}
+            coupon={formikProps.values}
+            hasPlanLimit={hasPlanLimit}
+            limitPlansList={limitPlansList}
+          />
         </Side>
       </Content>
 
@@ -402,6 +502,12 @@ const CreateCoupon = () => {
           isEdition ? 'text_6287a9bdac160c00b2e0fbfd' : 'text_62876e85e32e0300e180310b'
         )}
         onContinue={() => navigate(COUPONS_ROUTE)}
+      />
+
+      <AddPlanToCouponDialog
+        ref={addPlanToCouponDialogRef}
+        onSubmit={attachPlanToCoupon}
+        attachedPlansIds={limitPlansList.map((p) => p.id)}
       />
     </div>
   )
@@ -425,6 +531,36 @@ const Settings = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(3)};
   }
+`
+
+const LimitationCard = styled(Card)`
+  > *:not(:last-child) {
+    margin-bottom: ${theme.spacing(3)};
+  }
+`
+
+const StyledPlanLimitCheckbox = styled(Checkbox)`
+  margin-bottom: ${theme.spacing(3)};
+`
+
+const PlanLine = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid ${theme.palette.grey[400]};
+  padding: ${theme.spacing(3)} ${theme.spacing(4)};
+  border-radius: 12px;
+  margin-bottom: ${theme.spacing(3)};
+`
+const PlanLeftBlock = styled.div`
+  display: flex;
+  align-items: center;
+`
+
+const PlanLeftBlockInfos = styled.div`
+  margin-left: ${theme.spacing(3)};
+  display: flex;
+  flex-direction: column;
 `
 
 export default CreateCoupon
