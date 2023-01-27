@@ -728,9 +728,11 @@ export type Coupon = {
   frequency: CouponFrequency;
   frequencyDuration?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
+  limitedPlans: Scalars['Boolean'];
   name: Scalars['String'];
   organization?: Maybe<Organization>;
   percentageRate?: Maybe<Scalars['Float']>;
+  plans?: Maybe<Array<Plan>>;
   reusable: Scalars['Boolean'];
   status: CouponStatusEnum;
   terminatedAt?: Maybe<Scalars['ISO8601DateTime']>;
@@ -758,9 +760,11 @@ export type CouponDetails = {
   frequency: CouponFrequency;
   frequencyDuration?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
+  limitedPlans: Scalars['Boolean'];
   name: Scalars['String'];
   organization?: Maybe<Organization>;
   percentageRate?: Maybe<Scalars['Float']>;
+  plans?: Maybe<Array<Plan>>;
   reusable: Scalars['Boolean'];
   status: CouponStatusEnum;
   terminatedAt?: Maybe<Scalars['ISO8601DateTime']>;
@@ -838,6 +842,7 @@ export type CreateBillableMetricInput = {
 export type CreateCouponInput = {
   amountCents?: InputMaybe<Scalars['BigInt']>;
   amountCurrency?: InputMaybe<CurrencyEnum>;
+  appliesTo?: InputMaybe<LimitationInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']>;
   code?: InputMaybe<Scalars['String']>;
@@ -1777,6 +1782,10 @@ export enum LagoApiError {
   ValueIsInvalid = 'value_is_invalid',
   ValueIsOutOfRange = 'value_is_out_of_range'
 }
+
+export type LimitationInput = {
+  planIds?: InputMaybe<Array<Scalars['ID']>>;
+};
 
 export type LoginUser = {
   __typename?: 'LoginUser';
@@ -2926,6 +2935,7 @@ export type UpdateBillableMetricInput = {
 export type UpdateCouponInput = {
   amountCents?: InputMaybe<Scalars['BigInt']>;
   amountCurrency?: InputMaybe<CurrencyEnum>;
+  appliesTo?: InputMaybe<LimitationInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']>;
   code?: InputMaybe<Scalars['String']>;
@@ -3198,6 +3208,17 @@ export type DeleteBillableMetricMutationVariables = Exact<{
 
 
 export type DeleteBillableMetricMutation = { __typename?: 'Mutation', destroyBillableMetric?: { __typename?: 'DestroyBillableMetricPayload', id?: string | null } | null };
+
+export type PlansForCouponsFragment = { __typename?: 'Plan', id: string, name: string, code: string };
+
+export type GetPlansForCouponsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']>;
+  limit?: InputMaybe<Scalars['Int']>;
+  searchTerm?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type GetPlansForCouponsQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', collection: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> } };
 
 export type CouponCaptionFragment = { __typename?: 'Coupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
 
@@ -3705,14 +3726,14 @@ export type UpdateBillableMetricMutationVariables = Exact<{
 
 export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number } | null };
 
-export type EditCouponFragment = { __typename?: 'CouponDetails', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number };
+export type EditCouponFragment = { __typename?: 'CouponDetails', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number, limitedPlans: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null };
 
 export type GetSingleCouponQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetSingleCouponQuery = { __typename?: 'Query', coupon?: { __typename?: 'CouponDetails', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number } | null };
+export type GetSingleCouponQuery = { __typename?: 'Query', coupon?: { __typename?: 'CouponDetails', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number, limitedPlans: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null } | null };
 
 export type CreateCouponMutationVariables = Exact<{
   input: CreateCouponInput;
@@ -4433,6 +4454,13 @@ export const EditAddOnFragmentDoc = gql`
   appliedAddOnsCount
 }
     `;
+export const PlansForCouponsFragmentDoc = gql`
+    fragment PlansForCoupons on Plan {
+  id
+  name
+  code
+}
+    `;
 export const EditCouponFragmentDoc = gql`
     fragment EditCoupon on CouponDetails {
   id
@@ -4448,8 +4476,12 @@ export const EditCouponFragmentDoc = gql`
   frequency
   frequencyDuration
   appliedCouponsCount
+  limitedPlans
+  plans {
+    ...PlansForCoupons
+  }
 }
-    `;
+    ${PlansForCouponsFragmentDoc}`;
 export const CurrentUserInfosFragmentDoc = gql`
     fragment CurrentUserInfos on User {
   id
@@ -5144,6 +5176,45 @@ export function useDeleteBillableMetricMutation(baseOptions?: Apollo.MutationHoo
 export type DeleteBillableMetricMutationHookResult = ReturnType<typeof useDeleteBillableMetricMutation>;
 export type DeleteBillableMetricMutationResult = Apollo.MutationResult<DeleteBillableMetricMutation>;
 export type DeleteBillableMetricMutationOptions = Apollo.BaseMutationOptions<DeleteBillableMetricMutation, DeleteBillableMetricMutationVariables>;
+export const GetPlansForCouponsDocument = gql`
+    query getPlansForCoupons($page: Int, $limit: Int, $searchTerm: String) {
+  plans(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    collection {
+      ...PlansForCoupons
+    }
+  }
+}
+    ${PlansForCouponsFragmentDoc}`;
+
+/**
+ * __useGetPlansForCouponsQuery__
+ *
+ * To run a query within a React component, call `useGetPlansForCouponsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPlansForCouponsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPlansForCouponsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetPlansForCouponsQuery(baseOptions?: Apollo.QueryHookOptions<GetPlansForCouponsQuery, GetPlansForCouponsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPlansForCouponsQuery, GetPlansForCouponsQueryVariables>(GetPlansForCouponsDocument, options);
+      }
+export function useGetPlansForCouponsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPlansForCouponsQuery, GetPlansForCouponsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPlansForCouponsQuery, GetPlansForCouponsQueryVariables>(GetPlansForCouponsDocument, options);
+        }
+export type GetPlansForCouponsQueryHookResult = ReturnType<typeof useGetPlansForCouponsQuery>;
+export type GetPlansForCouponsLazyQueryHookResult = ReturnType<typeof useGetPlansForCouponsLazyQuery>;
+export type GetPlansForCouponsQueryResult = Apollo.QueryResult<GetPlansForCouponsQuery, GetPlansForCouponsQueryVariables>;
 export const DeleteCouponDocument = gql`
     mutation deleteCoupon($input: DestroyCouponInput!) {
   destroyCoupon(input: $input) {
