@@ -1773,6 +1773,7 @@ export enum LagoApiError {
   NotOrganizationMember = 'not_organization_member',
   PaymentProcessorIsCurrentlyHandlingPayment = 'payment_processor_is_currently_handling_payment',
   PlanNotFound = 'plan_not_found',
+  PlanOverlapping = 'plan_overlapping',
   TokenEncodingError = 'token_encoding_error',
   Unauthorized = 'unauthorized',
   UnprocessableEntity = 'unprocessable_entity',
@@ -3262,6 +3263,8 @@ export type AddAddOnMutationVariables = Exact<{
 
 export type AddAddOnMutation = { __typename?: 'Mutation', createAppliedAddOn?: { __typename?: 'AppliedAddOn', id: string } | null };
 
+export type CouponPlansForCustomerFragment = { __typename?: 'Plan', id: string, name: string };
+
 export type GetCouponForCustomerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -3270,7 +3273,7 @@ export type GetCouponForCustomerQueryVariables = Exact<{
 }>;
 
 
-export type GetCouponForCustomerQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null }> } };
+export type GetCouponForCustomerQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null }> } };
 
 export type AddCouponMutationVariables = Exact<{
   input: CreateAppliedCouponInput;
@@ -4103,6 +4106,12 @@ export const DeleteCouponFragmentDoc = gql`
     `;
 export const TerminateCouponFragmentDoc = gql`
     fragment TerminateCoupon on Coupon {
+  id
+  name
+}
+    `;
+export const CouponPlansForCustomerFragmentDoc = gql`
+    fragment CouponPlansForCustomer on Plan {
   id
   name
 }
@@ -5376,11 +5385,15 @@ export const GetCouponForCustomerDocument = gql`
       percentageRate
       frequency
       frequencyDuration
+      plans {
+        ...CouponPlansForCustomer
+      }
       ...CouponCaption
     }
   }
 }
-    ${CouponCaptionFragmentDoc}`;
+    ${CouponPlansForCustomerFragmentDoc}
+${CouponCaptionFragmentDoc}`;
 
 /**
  * __useGetCouponForCustomerQuery__

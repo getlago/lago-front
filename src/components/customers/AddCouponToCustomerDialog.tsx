@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { object, string, number } from 'yup'
 import { useFormik } from 'formik'
 
-import { Dialog, Button, DialogRef, Alert, Typography } from '~/components/designSystem'
+import { Dialog, Button, DialogRef, Alert, Typography, Chip } from '~/components/designSystem'
 import { ComboBoxField, TextInputField, ComboBox, AmountInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
@@ -18,6 +18,8 @@ import {
   CouponItemFragment,
   CouponTypeEnum,
   CouponFrequency,
+  CouponPlansForCustomerFragment,
+  CouponPlansForCustomerFragmentDoc,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -25,6 +27,11 @@ import { CouponCaption } from '~/components/coupons/CouponCaption'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
+  fragment CouponPlansForCustomer on Plan {
+    id
+    name
+  }
+
   query getCouponForCustomer(
     $page: Int
     $limit: Int
@@ -45,6 +52,9 @@ gql`
         percentageRate
         frequency
         frequencyDuration
+        plans {
+          ...CouponPlansForCustomer
+        }
         ...CouponCaption
       }
     }
@@ -56,11 +66,13 @@ gql`
     }
   }
 
+  ${CouponPlansForCustomerFragmentDoc}
   ${CouponCaptionFragmentDoc}
 `
 
 type FormType = CreateAppliedCouponInput & {
   couponType: CouponTypeEnum
+  plans?: CouponPlansForCustomerFragment[] | null
 }
 
 export interface AddCouponToCustomerDialogRef extends DialogRef {}
@@ -76,12 +88,17 @@ export const AddCouponToCustomerDialog = forwardRef<
 >(({ customerId, customerName }: AddCouponToCustomerDialogProps, ref) => {
   const { translate } = useInternationalization()
   const [currencyError, setCurrencyError] = useState(false)
+  const [planOverlappingError, setPlanOverlappingError] = useState(false)
   const [getCoupons, { loading, data }] = useGetCouponForCustomerLazyQuery({
     variables: { limit: 50, status: CouponStatusEnum.Active },
   })
   const [addCoupon] = useAddCouponMutation({
     context: {
-      silentErrorCodes: [LagoApiError.CouponIsNotReusable, LagoApiError.UnprocessableEntity],
+      silentErrorCodes: [
+        LagoApiError.CouponIsNotReusable,
+        LagoApiError.UnprocessableEntity,
+        LagoApiError.PlanOverlapping,
+      ],
     },
     onCompleted({ createAppliedCoupon }) {
       if (createAppliedCoupon) {
@@ -92,6 +109,10 @@ export const AddCouponToCustomerDialog = forwardRef<
       }
     },
   })
+  const resetAllManualErrors = () => {
+    setCurrencyError(false)
+    setPlanOverlappingError(false)
+  }
   const formikProps = useFormik<Omit<FormType, 'customerId'>>({
     initialValues: {
       // @ts-ignore
@@ -102,6 +123,7 @@ export const AddCouponToCustomerDialog = forwardRef<
       frequency: undefined,
       frequencyDuration: undefined,
       amountCurrency: undefined,
+      plans: undefined,
     },
     validationSchema: object().shape({
       couponId: string().required(''),
@@ -149,7 +171,9 @@ export const AddCouponToCustomerDialog = forwardRef<
       { amountCents, amountCurrency, percentageRate, frequencyDuration, ...values },
       formikBag
     ) => {
-      const couponValues = { ...values, couponType: undefined }
+      const couponValues = { ...values, couponType: undefined, plans: undefined }
+
+      resetAllManualErrors()
 
       const answer = await addCoupon({
         variables: {
@@ -180,10 +204,12 @@ export const AddCouponToCustomerDialog = forwardRef<
         )
       } else if (hasDefinedGQLError('CurrenciesDoesNotMatch', errors, 'currency')) {
         setCurrencyError(true)
+      } else if (hasDefinedGQLError('PlanOverlapping', errors)) {
+        setPlanOverlappingError(true)
       } else {
         ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()
         formikBag.resetForm()
-        setCurrencyError(false)
+        resetAllManualErrors()
       }
     },
   })
@@ -218,7 +244,7 @@ export const AddCouponToCustomerDialog = forwardRef<
       }}
       onClickAway={() => {
         formikProps.resetForm()
-        setCurrencyError(false)
+        resetAllManualErrors()
       }}
       actions={({ closeDialog }) => (
         <>
@@ -227,7 +253,7 @@ export const AddCouponToCustomerDialog = forwardRef<
             onClick={() => {
               closeDialog()
               formikProps.resetForm()
-              setCurrencyError(false)
+              resetAllManualErrors()
             }}
           >
             {translate('text_628b8c693e464200e00e4693')}
@@ -261,6 +287,7 @@ export const AddCouponToCustomerDialog = forwardRef<
                 couponType: coupon.couponType,
                 frequency: coupon.frequency,
                 frequencyDuration: coupon.frequencyDuration,
+                plans: coupon.plans,
               })
             } else {
               formikProps.setFieldValue('couponId', undefined)
@@ -268,6 +295,19 @@ export const AddCouponToCustomerDialog = forwardRef<
           }}
           PopperProps={{ displayInDialog: true }}
         />
+
+        {!!formikProps.values.plans?.length && (
+          <div>
+            <PlanListLabel variant="captionHl" color="grey700">
+              {translate('text_63d66aa2471035c8ff598857')}
+            </PlanListLabel>
+            <PlanChipWrapper>
+              {formikProps.values.plans.map((plan) => (
+                <Chip key={`coupon-plan-appied-to-${plan.id}`} label={plan.name} />
+              ))}
+            </PlanChipWrapper>
+          </div>
+        )}
 
         {!!formikProps.values.couponId && (
           <>
@@ -355,6 +395,9 @@ export const AddCouponToCustomerDialog = forwardRef<
         {!!currencyError && (
           <Alert type="danger">{translate('text_632c88c97af78294bc02ea9d')}</Alert>
         )}
+        {!!planOverlappingError && (
+          <Alert type="danger">{translate('text_63d6743e174d22e410d7bd66')}</Alert>
+        )}
       </Container>
     </Dialog>
   )
@@ -390,6 +433,16 @@ const LineAmount = styled.div`
 const InputEnd = styled(Typography)`
   flex-shrink: 0;
   margin-right: ${theme.spacing(4)};
+`
+
+const PlanListLabel = styled(Typography)`
+  margin-bottom: ${theme.spacing(1)};
+`
+
+const PlanChipWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 `
 
 AddCouponToCustomerDialog.displayName = 'AddCouponToCustomerDialog'
