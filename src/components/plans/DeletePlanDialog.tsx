@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { forwardRef } from 'react'
 
-import { Typography, DialogRef } from '~/components/designSystem'
+import { DialogRef } from '~/components/designSystem'
 import { DeletePlanDialogFragment, useDeletePlanMutation } from '~/generated/graphql'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -58,43 +58,39 @@ export const DeletePlanDialog = forwardRef<DialogRef, DeletePlanDialogProps>(
         title={translate('text_625fd165963a7b00c8f59797', {
           planName: name,
         })}
-        description={
-          draftInvoicesCount > 0 || activeSubscriptionsCount || 0 ? (
-            translate(
-              'text_63d18bdc54f8380e7a97351a',
-              draftInvoicesCount > 0 && activeSubscriptionsCount > 0
-                ? {
-                    usedObject1: translate(
-                      'text_63d18d34f90cc83a038f843b',
-                      { count: activeSubscriptionsCount },
-                      activeSubscriptionsCount
-                    ),
-                    usedObject2: translate(
-                      'text_63d18d3edaed7e11710b4d25',
-                      { count: draftInvoicesCount },
-                      draftInvoicesCount
-                    ),
-                  }
-                : {
-                    usedObject1:
-                      activeSubscriptionsCount > 0
-                        ? translate(
-                            'text_63d18d34f90cc83a038f843b',
-                            { count: activeSubscriptionsCount },
-                            activeSubscriptionsCount
-                          )
-                        : translate(
-                            'text_63d18d3edaed7e11710b4d25',
-                            { count: draftInvoicesCount },
-                            draftInvoicesCount
-                          ),
-                  },
-              draftInvoicesCount > 0 && activeSubscriptionsCount > 0 ? 2 : 0
-            )
-          ) : (
-            <Typography html={translate('text_625fd165963a7b00c8f597a1')} />
-          )
-        }
+        description={translate(
+          'text_63d18bdc54f8380e7a97351a',
+          draftInvoicesCount > 0 && activeSubscriptionsCount > 0
+            ? {
+                usedObject1: translate(
+                  'text_63d18d34f90cc83a038f843b',
+                  { count: activeSubscriptionsCount },
+                  activeSubscriptionsCount
+                ),
+                usedObject2: translate(
+                  'text_63d18d3edaed7e11710b4d25',
+                  { count: draftInvoicesCount },
+                  draftInvoicesCount
+                ),
+              }
+            : {
+                usedObject1:
+                  activeSubscriptionsCount > 0
+                    ? translate(
+                        'text_63d18d34f90cc83a038f843b',
+                        { count: activeSubscriptionsCount },
+                        activeSubscriptionsCount
+                      )
+                    : draftInvoicesCount > 0
+                    ? translate(
+                        'text_63d18d3edaed7e11710b4d25',
+                        { count: draftInvoicesCount },
+                        draftInvoicesCount
+                      )
+                    : translate('text_63d18d34f90cc83a038f843b', { count: 0 }, 0),
+              },
+          draftInvoicesCount > 0 && activeSubscriptionsCount > 0 ? 2 : 0
+        )}
         onContinue={async () =>
           await deletePlan({
             variables: { input: { id } },
