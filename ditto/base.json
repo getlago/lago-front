@@ -2,7 +2,7 @@
   "text_63cfe20ad6c1a53c5352a46e": "Deleting a charge?",
   "text_63cfe20ad6c1a53c5352a470": "By deleting this charge, it might affect subscriptions of existing customers. This action is irreversible once you save plan’s edits and has an impact on next invoices. Are you sure?",
   "text_63cfe20ad6c1a53c5352a474": "Delete charge",
-  "text_63d18bdc54f8380e7a97351a": "Plans used in {{usedObject1}}. By deleting it, it won’t appear in the existing plan’s list & all subscriptions will be deleted without issuing invoices. This action is irreversible. Are you sure?|Plans used in {{usedObject1}} and {{usedObject2}}. By deleting it, it won’t appear in the existing plan’s list & all linked subscriptions will be terminated. This action is irreversible. Are you sure?",
+  "text_63d18bdc54f8380e7a97351a": "Plans used in {{usedObject1}}. By deleting it, it won’t appear in the existing plan’s list & all linked subscriptions will be terminated. This action is irreversible. Are you sure?|Plans used in {{usedObject1}} and {{usedObject2}}. By deleting it, it won’t appear in the existing plan’s list & all linked subscriptions will be terminated. This action is irreversible. Are you sure?",
   "text_63d18d34f90cc83a038f843b": "{{count}} subscription|{{count}} subscriptions",
   "text_63d18d3edaed7e11710b4d25": "{{count}} draft invoice|{{count}} draft invoices",
   "text_63ba9ee977a67c9693f50aea": "Search billable metrics",
