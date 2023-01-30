@@ -184,31 +184,31 @@ export const theme = createTheme({
           },
           '&:hover': {
             // ------- Checkboxes
-            '& .MuiCheckbox-root.MuiIconButton-root:not(.Mui-checked)': {
+            '& .MuiCheckbox-root.MuiButtonBase-root:not(.Mui-checked)': {
               background: 'none',
               color: palette.grey[200],
             },
-            '& .MuiCheckbox-root.MuiIconButton-root.Mui-checked': {
+            '& .MuiCheckbox-root.MuiButtonBase-root.Mui-checked': {
               background: 'none',
               color: palette.primary[700],
             },
           },
           '&:active:active': {
             // ------- Checkbox
-            '& .MuiCheckbox-root.MuiIconButton-root:not(.Mui-checked)': {
+            '& .MuiCheckbox-root.MuiButtonBase-root:not(.Mui-checked)': {
               color: palette.grey[300],
             },
-            '& .MuiCheckbox-root.MuiIconButton-root.Mui-checked': {
+            '& .MuiCheckbox-root.MuiButtonBase-root.Mui-checked': {
               color: palette.primary[800],
             },
           },
           '&.Mui-disabled': {
             // ------- Checkbox
-            '& .MuiCheckbox-root.MuiIconButton-root.Mui-disabled:not(.Mui-checked) svg rect': {
+            '& .MuiCheckbox-root.MuiButtonBase-root.Mui-disabled:not(.Mui-checked) svg rect': {
               color: palette.common.white,
               stroke: palette.grey[400],
             },
-            '& .MuiCheckbox-root.MuiIconButton-root.Mui-disabled.Mui-disabled.Mui-checked': {
+            '& .MuiCheckbox-root.MuiButtonBase-root.Mui-disabled.Mui-disabled.Mui-checked': {
               transition: 'none',
               color: palette.grey[400],
             },
