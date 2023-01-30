@@ -42,7 +42,7 @@ gql`
 interface CustomerCreditNotesListProps {
   customerId: string
   creditNotesCreditsAvailableCount?: number
-  creditNotesBalanceAmountCents?: number
+  creditNotesBalanceAmountCents?: string
   userCurrency?: CurrencyEnum
   customerTimezone: TimezoneEnum
 }

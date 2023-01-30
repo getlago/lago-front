@@ -131,7 +131,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
   if (
     !invoiceId ||
     hasDefinedGQLError('NotFound', error, 'invoice') ||
-    (data?.invoice?.refundableAmountCents === 0 && data?.invoice?.creditableAmountCents === 0)
+    (data?.invoice?.refundableAmountCents === '0' && data?.invoice?.creditableAmountCents === '0')
   ) {
     navigate(ERROR_404_ROUTE)
   }
@@ -204,7 +204,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
           }
           const grouped = feeGroup.reduce((accFee, feeGrouped) => {
             if (
-              feeGrouped?.creditableAmountCents === 0 ||
+              feeGrouped?.creditableAmountCents === '0' ||
               ![FeeTypesEnum.Charge, FeeTypesEnum.Subscription].includes(feeGrouped.feeType)
             ) {
               return accFee
