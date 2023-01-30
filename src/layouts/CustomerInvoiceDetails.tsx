@@ -337,7 +337,7 @@ const CustomerInvoiceDetails = () => {
                       <Button
                         variant="quaternary"
                         align="left"
-                        disabled={creditableAmountCents === 0 && refundableAmountCents === 0}
+                        disabled={creditableAmountCents === '0' && refundableAmountCents === '0'}
                         onClick={async () => {
                           navigate(
                             generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {

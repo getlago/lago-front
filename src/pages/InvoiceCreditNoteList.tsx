@@ -71,8 +71,8 @@ const InvoiceCreditNoteList = () => {
                 <ButtonLink
                   type="button"
                   disabled={
-                    data?.invoice?.creditableAmountCents === 0 &&
-                    data?.invoice?.refundableAmountCents === 0
+                    data?.invoice?.creditableAmountCents === '0' &&
+                    data?.invoice?.refundableAmountCents === '0'
                   }
                   buttonProps={{ variant: 'quaternary' }}
                   to={generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, { id, invoiceId })}
