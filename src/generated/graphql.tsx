@@ -2177,6 +2177,7 @@ export type Organization = {
 
 export type Plan = {
   __typename?: 'Plan';
+  activeSubscriptionsCount: Scalars['Int'];
   amountCents: Scalars['BigInt'];
   amountCurrency: CurrencyEnum;
   billChargesMonthly?: Maybe<Scalars['Boolean']>;
@@ -2190,6 +2191,7 @@ export type Plan = {
   /** Number of customers attached to a plan */
   customerCount: Scalars['Int'];
   description?: Maybe<Scalars['String']>;
+  draftInvoicesCount: Scalars['Int'];
   id: Scalars['ID'];
   interval: PlanInterval;
   name: Scalars['String'];
@@ -2208,6 +2210,7 @@ export type PlanCollection = {
 
 export type PlanDetails = {
   __typename?: 'PlanDetails';
+  activeSubscriptionsCount: Scalars['Int'];
   amountCents: Scalars['BigInt'];
   amountCurrency: CurrencyEnum;
   billChargesMonthly?: Maybe<Scalars['Boolean']>;
@@ -2221,6 +2224,7 @@ export type PlanDetails = {
   /** Number of customers attached to a plan */
   customerCount: Scalars['Int'];
   description?: Maybe<Scalars['String']>;
+  draftInvoicesCount: Scalars['Int'];
   id: Scalars['ID'];
   interval: PlanInterval;
   name: Scalars['String'];
