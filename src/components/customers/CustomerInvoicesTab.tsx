@@ -96,8 +96,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
             getOnClickLink={() => ''}
           />
         </LoadingState>
-      ) : !isLoading &&
-        !invoicesDraft?.length &&
+      ) : !invoicesDraft?.length &&
         !invoicesFinalized?.length &&
         !variablesFinalized?.searchTerm ? (
         <EmptyTitle>{translate('text_6250304370f0f700a8fdc293')}</EmptyTitle>
@@ -133,31 +132,37 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
             </DraftWrapper>
           )}
 
-          <HeaderWithSearch>
-            <Title variant="subhead" color="grey700">
-              {translate('text_6250304370f0f700a8fdc291')}
-            </Title>
-            <SearchInput
-              onChange={debouncedSearch}
-              placeholder={translate('text_63c6861d9991cdd5a92c1419')}
-            />
-          </HeaderWithSearch>
-          <CustomerInvoicesList
-            isLoading={isLoading}
-            hasError={!!errorFinalized}
-            hasSearchTerm={!!variablesFinalized?.searchTerm}
-            customerTimezone={customerTimezone}
-            context="finalized"
-            invoiceData={dataFinalized?.customerInvoices}
-            getOnClickLink={(id) =>
-              generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                id: customerId,
-                invoiceId: id,
-                tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-              })
-            }
-            fetchMore={fetchMoreFinalized}
-          />
+          {(loadingFinalized ||
+            !!invoicesFinalized?.length ||
+            !!variablesFinalized?.searchTerm) && (
+            <>
+              <HeaderWithSearch>
+                <Title variant="subhead" color="grey700">
+                  {translate('text_6250304370f0f700a8fdc291')}
+                </Title>
+                <SearchInput
+                  onChange={debouncedSearch}
+                  placeholder={translate('text_63c6861d9991cdd5a92c1419')}
+                />
+              </HeaderWithSearch>
+              <CustomerInvoicesList
+                isLoading={isLoading}
+                hasError={!!errorFinalized}
+                hasSearchTerm={!!variablesFinalized?.searchTerm}
+                customerTimezone={customerTimezone}
+                context="finalized"
+                invoiceData={dataFinalized?.customerInvoices}
+                getOnClickLink={(id) =>
+                  generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+                    id: customerId,
+                    invoiceId: id,
+                    tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+                  })
+                }
+                fetchMore={fetchMoreFinalized}
+              />
+            </>
+          )}
         </>
       )}
     </div>
