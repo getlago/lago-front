@@ -66,6 +66,7 @@ export const Checkbox = ({
             icon={<Icon />}
             indeterminateIcon={<IndeterminateIcon />}
             disableRipple
+            data-test={`checkbox-${name}`}
           />
         }
         label={

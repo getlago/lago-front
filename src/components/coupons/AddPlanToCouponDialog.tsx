@@ -94,6 +94,7 @@ export const AddPlanToCouponDialog = forwardRef<DialogRef, AddPlanToCouponDialog
                 closeDialog()
                 setSelectedPlan(undefined)
               }}
+              data-test="submitAddPlanToCouponDialog"
             >
               {translate('text_63d3a658c6d84a584303214b')}
             </Button>
@@ -101,6 +102,7 @@ export const AddPlanToCouponDialog = forwardRef<DialogRef, AddPlanToCouponDialog
         )}
       >
         <StyledComboBox
+          name="selectedPlan"
           data={comboboxPlansData}
           label={translate('text_63d3a658c6d84a5843032145')}
           loading={loading}

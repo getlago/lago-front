@@ -182,7 +182,9 @@ const CustomerDetails = () => {
         <Popper
           PopperProps={{ placement: 'bottom-end' }}
           opener={
-            <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
+            <Button endIcon="chevron-down" data-test="customer-actions">
+              {translate('text_626162c62f790600f850b6fe')}
+            </Button>
           }
         >
           {({ closePopper }) => (
@@ -224,6 +226,7 @@ const CustomerDetails = () => {
                   addCouponDialogRef.current?.openDialog()
                   closePopper()
                 }}
+                data-test="apply-coupon-action"
               >
                 {translate('text_628b8dc14c71840130f8d8a1')}
               </Button>

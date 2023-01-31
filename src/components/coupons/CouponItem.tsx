@@ -83,7 +83,7 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
   const { formatTimeOrgaTZ } = useOrganizationInfos()
 
   return (
-    <ItemContainer>
+    <ItemContainer data-test={name}>
       <ConditionalWrapper
         condition={status === CouponStatusEnum.Terminated}
         validWrapper={(children) => <BaseListItem>{children}</BaseListItem>}

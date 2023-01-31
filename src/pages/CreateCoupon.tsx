@@ -409,8 +409,8 @@ const CreateCoupon = () => {
                   {hasPlanLimit && (
                     <>
                       {!!limitPlansList.length &&
-                        limitPlansList.map((plan) => (
-                          <PlanLine key={`limited-plan-${plan.id}`}>
+                        limitPlansList.map((plan, i) => (
+                          <PlanLine key={`limited-plan-${plan.id}`} data-test={`limited-plan-${i}`}>
                             <PlanLeftBlock>
                               <Avatar variant="connector">
                                 <Icon name="board" />
@@ -438,6 +438,7 @@ const CreateCoupon = () => {
                                       ...oldArray.filter((p) => p.id !== plan.id),
                                     ])
                                   }
+                                  data-test={`delete-limited-plan-${i}`}
                                 />
                               </Tooltip>
                             )}
@@ -449,6 +450,7 @@ const CreateCoupon = () => {
                           variant="quaternary"
                           startIcon="plus"
                           onClick={addPlanToCouponDialogRef.current?.openDialog}
+                          data-test="add-plan-limit"
                         >
                           {translate('text_63d3a201113866a7fa5e6f6b')}
                         </Button>
@@ -470,6 +472,7 @@ const CreateCoupon = () => {
                     fullWidth
                     size="large"
                     onClick={formikProps.submitForm}
+                    data-test="submit"
                   >
                     {translate(
                       isEdition ? 'text_6287a9bdac160c00b2e0fc6b' : 'text_62876e85e32e0300e180317d'
