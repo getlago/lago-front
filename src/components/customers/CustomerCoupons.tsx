@@ -85,7 +85,7 @@ export const CustomerCoupons = memo(
               </Typography>
             </ListHeader>
             {(coupons || []).map((appliedCoupon) => (
-              <CouponNameSection key={appliedCoupon.id}>
+              <CouponNameSection key={appliedCoupon.id} data-test={appliedCoupon.coupon?.name}>
                 <ListAvatar variant="connector">
                   <Icon name="coupon" color="dark" />
                 </ListAvatar>

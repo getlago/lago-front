@@ -258,7 +258,11 @@ export const AddCouponToCustomerDialog = forwardRef<
           >
             {translate('text_628b8c693e464200e00e4693')}
           </Button>
-          <Button disabled={!formikProps.isValid} onClick={formikProps.submitForm}>
+          <Button
+            disabled={!formikProps.isValid}
+            onClick={formikProps.submitForm}
+            data-test="submit"
+          >
             {translate('text_628b8c693e464200e00e46a1')}
           </Button>
         </>
@@ -266,6 +270,7 @@ export const AddCouponToCustomerDialog = forwardRef<
     >
       <Container>
         <ComboBox
+          name="selectCoupon"
           value={formikProps.values.couponId}
           label={translate('text_628b8c693e464200e00e4677')}
           data={coupons}
@@ -297,7 +302,7 @@ export const AddCouponToCustomerDialog = forwardRef<
         />
 
         {!!formikProps.values.plans?.length && (
-          <div>
+          <div data-test="plan-limitation-section">
             <PlanListLabel variant="captionHl" color="grey700">
               {translate('text_63d66aa2471035c8ff598857')}
             </PlanListLabel>

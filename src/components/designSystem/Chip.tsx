@@ -26,7 +26,7 @@ type ChipProps = ChipPropsAvatar | ChipPropsIcon
 
 export const Chip = ({ label, icon, avatarProps, onClose }: ChipProps) => {
   return (
-    <Container>
+    <Container data-test={`chip-${label}`}>
       {icon && <Icon name={icon} size="small" />}
       {avatarProps && <Avatar size="small" variant="user" {...avatarProps} />}
       <Typography variant="captionHl" color="textSecondary">

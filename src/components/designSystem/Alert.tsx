@@ -49,7 +49,11 @@ export const Alert = ({
   const iconConfig = getIcon(type)
 
   return (
-    <Container className={clsns(className, [`alert-type--${type}`])} {...props}>
+    <Container
+      className={clsns(className, [`alert-type--${type}`])}
+      data-test={`alert-type-${type}`}
+      {...props}
+    >
       <Icon name={iconConfig.name} color={iconConfig.color} />
       <Content color="textSecondary">{children}</Content>
       {!!ButtonProps.onClick && !!label && (

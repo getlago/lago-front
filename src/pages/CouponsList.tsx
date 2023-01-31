@@ -63,7 +63,7 @@ const CouponsList = () => {
             onChange={debouncedSearch}
             placeholder={translate('text_63beebbf4f60e2f553232782')}
           />
-          <ButtonLink type="button" to={CREATE_COUPON_ROUTE}>
+          <ButtonLink type="button" to={CREATE_COUPON_ROUTE} data-test="add-coupon">
             {translate('text_62865498824cc10126ab2954')}
           </ButtonLink>
         </HeaderRigthBlock>
