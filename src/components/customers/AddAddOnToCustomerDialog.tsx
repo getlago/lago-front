@@ -147,6 +147,10 @@ export const AddAddOnToCustomerDialog = forwardRef<
           getAddOns()
         }
       }}
+      onClickAway={() => {
+        formikProps.resetForm()
+        setCurrencyError(false)
+      }}
       actions={({ closeDialog }) => (
         <>
           <Button
