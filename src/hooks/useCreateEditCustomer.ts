@@ -23,7 +23,6 @@ gql`
     id
     name
     externalId
-    canBeDeleted
     legalName
     legalNumber
     phone
@@ -49,7 +48,6 @@ gql`
     id
     name
     externalId
-    canBeDeleted
     legalName
     legalNumber
     phone

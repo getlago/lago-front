@@ -45,6 +45,7 @@ import { formatDateToTZ } from '~/core/timezone'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 
 import { CustomerDetailsTabsOptions } from './CustomerDetails'
 
@@ -71,6 +72,7 @@ gql`
       customer {
         id
         name
+        deletedAt
       }
       invoice {
         id
@@ -393,15 +395,23 @@ const CreditNoteDetails = () => {
                         <Typography variant="caption" color="grey600" noWrap>
                           {translate('text_637655cb50f04bf1c8379cfe')}
                         </Typography>
-                        <Link
-                          to={generatePath(CUSTOMER_DETAILS_ROUTE, {
-                            id: creditNote?.customer?.id,
-                          })}
+                        <ConditionalWrapper
+                          condition={!!creditNote?.customer.deletedAt}
+                          validWrapper={(children) => <>{children}</>}
+                          invalidWrapper={(children) => (
+                            <Link
+                              to={generatePath(CUSTOMER_DETAILS_ROUTE, {
+                                id: creditNote?.customer?.id,
+                              })}
+                            >
+                              {children}
+                            </Link>
+                          )}
                         >
                           <Typography variant="body" color="grey700">
                             {creditNote?.customer?.name}
                           </Typography>
-                        </Link>
+                        </ConditionalWrapper>
                       </InfoLine>
                       {creditNote?.invoice?.number && (
                         <InfoLine>
