@@ -1,4 +1,4 @@
-import { forwardRef, useMemo, RefObject, useState } from 'react'
+import { forwardRef, useMemo, RefObject } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { object, string, number } from 'yup'
@@ -87,8 +87,6 @@ export const AddCouponToCustomerDialog = forwardRef<
   AddCouponToCustomerDialogProps
 >(({ customerId, customerName }: AddCouponToCustomerDialogProps, ref) => {
   const { translate } = useInternationalization()
-  const [currencyError, setCurrencyError] = useState(false)
-  const [planOverlappingError, setPlanOverlappingError] = useState(false)
   const [getCoupons, { loading, data }] = useGetCouponForCustomerLazyQuery({
     variables: { limit: 50, status: CouponStatusEnum.Active },
   })
@@ -109,10 +107,6 @@ export const AddCouponToCustomerDialog = forwardRef<
       }
     },
   })
-  const resetAllManualErrors = () => {
-    setCurrencyError(false)
-    setPlanOverlappingError(false)
-  }
   const formikProps = useFormik<Omit<FormType, 'customerId'>>({
     initialValues: {
       // @ts-ignore
@@ -173,8 +167,6 @@ export const AddCouponToCustomerDialog = forwardRef<
     ) => {
       const couponValues = { ...values, couponType: undefined, plans: undefined }
 
-      resetAllManualErrors()
-
       const answer = await addCoupon({
         variables: {
           input: {
@@ -203,13 +195,12 @@ export const AddCouponToCustomerDialog = forwardRef<
           translate('text_638f48274d41e3f1d01fc119', { customerFullName: customerName })
         )
       } else if (hasDefinedGQLError('CurrenciesDoesNotMatch', errors, 'currency')) {
-        setCurrencyError(true)
+        formikBag.setFieldError('amountCurrency', '')
       } else if (hasDefinedGQLError('PlanOverlapping', errors)) {
-        setPlanOverlappingError(true)
+        formikBag.setFieldError('couponId', '')
       } else {
         ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()
         formikBag.resetForm()
-        resetAllManualErrors()
       }
     },
   })
@@ -244,7 +235,6 @@ export const AddCouponToCustomerDialog = forwardRef<
       }}
       onClickAway={() => {
         formikProps.resetForm()
-        resetAllManualErrors()
       }}
       actions={({ closeDialog }) => (
         <>
@@ -253,7 +243,6 @@ export const AddCouponToCustomerDialog = forwardRef<
             onClick={() => {
               closeDialog()
               formikProps.resetForm()
-              resetAllManualErrors()
             }}
           >
             {translate('text_628b8c693e464200e00e4693')}
@@ -394,13 +383,14 @@ export const AddCouponToCustomerDialog = forwardRef<
             )}
           </>
         )}
-        {!!formikProps.errors?.couponId && (
+        {!!formikProps.errors?.couponId && formikProps.errors.couponId !== '' && (
           <Alert type="danger">{formikProps.errors?.couponId}</Alert>
         )}
-        {!!currencyError && (
-          <Alert type="danger">{translate('text_632c88c97af78294bc02ea9d')}</Alert>
-        )}
-        {!!planOverlappingError && (
+        {!!formikProps.values.amountCurrency &&
+          !!Object.keys(formikProps.errors).includes('amountCurrency') && (
+            <Alert type="danger">{translate('text_632c88c97af78294bc02ea9d')}</Alert>
+          )}
+        {!!formikProps.values.couponId && formikProps.errors.couponId === '' && (
           <Alert type="danger">{translate('text_63d6743e174d22e410d7bd66')}</Alert>
         )}
       </Container>
