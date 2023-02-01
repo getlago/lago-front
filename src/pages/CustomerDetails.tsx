@@ -9,7 +9,6 @@ import {
   Skeleton,
   Avatar,
   Popper,
-  Tooltip,
   NavigationTab,
 } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -73,7 +72,6 @@ gql`
     id
     name
     externalId
-    canBeDeleted
     hasActiveWallet
     currency
     hasCreditNotes
@@ -143,7 +141,6 @@ const CustomerDetails = () => {
   const {
     appliedAddOns,
     appliedCoupons,
-    canBeDeleted,
     creditNotesCreditsAvailableCount,
     creditNotesBalanceAmountCents,
     externalId,
@@ -241,24 +238,17 @@ const CustomerDetails = () => {
               >
                 {translate('text_62d175066d2dbf1d50bc93a5')}
               </Button>
-              <Tooltip
-                placement="bottom-end"
-                disableHoverListener={canBeDeleted}
-                title={translate('text_6262658ead40f401000bc825')}
+              <Button
+                variant="quaternary"
+                align="left"
+                fullWidth
+                onClick={() => {
+                  deleteDialogRef.current?.openDialog()
+                  closePopper()
+                }}
               >
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  disabled={!canBeDeleted}
-                  fullWidth
-                  onClick={() => {
-                    deleteDialogRef.current?.openDialog()
-                    closePopper()
-                  }}
-                >
-                  {translate('text_626162c62f790600f850b726')}
-                </Button>
-              </Tooltip>
+                {translate('text_626162c62f790600f850b726')}
+              </Button>
             </MenuPopper>
           )}
         </Popper>

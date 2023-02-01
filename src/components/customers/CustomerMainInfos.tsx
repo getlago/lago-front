@@ -14,7 +14,6 @@ gql`
     id
     name
     externalId
-    canBeDeleted
     legalName
     legalNumber
     phone

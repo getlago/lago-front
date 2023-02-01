@@ -11,6 +11,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { formatDateToTZ } from '~/core/timezone'
 
+import { ConditionalWrapper } from '../ConditionalWrapper'
+
 gql`
   fragment InvoiceForInvoiceInfos on Invoice {
     number
@@ -27,6 +29,7 @@ gql`
       city
       zipcode
       applicableTimezone
+      deletedAt
     }
   }
 `
@@ -47,15 +50,23 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
             <Typography variant="caption" color="grey600" noWrap>
               {translate('text_634687079be251fdb43833cb')}
             </Typography>
-            <Link
-              to={generatePath(CUSTOMER_DETAILS_ROUTE, {
-                id: customer.id,
-              })}
+            <ConditionalWrapper
+              condition={!!customer.deletedAt}
+              validWrapper={(children) => <>{children}</>}
+              invalidWrapper={(children) => (
+                <Link
+                  to={generatePath(CUSTOMER_DETAILS_ROUTE, {
+                    id: customer.id,
+                  })}
+                >
+                  {children}
+                </Link>
+              )}
             >
               <Typography variant="body" color="grey700">
                 {customer?.name}
               </Typography>
-            </Link>
+            </ConditionalWrapper>
           </InfoLine>
         )}
         {customer?.legalName && (

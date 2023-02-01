@@ -28,7 +28,6 @@ gql`
     name
     externalId
     createdAt
-    canBeDeleted
     activeSubscriptionCount
     ...AddCustomerDrawer
   }
@@ -44,7 +43,7 @@ interface CustomerItemProps {
 export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
   const editDialogRef = useRef<AddCustomerDrawerRef>(null)
-  const { id, name, externalId, createdAt, canBeDeleted, activeSubscriptionCount } = customer
+  const { id, name, externalId, createdAt, activeSubscriptionCount } = customer
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
 
@@ -105,24 +104,17 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
             >
               {translate('text_6261640f28a49700f1290df3')}
             </Button>
-            <Tooltip
-              disableHoverListener={canBeDeleted}
-              title={translate('text_626162c62f790600f850b836')}
-              placement="bottom-end"
+            <Button
+              startIcon="trash"
+              variant="quaternary"
+              align="left"
+              onClick={() => {
+                deleteDialogRef.current?.openDialog()
+                closePopper()
+              }}
             >
-              <Button
-                startIcon="trash"
-                variant="quaternary"
-                disabled={!canBeDeleted}
-                align="left"
-                onClick={() => {
-                  deleteDialogRef.current?.openDialog()
-                  closePopper()
-                }}
-              >
-                {translate('text_6261640f28a49700f1290df5')}
-              </Button>
-            </Tooltip>
+              {translate('text_6261640f28a49700f1290df5')}
+            </Button>
           </MenuPopper>
         )}
       </Popper>
