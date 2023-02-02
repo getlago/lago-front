@@ -28,6 +28,7 @@ gql`
     description
     amountCents
     amountCurrency
+    appliedAddOnsCount
   }
 
   query getSingleAddOn($id: ID!) {

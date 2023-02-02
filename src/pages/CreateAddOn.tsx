@@ -40,7 +40,7 @@ const CreateAddOn = () => {
       description: addOn?.description || '',
       // @ts-ignore
       amountCents: addOn?.amountCents
-        ? deserializeAmount(addOn?.amountCents, addOn?.amountCurrency)
+        ? String(deserializeAmount(addOn?.amountCents, addOn?.amountCurrency))
         : addOn?.amountCents || undefined,
       amountCurrency: addOn?.amountCurrency || CurrencyEnum.Usd,
     },
@@ -150,6 +150,7 @@ const CreateAddOn = () => {
                     />
                     <TextInputField
                       name="code"
+                      disabled={isEdition && !!addOn?.appliedAddOnsCount}
                       beforeChangeFormatter="code"
                       label={translate('text_629728388c4d2300e2d380b7')}
                       placeholder={translate('text_629728388c4d2300e2d380d9')}
@@ -174,6 +175,7 @@ const CreateAddOn = () => {
                   <LineAmount>
                     <AmountInputField
                       name="amountCents"
+                      disabled={isEdition && !!addOn?.appliedAddOnsCount}
                       currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
                       beforeChangeFormatter={['positiveNumber']}
                       label={translate('text_629728388c4d2300e2d3812d')}
@@ -181,6 +183,7 @@ const CreateAddOn = () => {
                     />
                     <ComboBoxField
                       name="amountCurrency"
+                      disabled={isEdition && !!addOn?.appliedAddOnsCount}
                       data={Object.values(CurrencyEnum).map((currencyType) => ({
                         value: currencyType,
                       }))}

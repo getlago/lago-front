@@ -44,7 +44,7 @@ gql`
     status
     amountCurrency
     amountCents
-    canBeDeleted
+    appliedCouponsCount
     expiration
     expirationAt
     couponType
@@ -75,7 +75,7 @@ const mapStatus = (type?: CouponStatusEnum | undefined) => {
 }
 
 export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
-  const { id, name, customerCount, status, canBeDeleted, expirationAt } = coupon
+  const { id, name, customerCount, status, appliedCouponsCount, expirationAt } = coupon
   const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
   const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
   const { translate } = useInternationalization()
@@ -177,14 +177,14 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
               </Button>
             </Tooltip>
             <Tooltip
-              disableHoverListener={canBeDeleted}
+              disableHoverListener={!appliedCouponsCount}
               title={translate('text_62876a50ea3bba00b56d2cee')}
               placement="bottom-end"
             >
               <Button
                 startIcon="trash"
                 variant="quaternary"
-                disabled={!canBeDeleted}
+                disabled={!!appliedCouponsCount}
                 align="left"
                 fullWidth
                 onClick={() => {

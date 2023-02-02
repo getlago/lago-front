@@ -34,11 +34,11 @@ gql`
     reusable
     expiration
     expirationAt
-    canBeDeleted
     couponType
     percentageRate
     frequency
     frequencyDuration
+    appliedCouponsCount
   }
 
   query getSingleCoupon($id: ID!) {
