@@ -61,8 +61,7 @@ gql`
     amountCents
     amountCurrency
     trialPeriod
-    draftInvoicesCount
-    activeSubscriptionsCount
+    subscriptionsCount
     billChargesMonthly
     charges {
       id
@@ -157,7 +156,7 @@ const CreatePlan = () => {
     onSubmit: onSave,
   })
   const chargeEditIndexLimit = plan?.charges?.length || 0
-  const canBeEdited = !plan?.draftInvoicesCount && !plan?.activeSubscriptionsCount
+  const canBeEdited = !plan?.subscriptionsCount
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
