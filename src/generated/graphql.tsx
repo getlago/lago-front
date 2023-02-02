@@ -1691,7 +1691,6 @@ export type Invoice = {
   legacy: Scalars['Boolean'];
   number: Scalars['String'];
   paymentStatus: InvoicePaymentStatusTypeEnum;
-  plan?: Maybe<Plan>;
   refundableAmountCents: Scalars['BigInt'];
   sequentialId: Scalars['ID'];
   status: InvoiceStatusTypeEnum;

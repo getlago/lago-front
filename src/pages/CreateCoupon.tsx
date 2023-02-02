@@ -297,9 +297,10 @@ const CreateCoupon = () => {
                     formikProps={formikProps}
                   />
 
-                  {formikProps.values.frequency === CouponFrequency.Forever && (
-                    <Alert type="info">{translate('text_63c83a3476e46bc6ab9d85da')}</Alert>
-                  )}
+                  {formikProps.values.frequency === CouponFrequency.Forever &&
+                    formikProps.values.couponType === CouponTypeEnum.FixedAmount && (
+                      <Alert type="info">{translate('text_63c83a3476e46bc6ab9d85da')}</Alert>
+                    )}
 
                   {formikProps.values.frequency === CouponFrequency.Recurring && (
                     <TextInputField
