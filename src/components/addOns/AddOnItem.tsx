@@ -38,7 +38,7 @@ gql`
     amountCents
     customerCount
     createdAt
-    canBeDeleted
+    appliedAddOnsCount
   }
 `
 
@@ -48,7 +48,8 @@ interface AddOnItemProps {
 }
 
 export const AddOnItem = ({ addOn, navigationProps }: AddOnItemProps) => {
-  const { id, name, amountCurrency, amountCents, customerCount, createdAt, canBeDeleted } = addOn
+  const { id, name, amountCurrency, amountCents, customerCount, createdAt, appliedAddOnsCount } =
+    addOn
   const deleteDialogRef = useRef<DeleteAddOnDialogRef>(null)
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
@@ -117,14 +118,14 @@ export const AddOnItem = ({ addOn, navigationProps }: AddOnItemProps) => {
               {translate('text_629728388c4d2300e2d3816a')}
             </ButtonLink>
             <Tooltip
-              disableHoverListener={canBeDeleted}
+              disableHoverListener={!appliedAddOnsCount}
               title={translate('text_629791022a75b60089e98ea7')}
               placement="bottom-end"
             >
               <Button
                 startIcon="trash"
                 variant="quaternary"
-                disabled={!canBeDeleted}
+                disabled={!!appliedAddOnsCount}
                 align="left"
                 fullWidth
                 onClick={() => {

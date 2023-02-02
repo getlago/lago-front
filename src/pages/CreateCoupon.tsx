@@ -206,7 +206,7 @@ const CreateCoupon = () => {
                   <TextInputField
                     name="code"
                     beforeChangeFormatter="code"
-                    disabled={isEdition && !coupon?.canBeDeleted}
+                    disabled={isEdition && !!coupon?.appliedCouponsCount}
                     label={translate('text_62876e85e32e0300e1803127')}
                     placeholder={translate('text_62876e85e32e0300e180312d')}
                     formikProps={formikProps}
@@ -222,7 +222,7 @@ const CreateCoupon = () => {
                     disableClearable
                     name="couponType"
                     label={translate('text_632d68358f1fedc68eed3e5a')}
-                    disabled={isEdition && !coupon?.canBeDeleted}
+                    disabled={isEdition && !!coupon?.appliedCouponsCount}
                     data={[
                       {
                         value: CouponTypeEnum.FixedAmount,
@@ -242,12 +242,12 @@ const CreateCoupon = () => {
                         name="amountCents"
                         currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
                         beforeChangeFormatter={['positiveNumber']}
-                        disabled={isEdition && !coupon?.canBeDeleted}
+                        disabled={isEdition && !!coupon?.appliedCouponsCount}
                         label={translate('text_62978f2c197cea009ab0b7d0')}
                         formikProps={formikProps}
                       />
                       <ComboBoxField
-                        disabled={isEdition && !coupon?.canBeDeleted}
+                        disabled={isEdition && !!coupon?.appliedCouponsCount}
                         name="amountCurrency"
                         data={Object.values(CurrencyEnum).map((currencyType) => ({
                           value: currencyType,
@@ -260,7 +260,7 @@ const CreateCoupon = () => {
                     <TextInputField
                       name="percentageRate"
                       beforeChangeFormatter={['positiveNumber', 'decimal']}
-                      disabled={isEdition && !coupon?.canBeDeleted}
+                      disabled={isEdition && !!coupon?.appliedCouponsCount}
                       label={translate('text_632d68358f1fedc68eed3e76')}
                       placeholder={translate('text_632d68358f1fedc68eed3e86')}
                       formikProps={formikProps}
@@ -275,7 +275,7 @@ const CreateCoupon = () => {
                   )}
 
                   <ComboBoxField
-                    disabled={isEdition && !coupon?.canBeDeleted}
+                    disabled={isEdition && !!coupon?.appliedCouponsCount}
                     name="frequency"
                     label={translate('text_632d68358f1fedc68eed3e9d')}
                     helperText={translate('text_632d68358f1fedc68eed3eab')}
@@ -306,7 +306,7 @@ const CreateCoupon = () => {
                     <TextInputField
                       name="frequencyDuration"
                       beforeChangeFormatter={['positiveNumber', 'int']}
-                      disabled={isEdition && !coupon?.canBeDeleted}
+                      disabled={isEdition && !!coupon?.appliedCouponsCount}
                       label={translate('text_632d68358f1fedc68eed3e80')}
                       placeholder={translate('text_632d68358f1fedc68eed3e88')}
                       formikProps={formikProps}
@@ -333,7 +333,7 @@ const CreateCoupon = () => {
                     <Checkbox
                       name="isReusable"
                       value={formikProps.values.reusable}
-                      disabled={isEdition && !coupon?.canBeDeleted}
+                      disabled={isEdition && !!coupon?.appliedCouponsCount}
                       label={translate('text_638f48274d41e3f1d01fc16a')}
                       onChange={(_, checked) => {
                         formikProps.setFieldValue('reusable', checked)

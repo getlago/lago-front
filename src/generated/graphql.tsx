@@ -44,8 +44,7 @@ export type AddOn = {
   __typename?: 'AddOn';
   amountCents: Scalars['BigInt'];
   amountCurrency: CurrencyEnum;
-  /** Check if add-on is deletable */
-  canBeDeleted: Scalars['Boolean'];
+  appliedAddOnsCount: Scalars['Int'];
   code: Scalars['String'];
   createdAt: Scalars['ISO8601DateTime'];
   /** Number of customers using this add-on */
@@ -67,8 +66,7 @@ export type AddOnDetails = {
   __typename?: 'AddOnDetails';
   amountCents: Scalars['BigInt'];
   amountCurrency: CurrencyEnum;
-  /** Check if add-on is deletable */
-  canBeDeleted: Scalars['Boolean'];
+  appliedAddOnsCount: Scalars['Int'];
   code: Scalars['String'];
   createdAt: Scalars['ISO8601DateTime'];
   /** Number of customers using this add-on */
@@ -719,8 +717,7 @@ export type Coupon = {
   __typename?: 'Coupon';
   amountCents?: Maybe<Scalars['BigInt']>;
   amountCurrency?: Maybe<CurrencyEnum>;
-  /** Check if coupon is deletable */
-  canBeDeleted: Scalars['Boolean'];
+  appliedCouponsCount: Scalars['Int'];
   code?: Maybe<Scalars['String']>;
   couponType: CouponTypeEnum;
   createdAt: Scalars['ISO8601DateTime'];
@@ -750,8 +747,7 @@ export type CouponDetails = {
   __typename?: 'CouponDetails';
   amountCents?: Maybe<Scalars['BigInt']>;
   amountCurrency?: Maybe<CurrencyEnum>;
-  /** Check if coupon is deletable */
-  canBeDeleted: Scalars['Boolean'];
+  appliedCouponsCount: Scalars['Int'];
   code?: Maybe<Scalars['String']>;
   couponType: CouponTypeEnum;
   createdAt: Scalars['ISO8601DateTime'];
@@ -3179,7 +3175,7 @@ export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> | null }, organization?: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, vatRate: number, invoiceGracePeriod: number } | null };
 
-export type AddOnItemFragment = { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customerCount: number, createdAt: any, canBeDeleted: boolean };
+export type AddOnItemFragment = { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customerCount: number, createdAt: any, appliedAddOnsCount: number };
 
 export type DeleteAddOnFragment = { __typename?: 'AddOn', id: string, name: string };
 
@@ -3205,7 +3201,7 @@ export type CouponCaptionFragment = { __typename?: 'Coupon', id: string, amountC
 
 export type AppliedCouponCaptionFragment = { __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null };
 
-export type CouponItemFragment = { __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, canBeDeleted: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
+export type CouponItemFragment = { __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, appliedCouponsCount: number, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
 
 export type DeleteCouponFragment = { __typename?: 'Coupon', id: string, name: string };
 
@@ -3663,14 +3659,14 @@ export type CreateCreditNoteMutationVariables = Exact<{
 
 export type CreateCreditNoteMutation = { __typename?: 'Mutation', createCreditNote?: { __typename?: 'CreditNote', id: string } | null };
 
-export type EditAddOnFragment = { __typename?: 'AddOnDetails', id: string, name: string, code: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum };
+export type EditAddOnFragment = { __typename?: 'AddOnDetails', id: string, name: string, code: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, appliedAddOnsCount: number };
 
 export type GetSingleAddOnQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetSingleAddOnQuery = { __typename?: 'Query', addOn?: { __typename?: 'AddOnDetails', id: string, name: string, code: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum } | null };
+export type GetSingleAddOnQuery = { __typename?: 'Query', addOn?: { __typename?: 'AddOnDetails', id: string, name: string, code: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, appliedAddOnsCount: number } | null };
 
 export type CreateAddOnMutationVariables = Exact<{
   input: CreateAddOnInput;
@@ -3684,7 +3680,7 @@ export type UpdateAddOnMutationVariables = Exact<{
 }>;
 
 
-export type UpdateAddOnMutation = { __typename?: 'Mutation', updateAddOn?: { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customerCount: number, createdAt: any, canBeDeleted: boolean } | null };
+export type UpdateAddOnMutation = { __typename?: 'Mutation', updateAddOn?: { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customerCount: number, createdAt: any, appliedAddOnsCount: number } | null };
 
 export type GetSingleBillableMetricQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -3707,14 +3703,14 @@ export type UpdateBillableMetricMutationVariables = Exact<{
 
 export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number } | null };
 
-export type EditCouponFragment = { __typename?: 'CouponDetails', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, canBeDeleted: boolean, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
+export type EditCouponFragment = { __typename?: 'CouponDetails', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number };
 
 export type GetSingleCouponQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetSingleCouponQuery = { __typename?: 'Query', coupon?: { __typename?: 'CouponDetails', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, canBeDeleted: boolean, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null } | null };
+export type GetSingleCouponQuery = { __typename?: 'Query', coupon?: { __typename?: 'CouponDetails', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number } | null };
 
 export type CreateCouponMutationVariables = Exact<{
   input: CreateCouponInput;
@@ -3728,7 +3724,7 @@ export type UpdateCouponMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCouponMutation = { __typename?: 'Mutation', updateCoupon?: { __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, canBeDeleted: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null } | null };
+export type UpdateCouponMutation = { __typename?: 'Mutation', updateCoupon?: { __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, appliedCouponsCount: number, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null } | null };
 
 export type AddCustomerDrawerFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, canBeDeleted: boolean, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, canEditAttributes: boolean, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, timezone?: TimezoneEnum | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null };
 
@@ -3797,7 +3793,7 @@ export type AddOnsQueryVariables = Exact<{
 }>;
 
 
-export type AddOnsQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customerCount: number, createdAt: any, canBeDeleted: boolean }> } };
+export type AddOnsQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customerCount: number, createdAt: any, appliedAddOnsCount: number }> } };
 
 export type BillableMetricsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -3815,7 +3811,7 @@ export type CouponsQueryVariables = Exact<{
 }>;
 
 
-export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, canBeDeleted: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null }> } };
+export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, appliedCouponsCount: number, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null }> } };
 
 export type EditBillableMetricFragment = { __typename?: 'BillableMetricDetail', id: string, name: string, code: string, description?: string | null, group?: any | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, subscriptionsCount: number };
 
@@ -4022,7 +4018,7 @@ export const AddOnItemFragmentDoc = gql`
   amountCents
   customerCount
   createdAt
-  canBeDeleted
+  appliedAddOnsCount
 }
     `;
 export const DeleteAddOnFragmentDoc = gql`
@@ -4067,7 +4063,7 @@ export const CouponItemFragmentDoc = gql`
   status
   amountCurrency
   amountCents
-  canBeDeleted
+  appliedCouponsCount
   expiration
   expirationAt
   couponType
@@ -4432,6 +4428,7 @@ export const EditAddOnFragmentDoc = gql`
   description
   amountCents
   amountCurrency
+  appliedAddOnsCount
 }
     `;
 export const EditCouponFragmentDoc = gql`
@@ -4444,11 +4441,11 @@ export const EditCouponFragmentDoc = gql`
   reusable
   expiration
   expirationAt
-  canBeDeleted
   couponType
   percentageRate
   frequency
   frequencyDuration
+  appliedCouponsCount
 }
     `;
 export const CurrentUserInfosFragmentDoc = gql`
