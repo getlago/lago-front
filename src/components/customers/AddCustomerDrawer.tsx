@@ -190,7 +190,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                   variant="caption"
                   html={translate('text_6390a4ffef9227ba45daca94', {
                     timezone: translate('text_638f743fa9a2a9545ee6409a', {
-                      zone: translate(timezoneConfig.name),
+                      zone: timezoneConfig.name,
                       offset: timezoneConfig.offset,
                     }),
                     link: ORGANIZATION_INFORMATIONS_ROUTE,
