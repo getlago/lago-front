@@ -11,6 +11,7 @@ import {
   useGetOrganizationInformationsQuery,
   EditOrganizationInformationsDialogFragmentDoc,
   EditOrganizationInformationsDialogFragment,
+  TimezoneEnum,
 } from '~/generated/graphql'
 import {
   EditOrganizationInformationsDialog,
@@ -117,7 +118,7 @@ const OrganizationInformations = () => {
           <TimezoneBlock>
             <Timezone color="grey700">
               {translate('text_638f743fa9a2a9545ee6409a', {
-                zone: translate(timezone || 'TZ_UTC'),
+                zone: translate(timezone || TimezoneEnum.TzUtc),
                 offset: timezoneConfig.offset,
               })}
             </Timezone>
