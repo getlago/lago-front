@@ -119,6 +119,7 @@
     "clsx": "1.2.1",
     "crypto-hash": "2.0.1",
     "formik": "2.2.9",
+    "graphql": "^16.6.0",
     "localforage": "1.10.0",
     "lodash": "4.17.21",
     "luxon": "3.2.1",
