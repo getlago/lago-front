@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { generatePath } from 'react-router-dom'
 
 import { Typography } from '~/components/designSystem'
-import { CreditNote, CreditNoteItem, CurrencyEnum } from '~/generated/graphql'
+import { CreditNote, CreditNoteItem, CurrencyEnum, FeeTypesEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -37,6 +37,7 @@ gql`
           eventsCount
           units
           feeType
+          itemName
           charge {
             id
             billableMetric {
@@ -167,8 +168,14 @@ export const InvoiceCreditNotesTable = memo(
                                       <TD $pad={groupDimension > 0}>
                                         <Typography variant="body" color="grey700">
                                           {groupDimension === 0 ? (
-                                            item.fee.charge?.billableMetric.name ||
-                                            creditNoteDisplayName
+                                            <>
+                                              {item?.fee?.feeType === FeeTypesEnum.AddOn
+                                                ? translate('text_6388baa2e514213fed583611', {
+                                                    name: item?.fee?.itemName,
+                                                  })
+                                                : item.fee.charge?.billableMetric.name ||
+                                                  creditNoteDisplayName}
+                                            </>
                                           ) : (
                                             <>
                                               <span>
