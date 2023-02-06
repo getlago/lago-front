@@ -155,7 +155,7 @@ const CreatePlan = () => {
     validateOnMount: true,
     onSubmit: onSave,
   })
-  const chargeEditIndexLimit = plan?.charges?.length || 0
+
   const canBeEdited = !plan?.subscriptionsCount
 
   useEffect(() => {
@@ -399,7 +399,7 @@ const CreatePlan = () => {
                             isUsedInSubscription={!isNew && !canBeEdited}
                             currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
                             index={i}
-                            disabled={isEdition && !canBeEdited && chargeEditIndexLimit > i}
+                            disabled={isEdition && !canBeEdited && !isNew}
                             formikProps={formikProps}
                           />
                         )

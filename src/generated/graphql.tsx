@@ -1328,6 +1328,7 @@ export type Customer = {
   /** Number of available credits from credit notes per customer */
   creditNotesCreditsAvailableCount: Scalars['Int'];
   currency?: Maybe<CurrencyEnum>;
+  deletedAt?: Maybe<Scalars['ISO8601DateTime']>;
   email?: Maybe<Scalars['String']>;
   externalId: Scalars['String'];
   /** Define if a customer has an active wallet */
@@ -1382,6 +1383,7 @@ export type CustomerDetails = {
   /** Number of available credits from credit notes per customer */
   creditNotesCreditsAvailableCount: Scalars['Int'];
   currency?: Maybe<CurrencyEnum>;
+  deletedAt?: Maybe<Scalars['ISO8601DateTime']>;
   email?: Maybe<Scalars['String']>;
   externalId: Scalars['String'];
   /** Define if a customer has an active wallet */
