@@ -14,7 +14,7 @@ import {
   useUpdateOrganizationInformationsMutation,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
-import CountryCodes from '~/public/countryCode.json'
+import CountryCodes from '~/public/countryCodes.json'
 import { addToast } from '~/core/apolloClient'
 
 const FILE_MAX_SIZE = 800000

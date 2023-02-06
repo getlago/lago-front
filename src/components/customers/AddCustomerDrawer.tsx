@@ -18,7 +18,7 @@ import {
   TimezoneEnum,
 } from '~/generated/graphql'
 import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
-import CountryCodes from '~/public/countryCode.json'
+import CountryCodes from '~/public/countryCodes.json'
 import { INTEGRATIONS_ROUTE, ORGANIZATION_INFORMATIONS_ROUTE } from '~/core/router'
 import { getTimezoneConfig } from '~/core/timezone'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'

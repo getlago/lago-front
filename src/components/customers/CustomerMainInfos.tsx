@@ -6,7 +6,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
 import { CustomerMainInfosFragment, ProviderTypeEnum, TimezoneEnum } from '~/generated/graphql'
-import CountryCodes from '~/public/countryCode.json'
+import CountryCodes from '~/public/countryCodes.json'
 import { getTimezoneConfig } from '~/core/timezone'
 
 gql`
