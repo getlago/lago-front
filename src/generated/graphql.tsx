@@ -3847,11 +3847,10 @@ export type EditPlanFragment = { __typename?: 'PlanDetails', id: string, name: s
 
 export type GetCreditNoteQueryVariables = Exact<{
   id: Scalars['ID'];
-  customerId: Scalars['ID'];
 }>;
 
 
-export type GetCreditNoteQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, balanceAmountCents: any, canBeVoided: boolean, createdAt: any, creditAmountCents: any, creditAmountCurrency: CurrencyEnum, creditStatus?: CreditNoteCreditStatusEnum | null, number: string, refundAmountCents: any, refundedAt?: any | null, refundStatus?: CreditNoteRefundStatusEnum | null, subTotalVatExcludedAmountCents: any, subTotalVatExcludedAmountCurrency: CurrencyEnum, totalAmountCents: any, totalAmountCurrency: CurrencyEnum, vatAmountCents: any, vatAmountCurrency: CurrencyEnum, customer: { __typename?: 'Customer', id: string, name?: string | null, deletedAt?: any | null }, invoice?: { __typename?: 'Invoice', id: string, number: string } | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, amountCurrency: CurrencyEnum, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, itemName: string, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null } }> } | null, customer?: { __typename?: 'CustomerDetails', id: string, applicableTimezone: TimezoneEnum } | null };
+export type GetCreditNoteQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, balanceAmountCents: any, canBeVoided: boolean, createdAt: any, creditAmountCents: any, creditAmountCurrency: CurrencyEnum, creditStatus?: CreditNoteCreditStatusEnum | null, number: string, refundAmountCents: any, refundedAt?: any | null, refundStatus?: CreditNoteRefundStatusEnum | null, subTotalVatExcludedAmountCents: any, subTotalVatExcludedAmountCurrency: CurrencyEnum, totalAmountCents: any, totalAmountCurrency: CurrencyEnum, vatAmountCents: any, vatAmountCurrency: CurrencyEnum, customer: { __typename?: 'Customer', id: string, name?: string | null, deletedAt?: any | null, applicableTimezone: TimezoneEnum }, invoice?: { __typename?: 'Invoice', id: string, number: string } | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, amountCurrency: CurrencyEnum, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, itemName: string, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null } }> } | null };
 
 export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, vatRate?: number | null, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, canEditAttributes: boolean, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, timezone?: TimezoneEnum | null, invoiceGracePeriod?: number | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null };
 
@@ -3905,14 +3904,13 @@ export type AcceptInviteMutationVariables = Exact<{
 export type AcceptInviteMutation = { __typename?: 'Mutation', acceptInvite?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, timezone?: TimezoneEnum | null }> | null } } | null };
 
 export type GetInvoiceCreditNotesQueryVariables = Exact<{
-  customerId: Scalars['ID'];
   invoiceId: Scalars['ID'];
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
 }>;
 
 
-export type GetInvoiceCreditNotesQuery = { __typename?: 'Query', invoiceCreditNotes?: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'CreditNote', id: string, canBeVoided: boolean, createdAt: any, creditStatus?: CreditNoteCreditStatusEnum | null, number: string, totalAmountCents: any, totalAmountCurrency: CurrencyEnum }> } | null, invoice?: { __typename?: 'Invoice', id: string, refundableAmountCents: any, creditableAmountCents: any, status: InvoiceStatusTypeEnum } | null, customer?: { __typename?: 'CustomerDetails', id: string, applicableTimezone: TimezoneEnum } | null };
+export type GetInvoiceCreditNotesQuery = { __typename?: 'Query', invoiceCreditNotes?: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'CreditNote', id: string, canBeVoided: boolean, createdAt: any, creditStatus?: CreditNoteCreditStatusEnum | null, number: string, totalAmountCents: any, totalAmountCurrency: CurrencyEnum }> } | null, invoice?: { __typename?: 'Invoice', id: string, refundableAmountCents: any, creditableAmountCents: any, status: InvoiceStatusTypeEnum, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum } } | null };
 
 export type InvoiceDetailsForInvoiceOverviewFragment = { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, issuingDate: any, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum } };
 
@@ -7704,7 +7702,7 @@ export type CouponsQueryHookResult = ReturnType<typeof useCouponsQuery>;
 export type CouponsLazyQueryHookResult = ReturnType<typeof useCouponsLazyQuery>;
 export type CouponsQueryResult = Apollo.QueryResult<CouponsQuery, CouponsQueryVariables>;
 export const GetCreditNoteDocument = gql`
-    query getCreditNote($id: ID!, $customerId: ID!) {
+    query getCreditNote($id: ID!) {
   creditNote(id: $id) {
     id
     balanceAmountCents
@@ -7727,6 +7725,7 @@ export const GetCreditNoteDocument = gql`
       id
       name
       deletedAt
+      applicableTimezone
     }
     invoice {
       id
@@ -7767,10 +7766,6 @@ export const GetCreditNoteDocument = gql`
       }
     }
   }
-  customer(id: $customerId) {
-    id
-    applicableTimezone
-  }
 }
     `;
 
@@ -7787,7 +7782,6 @@ export const GetCreditNoteDocument = gql`
  * const { data, loading, error } = useGetCreditNoteQuery({
  *   variables: {
  *      id: // value for 'id'
- *      customerId: // value for 'customerId'
  *   },
  * });
  */
@@ -8046,7 +8040,7 @@ export type AcceptInviteMutationHookResult = ReturnType<typeof useAcceptInviteMu
 export type AcceptInviteMutationResult = Apollo.MutationResult<AcceptInviteMutation>;
 export type AcceptInviteMutationOptions = Apollo.BaseMutationOptions<AcceptInviteMutation, AcceptInviteMutationVariables>;
 export const GetInvoiceCreditNotesDocument = gql`
-    query getInvoiceCreditNotes($customerId: ID!, $invoiceId: ID!, $page: Int, $limit: Int) {
+    query getInvoiceCreditNotes($invoiceId: ID!, $page: Int, $limit: Int) {
   invoiceCreditNotes(invoiceId: $invoiceId, page: $page, limit: $limit) {
     ...CreditNotesForList
   }
@@ -8055,10 +8049,10 @@ export const GetInvoiceCreditNotesDocument = gql`
     refundableAmountCents
     creditableAmountCents
     status
-  }
-  customer(id: $customerId) {
-    id
-    applicableTimezone
+    customer {
+      id
+      applicableTimezone
+    }
   }
 }
     ${CreditNotesForListFragmentDoc}`;
@@ -8075,7 +8069,6 @@ export const GetInvoiceCreditNotesDocument = gql`
  * @example
  * const { data, loading, error } = useGetInvoiceCreditNotesQuery({
  *   variables: {
- *      customerId: // value for 'customerId'
  *      invoiceId: // value for 'invoiceId'
  *      page: // value for 'page'
  *      limit: // value for 'limit'

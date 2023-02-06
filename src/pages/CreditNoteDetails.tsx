@@ -50,7 +50,7 @@ import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { CustomerDetailsTabsOptions } from './CustomerDetails'
 
 gql`
-  query getCreditNote($id: ID!, $customerId: ID!) {
+  query getCreditNote($id: ID!) {
     creditNote(id: $id) {
       id
       balanceAmountCents
@@ -73,6 +73,7 @@ gql`
         id
         name
         deletedAt
+        applicableTimezone
       }
       invoice {
         id
@@ -112,11 +113,6 @@ gql`
           }
         }
       }
-    }
-
-    customer(id: $customerId) {
-      id
-      applicableTimezone
     }
   }
 
@@ -197,7 +193,7 @@ const CreditNoteDetails = () => {
   })
 
   const { data, loading, error } = useGetCreditNoteQuery({
-    variables: { id: creditNoteId as string, customerId: customerId as string },
+    variables: { id: creditNoteId as string },
     skip: !creditNoteId || !customerId,
   })
   const creditNote = data?.creditNote
@@ -329,7 +325,7 @@ const CreditNoteDetails = () => {
                     label={translate(status.label, {
                       date: formatDateToTZ(
                         creditNote?.refundedAt,
-                        data?.customer?.applicableTimezone
+                        creditNote?.customer.applicableTimezone
                       ),
                     })}
                   />
@@ -439,7 +435,10 @@ const CreditNoteDetails = () => {
                         {translate('text_637655cb50f04bf1c8379d06')}
                       </Typography>
                       <Typography variant="body" color="grey700">
-                        {formatDateToTZ(creditNote?.createdAt, data?.customer?.applicableTimezone)}
+                        {formatDateToTZ(
+                          creditNote?.createdAt,
+                          creditNote?.customer.applicableTimezone
+                        )}
                       </Typography>
                     </InfoLine>
                   )}
@@ -476,7 +475,7 @@ const CreditNoteDetails = () => {
                         label={translate(status.label, {
                           date: formatDateToTZ(
                             creditNote?.refundedAt,
-                            data?.customer?.applicableTimezone
+                            creditNote?.customer.applicableTimezone
                           ),
                         })}
                       />

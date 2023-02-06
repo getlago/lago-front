@@ -27,7 +27,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 
 gql`
-  query getInvoiceCreditNotes($customerId: ID!, $invoiceId: ID!, $page: Int, $limit: Int) {
+  query getInvoiceCreditNotes($invoiceId: ID!, $page: Int, $limit: Int) {
     invoiceCreditNotes(invoiceId: $invoiceId, page: $page, limit: $limit) {
       ...CreditNotesForList
     }
@@ -37,11 +37,10 @@ gql`
       refundableAmountCents
       creditableAmountCents
       status
-    }
-
-    customer(id: $customerId) {
-      id
-      applicableTimezone
+      customer {
+        id
+        applicableTimezone
+      }
     }
   }
 
@@ -55,7 +54,7 @@ const InvoiceCreditNoteList = () => {
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { data, loading, error, fetchMore } = useGetInvoiceCreditNotesQuery({
-    variables: { customerId: id as string, invoiceId: invoiceId as string, limit: 20 },
+    variables: { invoiceId: invoiceId as string, limit: 20 },
     skip: !invoiceId || !id,
   })
   const creditNotes = data?.invoiceCreditNotes?.collection
@@ -113,7 +112,7 @@ const InvoiceCreditNoteList = () => {
             itemClickRedirection={CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE}
             loading={loading}
             metadata={data?.invoiceCreditNotes?.metadata}
-            customerTimezone={data?.customer?.applicableTimezone || TimezoneEnum.TzUtc}
+            customerTimezone={data?.invoice?.customer.applicableTimezone || TimezoneEnum.TzUtc}
           />
         )}
       </>
