@@ -26,6 +26,7 @@ import {
   CreditNoteItem,
   CreditNoteRefundStatusEnum,
   CurrencyEnum,
+  FeeTypesEnum,
   useDownloadCreditNoteMutation,
   useGetCreditNoteQuery,
 } from '~/generated/graphql'
@@ -85,6 +86,7 @@ gql`
           eventsCount
           units
           feeType
+          itemName
           charge {
             id
             billableMetric {
@@ -531,7 +533,14 @@ const CreditNoteDetails = () => {
                                   <TD $pad={groupDimension > 0}>
                                     <Typography variant="body" color="grey700">
                                       {groupDimension === 0 ? (
-                                        item.fee.charge?.billableMetric.name || invoiceDisplayName
+                                        <>
+                                          {item?.fee?.feeType === FeeTypesEnum.AddOn
+                                            ? translate('text_6388baa2e514213fed583611', {
+                                                name: item?.fee?.itemName,
+                                              })
+                                            : item?.fee?.charge?.billableMetric.name ||
+                                              invoiceDisplayName}
+                                        </>
                                       ) : (
                                         <>
                                           <span>
