@@ -175,5 +175,8 @@ module.exports = {
   },
   "project_639c334bcee914d26afecf69": {
     "base": require('./👍 [Ready for dev] - Settings Customers - Lago x Data Warehouse connection__base.json')
+  },
+  "project_63e26d71cc5ddde09d90bd99": {
+    "base": require('./👍 [Ready for dev] - Settings Customers - Lago x Osso connection__base.json')
   }
 }

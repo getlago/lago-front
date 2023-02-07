@@ -9,6 +9,7 @@ import { Typography, Selector, Avatar, SelectorSkeleton, Chip } from '~/componen
 import Stripe from '~/public/images/stripe.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import Airbyte from '~/public/images/airbyte.svg'
+import Oso from '~/public/images/oso.svg'
 import { useIntegrationsSettingQuery } from '~/generated/graphql'
 import { STRIPE_INTEGRATION_ROUTE, GOCARDLESS_INTEGRATION_ROUTE } from '~/core/router'
 import { envGlobalVar } from '~/core/apolloClient'
@@ -106,6 +107,18 @@ const Integrations = () => {
             icon={<Avatar variant="connector">{<Airbyte />}</Avatar>}
             onClick={() => {
               window.open('https://docs.airbyte.com/integrations/sources/getlago/', '_blank')
+            }}
+            fullWidth
+          />
+          <StyledSelector
+            title={translate('text_63e26d8308d03687188221a5')}
+            subtitle={translate('text_63e26d8308d03687188221a6')}
+            icon={<Avatar variant="connector">{<Oso />}</Avatar>}
+            onClick={() => {
+              window.open(
+                'https://www.osohq.com/docs/guides/model-your-apps-authz#entitlements',
+                '_blank'
+              )
             }}
             fullWidth
           />
