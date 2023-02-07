@@ -123,6 +123,8 @@ projects:
       ⚙️ [WIP] - Plan - Warn user if duplicate charge in plan creation and
       edition
     id: 63e254ea592347d77dd3cf03
+  - name: 👍 [Ready for dev] - Settings Customers - Lago x Osso connection
+    id: 63e26d71cc5ddde09d90bd99
 format: flat
 variants: true
 components: true
