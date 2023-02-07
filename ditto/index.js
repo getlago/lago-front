@@ -122,6 +122,9 @@ module.exports = {
   "project_62f50d2512182c6df6c39e37": {
     "base": require('./⚙️ [WIP] - General - FE environment infos__base.json')
   },
+  "project_63e254ea592347d77dd3cf03": {
+    "base": require('./⚙️ [WIP] - Plan - Warn user if duplicate charge in plan creation and edition__base.json')
+  },
   "project_62ff5cfec490a4767eccdf6e": {
     "base": require('./👍 [Ready for dev] - Add Percentage in charge model__base.json')
   },

@@ -67,6 +67,7 @@ gql`
       id
       billableMetric {
         id
+        code
       }
       ...ChargeAccordion
       chargeModel
@@ -456,6 +457,11 @@ const CreatePlan = () => {
 
                 <AddChargeDialog
                   ref={addChargeDialogRef}
+                  addedBillableMetricCodes={
+                    formikProps.values.charges.length
+                      ? formikProps.values.charges.map((c) => c.billableMetric.code)
+                      : []
+                  }
                   onConfirm={(newCharge) => {
                     const previousCharges = [...formikProps.values.charges]
                     const newId = getNewChargeId(newCharge.id, previousCharges.length)

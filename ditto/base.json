@@ -210,6 +210,7 @@
   "text_62f50d26c989ab03196884aa": "Front version",
   "text_62f50d26c989ab03196884ac": "Copy all info",
   "text_62f50d26c989ab03196884ae": "Close",
+  "text_63e254ff879bfa12d6ffd8eb": "This billable metric is already linked to the plan. By adding this charge, users will be charged twice.",
   "text_62ff5d01a306e274d4ffcc3e": "Based on events",
   "text_62ff5d01a306e274d4ffcc44": "Based on total amount",
   "text_62ff5d01a306e274d4ffcc06": "Charge per example 10% of the amount of units, apply fixed rate and free units.",

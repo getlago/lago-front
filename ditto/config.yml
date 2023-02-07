@@ -119,6 +119,10 @@ projects:
     id: 63c83a31e697e8e9236da751
   - name: ⚙️ [WIP] - All - Delete objects linked to subscription
     id: 63cfe207f9f4c2ea8dcf3aa7
+  - name: >-
+      ⚙️ [WIP] - Plan - Warn user if duplicate charge in plan creation and
+      edition
+    id: 63e254ea592347d77dd3cf03
 format: flat
 variants: true
 components: true
