@@ -17,6 +17,7 @@ import {
   AddStripeDialog,
   AddStripeDialogRef,
 } from '~/components/settings/integrations/AddStripeDialog'
+import { DOCUMENTATION_AIRBYTE, DOCUMENTATION_OSO } from '~/externalUrls'
 
 gql`
   query integrationsSetting {
@@ -106,7 +107,7 @@ const Integrations = () => {
             subtitle={translate('text_639c334c3fa0e9c6ca3512b4')}
             icon={<Avatar variant="connector">{<Airbyte />}</Avatar>}
             onClick={() => {
-              window.open('https://docs.airbyte.com/integrations/sources/getlago/', '_blank')
+              window.open(DOCUMENTATION_AIRBYTE, '_blank')
             }}
             fullWidth
           />
@@ -115,10 +116,7 @@ const Integrations = () => {
             subtitle={translate('text_63e26d8308d03687188221a6')}
             icon={<Avatar variant="connector">{<Oso />}</Avatar>}
             onClick={() => {
-              window.open(
-                'https://www.osohq.com/docs/guides/model-your-apps-authz#entitlements',
-                '_blank'
-              )
+              window.open(DOCUMENTATION_OSO, '_blank')
             }}
             fullWidth
           />
