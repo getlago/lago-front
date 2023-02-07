@@ -2,7 +2,7 @@ import { forwardRef, useMemo, useState } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
-import { Dialog, Button, DialogRef, Typography } from '~/components/designSystem'
+import { Dialog, Button, DialogRef, Typography, Alert } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useGetbillableMetricsLazyQuery, BillableMetricForPlanFragment } from '~/generated/graphql'
@@ -32,11 +32,12 @@ gql`
 `
 
 interface AddChargeDialogProps {
+  addedBillableMetricCodes: string[]
   onConfirm: (item: BillableMetricForPlanFragment) => void
 }
 
 export const AddChargeDialog = forwardRef<DialogRef, AddChargeDialogProps>(
-  ({ onConfirm }: AddChargeDialogProps, ref) => {
+  ({ addedBillableMetricCodes, onConfirm }: AddChargeDialogProps, ref) => {
     const [selectedId, setSelectedId] = useState<string>()
     const { translate } = useInternationalization()
     const [getBillableMetrics, { loading, data }] = useGetbillableMetricsLazyQuery({
@@ -57,6 +58,12 @@ export const AddChargeDialog = forwardRef<DialogRef, AddChargeDialogProps>(
         }
       })
     }, [data])
+
+    const doesPlanAlreadyHasThisBM =
+      !!selectedId &&
+      addedBillableMetricCodes.includes(
+        data?.billableMetrics.collection.find((element) => element.id === selectedId)?.code || ''
+      )
 
     return (
       <Dialog
@@ -97,18 +104,24 @@ export const AddChargeDialog = forwardRef<DialogRef, AddChargeDialogProps>(
           </>
         )}
       >
-        <StyledComboBox
-          label={translate('text_624c5eadff7db800acc4c995')}
-          value={selectedId}
-          data={billableMetrics}
-          searchQuery={getBillableMetrics}
-          name="billableMetricId"
-          loading={loading}
-          placeholder={translate('text_6246b6bc6b25f500b779aa6e')}
-          emptyText={translate('text_6246b6bc6b25f500b779aa7a')}
-          PopperProps={{ displayInDialog: true }}
-          onChange={(value) => setSelectedId(value)}
-        />
+        <Wrapper>
+          <ComboBox
+            label={translate('text_624c5eadff7db800acc4c995')}
+            value={selectedId}
+            data={billableMetrics}
+            searchQuery={getBillableMetrics}
+            name="billableMetricId"
+            loading={loading}
+            placeholder={translate('text_6246b6bc6b25f500b779aa6e')}
+            emptyText={translate('text_6246b6bc6b25f500b779aa7a')}
+            PopperProps={{ displayInDialog: true }}
+            onChange={(value) => setSelectedId(value)}
+          />
+
+          {doesPlanAlreadyHasThisBM && (
+            <Alert type="warning">{translate('text_63e254ff879bfa12d6ffd8eb')}</Alert>
+          )}
+        </Wrapper>
       </Dialog>
     )
   }
@@ -119,8 +132,10 @@ const Item = styled.span`
   white-space: pre;
 `
 
-const StyledComboBox = styled(ComboBox)`
-  margin-bottom: ${theme.spacing(8)};
+const Wrapper = styled.div`
+  > * {
+    margin-bottom: ${theme.spacing(8)};
+  }
 `
 
 AddChargeDialog.displayName = 'AddChargeDialog'
