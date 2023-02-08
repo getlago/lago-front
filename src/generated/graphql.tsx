@@ -49,6 +49,7 @@ export type AddOn = {
   createdAt: Scalars['ISO8601DateTime'];
   /** Number of customers using this add-on */
   customerCount: Scalars['Int'];
+  deletedAt?: Maybe<Scalars['ISO8601DateTime']>;
   description?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   name: Scalars['String'];
@@ -71,6 +72,7 @@ export type AddOnDetails = {
   createdAt: Scalars['ISO8601DateTime'];
   /** Number of customers using this add-on */
   customerCount: Scalars['Int'];
+  deletedAt?: Maybe<Scalars['ISO8601DateTime']>;
   description?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   name: Scalars['String'];
@@ -1321,8 +1323,6 @@ export type Customer = {
   addressLine1?: Maybe<Scalars['String']>;
   addressLine2?: Maybe<Scalars['String']>;
   applicableTimezone: TimezoneEnum;
-  /** Check if customer is deletable */
-  canBeDeleted: Scalars['Boolean'];
   /** Check if customer attributes are editable */
   canEditAttributes: Scalars['Boolean'];
   city?: Maybe<Scalars['String']>;
@@ -1375,8 +1375,6 @@ export type CustomerDetails = {
   applicableTimezone: TimezoneEnum;
   appliedAddOns?: Maybe<Array<AppliedAddOn>>;
   appliedCoupons?: Maybe<Array<AppliedCoupon>>;
-  /** Check if customer is deletable */
-  canBeDeleted: Scalars['Boolean'];
   /** Check if customer attributes are editable */
   canEditAttributes: Scalars['Boolean'];
   city?: Maybe<Scalars['String']>;
