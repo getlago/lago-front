@@ -46,12 +46,6 @@ gql`
     }
   }
 
-  mutation addAddOn($input: CreateAppliedAddOnInput!) {
-    createAppliedAddOn(input: $input) {
-      id
-    }
-  }
-
   ${WalletForTopupFragmentDoc}
   ${WalletForUpdateFragmentDoc}
   ${WalletAccordionFragmentDoc}
