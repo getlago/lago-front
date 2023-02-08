@@ -53,7 +53,6 @@ export const ChargePercentage = ({
   valuePointer,
 }: ChargePercentageProps) => {
   const { translate } = useInternationalization()
-  const localCharge = formikProps.values.charges[chargeIndex]
   const showFixedAmount = valuePointer?.fixedAmount !== undefined
   const showFreeUnitsPerEvents = valuePointer?.freeUnitsPerEvents !== undefined
   const showFreeUnitsPerTotalAggregation = valuePointer?.freeUnitsPerTotalAggregation !== undefined
@@ -131,7 +130,7 @@ export const ChargePercentage = ({
               variant="quaternary"
               onClick={() => {
                 formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
-                  ...localCharge,
+                  ...valuePointer,
                   fixedAmount: undefined,
                 })
               }}
@@ -173,7 +172,7 @@ export const ChargePercentage = ({
               variant="quaternary"
               onClick={() => {
                 formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
-                  ...localCharge,
+                  ...valuePointer,
                   freeUnitsPerEvents: undefined,
                 })
               }}
@@ -219,7 +218,7 @@ export const ChargePercentage = ({
               variant="quaternary"
               onClick={() => {
                 formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
-                  ...localCharge,
+                  ...valuePointer,
                   freeUnitsPerTotalAggregation: undefined,
                 })
               }}
