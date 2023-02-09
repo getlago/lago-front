@@ -360,7 +360,6 @@ const CustomerDetails = () => {
                           <CustomerWalletsList
                             ref={addWalletToCustomerDialogRef}
                             customerId={id as string}
-                            hasActiveWallet={!!hasActiveWallet}
                             customerTimezone={safeTimezone}
                           />
                         </SideBlock>

@@ -54,14 +54,13 @@ gql`
 
 interface CustommerWalletListProps {
   customerId: string
-  hasActiveWallet: boolean
   customerTimezone: TimezoneEnum
 }
 
 export const CustomerWalletsList = forwardRef<
   AddWalletToCustomerDialogRef,
   CustommerWalletListProps
->(({ customerId, hasActiveWallet, customerTimezone }: CustommerWalletListProps, ref) => {
+>(({ customerId, customerTimezone }: CustommerWalletListProps, ref) => {
   const { translate } = useInternationalization()
   const updateCustomerWalletDialogRef = useRef<UpdateCustomerWalletDialogRef>(null)
   const terminateCustomerWalletDialogRef = useRef<TerminateCustomerWalletDialogRef>(null)
@@ -90,7 +89,7 @@ export const CustomerWalletsList = forwardRef<
     <SideSection $empty={!!hasNoWallet}>
       <SectionHeader variant="subhead" $hideBottomShadow={!!loading || !hasNoWallet}>
         {translate('text_62d175066d2dbf1d50bc9384')}
-        {!hasActiveWallet ? (
+        {!activeWallet ? (
           <Button
             variant="quaternary"
             onClick={() =>
