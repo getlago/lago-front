@@ -30,9 +30,12 @@ gql`
   query getOrganizationSettings {
     organization {
       id
-      vatRate
-      invoiceGracePeriod
-      invoiceFooter
+      billingConfiguration {
+        id
+        vatRate
+        invoiceGracePeriod
+        invoiceFooter
+      }
       ...EditOrganizationInvoiceTemplateDialog
     }
   }
@@ -49,9 +52,9 @@ const InvoiceSettings = () => {
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { data, error, loading } = useGetOrganizationSettingsQuery()
   const organization = data?.organization
-  const vatRate = organization?.vatRate || 0
-  const invoiceFooter = organization?.invoiceFooter || ''
-  const invoiceGracePeriod = organization?.invoiceGracePeriod || 0
+  const vatRate = organization?.billingConfiguration?.vatRate || 0
+  const invoiceFooter = organization?.billingConfiguration?.invoiceFooter || ''
+  const invoiceGracePeriod = organization?.billingConfiguration?.invoiceGracePeriod || 0
 
   if (!!error && !loading) {
     return (

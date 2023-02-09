@@ -14,7 +14,10 @@ gql`
   mutation updateVatRateOrganization($input: UpdateOrganizationInput!) {
     updateOrganization(input: $input) {
       id
-      vatRate
+      billingConfiguration {
+        id
+        vatRate
+      }
     }
   }
 `
@@ -62,7 +65,7 @@ export const EditOrganizationVatRateDialog = forwardRef<
             }
             onClick={async () => {
               const res = await updateVatRate({
-                variables: { input: { vatRate: localVatRate } },
+                variables: { input: { billingConfiguration: { vatRate: localVatRate } } },
               })
               const { errors } = res
 

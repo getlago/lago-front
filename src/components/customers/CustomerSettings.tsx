@@ -52,8 +52,11 @@ gql`
 
     organization {
       id
-      vatRate
-      invoiceGracePeriod
+      billingConfiguration {
+        id
+        vatRate
+        invoiceGracePeriod
+      }
     }
   }
 
@@ -157,10 +160,13 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
             <Typography variant="body" color="grey700">
               {typeof customer?.vatRate !== 'number'
                 ? translate('text_63aa085d28b8510cd46443ed', {
-                    rate: intlFormatNumber((organization?.vatRate || 0) / 100, {
-                      minimumFractionDigits: 2,
-                      style: 'percent',
-                    }),
+                    rate: intlFormatNumber(
+                      (organization?.billingConfiguration?.vatRate || 0) / 100,
+                      {
+                        minimumFractionDigits: 2,
+                        style: 'percent',
+                      }
+                    ),
                   })
                 : intlFormatNumber((customer?.vatRate || 0) / 100, {
                     minimumFractionDigits: 2,
@@ -256,9 +262,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                 : translate(
                     'text_63aa085d28b8510cd464440d',
                     {
-                      invoiceGracePeriod: organization?.invoiceGracePeriod || 0,
+                      invoiceGracePeriod:
+                        organization?.billingConfiguration?.invoiceGracePeriod || 0,
                     },
-                    organization?.invoiceGracePeriod || 0
+                    organization?.billingConfiguration?.invoiceGracePeriod || 0
                   )}
             </Typography>
             <Typography
