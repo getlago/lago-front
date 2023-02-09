@@ -4,7 +4,7 @@ import { gql } from '@apollo/client'
 import { DialogRef } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useTerminateCustomerWalletMutation } from '~/generated/graphql'
+import { useTerminateCustomerWalletMutation, WalletAccordionFragmentDoc } from '~/generated/graphql'
 import { addToast } from '~/core/apolloClient'
 
 gql`
@@ -12,8 +12,11 @@ gql`
     terminateCustomerWallet(input: $input) {
       id
       status
+      ...WalletAccordion
     }
   }
+
+  ${WalletAccordionFragmentDoc}
 `
 
 export interface TerminateCustomerWalletDialogRef extends WarningDialogRef {}
@@ -35,18 +38,6 @@ export const TerminateCustomerWalletDialog = forwardRef<
           translateKey: 'text_62e257c032ae895bbfead62e',
         })
       }
-    },
-    update(cache, { data }) {
-      if (!data?.terminateCustomerWallet) return
-
-      cache.modify({
-        id: cache.identify({ id: data.terminateCustomerWallet.id, __typename: 'Wallet' }),
-        fields: {
-          status() {
-            return data.terminateCustomerWallet?.status
-          },
-        },
-      })
     },
   })
 
