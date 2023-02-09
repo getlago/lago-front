@@ -23,6 +23,11 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { EditOrganizationGracePeriodDialog } from '~/components/settings/EditOrganizationGracePeriodDialog'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import {
+  EditOrganizationDocumentLocaleDialog,
+  EditOrganizationDocumentLocaleDialogRef,
+} from '~/components/settings/EditOrganizationDocumentLocaleDialog'
+import DocumentLocales from '~/public/documentLocales.json'
 
 const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
 
@@ -35,6 +40,7 @@ gql`
         vatRate
         invoiceGracePeriod
         invoiceFooter
+        documentLocale
       }
       ...EditOrganizationInvoiceTemplateDialog
     }
@@ -49,12 +55,14 @@ const InvoiceSettings = () => {
   const editVATDialogRef = useRef<EditOrganizationVatRateDialogRef>(null)
   const editInvoiceTemplateDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
   const editGracePeriodDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
+  const editDocumentLanguageDialogRef = useRef<EditOrganizationDocumentLocaleDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { data, error, loading } = useGetOrganizationSettingsQuery()
   const organization = data?.organization
   const vatRate = organization?.billingConfiguration?.vatRate || 0
   const invoiceFooter = organization?.billingConfiguration?.invoiceFooter || ''
   const invoiceGracePeriod = organization?.billingConfiguration?.invoiceGracePeriod || 0
+  const documentLocale = organization?.billingConfiguration?.documentLocale || DocumentLocales.en
 
   if (!!error && !loading) {
     return (
@@ -150,6 +158,41 @@ const InvoiceSettings = () => {
 
       <InlineSectionTitle>
         <Typography variant="subhead" color="grey700">
+          {translate('text_63e51ef4985f0ebd75c212fd')}
+        </Typography>
+        <Button
+          variant="quaternary"
+          disabled={loading}
+          onClick={editDocumentLanguageDialogRef?.current?.openDialog}
+        >
+          {translate('text_63e51ef4985f0ebd75c212fc')}
+        </Button>
+      </InlineSectionTitle>
+
+      <InfoBlock>
+        {loading ? (
+          <>
+            <Skeleton variant="text" width={320} height={12} marginBottom={theme.spacing(4)} />
+            <Skeleton variant="text" width={160} height={12} />
+          </>
+        ) : (
+          <>
+            <Typography variant="body" color="grey700">
+              {/* @ts-ignore */}
+              {DocumentLocales[documentLocale]}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {translate('text_63e51ef4985f0ebd75c212ff', {
+                // @ts-ignore
+                locale: DocumentLocales[documentLocale],
+              })}
+            </Typography>
+          </>
+        )}
+      </InfoBlock>
+
+      <InlineSectionTitle>
+        <Typography variant="subhead" color="grey700">
           {translate('text_637f819eff19cd55a56d55f6')}
         </Typography>
         <Button
@@ -194,6 +237,10 @@ const InvoiceSettings = () => {
       <EditOrganizationGracePeriodDialog
         ref={editGracePeriodDialogRef}
         invoiceGracePeriod={invoiceGracePeriod}
+      />
+      <EditOrganizationDocumentLocaleDialog
+        ref={editDocumentLanguageDialogRef}
+        documentLocale={documentLocale}
       />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </Page>
