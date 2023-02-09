@@ -19,7 +19,10 @@ gql`
   mutation updateOrganizationGracePeriod($input: UpdateOrganizationInput!) {
     updateOrganization(input: $input) {
       id
-      invoiceGracePeriod
+      billingConfiguration {
+        id
+        invoiceGracePeriod
+      }
     }
   }
 `
@@ -47,10 +50,14 @@ export const EditOrganizationGracePeriodDialog = forwardRef<
   })
   const formikProps = useFormik<UpdateOrganizationInput>({
     initialValues: {
-      invoiceGracePeriod,
+      billingConfiguration: {
+        invoiceGracePeriod,
+      },
     },
     validationSchema: object().shape({
-      invoiceGracePeriod: number().required('').max(365, 'text_63bed78ae69de9cad5c348e4'),
+      billingConfiguration: object().shape({
+        invoiceGracePeriod: number().required('').max(365, 'text_63bed78ae69de9cad5c348e4'),
+      }),
     }),
     enableReinitialize: true,
     validateOnMount: true,
@@ -97,7 +104,7 @@ export const EditOrganizationGracePeriodDialog = forwardRef<
     >
       <Content>
         <TextInputField
-          name="invoiceGracePeriod"
+          name="billingConfiguration.invoiceGracePeriod"
           beforeChangeFormatter={['positiveNumber', 'int']}
           label={translate('text_638dc196fb209d551f3d819d')}
           placeholder={translate('text_638dc196fb209d551f3d8147')}

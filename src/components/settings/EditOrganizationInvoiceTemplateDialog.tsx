@@ -7,10 +7,7 @@ import styled from 'styled-components'
 import { Dialog, Button, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  UpdateOrganizationInput,
-  useUpdateOrganizationInvoiceTemplateMutation,
-} from '~/generated/graphql'
+import { useUpdateOrganizationInvoiceTemplateMutation } from '~/generated/graphql'
 import { theme } from '~/styles'
 import { addToast } from '~/core/apolloClient'
 
@@ -18,7 +15,10 @@ const MAX_CHAR_LIMIT = 600
 
 gql`
   fragment EditOrganizationInvoiceTemplateDialog on Organization {
-    invoiceFooter
+    billingConfiguration {
+      id
+      invoiceFooter
+    }
   }
 
   mutation updateOrganizationInvoiceTemplate($input: UpdateOrganizationInput!) {
@@ -50,12 +50,16 @@ export const EditOrganizationInvoiceTemplateDialog = forwardRef<
       }
     },
   })
-  const formikProps = useFormik<UpdateOrganizationInput>({
+
+  // Type is manually written here as errors type are not correclty read from UpdateOrganizationInput
+  const formikProps = useFormik<{ billingConfiguration: { invoiceFooter: string } }>({
     initialValues: {
-      invoiceFooter,
+      billingConfiguration: { invoiceFooter },
     },
     validationSchema: object().shape({
-      invoiceFooter: string().max(600, 'text_62bb10ad2a10bd182d00203b'),
+      billingConfiguration: object().shape({
+        invoiceFooter: string().max(600, 'text_62bb10ad2a10bd182d00203b'),
+      }),
     }),
     enableReinitialize: true,
     validateOnMount: true,
@@ -101,7 +105,7 @@ export const EditOrganizationInvoiceTemplateDialog = forwardRef<
     >
       <Content>
         <TextArea
-          name="invoiceFooter"
+          name="billingConfiguration.invoiceFooter"
           rows="4"
           multiline
           label={translate('text_62bb10ad2a10bd182d002023')}
@@ -109,16 +113,16 @@ export const EditOrganizationInvoiceTemplateDialog = forwardRef<
           // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
           formikProps={formikProps}
-          error={!!formikProps.errors?.invoiceFooter}
+          error={formikProps.errors?.billingConfiguration?.invoiceFooter}
           helperText={
             <TextInputHelper>
               <div>
-                {formikProps.errors?.invoiceFooter
+                {!!formikProps.errors?.billingConfiguration?.invoiceFooter
                   ? translate('text_62bb10ad2a10bd182d00203b')
                   : translate('text_62bc52dd8536260acc9eb762')}
               </div>
               <div>
-                {formikProps.values.invoiceFooter?.length}/{MAX_CHAR_LIMIT}
+                {formikProps.values.billingConfiguration?.invoiceFooter?.length}/{MAX_CHAR_LIMIT}
               </div>
             </TextInputHelper>
           }
