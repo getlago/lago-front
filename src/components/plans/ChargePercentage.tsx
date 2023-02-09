@@ -134,6 +134,7 @@ export const ChargePercentage = ({
                   fixedAmount: undefined,
                 })
               }}
+              data-test="remove-fixed-fee"
             />
           </Tooltip>
         </LineAmount>
@@ -176,6 +177,7 @@ export const ChargePercentage = ({
                   freeUnitsPerEvents: undefined,
                 })
               }}
+              data-test="remove-free-units-per-event"
             />
           </Tooltip>
         </LineAmount>
@@ -222,6 +224,7 @@ export const ChargePercentage = ({
                   freeUnitsPerTotalAggregation: undefined,
                 })
               }}
+              data-test="remove-free-unit-per-total-aggregation"
             />
           </Tooltip>
         </LineAmount>
