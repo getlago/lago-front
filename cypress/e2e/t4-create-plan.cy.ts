@@ -127,4 +127,52 @@ describe('Create plan', () => {
     cy.url().should('be.equal', Cypress.config().baseUrl + '/plans')
     cy.contains(planWithChargesName).should('exist')
   })
+
+  describe('anti-regression', () => {
+    // https://github.com/getlago/lago-front/pull/792
+    it('should be able to edit percentage charge without data loss', () => {
+      const randomId = Math.round(Math.random() * 1000)
+      const planName = `plan ${randomId}`
+
+      // Default plan data
+      cy.get('[data-test="create-plan"]').click()
+      cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
+      cy.get('input[name="name"]').type(planName)
+      cy.get('input[name="code"]').type(planName)
+      cy.get('textarea[name="description"]').type('I am a description')
+      cy.get('input[name="amountCents"]').type('30000')
+
+      // Config charge
+      cy.get('[data-test="add-charge"]').click()
+      cy.get('[data-test="submit-add-charge"]').should('be.disabled')
+      cy.get('input[name="billableMetricId"]').click()
+      cy.get('[data-option-index="1"]').click()
+      cy.get('[data-test="submit-add-charge"]').click()
+      cy.get('[data-test="submit"]').should('be.disabled')
+      cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
+      cy.get('input[name="chargeModel"]').last().click()
+      cy.get('[data-test="percentage"]').click()
+      cy.get('input[name="chargeModel"]').last().should('have.value', 'Percentage pricing')
+      cy.get('input[name="properties.rate"]').last().type('1')
+      cy.get('[data-test="add-fixed-fee"]').click()
+      cy.get('input[name="properties.fixedAmount"]').last().type('1')
+      cy.get('[data-test="add-free-units"]').click()
+      cy.get('[data-test="add-free-units-events"]').click()
+      cy.get('[data-test="free-unit-per-event"] input').last().type('1')
+      cy.get('[data-test="add-free-units"]').click()
+      cy.get('[data-test="add-free-units-total-amount"]').click()
+      cy.get('[data-test="free-unit-per-total-aggregation"] input').last().type('1')
+
+      // Test regression scenario
+      cy.get('[data-test="remove-fixed-fee"]').click()
+      cy.get('[data-test="remove-free-units-per-event"]').click()
+      cy.get('[data-test="remove-free-unit-per-total-aggregation"]').click()
+      cy.get('[data-test="submit"]').should('not.be.disabled')
+      cy.get('input[name="properties.rate"]').should('have.value', '1')
+
+      cy.get('[data-test="submit"]').click()
+      cy.url().should('be.equal', Cypress.config().baseUrl + '/plans')
+      cy.contains(planName).should('exist')
+    })
+  })
 })
