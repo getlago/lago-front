@@ -125,6 +125,9 @@ module.exports = {
   "project_63e254ea592347d77dd3cf03": {
     "base": require('./⚙️ [WIP] - Plan - Warn user if duplicate charge in plan creation and edition__base.json')
   },
+  "project_63e51e8467659a55d188a68c": {
+    "base": require('./⚙️ [WIP] - Settings - Define preferred doc language generation__base.json')
+  },
   "project_62ff5cfec490a4767eccdf6e": {
     "base": require('./👍 [Ready for dev] - Add Percentage in charge model__base.json')
   },

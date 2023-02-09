@@ -3586,6 +3586,13 @@ export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, 
 
 export type VolumeRangesFragment = { __typename?: 'Charge', properties?: { __typename?: 'Properties', volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null } }> | null };
 
+export type UpdateDocumentLocaleOrganizationMutationVariables = Exact<{
+  input: UpdateOrganizationInput;
+}>;
+
+
+export type UpdateDocumentLocaleOrganizationMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null } | null };
+
 export type UpdateOrganizationGracePeriodMutationVariables = Exact<{
   input: UpdateOrganizationInput;
 }>;
@@ -4091,7 +4098,7 @@ export type IntegrationsSettingQuery = { __typename?: 'Query', organization?: { 
 export type GetOrganizationSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetOrganizationSettingsQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, vatRate: number, invoiceGracePeriod: number, invoiceFooter?: string | null } | null } | null };
+export type GetOrganizationSettingsQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, vatRate: number, invoiceGracePeriod: number, invoiceFooter?: string | null, documentLocale?: string | null } | null } | null };
 
 export type GetInvitesQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
@@ -6371,6 +6378,43 @@ export function useDeletePlanMutation(baseOptions?: Apollo.MutationHookOptions<D
 export type DeletePlanMutationHookResult = ReturnType<typeof useDeletePlanMutation>;
 export type DeletePlanMutationResult = Apollo.MutationResult<DeletePlanMutation>;
 export type DeletePlanMutationOptions = Apollo.BaseMutationOptions<DeletePlanMutation, DeletePlanMutationVariables>;
+export const UpdateDocumentLocaleOrganizationDocument = gql`
+    mutation updateDocumentLocaleOrganization($input: UpdateOrganizationInput!) {
+  updateOrganization(input: $input) {
+    id
+    billingConfiguration {
+      id
+      documentLocale
+    }
+  }
+}
+    `;
+export type UpdateDocumentLocaleOrganizationMutationFn = Apollo.MutationFunction<UpdateDocumentLocaleOrganizationMutation, UpdateDocumentLocaleOrganizationMutationVariables>;
+
+/**
+ * __useUpdateDocumentLocaleOrganizationMutation__
+ *
+ * To run a mutation, you first call `useUpdateDocumentLocaleOrganizationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateDocumentLocaleOrganizationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateDocumentLocaleOrganizationMutation, { data, loading, error }] = useUpdateDocumentLocaleOrganizationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateDocumentLocaleOrganizationMutation(baseOptions?: Apollo.MutationHookOptions<UpdateDocumentLocaleOrganizationMutation, UpdateDocumentLocaleOrganizationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateDocumentLocaleOrganizationMutation, UpdateDocumentLocaleOrganizationMutationVariables>(UpdateDocumentLocaleOrganizationDocument, options);
+      }
+export type UpdateDocumentLocaleOrganizationMutationHookResult = ReturnType<typeof useUpdateDocumentLocaleOrganizationMutation>;
+export type UpdateDocumentLocaleOrganizationMutationResult = Apollo.MutationResult<UpdateDocumentLocaleOrganizationMutation>;
+export type UpdateDocumentLocaleOrganizationMutationOptions = Apollo.BaseMutationOptions<UpdateDocumentLocaleOrganizationMutation, UpdateDocumentLocaleOrganizationMutationVariables>;
 export const UpdateOrganizationGracePeriodDocument = gql`
     mutation updateOrganizationGracePeriod($input: UpdateOrganizationInput!) {
   updateOrganization(input: $input) {
@@ -8729,6 +8773,7 @@ export const GetOrganizationSettingsDocument = gql`
       vatRate
       invoiceGracePeriod
       invoiceFooter
+      documentLocale
     }
     ...EditOrganizationInvoiceTemplateDialog
   }

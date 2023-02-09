@@ -127,6 +127,8 @@ projects:
     id: 63e26d71cc5ddde09d90bd99
   - name: 👍 [Ready for dev] - Customer Invoice - Update invoice.payment_status
     id: 63eba8199c936977d8e98991
+  - name: ⚙️ [WIP] - Settings - Define preferred doc language generation
+    id: 63e51e8467659a55d188a68c
 format: flat
 variants: true
 components: true
