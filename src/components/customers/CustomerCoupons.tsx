@@ -61,6 +61,15 @@ export const CustomerCoupons = memo(
           })
         }
       },
+      update(cache, { data }) {
+        if (!data?.terminateAppliedCoupon) return
+        const cacheId = cache.identify({
+          id: data?.terminateAppliedCoupon.id,
+          __typename: 'AppliedCoupon',
+        })
+
+        cache.evict({ id: cacheId })
+      },
     })
 
     return (
@@ -123,7 +132,6 @@ export const CustomerCoupons = memo(
             if (deleteCouponId.current) {
               await removeCoupon({
                 variables: { input: { id: deleteCouponId.current } },
-                refetchQueries: ['getCustomer'],
               })
             }
           }}
