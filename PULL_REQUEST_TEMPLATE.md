@@ -1,7 +1,3 @@
-## Roadmap Task
-
-👉 https://github.com/getlago/lago/issues/{{NUMBER}}
-
 ## Context
 
 Include relevant motivation and context.
