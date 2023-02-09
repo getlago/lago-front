@@ -36,6 +36,18 @@ export const TerminateCustomerWalletDialog = forwardRef<
         })
       }
     },
+    update(cache, { data }) {
+      if (!data?.terminateCustomerWallet) return
+
+      cache.modify({
+        id: cache.identify({ id: data.terminateCustomerWallet.id, __typename: 'Wallet' }),
+        fields: {
+          status() {
+            return data.terminateCustomerWallet?.status
+          },
+        },
+      })
+    },
   })
 
   return (
@@ -46,7 +58,6 @@ export const TerminateCustomerWalletDialog = forwardRef<
       onContinue={async () =>
         await terminateWallet({
           variables: { input: { id: walletId } },
-          refetchQueries: ['getCustomer'],
         })
       }
       continueText={translate('text_62d9430e8b9fe36851cddd17')}
