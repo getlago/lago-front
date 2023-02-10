@@ -15,24 +15,23 @@ import { theme } from '~/styles'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 
 gql`
-  mutation updateCustomerVatRate($input: UpdateCustomerVatRateInput!) {
-    updateCustomerVatRate(input: $input) {
-      id
-      vatRate
-    }
-  }
-
   fragment EditCustomerVatRate on CustomerDetails {
     id
     name
     vatRate
+  }
+
+  mutation updateCustomerVatRate($input: UpdateCustomerVatRateInput!) {
+    updateCustomerVatRate(input: $input) {
+      id
+      ...EditCustomerVatRate
+    }
   }
 `
 export interface EditCustomerVatRateDialogRef extends DialogRef {}
 
 interface EditCustomerVatRateDialogProps {
   customer: EditCustomerVatRateFragment
-  vatRate?: number | null | undefined
 }
 
 export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRateDialogProps>(

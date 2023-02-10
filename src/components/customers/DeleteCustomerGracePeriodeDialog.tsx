@@ -11,16 +11,16 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 
 gql`
+  fragment DeleteCustomerGracePeriod on CustomerDetails {
+    id
+    name
+  }
+
   mutation deleteCustomerGracePeriod($input: UpdateCustomerInvoiceGracePeriodInput!) {
     updateCustomerInvoiceGracePeriod(input: $input) {
       id
       invoiceGracePeriod
     }
-  }
-
-  fragment DeleteCustomerGracePeriod on CustomerDetails {
-    id
-    name
   }
 `
 
