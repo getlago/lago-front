@@ -11,16 +11,16 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 
 gql`
+  fragment DeleteCustomerVatRate on CustomerDetails {
+    id
+    name
+  }
+
   mutation deleteCustomerVatRate($input: UpdateCustomerVatRateInput!) {
     updateCustomerVatRate(input: $input) {
       id
       vatRate
     }
-  }
-
-  fragment DeleteCustomerVatRate on CustomerDetails {
-    id
-    name
   }
 `
 

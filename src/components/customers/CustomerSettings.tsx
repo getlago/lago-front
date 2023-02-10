@@ -4,12 +4,14 @@ import styled from 'styled-components'
 
 import { SideSection } from '~/styles/customer'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Button, Typography, Popper } from '~/components/designSystem'
+import { Button, Typography, Popper, Skeleton } from '~/components/designSystem'
 import { theme, NAV_HEIGHT, MenuPopper } from '~/styles'
 import {
+  DeleteCustomerGracePeriodFragmentDoc,
+  DeleteCustomerVatRateFragmentDoc,
+  EditCustomerInvoiceGracePeriodFragmentDoc,
   EditCustomerVatRateFragmentDoc,
-  CustomerVatRateFragment,
-  CustomerInvoiceGracePeriodFragment,
+  useGetCustomerSettingsQuery,
 } from '~/generated/graphql'
 import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -20,6 +22,7 @@ import {
 } from '~/components/customers/EditCustomerVatRateDialog'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import ErrorImage from '~/public/images/maneki/error.svg'
 
 import {
   EditCustomerInvoiceGracePeriodDialog,
@@ -34,35 +37,58 @@ import {
   DeleteCustomerGracePeriodeDialogRef,
 } from './DeleteCustomerGracePeriodeDialog'
 
-gql`
-  fragment CustomerVatRate on CustomerDetails {
-    id
-    vatRate
-    ...EditCustomerVatRate
-  }
+import { GenericPlaceholder } from '../GenericPlaceholder'
 
-  fragment CustomerInvoiceGracePeriod on CustomerDetails {
-    id
-    invoiceGracePeriod
+gql`
+  query getCustomerSettings($id: ID!) {
+    customer(id: $id) {
+      id
+      vatRate
+      invoiceGracePeriod
+      ...EditCustomerVatRate
+      ...EditCustomerInvoiceGracePeriod
+      ...DeleteCustomerVatRate
+      ...DeleteCustomerGracePeriod
+    }
   }
 
   ${EditCustomerVatRateFragmentDoc}
+  ${EditCustomerInvoiceGracePeriodFragmentDoc}
+  ${DeleteCustomerVatRateFragmentDoc}
+  ${DeleteCustomerGracePeriodFragmentDoc}
 `
 
 interface CustomerSettingsProps {
-  customer: CustomerVatRateFragment & CustomerInvoiceGracePeriodFragment
+  customerId: string
 }
 
-export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
+export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const { organization: currentOrganization } = useOrganizationInfos()
-
+  const { data, loading, error } = useGetCustomerSettingsQuery({
+    variables: { id: customerId as string },
+    skip: !customerId,
+  })
+  const customer = data?.customer
   const editDialogRef = useRef<EditCustomerVatRateDialogRef>(null)
   const deleteVatRateDialogRef = useRef<DeleteCustomerVatRateDialogRef>(null)
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
   const deleteGracePeriodDialogRef = useRef<DeleteCustomerGracePeriodeDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+
+  {
+    !!error && !loading && (
+      <GenericPlaceholder
+        title={translate('text_62c3f3fca8a1625624e83379')}
+        subtitle={translate('text_62c3f3fca8a1625624e8337e')}
+        buttonTitle={translate('text_62c3f3fca8a1625624e83382')}
+        buttonVariant="primary"
+        buttonAction={() => location.reload()}
+        image={<ErrorImage width="136" height="104" />}
+      />
+    )
+  }
 
   return (
     <SideSection>
@@ -71,7 +97,11 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
           {translate('text_637f819eff19cd55a56d55e6')}
         </Typography>
         {typeof customer?.vatRate !== 'number' ? (
-          <Button variant="quaternary" onClick={() => editDialogRef?.current?.openDialog()}>
+          <Button
+            disabled={loading}
+            variant="quaternary"
+            onClick={() => editDialogRef?.current?.openDialog()}
+          >
             {translate('text_62728ff857d47b013204cab3')}
           </Button>
         ) : (
@@ -82,6 +112,7 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
             {({ closePopper }) => (
               <MenuPopper>
                 <Button
+                  disabled={loading}
                   startIcon="pen"
                   variant="quaternary"
                   align="left"
@@ -93,6 +124,7 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
                   {translate('text_63aa085d28b8510cd46443f7')}
                 </Button>
                 <Button
+                  disabled={loading}
                   startIcon="trash"
                   variant="quaternary"
                   align="left"
@@ -110,38 +142,48 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
       </InlineSectionTitle>
 
       <InfoBlock>
-        <Typography variant="body" color="grey700">
-          {typeof customer?.vatRate !== 'number'
-            ? translate('text_63aa085d28b8510cd46443ed', {
-                rate: intlFormatNumber((currentOrganization?.vatRate || 0) / 100, {
-                  minimumFractionDigits: 2,
-                  style: 'percent',
-                }),
-              })
-            : intlFormatNumber((customer?.vatRate || 0) / 100, {
-                minimumFractionDigits: 2,
-                style: 'percent',
-              })}
-        </Typography>
-        <Typography
-          variant="caption"
-          color="grey600"
-          html={
-            !customer?.vatRate
-              ? translate('text_638e13576861f3be8a3d448a', {
-                  link: INVOICE_SETTINGS_ROUTE,
-                })
-              : translate('text_638dff9779fb99299bee9146')
-          }
-        />
+        {loading ? (
+          <>
+            <Skeleton variant="text" width={320} height={12} marginBottom={theme.spacing(4)} />
+            <Skeleton variant="text" width={160} height={12} />
+          </>
+        ) : (
+          <>
+            <Typography variant="body" color="grey700">
+              {typeof customer?.vatRate !== 'number'
+                ? translate('text_63aa085d28b8510cd46443ed', {
+                    rate: intlFormatNumber((currentOrganization?.vatRate || 0) / 100, {
+                      minimumFractionDigits: 2,
+                      style: 'percent',
+                    }),
+                  })
+                : intlFormatNumber((customer?.vatRate || 0) / 100, {
+                    minimumFractionDigits: 2,
+                    style: 'percent',
+                  })}
+            </Typography>
+            <Typography
+              variant="caption"
+              color="grey600"
+              html={
+                !customer?.vatRate
+                  ? translate('text_638e13576861f3be8a3d448a', {
+                      link: INVOICE_SETTINGS_ROUTE,
+                    })
+                  : translate('text_638dff9779fb99299bee9146')
+              }
+            />
+          </>
+        )}
       </InfoBlock>
 
       <InlineSectionTitle>
         <Typography variant="subhead" color="grey700">
           {translate('text_638dff9779fb99299bee912e')}
         </Typography>
-        {typeof customer.invoiceGracePeriod !== 'number' ? (
+        {typeof customer?.invoiceGracePeriod !== 'number' ? (
           <Button
+            disabled={loading}
             variant="quaternary"
             endIcon={isPremium ? undefined : 'sparkles'}
             onClick={() =>
@@ -155,11 +197,12 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
         ) : (
           <Popper
             PopperProps={{ placement: 'bottom-end' }}
-            opener={<Button icon="dots-horizontal" variant="quaternary" />}
+            opener={<Button disabled={loading} icon="dots-horizontal" variant="quaternary" />}
           >
             {({ closePopper }) => (
               <MenuPopper>
                 <Button
+                  disabled={loading}
                   startIcon="pen"
                   variant="quaternary"
                   align="left"
@@ -171,6 +214,7 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
                   {translate('text_63aa15caab5b16980b21b0b8')}
                 </Button>
                 <Button
+                  disabled={loading}
                   startIcon="trash"
                   variant="quaternary"
                   align="left"
@@ -188,42 +232,55 @@ export const CustomerSettings = ({ customer }: CustomerSettingsProps) => {
       </InlineSectionTitle>
 
       <InfoBlock>
-        <Typography variant="body" color="grey700">
-          {typeof customer.invoiceGracePeriod === 'number'
-            ? translate(
-                'text_638dff9779fb99299bee9132',
-                {
-                  invoiceGracePeriod: customer.invoiceGracePeriod,
-                },
-                customer.invoiceGracePeriod
-              )
-            : translate(
-                'text_63aa085d28b8510cd464440d',
-                {
-                  invoiceGracePeriod: currentOrganization?.invoiceGracePeriod || 0,
-                },
-                currentOrganization?.invoiceGracePeriod || 0
-              )}
-        </Typography>
-        <Typography
-          variant="caption"
-          color="grey600"
-          html={
-            typeof customer.invoiceGracePeriod !== 'number'
-              ? translate('text_638e13576861f3be8a3d4492', { link: INVOICE_SETTINGS_ROUTE })
-              : translate('text_638dff9779fb99299bee9136')
-          }
-        />
+        {loading ? (
+          <>
+            <Skeleton variant="text" width={320} height={12} marginBottom={theme.spacing(4)} />
+            <Skeleton variant="text" width={160} height={12} />
+          </>
+        ) : (
+          <>
+            <Typography variant="body" color="grey700">
+              {typeof customer?.invoiceGracePeriod === 'number'
+                ? translate(
+                    'text_638dff9779fb99299bee9132',
+                    {
+                      invoiceGracePeriod: customer?.invoiceGracePeriod,
+                    },
+                    customer?.invoiceGracePeriod
+                  )
+                : translate(
+                    'text_63aa085d28b8510cd464440d',
+                    {
+                      invoiceGracePeriod: currentOrganization?.invoiceGracePeriod || 0,
+                    },
+                    currentOrganization?.invoiceGracePeriod || 0
+                  )}
+            </Typography>
+            <Typography
+              variant="caption"
+              color="grey600"
+              html={
+                typeof customer?.invoiceGracePeriod !== 'number'
+                  ? translate('text_638e13576861f3be8a3d4492', { link: INVOICE_SETTINGS_ROUTE })
+                  : translate('text_638dff9779fb99299bee9136')
+              }
+            />
+          </>
+        )}
       </InfoBlock>
 
-      <EditCustomerVatRateDialog ref={editDialogRef} customer={customer} />
-      <DeleteCustomerVatRateDialog ref={deleteVatRateDialogRef} customer={customer} />
+      {!!customer && (
+        <>
+          <EditCustomerVatRateDialog ref={editDialogRef} customer={customer} />
+          <DeleteCustomerVatRateDialog ref={deleteVatRateDialogRef} customer={customer} />
 
-      <EditCustomerInvoiceGracePeriodDialog
-        ref={editInvoiceGracePeriodDialogRef}
-        invoiceGracePeriod={customer.invoiceGracePeriod}
-      />
-      <DeleteCustomerGracePeriodeDialog ref={deleteGracePeriodDialogRef} customer={customer} />
+          <EditCustomerInvoiceGracePeriodDialog
+            ref={editInvoiceGracePeriodDialogRef}
+            invoiceGracePeriod={customer?.invoiceGracePeriod}
+          />
+          <DeleteCustomerGracePeriodeDialog ref={deleteGracePeriodDialogRef} customer={customer} />
+        </>
+      )}
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </SideSection>
   )

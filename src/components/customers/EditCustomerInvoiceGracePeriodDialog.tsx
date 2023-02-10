@@ -17,10 +17,15 @@ import { theme } from '~/styles'
 import { addToast } from '~/core/apolloClient'
 
 gql`
+  fragment EditCustomerInvoiceGracePeriod on CustomerDetails {
+    id
+    invoiceGracePeriod
+  }
+
   mutation updateCustomerInvoiceGracePeriod($input: UpdateCustomerInvoiceGracePeriodInput!) {
     updateCustomerInvoiceGracePeriod(input: $input) {
       id
-      invoiceGracePeriod
+      ...EditCustomerInvoiceGracePeriod
     }
   }
 `

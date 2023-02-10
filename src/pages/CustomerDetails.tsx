@@ -21,15 +21,12 @@ import {
   useGetCustomerQuery,
   SubscriptionItemFragmentDoc,
   AddCustomerDrawerDetailFragmentDoc,
-  CustomerVatRateFragmentDoc,
   CustomerCouponFragmentDoc,
   CustomerMainInfosFragmentDoc,
   CustomerAddOnsFragmentDoc,
   CustomerUsageSubscriptionFragmentDoc,
   StatusTypeEnum,
   TimezoneEnum,
-  CustomerInvoiceGracePeriodFragmentDoc,
-  CustomerInvoiceGracePeriodFragment,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -92,10 +89,8 @@ gql`
     appliedAddOns {
       ...CustomerAddOns
     }
-    ...CustomerVatRate
     ...AddCustomerDrawerDetail
     ...CustomerMainInfos
-    ...CustomerInvoiceGracePeriod
   }
 
   query getCustomer($id: ID!) {
@@ -106,12 +101,10 @@ gql`
 
   ${SubscriptionItemFragmentDoc}
   ${AddCustomerDrawerDetailFragmentDoc}
-  ${CustomerVatRateFragmentDoc}
   ${CustomerCouponFragmentDoc}
   ${CustomerAddOnsFragmentDoc}
   ${CustomerMainInfosFragmentDoc}
   ${CustomerUsageSubscriptionFragmentDoc}
-  ${CustomerInvoiceGracePeriodFragmentDoc}
 `
 
 export enum CustomerDetailsTabsOptions {
@@ -429,9 +422,7 @@ const CustomerDetails = () => {
                       routerState: { disableScrollTop: true },
                       component: (
                         <SideBlock>
-                          <CustomerSettings
-                            customer={data?.customer as CustomerInvoiceGracePeriodFragment}
-                          />
+                          <CustomerSettings customerId={id as string} />
                         </SideBlock>
                       ),
                     },
