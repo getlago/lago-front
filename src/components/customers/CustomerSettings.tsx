@@ -14,7 +14,6 @@ import {
   useGetCustomerSettingsQuery,
 } from '~/generated/graphql'
 import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   EditCustomerVatRateDialog,
@@ -50,6 +49,12 @@ gql`
       ...DeleteCustomerVatRate
       ...DeleteCustomerGracePeriod
     }
+
+    organization {
+      id
+      vatRate
+      invoiceGracePeriod
+    }
   }
 
   ${EditCustomerVatRateFragmentDoc}
@@ -65,12 +70,12 @@ interface CustomerSettingsProps {
 export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
-  const { organization: currentOrganization } = useOrganizationInfos()
   const { data, loading, error } = useGetCustomerSettingsQuery({
     variables: { id: customerId as string },
     skip: !customerId,
   })
   const customer = data?.customer
+  const organization = data?.organization
   const editDialogRef = useRef<EditCustomerVatRateDialogRef>(null)
   const deleteVatRateDialogRef = useRef<DeleteCustomerVatRateDialogRef>(null)
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
@@ -152,7 +157,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
             <Typography variant="body" color="grey700">
               {typeof customer?.vatRate !== 'number'
                 ? translate('text_63aa085d28b8510cd46443ed', {
-                    rate: intlFormatNumber((currentOrganization?.vatRate || 0) / 100, {
+                    rate: intlFormatNumber((organization?.vatRate || 0) / 100, {
                       minimumFractionDigits: 2,
                       style: 'percent',
                     }),
@@ -251,9 +256,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                 : translate(
                     'text_63aa085d28b8510cd464440d',
                     {
-                      invoiceGracePeriod: currentOrganization?.invoiceGracePeriod || 0,
+                      invoiceGracePeriod: organization?.invoiceGracePeriod || 0,
                     },
-                    currentOrganization?.invoiceGracePeriod || 0
+                    organization?.invoiceGracePeriod || 0
                   )}
             </Typography>
             <Typography

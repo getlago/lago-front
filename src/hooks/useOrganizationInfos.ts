@@ -14,8 +14,6 @@ gql`
     name
     logoUrl
     timezone
-    vatRate
-    invoiceGracePeriod
   }
 
   query getOrganizationInfos {
