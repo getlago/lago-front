@@ -132,7 +132,7 @@
     "sanitize-html": "2.9.0",
     "styled-components": "5.3.6",
     "yarn": "1.22.19",
-    "yup": "0.32.11"
+    "yup": "1.0.0"
   },
   "resolutions": {
     "styled-components": "5.3.6",
