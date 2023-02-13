@@ -129,6 +129,8 @@ projects:
     id: 63eba8199c936977d8e98991
   - name: ⚙️ [WIP] - Settings - Define preferred doc language generation
     id: 63e51e8467659a55d188a68c
+  - name: ⚙️ [WIP] - Settings - Webhook debugger
+    id: 63e27c4800ff170963670e71
 format: flat
 variants: true
 components: true

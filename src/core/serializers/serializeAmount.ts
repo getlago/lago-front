@@ -20,6 +20,9 @@ const CURRENCIES_WITH_0_DECIMALS = [
   'XPF',
 ]
 
+/**
+ * Use it to convert the amount value according to currency to be sent to the API
+ */
 export const serializeAmount = (value: string | number, currency: CurrencyEnum) => {
   const precision = getCurrencyPrecision(currency)
 
@@ -32,6 +35,9 @@ export const serializeAmount = (value: string | number, currency: CurrencyEnum) 
   return Number((String(Math.round(Number(value) * 100)).match(/^-?\d+(?:\.\d{0,2})?/) || [])[0])
 }
 
+/**
+ * Use it to convert an amount value received from the API to a readable unit according to the currency
+ */
 export const deserializeAmount = (value: string | number, currency: CurrencyEnum) => {
   const precision = getCurrencyPrecision(currency)
 

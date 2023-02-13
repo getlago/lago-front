@@ -7,7 +7,6 @@ gql`
     id
     email
     premium
-    email
     organizations {
       id
       name
