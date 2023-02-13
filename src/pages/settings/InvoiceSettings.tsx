@@ -27,7 +27,7 @@ import {
   EditOrganizationDocumentLocaleDialog,
   EditOrganizationDocumentLocaleDialogRef,
 } from '~/components/settings/EditOrganizationDocumentLocaleDialog'
-import DocumentLocales from '~/public/documentLocales.json'
+import { DocumentLocales } from '~/core/documentLocales'
 
 const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
 
@@ -178,12 +178,10 @@ const InvoiceSettings = () => {
         ) : (
           <>
             <Typography variant="body" color="grey700">
-              {/* @ts-ignore */}
               {DocumentLocales[documentLocale]}
             </Typography>
             <Typography variant="caption" color="grey600">
               {translate('text_63e51ef4985f0ebd75c212ff', {
-                // @ts-ignore
                 locale: DocumentLocales[documentLocale],
               })}
             </Typography>

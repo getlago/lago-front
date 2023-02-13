@@ -13,7 +13,7 @@ import {
   useUpdateCustomerDocumentLocaleMutation,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
-import DocumentLocales from '~/public/documentLocales.json'
+import { DocumentLocales } from '~/core/documentLocales'
 import { addToast } from '~/core/apolloClient'
 
 gql`
@@ -47,7 +47,6 @@ const documentLocalesData: { value: string; label: string }[] = Object.keys(Docu
   (localeKey) => {
     return {
       value: localeKey,
-      // @ts-ignore
       label: DocumentLocales[localeKey],
     }
   }
