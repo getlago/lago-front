@@ -18,21 +18,11 @@ import {
   TimezoneEnum,
 } from '~/generated/graphql'
 import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
-import CountryCodes from '~/public/countryCodes.json'
 import { INTEGRATIONS_ROUTE, ORGANIZATION_INFORMATIONS_ROUTE } from '~/core/router'
 import { getTimezoneConfig } from '~/core/timezone'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-
-const countryData: { value: string; label: string }[] = Object.keys(CountryCodes).map(
-  (countryKey) => {
-    return {
-      value: countryKey,
-      // @ts-ignore
-      label: CountryCodes[countryKey],
-    }
-  }
-)
+import { countryDataForCombobox } from '~/core/countryCodes'
 
 const providerData: { value: ProviderTypeEnum; label: string }[] = Object.keys(
   ProviderTypeEnum
@@ -292,7 +282,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                 formikProps={formikProps}
               />
               <ComboBoxField
-                data={countryData}
+                data={countryDataForCombobox}
                 name="country"
                 placeholder={translate('text_626c0c09812bbc00e4c59e27')}
                 formikProps={formikProps}

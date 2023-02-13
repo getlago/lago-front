@@ -21,7 +21,7 @@ import {
   EditOrganizationTimezoneDialog,
   EditOrganizationTimezoneDialogRef,
 } from '~/components/settings/EditOrganizationTimezoneDialog'
-import CountryCodes from '~/public/countryCodes.json'
+import { CountryCodes } from '~/core/countryCodes'
 import { getTimezoneConfig } from '~/core/timezone'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'

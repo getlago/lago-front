@@ -4,9 +4,9 @@ import styled from 'styled-components'
 import { generatePath, Link } from 'react-router-dom'
 
 import { Typography } from '~/components/designSystem'
-import { CountryCode, InvoiceForInvoiceInfosFragment } from '~/generated/graphql'
+import { InvoiceForInvoiceInfosFragment } from '~/generated/graphql'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
-import CountryCodes from '~/public/countryCodes.json'
+import { CountryCodes } from '~/core/countryCodes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { formatDateToTZ } from '~/core/timezone'
@@ -117,7 +117,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
               )}
               {customer?.country && (
                 <Typography variant="body" color="grey700">
-                  {CountryCodes[customer?.country as CountryCode]}
+                  {CountryCodes[customer?.country]}
                 </Typography>
               )}
             </div>
