@@ -24,7 +24,7 @@ import {
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import DocumentLocales from '~/public/documentLocales.json'
+import { DocumentLocales } from '~/core/documentLocales'
 
 import {
   EditCustomerInvoiceGracePeriodDialog,
@@ -364,11 +364,12 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
           <>
             <Typography variant="body" color="grey700">
               {typeof customer?.billingConfiguration?.documentLocale === 'string'
-                ? // @ts-ignore
-                  DocumentLocales[customer.billingConfiguration.documentLocale]
+                ? DocumentLocales[customer.billingConfiguration.documentLocale]
                 : translate('text_63ea0f84f400488553caa773', {
-                    // @ts-ignore
-                    locale: DocumentLocales[organization.billingConfiguration.documentLocale],
+                    locale:
+                      DocumentLocales[
+                        organization?.billingConfiguration?.documentLocale || DocumentLocales['en']
+                      ],
                   })}
             </Typography>
             <Typography
