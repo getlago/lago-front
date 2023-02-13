@@ -7,8 +7,10 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Button, Typography, Popper, Skeleton } from '~/components/designSystem'
 import { theme, NAV_HEIGHT, MenuPopper } from '~/styles'
 import {
+  DeleteCustomerDocumentLocaleFragmentDoc,
   DeleteCustomerGracePeriodFragmentDoc,
   DeleteCustomerVatRateFragmentDoc,
+  EditCustomerDocumentLocaleFragmentDoc,
   EditCustomerInvoiceGracePeriodFragmentDoc,
   EditCustomerVatRateFragmentDoc,
   useGetCustomerSettingsQuery,
@@ -22,6 +24,7 @@ import {
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import ErrorImage from '~/public/images/maneki/error.svg'
+import DocumentLocales from '~/public/documentLocales.json'
 
 import {
   EditCustomerInvoiceGracePeriodDialog,
@@ -35,6 +38,11 @@ import {
   DeleteCustomerGracePeriodeDialog,
   DeleteCustomerGracePeriodeDialogRef,
 } from './DeleteCustomerGracePeriodeDialog'
+import {
+  EditCustomerDocumentLocaleDialog,
+  EditCustomerDocumentLocaleDialogRef,
+} from './EditCustomerDocumentLocaleDialog'
+import { DeleteCustomerDocumentLocaleDialog } from './DeleteCustomerDocumentLocaleDialog'
 
 import { GenericPlaceholder } from '../GenericPlaceholder'
 
@@ -44,10 +52,16 @@ gql`
       id
       vatRate
       invoiceGracePeriod
+      billingConfiguration {
+        id
+        documentLocale
+      }
+      ...EditCustomerDocumentLocale
       ...EditCustomerVatRate
       ...EditCustomerInvoiceGracePeriod
       ...DeleteCustomerVatRate
       ...DeleteCustomerGracePeriod
+      ...DeleteCustomerDocumentLocale
     }
 
     organization {
@@ -56,14 +70,17 @@ gql`
         id
         vatRate
         invoiceGracePeriod
+        documentLocale
       }
     }
   }
 
   ${EditCustomerVatRateFragmentDoc}
   ${EditCustomerInvoiceGracePeriodFragmentDoc}
+  ${EditCustomerDocumentLocaleFragmentDoc}
   ${DeleteCustomerVatRateFragmentDoc}
   ${DeleteCustomerGracePeriodFragmentDoc}
+  ${DeleteCustomerDocumentLocaleFragmentDoc}
 `
 
 interface CustomerSettingsProps {
@@ -83,6 +100,8 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const deleteVatRateDialogRef = useRef<DeleteCustomerVatRateDialogRef>(null)
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
   const deleteGracePeriodDialogRef = useRef<DeleteCustomerGracePeriodeDialogRef>(null)
+  const editCustomerDocumentLocale = useRef<EditCustomerDocumentLocaleDialogRef>(null)
+  const deleteCustomerDocumentLocale = useRef<DeleteCustomerGracePeriodeDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
   {
@@ -281,6 +300,90 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
         )}
       </InfoBlock>
 
+      <InlineSectionTitle>
+        <Typography variant="subhead" color="grey700">
+          {translate('text_63ea0f84f400488553caa765')}
+        </Typography>
+        {typeof customer?.billingConfiguration?.documentLocale !== 'string' ? (
+          <Button
+            disabled={loading}
+            variant="quaternary"
+            endIcon={isPremium ? undefined : 'sparkles'}
+            onClick={() =>
+              isPremium
+                ? editCustomerDocumentLocale?.current?.openDialog()
+                : premiumWarningDialogRef.current?.openDialog()
+            }
+          >
+            {translate('text_63ea0f84f400488553caa761')}
+          </Button>
+        ) : (
+          <Popper
+            PopperProps={{ placement: 'bottom-end' }}
+            opener={<Button disabled={loading} icon="dots-horizontal" variant="quaternary" />}
+          >
+            {({ closePopper }) => (
+              <MenuPopper>
+                <Button
+                  disabled={loading}
+                  startIcon="pen"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    editCustomerDocumentLocale.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_63ea0f84f400488553caa785')}
+                </Button>
+                <Button
+                  disabled={loading}
+                  startIcon="trash"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    deleteCustomerDocumentLocale.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_63ea0f84f400488553caa786')}
+                </Button>
+              </MenuPopper>
+            )}
+          </Popper>
+        )}
+      </InlineSectionTitle>
+
+      <InfoBlock>
+        {loading ? (
+          <>
+            <Skeleton variant="text" width={320} height={12} marginBottom={theme.spacing(4)} />
+            <Skeleton variant="text" width={160} height={12} />
+          </>
+        ) : (
+          <>
+            <Typography variant="body" color="grey700">
+              {typeof customer?.billingConfiguration?.documentLocale === 'string'
+                ? // @ts-ignore
+                  DocumentLocales[customer.billingConfiguration.documentLocale]
+                : translate('text_63ea0f84f400488553caa773', {
+                    // @ts-ignore
+                    locale: DocumentLocales[organization.billingConfiguration.documentLocale],
+                  })}
+            </Typography>
+            <Typography
+              variant="caption"
+              color="grey600"
+              html={
+                typeof customer?.billingConfiguration?.documentLocale === 'string'
+                  ? translate('text_63ea0f84f400488553caa781')
+                  : translate('text_63ea0f84f400488553caa778', { link: INVOICE_SETTINGS_ROUTE })
+              }
+            />
+          </>
+        )}
+      </InfoBlock>
+
       {!!customer && (
         <>
           <EditCustomerVatRateDialog ref={editDialogRef} customer={customer} />
@@ -290,7 +393,12 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
             ref={editInvoiceGracePeriodDialogRef}
             invoiceGracePeriod={customer?.invoiceGracePeriod}
           />
+          <EditCustomerDocumentLocaleDialog ref={editCustomerDocumentLocale} customer={customer} />
           <DeleteCustomerGracePeriodeDialog ref={deleteGracePeriodDialogRef} customer={customer} />
+          <DeleteCustomerDocumentLocaleDialog
+            ref={deleteCustomerDocumentLocale}
+            customer={customer}
+          />
         </>
       )}
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
