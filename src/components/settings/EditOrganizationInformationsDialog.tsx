@@ -14,20 +14,10 @@ import {
   useUpdateOrganizationInformationsMutation,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
-import CountryCodes from '~/public/countryCodes.json'
 import { addToast } from '~/core/apolloClient'
+import { countryDataForCombobox } from '~/core/countryCodes'
 
 const FILE_MAX_SIZE = 800000
-
-const countryData: { value: string; label: string }[] = Object.keys(CountryCodes).map(
-  (countryKey) => {
-    return {
-      value: countryKey,
-      // @ts-ignore
-      label: CountryCodes[countryKey],
-    }
-  }
-)
 
 gql`
   fragment EditOrganizationInformationsDialog on Organization {
@@ -265,7 +255,7 @@ export const EditOrganizationInformationsDialog = forwardRef<
             formikProps={formikProps}
           />
           <ComboBoxField
-            data={countryData}
+            data={countryDataForCombobox}
             name="country"
             placeholder={translate('text_62ab2d0396dd6b0361614da0')}
             formikProps={formikProps}
