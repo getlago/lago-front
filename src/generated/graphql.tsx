@@ -3403,7 +3403,7 @@ export type GetCustomerSettingsQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerSettingsQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, vatRate?: number | null, invoiceGracePeriod?: number | null, name?: string | null } | null, organization?: { __typename?: 'Organization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, vatRate: number, invoiceGracePeriod: number } | null } | null };
+export type GetCustomerSettingsQuery = { __typename?: 'Query', customer?: { __typename?: 'CustomerDetails', id: string, vatRate?: number | null, invoiceGracePeriod?: number | null, name?: string | null, externalId: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, organization?: { __typename?: 'Organization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, vatRate: number, invoiceGracePeriod: number, documentLocale?: string | null } | null } | null };
 
 export type DeleteCustomerDialogFragment = { __typename?: 'Customer', id: string, name?: string | null };
 
@@ -3413,6 +3413,15 @@ export type DeleteCustomerMutationVariables = Exact<{
 
 
 export type DeleteCustomerMutation = { __typename?: 'Mutation', destroyCustomer?: { __typename?: 'DestroyCustomerPayload', id?: string | null } | null };
+
+export type DeleteCustomerDocumentLocaleFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string };
+
+export type DeleteCustomerDocumentLocaleMutationVariables = Exact<{
+  input: UpdateCustomerInput;
+}>;
+
+
+export type DeleteCustomerDocumentLocaleMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null } | null };
 
 export type DeleteCustomerGracePeriodFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null };
 
@@ -3431,6 +3440,15 @@ export type DeleteCustomerVatRateMutationVariables = Exact<{
 
 
 export type DeleteCustomerVatRateMutation = { __typename?: 'Mutation', updateCustomerVatRate?: { __typename?: 'CustomerDetails', id: string, vatRate?: number | null } | null };
+
+export type EditCustomerDocumentLocaleFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null };
+
+export type UpdateCustomerDocumentLocaleMutationVariables = Exact<{
+  input: UpdateCustomerInput;
+}>;
+
+
+export type UpdateCustomerDocumentLocaleMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null } | null };
 
 export type EditCustomerInvoiceGracePeriodFragment = { __typename?: 'CustomerDetails', id: string, invoiceGracePeriod?: number | null };
 
@@ -4311,6 +4329,13 @@ export const DeleteCustomerDialogFragmentDoc = gql`
   name
 }
     `;
+export const DeleteCustomerDocumentLocaleFragmentDoc = gql`
+    fragment DeleteCustomerDocumentLocale on CustomerDetails {
+  id
+  name
+  externalId
+}
+    `;
 export const DeleteCustomerGracePeriodFragmentDoc = gql`
     fragment DeleteCustomerGracePeriod on CustomerDetails {
   id
@@ -4321,6 +4346,17 @@ export const DeleteCustomerVatRateFragmentDoc = gql`
     fragment DeleteCustomerVatRate on CustomerDetails {
   id
   name
+}
+    `;
+export const EditCustomerDocumentLocaleFragmentDoc = gql`
+    fragment EditCustomerDocumentLocale on CustomerDetails {
+  id
+  name
+  externalId
+  billingConfiguration {
+    id
+    documentLocale
+  }
 }
     `;
 export const EditCustomerInvoiceGracePeriodFragmentDoc = gql`
@@ -5701,10 +5737,16 @@ export const GetCustomerSettingsDocument = gql`
     id
     vatRate
     invoiceGracePeriod
+    billingConfiguration {
+      id
+      documentLocale
+    }
+    ...EditCustomerDocumentLocale
     ...EditCustomerVatRate
     ...EditCustomerInvoiceGracePeriod
     ...DeleteCustomerVatRate
     ...DeleteCustomerGracePeriod
+    ...DeleteCustomerDocumentLocale
   }
   organization {
     id
@@ -5712,13 +5754,16 @@ export const GetCustomerSettingsDocument = gql`
       id
       vatRate
       invoiceGracePeriod
+      documentLocale
     }
   }
 }
-    ${EditCustomerVatRateFragmentDoc}
+    ${EditCustomerDocumentLocaleFragmentDoc}
+${EditCustomerVatRateFragmentDoc}
 ${EditCustomerInvoiceGracePeriodFragmentDoc}
 ${DeleteCustomerVatRateFragmentDoc}
-${DeleteCustomerGracePeriodFragmentDoc}`;
+${DeleteCustomerGracePeriodFragmentDoc}
+${DeleteCustomerDocumentLocaleFragmentDoc}`;
 
 /**
  * __useGetCustomerSettingsQuery__
@@ -5780,6 +5825,43 @@ export function useDeleteCustomerMutation(baseOptions?: Apollo.MutationHookOptio
 export type DeleteCustomerMutationHookResult = ReturnType<typeof useDeleteCustomerMutation>;
 export type DeleteCustomerMutationResult = Apollo.MutationResult<DeleteCustomerMutation>;
 export type DeleteCustomerMutationOptions = Apollo.BaseMutationOptions<DeleteCustomerMutation, DeleteCustomerMutationVariables>;
+export const DeleteCustomerDocumentLocaleDocument = gql`
+    mutation deleteCustomerDocumentLocale($input: UpdateCustomerInput!) {
+  updateCustomer(input: $input) {
+    id
+    billingConfiguration {
+      id
+      documentLocale
+    }
+  }
+}
+    `;
+export type DeleteCustomerDocumentLocaleMutationFn = Apollo.MutationFunction<DeleteCustomerDocumentLocaleMutation, DeleteCustomerDocumentLocaleMutationVariables>;
+
+/**
+ * __useDeleteCustomerDocumentLocaleMutation__
+ *
+ * To run a mutation, you first call `useDeleteCustomerDocumentLocaleMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCustomerDocumentLocaleMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCustomerDocumentLocaleMutation, { data, loading, error }] = useDeleteCustomerDocumentLocaleMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteCustomerDocumentLocaleMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCustomerDocumentLocaleMutation, DeleteCustomerDocumentLocaleMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteCustomerDocumentLocaleMutation, DeleteCustomerDocumentLocaleMutationVariables>(DeleteCustomerDocumentLocaleDocument, options);
+      }
+export type DeleteCustomerDocumentLocaleMutationHookResult = ReturnType<typeof useDeleteCustomerDocumentLocaleMutation>;
+export type DeleteCustomerDocumentLocaleMutationResult = Apollo.MutationResult<DeleteCustomerDocumentLocaleMutation>;
+export type DeleteCustomerDocumentLocaleMutationOptions = Apollo.BaseMutationOptions<DeleteCustomerDocumentLocaleMutation, DeleteCustomerDocumentLocaleMutationVariables>;
 export const DeleteCustomerGracePeriodDocument = gql`
     mutation deleteCustomerGracePeriod($input: UpdateCustomerInvoiceGracePeriodInput!) {
   updateCustomerInvoiceGracePeriod(input: $input) {
@@ -5848,6 +5930,43 @@ export function useDeleteCustomerVatRateMutation(baseOptions?: Apollo.MutationHo
 export type DeleteCustomerVatRateMutationHookResult = ReturnType<typeof useDeleteCustomerVatRateMutation>;
 export type DeleteCustomerVatRateMutationResult = Apollo.MutationResult<DeleteCustomerVatRateMutation>;
 export type DeleteCustomerVatRateMutationOptions = Apollo.BaseMutationOptions<DeleteCustomerVatRateMutation, DeleteCustomerVatRateMutationVariables>;
+export const UpdateCustomerDocumentLocaleDocument = gql`
+    mutation updateCustomerDocumentLocale($input: UpdateCustomerInput!) {
+  updateCustomer(input: $input) {
+    id
+    billingConfiguration {
+      id
+      documentLocale
+    }
+  }
+}
+    `;
+export type UpdateCustomerDocumentLocaleMutationFn = Apollo.MutationFunction<UpdateCustomerDocumentLocaleMutation, UpdateCustomerDocumentLocaleMutationVariables>;
+
+/**
+ * __useUpdateCustomerDocumentLocaleMutation__
+ *
+ * To run a mutation, you first call `useUpdateCustomerDocumentLocaleMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCustomerDocumentLocaleMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCustomerDocumentLocaleMutation, { data, loading, error }] = useUpdateCustomerDocumentLocaleMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCustomerDocumentLocaleMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerDocumentLocaleMutation, UpdateCustomerDocumentLocaleMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCustomerDocumentLocaleMutation, UpdateCustomerDocumentLocaleMutationVariables>(UpdateCustomerDocumentLocaleDocument, options);
+      }
+export type UpdateCustomerDocumentLocaleMutationHookResult = ReturnType<typeof useUpdateCustomerDocumentLocaleMutation>;
+export type UpdateCustomerDocumentLocaleMutationResult = Apollo.MutationResult<UpdateCustomerDocumentLocaleMutation>;
+export type UpdateCustomerDocumentLocaleMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerDocumentLocaleMutation, UpdateCustomerDocumentLocaleMutationVariables>;
 export const UpdateCustomerInvoiceGracePeriodDocument = gql`
     mutation updateCustomerInvoiceGracePeriod($input: UpdateCustomerInvoiceGracePeriodInput!) {
   updateCustomerInvoiceGracePeriod(input: $input) {
