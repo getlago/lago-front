@@ -32,6 +32,15 @@ export const RevokeInviteDialog = forwardRef<RevokeInviteDialogRef>((_, ref) => 
         })
       }
     },
+    update(cache, { data }) {
+      if (!data?.revokeInvite) return
+      const cacheId = cache.identify({
+        id: data?.revokeInvite.id,
+        __typename: 'Invite',
+      })
+
+      cache.evict({ id: cacheId })
+    },
   })
 
   const [inviteInfos, setInviteInfos] = useState<
@@ -61,7 +70,6 @@ export const RevokeInviteDialog = forwardRef<RevokeInviteDialogRef>((_, ref) => 
       onContinue={async () =>
         await revokeInvite({
           variables: { input: { id: inviteInfos?.id as string } },
-          refetchQueries: ['getInvites'],
         })
       }
       continueText={translate('text_63208c701ce25db78140745e')}
