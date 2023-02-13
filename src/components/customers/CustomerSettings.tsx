@@ -108,7 +108,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
           <Button
             disabled={loading}
             variant="quaternary"
-            onClick={() => editDialogRef?.current?.openDialog()}
+            onClick={editDialogRef?.current?.openDialog}
           >
             {translate('text_62728ff857d47b013204cab3')}
           </Button>
