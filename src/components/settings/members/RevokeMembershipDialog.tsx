@@ -32,6 +32,15 @@ export const RevokeMembershipDialog = forwardRef<RevokeMembershipDialogRef>((_, 
         })
       }
     },
+    update(cache, { data }) {
+      if (!data?.revokeMembership) return
+      const cacheId = cache.identify({
+        id: data?.revokeMembership.id,
+        __typename: 'Membership',
+      })
+
+      cache.evict({ id: cacheId })
+    },
   })
 
   const [membershipInfos, setMembershipInfos] = useState<
@@ -61,7 +70,6 @@ export const RevokeMembershipDialog = forwardRef<RevokeMembershipDialogRef>((_, 
       onContinue={async () =>
         await revokeMembership({
           variables: { input: { id: membershipInfos?.id as string } },
-          refetchQueries: ['getMembers'],
         })
       }
       continueText={translate('text_63208bfc99e69a28211ec7b4')}
