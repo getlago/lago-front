@@ -226,6 +226,7 @@ const DesignSystem = () => {
                   <Chip label="I'm a 🍟" />
                   <Chip label="I have an icon" icon="scissor" />
                   <Chip label="I have an icon" icon="scissor" onClose={() => {}} />
+                  <Chip label="I have an icon" icon="scissor" type="error" onClose={() => {}} />
                 </Block>
 
                 <GroupTitle variant="headline">Alert</GroupTitle>

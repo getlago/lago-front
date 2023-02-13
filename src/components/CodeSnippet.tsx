@@ -99,6 +99,10 @@ const Pre = styled.pre<{ $withHeader?: boolean }>`
   display: flex;
   flex-direction: column;
   padding-bottom: ${theme.spacing(30)};
+
+  &:focus-visible {
+    outline: none;
+  }
 `
 
 const Code = styled.code`

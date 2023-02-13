@@ -58,21 +58,14 @@ export const EventItem = ({ event, navigationProps, selected, onClick }: EventIt
 export const EventItemSkeleton = () => {
   return (
     <SkeletonItem>
-      <div>
-        <Skeleton variant="text" height={12} width={68} marginRight="12px" />
-        <Skeleton variant="text" height={12} width={264} marginRight="auto" />
-      </div>
+      <Skeleton variant="text" height={12} width={68} marginRight="12px" />
+      <Skeleton variant="text" height={12} width={264} marginRight="auto" />
       <Skeleton variant="text" height={12} width={80} />
     </SkeletonItem>
   )
 }
 
 const SkeletonItem = styled(BaseListItem)`
-  > *:first-child {
-    min-width: 0;
-    display: flex;
-    margin-right: auto;
-  }
   > *:last-child {
     margin-left: ${theme.spacing(3)};
   }

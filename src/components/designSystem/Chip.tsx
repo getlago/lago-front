@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { clsx } from 'clsx'
 
 import { theme } from '~/styles'
 
@@ -7,8 +8,15 @@ import { Typography } from './Typography'
 import { Button } from './Button'
 import { Icon, IconName } from './Icon'
 
+enum ChipTypeEnum {
+  default = 'default',
+  error = 'error',
+}
+
 interface ChipGenericProps {
   label: string
+  className?: string
+  type?: keyof typeof ChipTypeEnum
   onClose?: () => void | Promise<void>
 }
 
@@ -24,16 +32,35 @@ interface ChipPropsIcon extends ChipGenericProps {
 
 type ChipProps = ChipPropsAvatar | ChipPropsIcon
 
-export const Chip = ({ label, icon, avatarProps, onClose }: ChipProps) => {
+export const Chip = ({
+  className,
+  label,
+  icon,
+  avatarProps,
+  type = ChipTypeEnum.default,
+
+  onClose,
+}: ChipProps) => {
   return (
-    <Container data-test={`chip-${label}`}>
-      {icon && <Icon name={icon} size="small" />}
+    <Container className={clsx(className, `chip-container--${type}`)} data-test={`chip-${label}`}>
+      {icon && (
+        <Icon name={icon} size="small" color={type === ChipTypeEnum.error ? 'error' : undefined} />
+      )}
       {avatarProps && <Avatar size="small" variant="user" {...avatarProps} />}
-      <Typography variant="captionHl" color="textSecondary">
+      <Typography
+        variant="captionHl"
+        color={type === ChipTypeEnum.error ? 'danger600' : 'textSecondary'}
+      >
         {label}
       </Typography>
       {onClose && (
-        <Button size="small" variant="quaternary" icon="close-circle-filled" onClick={onClose} />
+        <Button
+          size="small"
+          variant="quaternary"
+          danger={type === ChipTypeEnum.error}
+          icon="close-circle-filled"
+          onClick={onClose}
+        />
       )}
     </Container>
   )
@@ -48,6 +75,13 @@ const Container = styled.div`
   border-radius: 8px;
   display: flex;
   align-items: center;
+  width: fit-content;
+
+  &.chip-container--${ChipTypeEnum.error} {
+    background-color: ${theme.palette.error[100]};
+    color: ${theme.palette.error[300]};
+    border-color: ${theme.palette.error[300]};
+  }
 
   > *:not(:last-child) {
     margin-right: ${theme.spacing(2)};

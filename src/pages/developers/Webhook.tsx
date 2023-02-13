@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
+import { Link } from 'react-router-dom'
 
 import {
   Typography,
@@ -10,9 +11,11 @@ import {
   Tooltip,
   Avatar,
   Icon,
+  ButtonLink,
 } from '~/components/designSystem'
+import { WEBHOOK_LOGS_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme, NAV_HEIGHT, MenuPopper } from '~/styles'
+import { theme, NAV_HEIGHT, MenuPopper, ItemContainer, ListClickableItemCss } from '~/styles'
 import { useGetWehbookSettingQuery } from '~/generated/graphql'
 import { EditWebhookDialog, EditWebhookDialogRef } from '~/components/developers/EditWebhookDialog'
 import {
@@ -54,76 +57,86 @@ const Webhook = () => {
       </Head>
 
       {!webhookUrl && !loading ? (
-        <EmptyText variant="caption" color="grey600">
-          {translate('text_62ce85fb3fb6842020331d85')}
-        </EmptyText>
+        <EmptyText
+          variant="caption"
+          color="grey600"
+          html={translate('text_63e27c56dfe64b846474ef0c', {
+            link: WEBHOOK_LOGS_ROUTE,
+          })}
+        />
+      ) : loading ? (
+        <LoadingBlock>
+          <Skeleton variant="text" width={160} height={12} />
+        </LoadingBlock>
       ) : (
-        <WebhookItem>
-          {loading ? (
-            <>
-              <LeftBlock>
-                <Skeleton variant="connectorAvatar" size="medium" />
-                <Skeleton variant="text" width={240} height={12} />
-              </LeftBlock>
-              <RightSkeleton variant="text" width={160} height={12} />
-            </>
-          ) : (
-            <>
-              <LeftBlock>
-                <Avatar variant="connector">
-                  <Icon color="dark" name="globe" />
-                </Avatar>
-                <Typography variant="body" color="grey700" noWrap>
-                  {webhookUrl}
-                </Typography>
-              </LeftBlock>
-              <RightBlock>
-                <Popper
-                  PopperProps={{ placement: 'bottom-end' }}
-                  opener={({ isOpen }) => (
-                    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-                    <div>
-                      <Tooltip
-                        placement="top-end"
-                        disableHoverListener={isOpen}
-                        title={translate('text_6271200984178801ba8bdf8f')}
-                      >
-                        <Button icon="dots-horizontal" variant="quaternary" />
-                      </Tooltip>
-                    </div>
-                  )}
-                >
-                  {({ closePopper }) => (
-                    <MenuPopper>
-                      <Button
-                        startIcon="pen"
-                        variant="quaternary"
-                        align="left"
-                        onClick={() => {
-                          editDialogRef.current?.openDialog()
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_6271200984178801ba8bdf88')}
-                      </Button>
-                      <Button
-                        startIcon="trash"
-                        variant="quaternary"
-                        align="left"
-                        onClick={() => {
-                          deleleDialogRef.current?.openDialog()
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_6271200984178801ba8bdf8e')}
-                      </Button>
-                    </MenuPopper>
-                  )}
-                </Popper>
-              </RightBlock>
-            </>
-          )}
-        </WebhookItem>
+        <ItemContainer>
+          <WebhookItem tabIndex={0} to={WEBHOOK_LOGS_ROUTE}>
+            <LeftBlock>
+              <Avatar variant="connector">
+                <Icon color="dark" name="globe" />
+              </Avatar>
+              <Typography variant="body" color="grey700" noWrap>
+                {webhookUrl}
+              </Typography>
+            </LeftBlock>
+            <ButtonMock />
+          </WebhookItem>
+          <MenuButton>
+            <Popper
+              PopperProps={{ placement: 'bottom-end' }}
+              opener={({ isOpen }) => (
+                <div>
+                  <Tooltip
+                    placement="top-end"
+                    disableHoverListener={isOpen}
+                    title={translate('text_6271200984178801ba8bdf8f')}
+                  >
+                    <Button icon="dots-horizontal" variant="quaternary" />
+                  </Tooltip>
+                </div>
+              )}
+            >
+              {({ closePopper }) => (
+                <MenuPopper>
+                  <ButtonLink
+                    type="button"
+                    buttonProps={{
+                      startIcon: 'content-left-align',
+                      variant: 'quaternary',
+                      align: 'left',
+                      fullWidth: true,
+                    }}
+                    to={WEBHOOK_LOGS_ROUTE}
+                  >
+                    {translate('text_63e292b311ed46040ff2e7e3')}
+                  </ButtonLink>
+                  <Button
+                    startIcon="pen"
+                    variant="quaternary"
+                    align="left"
+                    onClick={() => {
+                      editDialogRef.current?.openDialog()
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_6271200984178801ba8bdf88')}
+                  </Button>
+                  <Button
+                    startIcon="trash"
+                    variant="quaternary"
+                    align="left"
+                    onClick={() => {
+                      deleleDialogRef.current?.openDialog()
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_6271200984178801ba8bdf8e')}
+                  </Button>
+                </MenuPopper>
+              )}
+            </Popper>
+          </MenuButton>
+        </ItemContainer>
       )}
       <EditWebhookDialog ref={editDialogRef} webhook={webhookUrl} />
       <DeleteWebhookDialog ref={deleleDialogRef} />
@@ -156,12 +169,18 @@ const EmptyText = styled(Typography)`
   box-shadow: ${theme.shadows[7]};
 `
 
-const WebhookItem = styled.div`
+const WebhookItem = styled(Link)`
+  ${ListClickableItemCss}
   height: ${NAV_HEIGHT}px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   box-shadow: ${theme.shadows[7]};
+`
+
+const LoadingBlock = styled.div`
+  box-shadow: ${theme.shadows[7]};
+  height: ${theme.spacing(12)};
 `
 
 const LeftBlock = styled.div`
@@ -175,13 +194,15 @@ const LeftBlock = styled.div`
   }
 `
 
-const RightBlock = styled.div`
-  display: flex;
-  align-items: center;
+const MenuButton = styled.div`
+  position: absolute;
+  top: ${theme.spacing(4)};
+  right: 0;
 `
 
-const RightSkeleton = styled(Skeleton)`
-  margin-right: ${theme.spacing(16)};
+const ButtonMock = styled.div`
+  width: 40px;
+  min-width: 40px;
 `
 
 export default Webhook

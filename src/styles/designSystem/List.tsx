@@ -17,7 +17,7 @@ export const ListItemCss = css`
   }
 `
 
-const ListClickableItemCss = css`
+export const ListClickableItemCss = css`
   cursor: pointer;
 
   &:hover:not(:active),
