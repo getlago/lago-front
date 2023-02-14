@@ -155,6 +155,9 @@ module.exports = {
   "project_63aa085ae8d6be2e0e0ee38b": {
     "base": require('./👍 [Ready for dev] - Customer - Improve tax and grace period on customer__base.json')
   },
+  "project_63eba8199c936977d8e98991": {
+    "base": require('./👍 [Ready for dev] - Customer Invoice - Update invoice.payment_status__base.json')
+  },
   "project_634687058efb4a10996fdbdc": {
     "base": require('./👍 [Ready for dev] - Customers - Invoice detail page__base.json')
   },

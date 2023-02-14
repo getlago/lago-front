@@ -34,6 +34,7 @@ import {
   InvoiceForFinalizeInvoiceFragment,
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForInvoiceInfosFragmentDoc,
+  InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   InvoiceTypeEnum,
@@ -58,6 +59,10 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import {
+  UpdateInvoicePaymentStatusDialog,
+  UpdateInvoicePaymentStatusDialogRef,
+} from '~/components/invoices/EditInvoicePaymentStatusDialog'
 
 gql`
   fragment AllInvoiceDetailsForCustomerInvoiceDetails on Invoice {
@@ -74,6 +79,7 @@ gql`
     ...InvoiceForDetailsTable
     ...InvoiceForInvoiceInfos
     ...InvoiceForFinalizeInvoice
+    ...InvoiceForUpdateInvoicePaymentStatus
   }
 
   query getInvoiceDetails($id: ID!) {
@@ -103,6 +109,7 @@ gql`
   ${InvoiceDetailsForInvoiceOverviewFragmentDoc}
   ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}
   ${InvoiceForFinalizeInvoiceFragmentDoc}
+  ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
 `
 
 export enum CustomerInvoiceDetailsTabsOptionsEnum {
@@ -138,6 +145,7 @@ const CustomerInvoiceDetails = () => {
   const { isPremium } = useCurrentUser()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const [refreshInvoice, { loading: loadingRefreshInvoice }] = useRefreshInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
   })
@@ -375,6 +383,19 @@ const CustomerInvoiceDetails = () => {
                 >
                   {translate('text_634687079be251fdb438339b')}
                 </Button>
+                {status !== InvoiceStatusTypeEnum.Draft && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    onClick={() => {
+                      !!data?.invoice &&
+                        updateInvoicePaymentStatusDialog?.current?.openDialog(data.invoice)
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_63eba8c65a6c8043feee2a01')}
+                  </Button>
+                )}
               </MenuPopper>
             )}
           </Popper>
@@ -445,6 +466,7 @@ const CustomerInvoiceDetails = () => {
       )}
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
+      <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
     </>
   )
 }
