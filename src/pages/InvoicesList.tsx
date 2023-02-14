@@ -234,7 +234,7 @@ const InvoicesList = () => {
                   subtitle={translate('text_63ac86d797f728a87b2f9ff2')}
                   buttonTitle={translate('text_63ac86d797f728a87b2f9ffa')}
                   buttonVariant="primary"
-                  buttonAction={location.reload}
+                  buttonAction={() => location.reload()}
                   image={<ErrorImage width="136" height="104" />}
                 />
               )}
