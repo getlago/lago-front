@@ -102,7 +102,7 @@ const Debugger = () => {
           subtitle={translate('text_6298bd525e359200d5e9fffb')}
           buttonTitle={translate('text_6298bd525e359200d5ea0007')}
           buttonVariant="primary"
-          buttonAction={location.reload}
+          buttonAction={() => location.reload()}
           image={<ErrorImage width="136" height="104" />}
         />
       ) : !loading && (!data?.events?.collection || !data?.events?.collection.length) ? (

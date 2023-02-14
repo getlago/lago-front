@@ -118,7 +118,7 @@ export const CustomerInvoicesList = ({
             subtitle={translate('text_634812d6f16b31ce5cbf411f')}
             buttonTitle={translate('text_634812d6f16b31ce5cbf4123')}
             buttonVariant="primary"
-            buttonAction={location.reload}
+            buttonAction={() => location.reload()}
             image={<ErrorImage width="136" height="104" />}
           />
         ) : !isLoading && !collection?.length ? (
