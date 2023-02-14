@@ -27,6 +27,7 @@ import Close from '~/public/icons/close.svg'
 import CloseCircleFilled from '~/public/icons/close-circle-filled.svg'
 import CloseCircleUnfilled from '~/public/icons/close-circle-unfilled.svg'
 import Code from '~/public/icons/code.svg'
+import CoinDollar from '~/public/icons/coin-dollar.svg'
 import Collect from '~/public/icons/collect.svg'
 import Command from '~/public/icons/command.svg'
 import Company from '~/public/icons/company.svg'
@@ -134,6 +135,7 @@ export const ALL_ICONS = {
   'close-circle-unfilled': CloseCircleUnfilled,
   close: Close,
   code: Code,
+  'coin-dollar': CoinDollar,
   collect: Collect,
   command: Command,
   company: Company,
