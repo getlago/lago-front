@@ -44,7 +44,7 @@ module.exports = {
         APP_ENV: JSON.stringify('production'),
         API_URL: JSON.stringify(process.env.API_URL),
         LAGO_DISABLE_SIGNUP: process.env.LAGO_DISABLE_SIGNUP,
-        LAGO_OAUTH_PROXY_URL: process.env.LAGO_OAUTH_PROXY_URL,
+        LAGO_OAUTH_PROXY_URL: JSON.stringify(process.env.LAGO_OAUTH_PROXY_URL),
         APP_VERSION: JSON.stringify('0.0'),
       })
     )
