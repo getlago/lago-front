@@ -14,6 +14,7 @@ import {
   InvoiceForFinalizeInvoiceFragmentDoc,
   useRetryInvoicePaymentMutation,
   LagoApiError,
+  InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
 } from '~/generated/graphql'
 import { formatDateToTZ } from '~/core/timezone'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -22,6 +23,10 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 
 import { FinalizeInvoiceDialog, FinalizeInvoiceDialogRef } from './FinalizeInvoiceDialog'
+import {
+  UpdateInvoicePaymentStatusDialog,
+  UpdateInvoicePaymentStatusDialogRef,
+} from './EditInvoicePaymentStatusDialog'
 
 gql`
   fragment InvoiceListItem on Invoice {
@@ -38,6 +43,7 @@ gql`
       applicableTimezone
     }
     ...InvoiceForFinalizeInvoice
+    ...InvoiceForUpdateInvoicePaymentStatus
   }
 
   mutation downloadInvoiceItem($input: DownloadInvoiceInput!) {
@@ -55,6 +61,7 @@ gql`
   }
 
   ${InvoiceForFinalizeInvoiceFragmentDoc}
+  ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
 `
 
 export enum InvoiceListItemContextEnum {
@@ -108,6 +115,7 @@ export const InvoiceListItem = ({
 }: InvoiceListItemProps) => {
   const { translate } = useInternationalization()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
+  const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const {
     id,
     status,
@@ -262,10 +270,24 @@ export const InvoiceListItem = ({
             >
               {translate('text_63ac86d897f728a87b2fa031')}
             </Button>
+            {status !== InvoiceStatusTypeEnum.Draft && (
+              <Button
+                startIcon="coin-dollar"
+                variant="quaternary"
+                align="left"
+                onClick={() => {
+                  updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
+                  closePopper()
+                }}
+              >
+                {translate('text_63eba8c65a6c8043feee2a01')}
+              </Button>
+            )}
           </MenuPopper>
         )}
       </Popper>
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
+      <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
     </Container>
   )
 }
