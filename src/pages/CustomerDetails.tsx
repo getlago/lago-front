@@ -129,6 +129,7 @@ const CustomerDetails = () => {
   const { data, loading, error } = useGetCustomerQuery({
     variables: { id: id as string },
     skip: !id,
+    notifyOnNetworkStatusChange: true,
   })
   const { goBack } = useLocationHistory()
   const {
