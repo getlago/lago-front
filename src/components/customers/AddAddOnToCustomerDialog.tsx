@@ -13,6 +13,9 @@ import {
   CreateAppliedAddOnInput,
   CurrencyEnum,
   LagoApiError,
+  CustomerAddOnsFragmentDoc,
+  CustomerDetailsFragmentDoc,
+  CustomerDetailsFragment,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -38,8 +41,11 @@ gql`
   mutation addAddOn($input: CreateAppliedAddOnInput!) {
     createAppliedAddOn(input: $input) {
       id
+      ...CustomerAddOns
     }
   }
+
+  ${CustomerAddOnsFragmentDoc}
 `
 
 export interface AddAddOnToCustomerDialogRef extends DialogRef {}
@@ -60,6 +66,31 @@ export const AddAddOnToCustomerDialog = forwardRef<
   const [addCoupon] = useAddAddOnMutation({
     context: {
       silentErrorCodes: [LagoApiError.UnprocessableEntity],
+    },
+    update(cache, { data: addData }) {
+      const cacheId = `CustomerDetails:${customerId}`
+
+      const previousData: CustomerDetailsFragment | null = cache.readFragment({
+        id: cacheId,
+        fragment: CustomerDetailsFragmentDoc,
+        fragmentName: 'CustomerDetails',
+      })
+
+      cache.writeFragment({
+        id: cacheId,
+        fragment: CustomerDetailsFragmentDoc,
+        fragmentName: 'CustomerDetails',
+        data: {
+          ...previousData,
+          appliedAddOns: [
+            addData?.createAppliedAddOn,
+            ...(previousData?.appliedAddOns || []).map((a) => ({
+              ...a,
+              __typename: 'AppliedAddOn', // The query has nested fragment and the typename is removed - we need to re-add it for it to work
+            })),
+          ],
+        },
+      })
     },
     onCompleted({ createAppliedAddOn }) {
       if (createAppliedAddOn) {
@@ -93,7 +124,7 @@ export const AddAddOnToCustomerDialog = forwardRef<
             ...values,
           },
         },
-        refetchQueries: ['getCustomer'],
+        // refetchQueries: ['getCustomer'],
       })
 
       const { errors } = answer
