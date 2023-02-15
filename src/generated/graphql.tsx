@@ -3643,7 +3643,7 @@ export type CreateInviteMutationVariables = Exact<{
 }>;
 
 
-export type CreateInviteMutation = { __typename?: 'Mutation', createInvite?: { __typename?: 'Invite', id: string, token: string } | null };
+export type CreateInviteMutation = { __typename?: 'Mutation', createInvite?: { __typename?: 'Invite', id: string, token: string, email: string, organization: { __typename?: 'Organization', id: string, name: string } } | null };
 
 export type InviteItemFragment = { __typename?: 'Invite', id: string, email: string, token: string, organization: { __typename?: 'Organization', id: string, name: string } };
 
@@ -6597,9 +6597,10 @@ export const CreateInviteDocument = gql`
   createInvite(input: $input) {
     id
     token
+    ...InviteItem
   }
 }
-    `;
+    ${InviteItemFragmentDoc}`;
 export type CreateInviteMutationFn = Apollo.MutationFunction<CreateInviteMutation, CreateInviteMutationVariables>;
 
 /**

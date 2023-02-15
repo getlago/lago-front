@@ -9,7 +9,14 @@ import { theme } from '~/styles'
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { CreateInviteInput, LagoApiError, useCreateInviteMutation } from '~/generated/graphql'
+import {
+  CreateInviteInput,
+  LagoApiError,
+  useCreateInviteMutation,
+  GetInvitesQuery,
+  GetInvitesDocument,
+  InviteItemFragmentDoc,
+} from '~/generated/graphql'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -22,8 +29,11 @@ gql`
     createInvite(input: $input) {
       id
       token
+      ...InviteItem
     }
   }
+
+  ${InviteItemFragmentDoc}
 `
 
 export interface CreateInviteDialogRef extends DialogRef {}
@@ -41,6 +51,24 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
       if (res?.createInvite?.token) {
         setInviteToken(res.createInvite.token)
       }
+    },
+    update(cache, { data }) {
+      const invitesData: GetInvitesQuery | null = cache.readQuery({
+        query: GetInvitesDocument,
+      })
+
+      cache.writeQuery({
+        query: GetInvitesDocument,
+        data: {
+          invites: {
+            metadata: {
+              ...invitesData?.invites?.metadata,
+              totalCount: (invitesData?.invites?.metadata?.totalCount || 0) + 1,
+            },
+            collection: [data?.createInvite, ...(invitesData?.invites?.collection || [])],
+          },
+        },
+      })
     },
   })
 
@@ -60,7 +88,6 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
             ...values,
           },
         },
-        refetchQueries: ['getInvites'],
       })
 
       const { errors } = result
