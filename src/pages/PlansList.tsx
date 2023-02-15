@@ -37,6 +37,8 @@ const PlansList = () => {
   const [getPlans, { data, error, loading, fetchMore, variables }] = usePlansLazyQuery({
     variables: { limit: 20 },
     notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getPlans, loading)
   const list = data?.plans?.collection || []

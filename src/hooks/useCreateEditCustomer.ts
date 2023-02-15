@@ -13,8 +13,6 @@ import {
   AddCustomerDrawerDetailFragment,
   UpdateCustomerMutation,
   CreateCustomerMutation,
-  CustomersDocument,
-  CustomersQuery,
 } from '~/generated/graphql'
 import { addToast } from '~/core/apolloClient'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -106,21 +104,6 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
   const navigate = useNavigate()
   const [create] = useCreateCustomerMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    update(cache, { data }) {
-      const customerListData: CustomersQuery | null = cache.readQuery({
-        query: CustomersDocument,
-      })
-
-      cache.writeQuery({
-        query: CustomersDocument,
-        data: {
-          customers: {
-            metadata: customerListData?.customers?.metadata,
-            collection: [data?.createCustomer, ...(customerListData?.customers?.collection || [])],
-          },
-        },
-      })
-    },
     onCompleted({ createCustomer }) {
       if (!!createCustomer) {
         addToast({

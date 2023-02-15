@@ -42,6 +42,8 @@ const AddOnsList = () => {
   const [getAddOns, { data, error, loading, fetchMore, variables }] = useAddOnsLazyQuery({
     variables: { limit: 20 },
     notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getAddOns, loading)
   const list = data?.addOns?.collection || []

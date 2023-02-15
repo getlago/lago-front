@@ -90,6 +90,8 @@ const InvoicesList = () => {
   const navigate = useNavigate()
   const [getInvoices, { data, loading, error, fetchMore, variables }] = useInvoicesListLazyQuery({
     notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
     variables: {
       limit: 20,
       ...(tab === InvoiceListTabEnum.draft && { status: InvoiceStatusTypeEnum.Draft }),

@@ -41,6 +41,8 @@ const BillableMetricsList = () => {
     useBillableMetricsLazyQuery({
       variables: { limit: 20 },
       notifyOnNetworkStatusChange: true,
+      fetchPolicy: 'network-only',
+      nextFetchPolicy: 'network-only',
     })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getBillableMetrics, loading)
   const list = data?.billableMetrics?.collection || []
