@@ -31,6 +31,13 @@ import {
 import { TopupWalletDialog, TopupWalletDialogRef } from './TopupWalletDialog'
 
 gql`
+  fragment CustomerWallet on Wallet {
+    ...WalletForTopup
+    ...WalletForUpdate
+    ...WalletAccordion
+    ...WalletInfosForTransactions
+  }
+
   query getCustomerWalletList($customerId: ID!, $page: Int, $limit: Int) {
     wallets(customerId: $customerId, page: $page, limit: $limit) {
       metadata {
@@ -38,10 +45,7 @@ gql`
         totalPages
       }
       collection {
-        ...WalletForTopup
-        ...WalletForUpdate
-        ...WalletAccordion
-        ...WalletInfosForTransactions
+        ...CustomerWallet
       }
     }
   }

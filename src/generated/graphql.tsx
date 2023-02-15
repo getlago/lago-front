@@ -3669,7 +3669,9 @@ export type CreateCustomerWalletMutationVariables = Exact<{
 }>;
 
 
-export type CreateCustomerWalletMutation = { __typename?: 'Mutation', createCustomerWallet?: { __typename?: 'Wallet', id: string } | null };
+export type CreateCustomerWalletMutation = { __typename?: 'Mutation', createCustomerWallet?: { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: string, name?: string | null, expirationAt?: any | null, balance: string, consumedAmount: string, consumedCredits: string, createdAt: any, creditsBalance: string, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null } | null };
+
+export type CustomerWalletFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: string, name?: string | null, expirationAt?: any | null, balance: string, consumedAmount: string, consumedCredits: string, createdAt: any, creditsBalance: string, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null };
 
 export type GetCustomerWalletListQueryVariables = Exact<{
   customerId: Scalars['ID'];
@@ -4476,6 +4478,17 @@ export const WalletInfosForTransactionsFragmentDoc = gql`
   status
 }
     `;
+export const CustomerWalletFragmentDoc = gql`
+    fragment CustomerWallet on Wallet {
+  ...WalletForTopup
+  ...WalletForUpdate
+  ...WalletAccordion
+  ...WalletInfosForTransactions
+}
+    ${WalletForTopupFragmentDoc}
+${WalletForUpdateFragmentDoc}
+${WalletAccordionFragmentDoc}
+${WalletInfosForTransactionsFragmentDoc}`;
 export const CurrentUserFragmentDoc = gql`
     fragment CurrentUser on User {
   id
@@ -6707,9 +6720,10 @@ export const CreateCustomerWalletDocument = gql`
     mutation createCustomerWallet($input: CreateCustomerWalletInput!) {
   createCustomerWallet(input: $input) {
     id
+    ...CustomerWallet
   }
 }
-    `;
+    ${CustomerWalletFragmentDoc}`;
 export type CreateCustomerWalletMutationFn = Apollo.MutationFunction<CreateCustomerWalletMutation, CreateCustomerWalletMutationVariables>;
 
 /**
@@ -6744,17 +6758,11 @@ export const GetCustomerWalletListDocument = gql`
       totalPages
     }
     collection {
-      ...WalletForTopup
-      ...WalletForUpdate
-      ...WalletAccordion
-      ...WalletInfosForTransactions
+      ...CustomerWallet
     }
   }
 }
-    ${WalletForTopupFragmentDoc}
-${WalletForUpdateFragmentDoc}
-${WalletAccordionFragmentDoc}
-${WalletInfosForTransactionsFragmentDoc}`;
+    ${CustomerWalletFragmentDoc}`;
 
 /**
  * __useGetCustomerWalletListQuery__
