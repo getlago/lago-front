@@ -21,6 +21,9 @@ import {
   CurrencyEnum,
   useCreateCustomerWalletMutation,
   LagoApiError,
+  CustomerWalletFragmentDoc,
+  GetCustomerWalletListDocument,
+  GetCustomerWalletListQuery,
 } from '~/generated/graphql'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -30,8 +33,11 @@ gql`
   mutation createCustomerWallet($input: CreateCustomerWalletInput!) {
     createCustomerWallet(input: $input) {
       id
+      ...CustomerWallet
     }
   }
+
+  ${CustomerWalletFragmentDoc}
 `
 
 export interface AddWalletToCustomerDialogRef extends DialogRef {}
@@ -48,6 +54,23 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
     const [createWallet] = useCreateCustomerWalletMutation({
       context: {
         silentErrorCodes: [LagoApiError.UnprocessableEntity],
+      },
+      update(cache, { data }) {
+        const walletsData: GetCustomerWalletListQuery | null = cache.readQuery({
+          query: GetCustomerWalletListDocument,
+          variables: { customerId },
+        })
+
+        cache.writeQuery({
+          query: GetCustomerWalletListDocument,
+          variables: { customerId },
+          data: {
+            wallets: {
+              metadata: walletsData?.wallets?.metadata,
+              collection: [data?.createCustomerWallet, ...(walletsData?.wallets?.collection || [])],
+            },
+          },
+        })
       },
       onCompleted(res) {
         if (res?.createCustomerWallet) {
@@ -107,7 +130,6 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
               ...values,
             },
           },
-          refetchQueries: ['getCustomer', 'getCustomerWalletList'],
         })
 
         if (!hasDefinedGQLError('CurrenciesDoesNotMatch', errors)) {
