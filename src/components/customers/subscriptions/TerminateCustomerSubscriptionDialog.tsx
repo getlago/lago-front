@@ -63,6 +63,7 @@ export const TerminateCustomerSubscriptionDialog =
         onContinue={async () =>
           await terminate({
             variables: { input: { id: subscription?.id as string } },
+            refetchQueries: ['getCustomer'],
           })
         }
         continueText={translate('text_62d7f6178ec94cd09370e351')}
