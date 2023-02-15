@@ -65,6 +65,16 @@ import {
 import { CustomerCreditNotesList } from '~/components/customers/CustomerCreditNotesList'
 
 gql`
+  fragment CustomerSubscription on Subscription {
+    id
+    plan {
+      id
+      amountCurrency
+    }
+    ...SubscriptionItem
+    ...CustomerUsageSubscription
+  }
+
   fragment CustomerDetails on CustomerDetails {
     id
     name
@@ -76,12 +86,7 @@ gql`
     creditNotesBalanceAmountCents
     applicableTimezone
     subscriptions(status: [active, pending]) {
-      plan {
-        id
-        amountCurrency
-      }
-      ...SubscriptionItem
-      ...CustomerUsageSubscription
+      ...CustomerSubscription
     }
     appliedCoupons {
       ...CustomerCoupon

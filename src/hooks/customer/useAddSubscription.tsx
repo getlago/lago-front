@@ -4,7 +4,6 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 
 import {
-  SubscriptionItemFragmentDoc,
   useGetPlansLazyQuery,
   AddSubscriptionPlanFragment,
   BillingTimeEnum,
@@ -12,6 +11,9 @@ import {
   useCreateSubscriptionMutation,
   LagoApiError,
   CreateSubscriptionInput,
+  CustomerSubscriptionFragmentDoc,
+  CustomerDetailsFragmentDoc,
+  CustomerDetailsFragment,
 } from '~/generated/graphql'
 import { SubscriptionUpdateInfo, addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { ComboBoxProps } from '~/components/form'
@@ -36,11 +38,11 @@ gql`
 
   mutation createSubscription($input: CreateSubscriptionInput!) {
     createSubscription(input: $input) {
-      ...SubscriptionItem
+      ...CustomerSubscription
     }
   }
 
-  ${SubscriptionItemFragmentDoc}
+  ${CustomerSubscriptionFragmentDoc}
 `
 
 interface UseAddSubscriptionReturn {
@@ -174,7 +176,31 @@ export const useAddSubscription: UseAddSubscription = ({
             ...values,
           },
         },
-        refetchQueries: ['getCustomer'],
+        update(cache, { data: createData }) {
+          const cacheId = `CustomerDetails:${customerId}`
+
+          const previousData: CustomerDetailsFragment | null = cache.readFragment({
+            id: cacheId,
+            fragment: CustomerDetailsFragmentDoc,
+            fragmentName: 'CustomerDetails',
+          })
+
+          cache.writeFragment({
+            id: cacheId,
+            fragment: CustomerDetailsFragmentDoc,
+            fragmentName: 'CustomerDetails',
+            data: {
+              ...previousData,
+              subscriptions: [
+                createData?.createSubscription,
+                ...(previousData?.subscriptions || []).map((s) => ({
+                  ...s,
+                  __typename: 'Subscription', // The query has nested fragment and the typename is removed - we need to re-add it for it to work
+                })),
+              ],
+            },
+          })
+        },
       })
 
       if (!hasDefinedGQLError('CurrenciesDoesNotMatch', errors)) {
