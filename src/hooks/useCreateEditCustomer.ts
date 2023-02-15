@@ -152,13 +152,13 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
   })
 
   return {
-    isEdition: !!customer,
-    onSave: !!customer
+    isEdition: !!customer?.id,
+    onSave: !!customer?.id
       ? async ({ providerCustomer, paymentProvider, ...values }) =>
           await update({
             variables: {
               input: {
-                id: customer?.id as string,
+                id: customer.id,
                 paymentProvider,
                 providerCustomer: {
                   providerCustomerId: !paymentProvider
@@ -175,6 +175,8 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
             variables: {
               input: {
                 ...values,
+                externalId: customer?.externalId as string,
+                name: customer?.name as string,
                 paymentProvider,
                 providerCustomer: {
                   providerCustomerId: !paymentProvider

@@ -3011,13 +3011,13 @@ export type UpdateCustomerInput = {
   country?: InputMaybe<CountryCode>;
   currency?: InputMaybe<CurrencyEnum>;
   email?: InputMaybe<Scalars['String']>;
-  externalId: Scalars['String'];
+  externalId?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
   invoiceGracePeriod?: InputMaybe<Scalars['Int']>;
   legalName?: InputMaybe<Scalars['String']>;
   legalNumber?: InputMaybe<Scalars['String']>;
   logoUrl?: InputMaybe<Scalars['String']>;
-  name: Scalars['String'];
+  name?: InputMaybe<Scalars['String']>;
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   phone?: InputMaybe<Scalars['String']>;
   providerCustomer?: InputMaybe<ProviderCustomerInput>;
