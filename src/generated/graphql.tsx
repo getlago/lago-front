@@ -3339,7 +3339,7 @@ export type AddAddOnMutationVariables = Exact<{
 }>;
 
 
-export type AddAddOnMutation = { __typename?: 'Mutation', createAppliedAddOn?: { __typename?: 'AppliedAddOn', id: string } | null };
+export type AddAddOnMutation = { __typename?: 'Mutation', createAppliedAddOn?: { __typename?: 'AppliedAddOn', id: string, amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } } | null };
 
 export type CouponPlansForCustomerFragment = { __typename?: 'Plan', id: string, name: string };
 
@@ -5435,9 +5435,10 @@ export const AddAddOnDocument = gql`
     mutation addAddOn($input: CreateAppliedAddOnInput!) {
   createAppliedAddOn(input: $input) {
     id
+    ...CustomerAddOns
   }
 }
-    `;
+    ${CustomerAddOnsFragmentDoc}`;
 export type AddAddOnMutationFn = Apollo.MutationFunction<AddAddOnMutation, AddAddOnMutationVariables>;
 
 /**
