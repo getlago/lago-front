@@ -47,6 +47,8 @@ const CouponsList = () => {
   const [getCoupons, { data, error, loading, fetchMore, variables }] = useCouponsLazyQuery({
     variables: { limit: 20 },
     notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCoupons, loading)
   const list = data?.coupons?.collection || []

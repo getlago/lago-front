@@ -40,6 +40,8 @@ const CustomersList = () => {
   const [getCustomers, { data, error, loading, fetchMore, variables }] = useCustomersLazyQuery({
     variables: { limit: 20 },
     notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCustomers, loading)
   const list = data?.customers?.collection || []
