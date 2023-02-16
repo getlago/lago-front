@@ -53,6 +53,8 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
       }
     },
     update(cache, { data }) {
+      if (!data?.createInvite) return
+
       const invitesData: GetInvitesQuery | null = cache.readQuery({
         query: GetInvitesDocument,
       })

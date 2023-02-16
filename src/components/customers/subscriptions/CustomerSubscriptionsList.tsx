@@ -60,7 +60,7 @@ export const CustomerSubscriptionsList = forwardRef<
         </Header>
         {loading ? (
           <LoadingContent>
-            {[0, 1, 2].map((skeleton, i) => (
+            {[0, 1, 2].map((_, i) => (
               <SubscriptionItemSkeleton key={`customer-subscription-skeleton-${i}`} />
             ))}
           </LoadingContent>
@@ -80,11 +80,11 @@ export const CustomerSubscriptionsList = forwardRef<
               </CellSmall>
             </ListHeader>
             <List>
-              {subscriptions.map((subscription) => {
+              {subscriptions.map((subscription, i) => {
                 return (
                   <SubscriptionItem
                     ref={subscriptionItemRef}
-                    key={subscription?.id}
+                    key={`${subscription?.id}-${i}`}
                     subscription={subscription}
                     customerTimezone={customerTimezone}
                   />

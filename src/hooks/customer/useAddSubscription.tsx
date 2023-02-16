@@ -177,6 +177,8 @@ export const useAddSubscription: UseAddSubscription = ({
           },
         },
         update(cache, { data: createData }) {
+          if (!createData?.createSubscription) return
+
           const cacheId = `CustomerDetails:${customerId}`
 
           const previousData: CustomerDetailsFragment | null = cache.readFragment({

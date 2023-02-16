@@ -63,6 +63,7 @@ export const CustomerCoupons = memo(
       },
       update(cache, { data }) {
         if (!data?.terminateAppliedCoupon) return
+
         const cacheId = cache.identify({
           id: data?.terminateAppliedCoupon.id,
           __typename: 'AppliedCoupon',

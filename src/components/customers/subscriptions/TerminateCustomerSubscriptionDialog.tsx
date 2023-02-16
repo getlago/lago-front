@@ -34,6 +34,7 @@ export const TerminateCustomerSubscriptionDialog =
       },
       update(cache, { data }) {
         if (!data?.terminateSubscription) return
+
         const cacheId = cache.identify({
           id: data?.terminateSubscription.id,
           __typename: 'Subscription',
