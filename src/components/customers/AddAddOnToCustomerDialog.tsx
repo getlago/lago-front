@@ -68,6 +68,8 @@ export const AddAddOnToCustomerDialog = forwardRef<
       silentErrorCodes: [LagoApiError.UnprocessableEntity],
     },
     update(cache, { data: addData }) {
+      if (!addData?.createAppliedAddOn) return
+
       const cacheId = `CustomerDetails:${customerId}`
 
       const previousData: CustomerDetailsFragment | null = cache.readFragment({
@@ -124,7 +126,6 @@ export const AddAddOnToCustomerDialog = forwardRef<
             ...values,
           },
         },
-        // refetchQueries: ['getCustomer'],
       })
 
       const { errors } = answer

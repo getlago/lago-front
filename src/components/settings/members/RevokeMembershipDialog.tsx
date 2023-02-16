@@ -34,6 +34,7 @@ export const RevokeMembershipDialog = forwardRef<RevokeMembershipDialogRef>((_, 
     },
     update(cache, { data }) {
       if (!data?.revokeMembership) return
+
       const cacheId = cache.identify({
         id: data?.revokeMembership.id,
         __typename: 'Membership',

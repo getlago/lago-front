@@ -97,24 +97,9 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
             />
           ) : !!loading ? (
             [1, 2, 3].map((i) => (
-              <ListItemWrapper key={`wallet-transaction-skeleton-${i}`}>
-                <ListLeftWrapper>
-                  <Skeleton
-                    variant="connectorAvatar"
-                    size="medium"
-                    marginRight={theme.spacing(3)}
-                  />
-                  <ColumnWrapper>
-                    <Skeleton
-                      variant="text"
-                      height={12}
-                      width={144}
-                      marginBottom={theme.spacing(3)}
-                    />
-                    <Skeleton variant="text" height={12} width={80} />
-                  </ColumnWrapper>
-                </ListLeftWrapper>
-                <ListRightWrapper>
+              <Loader key={`wallet-transaction-skeleton-${i}`}>
+                <Skeleton variant="connectorAvatar" size="medium" marginRight={theme.spacing(3)} />
+                <LeftLoader>
                   <Skeleton
                     variant="text"
                     height={12}
@@ -122,8 +107,17 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
                     marginBottom={theme.spacing(3)}
                   />
                   <Skeleton variant="text" height={12} width={80} />
-                </ListRightWrapper>
-              </ListItemWrapper>
+                </LeftLoader>
+                <RightLoader>
+                  <Skeleton
+                    variant="text"
+                    height={12}
+                    width={144}
+                    marginBottom={theme.spacing(3)}
+                  />
+                  <Skeleton variant="text" height={12} width={80} />
+                </RightLoader>
+              </Loader>
             ))
           ) : !hasData && wallet?.status !== WalletStatusEnum.Terminated ? (
             <GenericState
@@ -290,6 +284,28 @@ const DateBlock = styled(Typography)`
   > * {
     margin-right: ${theme.spacing(1)};
   }
+`
+
+const Loader = styled.div`
+  display: flex;
+  padding: ${theme.spacing(3)} ${theme.spacing(4)};
+`
+
+const LeftLoader = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  margin-right: ${theme.spacing(2)};
+`
+
+const RightLoader = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  flex: 1;
+  margin-left: ${theme.spacing(2)};
 `
 
 WalletTransactionList.displayName = 'WalletTransactionList'

@@ -41,6 +41,7 @@ export const DeleteCustomerDialog = forwardRef<DialogRef, DeleteCustomerDialogPr
       },
       update(cache, { data }) {
         if (!data?.destroyCustomer) return
+
         const cacheId = cache.identify({
           id: data?.destroyCustomer.id,
           __typename: 'Customer',

@@ -42,6 +42,7 @@ export const DeletePlanDialog = forwardRef<DialogRef, DeletePlanDialogProps>(
       },
       update(cache, { data }) {
         if (!data?.destroyPlan) return
+
         const cacheId = cache.identify({
           id: data?.destroyPlan.id,
           __typename: 'Plan',

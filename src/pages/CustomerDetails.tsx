@@ -150,7 +150,7 @@ const CustomerDetails = () => {
     applicableTimezone,
   } = data?.customer || {}
   const hasActiveSubscription = !!(subscriptions || [])?.filter(
-    (s) => s.status === StatusTypeEnum.Active
+    (s) => s?.status === StatusTypeEnum.Active
   ).length
   const safeTimezone = applicableTimezone || TimezoneEnum.TzUtc
 

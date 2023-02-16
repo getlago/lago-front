@@ -66,9 +66,11 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
       name,
       startedAt,
       subscriptionAt,
-    } = subscription
+    } = subscription || {}
     const { formatTimeOrgaTZ } = useOrganizationInfos()
     const isDowngrading = !!nextPlan
+
+    if (!subscription) return null
 
     return (
       <SubscriptionContainer key={id}>

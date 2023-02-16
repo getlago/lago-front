@@ -56,6 +56,8 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
         silentErrorCodes: [LagoApiError.UnprocessableEntity],
       },
       update(cache, { data }) {
+        if (!data?.createCustomerWallet) return
+
         const walletsData: GetCustomerWalletListQuery | null = cache.readQuery({
           query: GetCustomerWalletListDocument,
           variables: { customerId },
