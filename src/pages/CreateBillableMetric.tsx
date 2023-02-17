@@ -300,6 +300,7 @@ const CreateBillableMetric = () => {
                       {translate('text_633d410368cc8282af23212b')}
                     </Typography>
                   }
+                  initiallyOpen={!!isEdition && !!billableMetric?.group?.key}
                 >
                   <JsonEditorField
                     name="group"
