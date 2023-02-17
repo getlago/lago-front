@@ -43,3 +43,10 @@ Cypress.Commands.add('login', (email: string, password: string) => {
   cy.get('[data-test="submit"]').click()
   cy.url().should('be.equal', Cypress.config().baseUrl + '/')
 })
+
+// https://docs.cypress.io/api/cypress-api/custom-commands#Overwrite-type-command
+// @ts-ignore
+Cypress.Commands.overwrite('type', (originalFn, element, text, options) => {
+  // @ts-ignore
+  return originalFn(element, text, { ...options, delay: 0 })
+})
