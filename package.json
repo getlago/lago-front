@@ -52,7 +52,7 @@
     "@storybook/testing-library": "0.0.13",
     "@svgr/webpack": "6.5.1",
     "@testing-library/jest-dom": "5.16.5",
-    "@testing-library/react": "13.4.0",
+    "@testing-library/react": "14.0.0",
     "@testing-library/user-event": "14.4.3",
     "@types/apollo-upload-client": "17.0.2",
     "@types/jest": "29.4.0",
