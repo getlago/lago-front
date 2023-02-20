@@ -1,3 +1,5 @@
+interface Window { Cypress: any; }
+
 declare type AppEnvEnum = import('./src/globalTypes').AppEnvEnum
 
 declare var APP_ENV: AppEnvEnum
