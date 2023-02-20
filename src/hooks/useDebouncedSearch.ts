@@ -3,7 +3,7 @@ import { debounce, DebouncedFunc } from 'lodash'
 import { LazyQueryExecFunction } from '@apollo/client'
 import { DateTime } from 'luxon'
 
-export const DEBOUNCE_SEARCH_MS = 500
+export const DEBOUNCE_SEARCH_MS = window.Cypress ? 0 : 500
 
 export type UseDebouncedSearch = (
   searchQuery?: LazyQueryExecFunction<
