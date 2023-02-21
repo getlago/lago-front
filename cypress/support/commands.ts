@@ -48,5 +48,5 @@ Cypress.Commands.add('login', (email: string, password: string) => {
 // @ts-ignore
 Cypress.Commands.overwrite('type', (originalFn, element, text, options) => {
   // @ts-ignore
-  return originalFn(element, text, { ...options, delay: 0 })
+  return originalFn(element, text, { delay: 0, ...options })
 })

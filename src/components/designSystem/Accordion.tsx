@@ -32,12 +32,13 @@ export const Accordion = ({
   initiallyOpen = false,
   size = AccordionSizeEnum.medium,
   noContentMargin = false,
+  ...props
 }: AccordionProps) => {
   const [isOpen, setIsOpen] = useState(initiallyOpen)
   const { translate } = useInternationalization()
 
   return (
-    <Container id={id}>
+    <Container id={id} {...props}>
       <StyledAccordion expanded={isOpen} onChange={(_, expanded) => setIsOpen(expanded)} square>
         <Summary $size={size}>
           <Tooltip

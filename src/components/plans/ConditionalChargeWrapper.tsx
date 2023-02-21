@@ -73,6 +73,7 @@ export const ConditionalChargeWrapper = memo(
                   </Tooltip>
                 </Summary>
               }
+              data-test={`group-${groupPropertyIndex}`}
             >
               {typeof children === 'function' &&
                 children({

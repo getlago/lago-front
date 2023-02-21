@@ -301,6 +301,7 @@ const CreateBillableMetric = () => {
                     </Typography>
                   }
                   initiallyOpen={!!isEdition && !!billableMetric?.group?.key}
+                  data-test="dimension-accordion"
                 >
                   <JsonEditorField
                     name="group"
