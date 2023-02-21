@@ -73,7 +73,7 @@ export const CreditNoteFormCalculation = ({
                 : (accGroup = {
                     totalExcludedVat: accGroup.totalExcludedVat + childExcludedVat,
                     vatAmount:
-                      accGroup.vatAmount + Math.ceil(childExcludedVat * child.vatRate) / 100,
+                      accGroup.vatAmount + Math.round(childExcludedVat * child.vatRate) / 100,
                   })
             }
 
@@ -90,7 +90,7 @@ export const CreditNoteFormCalculation = ({
                   ? accFee
                   : (accFee = {
                       totalExcludedVat: accFee.totalExcludedVat + feeExcludedVat,
-                      vatAmount: accFee.vatAmount + Math.ceil(feeExcludedVat * fee.vatRate) / 100,
+                      vatAmount: accFee.vatAmount + Math.round(feeExcludedVat * fee.vatRate) / 100,
                     })
               },
               { totalExcludedVat: 0, vatAmount: 0 }
@@ -115,7 +115,7 @@ export const CreditNoteFormCalculation = ({
 
     return {
       totalExcludedVat: feeTotal.totalExcludedVat + Number(value || 0),
-      vatAmount: feeTotal.vatAmount + Math.ceil(Number(value || 0) * Number(vatRate || 0)) / 100,
+      vatAmount: feeTotal.vatAmount + Math.round(Number(value || 0) * Number(vatRate || 0)) / 100,
     }
   }, [formikProps?.values.fees, formikProps.values.addOnFee, hasFeeError])
 
@@ -205,7 +205,7 @@ export const CreditNoteFormCalculation = ({
                     {
                       type: CreditTypeEnum.credit,
                       value:
-                        Math.ceil(
+                        Math.round(
                           (totalTaxIncluded || 0) * 100 -
                             Number(invoice?.refundableAmountCents || 0)
                         ) / 100,
