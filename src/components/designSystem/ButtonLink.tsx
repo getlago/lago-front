@@ -1,7 +1,7 @@
 import { forwardRef, MouseEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import styled, { css } from 'styled-components'
-import { clsx } from 'clsx'
+import clsns from 'classnames'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 
@@ -71,7 +71,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
           }
         : buttonProps || {}
 
-    const classNames = clsx(className, {
+    const classNames = clsns(className, {
       'button-link-disabled': (active && !canBeClickedOnActive) || disabled,
     })
 

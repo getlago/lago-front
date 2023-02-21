@@ -28,6 +28,7 @@ import {
 } from '~/components/designSystem'
 import { theme, PageHeader, MenuPopper } from '~/styles'
 import {
+  Checkbox,
   CheckboxField,
   DatePickerField,
   TextInputField,
@@ -99,6 +100,8 @@ const DesignSystem = () => {
       radio: false,
       buttonSelector: undefined,
       buttonSelector2: 'time',
+      checkboxCond1: true,
+      checkboxCond2: true,
       json: undefined,
     },
     validationSchema: object().shape({
@@ -649,6 +652,90 @@ const DesignSystem = () => {
                 <Form onSubmit={(e) => e.preventDefault()}>
                   <GroupTitle variant="headline">Form</GroupTitle>
 
+                  <GroupTitle variant="subhead">Checkbox</GroupTitle>
+
+                  <Block $marginBottom={theme.spacing(6)}>
+                    <Checkbox
+                      name="checkboxCond3"
+                      canBeIndeterminate
+                      value={
+                        formikProps.values.checkboxCond1 && formikProps.values.checkboxCond2
+                          ? true
+                          : !formikProps.values.checkboxCond1 && !formikProps.values.checkboxCond2
+                          ? false
+                          : undefined
+                      }
+                      onChange={(e, value) => {
+                        if (value) {
+                          formikProps.setFieldValue('checkboxCond1', true)
+                          formikProps.setFieldValue('checkboxCond2', true)
+                        } else {
+                          formikProps.setFieldValue('checkboxCond1', false)
+                          formikProps.setFieldValue('checkboxCond2', false)
+                        }
+                      }}
+                      label="Accept all conditions or else you won't be able to become the incredibly talented person you want to become (we know, life is unfair)"
+                      error={
+                        !formikProps.values.checkboxCond1 || !formikProps.values.checkboxCond2
+                          ? 'Sorry you need to accept both'
+                          : undefined
+                      }
+                    />
+
+                    <Checkbox
+                      name="checkboxCond3"
+                      canBeIndeterminate
+                      value={
+                        formikProps.values.checkboxCond1 && formikProps.values.checkboxCond2
+                          ? true
+                          : !formikProps.values.checkboxCond1 && !formikProps.values.checkboxCond2
+                          ? false
+                          : undefined
+                      }
+                      onChange={(e, value) => {
+                        if (value) {
+                          formikProps.setFieldValue('checkboxCond1', true)
+                          formikProps.setFieldValue('checkboxCond2', true)
+                        } else {
+                          formikProps.setFieldValue('checkboxCond1', false)
+                          formikProps.setFieldValue('checkboxCond2', false)
+                        }
+                      }}
+                      label="Same with center alignment - Accept all conditions or else you won't be able to become the incredibly talented person you want to become (we know, life is unfair)"
+                      labelAlignment="center"
+                    />
+
+                    <CheckboxField
+                      name="checkboxCond1"
+                      formikProps={formikProps}
+                      value={formikProps.values.checkboxCond1}
+                      label="Accept the insane condition"
+                    />
+
+                    <CheckboxField
+                      name="checkboxCond2"
+                      formikProps={formikProps}
+                      value={formikProps.values.checkboxCond2}
+                      label="Accept the smart condition"
+                    />
+
+                    <CheckboxField
+                      name="checkboxCond1"
+                      formikProps={formikProps}
+                      disabled
+                      value={formikProps.values.checkboxCond1}
+                      label="Insane condition you can't remove"
+                    />
+
+                    <CheckboxField
+                      name="checkboxCond2"
+                      formikProps={formikProps}
+                      disabled
+                      value={formikProps.values.checkboxCond2}
+                      label="Smart condition you can't remove"
+                    />
+                  </Block>
+
                   <GroupTitle variant="subhead">Code Editor</GroupTitle>
                   <Block $marginBottom={theme.spacing(6)}>
                     <JsonEditorField
@@ -892,38 +979,6 @@ const DesignSystem = () => {
                       formikProps={formikProps}
                       label="Disabled"
                       disabled
-                    />
-                  </Block>
-
-                  <GroupTitle variant="subhead">Checkbox</GroupTitle>
-                  <Block $marginBottom={theme.spacing(6)}>
-                    <CheckboxField
-                      name="checkbox"
-                      formikProps={formikProps}
-                      value={formikProps.values.checkbox}
-                      label="Surf"
-                    />
-                    <CheckboxField
-                      name="checkbox"
-                      formikProps={formikProps}
-                      canBeIndeterminate={true}
-                      value={undefined}
-                      label="Kite surf"
-                    />
-                    <CheckboxField
-                      value={formikProps.values.checkbox}
-                      name="checkbox"
-                      formikProps={formikProps}
-                      label="Skate"
-                      error="You should learn first"
-                    />
-                    <CheckboxField
-                      disabled
-                      value={formikProps.values.checkbox}
-                      name="checkbox"
-                      formikProps={formikProps}
-                      canBeIndeterminate={true}
-                      label="Roller blade"
                     />
                   </Block>
 

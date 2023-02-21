@@ -10,28 +10,18 @@ interface CheckboxFieldProps extends Omit<CheckboxProps, 'onChange' | 'name'> {
   onChange?: (value: boolean) => unknown
 }
 
-export const CheckboxField = ({
-  name,
-  canBeIndeterminate,
-  formikProps,
-  onChange,
-  ...props
-}: CheckboxFieldProps) => {
+export const CheckboxField = ({ name, formikProps, onChange, ...props }: CheckboxFieldProps) => {
   const { values, errors, touched, setFieldValue } = formikProps
 
   return (
     <Checkbox
       name={name}
       value={_get(values, name)}
-      onChange={(event) => {
-        if (canBeIndeterminate && typeof values[name] !== 'boolean') {
-          setFieldValue(name, false)
-        }
-        setFieldValue(name, event.target.checked)
+      onChange={(_, newValue) => {
+        setFieldValue(name, newValue)
 
-        onChange && onChange(event.target.checked)
+        onChange && onChange(newValue)
       }}
-      canBeIndeterminate={canBeIndeterminate}
       error={_get(touched, name) ? (_get(errors, name) as string) : undefined}
       {...props}
     />
