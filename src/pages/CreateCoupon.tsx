@@ -360,7 +360,7 @@ const CreateCoupon = () => {
                   <Settings>
                     <Checkbox
                       name="isReusable"
-                      value={formikProps.values.reusable}
+                      value={!!formikProps.values.reusable}
                       disabled={isEdition && !!coupon?.appliedCouponsCount}
                       label={translate('text_638f48274d41e3f1d01fc16a')}
                       onChange={(_, checked) => {

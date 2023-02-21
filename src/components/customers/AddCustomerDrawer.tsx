@@ -329,7 +329,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                   />
                   <Checkbox
                     name="providerCustomer.syncWithProvider"
-                    value={formikProps.values.providerCustomer?.syncWithProvider}
+                    value={!!formikProps.values.providerCustomer?.syncWithProvider}
                     label={
                       formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless
                         ? translate('text_635bdbda84c98758f9bba8aa')

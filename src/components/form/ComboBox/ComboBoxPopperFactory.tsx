@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { Popper, PopperProps } from '@mui/material'
 import styled from 'styled-components'
-import clsx from 'clsx'
+import clsns from 'classnames'
 
 import { theme } from '~/styles'
 
@@ -42,7 +42,7 @@ export const ComboBoxPopperFactory =
         {...props}
       >
         <div
-          className={clsx({
+          className={clsns({
             'combobox-popper--virtualized': virtualized,
             'combobox-popper--grouped': grouped,
           })}

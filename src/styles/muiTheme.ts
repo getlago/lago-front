@@ -172,67 +172,6 @@ export const theme = createTheme({
         },
       },
     },
-    MuiFormControlLabel: {
-      styleOverrides: {
-        root: {
-          marginLeft: 0,
-          marginRight: 0,
-          alignItems: 'flex-start',
-          '& .MuiCheckbox-root': {
-            marginTop: '6px',
-            padding: '0 16px 0 0',
-          },
-          '&:hover': {
-            // ------- Checkboxes
-            '& .MuiCheckbox-root.MuiButtonBase-root:not(.Mui-checked)': {
-              background: 'none',
-              color: palette.grey[200],
-            },
-            '& .MuiCheckbox-root.MuiButtonBase-root.Mui-checked': {
-              background: 'none',
-              color: palette.primary[700],
-            },
-          },
-          '&:active:active': {
-            // ------- Checkbox
-            '& .MuiCheckbox-root.MuiButtonBase-root:not(.Mui-checked)': {
-              color: palette.grey[300],
-            },
-            '& .MuiCheckbox-root.MuiButtonBase-root.Mui-checked': {
-              color: palette.primary[800],
-            },
-          },
-          '&.Mui-disabled': {
-            // ------- Checkbox
-            '& .MuiCheckbox-root.MuiButtonBase-root.Mui-disabled:not(.Mui-checked) svg rect': {
-              color: palette.common.white,
-              stroke: palette.grey[400],
-            },
-            '& .MuiCheckbox-root.MuiButtonBase-root.Mui-disabled.Mui-disabled.Mui-checked': {
-              transition: 'none',
-              color: palette.grey[400],
-            },
-          },
-        },
-      },
-    },
-    MuiCheckbox: {
-      styleOverrides: {
-        root: {
-          transition: 'color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
-          '&.Mui-focusVisible svg': {
-            boxShadow: `0px 0px 0px 4px ${palette.primary[200]}`,
-            borderRadius: 4,
-          },
-          '&:not(.Mui-checked)': {
-            color: palette.common.white,
-          },
-          '&.Mui-checked, &.MuiCheckbox-indeterminate': {
-            color: palette.primary.main,
-          },
-        },
-      },
-    },
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
