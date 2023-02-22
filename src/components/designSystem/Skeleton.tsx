@@ -1,5 +1,4 @@
-import { Skeleton as MuiSkeleton, SkeletonProps as MuiSkeletonProps } from '@mui/material'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import clsns from 'classnames'
 
 import { theme } from '~/styles'
@@ -7,17 +6,16 @@ import { theme } from '~/styles'
 import { AvatarSize, mapAvatarSize } from './Avatar'
 
 enum SkeletonVariantEnum {
-  connectorAvatar = 'connectorAvatar',
-  companyAvatar = 'companyAvatar',
-  userAvatar = 'userAvatar',
+  connectorAvatar = 'connectorAvatar', // squared with rounded corners
+  userAvatar = 'userAvatar', // rounded
+  text = 'text',
+  circular = 'circular',
 }
 
-type TSkeletonVariant =
-  | keyof typeof SkeletonVariantEnum
-  | Extract<MuiSkeletonProps['variant'], 'circular' | 'rectangular' | 'text'>
+type TSkeletonVariant = keyof typeof SkeletonVariantEnum
 
-interface SkeletonConnectorProps extends Pick<MuiSkeletonProps, 'animation'> {
-  variant: Extract<TSkeletonVariant, 'companyAvatar' | 'userAvatar' | 'connectorAvatar'>
+interface SkeletonConnectorProps {
+  variant: Extract<TSkeletonVariant, 'userAvatar' | 'connectorAvatar'>
   size: AvatarSize
   width?: never
   height?: never
@@ -26,100 +24,79 @@ interface SkeletonConnectorProps extends Pick<MuiSkeletonProps, 'animation'> {
   marginBottom?: number | string
 }
 
-interface SkeletonGenericProps extends Pick<MuiSkeletonProps, 'animation' | 'width' | 'height'> {
-  variant: TSkeletonVariant
+interface SkeletonGenericProps {
+  variant: Extract<TSkeletonVariant, 'text' | 'circular'>
+  width?: number | string
+  height?: number | string
   size?: never
   className?: string
   marginRight?: number | string
   marginBottom?: number | string
 }
 
-const mapVariant = (variant: TSkeletonVariant): MuiSkeletonProps['variant'] => {
-  switch (variant) {
-    case SkeletonVariantEnum.connectorAvatar:
-    case SkeletonVariantEnum.companyAvatar:
-      return 'rectangular'
-    case SkeletonVariantEnum.userAvatar:
-      return 'circular'
-    default:
-      return variant as MuiSkeletonProps['variant']
-  }
-}
-
-export type SkeletonProps = SkeletonConnectorProps | SkeletonGenericProps
-
 export const Skeleton = ({
-  variant = 'text',
-  size,
-  width,
-  height,
-  animation = 'pulse',
   className,
-  marginBottom,
+  variant,
   marginRight,
-}: SkeletonProps) => {
+  marginBottom,
+  size,
+  height,
+  width,
+}: SkeletonConnectorProps | SkeletonGenericProps) => {
   return (
-    <StyledSkeleton
-      className={clsns(className, `skeleton-variant--${variant}`, {
-        [`skeleton-size--${size}`]: !!size,
-      })}
-      variant={mapVariant(variant)}
-      height={size ? mapAvatarSize(size) : height}
-      $width={size ? mapAvatarSize(size) : width}
-      $minSize={
-        size && ['connectorAvatar', 'companyAvatar'].includes(variant) ? mapAvatarSize(size) : null
-      }
-      $marginBottom={marginBottom}
+    <SkeletonContainer
       $marginRight={marginRight}
-      animation={animation}
+      $marginBottom={marginBottom}
+      $height={(size ? mapAvatarSize(size) : height) || 12}
+      $width={(size ? mapAvatarSize(size) : width) || 90}
+      className={clsns(className, {
+        'skeleton-variant--circular': [
+          SkeletonVariantEnum.circular,
+          SkeletonVariantEnum.userAvatar,
+        ].includes(SkeletonVariantEnum[variant]),
+        'skeleton-variant--text': variant === SkeletonVariantEnum.text,
+        'skeleton-variant--rounded': variant === SkeletonVariantEnum.connectorAvatar,
+      })}
     />
   )
 }
 
-const StyledSkeleton = styled(MuiSkeleton)<{
-  $minSize?: number | null
-  $marginBottom?: number | string | null
-  $marginRight?: number | string | null
-  $width?: number | string | null
+const SkeletonContainer = styled.div<{
+  $height: number | string
+  $width: number | string
+  $marginRight?: number | string
+  $marginBottom?: number | string
 }>`
-  && {
-    &.MuiSkeleton-root {
-      background-color: ${theme.palette.grey[100]};
-      ${({ $marginBottom }) =>
-        $marginBottom &&
-        css`
-          margin-bottom: ${$marginBottom};
-        `}
-      ${({ $marginRight }) =>
-        $marginRight &&
-        css`
-          margin-right: ${$marginRight};
-        `}
+  animation: pulse 1.5s ease-in-out 0.5s infinite;
+  background-color: ${theme.palette.grey[100]};
+  height: ${({ $height }) =>
+    !$height ? 0 : typeof $height === 'number' ? `${$height}px` : $height};
+  width: 100%;
+  max-width: ${({ $width }) => (!$width ? 0 : typeof $width === 'number' ? `${$width}px` : $width)};
+  margin-right: ${({ $marginRight }) =>
+    !$marginRight ? 0 : typeof $marginRight === 'number' ? `${$marginRight}px` : $marginRight};
+  margin-bottom: ${({ $marginBottom }) =>
+    !$marginBottom ? 0 : typeof $marginBottom === 'number' ? `${$marginBottom}px` : $marginBottom};
 
-      width: 100%;
-      max-width: ${({ $width }) => (typeof $width === 'number' ? `${$width}px` : $width)};
+  &.skeleton-variant--circular {
+    border-radius: 50%;
+  }
+  &.skeleton-variant--text {
+    border-radius: 32px;
+  }
+  &.skeleton-variant--rounded {
+    border-radius: 12px;
+  }
+
+  @keyframes pulse {
+    0% {
+      opacity: 1;
     }
-
-    &.skeleton-variant--text {
-      transform: none;
-      border-radius: 32px;
+    50% {
+      opacity: 0.4;
     }
-
-    &.skeleton-variant--rectangular {
-      border-radius: 12px;
-    }
-
-    &.skeleton-variant--connectorAvatar {
-      border-radius: 12px;
-
-      &.skeleton-size--small {
-        border-radius: 4px;
-      }
-      ${({ $minSize }) =>
-        $minSize &&
-        css`
-          min-width: ${$minSize}px;
-        `}
+    100% {
+      opacity: 1;
     }
   }
 `
