@@ -431,7 +431,7 @@ const OrganizationList = styled.div`
   flex-direction: column;
   padding: ${theme.spacing(2)};
   max-height: calc(100vh - 80px);
-  overflow: scroll;
+  overflow: auto;
 
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(1)};
