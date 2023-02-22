@@ -12,7 +12,7 @@ import styled from 'styled-components'
 import { Button, Typography } from '~/components/designSystem'
 import { theme, NAV_HEIGHT } from '~/styles'
 
-export const TRANSITION_DURATION_MS = window.Cypress ? 0 : 250
+const TRANSITION_DURATION_MS = window.Cypress ? 0 : 250
 
 export interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
   className?: string

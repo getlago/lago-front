@@ -14,7 +14,7 @@ import { theme, ButtonGroup } from '~/styles'
 
 import { Typography } from './Typography'
 
-export const TRANSITION_DURATION_MS = window.Cypress ? 0 : 80
+const TRANSITION_DURATION_MS = window.Cypress ? 0 : 80
 
 export interface DialogProps {
   opener?: ReactElement
