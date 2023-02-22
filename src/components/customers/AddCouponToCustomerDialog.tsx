@@ -20,6 +20,9 @@ import {
   CouponFrequency,
   CouponPlansForCustomerFragment,
   CouponPlansForCustomerFragmentDoc,
+  CustomerCouponFragmentDoc,
+  CustomerAppliedCouponsFragment,
+  CustomerAppliedCouponsFragmentDoc,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -63,11 +66,13 @@ gql`
   mutation addCoupon($input: CreateAppliedCouponInput!) {
     createAppliedCoupon(input: $input) {
       id
+      ...CustomerCoupon
     }
   }
 
   ${CouponPlansForCustomerFragmentDoc}
   ${CouponCaptionFragmentDoc}
+  ${CustomerCouponFragmentDoc}
 `
 
 type FormType = CreateAppliedCouponInput & {
@@ -97,6 +102,33 @@ export const AddCouponToCustomerDialog = forwardRef<
         LagoApiError.UnprocessableEntity,
         LagoApiError.PlanOverlapping,
       ],
+    },
+    update(cache, { data: addData }) {
+      if (!addData?.createAppliedCoupon) return
+
+      const cacheId = `CustomerDetails:${customerId}`
+
+      const previousData: CustomerAppliedCouponsFragment | null = cache.readFragment({
+        id: cacheId,
+        fragment: CustomerAppliedCouponsFragmentDoc,
+        fragmentName: 'CustomerAppliedCoupons',
+      })
+
+      cache.writeFragment({
+        id: cacheId,
+        fragment: CustomerAppliedCouponsFragmentDoc,
+        fragmentName: 'CustomerAppliedCoupons',
+        data: {
+          ...previousData,
+          appliedCoupons: [
+            ...(previousData?.appliedCoupons || []).map((a) => ({
+              ...a,
+              __typename: 'AppliedCoupon', // The query has nested fragment and the typename is removed - we need to re-add it for it to work
+            })),
+            addData?.createAppliedCoupon,
+          ],
+        },
+      })
     },
     onCompleted({ createAppliedCoupon }) {
       if (createAppliedCoupon) {
@@ -184,7 +216,6 @@ export const AddCouponToCustomerDialog = forwardRef<
             ...couponValues,
           },
         },
-        refetchQueries: ['getCustomer'],
       })
 
       const { errors } = answer

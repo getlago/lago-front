@@ -14,8 +14,8 @@ import {
   CurrencyEnum,
   LagoApiError,
   CustomerAddOnsFragmentDoc,
-  CustomerDetailsFragmentDoc,
-  CustomerDetailsFragment,
+  CustomerAppliedAddOnsFragmentDoc,
+  CustomerAppliedAddOnsFragment,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -72,16 +72,16 @@ export const AddAddOnToCustomerDialog = forwardRef<
 
       const cacheId = `CustomerDetails:${customerId}`
 
-      const previousData: CustomerDetailsFragment | null = cache.readFragment({
+      const previousData: CustomerAppliedAddOnsFragment | null = cache.readFragment({
         id: cacheId,
-        fragment: CustomerDetailsFragmentDoc,
-        fragmentName: 'CustomerDetails',
+        fragment: CustomerAppliedAddOnsFragmentDoc,
+        fragmentName: 'CustomerAppliedAddOns',
       })
 
       cache.writeFragment({
         id: cacheId,
-        fragment: CustomerDetailsFragmentDoc,
-        fragmentName: 'CustomerDetails',
+        fragment: CustomerAppliedAddOnsFragmentDoc,
+        fragmentName: 'CustomerAppliedAddOns',
         data: {
           ...previousData,
           appliedAddOns: [

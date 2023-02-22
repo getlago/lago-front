@@ -75,6 +75,20 @@ gql`
     ...CustomerUsageSubscription
   }
 
+  fragment CustomerAppliedAddOns on CustomerDetails {
+    id
+    appliedAddOns {
+      ...CustomerAddOns
+    }
+  }
+
+  fragment CustomerAppliedCoupons on CustomerDetails {
+    id
+    appliedCoupons {
+      ...CustomerCoupon
+    }
+  }
+
   fragment CustomerDetails on CustomerDetails {
     id
     name
@@ -88,12 +102,8 @@ gql`
     subscriptions(status: [active, pending]) {
       ...CustomerSubscription
     }
-    appliedCoupons {
-      ...CustomerCoupon
-    }
-    appliedAddOns {
-      ...CustomerAddOns
-    }
+    ...CustomerAppliedCoupons
+    ...CustomerAppliedAddOns
     ...AddCustomerDrawerDetail
     ...CustomerMainInfos
   }
