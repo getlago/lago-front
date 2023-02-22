@@ -25,6 +25,7 @@ import {
   ShowMoreText,
   Table,
   IconName,
+  Accordion,
 } from '~/components/designSystem'
 import { theme, PageHeader, MenuPopper } from '~/styles'
 import {
@@ -144,6 +145,14 @@ const DesignSystem = () => {
             match: [DISPLAY_TAB_URL, ONLY_DEV_DESIGN_SYSTEM_ROUTE],
             component: (
               <Container>
+                <GroupTitle variant="headline">Accordion</GroupTitle>
+                <Block $marginBottom={theme.spacing(6)}>
+                  <Accordion summary={<div>Test</div>}>Nothing to see here</Accordion>
+                  <Accordion size="large" summary={<div>Test big</div>}>
+                    Please stop looking now
+                  </Accordion>
+                </Block>
+
                 <GroupTitle variant="headline">Poppers</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Drawer title="Imma supa drawa" opener={<Button>Drawer</Button>}>
