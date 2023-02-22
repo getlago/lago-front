@@ -333,7 +333,6 @@ const DesignSystem = () => {
                   <Skeleton variant="userAvatar" size="large" />
                 </Block>
                 <div>
-                  <Skeleton variant="rectangular" width="320px" height="60px" marginBottom="16px" />
                   <Skeleton variant="circular" width="60px" height="60px" marginBottom="16px" />
                   <Skeleton variant="text" width={120} height={12} marginBottom="16px" />
                   <Skeleton variant="text" width="50%" height={12} marginBottom="16px" />
