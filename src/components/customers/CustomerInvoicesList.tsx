@@ -216,7 +216,7 @@ const ListWrapper = styled.div`
 `
 
 const ScrollWrapper = styled.div`
-  overflow: scroll;
+  overflow: auto;
 `
 
 const PlusButtonWrapper = styled.div`
