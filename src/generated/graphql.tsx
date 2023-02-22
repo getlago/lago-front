@@ -1008,10 +1008,6 @@ export type CreditNoteItem = {
   createdAt: Scalars['ISO8601DateTime'];
   fee: Fee;
   id: Scalars['ID'];
-  totalAmountCents: Scalars['BigInt'];
-  totalAmountCurrency: CurrencyEnum;
-  vatAmountCents: Scalars['BigInt'];
-  vatAmountCurrency: CurrencyEnum;
 };
 
 export type CreditNoteItemInput = {
@@ -3358,7 +3354,7 @@ export type AddCouponMutationVariables = Exact<{
 }>;
 
 
-export type AddCouponMutation = { __typename?: 'Mutation', createAppliedCoupon?: { __typename?: 'AppliedCoupon', id: string } | null };
+export type AddCouponMutation = { __typename?: 'Mutation', createAppliedCoupon?: { __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } } | null };
 
 export type CustomerAddOnsFragment = { __typename?: 'AppliedAddOn', id: string, amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } };
 
@@ -3972,6 +3968,10 @@ export type GetCreditNoteQueryVariables = Exact<{
 export type GetCreditNoteQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, balanceAmountCents: any, canBeVoided: boolean, createdAt: any, creditAmountCents: any, creditAmountCurrency: CurrencyEnum, creditStatus?: CreditNoteCreditStatusEnum | null, number: string, refundAmountCents: any, refundedAt?: any | null, refundStatus?: CreditNoteRefundStatusEnum | null, subTotalVatExcludedAmountCents: any, subTotalVatExcludedAmountCurrency: CurrencyEnum, totalAmountCents: any, totalAmountCurrency: CurrencyEnum, vatAmountCents: any, vatAmountCurrency: CurrencyEnum, customer: { __typename?: 'Customer', id: string, name?: string | null, deletedAt?: any | null, applicableTimezone: TimezoneEnum }, invoice?: { __typename?: 'Invoice', id: string, number: string } | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, amountCurrency: CurrencyEnum, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, itemName: string, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null } }> } | null };
 
 export type CustomerSubscriptionFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null };
+
+export type CustomerAppliedAddOnsFragment = { __typename?: 'CustomerDetails', id: string, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null };
+
+export type CustomerAppliedCouponsFragment = { __typename?: 'CustomerDetails', id: string, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null };
 
 export type CustomerDetailsFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, canEditAttributes: boolean, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, timezone?: TimezoneEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }>, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, appliedAddOns?: Array<{ __typename?: 'AppliedAddOn', id: string, amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, addOn: { __typename?: 'AddOn', id: string, name: string } }> | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null };
 
@@ -5086,6 +5086,14 @@ export const CustomerCouponFragmentDoc = gql`
   }
 }
     ${AppliedCouponCaptionFragmentDoc}`;
+export const CustomerAppliedCouponsFragmentDoc = gql`
+    fragment CustomerAppliedCoupons on CustomerDetails {
+  id
+  appliedCoupons {
+    ...CustomerCoupon
+  }
+}
+    ${CustomerCouponFragmentDoc}`;
 export const CustomerAddOnsFragmentDoc = gql`
     fragment CustomerAddOns on AppliedAddOn {
   id
@@ -5098,6 +5106,14 @@ export const CustomerAddOnsFragmentDoc = gql`
   }
 }
     `;
+export const CustomerAppliedAddOnsFragmentDoc = gql`
+    fragment CustomerAppliedAddOns on CustomerDetails {
+  id
+  appliedAddOns {
+    ...CustomerAddOns
+  }
+}
+    ${CustomerAddOnsFragmentDoc}`;
 export const AddCustomerDrawerDetailFragmentDoc = gql`
     fragment AddCustomerDrawerDetail on CustomerDetails {
   id
@@ -5163,18 +5179,14 @@ export const CustomerDetailsFragmentDoc = gql`
   subscriptions(status: [active, pending]) {
     ...CustomerSubscription
   }
-  appliedCoupons {
-    ...CustomerCoupon
-  }
-  appliedAddOns {
-    ...CustomerAddOns
-  }
+  ...CustomerAppliedCoupons
+  ...CustomerAppliedAddOns
   ...AddCustomerDrawerDetail
   ...CustomerMainInfos
 }
     ${CustomerSubscriptionFragmentDoc}
-${CustomerCouponFragmentDoc}
-${CustomerAddOnsFragmentDoc}
+${CustomerAppliedCouponsFragmentDoc}
+${CustomerAppliedAddOnsFragmentDoc}
 ${AddCustomerDrawerDetailFragmentDoc}
 ${CustomerMainInfosFragmentDoc}`;
 export const EventItemFragmentDoc = gql`
@@ -5581,9 +5593,10 @@ export const AddCouponDocument = gql`
     mutation addCoupon($input: CreateAppliedCouponInput!) {
   createAppliedCoupon(input: $input) {
     id
+    ...CustomerCoupon
   }
 }
-    `;
+    ${CustomerCouponFragmentDoc}`;
 export type AddCouponMutationFn = Apollo.MutationFunction<AddCouponMutation, AddCouponMutationVariables>;
 
 /**
