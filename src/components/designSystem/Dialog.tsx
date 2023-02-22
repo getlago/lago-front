@@ -14,6 +14,8 @@ import { theme, ButtonGroup } from '~/styles'
 
 import { Typography } from './Typography'
 
+export const TRANSITION_DURATION_MS = window.Cypress ? 0 : 80
+
 export interface DialogProps {
   opener?: ReactElement
   actions?: ReactNode | ((args: { closeDialog: () => void }) => JSX.Element)
@@ -87,7 +89,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
             }
           }}
           PaperProps={{ className: 'dialogPaper' }}
-          transitionDuration={80}
+          transitionDuration={TRANSITION_DURATION_MS}
         >
           <Title $hasDescription={!!description} variant="headline">
             {title}

@@ -12,6 +12,8 @@ import styled from 'styled-components'
 import { Button, Typography } from '~/components/designSystem'
 import { theme, NAV_HEIGHT } from '~/styles'
 
+export const TRANSITION_DURATION_MS = window.Cypress ? 0 : 250
+
 export interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
   className?: string
   title: string | ReactNode
@@ -53,7 +55,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
             onClose && onClose()
             setIsOpen(false)
           }}
-          transitionDuration={250}
+          transitionDuration={TRANSITION_DURATION_MS}
           PaperProps={{ className: 'drawerPaper' }}
         >
           <Header>
