@@ -585,9 +585,24 @@ const DesignSystem = () => {
                   <Button variant="primary" size="medium">
                     Medium
                   </Button>
-                  <Button variant="primary" icon="coupon" size="large" />
-                  <Button variant="primary" icon="download" size="medium" />
-                  <Button variant="primary" icon="trash" size="small" />
+                  <Button
+                    variant="primary"
+                    icon="coupon"
+                    size="large"
+                    onClick={async () => await new Promise((r) => setTimeout(r, 1000))}
+                  />
+                  <Button
+                    variant="primary"
+                    icon="download"
+                    size="medium"
+                    onClick={async () => await new Promise((r) => setTimeout(r, 1000))}
+                  />
+                  <Button
+                    variant="primary"
+                    icon="trash"
+                    size="small"
+                    onClick={async () => await new Promise((r) => setTimeout(r, 1000))}
+                  />
                   <Button variant="primary" endIcon="rocket">
                     End Icon
                   </Button>
@@ -618,11 +633,14 @@ const DesignSystem = () => {
 
                 <GroupTitle variant="subhead">Secondary</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
-                  <Button variant="secondary">Default</Button>
-                  <Button variant="secondary" disabled>
+                  <Button fullWidth variant="secondary" startIcon="apps">
+                    Default
+                  </Button>
+                  <Button variant="secondary" icon="apps" />
+                  <Button variant="secondary" startIcon="apps" disabled>
                     Disabled
                   </Button>
-                  <Button variant="secondary" danger>
+                  <Button variant="secondary" startIcon="apps" danger>
                     Danger
                   </Button>
                 </Block>
@@ -645,6 +663,28 @@ const DesignSystem = () => {
                     Disabled
                   </Button>
                   <Button variant="quaternary" danger>
+                    Danger
+                  </Button>
+                </Block>
+
+                <GroupTitle variant="subhead">Quaternary dark</GroupTitle>
+                <Block $marginBottom={theme.spacing(6)}>
+                  <Button variant="quaternary-dark">Default</Button>
+                  <Button variant="quaternary-dark" disabled>
+                    Disabled
+                  </Button>
+                  <Button variant="quaternary-dark" danger>
+                    Danger
+                  </Button>
+                </Block>
+
+                <GroupTitle variant="subhead">Quaternary light</GroupTitle>
+                <Block $marginBottom={theme.spacing(6)} $dark>
+                  <Button variant="quaternary-light">Default</Button>
+                  <Button variant="quaternary-light" disabled>
+                    Disabled
+                  </Button>
+                  <Button variant="quaternary-light" danger>
                     Danger
                   </Button>
                 </Block>
@@ -1169,10 +1209,16 @@ const Form = styled.form`
   }
 `
 
-const Block = styled.div<{ $childMinWidth?: string; $marginBottom?: string }>`
+const Block = styled.div<{ $childMinWidth?: string; $marginBottom?: string; $dark?: boolean }>`
   display: flex;
   gap: ${theme.spacing(4)};
   flex-wrap: wrap;
+
+  ${({ $dark }) =>
+    $dark &&
+    css`
+      background-color: ${theme.palette.grey[700]};
+    `}
 
   ${({ $childMinWidth }) =>
     !!$childMinWidth &&

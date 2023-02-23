@@ -1,12 +1,30 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react/prop-types */
-import { forwardRef, useState, useEffect, useRef, MouseEvent } from 'react'
-import { Button as MuiButton, ButtonProps as MuiButtonProps } from '@mui/material'
-import clsns from 'classnames'
+import {
+  forwardRef,
+  MouseEvent,
+  MouseEventHandler,
+  ReactNode,
+  RefObject,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
+import { alpha } from '@mui/material/styles'
 import styled from 'styled-components'
+import clsns from 'classnames'
+
+import { theme } from '~/styles'
 
 import { Icon, IconName } from './Icon'
 
+enum ButtonSizeEnum {
+  medium = 'medium',
+  large = 'large',
+}
+enum ButtonIconSizeEnum {
+  small = 'small',
+  medium = 'medium',
+  large = 'large',
+}
 enum ButtonVariantEnum {
   primary = 'primary',
   secondary = 'secondary',
@@ -16,38 +34,35 @@ enum ButtonVariantEnum {
   'quaternary-light' = 'quaternary-light',
 }
 
-type ButtonSize = 'medium' | 'large'
-type ButtonIconSize = 'small' | 'medium' | 'large'
-export type ButtonVariant = keyof typeof ButtonVariantEnum
-type MuiVariant = 'text' | 'outlined' | 'contained'
-type ButtonAlign = 'center' | 'left' | 'space-between'
-type MuiColor =
-  | 'inherit'
-  | 'primary'
-  | 'secondary'
-  | 'success'
-  | 'error'
-  | 'info'
-  | 'warning'
-  | undefined
+enum ButtonAlignEnum {
+  center = 'center',
+  left = 'left',
+  'space-between' = 'space-between',
+}
 
-interface SimpleButtonProps
-  extends Pick<MuiButtonProps, 'disabled' | 'children' | 'onClick' | 'fullWidth' | 'tabIndex'> {
-  size?: ButtonSize
-  variant?: ButtonVariant
-  danger?: boolean
-  icon?: never
-  align?: ButtonAlign
-  endIcon?: IconName
-  startIcon?: IconName
-  loading?: boolean // If the `onClick` function returns a promise, the loading state will be handled automatically
+export type ButtonVariant = keyof typeof ButtonVariantEnum
+
+interface SimpleButtonProps {
+  align?: keyof typeof ButtonAlignEnum
+  children?: ReactNode
   className?: string
+  danger?: boolean
+  disabled?: boolean
+  endIcon?: IconName
+  fullWidth?: boolean
   inheritColor?: boolean // This will only work for quaternary buttons
+  loading?: boolean // If the `onClick` function returns a promise, the loading state will be handled automatically
+  size?: keyof typeof ButtonSizeEnum
+  startIcon?: IconName
+  tabIndex?: number | null
+  variant?: ButtonVariant
+  icon?: never
+  onClick?: MouseEventHandler<HTMLButtonElement> | undefined
 }
 interface ButtonIconProps
   extends Omit<SimpleButtonProps, 'icon' | 'size' | 'endIcon' | 'startIcon' | 'children'> {
-  size?: ButtonIconSize
-  icon: IconName // If used, the button will only display an icon (no matter if there's a children)
+  icon: IconName // If used, the button will only display an icon
+  size?: keyof typeof ButtonIconSizeEnum
   endIcon?: never
   startIcon?: never
   children?: never
@@ -55,63 +70,32 @@ interface ButtonIconProps
 
 export type ButtonProps = ButtonIconProps | SimpleButtonProps
 
-// Map the names used in our design system to match the MUI ones
-const mapProperties = (variant: ButtonVariant, inheritColor: boolean) => {
-  switch (variant) {
-    case ButtonVariantEnum.secondary:
-      return {
-        color: 'inherit' as MuiColor,
-        variant: 'contained' as MuiVariant,
-      }
-    case ButtonVariantEnum.tertiary:
-      return {
-        color: 'inherit' as MuiColor,
-        variant: 'outlined' as MuiVariant,
-      }
-    case ButtonVariantEnum.quaternary:
-    case ButtonVariantEnum['quaternary-light']:
-    case ButtonVariantEnum['quaternary-dark']:
-      return {
-        color: inheritColor ? 'inherit' : ('inherit' as MuiColor),
-        variant: 'text' as MuiVariant,
-      }
-    case ButtonVariantEnum.primary:
-    default:
-      return {
-        color: 'primary' as MuiColor,
-        variant: 'contained' as MuiVariant,
-      }
-  }
-}
-
-const getDataQa = (variant: ButtonVariant, size: string, danger?: boolean, disabled?: boolean) => {
-  if (disabled) return `${variant}--disabled/${size}`
-  if (danger) return `${variant}--danger/${size}`
-  return `${variant}/${size}`
-}
-
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
-      align = 'center',
-      variant = ButtonVariantEnum.primary,
-      size = 'medium',
-      danger = false,
-      disabled = false,
-      icon,
-      startIcon,
-      className,
-      endIcon,
-      loading,
+      align = ButtonAlignEnum.center,
       children,
+      className,
+      danger,
+      disabled,
+      endIcon,
+      fullWidth,
+      icon,
       inheritColor,
+      loading,
+      size,
+      startIcon,
+      tabIndex,
+      variant,
       onClick,
       ...props
     }: ButtonProps,
     ref
   ) => {
     const [isLoading, setIsLoading] = useState(false)
+    const buttonRef = useRef<HTMLButtonElement>(null)
     const mountedRef = useRef(false)
+    const localLoading = loading || isLoading
 
     useEffect(() => {
       // This is for preventing setstate on unmounted component
@@ -122,20 +106,20 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       }
     }, [])
 
-    const localLoading = loading || isLoading
-
     const handleClick = async (e: MouseEvent<HTMLButtonElement>) => {
+      ;((ref as unknown as RefObject<HTMLButtonElement>) || buttonRef)?.current?.blur()
+
       if (onClick) {
         const res = onClick(e)
 
-        if (res !== null && (res as any) instanceof Promise) {
+        if (res !== null && (res as unknown) instanceof Promise) {
           let realLoading = true
 
           // This is to prenvent icon blink if the loading time is really small
           setTimeout(() => {
             if (mountedRef.current && realLoading) setIsLoading(true)
           }, 100)
-          ;(res as unknown as Promise<any>).finally(() => {
+          ;(res as unknown as Promise<unknown>).finally(() => {
             if (mountedRef.current) {
               realLoading = false
               setIsLoading(false)
@@ -146,38 +130,27 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     return (
-      <StyledButton
+      <Container
+        ref={ref || buttonRef}
+        disabled={disabled}
+        tabIndex={tabIndex || 0}
         className={clsns(className, {
-          'button-danger': danger,
-          'button-icon-only': icon,
-          'button-quaternary-light': variant === 'quaternary-light',
-          'button-quaternary-dark': variant === 'quaternary-dark',
+          [`button-size--${size}`]: true,
+          [`button-variant--${variant}`]: true,
+          ['button--icon-only']: !!icon,
+          ['button--danger']: danger,
+          ['button--fullWidth']: fullWidth,
+          ['button--inheritColor']: inheritColor,
         })}
         $align={align}
         onClick={handleClick}
-        size={size}
-        data-test={getDataQa(variant, size, danger, disabled)}
-        disableElevation
-        disableRipple
-        disabled={disabled}
-        ref={ref}
-        endIcon={
-          localLoading && !icon && !startIcon ? (
-            <Icon animation="spin" name="processing" />
-          ) : (
-            endIcon && <Icon name={endIcon} />
-          )
-        }
-        startIcon={
-          localLoading && !icon && !!startIcon ? (
-            <Icon animation="spin" name="processing" />
-          ) : (
-            startIcon && <Icon name={startIcon} />
-          )
-        }
-        {...mapProperties(variant, !!inheritColor)}
         {...props}
       >
+        {localLoading && !icon && !!startIcon ? (
+          <StartIcon animation="spin" name="processing" />
+        ) : (
+          startIcon && <StartIcon name={startIcon} />
+        )}
         {icon ? (
           localLoading ? (
             <Icon animation="spin" name="processing" />
@@ -187,18 +160,236 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ) : (
           children
         )}
-      </StyledButton>
+        {localLoading && !icon && !startIcon ? (
+          <EndIcon animation="spin" name="processing" />
+        ) : (
+          endIcon && <EndIcon name={endIcon} />
+        )}
+      </Container>
     )
   }
 )
 
 Button.displayName = 'Button'
 
-const StyledButton = styled(MuiButton)<{ $align?: ButtonAlign }>`
-  justify-content: ${({ $align }) => $align ?? 'inherit'} !important;
-  min-width: unset;
+const StartIcon = styled(Icon)`
+  margin-right: ${theme.spacing(2)};
+`
 
-  > svg:hover {
+const EndIcon = styled(Icon)`
+  margin-left: ${theme.spacing(2)};
+`
+
+const Container = styled.button<{ $align?: keyof typeof ButtonAlignEnum }>`
+  display: flex;
+  align-items: center;
+  justify-content: ${({ $align }) => $align};
+  border-radius: 12px;
+  min-width: auto;
+  background-color: unset;
+  padding: 6px 12px;
+  font-size: 16px;
+  line-height: 28px;
+  font-weight: 400;
+  transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
+    box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
+    border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
+    color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+
+  svg {
     cursor: pointer;
+  }
+
+  :focus:not(:active):not(:disabled) {
+    box-shadow: 0px 0px 0px 4px ${theme.palette.primary[200]};
+    outline: none;
+  }
+
+  &.button--fullWidth {
+    width: 100%;
+  }
+
+  // ------------ Variant
+  &.button-variant--${ButtonVariantEnum.primary} {
+    background-color: ${theme.palette.primary.main};
+    color: ${theme.palette.common.white};
+
+    :hover {
+      background-color: ${theme.palette.primary[700]};
+    }
+    :active {
+      background-color: ${theme.palette.primary[800]};
+    }
+
+    &.button--danger {
+      background-color: ${theme.palette.error.main};
+
+      :hover {
+        background-color: ${theme.palette.error[700]};
+      }
+      :active {
+        background-color: ${theme.palette.error[800]};
+      }
+    }
+
+    :disabled {
+      color: ${theme.palette.grey[400]};
+      background-color: ${theme.palette.grey[100]};
+      cursor: unset;
+    }
+  }
+
+  &.button-variant--${ButtonVariantEnum.secondary} {
+    background-color: ${theme.palette.grey[200]};
+    color: ${theme.palette.primary.main};
+
+    :hover {
+      background-color: ${theme.palette.grey[300]};
+    }
+    :active {
+      background-color: ${theme.palette.grey[400]};
+    }
+
+    &.button--danger {
+      color: ${theme.palette.error.main};
+      background-color: ${theme.palette.error[100]};
+
+      :hover {
+        background-color: ${theme.palette.error[200]};
+      }
+      :active {
+        background-color: ${theme.palette.error[300]};
+      }
+    }
+
+    :disabled {
+      color: ${theme.palette.grey[400]};
+      background-color: ${theme.palette.grey[100]};
+      cursor: unset;
+    }
+  }
+
+  &.button-variant--${ButtonVariantEnum.tertiary} {
+    color: ${theme.palette.grey[600]};
+    border: 1px solid ${theme.palette.grey[500]};
+
+    :hover {
+      background-color: ${theme.palette.grey[200]};
+    }
+    :active {
+      background-color: ${theme.palette.grey[300]};
+    }
+
+    &.button--danger {
+      color: ${theme.palette.error.main};
+      border: 1px solid ${theme.palette.error[500]};
+
+      :hover {
+        background-color: ${theme.palette.error[100]};
+      }
+      :active {
+        background-color: ${theme.palette.error[200]};
+      }
+    }
+
+    :disabled {
+      color: ${theme.palette.grey[400]};
+      background-color: ${theme.palette.grey[100]};
+      border: none;
+      cursor: unset;
+    }
+  }
+
+  &.button-variant--${ButtonVariantEnum.quaternary} {
+    color: ${theme.palette.grey[600]};
+    border: none;
+
+    :hover {
+      background-color: ${theme.palette.grey[200]};
+    }
+    :active {
+      background-color: ${theme.palette.grey[300]};
+    }
+
+    &.button--danger {
+      color: ${theme.palette.error.main};
+      border: none;
+
+      :hover {
+        background-color: ${theme.palette.error[100]};
+      }
+      :active {
+        background-color: ${theme.palette.error[200]};
+      }
+    }
+
+    :disabled {
+      color: ${theme.palette.grey[400]};
+      background-color: initial;
+      border: none;
+      cursor: unset;
+    }
+  }
+
+  &.button-variant--${ButtonVariantEnum['quaternary-light']} {
+    color: ${theme.palette.common.white};
+    border: none;
+
+    :hover:not(:disabled) {
+      background-color: ${alpha(theme.palette.grey[100], 0.1)};
+    }
+    :active:not(:disabled) {
+      background-color: ${alpha(theme.palette.grey[100], 0.2)};
+    }
+
+    :disabled {
+      cursor: unset;
+    }
+  }
+
+  &.button-variant--${ButtonVariantEnum['quaternary-dark']} {
+    color: ${theme.palette.grey[700]};
+    border: none;
+
+    :hover:not(:disabled) {
+      background-color: ${alpha(theme.palette.grey[700], 0.1)};
+    }
+    :active:not(:disabled) {
+      background-color: ${alpha(theme.palette.grey[700], 0.2)};
+    }
+
+    :disabled {
+      cursor: unset;
+    }
+  }
+  // ------------ Size
+  &.button-size--${ButtonSizeEnum.large} {
+    height: 48px;
+
+    &.button--icon-only {
+      padding: 12px;
+      min-width: unset;
+      width: 48px;
+    }
+  }
+  &.button-size--${ButtonSizeEnum.medium} {
+    height: 40px;
+
+    &.button--icon-only {
+      padding: 12px;
+      min-width: unset;
+      width: 40px;
+    }
+  }
+  &.button-size--${ButtonIconSizeEnum.small}.button--icon-only {
+    width: 24px;
+    height: 24px;
+    padding: 4px;
+    min-width: unset;
+    border-radius: 8px;
+  }
+
+  &.button--inheritColor {
+    color: inherit;
   }
 `
