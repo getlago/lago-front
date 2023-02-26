@@ -103,7 +103,7 @@
   "dependencies": {
     "@apollo/client": "3.7.9",
     "@date-io/luxon": "2.16.1",
-    "@mui/material": "5.11.9",
+    "@mui/material": "5.11.10",
     "@mui/styled-engine": "5.11.9",
     "@mui/styled-engine-sc": "5.11.9",
     "@mui/x-date-pickers": "5.0.19",
