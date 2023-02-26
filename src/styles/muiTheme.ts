@@ -195,6 +195,39 @@ export const theme = createTheme({
         },
       },
     },
+    MuiAccordion: {
+      styleOverrides: {
+        root: {
+          '&.MuiPaper-root': {
+            borderRadius: '12px',
+          },
+          '&.MuiPaper-elevation1': {
+            boxShadow: 'none',
+          },
+          '& .MuiAccordionSummary-content': {
+            margin: '0 !important',
+          },
+          '& .MuiAccordionSummary-root': {
+            minHeight: 'auto',
+            padding: '0',
+            '&.Mui-expanded': {
+              minHeight: 'auto',
+            },
+            '&.Mui-focused': {
+              '&.Mui-expanded': {
+                minHeight: 'auto',
+              },
+              backgroundColor: 'transparent',
+              boxShadow: `0px 0px 0px 4px ${palette.primary[200]} !important`,
+              borderRadius: '12px',
+            },
+          },
+          '& .MuiAccordionDetails-root': {
+            padding: '0',
+          },
+        },
+      },
+    },
     MuiAutocomplete: {
       styleOverrides: {
         paper: {
