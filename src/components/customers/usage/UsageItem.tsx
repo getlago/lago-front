@@ -1,6 +1,7 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
+import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
 
 import {
   ChargeUsage,
@@ -10,15 +11,7 @@ import {
   useCustomerUsageLazyQuery,
   TimezoneEnum,
 } from '~/generated/graphql'
-import {
-  Accordion,
-  Skeleton,
-  Icon,
-  Button,
-  Tooltip,
-  Avatar,
-  Typography,
-} from '~/components/designSystem'
+import { Skeleton, Icon, Button, Tooltip, Avatar, Typography } from '~/components/designSystem'
 import { theme, NAV_HEIGHT } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -64,6 +57,7 @@ interface UsageItemProps {
 
 export const UsageItem = ({ customerId, subscription, customerTimezone }: UsageItemProps) => {
   const { id, name, plan } = subscription
+  const [isOpen, setIsOpen] = useState(false)
   const { translate } = useInternationalization()
   const customerUsageDetailDrawerRef = useRef<CustomerUsageDetailDrawerRef>(null)
   const [fetchUsage, { data, error, loading, refetch }] = useCustomerUsageLazyQuery({
@@ -72,176 +66,192 @@ export const UsageItem = ({ customerId, subscription, customerTimezone }: UsageI
   const currency = data?.customerUsage?.amountCurrency || CurrencyEnum.Usd
 
   return (
-    <div>
-      <Accordion
-        onChange={() => fetchUsage()}
-        noContentMargin
-        collapsedTooltip={translate('text_62d7f6178ec94cd09370e60d')}
-        expandedTooltip={translate('text_62d7f6178ec94cd09370e4cd')}
-        summary={
-          <>
-            <StyledAvatar variant="connector">
-              <Icon name="pulse" color="dark" />
-            </StyledAvatar>
-            <Title>
-              <Typography variant="bodyHl" color="textSecondary" noWrap>
-                {name || plan?.name}
-              </Typography>
-              <Typography variant="caption" noWrap>
-                {plan?.code}
-              </Typography>
-            </Title>
-            <Tooltip placement="top-start" title={translate('text_62d7f6178ec94cd09370e4b3')}>
-              <Button
-                variant="quaternary"
-                icon="reload"
-                size="small"
-                onClick={async (e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-
-                  await refetch()
-                }}
-              />
-            </Tooltip>
-          </>
-        }
+    <Container>
+      <StyledAccordion
+        expanded={isOpen}
+        onChange={(_, expanded) => {
+          fetchUsage()
+          setIsOpen(expanded)
+        }}
+        square
       >
-        {!!error && !loading ? (
-          <GenericPlaceholder
-            title={translate('text_62c3f3fca8a1625624e83379')}
-            subtitle={translate('text_62c3f3fca8a1625624e8337e')}
-            buttonTitle={translate('text_62c3f3fca8a1625624e83382')}
-            buttonVariant="primary"
-            buttonAction={() => location.reload()}
-            image={<ErrorImage width="136" height="104" />}
-          />
-        ) : !loading && !data ? (
-          <GenericPlaceholder
-            title={translate('text_62c3f454e5d7f4ec8888c1d5')}
-            subtitle={translate('text_62c3f454e5d7f4ec8888c1d7')}
-            image={<EmptyImage width="136" height="104" />}
-          />
-        ) : (
-          <div>
-            <Header>
-              {loading ? (
-                <UsageHeader $hasCharge>
-                  <MainInfos>
-                    <Block>
-                      <Skeleton variant="text" height={12} width={144} marginBottom="12px" />
-                      <Skeleton variant="text" height={12} width={88} />
-                    </Block>
-                  </MainInfos>
-                  <Skeleton variant="text" height={12} width={96} />
-                </UsageHeader>
-              ) : (
-                <UsageHeader $hasCharge={!!data?.customerUsage?.chargesUsage?.length}>
-                  <MainInfos>
-                    <Block>
-                      <Typography variant="bodyHl" color="textSecondary" noWrap>
-                        {translate('text_62c3f3fca8a1625624e83380')}
-                      </Typography>
-                      <DateLine variant="caption" noWrap>
-                        <span>{translate('text_6390eacb5c755f61a1f7aed2')}</span>
-                        <Tooltip
-                          placement="top-start"
-                          title={translate('text_6390ea10cf97ec5780001c9d', {
-                            offset: getTimezoneConfig(customerTimezone).offset,
-                          })}
-                        >
-                          <Date variant="caption">
-                            {formatDateToTZ(data?.customerUsage?.fromDatetime, customerTimezone)}
-                          </Date>
-                        </Tooltip>
-                        <span>{translate('text_6390eacf6dedf13adadf71b3')}</span>
-                        <Tooltip
-                          placement="top-start"
-                          title={translate('text_6390ea10cf97ec5780001c9d', {
-                            offset: getTimezoneConfig(customerTimezone).offset,
-                          })}
-                        >
-                          <Date variant="caption">
-                            {formatDateToTZ(data?.customerUsage?.toDatetime, customerTimezone)}
-                          </Date>
-                        </Tooltip>
-                      </DateLine>
-                    </Block>
-                  </MainInfos>
-                  <Typography color="textSecondary">
-                    {intlFormatNumber(
-                      deserializeAmount(data?.customerUsage?.amountCents, currency) || 0,
-                      {
-                        currencyDisplay: 'symbol',
-                        currency,
-                      }
-                    )}
-                  </Typography>
-                </UsageHeader>
-              )}
-            </Header>
-            <UsageLogContainer>
-              {loading
-                ? [0, 1, 2, 3].map((i) => {
-                    return (
-                      <ItemContainer key={`customer-usage-skeleton-${i}`}>
-                        <Skeleton variant="text" height={12} width={120} marginBottom="12px" />
-                        <Skeleton variant="text" height={12} width={80} marginBottom="44px" />
-                        <Line>
-                          <Skeleton variant="text" height={12} width={80} marginRight="16px" />
-                          <Skeleton variant="text" height={12} width={120} />
-                        </Line>
-                      </ItemContainer>
-                    )
-                  })
-                : data?.customerUsage?.chargesUsage?.map((usage, i) => {
-                    const { billableMetric, units, amountCents } = usage
+        <Summary>
+          <Tooltip
+            placement="top-start"
+            title={translate(
+              isOpen ? 'text_62d7f6178ec94cd09370e4cd' : 'text_62d7f6178ec94cd09370e60d'
+            )}
+          >
+            <Button
+              variant="quaternary"
+              size="small"
+              icon={isOpen ? 'chevron-down' : 'chevron-right'}
+            />
+          </Tooltip>
+          <StyledAvatar variant="connector">
+            <Icon name="pulse" color="dark" />
+          </StyledAvatar>
+          <Title>
+            <Typography variant="bodyHl" color="textSecondary" noWrap>
+              {name || plan?.name}
+            </Typography>
+            <Typography variant="caption" noWrap>
+              {plan?.code}
+            </Typography>
+          </Title>
+          <Tooltip placement="top-start" title={translate('text_62d7f6178ec94cd09370e4b3')}>
+            <Button
+              variant="quaternary"
+              icon="reload"
+              size="small"
+              onClick={async (e) => {
+                e.preventDefault()
+                e.stopPropagation()
 
-                    return (
-                      <ItemContainer key={`customer-usage-${i}`}>
-                        <BillableMetricHeaderLine>
-                          <div>
-                            <Typography variant="bodyHl" color="textSecondary">
-                              {billableMetric?.name}
-                            </Typography>
-                            <UsageSubtitle variant="caption">{billableMetric?.code}</UsageSubtitle>
-                          </div>
-                          {!!usage.groups?.length && (
-                            <Tooltip
-                              title={translate('text_633dae57ca9a923dd53c2135')}
-                              placement="top-end"
-                            >
-                              <Button
-                                icon="info-circle"
-                                size="small"
-                                variant="secondary"
-                                onClick={() => {
-                                  customerUsageDetailDrawerRef.current?.openDrawer(
-                                    usage as ChargeUsage
-                                  )
-                                }}
-                              />
-                            </Tooltip>
-                          )}
-                        </BillableMetricHeaderLine>
-                        <Line>
-                          <Typography variant="caption">
-                            {translate('text_633dae57ca9a923dd53c2121', { units }, units)}
-                          </Typography>
-                          <Typography color="textSecondary">
-                            {intlFormatNumber(deserializeAmount(amountCents, currency) || 0, {
-                              currencyDisplay: 'symbol',
-                              currency,
+                await refetch()
+              }}
+            />
+          </Tooltip>
+        </Summary>
+        <Details>
+          {!!error && !loading ? (
+            <GenericPlaceholder
+              title={translate('text_62c3f3fca8a1625624e83379')}
+              subtitle={translate('text_62c3f3fca8a1625624e8337e')}
+              buttonTitle={translate('text_62c3f3fca8a1625624e83382')}
+              buttonVariant="primary"
+              buttonAction={() => location.reload()}
+              image={<ErrorImage width="136" height="104" />}
+            />
+          ) : !loading && !data ? (
+            <GenericPlaceholder
+              title={translate('text_62c3f454e5d7f4ec8888c1d5')}
+              subtitle={translate('text_62c3f454e5d7f4ec8888c1d7')}
+              image={<EmptyImage width="136" height="104" />}
+            />
+          ) : (
+            <div>
+              <Header>
+                {loading ? (
+                  <UsageHeader $hasCharge>
+                    <MainInfos>
+                      <Block>
+                        <Skeleton variant="text" height={12} width={144} marginBottom="12px" />
+                        <Skeleton variant="text" height={12} width={88} />
+                      </Block>
+                    </MainInfos>
+                    <Skeleton variant="text" height={12} width={96} />
+                  </UsageHeader>
+                ) : (
+                  <UsageHeader $hasCharge={!!data?.customerUsage?.chargesUsage?.length}>
+                    <MainInfos>
+                      <Block>
+                        <Typography variant="bodyHl" color="textSecondary" noWrap>
+                          {translate('text_62c3f3fca8a1625624e83380')}
+                        </Typography>
+                        <DateLine variant="caption" noWrap>
+                          <span>{translate('text_6390eacb5c755f61a1f7aed2')}</span>
+                          <Tooltip
+                            placement="top-start"
+                            title={translate('text_6390ea10cf97ec5780001c9d', {
+                              offset: getTimezoneConfig(customerTimezone).offset,
                             })}
-                          </Typography>
-                        </Line>
-                      </ItemContainer>
-                    )
-                  })}
-            </UsageLogContainer>
-          </div>
-        )}
-      </Accordion>
+                          >
+                            <Date variant="caption">
+                              {formatDateToTZ(data?.customerUsage?.fromDatetime, customerTimezone)}
+                            </Date>
+                          </Tooltip>
+                          <span>{translate('text_6390eacf6dedf13adadf71b3')}</span>
+                          <Tooltip
+                            placement="top-start"
+                            title={translate('text_6390ea10cf97ec5780001c9d', {
+                              offset: getTimezoneConfig(customerTimezone).offset,
+                            })}
+                          >
+                            <Date variant="caption">
+                              {formatDateToTZ(data?.customerUsage?.toDatetime, customerTimezone)}
+                            </Date>
+                          </Tooltip>
+                        </DateLine>
+                      </Block>
+                    </MainInfos>
+                    <Typography color="textSecondary">
+                      {intlFormatNumber(
+                        deserializeAmount(data?.customerUsage?.amountCents, currency) || 0,
+                        {
+                          currencyDisplay: 'symbol',
+                          currency,
+                        }
+                      )}
+                    </Typography>
+                  </UsageHeader>
+                )}
+              </Header>
+              <UsageLogContainer>
+                {loading
+                  ? [0, 1, 2, 3].map((i) => {
+                      return (
+                        <ItemContainer key={`customer-usage-skeleton-${i}`}>
+                          <Skeleton variant="text" height={12} width={120} marginBottom="12px" />
+                          <Skeleton variant="text" height={12} width={80} marginBottom="44px" />
+                          <Line>
+                            <Skeleton variant="text" height={12} width={80} marginRight="16px" />
+                            <Skeleton variant="text" height={12} width={120} />
+                          </Line>
+                        </ItemContainer>
+                      )
+                    })
+                  : data?.customerUsage?.chargesUsage?.map((usage, i) => {
+                      const { billableMetric, units, amountCents } = usage
+
+                      return (
+                        <ItemContainer key={`customer-usage-${i}`}>
+                          <BillableMetricHeaderLine>
+                            <div>
+                              <Typography variant="bodyHl" color="textSecondary">
+                                {billableMetric?.name}
+                              </Typography>
+                              <UsageSubtitle variant="caption">
+                                {billableMetric?.code}
+                              </UsageSubtitle>
+                            </div>
+                            {!!usage.groups?.length && (
+                              <Tooltip
+                                title={translate('text_633dae57ca9a923dd53c2135')}
+                                placement="top-end"
+                              >
+                                <Button
+                                  icon="info-circle"
+                                  size="small"
+                                  variant="secondary"
+                                  onClick={() => {
+                                    customerUsageDetailDrawerRef.current?.openDrawer(
+                                      usage as ChargeUsage
+                                    )
+                                  }}
+                                />
+                              </Tooltip>
+                            )}
+                          </BillableMetricHeaderLine>
+                          <Line>
+                            <Typography variant="caption">
+                              {translate('text_633dae57ca9a923dd53c2121', { units }, units)}
+                            </Typography>
+                            <Typography color="textSecondary">
+                              {intlFormatNumber(deserializeAmount(amountCents, currency) || 0, {
+                                currencyDisplay: 'symbol',
+                                currency,
+                              })}
+                            </Typography>
+                          </Line>
+                        </ItemContainer>
+                      )
+                    })}
+              </UsageLogContainer>
+            </div>
+          )}
+        </Details>
+      </StyledAccordion>
 
       <CustomerUsageDetailDrawer
         ref={customerUsageDetailDrawerRef}
@@ -250,7 +260,7 @@ export const UsageItem = ({ customerId, subscription, customerTimezone }: UsageI
         toDatetime={data?.customerUsage?.toDatetime}
         customerTimezone={customerTimezone}
       />
-    </div>
+    </Container>
   )
 }
 
@@ -280,6 +290,58 @@ const SkeletonItem = styled.div`
   }
 `
 
+const Container = styled.div`
+  border: 1px solid ${theme.palette.grey[400]};
+  border-radius: 12px;
+`
+
+const StyledAccordion = styled(Accordion)`
+  border-radius: 12px;
+  overflow: hidden;
+
+  &.MuiAccordion-root.MuiPaper-root {
+    border-radius: 12px;
+    background-color: transparent;
+  }
+  &.MuiAccordion-root:before {
+    height: 0;
+  }
+  &.MuiAccordion-root.Mui-expanded {
+    margin: 0;
+  }
+
+  .MuiAccordionSummary-content {
+    width: 100%;
+  }
+`
+
+const Summary = styled(AccordionSummary)`
+  && {
+    height: ${NAV_HEIGHT}px;
+    border-radius: 12px;
+
+    &.MuiAccordionSummary-root.Mui-focused {
+      border-radius: 12px;
+    }
+
+    .MuiAccordionSummary-content {
+      height: ${NAV_HEIGHT}px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      padding: ${theme.spacing(4)};
+
+      &:hover {
+        background-color: ${theme.palette.grey[100]};
+      }
+
+      > *:first-child {
+        margin-right: ${theme.spacing(3)};
+      }
+    }
+  }
+`
+
 const StyledAvatar = styled(Avatar)`
   margin-right: ${theme.spacing(3)};
 `
@@ -289,6 +351,19 @@ const Title = styled.div`
   flex-direction: column;
   margin-right: auto;
   min-width: 20px;
+`
+
+const Details = styled(AccordionDetails)`
+  display: flex;
+  flex-direction: column;
+
+  &.MuiAccordionDetails-root {
+    padding: 0;
+
+    > *:not(:last-child) {
+      margin-bottom: ${theme.spacing(6)};
+    }
+  }
 `
 
 const Block = styled.div`
