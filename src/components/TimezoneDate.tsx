@@ -19,6 +19,7 @@ interface TimezoneDateProps {
   mainTimezone?: keyof typeof MainTimezoneEnum
   customerTimezone: TimezoneEnum
   mainTypographyProps?: Pick<TypographyProps, 'variant' | 'color'>
+  className?: string
 }
 
 export const TimezoneDate = ({
@@ -27,6 +28,7 @@ export const TimezoneDate = ({
   mainTimezone = MainTimezoneEnum.organization,
   customerTimezone,
   mainTypographyProps,
+  className,
 }: TimezoneDateProps) => {
   const { translate } = useInternationalization()
   const { timezone, timezoneConfig, formatTimeOrgaTZ } = useOrganizationInfos()
@@ -34,6 +36,7 @@ export const TimezoneDate = ({
 
   return (
     <StyledTooltip
+      className={className}
       maxWidth="unset"
       title={
         <div>
