@@ -1,10 +1,20 @@
-import { forwardRef, useEffect, useState, RefObject } from 'react'
-import styled from 'styled-components'
+import React, { forwardRef, useEffect, useState, RefObject } from 'react'
+import styled, { css } from 'styled-components'
 import { useFormik } from 'formik'
-import { object, string } from 'yup'
+import { array, object, string } from 'yup'
+import { FieldWithPossiblyUndefined } from 'lodash'
+import _get from 'lodash/get'
 
-import { Drawer, Button, DrawerRef, Typography, Accordion, Alert } from '~/components/designSystem'
-import { TextInputField, ComboBoxField, Checkbox } from '~/components/form'
+import {
+  Drawer,
+  Button,
+  DrawerRef,
+  Typography,
+  Accordion,
+  Alert,
+  Tooltip,
+} from '~/components/designSystem'
+import { TextInputField, ComboBoxField, Checkbox, Switch } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { theme, Card, DrawerTitle, DrawerContent, DrawerSubmitButton } from '~/styles'
@@ -16,6 +26,7 @@ import {
   ProviderTypeEnum,
   CurrencyEnum,
   TimezoneEnum,
+  CustomerMetadataInput,
 } from '~/generated/graphql'
 import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
 import { INTEGRATIONS_ROUTE, ORGANIZATION_INFORMATIONS_ROUTE } from '~/core/router'
@@ -23,6 +34,19 @@ import { getTimezoneConfig } from '~/core/timezone'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { countryDataForCombobox } from '~/core/countryCodes'
+
+const KEY_MAX_LENGTH = 20
+const VALUE_MAX_LENGTH = 40
+const MAX_METADATA_COUNT = 5
+
+enum MetadataErrorsEnum {
+  uniqueness = 'uniqueness',
+  maxLength = 'maxLength',
+}
+
+interface LocalCustomerMetadata extends CustomerMetadataInput {
+  localId?: string
+}
 
 const providerData: { value: ProviderTypeEnum; label: string }[] = Object.keys(
   ProviderTypeEnum
@@ -67,15 +91,70 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
           syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
         },
         paymentProvider: customer?.paymentProvider ?? undefined,
+        metadata: customer?.metadata ?? undefined,
       },
       validationSchema: object().shape({
         name: string().required(''),
         externalId: string().required(''),
+        metadata: array().of(
+          object().shape({
+            key: string().test({
+              test: function (value, { createError, path }) {
+                if (!value) {
+                  return false
+                }
+
+                if (arguments[1].from[1]?.value?.metadata.length > 1) {
+                  const keysList = arguments[1].from[1]?.value?.metadata?.map(
+                    (m: { key: string }) => m.key
+                  )
+
+                  // Check key unicity
+                  if (keysList?.indexOf(value) !== keysList?.lastIndexOf(value)) {
+                    return createError({
+                      path,
+                      message: MetadataErrorsEnum.uniqueness,
+                    })
+                  }
+                }
+
+                if (value.length > KEY_MAX_LENGTH) {
+                  return createError({
+                    path,
+                    message: MetadataErrorsEnum.maxLength,
+                  })
+                }
+
+                return true
+              },
+            }),
+            value: string().test({
+              test: (value, { createError, path }) => {
+                if (!value) return false
+                if (value.length > VALUE_MAX_LENGTH) {
+                  return createError({
+                    path,
+                    message: MetadataErrorsEnum.maxLength,
+                  })
+                }
+
+                return true
+              },
+            }),
+          })
+        ),
       }),
       validateOnMount: true,
       enableReinitialize: true,
-      onSubmit: async (values, formikBag) => {
-        const answer = await onSave(values)
+      onSubmit: async ({ metadata, ...values }, formikBag) => {
+        const answer = await onSave({
+          ...values,
+          metadata: ((metadata as LocalCustomerMetadata[]) || []).map(
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            ({ localId, ...rest }) => rest
+          ),
+        })
+
         const { errors } = answer
 
         if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
@@ -131,6 +210,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                 syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
               },
               paymentProvider: customer?.paymentProvider ?? undefined,
+              metadata: customer?.metadata ?? undefined,
             },
           })
           formikProps.validateForm()
@@ -206,7 +286,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
               </Typography>
             }
           >
-            <BillingBlock $first>
+            <AccordionContentWrapper $first>
               <Typography variant="bodyHl" color="textSecondary">
                 {translate('text_626c0c09812bbc00e4c59dff')}
               </Typography>
@@ -250,8 +330,8 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                 placeholder={translate('text_626c0c09812bbc00e4c59e0f')}
                 formikProps={formikProps}
               />
-            </BillingBlock>
-            <BillingBlock>
+            </AccordionContentWrapper>
+            <AccordionContentWrapper>
               <Typography variant="bodyHl" color="textSecondary">
                 {translate('text_626c0c09812bbc00e4c59e19')}
               </Typography>
@@ -288,7 +368,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                 formikProps={formikProps}
                 PopperProps={{ displayInDialog: true }}
               />
-            </BillingBlock>
+            </AccordionContentWrapper>
           </Accordion>
 
           <Accordion
@@ -299,7 +379,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
               </Typography>
             }
           >
-            <BillingBlock>
+            <AccordionContentWrapper>
               <ComboBoxField
                 data={providerData}
                 name="paymentProvider"
@@ -335,7 +415,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                         ? translate('text_635bdbda84c98758f9bba8aa')
                         : translate('text_635bdbda84c98758f9bba89e')
                     }
-                    onChange={(_, checked) => {
+                    onChange={(e, checked) => {
                       setIsDisabled(checked)
                       formikProps.setFieldValue('providerCustomer.syncWithProvider', checked)
                       if (!isEdition && checked) {
@@ -348,7 +428,142 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
               {isDisabled && formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless && (
                 <Alert type="info">{translate('text_635bdbda84c98758f9bba8ae')}</Alert>
               )}
-            </BillingBlock>
+            </AccordionContentWrapper>
+          </Accordion>
+
+          <Accordion
+            size="large"
+            summary={
+              <Typography variant="subhead">
+                {translate('text_63fcc3777b0c5afc7dbf97d6')}
+              </Typography>
+            }
+          >
+            <AccordionContentWrapper>
+              <Typography variant="body" color="grey600">
+                {translate('text_63fcc3777b0c5afc7dbf97d7')}
+              </Typography>
+              {!!formikProps?.values?.metadata?.length && (
+                <div>
+                  <MetadataGrid $isHeader>
+                    <Typography variant="captionHl" color="grey700">
+                      {translate('text_63fcc3777b0c5afc7dbf97d8')}
+                    </Typography>
+                    <Typography variant="captionHl" color="grey700">
+                      {translate('text_63fcc3777b0c5afc7dbf97da')}
+                    </Typography>
+                    <Typography variant="captionHl" color="grey700">
+                      {translate('text_63fcc3777b0c5afc7dbf97dc')}
+                    </Typography>
+                  </MetadataGrid>
+                  <MetadataGrid>
+                    {formikProps?.values?.metadata?.map((m: LocalCustomerMetadata, i) => {
+                      const metadataItemKeyError: FieldWithPossiblyUndefined<
+                        string | undefined,
+                        `${number}`
+                      > = _get(formikProps.errors, `metadata.${i}.key`)
+                      const metadataItemValueError: FieldWithPossiblyUndefined<
+                        string | undefined,
+                        `${number}`
+                      > = _get(formikProps.errors, `metadata.${i}.value`)
+                      const hasCustomKeyError = Object.keys(MetadataErrorsEnum).includes(
+                        metadataItemKeyError || ''
+                      )
+                      const hasCustomValueError = Object.keys(MetadataErrorsEnum).includes(
+                        metadataItemValueError || ''
+                      )
+
+                      return (
+                        <React.Fragment key={`metadata-item-${m.id || m.localId || i}`}>
+                          <Tooltip
+                            placement="top-end"
+                            title={
+                              metadataItemKeyError === MetadataErrorsEnum.uniqueness
+                                ? translate('text_63fcc3777b0c5afc7dbf981c')
+                                : metadataItemKeyError === MetadataErrorsEnum.maxLength
+                                ? translate('text_63fcc3777b0c5afc7dbf981b')
+                                : undefined
+                            }
+                            disableHoverListener={!hasCustomKeyError}
+                          >
+                            <TextInputField
+                              name={`metadata.${i}.key`}
+                              silentError={!hasCustomKeyError}
+                              placeholder={translate('text_63fcc3777b0c5afc7dbf97d9')}
+                              formikProps={formikProps}
+                              displayErrorText={false}
+                            />
+                          </Tooltip>
+                          <Tooltip
+                            placement="top-end"
+                            title={
+                              metadataItemValueError === MetadataErrorsEnum.maxLength
+                                ? translate('text_63fcc3777b0c5afc7dbf981e')
+                                : undefined
+                            }
+                            disableHoverListener={!hasCustomValueError}
+                          >
+                            <TextInputField
+                              name={`metadata.${i}.value`}
+                              silentError={!hasCustomValueError}
+                              placeholder={translate('text_63fcc3777b0c5afc7dbf97db')}
+                              formikProps={formikProps}
+                              displayErrorText={false}
+                            />
+                          </Tooltip>
+                          <Switch
+                            name={`metadata.${i}.displayInInvoice`}
+                            checked={
+                              !!formikProps.values.metadata?.length &&
+                              !!formikProps.values.metadata[i].displayInInvoice
+                            }
+                            onChange={(newValue) => {
+                              formikProps.setFieldValue(`metadata.${i}.displayInInvoice`, newValue)
+                            }}
+                          />
+                          <StyledTooltip
+                            placement="top-end"
+                            title={translate('text_63fcc3777b0c5afc7dbf981d')}
+                          >
+                            <Button
+                              variant="quaternary"
+                              size="small"
+                              icon="trash"
+                              onClick={() => {
+                                formikProps.setFieldValue('metadata', [
+                                  ...(formikProps.values.metadata || []).filter((metadata, j) => {
+                                    return j !== i
+                                  }),
+                                ])
+                              }}
+                            />
+                          </StyledTooltip>
+                        </React.Fragment>
+                      )
+                    })}
+                  </MetadataGrid>
+                </div>
+              )}
+              <Button
+                startIcon="plus"
+                variant="quaternary"
+                disabled={(formikProps?.values?.metadata?.length || 0) >= MAX_METADATA_COUNT}
+                onClick={() =>
+                  formikProps.setFieldValue('metadata', [
+                    ...(formikProps.values.metadata || []),
+                    {
+                      key: '',
+                      value: '',
+                      displayInInvoice: false,
+                      localId: Date.now(),
+                    },
+                  ])
+                }
+                data-test="add-fixed-fee"
+              >
+                {translate('text_63fcc3777b0c5afc7dbf97de')}
+              </Button>
+            </AccordionContentWrapper>
           </Accordion>
 
           <DrawerSubmitButton>
@@ -376,12 +591,33 @@ const HelperText = styled(Typography)`
   line-height: 20px;
 `
 
-const BillingBlock = styled.div<{ $first?: boolean }>`
+const AccordionContentWrapper = styled.div<{ $first?: boolean }>`
   margin-bottom: ${({ $first }) => ($first ? theme.spacing(6) : 0)};
 
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(6)};
   }
+`
+
+const MetadataGrid = styled.div<{ $isHeader?: boolean }>`
+  display: grid;
+  grid-template-columns: 200px 1fr 60px 24px;
+  gap: ${theme.spacing(6)} ${theme.spacing(3)};
+
+  ${({ $isHeader }) =>
+    $isHeader &&
+    css`
+      margin-bottom: ${theme.spacing(1)};
+
+      > div:nth-child(3) {
+        grid-column: span 2;
+      }
+    `};
+`
+
+const StyledTooltip = styled(Tooltip)`
+  display: flex;
+  align-items: center;
 `
 
 AddCustomerDrawer.displayName = 'AddCustomerDrawer'

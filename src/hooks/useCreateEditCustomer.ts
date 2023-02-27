@@ -35,12 +35,19 @@ gql`
     canEditAttributes
     city
     zipcode
+    applicableTimezone
     paymentProvider
     timezone
     providerCustomer {
       id
       providerCustomerId
       syncWithProvider
+    }
+    metadata {
+      id
+      key
+      value
+      displayInInvoice
     }
   }
 
@@ -67,6 +74,12 @@ gql`
       id
       providerCustomerId
       syncWithProvider
+    }
+    metadata {
+      id
+      key
+      value
+      displayInInvoice
     }
   }
 

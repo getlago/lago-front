@@ -113,6 +113,9 @@ module.exports = {
   "project_632b49dccdbed9536c8497ab": {
     "base": require('./⚙️ [WIP] - Customers - Customer hold currency__base.json')
   },
+  "project_63fcc31ebb3fb91189619496": {
+    "base": require('./⚙️ [WIP] - Customers - Metadata on customer & invoice__base.json')
+  },
   "project_6328e70891e49d4d9732180d": {
     "base": require('./⚙️ [WIP] - Customers - Overwrite subscription per customer__base.json')
   },
