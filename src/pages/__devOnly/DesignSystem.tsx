@@ -87,6 +87,10 @@ const AVATAR_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'av
 const SKELETON_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'skeleton' })
 const TABLE_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'table' })
 
+const onClickButton = () => {
+  console.log('hello')
+}
+
 const DesignSystem = () => {
   const formikProps = useFormik({
     initialValues: {
@@ -579,7 +583,7 @@ const DesignSystem = () => {
 
                 <GroupTitle variant="subhead">General use</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
-                  <Button variant="primary" size="large">
+                  <Button variant="primary" size="large" onClick={onClickButton}>
                     Large
                   </Button>
                   <Button variant="primary" size="medium">

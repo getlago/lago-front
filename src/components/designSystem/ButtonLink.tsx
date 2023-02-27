@@ -75,6 +75,8 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
       'button-link-disabled': (active && !canBeClickedOnActive) || disabled,
     })
 
+    console.log(onClick)
+
     return (
       <ConditionalWrapper
         condition={!!external}
@@ -104,7 +106,12 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
         )}
       >
         {/* @ts-ignore */}
-        <Button onClick={onClick} disabled={disabled} {...props} {...updatedButtonProps}>
+        <Button
+          onClick={!!onClick ? (e) => onClick(e) : undefined}
+          disabled={disabled}
+          {...props}
+          {...updatedButtonProps}
+        >
           {children}
         </Button>
       </ConditionalWrapper>

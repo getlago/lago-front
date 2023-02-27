@@ -86,7 +86,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       size,
       startIcon,
       tabIndex,
-      variant,
+      variant = ButtonVariantEnum.primary,
       onClick,
       ...props
     }: ButtonProps,
@@ -108,6 +108,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const handleClick = async (e: MouseEvent<HTMLButtonElement>) => {
       ;((ref as unknown as RefObject<HTMLButtonElement>) || buttonRef)?.current?.blur()
+      e.preventDefault()
+      console.log(typeof onClick)
 
       if (onClick) {
         const res = onClick(e)
