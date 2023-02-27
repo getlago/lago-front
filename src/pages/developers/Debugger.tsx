@@ -103,12 +103,6 @@ const Debugger = () => {
           buttonAction={() => location.reload()}
           image={<ErrorImage width="136" height="104" />}
         />
-      ) : !loading && (!data?.events?.collection || !data?.events?.collection.length) ? (
-        <GenericPlaceholder
-          title={translate('text_6298bd525e359200d5ea002a')}
-          subtitle={translate('text_6298bd525e359200d5ea0036')}
-          image={<EmptyImage width="136" height="104" />}
-        />
       ) : (
         <Container>
           <Events>
@@ -129,64 +123,74 @@ const Debugger = () => {
                 </Tooltip>
               )}
             </Header>
-            <EventList>
-              <>
-                {((loading && !data?.events?.collection) || refetchLoading) && <DateHeader />}
-                <InfiniteScroll
-                  onBottom={() => {
-                    const { currentPage = 0, totalPages = 0 } = data?.events?.metadata || {}
+            {!loading && (!data?.events?.collection || !data?.events?.collection.length) ? (
+              <StyledGenericPlaceholder
+                title={translate('text_6298bd525e359200d5ea002a')}
+                subtitle={translate('text_6298bd525e359200d5ea0036')}
+                image={<EmptyImage width="136" height="104" />}
+              />
+            ) : (
+              <EventList>
+                <>
+                  {((loading && !data?.events?.collection) || refetchLoading) && <DateHeader />}
+                  <InfiniteScroll
+                    onBottom={() => {
+                      const { currentPage = 0, totalPages = 0 } = data?.events?.metadata || {}
 
-                    currentPage < totalPages &&
-                      !loading &&
-                      fetchMore({
-                        variables: { page: currentPage + 1 },
-                      })
-                  }}
-                >
-                  <ListContent>
-                    {!refetchLoading &&
-                      Object.keys(groupedEvent).map((eventDate) => {
-                        return (
-                          <div key={eventDate}>
-                            <DateHeader>{eventDate}</DateHeader>
-                            {groupedEvent[eventDate].map((event) => {
-                              const { id } = event
+                      currentPage < totalPages &&
+                        !loading &&
+                        fetchMore({
+                          variables: { page: currentPage + 1 },
+                        })
+                    }}
+                  >
+                    <ListContent>
+                      {!refetchLoading &&
+                        Object.keys(groupedEvent).map((eventDate) => {
+                          return (
+                            <div key={eventDate}>
+                              <DateHeader>{eventDate}</DateHeader>
+                              {groupedEvent[eventDate].map((event) => {
+                                const { id } = event
 
-                              index += 1
+                                index += 1
 
-                              return (
-                                <div key={id}>
-                                  <EventItem
-                                    event={event}
-                                    onClick={() => {
-                                      setSelectedEventId(id)
-                                      const element = document.activeElement as HTMLElement
+                                return (
+                                  <div key={id}>
+                                    <EventItem
+                                      event={event}
+                                      onClick={() => {
+                                        setSelectedEventId(id)
+                                        const element = document.activeElement as HTMLElement
 
-                                      element.blur && element.blur()
-                                    }}
-                                    selected={selectedEventId === id}
-                                    navigationProps={{
-                                      id: `event-item-${index}`,
-                                      'data-id': id,
-                                    }}
-                                  />
-                                  {selectedEventId === id && (
-                                    <EventInfos>
-                                      <DebuggerEventDetails event={event} />
-                                    </EventInfos>
-                                  )}
-                                </div>
-                              )
-                            })}
-                          </div>
-                        )
-                      })}
-                    {loading &&
-                      [0, 1, 2].map((i) => <EventItemSkeleton key={`event-skeleton-item-${i}`} />)}
-                  </ListContent>
-                </InfiniteScroll>
-              </>
-            </EventList>
+                                        element.blur && element.blur()
+                                      }}
+                                      selected={selectedEventId === id}
+                                      navigationProps={{
+                                        id: `event-item-${index}`,
+                                        'data-id': id,
+                                      }}
+                                    />
+                                    {selectedEventId === id && (
+                                      <EventInfos>
+                                        <DebuggerEventDetails event={event} />
+                                      </EventInfos>
+                                    )}
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )
+                        })}
+                      {loading &&
+                        [0, 1, 2].map((i) => (
+                          <EventItemSkeleton key={`event-skeleton-item-${i}`} />
+                        ))}
+                    </ListContent>
+                  </InfiniteScroll>
+                </>
+              </EventList>
+            )}
           </Events>
           <Side>
             {loading && (
@@ -252,6 +256,7 @@ const Side = styled.div`
   box-shadow: ${theme.shadows[8]};
   display: flex;
   flex-direction: column;
+  background-color: ${theme.palette.grey[100]};
 
   ${theme.breakpoints.down('md')} {
     display: none;
@@ -294,11 +299,16 @@ const HeaderBillableMetric = styled(Typography)`
   justify-content: space-between;
   padding: 0 ${theme.spacing(8)};
   box-sizing: border-box;
+  background-color: ${theme.palette.common.white};
+  margin-left: 1px;
 `
 
 const EventInfosSkeleton = styled.div`
   padding: ${theme.spacing(10)} ${theme.spacing(8)};
   box-shadow: ${theme.shadows[7]};
+  margin-left: 1px;
+  background-color: ${theme.palette.common.white};
+
   > * {
     display: flex;
     &:not(:last-child) {
@@ -319,6 +329,10 @@ const Payload = styled.div`
 
 const ListContent = styled.div`
   margin-bottom: ${theme.spacing(20)};
+`
+
+const StyledGenericPlaceholder = styled(GenericPlaceholder)`
+  margin: ${theme.spacing(12)};
 `
 
 export default Debugger

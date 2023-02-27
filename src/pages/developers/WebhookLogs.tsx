@@ -72,10 +72,11 @@ const WebhookLogs = () => {
   const { data: webhookUrlData, loading: webhookUrlLoading } = useGetWebhookOrganizationQuery()
   const { tab: statusFilter } = useParams<{ tab: WebhookStatusEnum }>()
   const [fetchMoreLoading, setFetchMoreLoading] = useState<boolean>(false)
-  const [getWebhookLogs, { data, loading, error, refetch, fetchMore }] = useGetWebhookLogLazyQuery({
-    variables: { limit: 50, ...(statusFilter ? { status: statusFilter } : {}) },
-    notifyOnNetworkStatusChange: true,
-  })
+  const [getWebhookLogs, { data, loading, error, refetch, fetchMore, variables }] =
+    useGetWebhookLogLazyQuery({
+      variables: { limit: 50, ...(statusFilter ? { status: statusFilter } : {}) },
+      notifyOnNetworkStatusChange: true,
+    })
   const [selectedLogId, setSelectedLogId] = useState<string | undefined>(undefined)
   const { debouncedSearch, isLoading } = useDebouncedSearch(getWebhookLogs, loading)
   const { formatTimeOrgaTZ } = useOrganizationInfos()
@@ -104,8 +105,10 @@ const WebhookLogs = () => {
   })
 
   useEffect(() => {
-    if (!!data?.webhooks?.collection) {
+    if (!!data?.webhooks?.collection?.length) {
       setSelectedLogId(data?.webhooks?.collection[0]?.id)
+    } else {
+      setSelectedLogId(undefined)
     }
   }, [data?.webhooks?.collection])
 
@@ -126,11 +129,11 @@ const WebhookLogs = () => {
             <Skeleton variant="text" width={240} height={12} />
           ) : (
             <>
-              <Title color="textSecondary" noWrap variant="bodyHl">
+              <Title color="textSecondary" variant="bodyHl">
                 {translate('text_63e3a496be166d8f3279b594')}
               </Title>
               {webhookUrlData?.organization?.webhookUrl && (
-                <Typography color="textSecondary">
+                <Typography color="textSecondary" noWrap>
                   {translate('text_63e27c56dfe64b846474ef2b', {
                     url: webhookUrlData?.organization?.webhookUrl,
                   })}
@@ -153,12 +156,6 @@ const WebhookLogs = () => {
           buttonAction={() => location.reload()}
           image={<ErrorImage width="136" height="104" />}
         />
-      ) : !loading && !isLoading && !data?.webhooks?.collection?.length ? (
-        <GenericPlaceholder
-          title={translate('text_63e27c56dfe64b846474ef2c')}
-          subtitle={translate('text_63e27c56dfe64b846474ef2d')}
-          image={<EmptyImage width="136" height="104" />}
-        />
       ) : (
         <Container>
           <LeftSide>
@@ -170,7 +167,6 @@ const WebhookLogs = () => {
                     icon="reload"
                     variant="quaternary"
                     onClick={async () => {
-                      setSelectedLogId(undefined)
                       await refetch({ page: 0 })
                     }}
                   />
@@ -195,66 +191,84 @@ const WebhookLogs = () => {
                 },
               ]}
             />
-            <LogsList>
-              {isLoading && !fetchMoreLoading && <DateHeader />}
-              <InfiniteScroll
-                onBottom={async () => {
-                  const { currentPage = 0, totalPages = 0 } = data?.webhooks?.metadata || {}
+            {!loading && !isLoading && !data?.webhooks?.collection.length ? (
+              <StyledGenericPlaceholder
+                title={translate(
+                  !!variables?.searchTerm
+                    ? 'text_63ebafd12755e50052a86e13'
+                    : 'text_63ebaf555f88d954d73beb7e'
+                )}
+                subtitle={
+                  !variables?.searchTerm ? (
+                    <Typography html={translate('text_63ebafc2c3d08550e5c0341c')} />
+                  ) : (
+                    translate('text_63ebafd92755e50052a86e14')
+                  )
+                }
+                image={<EmptyImage width="136" height="104" />}
+              />
+            ) : (
+              <LogsList>
+                {isLoading && !fetchMoreLoading && <DateHeader />}
+                <InfiniteScroll
+                  onBottom={async () => {
+                    const { currentPage = 0, totalPages = 0 } = data?.webhooks?.metadata || {}
 
-                  if (currentPage < totalPages && !isLoading) {
-                    setFetchMoreLoading(true)
-                    await fetchMore({
-                      variables: { page: currentPage + 1 },
-                    })
-                    setFetchMoreLoading(false)
-                  }
-                }}
-              >
-                <ListContent>
-                  {(!isLoading || fetchMoreLoading) &&
-                    Object.keys(groupedLogs).map((logDate) => {
-                      return (
-                        <div key={logDate}>
-                          <DateHeader>{logDate}</DateHeader>
-                          {groupedLogs[logDate].map((log) => {
-                            const { id } = log
+                    if (currentPage < totalPages && !isLoading) {
+                      setFetchMoreLoading(true)
+                      await fetchMore({
+                        variables: { page: currentPage + 1 },
+                      })
+                      setFetchMoreLoading(false)
+                    }
+                  }}
+                >
+                  <ListContent>
+                    {(!isLoading || fetchMoreLoading) &&
+                      Object.keys(groupedLogs).map((logDate) => {
+                        return (
+                          <div key={logDate}>
+                            <DateHeader>{logDate}</DateHeader>
+                            {groupedLogs[logDate].map((log) => {
+                              const { id } = log
 
-                            index += 1
+                              index += 1
 
-                            return (
-                              <div key={id}>
-                                <WebhookLogItem
-                                  log={log}
-                                  onClick={() => {
-                                    setSelectedLogId(id)
-                                    const element = document.activeElement as HTMLElement
+                              return (
+                                <div key={id}>
+                                  <WebhookLogItem
+                                    log={log}
+                                    onClick={() => {
+                                      setSelectedLogId(id)
+                                      const element = document.activeElement as HTMLElement
 
-                                    element.blur && element.blur()
-                                  }}
-                                  selected={selectedLogId === id}
-                                  navigationProps={{
-                                    id: `${WEBHOOK_ITEM_NAV_KEY}${index}`,
-                                    'data-id': id,
-                                  }}
-                                />
-                                {selectedLogId === id && (
-                                  <LogInfos>
-                                    <WebhookLogDetails log={log} />
-                                  </LogInfos>
-                                )}
-                              </div>
-                            )
-                          })}
-                        </div>
-                      )
-                    })}
-                  {isLoading &&
-                    [0, 1, 2].map((i) => (
-                      <WebhookLogItemSkeleton key={`webhook-skeleton-item-${i}`} />
-                    ))}
-                </ListContent>
-              </InfiniteScroll>
-            </LogsList>
+                                      element.blur && element.blur()
+                                    }}
+                                    selected={selectedLogId === id}
+                                    navigationProps={{
+                                      id: `${WEBHOOK_ITEM_NAV_KEY}${index}`,
+                                      'data-id': id,
+                                    }}
+                                  />
+                                  {selectedLogId === id && (
+                                    <LogInfos>
+                                      <WebhookLogDetails log={log} />
+                                    </LogInfos>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )
+                      })}
+                    {isLoading &&
+                      [0, 1, 2].map((i) => (
+                        <WebhookLogItemSkeleton key={`webhook-skeleton-item-${i}`} />
+                      ))}
+                  </ListContent>
+                </InfiniteScroll>
+              </LogsList>
+            )}
           </LeftSide>
           <RightSide>
             {isLoading && (
@@ -285,6 +299,9 @@ export default WebhookLogs
 const Header = styled.div`
   display: flex;
   align-items: center;
+  flex: 1;
+  min-width: 0;
+  margin-right: ${theme.spacing(4)};
 
   > *:first-child {
     margin-right: ${theme.spacing(3)};
@@ -315,6 +332,7 @@ const RightSide = styled.div`
   box-shadow: ${theme.shadows[8]};
   display: flex;
   flex-direction: column;
+  background-color: ${theme.palette.grey[100]};
 
   ${theme.breakpoints.down('md')} {
     display: none;
@@ -328,6 +346,9 @@ const HeaderBlock = styled(Typography)<{ $loading?: boolean }>`
   justify-content: space-between;
   padding: 0 ${theme.spacing(12)};
   box-shadow: ${theme.shadows[7]};
+  background-color: ${theme.palette.common.white};
+  margin-left: 1px;
+
   ${({ $loading }) =>
     $loading &&
     css`
@@ -343,6 +364,9 @@ const LogsList = styled.div`
 const LogPropertiesSkeleton = styled.div`
   padding: ${theme.spacing(10)} ${theme.spacing(8)};
   box-shadow: ${theme.shadows[7]};
+  margin-left: 1px;
+  background-color: ${theme.palette.common.white};
+
   > * {
     display: flex;
     &:not(:last-child) {
@@ -391,6 +415,10 @@ const DateHeader = styled.div`
   position: sticky;
   top: 0;
   z-index: 1;
+`
+
+const StyledGenericPlaceholder = styled(GenericPlaceholder)`
+  margin: ${theme.spacing(12)};
 `
 
 const ListContent = styled.div`

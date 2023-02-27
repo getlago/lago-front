@@ -1,12 +1,17 @@
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
-import { WebhookLogDetailsFragment, WebhookStatusEnum } from '~/generated/graphql'
-import { Typography, Chip /*, Button */ } from '~/components/designSystem'
+import {
+  WebhookLogDetailsFragment,
+  WebhookStatusEnum,
+  useRetryWebhookMutation,
+} from '~/generated/graphql'
+import { Typography, Chip, Button } from '~/components/designSystem'
 import { theme, NAV_HEIGHT } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { CodeSnippet } from '~/components/CodeSnippet'
+import { addToast } from '~/core/apolloClient'
 
 gql`
   fragment WebhookLogDetails on Webhook {
@@ -18,7 +23,13 @@ gql`
     httpStatus
     endpoint
     retries
-    createdAt
+    updatedAt
+  }
+
+  mutation retryWebhook($input: RetryWebhookInput!) {
+    retryWebhook(input: $input) {
+      id
+    }
   }
 `
 
@@ -27,9 +38,19 @@ interface WebhookLogDetailsProps {
 }
 
 export const WebhookLogDetails = ({ log }: WebhookLogDetailsProps) => {
-  const { id, webhookType, createdAt, endpoint, retries, response, status, httpStatus, payload } =
+  const { id, webhookType, updatedAt, endpoint, retries, response, status, httpStatus, payload } =
     log
   const { translate } = useInternationalization()
+  const [retry] = useRetryWebhookMutation({
+    onCompleted({ retryWebhook }) {
+      if (!!retryWebhook) {
+        addToast({
+          severity: 'success',
+          translateKey: 'text_63f79ddae2e0b1892bb4955c',
+        })
+      }
+    },
+  })
   const { formatTimeOrgaTZ } = useOrganizationInfos()
   const hasError = status === WebhookStatusEnum.Failed
 
@@ -37,22 +58,24 @@ export const WebhookLogDetails = ({ log }: WebhookLogDetailsProps) => {
     <>
       <LogHeader variant="bodyHl" color="textSecondary">
         {webhookType}
-
-        {/* TODO - API is not ready, will be done as another feature
-         {hasError && (
+        {hasError && (
           <Button
             variant="quaternary"
-            onClick={() => {
-              // TODO
+            onClick={async () => {
+              await retry({
+                variables: {
+                  input: { id },
+                },
+              })
             }}
           >
             {translate('text_63e27c56dfe64b846474efa3')}
           </Button>
-        )} */}
+        )}
       </LogHeader>
       <PropertiesContainer>
         <WideLine>
-          <Typography variant="bodyHl" color="grey700">
+          <Typography variant="captionHl" color="grey700">
             {translate('text_63e27c56dfe64b846474ef6a')}
           </Typography>
         </WideLine>
@@ -71,7 +94,7 @@ export const WebhookLogDetails = ({ log }: WebhookLogDetailsProps) => {
           {translate('text_63e27c56dfe64b846474ef6c')}
         </PropertyLabel>
         <PropertyValue color="grey700">
-          {formatTimeOrgaTZ(createdAt, 'LLL. dd, yyyy HH:mm:ss')}
+          {formatTimeOrgaTZ(updatedAt, 'LLL. dd, yyyy HH:mm:ss')}
         </PropertyValue>
 
         <PropertyLabel variant="caption">
@@ -105,7 +128,7 @@ export const WebhookLogDetails = ({ log }: WebhookLogDetailsProps) => {
           </>
         )}
       </PropertiesContainer>
-      {response && (
+      {response && hasError && (
         <CodeBlock>
           <Typography color="grey700" variant="captionHl">
             {translate('text_63e27c56dfe64b846474efb3')}
@@ -113,7 +136,7 @@ export const WebhookLogDetails = ({ log }: WebhookLogDetailsProps) => {
           <StyledCodeSnippet language="json" code={response} canCopy={false} displayHead={false} />
         </CodeBlock>
       )}
-      <CodeBlock>
+      <CodeBlock $maxHeight>
         <Typography color="grey700" variant="captionHl">
           {translate('text_63e27c56dfe64b846474efb6')}
         </Typography>
@@ -172,11 +195,11 @@ const StyledCodeSnippet = styled(CodeSnippet)`
   }
 `
 
-const CodeBlock = styled.div`
+const CodeBlock = styled.div<{ $maxHeight?: boolean }>`
   background-color: ${theme.palette.grey[100]};
   box-shadow: ${theme.shadows[7]};
   margin-left: 1px;
-  flex: 1;
+  flex: ${({ $maxHeight }) => ($maxHeight ? 1 : 'initial')};
   padding-bottom: ${theme.spacing(4)};
 
   > *:first-child {

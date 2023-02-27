@@ -10,9 +10,9 @@ import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 gql`
   fragment WebhookLogItem on Webhook {
     id
-    createdAt
-    webhookType
     status
+    updatedAt
+    webhookType
   }
 `
 
@@ -29,7 +29,7 @@ export const WebhookLogItem = ({
   selected,
   onClick,
 }: WebhookLogItemProps) => {
-  const { id, status, webhookType, createdAt } = log
+  const { id, status, webhookType, updatedAt } = log
   const { formatTimeOrgaTZ } = useOrganizationInfos()
   const hasError = status === WebhookStatusEnum.Failed
 
@@ -52,7 +52,7 @@ export const WebhookLogItem = ({
             </Typography>
           </NameBlock>
         </NameSection>
-        <Typography>{formatTimeOrgaTZ(createdAt, 'HH:mm:ss')}</Typography>
+        <Typography>{formatTimeOrgaTZ(updatedAt, 'HH:mm:ss')}</Typography>
       </Item>
     </ItemContainer>
   )

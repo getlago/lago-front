@@ -7,11 +7,22 @@ export default {
   title: 'Design System/Chip',
   component: Chip,
   decorators,
+  argTypes: {
+    className: { table: { disable: true } },
+    onClose: {
+      options: ['canClose', 'disabled'],
+      defaultValue: 'canClose',
+      control: { type: 'select' },
+      mapping: {
+        // eslint-disable-next-line no-alert
+        canClose: () => alert('You clicked !'),
+        disabled: undefined,
+      },
+    },
+  },
 } as ComponentMeta<typeof Chip>
 
-const Template: ComponentStory<typeof Chip> = (args) => (
-  <Chip type={args.type} label={args.label} className={args.className} />
-)
+const Template: ComponentStory<typeof Chip> = (args) => <Chip {...args} />
 
 export const Default = Template.bind({})
 Default.argTypes = {
@@ -21,7 +32,6 @@ Default.args = {
   label: "I'm a Chip",
   type: 'default',
   icon: 'apps',
-  onClose: () => {},
 }
 
 export const WithAvatar = Template.bind({})
@@ -35,5 +45,4 @@ WithAvatar.args = {
     initials: 'LC',
     identifier: 'Lago Corp',
   },
-  onClose: () => {},
 }

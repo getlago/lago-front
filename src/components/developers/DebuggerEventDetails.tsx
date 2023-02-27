@@ -53,81 +53,95 @@ export const DebuggerEventDetails = ({ event }: DebuggerEventDetailsProps) => {
       <EventHeader variant="bodyHl" color="textSecondary">
         {billableMetricName}
       </EventHeader>
-      <EventInfosContainer>
+      <PropertiesContainer>
+        <WideLine>
+          <Typography variant="captionHl" color="grey700">
+            {translate('text_63ebba5f5160e26242c48bd2')}
+          </Typography>
+        </WideLine>
+
         {!matchBillableMetric && (
-          <StyledAlert type="warning">{translate('text_6298bd525e359200d5ea01b7')}</StyledAlert>
+          <WideLine>
+            <Alert type="warning">{translate('text_6298bd525e359200d5ea01b7')}</Alert>
+          </WideLine>
         )}
         {!matchCustomField && (
-          <StyledAlert type="warning">{translate('text_6298bd525e359200d5ea0197')}</StyledAlert>
+          <WideLine>
+            <Alert type="warning">{translate('text_6298bd525e359200d5ea0197')}</Alert>
+          </WideLine>
         )}
-        <EventInfoLine>
-          <Typography variant="caption">{translate('text_6298bd525e359200d5ea018f')}</Typography>
-          <Typography color="textSecondary" noWrap>
-            <TimezoneDate
-              date={timestamp}
-              customerTimezone={customerTimezone}
-              mainTimezone="utc0"
-              mainDateFormat="LLL. dd, yyyy HH:mm:ss 'UTC'"
-            />
-          </Typography>
-        </EventInfoLine>
-        <EventInfoLine>
-          <Typography variant="caption">{translate('text_62e0feac0a543924c8f67ae5')}</Typography>
-          <Typography color="textSecondary" noWrap>
-            {externalSubscriptionId}
-          </Typography>
-        </EventInfoLine>
-        <EventInfoLine>
-          <Typography variant="caption">{translate('text_6298bd525e359200d5ea01a7')}</Typography>
-          <Typography color="textSecondary" noWrap>
-            {externalCustomerId}
-          </Typography>
-        </EventInfoLine>
-        <EventInfoLine>
-          <Typography variant="caption">{translate('text_6298bd525e359200d5ea01c1')}</Typography>
-          <Typography color="textSecondary" noWrap>
-            {code}
-          </Typography>
-        </EventInfoLine>
-        <EventInfoLine>
-          <Typography variant="caption">{translate('text_6298bd525e359200d5ea01da')}</Typography>
-          <Typography color="textSecondary" noWrap>
-            {billableMetricName}
-          </Typography>
-        </EventInfoLine>
-        <EventInfoLine>
-          <Typography variant="caption">{translate('text_6298bd525e359200d5ea01f2')}</Typography>
-          <TransactionId color="textSecondary" noWrap>
-            {transactionId}
-          </TransactionId>
+
+        <PropertyLabel variant="caption">
+          {translate('text_6298bd525e359200d5ea018f')}
+        </PropertyLabel>
+        <PropertyValue color="grey700">
+          <StyledTimezoneDate
+            date={timestamp}
+            customerTimezone={customerTimezone}
+            mainTimezone="utc0"
+            mainDateFormat="LLL. dd, yyyy HH:mm:ss 'UTC'"
+          />
+        </PropertyValue>
+
+        <PropertyLabel variant="caption">
+          {translate('text_62e0feac0a543924c8f67ae5')}
+        </PropertyLabel>
+        <PropertyValue color="textSecondary">{externalSubscriptionId}</PropertyValue>
+
+        <PropertyLabel variant="caption">
+          {translate('text_6298bd525e359200d5ea01a7')}
+        </PropertyLabel>
+        <PropertyValue color="textSecondary">{externalCustomerId}</PropertyValue>
+
+        <PropertyLabel variant="caption">
+          {translate('text_6298bd525e359200d5ea01c1')}
+        </PropertyLabel>
+        <PropertyValue color="textSecondary">{code}</PropertyValue>
+
+        <PropertyLabel variant="caption">
+          {translate('text_6298bd525e359200d5ea01da')}
+        </PropertyLabel>
+        <PropertyValue color="textSecondary">{billableMetricName}</PropertyValue>
+
+        <PropertyLabel variant="caption">
+          {translate('text_6298bd525e359200d5ea01f2')}
+        </PropertyLabel>
+        <PropertyValue color="textSecondary">
+          {transactionId}
           <TransactionIdTooltip
             placement="bottom-start"
             title={translate('text_6298bd525e359200d5ea0257')}
           >
-            <Icon name="info-circle" />
+            <StyledIcon color="dark" name="info-circle" />
           </TransactionIdTooltip>
-        </EventInfoLine>
-        <EventInfoLine>
-          <Typography variant="caption">{translate('text_6298bd525e359200d5ea020a')}</Typography>
-          <Typography color="textSecondary" noWrap>
-            {ipAddress}
-          </Typography>
-        </EventInfoLine>
-        <EventInfoLine>
-          <Typography variant="caption">{translate('text_6298bd525e359200d5ea0222')}</Typography>
-          <Typography color="textSecondary" noWrap>
-            {apiClient}
-          </Typography>
-        </EventInfoLine>
-      </EventInfosContainer>
-      <Payload>
+        </PropertyValue>
+
+        <PropertyLabel variant="caption">
+          {translate('text_6298bd525e359200d5ea020a')}
+        </PropertyLabel>
+        <PropertyValue color="textSecondary" noWrap>
+          {ipAddress}
+        </PropertyValue>
+
+        <PropertyLabel variant="caption">
+          {translate('text_6298bd525e359200d5ea0222')}
+        </PropertyLabel>
+        <PropertyValue color="textSecondary" noWrap>
+          {apiClient}
+        </PropertyValue>
+      </PropertiesContainer>
+
+      <CodeBlock>
+        <Typography color="grey700" variant="captionHl">
+          {translate('text_63ebba678559020885cee000')}
+        </Typography>
         <StyledCodeSnippet
           language="json"
           code={JSON.stringify(payload, null, 2)}
           canCopy={false}
           displayHead={false}
         />
-      </Payload>
+      </CodeBlock>
     </>
   )
 }
@@ -149,37 +163,6 @@ const EventHeader = styled(Header)`
   }
 `
 
-const EventInfosContainer = styled.div`
-  padding: ${theme.spacing(8)};
-  box-shadow: ${theme.shadows[7]};
-
-  > * {
-    display: flex;
-    &:not(:last-child) {
-      margin-bottom: ${theme.spacing(3)};
-    }
-  }
-`
-
-const TransactionId = styled(Typography)`
-  margin-right: ${theme.spacing(1)};
-`
-
-const EventInfoLine = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    width: 140px;
-    min-width: 140px;
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const StyledAlert = styled(Alert)`
-  margin-bottom: ${theme.spacing(8)};
-`
-
 const StyledCodeSnippet = styled(CodeSnippet)`
   > * {
     padding-bottom: 0px;
@@ -190,12 +173,60 @@ const TransactionIdTooltip = styled(Tooltip)`
   height: 16px;
 `
 
-const Payload = styled.div`
-  flex: 1;
-  box-shadow: ${theme.shadows[8]};
-  background-color: ${theme.palette.grey[100]};
+const PropertiesContainer = styled.div`
+  padding: ${theme.spacing(8)};
+  box-shadow: ${theme.shadows[7]};
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: ${theme.spacing(3)};
+`
 
-  ${theme.breakpoints.down('md')} {
-    box-shadow: ${theme.shadows[7]};
+const WideLine = styled.div`
+  grid-column: span 2;
+`
+
+const PropertyLabel = styled(Typography)`
+  padding-top: 4px;
+`
+
+const PropertyValue = styled(Typography)`
+  max-width: 100%;
+  min-width: 0;
+  display: flex;
+  overflow-wrap: anywhere;
+`
+
+const StyledTimezoneDate = styled(TimezoneDate)`
+  min-width: 0;
+
+  > * {
+    min-width: 0;
+
+    > * {
+      min-width: 0;
+      max-width: 100%;
+      display: flex;
+      white-space: unset;
+    }
+  }
+`
+
+const StyledIcon = styled(Icon)`
+  margin: 5px 0 0 4px;
+`
+
+const CodeBlock = styled.div`
+  background-color: ${theme.palette.grey[100]};
+  box-shadow: ${theme.shadows[7]};
+  margin-left: 1px;
+  flex: 1;
+  padding-bottom: ${theme.spacing(4)};
+
+  > *:first-child {
+    padding: ${theme.spacing(8)} 0 0 ${theme.spacing(8)};
+  }
+
+  > *:last-child {
+    height: calc(100% - 52px);
   }
 `
