@@ -181,6 +181,7 @@
   "text_63fcc3777b0c5afc7dbf981c": "Keys should be unique; please differentiate them to move forward.",
   "text_63fcc3777b0c5afc7dbf981d": "Remove metadata",
   "text_63fcc3777b0c5afc7dbf981e": "Value must be a string under 40 characters",
+  "text_63fdc19535d4e3bba3b9c070": "Customer metadata",
   "text_632b3780e409ac86609cbd05": "Plan successfully overwritten",
   "text_6328e70de459381ed4ba50bc": "Add a plan to {{customerName}}",
   "text_6328e70de459381ed4ba50c0": "Add a plan to {{customerName}}",
