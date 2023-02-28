@@ -21,7 +21,7 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { theme } from '~/styles'
-import { DOCUMENTATION_URL } from '~/externalUrls'
+import { DOCUMENTATION_URL, FEATURE_REQUESTS_URL } from '~/externalUrls'
 import { MenuPopper } from '~/styles/designSystem'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import {
@@ -264,6 +264,12 @@ const SideNav = () => {
                         } as TabProps,
                       ]
                     : []),
+                  {
+                    title: translate('text_63fdd3e4076c80ecf4136f33'),
+                    icon: 'bulb',
+                    link: FEATURE_REQUESTS_URL,
+                    external: true,
+                  },
                   {
                     title: translate('text_6295e58352f39200d902b01c'),
                     icon: 'book',

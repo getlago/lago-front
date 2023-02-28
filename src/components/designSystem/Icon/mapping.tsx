@@ -13,6 +13,7 @@ import Bell from '~/public/icons/bell.svg'
 import Board from '~/public/icons/board.svg'
 import Book from '~/public/icons/book.svg'
 import Box from '~/public/icons/box.svg'
+import Bulb from '~/public/icons/bulb.svg'
 import Burger from '~/public/icons/burger.svg'
 import Calendar from '~/public/icons/calendar.svg'
 import Checkmark from '~/public/icons/checkmark.svg'
@@ -120,6 +121,7 @@ export const ALL_ICONS = {
   bell: Bell,
   board: Board,
   book: Book,
+  bulb: Bulb,
   burger: Burger,
   box: Box,
   calendar: Calendar,
