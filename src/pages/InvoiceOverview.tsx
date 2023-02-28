@@ -25,6 +25,7 @@ import {
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
 import { formatDateToTZ } from '~/core/timezone'
+import { Metadatas } from '~/components/invoices/Metadatas'
 
 gql`
   fragment InvoiceDetailsForInvoiceOverview on Invoice {
@@ -170,6 +171,9 @@ export const InvoiceOverview = memo(
                     subTotalVatExcludedAmountCents={invoice?.subTotalVatExcludedAmountCents || 0}
                   />
                 )}
+              {!!customer.metadata?.some((m) => m.displayInInvoice) && (
+                <Metadatas customer={customer} />
+              )}
             </>
           )}
         </Content>

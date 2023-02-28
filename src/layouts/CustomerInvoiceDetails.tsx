@@ -35,6 +35,7 @@ import {
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForInvoiceInfosFragmentDoc,
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
+  InvoiceMetadatasForInvoiceOverviewFragmentDoc,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   InvoiceTypeEnum,
@@ -80,6 +81,7 @@ gql`
     ...InvoiceForInvoiceInfos
     ...InvoiceForFinalizeInvoice
     ...InvoiceForUpdateInvoicePaymentStatus
+    ...InvoiceMetadatasForInvoiceOverview
   }
 
   query getInvoiceDetails($id: ID!) {
@@ -110,6 +112,7 @@ gql`
   ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
+  ${InvoiceMetadatasForInvoiceOverviewFragmentDoc}
 `
 
 export enum CustomerInvoiceDetailsTabsOptionsEnum {
