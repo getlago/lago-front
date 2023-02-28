@@ -31,6 +31,11 @@ gql`
       id
       providerCustomerId
     }
+    metadata {
+      id
+      key
+      value
+    }
   }
 `
 
@@ -77,6 +82,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     paymentProvider,
     providerCustomer,
     timezone,
+    metadata,
   } = customer
 
   return (
@@ -173,6 +179,15 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
           <Typography color="textSecondary">{providerCustomer?.providerCustomerId}</Typography>
         </div>
       )}
+      {!!metadata?.length &&
+        metadata.map((meta) => (
+          <div key={`customer-metadata-${meta.id}`}>
+            <Typography variant="caption" noWrap>
+              {meta.key}
+            </Typography>
+            <MetadataValue color="textSecondary">{meta.value}</MetadataValue>
+          </div>
+        ))}
     </DetailsBlock>
   )
 }
@@ -195,4 +210,8 @@ const DetailsBlock = styled.div`
   > *:not(:first-child) {
     margin-bottom: ${theme.spacing(4)};
   }
+`
+
+const MetadataValue = styled(Typography)`
+  line-break: anywhere;
 `

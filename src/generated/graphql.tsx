@@ -3427,7 +3427,7 @@ export type GetCustomerInvoicesQuery = { __typename?: 'Query', customerInvoices:
 
 export type CustomerItemFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, createdAt: any, activeSubscriptionCount: number, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, canEditAttributes: boolean, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, timezone?: TimezoneEnum | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
 
-export type CustomerMainInfosFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, currency?: CurrencyEnum | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, timezone?: TimezoneEnum | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null } | null };
+export type CustomerMainInfosFragment = { __typename?: 'CustomerDetails', id: string, name?: string | null, externalId: string, legalName?: string | null, legalNumber?: string | null, phone?: string | null, email?: string | null, currency?: CurrencyEnum | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, timezone?: TimezoneEnum | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string }> | null };
 
 export type GetCustomerSettingsQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -5239,6 +5239,11 @@ export const CustomerMainInfosFragmentDoc = gql`
   providerCustomer {
     id
     providerCustomerId
+  }
+  metadata {
+    id
+    key
+    value
   }
 }
     `;
