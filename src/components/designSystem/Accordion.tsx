@@ -38,7 +38,12 @@ export const Accordion = ({
 
   return (
     <Container id={id}>
-      <StyledAccordion expanded={isOpen} onChange={(_, expanded) => setIsOpen(expanded)} square>
+      <StyledAccordion
+        expanded={isOpen}
+        onChange={(_, expanded) => setIsOpen(expanded)}
+        TransitionProps={{ unmountOnExit: true }}
+        square
+      >
         <Summary $size={size}>
           <Tooltip
             placement="top-start"
