@@ -2377,8 +2377,6 @@ export type Query = {
   plans: PlanCollection;
   /** Query a single wallet */
   wallet?: Maybe<WalletDetails>;
-  /** Query a single wallet transaction */
-  walletTransaction?: Maybe<WalletTransactionDetails>;
   /** Query wallet transactions */
   walletTransactions: WalletTransactionCollection;
   /** Query wallets */
@@ -2529,11 +2527,6 @@ export type QueryPlansArgs = {
 
 
 export type QueryWalletArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryWalletTransactionArgs = {
   id: Scalars['ID'];
 };
 
@@ -3217,19 +3210,6 @@ export type WalletTransactionCollection = {
   __typename?: 'WalletTransactionCollection';
   collection: Array<WalletTransaction>;
   metadata: CollectionMetadata;
-};
-
-export type WalletTransactionDetails = {
-  __typename?: 'WalletTransactionDetails';
-  amount: Scalars['String'];
-  createdAt: Scalars['ISO8601DateTime'];
-  creditAmount: Scalars['String'];
-  id: Scalars['ID'];
-  settledAt?: Maybe<Scalars['ISO8601DateTime']>;
-  status: WalletTransactionStatusEnum;
-  transactionType: WalletTransactionTransactionTypeEnum;
-  updatedAt: Scalars['ISO8601DateTime'];
-  wallet?: Maybe<Wallet>;
 };
 
 export enum WalletTransactionStatusEnum {
