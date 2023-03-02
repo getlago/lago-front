@@ -2375,8 +2375,6 @@ export type Query = {
   plan?: Maybe<PlanDetails>;
   /** Query plans of an organization */
   plans: PlanCollection;
-  /** Query a single wallet */
-  wallet?: Maybe<WalletDetails>;
   /** Query wallet transactions */
   walletTransactions: WalletTransactionCollection;
   /** Query wallets */
@@ -2523,11 +2521,6 @@ export type QueryPlansArgs = {
   limit?: InputMaybe<Scalars['Int']>;
   page?: InputMaybe<Scalars['Int']>;
   searchTerm?: InputMaybe<Scalars['String']>;
-};
-
-
-export type QueryWalletArgs = {
-  id: Scalars['ID'];
 };
 
 
@@ -3166,26 +3159,6 @@ export type WalletCollection = {
   __typename?: 'WalletCollection';
   collection: Array<Wallet>;
   metadata: CollectionMetadata;
-};
-
-export type WalletDetails = {
-  __typename?: 'WalletDetails';
-  balance: Scalars['String'];
-  consumedAmount: Scalars['String'];
-  consumedCredits: Scalars['String'];
-  createdAt: Scalars['ISO8601DateTime'];
-  creditsBalance: Scalars['String'];
-  currency: CurrencyEnum;
-  customer?: Maybe<Customer>;
-  expirationAt?: Maybe<Scalars['ISO8601DateTime']>;
-  id: Scalars['ID'];
-  lastBalanceSyncAt?: Maybe<Scalars['ISO8601DateTime']>;
-  lastConsumedCreditAt?: Maybe<Scalars['ISO8601DateTime']>;
-  name?: Maybe<Scalars['String']>;
-  rateAmount: Scalars['String'];
-  status: WalletStatusEnum;
-  terminatedAt?: Maybe<Scalars['ISO8601DateTime']>;
-  updatedAt: Scalars['ISO8601DateTime'];
 };
 
 export enum WalletStatusEnum {
