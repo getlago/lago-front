@@ -101,8 +101,8 @@ export const InvoiceCreditNotesTable = memo(
           return (
             <React.Fragment key={`formatedCreditNote-${i}`}>
               {formatedCreditNote?.items.map((subscriptionItem, j) => {
-                const subscription = subscriptionItem[j][0]
-                  ? subscriptionItem[j][0]?.fee.subscription
+                const subscription = subscriptionItem[0][0]
+                  ? subscriptionItem[0][0]?.fee.subscription
                   : undefined
                 const creditNoteDisplayName = !!subscription
                   ? subscription?.name || subscription?.plan?.name
