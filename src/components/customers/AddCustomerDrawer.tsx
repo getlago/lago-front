@@ -1,7 +1,7 @@
 import React, { forwardRef, useEffect, useState, RefObject } from 'react'
 import styled, { css } from 'styled-components'
 import { useFormik } from 'formik'
-import { array, object, string } from 'yup'
+import { object, string } from 'yup'
 import { FieldWithPossiblyUndefined } from 'lodash'
 import _get from 'lodash/get'
 
@@ -34,9 +34,8 @@ import { getTimezoneConfig } from '~/core/timezone'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { countryDataForCombobox } from '~/core/countryCodes'
+import { metadataSchema } from '~/formValidationSchemas/metadataSchema'
 
-const KEY_MAX_LENGTH = 20
-const VALUE_MAX_LENGTH = 40
 const MAX_METADATA_COUNT = 5
 
 enum MetadataErrorsEnum {
@@ -96,53 +95,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
       validationSchema: object().shape({
         name: string().required(''),
         externalId: string().required(''),
-        metadata: array().of(
-          object().shape({
-            key: string().test({
-              test: function (value, { createError, path }) {
-                if (!value) {
-                  return false
-                }
-
-                if (arguments[1].from[1]?.value?.metadata.length > 1) {
-                  const keysList = arguments[1].from[1]?.value?.metadata?.map(
-                    (m: { key: string }) => m.key
-                  )
-
-                  // Check key unicity
-                  if (keysList?.indexOf(value) !== keysList?.lastIndexOf(value)) {
-                    return createError({
-                      path,
-                      message: MetadataErrorsEnum.uniqueness,
-                    })
-                  }
-                }
-
-                if (value.length > KEY_MAX_LENGTH) {
-                  return createError({
-                    path,
-                    message: MetadataErrorsEnum.maxLength,
-                  })
-                }
-
-                return true
-              },
-            }),
-            value: string().test({
-              test: (value, { createError, path }) => {
-                if (!value) return false
-                if (value.length > VALUE_MAX_LENGTH) {
-                  return createError({
-                    path,
-                    message: MetadataErrorsEnum.maxLength,
-                  })
-                }
-
-                return true
-              },
-            }),
-          })
-        ),
+        metadata: metadataSchema(),
       }),
       validateOnMount: true,
       enableReinitialize: true,
