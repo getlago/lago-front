@@ -127,12 +127,12 @@
     "react-router-dom": "6.8.2",
     "react-window": "1.8.8",
     "sanitize-html": "2.10.0",
-    "styled-components": "5.3.6",
+    "styled-components": "5.3.8",
     "yarn": "1.22.19",
     "yup": "0.32.11"
   },
   "resolutions": {
-    "styled-components": "5.3.6",
+    "styled-components": "5.3.8",
     "@mui/styled-engine": "5.11.11",
     "lodash": "4.17.21",
     "trim-newlines": "4.0.2",
