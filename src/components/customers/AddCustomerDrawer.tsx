@@ -387,26 +387,24 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
           <Accordion
             size="large"
             summary={
-              <Typography variant="subhead">
-                {translate('text_63fcc3777b0c5afc7dbf97d6')}
-              </Typography>
+              <Typography variant="subhead">{translate('id_6405e8dd5593b00054e31b58')}</Typography>
             }
           >
             <AccordionContentWrapper>
               <Typography variant="body" color="grey600">
-                {translate('text_63fcc3777b0c5afc7dbf97d7')}
+                {translate('id_6405e8dd5593b00054e31b59')}
               </Typography>
               {!!formikProps?.values?.metadata?.length && (
                 <div>
                   <MetadataGrid $isHeader>
                     <Typography variant="captionHl" color="grey700">
-                      {translate('text_63fcc3777b0c5afc7dbf97d8')}
+                      {translate('id_6405e8dd5593b00054e31b5a')}
                     </Typography>
                     <Typography variant="captionHl" color="grey700">
-                      {translate('text_63fcc3777b0c5afc7dbf97da')}
+                      {translate('id_6405e8dd5593b00054e31b5c')}
                     </Typography>
                     <Typography variant="captionHl" color="grey700">
-                      {translate('text_63fcc3777b0c5afc7dbf97dc')}
+                      {translate('id_6405e8dd5593b00054e31b5e')}
                     </Typography>
                   </MetadataGrid>
                   <MetadataGrid>
@@ -432,9 +430,9 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                             placement="top-end"
                             title={
                               metadataItemKeyError === MetadataErrorsEnum.uniqueness
-                                ? translate('text_63fcc3777b0c5afc7dbf981c')
+                                ? translate('id_6405e8dd5593b00054e31b9d')
                                 : metadataItemKeyError === MetadataErrorsEnum.maxLength
-                                ? translate('text_63fcc3777b0c5afc7dbf981b')
+                                ? translate('id_6405e8dd5593b00054e31b9c')
                                 : undefined
                             }
                             disableHoverListener={!hasCustomKeyError}
@@ -442,7 +440,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                             <TextInputField
                               name={`metadata.${i}.key`}
                               silentError={!hasCustomKeyError}
-                              placeholder={translate('text_63fcc3777b0c5afc7dbf97d9')}
+                              placeholder={translate('id_6405e8dd5593b00054e31b5b')}
                               formikProps={formikProps}
                               displayErrorText={false}
                             />
@@ -451,7 +449,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                             placement="top-end"
                             title={
                               metadataItemValueError === MetadataErrorsEnum.maxLength
-                                ? translate('text_63fcc3777b0c5afc7dbf981e')
+                                ? translate('id_6405e8dd5593b00054e31b9f')
                                 : undefined
                             }
                             disableHoverListener={!hasCustomValueError}
@@ -459,7 +457,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                             <TextInputField
                               name={`metadata.${i}.value`}
                               silentError={!hasCustomValueError}
-                              placeholder={translate('text_63fcc3777b0c5afc7dbf97db')}
+                              placeholder={translate('id_6405e8dd5593b00054e31b5d')}
                               formikProps={formikProps}
                               displayErrorText={false}
                             />
@@ -476,7 +474,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                           />
                           <StyledTooltip
                             placement="top-end"
-                            title={translate('text_63fcc3777b0c5afc7dbf981d')}
+                            title={translate('id_6405e8dd5593b00054e31b9e')}
                           >
                             <Button
                               variant="quaternary"
@@ -514,7 +512,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                 }
                 data-test="add-fixed-fee"
               >
-                {translate('text_63fcc3777b0c5afc7dbf97de')}
+                {translate('id_6405e8dd5593b00054e31b60')}
               </Button>
             </AccordionContentWrapper>
           </Accordion>
