@@ -1,65 +1,122 @@
-import React, { memo } from 'react'
+import React, { memo, useRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 
-import { Typography } from '~/components/designSystem'
-import { Customer, InvoiceForDetailsTableFooterFragmentDoc } from '~/generated/graphql'
+import { Button, Typography } from '~/components/designSystem'
+import {
+  CustomerMetadatasForInvoiceOverviewFragment,
+  InvoiceMetadatasForInvoiceOverviewFragment,
+} from '~/generated/graphql'
 import { SectionHeader } from '~/styles/customer'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
+import { AddMetadataDrawer, AddMetadataDrawerRef } from './AddMetadataDrawer'
+
 gql`
-  fragment InvoiceMetadatasForInvoiceOverview on Invoice {
+  fragment CustomerMetadatasForInvoiceOverview on Customer {
     id
-    customer {
+    metadata {
       id
-      metadata {
-        id
-        displayInInvoice
-        key
-        value
-      }
+      displayInInvoice
+      key
+      value
     }
   }
 
-  ${InvoiceForDetailsTableFooterFragmentDoc}
+  fragment InvoiceMetadatasForInvoiceOverview on Invoice {
+    id
+    metadata {
+      id
+      key
+      value
+    }
+  }
 `
 
 interface MetadatasProps {
-  customer: Customer
+  customer: CustomerMetadatasForInvoiceOverviewFragment
+  invoice: InvoiceMetadatasForInvoiceOverviewFragment
 }
 
-export const Metadatas = memo(({ customer }: MetadatasProps) => {
+export const Metadatas = memo(({ customer, invoice }: MetadatasProps) => {
   const { translate } = useInternationalization()
+  const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
   const customerMetadatas = (customer?.metadata || []).filter((m) => m.displayInInvoice)
 
   return (
-    <Wrapper>
-      <SectionHeader variant="subhead">{translate('text_63fdc19535d4e3bba3b9c070')}</SectionHeader>
-      <div>
-        {customerMetadatas.map((metadata) => (
-          <InfoLine key={`customer-metadata-${metadata.id}`}>
-            <Typography variant="caption" color="grey600" noWrap>
-              {metadata.key}
+    <>
+      <Wrapper>
+        <StyledSectionHeader variant="subhead">
+          {translate('id_6405e8dd5593b00054e31c55')}
+          <Button
+            variant="quaternary"
+            align="left"
+            onClick={() => {
+              addMetadataDrawerDialogRef?.current?.openDrawer()
+            }}
+          >
+            {translate(
+              !!invoice.metadata?.length
+                ? 'id_6405e8dd5593b00054e31d25'
+                : 'id_6405e8dd5593b00054e31c54'
+            )}
+          </Button>
+        </StyledSectionHeader>
+        <div>
+          {invoice?.metadata?.length ? (
+            invoice?.metadata.map((metadata) => (
+              <InfoLine key={`customer-metadata-${metadata.id}`}>
+                <Typography variant="caption" color="grey600" noWrap>
+                  {metadata.key}
+                </Typography>
+                <Typography variant="body" color="grey700">
+                  {metadata.value}
+                </Typography>
+              </InfoLine>
+            ))
+          ) : (
+            <Typography variant="body" color="grey500">
+              {translate('id_6405e8dd5593b00054e31c56')}
             </Typography>
-            <Typography variant="body" color="grey700">
-              {metadata.value}
-            </Typography>
-          </InfoLine>
-        ))}
-      </div>
-    </Wrapper>
+          )}
+        </div>
+        {!!customerMetadatas.length && (
+          <>
+            <StyledSectionHeader variant="subhead">
+              {translate('id_6405e8dd5593b00054e31bff')}
+            </StyledSectionHeader>
+            <div>
+              {customerMetadatas.map((metadata) => (
+                <InfoLine key={`customer-metadata-${metadata.id}`}>
+                  <Typography variant="caption" color="grey600" noWrap>
+                    {metadata.key}
+                  </Typography>
+                  <Typography variant="body" color="grey700">
+                    {metadata.value}
+                  </Typography>
+                </InfoLine>
+              ))}
+            </div>
+          </>
+        )}
+      </Wrapper>
+
+      <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoice={invoice} />
+    </>
   )
 })
 
 Metadatas.displayName = 'Metadatas'
 
 const Wrapper = styled.section`
-  margin-top: ${theme.spacing(8)};
-
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(6)};
   }
+`
+
+const StyledSectionHeader = styled(SectionHeader)`
+  margin-top: ${theme.spacing(8)};
 `
 
 const InfoLine = styled.div`
