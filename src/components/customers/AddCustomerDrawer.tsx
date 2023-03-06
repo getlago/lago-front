@@ -34,14 +34,9 @@ import { getTimezoneConfig } from '~/core/timezone'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { countryDataForCombobox } from '~/core/countryCodes'
-import { metadataSchema } from '~/formValidationSchemas/metadataSchema'
+import { MetadataErrorsEnum, metadataSchema } from '~/formValidationSchemas/metadataSchema'
 
 const MAX_METADATA_COUNT = 5
-
-enum MetadataErrorsEnum {
-  uniqueness = 'uniqueness',
-  maxLength = 'maxLength',
-}
 
 interface LocalCustomerMetadata extends CustomerMetadataInput {
   localId?: string
