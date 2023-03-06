@@ -171,9 +171,8 @@ export const InvoiceOverview = memo(
                     subTotalVatExcludedAmountCents={invoice?.subTotalVatExcludedAmountCents || 0}
                   />
                 )}
-              {!!customer.metadata?.some((m) => m.displayInInvoice) && (
-                <Metadatas customer={customer} />
-              )}
+
+              <Metadatas customer={customer} invoice={invoice} />
             </>
           )}
         </Content>
