@@ -35,13 +35,15 @@ import {
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForInvoiceInfosFragmentDoc,
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
-  InvoiceMetadatasForInvoiceOverviewFragmentDoc,
+  CustomerMetadatasForInvoiceOverviewFragmentDoc,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   InvoiceTypeEnum,
   useDownloadInvoiceMutation,
   useGetInvoiceDetailsQuery,
   useRefreshInvoiceMutation,
+  InvoiceMetadatasForInvoiceOverviewFragmentDoc,
+  InvoiceMetadatasForMetadataDrawerFragmentDoc,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -64,9 +66,11 @@ import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
 } from '~/components/invoices/EditInvoicePaymentStatusDialog'
+import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
 
 gql`
   fragment AllInvoiceDetailsForCustomerInvoiceDetails on Invoice {
+    id
     invoiceType
     number
     paymentStatus
@@ -75,6 +79,9 @@ gql`
     totalAmountCurrency
     refundableAmountCents
     creditableAmountCents
+    customer {
+      ...CustomerMetadatasForInvoiceOverview
+    }
     ...InvoiceDetailsForInvoiceOverview
     ...InvoiceForCreditNotesTable
     ...InvoiceForDetailsTable
@@ -82,6 +89,7 @@ gql`
     ...InvoiceForFinalizeInvoice
     ...InvoiceForUpdateInvoicePaymentStatus
     ...InvoiceMetadatasForInvoiceOverview
+    ...InvoiceMetadatasForMetadataDrawer
   }
 
   query getInvoiceDetails($id: ID!) {
@@ -112,7 +120,9 @@ gql`
   ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
+  ${CustomerMetadatasForInvoiceOverviewFragmentDoc}
   ${InvoiceMetadatasForInvoiceOverviewFragmentDoc}
+  ${InvoiceMetadatasForMetadataDrawerFragmentDoc}
 `
 
 export enum CustomerInvoiceDetailsTabsOptionsEnum {
@@ -149,6 +159,7 @@ const CustomerInvoiceDetails = () => {
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
+  const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
   const [refreshInvoice, { loading: loadingRefreshInvoice }] = useRefreshInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
   })
@@ -387,17 +398,31 @@ const CustomerInvoiceDetails = () => {
                   {translate('text_634687079be251fdb438339b')}
                 </Button>
                 {status !== InvoiceStatusTypeEnum.Draft && (
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    onClick={() => {
-                      !!data?.invoice &&
-                        updateInvoicePaymentStatusDialog?.current?.openDialog(data.invoice)
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_63eba8c65a6c8043feee2a01')}
-                  </Button>
+                  <>
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        !!data?.invoice &&
+                          updateInvoicePaymentStatusDialog?.current?.openDialog(data.invoice)
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_63eba8c65a6c8043feee2a01')}
+                    </Button>
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        addMetadataDrawerDialogRef.current?.openDrawer()
+                        closePopper()
+                      }}
+                    >
+                      {!!data?.invoice?.metadata?.length
+                        ? translate('id_6405e8dd5593b00054e31ce8')
+                        : translate('id_6405e8dd5593b00054e31c17')}
+                    </Button>
+                  </>
                 )}
               </MenuPopper>
             )}
@@ -470,6 +495,9 @@ const CustomerInvoiceDetails = () => {
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
+      {!!data?.invoice && (
+        <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoice={data.invoice} />
+      )}
     </>
   )
 }
