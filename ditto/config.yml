@@ -140,5 +140,7 @@ sources:
       id: 6419c64c72d2468f025ea25d
     - name: ⚙️ [WIP] - Settings - Email invoices to final customers
       id: 640766f4ff20c7dac058261b
+    - name: Plan-Invoice - Instant charge
+      id: 63ff7985343a362251c12744
 format: flat
 variants: true

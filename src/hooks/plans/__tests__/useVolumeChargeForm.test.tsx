@@ -2,7 +2,13 @@ import { act, renderHook } from '@testing-library/react'
 import { useFormik } from 'formik'
 
 import { PlanFormInput } from '~/components/plans/types'
-import { ChargeModelEnum, CurrencyEnum, PlanInterval, VolumeRangeInput } from '~/generated/graphql'
+import {
+  ChargeModelEnum,
+  CurrencyEnum,
+  PlanInterval,
+  VolumeRangeInput,
+  AggregationTypeEnum,
+} from '~/generated/graphql'
 
 import { DEFAULT_VOLUME_CHARGES, useVolumeChargeForm } from '../useVolumeChargeForm'
 
@@ -35,6 +41,7 @@ const prepare = async ({
             chargeModel: ChargeModelEnum.Volume,
             billableMetric: {
               id: '1',
+              aggregationType: AggregationTypeEnum.CountAgg,
               name: 'volume',
               code: 'volume',
               flatGroups:

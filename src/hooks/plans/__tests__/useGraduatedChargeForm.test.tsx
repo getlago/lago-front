@@ -7,6 +7,7 @@ import {
   CurrencyEnum,
   PlanInterval,
   GraduatedRangeInput,
+  AggregationTypeEnum,
 } from '~/generated/graphql'
 
 import { DEFAULT_GRADUATED_CHARGES, useGraduatedChargeForm } from '../useGraduatedChargeForm'
@@ -41,6 +42,7 @@ const prepare = async ({
             billableMetric: {
               id: '1',
               name: 'graduated',
+              aggregationType: AggregationTypeEnum.CountAgg,
               code: 'graduated',
               flatGroups:
                 propertyType === 'groupProperties'

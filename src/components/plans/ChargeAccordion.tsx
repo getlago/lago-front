@@ -14,13 +14,16 @@ import {
   GraduatedChargeFragmentDoc,
   PackageChargeFragmentDoc,
   PercentageChargeFragmentDoc,
+  AggregationTypeEnum,
 } from '~/generated/graphql'
-import { AmountInput, ComboBox } from '~/components/form'
+import { AmountInput, ComboBox, Switch } from '~/components/form'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 
 import { PlanFormInput } from './types'
 import { VolumeChargeTable } from './VolumeChargeTable'
@@ -39,6 +42,7 @@ gql`
   fragment ChargeAccordion on Charge {
     id
     chargeModel
+    instant
     properties {
       amount
     }
@@ -52,6 +56,7 @@ gql`
       id
       name
       code
+      aggregationType
       flatGroups {
         id
         key
@@ -74,15 +79,18 @@ export const ChargeAccordion = memo(
     const warningDialogRef = useRef<WarningDialogRef>(null)
     const { translate } = useInternationalization()
     const localCharge = formikProps.values.charges[index]
-
+    const { isPremium } = useCurrentUser()
+    const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
     const handleUpdate = useCallback(
-      (name: string, value: string) => {
+      (name: string, value: string | boolean) => {
+        if (name === 'chargeModel' && value === ChargeModelEnum.Volume) {
+          formikProps.setFieldValue(`charges.${index}.instant`, false)
+        }
         formikProps.setFieldValue(`charges.${index}.${name}`, value)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [index, formikProps.setFieldValue]
     )
-
     const hasErrorInCharges = Boolean(
       formikProps.errors.charges && formikProps.errors.charges[index]
     )
@@ -102,6 +110,11 @@ export const ChargeAccordion = memo(
               </Typography>
             </Title>
             <>
+              {localCharge.instant && (
+                <Tooltip placement="top-end" title={translate('text_63ff7a14be2ceb36dd22ead6')}>
+                  <InstantIcon name="flash-filled" />
+                </Tooltip>
+              )}
               <Tooltip
                 placement="top-end"
                 title={
@@ -250,6 +263,44 @@ export const ChargeAccordion = memo(
               </>
             )}
           </ConditionalChargeWrapper>
+          <InstantCharge>
+            <Tooltip
+              disableHoverListener={
+                localCharge.chargeModel !== ChargeModelEnum.Volume &&
+                ![AggregationTypeEnum.MaxAgg, AggregationTypeEnum.RecurringCountAgg].includes(
+                  localCharge?.billableMetric?.aggregationType
+                )
+              }
+              title={translate(
+                localCharge.chargeModel === ChargeModelEnum.Volume
+                  ? 'text_63ff7a14be2ceb36dd22eb84'
+                  : 'text_63ff7a14be2ceb36dd22eb8f'
+              )}
+              placement="top-start"
+            >
+              <Switch
+                name="instant"
+                label={translate('text_63ff7a14be2ceb36dd22ea88')}
+                subLabel={translate('text_63ff7a14be2ceb36dd22ea89')}
+                disabled={
+                  isUsedInSubscription ||
+                  localCharge.chargeModel === ChargeModelEnum.Volume ||
+                  [AggregationTypeEnum.MaxAgg, AggregationTypeEnum.RecurringCountAgg].includes(
+                    localCharge?.billableMetric?.aggregationType
+                  )
+                }
+                checked={localCharge.instant || false}
+                onChange={(value) => {
+                  if (isPremium) {
+                    handleUpdate('instant', value)
+                  } else {
+                    premiumWarningDialogRef.current?.openDialog()
+                  }
+                }}
+              />
+            </Tooltip>
+            {!isPremium && !isUsedInSubscription && <Icon name="sparkles" />}
+          </InstantCharge>
         </Details>
         <WarningDialog
           ref={warningDialogRef}
@@ -263,6 +314,7 @@ export const ChargeAccordion = memo(
             formikProps.setFieldValue('charges', charges)
           }}
         />
+        <PremiumWarningDialog ref={premiumWarningDialogRef} />
       </Accordion>
     )
   }
@@ -289,6 +341,27 @@ const ValidationIcon = styled(Icon)`
   align-items: center;
 `
 
+const InstantIcon = styled(Icon)`
+  margin-right: ${theme.spacing(3)};
+  display: flex;
+  align-items: center;
+  fill: ${theme.palette.secondary[500]};
+`
+
 const TrashButton = styled(Button)`
   margin-left: ${theme.spacing(3)};
+`
+
+const InstantCharge = styled.div`
+  box-shadow: ${theme.shadows[5]};
+  margin-left: -${theme.spacing(4)};
+  margin-right: -${theme.spacing(4)};
+  padding: ${theme.spacing(4)} ${theme.spacing(4)} 0 ${theme.spacing(4)};
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  > *:not(:last-child) {
+    margin-right: ${theme.spacing(3)};
+  }
 `

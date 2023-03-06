@@ -15,6 +15,7 @@ gql`
     id
     name
     code
+    aggregationType
     flatGroups {
       id
       key
