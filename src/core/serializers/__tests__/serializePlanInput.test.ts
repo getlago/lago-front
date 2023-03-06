@@ -1,4 +1,9 @@
-import { ChargeModelEnum, CurrencyEnum, PlanInterval } from '~/generated/graphql'
+import {
+  AggregationTypeEnum,
+  ChargeModelEnum,
+  CurrencyEnum,
+  PlanInterval,
+} from '~/generated/graphql'
 
 import { serializePlanInput } from '../serializePlanInput'
 
@@ -74,7 +79,12 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             chargeModel: ChargeModelEnum.Graduated,
-            billableMetric: { id: '1234', name: 'simpleBM', code: 'simple-bm' },
+            billableMetric: {
+              id: '1234',
+              name: 'simpleBM',
+              code: 'simple-bm',
+              aggregationType: AggregationTypeEnum.CountAgg,
+            },
             properties: fullProperty,
           },
         ],
@@ -136,7 +146,12 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             chargeModel: ChargeModelEnum.Package,
-            billableMetric: { id: '1234', name: 'simpleBM', code: 'simple-bm' },
+            billableMetric: {
+              id: '1234',
+              name: 'simpleBM',
+              code: 'simple-bm',
+              aggregationType: AggregationTypeEnum.CountAgg,
+            },
             properties: fullProperty,
           },
         ],
@@ -187,7 +202,12 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             chargeModel: ChargeModelEnum.Percentage,
-            billableMetric: { id: '1234', name: 'simpleBM', code: 'simple-bm' },
+            billableMetric: {
+              id: '1234',
+              name: 'simpleBM',
+              code: 'simple-bm',
+              aggregationType: AggregationTypeEnum.CountAgg,
+            },
             properties: fullProperty,
           },
         ],
@@ -238,7 +258,12 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             chargeModel: ChargeModelEnum.Standard,
-            billableMetric: { id: '1234', name: 'simpleBM', code: 'simple-bm' },
+            billableMetric: {
+              id: '1234',
+              name: 'simpleBM',
+              code: 'simple-bm',
+              aggregationType: AggregationTypeEnum.CountAgg,
+            },
             properties: fullProperty,
           },
         ],
@@ -289,7 +314,12 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             chargeModel: ChargeModelEnum.Volume,
-            billableMetric: { id: '1234', name: 'simpleBM', code: 'simple-bm' },
+            billableMetric: {
+              id: '1234',
+              name: 'simpleBM',
+              code: 'simple-bm',
+              aggregationType: AggregationTypeEnum.CountAgg,
+            },
             properties: fullProperty,
           },
         ],

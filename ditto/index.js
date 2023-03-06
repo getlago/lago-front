@@ -150,6 +150,9 @@ module.exports = {
   "project_626162c105cb2c00e673c696": {
     "base": require('./customers---edit--delete-a-customer__base.json')
   },
+  "project_63ff7985343a362251c12744": {
+    "base": require('./Plan-Invoice - Instant charge__base.json')
+  },
   "ditto_component_library": {
     "base": require('./ditto-component-library__base.json')
   },

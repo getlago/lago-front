@@ -46,6 +46,7 @@ import Eye from '~/public/icons/eye.svg'
 import EyeHidden from '~/public/icons/eye-hidden.svg'
 import Filter from '~/public/icons/filter.svg'
 import Flash from '~/public/icons/flash.svg'
+import FlashFilled from '~/public/icons/flash-filled.svg'
 import Formulas from '~/public/icons/formulas.svg'
 import Globe from '~/public/icons/globe.svg'
 import Google from '~/public/icons/google.svg'
@@ -157,6 +158,7 @@ export const ALL_ICONS = {
   eye: Eye,
   filter: Filter,
   flash: Flash,
+  'flash-filled': FlashFilled,
   formulas: Formulas,
   globe: Globe,
   google: Google,
