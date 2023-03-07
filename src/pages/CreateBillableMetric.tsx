@@ -26,7 +26,7 @@ import {
 } from '~/styles/mainObjectsForm'
 
 gql`
-  fragment EditBillableMetric on BillableMetricDetail {
+  fragment EditBillableMetric on BillableMetric {
     id
     name
     code
