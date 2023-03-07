@@ -51,7 +51,7 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { PlanFormInput, LocalChargeInput } from '../components/plans/types'
 
 gql`
-  fragment EditPlan on PlanDetails {
+  fragment EditPlan on Plan {
     id
     name
     code
