@@ -114,7 +114,9 @@ const CreatePlan = () => {
       // @ts-ignore
       amountCents: isNaN(plan?.amountCents)
         ? undefined
-        : deserializeAmount(plan?.amountCents || 0, plan?.amountCurrency || CurrencyEnum.Usd),
+        : String(
+            deserializeAmount(plan?.amountCents || 0, plan?.amountCurrency || CurrencyEnum.Usd)
+          ),
       amountCurrency: plan?.amountCurrency || CurrencyEnum.Usd,
       trialPeriod:
         plan?.trialPeriod === null || plan?.trialPeriod === undefined
