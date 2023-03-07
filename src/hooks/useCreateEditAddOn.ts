@@ -21,7 +21,7 @@ export enum FORM_ERRORS_ENUM {
 }
 
 gql`
-  fragment EditAddOn on AddOnDetails {
+  fragment EditAddOn on AddOn {
     id
     name
     code
