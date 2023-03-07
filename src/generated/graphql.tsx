@@ -713,32 +713,6 @@ export type CouponCollection = {
   metadata: CollectionMetadata;
 };
 
-export type CouponDetails = {
-  __typename?: 'CouponDetails';
-  amountCents?: Maybe<Scalars['BigInt']>;
-  amountCurrency?: Maybe<CurrencyEnum>;
-  appliedCouponsCount: Scalars['Int'];
-  code?: Maybe<Scalars['String']>;
-  couponType: CouponTypeEnum;
-  createdAt: Scalars['ISO8601DateTime'];
-  /** Number of customers using this coupon */
-  customerCount: Scalars['Int'];
-  expiration: CouponExpiration;
-  expirationAt?: Maybe<Scalars['ISO8601DateTime']>;
-  frequency: CouponFrequency;
-  frequencyDuration?: Maybe<Scalars['Int']>;
-  id: Scalars['ID'];
-  limitedPlans: Scalars['Boolean'];
-  name: Scalars['String'];
-  organization?: Maybe<Organization>;
-  percentageRate?: Maybe<Scalars['Float']>;
-  plans?: Maybe<Array<Plan>>;
-  reusable: Scalars['Boolean'];
-  status: CouponStatusEnum;
-  terminatedAt?: Maybe<Scalars['ISO8601DateTime']>;
-  updatedAt: Scalars['ISO8601DateTime'];
-};
-
 export enum CouponExpiration {
   NoExpiration = 'no_expiration',
   TimeLimit = 'time_limit'
@@ -2323,7 +2297,7 @@ export type Query = {
   /** Query billable metrics of an organization */
   billableMetrics: BillableMetricCollection;
   /** Query a single coupon of an organization */
-  coupon?: Maybe<CouponDetails>;
+  coupon?: Maybe<Coupon>;
   /** Query coupons of an organization */
   coupons: CouponCollection;
   /** Query a single credit note */
@@ -3814,14 +3788,14 @@ export type UpdateBillableMetricMutationVariables = Exact<{
 
 export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number } | null };
 
-export type EditCouponFragment = { __typename?: 'CouponDetails', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number, limitedPlans: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null };
+export type EditCouponFragment = { __typename?: 'Coupon', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number, limitedPlans: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null };
 
 export type GetSingleCouponQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetSingleCouponQuery = { __typename?: 'Query', coupon?: { __typename?: 'CouponDetails', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number, limitedPlans: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null } | null };
+export type GetSingleCouponQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number, limitedPlans: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null } | null };
 
 export type CreateCouponMutationVariables = Exact<{
   input: CreateCouponInput;
@@ -4635,7 +4609,7 @@ export const PlansForCouponsFragmentDoc = gql`
 }
     `;
 export const EditCouponFragmentDoc = gql`
-    fragment EditCoupon on CouponDetails {
+    fragment EditCoupon on Coupon {
   id
   amountCents
   name

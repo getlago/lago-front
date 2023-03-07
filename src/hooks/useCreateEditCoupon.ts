@@ -27,7 +27,7 @@ export enum FORM_ERRORS_ENUM {
 }
 
 gql`
-  fragment EditCoupon on CouponDetails {
+  fragment EditCoupon on Coupon {
     id
     amountCents
     name
