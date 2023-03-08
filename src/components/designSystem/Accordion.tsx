@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ReactNode } from 'react'
 import { Accordion as MuiAccordion, AccordionSummary, AccordionDetails } from '@mui/material'
+import { TransitionProps } from '@mui/material/transitions'
 import styled from 'styled-components'
 
 import { theme, NAV_HEIGHT } from '~/styles'
@@ -23,6 +24,7 @@ interface AccordionProps {
   initiallyOpen?: boolean
   size?: AccordionSize
   noContentMargin?: boolean
+  transitionProps?: TransitionProps
 }
 
 export const Accordion = ({
@@ -32,6 +34,7 @@ export const Accordion = ({
   initiallyOpen = false,
   size = AccordionSizeEnum.medium,
   noContentMargin = false,
+  transitionProps = {},
 }: AccordionProps) => {
   const [isOpen, setIsOpen] = useState(initiallyOpen)
   const { translate } = useInternationalization()
@@ -41,7 +44,7 @@ export const Accordion = ({
       <StyledAccordion
         expanded={isOpen}
         onChange={(_, expanded) => setIsOpen(expanded)}
-        TransitionProps={{ unmountOnExit: true }}
+        TransitionProps={{ unmountOnExit: true, ...transitionProps }}
         square
       >
         <Summary $size={size}>
