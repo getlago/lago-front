@@ -75,21 +75,21 @@ gql`
     ...CustomerUsageSubscription
   }
 
-  fragment CustomerAppliedAddOns on CustomerDetails {
+  fragment CustomerAppliedAddOns on Customer {
     id
     appliedAddOns {
       ...CustomerAddOns
     }
   }
 
-  fragment CustomerAppliedCoupons on CustomerDetails {
+  fragment CustomerAppliedCoupons on Customer {
     id
     appliedCoupons {
       ...CustomerCoupon
     }
   }
 
-  fragment CustomerDetails on CustomerDetails {
+  fragment CustomerDetails on Customer {
     id
     name
     externalId

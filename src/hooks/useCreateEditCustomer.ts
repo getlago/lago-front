@@ -51,7 +51,7 @@ gql`
     }
   }
 
-  fragment AddCustomerDrawerDetail on CustomerDetails {
+  fragment AddCustomerDrawerDetail on Customer {
     id
     name
     externalId

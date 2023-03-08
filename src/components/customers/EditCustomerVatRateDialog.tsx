@@ -15,7 +15,7 @@ import { theme } from '~/styles'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 
 gql`
-  fragment EditCustomerVatRate on CustomerDetails {
+  fragment EditCustomerVatRate on Customer {
     id
     name
     vatRate

@@ -11,7 +11,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 
 gql`
-  fragment DeleteCustomerDocumentLocale on CustomerDetails {
+  fragment DeleteCustomerDocumentLocale on Customer {
     id
     name
     externalId
