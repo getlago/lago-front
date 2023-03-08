@@ -20,13 +20,13 @@ import {
 import {
   useGetCustomerQuery,
   SubscriptionItemFragmentDoc,
-  AddCustomerDrawerDetailFragmentDoc,
   CustomerCouponFragmentDoc,
   CustomerMainInfosFragmentDoc,
   CustomerAddOnsFragmentDoc,
   CustomerUsageSubscriptionFragmentDoc,
   StatusTypeEnum,
   TimezoneEnum,
+  AddCustomerDrawerFragmentDoc,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -104,7 +104,7 @@ gql`
     }
     ...CustomerAppliedCoupons
     ...CustomerAppliedAddOns
-    ...AddCustomerDrawerDetail
+    ...AddCustomerDrawer
     ...CustomerMainInfos
   }
 
@@ -115,7 +115,7 @@ gql`
   }
 
   ${SubscriptionItemFragmentDoc}
-  ${AddCustomerDrawerDetailFragmentDoc}
+  ${AddCustomerDrawerFragmentDoc}
   ${CustomerCouponFragmentDoc}
   ${CustomerAddOnsFragmentDoc}
   ${CustomerMainInfosFragmentDoc}
