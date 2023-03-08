@@ -20,7 +20,6 @@ import { hasDefinedGQLError } from '~/core/apolloClient'
 import { theme, Card, DrawerTitle, DrawerContent, DrawerSubmitButton } from '~/styles'
 import {
   AddCustomerDrawerFragment,
-  AddCustomerDrawerDetailFragment,
   CreateCustomerInput,
   UpdateCustomerInput,
   ProviderTypeEnum,
@@ -53,7 +52,7 @@ const providerData: { value: ProviderTypeEnum; label: string }[] = Object.keys(
 export interface AddCustomerDrawerRef extends DrawerRef {}
 
 interface AddCustomerDrawerProps {
-  customer?: AddCustomerDrawerFragment | AddCustomerDrawerDetailFragment | null
+  customer?: AddCustomerDrawerFragment | null
 }
 
 export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(

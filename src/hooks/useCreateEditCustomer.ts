@@ -7,10 +7,9 @@ import {
   useUpdateCustomerMutation,
   CreateCustomerInput,
   UpdateCustomerInput,
-  AddCustomerDrawerDetailFragmentDoc,
+  AddCustomerDrawerFragmentDoc,
   LagoApiError,
   AddCustomerDrawerFragment,
-  AddCustomerDrawerDetailFragment,
   UpdateCustomerMutation,
   CreateCustomerMutation,
 } from '~/generated/graphql'
@@ -21,55 +20,23 @@ import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 gql`
   fragment AddCustomerDrawer on Customer {
     id
-    name
+    addressLine1
+    addressLine2
+    applicableTimezone
+    canEditAttributes
+    city
+    country
+    currency
+    email
     externalId
     legalName
     legalNumber
-    phone
-    email
-    addressLine1
-    addressLine2
-    state
-    country
-    currency
-    canEditAttributes
-    city
-    zipcode
-    applicableTimezone
-    paymentProvider
-    timezone
-    providerCustomer {
-      id
-      providerCustomerId
-      syncWithProvider
-    }
-    metadata {
-      id
-      key
-      value
-      displayInInvoice
-    }
-  }
-
-  fragment AddCustomerDrawerDetail on Customer {
-    id
     name
-    externalId
-    legalName
-    legalNumber
-    phone
-    email
-    currency
-    canEditAttributes
-    addressLine1
-    addressLine2
-    state
-    country
-    city
-    zipcode
-    applicableTimezone
     paymentProvider
+    phone
+    state
     timezone
+    zipcode
     providerCustomer {
       id
       providerCustomerId
@@ -100,9 +67,7 @@ gql`
   ${CustomerItemFragmentDoc}
 `
 
-type UseCreateEditCustomer = (props: {
-  customer?: AddCustomerDrawerFragment | AddCustomerDrawerDetailFragment | null
-}) => {
+type UseCreateEditCustomer = (props: { customer?: AddCustomerDrawerFragment | null }) => {
   isEdition: boolean
   onSave: (
     values: CreateCustomerInput | UpdateCustomerInput
@@ -142,7 +107,7 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
 
       cache.writeFragment({
         data: { ...data?.updateCustomer, __typename: 'CustomerDetails' },
-        fragment: AddCustomerDrawerDetailFragmentDoc,
+        fragment: AddCustomerDrawerFragmentDoc,
       })
     },
   })
