@@ -17,7 +17,7 @@ import { DocumentLocales } from '~/core/documentLocales'
 import { addToast } from '~/core/apolloClient'
 
 gql`
-  fragment EditCustomerDocumentLocale on CustomerDetails {
+  fragment EditCustomerDocumentLocale on Customer {
     id
     name
     externalId

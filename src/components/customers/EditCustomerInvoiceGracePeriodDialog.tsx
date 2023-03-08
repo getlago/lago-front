@@ -17,7 +17,7 @@ import { theme } from '~/styles'
 import { addToast } from '~/core/apolloClient'
 
 gql`
-  fragment EditCustomerInvoiceGracePeriod on CustomerDetails {
+  fragment EditCustomerInvoiceGracePeriod on Customer {
     id
     invoiceGracePeriod
   }

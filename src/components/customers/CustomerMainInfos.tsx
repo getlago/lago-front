@@ -10,7 +10,7 @@ import { CountryCodes } from '~/core/countryCodes'
 import { getTimezoneConfig } from '~/core/timezone'
 
 gql`
-  fragment CustomerMainInfos on CustomerDetails {
+  fragment CustomerMainInfos on Customer {
     id
     name
     externalId

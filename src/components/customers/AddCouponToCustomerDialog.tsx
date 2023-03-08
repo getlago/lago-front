@@ -106,7 +106,7 @@ export const AddCouponToCustomerDialog = forwardRef<
     update(cache, { data: addData }) {
       if (!addData?.createAppliedCoupon) return
 
-      const cacheId = `CustomerDetails:${customerId}`
+      const cacheId = `Customer:${customerId}`
 
       const previousData: CustomerAppliedCouponsFragment | null = cache.readFragment({
         id: cacheId,

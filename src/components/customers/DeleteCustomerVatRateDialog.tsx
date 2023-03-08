@@ -11,7 +11,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 
 gql`
-  fragment DeleteCustomerVatRate on CustomerDetails {
+  fragment DeleteCustomerVatRate on Customer {
     id
     name
   }

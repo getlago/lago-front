@@ -47,13 +47,7 @@ export const DeleteCustomerDialog = forwardRef<DialogRef, DeleteCustomerDialogPr
           __typename: 'Customer',
         })
 
-        const cacheIdDetails = cache.identify({
-          id: data?.destroyCustomer.id,
-          __typename: 'CustomerDetails',
-        })
-
         cache.evict({ id: cacheId })
-        cache.evict({ id: cacheIdDetails })
       },
     })
     const { translate } = useInternationalization()

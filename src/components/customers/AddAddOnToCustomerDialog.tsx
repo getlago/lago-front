@@ -70,7 +70,7 @@ export const AddAddOnToCustomerDialog = forwardRef<
     update(cache, { data: addData }) {
       if (!addData?.createAppliedAddOn) return
 
-      const cacheId = `CustomerDetails:${customerId}`
+      const cacheId = `Customer:${customerId}`
 
       const previousData: CustomerAppliedAddOnsFragment | null = cache.readFragment({
         id: cacheId,
