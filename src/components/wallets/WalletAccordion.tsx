@@ -91,6 +91,7 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
     return (
       <Accordion
         noContentMargin
+        transitionProps={{ unmountOnExit: false }}
         summary={
           <SummaryContainer>
             <SummaryLeft>
