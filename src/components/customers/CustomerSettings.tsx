@@ -127,7 +127,8 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
           <Button
             disabled={loading}
             variant="quaternary"
-            onClick={editDialogRef?.current?.openDialog}
+            // it needs to be an anonymous function to be re-rendered on customer fetch
+            onClick={() => editDialogRef?.current?.openDialog()}
           >
             {translate('text_62728ff857d47b013204cab3')}
           </Button>
