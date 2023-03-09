@@ -12,8 +12,6 @@ import {
   LagoApiError,
   CreateSubscriptionInput,
   CustomerSubscriptionFragmentDoc,
-  CustomerDetailsFragmentDoc,
-  CustomerDetailsFragment,
 } from '~/generated/graphql'
 import { SubscriptionUpdateInfo, addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { ComboBoxProps } from '~/components/form'
@@ -91,6 +89,7 @@ export const useAddSubscription: UseAddSubscription = ({
         })
       }
     },
+    refetchQueries: ['getCustomer'],
   })
 
   const selectedPlan = useMemo(() => {
@@ -175,33 +174,6 @@ export const useAddSubscription: UseAddSubscription = ({
               : { subscriptionId: existingSubscription.subscriptionId }),
             ...values,
           },
-        },
-        update(cache, { data: createData }) {
-          if (!createData?.createSubscription) return
-
-          const cacheId = `Customer:${customerId}`
-
-          const previousData: CustomerDetailsFragment | null = cache.readFragment({
-            id: cacheId,
-            fragment: CustomerDetailsFragmentDoc,
-            fragmentName: 'CustomerDetails',
-          })
-
-          cache.writeFragment({
-            id: cacheId,
-            fragment: CustomerDetailsFragmentDoc,
-            fragmentName: 'CustomerDetails',
-            data: {
-              ...previousData,
-              subscriptions: [
-                createData?.createSubscription,
-                ...(previousData?.subscriptions || []).map((s) => ({
-                  ...s,
-                  __typename: 'Subscription', // The query has nested fragment and the typename is removed - we need to re-add it for it to work
-                })),
-              ],
-            },
-          })
         },
       })
 
