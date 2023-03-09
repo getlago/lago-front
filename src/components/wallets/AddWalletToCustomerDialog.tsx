@@ -24,6 +24,8 @@ import {
   CustomerWalletFragmentDoc,
   GetCustomerWalletListDocument,
   GetCustomerWalletListQuery,
+  CustomerDetailsFragment,
+  CustomerDetailsFragmentDoc,
 } from '~/generated/graphql'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -34,6 +36,10 @@ gql`
     createCustomerWallet(input: $input) {
       id
       ...CustomerWallet
+      customer {
+        id
+        hasActiveWallet
+      }
     }
   }
 
@@ -56,7 +62,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
         silentErrorCodes: [LagoApiError.UnprocessableEntity],
       },
       update(cache, { data }) {
-        if (!data?.createCustomerWallet) return
+        if (!data?.createCustomerWallet || !data?.createCustomerWallet) return
 
         const walletsData: GetCustomerWalletListQuery | null = cache.readQuery({
           query: GetCustomerWalletListDocument,
@@ -71,6 +77,24 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
               metadata: walletsData?.wallets?.metadata,
               collection: [data?.createCustomerWallet, ...(walletsData?.wallets?.collection || [])],
             },
+          },
+        })
+
+        const cachedCustomerId = `Customer:${data.createCustomerWallet?.customer?.id}`
+
+        const previousData: CustomerDetailsFragment | null = cache.readFragment({
+          id: cachedCustomerId,
+          fragment: CustomerDetailsFragmentDoc,
+          fragmentName: 'CustomerDetails',
+        })
+
+        cache.writeFragment({
+          id: cachedCustomerId,
+          fragment: CustomerDetailsFragmentDoc,
+          fragmentName: 'CustomerDetails',
+          data: {
+            ...previousData,
+            hasActiveWallet: data.createCustomerWallet?.customer?.hasActiveWallet,
           },
         })
       },

@@ -4,7 +4,12 @@ import { gql } from '@apollo/client'
 import { DialogRef } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useTerminateCustomerWalletMutation, WalletAccordionFragmentDoc } from '~/generated/graphql'
+import {
+  CustomerDetailsFragment,
+  CustomerDetailsFragmentDoc,
+  useTerminateCustomerWalletMutation,
+  WalletAccordionFragmentDoc,
+} from '~/generated/graphql'
 import { addToast } from '~/core/apolloClient'
 
 gql`
@@ -13,6 +18,10 @@ gql`
       id
       status
       ...WalletAccordion
+      customer {
+        id
+        hasActiveWallet
+      }
     }
   }
 
@@ -38,6 +47,27 @@ export const TerminateCustomerWalletDialog = forwardRef<
           translateKey: 'text_62e257c032ae895bbfead62e',
         })
       }
+    },
+    update(cache, { data }) {
+      if (!data?.terminateCustomerWallet) return
+
+      const cacheId = `Customer:${data.terminateCustomerWallet.customer?.id}`
+
+      const previousData: CustomerDetailsFragment | null = cache.readFragment({
+        id: cacheId,
+        fragment: CustomerDetailsFragmentDoc,
+        fragmentName: 'CustomerDetails',
+      })
+
+      cache.writeFragment({
+        id: cacheId,
+        fragment: CustomerDetailsFragmentDoc,
+        fragmentName: 'CustomerDetails',
+        data: {
+          ...previousData,
+          hasActiveWallet: data.terminateCustomerWallet.customer?.hasActiveWallet,
+        },
+      })
     },
   })
 
