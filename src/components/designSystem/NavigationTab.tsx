@@ -65,6 +65,7 @@ export const NavigationTab = ({
 
             return (
               <ButtonLink
+                title={title}
                 key={`${i}-${name}-${link}`}
                 to={link}
                 type="tab"

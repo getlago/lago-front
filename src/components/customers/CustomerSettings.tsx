@@ -129,6 +129,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
             variant="quaternary"
             // it needs to be an anonymous function to be re-rendered on customer fetch
             onClick={() => editDialogRef?.current?.openDialog()}
+            data-test="add-vat-rate-button"
           >
             {translate('text_62728ff857d47b013204cab3')}
           </Button>

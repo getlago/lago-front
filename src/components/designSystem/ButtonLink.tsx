@@ -27,6 +27,7 @@ export interface ButtonLinkBaseProps {
 export interface ButtonLinkTabProps extends ButtonLinkBaseProps {
   type: 'tab'
   icon?: IconName
+  title?: string
   active?: boolean
   canBeClickedOnActive?: boolean
   buttonProps?: never
@@ -34,6 +35,7 @@ export interface ButtonLinkTabProps extends ButtonLinkBaseProps {
 
 interface ButtonLinkButtonProps extends ButtonLinkBaseProps {
   type: 'button'
+  title?: string
   buttonProps?: Omit<ButtonProps, 'disabled'>
   icon?: never
   active?: never
@@ -47,6 +49,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
     {
       className,
       to,
+      title,
       routerState,
       icon,
       active,
@@ -98,6 +101,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
             to={to}
             state={routerState}
             ref={ref}
+            data-test={`tab-internal-button-link-${title?.toLowerCase()}`}
           >
             {wrapperChildren}
           </InternalButtonLink>
