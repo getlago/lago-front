@@ -3592,7 +3592,7 @@ export type CreateCustomerWalletMutationVariables = Exact<{
 }>;
 
 
-export type CreateCustomerWalletMutation = { __typename?: 'Mutation', createCustomerWallet?: { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: string, name?: string | null, expirationAt?: any | null, balance: string, consumedAmount: string, consumedCredits: string, createdAt: any, creditsBalance: string, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null } | null };
+export type CreateCustomerWalletMutation = { __typename?: 'Mutation', createCustomerWallet?: { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: string, name?: string | null, expirationAt?: any | null, balance: string, consumedAmount: string, consumedCredits: string, createdAt: any, creditsBalance: string, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, customer?: { __typename?: 'Customer', id: string, hasActiveWallet: boolean } | null } | null };
 
 export type CustomerWalletFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: string, name?: string | null, expirationAt?: any | null, balance: string, consumedAmount: string, consumedCredits: string, createdAt: any, creditsBalance: string, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null };
 
@@ -3610,7 +3610,7 @@ export type TerminateCustomerWalletMutationVariables = Exact<{
 }>;
 
 
-export type TerminateCustomerWalletMutation = { __typename?: 'Mutation', terminateCustomerWallet?: { __typename?: 'Wallet', id: string, status: WalletStatusEnum, balance: string, consumedAmount: string, consumedCredits: string, createdAt: any, creditsBalance: string, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, name?: string | null, rateAmount: string, terminatedAt?: any | null } | null };
+export type TerminateCustomerWalletMutation = { __typename?: 'Mutation', terminateCustomerWallet?: { __typename?: 'Wallet', id: string, status: WalletStatusEnum, balance: string, consumedAmount: string, consumedCredits: string, createdAt: any, creditsBalance: string, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, name?: string | null, rateAmount: string, terminatedAt?: any | null, customer?: { __typename?: 'Customer', id: string, hasActiveWallet: boolean } | null } | null };
 
 export type CreateCustomerWalletTransactionMutationVariables = Exact<{
   input: CreateCustomerWalletTransactionInput;
@@ -6955,6 +6955,10 @@ export const CreateCustomerWalletDocument = gql`
   createCustomerWallet(input: $input) {
     id
     ...CustomerWallet
+    customer {
+      id
+      hasActiveWallet
+    }
   }
 }
     ${CustomerWalletFragmentDoc}`;
@@ -7033,6 +7037,10 @@ export const TerminateCustomerWalletDocument = gql`
     id
     status
     ...WalletAccordion
+    customer {
+      id
+      hasActiveWallet
+    }
   }
 }
     ${WalletAccordionFragmentDoc}`;
