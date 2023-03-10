@@ -2,8 +2,9 @@
 import { forwardRef, memo, MutableRefObject } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
+import { useParams } from 'react-router-dom'
 
-import { CustomerAddOnsFragment, TimezoneEnum } from '~/generated/graphql'
+import { TimezoneEnum, useGetCustomerAddonsQuery } from '~/generated/graphql'
 import { SectionHeader } from '~/styles/customer'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Typography, Avatar, Icon, Button } from '~/components/designSystem'
@@ -25,17 +26,36 @@ gql`
       name
     }
   }
+
+  fragment CustomerAppliedAddOns on Customer {
+    id
+    appliedAddOns {
+      ...CustomerAddOns
+    }
+  }
+
+  query getCustomerAddons($id: ID!) {
+    customer(id: $id) {
+      id
+      ...CustomerAppliedAddOns
+    }
+  }
 `
 
 interface CustomerAddOnsProps {
-  addOns?: CustomerAddOnsFragment[] | null | undefined
   customerTimezone: TimezoneEnum
 }
 
 export const CustomerAddOns = memo(
   forwardRef<AddAddOnToCustomerDialogRef, CustomerAddOnsProps>(
-    ({ addOns, customerTimezone }: CustomerAddOnsProps, ref) => {
+    ({ customerTimezone }: CustomerAddOnsProps, ref) => {
+      const { id: customerId } = useParams()
       const { translate } = useInternationalization()
+      const { data } = useGetCustomerAddonsQuery({
+        variables: { id: customerId as string },
+        skip: !customerId,
+      })
+      const addOns = data?.customer?.appliedAddOns
 
       return (
         <>
