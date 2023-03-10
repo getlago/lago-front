@@ -60,13 +60,6 @@ import {
 import { CustomerCreditNotesList } from '~/components/customers/CustomerCreditNotesList'
 
 gql`
-  fragment CustomerAppliedCoupons on Customer {
-    id
-    appliedCoupons {
-      ...CustomerCoupon
-    }
-  }
-
   fragment CustomerDetails on Customer {
     id
     name
@@ -78,7 +71,6 @@ gql`
     creditNotesBalanceAmountCents
     applicableTimezone
     activeSubscriptionCount
-    ...CustomerAppliedCoupons
     ...AddCustomerDrawer
     ...CustomerMainInfos
   }
@@ -90,7 +82,6 @@ gql`
   }
 
   ${AddCustomerDrawerFragmentDoc}
-  ${CustomerCouponFragmentDoc}
   ${CustomerMainInfosFragmentDoc}
 `
 
@@ -120,7 +111,6 @@ const CustomerDetails = () => {
   })
   const { goBack } = useLocationHistory()
   const {
-    appliedCoupons,
     creditNotesCreditsAvailableCount,
     creditNotesBalanceAmountCents,
     externalId,
@@ -302,13 +292,7 @@ const CustomerDetails = () => {
                       ],
                       component: (
                         <SideBlock>
-                          {!loading && (
-                            <CustomerCoupons
-                              coupons={appliedCoupons}
-                              customerId={id as string}
-                              customerName={data?.customer?.name as string}
-                            />
-                          )}
+                          {!loading && <CustomerCoupons />}
                           {!loading && (
                             <CustomerAddOns ref={addOnDialogRef} customerTimezone={safeTimezone} />
                           )}
