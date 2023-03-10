@@ -7,7 +7,7 @@ import {
   ChargeUsage,
   CurrencyEnum,
   CustomerUsageForUsageDetailsFragmentDoc,
-  CustomerUsageSubscriptionFragment,
+  CustomerSubscriptionForUsageFragment,
   useCustomerUsageLazyQuery,
   TimezoneEnum,
 } from '~/generated/graphql'
@@ -51,7 +51,7 @@ gql`
 
 interface UsageItemProps {
   customerId: string
-  subscription: CustomerUsageSubscriptionFragment
+  subscription: CustomerSubscriptionForUsageFragment
   customerTimezone: TimezoneEnum
 }
 

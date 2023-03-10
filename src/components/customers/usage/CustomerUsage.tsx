@@ -1,10 +1,11 @@
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
+import { useParams } from 'react-router-dom'
 
 import {
-  CustomerUsageSubscriptionFragment,
   StatusTypeEnum,
   TimezoneEnum,
+  useGetCustomerSubscriptionForUsageQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme, NAV_HEIGHT } from '~/styles'
@@ -13,7 +14,7 @@ import { Typography } from '~/components/designSystem'
 import { UsageItem, UsageItemSkeleton } from './UsageItem'
 
 gql`
-  fragment CustomerUsageSubscription on Subscription {
+  fragment CustomerSubscriptionForUsage on Subscription {
     id
     name
     status
@@ -23,22 +24,30 @@ gql`
       code
     }
   }
+
+  query getCustomerSubscriptionForUsage($id: ID!) {
+    customer(id: $id) {
+      id
+      subscriptions(status: [active, pending]) {
+        id
+        ...CustomerSubscriptionForUsage
+      }
+    }
+  }
 `
 
 interface CustomerUsageProps {
-  id: string
-  subscriptions: CustomerUsageSubscriptionFragment[]
-  loading?: boolean
   customerTimezone: TimezoneEnum
 }
 
-export const CustomerUsage = ({
-  loading,
-  id,
-  subscriptions,
-  customerTimezone,
-}: CustomerUsageProps) => {
+export const CustomerUsage = ({ customerTimezone }: CustomerUsageProps) => {
+  const { id } = useParams()
   const { translate } = useInternationalization()
+  const { data, loading } = useGetCustomerSubscriptionForUsageQuery({
+    variables: { id: id as string },
+    skip: !id,
+  })
+  const subscriptions = data?.customer?.subscriptions
 
   return (
     <div>
@@ -58,7 +67,7 @@ export const CustomerUsage = ({
             .map((subscription) => (
               <UsageItem
                 key={subscription?.id}
-                customerId={id}
+                customerId={id as string}
                 subscription={subscription}
                 customerTimezone={customerTimezone}
               />

@@ -11,7 +11,8 @@ import {
   useCreateSubscriptionMutation,
   LagoApiError,
   CreateSubscriptionInput,
-  CustomerSubscriptionFragmentDoc,
+  CustomerDetailsFragment,
+  CustomerDetailsFragmentDoc,
 } from '~/generated/graphql'
 import { SubscriptionUpdateInfo, addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { ComboBoxProps } from '~/components/form'
@@ -36,11 +37,13 @@ gql`
 
   mutation createSubscription($input: CreateSubscriptionInput!) {
     createSubscription(input: $input) {
-      ...CustomerSubscription
+      id
+      customer {
+        id
+        activeSubscriptionCount
+      }
     }
   }
-
-  ${CustomerSubscriptionFragmentDoc}
 `
 
 interface UseAddSubscriptionReturn {
@@ -89,7 +92,28 @@ export const useAddSubscription: UseAddSubscription = ({
         })
       }
     },
-    refetchQueries: ['getCustomer'],
+    update(cache, { data: updatedData }) {
+      if (!updatedData?.createSubscription) return
+
+      const cachedCustomerId = `Customer:${updatedData?.createSubscription.customer.id}`
+
+      const previousData: CustomerDetailsFragment | null = cache.readFragment({
+        id: cachedCustomerId,
+        fragment: CustomerDetailsFragmentDoc,
+        fragmentName: 'CustomerDetails',
+      })
+
+      cache.writeFragment({
+        id: cachedCustomerId,
+        fragment: CustomerDetailsFragmentDoc,
+        fragmentName: 'CustomerDetails',
+        data: {
+          ...previousData,
+          activeSubscriptionCount: updatedData.createSubscription.customer.activeSubscriptionCount,
+        },
+      })
+    },
+    refetchQueries: ['getCustomerSubscriptionForList'],
   })
 
   const selectedPlan = useMemo(() => {
