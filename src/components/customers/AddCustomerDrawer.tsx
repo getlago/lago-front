@@ -34,7 +34,11 @@ import { getTimezoneConfig } from '~/core/timezone'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { countryDataForCombobox } from '~/core/countryCodes'
-import { MetadataErrorsEnum, metadataSchema } from '~/formValidationSchemas/metadataSchema'
+import {
+  MetadataErrorsEnum,
+  metadataSchema,
+  METADATA_VALUE_MAX_LENGTH_DEFAULT,
+} from '~/formValidationSchemas/metadataSchema'
 
 const MAX_METADATA_COUNT = 5
 
@@ -444,7 +448,9 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                             placement="top-end"
                             title={
                               metadataItemValueError === MetadataErrorsEnum.maxLength
-                                ? translate('id_6405e8dd5593b00054e31b9f')
+                                ? translate('id_6405e8dd5593b00054e31b9f', {
+                                    max: METADATA_VALUE_MAX_LENGTH_DEFAULT,
+                                  })
                                 : undefined
                             }
                             disableHoverListener={!hasCustomValueError}

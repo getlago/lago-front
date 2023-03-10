@@ -1,14 +1,14 @@
 import { object, array, string } from 'yup'
 
+export const METADATA_VALUE_MAX_LENGTH_DEFAULT = 40
 const KEY_MAX_LENGTH = 20
-const VALUE_MAX_LENGTH = 40
 
 export enum MetadataErrorsEnum {
   uniqueness = 'uniqueness',
   maxLength = 'maxLength',
 }
 
-export const metadataSchema = () =>
+export const metadataSchema = ({ valueMaxLength = METADATA_VALUE_MAX_LENGTH_DEFAULT } = {}) =>
   array().of(
     object().shape({
       key: string().test({
@@ -44,7 +44,7 @@ export const metadataSchema = () =>
       value: string().test({
         test: (value, { createError, path }) => {
           if (!value) return false
-          if (value.length > VALUE_MAX_LENGTH) {
+          if (value.length > valueMaxLength) {
             return createError({
               path,
               message: MetadataErrorsEnum.maxLength,

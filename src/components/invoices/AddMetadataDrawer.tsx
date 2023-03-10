@@ -19,6 +19,7 @@ import {
 import { MetadataErrorsEnum, metadataSchema } from '~/formValidationSchemas/metadataSchema'
 
 const MAX_METADATA_COUNT = 5
+const METADATA_VALUE_MAX_LENGTH = 255
 
 gql`
   fragment InvoiceMetadatasForMetadataDrawer on Invoice {
@@ -65,7 +66,7 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
         metadata: invoice?.metadata ?? undefined,
       },
       validationSchema: object().shape({
-        metadata: metadataSchema(),
+        metadata: metadataSchema({ valueMaxLength: METADATA_VALUE_MAX_LENGTH }),
       }),
       validateOnMount: true,
       enableReinitialize: true,
@@ -154,7 +155,9 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
                           placement="top-end"
                           title={
                             metadataItemValueError === MetadataErrorsEnum.maxLength
-                              ? translate('id_6405e8dd5593b00054e31b9f')
+                              ? translate('id_6405e8dd5593b00054e31b9f', {
+                                  max: METADATA_VALUE_MAX_LENGTH,
+                                })
                               : undefined
                           }
                           disableHoverListener={!hasCustomValueError}

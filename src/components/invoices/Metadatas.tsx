@@ -121,15 +121,17 @@ const StyledSectionHeader = styled(SectionHeader)`
 
 const InfoLine = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: ${theme.spacing(3)};
 
   > div:first-child {
     min-width: 232px;
     margin-right: ${theme.spacing(3)};
+    line-height: 28px;
   }
 
   > div:last-child {
     width: 100%;
+    line-break: anywhere;
   }
 `

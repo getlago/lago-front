@@ -180,7 +180,7 @@
   "id_6405e8dd5593b00054e31b9c": "Key must be a string under 20 characters",
   "id_6405e8dd5593b00054e31b9d": "Keys should be unique; please differentiate them to move forward.",
   "id_6405e8dd5593b00054e31b9e": "Remove metadata",
-  "id_6405e8dd5593b00054e31b9f": "Value must be a string under 40 characters",
+  "id_6405e8dd5593b00054e31b9f": "Value must be a string of {{max}} characters maximum",
   "id_6405e8dd5593b00054e31bff": "Customer metadata",
   "id_6405e8dd5593b00054e31c17": "Add metadata",
   "id_6405e8dd5593b00054e31c54": "Add metadata",
