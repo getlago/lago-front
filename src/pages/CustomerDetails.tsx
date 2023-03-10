@@ -20,7 +20,6 @@ import {
 import {
   useGetCustomerQuery,
   CustomerMainInfosFragmentDoc,
-  CustomerAddOnsFragmentDoc,
   TimezoneEnum,
   AddCustomerDrawerFragmentDoc,
 } from '~/generated/graphql'
@@ -61,13 +60,6 @@ import {
 import { CustomerCreditNotesList } from '~/components/customers/CustomerCreditNotesList'
 
 gql`
-  fragment CustomerAppliedAddOns on Customer {
-    id
-    appliedAddOns {
-      ...CustomerAddOns
-    }
-  }
-
   fragment CustomerAppliedCoupons on Customer {
     id
     appliedCoupons {
@@ -87,7 +79,6 @@ gql`
     applicableTimezone
     activeSubscriptionCount
     ...CustomerAppliedCoupons
-    ...CustomerAppliedAddOns
     ...AddCustomerDrawer
     ...CustomerMainInfos
   }
@@ -100,7 +91,6 @@ gql`
 
   ${AddCustomerDrawerFragmentDoc}
   ${CustomerCouponFragmentDoc}
-  ${CustomerAddOnsFragmentDoc}
   ${CustomerMainInfosFragmentDoc}
 `
 
@@ -130,7 +120,6 @@ const CustomerDetails = () => {
   })
   const { goBack } = useLocationHistory()
   const {
-    appliedAddOns,
     appliedCoupons,
     creditNotesCreditsAvailableCount,
     creditNotesBalanceAmountCents,
@@ -321,11 +310,7 @@ const CustomerDetails = () => {
                             />
                           )}
                           {!loading && (
-                            <CustomerAddOns
-                              ref={addOnDialogRef}
-                              addOns={appliedAddOns}
-                              customerTimezone={safeTimezone}
-                            />
+                            <CustomerAddOns ref={addOnDialogRef} customerTimezone={safeTimezone} />
                           )}
                           <CustomerSubscriptionsList
                             ref={subscriptionsDialogRef}
