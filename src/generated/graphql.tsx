@@ -3245,6 +3245,15 @@ export type GetCustomerAddonsQuery = { __typename?: 'Query', customer?: { __type
 
 export type CustomerCouponFragment = { __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } };
 
+export type CustomerAppliedCouponsFragment = { __typename?: 'Customer', id: string, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null };
+
+export type GetCustomerCouponsQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetCustomerCouponsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null } | null };
+
 export type RemoveCouponMutationVariables = Exact<{
   input: TerminateAppliedCouponInput;
 }>;
@@ -3890,16 +3899,14 @@ export type GetCreditNoteQueryVariables = Exact<{
 
 export type GetCreditNoteQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, balanceAmountCents: any, canBeVoided: boolean, createdAt: any, creditAmountCents: any, creditAmountCurrency: CurrencyEnum, creditStatus?: CreditNoteCreditStatusEnum | null, number: string, refundAmountCents: any, refundedAt?: any | null, refundStatus?: CreditNoteRefundStatusEnum | null, subTotalVatExcludedAmountCents: any, subTotalVatExcludedAmountCurrency: CurrencyEnum, totalAmountCents: any, totalAmountCurrency: CurrencyEnum, vatAmountCents: any, vatAmountCurrency: CurrencyEnum, customer: { __typename?: 'Customer', id: string, name?: string | null, deletedAt?: any | null, applicableTimezone: TimezoneEnum }, invoice?: { __typename?: 'Invoice', id: string, number: string } | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, amountCurrency: CurrencyEnum, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, itemName: string, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null } }> } | null };
 
-export type CustomerAppliedCouponsFragment = { __typename?: 'Customer', id: string, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null };
-
-export type CustomerDetailsFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, activeSubscriptionCount: number, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, legalName?: string | null, legalNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
+export type CustomerDetailsFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, activeSubscriptionCount: number, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, legalName?: string | null, legalNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
 
 export type GetCustomerQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, activeSubscriptionCount: number, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, legalName?: string | null, legalNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } }> | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
+export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, activeSubscriptionCount: number, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, legalName?: string | null, legalNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
 
 export type GetCustomerDraftInvoicesQueryVariables = Exact<{
   customerId: Scalars['ID'];
@@ -4191,6 +4198,36 @@ export const CustomerAppliedAddOnsFragmentDoc = gql`
   }
 }
     ${CustomerAddOnsFragmentDoc}`;
+export const AppliedCouponCaptionFragmentDoc = gql`
+    fragment AppliedCouponCaption on AppliedCoupon {
+  id
+  amountCurrency
+  amountCents
+  amountCentsRemaining
+  percentageRate
+  frequency
+  frequencyDuration
+  frequencyDurationRemaining
+}
+    `;
+export const CustomerCouponFragmentDoc = gql`
+    fragment CustomerCoupon on AppliedCoupon {
+  id
+  ...AppliedCouponCaption
+  coupon {
+    id
+    name
+  }
+}
+    ${AppliedCouponCaptionFragmentDoc}`;
+export const CustomerAppliedCouponsFragmentDoc = gql`
+    fragment CustomerAppliedCoupons on Customer {
+  id
+  appliedCoupons {
+    ...CustomerCoupon
+  }
+}
+    ${CustomerCouponFragmentDoc}`;
 export const InvoiceForFinalizeInvoiceFragmentDoc = gql`
     fragment InvoiceForFinalizeInvoice on Invoice {
   id
@@ -5054,36 +5091,6 @@ export const EditPlanFragmentDoc = gql`
   }
 }
     ${ChargeAccordionFragmentDoc}`;
-export const AppliedCouponCaptionFragmentDoc = gql`
-    fragment AppliedCouponCaption on AppliedCoupon {
-  id
-  amountCurrency
-  amountCents
-  amountCentsRemaining
-  percentageRate
-  frequency
-  frequencyDuration
-  frequencyDurationRemaining
-}
-    `;
-export const CustomerCouponFragmentDoc = gql`
-    fragment CustomerCoupon on AppliedCoupon {
-  id
-  ...AppliedCouponCaption
-  coupon {
-    id
-    name
-  }
-}
-    ${AppliedCouponCaptionFragmentDoc}`;
-export const CustomerAppliedCouponsFragmentDoc = gql`
-    fragment CustomerAppliedCoupons on Customer {
-  id
-  appliedCoupons {
-    ...CustomerCoupon
-  }
-}
-    ${CustomerCouponFragmentDoc}`;
 export const CustomerMainInfosFragmentDoc = gql`
     fragment CustomerMainInfos on Customer {
   id
@@ -5125,12 +5132,10 @@ export const CustomerDetailsFragmentDoc = gql`
   creditNotesBalanceAmountCents
   applicableTimezone
   activeSubscriptionCount
-  ...CustomerAppliedCoupons
   ...AddCustomerDrawer
   ...CustomerMainInfos
 }
-    ${CustomerAppliedCouponsFragmentDoc}
-${AddCustomerDrawerFragmentDoc}
+    ${AddCustomerDrawerFragmentDoc}
 ${CustomerMainInfosFragmentDoc}`;
 export const EventItemFragmentDoc = gql`
     fragment EventItem on Event {
@@ -5652,6 +5657,43 @@ export function useGetCustomerAddonsLazyQuery(baseOptions?: Apollo.LazyQueryHook
 export type GetCustomerAddonsQueryHookResult = ReturnType<typeof useGetCustomerAddonsQuery>;
 export type GetCustomerAddonsLazyQueryHookResult = ReturnType<typeof useGetCustomerAddonsLazyQuery>;
 export type GetCustomerAddonsQueryResult = Apollo.QueryResult<GetCustomerAddonsQuery, GetCustomerAddonsQueryVariables>;
+export const GetCustomerCouponsDocument = gql`
+    query getCustomerCoupons($id: ID!) {
+  customer(id: $id) {
+    id
+    name
+    ...CustomerAppliedCoupons
+  }
+}
+    ${CustomerAppliedCouponsFragmentDoc}`;
+
+/**
+ * __useGetCustomerCouponsQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerCouponsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerCouponsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerCouponsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetCustomerCouponsQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>(GetCustomerCouponsDocument, options);
+      }
+export function useGetCustomerCouponsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>(GetCustomerCouponsDocument, options);
+        }
+export type GetCustomerCouponsQueryHookResult = ReturnType<typeof useGetCustomerCouponsQuery>;
+export type GetCustomerCouponsLazyQueryHookResult = ReturnType<typeof useGetCustomerCouponsLazyQuery>;
+export type GetCustomerCouponsQueryResult = Apollo.QueryResult<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>;
 export const RemoveCouponDocument = gql`
     mutation removeCoupon($input: TerminateAppliedCouponInput!) {
   terminateAppliedCoupon(input: $input) {

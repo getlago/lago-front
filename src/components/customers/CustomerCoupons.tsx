@@ -2,10 +2,11 @@
 import { useRef, memo } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
+import { useParams } from 'react-router-dom'
 
 import {
   AppliedCouponCaptionFragmentDoc,
-  CustomerCouponFragment,
+  useGetCustomerCouponsQuery,
   useRemoveCouponMutation,
 } from '~/generated/graphql'
 import { SectionHeader } from '~/styles/customer'
@@ -31,6 +32,21 @@ gql`
     }
   }
 
+  fragment CustomerAppliedCoupons on Customer {
+    id
+    appliedCoupons {
+      ...CustomerCoupon
+    }
+  }
+
+  query getCustomerCoupons($id: ID!) {
+    customer(id: $id) {
+      id
+      name
+      ...CustomerAppliedCoupons
+    }
+  }
+
   mutation removeCoupon($input: TerminateAppliedCouponInput!) {
     terminateAppliedCoupon(input: $input) {
       id
@@ -40,114 +56,109 @@ gql`
   ${AppliedCouponCaptionFragmentDoc}
 `
 
-interface CustomerCouponsProps {
-  coupons?: CustomerCouponFragment[] | null | undefined
-  customerId: string
-  customerName: string
-}
-
-export const CustomerCoupons = memo(
-  ({ coupons, customerId, customerName }: CustomerCouponsProps) => {
-    const removeDialogRef = useRef<WarningDialogRef>(null)
-    const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
-    const deleteCouponId = useRef<string | null>(null)
-    const { translate } = useInternationalization()
-    const [removeCoupon] = useRemoveCouponMutation({
-      onCompleted({ terminateAppliedCoupon }) {
-        if (!!terminateAppliedCoupon) {
-          addToast({
-            severity: 'success',
-            message: translate('text_628b8c693e464200e00e49d1'),
-          })
-        }
-      },
-      update(cache, { data }) {
-        if (!data?.terminateAppliedCoupon) return
-
-        const cacheId = cache.identify({
-          id: data?.terminateAppliedCoupon.id,
-          __typename: 'AppliedCoupon',
+export const CustomerCoupons = memo(() => {
+  const { id: customerId } = useParams()
+  const removeDialogRef = useRef<WarningDialogRef>(null)
+  const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
+  const deleteCouponId = useRef<string | null>(null)
+  const { translate } = useInternationalization()
+  const { data } = useGetCustomerCouponsQuery({
+    variables: { id: customerId as string },
+    skip: !customerId,
+  })
+  const coupons = data?.customer?.appliedCoupons
+  const [removeCoupon] = useRemoveCouponMutation({
+    onCompleted({ terminateAppliedCoupon }) {
+      if (!!terminateAppliedCoupon) {
+        addToast({
+          severity: 'success',
+          message: translate('text_628b8c693e464200e00e49d1'),
         })
+      }
+    },
+    update(cache, { data: updatedData }) {
+      if (!updatedData?.terminateAppliedCoupon) return
 
-        cache.evict({ id: cacheId })
-      },
-    })
+      const cacheId = cache.identify({
+        id: updatedData?.terminateAppliedCoupon.id,
+        __typename: 'AppliedCoupon',
+      })
 
-    return (
-      <>
-        {!!(coupons || [])?.length && (
-          <Container>
-            <SectionHeader variant="subhead">
-              {translate('text_628b8c693e464200e00e469d')}
-              <Button
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  addCouponDialogRef.current?.openDialog()
-                }}
-              >
-                {translate('text_628b8dc14c71840130f8d8a1')}
-              </Button>
-            </SectionHeader>
-            <ListHeader>
-              <Typography variant="bodyHl" color="disabled" noWrap>
-                {translate('text_628b8c693e464200e00e46ab')}
-              </Typography>
-            </ListHeader>
-            {(coupons || []).map((appliedCoupon) => (
-              <CouponNameSection key={appliedCoupon.id} data-test={appliedCoupon.coupon?.name}>
-                <ListAvatar variant="connector">
-                  <Icon name="coupon" color="dark" />
-                </ListAvatar>
-                <NameBlock>
-                  <Typography color="textSecondary" variant="bodyHl" noWrap>
-                    {appliedCoupon.coupon?.name}
-                  </Typography>
-                  <CouponCaption
-                    coupon={appliedCoupon as unknown as CouponMixedType}
-                    variant="caption"
-                  />
-                </NameBlock>
-                <DeleteTooltip
-                  placement="top-end"
-                  title={translate('text_628b8c693e464200e00e4a10')}
-                >
-                  <Button
-                    variant="quaternary"
-                    icon="trash"
-                    onClick={() => {
-                      deleteCouponId.current = appliedCoupon.id
-                      removeDialogRef?.current?.openDialog()
-                    }}
-                  />
-                </DeleteTooltip>
-              </CouponNameSection>
-            ))}
-          </Container>
-        )}
-        <WarningDialog
-          ref={removeDialogRef}
-          title={translate('text_628b8c693e464200e00e465f')}
-          description={translate('text_628b8c693e464200e00e466d')}
-          onContinue={async () => {
-            if (deleteCouponId.current) {
-              await removeCoupon({
-                variables: { input: { id: deleteCouponId.current } },
-              })
-            }
-          }}
-          continueText={translate('text_628b8c693e464200e00e4689')}
-        />
+      cache.evict({ id: cacheId })
+    },
+  })
 
-        <AddCouponToCustomerDialog
-          ref={addCouponDialogRef}
-          customerId={customerId}
-          customerName={customerName}
-        />
-      </>
-    )
-  }
-)
+  return (
+    <>
+      {!!(coupons || [])?.length && (
+        <Container>
+          <SectionHeader variant="subhead">
+            {translate('text_628b8c693e464200e00e469d')}
+            <Button
+              variant="quaternary"
+              align="left"
+              onClick={() => {
+                addCouponDialogRef.current?.openDialog()
+              }}
+            >
+              {translate('text_628b8dc14c71840130f8d8a1')}
+            </Button>
+          </SectionHeader>
+          <ListHeader>
+            <Typography variant="bodyHl" color="disabled" noWrap>
+              {translate('text_628b8c693e464200e00e46ab')}
+            </Typography>
+          </ListHeader>
+          {(coupons || []).map((appliedCoupon) => (
+            <CouponNameSection key={appliedCoupon.id} data-test={appliedCoupon.coupon?.name}>
+              <ListAvatar variant="connector">
+                <Icon name="coupon" color="dark" />
+              </ListAvatar>
+              <NameBlock>
+                <Typography color="textSecondary" variant="bodyHl" noWrap>
+                  {appliedCoupon.coupon?.name}
+                </Typography>
+                <CouponCaption
+                  coupon={appliedCoupon as unknown as CouponMixedType}
+                  variant="caption"
+                />
+              </NameBlock>
+              <DeleteTooltip placement="top-end" title={translate('text_628b8c693e464200e00e4a10')}>
+                <Button
+                  variant="quaternary"
+                  icon="trash"
+                  onClick={() => {
+                    deleteCouponId.current = appliedCoupon.id
+                    removeDialogRef?.current?.openDialog()
+                  }}
+                />
+              </DeleteTooltip>
+            </CouponNameSection>
+          ))}
+        </Container>
+      )}
+      <WarningDialog
+        ref={removeDialogRef}
+        title={translate('text_628b8c693e464200e00e465f')}
+        description={translate('text_628b8c693e464200e00e466d')}
+        onContinue={async () => {
+          if (deleteCouponId.current) {
+            await removeCoupon({
+              variables: { input: { id: deleteCouponId.current } },
+            })
+          }
+        }}
+        continueText={translate('text_628b8c693e464200e00e4689')}
+      />
+
+      <AddCouponToCustomerDialog
+        ref={addCouponDialogRef}
+        customerId={customerId as string}
+        customerName={data?.customer?.name as string}
+      />
+    </>
+  )
+})
 
 const Container = styled.div`
   display: flex;
