@@ -1,7 +1,13 @@
 import { forwardRef, MutableRefObject, useRef } from 'react'
 import styled, { css } from 'styled-components'
+import { useParams } from 'react-router-dom'
+import { gql } from '@apollo/client'
 
-import { SubscriptionItemFragment, TimezoneEnum } from '~/generated/graphql'
+import {
+  SubscriptionItemFragmentDoc,
+  TimezoneEnum,
+  useGetCustomerSubscriptionForListQuery,
+} from '~/generated/graphql'
 import { Typography, Button } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme, HEADER_TABLE_HEIGHT } from '~/styles'
@@ -18,87 +24,104 @@ import {
   TerminateCustomerSubscriptionDialogRef,
 } from './TerminateCustomerSubscriptionDialog'
 
+gql`
+  query getCustomerSubscriptionForList($id: ID!) {
+    customer(id: $id) {
+      id
+      subscriptions(status: [active, pending]) {
+        id
+        plan {
+          id
+          amountCurrency
+        }
+        ...SubscriptionItem
+      }
+    }
+  }
+
+  ${SubscriptionItemFragmentDoc}
+`
+
 interface CustomerSubscriptionsListProps {
-  subscriptions?: SubscriptionItemFragment[]
   customerTimezone: TimezoneEnum
-  loading?: boolean
 }
 
 export const CustomerSubscriptionsList = forwardRef<
   AddSubscriptionDrawerRef,
   CustomerSubscriptionsListProps
->(
-  (
-    { subscriptions, loading, customerTimezone }: CustomerSubscriptionsListProps,
-    addSubscriptionDialogRef
-  ) => {
-    const { translate } = useInternationalization()
-    const hasNoSubscription = !subscriptions || !subscriptions.length
-    const editSubscriptionDrawerRef = useRef<EditCustomerSubscriptionDrawerRef>(null)
-    const terminateSubscriptionDialogRef = useRef<TerminateCustomerSubscriptionDialogRef>(null)
-    const subscriptionItemRef = useRef<SubscriptionItemRef>({
-      addSubscriptionDialogRef,
-      editSubscriptionDrawerRef,
-      terminateSubscriptionDialogRef,
-    })
+>(({ customerTimezone }: CustomerSubscriptionsListProps, addSubscriptionDialogRef) => {
+  const { id } = useParams()
+  const { translate } = useInternationalization()
+  const { data, loading } = useGetCustomerSubscriptionForListQuery({
+    variables: { id: id as string },
+    skip: !id,
+  })
+  const subscriptions = data?.customer?.subscriptions
+  const hasNoSubscription = !subscriptions || !subscriptions.length
+  const editSubscriptionDrawerRef = useRef<EditCustomerSubscriptionDrawerRef>(null)
+  const terminateSubscriptionDialogRef = useRef<TerminateCustomerSubscriptionDialogRef>(null)
+  const subscriptionItemRef = useRef<SubscriptionItemRef>({
+    addSubscriptionDialogRef,
+    editSubscriptionDrawerRef,
+    terminateSubscriptionDialogRef,
+  })
 
-    return (
-      <SideSection $empty={hasNoSubscription}>
-        <Header variant="subhead" $loading={loading}>
-          {translate('text_6250304370f0f700a8fdc28d')}
-          <Button
-            data-test="add-subscription"
-            variant="quaternary"
-            onClick={() =>
-              (
-                addSubscriptionDialogRef as MutableRefObject<AddSubscriptionDrawerRef>
-              )?.current?.openDialog()
-            }
-          >
-            {translate('text_6250304370f0f700a8fdc28b')}
-          </Button>
-        </Header>
-        {loading ? (
-          <LoadingContent>
-            {[0, 1, 2].map((_, i) => (
-              <SubscriptionItemSkeleton key={`customer-subscription-skeleton-${i}`} />
-            ))}
-          </LoadingContent>
-        ) : hasNoSubscription ? (
-          <Typography>{translate('text_6250304370f0f700a8fdc28f')}</Typography>
-        ) : (
-          <>
-            <ListHeader>
-              <CellBigHeader variant="bodyHl" color="disabled" noWrap>
-                {translate('text_6253f11816f710014600b9ed')}
-              </CellBigHeader>
-              <CellStatusHeader variant="bodyHl" color="disabled">
-                {translate('text_62d7f6178ec94cd09370e5fb')}
-              </CellStatusHeader>
-              <CellSmall variant="bodyHl" color="disabled" align="right">
-                {translate('text_6253f11816f710014600b9f1')}
-              </CellSmall>
-            </ListHeader>
-            <List>
-              {subscriptions.map((subscription, i) => {
-                return (
-                  <SubscriptionItem
-                    ref={subscriptionItemRef}
-                    key={`${subscription?.id}-${i}`}
-                    subscription={subscription}
-                    customerTimezone={customerTimezone}
-                  />
-                )
-              })}
-            </List>
-          </>
-        )}
-        <EditCustomerSubscriptionDrawer ref={editSubscriptionDrawerRef} />
-        <TerminateCustomerSubscriptionDialog ref={terminateSubscriptionDialogRef} />
-      </SideSection>
-    )
-  }
-)
+  return (
+    <SideSection $empty={hasNoSubscription}>
+      <Header variant="subhead" $loading={loading}>
+        {translate('text_6250304370f0f700a8fdc28d')}
+        <Button
+          data-test="add-subscription"
+          variant="quaternary"
+          onClick={() =>
+            (
+              addSubscriptionDialogRef as MutableRefObject<AddSubscriptionDrawerRef>
+            )?.current?.openDialog()
+          }
+        >
+          {translate('text_6250304370f0f700a8fdc28b')}
+        </Button>
+      </Header>
+      {loading ? (
+        <LoadingContent>
+          {[0, 1, 2].map((_, i) => (
+            <SubscriptionItemSkeleton key={`customer-subscription-skeleton-${i}`} />
+          ))}
+        </LoadingContent>
+      ) : hasNoSubscription ? (
+        <Typography>{translate('text_6250304370f0f700a8fdc28f')}</Typography>
+      ) : (
+        <>
+          <ListHeader>
+            <CellBigHeader variant="bodyHl" color="disabled" noWrap>
+              {translate('text_6253f11816f710014600b9ed')}
+            </CellBigHeader>
+            <CellStatusHeader variant="bodyHl" color="disabled">
+              {translate('text_62d7f6178ec94cd09370e5fb')}
+            </CellStatusHeader>
+            <CellSmall variant="bodyHl" color="disabled" align="right">
+              {translate('text_6253f11816f710014600b9f1')}
+            </CellSmall>
+          </ListHeader>
+          <List>
+            {subscriptions.map((subscription, i) => {
+              return (
+                <SubscriptionItem
+                  ref={subscriptionItemRef}
+                  key={`${subscription?.id}-${i}`}
+                  subscription={subscription}
+                  customerTimezone={customerTimezone}
+                />
+              )
+            })}
+          </List>
+        </>
+      )}
+      <EditCustomerSubscriptionDrawer ref={editSubscriptionDrawerRef} />
+      <TerminateCustomerSubscriptionDialog ref={terminateSubscriptionDialogRef} />
+    </SideSection>
+  )
+})
 
 CustomerSubscriptionsList.displayName = 'CustomerSubscriptionsList'
 

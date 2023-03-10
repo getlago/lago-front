@@ -4,13 +4,21 @@ import { gql } from '@apollo/client'
 import { DialogRef } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
-import { useTerminateCustomerSubscriptionMutation } from '~/generated/graphql'
+import {
+  CustomerDetailsFragment,
+  CustomerDetailsFragmentDoc,
+  useTerminateCustomerSubscriptionMutation,
+} from '~/generated/graphql'
 import { WarningDialog } from '~/components/WarningDialog'
 
 gql`
   mutation terminateCustomerSubscription($input: TerminateSubscriptionInput!) {
     terminateSubscription(input: $input) {
       id
+      customer {
+        id
+        activeSubscriptionCount
+      }
     }
   }
 `
@@ -41,6 +49,24 @@ export const TerminateCustomerSubscriptionDialog =
         })
 
         cache.evict({ id: cacheId })
+
+        const cachedCustomerId = `Customer:${data.terminateSubscription.customer.id}`
+
+        const previousData: CustomerDetailsFragment | null = cache.readFragment({
+          id: cachedCustomerId,
+          fragment: CustomerDetailsFragmentDoc,
+          fragmentName: 'CustomerDetails',
+        })
+
+        cache.writeFragment({
+          id: cachedCustomerId,
+          fragment: CustomerDetailsFragmentDoc,
+          fragmentName: 'CustomerDetails',
+          data: {
+            ...previousData,
+            activeSubscriptionCount: data.terminateSubscription.customer.activeSubscriptionCount,
+          },
+        })
       },
     })
     const [subscription, setSubscription] = useState<
@@ -64,7 +90,7 @@ export const TerminateCustomerSubscriptionDialog =
         onContinue={async () =>
           await terminate({
             variables: { input: { id: subscription?.id as string } },
-            refetchQueries: ['getCustomer'],
+            refetchQueries: ['getCustomerSubscriptionForList'],
           })
         }
         continueText={translate('text_62d7f6178ec94cd09370e351')}

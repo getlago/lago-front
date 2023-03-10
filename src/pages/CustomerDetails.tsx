@@ -19,12 +19,8 @@ import {
 } from '~/core/router'
 import {
   useGetCustomerQuery,
-  SubscriptionItemFragmentDoc,
-  CustomerCouponFragmentDoc,
   CustomerMainInfosFragmentDoc,
   CustomerAddOnsFragmentDoc,
-  CustomerUsageSubscriptionFragmentDoc,
-  StatusTypeEnum,
   TimezoneEnum,
   AddCustomerDrawerFragmentDoc,
 } from '~/generated/graphql'
@@ -65,16 +61,6 @@ import {
 import { CustomerCreditNotesList } from '~/components/customers/CustomerCreditNotesList'
 
 gql`
-  fragment CustomerSubscription on Subscription {
-    id
-    plan {
-      id
-      amountCurrency
-    }
-    ...SubscriptionItem
-    ...CustomerUsageSubscription
-  }
-
   fragment CustomerAppliedAddOns on Customer {
     id
     appliedAddOns {
@@ -99,9 +85,7 @@ gql`
     creditNotesCreditsAvailableCount
     creditNotesBalanceAmountCents
     applicableTimezone
-    subscriptions(status: [active, pending]) {
-      ...CustomerSubscription
-    }
+    activeSubscriptionCount
     ...CustomerAppliedCoupons
     ...CustomerAppliedAddOns
     ...AddCustomerDrawer
@@ -114,12 +98,10 @@ gql`
     }
   }
 
-  ${SubscriptionItemFragmentDoc}
   ${AddCustomerDrawerFragmentDoc}
   ${CustomerCouponFragmentDoc}
   ${CustomerAddOnsFragmentDoc}
   ${CustomerMainInfosFragmentDoc}
-  ${CustomerUsageSubscriptionFragmentDoc}
 `
 
 export enum CustomerDetailsTabsOptions {
@@ -156,12 +138,9 @@ const CustomerDetails = () => {
     hasActiveWallet,
     hasCreditNotes,
     name,
-    subscriptions,
+    activeSubscriptionCount,
     applicableTimezone,
   } = data?.customer || {}
-  const hasActiveSubscription = !!(subscriptions || [])?.filter(
-    (s) => s?.status === StatusTypeEnum.Active
-  ).length
   const safeTimezone = applicableTimezone || TimezoneEnum.TzUtc
 
   return (
@@ -350,8 +329,6 @@ const CustomerDetails = () => {
                           )}
                           <CustomerSubscriptionsList
                             ref={subscriptionsDialogRef}
-                            loading={loading}
-                            subscriptions={subscriptions ?? []}
                             customerTimezone={safeTimezone}
                           />
                         </SideBlock>
@@ -381,15 +358,10 @@ const CustomerDetails = () => {
                         tab: CustomerDetailsTabsOptions.usage,
                       }),
                       routerState: { disableScrollTop: true },
-                      hidden: !hasActiveSubscription,
+                      hidden: activeSubscriptionCount === 0,
                       component: (
                         <SideBlock>
-                          <CustomerUsage
-                            id={id as string}
-                            subscriptions={subscriptions ?? []}
-                            loading={loading}
-                            customerTimezone={safeTimezone}
-                          />
+                          <CustomerUsage customerTimezone={safeTimezone} />
                         </SideBlock>
                       ),
                     },
