@@ -28,7 +28,7 @@ gql`
 
 export const UserIdentifier = () => {
   const { isAuthenticated } = useIsAuthenticated()
-  const { data, refetch } = useUserIdentifierQuery()
+  const { data, refetch } = useUserIdentifierQuery({ skip: !isAuthenticated })
   // If for some reason we constantly get null on the meQuery, avoid inifnite refetch
   const refetchCountRef = useRef<number>(0)
 
