@@ -48,7 +48,7 @@ export const Metadatas = memo(({ customer, invoice }: MetadatasProps) => {
     <>
       <Wrapper>
         <StyledSectionHeader variant="subhead">
-          {translate('id_6405e8dd5593b00054e31c55')}
+          {translate('text_6405cac5c833dcf18cad019c')}
           <Button
             variant="quaternary"
             align="left"
@@ -58,8 +58,8 @@ export const Metadatas = memo(({ customer, invoice }: MetadatasProps) => {
           >
             {translate(
               !!invoice.metadata?.length
-                ? 'id_6405e8dd5593b00054e31d25'
-                : 'id_6405e8dd5593b00054e31c54'
+                ? 'text_6405cac5c833dcf18cad0198'
+                : 'text_6405cac5c833dcf18cad0196'
             )}
           </Button>
         </StyledSectionHeader>
@@ -77,14 +77,14 @@ export const Metadatas = memo(({ customer, invoice }: MetadatasProps) => {
             ))
           ) : (
             <Typography variant="body" color="grey500">
-              {translate('id_6405e8dd5593b00054e31c56')}
+              {translate('text_6405cac5c833dcf18cad01a2')}
             </Typography>
           )}
         </div>
         {!!customerMetadatas.length && (
           <>
             <StyledSectionHeader variant="subhead">
-              {translate('id_6405e8dd5593b00054e31bff')}
+              {translate('text_63fdc195ee23e51024c607b8')}
             </StyledSectionHeader>
             <div>
               {customerMetadatas.map((metadata) => (

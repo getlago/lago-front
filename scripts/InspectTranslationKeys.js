@@ -41,11 +41,11 @@ async function extract() {
     return acc
   }, [])
 
-  // Extract all the translation keys not used with 'translate' by matching 'text_[all]' or 'id_[all]'
+  // Extract all the translation keys not used with 'translate' by matching 'text_[all]'
   const files = await getFiles(path.join(SRC_DIR, '**/*.@(ts|js|tsx|jsx)'))
   const usedKeysWithoutTranslate = files.reduce((acc, file) => {
     const content = fs.readFileSync(file, 'utf-8')
-    const usedKeys = content.match(/\'text_(.*?)\'/g) || content.match(/\'id_(.*?)\'/g)
+    const usedKeys = content.match(/\'text_(.*?)\'/g)
 
     if (usedKeys && usedKeys.length) {
       acc = [...acc, ...usedKeys.map((key) => key.replace(/\'/g, ''))]

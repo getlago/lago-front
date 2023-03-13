@@ -419,8 +419,8 @@ const CustomerInvoiceDetails = () => {
                       }}
                     >
                       {!!data?.invoice?.metadata?.length
-                        ? translate('id_6405e8dd5593b00054e31ce8')
-                        : translate('id_6405e8dd5593b00054e31c17')}
+                        ? translate('text_6405cac5c833dcf18cacff36')
+                        : translate('text_6405cac5c833dcf18cacff40')}
                     </Button>
                   </>
                 )}

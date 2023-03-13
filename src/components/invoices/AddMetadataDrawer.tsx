@@ -54,7 +54,7 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
         if (updateInvoice?.id) {
           addToast({
             message: translate(
-              isEdition ? 'id_6405e8dd5593b00054e31d9b' : 'id_6405e8dd5593b00054e31d3a'
+              isEdition ? 'text_6405cac5c833dcf18cad01fb' : 'text_6405cac5c833dcf18cad0204'
             ),
             severity: 'success',
           })
@@ -86,7 +86,9 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
     return (
       <Drawer
         ref={ref}
-        title={translate(isEdition ? 'id_6405e8dd5593b00054e31c9e' : 'id_6405e8dd5593b00054e31c6b')}
+        title={translate(
+          isEdition ? 'text_6405cac5c833dcf18cacff2a' : 'text_6405cac5c833dcf18cacff2c'
+        )}
         onClose={() => {
           formikProps.resetForm()
           formikProps.validateForm()
@@ -95,22 +97,24 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
         <DrawerContent>
           <DrawerTitle>
             <Typography variant="headline">
-              {translate(isEdition ? 'id_6405e8dd5593b00054e31c9f' : 'id_6405e8dd5593b00054e31c6c')}
+              {translate(
+                isEdition ? 'text_6405cac5c833dcf18cacff6c' : 'text_6405cac5c833dcf18cacff32'
+              )}
             </Typography>
-            <Typography>{translate('id_6405e8dd5593b00054e31c6d')}</Typography>
+            <Typography>{translate('text_6405cac5c833dcf18cacff38')}</Typography>
           </DrawerTitle>
 
           <Card>
-            <Typography variant="subhead">{translate('id_6405e8dd5593b00054e31c6e')}</Typography>
+            <Typography variant="subhead">{translate('text_6405cac5c833dcf18cacff3e')}</Typography>
 
             {!!formikProps?.values?.metadata?.length && (
               <div>
                 <MetadataGrid $isHeader>
                   <Typography variant="captionHl" color="grey700">
-                    {translate('id_6405e8dd5593b00054e31ca2')}
+                    {translate('text_6405cac5c833dcf18cacff66')}
                   </Typography>
                   <Typography variant="captionHl" color="grey700">
-                    {translate('id_6405e8dd5593b00054e31ca4')}
+                    {translate('text_6405cac5c833dcf18cacff7c')}
                   </Typography>
                 </MetadataGrid>
                 <MetadataGrid>
@@ -136,9 +140,9 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
                           placement="top-end"
                           title={
                             metadataItemKeyError === MetadataErrorsEnum.uniqueness
-                              ? translate('id_6405e8dd5593b00054e31b9d')
+                              ? translate('text_63fcc3218d35b9377840f5dd')
                               : metadataItemKeyError === MetadataErrorsEnum.maxLength
-                              ? translate('id_6405e8dd5593b00054e31b9c')
+                              ? translate('text_63fcc3218d35b9377840f5d9')
                               : undefined
                           }
                           disableHoverListener={!hasCustomKeyError}
@@ -146,7 +150,7 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
                           <TextInputField
                             name={`metadata.${i}.key`}
                             silentError={!hasCustomKeyError}
-                            placeholder={translate('id_6405e8dd5593b00054e31b5b')}
+                            placeholder={translate('text_63fcc3218d35b9377840f5a7')}
                             formikProps={formikProps}
                             displayErrorText={false}
                           />
@@ -155,7 +159,7 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
                           placement="top-end"
                           title={
                             metadataItemValueError === MetadataErrorsEnum.maxLength
-                              ? translate('id_6405e8dd5593b00054e31b9f', {
+                              ? translate('text_63fcc3218d35b9377840f5e5', {
                                   max: METADATA_VALUE_MAX_LENGTH,
                                 })
                               : undefined
@@ -165,14 +169,14 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
                           <TextInputField
                             name={`metadata.${i}.value`}
                             silentError={!hasCustomValueError}
-                            placeholder={translate('id_6405e8dd5593b00054e31b5d')}
+                            placeholder={translate('text_63fcc3218d35b9377840f5af')}
                             formikProps={formikProps}
                             displayErrorText={false}
                           />
                         </Tooltip>
                         <StyledTooltip
                           placement="top-end"
-                          title={translate('id_6405e8dd5593b00054e31b9e')}
+                          title={translate('text_63fcc3218d35b9377840f5e1')}
                         >
                           <Button
                             variant="quaternary"
@@ -208,7 +212,7 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
               }
               data-test="add-fixed-fee"
             >
-              {translate('id_6405e8dd5593b00054e31c6f')}
+              {translate('text_6405cac5c833dcf18cacff44')}
             </Button>
           </Card>
 
@@ -225,7 +229,9 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
               data-test="submit"
               onClick={formikProps.submitForm}
             >
-              {translate(isEdition ? 'id_6405e8dd5593b00054e31cad' : 'id_6405e8dd5593b00054e31c70')}
+              {translate(
+                isEdition ? 'text_6405cac5c833dcf18cacffec' : 'text_6405cac5c833dcf18cacff4a'
+              )}
             </Button>
           </DrawerSubmitButton>
         </DrawerContent>
