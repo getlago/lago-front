@@ -35,6 +35,7 @@ gql`
     aggregationType
     fieldName
     subscriptionsCount
+    plansCount
   }
 `
 
@@ -72,7 +73,7 @@ const CreateBillableMetric = () => {
     validateOnMount: true,
     onSubmit: onSave,
   })
-  const canBeEdited = !billableMetric?.subscriptionsCount
+  const canBeEdited = !billableMetric?.subscriptionsCount && !billableMetric?.plansCount
 
   useEffect(() => {
     if (

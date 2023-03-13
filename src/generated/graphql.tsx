@@ -103,6 +103,7 @@ export type AppliedCoupon = {
   terminatedAt: Scalars['ISO8601DateTime'];
 };
 
+/** Base billable metric */
 export type BillableMetric = {
   __typename?: 'BillableMetric';
   activeSubscriptionsCount: Scalars['Int'];
@@ -118,6 +119,7 @@ export type BillableMetric = {
   id: Scalars['ID'];
   name: Scalars['String'];
   organization?: Maybe<Organization>;
+  plansCount: Scalars['Int'];
   subscriptionsCount: Scalars['Int'];
   updatedAt: Scalars['ISO8601DateTime'];
 };
@@ -3762,7 +3764,7 @@ export type GetSingleBillableMetricQueryVariables = Exact<{
 }>;
 
 
-export type GetSingleBillableMetricQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, group?: any | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, subscriptionsCount: number } | null };
+export type GetSingleBillableMetricQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, group?: any | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, subscriptionsCount: number, plansCount: number } | null };
 
 export type CreateBillableMetricMutationVariables = Exact<{
   input: CreateBillableMetricInput;
@@ -3886,7 +3888,7 @@ export type CouponsQueryVariables = Exact<{
 
 export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, appliedCouponsCount: number, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null }> } };
 
-export type EditBillableMetricFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, group?: any | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, subscriptionsCount: number };
+export type EditBillableMetricFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, group?: any | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, subscriptionsCount: number, plansCount: number };
 
 export type CreateCreditNoteInvoiceFragment = { __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, creditableAmountCents: any, refundableAmountCents: any, subTotalVatIncludedAmountCents: any, vatRate: number };
 
@@ -4948,6 +4950,7 @@ export const EditBillableMetricFragmentDoc = gql`
   aggregationType
   fieldName
   subscriptionsCount
+  plansCount
 }
     `;
 export const GraduatedChargeFragmentDoc = gql`
