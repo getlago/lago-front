@@ -310,17 +310,6 @@ export const ChargePercentage = ({
           })}
         </Typography>
 
-        {showFixedAmount && (
-          <Typography color="textSecondary">
-            {translate('text_62ff5d01a306e274d4ffcc69', {
-              fixedFeeValue: intlFormatNumber(Number(valuePointer?.fixedAmount) || 0, {
-                currencyDisplay: 'symbol',
-                currency,
-                maximumFractionDigits: 15,
-              }),
-            })}
-          </Typography>
-        )}
         {(showFreeUnitsPerEvents || showFreeUnitsPerTotalAggregation) && (
           <Typography color="textSecondary">
             {showFreeUnitsPerEvents &&
@@ -348,6 +337,18 @@ export const ChargePercentage = ({
                 ? 1
                 : 2
             )}`}
+          </Typography>
+        )}
+
+        {showFixedAmount && (
+          <Typography color="textSecondary">
+            {translate('text_62ff5d01a306e274d4ffcc69', {
+              fixedFeeValue: intlFormatNumber(Number(valuePointer?.fixedAmount) || 0, {
+                currencyDisplay: 'symbol',
+                currency,
+                maximumFractionDigits: 15,
+              }),
+            })}
           </Typography>
         )}
       </Alert>
