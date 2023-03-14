@@ -92,6 +92,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
       },
       validationSchema: object().shape({
         name: string().required(''),
+        email: string().email('text_620bc4d4269a55014d493fc3'),
         externalId: string().required(''),
         metadata: metadataSchema(),
       }),
