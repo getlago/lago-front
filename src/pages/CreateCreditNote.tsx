@@ -15,7 +15,7 @@ import {
   InvoiceTypeEnum,
 } from '~/generated/graphql'
 import { hasDefinedGQLError } from '~/core/apolloClient'
-import { generateFeesSchema, simpleFeeSchema } from '~/formValidationSchemas/feesSchema'
+import { generateFeesSchema, simpleFeeSchema } from '~/formValidation/feesSchema'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
