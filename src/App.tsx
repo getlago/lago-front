@@ -12,6 +12,7 @@ import { ErrorBoundary } from '~/components/ErrorBoundary'
 import { RouteWrapper } from '~/components/RouteWrapper'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
 import { DebugInfoDialog, DebugInfoDialogRef } from '~/components/DebugInfoDialog'
+import { initializeYup } from '~/formValidation/initializeYup'
 
 const App = () => {
   const [client, setClient] = useState<ApolloClient<NormalizedCacheObject> | null>(null)
@@ -33,6 +34,7 @@ const App = () => {
     // eslint-disable-next-line no-console
     initApolloClient().catch((err) => console.error(err))
     initializeTranslations()
+    initializeYup()
   }, [])
 
   if (!client) return null
