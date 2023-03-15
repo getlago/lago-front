@@ -37,7 +37,7 @@ import {
   MetadataErrorsEnum,
   metadataSchema,
   METADATA_VALUE_MAX_LENGTH_DEFAULT,
-} from '~/formValidationSchemas/metadataSchema'
+} from '~/formValidation/metadataSchema'
 
 const MAX_METADATA_COUNT = 5
 

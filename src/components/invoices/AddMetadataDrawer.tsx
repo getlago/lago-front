@@ -16,7 +16,7 @@ import {
   InvoiceMetadatasForMetadataDrawerFragment,
   useUpdateInvoiceMetadataMutation,
 } from '~/generated/graphql'
-import { MetadataErrorsEnum, metadataSchema } from '~/formValidationSchemas/metadataSchema'
+import { MetadataErrorsEnum, metadataSchema } from '~/formValidation/metadataSchema'
 
 const MAX_METADATA_COUNT = 5
 const METADATA_VALUE_MAX_LENGTH = 255

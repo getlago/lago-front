@@ -34,7 +34,7 @@ import { theme, Card, PageHeader } from '~/styles'
 import { AddChargeDialog, AddChargeDialogRef } from '~/components/plans/AddChargeDialog'
 import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
 import { usePlanForm, PLAN_FORM_TYPE_ENUM, FORM_ERRORS_ENUM } from '~/hooks/plans/usePlanForm'
-import { chargeSchema } from '~/formValidationSchemas/chargeSchema'
+import { chargeSchema } from '~/formValidation/chargeSchema'
 import {
   Main,
   Content,
