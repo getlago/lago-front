@@ -47,7 +47,7 @@ const CreateAddOn = () => {
     validationSchema: object().shape({
       name: string().required(''),
       code: string().required(''),
-      amountCents: number().min(1, 'text_62978ebe99054a011fc189e0').required(''),
+      amountCents: number().min(0.01, 'text_62978ebe99054a011fc189e0').required(''),
       amountCurrency: string().required(''),
     }),
     enableReinitialize: true,
