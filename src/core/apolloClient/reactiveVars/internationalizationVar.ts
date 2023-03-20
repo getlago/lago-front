@@ -1,37 +1,14 @@
 import { makeVar, useReactiveVar } from '@apollo/client'
 
+import { getTranslations, Locale, LocaleEnum } from '~/core/translations'
+
 import { getItemFromLS, setItemFromLS } from '../cacheUtils'
 
 const LOCALE_LS_KEY = 'locale'
 
-export enum LocaleEnum {
-  'en' = 'en',
-}
-
-export type IntlLocale = keyof typeof LocaleEnum
-
 interface InternationalizationVar {
-  locale: IntlLocale
+  locale: Locale
   translations?: Record<string, string>
-}
-
-interface DittoTranslation {
-  [key: string]: string
-}
-
-const getTranslations: (locale: IntlLocale) => Promise<Record<string, string>> = async (locale) => {
-  let loadedDittoTranslation: DittoTranslation
-
-  // Translations are dinamically imported according to the selected locale
-  try {
-    loadedDittoTranslation = (await import(`../../../../ditto/${locale}.json`)) as DittoTranslation
-  } catch (err) {
-    loadedDittoTranslation = (await import(
-      `../../../../ditto/base.json`
-    )) as unknown as DittoTranslation
-  }
-
-  return loadedDittoTranslation
 }
 
 export const internationalizationVar = makeVar<InternationalizationVar>({
@@ -49,7 +26,7 @@ export const initializeTranslations = async () => {
   })
 }
 
-export const updateIntlLocale = async (locale: IntlLocale) => {
+export const updateIntlLocale = async (locale: Locale) => {
   setItemFromLS(LOCALE_LS_KEY, locale)
   const translations = await getTranslations(locale)
 

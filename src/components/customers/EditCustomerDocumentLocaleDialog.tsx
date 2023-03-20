@@ -13,7 +13,7 @@ import {
   useUpdateCustomerDocumentLocaleMutation,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
-import { DocumentLocales } from '~/core/documentLocales'
+import { DocumentLocales } from '~/core/translations/documentLocales'
 import { addToast } from '~/core/apolloClient'
 
 gql`
