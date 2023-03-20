@@ -27,7 +27,7 @@ import {
   EditOrganizationDocumentLocaleDialog,
   EditOrganizationDocumentLocaleDialogRef,
 } from '~/components/settings/EditOrganizationDocumentLocaleDialog'
-import { DocumentLocales } from '~/core/documentLocales'
+import { DocumentLocales } from '~/core/translations/documentLocales'
 
 const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
 

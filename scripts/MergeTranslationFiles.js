@@ -6,6 +6,8 @@ const glob = require('glob')
 
 const DITTO_DIR = './ditto/'
 
+const AVAILABLE_LOCALES = { en: 'en', fr: 'fr', nb: 'nb' }
+
 /**
  * Get all files which match a given path
  * @param {string} path
@@ -23,24 +25,30 @@ function getFiles(fromPath) {
   )
 }
 
-async function extract() {
-  const files = await getFiles(path.join(DITTO_DIR, '*__base.json'))
+async function extract(locale) {
+  const fileLocaleKey = locale === AVAILABLE_LOCALES.en ? 'base' : locale
+  const files = await getFiles(path.join(DITTO_DIR, `*__${fileLocaleKey}.json`))
   const allKeys = files.reduce((acc, file) => {
     const newKeys = JSON.parse(fs.readFileSync(file), 'utf-8')
 
     return { ...acc, ...(newKeys || {}) }
   }, {})
 
-  fs.writeFileSync(path.join(DITTO_DIR, '/base.json'), `${JSON.stringify(allKeys, null, 2)}\n`)
+  fs.writeFileSync(
+    path.join(DITTO_DIR, `/${fileLocaleKey}.json`),
+    `${JSON.stringify(allKeys, null, 2)}\n`
+  )
 }
 
 async function main() {
-  try {
-    await extract()
-  } catch (e) {
-    console.info('\u001b[' + 31 + 'm' + '\nTranslations merge failed' + '\u001b[0m', e)
-    process.exit(1)
-  }
+  Object.keys(AVAILABLE_LOCALES).forEach(async (locale) => {
+    try {
+      await extract(locale)
+    } catch (e) {
+      console.info('\u001b[' + 31 + 'm' + '\nTranslations merge failed' + '\u001b[0m', e)
+      process.exit(1)
+    }
+  })
 }
 
 main()

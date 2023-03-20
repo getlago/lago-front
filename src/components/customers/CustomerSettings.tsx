@@ -24,7 +24,7 @@ import {
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { DocumentLocales } from '~/core/documentLocales'
+import { DocumentLocales } from '~/core/translations/documentLocales'
 
 import {
   EditCustomerInvoiceGracePeriodDialog,

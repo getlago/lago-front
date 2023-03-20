@@ -1,10 +1,8 @@
 import { renderHook } from '@testing-library/react'
 
-import {
-  getPluralTranslation,
-  replaceDynamicVarInString,
-  useInternationalization,
-} from '../useInternationalization'
+import { getPluralTranslation, replaceDynamicVarInString } from '~/core/translations'
+
+import { useInternationalization } from '../useInternationalization'
 
 const mockUpdateIntlLocale = jest.fn()
 let mockUseInternationalizationVar = {}

@@ -14,7 +14,7 @@ import {
 } from '~/generated/graphql'
 import { theme } from '~/styles'
 import { addToast } from '~/core/apolloClient'
-import { DocumentLocales } from '~/core/documentLocales'
+import { DocumentLocales } from '~/core/translations/documentLocales'
 
 gql`
   mutation updateDocumentLocaleOrganization($input: UpdateOrganizationInput!) {
