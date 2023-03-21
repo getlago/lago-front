@@ -8,7 +8,13 @@ import localForage from 'localforage'
 import { LagoApiError } from '~/generated/graphql'
 
 import { cache } from './cache'
-import { AUTH_TOKEN_LS_KEY, ORGANIZATION_LS_KEY_ID, addToast, envGlobalVar } from './reactiveVars'
+import {
+  AUTH_TOKEN_LS_KEY,
+  ORGANIZATION_LS_KEY_ID,
+  addToast,
+  envGlobalVar,
+  CUSTOMER_PORTAL_TOKEN_LS_KEY,
+} from './reactiveVars'
 import { logOut, getItemFromLS, omitDeep } from './cacheUtils'
 import { LagoGQLError } from './errorUtils'
 import { typeDefs, resolvers } from './graphqlResolvers'
@@ -25,6 +31,7 @@ export const initializeApolloClient = async () => {
   const initialLink = new ApolloLink((operation, forward) => {
     const { headers } = operation.getContext()
     const token = getItemFromLS(AUTH_TOKEN_LS_KEY)
+    const customerPortalToken = getItemFromLS(CUSTOMER_PORTAL_TOKEN_LS_KEY)
 
     if (operation.variables && !operation.variables.file) {
       // eslint-disable-next-line
@@ -35,6 +42,7 @@ export const initializeApolloClient = async () => {
       headers: {
         ...headers,
         ...(!token ? {} : { authorization: `Bearer ${getItemFromLS(AUTH_TOKEN_LS_KEY)}` }),
+        ...(!customerPortalToken ? {} : { 'customer-portal-token': customerPortalToken }),
         'x-lago-organization': getItemFromLS(ORGANIZATION_LS_KEY_ID),
       },
     })

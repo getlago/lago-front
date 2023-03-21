@@ -5,7 +5,12 @@ import { Settings } from 'luxon'
 import { getTimezoneConfig } from '~/core/timezone'
 import { CurrentUserFragment } from '~/generated/graphql'
 
-import { updateAuthTokenVar, resetLocationHistoryVar, ORGANIZATION_LS_KEY_ID } from './reactiveVars'
+import {
+  updateAuthTokenVar,
+  resetLocationHistoryVar,
+  ORGANIZATION_LS_KEY_ID,
+  updateCustomerPortalTokenVar,
+} from './reactiveVars'
 
 gql`
   fragment CurrentUser on User {
@@ -62,6 +67,10 @@ export const switchCurrentOrganization = async (
   setItemFromLS(ORGANIZATION_LS_KEY_ID, organizationId)
 
   await client.resetStore()
+}
+
+export const onAccessCustomerPortal = (token?: string) => {
+  updateCustomerPortalTokenVar(token)
 }
 
 // --------------------- Omit __typename ---------------------
