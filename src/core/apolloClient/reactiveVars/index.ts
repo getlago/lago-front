@@ -7,6 +7,7 @@ export const ORGANIZATION_LS_KEY_ID = 'currentOrganization'
 export const isAuthenticatedVar = makeVar<boolean>(!!getItemFromLS(AUTH_TOKEN_LS_KEY))
 
 export * from './authTokenVar'
+export * from './customerPortalTokenVar'
 export * from './envGlobalVar'
 export * from './internationalizationVar'
 export * from './locationHistoryVar'
