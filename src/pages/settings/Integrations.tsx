@@ -9,6 +9,8 @@ import { Typography, Selector, Avatar, SelectorSkeleton, Chip } from '~/componen
 import Stripe from '~/public/images/stripe.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import Airbyte from '~/public/images/airbyte.svg'
+import HightTouch from '~/public/images/hightouch.svg'
+import Segment from '~/public/images/segment.svg'
 import Oso from '~/public/images/oso.svg'
 import { useIntegrationsSettingQuery } from '~/generated/graphql'
 import { STRIPE_INTEGRATION_ROUTE, GOCARDLESS_INTEGRATION_ROUTE } from '~/core/router'
@@ -17,7 +19,12 @@ import {
   AddStripeDialog,
   AddStripeDialogRef,
 } from '~/components/settings/integrations/AddStripeDialog'
-import { DOCUMENTATION_AIRBYTE, DOCUMENTATION_OSO } from '~/externalUrls'
+import {
+  DOCUMENTATION_AIRBYTE,
+  DOCUMENTATION_OSO,
+  DOCUMENTATION_SEGMENT,
+  DOCUMENTATION_HIGHTTOUCH,
+} from '~/externalUrls'
 
 gql`
   query integrationsSetting {
@@ -56,27 +63,20 @@ const Integrations = () => {
       ) : (
         <>
           <StyledSelector
-            title={translate('text_62b1edddbf5f461ab971277d')}
-            subtitle={translate('text_62b1edddbf5f461ab9712795')}
-            icon={
-              <Avatar variant="connector">
-                <Stripe />
-              </Avatar>
-            }
-            endIcon={
-              hasStripeIntegration ? (
-                <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-              ) : undefined
-            }
+            title={translate('text_639c334c3fa0e9c6ca3512b2')}
+            subtitle={translate('text_639c334c3fa0e9c6ca3512b4')}
+            icon={<Avatar variant="connector">{<Airbyte />}</Avatar>}
             onClick={() => {
-              if (hasStripeIntegration) {
-                navigate(STRIPE_INTEGRATION_ROUTE)
-              } else {
-                const element = document.activeElement as HTMLElement
-
-                element.blur && element.blur()
-                addDialogRef.current?.openDialog()
-              }
+              window.open(DOCUMENTATION_AIRBYTE, '_blank')
+            }}
+            fullWidth
+          />
+          <StyledSelector
+            title={translate('text_63e26d8308d03687188221a5')}
+            subtitle={translate('text_63e26d8308d03687188221a6')}
+            icon={<Avatar variant="connector">{<Oso />}</Avatar>}
+            onClick={() => {
+              window.open(DOCUMENTATION_OSO, '_blank')
             }}
             fullWidth
           />
@@ -103,20 +103,45 @@ const Integrations = () => {
             fullWidth
           />
           <StyledSelector
-            title={translate('text_639c334c3fa0e9c6ca3512b2')}
-            subtitle={translate('text_639c334c3fa0e9c6ca3512b4')}
-            icon={<Avatar variant="connector">{<Airbyte />}</Avatar>}
+            title={translate('text_641b41f3cec373009a265e9e')}
+            subtitle={translate('text_641b41fa604ef10070cab5ea')}
+            icon={<Avatar variant="connector">{<HightTouch />}</Avatar>}
             onClick={() => {
-              window.open(DOCUMENTATION_AIRBYTE, '_blank')
+              window.open(DOCUMENTATION_HIGHTTOUCH, '_blank')
             }}
             fullWidth
           />
           <StyledSelector
-            title={translate('text_63e26d8308d03687188221a5')}
-            subtitle={translate('text_63e26d8308d03687188221a6')}
-            icon={<Avatar variant="connector">{<Oso />}</Avatar>}
+            title={translate('text_641b42035d62fd004e07cdde')}
+            subtitle={translate('text_641b420ccd75240062f2386e')}
+            icon={<Avatar variant="connector">{<Segment />}</Avatar>}
             onClick={() => {
-              window.open(DOCUMENTATION_OSO, '_blank')
+              window.open(DOCUMENTATION_SEGMENT, '_blank')
+            }}
+            fullWidth
+          />
+          <StyledSelector
+            title={translate('text_62b1edddbf5f461ab971277d')}
+            subtitle={translate('text_62b1edddbf5f461ab9712795')}
+            icon={
+              <Avatar variant="connector">
+                <Stripe />
+              </Avatar>
+            }
+            endIcon={
+              hasStripeIntegration ? (
+                <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+              ) : undefined
+            }
+            onClick={() => {
+              if (hasStripeIntegration) {
+                navigate(STRIPE_INTEGRATION_ROUTE)
+              } else {
+                const element = document.activeElement as HTMLElement
+
+                element.blur && element.blur()
+                addDialogRef.current?.openDialog()
+              }
             }}
             fullWidth
           />
