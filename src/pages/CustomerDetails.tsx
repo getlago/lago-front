@@ -22,6 +22,7 @@ import {
   CustomerMainInfosFragmentDoc,
   TimezoneEnum,
   AddCustomerDrawerFragmentDoc,
+  useGenerateCustomerPortalUrlMutation,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -58,6 +59,9 @@ import {
   AddWalletToCustomerDialogRef,
 } from '~/components/wallets/AddWalletToCustomerDialog'
 import { CustomerCreditNotesList } from '~/components/customers/CustomerCreditNotesList'
+import { addToast } from '~/core/apolloClient'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 
 gql`
   fragment CustomerDetails on Customer {
@@ -81,6 +85,12 @@ gql`
     }
   }
 
+  mutation generateCustomerPortalUrl($input: GenerateCustomerPortalUrlInput!) {
+    generateCustomerPortalUrl(input: $input) {
+      url
+    }
+  }
+
   ${AddCustomerDrawerFragmentDoc}
   ${CustomerMainInfosFragmentDoc}
 `
@@ -101,13 +111,36 @@ const CustomerDetails = () => {
   const addOnDialogRef = useRef<AddAddOnToCustomerDialogRef>(null)
   const subscriptionsDialogRef = useRef<AddSubscriptionDrawerRef>(null)
   const addWalletToCustomerDialogRef = useRef<AddWalletToCustomerDialogRef>(null)
+  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { translate } = useInternationalization()
+  const { isPremium } = useCurrentUser()
   const navigate = useNavigate()
   const { id, tab } = useParams()
   const { data, loading, error } = useGetCustomerQuery({
     variables: { id: id as string },
     skip: !id,
     notifyOnNetworkStatusChange: true,
+  })
+  const [generatePortalUrl] = useGenerateCustomerPortalUrlMutation({
+    onCompleted({ generateCustomerPortalUrl }) {
+      if (generateCustomerPortalUrl?.url) {
+        // We open a window, add url then focus on different lines, in order to prevent browsers to block page opening
+        // It could be seen as unexpected popup as not immediatly done on user action
+        // https://stackoverflow.com/questions/2587677/avoid-browser-popup-blockers
+        const myWindow = window.open('', '_blank')
+
+        if (myWindow?.location?.href) {
+          myWindow.location.href = generateCustomerPortalUrl.url
+          return myWindow?.focus()
+        }
+
+        myWindow?.close()
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+        })
+      }
+    },
   })
   const { goBack } = useLocationHistory()
   const {
@@ -125,7 +158,7 @@ const CustomerDetails = () => {
   return (
     <div>
       <PageHeader $withSide>
-        <HeaderLeft>
+        <HeaderInlineBlock>
           <Button
             icon="arrow-left"
             variant="quaternary"
@@ -142,83 +175,97 @@ const CustomerDetails = () => {
               {name}
             </Typography>
           )}
-        </HeaderLeft>
-        <Popper
-          PopperProps={{ placement: 'bottom-end' }}
-          opener={
-            <Button endIcon="chevron-down" data-test="customer-actions">
-              {translate('text_626162c62f790600f850b6fe')}
-            </Button>
-          }
-        >
-          {({ closePopper }) => (
-            <MenuPopper>
-              <Button
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  subscriptionsDialogRef?.current?.openDialog()
-                  closePopper()
-                }}
-              >
-                {translate('text_626162c62f790600f850b70c')}
+        </HeaderInlineBlock>
+        <HeaderInlineBlock>
+          <Button
+            startIcon={isPremium ? 'outside' : 'sparkles'}
+            variant="quaternary"
+            onClick={async () => {
+              isPremium
+                ? await generatePortalUrl({ variables: { input: { id: id as string } } })
+                : premiumWarningDialogRef.current?.openDialog()
+            }}
+          >
+            {translate('text_641b1b19d6e64300632ca60c')}
+          </Button>
+
+          <Popper
+            PopperProps={{ placement: 'bottom-end' }}
+            opener={
+              <Button endIcon="chevron-down" data-test="customer-actions">
+                {translate('text_626162c62f790600f850b6fe')}
               </Button>
-              <Button
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  editDialogRef.current?.openDrawer()
-                  closePopper()
-                }}
-              >
-                {translate('text_626162c62f790600f850b718')}
-              </Button>
-              <Button
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  addOnDialogRef.current?.openDialog()
-                  closePopper()
-                }}
-              >
-                {translate('text_6295e58352f39200d902b02a')}
-              </Button>
-              <Button
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  addCouponDialogRef.current?.openDialog()
-                  closePopper()
-                }}
-                data-test="apply-coupon-action"
-              >
-                {translate('text_628b8dc14c71840130f8d8a1')}
-              </Button>
-              <Button
-                variant="quaternary"
-                align="left"
-                disabled={!!hasActiveWallet}
-                onClick={() => {
-                  addWalletToCustomerDialogRef.current?.openDialog()
-                  closePopper()
-                }}
-              >
-                {translate('text_62d175066d2dbf1d50bc93a5')}
-              </Button>
-              <Button
-                variant="quaternary"
-                align="left"
-                fullWidth
-                onClick={() => {
-                  deleteDialogRef.current?.openDialog()
-                  closePopper()
-                }}
-              >
-                {translate('text_626162c62f790600f850b726')}
-              </Button>
-            </MenuPopper>
-          )}
-        </Popper>
+            }
+          >
+            {({ closePopper }) => (
+              <MenuPopper>
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    subscriptionsDialogRef?.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_626162c62f790600f850b70c')}
+                </Button>
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    editDialogRef.current?.openDrawer()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_626162c62f790600f850b718')}
+                </Button>
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    addOnDialogRef.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_6295e58352f39200d902b02a')}
+                </Button>
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    addCouponDialogRef.current?.openDialog()
+                    closePopper()
+                  }}
+                  data-test="apply-coupon-action"
+                >
+                  {translate('text_628b8dc14c71840130f8d8a1')}
+                </Button>
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  disabled={!!hasActiveWallet}
+                  onClick={() => {
+                    addWalletToCustomerDialogRef.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_62d175066d2dbf1d50bc93a5')}
+                </Button>
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  fullWidth
+                  onClick={() => {
+                    deleteDialogRef.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_626162c62f790600f850b726')}
+                </Button>
+              </MenuPopper>
+            )}
+          </Popper>
+        </HeaderInlineBlock>
       </PageHeader>
       {(error || !data?.customer) && !loading ? (
         <GenericPlaceholder
@@ -428,11 +475,13 @@ const CustomerDetails = () => {
           />
         </>
       )}
+
+      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </div>
   )
 }
 
-const HeaderLeft = styled.div`
+const HeaderInlineBlock = styled.div`
   display: flex;
   align-items: center;
 
