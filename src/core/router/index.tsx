@@ -9,6 +9,7 @@ import { customerRoutes, customerObjectCreationRoutes } from './CustomerRoutes'
 import { developperRoutes } from './DevelopperRoutes'
 import { objectListRoutes, objectCreationRoutes } from './ObjectsRoutes'
 import { settingRoutes } from './SettingRoutes'
+import { customerPortalRoutes } from './CustomerPortalRoutes'
 
 export * from './types'
 export * from './AuthRoutes'
@@ -65,4 +66,5 @@ export const routes: CustomRouteObject[] = [
   ...authRoutes,
   ...customerObjectCreationRoutes,
   ...objectCreationRoutes,
+  ...customerPortalRoutes,
 ]

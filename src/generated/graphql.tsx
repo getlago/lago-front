@@ -3260,6 +3260,29 @@ export type TerminateCouponMutation = { __typename?: 'Mutation', terminateCoupon
 
 export type CreditNoteFormFragment = { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, creditableAmountCents: any, refundableAmountCents: any, vatRate: number, amountCurrency: CurrencyEnum };
 
+export type GetPortalCustomerInfosQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetPortalCustomerInfosQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'Customer', id: string, name?: string | null, legalName?: string | null, paymentProvider?: ProviderTypeEnum | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null } | null };
+
+export type PortalInvoiceListItemFragment = { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, issuingDate: any, totalAmountCents: any, totalAmountCurrency: CurrencyEnum };
+
+export type DownloadCustomerPortalInvoiceMutationVariables = Exact<{
+  input: DownloadCustomerPortalInvoiceInput;
+}>;
+
+
+export type DownloadCustomerPortalInvoiceMutation = { __typename?: 'Mutation', downloadCustomerPortalInvoice?: { __typename?: 'Invoice', id: string, fileUrl?: string | null } | null };
+
+export type CustomerPortalInvoicesQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']>;
+  page?: InputMaybe<Scalars['Int']>;
+  searchTerm?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type CustomerPortalInvoicesQuery = { __typename?: 'Query', customerPortalInvoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, issuingDate: any, totalAmountCents: any, totalAmountCurrency: CurrencyEnum }> } };
+
 export type GetAddOnsForCustomerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -3971,6 +3994,13 @@ export type GetCustomerQueryVariables = Exact<{
 
 export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, activeSubscriptionCount: number, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, legalName?: string | null, legalNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
 
+export type GenerateCustomerPortalUrlMutationVariables = Exact<{
+  input: GenerateCustomerPortalUrlInput;
+}>;
+
+
+export type GenerateCustomerPortalUrlMutation = { __typename?: 'Mutation', generateCustomerPortalUrl?: { __typename?: 'GenerateCustomerPortalUrlPayload', url: string } | null };
+
 export type GetCustomerDraftInvoicesQueryVariables = Exact<{
   customerId: Scalars['ID'];
   limit?: InputMaybe<Scalars['Int']>;
@@ -4058,12 +4088,22 @@ export type LoginUserMutationVariables = Exact<{
 
 export type LoginUserMutation = { __typename?: 'Mutation', loginUser?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, timezone?: TimezoneEnum | null }> | null } } | null };
 
+export type GetPortalLocaleQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetPortalLocaleQuery = { __typename?: 'Query', customerPortalOrganization?: { __typename?: 'Organization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, customerPortalUser?: { __typename?: 'Customer', id: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null } | null };
+
 export type SignupMutationVariables = Exact<{
   input: RegisterUserInput;
 }>;
 
 
 export type SignupMutation = { __typename?: 'Mutation', registerUser?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, timezone?: TimezoneEnum | null }> | null } } | null };
+
+export type GetPortalOrgaInfosQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetPortalOrgaInfosQuery = { __typename?: 'Query', customerPortalOrganization?: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null } | null };
 
 export type GetOrganizationApiKeyQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4233,6 +4273,16 @@ export const TerminateCouponFragmentDoc = gql`
     fragment TerminateCoupon on Coupon {
   id
   name
+}
+    `;
+export const PortalInvoiceListItemFragmentDoc = gql`
+    fragment PortalInvoiceListItem on Invoice {
+  id
+  paymentStatus
+  number
+  issuingDate
+  totalAmountCents
+  totalAmountCurrency
 }
     `;
 export const CouponPlansForCustomerFragmentDoc = gql`
@@ -5516,6 +5566,129 @@ export function useTerminateCouponMutation(baseOptions?: Apollo.MutationHookOpti
 export type TerminateCouponMutationHookResult = ReturnType<typeof useTerminateCouponMutation>;
 export type TerminateCouponMutationResult = Apollo.MutationResult<TerminateCouponMutation>;
 export type TerminateCouponMutationOptions = Apollo.BaseMutationOptions<TerminateCouponMutation, TerminateCouponMutationVariables>;
+export const GetPortalCustomerInfosDocument = gql`
+    query getPortalCustomerInfos {
+  customerPortalUser {
+    id
+    name
+    legalName
+    paymentProvider
+    email
+    addressLine1
+    addressLine2
+    state
+    country
+    city
+    zipcode
+  }
+}
+    `;
+
+/**
+ * __useGetPortalCustomerInfosQuery__
+ *
+ * To run a query within a React component, call `useGetPortalCustomerInfosQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPortalCustomerInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPortalCustomerInfosQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPortalCustomerInfosQuery(baseOptions?: Apollo.QueryHookOptions<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>(GetPortalCustomerInfosDocument, options);
+      }
+export function useGetPortalCustomerInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>(GetPortalCustomerInfosDocument, options);
+        }
+export type GetPortalCustomerInfosQueryHookResult = ReturnType<typeof useGetPortalCustomerInfosQuery>;
+export type GetPortalCustomerInfosLazyQueryHookResult = ReturnType<typeof useGetPortalCustomerInfosLazyQuery>;
+export type GetPortalCustomerInfosQueryResult = Apollo.QueryResult<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>;
+export const DownloadCustomerPortalInvoiceDocument = gql`
+    mutation downloadCustomerPortalInvoice($input: DownloadCustomerPortalInvoiceInput!) {
+  downloadCustomerPortalInvoice(input: $input) {
+    id
+    fileUrl
+  }
+}
+    `;
+export type DownloadCustomerPortalInvoiceMutationFn = Apollo.MutationFunction<DownloadCustomerPortalInvoiceMutation, DownloadCustomerPortalInvoiceMutationVariables>;
+
+/**
+ * __useDownloadCustomerPortalInvoiceMutation__
+ *
+ * To run a mutation, you first call `useDownloadCustomerPortalInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDownloadCustomerPortalInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [downloadCustomerPortalInvoiceMutation, { data, loading, error }] = useDownloadCustomerPortalInvoiceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDownloadCustomerPortalInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<DownloadCustomerPortalInvoiceMutation, DownloadCustomerPortalInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DownloadCustomerPortalInvoiceMutation, DownloadCustomerPortalInvoiceMutationVariables>(DownloadCustomerPortalInvoiceDocument, options);
+      }
+export type DownloadCustomerPortalInvoiceMutationHookResult = ReturnType<typeof useDownloadCustomerPortalInvoiceMutation>;
+export type DownloadCustomerPortalInvoiceMutationResult = Apollo.MutationResult<DownloadCustomerPortalInvoiceMutation>;
+export type DownloadCustomerPortalInvoiceMutationOptions = Apollo.BaseMutationOptions<DownloadCustomerPortalInvoiceMutation, DownloadCustomerPortalInvoiceMutationVariables>;
+export const CustomerPortalInvoicesDocument = gql`
+    query customerPortalInvoices($limit: Int, $page: Int, $searchTerm: String) {
+  customerPortalInvoices(limit: $limit, page: $page, searchTerm: $searchTerm) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      id
+      ...PortalInvoiceListItem
+    }
+  }
+}
+    ${PortalInvoiceListItemFragmentDoc}`;
+
+/**
+ * __useCustomerPortalInvoicesQuery__
+ *
+ * To run a query within a React component, call `useCustomerPortalInvoicesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCustomerPortalInvoicesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCustomerPortalInvoicesQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      page: // value for 'page'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useCustomerPortalInvoicesQuery(baseOptions?: Apollo.QueryHookOptions<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>(CustomerPortalInvoicesDocument, options);
+      }
+export function useCustomerPortalInvoicesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>(CustomerPortalInvoicesDocument, options);
+        }
+export type CustomerPortalInvoicesQueryHookResult = ReturnType<typeof useCustomerPortalInvoicesQuery>;
+export type CustomerPortalInvoicesLazyQueryHookResult = ReturnType<typeof useCustomerPortalInvoicesLazyQuery>;
+export type CustomerPortalInvoicesQueryResult = Apollo.QueryResult<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>;
 export const GetAddOnsForCustomerDocument = gql`
     query getAddOnsForCustomer($page: Int, $limit: Int, $searchTerm: String) {
   addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {
@@ -8511,6 +8684,39 @@ export function useGetCustomerLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
 export type GetCustomerQueryHookResult = ReturnType<typeof useGetCustomerQuery>;
 export type GetCustomerLazyQueryHookResult = ReturnType<typeof useGetCustomerLazyQuery>;
 export type GetCustomerQueryResult = Apollo.QueryResult<GetCustomerQuery, GetCustomerQueryVariables>;
+export const GenerateCustomerPortalUrlDocument = gql`
+    mutation generateCustomerPortalUrl($input: GenerateCustomerPortalUrlInput!) {
+  generateCustomerPortalUrl(input: $input) {
+    url
+  }
+}
+    `;
+export type GenerateCustomerPortalUrlMutationFn = Apollo.MutationFunction<GenerateCustomerPortalUrlMutation, GenerateCustomerPortalUrlMutationVariables>;
+
+/**
+ * __useGenerateCustomerPortalUrlMutation__
+ *
+ * To run a mutation, you first call `useGenerateCustomerPortalUrlMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useGenerateCustomerPortalUrlMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [generateCustomerPortalUrlMutation, { data, loading, error }] = useGenerateCustomerPortalUrlMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useGenerateCustomerPortalUrlMutation(baseOptions?: Apollo.MutationHookOptions<GenerateCustomerPortalUrlMutation, GenerateCustomerPortalUrlMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<GenerateCustomerPortalUrlMutation, GenerateCustomerPortalUrlMutationVariables>(GenerateCustomerPortalUrlDocument, options);
+      }
+export type GenerateCustomerPortalUrlMutationHookResult = ReturnType<typeof useGenerateCustomerPortalUrlMutation>;
+export type GenerateCustomerPortalUrlMutationResult = Apollo.MutationResult<GenerateCustomerPortalUrlMutation>;
+export type GenerateCustomerPortalUrlMutationOptions = Apollo.BaseMutationOptions<GenerateCustomerPortalUrlMutation, GenerateCustomerPortalUrlMutationVariables>;
 export const GetCustomerDraftInvoicesDocument = gql`
     query getCustomerDraftInvoices($customerId: ID!, $limit: Int, $page: Int, $status: InvoiceStatusTypeEnum, $searchTerm: String) {
   customerInvoices(
@@ -8934,6 +9140,51 @@ export function useLoginUserMutation(baseOptions?: Apollo.MutationHookOptions<Lo
 export type LoginUserMutationHookResult = ReturnType<typeof useLoginUserMutation>;
 export type LoginUserMutationResult = Apollo.MutationResult<LoginUserMutation>;
 export type LoginUserMutationOptions = Apollo.BaseMutationOptions<LoginUserMutation, LoginUserMutationVariables>;
+export const GetPortalLocaleDocument = gql`
+    query getPortalLocale {
+  customerPortalOrganization {
+    id
+    billingConfiguration {
+      id
+      documentLocale
+    }
+  }
+  customerPortalUser {
+    id
+    billingConfiguration {
+      id
+      documentLocale
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetPortalLocaleQuery__
+ *
+ * To run a query within a React component, call `useGetPortalLocaleQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPortalLocaleQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPortalLocaleQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPortalLocaleQuery(baseOptions?: Apollo.QueryHookOptions<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>(GetPortalLocaleDocument, options);
+      }
+export function useGetPortalLocaleLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>(GetPortalLocaleDocument, options);
+        }
+export type GetPortalLocaleQueryHookResult = ReturnType<typeof useGetPortalLocaleQuery>;
+export type GetPortalLocaleLazyQueryHookResult = ReturnType<typeof useGetPortalLocaleLazyQuery>;
+export type GetPortalLocaleQueryResult = Apollo.QueryResult<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>;
 export const SignupDocument = gql`
     mutation signup($input: RegisterUserInput!) {
   registerUser(input: $input) {
@@ -8971,6 +9222,42 @@ export function useSignupMutation(baseOptions?: Apollo.MutationHookOptions<Signu
 export type SignupMutationHookResult = ReturnType<typeof useSignupMutation>;
 export type SignupMutationResult = Apollo.MutationResult<SignupMutation>;
 export type SignupMutationOptions = Apollo.BaseMutationOptions<SignupMutation, SignupMutationVariables>;
+export const GetPortalOrgaInfosDocument = gql`
+    query getPortalOrgaInfos {
+  customerPortalOrganization {
+    id
+    name
+    logoUrl
+  }
+}
+    `;
+
+/**
+ * __useGetPortalOrgaInfosQuery__
+ *
+ * To run a query within a React component, call `useGetPortalOrgaInfosQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPortalOrgaInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPortalOrgaInfosQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPortalOrgaInfosQuery(baseOptions?: Apollo.QueryHookOptions<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>(GetPortalOrgaInfosDocument, options);
+      }
+export function useGetPortalOrgaInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>(GetPortalOrgaInfosDocument, options);
+        }
+export type GetPortalOrgaInfosQueryHookResult = ReturnType<typeof useGetPortalOrgaInfosQuery>;
+export type GetPortalOrgaInfosLazyQueryHookResult = ReturnType<typeof useGetPortalOrgaInfosLazyQuery>;
+export type GetPortalOrgaInfosQueryResult = Apollo.QueryResult<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>;
 export const GetOrganizationApiKeyDocument = gql`
     query getOrganizationApiKey {
   organization {

@@ -110,6 +110,11 @@ module.exports = {
   "project_62d175018d4659c9a3eec929": {
     "base": require('./⚙️ [WIP] - Credits - Create prepaid credits__base.json')
   },
+  "project_6419c64c72d2468f025ea25d": {
+    "base": require('./⚙️ [WIP] - Customer - Customer portal__base.json'),
+    "fr": require('./⚙️ [WIP] - Customer - Customer portal__fr.json'),
+    "nb": require('./⚙️ [WIP] - Customer - Customer portal__nb.json')
+  },
   "project_632b49dccdbed9536c8497ab": {
     "base": require('./⚙️ [WIP] - Customers - Customer hold currency__base.json')
   },
