@@ -3666,6 +3666,13 @@ export type UpdateVatRateOrganizationMutationVariables = Exact<{
 
 export type UpdateVatRateOrganizationMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, vatRate: number } | null } | null };
 
+export type UpdateOrganizationLogoMutationVariables = Exact<{
+  input: UpdateOrganizationInput;
+}>;
+
+
+export type UpdateOrganizationLogoMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string, logoUrl?: string | null } | null };
+
 export type AddStripeApiKeyMutationVariables = Exact<{
   input: AddStripePaymentProviderInput;
 }>;
@@ -3909,6 +3916,18 @@ export type GetCurrentUserInfosQueryVariables = Exact<{ [key: string]: never; }>
 
 
 export type GetCurrentUserInfosQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, email?: string | null, premium: boolean, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> | null } };
+
+export type GetEmailSettingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetEmailSettingsQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, emailSettings?: Array<EmailSettingsEnum> | null, logoUrl?: string | null, name: string } | null };
+
+export type UpdateEmailSettingMutationVariables = Exact<{
+  input: UpdateOrganizationInput;
+}>;
+
+
+export type UpdateEmailSettingMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string, emailSettings?: Array<EmailSettingsEnum> | null } | null };
 
 export type MainOrganizationInfosFragment = { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null };
 
@@ -7186,6 +7205,40 @@ export function useUpdateVatRateOrganizationMutation(baseOptions?: Apollo.Mutati
 export type UpdateVatRateOrganizationMutationHookResult = ReturnType<typeof useUpdateVatRateOrganizationMutation>;
 export type UpdateVatRateOrganizationMutationResult = Apollo.MutationResult<UpdateVatRateOrganizationMutation>;
 export type UpdateVatRateOrganizationMutationOptions = Apollo.BaseMutationOptions<UpdateVatRateOrganizationMutation, UpdateVatRateOrganizationMutationVariables>;
+export const UpdateOrganizationLogoDocument = gql`
+    mutation updateOrganizationLogo($input: UpdateOrganizationInput!) {
+  updateOrganization(input: $input) {
+    id
+    logoUrl
+  }
+}
+    `;
+export type UpdateOrganizationLogoMutationFn = Apollo.MutationFunction<UpdateOrganizationLogoMutation, UpdateOrganizationLogoMutationVariables>;
+
+/**
+ * __useUpdateOrganizationLogoMutation__
+ *
+ * To run a mutation, you first call `useUpdateOrganizationLogoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOrganizationLogoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOrganizationLogoMutation, { data, loading, error }] = useUpdateOrganizationLogoMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOrganizationLogoMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationLogoMutation, UpdateOrganizationLogoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateOrganizationLogoMutation, UpdateOrganizationLogoMutationVariables>(UpdateOrganizationLogoDocument, options);
+      }
+export type UpdateOrganizationLogoMutationHookResult = ReturnType<typeof useUpdateOrganizationLogoMutation>;
+export type UpdateOrganizationLogoMutationResult = Apollo.MutationResult<UpdateOrganizationLogoMutation>;
+export type UpdateOrganizationLogoMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationLogoMutation, UpdateOrganizationLogoMutationVariables>;
 export const AddStripeApiKeyDocument = gql`
     mutation addStripeApiKey($input: AddStripePaymentProviderInput!) {
   addStripePaymentProvider(input: $input) {
@@ -8249,6 +8302,77 @@ export function useGetCurrentUserInfosLazyQuery(baseOptions?: Apollo.LazyQueryHo
 export type GetCurrentUserInfosQueryHookResult = ReturnType<typeof useGetCurrentUserInfosQuery>;
 export type GetCurrentUserInfosLazyQueryHookResult = ReturnType<typeof useGetCurrentUserInfosLazyQuery>;
 export type GetCurrentUserInfosQueryResult = Apollo.QueryResult<GetCurrentUserInfosQuery, GetCurrentUserInfosQueryVariables>;
+export const GetEmailSettingsDocument = gql`
+    query getEmailSettings {
+  organization {
+    id
+    emailSettings
+    logoUrl
+    name
+  }
+}
+    `;
+
+/**
+ * __useGetEmailSettingsQuery__
+ *
+ * To run a query within a React component, call `useGetEmailSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetEmailSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetEmailSettingsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetEmailSettingsQuery(baseOptions?: Apollo.QueryHookOptions<GetEmailSettingsQuery, GetEmailSettingsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetEmailSettingsQuery, GetEmailSettingsQueryVariables>(GetEmailSettingsDocument, options);
+      }
+export function useGetEmailSettingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetEmailSettingsQuery, GetEmailSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetEmailSettingsQuery, GetEmailSettingsQueryVariables>(GetEmailSettingsDocument, options);
+        }
+export type GetEmailSettingsQueryHookResult = ReturnType<typeof useGetEmailSettingsQuery>;
+export type GetEmailSettingsLazyQueryHookResult = ReturnType<typeof useGetEmailSettingsLazyQuery>;
+export type GetEmailSettingsQueryResult = Apollo.QueryResult<GetEmailSettingsQuery, GetEmailSettingsQueryVariables>;
+export const UpdateEmailSettingDocument = gql`
+    mutation updateEmailSetting($input: UpdateOrganizationInput!) {
+  updateOrganization(input: $input) {
+    id
+    emailSettings
+  }
+}
+    `;
+export type UpdateEmailSettingMutationFn = Apollo.MutationFunction<UpdateEmailSettingMutation, UpdateEmailSettingMutationVariables>;
+
+/**
+ * __useUpdateEmailSettingMutation__
+ *
+ * To run a mutation, you first call `useUpdateEmailSettingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateEmailSettingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateEmailSettingMutation, { data, loading, error }] = useUpdateEmailSettingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateEmailSettingMutation(baseOptions?: Apollo.MutationHookOptions<UpdateEmailSettingMutation, UpdateEmailSettingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateEmailSettingMutation, UpdateEmailSettingMutationVariables>(UpdateEmailSettingDocument, options);
+      }
+export type UpdateEmailSettingMutationHookResult = ReturnType<typeof useUpdateEmailSettingMutation>;
+export type UpdateEmailSettingMutationResult = Apollo.MutationResult<UpdateEmailSettingMutation>;
+export type UpdateEmailSettingMutationOptions = Apollo.BaseMutationOptions<UpdateEmailSettingMutation, UpdateEmailSettingMutationVariables>;
 export const GetOrganizationInfosDocument = gql`
     query getOrganizationInfos {
   organization {

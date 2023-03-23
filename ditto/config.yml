@@ -135,6 +135,8 @@ projects:
     id: 63fcc31ebb3fb91189619496
   - name: ⚙️ [WIP] - Customer - Customer portal
     id: 6419c64c72d2468f025ea25d
+  - name: ⚙️ [WIP] - Settings - Email invoices to final customers
+    id: 640766f4ff20c7dac058261b
 format: flat
 variants: true
 components: true

@@ -1,10 +1,10 @@
-import { forwardRef, useRef, useState } from 'react'
+import { forwardRef, useState } from 'react'
 import { useFormik } from 'formik'
 import { object, string } from 'yup'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
-import { Avatar, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { ComboBoxField, TextInput, TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
@@ -16,8 +16,7 @@ import {
 import { theme } from '~/styles'
 import { addToast } from '~/core/apolloClient'
 import { countryDataForCombobox } from '~/core/countryCodes'
-
-const FILE_MAX_SIZE = 800000
+import { OrganizationLogoPicker } from '~/components/OrganizationLogoPicker'
 
 gql`
   fragment EditOrganizationInformationsDialog on Organization {
@@ -66,8 +65,6 @@ export const EditOrganizationInformationsDialog = forwardRef<
     },
   })
   const [logo, setLogo] = useState<string>()
-  const [logoUploadError, setLogoUploadError] = useState(false)
-  const hiddenFileInputRef = useRef<HTMLInputElement>(null)
   const formikProps = useFormik<UpdateOrganizationInput>({
     initialValues: {
       legalName: organization?.legalName || '',
@@ -96,24 +93,6 @@ export const EditOrganizationInformationsDialog = forwardRef<
       })
     },
   })
-
-  const getBase64 = (file: Blob) => {
-    var reader = new FileReader()
-
-    if (file.size > FILE_MAX_SIZE) {
-      setLogoUploadError(true)
-      return
-    }
-
-    reader.readAsDataURL(file)
-    reader.onload = () => {
-      setLogo(reader?.result?.toString())
-    }
-    reader.onerror = (error) => {
-      // eslint-disable-next-line no-console
-      console.error('Error: ', error)
-    }
-  }
 
   return (
     <Dialog
@@ -146,51 +125,7 @@ export const EditOrganizationInformationsDialog = forwardRef<
     >
       <Content>
         <FormSection>
-          <AvatarContainer>
-            {logo || organization?.logoUrl ? (
-              <Avatar size="large" variant="connector">
-                <img
-                  src={(logo || organization?.logoUrl) as string}
-                  alt={`${organization?.name}'s logo`}
-                />
-              </Avatar>
-            ) : (
-              <Avatar
-                size="large"
-                variant="company"
-                identifier={organization?.name || ''}
-                initials={(organization?.name || '')
-                  .split(' ')
-                  .reduce((acc, n) => (acc = acc + n[0]), '')}
-              />
-            )}
-            <AvatarUploadWrapper>
-              <ChooseFileButton
-                variant="secondary"
-                onClick={() => hiddenFileInputRef?.current?.click()}
-              >
-                {translate('text_62ab2d0396dd6b0361614d18')}
-              </ChooseFileButton>
-              <Typography variant="caption" color={logoUploadError ? 'danger600' : undefined}>
-                {logoUploadError
-                  ? translate('text_62ab2d0396dd6b0361614d1e')
-                  : translate('text_62ab2d0396dd6b0361614d20')}
-              </Typography>
-            </AvatarUploadWrapper>
-            <HiddenInput
-              type="file"
-              accept="image/png, image/jpeg"
-              ref={hiddenFileInputRef}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                setLogoUploadError(false)
-                const file = event?.target?.files?.[0]
-
-                if (file) {
-                  getBase64(file)
-                }
-              }}
-            />
-          </AvatarContainer>
+          <OrganizationLogoPicker logoValue={logo} onChange={(value) => setLogo(value)} />
         </FormSection>
         <FormSection>
           <TextInput
@@ -275,31 +210,6 @@ const FormSection = styled.div`
   &:not(:last-child) {
     margin-bottom: ${theme.spacing(6)};
   }
-`
-
-const AvatarContainer = styled.div`
-  display: flex;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(4)};
-  }
-`
-
-const AvatarUploadWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-
-  > button {
-    margin-bottom: ${theme.spacing(2)};
-  }
-`
-
-const ChooseFileButton = styled(Button)`
-  width: fit-content;
-`
-
-const HiddenInput = styled.input`
-  display: none;
 `
 
 const AddressSection = styled.div`

@@ -277,6 +277,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                 label={translate('text_626c0c09812bbc00e4c59e09')}
                 placeholder={translate('text_626c0c09812bbc00e4c59e0b')}
                 formikProps={formikProps}
+                helperText={translate('text_641394c4c936000079c5639a')}
               />
 
               <TextInputField

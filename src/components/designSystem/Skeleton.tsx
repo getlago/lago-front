@@ -12,6 +12,11 @@ enum SkeletonVariantEnum {
   circular = 'circular',
 }
 
+enum SkeletonColorEnum {
+  dark = 'dark',
+  light = 'light',
+}
+
 type TSkeletonVariant = keyof typeof SkeletonVariantEnum
 
 interface SkeletonConnectorProps {
@@ -22,6 +27,7 @@ interface SkeletonConnectorProps {
   className?: string
   marginRight?: number | string
   marginBottom?: number | string
+  color?: keyof typeof SkeletonColorEnum
 }
 
 interface SkeletonGenericProps {
@@ -32,6 +38,7 @@ interface SkeletonGenericProps {
   className?: string
   marginRight?: number | string
   marginBottom?: number | string
+  color?: keyof typeof SkeletonColorEnum
 }
 
 export const Skeleton = ({
@@ -42,6 +49,7 @@ export const Skeleton = ({
   size,
   height,
   width,
+  color = SkeletonColorEnum.light,
 }: SkeletonConnectorProps | SkeletonGenericProps) => {
   return (
     <SkeletonContainer
@@ -56,6 +64,7 @@ export const Skeleton = ({
         ].includes(SkeletonVariantEnum[variant]),
         'skeleton-variant--text': variant === SkeletonVariantEnum.text,
         'skeleton-variant--rounded': variant === SkeletonVariantEnum.connectorAvatar,
+        'skeleton-color--dark': color === SkeletonColorEnum.dark,
       })}
     />
   )
@@ -77,6 +86,10 @@ const SkeletonContainer = styled.div<{
     !$marginRight ? 0 : typeof $marginRight === 'number' ? `${$marginRight}px` : $marginRight};
   margin-bottom: ${({ $marginBottom }) =>
     !$marginBottom ? 0 : typeof $marginBottom === 'number' ? `${$marginBottom}px` : $marginBottom};
+
+  &.skeleton-color--dark {
+    background-color: ${theme.palette.grey[300]};
+  }
 
   &.skeleton-variant--circular {
     border-radius: 50%;

@@ -8,6 +8,7 @@ export const PageHeader = styled.div<{ $withSide?: boolean }>`
   box-shadow: ${theme.shadows[7]};
   display: flex;
   height: ${NAV_HEIGHT}px;
+  min-height: ${NAV_HEIGHT}px;
   justify-content: space-between;
   padding: 0 ${theme.spacing(12)};
   position: sticky;
