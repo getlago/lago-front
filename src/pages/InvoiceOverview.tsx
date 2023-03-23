@@ -168,7 +168,6 @@ export const InvoiceOverview = memo(
                     customerId={customer?.id || ''}
                     formatedCreditNotes={formatedCreditNotes}
                     invoiceId={invoiceId || ''}
-                    subTotalVatExcludedAmountCents={invoice?.subTotalVatExcludedAmountCents || 0}
                   />
                 )}
 

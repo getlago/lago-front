@@ -14,7 +14,6 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 gql`
   fragment InvoiceForCreditNotesTable on Invoice {
     id
-    subTotalVatExcludedAmountCents
     customer {
       id
     }
@@ -72,31 +71,16 @@ interface InvoiceCreditNotesTableProps {
     creditNote: CreditNote
     items: CreditNoteItem[][][]
   }[]
-  subTotalVatExcludedAmountCents: number
 }
 
 export const InvoiceCreditNotesTable = memo(
-  ({
-    customerId,
-    formatedCreditNotes,
-    invoiceId,
-    subTotalVatExcludedAmountCents,
-  }: InvoiceCreditNotesTableProps) => {
+  ({ customerId, formatedCreditNotes, invoiceId }: InvoiceCreditNotesTableProps) => {
     const { translate } = useInternationalization()
 
     return (
       <Wrapper>
         {formatedCreditNotes.map((formatedCreditNote, i) => {
           const creditNote = formatedCreditNote.creditNote
-          let remainingAmountAfterCreditNote = subTotalVatExcludedAmountCents || 0
-
-          for (let l = 0; l < i + 1; l++) {
-            const element = formatedCreditNotes[l]
-
-            remainingAmountAfterCreditNote =
-              remainingAmountAfterCreditNote -
-              Number(element.creditNote.subTotalVatExcludedAmountCents)
-          }
 
           return (
             <React.Fragment key={`formatedCreditNote-${i}`}>
@@ -273,30 +257,6 @@ export const InvoiceCreditNotesTable = memo(
                         {intlFormatNumber(
                           deserializeAmount(
                             creditNote?.totalAmountCents || 0,
-                            creditNote?.creditAmountCurrency || CurrencyEnum.Usd
-                          ),
-                          {
-                            currencyDisplay: 'symbol',
-                            currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
-                          }
-                        )}
-                      </Typography>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td>
-                      <Typography variant="bodyHl" color="grey700">
-                        {translate('text_637ccf8133d2c9a7d11ce749', {
-                          creditNotePrefix: creditNote.number.split('-').at(-1),
-                        })}
-                      </Typography>
-                    </td>
-                    <td>
-                      <Typography variant="body" color="grey700">
-                        {intlFormatNumber(
-                          deserializeAmount(
-                            remainingAmountAfterCreditNote || 0,
                             creditNote?.creditAmountCurrency || CurrencyEnum.Usd
                           ),
                           {
