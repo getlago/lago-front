@@ -77,6 +77,10 @@ export const cache = new InMemoryCache({
           keyArgs: ['status', 'paymentStatus'],
           merge: mergePaginatedCollection,
         },
+        customerPortalInvoices: {
+          keyArgs: false,
+          merge: mergePaginatedCollection,
+        },
       },
     },
   },

@@ -133,6 +133,8 @@ projects:
     id: 63e27c4800ff170963670e71
   - name: ⚙️ [WIP] - Customers - Metadata on customer & invoice
     id: 63fcc31ebb3fb91189619496
+  - name: ⚙️ [WIP] - Customer - Customer portal
+    id: 6419c64c72d2468f025ea25d
 format: flat
 variants: true
 components: true
