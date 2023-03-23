@@ -136,6 +136,11 @@ module.exports = {
   "project_63e51e8467659a55d188a68c": {
     "base": require('./⚙️ [WIP] - Settings - Define preferred doc language generation__base.json')
   },
+  "project_640766f4ff20c7dac058261b": {
+    "base": require('./⚙️ [WIP] - Settings - Email invoices to final customers__base.json'),
+    "fr": require('./⚙️ [WIP] - Settings - Email invoices to final customers__fr.json'),
+    "nb": require('./⚙️ [WIP] - Settings - Email invoices to final customers__nb.json')
+  },
   "project_63e27c4800ff170963670e71": {
     "base": require('./⚙️ [WIP] - Settings - Webhook debugger__base.json')
   },

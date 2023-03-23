@@ -43,6 +43,8 @@ import {
   ONLY_DEV_DESIGN_SYSTEM_ROUTE,
   ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE,
   ORGANIZATION_INFORMATIONS_ROUTE,
+  EMAILS_SETTINGS_ROUTE,
+  EMAILS_SCENARIO_CONFIG_ROUTE,
   PLANS_ROUTE,
   SETTINGS_ROUTE,
   WEBHOOK_LOGS_ROUTE,
@@ -293,11 +295,14 @@ const SideNav = () => {
                     title: translate('text_62728ff857d47b013204c726'),
                     icon: 'settings',
                     link: SETTINGS_ROUTE,
+                    canBeClickedOnActive: true,
                     match: [
                       INVOICE_SETTINGS_ROUTE,
                       MEMBERS_ROUTE,
                       INTEGRATIONS_ROUTE,
                       ORGANIZATION_INFORMATIONS_ROUTE,
+                      EMAILS_SETTINGS_ROUTE,
+                      EMAILS_SCENARIO_CONFIG_ROUTE,
                     ],
                   },
                 ]}

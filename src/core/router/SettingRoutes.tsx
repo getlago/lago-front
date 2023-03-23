@@ -28,6 +28,13 @@ const GocardlessIntegration = lazy(
       /* webpackChunkName: 'gocardless-integration' */ '~/pages/settings/GocardlessIntegration'
     )
 )
+const EmailSettings = lazy(
+  () => import(/* webpackChunkName: 'email-settings' */ '~/pages/settings/EmailSettings')
+)
+const EmailScenarioConfig = lazy(
+  () =>
+    import(/* webpackChunkName: 'email-scenario-config' */ '~/pages/settings/EmailScenarioConfig')
+)
 
 // ----------- Routes -----------
 export const SETTINGS_ROUTE = '/settings'
@@ -38,6 +45,8 @@ export const INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
 export const STRIPE_INTEGRATION_ROUTE = `${SETTINGS_ROUTE}/integrations/stripe`
 export const GOCARDLESS_INTEGRATION_ROUTE = `${SETTINGS_ROUTE}/integrations/gocardless`
 export const MEMBERS_ROUTE = `${SETTINGS_ROUTE}/members`
+export const EMAILS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/emails`
+export const EMAILS_SCENARIO_CONFIG_ROUTE = `${SETTINGS_ROUTE}/emails/config/:type`
 
 export const settingRoutes: CustomRouteObject[] = [
   {
@@ -53,6 +62,11 @@ export const settingRoutes: CustomRouteObject[] = [
         path: [INVOICE_SETTINGS_ROUTE, VAT_RATE_ROUTE],
         private: true,
         element: <InvoiceSettings />,
+      },
+      {
+        path: EMAILS_SETTINGS_ROUTE,
+        private: true,
+        element: <EmailSettings />,
       },
       {
         path: INTEGRATIONS_ROUTE,
@@ -75,5 +89,10 @@ export const settingRoutes: CustomRouteObject[] = [
     path: GOCARDLESS_INTEGRATION_ROUTE,
     private: true,
     element: <GocardlessIntegration />,
+  },
+  {
+    path: EMAILS_SCENARIO_CONFIG_ROUTE,
+    private: true,
+    element: <EmailScenarioConfig />,
   },
 ]

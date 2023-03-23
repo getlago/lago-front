@@ -58,6 +58,7 @@ import Laptop from '~/public/icons/laptop.svg'
 import Lock from '~/public/icons/lock.svg'
 import Logout from '~/public/icons/log-out.svg'
 import MagnifyingGlass from '~/public/icons/magnifying-glass.svg'
+import Mail from '~/public/icons/mail.svg'
 import Map from '~/public/icons/map.svg'
 import Micro from '~/public/icons/micro.svg'
 import Minus from '~/public/icons/minus.svg'
@@ -85,11 +86,12 @@ import Rotate from '~/public/icons/rotate.svg'
 import Scissor from '~/public/icons/scissor.svg'
 import Settings from '~/public/icons/settings.svg'
 import Share from '~/public/icons/share.svg'
-import StarFilled from '~/public/icons/star-filled.svg'
+import Smartphone from '~/public/icons/smartphone.svg'
 import Sparkles from '~/public/icons/sparkles.svg'
+import StarFilled from '~/public/icons/star-filled.svg'
 import Stop from '~/public/icons/stop.svg'
-import SwitchOff from '~/public/icons/switch-off.svg'
 import Switch from '~/public/icons/switch.svg'
+import SwitchOff from '~/public/icons/switch-off.svg'
 import Sync from '~/public/icons/sync.svg'
 import Table from '~/public/icons/table.svg'
 import TableHorizontale from '~/public/icons/table-horizontale.svg'
@@ -98,8 +100,8 @@ import Text from '~/public/icons/text.svg'
 import Trash from '~/public/icons/trash.svg'
 import Unlock from '~/public/icons/unlock.svg'
 import User from '~/public/icons/user.svg'
-import UserMultiple from '~/public/icons/user-multiple.svg'
 import UserAdd from '~/public/icons/user-add.svg'
+import UserMultiple from '~/public/icons/user-multiple.svg'
 import ValidateFilled from '~/public/icons/validate-filled.svg'
 import ValidateUnfilled from '~/public/icons/validate-unfilled.svg'
 import Wallet from '~/public/icons/wallet.svg'
@@ -161,12 +163,13 @@ export const ALL_ICONS = {
   handle: Handle,
   hashtag: Hashtag,
   'info-circle': InfoCircle,
-  key: Key,
   'keyboard-enter': KeyboardEnter,
+  'magnifying-glass': MagnifyingGlass,
+  key: Key,
   laptop: Laptop,
   lock: Lock,
   logout: Logout,
-  'magnifying-glass': MagnifyingGlass,
+  mail: Mail,
   map: Map,
   micro: Micro,
   minus: Minus,
@@ -194,6 +197,7 @@ export const ALL_ICONS = {
   scissor: Scissor,
   settings: Settings,
   share: Share,
+  smartphone: Smartphone,
   sparkles: Sparkles,
   'star-filled': StarFilled,
   stop: Stop,
