@@ -64,6 +64,8 @@ export const mapAvatarSize = (size: AvatarSize) => {
   switch (size) {
     case 'small':
       return 16
+    case 'medium':
+      return 32
     case 'large':
       return 64
     default:
