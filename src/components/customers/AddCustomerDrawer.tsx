@@ -83,6 +83,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
         city: customer?.city ?? undefined,
         zipcode: customer?.zipcode ?? undefined,
         timezone: customer?.timezone ?? undefined,
+        url: customer?.url ?? undefined,
         providerCustomer: {
           providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? undefined,
           syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
@@ -151,6 +152,7 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
               currency: customer?.currency ?? undefined,
               phone: customer?.phone ?? undefined,
               email: customer?.email ?? undefined,
+              url: customer?.url ?? undefined,
               addressLine1: customer?.addressLine1 ?? undefined,
               addressLine2: customer?.addressLine2 ?? undefined,
               state: customer?.state ?? undefined,
@@ -274,6 +276,13 @@ export const AddCustomerDrawer = forwardRef<DrawerRef, AddCustomerDrawerProps>(
                 name="email"
                 label={translate('text_626c0c09812bbc00e4c59e09')}
                 placeholder={translate('text_626c0c09812bbc00e4c59e0b')}
+                formikProps={formikProps}
+              />
+
+              <TextInputField
+                name="url"
+                label={translate('text_641b15b0df87eb00848944ea')}
+                placeholder={translate('text_641b15e7ac746900b68377f9')}
                 formikProps={formikProps}
               />
               <TextInputField

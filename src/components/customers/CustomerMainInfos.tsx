@@ -24,6 +24,7 @@ gql`
     state
     country
     city
+    url
     zipcode
     paymentProvider
     timezone
@@ -72,6 +73,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     legalNumber,
     phone,
     email,
+    url,
     currency,
     addressLine1,
     addressLine2,
@@ -138,6 +140,12 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
         <div>
           <Typography variant="caption">{translate('text_626c0c301a16a600ea061479')}</Typography>
           <Typography color="textSecondary">{email}</Typography>
+        </div>
+      )}
+      {url && (
+        <div>
+          <Typography variant="caption">{translate('text_641b164cff8497006bcbd2b3')}</Typography>
+          <Typography color="textSecondary">{url}</Typography>
         </div>
       )}
       {phone && (
