@@ -37,6 +37,7 @@ gql`
     state
     timezone
     zipcode
+    url
     providerCustomer {
       id
       providerCustomerId
