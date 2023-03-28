@@ -8,6 +8,7 @@ ARG API_URL
 
 ENV API_URL $API_URL
 
+RUN apk add python3 build-base
 RUN npm config rm proxy && npm config rm https-proxy
 RUN yarn && yarn build && npm prune --production
 
