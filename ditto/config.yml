@@ -1,6 +1,6 @@
 sources:
   components:
-    - enabled: true
+    enabled: true
   projects:
     - name: Settings - API KEY
       id: 6227a2e6da6f5200e76ec9c2
