@@ -8,7 +8,7 @@ import { hasDefinedGQLError, onAccessCustomerPortal } from '~/core/apolloClient'
 import { Avatar, Icon, Typography } from '~/components/designSystem'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { useGetPortalLocaleQuery } from '~/generated/graphql'
-import Logo from '~/public/images/logo/lago-logo-dark.svg'
+import Logo from '~/public/images/logo/lago-logo-grey.svg'
 import { Locale } from '~/core/translations'
 import { theme } from '~/styles'
 
