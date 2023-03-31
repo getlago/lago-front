@@ -41,6 +41,9 @@ module.exports = {
   "project_63ac86d51bd1437a2a21f1f9": {
     "base": require('./-ready-for-dev---invoices--invoice-list__base.json')
   },
+  "project_642707b04540bee48d54de86": {
+    "base": require('./-ready-for-dev---login---reset-password__base.json')
+  },
   "project_63208b60a9b2a4c6186bbd26": {
     "base": require('./-ready-for-dev---onboarding---invite-member-to-organisation__base.json')
   },

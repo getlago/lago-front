@@ -12,12 +12,16 @@ const SignUp = lazy(() => import(/* webpackChunkName: 'sign-up' */ '~/pages/auth
 const ForgotPassword = lazy(
   () => import(/* webpackChunkName: 'forgot-password' */ '~/pages/auth/ForgotPassword')
 )
+const ResetPassword = lazy(
+  () => import(/* webpackChunkName: 'reset-password' */ '~/pages/auth/ResetPassword')
+)
 
 const Invitation = lazy(() => import(/* webpackChunkName: 'invitation' */ '~/pages/Invitation'))
 
 // ----------- Routes -----------
 export const LOGIN_ROUTE = '/login'
 export const FORGOT_PASSWORD_ROUTE = '/forgot-password'
+export const RESET_PASSWORD_ROUTE = '/reset-password/:token'
 export const SIGN_UP_ROUTE = '/sign-up'
 export const INVITATION_ROUTE = '/invitation/:token'
 
@@ -41,7 +45,11 @@ export const authRoutes: CustomRouteObject[] = [
     element: <ForgotPassword />,
     onlyPublic: true,
   },
-
+  {
+    path: RESET_PASSWORD_ROUTE,
+    element: <ResetPassword />,
+    onlyPublic: true,
+  },
   {
     path: INVITATION_ROUTE,
     element: <Invitation />,
