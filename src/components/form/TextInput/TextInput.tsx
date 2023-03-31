@@ -29,6 +29,7 @@ export interface TextInputProps
   error?: string | boolean
   name?: string
   label?: string | ReactNode
+  labelRight?: ReactNode
   cleanable?: boolean
   password?: boolean
   value?: string | number
@@ -103,6 +104,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
       value = '',
       name,
       label,
+      labelRight,
       helperText,
       infoText,
       maxRows,
@@ -167,21 +169,26 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
 
     return (
       <Container className={className}>
-        {label && (
-          <Label $withInfo={!!infoText}>
-            <Typography
-              variant="captionHl"
-              color="textSecondary"
-              component={(labelProps) => <label htmlFor={name} {...labelProps} />}
-            >
-              {label}
-            </Typography>
-            {!!infoText && (
-              <Tooltip placement="bottom-start" title={infoText}>
-                <Icon name="info-circle" />
-              </Tooltip>
+        {(!!label || !!labelRight) && (
+          <InlineLabelContainer>
+            {label && (
+              <Label $withInfo={!!infoText}>
+                <Typography
+                  variant="captionHl"
+                  color="textSecondary"
+                  component={(labelProps) => <label htmlFor={name} {...labelProps} />}
+                >
+                  {label}
+                </Typography>
+                {!!infoText && (
+                  <Tooltip placement="bottom-start" title={infoText}>
+                    <Icon name="info-circle" />
+                  </Tooltip>
+                )}
+              </Label>
             )}
-          </Label>
+            {!!labelRight && <>{labelRight}</>}
+          </InlineLabelContainer>
         )}
         <MuiTextField
           ref={ref}
@@ -256,6 +263,11 @@ const Container = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(1)};
   }
+`
+
+const InlineLabelContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
 `
 
 const Label = styled.div<{ $withInfo?: boolean }>`

@@ -1,3 +1,4 @@
+import { generatePath, Link } from 'react-router-dom'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { object, string } from 'yup'
@@ -99,6 +100,13 @@ const Login = () => {
             formikProps={formikProps}
             password
             label={translate('text_620bc4d4269a55014d493f32')}
+            labelRight={
+              <Typography variant="caption">
+                <Link to={generatePath(FORGOT_PASSWORD_ROUTE)}>
+                  {translate('text_642707b0da1753a9bb6672b5')}
+                </Link>
+              </Typography>
+            }
             placeholder={translate('text_620bc4d4269a55014d493f5b')}
           />
 
@@ -107,12 +115,6 @@ const Login = () => {
           </SubmitButton>
         </form>
 
-        <UsefullLink
-          variant="caption"
-          html={translate('text_62c84d0029355c83db4dd184', {
-            linkForgetPassword: FORGOT_PASSWORD_ROUTE,
-          })}
-        />
         {!disableSignUp && (
           <UsefullLink
             variant="caption"
@@ -142,7 +144,7 @@ const PasswordInput = styled(TextInputField)`
 
 const SubmitButton = styled(Button)`
   && {
-    margin-bottom: ${theme.spacing(8)};
+    margin-bottom: ${theme.spacing(4)};
   }
 `
 
@@ -150,7 +152,6 @@ const UsefullLink = styled(Typography)`
   && {
     margin: auto;
     text-align: center;
-    text-align: left;
   }
 `
 
