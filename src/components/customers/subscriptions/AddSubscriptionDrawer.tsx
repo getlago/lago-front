@@ -60,6 +60,7 @@ export const AddSubscriptionDrawer = forwardRef<
       // @ts-ignore
       planId: undefined,
       name: '',
+      externalId: '',
       subscriptionAt: currentDateRef?.current,
       billingTime: BillingTimeEnum.Calendar,
     },
@@ -226,12 +227,21 @@ export const AddSubscriptionDrawer = forwardRef<
             {!!formikProps?.values?.planId && (
               <>
                 <TextInputField
+                  name="externalId"
+                  formikProps={formikProps}
+                  label={translate('text_642a94e522316cd9e1875224')}
+                  placeholder={translate('text_642ac1d1407baafb9e4390ee')}
+                  helperText={translate('text_642ac28c65c2180085afe31a')}
+                />
+
+                <TextInputField
                   name="name"
                   formikProps={formikProps}
                   label={translate('text_62d7f6178ec94cd09370e2b9')}
                   placeholder={translate('text_62d7f6178ec94cd09370e2cb')}
                   helperText={translate('text_62d7f6178ec94cd09370e2d9')}
                 />
+
                 {!existingSubscription && (
                   <>
                     <DatePickerField
