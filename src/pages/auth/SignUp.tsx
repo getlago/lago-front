@@ -248,7 +248,7 @@ const ValidationLine = styled.div`
 
 const SubmitButton = styled(Button)`
   && {
-    margin-bottom: ${theme.spacing(8)};
+    margin-bottom: ${theme.spacing(4)};
   }
 `
 
