@@ -1598,6 +1598,6 @@
   "text_6271200984178801ba8bdf0c": "Yes, delete",
   "text_6271200984178801ba8bdf6c": "Webhook successfully deleted",
   "text_642a94e522316cd9e1875224": "Subscription external ID",
-  "text_642ac1d1407baafb9e4390ee": "Type a customer external id",
+  "text_642ac1d1407baafb9e4390ee": "Type a subscription external id",
   "text_642ac28c65c2180085afe31a": "ID used to define your own subscription ID from your backend instead of using the one defined by Lago"
 }
