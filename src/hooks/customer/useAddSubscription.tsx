@@ -188,7 +188,7 @@ export const useAddSubscription: UseAddSubscription = ({
     onOpenDrawer: () => {
       !loading && getPlans()
     },
-    onCreate: async (customerId, { subscriptionAt: subsDate, ...values }) => {
+    onCreate: async (customerId, { subscriptionAt: subsDate, name, externalId, ...values }) => {
       const { errors } = await create({
         variables: {
           input: {
@@ -196,6 +196,8 @@ export const useAddSubscription: UseAddSubscription = ({
             ...(!existingSubscription
               ? { subscriptionAt: subsDate }
               : { subscriptionId: existingSubscription.subscriptionId }),
+            name: name || undefined,
+            externalId: externalId || undefined,
             ...values,
           },
         },
