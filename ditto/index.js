@@ -150,9 +150,6 @@ module.exports = {
   "project_626162c105cb2c00e673c696": {
     "base": require('./customers---edit--delete-a-customer__base.json')
   },
-  "project_63ff7985343a362251c12744": {
-    "base": require('./Plan-Invoice - Instant charge__base.json')
-  },
   "ditto_component_library": {
     "base": require('./ditto-component-library__base.json')
   },
@@ -170,6 +167,9 @@ module.exports = {
   },
   "project_620bc4d45f16c800e2324b82": {
     "base": require('./onboarding---create--connect-to-an-account__base.json')
+  },
+  "project_63ff7985343a362251c12744": {
+    "base": require('./plan-invoice---instant-charge__base.json')
   },
   "project_62793bb8e62e1200cbcdddf8": {
     "base": require('./plans---add-graduated-in-charge-model__base.json')
