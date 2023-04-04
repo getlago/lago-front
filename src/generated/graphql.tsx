@@ -3161,13 +3161,14 @@ export type VolumeRangeInput = {
   toValue?: InputMaybe<Scalars['BigInt']>;
 };
 
+/** Wallet */
 export type Wallet = {
   __typename?: 'Wallet';
-  balance: Scalars['String'];
-  consumedAmount: Scalars['String'];
-  consumedCredits: Scalars['String'];
+  balanceCents: Scalars['BigInt'];
+  consumedAmountCents: Scalars['BigInt'];
+  consumedCredits: Scalars['Float'];
   createdAt: Scalars['ISO8601DateTime'];
-  creditsBalance: Scalars['String'];
+  creditsBalance: Scalars['Float'];
   currency: CurrencyEnum;
   customer?: Maybe<Customer>;
   expirationAt?: Maybe<Scalars['ISO8601DateTime']>;
@@ -3175,7 +3176,7 @@ export type Wallet = {
   lastBalanceSyncAt?: Maybe<Scalars['ISO8601DateTime']>;
   lastConsumedCreditAt?: Maybe<Scalars['ISO8601DateTime']>;
   name?: Maybe<Scalars['String']>;
-  rateAmount: Scalars['String'];
+  rateAmount: Scalars['Float'];
   status: WalletStatusEnum;
   terminatedAt?: Maybe<Scalars['ISO8601DateTime']>;
   updatedAt: Scalars['ISO8601DateTime'];
@@ -3775,9 +3776,9 @@ export type CreateCustomerWalletMutationVariables = Exact<{
 }>;
 
 
-export type CreateCustomerWalletMutation = { __typename?: 'Mutation', createCustomerWallet?: { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: string, name?: string | null, expirationAt?: any | null, balance: string, consumedAmount: string, consumedCredits: string, createdAt: any, creditsBalance: string, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, customer?: { __typename?: 'Customer', id: string, hasActiveWallet: boolean } | null } | null };
+export type CreateCustomerWalletMutation = { __typename?: 'Mutation', createCustomerWallet?: { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, name?: string | null, expirationAt?: any | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, customer?: { __typename?: 'Customer', id: string, hasActiveWallet: boolean } | null } | null };
 
-export type CustomerWalletFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: string, name?: string | null, expirationAt?: any | null, balance: string, consumedAmount: string, consumedCredits: string, createdAt: any, creditsBalance: string, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null };
+export type CustomerWalletFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, name?: string | null, expirationAt?: any | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null };
 
 export type GetCustomerWalletListQueryVariables = Exact<{
   customerId: Scalars['ID'];
@@ -3786,14 +3787,14 @@ export type GetCustomerWalletListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerWalletListQuery = { __typename?: 'Query', wallets: { __typename?: 'WalletCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: string, name?: string | null, expirationAt?: any | null, balance: string, consumedAmount: string, consumedCredits: string, createdAt: any, creditsBalance: string, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null }> } };
+export type GetCustomerWalletListQuery = { __typename?: 'Query', wallets: { __typename?: 'WalletCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, name?: string | null, expirationAt?: any | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null }> } };
 
 export type TerminateCustomerWalletMutationVariables = Exact<{
   input: TerminateCustomerWalletInput;
 }>;
 
 
-export type TerminateCustomerWalletMutation = { __typename?: 'Mutation', terminateCustomerWallet?: { __typename?: 'Wallet', id: string, status: WalletStatusEnum, balance: string, consumedAmount: string, consumedCredits: string, createdAt: any, creditsBalance: string, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, name?: string | null, rateAmount: string, terminatedAt?: any | null, customer?: { __typename?: 'Customer', id: string, hasActiveWallet: boolean } | null } | null };
+export type TerminateCustomerWalletMutation = { __typename?: 'Mutation', terminateCustomerWallet?: { __typename?: 'Wallet', id: string, status: WalletStatusEnum, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, name?: string | null, rateAmount: number, terminatedAt?: any | null, customer?: { __typename?: 'Customer', id: string, hasActiveWallet: boolean } | null } | null };
 
 export type CreateCustomerWalletTransactionMutationVariables = Exact<{
   input: CreateCustomerWalletTransactionInput;
@@ -3802,7 +3803,7 @@ export type CreateCustomerWalletTransactionMutationVariables = Exact<{
 
 export type CreateCustomerWalletTransactionMutation = { __typename?: 'Mutation', createCustomerWalletTransaction?: { __typename?: 'WalletTransactionCollection', collection: Array<{ __typename?: 'WalletTransaction', id: string }> } | null };
 
-export type WalletForTopupFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: string };
+export type WalletForTopupFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number };
 
 export type UpdateCustomerWalletMutationVariables = Exact<{
   input: UpdateCustomerWalletInput;
@@ -3813,7 +3814,7 @@ export type UpdateCustomerWalletMutation = { __typename?: 'Mutation', updateCust
 
 export type WalletForUpdateFragment = { __typename?: 'Wallet', id: string, name?: string | null, expirationAt?: any | null };
 
-export type WalletAccordionFragment = { __typename?: 'Wallet', id: string, balance: string, consumedAmount: string, consumedCredits: string, createdAt: any, creditsBalance: string, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, name?: string | null, rateAmount: string, status: WalletStatusEnum, terminatedAt?: any | null };
+export type WalletAccordionFragment = { __typename?: 'Wallet', id: string, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null };
 
 export type GetWalletTransactionsQueryVariables = Exact<{
   walletId: Scalars['ID'];
@@ -4750,8 +4751,8 @@ export const WalletForUpdateFragmentDoc = gql`
 export const WalletAccordionFragmentDoc = gql`
     fragment WalletAccordion on Wallet {
   id
-  balance
-  consumedAmount
+  balanceCents
+  consumedAmountCents
   consumedCredits
   createdAt
   creditsBalance

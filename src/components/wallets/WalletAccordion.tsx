@@ -19,6 +19,7 @@ import { WalletAccordionFragment, WalletStatusEnum, TimezoneEnum } from '~/gener
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { TimezoneDate } from '~/components/TimezoneDate'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 import { WalletTransactionList } from './WalletTransactionList'
 import { TopupWalletDialogRef } from './TopupWalletDialog'
@@ -26,8 +27,8 @@ import { TopupWalletDialogRef } from './TopupWalletDialog'
 gql`
   fragment WalletAccordion on Wallet {
     id
-    balance
-    consumedAmount
+    balanceCents
+    consumedAmountCents
     consumedCredits
     createdAt
     creditsBalance
@@ -65,8 +66,8 @@ const mapStatus = (type?: WalletStatusEnum | undefined) => {
 export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionProps>(
   ({ wallet, customerTimezone }: WalletAccordionProps, ref) => {
     const {
-      balance,
-      consumedAmount,
+      balanceCents,
+      consumedAmountCents,
       consumedCredits,
       createdAt,
       creditsBalance,
@@ -82,8 +83,8 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
     const { formatTimeOrgaTZ } = useOrganizationInfos()
 
     const statusMap = mapStatus(status)
-    let [creditAmountUnit = '0', creditAmountCents = '00'] = creditsBalance.split('.')
-    let [consumedCreditUnit = '0', consumedCreditCents = '00'] = consumedCredits.split('.')
+    let [creditAmountUnit = '0', creditAmountCents = '00'] = String(creditsBalance).split('.')
+    let [consumedCreditUnit = '0', consumedCreditCents = '00'] = String(consumedCredits).split('.')
     const { translate } = useInternationalization()
     const isWalletActive = status === WalletStatusEnum.Active
     // All active wallets should be opened by default on first render
@@ -163,7 +164,7 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                 </DetailSummaryLine>
                 <DetailSummaryLine>
                   <Typography color="grey600" variant="caption">
-                    {intlFormatNumber(Number(balance), {
+                    {intlFormatNumber(deserializeAmount(balanceCents, currency), {
                       currencyDisplay: 'symbol',
                       currency,
                     })}
@@ -209,7 +210,7 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                 </DetailSummaryLine>
                 <DetailSummaryLine>
                   <Typography color="grey600" variant="caption">
-                    {intlFormatNumber(Number(consumedAmount), {
+                    {intlFormatNumber(deserializeAmount(consumedAmountCents, currency), {
                       currencyDisplay: 'symbol',
                       currency,
                     })}
