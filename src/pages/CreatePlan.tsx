@@ -12,6 +12,7 @@ import {
   ChargeModelEnum,
   ChargeAccordionFragmentDoc,
   PropertiesInput,
+  PlanSettingsFragmentDoc,
 } from '~/generated/graphql'
 import {
   TextInputField,
@@ -41,12 +42,12 @@ import {
   Title,
   Subtitle,
   Side,
-  Line,
   SkeletonHeader,
   ButtonContainer,
   LineAmount,
 } from '~/styles/mainObjectsForm'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { PlanSettings } from '~/components/plans/PlanSettings'
 
 import { PlanFormInput, LocalChargeInput } from '../components/plans/types'
 
@@ -72,9 +73,12 @@ gql`
       ...ChargeAccordion
       chargeModel
     }
+
+    ...PlanSettings
   }
 
   ${ChargeAccordionFragmentDoc}
+  ${PlanSettingsFragmentDoc}
 `
 
 const getNewChargeId = (id: string, index: number) => `plan-charge-${id}-${index}`
@@ -278,39 +282,14 @@ const CreatePlan = () => {
                     )}
                   </Subtitle>
                 </div>
-                <Card>
-                  <SectionTitle variant="subhead">
-                    {translate('text_624453d52e945301380e4992')}
-                  </SectionTitle>
 
-                  <Line>
-                    <TextInputField
-                      name="name"
-                      label={translate('text_624453d52e945301380e4998')}
-                      placeholder={translate('text_624453d52e945301380e499c')}
-                      // eslint-disable-next-line jsx-a11y/no-autofocus
-                      autoFocus
-                      formikProps={formikProps}
-                    />
-                    <TextInputField
-                      name="code"
-                      beforeChangeFormatter="code"
-                      disabled={isEdition && !canBeEdited}
-                      label={translate('text_624453d52e945301380e499a')}
-                      placeholder={translate('text_624453d52e945301380e499e')}
-                      formikProps={formikProps}
-                      infoText={translate('text_624d9adba93343010cd14ca1')}
-                    />
-                  </Line>
-                  <TextInputField
-                    name="description"
-                    label={translate('text_624c5eadff7db800acc4c99f')}
-                    placeholder={translate('text_624453d52e945301380e49a2')}
-                    rows="3"
-                    multiline
-                    formikProps={formikProps}
-                  />
-                </Card>
+                <PlanSettings
+                  canBeEdited={canBeEdited}
+                  errorCode={errorCode}
+                  formikProps={formikProps}
+                  type={type}
+                />
+
                 <Card>
                   <SectionTitle variant="subhead">
                     {translate('text_624453d52e945301380e49a6')}
