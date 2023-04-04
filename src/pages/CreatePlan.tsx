@@ -2,7 +2,6 @@ import { useRef, useEffect, useState } from 'react'
 import { useFormik } from 'formik'
 import { object, string, number } from 'yup'
 import styled from 'styled-components'
-import { InputAdornment } from '@mui/material'
 import { gql } from '@apollo/client'
 
 import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
@@ -13,14 +12,9 @@ import {
   ChargeAccordionFragmentDoc,
   PropertiesInput,
   PlanSettingsSectionFragmentDoc,
+  FixedFeeSectionFragmentDoc,
 } from '~/generated/graphql'
-import {
-  TextInputField,
-  ButtonSelectorField,
-  ComboBoxField,
-  SwitchField,
-  AmountInputField,
-} from '~/components/form'
+import { SwitchField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import {
@@ -44,10 +38,10 @@ import {
   Side,
   SkeletonHeader,
   ButtonContainer,
-  LineAmount,
 } from '~/styles/mainObjectsForm'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
+import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
 
 import { PlanFormInput, LocalChargeInput } from '../components/plans/types'
 
@@ -75,10 +69,12 @@ gql`
     }
 
     ...PlanSettingsSection
+    ...FixedFeeSection
   }
 
   ${ChargeAccordionFragmentDoc}
   ${PlanSettingsSectionFragmentDoc}
+  ${FixedFeeSectionFragmentDoc}
 `
 
 const getNewChargeId = (id: string, index: number) => `plan-charge-${id}-${index}`
@@ -290,76 +286,13 @@ const CreatePlan = () => {
                   type={type}
                 />
 
-                <Card>
-                  <SectionTitle variant="subhead">
-                    {translate('text_624453d52e945301380e49a6')}
-                  </SectionTitle>
-                  <ButtonSelectorField
-                    disabled={isEdition && !canBeEdited}
-                    name="interval"
-                    label={translate('text_624c5eadff7db800acc4c9ad')}
-                    infoText={translate('text_624d9adba93343010cd14ca3')}
-                    formikProps={formikProps}
-                    options={[
-                      {
-                        label: translate('text_624453d52e945301380e49aa'),
-                        value: PlanInterval.Monthly,
-                      },
-                      {
-                        label: translate('text_624453d52e945301380e49ac'),
-                        value: PlanInterval.Yearly,
-                      },
-                      {
-                        label: translate('text_62b32ec6b0434070791c2d4c'),
-                        value: PlanInterval.Weekly,
-                      },
-                    ]}
-                  />
+                <FixedFeeSection
+                  canBeEdited={canBeEdited}
+                  errorCode={errorCode}
+                  formikProps={formikProps}
+                  isEdition={isEdition}
+                />
 
-                  <LineAmount>
-                    <AmountInputField
-                      name="amountCents"
-                      currency={formikProps.values.amountCurrency}
-                      beforeChangeFormatter={['positiveNumber']}
-                      disabled={isEdition && !canBeEdited}
-                      label={translate('text_624453d52e945301380e49b6')}
-                      formikProps={formikProps}
-                    />
-                    <ComboBoxField
-                      disabled={isEdition && !canBeEdited}
-                      name="amountCurrency"
-                      data={Object.values(CurrencyEnum).map((currencyType) => ({
-                        value: currencyType,
-                      }))}
-                      disableClearable
-                      formikProps={formikProps}
-                    />
-                  </LineAmount>
-
-                  <SwitchField
-                    name="payInAdvance"
-                    disabled={isEdition && !canBeEdited}
-                    label={translate('text_624d90e6a93343010cd14b40')}
-                    subLabel={translate('text_624d90e6a93343010cd14b4c')}
-                    formikProps={formikProps}
-                  />
-
-                  <TextInputField
-                    name="trialPeriod"
-                    disabled={isEdition && !canBeEdited}
-                    label={translate('text_624453d52e945301380e49c2')}
-                    beforeChangeFormatter={['positiveNumber', 'int']}
-                    placeholder={translate('text_624453d52e945301380e49c4')}
-                    formikProps={formikProps}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {translate('text_624453d52e945301380e49c6')}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Card>
                 <Card ref={containerRef}>
                   <SectionTitle variant="subhead">
                     <div>{translate('text_624453d52e945301380e49ce')}</div>
