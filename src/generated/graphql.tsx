@@ -3666,6 +3666,8 @@ export type DeletePlanMutationVariables = Exact<{
 
 export type DeletePlanMutation = { __typename?: 'Mutation', destroyPlan?: { __typename?: 'DestroyPlanPayload', id?: string | null } | null };
 
+export type FixedFeeSectionFragment = { __typename?: 'Plan', id: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, payInAdvance: boolean, trialPeriod?: number | null };
+
 export type GraduatedChargeFragment = { __typename?: 'Charge', id: string, properties?: { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null };
 
 export type PackageChargeFragment = { __typename?: 'Charge', id: string, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null } }> | null };
@@ -5288,6 +5290,16 @@ export const PlanSettingsSectionFragmentDoc = gql`
   description
 }
     `;
+export const FixedFeeSectionFragmentDoc = gql`
+    fragment FixedFeeSection on Plan {
+  id
+  interval
+  amountCents
+  amountCurrency
+  payInAdvance
+  trialPeriod
+}
+    `;
 export const EditPlanFragmentDoc = gql`
     fragment EditPlan on Plan {
   id
@@ -5311,9 +5323,11 @@ export const EditPlanFragmentDoc = gql`
     chargeModel
   }
   ...PlanSettingsSection
+  ...FixedFeeSection
 }
     ${ChargeAccordionFragmentDoc}
-${PlanSettingsSectionFragmentDoc}`;
+${PlanSettingsSectionFragmentDoc}
+${FixedFeeSectionFragmentDoc}`;
 export const CustomerMainInfosFragmentDoc = gql`
     fragment CustomerMainInfos on Customer {
   id
