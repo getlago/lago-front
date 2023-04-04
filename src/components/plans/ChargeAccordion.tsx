@@ -96,212 +96,215 @@ export const ChargeAccordion = memo(
     )
 
     return (
-      <Accordion
-        id={id}
-        initiallyOpen={!formikProps.values.charges?.[index]?.id ? true : false}
-        summary={
-          <>
-            <Title>
-              <Typography variant="bodyHl" color="textSecondary" noWrap>
-                {localCharge?.billableMetric?.name}
-              </Typography>
-              <Typography variant="caption" noWrap>
-                {localCharge?.billableMetric?.code}
-              </Typography>
-            </Title>
+      <>
+        <Accordion
+          id={id}
+          initiallyOpen={!formikProps.values.charges?.[index]?.id ? true : false}
+          summary={
             <>
-              {localCharge.instant && (
-                <Tooltip placement="top-end" title={translate('text_63ff7a14be2ceb36dd22ead6')}>
-                  <InstantIcon name="flash-filled" />
+              <Title>
+                <Typography variant="bodyHl" color="textSecondary" noWrap>
+                  {localCharge?.billableMetric?.name}
+                </Typography>
+                <Typography variant="caption" noWrap>
+                  {localCharge?.billableMetric?.code}
+                </Typography>
+              </Title>
+              <>
+                {localCharge.instant && (
+                  <Tooltip placement="top-end" title={translate('text_63ff7a14be2ceb36dd22ead6')}>
+                    <InstantIcon name="flash-filled" />
+                  </Tooltip>
+                )}
+                <Tooltip
+                  placement="top-end"
+                  title={
+                    hasErrorInCharges
+                      ? translate('text_635b975ecea4296eb76924b7')
+                      : translate('text_635b975ecea4296eb76924b1')
+                  }
+                >
+                  <ValidationIcon
+                    name="validate-filled"
+                    color={hasErrorInCharges ? 'disabled' : 'success'}
+                  />
                 </Tooltip>
-              )}
-              <Tooltip
-                placement="top-end"
-                title={
-                  hasErrorInCharges
-                    ? translate('text_635b975ecea4296eb76924b7')
-                    : translate('text_635b975ecea4296eb76924b1')
-                }
-              >
-                <ValidationIcon
-                  name="validate-filled"
-                  color={hasErrorInCharges ? 'disabled' : 'success'}
-                />
-              </Tooltip>
-              <Tooltip placement="top-end" title={translate('text_624aa732d6af4e0103d40e65')}>
-                <TrashButton
-                  variant="quaternary"
-                  size="small"
-                  icon="trash"
-                  data-test="remove-charge"
-                  onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                    e.stopPropagation()
-                    e.preventDefault()
-                    if (isUsedInSubscription) {
-                      warningDialogRef?.current?.openDialog()
-                    } else {
-                      const charges = [...formikProps.values.charges]
+                <Tooltip placement="top-end" title={translate('text_624aa732d6af4e0103d40e65')}>
+                  <TrashButton
+                    variant="quaternary"
+                    size="small"
+                    icon="trash"
+                    data-test="remove-charge"
+                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                      e.stopPropagation()
+                      e.preventDefault()
+                      if (isUsedInSubscription) {
+                        warningDialogRef?.current?.openDialog()
+                      } else {
+                        const charges = [...formikProps.values.charges]
 
-                      charges.splice(index, 1)
-                      formikProps.setFieldValue('charges', charges)
+                        charges.splice(index, 1)
+                        formikProps.setFieldValue('charges', charges)
+                      }
+                    }}
+                  />
+                </Tooltip>
+              </>
+            </>
+          }
+        >
+          <Details>
+            <ComboBox
+              name="chargeModel"
+              disabled={disabled}
+              label={translate('text_624c5eadff7db800acc4ca0d')}
+              data={[
+                {
+                  label: translate('text_624aa732d6af4e0103d40e6f'),
+                  value: ChargeModelEnum.Standard,
+                },
+                {
+                  label: translate('text_62793bbb599f1c01522e919f'),
+                  value: ChargeModelEnum.Graduated,
+                },
+                {
+                  label: translate('text_62a0b7107afa2700a65ef6e2'),
+                  value: ChargeModelEnum.Percentage,
+                },
+                {
+                  label: translate('text_6282085b4f283b0102655868'),
+                  value: ChargeModelEnum.Package,
+                },
+                {
+                  label: translate('text_6304e74aab6dbc18d615f386'),
+                  value: ChargeModelEnum.Volume,
+                },
+              ]}
+              disableClearable
+              value={localCharge.chargeModel}
+              helperText={translate(
+                localCharge.chargeModel === ChargeModelEnum.Percentage
+                  ? 'text_62ff5d01a306e274d4ffcc06'
+                  : localCharge.chargeModel === ChargeModelEnum.Graduated
+                  ? 'text_62793bbb599f1c01522e91a1'
+                  : localCharge.chargeModel === ChargeModelEnum.Package
+                  ? 'text_6282085b4f283b010265586c'
+                  : localCharge.chargeModel === ChargeModelEnum.Volume
+                  ? 'text_6304e74aab6dbc18d615f38a'
+                  : 'text_624d9adba93343010cd14ca7'
+              )}
+              onChange={(value) => handleUpdate('chargeModel', value)}
+            />
+
+            <ConditionalChargeWrapper
+              chargeIndex={index}
+              localCharge={localCharge}
+              chargeErrors={formikProps.errors.charges}
+            >
+              {({ propertyCursor, valuePointer }) => (
+                <>
+                  {localCharge.chargeModel === ChargeModelEnum.Standard && (
+                    <AmountInput
+                      name={`${propertyCursor}.amount`}
+                      currency={currency}
+                      beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
+                      disabled={disabled}
+                      label={translate('text_624453d52e945301380e49b6')}
+                      value={valuePointer?.amount || ''}
+                      onChange={(value) => handleUpdate(`${propertyCursor}.amount`, value)}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {getCurrencySymbol(currency)}
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  )}
+                  {localCharge.chargeModel === ChargeModelEnum.Package && (
+                    <PackageCharge
+                      chargeIndex={index}
+                      currency={currency}
+                      disabled={disabled}
+                      formikProps={formikProps}
+                      propertyCursor={propertyCursor}
+                      valuePointer={valuePointer}
+                    />
+                  )}
+                  {localCharge.chargeModel === ChargeModelEnum.Graduated && (
+                    <GraduatedChargeTable
+                      chargeIndex={index}
+                      currency={currency}
+                      disabled={disabled}
+                      formikProps={formikProps}
+                      propertyCursor={propertyCursor}
+                      valuePointer={valuePointer}
+                    />
+                  )}
+                  {localCharge.chargeModel === ChargeModelEnum.Percentage && (
+                    <ChargePercentage
+                      chargeIndex={index}
+                      currency={currency}
+                      disabled={disabled}
+                      formikProps={formikProps}
+                      propertyCursor={propertyCursor}
+                      valuePointer={valuePointer}
+                    />
+                  )}
+                  {localCharge.chargeModel === ChargeModelEnum.Volume && (
+                    <VolumeChargeTable
+                      chargeIndex={index}
+                      currency={currency}
+                      disabled={disabled}
+                      formikProps={formikProps}
+                      propertyCursor={propertyCursor}
+                      valuePointer={valuePointer}
+                    />
+                  )}
+                </>
+              )}
+            </ConditionalChargeWrapper>
+            <InstantCharge>
+              <Tooltip
+                disableHoverListener={
+                  localCharge.chargeModel !== ChargeModelEnum.Volume &&
+                  ![AggregationTypeEnum.MaxAgg, AggregationTypeEnum.RecurringCountAgg].includes(
+                    localCharge?.billableMetric?.aggregationType
+                  )
+                }
+                title={translate(
+                  localCharge.chargeModel === ChargeModelEnum.Volume
+                    ? 'text_63ff7a14be2ceb36dd22eb84'
+                    : 'text_63ff7a14be2ceb36dd22eb8f'
+                )}
+                placement="top-start"
+              >
+                <Switch
+                  name="instant"
+                  label={translate('text_63ff7a14be2ceb36dd22ea88')}
+                  subLabel={translate('text_63ff7a14be2ceb36dd22ea89')}
+                  disabled={
+                    isUsedInSubscription ||
+                    localCharge.chargeModel === ChargeModelEnum.Volume ||
+                    [AggregationTypeEnum.MaxAgg, AggregationTypeEnum.RecurringCountAgg].includes(
+                      localCharge?.billableMetric?.aggregationType
+                    )
+                  }
+                  checked={localCharge.instant || false}
+                  onChange={(value) => {
+                    if (isPremium) {
+                      handleUpdate('instant', value)
+                    } else {
+                      premiumWarningDialogRef.current?.openDialog()
                     }
                   }}
                 />
               </Tooltip>
-            </>
-          </>
-        }
-      >
-        <Details>
-          <ComboBox
-            name="chargeModel"
-            disabled={disabled}
-            label={translate('text_624c5eadff7db800acc4ca0d')}
-            data={[
-              {
-                label: translate('text_624aa732d6af4e0103d40e6f'),
-                value: ChargeModelEnum.Standard,
-              },
-              {
-                label: translate('text_62793bbb599f1c01522e919f'),
-                value: ChargeModelEnum.Graduated,
-              },
-              {
-                label: translate('text_62a0b7107afa2700a65ef6e2'),
-                value: ChargeModelEnum.Percentage,
-              },
-              {
-                label: translate('text_6282085b4f283b0102655868'),
-                value: ChargeModelEnum.Package,
-              },
-              {
-                label: translate('text_6304e74aab6dbc18d615f386'),
-                value: ChargeModelEnum.Volume,
-              },
-            ]}
-            disableClearable
-            value={localCharge.chargeModel}
-            helperText={translate(
-              localCharge.chargeModel === ChargeModelEnum.Percentage
-                ? 'text_62ff5d01a306e274d4ffcc06'
-                : localCharge.chargeModel === ChargeModelEnum.Graduated
-                ? 'text_62793bbb599f1c01522e91a1'
-                : localCharge.chargeModel === ChargeModelEnum.Package
-                ? 'text_6282085b4f283b010265586c'
-                : localCharge.chargeModel === ChargeModelEnum.Volume
-                ? 'text_6304e74aab6dbc18d615f38a'
-                : 'text_624d9adba93343010cd14ca7'
-            )}
-            onChange={(value) => handleUpdate('chargeModel', value)}
-          />
+              {!isPremium && !isUsedInSubscription && <Icon name="sparkles" />}
+            </InstantCharge>
+          </Details>
+        </Accordion>
 
-          <ConditionalChargeWrapper
-            chargeIndex={index}
-            localCharge={localCharge}
-            chargeErrors={formikProps.errors.charges}
-          >
-            {({ propertyCursor, valuePointer }) => (
-              <>
-                {localCharge.chargeModel === ChargeModelEnum.Standard && (
-                  <AmountInput
-                    name={`${propertyCursor}.amount`}
-                    currency={currency}
-                    beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
-                    disabled={disabled}
-                    label={translate('text_624453d52e945301380e49b6')}
-                    value={valuePointer?.amount || ''}
-                    onChange={(value) => handleUpdate(`${propertyCursor}.amount`, value)}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {getCurrencySymbol(currency)}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                )}
-                {localCharge.chargeModel === ChargeModelEnum.Package && (
-                  <PackageCharge
-                    chargeIndex={index}
-                    currency={currency}
-                    disabled={disabled}
-                    formikProps={formikProps}
-                    propertyCursor={propertyCursor}
-                    valuePointer={valuePointer}
-                  />
-                )}
-                {localCharge.chargeModel === ChargeModelEnum.Graduated && (
-                  <GraduatedChargeTable
-                    chargeIndex={index}
-                    currency={currency}
-                    disabled={disabled}
-                    formikProps={formikProps}
-                    propertyCursor={propertyCursor}
-                    valuePointer={valuePointer}
-                  />
-                )}
-                {localCharge.chargeModel === ChargeModelEnum.Percentage && (
-                  <ChargePercentage
-                    chargeIndex={index}
-                    currency={currency}
-                    disabled={disabled}
-                    formikProps={formikProps}
-                    propertyCursor={propertyCursor}
-                    valuePointer={valuePointer}
-                  />
-                )}
-                {localCharge.chargeModel === ChargeModelEnum.Volume && (
-                  <VolumeChargeTable
-                    chargeIndex={index}
-                    currency={currency}
-                    disabled={disabled}
-                    formikProps={formikProps}
-                    propertyCursor={propertyCursor}
-                    valuePointer={valuePointer}
-                  />
-                )}
-              </>
-            )}
-          </ConditionalChargeWrapper>
-          <InstantCharge>
-            <Tooltip
-              disableHoverListener={
-                localCharge.chargeModel !== ChargeModelEnum.Volume &&
-                ![AggregationTypeEnum.MaxAgg, AggregationTypeEnum.RecurringCountAgg].includes(
-                  localCharge?.billableMetric?.aggregationType
-                )
-              }
-              title={translate(
-                localCharge.chargeModel === ChargeModelEnum.Volume
-                  ? 'text_63ff7a14be2ceb36dd22eb84'
-                  : 'text_63ff7a14be2ceb36dd22eb8f'
-              )}
-              placement="top-start"
-            >
-              <Switch
-                name="instant"
-                label={translate('text_63ff7a14be2ceb36dd22ea88')}
-                subLabel={translate('text_63ff7a14be2ceb36dd22ea89')}
-                disabled={
-                  isUsedInSubscription ||
-                  localCharge.chargeModel === ChargeModelEnum.Volume ||
-                  [AggregationTypeEnum.MaxAgg, AggregationTypeEnum.RecurringCountAgg].includes(
-                    localCharge?.billableMetric?.aggregationType
-                  )
-                }
-                checked={localCharge.instant || false}
-                onChange={(value) => {
-                  if (isPremium) {
-                    handleUpdate('instant', value)
-                  } else {
-                    premiumWarningDialogRef.current?.openDialog()
-                  }
-                }}
-              />
-            </Tooltip>
-            {!isPremium && !isUsedInSubscription && <Icon name="sparkles" />}
-          </InstantCharge>
-        </Details>
         <WarningDialog
           ref={warningDialogRef}
           title={translate('text_63cfe20ad6c1a53c5352a46e')}
@@ -315,7 +318,7 @@ export const ChargeAccordion = memo(
           }}
         />
         <PremiumWarningDialog ref={premiumWarningDialogRef} />
-      </Accordion>
+      </>
     )
   }
 )
