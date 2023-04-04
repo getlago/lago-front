@@ -3672,7 +3672,7 @@ export type PackageChargeFragment = { __typename?: 'Charge', id: string, propert
 
 export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number };
 
-export type PlanSettingsFragment = { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null };
+export type PlanSettingsSectionFragment = { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null };
 
 export type VolumeRangesFragment = { __typename?: 'Charge', properties?: { __typename?: 'Properties', volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null };
 
@@ -5280,8 +5280,8 @@ export const ChargeAccordionFragmentDoc = gql`
 ${VolumeRangesFragmentDoc}
 ${PackageChargeFragmentDoc}
 ${PercentageChargeFragmentDoc}`;
-export const PlanSettingsFragmentDoc = gql`
-    fragment PlanSettings on Plan {
+export const PlanSettingsSectionFragmentDoc = gql`
+    fragment PlanSettingsSection on Plan {
   id
   name
   code
@@ -5310,10 +5310,10 @@ export const EditPlanFragmentDoc = gql`
     ...ChargeAccordion
     chargeModel
   }
-  ...PlanSettings
+  ...PlanSettingsSection
 }
     ${ChargeAccordionFragmentDoc}
-${PlanSettingsFragmentDoc}`;
+${PlanSettingsSectionFragmentDoc}`;
 export const CustomerMainInfosFragmentDoc = gql`
     fragment CustomerMainInfos on Customer {
   id

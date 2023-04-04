@@ -12,7 +12,7 @@ import {
   ChargeModelEnum,
   ChargeAccordionFragmentDoc,
   PropertiesInput,
-  PlanSettingsFragmentDoc,
+  PlanSettingsSectionFragmentDoc,
 } from '~/generated/graphql'
 import {
   TextInputField,
@@ -47,7 +47,7 @@ import {
   LineAmount,
 } from '~/styles/mainObjectsForm'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { PlanSettings } from '~/components/plans/PlanSettings'
+import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 
 import { PlanFormInput, LocalChargeInput } from '../components/plans/types'
 
@@ -74,11 +74,11 @@ gql`
       chargeModel
     }
 
-    ...PlanSettings
+    ...PlanSettingsSection
   }
 
   ${ChargeAccordionFragmentDoc}
-  ${PlanSettingsFragmentDoc}
+  ${PlanSettingsSectionFragmentDoc}
 `
 
 const getNewChargeId = (id: string, index: number) => `plan-charge-${id}-${index}`
@@ -283,7 +283,7 @@ const CreatePlan = () => {
                   </Subtitle>
                 </div>
 
-                <PlanSettings
+                <PlanSettingsSection
                   canBeEdited={canBeEdited}
                   errorCode={errorCode}
                   formikProps={formikProps}

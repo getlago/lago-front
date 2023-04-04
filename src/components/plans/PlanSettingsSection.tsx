@@ -13,7 +13,7 @@ import { Line } from '~/styles/mainObjectsForm'
 import { PlanFormInput } from './types'
 
 gql`
-  fragment PlanSettings on Plan {
+  fragment PlanSettingsSection on Plan {
     id
     name
     code
@@ -21,14 +21,15 @@ gql`
   }
 `
 
-interface PlanSettingsProps {
+interface PlanSettingsSectionProps {
   canBeEdited: boolean
   errorCode: string | undefined
   formikProps: FormikProps<PlanFormInput>
   type: keyof typeof PLAN_FORM_TYPE_ENUM
 }
-export const PlanSettings = memo(
-  ({ canBeEdited, errorCode, formikProps, type }: PlanSettingsProps) => {
+
+export const PlanSettingsSection = memo(
+  ({ canBeEdited, errorCode, formikProps, type }: PlanSettingsSectionProps) => {
     const { translate } = useInternationalization()
     const isEdition = type === PLAN_FORM_TYPE_ENUM.edition
 
@@ -79,7 +80,7 @@ export const PlanSettings = memo(
   }
 )
 
-PlanSettings.displayName = 'PlanSettings'
+PlanSettingsSection.displayName = 'PlanSettingsSection'
 
 const SectionTitle = styled(Typography)`
   > div:first-child {
