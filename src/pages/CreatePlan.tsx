@@ -11,8 +11,8 @@ import {
   ChargeModelEnum,
   ChargeAccordionFragmentDoc,
   PropertiesInput,
-  PlanSettingsSectionFragmentDoc,
-  FixedFeeSectionFragmentDoc,
+  PlanForSettingsSectionFragmentDoc,
+  PlanForFixedFeeSectionFragmentDoc,
 } from '~/generated/graphql'
 import { SwitchField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -68,13 +68,13 @@ gql`
       chargeModel
     }
 
-    ...PlanSettingsSection
-    ...FixedFeeSection
+    ...PlanForSettingsSection
+    ...PlanForFixedFeeSection
   }
 
   ${ChargeAccordionFragmentDoc}
-  ${PlanSettingsSectionFragmentDoc}
-  ${FixedFeeSectionFragmentDoc}
+  ${PlanForSettingsSectionFragmentDoc}
+  ${PlanForFixedFeeSectionFragmentDoc}
 `
 
 const getNewChargeId = (id: string, index: number) => `plan-charge-${id}-${index}`
@@ -98,6 +98,7 @@ const getPropertyShape = (properties: PropertiesInput) => {
 
 const CreatePlan = () => {
   const { loading, type, plan, parentPlanName, errorCode, onSave, onClose } = usePlanForm()
+
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const { translate } = useInternationalization()
   const containerRef = useRef<HTMLDivElement>(null)
@@ -150,7 +151,7 @@ const CreatePlan = () => {
       code: string().required(''),
       interval: string().required(''),
       amountCents: string().required(''),
-      trialPeriod: number().typeError(translate('text_624ea7c29103fd010732ab7d')),
+      trialPeriod: number().typeError(translate('text_624ea7c29103fd010732ab7d')).nullable(),
       amountCurrency: string().required(''),
       charges: chargeSchema,
     }),
@@ -220,7 +221,7 @@ const CreatePlan = () => {
       <Content>
         <Main>
           <div>
-            {loading ? (
+            {loading && !plan ? (
               <>
                 <SkeletonHeader>
                   <Skeleton
@@ -274,7 +275,7 @@ const CreatePlan = () => {
                         ? 'text_6329fd60c32c30152678a6f6'
                         : type === PLAN_FORM_TYPE_ENUM.edition
                         ? 'text_625fd165963a7b00c8f5977b'
-                        : 'text_624453d52e945301380e498e'
+                        : 'text_642d5eb2783a2ad10d670318'
                     )}
                   </Subtitle>
                 </div>

@@ -18,6 +18,7 @@ describe('Create plan', () => {
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
     cy.get('input[name="name"]').type(planName)
     cy.get('input[name="code"]').type(planName)
+    cy.get('[data-test="show-description"]').click()
     cy.get('textarea[name="description"]').type('I am a description')
     cy.get('input[name="amountCents"]').type('30000')
     cy.get('[data-test="submit"]').click()
@@ -32,6 +33,7 @@ describe('Create plan', () => {
     cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('input[name="code"]').type(planWithChargesName)
     cy.get('[data-test="submit"]').should('be.disabled')
+    cy.get('[data-test="show-description"]').click()
     cy.get('textarea[name="description"]').type('I am a description')
     cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('input[name="amountCents"]').type('30000')
@@ -139,6 +141,7 @@ describe('Create plan', () => {
       cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
       cy.get('input[name="name"]').type(planName)
       cy.get('input[name="code"]').type(planName)
+      cy.get('[data-test="show-description"]').click()
       cy.get('textarea[name="description"]').type('I am a description')
       cy.get('input[name="amountCents"]').type('30000')
 
