@@ -66,6 +66,15 @@ export const Line = styled.div`
   }
 `
 
+export const LineSplit = styled.div`
+  display: flex;
+  column-gap: ${theme.spacing(3)};
+
+  > * {
+    flex: 1;
+  }
+`
+
 export const SkeletonHeader = styled.div`
   padding: 0 ${theme.spacing(8)};
 `

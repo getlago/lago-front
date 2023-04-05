@@ -225,7 +225,11 @@ sources:
       fileName: Plan-Invoice - Instant charge
     - name: Subscription drawer - external id input
       id: 642a94e4409e3692d27eda4c
+      fileName: Subscription drawer - external id input
     - name: 👍 [Ready for dev] - Login - Reset password
       id: 642707b04540bee48d54de86
+      fileName: 👍 [Ready for dev] - Login - Reset password
+    - name: 👍 [Ready for dev] - Plans - Create a plan UI refacto
+      id: 642d5eac2dc55f7f81e01dd4
 format: flat
 variants: true

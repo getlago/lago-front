@@ -3666,7 +3666,7 @@ export type DeletePlanMutationVariables = Exact<{
 
 export type DeletePlanMutation = { __typename?: 'Mutation', destroyPlan?: { __typename?: 'DestroyPlanPayload', id?: string | null } | null };
 
-export type FixedFeeSectionFragment = { __typename?: 'Plan', id: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, payInAdvance: boolean, trialPeriod?: number | null };
+export type PlanForFixedFeeSectionFragment = { __typename?: 'Plan', id: string, amountCents: any, payInAdvance: boolean, trialPeriod?: number | null };
 
 export type GraduatedChargeFragment = { __typename?: 'Charge', id: string, properties?: { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null };
 
@@ -3674,7 +3674,7 @@ export type PackageChargeFragment = { __typename?: 'Charge', id: string, propert
 
 export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number };
 
-export type PlanSettingsSectionFragment = { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null };
+export type PlanForSettingsSectionFragment = { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, code: string, description?: string | null, interval: PlanInterval, name: string };
 
 export type VolumeRangesFragment = { __typename?: 'Charge', properties?: { __typename?: 'Properties', volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null };
 
@@ -5282,20 +5282,20 @@ export const ChargeAccordionFragmentDoc = gql`
 ${VolumeRangesFragmentDoc}
 ${PackageChargeFragmentDoc}
 ${PercentageChargeFragmentDoc}`;
-export const PlanSettingsSectionFragmentDoc = gql`
-    fragment PlanSettingsSection on Plan {
+export const PlanForSettingsSectionFragmentDoc = gql`
+    fragment PlanForSettingsSection on Plan {
   id
-  name
+  amountCurrency
   code
   description
+  interval
+  name
 }
     `;
-export const FixedFeeSectionFragmentDoc = gql`
-    fragment FixedFeeSection on Plan {
+export const PlanForFixedFeeSectionFragmentDoc = gql`
+    fragment PlanForFixedFeeSection on Plan {
   id
-  interval
   amountCents
-  amountCurrency
   payInAdvance
   trialPeriod
 }
@@ -5322,12 +5322,12 @@ export const EditPlanFragmentDoc = gql`
     ...ChargeAccordion
     chargeModel
   }
-  ...PlanSettingsSection
-  ...FixedFeeSection
+  ...PlanForSettingsSection
+  ...PlanForFixedFeeSection
 }
     ${ChargeAccordionFragmentDoc}
-${PlanSettingsSectionFragmentDoc}
-${FixedFeeSectionFragmentDoc}`;
+${PlanForSettingsSectionFragmentDoc}
+${PlanForFixedFeeSectionFragmentDoc}`;
 export const CustomerMainInfosFragmentDoc = gql`
     fragment CustomerMainInfos on Customer {
   id

@@ -148,7 +148,7 @@ export const theme = createTheme({
           },
         },
         multiline: {
-          padding: '10px 16px',
+          padding: '5px',
           '&.Mui-disabled': {
             backgroundColor: palette.grey[100],
             borderRadius: 12,
@@ -157,7 +157,7 @@ export const theme = createTheme({
             },
           },
           textarea: {
-            padding: 0,
+            padding: '5px 11px',
           },
         },
         notchedOutline: {

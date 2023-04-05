@@ -50,6 +50,9 @@ module.exports = {
   "project_6304e74718860633c15905f2": {
     "base": require('./-ready-for-dev---plans---add-volume-in-charge-model__base.json')
   },
+  "project_642d5eac2dc55f7f81e01dd4": {
+    "base": require('./-ready-for-dev---plans---create-a-plan-ui-refacto__base.json')
+  },
   "project_634ea0e94c99df2bb59820d9": {
     "base": require('./-ready-for-dev---settings---customers---lago-gocardless-connection__base.json')
   },
