@@ -11,6 +11,7 @@ import {
   TextInputField,
   DatePickerField,
   ButtonSelectorField,
+  TextInput,
 } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
@@ -226,13 +227,27 @@ export const AddSubscriptionDrawer = forwardRef<
             </PlanBlock>
             {!!formikProps?.values?.planId && (
               <>
-                <TextInputField
-                  name="externalId"
-                  formikProps={formikProps}
-                  label={translate('text_642a94e522316cd9e1875224')}
-                  placeholder={translate('text_642ac1d1407baafb9e4390ee')}
-                  helperText={translate('text_642ac28c65c2180085afe31a')}
-                />
+                {!existingSubscription ? (
+                  <TextInputField
+                    name="externalId"
+                    formikProps={formikProps}
+                    label={translate('text_642a94e522316cd9e1875224')}
+                    placeholder={translate('text_642ac1d1407baafb9e4390ee')}
+                    helperText={translate('text_642ac28c65c2180085afe31a')}
+                  />
+                ) : (
+                  (!!existingSubscription?.subscriptionExternalId ||
+                    !!formikProps.values.externalId) && (
+                    <TextInput
+                      disabled
+                      label={translate('text_642a94e522316cd9e1875224')}
+                      value={
+                        formikProps.values.externalId ||
+                        existingSubscription?.subscriptionExternalId
+                      }
+                    />
+                  )
+                )}
 
                 <TextInputField
                   name="name"

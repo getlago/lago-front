@@ -128,6 +128,7 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
                       editSubscriptionDrawerRef as MutableRefObject<EditCustomerSubscriptionDrawerRef>
                     )?.current?.openDrawer({
                       id: subscriptionId,
+                      externalId: subscriptionExternalId,
                       name: subscriptionName,
                       startDate: date,
                       status: status as StatusTypeEnum,
@@ -147,6 +148,7 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
                       addSubscriptionDialogRef as MutableRefObject<AddSubscriptionDrawerRef>
                     )?.current?.openDialog({
                       subscriptionId,
+                      subscriptionExternalId,
                       existingPlanId: plan.id,
                       periodEndDate: periodEndDate,
                       startDate: date,

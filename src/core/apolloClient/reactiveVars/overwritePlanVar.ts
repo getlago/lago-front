@@ -8,6 +8,7 @@ export const OVERWRITE_PLAN_LS_KEY = 'overwritePlan'
 
 export type SubscriptionUpdateInfo = {
   subscriptionId?: string
+  subscriptionExternalId?: string
   existingPlanId?: string
   periodEndDate?: string
   startDate?: string
