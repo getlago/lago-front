@@ -51,7 +51,9 @@ export const AddSubscriptionDrawer = forwardRef<
   const navigate = useNavigate()
   const drawerRef = useRef<DrawerRef>(null)
   const { timezone, timezoneConfig: orgaTimezoneConfig, formatTimeOrgaTZ } = useOrganizationInfos()
-  const currentDateRef = useRef<string>(DateTime.now().setZone(orgaTimezoneConfig.name).toISO())
+  const currentDateRef = useRef<string>(
+    DateTime.now().setZone(orgaTimezoneConfig.name).startOf('day').toISO()
+  )
   const [existingSubscription, setExistingSubscription] = useState<
     SubscriptionUpdateInfo | undefined
   >(undefined)
