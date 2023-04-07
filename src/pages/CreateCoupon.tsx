@@ -8,7 +8,7 @@ import styled from 'styled-components'
 import isEqual from 'lodash/isEqual'
 
 import { useCreateEditCoupon, FORM_ERRORS_ENUM } from '~/hooks/useCreateEditCoupon'
-import { PageHeader, Card, theme } from '~/styles'
+import { PageHeader, Card, theme, ButtonGroup } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   Typography,
@@ -35,6 +35,7 @@ import {
   CouponTypeEnum,
   CouponFrequency,
   PlansForCouponsFragment,
+  BillableMetricsForCouponsFragment,
 } from '~/generated/graphql'
 import {
   Main,
@@ -51,6 +52,10 @@ import {
   AddPlanToCouponDialog,
   AddPlanToCouponDialogRef,
 } from '~/components/coupons/AddPlanToCouponDialog'
+import {
+  AddBillableMetricToCouponDialog,
+  AddBillableMetricToCouponDialogRef,
+} from '~/components/coupons/AddBillableMetricToCouponDialog'
 
 import { CouponCodeSnippet } from '../components/coupons/CouponCodeSnippet'
 
@@ -67,9 +72,14 @@ const CreateCoupon = () => {
     setHasPlanLimit,
     limitPlansList,
     setLimitPlansList,
+    hasBillableMetricLimit,
+    setHasBillableMetricLimit,
+    limitBillableMetricsList,
+    setLimitBillableMetricsList,
   } = useCreateEditCoupon()
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const addPlanToCouponDialogRef = useRef<AddPlanToCouponDialogRef>(null)
+  const addBillableMetricToCouponDialogRef = useRef<AddBillableMetricToCouponDialogRef>(null)
   const formikProps = useFormik<CreateCouponInput>({
     initialValues: {
       amountCents: coupon?.amountCents
@@ -136,7 +146,17 @@ const CreateCoupon = () => {
   })
 
   const attachPlanToCoupon = (plan: PlansForCouponsFragment) => {
+    if (limitPlansList.length === 0) {
+      setHasBillableMetricLimit(false)
+    }
     setLimitPlansList((oldArray: PlansForCouponsFragment[]) => [...oldArray, plan])
+  }
+
+  const attachBillableMetricToCoupon = (billableMetric: BillableMetricsForCouponsFragment) => {
+    if (limitBillableMetricsList.length === 0) {
+      setHasPlanLimit(false)
+    }
+    setLimitBillableMetricsList((oldArray: BillableMetricsForCouponsFragment[]) => [...oldArray, billableMetric])
   }
 
   useEffect(() => {
@@ -149,6 +169,15 @@ const CreateCoupon = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorCode])
+
+  useEffect(() => {
+    if ((hasPlanLimit  || hasBillableMetricLimit) && (
+      limitBillableMetricsList.length === 0 && limitPlansList.length === 0)
+    ) {
+        setHasPlanLimit(true)
+        setHasBillableMetricLimit(true)
+    }
+  }, [limitBillableMetricsList, limitPlansList])
 
   return (
     <div>
@@ -397,16 +426,23 @@ const CreateCoupon = () => {
                   </Settings>
 
                   <StyledPlanLimitCheckbox
-                    name="hasPlanLimit"
-                    value={hasPlanLimit}
+                    name="hasPlanOrBillableMetricLimit"
+                    value={hasPlanLimit || hasBillableMetricLimit}
                     disabled={isEdition && !!coupon?.appliedCouponsCount}
-                    label={translate('text_63d3a201113866a7fa5e6f61')}
+                    label={translate('text_63d3a201113866a7fa5e6f61') + ' or billable metrics'}
                     onChange={(_, checked) => {
-                      setHasPlanLimit(checked)
+                      if (!checked || (!limitPlansList.length && !limitBillableMetricsList.length)) {
+                        setHasPlanLimit(checked)
+                        setHasBillableMetricLimit(checked)
+                      } else if (!!limitPlansList.length) {
+                        setHasPlanLimit(checked)
+                      } else if (!!limitBillableMetricsList.length) {
+                        setHasBillableMetricLimit(checked)
+                      }
                     }}
                   />
 
-                  {hasPlanLimit && (
+                  {(hasPlanLimit || hasBillableMetricLimit) && (
                     <>
                       {!!limitPlansList.length &&
                         limitPlansList.map((plan, i) => (
@@ -445,15 +481,64 @@ const CreateCoupon = () => {
                           </PlanLine>
                         ))}
 
+                      {!!limitBillableMetricsList.length &&
+                        limitBillableMetricsList.map((billableMetric, i) => (
+                          <PlanLine key={`limited-billable-metric-${billableMetric.id}`} data-test={`limited-billable-metric-${i}`}>
+                            <PlanLeftBlock>
+                              <Avatar variant="connector">
+                                <Icon name="board" />
+                              </Avatar>
+                              <PlanLeftBlockInfos>
+                                <Typography variant="bodyHl" color="grey700">
+                                  {billableMetric.name}
+                                </Typography>
+                                <Typography variant="caption" color="grey600">
+                                  {billableMetric.code}
+                                </Typography>
+                              </PlanLeftBlockInfos>
+                            </PlanLeftBlock>
+                            {(!isEdition || !coupon?.appliedCouponsCount) && (
+                              <Tooltip
+                                placement="top-end"
+                                title={'Label1'}
+                              >
+                                <Button
+                                  icon="trash"
+                                  variant="quaternary"
+                                  size="small"
+                                  onClick={() =>
+                                    setLimitBillableMetricsList((oldArray: BillableMetricsForCouponsFragment[]) => [
+                                      ...oldArray.filter((b) => b.id !== billableMetric.id),
+                                    ])
+                                  }
+                                  data-test={`delete-limited-billable-metric-${i}`}
+                                />
+                              </Tooltip>
+                            )}
+                          </PlanLine>
+                        ))}
+
                       {(!isEdition || !coupon?.appliedCouponsCount) && (
-                        <Button
-                          variant="quaternary"
-                          startIcon="plus"
-                          onClick={addPlanToCouponDialogRef.current?.openDialog}
-                          data-test="add-plan-limit"
-                        >
-                          {translate('text_63d3a201113866a7fa5e6f6b')}
-                        </Button>
+                        <StyledButtonGroup>
+                          <Button
+                            variant="quaternary"
+                            startIcon="plus"
+                            disabled={hasBillableMetricLimit && !hasPlanLimit}
+                            onClick={addPlanToCouponDialogRef.current?.openDialog}
+                            data-test="add-plan-limit"
+                          >
+                            {translate('text_63d3a201113866a7fa5e6f6b')}
+                          </Button>
+                          <Button
+                            variant="quaternary"
+                            startIcon="plus"
+                            disabled={hasPlanLimit && !hasBillableMetricLimit}
+                            onClick={addBillableMetricToCouponDialogRef.current?.openDialog}
+                            data-test="add-billable-metric-limit"
+                          >
+                            {'Add a billable metric'}
+                          </Button>
+                        </StyledButtonGroup>
                       )}
                     </>
                   )}
@@ -466,8 +551,11 @@ const CreateCoupon = () => {
                       (isEdition &&
                         !formikProps.dirty &&
                         isEqual(coupon?.plans, limitPlansList) &&
-                        hasPlanLimit === !!coupon?.limitedPlans) ||
-                      (hasPlanLimit && !limitPlansList.length)
+                        isEqual(coupon?.billableMetrics, limitBillableMetricsList) &&
+                        (hasPlanLimit === !!coupon?.limitedPlans) &&
+                        (hasBillableMetricLimit === !!coupon?.limitedBillableMetrics)) ||
+                      (hasPlanLimit && !limitPlansList.length) ||
+                      (hasBillableMetricLimit && !limitBillableMetricsList.length)
                     }
                     fullWidth
                     size="large"
@@ -489,6 +577,8 @@ const CreateCoupon = () => {
             coupon={formikProps.values}
             hasPlanLimit={hasPlanLimit}
             limitPlansList={limitPlansList}
+            hasBillableMetricLimit={hasBillableMetricLimit}
+            limitBillableMetricsList={limitBillableMetricsList}
           />
         </Side>
       </Content>
@@ -511,6 +601,12 @@ const CreateCoupon = () => {
         ref={addPlanToCouponDialogRef}
         onSubmit={attachPlanToCoupon}
         attachedPlansIds={limitPlansList.map((p) => p.id)}
+      />
+
+      <AddBillableMetricToCouponDialog
+        ref={addBillableMetricToCouponDialogRef}
+        onSubmit={attachBillableMetricToCoupon}
+        attachedBillableMetricsIds={limitBillableMetricsList.map((p) => p.id)}
       />
     </div>
   )
@@ -564,6 +660,18 @@ const PlanLeftBlockInfos = styled.div`
   margin-left: ${theme.spacing(3)};
   display: flex;
   flex-direction: column;
+`
+
+const StyledButtonGroup = styled(ButtonGroup)`
+  && {
+    margin-left: auto;
+    align-items: initial;
+
+    ${theme.breakpoints.down('md')} {
+      margin-left: 0;
+      flex-direction: column-reverse;
+    }
+  }
 `
 
 export default CreateCoupon
