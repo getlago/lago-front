@@ -4,7 +4,7 @@ import { gql } from '@apollo/client'
 
 import { Button, DrawerRef, Drawer, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { TextInputField, DatePickerField } from '~/components/form'
+import { TextInputField, DatePickerField, TextInput } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import {
   useUpdateCustomerSubscriptionMutation,
@@ -28,6 +28,7 @@ gql`
 type SubscriptionInfos = {
   id: string
   name?: string | null
+  externalId?: string | null
   startDate: string
   status?: StatusTypeEnum
 }
@@ -95,6 +96,15 @@ export const EditCustomerSubscriptionDrawer = forwardRef<EditCustomerSubscriptio
               placeholder={translate('text_62d7f6178ec94cd09370e393')}
               formikProps={formikProps}
             />
+
+            {!!subscription?.externalId && (
+              <TextInput
+                disabled
+                name="externalId"
+                label={translate('text_642a94e522316cd9e1875224')}
+                value={subscription?.externalId}
+              />
+            )}
 
             <DatePickerField
               disabled={subscription?.status === StatusTypeEnum.Active}
