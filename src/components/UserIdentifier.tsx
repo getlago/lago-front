@@ -1,9 +1,11 @@
+import { Settings } from 'luxon'
 import { gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
 import * as Sentry from '@sentry/browser'
 
 import { addToast } from '~/core/apolloClient'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
+import { getTimezoneConfig } from '~/core/timezone'
 import {
   useUserIdentifierQuery,
   MainOrganizationInfosFragmentDoc,
@@ -48,6 +50,8 @@ export const UserIdentifier = () => {
       }
     } else {
       const { id, email } = data?.me
+
+      Settings.defaultZone = getTimezoneConfig(data?.organization?.timezone).name
 
       Sentry.configureScope((scope) => scope.setUser({ id, email: email || undefined }))
     }
