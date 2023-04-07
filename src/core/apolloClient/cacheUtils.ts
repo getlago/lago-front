@@ -1,8 +1,6 @@
 import { gql } from '@apollo/client'
 import { ApolloClient } from '@apollo/client'
-import { Settings } from 'luxon'
 
-import { getTimezoneConfig } from '~/core/timezone'
 import { CurrentUserFragment } from '~/generated/graphql'
 
 import {
@@ -57,7 +55,6 @@ export const onLogIn = (token: string, user: CurrentUserFragment) => {
   const organization = (user?.organizations || [])[0]
 
   setItemFromLS(ORGANIZATION_LS_KEY_ID, organization?.id)
-  Settings.defaultZone = getTimezoneConfig(organization.timezone).name
 }
 
 export const switchCurrentOrganization = async (
