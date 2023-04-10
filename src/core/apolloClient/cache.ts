@@ -20,7 +20,6 @@ export const cache = new InMemoryCache({
     Query: {
       fields: {
         billableMetrics: {
-          keyArgs: false,
           merge: mergePaginatedCollection,
         },
         plans: {

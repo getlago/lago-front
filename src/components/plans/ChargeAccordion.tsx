@@ -1,11 +1,19 @@
-import { useCallback, MouseEvent, memo, useRef } from 'react'
+import { useCallback, MouseEvent, memo, useRef, useMemo } from 'react'
 import { FormikProps } from 'formik'
 import styled from 'styled-components'
 import { InputAdornment } from '@mui/material'
 import { gql } from '@apollo/client'
 
 import { theme } from '~/styles'
-import { Button, Typography, Tooltip, Accordion, Icon } from '~/components/designSystem'
+import {
+  Button,
+  Typography,
+  Tooltip,
+  Accordion,
+  Icon,
+  Alert,
+  Chip,
+} from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   ChargeModelEnum,
@@ -14,15 +22,14 @@ import {
   GraduatedChargeFragmentDoc,
   PackageChargeFragmentDoc,
   PercentageChargeFragmentDoc,
-  AggregationTypeEnum,
+  PlanInterval,
 } from '~/generated/graphql'
-import { AmountInput, ComboBox, Switch } from '~/components/form'
+import { AmountInput, ComboBox } from '~/components/form'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 
 import { PlanFormInput } from './types'
@@ -34,6 +41,7 @@ interface ChargeAccordionProps {
   index: number
   currency: CurrencyEnum
   disabled?: boolean
+  shouldDisplayAlreadyUsedChargeAlert: boolean
   isUsedInSubscription?: boolean
   formikProps: FormikProps<PlanFormInput>
 }
@@ -74,12 +82,39 @@ gql`
   ${PercentageChargeFragmentDoc}
 `
 
+const mapIntervalCopy = (
+  interval: string,
+  isInstant: boolean,
+  forceMonthlyCharge: boolean
+): string => {
+  if (isInstant) {
+    return 'text_6435895831d323008a47911e'
+  } else if (forceMonthlyCharge) {
+    return 'text_624453d52e945301380e49aa'
+  } else if (interval === PlanInterval.Monthly) {
+    return 'text_624453d52e945301380e49aa'
+  } else if (interval === PlanInterval.Yearly) {
+    return 'text_624453d52e945301380e49ac'
+  } else if (interval === PlanInterval.Weekly) {
+    return 'text_62b32ec6b0434070791c2d4c'
+  }
+
+  return ''
+}
+
 export const ChargeAccordion = memo(
-  ({ id, index, currency, disabled, isUsedInSubscription, formikProps }: ChargeAccordionProps) => {
+  ({
+    id,
+    index,
+    currency,
+    disabled,
+    shouldDisplayAlreadyUsedChargeAlert,
+    isUsedInSubscription,
+    formikProps,
+  }: ChargeAccordionProps) => {
     const warningDialogRef = useRef<WarningDialogRef>(null)
     const { translate } = useInternationalization()
     const localCharge = formikProps.values.charges[index]
-    const { isPremium } = useCurrentUser()
     const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
     const handleUpdate = useCallback(
       (name: string, value: string | boolean) => {
@@ -94,6 +129,36 @@ export const ChargeAccordion = memo(
     const hasErrorInCharges = Boolean(
       formikProps.errors.charges && formikProps.errors.charges[index]
     )
+
+    const chargeModelData = useMemo(() => {
+      const chargeModels = [
+        {
+          label: translate('text_624aa732d6af4e0103d40e6f'),
+          value: ChargeModelEnum.Standard,
+        },
+        {
+          label: translate('text_62793bbb599f1c01522e919f'),
+          value: ChargeModelEnum.Graduated,
+        },
+        {
+          label: translate('text_62a0b7107afa2700a65ef6e2'),
+          value: ChargeModelEnum.Percentage,
+        },
+        {
+          label: translate('text_6282085b4f283b0102655868'),
+          value: ChargeModelEnum.Package,
+        },
+      ]
+
+      if (!localCharge.instant) {
+        chargeModels.push({
+          label: translate('text_6304e74aab6dbc18d615f386'),
+          value: ChargeModelEnum.Volume,
+        })
+      }
+
+      return chargeModels
+    }, [localCharge.instant, translate])
 
     return (
       <>
@@ -110,12 +175,7 @@ export const ChargeAccordion = memo(
                   {localCharge?.billableMetric?.code}
                 </Typography>
               </Title>
-              <>
-                {localCharge.instant && (
-                  <Tooltip placement="top-end" title={translate('text_63ff7a14be2ceb36dd22ead6')}>
-                    <InstantIcon name="flash-filled" />
-                  </Tooltip>
-                )}
+              <SummaryRight>
                 <Tooltip
                   placement="top-end"
                   title={
@@ -129,8 +189,20 @@ export const ChargeAccordion = memo(
                     color={hasErrorInCharges ? 'disabled' : 'success'}
                   />
                 </Tooltip>
+                <Chip
+                  label={translate(
+                    mapIntervalCopy(
+                      formikProps.values.interval,
+                      localCharge.instant || false,
+                      (formikProps.values.interval === PlanInterval.Yearly &&
+                        !!formikProps.values.billChargesMonthly &&
+                        !localCharge.instant) ||
+                        false
+                    )
+                  )}
+                />
                 <Tooltip placement="top-end" title={translate('text_624aa732d6af4e0103d40e65')}>
-                  <TrashButton
+                  <Button
                     variant="quaternary"
                     size="small"
                     icon="trash"
@@ -149,37 +221,20 @@ export const ChargeAccordion = memo(
                     }}
                   />
                 </Tooltip>
-              </>
+              </SummaryRight>
             </>
           }
         >
           <Details>
+            {!!shouldDisplayAlreadyUsedChargeAlert && (
+              <Alert type="warning">{translate('text_6435895831d323008a47911f')}</Alert>
+            )}
+
             <ComboBox
               name="chargeModel"
               disabled={disabled}
               label={translate('text_624c5eadff7db800acc4ca0d')}
-              data={[
-                {
-                  label: translate('text_624aa732d6af4e0103d40e6f'),
-                  value: ChargeModelEnum.Standard,
-                },
-                {
-                  label: translate('text_62793bbb599f1c01522e919f'),
-                  value: ChargeModelEnum.Graduated,
-                },
-                {
-                  label: translate('text_62a0b7107afa2700a65ef6e2'),
-                  value: ChargeModelEnum.Percentage,
-                },
-                {
-                  label: translate('text_6282085b4f283b0102655868'),
-                  value: ChargeModelEnum.Package,
-                },
-                {
-                  label: translate('text_6304e74aab6dbc18d615f386'),
-                  value: ChargeModelEnum.Volume,
-                },
-              ]}
+              data={chargeModelData}
               disableClearable
               value={localCharge.chargeModel}
               helperText={translate(
@@ -264,44 +319,6 @@ export const ChargeAccordion = memo(
                 </>
               )}
             </ConditionalChargeWrapper>
-            <InstantCharge>
-              <Tooltip
-                disableHoverListener={
-                  localCharge.chargeModel !== ChargeModelEnum.Volume &&
-                  ![AggregationTypeEnum.MaxAgg, AggregationTypeEnum.RecurringCountAgg].includes(
-                    localCharge?.billableMetric?.aggregationType
-                  )
-                }
-                title={translate(
-                  localCharge.chargeModel === ChargeModelEnum.Volume
-                    ? 'text_63ff7a14be2ceb36dd22eb84'
-                    : 'text_63ff7a14be2ceb36dd22eb8f'
-                )}
-                placement="top-start"
-              >
-                <Switch
-                  name="instant"
-                  label={translate('text_63ff7a14be2ceb36dd22ea88')}
-                  subLabel={translate('text_63ff7a14be2ceb36dd22ea89')}
-                  disabled={
-                    isUsedInSubscription ||
-                    localCharge.chargeModel === ChargeModelEnum.Volume ||
-                    [AggregationTypeEnum.MaxAgg, AggregationTypeEnum.RecurringCountAgg].includes(
-                      localCharge?.billableMetric?.aggregationType
-                    )
-                  }
-                  checked={localCharge.instant || false}
-                  onChange={(value) => {
-                    if (isPremium) {
-                      handleUpdate('instant', value)
-                    } else {
-                      premiumWarningDialogRef.current?.openDialog()
-                    }
-                  }}
-                />
-              </Tooltip>
-              {!isPremium && !isUsedInSubscription && <Icon name="sparkles" />}
-            </InstantCharge>
           </Details>
         </Accordion>
 
@@ -344,26 +361,9 @@ const ValidationIcon = styled(Icon)`
   align-items: center;
 `
 
-const InstantIcon = styled(Icon)`
-  margin-right: ${theme.spacing(3)};
+const SummaryRight = styled.div`
   display: flex;
   align-items: center;
-  fill: ${theme.palette.secondary[500]};
-`
-
-const TrashButton = styled(Button)`
-  margin-left: ${theme.spacing(3)};
-`
-
-const InstantCharge = styled.div`
-  box-shadow: ${theme.shadows[5]};
-  margin-left: -${theme.spacing(4)};
-  margin-right: -${theme.spacing(4)};
-  padding: ${theme.spacing(4)} ${theme.spacing(4)} 0 ${theme.spacing(4)};
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
   > *:not(:last-child) {
     margin-right: ${theme.spacing(3)};
   }
