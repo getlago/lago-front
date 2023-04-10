@@ -1,32 +1,21 @@
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect } from 'react'
 import { useFormik } from 'formik'
 import { object, string, number } from 'yup'
-import styled from 'styled-components'
 import { gql } from '@apollo/client'
 
-import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
 import {
   PlanInterval,
   CurrencyEnum,
-  ChargeModelEnum,
   ChargeAccordionFragmentDoc,
   PropertiesInput,
   PlanForSettingsSectionFragmentDoc,
   PlanForFixedFeeSectionFragmentDoc,
+  PlanForChargeAccordionFragmentDoc,
 } from '~/generated/graphql'
-import { SwitchField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import {
-  Typography,
-  Button,
-  Skeleton,
-  Icon,
-  Tooltip,
-  IconSizeEnum,
-} from '~/components/designSystem'
-import { theme, Card, PageHeader } from '~/styles'
-import { AddChargeDialog, AddChargeDialogRef } from '~/components/plans/AddChargeDialog'
+import { Typography, Button, Skeleton } from '~/components/designSystem'
+import { theme, PageHeader, Card } from '~/styles'
 import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
 import { usePlanForm, PLAN_FORM_TYPE_ENUM, FORM_ERRORS_ENUM } from '~/hooks/plans/usePlanForm'
 import { chargeSchema } from '~/formValidation/chargeSchema'
@@ -42,10 +31,23 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
+import { ChargesSection } from '~/components/plans/ChargesSection'
 
 import { PlanFormInput, LocalChargeInput } from '../components/plans/types'
 
 gql`
+  fragment billableMetricForPlan on BillableMetric {
+    id
+    name
+    code
+    aggregationType
+    flatGroups {
+      id
+      key
+      value
+    }
+  }
+
   fragment EditPlan on Plan {
     id
     name
@@ -63,21 +65,22 @@ gql`
       billableMetric {
         id
         code
+        ...billableMetricForPlan
       }
       ...ChargeAccordion
       chargeModel
     }
 
+    ...PlanForChargeAccordion
     ...PlanForSettingsSection
     ...PlanForFixedFeeSection
   }
 
   ${ChargeAccordionFragmentDoc}
+  ${PlanForChargeAccordionFragmentDoc}
   ${PlanForSettingsSectionFragmentDoc}
   ${PlanForFixedFeeSectionFragmentDoc}
 `
-
-const getNewChargeId = (id: string, index: number) => `plan-charge-${id}-${index}`
 
 const getPropertyShape = (properties: PropertiesInput) => {
   return {
@@ -98,12 +101,8 @@ const getPropertyShape = (properties: PropertiesInput) => {
 
 const CreatePlan = () => {
   const { loading, type, plan, parentPlanName, errorCode, onSave, onClose } = usePlanForm()
-
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const { translate } = useInternationalization()
-  const containerRef = useRef<HTMLDivElement>(null)
-  const addChargeDialogRef = useRef<AddChargeDialogRef>(null)
-  const [newChargeId, setNewChargeId] = useState<string | null>(null)
   const isEdition = type === PLAN_FORM_TYPE_ENUM.edition
   const formikProps = useFormik<PlanFormInput>({
     initialValues: {
@@ -161,6 +160,8 @@ const CreatePlan = () => {
   })
 
   const canBeEdited = !plan?.subscriptionsCount
+  const hasAnyNormalCharge = formikProps.values.charges.some((c) => !c.instant)
+  const hasAnyInstantCharge = formikProps.values.charges.some((c) => !!c.instant)
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
@@ -172,18 +173,6 @@ const CreatePlan = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorCode])
-
-  useEffect(() => {
-    // When adding a new charge, scroll to the new charge element
-    if (!!newChargeId) {
-      const element = document.getElementById(newChargeId)
-      const rootElement = document.getElementById('root')
-
-      if (!element || !rootElement) return
-
-      rootElement.scrollTo({ top: element.offsetTop - 72 - 16 })
-    }
-  }, [newChargeId])
 
   useEffect(() => {
     if (
@@ -294,63 +283,15 @@ const CreatePlan = () => {
                   isEdition={isEdition}
                 />
 
-                <Card ref={containerRef}>
-                  <SectionTitle variant="subhead">
-                    <div>{translate('text_624453d52e945301380e49ce')}</div>
-                    <Typography>{translate('text_624453d52e945301380e49d0')}</Typography>
-                  </SectionTitle>
-
-                  {!!formikProps.values.charges.length && (
-                    <Charges>
-                      {formikProps.values.charges.map((charge, i) => {
-                        const id = getNewChargeId(charge.billableMetric.id, i)
-                        const isNew = !plan?.charges?.find(
-                          (chargeFetched) => chargeFetched?.id === charge.id
-                        )
-
-                        return (
-                          <ChargeAccordion
-                            id={id}
-                            key={id}
-                            isUsedInSubscription={!isNew && !canBeEdited}
-                            currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
-                            index={i}
-                            disabled={isEdition && !canBeEdited && !isNew}
-                            formikProps={formikProps}
-                          />
-                        )
-                      })}
-                    </Charges>
-                  )}
-                  <ChargeFooter>
-                    <Button
-                      startIcon="plus"
-                      variant="quaternary"
-                      data-test="add-charge"
-                      onClick={() => addChargeDialogRef.current?.openDialog()}
-                    >
-                      {translate('text_624453d52e945301380e49d2')}
-                    </Button>
-                    {!!formikProps.values.charges.length &&
-                      formikProps.values.interval === PlanInterval.Yearly && (
-                        <ChargeInvoiceLine>
-                          <SwitchField
-                            labelPosition="left"
-                            label={translate('text_62a30bc79dae432fb055330b')}
-                            name="billChargesMonthly"
-                            disabled={isEdition && !canBeEdited}
-                            formikProps={formikProps}
-                          />
-                          <ChargeInvoiceTooltip
-                            title={translate('text_62a30bc79dae432fb055330f')}
-                            placement="top-end"
-                          >
-                            <Icon name="info-circle" />
-                          </ChargeInvoiceTooltip>
-                        </ChargeInvoiceLine>
-                      )}
-                  </ChargeFooter>
-                </Card>
+                <ChargesSection
+                  canBeEdited={canBeEdited}
+                  isEdition={isEdition}
+                  hasAnyNormalCharge={hasAnyNormalCharge}
+                  hasAnyInstantCharge={hasAnyInstantCharge}
+                  formikProps={formikProps}
+                  existingCharges={plan?.charges}
+                  getPropertyShape={getPropertyShape}
+                />
 
                 <ButtonContainer>
                   <Button
@@ -369,40 +310,6 @@ const CreatePlan = () => {
                     )}
                   </Button>
                 </ButtonContainer>
-
-                <AddChargeDialog
-                  ref={addChargeDialogRef}
-                  addedBillableMetricCodes={
-                    formikProps.values.charges.length
-                      ? formikProps.values.charges.map((c) => c.billableMetric.code)
-                      : []
-                  }
-                  onConfirm={(newCharge) => {
-                    const previousCharges = [...formikProps.values.charges]
-                    const newId = getNewChargeId(newCharge.id, previousCharges.length)
-
-                    formikProps.setFieldValue('charges', [
-                      ...previousCharges,
-                      {
-                        billableMetric: newCharge,
-                        properties: !newCharge.flatGroups?.length
-                          ? getPropertyShape({})
-                          : undefined,
-                        groupProperties: newCharge.flatGroups?.length
-                          ? newCharge?.flatGroups.map((group) => {
-                              return {
-                                groupId: group.id,
-                                values: getPropertyShape({}),
-                              }
-                            })
-                          : undefined,
-                        chargeModel: ChargeModelEnum.Standard,
-                        amountCents: undefined,
-                      },
-                    ])
-                    setNewChargeId(newId)
-                  }}
-                />
               </>
             )}
           </div>
@@ -428,36 +335,5 @@ const CreatePlan = () => {
     </div>
   )
 }
-
-const Charges = styled.div`
-  > * {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
-
-const SectionTitle = styled(Typography)`
-  > div:first-child {
-    margin-bottom: ${theme.spacing(3)};
-  }
-`
-
-const ChargeFooter = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-`
-
-const ChargeInvoiceLine = styled.div`
-  display: flex;
-  align-items: center;
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const ChargeInvoiceTooltip = styled(Tooltip)`
-  height: ${IconSizeEnum.medium};
-`
 
 export default CreatePlan

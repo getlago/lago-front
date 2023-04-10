@@ -49,10 +49,9 @@ describe('Edit plan', () => {
     cy.get('[data-test="open-charge"]').first().click()
 
     cy.get('[data-test="add-charge"]').click()
-    cy.get('[data-test="submit-add-charge"]').should('be.disabled')
-    cy.get('input[name="billableMetricId"]').click()
+    cy.get('[data-test="add-normal-charge"]').first().click()
+    cy.get('input[name="searchNormalChargeInput"]').click()
     cy.get('[data-option-index="1"]').click()
-    cy.get('[data-test="submit-add-charge"]').click()
     cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().should('have.value', 'Standard pricing')

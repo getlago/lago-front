@@ -97,9 +97,6 @@ module.exports = {
   "project_62f50d2512182c6df6c39e37": {
     "base": require('./-wip---general---fe-environment-infos__base.json')
   },
-  "project_63e254ea592347d77dd3cf03": {
-    "base": require('./-wip---plan---warn-user-if-duplicate-charge-in-plan-creation-and-edition__base.json')
-  },
   "project_63e51e8467659a55d188a68c": {
     "base": require('./-wip---settings---define-preferred-doc-language-generation__base.json')
   },
@@ -173,9 +170,6 @@ module.exports = {
   },
   "project_620bc4d45f16c800e2324b82": {
     "base": require('./onboarding---create--connect-to-an-account__base.json')
-  },
-  "project_63ff7985343a362251c12744": {
-    "base": require('./plan-invoice---instant-charge__base.json')
   },
   "project_62793bb8e62e1200cbcdddf8": {
     "base": require('./plans---add-graduated-in-charge-model__base.json')

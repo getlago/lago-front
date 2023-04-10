@@ -2396,6 +2396,7 @@ export type QueryBillableMetricArgs = {
 
 
 export type QueryBillableMetricsArgs = {
+  aggregationTypes?: InputMaybe<Array<AggregationTypeEnum>>;
   ids?: InputMaybe<Array<Scalars['String']>>;
   limit?: InputMaybe<Scalars['Int']>;
   page?: InputMaybe<Scalars['Int']>;
@@ -3527,7 +3528,7 @@ export type UpdateCustomerSubscriptionMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCustomerSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, startedAt?: any | null, externalId: string, subscriptionAt?: any | null } | null };
+export type UpdateCustomerSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, startedAt?: any | null, subscriptionAt?: any | null } | null };
 
 export type SubscriptionItemFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null };
 
@@ -3643,20 +3644,32 @@ export type CustomerMetadatasForInvoiceOverviewFragment = { __typename?: 'Custom
 
 export type InvoiceMetadatasForInvoiceOverviewFragment = { __typename?: 'Invoice', id: string, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null };
 
-export type BillableMetricForPlanFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null };
+export type ChargeAccordionFragment = { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, instant: boolean, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null } };
 
-export type GetbillableMetricsQueryVariables = Exact<{
+export type PercentageChargeFragment = { __typename?: 'Charge', id: string, properties?: { __typename?: 'Properties', fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null } }> | null };
+
+export type PlanForChargeAccordionFragment = { __typename?: 'Plan', billChargesMonthly?: boolean | null };
+
+export type BillableMetricForChargeSectionFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null };
+
+export type GetBillableMetricsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
   searchTerm?: InputMaybe<Scalars['String']>;
 }>;
 
 
-export type GetbillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }> } };
+export type GetBillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }> } };
 
-export type ChargeAccordionFragment = { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, instant: boolean, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null } };
+export type GetFilteredBillableMetricsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']>;
+  limit?: InputMaybe<Scalars['Int']>;
+  searchTerm?: InputMaybe<Scalars['String']>;
+  aggregationTypes?: InputMaybe<Array<AggregationTypeEnum> | AggregationTypeEnum>;
+}>;
 
-export type PercentageChargeFragment = { __typename?: 'Charge', id: string, properties?: { __typename?: 'Properties', fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null } }> | null };
+
+export type GetFilteredBillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }> } };
 
 export type DeletePlanDialogFragment = { __typename?: 'Plan', id: string, name: string, draftInvoicesCount: number, activeSubscriptionsCount: number };
 
@@ -4053,6 +4066,8 @@ export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'Coup
 export type EditBillableMetricFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, group?: any | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, subscriptionsCount: number, plansCount: number };
 
 export type CreateCreditNoteInvoiceFragment = { __typename?: 'Invoice', id: string, amountCurrency: CurrencyEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, creditableAmountCents: any, refundableAmountCents: any, subTotalVatIncludedAmountCents: any, vatRate: number };
+
+export type BillableMetricForPlanFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null };
 
 export type EditPlanFragment = { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, amountCents: any, amountCurrency: CurrencyEnum, trialPeriod?: number | null, subscriptionsCount: number, billChargesMonthly?: boolean | null, charges?: Array<{ __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, instant: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string, aggregationType: AggregationTypeEnum, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null }> | null };
 
@@ -4658,8 +4673,8 @@ export const CustomerUsageForUsageDetailsFragmentDoc = gql`
   }
 }
     `;
-export const BillableMetricForPlanFragmentDoc = gql`
-    fragment billableMetricForPlan on BillableMetric {
+export const BillableMetricForChargeSectionFragmentDoc = gql`
+    fragment billableMetricForChargeSection on BillableMetric {
   id
   name
   code
@@ -5164,6 +5179,19 @@ export const EditBillableMetricFragmentDoc = gql`
   plansCount
 }
     `;
+export const BillableMetricForPlanFragmentDoc = gql`
+    fragment billableMetricForPlan on BillableMetric {
+  id
+  name
+  code
+  aggregationType
+  flatGroups {
+    id
+    key
+    value
+  }
+}
+    `;
 export const GraduatedChargeFragmentDoc = gql`
     fragment GraduatedCharge on Charge {
   id
@@ -5283,6 +5311,11 @@ export const ChargeAccordionFragmentDoc = gql`
 ${VolumeRangesFragmentDoc}
 ${PackageChargeFragmentDoc}
 ${PercentageChargeFragmentDoc}`;
+export const PlanForChargeAccordionFragmentDoc = gql`
+    fragment PlanForChargeAccordion on Plan {
+  billChargesMonthly
+}
+    `;
 export const PlanForSettingsSectionFragmentDoc = gql`
     fragment PlanForSettingsSection on Plan {
   id
@@ -5319,14 +5352,18 @@ export const EditPlanFragmentDoc = gql`
     billableMetric {
       id
       code
+      ...billableMetricForPlan
     }
     ...ChargeAccordion
     chargeModel
   }
+  ...PlanForChargeAccordion
   ...PlanForSettingsSection
   ...PlanForFixedFeeSection
 }
-    ${ChargeAccordionFragmentDoc}
+    ${BillableMetricForPlanFragmentDoc}
+${ChargeAccordionFragmentDoc}
+${PlanForChargeAccordionFragmentDoc}
 ${PlanForSettingsSectionFragmentDoc}
 ${PlanForFixedFeeSectionFragmentDoc}`;
 export const CustomerMainInfosFragmentDoc = gql`
@@ -6598,7 +6635,6 @@ export const UpdateCustomerSubscriptionDocument = gql`
     name
     status
     startedAt
-    externalId
     subscriptionAt
   }
 }
@@ -7025,27 +7061,28 @@ export function useRetryInvoicePaymentMutation(baseOptions?: Apollo.MutationHook
 export type RetryInvoicePaymentMutationHookResult = ReturnType<typeof useRetryInvoicePaymentMutation>;
 export type RetryInvoicePaymentMutationResult = Apollo.MutationResult<RetryInvoicePaymentMutation>;
 export type RetryInvoicePaymentMutationOptions = Apollo.BaseMutationOptions<RetryInvoicePaymentMutation, RetryInvoicePaymentMutationVariables>;
-export const GetbillableMetricsDocument = gql`
-    query getbillableMetrics($page: Int, $limit: Int, $searchTerm: String) {
+export const GetBillableMetricsDocument = gql`
+    query getBillableMetrics($page: Int, $limit: Int, $searchTerm: String) {
   billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
     collection {
-      ...billableMetricForPlan
+      id
+      ...billableMetricForChargeSection
     }
   }
 }
-    ${BillableMetricForPlanFragmentDoc}`;
+    ${BillableMetricForChargeSectionFragmentDoc}`;
 
 /**
- * __useGetbillableMetricsQuery__
+ * __useGetBillableMetricsQuery__
  *
- * To run a query within a React component, call `useGetbillableMetricsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetbillableMetricsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetBillableMetricsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBillableMetricsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetbillableMetricsQuery({
+ * const { data, loading, error } = useGetBillableMetricsQuery({
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
@@ -7053,17 +7090,63 @@ export const GetbillableMetricsDocument = gql`
  *   },
  * });
  */
-export function useGetbillableMetricsQuery(baseOptions?: Apollo.QueryHookOptions<GetbillableMetricsQuery, GetbillableMetricsQueryVariables>) {
+export function useGetBillableMetricsQuery(baseOptions?: Apollo.QueryHookOptions<GetBillableMetricsQuery, GetBillableMetricsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetbillableMetricsQuery, GetbillableMetricsQueryVariables>(GetbillableMetricsDocument, options);
+        return Apollo.useQuery<GetBillableMetricsQuery, GetBillableMetricsQueryVariables>(GetBillableMetricsDocument, options);
       }
-export function useGetbillableMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetbillableMetricsQuery, GetbillableMetricsQueryVariables>) {
+export function useGetBillableMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBillableMetricsQuery, GetBillableMetricsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetbillableMetricsQuery, GetbillableMetricsQueryVariables>(GetbillableMetricsDocument, options);
+          return Apollo.useLazyQuery<GetBillableMetricsQuery, GetBillableMetricsQueryVariables>(GetBillableMetricsDocument, options);
         }
-export type GetbillableMetricsQueryHookResult = ReturnType<typeof useGetbillableMetricsQuery>;
-export type GetbillableMetricsLazyQueryHookResult = ReturnType<typeof useGetbillableMetricsLazyQuery>;
-export type GetbillableMetricsQueryResult = Apollo.QueryResult<GetbillableMetricsQuery, GetbillableMetricsQueryVariables>;
+export type GetBillableMetricsQueryHookResult = ReturnType<typeof useGetBillableMetricsQuery>;
+export type GetBillableMetricsLazyQueryHookResult = ReturnType<typeof useGetBillableMetricsLazyQuery>;
+export type GetBillableMetricsQueryResult = Apollo.QueryResult<GetBillableMetricsQuery, GetBillableMetricsQueryVariables>;
+export const GetFilteredBillableMetricsDocument = gql`
+    query getFilteredBillableMetrics($page: Int, $limit: Int, $searchTerm: String, $aggregationTypes: [AggregationTypeEnum!]) {
+  billableMetrics(
+    page: $page
+    limit: $limit
+    searchTerm: $searchTerm
+    aggregationTypes: $aggregationTypes
+  ) {
+    collection {
+      id
+      ...billableMetricForChargeSection
+    }
+  }
+}
+    ${BillableMetricForChargeSectionFragmentDoc}`;
+
+/**
+ * __useGetFilteredBillableMetricsQuery__
+ *
+ * To run a query within a React component, call `useGetFilteredBillableMetricsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetFilteredBillableMetricsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetFilteredBillableMetricsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      aggregationTypes: // value for 'aggregationTypes'
+ *   },
+ * });
+ */
+export function useGetFilteredBillableMetricsQuery(baseOptions?: Apollo.QueryHookOptions<GetFilteredBillableMetricsQuery, GetFilteredBillableMetricsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetFilteredBillableMetricsQuery, GetFilteredBillableMetricsQueryVariables>(GetFilteredBillableMetricsDocument, options);
+      }
+export function useGetFilteredBillableMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetFilteredBillableMetricsQuery, GetFilteredBillableMetricsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetFilteredBillableMetricsQuery, GetFilteredBillableMetricsQueryVariables>(GetFilteredBillableMetricsDocument, options);
+        }
+export type GetFilteredBillableMetricsQueryHookResult = ReturnType<typeof useGetFilteredBillableMetricsQuery>;
+export type GetFilteredBillableMetricsLazyQueryHookResult = ReturnType<typeof useGetFilteredBillableMetricsLazyQuery>;
+export type GetFilteredBillableMetricsQueryResult = Apollo.QueryResult<GetFilteredBillableMetricsQuery, GetFilteredBillableMetricsQueryVariables>;
 export const DeletePlanDocument = gql`
     mutation deletePlan($input: DestroyPlanInput!) {
   destroyPlan(input: $input) {

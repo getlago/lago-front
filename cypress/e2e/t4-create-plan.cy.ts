@@ -43,11 +43,9 @@ describe('Create plan', () => {
 
     // Standard
     cy.get('[data-test="add-charge"]').click()
-    cy.get('[data-test="submit-add-charge"]').should('be.disabled')
-    cy.get('input[name="billableMetricId"]').click()
+    cy.get('[data-test="add-normal-charge"]').first().click()
+    cy.get('input[name="searchNormalChargeInput"]').click()
     cy.get('[data-option-index="0"]').click()
-    cy.get('[data-test="submit-add-charge"]').click()
-    cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().should('have.value', 'Standard pricing')
     cy.get('input[name="properties.amount"]').type('5000')
@@ -55,11 +53,9 @@ describe('Create plan', () => {
 
     // Graduated
     cy.get('[data-test="add-charge"]').click()
-    cy.get('[data-test="submit-add-charge"]').should('be.disabled')
-    cy.get('input[name="billableMetricId"]').click()
+    cy.get('[data-test="add-normal-charge"]').first().click()
+    cy.get('input[name="searchNormalChargeInput"]').click()
     cy.get('[data-option-index="1"]').click()
-    cy.get('[data-test="submit-add-charge"]').click()
-    cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().click()
     cy.get('[data-test="graduated"]').click()
@@ -74,11 +70,9 @@ describe('Create plan', () => {
 
     // Package
     cy.get('[data-test="add-charge"]').click()
-    cy.get('[data-test="submit-add-charge"]').should('be.disabled')
-    cy.get('input[name="billableMetricId"]').click()
+    cy.get('[data-test="add-normal-charge"]').first().click()
+    cy.get('input[name="searchNormalChargeInput"]').click()
     cy.get('[data-option-index="1"]').click()
-    cy.get('[data-test="submit-add-charge"]').click()
-    cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().click()
     cy.get('[data-test="package"]').click()
@@ -88,11 +82,9 @@ describe('Create plan', () => {
 
     // Percentage
     cy.get('[data-test="add-charge"]').click()
-    cy.get('[data-test="submit-add-charge"]').should('be.disabled')
-    cy.get('input[name="billableMetricId"]').click()
+    cy.get('[data-test="add-normal-charge"]').first().click()
+    cy.get('input[name="searchNormalChargeInput"]').click()
     cy.get('[data-option-index="1"]').click()
-    cy.get('[data-test="submit-add-charge"]').click()
-    cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().click()
     cy.get('[data-test="percentage"]').click()
@@ -110,11 +102,9 @@ describe('Create plan', () => {
 
     // Volume
     cy.get('[data-test="add-charge"]').click()
-    cy.get('[data-test="submit-add-charge"]').should('be.disabled')
-    cy.get('input[name="billableMetricId"]').click()
+    cy.get('[data-test="add-normal-charge"]').first().click()
+    cy.get('input[name="searchNormalChargeInput"]').click()
     cy.get('[data-option-index="1"]').click()
-    cy.get('[data-test="submit-add-charge"]').click()
-    cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().click()
     cy.get('[data-test="volume"]').click()
@@ -147,11 +137,9 @@ describe('Create plan', () => {
 
       // Config charge
       cy.get('[data-test="add-charge"]').click()
-      cy.get('[data-test="submit-add-charge"]').should('be.disabled')
-      cy.get('input[name="billableMetricId"]').click()
+      cy.get('[data-test="add-normal-charge"]').first().click()
+      cy.get('input[name="searchNormalChargeInput"]').click()
       cy.get('[data-option-index="1"]').click()
-      cy.get('[data-test="submit-add-charge"]').click()
-      cy.get('[data-test="submit"]').should('be.disabled')
       cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
       cy.get('input[name="chargeModel"]').last().click()
       cy.get('[data-test="percentage"]').click()
