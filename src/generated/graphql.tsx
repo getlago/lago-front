@@ -3371,6 +3371,8 @@ export type AddAddOnMutation = { __typename?: 'Mutation', createAppliedAddOn?: {
 
 export type CouponPlansForCustomerFragment = { __typename?: 'Plan', id: string, name: string };
 
+export type CouponBillableMetricsForCustomerFragment = { __typename?: 'BillableMetric', id: string, name: string };
+
 export type GetCouponForCustomerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -3379,7 +3381,7 @@ export type GetCouponForCustomerQueryVariables = Exact<{
 }>;
 
 
-export type GetCouponForCustomerQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null }> } };
+export type GetCouponForCustomerQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null }> } };
 
 export type AddCouponMutationVariables = Exact<{
   input: CreateAppliedCouponInput;
@@ -4415,6 +4417,12 @@ export const PortalInvoiceListItemFragmentDoc = gql`
     `;
 export const CouponPlansForCustomerFragmentDoc = gql`
     fragment CouponPlansForCustomer on Plan {
+  id
+  name
+}
+    `;
+export const CouponBillableMetricsForCustomerFragmentDoc = gql`
+    fragment CouponBillableMetricsForCustomer on BillableMetric {
   id
   name
 }
@@ -6014,11 +6022,15 @@ export const GetCouponForCustomerDocument = gql`
       plans {
         ...CouponPlansForCustomer
       }
+      billableMetrics {
+        ...CouponBillableMetricsForCustomer
+      }
       ...CouponCaption
     }
   }
 }
     ${CouponPlansForCustomerFragmentDoc}
+${CouponBillableMetricsForCustomerFragmentDoc}
 ${CouponCaptionFragmentDoc}`;
 
 /**

@@ -18,6 +18,8 @@ import {
   CouponItemFragment,
   CouponTypeEnum,
   CouponFrequency,
+  CouponBillableMetricsForCustomerFragment,
+  CouponBillableMetricsForCustomerFragmentDoc,
   CouponPlansForCustomerFragment,
   CouponPlansForCustomerFragmentDoc,
   CustomerCouponFragmentDoc,
@@ -31,6 +33,11 @@ import { deserializeAmount, serializeAmount } from '~/core/serializers/serialize
 
 gql`
   fragment CouponPlansForCustomer on Plan {
+    id
+    name
+  }
+
+  fragment CouponBillableMetricsForCustomer on BillableMetric {
     id
     name
   }
@@ -58,6 +65,9 @@ gql`
         plans {
           ...CouponPlansForCustomer
         }
+        billableMetrics {
+          ...CouponBillableMetricsForCustomer
+        }
         ...CouponCaption
       }
     }
@@ -70,6 +80,7 @@ gql`
     }
   }
 
+  ${CouponBillableMetricsForCustomerFragmentDoc}
   ${CouponPlansForCustomerFragmentDoc}
   ${CouponCaptionFragmentDoc}
   ${CustomerCouponFragmentDoc}
@@ -78,6 +89,7 @@ gql`
 type FormType = CreateAppliedCouponInput & {
   couponType: CouponTypeEnum
   plans?: CouponPlansForCustomerFragment[] | null
+  billableMetrics?: CouponBillableMetricsForCustomerFragment[] | null
 }
 
 export interface AddCouponToCustomerDialogRef extends DialogRef {}
@@ -150,6 +162,7 @@ export const AddCouponToCustomerDialog = forwardRef<
       frequencyDuration: undefined,
       amountCurrency: undefined,
       plans: undefined,
+      billableMetrics: undefined,
     },
     validationSchema: object().shape({
       couponId: string().required(''),
@@ -197,7 +210,7 @@ export const AddCouponToCustomerDialog = forwardRef<
       { amountCents, amountCurrency, percentageRate, frequencyDuration, ...values },
       formikBag
     ) => {
-      const couponValues = { ...values, couponType: undefined, plans: undefined }
+      const couponValues = { ...values, couponType: undefined, plans: undefined, billableMetrics: undefined }
 
       const answer = await addCoupon({
         variables: {
@@ -313,6 +326,7 @@ export const AddCouponToCustomerDialog = forwardRef<
                 frequency: coupon.frequency,
                 frequencyDuration: coupon.frequencyDuration,
                 plans: coupon.plans,
+                billableMetrics: coupon.billableMetrics,
               })
             } else {
               formikProps.setFieldValue('couponId', undefined)
@@ -329,6 +343,19 @@ export const AddCouponToCustomerDialog = forwardRef<
             <PlanChipWrapper>
               {formikProps.values.plans.map((plan) => (
                 <Chip key={`coupon-plan-appied-to-${plan.id}`} label={plan.name} />
+              ))}
+            </PlanChipWrapper>
+          </div>
+        )}
+
+        {!!formikProps.values.billableMetrics?.length && (
+          <div data-test="billable-metric-limitation-section">
+            <PlanListLabel variant="captionHl" color="grey700">
+              {translate('text_63d66aa2471035c8ff598857')}
+            </PlanListLabel>
+            <PlanChipWrapper>
+              {formikProps.values.billableMetrics.map((bm) => (
+                <Chip key={`coupon-billable-metric-appied-to-${bm.id}`} label={bm.name} />
               ))}
             </PlanChipWrapper>
           </div>
