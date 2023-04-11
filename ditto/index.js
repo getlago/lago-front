@@ -71,6 +71,9 @@ module.exports = {
   "project_633b622919283cdbfb2f7233": {
     "base": require('./-wip---b.metrics-and-plans---dimension__base.json')
   },
+  "project_643526532896c737f8b18e8f": {
+    "base": require('./-wip---coupons---coupon-limited-to-a-billable-metric__base.json')
+  },
   "project_63c83a31e697e8e9236da751": {
     "base": require('./-wip---coupons---set-frequency-forever-and-limited-to-a-specific-plan__base.json')
   },

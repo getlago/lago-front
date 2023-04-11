@@ -422,7 +422,7 @@ export const AddCouponToCustomerDialog = forwardRef<
             <Alert type="danger">{translate('text_632c88c97af78294bc02ea9d')}</Alert>
           )}
         {!!formikProps.values.couponId && formikProps.errors.couponId === '' && (
-          <Alert type="danger">{translate('text_63d6743e174d22e410d7bd66')}</Alert>
+          <Alert type="danger">{translate('text_64352657267c3d916f96278a')}</Alert>
         )}
       </Container>
     </Dialog>

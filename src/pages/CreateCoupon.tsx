@@ -177,7 +177,7 @@ const CreateCoupon = () => {
         setHasPlanLimit(true)
         setHasBillableMetricLimit(true)
     }
-  }, [limitBillableMetricsList, limitPlansList])
+  }, [setHasBillableMetricLimit, setHasPlanLimit, hasBillableMetricLimit, hasPlanLimit, limitBillableMetricsList, limitPlansList])
 
   return (
     <div>
@@ -429,7 +429,7 @@ const CreateCoupon = () => {
                     name="hasPlanOrBillableMetricLimit"
                     value={hasPlanLimit || hasBillableMetricLimit}
                     disabled={isEdition && !!coupon?.appliedCouponsCount}
-                    label={translate('text_63d3a201113866a7fa5e6f61') + ' or billable metrics'}
+                    label={translate('text_64352657267c3d916f9627a4')}
                     onChange={(_, checked) => {
                       if (!checked || (!limitPlansList.length && !limitBillableMetricsList.length)) {
                         setHasPlanLimit(checked)
@@ -500,7 +500,7 @@ const CreateCoupon = () => {
                             {(!isEdition || !coupon?.appliedCouponsCount) && (
                               <Tooltip
                                 placement="top-end"
-                                title={'Label1'}
+                                title={translate('text_64352657267c3d916f9627c0')}
                               >
                                 <Button
                                   icon="trash"
@@ -536,7 +536,7 @@ const CreateCoupon = () => {
                             onClick={addBillableMetricToCouponDialogRef.current?.openDialog}
                             data-test="add-billable-metric-limit"
                           >
-                            {'Add a billable metric'}
+                            {translate('text_64352657267c3d916f9627bc')}
                           </Button>
                         </StyledButtonGroup>
                       )}

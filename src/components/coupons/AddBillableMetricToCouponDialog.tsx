@@ -2,7 +2,7 @@ import { forwardRef, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 
-import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import {Alert, Button, Dialog, DialogRef, Typography} from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   BillableMetricsForCouponsFragment,
@@ -66,8 +66,8 @@ export const AddBillableMetricToCouponDialog = forwardRef<DialogRef, AddBillable
     return (
       <Dialog
         ref={ref}
-        title={'Add billable metric'}
-        description={'Limit the usage of a coupon based on a billable metric. Please select a billable metric.'}
+        title={translate('text_64352657267c3d916f96274b')}
+        description={translate('text_64352657267c3d916f962751')}
         onClickAway={() => {
           setSelectedBillableMetric(undefined)
         }}
@@ -85,7 +85,7 @@ export const AddBillableMetricToCouponDialog = forwardRef<DialogRef, AddBillable
                 setSelectedBillableMetric(undefined)
               }}
             >
-              {'Cancel'}
+              {translate('text_64352657267c3d916f962769')}
             </Button>
             <Button
               disabled={!selectedBillableMetric}
@@ -96,7 +96,7 @@ export const AddBillableMetricToCouponDialog = forwardRef<DialogRef, AddBillable
               }}
               data-test="submitAddBillableMetricToCouponDialog"
             >
-              {'Add billable metric'}
+              {translate('text_64352657267c3d916f96276f')}
             </Button>
           </>
         )}
@@ -104,7 +104,7 @@ export const AddBillableMetricToCouponDialog = forwardRef<DialogRef, AddBillable
         <StyledComboBox
           name="selectedBillableMetric"
           data={comboboxBillableMetricsData}
-          label={'Label'}
+          label={translate('text_64352657267c3d916f962757')}
           loading={loading}
           onChange={(value) => {
             const billableMetric = data?.billableMetrics?.collection.find((b) => b.id === value)
@@ -115,11 +115,12 @@ export const AddBillableMetricToCouponDialog = forwardRef<DialogRef, AddBillable
               setSelectedBillableMetric(undefined)
             }
           }}
-          placeholder={'placeholder'}
+          placeholder={translate('text_64352657267c3d916f96275d')}
           PopperProps={{ displayInDialog: true }}
           searchQuery={getBillableMetrics}
           value={selectedBillableMetric?.id}
         />
+        <StyledAlertBox type="warning">{translate('text_64352657267c3d916f962763')}</StyledAlertBox>
       </Dialog>
     )
   }
@@ -132,5 +133,9 @@ const BillableMetricItem = styled.span`
   white-space: pre;
 `
 const StyledComboBox = styled(ComboBox)`
+  margin-bottom: ${theme.spacing(8)};
+`
+
+const StyledAlertBox = styled(Alert)`
   margin-bottom: ${theme.spacing(8)};
 `
