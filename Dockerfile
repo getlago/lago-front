@@ -4,10 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-ARG API_URL
-
-ENV API_URL $API_URL
-
+RUN apk add python3 build-base
 RUN yarn && yarn build && npm prune --production
 
 FROM nginx:1.23-alpine
