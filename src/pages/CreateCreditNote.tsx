@@ -133,8 +133,20 @@ const CreateCreditNote = () => {
             .required('')
             .when('type', (type: CreditTypeEnum) => {
               return type === CreditTypeEnum.refund
-                ? number().max(invoice?.refundableAmountCents || 0, PayBackErrorEnum.maxRefund)
-                : number().max(invoice?.creditableAmountCents || 0, PayBackErrorEnum.maxRefund)
+                ? number().max(
+                    deserializeAmount(
+                      invoice?.refundableAmountCents || 0,
+                      invoice?.amountCurrency || CurrencyEnum.Usd
+                    ) || 0,
+                    PayBackErrorEnum.maxRefund
+                  )
+                : number().max(
+                    deserializeAmount(
+                      invoice?.creditableAmountCents || 0,
+                      invoice?.amountCurrency || CurrencyEnum.Usd
+                    ) || 0,
+                    PayBackErrorEnum.maxRefund
+                  )
             }),
         })
       ),

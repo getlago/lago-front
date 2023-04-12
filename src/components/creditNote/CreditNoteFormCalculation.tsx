@@ -9,6 +9,7 @@ import {
   InvoicePaymentStatusTypeEnum,
   LagoApiError,
   CreditNoteFormFragment,
+  CurrencyEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { intlFormatNumber, getCurrencySymbol } from '~/core/formats/intlFormatNumber'
@@ -129,7 +130,13 @@ export const CreditNoteFormCalculation = ({
   useEffect(() => {
     if (canOnlyCredit) {
       formikProps.setFieldValue('payBack', [
-        { value: totalTaxIncluded, type: CreditTypeEnum.credit },
+        {
+          value: deserializeAmount(
+            totalTaxIncluded || 0,
+            invoice?.amountCurrency || CurrencyEnum.Usd
+          ),
+          type: CreditTypeEnum.credit,
+        },
       ])
     } else if (payBack.length < 2) {
       formikProps.setFieldValue('payBack.0.value', !totalTaxIncluded ? undefined : totalTaxIncluded)
@@ -200,7 +207,12 @@ export const CreditNoteFormCalculation = ({
                   formikProps.setFieldValue('payBack', [
                     {
                       type: value,
-                      value: Number(invoice?.refundableAmountCents || 0),
+                      value: Number(
+                        deserializeAmount(
+                          invoice?.refundableAmountCents || 0,
+                          invoice?.amountCurrency
+                        ) || 0
+                      ),
                     },
                     {
                       type: CreditTypeEnum.credit,
@@ -260,7 +272,7 @@ export const CreditNoteFormCalculation = ({
                     _get(formikProps.errors, 'payBack.0.value') !== PayBackErrorEnum.maxRefund
                   }
                 >
-                  <StyledTextInput
+                  <StyledAmountInput
                     name="payBack.0.value"
                     currency={invoice?.amountCurrency}
                     formikProps={formikProps}
@@ -282,7 +294,10 @@ export const CreditNoteFormCalculation = ({
                     size="small"
                     onClick={() =>
                       formikProps.setFieldValue('payBack', [
-                        { type: payBack[1].type, value: totalTaxIncluded },
+                        {
+                          type: payBack[1].type,
+                          value: deserializeAmount(totalTaxIncluded || 0, invoice?.amountCurrency),
+                        },
                       ])
                     }
                   />
@@ -367,7 +382,7 @@ export const CreditNoteFormCalculation = ({
                   _get(formikProps.errors, 'payBack.1.value') !== PayBackErrorEnum.maxRefund
                 }
               >
-                <StyledTextInput
+                <StyledAmountInput
                   name="payBack.1.value"
                   currency={invoice?.amountCurrency}
                   formikProps={formikProps}
@@ -389,7 +404,10 @@ export const CreditNoteFormCalculation = ({
                   size="small"
                   onClick={() => {
                     formikProps.setFieldValue('payBack', [
-                      { type: payBack[0].type, value: totalTaxIncluded },
+                      {
+                        type: payBack[0].type,
+                        value: deserializeAmount(totalTaxIncluded || 0, invoice?.amountCurrency),
+                      },
                     ])
                   }}
                 />
@@ -457,7 +475,7 @@ const PayBackBlock = styled.div`
   }
 `
 
-const StyledTextInput = styled(AmountInputField)`
+const StyledAmountInput = styled(AmountInputField)`
   max-width: 152px;
 
   input {
