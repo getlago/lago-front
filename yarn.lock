@@ -5947,10 +5947,10 @@ getpass@^0.1.1:
   dependencies:
     assert-plus "^1.0.0"
 
-gettext-extractor@3.6.2:
-  version "3.6.2"
-  resolved "https://registry.yarnpkg.com/gettext-extractor/-/gettext-extractor-3.6.2.tgz#e208ab4377609971e1cae71d389f1fffad1e002e"
-  integrity sha512-EzDL4re46WHR9XHCSsTtrTgd5FCPMtUkK3WpU69dhbYqcWKBFE5h2Sx6EXWjJ3KQLsMxQ/NcoAfg1pz6TqrRjA==
+gettext-extractor@3.7.1:
+  version "3.7.1"
+  resolved "https://registry.yarnpkg.com/gettext-extractor/-/gettext-extractor-3.7.1.tgz#8678538a198a9397fe9272ffdd29818e1bb60566"
+  integrity sha512-sLMXbl5qf+vkWtEJXKV2xaUqt1DFuUMshoQaGQNAXPrK1ds8l7mhbWLHJIVwrlOK2OUSVDgVOxRrjyf0g/epKg==
   dependencies:
     "@types/glob" "5 - 7"
     "@types/parse5" "^5"
@@ -5958,7 +5958,7 @@ gettext-extractor@3.6.2:
     glob "5 - 7"
     parse5 "5 - 6"
     pofile "1.0.x"
-    typescript "2 - 4"
+    typescript "4 - 5"
 
 glob-parent@6.0.2, glob-parent@^5.1.2, glob-parent@^6.0.2, glob-parent@~5.1.2:
   version "6.0.2"
@@ -9727,7 +9727,12 @@ type-is@~1.6.18:
     media-typer "0.3.0"
     mime-types "~2.1.24"
 
-"typescript@2 - 4", typescript@4.9.5:
+"typescript@4 - 5":
+  version "5.0.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.0.4.tgz#b217fd20119bd61a94d4011274e0ab369058da3b"
+  integrity sha512-cW9T5W9xY37cc+jfEnaUvX91foxtHkza3Nw3wkoF4sSlKn0MONdkdEndig/qPBWXNkmplh3NzayQzCiHM4/hqw==
+
+typescript@4.9.5:
   version "4.9.5"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.9.5.tgz#095979f9bcc0d09da324d58d03ce8f8374cbe65a"
   integrity sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==
