@@ -42,6 +42,9 @@ gql`
       itemName
       units
       feeType
+      trueUpFee {
+        id
+      }
     }
     customer {
       currency
@@ -66,6 +69,12 @@ gql`
         eventsCount
         units
         feeType
+        trueUpFee {
+          id
+        }
+        trueUpParentFee {
+          id
+        }
         charge {
           id
           billableMetric {

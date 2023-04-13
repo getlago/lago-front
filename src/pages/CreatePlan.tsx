@@ -62,6 +62,7 @@ gql`
     billChargesMonthly
     charges {
       id
+      minAmountCents
       billableMetric {
         id
         code
@@ -125,7 +126,12 @@ const CreatePlan = () => {
           : plan?.trialPeriod,
       billChargesMonthly: plan?.billChargesMonthly || undefined,
       charges: plan?.charges
-        ? plan?.charges.map(({ properties, groupProperties, ...charge }) => ({
+        ? plan?.charges.map(({ properties, groupProperties, minAmountCents, ...charge }) => ({
+            minAmountCents: isNaN(minAmountCents)
+              ? undefined
+              : String(
+                  deserializeAmount(minAmountCents || 0, plan.amountCurrency || CurrencyEnum.Usd)
+                ),
             properties:
               properties && !charge.billableMetric.flatGroups?.length
                 ? getPropertyShape(properties)

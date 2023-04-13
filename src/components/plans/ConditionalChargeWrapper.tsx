@@ -27,7 +27,9 @@ export const ConditionalChargeWrapper = memo(
 
     if (!localCharge?.billableMetric?.flatGroups?.length)
       return (
-        <>{children({ propertyCursor: 'properties', valuePointer: localCharge?.properties })}</>
+        <MargedWrapper>
+          {children({ propertyCursor: 'properties', valuePointer: localCharge?.properties })}
+        </MargedWrapper>
       )
 
     return (
@@ -50,38 +52,39 @@ export const ConditionalChargeWrapper = memo(
             !!chargeErrors[chargeIndex].groupProperties[groupPropertyIndex].values
 
           return (
-            <Accordion
-              key={`charge-${group.groupId}-group-${groupPropertyIndex}`}
-              summary={
-                <Summary>
-                  <Typography variant="bodyHl" color="grey700">
-                    <span>{groupKey && `${groupKey} • `}</span>
-                    <span>{groupName}</span>
-                  </Typography>
-                  <Tooltip
-                    placement="top-end"
-                    title={
-                      hasErrorInGroup
-                        ? translate('text_635b975ecea4296eb76924b7')
-                        : translate('text_635b975ecea4296eb76924b1')
-                    }
-                  >
-                    <ValidationIcon
-                      name="validate-filled"
-                      color={hasErrorInGroup ? 'disabled' : 'success'}
-                    />
-                  </Tooltip>
-                </Summary>
-              }
-            >
-              {typeof children === 'function' &&
-                children({
-                  propertyCursor: `groupProperties.${groupPropertyIndex}.values`,
-                  valuePointer:
-                    localCharge?.groupProperties &&
-                    localCharge?.groupProperties[groupPropertyIndex].values,
-                })}
-            </Accordion>
+            <MargedWrapper key={`charge-${group.groupId}-group-${groupPropertyIndex}`}>
+              <Accordion
+                summary={
+                  <Summary>
+                    <Typography variant="bodyHl" color="grey700">
+                      <span>{groupKey && `${groupKey} • `}</span>
+                      <span>{groupName}</span>
+                    </Typography>
+                    <Tooltip
+                      placement="top-end"
+                      title={
+                        hasErrorInGroup
+                          ? translate('text_635b975ecea4296eb76924b7')
+                          : translate('text_635b975ecea4296eb76924b1')
+                      }
+                    >
+                      <ValidationIcon
+                        name="validate-filled"
+                        color={hasErrorInGroup ? 'disabled' : 'success'}
+                      />
+                    </Tooltip>
+                  </Summary>
+                }
+              >
+                {typeof children === 'function' &&
+                  children({
+                    propertyCursor: `groupProperties.${groupPropertyIndex}.values`,
+                    valuePointer:
+                      localCharge?.groupProperties &&
+                      localCharge?.groupProperties[groupPropertyIndex].values,
+                  })}
+              </Accordion>
+            </MargedWrapper>
           )
         })}
       </>
@@ -100,4 +103,8 @@ const Summary = styled.div`
 
 const ValidationIcon = styled(Icon)`
   height: 16px;
+`
+
+const MargedWrapper = styled.div`
+  margin: 16px;
 `
