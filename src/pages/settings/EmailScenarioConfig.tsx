@@ -39,6 +39,8 @@ const mapLanguageKey = (language: LocaleEnum) => {
       return 'text_640a0b75228ef90063296ea4'
     case LocaleEnum.nb:
       return 'text_640a0b75228ef90063296eb5'
+    case LocaleEnum.de:
+      return 'text_6437d8583c62bc00c393d923'
     default:
       return 'text_6407684eaf41130074c4b2f7'
   }
@@ -185,6 +187,16 @@ const EmailScenarioConfig = () => {
                     }}
                   >
                     {translate(mapLanguageKey(LocaleEnum.fr))}
+                  </Button>
+                  <Button
+                    align="left"
+                    variant={invoiceLanguage === LocaleEnum.de ? 'secondary' : 'quaternary'}
+                    onClick={() => {
+                      closePopper()
+                      setInvoiceLanguage(LocaleEnum.de)
+                    }}
+                  >
+                    {translate(mapLanguageKey(LocaleEnum.de))}
                   </Button>
                   <Button
                     align="left"

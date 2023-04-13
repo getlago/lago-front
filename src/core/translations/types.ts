@@ -10,5 +10,6 @@ export enum LocaleEnum {
   en = 'en',
   fr = 'fr', // French
   nb = 'nb', // Norwegian
+  de = 'de', // German
 }
 export type Locale = keyof typeof LocaleEnum

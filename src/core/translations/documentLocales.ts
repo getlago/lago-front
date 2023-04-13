@@ -5,5 +5,6 @@ type documentLocalesType = {
 export const DocumentLocales: documentLocalesType = {
   fr: 'French',
   en: 'English',
+  de: 'German',
   nb: 'Norwegian (Bokmål)',
 }
