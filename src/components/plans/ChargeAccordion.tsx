@@ -30,7 +30,6 @@ import { PackageCharge } from '~/components/plans/PackageCharge'
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 
 import { PlanFormInput } from './types'
 import { VolumeChargeTable } from './VolumeChargeTable'
@@ -115,7 +114,6 @@ export const ChargeAccordion = memo(
     const warningDialogRef = useRef<WarningDialogRef>(null)
     const { translate } = useInternationalization()
     const localCharge = formikProps.values.charges[index]
-    const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
     const handleUpdate = useCallback(
       (name: string, value: string | boolean) => {
         if (name === 'chargeModel' && value === ChargeModelEnum.Volume) {
@@ -334,7 +332,6 @@ export const ChargeAccordion = memo(
             formikProps.setFieldValue('charges', charges)
           }}
         />
-        <PremiumWarningDialog ref={premiumWarningDialogRef} />
       </>
     )
   }
