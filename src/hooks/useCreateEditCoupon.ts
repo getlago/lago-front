@@ -148,10 +148,12 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
   const [limitPlansList, setLimitPlansList] = useState<PlansForCouponsFragment[]>(
     data?.coupon?.plans || []
   )
-  const [hasBillableMetricLimit, setHasBillableMetricLimit] = useState<boolean>(!!data?.coupon?.limitedBillableMetrics)
-  const [limitBillableMetricsList, setLimitBillableMetricsList] = useState<BillableMetricsForCouponsFragment[]>(
-    data?.coupon?.billableMetrics || []
+  const [hasBillableMetricLimit, setHasBillableMetricLimit] = useState<boolean>(
+    !!data?.coupon?.limitedBillableMetrics
   )
+  const [limitBillableMetricsList, setLimitBillableMetricsList] = useState<
+    BillableMetricsForCouponsFragment[]
+  >(data?.coupon?.billableMetrics || [])
   const [create, { error: createError }] = useCreateCouponMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ createCoupon }) {
@@ -184,7 +186,13 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
       setHasBillableMetricLimit(!!data?.coupon?.limitedBillableMetrics)
       setLimitBillableMetricsList(data?.coupon?.billableMetrics || [])
     }
-  }, [loading, data?.coupon?.limitedPlans, data?.coupon?.plans, data?.coupon?.limitedBillableMetrics, data?.coupon?.billableMetrics])
+  }, [
+    loading,
+    data?.coupon?.limitedPlans,
+    data?.coupon?.plans,
+    data?.coupon?.limitedBillableMetrics,
+    data?.coupon?.billableMetrics,
+  ])
 
   useEffect(() => {
     if (hasDefinedGQLError('NotFound', error, 'coupon')) {
@@ -221,7 +229,13 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
               variables: {
                 input: {
                   id,
-                  ...formatCouponInput(values, hasPlanLimit, limitPlansList, hasBillableMetricLimit, limitBillableMetricsList),
+                  ...formatCouponInput(
+                    values,
+                    hasPlanLimit,
+                    limitPlansList,
+                    hasBillableMetricLimit,
+                    limitBillableMetricsList
+                  ),
                 },
               },
             })
@@ -229,11 +243,28 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
         : async (values) => {
             await create({
               variables: {
-                input: formatCouponInput(values, hasPlanLimit, limitPlansList, hasBillableMetricLimit, limitBillableMetricsList),
+                input: formatCouponInput(
+                  values,
+                  hasPlanLimit,
+                  limitPlansList,
+                  hasBillableMetricLimit,
+                  limitBillableMetricsList
+                ),
               },
             })
           },
     }),
-    [id, data, loading, errorCode, create, update, hasPlanLimit, limitPlansList, hasBillableMetricLimit, limitBillableMetricsList]
+    [
+      id,
+      data,
+      loading,
+      errorCode,
+      create,
+      update,
+      hasPlanLimit,
+      limitPlansList,
+      hasBillableMetricLimit,
+      limitBillableMetricsList,
+    ]
   )
 }

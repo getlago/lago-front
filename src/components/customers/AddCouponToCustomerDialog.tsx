@@ -210,7 +210,12 @@ export const AddCouponToCustomerDialog = forwardRef<
       { amountCents, amountCurrency, percentageRate, frequencyDuration, ...values },
       formikBag
     ) => {
-      const couponValues = { ...values, couponType: undefined, plans: undefined, billableMetrics: undefined }
+      const couponValues = {
+        ...values,
+        couponType: undefined,
+        plans: undefined,
+        billableMetrics: undefined,
+      }
 
       const answer = await addCoupon({
         variables: {

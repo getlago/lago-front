@@ -67,14 +67,14 @@ curl --location --request POST "${apiUrl}/api/v1/applied_coupons" \\
         (p: PlansForCouponsFragment) => `"${p.code}"`
       )}] },`
       : ''
-      }${
+  }${
     !!hasBillableMetricLimit && !!limitBillableMetricsList?.length
       ? `
       "applies_to": { "billable_metrics_codes": [${limitBillableMetricsList.map(
         (b: BillableMetricsForCouponsFragment) => `"${b.code}"`
       )}] },`
       : ''
-      }
+  }
     }
   }'
   
@@ -102,7 +102,13 @@ export const CouponCodeSnippet = ({
     <CodeSnippet
       loading={loading}
       language="bash"
-      code={getSnippets(hasPlanLimit, hasBillableMetricLimit, limitPlansList, limitBillableMetricsList, coupon)}
+      code={getSnippets(
+        hasPlanLimit,
+        hasBillableMetricLimit,
+        limitPlansList,
+        limitBillableMetricsList,
+        coupon
+      )}
     />
   )
 }

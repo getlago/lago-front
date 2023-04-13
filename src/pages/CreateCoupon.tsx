@@ -156,7 +156,10 @@ const CreateCoupon = () => {
     if (limitBillableMetricsList.length === 0) {
       setHasPlanLimit(false)
     }
-    setLimitBillableMetricsList((oldArray: BillableMetricsForCouponsFragment[]) => [...oldArray, billableMetric])
+    setLimitBillableMetricsList((oldArray: BillableMetricsForCouponsFragment[]) => [
+      ...oldArray,
+      billableMetric,
+    ])
   }
 
   useEffect(() => {
@@ -171,13 +174,22 @@ const CreateCoupon = () => {
   }, [errorCode])
 
   useEffect(() => {
-    if ((hasPlanLimit  || hasBillableMetricLimit) && (
-      limitBillableMetricsList.length === 0 && limitPlansList.length === 0)
+    if (
+      (hasPlanLimit || hasBillableMetricLimit) &&
+      limitBillableMetricsList.length === 0 &&
+      limitPlansList.length === 0
     ) {
-        setHasPlanLimit(true)
-        setHasBillableMetricLimit(true)
+      setHasPlanLimit(true)
+      setHasBillableMetricLimit(true)
     }
-  }, [setHasBillableMetricLimit, setHasPlanLimit, hasBillableMetricLimit, hasPlanLimit, limitBillableMetricsList, limitPlansList])
+  }, [
+    setHasBillableMetricLimit,
+    setHasPlanLimit,
+    hasBillableMetricLimit,
+    hasPlanLimit,
+    limitBillableMetricsList,
+    limitPlansList,
+  ])
 
   return (
     <div>
@@ -431,7 +443,10 @@ const CreateCoupon = () => {
                     disabled={isEdition && !!coupon?.appliedCouponsCount}
                     label={translate('text_64352657267c3d916f9627a4')}
                     onChange={(_, checked) => {
-                      if (!checked || (!limitPlansList.length && !limitBillableMetricsList.length)) {
+                      if (
+                        !checked ||
+                        (!limitPlansList.length && !limitBillableMetricsList.length)
+                      ) {
                         setHasPlanLimit(checked)
                         setHasBillableMetricLimit(checked)
                       } else if (!!limitPlansList.length) {
@@ -483,7 +498,10 @@ const CreateCoupon = () => {
 
                       {!!limitBillableMetricsList.length &&
                         limitBillableMetricsList.map((billableMetric, i) => (
-                          <PlanLine key={`limited-billable-metric-${billableMetric.id}`} data-test={`limited-billable-metric-${i}`}>
+                          <PlanLine
+                            key={`limited-billable-metric-${billableMetric.id}`}
+                            data-test={`limited-billable-metric-${i}`}
+                          >
                             <PlanLeftBlock>
                               <Avatar variant="connector">
                                 <Icon name="board" />
@@ -507,9 +525,11 @@ const CreateCoupon = () => {
                                   variant="quaternary"
                                   size="small"
                                   onClick={() =>
-                                    setLimitBillableMetricsList((oldArray: BillableMetricsForCouponsFragment[]) => [
-                                      ...oldArray.filter((b) => b.id !== billableMetric.id),
-                                    ])
+                                    setLimitBillableMetricsList(
+                                      (oldArray: BillableMetricsForCouponsFragment[]) => [
+                                        ...oldArray.filter((b) => b.id !== billableMetric.id),
+                                      ]
+                                    )
                                   }
                                   data-test={`delete-limited-billable-metric-${i}`}
                                 />
@@ -552,8 +572,8 @@ const CreateCoupon = () => {
                         !formikProps.dirty &&
                         isEqual(coupon?.plans, limitPlansList) &&
                         isEqual(coupon?.billableMetrics, limitBillableMetricsList) &&
-                        (hasPlanLimit === !!coupon?.limitedPlans) &&
-                        (hasBillableMetricLimit === !!coupon?.limitedBillableMetrics)) ||
+                        hasPlanLimit === !!coupon?.limitedPlans &&
+                        hasBillableMetricLimit === !!coupon?.limitedBillableMetrics) ||
                       (hasPlanLimit && !limitPlansList.length) ||
                       (hasBillableMetricLimit && !limitBillableMetricsList.length)
                     }
