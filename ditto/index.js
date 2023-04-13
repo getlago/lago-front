@@ -53,6 +53,9 @@ module.exports = {
   "project_642d5eac2dc55f7f81e01dd4": {
     "base": require('./-ready-for-dev---plans---create-a-plan-ui-refacto__base.json')
   },
+  "project_643e59213ea23c04674eba8c": {
+    "base": require('./-ready-for-dev---plans---set-a-minimum-spending-on-charges__base.json')
+  },
   "project_634ea0e94c99df2bb59820d9": {
     "base": require('./-ready-for-dev---settings---customers---lago-gocardless-connection__base.json')
   },

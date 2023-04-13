@@ -1,4 +1,4 @@
-import { useCallback, MouseEvent, memo, useMemo } from 'react'
+import { useCallback, MouseEvent, memo, useMemo, useState, RefObject, useEffect } from 'react'
 import { FormikProps } from 'formik'
 import styled from 'styled-components'
 import { InputAdornment } from '@mui/material'
@@ -29,11 +29,14 @@ import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 import { PlanFormInput } from './types'
 import { VolumeChargeTable } from './VolumeChargeTable'
 import { ConditionalChargeWrapper } from './ConditionalChargeWrapper'
 import { RemoveChargeWarningDialogRef } from './RemoveChargeWarningDialog'
+
+import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 interface ChargeAccordionProps {
   id: string
@@ -43,7 +46,8 @@ interface ChargeAccordionProps {
   shouldDisplayAlreadyUsedChargeAlert: boolean
   isUsedInSubscription?: boolean
   formikProps: FormikProps<PlanFormInput>
-  removeChargeWarningDialogRef: React.RefObject<RemoveChargeWarningDialogRef>
+  removeChargeWarningDialogRef: RefObject<RemoveChargeWarningDialogRef>
+  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
 }
 
 gql`
@@ -110,11 +114,21 @@ export const ChargeAccordion = memo(
     disabled,
     shouldDisplayAlreadyUsedChargeAlert,
     removeChargeWarningDialogRef,
+    premiumWarningDialogRef,
     isUsedInSubscription,
     formikProps,
   }: ChargeAccordionProps) => {
     const { translate } = useInternationalization()
+    const { isPremium } = useCurrentUser()
     const localCharge = formikProps.values.charges[index]
+    const [showSpendingMinimum, setShowSpendingMinimum] = useState(
+      !!localCharge.minAmountCents && Number(localCharge.minAmountCents) > 0
+    )
+
+    useEffect(() => {
+      setShowSpendingMinimum(!!localCharge.minAmountCents && Number(localCharge.minAmountCents) > 0)
+    }, [localCharge.minAmountCents])
+
     const handleUpdate = useCallback(
       (name: string, value: string | boolean) => {
         if (name === 'chargeModel' && value === ChargeModelEnum.Volume) {
@@ -161,6 +175,7 @@ export const ChargeAccordion = memo(
 
     return (
       <Accordion
+        noContentMargin
         id={id}
         initiallyOpen={!formikProps.values.charges?.[index]?.id ? true : false}
         summary={
@@ -228,31 +243,32 @@ export const ChargeAccordion = memo(
           </>
         }
       >
-        <Details>
-          {!!shouldDisplayAlreadyUsedChargeAlert && (
-            <Alert type="warning">{translate('text_6435895831d323008a47911f')}</Alert>
-          )}
-
-          <ComboBox
-            name="chargeModel"
-            disabled={disabled}
-            label={translate('text_624c5eadff7db800acc4ca0d')}
-            data={chargeModelData}
-            disableClearable
-            value={localCharge.chargeModel}
-            helperText={translate(
-              localCharge.chargeModel === ChargeModelEnum.Percentage
-                ? 'text_62ff5d01a306e274d4ffcc06'
-                : localCharge.chargeModel === ChargeModelEnum.Graduated
-                ? 'text_62793bbb599f1c01522e91a1'
-                : localCharge.chargeModel === ChargeModelEnum.Package
-                ? 'text_6282085b4f283b010265586c'
-                : localCharge.chargeModel === ChargeModelEnum.Volume
-                ? 'text_6304e74aab6dbc18d615f38a'
-                : 'text_624d9adba93343010cd14ca7'
+        <>
+          <PaddedContent>
+            {!!shouldDisplayAlreadyUsedChargeAlert && (
+              <Alert type="warning">{translate('text_6435895831d323008a47911f')}</Alert>
             )}
-            onChange={(value) => handleUpdate('chargeModel', value)}
-          />
+            <ComboBox
+              name="chargeModel"
+              disabled={disabled}
+              label={translate('text_624c5eadff7db800acc4ca0d')}
+              data={chargeModelData}
+              disableClearable
+              value={localCharge.chargeModel}
+              helperText={translate(
+                localCharge.chargeModel === ChargeModelEnum.Percentage
+                  ? 'text_62ff5d01a306e274d4ffcc06'
+                  : localCharge.chargeModel === ChargeModelEnum.Graduated
+                  ? 'text_62793bbb599f1c01522e91a1'
+                  : localCharge.chargeModel === ChargeModelEnum.Package
+                  ? 'text_6282085b4f283b010265586c'
+                  : localCharge.chargeModel === ChargeModelEnum.Volume
+                  ? 'text_6304e74aab6dbc18d615f38a'
+                  : 'text_624d9adba93343010cd14ca7'
+              )}
+              onChange={(value) => handleUpdate('chargeModel', value)}
+            />
+          </PaddedContent>
 
           <ConditionalChargeWrapper
             chargeIndex={index}
@@ -322,7 +338,65 @@ export const ChargeAccordion = memo(
               </>
             )}
           </ConditionalChargeWrapper>
-        </Details>
+
+          {!localCharge.instant && (
+            <SpendingMinimumWrapper>
+              {showSpendingMinimum ? (
+                <>
+                  <SpendingMinimumInput
+                    id={`spending-minimum-input-${index}`}
+                    beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
+                    label={translate('text_643e592657fc1ba5ce110c30')}
+                    currency={currency}
+                    placeholder={translate('text_643e592657fc1ba5ce110c80')}
+                    disabled={disabled}
+                    value={localCharge?.minAmountCents || ''}
+                    onChange={(value) => handleUpdate('minAmountCents', value)}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          {getCurrencySymbol(currency)}
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <CloseDescriptionTooltip
+                    placement="top-end"
+                    title={translate('text_63aa085d28b8510cd46443ff')}
+                  >
+                    <Button
+                      icon="trash"
+                      variant="quaternary"
+                      disabled={disabled}
+                      onClick={() => {
+                        formikProps.setFieldValue(`charges.${index}.minAmountCents`, null)
+                        setShowSpendingMinimum(false)
+                      }}
+                    />
+                  </CloseDescriptionTooltip>
+                </>
+              ) : (
+                <Button
+                  variant="quaternary"
+                  startIcon="plus"
+                  endIcon={isPremium ? undefined : 'sparkles'}
+                  onClick={() => {
+                    if (isPremium) {
+                      setShowSpendingMinimum(true)
+                      setTimeout(() => {
+                        document.getElementById(`spending-minimum-input-${index}`)?.focus()
+                      }, 0)
+                    } else {
+                      premiumWarningDialogRef.current?.openDialog()
+                    }
+                  }}
+                >
+                  {translate('text_643e592657fc1ba5ce110b9e')}
+                </Button>
+              )}
+            </SpendingMinimumWrapper>
+          )}
+        </>
       </Accordion>
     )
   }
@@ -330,9 +404,11 @@ export const ChargeAccordion = memo(
 
 ChargeAccordion.displayName = 'ChargeAccordion'
 
-const Details = styled.div`
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
+const PaddedContent = styled.div`
+  padding: ${theme.spacing(4)};
+
+  > *:not(:first-child) {
+    margin-top: ${theme.spacing(6)};
   }
 `
 
@@ -355,4 +431,19 @@ const SummaryRight = styled.div`
   > *:not(:last-child) {
     margin-right: ${theme.spacing(3)};
   }
+`
+
+const SpendingMinimumWrapper = styled.div`
+  padding: ${theme.spacing(4)};
+  display: flex;
+  border-top: 1px solid ${theme.palette.grey[300]};
+`
+
+const SpendingMinimumInput = styled(AmountInput)`
+  flex: 1;
+  margin-right: ${theme.spacing(3)};
+`
+
+const CloseDescriptionTooltip = styled(Tooltip)`
+  margin-top: ${theme.spacing(7)};
 `
