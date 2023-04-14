@@ -200,7 +200,7 @@ export const CreditNoteFormCalculation = ({
                   formikProps.setFieldValue('payBack', [
                     {
                       type: value,
-                      value: Number(invoice?.refundableAmountCents || 0),
+                      value: Number(invoice?.refundableAmountCents || 0) / 100,
                     },
                     {
                       type: CreditTypeEnum.credit,
