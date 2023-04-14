@@ -1,4 +1,4 @@
-import { useCallback, MouseEvent, memo, useRef, useMemo } from 'react'
+import { useCallback, MouseEvent, memo, useMemo } from 'react'
 import { FormikProps } from 'formik'
 import styled from 'styled-components'
 import { InputAdornment } from '@mui/material'
@@ -29,11 +29,11 @@ import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 
 import { PlanFormInput } from './types'
 import { VolumeChargeTable } from './VolumeChargeTable'
 import { ConditionalChargeWrapper } from './ConditionalChargeWrapper'
+import { RemoveChargeWarningDialogRef } from './RemoveChargeWarningDialog'
 
 interface ChargeAccordionProps {
   id: string
@@ -43,6 +43,7 @@ interface ChargeAccordionProps {
   shouldDisplayAlreadyUsedChargeAlert: boolean
   isUsedInSubscription?: boolean
   formikProps: FormikProps<PlanFormInput>
+  removeChargeWarningDialogRef: React.RefObject<RemoveChargeWarningDialogRef>
 }
 
 gql`
@@ -108,10 +109,10 @@ export const ChargeAccordion = memo(
     currency,
     disabled,
     shouldDisplayAlreadyUsedChargeAlert,
+    removeChargeWarningDialogRef,
     isUsedInSubscription,
     formikProps,
   }: ChargeAccordionProps) => {
-    const warningDialogRef = useRef<WarningDialogRef>(null)
     const { translate } = useInternationalization()
     const localCharge = formikProps.values.charges[index]
     const handleUpdate = useCallback(
@@ -159,180 +160,170 @@ export const ChargeAccordion = memo(
     }, [localCharge.instant, translate])
 
     return (
-      <>
-        <Accordion
-          id={id}
-          initiallyOpen={!formikProps.values.charges?.[index]?.id ? true : false}
-          summary={
-            <>
-              <Title>
-                <Typography variant="bodyHl" color="textSecondary" noWrap>
-                  {localCharge?.billableMetric?.name}
-                </Typography>
-                <Typography variant="caption" noWrap>
-                  {localCharge?.billableMetric?.code}
-                </Typography>
-              </Title>
-              <SummaryRight>
-                <Tooltip
-                  placement="top-end"
-                  title={
-                    hasErrorInCharges
-                      ? translate('text_635b975ecea4296eb76924b7')
-                      : translate('text_635b975ecea4296eb76924b1')
-                  }
-                >
-                  <ValidationIcon
-                    name="validate-filled"
-                    color={hasErrorInCharges ? 'disabled' : 'success'}
-                  />
-                </Tooltip>
-                <Chip
-                  label={translate(
-                    mapIntervalCopy(
-                      formikProps.values.interval,
-                      localCharge.instant || false,
-                      (formikProps.values.interval === PlanInterval.Yearly &&
-                        !!formikProps.values.billChargesMonthly &&
-                        !localCharge.instant) ||
-                        false
-                    )
-                  )}
+      <Accordion
+        id={id}
+        initiallyOpen={!formikProps.values.charges?.[index]?.id ? true : false}
+        summary={
+          <>
+            <Title>
+              <Typography variant="bodyHl" color="textSecondary" noWrap>
+                {localCharge?.billableMetric?.name}
+              </Typography>
+              <Typography variant="caption" noWrap>
+                {localCharge?.billableMetric?.code}
+              </Typography>
+            </Title>
+            <SummaryRight>
+              <Tooltip
+                placement="top-end"
+                title={
+                  hasErrorInCharges
+                    ? translate('text_635b975ecea4296eb76924b7')
+                    : translate('text_635b975ecea4296eb76924b1')
+                }
+              >
+                <ValidationIcon
+                  name="validate-filled"
+                  color={hasErrorInCharges ? 'disabled' : 'success'}
                 />
-                <Tooltip placement="top-end" title={translate('text_624aa732d6af4e0103d40e65')}>
-                  <Button
-                    variant="quaternary"
-                    size="small"
-                    icon="trash"
-                    data-test="remove-charge"
-                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                      e.stopPropagation()
-                      e.preventDefault()
-                      if (isUsedInSubscription) {
-                        warningDialogRef?.current?.openDialog()
-                      } else {
-                        const charges = [...formikProps.values.charges]
+              </Tooltip>
+              <Chip
+                label={translate(
+                  mapIntervalCopy(
+                    formikProps.values.interval,
+                    localCharge.instant || false,
+                    (formikProps.values.interval === PlanInterval.Yearly &&
+                      !!formikProps.values.billChargesMonthly &&
+                      !localCharge.instant) ||
+                      false
+                  )
+                )}
+              />
+              <Tooltip placement="top-end" title={translate('text_624aa732d6af4e0103d40e65')}>
+                <Button
+                  variant="quaternary"
+                  size="small"
+                  icon="trash"
+                  data-test="remove-charge"
+                  onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                    e.stopPropagation()
+                    e.preventDefault()
 
-                        charges.splice(index, 1)
-                        formikProps.setFieldValue('charges', charges)
-                      }
+                    const deleteCharge = () => {
+                      const charges = [...formikProps.values.charges]
+
+                      charges.splice(index, 1)
+                      formikProps.setFieldValue('charges', charges)
+                    }
+
+                    if (isUsedInSubscription) {
+                      removeChargeWarningDialogRef?.current?.openDialog(index)
+                    } else {
+                      deleteCharge()
+                    }
+                  }}
+                />
+              </Tooltip>
+            </SummaryRight>
+          </>
+        }
+      >
+        <Details>
+          {!!shouldDisplayAlreadyUsedChargeAlert && (
+            <Alert type="warning">{translate('text_6435895831d323008a47911f')}</Alert>
+          )}
+
+          <ComboBox
+            name="chargeModel"
+            disabled={disabled}
+            label={translate('text_624c5eadff7db800acc4ca0d')}
+            data={chargeModelData}
+            disableClearable
+            value={localCharge.chargeModel}
+            helperText={translate(
+              localCharge.chargeModel === ChargeModelEnum.Percentage
+                ? 'text_62ff5d01a306e274d4ffcc06'
+                : localCharge.chargeModel === ChargeModelEnum.Graduated
+                ? 'text_62793bbb599f1c01522e91a1'
+                : localCharge.chargeModel === ChargeModelEnum.Package
+                ? 'text_6282085b4f283b010265586c'
+                : localCharge.chargeModel === ChargeModelEnum.Volume
+                ? 'text_6304e74aab6dbc18d615f38a'
+                : 'text_624d9adba93343010cd14ca7'
+            )}
+            onChange={(value) => handleUpdate('chargeModel', value)}
+          />
+
+          <ConditionalChargeWrapper
+            chargeIndex={index}
+            localCharge={localCharge}
+            chargeErrors={formikProps.errors.charges}
+          >
+            {({ propertyCursor, valuePointer }) => (
+              <>
+                {localCharge.chargeModel === ChargeModelEnum.Standard && (
+                  <AmountInput
+                    name={`${propertyCursor}.amount`}
+                    currency={currency}
+                    beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
+                    disabled={disabled}
+                    label={translate('text_624453d52e945301380e49b6')}
+                    value={valuePointer?.amount || ''}
+                    onChange={(value) => handleUpdate(`${propertyCursor}.amount`, value)}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          {getCurrencySymbol(currency)}
+                        </InputAdornment>
+                      ),
                     }}
                   />
-                </Tooltip>
-              </SummaryRight>
-            </>
-          }
-        >
-          <Details>
-            {!!shouldDisplayAlreadyUsedChargeAlert && (
-              <Alert type="warning">{translate('text_6435895831d323008a47911f')}</Alert>
+                )}
+                {localCharge.chargeModel === ChargeModelEnum.Package && (
+                  <PackageCharge
+                    chargeIndex={index}
+                    currency={currency}
+                    disabled={disabled}
+                    formikProps={formikProps}
+                    propertyCursor={propertyCursor}
+                    valuePointer={valuePointer}
+                  />
+                )}
+                {localCharge.chargeModel === ChargeModelEnum.Graduated && (
+                  <GraduatedChargeTable
+                    chargeIndex={index}
+                    currency={currency}
+                    disabled={disabled}
+                    formikProps={formikProps}
+                    propertyCursor={propertyCursor}
+                    valuePointer={valuePointer}
+                  />
+                )}
+                {localCharge.chargeModel === ChargeModelEnum.Percentage && (
+                  <ChargePercentage
+                    chargeIndex={index}
+                    currency={currency}
+                    disabled={disabled}
+                    formikProps={formikProps}
+                    propertyCursor={propertyCursor}
+                    valuePointer={valuePointer}
+                  />
+                )}
+                {localCharge.chargeModel === ChargeModelEnum.Volume && (
+                  <VolumeChargeTable
+                    chargeIndex={index}
+                    currency={currency}
+                    disabled={disabled}
+                    formikProps={formikProps}
+                    propertyCursor={propertyCursor}
+                    valuePointer={valuePointer}
+                  />
+                )}
+              </>
             )}
-
-            <ComboBox
-              name="chargeModel"
-              disabled={disabled}
-              label={translate('text_624c5eadff7db800acc4ca0d')}
-              data={chargeModelData}
-              disableClearable
-              value={localCharge.chargeModel}
-              helperText={translate(
-                localCharge.chargeModel === ChargeModelEnum.Percentage
-                  ? 'text_62ff5d01a306e274d4ffcc06'
-                  : localCharge.chargeModel === ChargeModelEnum.Graduated
-                  ? 'text_62793bbb599f1c01522e91a1'
-                  : localCharge.chargeModel === ChargeModelEnum.Package
-                  ? 'text_6282085b4f283b010265586c'
-                  : localCharge.chargeModel === ChargeModelEnum.Volume
-                  ? 'text_6304e74aab6dbc18d615f38a'
-                  : 'text_624d9adba93343010cd14ca7'
-              )}
-              onChange={(value) => handleUpdate('chargeModel', value)}
-            />
-
-            <ConditionalChargeWrapper
-              chargeIndex={index}
-              localCharge={localCharge}
-              chargeErrors={formikProps.errors.charges}
-            >
-              {({ propertyCursor, valuePointer }) => (
-                <>
-                  {localCharge.chargeModel === ChargeModelEnum.Standard && (
-                    <AmountInput
-                      name={`${propertyCursor}.amount`}
-                      currency={currency}
-                      beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
-                      disabled={disabled}
-                      label={translate('text_624453d52e945301380e49b6')}
-                      value={valuePointer?.amount || ''}
-                      onChange={(value) => handleUpdate(`${propertyCursor}.amount`, value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            {getCurrencySymbol(currency)}
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  )}
-                  {localCharge.chargeModel === ChargeModelEnum.Package && (
-                    <PackageCharge
-                      chargeIndex={index}
-                      currency={currency}
-                      disabled={disabled}
-                      formikProps={formikProps}
-                      propertyCursor={propertyCursor}
-                      valuePointer={valuePointer}
-                    />
-                  )}
-                  {localCharge.chargeModel === ChargeModelEnum.Graduated && (
-                    <GraduatedChargeTable
-                      chargeIndex={index}
-                      currency={currency}
-                      disabled={disabled}
-                      formikProps={formikProps}
-                      propertyCursor={propertyCursor}
-                      valuePointer={valuePointer}
-                    />
-                  )}
-                  {localCharge.chargeModel === ChargeModelEnum.Percentage && (
-                    <ChargePercentage
-                      chargeIndex={index}
-                      currency={currency}
-                      disabled={disabled}
-                      formikProps={formikProps}
-                      propertyCursor={propertyCursor}
-                      valuePointer={valuePointer}
-                    />
-                  )}
-                  {localCharge.chargeModel === ChargeModelEnum.Volume && (
-                    <VolumeChargeTable
-                      chargeIndex={index}
-                      currency={currency}
-                      disabled={disabled}
-                      formikProps={formikProps}
-                      propertyCursor={propertyCursor}
-                      valuePointer={valuePointer}
-                    />
-                  )}
-                </>
-              )}
-            </ConditionalChargeWrapper>
-          </Details>
-        </Accordion>
-
-        <WarningDialog
-          ref={warningDialogRef}
-          title={translate('text_63cfe20ad6c1a53c5352a46e')}
-          description={translate('text_63cfe20ad6c1a53c5352a470')}
-          continueText={translate('text_63cfe20ad6c1a53c5352a474')}
-          onContinue={() => {
-            const charges = [...formikProps.values.charges]
-
-            charges.splice(index, 1)
-            formikProps.setFieldValue('charges', charges)
-          }}
-        />
-      </>
+          </ConditionalChargeWrapper>
+        </Details>
+      </Accordion>
     )
   }
 )
