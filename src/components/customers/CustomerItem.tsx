@@ -1,4 +1,4 @@
-import { memo, useRef } from 'react'
+import { memo, RefObject, useRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 import { generatePath } from 'react-router-dom'
@@ -19,7 +19,7 @@ import {
   DeleteCustomerDialog,
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
-import { AddCustomerDrawer, AddCustomerDrawerRef } from '~/components/customers/AddCustomerDrawer'
+import { AddCustomerDrawerRef } from '~/components/customers/AddCustomerDrawer'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
@@ -38,11 +38,11 @@ gql`
 interface CustomerItemProps {
   customer: CustomerItemFragment
   rowId: string
+  editDialogRef: RefObject<AddCustomerDrawerRef>
 }
 
-export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
+export const CustomerItem = memo(({ rowId, customer, editDialogRef }: CustomerItemProps) => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
-  const editDialogRef = useRef<AddCustomerDrawerRef>(null)
   const { id, name, externalId, createdAt, activeSubscriptionCount } = customer
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
@@ -98,7 +98,7 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
               variant="quaternary"
               align="left"
               onClick={() => {
-                editDialogRef.current?.openDrawer()
+                editDialogRef?.current?.openDrawer(customer)
                 closePopper()
               }}
             >
@@ -118,7 +118,7 @@ export const CustomerItem = memo(({ rowId, customer }: CustomerItemProps) => {
           </MenuPopper>
         )}
       </Popper>
-      <AddCustomerDrawer ref={editDialogRef} customer={customer} />
+
       <DeleteCustomerDialog ref={deleteDialogRef} customer={customer} />
     </ItemContainer>
   )

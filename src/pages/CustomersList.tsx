@@ -149,6 +149,7 @@ const CustomersList = () => {
                       key={customer.id}
                       rowId={`customer-item-${index}`}
                       customer={customer}
+                      editDialogRef={addCustomerDrawerRef}
                     />
                   )
                 })}

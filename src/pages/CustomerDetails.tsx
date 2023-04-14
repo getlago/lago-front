@@ -213,7 +213,7 @@ const CustomerDetails = () => {
                   variant="quaternary"
                   align="left"
                   onClick={() => {
-                    editDialogRef.current?.openDrawer()
+                    editDialogRef.current?.openDrawer(data?.customer)
                     closePopper()
                   }}
                 >
@@ -315,7 +315,7 @@ const CustomerDetails = () => {
               <CustomerMainInfos
                 loading={loading}
                 customer={data?.customer}
-                onEdit={editDialogRef.current?.openDrawer}
+                onEdit={() => editDialogRef.current?.openDrawer(data?.customer)}
               />
               <div>
                 <NavigationTab
@@ -449,7 +449,7 @@ const CustomerDetails = () => {
               </div>
             </Infos>
           </Content>
-          <AddCustomerDrawer ref={editDialogRef} customer={data?.customer} />
+          <AddCustomerDrawer ref={editDialogRef} />
           <DeleteCustomerDialog
             ref={deleteDialogRef}
             onDeleted={() => navigate(CUSTOMERS_LIST_ROUTE)}
