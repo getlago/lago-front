@@ -20,6 +20,10 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 import { PlanFormInput } from './types'
 import { ChargeAccordion } from './ChargeAccordion'
+import {
+  RemoveChargeWarningDialog,
+  RemoveChargeWarningDialogRef,
+} from './RemoveChargeWarningDialog'
 
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
@@ -100,6 +104,7 @@ export const ChargesSection = memo(
     const [showAddInstantCharge, setShowAddInstantCharge] = useState(false)
     const [newChargeId, setNewChargeId] = useState<string | null>(null)
     const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+    const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
     const alreadyUsedBmsIds = useRef<Map<String, number>>(new Map())
     const [getBillableMetrics, { loading: billableMetricsLoading, data: billableMetricsData }] =
       useGetBillableMetricsLazyQuery({
@@ -296,6 +301,7 @@ export const ChargesSection = memo(
                     id={id}
                     key={id}
                     shouldDisplayAlreadyUsedChargeAlert={shouldDisplayAlreadyUsedChargeAlert}
+                    removeChargeWarningDialogRef={removeChargeWarningDialogRef}
                     isUsedInSubscription={!isNew && !canBeEdited}
                     currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
                     index={i}
@@ -429,6 +435,7 @@ export const ChargesSection = memo(
                     id={id}
                     key={id}
                     shouldDisplayAlreadyUsedChargeAlert={shouldDisplayAlreadyUsedChargeAlert}
+                    removeChargeWarningDialogRef={removeChargeWarningDialogRef}
                     isUsedInSubscription={!isNew && !canBeEdited}
                     currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
                     index={i}
@@ -542,6 +549,8 @@ export const ChargesSection = memo(
             </InlineButtons>
           )}
         </Card>
+
+        <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} formikProps={formikProps} />
         <PremiumWarningDialog ref={premiumWarningDialogRef} />
       </>
     )
