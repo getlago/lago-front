@@ -688,6 +688,7 @@ export type Coupon = {
   amountCents?: Maybe<Scalars['BigInt']>;
   amountCurrency?: Maybe<CurrencyEnum>;
   appliedCouponsCount: Scalars['Int'];
+  billableMetrics?: Maybe<Array<BillableMetric>>;
   code?: Maybe<Scalars['String']>;
   couponType: CouponTypeEnum;
   createdAt: Scalars['ISO8601DateTime'];
@@ -698,6 +699,7 @@ export type Coupon = {
   frequency: CouponFrequency;
   frequencyDuration?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
+  limitedBillableMetrics: Scalars['Boolean'];
   limitedPlans: Scalars['Boolean'];
   name: Scalars['String'];
   organization?: Maybe<Organization>;
@@ -1773,6 +1775,7 @@ export enum LagoApiError {
 }
 
 export type LimitationInput = {
+  billableMetricIds?: InputMaybe<Array<Scalars['ID']>>;
   planIds?: InputMaybe<Array<Scalars['ID']>>;
 };
 
@@ -3279,6 +3282,17 @@ export type DeleteBillableMetricMutationVariables = Exact<{
 
 export type DeleteBillableMetricMutation = { __typename?: 'Mutation', destroyBillableMetric?: { __typename?: 'DestroyBillableMetricPayload', id?: string | null } | null };
 
+export type BillableMetricsForCouponsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string };
+
+export type GetBillableMetricsForCouponsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']>;
+  limit?: InputMaybe<Scalars['Int']>;
+  searchTerm?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type GetBillableMetricsForCouponsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> } };
+
 export type PlansForCouponsFragment = { __typename?: 'Plan', id: string, name: string, code: string };
 
 export type GetPlansForCouponsQueryVariables = Exact<{
@@ -3357,6 +3371,8 @@ export type AddAddOnMutation = { __typename?: 'Mutation', createAppliedAddOn?: {
 
 export type CouponPlansForCustomerFragment = { __typename?: 'Plan', id: string, name: string };
 
+export type CouponBillableMetricsForCustomerFragment = { __typename?: 'BillableMetric', id: string, name: string };
+
 export type GetCouponForCustomerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit?: InputMaybe<Scalars['Int']>;
@@ -3365,7 +3381,7 @@ export type GetCouponForCustomerQueryVariables = Exact<{
 }>;
 
 
-export type GetCouponForCustomerQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null }> } };
+export type GetCouponForCustomerQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null }> } };
 
 export type AddCouponMutationVariables = Exact<{
   input: CreateAppliedCouponInput;
@@ -3943,14 +3959,14 @@ export type UpdateBillableMetricMutationVariables = Exact<{
 
 export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number } | null };
 
-export type EditCouponFragment = { __typename?: 'Coupon', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number, limitedPlans: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null };
+export type EditCouponFragment = { __typename?: 'Coupon', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number, limitedPlans: boolean, limitedBillableMetrics: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null };
 
 export type GetSingleCouponQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetSingleCouponQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number, limitedPlans: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null } | null };
+export type GetSingleCouponQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number, limitedPlans: boolean, limitedBillableMetrics: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null };
 
 export type CreateCouponMutationVariables = Exact<{
   input: CreateCouponInput;
@@ -4401,6 +4417,12 @@ export const PortalInvoiceListItemFragmentDoc = gql`
     `;
 export const CouponPlansForCustomerFragmentDoc = gql`
     fragment CouponPlansForCustomer on Plan {
+  id
+  name
+}
+    `;
+export const CouponBillableMetricsForCustomerFragmentDoc = gql`
+    fragment CouponBillableMetricsForCustomer on BillableMetric {
   id
   name
 }
@@ -4907,6 +4929,13 @@ export const PlansForCouponsFragmentDoc = gql`
   code
 }
     `;
+export const BillableMetricsForCouponsFragmentDoc = gql`
+    fragment BillableMetricsForCoupons on BillableMetric {
+  id
+  name
+  code
+}
+    `;
 export const EditCouponFragmentDoc = gql`
     fragment EditCoupon on Coupon {
   id
@@ -4923,11 +4952,16 @@ export const EditCouponFragmentDoc = gql`
   frequencyDuration
   appliedCouponsCount
   limitedPlans
+  limitedBillableMetrics
   plans {
     ...PlansForCoupons
   }
+  billableMetrics {
+    ...BillableMetricsForCoupons
+  }
 }
-    ${PlansForCouponsFragmentDoc}`;
+    ${PlansForCouponsFragmentDoc}
+${BillableMetricsForCouponsFragmentDoc}`;
 export const CurrentUserInfosFragmentDoc = gql`
     fragment CurrentUserInfos on User {
   id
@@ -5622,6 +5656,45 @@ export function useDeleteBillableMetricMutation(baseOptions?: Apollo.MutationHoo
 export type DeleteBillableMetricMutationHookResult = ReturnType<typeof useDeleteBillableMetricMutation>;
 export type DeleteBillableMetricMutationResult = Apollo.MutationResult<DeleteBillableMetricMutation>;
 export type DeleteBillableMetricMutationOptions = Apollo.BaseMutationOptions<DeleteBillableMetricMutation, DeleteBillableMetricMutationVariables>;
+export const GetBillableMetricsForCouponsDocument = gql`
+    query getBillableMetricsForCoupons($page: Int, $limit: Int, $searchTerm: String) {
+  billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    collection {
+      ...BillableMetricsForCoupons
+    }
+  }
+}
+    ${BillableMetricsForCouponsFragmentDoc}`;
+
+/**
+ * __useGetBillableMetricsForCouponsQuery__
+ *
+ * To run a query within a React component, call `useGetBillableMetricsForCouponsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBillableMetricsForCouponsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBillableMetricsForCouponsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetBillableMetricsForCouponsQuery(baseOptions?: Apollo.QueryHookOptions<GetBillableMetricsForCouponsQuery, GetBillableMetricsForCouponsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetBillableMetricsForCouponsQuery, GetBillableMetricsForCouponsQueryVariables>(GetBillableMetricsForCouponsDocument, options);
+      }
+export function useGetBillableMetricsForCouponsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBillableMetricsForCouponsQuery, GetBillableMetricsForCouponsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetBillableMetricsForCouponsQuery, GetBillableMetricsForCouponsQueryVariables>(GetBillableMetricsForCouponsDocument, options);
+        }
+export type GetBillableMetricsForCouponsQueryHookResult = ReturnType<typeof useGetBillableMetricsForCouponsQuery>;
+export type GetBillableMetricsForCouponsLazyQueryHookResult = ReturnType<typeof useGetBillableMetricsForCouponsLazyQuery>;
+export type GetBillableMetricsForCouponsQueryResult = Apollo.QueryResult<GetBillableMetricsForCouponsQuery, GetBillableMetricsForCouponsQueryVariables>;
 export const GetPlansForCouponsDocument = gql`
     query getPlansForCoupons($page: Int, $limit: Int, $searchTerm: String) {
   plans(page: $page, limit: $limit, searchTerm: $searchTerm) {
@@ -5949,11 +6022,15 @@ export const GetCouponForCustomerDocument = gql`
       plans {
         ...CouponPlansForCustomer
       }
+      billableMetrics {
+        ...CouponBillableMetricsForCustomer
+      }
       ...CouponCaption
     }
   }
 }
     ${CouponPlansForCustomerFragmentDoc}
+${CouponBillableMetricsForCustomerFragmentDoc}
 ${CouponCaptionFragmentDoc}`;
 
 /**

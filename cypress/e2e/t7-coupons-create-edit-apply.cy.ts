@@ -13,7 +13,7 @@ describe('Coupons', () => {
     cy.get('[data-test="submit"]').should('be.enabled')
 
     // Set plan limitation
-    cy.get('[data-test="checkbox-hasPlanLimit"]').click()
+    cy.get('[data-test="checkbox-hasPlanOrBillableMetricLimit"]').click()
     cy.get('[data-test="add-plan-limit"]').click()
     cy.get('input[name="selectedPlan"]').click()
     cy.get('[data-option-index="0"]').click()
@@ -81,7 +81,7 @@ describe('Coupons', () => {
     cy.get('input[name="name"]').should('not.be.disabled')
     cy.get('input[name="code"]').should('be.disabled')
     cy.get('[data-test="submit"]').should('be.disabled')
-    cy.get('[data-test="checkbox-hasPlanLimit"] input').should('be.disabled')
+    cy.get('[data-test="checkbox-hasPlanOrBillableMetricLimit"] input').should('be.disabled')
     cy.get(`[data-test="delete-limited-plan-1"]`).should('not.exist')
   })
 })

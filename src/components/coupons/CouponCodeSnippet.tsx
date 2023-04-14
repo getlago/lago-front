@@ -6,6 +6,7 @@ import {
   CreateCouponInput,
   CurrencyEnum,
   PlansForCouponsFragment,
+  BillableMetricsForCouponsFragment,
 } from '~/generated/graphql'
 import { envGlobalVar } from '~/core/apolloClient'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
@@ -14,7 +15,9 @@ const { apiUrl } = envGlobalVar()
 
 const getSnippets = (
   hasPlanLimit: boolean,
+  hasBillableMetricLimit: boolean,
   limitPlansList?: PlansForCouponsFragment[],
+  limitBillableMetricsList?: BillableMetricsForCouponsFragment[],
   coupon?: CreateCouponInput
 ) => {
   if (!coupon || !coupon.code) return '# Fill the form to generate the code snippet'
@@ -64,6 +67,13 @@ curl --location --request POST "${apiUrl}/api/v1/applied_coupons" \\
         (p: PlansForCouponsFragment) => `"${p.code}"`
       )}] },`
       : ''
+  }${
+    !!hasBillableMetricLimit && !!limitBillableMetricsList?.length
+      ? `
+      "applies_to": { "billable_metrics_codes": [${limitBillableMetricsList.map(
+        (b: BillableMetricsForCouponsFragment) => `"${b.code}"`
+      )}] },`
+      : ''
   }
     }
   }'
@@ -75,7 +85,9 @@ interface CouponCodeSnippetProps {
   loading?: boolean
   coupon?: CreateCouponInput
   limitPlansList?: PlansForCouponsFragment[]
+  limitBillableMetricsList?: BillableMetricsForCouponsFragment[]
   hasPlanLimit: boolean
+  hasBillableMetricLimit: boolean
 }
 
 export const CouponCodeSnippet = ({
@@ -83,12 +95,20 @@ export const CouponCodeSnippet = ({
   loading,
   hasPlanLimit,
   limitPlansList,
+  hasBillableMetricLimit,
+  limitBillableMetricsList,
 }: CouponCodeSnippetProps) => {
   return (
     <CodeSnippet
       loading={loading}
       language="bash"
-      code={getSnippets(hasPlanLimit, limitPlansList, coupon)}
+      code={getSnippets(
+        hasPlanLimit,
+        hasBillableMetricLimit,
+        limitPlansList,
+        limitBillableMetricsList,
+        coupon
+      )}
     />
   )
 }
