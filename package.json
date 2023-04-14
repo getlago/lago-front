@@ -98,7 +98,6 @@
     "@mui/x-date-pickers": "5.0.20",
     "@sentry/react": "7.46.0",
     "@sentry/tracing": "7.46.0",
-    "add": "2.0.6",
     "apollo-link-timeout": "4.0.0",
     "apollo-upload-client": "17.0.0",
     "apollo3-cache-persist": "0.14.1",
