@@ -1,4 +1,4 @@
-import { memo, useRef } from 'react'
+import { memo, RefObject } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 import { generatePath } from 'react-router-dom'
@@ -27,7 +27,7 @@ import { UPDATE_PLAN_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
-import { DeletePlanDialog, DeletePlanDialogRef } from './DeletePlanDialog'
+import { DeletePlanDialogRef } from './DeletePlanDialog'
 
 gql`
   fragment PlanItem on Plan {
@@ -44,12 +44,12 @@ gql`
 `
 
 interface PlanItemProps {
-  plan: PlanItemFragment
+  deleteDialogRef: RefObject<DeletePlanDialogRef>
   navigationProps?: ListKeyNavigationItemProps
+  plan: PlanItemFragment
 }
 
-export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
-  const deleteDialogRef = useRef<DeletePlanDialogRef>(null)
+export const PlanItem = memo(({ deleteDialogRef, navigationProps, plan }: PlanItemProps) => {
   const { id, name, code, customerCount, chargeCount, createdAt } = plan
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
@@ -117,7 +117,7 @@ export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
               variant="quaternary"
               align="left"
               onClick={() => {
-                deleteDialogRef.current?.openDialog()
+                deleteDialogRef.current?.openDialog(plan)
                 closePopper()
               }}
             >
@@ -126,7 +126,6 @@ export const PlanItem = memo(({ plan, navigationProps }: PlanItemProps) => {
           </MenuPopper>
         )}
       </Popper>
-      <DeletePlanDialog ref={deleteDialogRef} plan={plan} />
     </ItemContainer>
   )
 })

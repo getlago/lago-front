@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { useNavigate, generatePath } from 'react-router-dom'
@@ -14,6 +15,7 @@ import { PlanItem, PlanItemSkeleton } from '~/components/plans/PlanItem'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { SearchInput } from '~/components/SearchInput'
+import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 
 gql`
   query plans($page: Int, $limit: Int, $searchTerm: String) {
@@ -34,6 +36,7 @@ gql`
 const PlansList = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
+  const deleteDialogRef = useRef<DeletePlanDialogRef>(null)
   const [getPlans, { data, error, loading, fetchMore, variables }] = usePlansLazyQuery({
     variables: { limit: 20 },
     notifyOnNetworkStatusChange: true,
@@ -150,6 +153,7 @@ const PlansList = () => {
                     <PlanItem
                       key={plan.id}
                       plan={plan}
+                      deleteDialogRef={deleteDialogRef}
                       navigationProps={{
                         id: `plan-item-${index}`,
                         'data-id': plan.id,
@@ -163,6 +167,8 @@ const PlansList = () => {
           </InfiniteScroll>
         )}
       </ListContainer>
+
+      <DeletePlanDialog ref={deleteDialogRef} />
     </div>
   )
 }
