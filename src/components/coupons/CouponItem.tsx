@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { RefObject } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { generatePath } from 'react-router-dom'
@@ -27,13 +27,10 @@ import { UPDATE_COUPON_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { CouponStatusEnum, CouponItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { DeleteCouponDialog, DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
+import { DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
 import { CouponCaption } from '~/components/coupons/CouponCaption'
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
-import {
-  TerminateCouponDialog,
-  TerminateCouponDialogRef,
-} from '~/components/coupons/TerminateCouponDialog'
+import { TerminateCouponDialogRef } from '~/components/coupons/TerminateCouponDialog'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
@@ -56,7 +53,9 @@ gql`
 
 interface CouponItemProps {
   coupon: CouponItemFragment
+  deleteDialogRef: RefObject<DeleteCouponDialogRef>
   navigationProps?: ListKeyNavigationItemProps
+  terminateDialogRef: RefObject<TerminateCouponDialogRef>
 }
 
 const mapStatus = (type?: CouponStatusEnum | undefined) => {
@@ -74,10 +73,13 @@ const mapStatus = (type?: CouponStatusEnum | undefined) => {
   }
 }
 
-export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
+export const CouponItem = ({
+  coupon,
+  deleteDialogRef,
+  navigationProps,
+  terminateDialogRef,
+}: CouponItemProps) => {
   const { id, name, customerCount, status, appliedCouponsCount, expirationAt } = coupon
-  const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
-  const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
   const { translate } = useInternationalization()
   const formattedStatus = mapStatus(status)
   const { formatTimeOrgaTZ } = useOrganizationInfos()
@@ -169,7 +171,7 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
                 fullWidth
                 align="left"
                 onClick={() => {
-                  terminateDialogRef.current?.openDialog()
+                  terminateDialogRef.current?.openDialog(coupon)
                   closePopper()
                 }}
               >
@@ -188,7 +190,7 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
                 align="left"
                 fullWidth
                 onClick={() => {
-                  deleteDialogRef.current?.openDialog()
+                  deleteDialogRef.current?.openDialog(coupon)
                   closePopper()
                 }}
               >
@@ -198,8 +200,6 @@ export const CouponItem = ({ coupon, navigationProps }: CouponItemProps) => {
           </MenuPopper>
         )}
       </Popper>
-      <DeleteCouponDialog ref={deleteDialogRef} coupon={coupon} />
-      <TerminateCouponDialog ref={terminateDialogRef} coupon={coupon} />
     </ItemContainer>
   )
 }
