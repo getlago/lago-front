@@ -34,6 +34,14 @@ import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { SearchInput } from '~/components/SearchInput'
+import {
+  FinalizeInvoiceDialog,
+  FinalizeInvoiceDialogRef,
+} from '~/components/invoices/FinalizeInvoiceDialog'
+import {
+  UpdateInvoicePaymentStatusDialog,
+  UpdateInvoicePaymentStatusDialogRef,
+} from '~/components/invoices/EditInvoicePaymentStatusDialog'
 
 gql`
   query invoicesList(
@@ -88,6 +96,8 @@ const InvoicesList = () => {
   const { tab } = useParams<{ tab?: InvoiceListTabEnum }>()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
+  const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
+  const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const [getInvoices, { data, loading, error, fetchMore, variables }] = useInvoicesListLazyQuery({
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
@@ -316,6 +326,8 @@ const InvoicesList = () => {
                       invoiceId: invoice.id,
                       tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
                     })}
+                    finalizeInvoiceRef={finalizeInvoiceRef}
+                    updateInvoicePaymentStatusDialog={updateInvoicePaymentStatusDialog}
                   />
                 )
               })}
@@ -330,6 +342,9 @@ const InvoicesList = () => {
           )}
         </List>
       </ScrollContainer>
+
+      <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
+      <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
     </div>
   )
 }

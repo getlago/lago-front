@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { gql, FetchMoreQueryOptions } from '@apollo/client'
 import styled from 'styled-components'
 
@@ -20,6 +21,11 @@ import {
 } from '~/components/invoices/InvoiceListItem'
 
 import { GenericPlaceholder } from '../GenericPlaceholder'
+import { FinalizeInvoiceDialog, FinalizeInvoiceDialogRef } from '../invoices/FinalizeInvoiceDialog'
+import {
+  UpdateInvoicePaymentStatusDialog,
+  UpdateInvoicePaymentStatusDialogRef,
+} from '../invoices/EditInvoicePaymentStatusDialog'
 
 gql`
   fragment InvoiceForInvoiceList on InvoiceCollection {
@@ -69,6 +75,8 @@ export const CustomerInvoicesList = ({
   onSeeAll,
   fetchMore,
 }: InvoiceListProps) => {
+  const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
+  const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const { metadata, collection } = invoiceData || {}
   const { translate } = useInternationalization()
 
@@ -156,6 +164,8 @@ export const CustomerInvoicesList = ({
                     to={link}
                     invoice={invoice}
                     context="customer"
+                    finalizeInvoiceRef={finalizeInvoiceRef}
+                    updateInvoicePaymentStatusDialog={updateInvoicePaymentStatusDialog}
                   />
                 )
               })}
@@ -177,6 +187,9 @@ export const CustomerInvoicesList = ({
           </PlusButtonWrapper>
         )}
       </ListWrapper>
+
+      <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
+      <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
     </ScrollWrapper>
   )
 }
