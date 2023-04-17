@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { useNavigate, generatePath } from 'react-router-dom'
@@ -14,6 +15,7 @@ import { AddOnItemFragmentDoc, useAddOnsLazyQuery } from '~/generated/graphql'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { SearchInput } from '~/components/SearchInput'
+import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
 
 gql`
   query addOns($page: Int, $limit: Int, $searchTerm: String) {
@@ -35,6 +37,7 @@ gql`
 const AddOnsList = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
+  const deleteDialogRef = useRef<DeleteAddOnDialogRef>(null)
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `add-on-item-${i}`,
     navigate: (id) => navigate(generatePath(UPDATE_ADD_ON_ROUTE, { id: String(id) })),
@@ -147,6 +150,7 @@ const AddOnsList = () => {
                     <AddOnItem
                       key={addOn.id}
                       addOn={addOn}
+                      deleteDialogRef={deleteDialogRef}
                       navigationProps={{
                         id: `add-on-item-${index}`,
                         'data-id': addOn.id,
@@ -160,6 +164,8 @@ const AddOnsList = () => {
           </InfiniteScroll>
         )}
       </ListContainer>
+
+      <DeleteAddOnDialog ref={deleteDialogRef} />
     </div>
   )
 }
