@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
-import { forwardRef } from 'react'
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { Typography, DialogRef } from '~/components/designSystem'
 import { DeleteCouponFragment, useDeleteCouponMutation } from '~/generated/graphql'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
+import { WarningDialog } from '~/components/WarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 
@@ -20,51 +20,59 @@ gql`
   }
 `
 
-export interface DeleteCouponDialogRef extends WarningDialogRef {}
-
-interface DeleteCouponDialogProps {
-  coupon: DeleteCouponFragment
+export interface DeleteCouponDialogRef {
+  openDialog: (coupon: DeleteCouponFragment) => unknown
+  closeDialog: () => unknown
 }
 
-export const DeleteCouponDialog = forwardRef<DialogRef, DeleteCouponDialogProps>(
-  ({ coupon }: DeleteCouponDialogProps, ref) => {
-    const [deleteCoupon] = useDeleteCouponMutation({
-      onCompleted(data) {
-        if (data && data.destroyCoupon) {
-          addToast({
-            message: translate('text_628b432fd8f2bc0105b9746f'),
-            severity: 'success',
-          })
-        }
-      },
-      update(cache, { data }) {
-        if (!data?.destroyCoupon) return
-        const cacheId = cache.identify({
-          id: data?.destroyCoupon.id,
-          __typename: 'Coupon',
+export const DeleteCouponDialog = forwardRef<DeleteCouponDialogRef>((_, ref) => {
+  const { translate } = useInternationalization()
+  const dialogRef = useRef<DialogRef>(null)
+  const [coupon, setCoupon] = useState<DeleteCouponFragment | undefined>(undefined)
+
+  const [deleteCoupon] = useDeleteCouponMutation({
+    onCompleted(data) {
+      if (data && data.destroyCoupon) {
+        addToast({
+          message: translate('text_628b432fd8f2bc0105b9746f'),
+          severity: 'success',
         })
+      }
+    },
+    update(cache, { data }) {
+      if (!data?.destroyCoupon) return
+      const cacheId = cache.identify({
+        id: data?.destroyCoupon.id,
+        __typename: 'Coupon',
+      })
 
-        cache.evict({ id: cacheId })
-      },
-    })
-    const { translate } = useInternationalization()
+      cache.evict({ id: cacheId })
+    },
+  })
 
-    return (
-      <WarningDialog
-        ref={ref}
-        title={translate('text_628b432fd8f2bc0105b973ee', {
-          couponName: coupon.name,
-        })}
-        description={<Typography html={translate('text_628b432fd8f2bc0105b973f6')} />}
-        onContinue={async () =>
-          await deleteCoupon({
-            variables: { input: { id: coupon.id } },
-          })
-        }
-        continueText={translate('text_628b432fd8f2bc0105b97406')}
-      />
-    )
-  }
-)
+  useImperativeHandle(ref, () => ({
+    openDialog: (data) => {
+      setCoupon(data)
+      dialogRef.current?.openDialog()
+    },
+    closeDialog: () => dialogRef.current?.closeDialog(),
+  }))
+
+  return (
+    <WarningDialog
+      ref={dialogRef}
+      title={translate('text_628b432fd8f2bc0105b973ee', {
+        couponName: coupon?.name,
+      })}
+      description={<Typography html={translate('text_628b432fd8f2bc0105b973f6')} />}
+      onContinue={async () =>
+        await deleteCoupon({
+          variables: { input: { id: coupon?.id || '' } },
+        })
+      }
+      continueText={translate('text_628b432fd8f2bc0105b97406')}
+    />
+  )
+})
 
 DeleteCouponDialog.displayName = 'DeleteCouponDialog'

@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { useNavigate, generatePath } from 'react-router-dom'
@@ -18,6 +19,11 @@ import {
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { SearchInput } from '~/components/SearchInput'
+import { DeleteCouponDialog, DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
+import {
+  TerminateCouponDialog,
+  TerminateCouponDialogRef,
+} from '~/components/coupons/TerminateCouponDialog'
 
 gql`
   query coupons($page: Int, $limit: Int, $searchTerm: String) {
@@ -40,6 +46,8 @@ gql`
 const CouponsList = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
+  const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
+  const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `coupon-item-${i}`,
     navigate: (id) => navigate(generatePath(UPDATE_COUPON_ROUTE, { id: String(id) })),
@@ -155,6 +163,8 @@ const CouponsList = () => {
                     <CouponItem
                       key={coupon.id}
                       coupon={coupon}
+                      deleteDialogRef={deleteDialogRef}
+                      terminateDialogRef={terminateDialogRef}
                       navigationProps={{
                         id: `coupon-item-${index}`,
                         'data-id': coupon.id,
@@ -168,6 +178,9 @@ const CouponsList = () => {
           </InfiniteScroll>
         )}
       </ListContainer>
+
+      <DeleteCouponDialog ref={deleteDialogRef} />
+      <TerminateCouponDialog ref={terminateDialogRef} />
     </div>
   )
 }
