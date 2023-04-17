@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { RefObject } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { generatePath } from 'react-router-dom'
@@ -26,7 +26,7 @@ import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { AddOnItemFragment } from '~/generated/graphql'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
+import { DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
@@ -44,13 +44,14 @@ gql`
 
 interface AddOnItemProps {
   addOn: AddOnItemFragment
+  deleteDialogRef: RefObject<DeleteAddOnDialogRef>
   navigationProps?: ListKeyNavigationItemProps
 }
 
-export const AddOnItem = ({ addOn, navigationProps }: AddOnItemProps) => {
+export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItemProps) => {
   const { id, name, amountCurrency, amountCents, customerCount, createdAt, appliedAddOnsCount } =
     addOn
-  const deleteDialogRef = useRef<DeleteAddOnDialogRef>(null)
+
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
 
@@ -129,7 +130,7 @@ export const AddOnItem = ({ addOn, navigationProps }: AddOnItemProps) => {
                 align="left"
                 fullWidth
                 onClick={() => {
-                  deleteDialogRef.current?.openDialog()
+                  deleteDialogRef.current?.openDialog(addOn)
                   closePopper()
                 }}
               >
@@ -139,7 +140,6 @@ export const AddOnItem = ({ addOn, navigationProps }: AddOnItemProps) => {
           </MenuPopper>
         )}
       </Popper>
-      <DeleteAddOnDialog ref={deleteDialogRef} addOn={addOn} />
     </ItemContainer>
   )
 }
