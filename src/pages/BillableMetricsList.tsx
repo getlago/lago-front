@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { useNavigate, generatePath } from 'react-router-dom'
@@ -17,6 +18,10 @@ import {
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { SearchInput } from '~/components/SearchInput'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import {
+  DeleteBillableMetricDialog,
+  DeleteBillableMetricDialogRef,
+} from '~/components/billableMetrics/DeleteBillableMetricDialog'
 
 gql`
   query billableMetrics($page: Int, $limit: Int, $searchTerm: String) {
@@ -37,6 +42,7 @@ gql`
 const BillableMetricsList = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
+  const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
   const [getBillableMetrics, { data, error, loading, fetchMore, variables }] =
     useBillableMetricsLazyQuery({
       variables: { limit: 20 },
@@ -143,6 +149,7 @@ const BillableMetricsList = () => {
                   <BillableMetricItem
                     key={billableMetric.id}
                     billableMetric={billableMetric}
+                    deleteDialogRef={deleteDialogRef}
                     navigationProps={{
                       id: `billable-metric-item-${index}`,
                       'data-id': billableMetric.id,
@@ -157,6 +164,8 @@ const BillableMetricsList = () => {
           </InfiniteScroll>
         )}
       </ListContainer>
+
+      <DeleteBillableMetricDialog ref={deleteDialogRef} />
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { memo, useRef } from 'react'
+import { memo, RefObject } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 import { generatePath } from 'react-router-dom'
@@ -30,10 +30,7 @@ import { UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
-import {
-  DeleteBillableMetricDialog,
-  DeleteBillableMetricDialogRef,
-} from './DeleteBillableMetricDialog'
+import { DeleteBillableMetricDialogRef } from './DeleteBillableMetricDialog'
 
 gql`
   fragment BillableMetricItem on BillableMetric {
@@ -49,13 +46,13 @@ gql`
 
 interface BillableMetricItemProps {
   billableMetric: BillableMetricItemFragment
+  deleteDialogRef: RefObject<DeleteBillableMetricDialogRef>
   navigationProps?: ListKeyNavigationItemProps
 }
 
 export const BillableMetricItem = memo(
-  ({ billableMetric, navigationProps }: BillableMetricItemProps) => {
+  ({ billableMetric, deleteDialogRef, navigationProps }: BillableMetricItemProps) => {
     const { id, name, code, createdAt } = billableMetric
-    const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
     const { translate } = useInternationalization()
     const { formatTimeOrgaTZ } = useOrganizationInfos()
 
@@ -116,7 +113,7 @@ export const BillableMetricItem = memo(
                 variant="quaternary"
                 align="left"
                 onClick={() => {
-                  deleteDialogRef.current?.openDialog()
+                  deleteDialogRef.current?.openDialog(billableMetric)
                   closePopper()
                 }}
               >
@@ -125,7 +122,6 @@ export const BillableMetricItem = memo(
             </MenuPopper>
           )}
         </Popper>
-        <DeleteBillableMetricDialog ref={deleteDialogRef} billableMetric={billableMetric} />
       </ItemContainer>
     )
   }
