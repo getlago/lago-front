@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { RefObject } from 'react'
 import styled, { css } from 'styled-components'
 import { gql } from '@apollo/client'
 
@@ -22,11 +22,8 @@ import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 
-import { FinalizeInvoiceDialog, FinalizeInvoiceDialogRef } from './FinalizeInvoiceDialog'
-import {
-  UpdateInvoicePaymentStatusDialog,
-  UpdateInvoicePaymentStatusDialogRef,
-} from './EditInvoicePaymentStatusDialog'
+import { FinalizeInvoiceDialogRef } from './FinalizeInvoiceDialog'
+import { UpdateInvoicePaymentStatusDialogRef } from './EditInvoicePaymentStatusDialog'
 
 gql`
   fragment InvoiceListItem on Invoice {
@@ -77,6 +74,8 @@ interface InvoiceListItemProps {
   to: string
   navigationProps?: ListKeyNavigationItemProps
   className?: string
+  finalizeInvoiceRef: RefObject<FinalizeInvoiceDialogRef>
+  updateInvoicePaymentStatusDialog: RefObject<UpdateInvoicePaymentStatusDialogRef>
 }
 
 const mapStatusConfig = (
@@ -112,10 +111,10 @@ export const InvoiceListItem = ({
   invoice,
   to,
   navigationProps,
+  finalizeInvoiceRef,
+  updateInvoicePaymentStatusDialog,
 }: InvoiceListItemProps) => {
   const { translate } = useInternationalization()
-  const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
-  const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const {
     id,
     status,
@@ -286,8 +285,6 @@ export const InvoiceListItem = ({
           </MenuPopper>
         )}
       </Popper>
-      <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
     </Container>
   )
 }
