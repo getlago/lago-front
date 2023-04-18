@@ -52,7 +52,7 @@ export interface AvatarGenericProps {
 const mapTypographyVariant = (size: AvatarSize) => {
   switch (size) {
     case 'small':
-      return 'note'
+      return 'noteHl'
     case 'large':
       return 'subhead'
     default:

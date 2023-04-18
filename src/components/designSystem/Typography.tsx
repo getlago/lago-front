@@ -54,6 +54,7 @@ const mapColor = (variant: TypographyProps['variant'], color?: Color): ColorType
     case 'body':
     case 'captionHl':
     case 'note':
+    case 'noteHl':
     case 'caption':
     default:
       return ColorTypeEnum.textPrimary
@@ -132,6 +133,7 @@ export const Typography = memo(
           subhead: 'div',
           caption: 'div',
           note: 'div',
+          noteHl: 'div',
           captionCode: 'code',
         }}
         $code={variant === 'captionCode'}

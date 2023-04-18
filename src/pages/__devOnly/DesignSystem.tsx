@@ -540,6 +540,7 @@ const DesignSystem = () => {
                     <Typography variant="captionHl">CaptionHl</Typography>
                     <Typography variant="captionCode">CaptionCode</Typography>
                     <Typography variant="note">Note</Typography>
+                    <Typography variant="noteHl">NoteHl</Typography>
                     <Typography
                       color="textSecondary"
                       html="I'm a bit <b>special</b>, I <i>understand</i> html"
