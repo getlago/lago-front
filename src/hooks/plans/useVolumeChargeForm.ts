@@ -6,13 +6,13 @@ import { InputMaybe, PropertiesInput, VolumeRangeInput } from '~/generated/graph
 
 export const DEFAULT_VOLUME_CHARGES = [
   {
-    fromValue: 0,
-    toValue: 1,
+    fromValue: '0',
+    toValue: '1',
     flatAmount: undefined,
     perUnitAmount: undefined,
   },
   {
-    fromValue: 2,
+    fromValue: '2',
     toValue: null,
     flatAmount: undefined,
     perUnitAmount: undefined,
@@ -93,17 +93,20 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
         if (i < addIndex) {
           acc.push(range)
         } else if (i === addIndex) {
-          const newToValue = (volumeRanges[addIndex - 1]?.toValue || 0) + 1
+          const newToValue = String(Number(volumeRanges[addIndex - 1]?.toValue || 0) + 1)
 
           acc.push({
             fromValue: newToValue,
-            toValue: newToValue + 1,
+            toValue: String(Number(newToValue) + 1),
             flatAmount: undefined,
             perUnitAmount: undefined,
           })
           acc.push({
             ...range,
-            fromValue: range.fromValue <= newToValue + 1 ? newToValue + 2 : range.fromValue,
+            fromValue:
+              Number(range.fromValue) <= Number(newToValue) + 1
+                ? String(Number(newToValue) + 2)
+                : String(range.fromValue),
           })
         }
 
@@ -116,8 +119,6 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
       )
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
-      const safeValue = Number(value || 0)
-
       if (fieldName !== 'toValue') {
         formikProps.setFieldValue(
           `${formikIdentifier}.${rangeIndex}.${fieldName}`,
@@ -126,11 +127,11 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
       } else {
         const newVolumeRanges = volumeRanges.reduce<VolumeRangeInput[]>((acc, range, i) => {
           if (rangeIndex === i) {
-            acc.push({ ...range, toValue: safeValue })
+            acc.push({ ...range, toValue: String(Number(value || 0)) })
           } else if (i > rangeIndex) {
             // fromValue should always be toValueOfPreviousRange + 1
             const { toValue } = acc[i - 1]
-            const fromValue = (toValue || 0) + 1
+            const fromValue = String(Number(toValue || 0) + 1)
 
             acc.push({
               ...range,
@@ -138,9 +139,9 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
               toValue:
                 range.toValue === null
                   ? null
-                  : (range.toValue || 0) <= fromValue
-                  ? fromValue + 1
-                  : range.toValue,
+                  : Number(range.toValue || 0) <= Number(fromValue)
+                  ? String(Number(fromValue) + 1)
+                  : String(range.toValue || 0),
             })
           } else {
             acc.push(range)
@@ -161,7 +162,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
 
           acc.push({
             ...range,
-            fromValue: (toValue || 0) + 1,
+            fromValue: String(Number(toValue || 0) + 1),
           })
         }
         return acc

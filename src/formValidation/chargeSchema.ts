@@ -32,7 +32,7 @@ const graduatedShape = object().shape({
             return false
           }
 
-          if (i < graduatedRange.length - 1 && (fromValue || 0) > toValue) {
+          if (i < graduatedRange.length - 1 && Number(fromValue || 0) > Number(toValue || 0)) {
             isValid = false
             return false
           }
@@ -59,7 +59,7 @@ const volumeShape = object().shape({
             return false
           }
 
-          if (i < volumeRange.length - 1 && (fromValue || 0) > toValue) {
+          if (i < volumeRange.length - 1 && Number(fromValue || 0) > Number(toValue || 0)) {
             isValid = false
             return false
           }

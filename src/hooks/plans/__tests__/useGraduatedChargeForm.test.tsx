@@ -96,7 +96,7 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.infosCaclucation).toStrictEqual([
           {
-            firstUnit: 2,
+            firstUnit: '2',
             total: 0,
             perUnit: 0,
             flatFee: 0,
@@ -124,21 +124,21 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: 0,
-            toValue: 1,
+            fromValue: '0',
+            toValue: '1',
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: 2,
-            toValue: 3,
+            fromValue: '2',
+            toValue: '3',
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: false,
           },
           {
-            fromValue: 4,
+            fromValue: '4',
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,
@@ -147,7 +147,7 @@ describe('useGraduatedRange()', () => {
         ])
         expect(result.current.infosCaclucation).toStrictEqual([
           {
-            firstUnit: 4,
+            firstUnit: '4',
             total: 0,
             perUnit: 0,
             flatFee: 0,
@@ -182,14 +182,14 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: 0,
-            toValue: 1,
+            fromValue: '0',
+            toValue: '1',
             flatAmount: 4,
             perUnitAmount: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: 2,
+            fromValue: '2',
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: 5,
@@ -199,7 +199,7 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.infosCaclucation).toStrictEqual([
           {
-            firstUnit: 2,
+            firstUnit: '2',
             total: 9,
             perUnit: 0,
             flatFee: 0,
@@ -222,7 +222,7 @@ describe('useGraduatedRange()', () => {
         await act(async () => await result.current.handleUpdate(1, 'perUnitAmount', '8'))
         expect(result.current.infosCaclucation).toStrictEqual([
           {
-            firstUnit: 4,
+            firstUnit: '4',
             total: 25,
             perUnit: 0,
             flatFee: 0,
@@ -250,7 +250,7 @@ describe('useGraduatedRange()', () => {
         await act(async () => await result.current.handleUpdate(1, 'flatAmount', '9'))
         expect(result.current.infosCaclucation).toStrictEqual([
           {
-            firstUnit: 4,
+            firstUnit: '4',
             total: 34,
             perUnit: 0,
             flatFee: 0,
@@ -280,18 +280,18 @@ describe('useGraduatedRange()', () => {
       it('should handle update of "toValue" correctly', async () => {
         const { result } = await prepare({})
 
-        await act(async () => await result.current.handleUpdate(0, 'toValue', '4'))
+        await act(async () => await result.current.handleUpdate(0, 'toValue', 4))
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: 0,
-            toValue: 4,
+            fromValue: '0',
+            toValue: '4',
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: 5,
+            fromValue: '5',
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,
@@ -300,7 +300,7 @@ describe('useGraduatedRange()', () => {
         ])
         expect(result.current.infosCaclucation).toStrictEqual([
           {
-            firstUnit: 5,
+            firstUnit: '5',
             total: 0,
             perUnit: 0,
             flatFee: 0,
@@ -324,7 +324,7 @@ describe('useGraduatedRange()', () => {
         await act(async () => await result.current.handleUpdate(1, 'toValue', 8))
         expect(result.current.infosCaclucation).toStrictEqual([
           {
-            firstUnit: 9,
+            firstUnit: '9',
             total: 0,
             perUnit: 0,
             flatFee: 0,
@@ -356,19 +356,19 @@ describe('useGraduatedRange()', () => {
 
         await act(async () => await result.current.addRange())
         expect(result.current.tableDatas.length).toBe(3)
-        await act(async () => await result.current.handleUpdate(0, 'toValue', '4'))
+        await act(async () => await result.current.handleUpdate(0, 'toValue', 4))
         await act(async () => await result.current.deleteRange(1))
         expect(result.current.tableDatas.length).toBe(2)
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: 0,
-            toValue: 4,
+            fromValue: '0',
+            toValue: '4',
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: 5,
+            fromValue: '5',
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,
@@ -390,7 +390,7 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.infosCaclucation).toStrictEqual([
           {
-            firstUnit: 2,
+            firstUnit: '2',
             total: 0,
             perUnit: 0,
             flatFee: 0,
@@ -418,21 +418,21 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: 0,
-            toValue: 1,
+            fromValue: '0',
+            toValue: '1',
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: 2,
-            toValue: 3,
+            fromValue: '2',
+            toValue: '3',
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: false,
           },
           {
-            fromValue: 4,
+            fromValue: '4',
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,
@@ -441,7 +441,7 @@ describe('useGraduatedRange()', () => {
         ])
         expect(result.current.infosCaclucation).toStrictEqual([
           {
-            firstUnit: 4,
+            firstUnit: '4',
             total: 0,
             perUnit: 0,
             flatFee: 0,
@@ -476,14 +476,14 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: 0,
-            toValue: 1,
+            fromValue: '0',
+            toValue: '1',
             flatAmount: 4,
             perUnitAmount: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: 2,
+            fromValue: '2',
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: 5,
@@ -493,7 +493,7 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.infosCaclucation).toStrictEqual([
           {
-            firstUnit: 2,
+            firstUnit: '2',
             total: 9,
             perUnit: 0,
             flatFee: 0,
@@ -516,7 +516,7 @@ describe('useGraduatedRange()', () => {
         await act(async () => await result.current.handleUpdate(1, 'perUnitAmount', '8'))
         expect(result.current.infosCaclucation).toStrictEqual([
           {
-            firstUnit: 4,
+            firstUnit: '4',
             total: 25,
             perUnit: 0,
             flatFee: 0,
@@ -544,7 +544,7 @@ describe('useGraduatedRange()', () => {
         await act(async () => await result.current.handleUpdate(1, 'flatAmount', '9'))
         expect(result.current.infosCaclucation).toStrictEqual([
           {
-            firstUnit: 4,
+            firstUnit: '4',
             total: 34,
             perUnit: 0,
             flatFee: 0,
@@ -574,18 +574,18 @@ describe('useGraduatedRange()', () => {
       it('should handle update of "toValue" correctly', async () => {
         const { result } = await prepare({})
 
-        await act(async () => await result.current.handleUpdate(0, 'toValue', '4'))
+        await act(async () => await result.current.handleUpdate(0, 'toValue', 4))
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: 0,
-            toValue: 4,
+            fromValue: '0',
+            toValue: '4',
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: 5,
+            fromValue: '5',
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,
@@ -594,7 +594,7 @@ describe('useGraduatedRange()', () => {
         ])
         expect(result.current.infosCaclucation).toStrictEqual([
           {
-            firstUnit: 5,
+            firstUnit: '5',
             total: 0,
             perUnit: 0,
             flatFee: 0,
@@ -618,7 +618,7 @@ describe('useGraduatedRange()', () => {
         await act(async () => await result.current.handleUpdate(1, 'toValue', 8))
         expect(result.current.infosCaclucation).toStrictEqual([
           {
-            firstUnit: 9,
+            firstUnit: '9',
             total: 0,
             perUnit: 0,
             flatFee: 0,
@@ -650,19 +650,19 @@ describe('useGraduatedRange()', () => {
 
         await act(async () => await result.current.addRange())
         expect(result.current.tableDatas.length).toBe(3)
-        await act(async () => await result.current.handleUpdate(0, 'toValue', '4'))
+        await act(async () => await result.current.handleUpdate(0, 'toValue', 4))
         await act(async () => await result.current.deleteRange(1))
         expect(result.current.tableDatas.length).toBe(2)
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: 0,
-            toValue: 4,
+            fromValue: '0',
+            toValue: '4',
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: 5,
+            fromValue: '5',
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,
