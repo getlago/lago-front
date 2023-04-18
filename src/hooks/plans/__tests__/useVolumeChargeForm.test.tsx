@@ -98,19 +98,19 @@ describe('useVolumeChargeForm()', () => {
       it('returns in tableDatas the given datas', async () => {
         const volumeRanges = [
           {
-            fromValue: 0,
-            toValue: 1,
+            fromValue: '0',
+            toValue: '1',
             flatAmount: '1',
             perUnitAmount: '2',
           },
           {
-            fromValue: 1,
-            toValue: 2,
+            fromValue: '1',
+            toValue: '2',
             flatAmount: '1',
             perUnitAmount: '1',
           },
           {
-            fromValue: 2,
+            fromValue: '2',
             toValue: null,
             flatAmount: '1',
             perUnitAmount: '1',
@@ -132,19 +132,19 @@ describe('useVolumeChargeForm()', () => {
       it('should all be disabled if disabled props is true', async () => {
         const volumeRanges = [
           {
-            fromValue: 0,
-            toValue: 1,
+            fromValue: '0',
+            toValue: '1',
             flatAmount: '1',
             perUnitAmount: '2',
           },
           {
-            fromValue: 1,
-            toValue: 2,
+            fromValue: '1',
+            toValue: '2',
             flatAmount: '1',
             perUnitAmount: '1',
           },
           {
-            fromValue: 2,
+            fromValue: '2',
             toValue: null,
             flatAmount: '1',
             perUnitAmount: '1',
@@ -168,19 +168,19 @@ describe('useVolumeChargeForm()', () => {
       it('returns expected results with given props', async () => {
         const volumeRanges = [
           {
-            fromValue: 0,
-            toValue: 100,
+            fromValue: '0',
+            toValue: '100',
             flatAmount: '1',
             perUnitAmount: '1',
           },
           {
-            fromValue: 101,
-            toValue: 500,
+            fromValue: '101',
+            toValue: '500',
             flatAmount: '1',
             perUnitAmount: '0.9',
           },
           {
-            fromValue: 501,
+            fromValue: '501',
             toValue: null,
             flatAmount: '1',
             perUnitAmount: '0.2',
@@ -204,19 +204,19 @@ describe('useVolumeChargeForm()', () => {
       it('should add one row in volumeRanges and update infosCalculation', async () => {
         const volumeRanges = [
           {
-            toValue: 100,
-            fromValue: 0,
+            toValue: '100',
+            fromValue: '0',
             flatAmount: '1',
             perUnitAmount: '1',
           },
           {
-            fromValue: 101,
-            toValue: 500,
+            fromValue: '101',
+            toValue: '500',
             flatAmount: '1',
             perUnitAmount: '0.9',
           },
           {
-            fromValue: 501,
+            fromValue: '501',
             toValue: null,
             flatAmount: '1',
             perUnitAmount: '0.3',
@@ -241,15 +241,15 @@ describe('useVolumeChargeForm()', () => {
           { ...volumeRanges[0], disabledDelete: true },
           { ...volumeRanges[1], disabledDelete: false },
           {
-            toValue: 502,
-            fromValue: 501,
+            toValue: '502',
+            fromValue: '501',
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: false,
           },
           {
             toValue: null,
-            fromValue: 503,
+            fromValue: '503',
             flatAmount: volumeRanges[2].flatAmount,
             perUnitAmount: volumeRanges[2].perUnitAmount,
             disabledDelete: true,
@@ -262,19 +262,19 @@ describe('useVolumeChargeForm()', () => {
       it('should correctly udpate data', async () => {
         const volumeRanges = [
           {
-            fromValue: 0,
-            toValue: 100,
+            fromValue: '0',
+            toValue: '100',
             flatAmount: '1',
             perUnitAmount: '1',
           },
           {
-            fromValue: 101,
-            toValue: 500,
+            fromValue: '101',
+            toValue: '500',
             flatAmount: '1',
             perUnitAmount: '0.9',
           },
           {
-            fromValue: 501,
+            fromValue: '501',
             toValue: null,
             flatAmount: '1',
             perUnitAmount: '0.2',
@@ -288,15 +288,15 @@ describe('useVolumeChargeForm()', () => {
         await act(async () => await result.current.handleUpdate(1, 'toValue', ''))
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
-          { ...{ ...volumeRanges[1], toValue: 0 }, disabledDelete: false },
-          { ...{ ...volumeRanges[2], fromValue: 1, toValue: null }, disabledDelete: true },
+          { ...{ ...volumeRanges[1], toValue: '0' }, disabledDelete: false },
+          { ...{ ...volumeRanges[2], fromValue: '1', toValue: null }, disabledDelete: true },
         ])
 
         await act(async () => await result.current.handleUpdate(1, 'toValue', 30))
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
-          { ...{ ...volumeRanges[1], toValue: 30 }, disabledDelete: false },
-          { ...{ ...volumeRanges[2], fromValue: 31, toValue: null }, disabledDelete: true },
+          { ...{ ...volumeRanges[1], toValue: '30' }, disabledDelete: false },
+          { ...{ ...volumeRanges[2], fromValue: '31', toValue: null }, disabledDelete: true },
         ])
         await act(async () => await result.current.handleUpdate(1, 'toValue', 500))
 
@@ -321,19 +321,19 @@ describe('useVolumeChargeForm()', () => {
       it('should correctly udpate data', async () => {
         const volumeRanges = [
           {
-            fromValue: 0,
-            toValue: 100,
+            fromValue: '0',
+            toValue: '100',
             flatAmount: '1',
             perUnitAmount: '1',
           },
           {
-            fromValue: 101,
-            toValue: 500,
+            fromValue: '101',
+            toValue: '500',
             flatAmount: '1',
             perUnitAmount: '0.9',
           },
           {
-            fromValue: 501,
+            fromValue: '501',
             toValue: null,
             flatAmount: '1',
             perUnitAmount: '0.2',
@@ -351,7 +351,7 @@ describe('useVolumeChargeForm()', () => {
         expect(result.current.tableDatas.length).toBe(2)
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
-          { ...{ ...volumeRanges[2], fromValue: 101 }, disabledDelete: true },
+          { ...{ ...volumeRanges[2], fromValue: '101' }, disabledDelete: true },
         ])
       })
     })
@@ -373,19 +373,19 @@ describe('useVolumeChargeForm()', () => {
       it('returns in tableDatas the given datas', async () => {
         const volumeRanges = [
           {
-            fromValue: 0,
-            toValue: 1,
+            fromValue: '0',
+            toValue: '1',
             flatAmount: '1',
             perUnitAmount: '2',
           },
           {
-            fromValue: 1,
-            toValue: 2,
+            fromValue: '1',
+            toValue: '2',
             flatAmount: '1',
             perUnitAmount: '1',
           },
           {
-            fromValue: 2,
+            fromValue: '2',
             toValue: null,
             flatAmount: '1',
             perUnitAmount: '1',
@@ -407,19 +407,19 @@ describe('useVolumeChargeForm()', () => {
       it('should all be disabled if disabled props is true', async () => {
         const volumeRanges = [
           {
-            fromValue: 0,
-            toValue: 1,
+            fromValue: '0',
+            toValue: '1',
             flatAmount: '1',
             perUnitAmount: '2',
           },
           {
-            fromValue: 1,
-            toValue: 2,
+            fromValue: '1',
+            toValue: '2',
             flatAmount: '1',
             perUnitAmount: '1',
           },
           {
-            fromValue: 2,
+            fromValue: '2',
             toValue: null,
             flatAmount: '1',
             perUnitAmount: '1',
@@ -443,19 +443,19 @@ describe('useVolumeChargeForm()', () => {
       it('returns expected results with given props', async () => {
         const volumeRanges = [
           {
-            fromValue: 0,
-            toValue: 100,
+            fromValue: '0',
+            toValue: '100',
             flatAmount: '1',
             perUnitAmount: '1',
           },
           {
-            fromValue: 101,
-            toValue: 500,
+            fromValue: '101',
+            toValue: '500',
             flatAmount: '1',
             perUnitAmount: '0.9',
           },
           {
-            fromValue: 501,
+            fromValue: '501',
             toValue: null,
             flatAmount: '1',
             perUnitAmount: '0.2',
@@ -479,19 +479,19 @@ describe('useVolumeChargeForm()', () => {
       it('should add one row in volumeRanges and update infosCalculation', async () => {
         const volumeRanges = [
           {
-            toValue: 100,
-            fromValue: 0,
+            toValue: '100',
+            fromValue: '0',
             flatAmount: '1',
             perUnitAmount: '1',
           },
           {
-            fromValue: 101,
-            toValue: 500,
+            fromValue: '101',
+            toValue: '500',
             flatAmount: '1',
             perUnitAmount: '0.9',
           },
           {
-            fromValue: 501,
+            fromValue: '501',
             toValue: null,
             flatAmount: '1',
             perUnitAmount: '0.3',
@@ -516,15 +516,15 @@ describe('useVolumeChargeForm()', () => {
           { ...volumeRanges[0], disabledDelete: true },
           { ...volumeRanges[1], disabledDelete: false },
           {
-            toValue: 502,
-            fromValue: 501,
+            toValue: '502',
+            fromValue: '501',
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: false,
           },
           {
             toValue: null,
-            fromValue: 503,
+            fromValue: '503',
             flatAmount: volumeRanges[2].flatAmount,
             perUnitAmount: volumeRanges[2].perUnitAmount,
             disabledDelete: true,
@@ -537,19 +537,19 @@ describe('useVolumeChargeForm()', () => {
       it('should correctly udpate data', async () => {
         const volumeRanges = [
           {
-            fromValue: 0,
-            toValue: 100,
+            fromValue: '0',
+            toValue: '100',
             flatAmount: '1',
             perUnitAmount: '1',
           },
           {
-            fromValue: 101,
-            toValue: 500,
+            fromValue: '101',
+            toValue: '500',
             flatAmount: '1',
             perUnitAmount: '0.9',
           },
           {
-            fromValue: 501,
+            fromValue: '501',
             toValue: null,
             flatAmount: '1',
             perUnitAmount: '0.2',
@@ -563,15 +563,15 @@ describe('useVolumeChargeForm()', () => {
         await act(async () => await result.current.handleUpdate(1, 'toValue', ''))
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
-          { ...{ ...volumeRanges[1], toValue: 0 }, disabledDelete: false },
-          { ...{ ...volumeRanges[2], fromValue: 1, toValue: null }, disabledDelete: true },
+          { ...{ ...volumeRanges[1], toValue: '0' }, disabledDelete: false },
+          { ...{ ...volumeRanges[2], fromValue: '1', toValue: null }, disabledDelete: true },
         ])
 
         await act(async () => await result.current.handleUpdate(1, 'toValue', 30))
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
-          { ...{ ...volumeRanges[1], toValue: 30 }, disabledDelete: false },
-          { ...{ ...volumeRanges[2], fromValue: 31, toValue: null }, disabledDelete: true },
+          { ...{ ...volumeRanges[1], toValue: '30' }, disabledDelete: false },
+          { ...{ ...volumeRanges[2], fromValue: '31', toValue: null }, disabledDelete: true },
         ])
         await act(async () => await result.current.handleUpdate(1, 'toValue', 500))
 
@@ -596,19 +596,19 @@ describe('useVolumeChargeForm()', () => {
       it('should correctly udpate data', async () => {
         const volumeRanges = [
           {
-            fromValue: 0,
-            toValue: 100,
+            fromValue: '0',
+            toValue: '100',
             flatAmount: '1',
             perUnitAmount: '1',
           },
           {
-            fromValue: 101,
-            toValue: 500,
+            fromValue: '101',
+            toValue: '500',
             flatAmount: '1',
             perUnitAmount: '0.9',
           },
           {
-            fromValue: 501,
+            fromValue: '501',
             toValue: null,
             flatAmount: '1',
             perUnitAmount: '0.2',
@@ -626,7 +626,7 @@ describe('useVolumeChargeForm()', () => {
         expect(result.current.tableDatas.length).toBe(2)
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
-          { ...{ ...volumeRanges[2], fromValue: 101 }, disabledDelete: true },
+          { ...{ ...volumeRanges[2], fromValue: '101' }, disabledDelete: true },
         ])
       })
     })
