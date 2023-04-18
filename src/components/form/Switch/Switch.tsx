@@ -95,10 +95,10 @@ export const Switch = ({
           onBlur={() => setFocused(false)}
         />
         {loading && <Loader animation="spin" name="processing" color="light" />}
-        <StyledTypography color={disabled ? 'inherit' : 'contrast'} variant="note">
+        <StyledTypography color={disabled ? 'inherit' : 'contrast'} variant="noteHl">
           On
         </StyledTypography>
-        <StyledTypography color={disabled ? 'inherit' : 'disabled'} variant="note">
+        <StyledTypography color={disabled ? 'inherit' : 'disabled'} variant="noteHl">
           Off
         </StyledTypography>
         <SwitchElement width="24" height="24" viewBox="0 0 24 24" $checked={!!checked}>

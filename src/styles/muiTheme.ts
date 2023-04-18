@@ -512,6 +512,12 @@ export const theme = createTheme({
     note: {
       fontSize: '12px',
       lineHeight: '16px',
+      fontWeight: 400,
+      textTransform: 'none',
+    },
+    noteHl: {
+      fontSize: '12px',
+      lineHeight: '16px',
       fontWeight: 600,
       textTransform: 'none',
     },
