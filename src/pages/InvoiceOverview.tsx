@@ -67,7 +67,6 @@ export const InvoiceOverview = memo(
       ?.reduce<{ creditNote: CreditNote; items: CreditNoteItem[][][] }[]>((acc, cur) => {
         const newItems = formatCreditNotesItems(cur.items as CreditNoteItem[])
 
-        // @ts-ignore
         acc.push({ creditNote: cur, items: newItems })
         return acc
       }, [])

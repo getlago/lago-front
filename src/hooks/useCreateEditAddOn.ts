@@ -75,7 +75,6 @@ export const useCreateEditAddOn: () => UseCreateEditAddOnReturn = () => {
   const { id } = useParams()
   const { data, loading, error } = useGetSingleAddOnQuery({
     context: { silentError: LagoApiError.NotFound },
-    // @ts-ignore
     variables: { id: id as string },
     skip: !id,
   })
