@@ -111,7 +111,6 @@ const CreatePlan = () => {
       description: plan?.description || '',
       interval: plan?.interval || PlanInterval.Monthly,
       payInAdvance: plan?.payInAdvance || false,
-      // @ts-ignore
       amountCents: isNaN(plan?.amountCents)
         ? undefined
         : String(
@@ -125,7 +124,6 @@ const CreatePlan = () => {
             : undefined
           : plan?.trialPeriod,
       billChargesMonthly: plan?.billChargesMonthly || undefined,
-      // @ts-ignore
       charges: plan?.charges
         ? plan?.charges.map(({ properties, groupProperties, ...charge }) => ({
             properties:

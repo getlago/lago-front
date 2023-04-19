@@ -38,7 +38,6 @@ const CreateAddOn = () => {
       name: addOn?.name || '',
       code: addOn?.code || '',
       description: addOn?.description || '',
-      // @ts-ignore
       amountCents: addOn?.amountCents
         ? String(deserializeAmount(addOn?.amountCents, addOn?.amountCurrency))
         : addOn?.amountCents || undefined,

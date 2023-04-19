@@ -153,8 +153,7 @@ export const AddCouponToCustomerDialog = forwardRef<
   })
   const formikProps = useFormik<Omit<FormType, 'customerId'>>({
     initialValues: {
-      // @ts-ignore
-      couponId: undefined,
+      couponId: '',
       amountCents: undefined,
       percentageRate: undefined,
       couponType: CouponTypeEnum.FixedAmount,

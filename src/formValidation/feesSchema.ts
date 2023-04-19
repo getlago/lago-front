@@ -15,18 +15,14 @@ export const simpleFeeSchema = (maxAmount: number, currency: CurrencyEnum) =>
     checked: boolean(),
     value: number()
       .default(0)
-      .when(
-        'checked',
-        // @ts-ignore
-        (checked: boolean, schema: NumberSchema) => {
-          return !!checked
-            ? number()
-                .min(0.0000000000000001, CreditNoteFeeErrorEnum.minZero)
-                .max(deserializeAmount(maxAmount, currency), CreditNoteFeeErrorEnum.overMax)
-                .required('')
-            : schema
-        }
-      ),
+      .when('checked', (checked: boolean, schema: NumberSchema) => {
+        return !!checked
+          ? number()
+              .min(0.0000000000000001, CreditNoteFeeErrorEnum.minZero)
+              .max(deserializeAmount(maxAmount, currency), CreditNoteFeeErrorEnum.overMax)
+              .required('')
+          : schema
+      }),
   })
 
 export const generateFeesSchema = (formikInitialFees: FeesPerInvoice, currency: CurrencyEnum) =>
