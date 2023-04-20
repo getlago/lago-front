@@ -44,9 +44,6 @@ export const inputGlobalStyles = (
         '&:focus, &:active': {
           outline: 'none',
         },
-        '&:active': {
-          transform: 'scale(0.99)',
-        },
       },
       b: {
         fontSize: '16px',

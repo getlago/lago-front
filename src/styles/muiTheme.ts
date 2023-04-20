@@ -294,6 +294,9 @@ export const theme = createTheme({
             backgroundColor: palette.grey[100],
             color: palette.grey[400],
           },
+          '&:active': {
+            transform: 'scale(0.99)',
+          },
         },
         sizeSmall: {
           '&.button-icon-only': {
@@ -310,6 +313,11 @@ export const theme = createTheme({
             padding: '12px',
             minWidth: 'unset',
             width: '48px',
+          },
+        },
+        fullWidth: {
+          '&:active': {
+            transform: 'scale(0.999)',
           },
         },
         endIcon: {
