@@ -11,6 +11,7 @@ const CURRENCIES_WITH_0_DECIMALS = [
   'KMF',
   'KRW',
   'PYG',
+  'CLP',
   'RWF',
   'UGX',
   'VND',
