@@ -57,6 +57,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
   ({ customerId, userCurrency }: AddWalletToCustomerDialogProps, ref) => {
     const { translate } = useInternationalization()
     const [currencyError, setCurrencyError] = useState(false)
+    const currencyPrecision = getCurrencyPrecision(userCurrency || CurrencyEnum.Usd)
     const [createWallet] = useCreateCustomerWalletMutation({
       context: {
         silentErrorCodes: [LagoApiError.UnprocessableEntity],
@@ -116,7 +117,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
         paidCredits: '',
         currency: userCurrency || CurrencyEnum.Usd,
         rateAmount: `1${
-          getCurrencyPrecision(userCurrency || CurrencyEnum.Usd) === 3 ? '.000' : '.00'
+          currencyPrecision === 3 ? '.000' : currencyPrecision === 4 ? '.0000' : '.00'
         }`,
       },
       validationSchema: object().shape({
