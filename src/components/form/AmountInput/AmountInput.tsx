@@ -37,6 +37,8 @@ const defineNewBeforeChangeFormatter = (
     newBeforeChangeFormatter.push('int')
   } else if (getCurrencyPrecision(currency) === 3) {
     newBeforeChangeFormatter.push('triDecimal')
+  } else if (getCurrencyPrecision(currency) === 4) {
+    newBeforeChangeFormatter.push('quadDecimal')
   } else {
     newBeforeChangeFormatter.push('decimal')
   }
@@ -49,6 +51,8 @@ const definedDefaultPlaceholder = (currency: CurrencyEnum, translate: TranslateF
     return translate('text_63971043c9668f1ba5221bac', undefined, 0)
   } else if (getCurrencyPrecision(currency) === 3) {
     return translate('text_63971043c9668f1ba5221bac', undefined, 2)
+  } else if (getCurrencyPrecision(currency) === 4) {
+    return translate('text_644250cc64306c00c12fc2ca')
   }
 
   return translate('text_63971043c9668f1ba5221bac', undefined, 1)

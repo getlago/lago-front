@@ -1,5 +1,6 @@
 import { CurrencyEnum } from '~/generated/graphql'
 
+const CURRENCIES_WITH_4_DECIMALS = ['CLF']
 const CURRENCIES_WITH_3_DECIMALS = ['BHD', 'IQD', 'JOD', 'KWD', 'LYD', 'OMR', 'TND']
 const CURRENCIES_WITH_0_DECIMALS = [
   'CVE',
@@ -31,6 +32,10 @@ export const serializeAmount = (value: string | number, currency: CurrencyEnum) 
     return Math.round(Number(value))
   } else if (precision === 3) {
     return Number((String(Math.round(Number(value) * 1000)).match(/^-?\d+(?:\.\d{0,3})?/) || [])[0])
+  } else if (precision === 4) {
+    return Number(
+      (String(Math.round(Number(value) * 10000)).match(/^-?\d+(?:\.\d{0,4})?/) || [])[0]
+    )
   }
 
   return Number((String(Math.round(Number(value) * 100)).match(/^-?\d+(?:\.\d{0,2})?/) || [])[0])
@@ -46,6 +51,8 @@ export const deserializeAmount = (value: string | number, currency: CurrencyEnum
     return Math.round(Number(value))
   } else if (precision === 3) {
     return Number((String(Number(value) / 1000).match(/^-?\d+(?:\.\d{0,3})?/) || [])[0])
+  } else if (precision === 4) {
+    return Number((String(Number(value) / 10000).match(/^-?\d+(?:\.\d{0,4})?/) || [])[0])
   }
 
   return Number((String(Number(value) / 100).match(/^-?\d+(?:\.\d{0,2})?/) || [])[0])
@@ -56,6 +63,8 @@ export const getCurrencyPrecision = (currency: CurrencyEnum): number => {
     return 0
   } else if (CURRENCIES_WITH_3_DECIMALS.includes(currency)) {
     return 3
+  } else if (CURRENCIES_WITH_4_DECIMALS.includes(currency)) {
+    return 4
   }
 
   return 2
