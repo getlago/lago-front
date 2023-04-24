@@ -90,6 +90,9 @@ gql`
           units
           feeType
           itemName
+          trueUpParentFee {
+            id
+          }
           charge {
             id
             billableMetric {
@@ -524,6 +527,8 @@ const CreditNoteDetails = () => {
                             : 0
 
                           return charge.map((item, k) => {
+                            const isTrueUp = !!item?.fee?.trueUpParentFee?.id
+
                             return (
                               <React.Fragment key={`groupSubscriptionItem-${i}-list-item-${k}`}>
                                 {groupDimension !== 0 && k === 0 && (
@@ -539,16 +544,24 @@ const CreditNoteDetails = () => {
                                   </tr>
                                 )}
                                 <tr key={`groupSubscriptionItem-${i}-charge-${j}-item-${k}`}>
-                                  <TD $pad={groupDimension > 0}>
+                                  <TD $pad={groupDimension > 0 && !isTrueUp}>
                                     <Typography variant="body" color="grey700">
-                                      {groupDimension === 0 ? (
+                                      {groupDimension === 0 || !!isTrueUp ? (
                                         <>
                                           {item?.fee?.feeType === FeeTypesEnum.AddOn
                                             ? translate('text_6388baa2e514213fed583611', {
                                                 name: item?.fee?.itemName,
                                               })
-                                            : item?.fee?.charge?.billableMetric.name ||
-                                              invoiceDisplayName}
+                                            : `${
+                                                item?.fee?.charge?.billableMetric.name ||
+                                                invoiceDisplayName
+                                              }${
+                                                item?.fee?.trueUpParentFee?.id
+                                                  ? ` - ${translate(
+                                                      'text_64463aaa34904c00a23be4f7'
+                                                    )}`
+                                                  : ''
+                                              }`}
                                         </>
                                       ) : (
                                         <>

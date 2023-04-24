@@ -455,7 +455,11 @@ const CreateCreditNote = () => {
                                   key={child?.id}
                                   formikProps={formikProps}
                                   currency={invoice?.amountCurrency || CurrencyEnum.Usd}
-                                  feeName={child?.name || ''}
+                                  feeName={`${child?.name}${
+                                    child.isTrueUpFee
+                                      ? ` - ${translate('text_64463aaa34904c00a23be4f7')}`
+                                      : ''
+                                  }`}
                                   formikKey={`fees.${subKey}.fees.${groupFeeKey}`}
                                   maxValue={child?.maxAmount || 0}
                                 />
