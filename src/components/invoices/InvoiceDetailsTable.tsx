@@ -1,22 +1,22 @@
 import React, { memo } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
-import _ from 'lodash'
 
 import { Skeleton, Typography } from '~/components/designSystem'
 import {
   AggregationTypeEnum,
   CurrencyEnum,
   Customer,
-  FeeTypesEnum,
   Invoice,
   InvoiceForDetailsTableFooterFragmentDoc,
+  InvoiceSubscription,
   InvoiceTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import formatInvoiceItemsMap from '~/core/formats/formatInvoiceItemsMap'
 
 import { InvoiceDetailsTableHeader } from './InvoiceDetailsTableHeader'
 import { InvoiceDetailsTableFooter } from './InvoiceDetailsTableFooter'
@@ -53,8 +53,6 @@ gql`
       subscription {
         id
         name
-        subscriptionAt
-        periodEndDate
         plan {
           id
           name
@@ -149,27 +147,25 @@ export const InvoiceDetailsTable = memo(
       )
     }
 
+    const formattedInvoiceItemsMap = formatInvoiceItemsMap(
+      invoice?.invoiceSubscriptions as InvoiceSubscription[]
+    )
+
     return (
       <Wrapper>
-        {invoice?.invoiceSubscriptions?.map((invoiceSubscription, i) => {
-          const subscription = invoiceSubscription.subscription
-          const invoiceDisplayName = !!subscription
-            ? subscription?.name || subscription?.plan?.name
-            : ''
-
-          return (
-            <React.Fragment key={`invoiceSubscription=${i}`}>
-              <table className="main-table">
-                <InvoiceDetailsTableHeader
-                  displayName={translate('text_634d631acf4dce7b0127a39a', {
-                    invoiceDisplayName,
-                  })}
-                />
-              </table>
-              {invoiceSubscription.fees
-                ?.filter((fee) => fee.feeType === FeeTypesEnum.Subscription)
-                .map((fee, j) => {
-                  const plan = subscription?.plan
+        {formattedInvoiceItemsMap.map(
+          ({ currentSubscription, invoiceDisplayName, subscriptionFees, remainingFees }, i) => {
+            return (
+              <React.Fragment key={`invoiceSubscription=${i}`}>
+                <table className="main-table">
+                  <InvoiceDetailsTableHeader
+                    displayName={translate('text_634d631acf4dce7b0127a39a', {
+                      invoiceDisplayName,
+                    })}
+                  />
+                </table>
+                {subscriptionFees?.map((fee, j) => {
+                  const plan = currentSubscription?.plan
                   const planInterval = `${plan?.interval
                     ?.charAt(0)
                     ?.toUpperCase()}${plan?.interval?.slice(1)}`
@@ -204,17 +200,8 @@ export const InvoiceDetailsTable = memo(
                     </table>
                   )
                 })}
-              {_.chain(invoiceSubscription.fees)
-                ?.filter((fee) => fee.feeType !== FeeTypesEnum.Subscription)
-                .groupBy((fee) => fee?.charge?.id)
-                .map((fees, j) => {
-                  const totalAmountCents = fees.reduce(
-                    (acc, cur) => (acc += Number(cur.amountCents)),
-                    0
-                  )
-                  const totalUnits = fees.reduce((acc, cur) => (acc += Number(cur.units)), 0)
-
-                  if (totalAmountCents === 0) return
+                {remainingFees.map((fee, j) => {
+                  if (Number(fee.units) === 0) return
 
                   return (
                     <table key={`invoiceSubscription-${i}-fee-${j}`}>
@@ -238,25 +225,28 @@ export const InvoiceDetailsTable = memo(
                         ) : (
                           <>
                             <tr>
-                              <td>
+                              <PaddedTd $pad={!!fee.isGroupChildFee}>
                                 <Typography variant="body" color="grey700">
-                                  {fees[0]?.charge?.billableMetric.name}
+                                  {fee.displayName}
+                                  {!!fee.isTrueUpFee
+                                    ? ` - ${translate('text_64463aaa34904c00a23be4f7')}`
+                                    : ''}
                                 </Typography>
-                              </td>
-                              <td>
+                              </PaddedTd>
+                              <PaddedTd $pad={!!fee.isGroupChildFee}>
                                 <Typography variant="body" color="grey700">
-                                  {fees[0]?.charge?.billableMetric?.aggregationType ===
+                                  {fee?.charge?.billableMetric?.aggregationType ===
                                   AggregationTypeEnum.RecurringCountAgg
                                     ? '-'
-                                    : `${totalUnits}`}
+                                    : `${fee.units}`}
                                 </Typography>
-                              </td>
-                              <td>
-                                {fees.length === 1 && (
+                              </PaddedTd>
+                              <PaddedTd $pad={!!fee.isGroupChildFee}>
+                                {!fee.isGroupParentFee && (
                                   <Typography variant="body" color="grey700">
                                     {intlFormatNumber(
                                       deserializeAmount(
-                                        fees[0].amountCents || 0,
+                                        fee.amountCents || 0,
                                         customer?.currency || CurrencyEnum.Usd
                                       ),
                                       {
@@ -266,55 +256,18 @@ export const InvoiceDetailsTable = memo(
                                     )}
                                   </Typography>
                                 )}
-                              </td>
+                              </PaddedTd>
                             </tr>
-                            {fees.length > 1 &&
-                              fees.map((fee, k) => {
-                                if (Number(fee.units) === 0) return
-
-                                return (
-                                  <tr key={`invoiceSubscription-${i}-fee-${j}-charge-${k}`}>
-                                    <PaddedTd>
-                                      <Typography variant="body" color="grey700">
-                                        <span>{fee.group?.key && `${fee.group?.key} • `}</span>
-                                        <span>{fee.group?.value}</span>
-                                      </Typography>
-                                    </PaddedTd>
-                                    <PaddedTd>
-                                      <Typography variant="body" color="grey700">
-                                        {fee?.charge?.billableMetric?.aggregationType ===
-                                        AggregationTypeEnum.RecurringCountAgg
-                                          ? '-'
-                                          : `${fee.units}`}
-                                      </Typography>
-                                    </PaddedTd>
-                                    <PaddedTd>
-                                      <Typography variant="body" color="grey700">
-                                        {intlFormatNumber(
-                                          deserializeAmount(
-                                            fee.amountCents || 0,
-                                            customer?.currency || CurrencyEnum.Usd
-                                          ),
-                                          {
-                                            currencyDisplay: 'symbol',
-                                            currency: customer?.currency || CurrencyEnum.Usd,
-                                          }
-                                        )}
-                                      </Typography>
-                                    </PaddedTd>
-                                  </tr>
-                                )
-                              })}
                           </>
                         )}
                       </tbody>
                     </table>
                   )
-                })
-                .value()}
-            </React.Fragment>
-          )
-        })}
+                })}
+              </React.Fragment>
+            )
+          }
+        )}
         <table id="table">
           <InvoiceDetailsTableFooter invoice={invoice} loading={loading} />
         </table>
@@ -402,8 +355,8 @@ const Wrapper = styled.section`
   }
 `
 
-const PaddedTd = styled.td`
-  padding-left: ${theme.spacing(8)};
+const PaddedTd = styled.td<{ $pad: boolean }>`
+  padding-left: ${({ $pad }) => ($pad ? theme.spacing(8) : 0)};
 `
 
 const RightSkeleton = styled(Skeleton)`
