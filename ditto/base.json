@@ -439,6 +439,7 @@
   "text_64358e074a3b7500714f2579": "Instant charges",
   "text_64358e074a3b7500714f257a": "Lago bills instant charges upon receiving the event and resets aggregations at the end of the billing period.",
   "text_643e592657fc1ba5ce110b9e": "Add a spending minimum",
+  "text_64463aaa34904c00a23be4f7": "True-up",
   "text_643e592657fc1ba5ce110c30": "Spending minimum",
   "text_643e592657fc1ba5ce110c80": "0.00",
   "text_634ea0ecc6147de10ddb6625": "GoCardless",
