@@ -37,6 +37,9 @@ gql`
           units
           feeType
           itemName
+          trueUpParentFee {
+            id
+          }
           charge {
             id
             billableMetric {
@@ -157,8 +160,16 @@ export const InvoiceCreditNotesTable = memo(
                                                 ? translate('text_6388baa2e514213fed583611', {
                                                     name: item?.fee?.itemName,
                                                   })
-                                                : item.fee.charge?.billableMetric.name ||
-                                                  creditNoteDisplayName}
+                                                : `${
+                                                    item.fee.charge?.billableMetric.name ||
+                                                    creditNoteDisplayName
+                                                  }${
+                                                    item?.fee?.trueUpParentFee?.id
+                                                      ? ` - ${translate(
+                                                          'text_64463aaa34904c00a23be4f7'
+                                                        )}`
+                                                      : ''
+                                                  }`}
                                             </>
                                           ) : (
                                             <>

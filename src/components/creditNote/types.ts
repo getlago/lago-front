@@ -7,6 +7,7 @@ export type FromFee = {
   name: string
   value: string | number
   vatRate: number
+  isTrueUpFee?: boolean
 }
 
 export type GroupedFee = {

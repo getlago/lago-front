@@ -13,6 +13,7 @@ import {
   CreateCreditNoteInvoiceFragmentDoc,
   InvoiceTypeEnum,
   CurrencyEnum,
+  Fee,
 } from '~/generated/graphql'
 import { ERROR_404_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { hasDefinedGQLError, addToast } from '~/core/apolloClient'
@@ -28,6 +29,9 @@ gql`
     feeType
     vatRate
     creditableAmountCents
+    trueUpFee {
+      id
+    }
     charge {
       id
       billableMetric {
@@ -53,6 +57,9 @@ gql`
       itemName
       creditableAmountCents
       vatRate
+      trueUpFee {
+        id
+      }
     }
     invoiceSubscriptions {
       subscription {
@@ -156,9 +163,57 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
   const feesPerInvoice = useMemo(() => {
     return data?.invoice?.invoiceSubscriptions?.reduce<FeesPerInvoice>(
       (subAcc, invoiceSubscription) => {
-        const groupedFees = _groupBy(invoiceSubscription?.fees, 'charge.id') as {
+        const trueUpFeeIds = invoiceSubscription?.fees?.reduce<string[]>((acc, fee) => {
+          if (fee?.trueUpFee?.id) {
+            acc.push(fee?.trueUpFee?.id)
+          }
+
+          return acc
+        }, [])
+
+        // We need to reorder fees to have true up fees after their "parent" related charge
+        const reorderFees = (unorderedData: Fee[]) => {
+          if (!unorderedData.length || trueUpFeeIds?.length === 0) return unorderedData
+
+          const feesWithoutTrueUpOnes = invoiceSubscription?.fees?.filter(
+            (fee) => !trueUpFeeIds?.includes(fee?.id)
+          )
+          const newFees = []
+
+          for (let i = 0; i < (feesWithoutTrueUpOnes || []).length; i++) {
+            const currentFee = (feesWithoutTrueUpOnes || [])[i]
+
+            if (!currentFee?.trueUpFee?.id) {
+              newFees.push(currentFee)
+            } else {
+              const relatedTrueUpFee = unorderedData.find(
+                (fee) => fee.id === currentFee.trueUpFee?.id
+              )
+
+              newFees.push(currentFee)
+              newFees.push(relatedTrueUpFee)
+            }
+          }
+
+          return newFees
+        }
+
+        const orderedData = reorderFees(invoiceSubscription?.fees as Fee[])
+
+        const groupedFees = _groupBy(orderedData, (fee) => {
+          // Custom group_by
+          // either charge alone, group charge or true up fee
+          if (!fee?.charge && !fee?.group && !fee?.trueUpFee) {
+            return undefined
+          } else if (!!fee?.charge?.id && fee?.group?.value) {
+            return fee?.charge?.id
+          }
+
+          return fee?.id
+        }) as {
           [key: string]: InvoiceFeeFragment[]
         }
+
         const subscriptionName: string =
           invoiceSubscription?.subscription?.name || invoiceSubscription?.subscription?.plan?.name
 
@@ -173,6 +228,8 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
                   checked: true,
                   value: deserializeAmount(fee?.creditableAmountCents, fee.amountCurrency),
                   name: subscriptionName,
+                  isTrueUpFee: trueUpFeeIds?.includes(fee?.id),
+                  trueUpFee: fee?.trueUpFee,
                   maxAmount: fee?.creditableAmountCents,
                   vatRate: fee?.vatRate,
                 },
@@ -197,11 +254,14 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
                 checked: true,
                 value: deserializeAmount(firstFee?.creditableAmountCents, firstFee.amountCurrency),
                 name: firstFee?.charge?.billableMetric?.name,
+                isTrueUpFee: trueUpFeeIds?.includes(firstFee?.id),
+                trueUpFee: firstFee?.trueUpFee,
                 maxAmount: firstFee?.creditableAmountCents,
                 vatRate: firstFee?.vatRate,
               },
             }
           }
+
           const grouped = feeGroup.reduce((accFee, feeGrouped) => {
             if (
               feeGrouped?.creditableAmountCents === '0' ||
