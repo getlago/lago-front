@@ -95,7 +95,7 @@
     "@mui/material": "5.11.12",
     "@mui/styled-engine": "5.11.11",
     "@mui/styled-engine-sc": "5.11.11",
-    "@mui/x-date-pickers": "5.0.20",
+    "@mui/x-date-pickers": "6.2.1",
     "@sentry/react": "7.46.0",
     "@sentry/tracing": "7.46.0",
     "apollo-link-timeout": "4.0.0",
