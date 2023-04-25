@@ -121,13 +121,16 @@ export const ChargeAccordion = memo(
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
     const localCharge = formikProps.values.charges[index]
+    const initialLocalCharge = formikProps.initialValues.charges[index]
     const [showSpendingMinimum, setShowSpendingMinimum] = useState(
-      !!localCharge.minAmountCents && Number(localCharge.minAmountCents) > 0
+      !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0
     )
 
     useEffect(() => {
-      setShowSpendingMinimum(!!localCharge.minAmountCents && Number(localCharge.minAmountCents) > 0)
-    }, [localCharge.minAmountCents])
+      setShowSpendingMinimum(
+        !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0
+      )
+    }, [initialLocalCharge?.minAmountCents])
 
     const handleUpdate = useCallback(
       (name: string, value: string | boolean) => {
