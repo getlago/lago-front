@@ -651,7 +651,7 @@ const DesignSystem = () => {
             component: (
               <Container>
                 <Form onSubmit={(e) => e.preventDefault()}>
-                  <GroupTitle variant="headline">Form</GroupTitle>
+                  {/* <GroupTitle variant="headline">Form</GroupTitle>
 
                   <GroupTitle variant="subhead">Checkbox</GroupTitle>
 
@@ -984,13 +984,13 @@ const DesignSystem = () => {
                   </Block>
 
                   <GroupTitle variant="subhead">DatePicker</GroupTitle>
-                  <Block $childMinWidth="325px" $marginBottom={theme.spacing(6)}>
-                    <DatePickerField
-                      name="date"
-                      label="When is Morguy's birthday ?"
-                      formikProps={formikProps}
-                    />
-                    <DatePickerField
+                  <Block $childMinWidth="325px" $marginBottom={theme.spacing(6)}> */}
+                  <DatePickerField
+                    name="date"
+                    label="When is Morguy's birthday ?"
+                    formikProps={formikProps}
+                  />
+                  {/* <DatePickerField
                       name="date"
                       label="DatePicker with helper"
                       helperText="I'm here to help"
@@ -1084,7 +1084,7 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <Button onClick={formikProps.submitForm}>Check your answers</Button>
+                  <Button onClick={formikProps.submitForm}>Check your answers</Button> */}
                 </Form>
               </Container>
             ),

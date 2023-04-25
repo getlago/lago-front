@@ -1,15 +1,16 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon'
 import { DatePicker as MuiDatePicker } from '@mui/x-date-pickers/DatePicker'
-import { PopperProps as MuiPopperProps } from '@mui/material'
+import { PopperProps as MuiPopperProps, Popper as MuiPopper } from '@mui/material'
+// import Popper from '@mui/material/Popper'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import _omit from 'lodash/omit'
 
 import { TextInput, TextInputProps } from '~/components/form'
 import { theme } from '~/styles'
-import { Button, Tooltip } from '~/components/designSystem'
+import { Button, Popper, Tooltip } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export enum DATE_PICKER_ERROR_ENUM {
@@ -27,6 +28,7 @@ export interface DatePickerProps
   helperText?: string
   disableFuture?: boolean
   disablePast?: boolean
+  disabled?: boolean
   placement?: MuiPopperProps['placement']
   onError?: (err: keyof typeof DATE_PICKER_ERROR_ENUM | undefined) => void
   onChange: (value?: string | null) => void
@@ -49,6 +51,7 @@ export const DatePicker = ({
   onChange,
   ...props
 }: DatePickerProps) => {
+  const openerRef = useRef(null)
   const [localDate, setLocalDate] = useState<DateTime | null>(
     /**
      * Date will be passed to the parent as ISO
@@ -68,50 +71,13 @@ export const DatePicker = ({
 
   return (
     <LocalizationProvider dateAdapter={AdapterLuxon}>
-      <Container className={className}>
+      <Container ref={openerRef} className={className}>
         <MuiDatePicker
-          inputFormat="MM/dd/yyyy"
+          format="MM/dd/yyyy"
           disableFuture={disableFuture}
           disabled={disabled}
           disablePast={disablePast}
           value={localDate}
-          PopperProps={{
-            disablePortal: true,
-            placement,
-            style: { paddingBottom: theme.spacing(4) },
-            modifiers: [
-              {
-                name: 'flip',
-                enabled: false,
-              },
-              {
-                name: 'offset',
-                enabled: true,
-                options: {
-                  // @ts-ignore
-                  offset: ({ reference }) => {
-                    // Re-calculate picker position if placed on the left.
-                    // Removes the input width and twice the picker icon "box" (24*2)
-                    if (placement.includes('left')) {
-                      return [0, -(reference.width - 48)]
-                    }
-
-                    return [0, 8]
-                  },
-                },
-              },
-            ],
-          }}
-          PaperProps={{
-            style: {
-              border: `1px solid ${theme.palette.grey[200]}`,
-              boxShadow: '0px 6px 8px 0px #19212E1F',
-              width: '352px',
-              padding: `${theme.spacing(6)} 0 ${theme.spacing(6)} 0`,
-              boxSizing: 'border-box',
-              height: '408px',
-            },
-          }}
           onChange={(date) => {
             setLocalDate(!date ? date : (date as unknown as DateTime).toUTC())
 
@@ -127,38 +93,38 @@ export const DatePicker = ({
               onError && onError(DATE_PICKER_ERROR_ENUM.invalid)
             }
           }}
-          renderInput={({ inputRef, inputProps, InputProps }) => {
-            return (
-              <TextInput
-                {...props}
-                error={isInvalid ? 'text_62cd78ea9bff25e3391b2459' : error}
-                ref={inputRef}
-                placeholder={placeholder || translate('text_62cd78ea9bff25e3391b243d')}
-                inputProps={_omit(inputProps, 'placeholder', 'error')}
-                disabled={disabled}
-                InputProps={{
-                  endAdornment: (
-                    <Tooltip
-                      title={translate('text_62cd78ea9bff25e3391b2437')}
-                      placement="top-end"
-                      disableHoverListener={disabled}
-                    >
-                      <CalendarButton
-                        disabled={disabled}
-                        icon="calendar"
-                        size="small"
-                        variant="quaternary"
-                        // @ts-ignore
-                        onClick={InputProps?.endAdornment?.props?.children?.props?.onClick}
-                      />
-                    </Tooltip>
-                  ),
-                }}
-              />
-            )
-          }}
-          components={{
-            SwitchViewButton: ({ onClick }: OveridableComponentProps) => {
+          slots={{
+            field: ({ inputRef, inputProps, InputProps }) => {
+              return (
+                <TextInput
+                  {...props}
+                  error={isInvalid ? 'text_62cd78ea9bff25e3391b2459' : error}
+                  ref={inputRef}
+                  placeholder={placeholder || translate('text_62cd78ea9bff25e3391b243d')}
+                  inputProps={_omit(inputProps, 'placeholder', 'error')}
+                  disabled={disabled}
+                  InputProps={{
+                    endAdornment: (
+                      <Tooltip
+                        title={translate('text_62cd78ea9bff25e3391b2437')}
+                        placement="top-end"
+                        disableHoverListener={disabled}
+                      >
+                        <CalendarButton
+                          disabled={disabled}
+                          icon="calendar"
+                          size="small"
+                          variant="quaternary"
+                          // @ts-ignore
+                          onClick={InputProps?.endAdornment?.props?.children?.props?.onClick}
+                        />
+                      </Tooltip>
+                    ),
+                  }}
+                />
+              )
+            },
+            switchViewButton: ({ onClick }: OveridableComponentProps) => {
               return (
                 <Button
                   variant="quaternary"
@@ -169,7 +135,7 @@ export const DatePicker = ({
                 />
               )
             },
-            LeftArrowButton: ({ onClick }: OveridableComponentProps) => {
+            previousIconButton: ({ onClick }: OveridableComponentProps) => {
               return (
                 <Button
                   variant="quaternary"
@@ -179,7 +145,7 @@ export const DatePicker = ({
                 />
               )
             },
-            RightArrowButton: ({ onClick }: OveridableComponentProps) => {
+            nextIconButton: ({ onClick }: OveridableComponentProps) => {
               return (
                 <Button
                   variant="quaternary"
@@ -189,12 +155,97 @@ export const DatePicker = ({
                 />
               )
             },
+            // popper: ({ open }) => {
+            //   return (
+            //     <MuiPopper
+            //       id="yoooo"
+            //       open={true}
+            //       disablePortal={true}
+            //       placement={placement}
+            //       // style="paddingBottom: theme.spacing(4)"
+            //       modifiers={[
+            //         {
+            //           name: 'flip',
+            //           enabled: false,
+            //         },
+            //         {
+            //           name: 'offset',
+            //           enabled: true,
+            //           options: {
+            //             // @ts-ignore
+            //             offset: ({ reference }) => {
+            //               // Re-calculate picker position if placed on the left.
+            //               // Removes the input width and twice the picker icon "box" (24*2)
+            //               if (placement.includes('left')) {
+            //                 return [0, -(reference.width - 48)]
+            //               }
+
+            //               return [0, 8]
+            //             },
+            //           },
+            //         },
+            //       ]}
+            //     />
+            //   )
+            // },
           }}
         />
       </Container>
     </LocalizationProvider>
   )
+
+  return (
+    <LocalizationProvider dateAdapter={AdapterLuxon}>
+      <Container ref={openerRef} className={className}>
+        <MuiDatePicker
+        // PopperProps={{
+        //   disablePortal: true,
+        //   placement,
+        //   style: { paddingBottom: theme.spacing(4) },
+        // modifiers: [
+        //   {
+        //     name: 'flip',
+        //     enabled: false,
+        //   },
+        //   {
+        //     name: 'offset',
+        //     enabled: true,
+        //     options: {
+        //       // @ts-ignore
+        //       offset: ({ reference }) => {
+        //         // Re-calculate picker position if placed on the left.
+        //         // Removes the input width and twice the picker icon "box" (24*2)
+        //         if (placement.includes('left')) {
+        //           return [0, -(reference.width - 48)]
+        //         }
+
+        //         return [0, 8]
+        //       },
+        //     },
+        //   },
+        // ],
+        // }}
+        // PaperProps={{
+        //   style: {
+        //     border: `1px solid ${theme.palette.grey[200]}`,
+        //     boxShadow: '0px 6px 8px 0px #19212E1F',
+        //     width: '352px',
+        //     padding: `${theme.spacing(6)} 0 ${theme.spacing(6)} 0`,
+        //     boxSizing: 'border-box',
+        //     height: '408px',
+        //   },
+        // }}
+        />
+      </Container>
+    </LocalizationProvider>
+  )
 }
+
+// const StyledPopper = styled(MuiPopper)<{ $minWidth?: number; $displayInDialog?: boolean }>`
+//   min-width: ${({ $minWidth }) => $minWidth}px;
+//   z-index: ${({ $displayInDialog }) =>
+//     $displayInDialog ? theme.zIndex.dialog + 1 : theme.zIndex.popper};
+// `
 
 const Container = styled.div`
   position: relative;
