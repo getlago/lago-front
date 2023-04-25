@@ -123,7 +123,9 @@ export const CreditNoteFormCalculation = ({
   const hasCreditOrCoupon =
     (invoice?.creditableAmountCents || 0) > (invoice?.refundableAmountCents || 0)
   const totalTaxIncluded =
-    !!totalExcludedVat && vatAmount !== undefined ? totalExcludedVat + vatAmount : undefined
+    !!totalExcludedVat && vatAmount !== undefined
+      ? (Number(totalExcludedVat + vatAmount || 0) * 100) / 100
+      : undefined
   const payBack = formikProps.values.payBack || []
 
   useEffect(() => {
