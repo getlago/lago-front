@@ -79,6 +79,7 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             chargeModel: ChargeModelEnum.Graduated,
+            minAmountCents: 100.03,
             billableMetric: {
               id: '1234',
               name: 'simpleBM',
@@ -102,6 +103,7 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             billableMetricId: '1234',
+            minAmountCents: 10003,
             chargeModel: 'graduated',
             groupProperties: undefined,
             properties: {
@@ -171,6 +173,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             chargeModel: 'package',
             groupProperties: undefined,
+            minAmountCents: 0,
             properties: {
               amount: '1',
               fixedAmount: '2',
@@ -226,6 +229,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             chargeModel: 'percentage',
+            minAmountCents: 0,
             groupProperties: undefined,
             properties: {
               amount: undefined,
@@ -282,6 +286,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             chargeModel: 'standard',
+            minAmountCents: 0,
             groupProperties: undefined,
             properties: {
               amount: '1',
@@ -338,6 +343,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             chargeModel: 'volume',
+            minAmountCents: 0,
             groupProperties: undefined,
             properties: {
               amount: '1',
