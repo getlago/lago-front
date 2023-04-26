@@ -4,7 +4,7 @@
 
   // List of extensions which should be recommended for users of this workspace.
   "recommendations": [
-    "jpoissonnier.vscode-styled-components",
+    "styled-components.vscode-styled-components",
     "kumar-harsh.graphql-for-vscode",
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
