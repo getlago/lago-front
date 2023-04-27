@@ -68,15 +68,12 @@ const AddCustomValueIcon = styled(Icon)`
 
 export const Item = styled.div<{ $virtualized?: boolean }>`
   && {
-    padding: 0 ${theme.spacing(4)};
     min-height: ${ITEM_HEIGHT}px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
     border-radius: 12px;
     cursor: pointer;
-    margin-left: ${theme.spacing(2)};
-    margin-right: ${theme.spacing(2)};
     width: ${({ $virtualized }) => ($virtualized ? 'initial' : 'inherit')};
     box-sizing: border-box;
   }
