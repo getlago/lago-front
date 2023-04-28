@@ -17,6 +17,9 @@ module.exports = {
   "project_637b4d9f764dcb190431ad4d": {
     "base": require('./-ready-for-dev---coupons---apply-several-coupons-to-customer__base.json')
   },
+  "project_644b9f169e8c4336fd0ad060": {
+    "base": require('./-ready-for-dev---coupons---coupon-amount-based-on-total-excluding-tax__base.json')
+  },
   "project_632d6831010fafe9382b616d": {
     "base": require('./-ready-for-dev---coupons---create--and-recurring-coupons__base.json')
   },

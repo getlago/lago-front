@@ -237,5 +237,10 @@ sources:
       fileName: ⚙️ [WIP] - Coupons - Coupon limited to a billable metric
     - name: 👍 [Ready for dev] - Plans - Set a minimum spending on charges
       id: 643e59213ea23c04674eba8c
+      fileName: 👍 [Ready for dev] - Plans - Set a minimum spending on charges
+    - name: >-
+        👍 [Ready for dev] - Coupons - Coupon amount based on total excluding
+        tax
+      id: 644b9f169e8c4336fd0ad060
 format: flat
 variants: true
