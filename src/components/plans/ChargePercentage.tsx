@@ -104,8 +104,6 @@ export const ChargePercentage = ({
           <Amount
             name={`${propertyCursor}.fixedAmount`}
             currency={currency}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
             beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
             disabled={disabled}
             label={translate('text_62ff5d01a306e274d4ffcc1e')}

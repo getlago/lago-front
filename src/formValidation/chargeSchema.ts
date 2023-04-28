@@ -14,8 +14,8 @@ const packageShape = object().shape({
 })
 
 const percentageShape = object().shape({
-  rate: number().min(0.001, 'text_62a0b7107afa2700a65ef70e').required(''),
-  fixedAmount: number().min(0.0000000000000001, 'text_62a0b7107afa2700a65ef70e'),
+  rate: number().required(''),
+  fixedAmount: number(),
   freeUnitsPerEvents: number(),
   freeUnitsPerTotalAggregation: number(),
 })

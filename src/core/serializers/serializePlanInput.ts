@@ -47,7 +47,8 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
       ? {
           amount: undefined,
           freeUnitsPerEvents: Number(properties?.freeUnitsPerEvents) || undefined,
-          fixedAmount: !!properties?.fixedAmount ? String(properties?.fixedAmount) : undefined,
+          fixedAmount:
+            Number(properties?.fixedAmount || 0) > 0 ? String(properties?.fixedAmount) : undefined,
           freeUnitsPerTotalAggregation: !!properties?.freeUnitsPerTotalAggregation
             ? String(properties?.freeUnitsPerTotalAggregation)
             : undefined,
