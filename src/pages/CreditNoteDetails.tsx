@@ -55,10 +55,12 @@ gql`
       id
       balanceAmountCents
       canBeVoided
+      couponsAdjustmentAmountCents
       createdAt
       creditAmountCents
       creditAmountCurrency
       creditStatus
+      currency
       number
       refundAmountCents
       refundedAt
@@ -575,6 +577,7 @@ const CreditNoteDetails = () => {
                                   </TD>
                                   <td>
                                     <Typography variant="body" color="success600">
+                                      -
                                       {intlFormatNumber(
                                         deserializeAmount(
                                           item.amountCents || 0,
@@ -600,6 +603,30 @@ const CreditNoteDetails = () => {
               {!loading && (
                 <table>
                   <tfoot>
+                    {Number(creditNote?.couponsAdjustmentAmountCents || 0) > 0 && (
+                      <tr>
+                        <td></td>
+                        <td>
+                          <Typography variant="bodyHl" color="grey600">
+                            {translate('text_644b9f17623605a945cafdbb')}
+                          </Typography>
+                        </td>
+                        <td>
+                          <Typography variant="body" color="grey700">
+                            {intlFormatNumber(
+                              deserializeAmount(
+                                creditNote?.couponsAdjustmentAmountCents || 0,
+                                creditNote?.currency || CurrencyEnum.Usd
+                              ),
+                              {
+                                currencyDisplay: 'symbol',
+                                currency: creditNote?.currency || CurrencyEnum.Usd,
+                              }
+                            )}
+                          </Typography>
+                        </td>
+                      </tr>
+                    )}
                     <tr>
                       <td></td>
                       <td>
@@ -609,6 +636,7 @@ const CreditNoteDetails = () => {
                       </td>
                       <td>
                         <Typography variant="body" color="success600">
+                          -
                           {intlFormatNumber(
                             deserializeAmount(
                               creditNote?.subTotalVatExcludedAmountCents || 0,
@@ -632,6 +660,7 @@ const CreditNoteDetails = () => {
                       </td>
                       <td>
                         <Typography variant="body" color="success600">
+                          -
                           {intlFormatNumber(
                             deserializeAmount(
                               creditNote?.vatAmountCents || 0,
@@ -655,6 +684,7 @@ const CreditNoteDetails = () => {
                         </td>
                         <td>
                           <Typography variant="body" color="success600">
+                            -
                             {intlFormatNumber(
                               deserializeAmount(
                                 creditNote?.creditAmountCents || 0,
@@ -679,6 +709,7 @@ const CreditNoteDetails = () => {
                         </td>
                         <td>
                           <Typography variant="body" color="success600">
+                            -
                             {intlFormatNumber(
                               deserializeAmount(
                                 creditNote?.refundAmountCents || 0,
@@ -702,6 +733,7 @@ const CreditNoteDetails = () => {
                       </td>
                       <td>
                         <Typography variant="body" color="success600">
+                          -
                           {intlFormatNumber(
                             deserializeAmount(
                               creditNote?.totalAmountCents || 0,

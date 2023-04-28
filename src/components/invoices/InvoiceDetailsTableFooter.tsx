@@ -19,6 +19,7 @@ gql`
     currency
     vatAmountCents
     prepaidCreditAmountCents
+    versionNumber
   }
 `
 
@@ -31,6 +32,7 @@ export const InvoiceDetailsTableFooter = memo(
   ({ invoice, loading }: InvoiceDetailsTableFooterProps) => {
     const { translate } = useInternationalization()
     const currency = invoice?.currency || CurrencyEnum.Usd
+    const isLegacyInvoice = invoice?.versionNumber < 3
 
     return (
       <tfoot>
@@ -52,6 +54,30 @@ export const InvoiceDetailsTableFooter = memo(
           <>
             {invoice.invoiceType !== InvoiceTypeEnum.Credit && (
               <>
+                {invoice.status !== InvoiceStatusTypeEnum.Draft &&
+                  !!Number(invoice?.couponsAmountCents) &&
+                  !isLegacyInvoice && (
+                    <tr>
+                      <td></td>
+                      <td>
+                        <Typography variant="bodyHl" color="grey600">
+                          {translate('text_637ccf8133d2c9a7d11ce705')}
+                        </Typography>
+                      </td>
+                      <td>
+                        <Typography variant="body" color="success600">
+                          -
+                          {intlFormatNumber(
+                            deserializeAmount(invoice?.couponsAmountCents || 0, currency),
+                            {
+                              currencyDisplay: 'symbol',
+                              currency,
+                            }
+                          )}
+                        </Typography>
+                      </td>
+                    </tr>
+                  )}
                 <tr>
                   <td></td>
                   <td>
@@ -65,7 +91,7 @@ export const InvoiceDetailsTableFooter = memo(
                         deserializeAmount(invoice?.subTotalVatExcludedAmountCents || 0, currency),
                         {
                           currencyDisplay: 'symbol',
-                          currency: currency,
+                          currency,
                         }
                       )}
                     </Typography>
@@ -82,7 +108,7 @@ export const InvoiceDetailsTableFooter = memo(
                     <Typography variant="body" color="grey700">
                       {intlFormatNumber(deserializeAmount(invoice?.vatAmountCents || 0, currency), {
                         currencyDisplay: 'symbol',
-                        currency: currency,
+                        currency,
                       })}
                     </Typography>
                   </td>
@@ -100,7 +126,7 @@ export const InvoiceDetailsTableFooter = memo(
                         deserializeAmount(invoice?.subTotalVatIncludedAmountCents || 0, currency),
                         {
                           currencyDisplay: 'symbol',
-                          currency: currency,
+                          currency,
                         }
                       )}
                     </Typography>
@@ -118,63 +144,65 @@ export const InvoiceDetailsTableFooter = memo(
                 </td>
                 <td>
                   <Typography variant="body" color="success600">
+                    -
                     {intlFormatNumber(
                       deserializeAmount(invoice?.creditNotesAmountCents || 0, currency),
                       {
                         currencyDisplay: 'symbol',
-                        currency: currency,
+                        currency,
                       }
                     )}
                   </Typography>
                 </td>
               </tr>
             )}
-            {invoice.status !== InvoiceStatusTypeEnum.Draft && (
-              <>
-                {!!Number(invoice?.couponsAmountCents) && (
-                  <tr>
-                    <td></td>
-                    <td>
-                      <Typography variant="bodyHl" color="grey600">
-                        {translate('text_637ccf8133d2c9a7d11ce705')}
-                      </Typography>
-                    </td>
-                    <td>
-                      <Typography variant="body" color="success600">
-                        {intlFormatNumber(
-                          deserializeAmount(invoice?.couponsAmountCents || 0, currency),
-                          {
-                            currencyDisplay: 'symbol',
-                            currency: currency,
-                          }
-                        )}
-                      </Typography>
-                    </td>
-                  </tr>
-                )}
-                {!!Number(invoice?.prepaidCreditAmountCents) && (
-                  <tr>
-                    <td></td>
-                    <td>
-                      <Typography variant="bodyHl" color="grey600">
-                        {translate('text_6391f05df4bf96d81f3660a7')}
-                      </Typography>
-                    </td>
-                    <td>
-                      <Typography variant="body" color="success600">
-                        {intlFormatNumber(
-                          deserializeAmount(invoice?.prepaidCreditAmountCents || 0, currency),
-                          {
-                            currencyDisplay: 'symbol',
-                            currency: currency,
-                          }
-                        )}
-                      </Typography>
-                    </td>
-                  </tr>
-                )}
-              </>
-            )}
+            {invoice.status !== InvoiceStatusTypeEnum.Draft &&
+              !!Number(invoice?.couponsAmountCents) &&
+              !!isLegacyInvoice && (
+                <tr>
+                  <td></td>
+                  <td>
+                    <Typography variant="bodyHl" color="grey600">
+                      {translate('text_637ccf8133d2c9a7d11ce705')}
+                    </Typography>
+                  </td>
+                  <td>
+                    <Typography variant="body" color="success600">
+                      -
+                      {intlFormatNumber(
+                        deserializeAmount(invoice?.couponsAmountCents || 0, currency),
+                        {
+                          currencyDisplay: 'symbol',
+                          currency,
+                        }
+                      )}
+                    </Typography>
+                  </td>
+                </tr>
+              )}
+            {invoice.status !== InvoiceStatusTypeEnum.Draft &&
+              !!Number(invoice?.prepaidCreditAmountCents) && (
+                <tr>
+                  <td></td>
+                  <td>
+                    <Typography variant="bodyHl" color="grey600">
+                      {translate('text_6391f05df4bf96d81f3660a7')}
+                    </Typography>
+                  </td>
+                  <td>
+                    <Typography variant="body" color="success600">
+                      -
+                      {intlFormatNumber(
+                        deserializeAmount(invoice?.prepaidCreditAmountCents || 0, currency),
+                        {
+                          currencyDisplay: 'symbol',
+                          currency,
+                        }
+                      )}
+                    </Typography>
+                  </td>
+                </tr>
+              )}
             <tr>
               <td></td>
               <td>
@@ -188,7 +216,7 @@ export const InvoiceDetailsTableFooter = memo(
                 <Typography variant="body" color="grey700">
                   {intlFormatNumber(deserializeAmount(invoice?.totalAmountCents || 0, currency), {
                     currencyDisplay: 'symbol',
-                    currency: currency,
+                    currency,
                   })}
                 </Typography>
               </td>

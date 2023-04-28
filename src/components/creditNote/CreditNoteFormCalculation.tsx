@@ -14,9 +14,9 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { intlFormatNumber, getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { ComboBoxField, ComboBox, AmountInputField } from '~/components/form'
-import { Typography, Button, Tooltip, Alert } from '~/components/designSystem'
+import { Typography, Button, Tooltip, Alert, Icon } from '~/components/designSystem'
 import { theme } from '~/styles'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 
 import {
   CreditNoteForm,
@@ -30,11 +30,14 @@ import {
 gql`
   fragment CreditNoteForm on Invoice {
     id
+    couponsAmountCents
     paymentStatus
     creditableAmountCents
     refundableAmountCents
+    feesAmountCents
     vatRate
     currency
+    versionNumber
   }
 `
 
@@ -51,6 +54,12 @@ export const CreditNoteFormCalculation = ({
   const canOnlyCredit = invoice?.paymentStatus !== InvoicePaymentStatusTypeEnum.Succeeded
   const hasFeeError = !!formikProps.errors.fees
   const currency = invoice?.currency || CurrencyEnum.Usd
+  const currencyPrecision = getCurrencyPrecision(currency)
+  const isLegacyInvoice = (invoice?.versionNumber || 0) < 3
+
+  // This method calculate the credit notes amounts to display
+  // It does parse once all items. If no coupon applied, values are used for display
+  // If coupon applied, it will calculate the credit note vat amount based on the coupon value on pro rata of each item
   const calculation = useMemo(() => {
     if (hasFeeError) return { totalExcludedVat: undefined, vatAmount: undefined }
 
@@ -115,28 +124,139 @@ export const CreditNoteFormCalculation = ({
     )
     const { value, vatRate } = formikProps.values.addOnFee || {}
 
-    return {
-      totalExcludedVat: feeTotal.totalExcludedVat + Number(value || 0),
-      vatAmount: feeTotal.vatAmount + Math.round(Number(value || 0) * Number(vatRate || 0)) / 100,
-    }
-  }, [formikProps?.values.fees, formikProps.values.addOnFee, hasFeeError])
+    let proRatedCouponAmount = 0
+    let totalExcludedVat = feeTotal.totalExcludedVat + Number(value || 0)
+    const totalInvoiceFeesCreditableAmountCentsExcludingVat = invoice?.feesAmountCents || 0
 
-  const { totalExcludedVat, vatAmount } = calculation
+    // If no coupon, return "basic" calculation
+    if (isLegacyInvoice || totalInvoiceFeesCreditableAmountCentsExcludingVat === 0) {
+      return {
+        proRatedCouponAmount,
+        totalExcludedVat,
+        vatAmount: feeTotal.vatAmount + Math.round(Number(value || 0) * Number(vatRate || 0)) / 100,
+      }
+    }
+
+    const couponsAdjustmentAmountCents = () => {
+      return (
+        (invoice?.couponsAmountCents / totalInvoiceFeesCreditableAmountCentsExcludingVat) *
+        feeTotal.totalExcludedVat
+      )
+    }
+
+    // Parse fees a second time to calculate pro-rated amounts
+    const proRatedTotal = () => {
+      return Object.keys(formikProps?.values.fees || {}).reduce<{
+        totalExcludedVat: number
+        vatAmount: number
+      }>(
+        (accSub, subKey) => {
+          const subChild = ((formikProps?.values.fees as FeesPerInvoice) || {})[subKey]
+          const subValues = Object.keys(subChild?.fees || {}).reduce<{
+            totalExcludedVat: number
+            vatAmount: number
+          }>(
+            (accGroup, groupKey) => {
+              const child = subChild?.fees[groupKey] as FromFee
+
+              if (typeof child.checked === 'boolean') {
+                const childExcludedVat = Number(child.value as number)
+                let itemRate = Number(child.value) / feeTotal.totalExcludedVat
+                let proratedCouponAmount = couponsAdjustmentAmountCents() * itemRate
+
+                return !child.checked
+                  ? accGroup
+                  : (accGroup = {
+                      totalExcludedVat: accGroup.totalExcludedVat + childExcludedVat,
+                      vatAmount:
+                        accGroup.vatAmount +
+                        ((childExcludedVat - proratedCouponAmount) * (child.vatRate || 0)) / 100,
+                    })
+              }
+
+              const grouped = (child as unknown as GroupedFee)?.grouped
+              const groupedValues = Object.keys(grouped || {}).reduce<{
+                totalExcludedVat: number
+                vatAmount: number
+              }>(
+                (accFee, feeKey) => {
+                  const fee = grouped[feeKey]
+                  const feeExcludedVat = Number(fee.value)
+                  let itemRate = Number(fee.value) / feeTotal.totalExcludedVat
+                  let proratedCouponAmount = couponsAdjustmentAmountCents() * itemRate
+
+                  return !fee.checked
+                    ? accFee
+                    : (accFee = {
+                        totalExcludedVat: accFee.totalExcludedVat + feeExcludedVat,
+                        vatAmount:
+                          accFee.vatAmount +
+                          ((feeExcludedVat - proratedCouponAmount) * (fee.vatRate || 0)) / 100,
+                      })
+                },
+                { totalExcludedVat: 0, vatAmount: 0 }
+              )
+
+              return {
+                totalExcludedVat: accGroup.totalExcludedVat + groupedValues.totalExcludedVat,
+                vatAmount: accGroup.vatAmount + groupedValues.vatAmount,
+              }
+            },
+            { totalExcludedVat: 0, vatAmount: 0 }
+          )
+
+          return {
+            totalExcludedVat: accSub?.totalExcludedVat + subValues.totalExcludedVat,
+            vatAmount: accSub?.vatAmount + subValues.vatAmount,
+          }
+        },
+        { totalExcludedVat: 0, vatAmount: 0 }
+      )
+    }
+
+    // If coupon is applied, we need to pro-rate the coupon amount and the vat amount
+    proRatedCouponAmount =
+      (Number(invoice?.couponsAmountCents) / totalInvoiceFeesCreditableAmountCentsExcludingVat) *
+      feeTotal.totalExcludedVat
+
+    // And deduct the coupon amount from the total excluding VAT
+    totalExcludedVat -= proRatedCouponAmount
+
+    const { vatAmount: proRatedVatAmount } = proRatedTotal()
+
+    return {
+      proRatedCouponAmount,
+      totalExcludedVat,
+      vatAmount: proRatedVatAmount + Math.round(Number(value || 0) * Number(vatRate || 0)) / 100,
+    }
+  }, [
+    formikProps?.values.fees,
+    formikProps.values.addOnFee,
+    hasFeeError,
+    invoice?.feesAmountCents,
+    invoice?.couponsAmountCents,
+    isLegacyInvoice,
+  ])
+
+  const { totalExcludedVat, vatAmount, proRatedCouponAmount } = calculation
   const hasCreditOrCoupon =
     (invoice?.creditableAmountCents || 0) > (invoice?.refundableAmountCents || 0)
   const totalTaxIncluded =
     !!totalExcludedVat && vatAmount !== undefined
-      ? (Number(totalExcludedVat + vatAmount || 0) * 100) / 100
+      ? Number(totalExcludedVat + vatAmount || 0)
       : undefined
   const payBack = formikProps.values.payBack || []
 
   useEffect(() => {
     if (canOnlyCredit) {
       formikProps.setFieldValue('payBack', [
-        { value: totalTaxIncluded, type: CreditTypeEnum.credit },
+        { value: totalTaxIncluded?.toFixed(currencyPrecision), type: CreditTypeEnum.credit },
       ])
     } else if (payBack.length < 2) {
-      formikProps.setFieldValue('payBack.0.value', !totalTaxIncluded ? undefined : totalTaxIncluded)
+      formikProps.setFieldValue(
+        'payBack.0.value',
+        !totalTaxIncluded ? undefined : totalTaxIncluded?.toFixed(currencyPrecision)
+      )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalTaxIncluded, canOnlyCredit])
@@ -146,6 +266,22 @@ export const CreditNoteFormCalculation = ({
   return (
     <div>
       <CalculationContainer>
+        {Number(invoice?.couponsAmountCents || 0) > 0 && !isLegacyInvoice && (
+          <Line>
+            <InlineLabel>
+              <Typography variant="bodyHl">{translate('text_644b9f17623605a945cafdbb')}</Typography>
+              <Tooltip placement="top-start" title={translate('text_644b9f17623605a945cafdb9')}>
+                <Icon name="info-circle" />
+              </Tooltip>
+            </InlineLabel>
+            <Typography color="grey700">
+              -
+              {intlFormatNumber(proRatedCouponAmount || 0, {
+                currency,
+              })}
+            </Typography>
+          </Line>
+        )}
         <Line>
           <Typography variant="bodyHl">{translate('text_636bedf292786b19d3398f02')}</Typography>
           <Typography color="grey700">
@@ -465,4 +601,14 @@ const StyledTextInput = styled(AmountInputField)`
 
 const StyledAlert = styled(Alert)`
   margin-top: ${theme.spacing(6)};
+`
+
+const InlineLabel = styled.div`
+  display: flex;
+  align-items: center;
+
+  > *:last-child {
+    margin-left: ${theme.spacing(2)};
+    height: 16px;
+  }
 `
