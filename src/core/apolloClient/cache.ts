@@ -80,6 +80,10 @@ export const cache = new InMemoryCache({
           keyArgs: false,
           merge: mergePaginatedCollection,
         },
+        webhooks: {
+          keyArgs: false,
+          merge: mergePaginatedCollection,
+        },
       },
     },
   },
