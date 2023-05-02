@@ -15,6 +15,7 @@ import {
   useRetryInvoicePaymentMutation,
   LagoApiError,
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
+  CurrencyEnum,
 } from '~/generated/graphql'
 import { formatDateToTZ } from '~/core/timezone'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -33,7 +34,7 @@ gql`
     number
     issuingDate
     totalAmountCents
-    totalAmountCurrency
+    currency
     customer {
       id
       name
@@ -115,16 +116,8 @@ export const InvoiceListItem = ({
   updateInvoicePaymentStatusDialog,
 }: InvoiceListItemProps) => {
   const { translate } = useInternationalization()
-  const {
-    id,
-    status,
-    paymentStatus,
-    number,
-    issuingDate,
-    customer,
-    totalAmountCents,
-    totalAmountCurrency,
-  } = invoice
+  const { id, status, paymentStatus, number, issuingDate, customer, totalAmountCents, currency } =
+    invoice
   const statusConfig = mapStatusConfig(status, paymentStatus)
   const [retryCollect] = useRetryInvoicePaymentMutation({
     context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
@@ -179,8 +172,8 @@ export const InvoiceListItem = ({
             </CustomerName>
           )}
           <Typography color="grey700" align="right">
-            {intlFormatNumber(deserializeAmount(totalAmountCents, totalAmountCurrency), {
-              currency: totalAmountCurrency,
+            {intlFormatNumber(deserializeAmount(totalAmountCents, currency || CurrencyEnum.Usd), {
+              currency: currency || CurrencyEnum.Usd,
             })}
           </Typography>
           <Typography color="grey700" align="right">

@@ -20,6 +20,7 @@ import {
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
   useDownloadCustomerPortalInvoiceMutation,
+  CurrencyEnum,
 } from '~/generated/graphql'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
@@ -30,7 +31,7 @@ gql`
     number
     issuingDate
     totalAmountCents
-    totalAmountCurrency
+    currency
   }
 
   mutation downloadCustomerPortalInvoice($input: DownloadCustomerPortalInvoiceInput!) {
@@ -60,8 +61,7 @@ const mapStatusConfig = (paymentStatus: InvoicePaymentStatusTypeEnum) => {
 
 export const PortalInvoiceListItem = memo(
   ({ className, invoice, translate }: PortalInvoiceListItemProps) => {
-    const { id, issuingDate, number, paymentStatus, totalAmountCents, totalAmountCurrency } =
-      invoice
+    const { id, issuingDate, number, paymentStatus, totalAmountCents, currency } = invoice
     const statusConfig = mapStatusConfig(paymentStatus)
     const [downloadInvoice] = useDownloadCustomerPortalInvoiceMutation({
       onCompleted(data) {
@@ -98,8 +98,8 @@ export const PortalInvoiceListItem = memo(
             {number}
           </Typography>
           <Typography color="grey700" align="right">
-            {intlFormatNumber(deserializeAmount(totalAmountCents, totalAmountCurrency), {
-              currency: totalAmountCurrency,
+            {intlFormatNumber(deserializeAmount(totalAmountCents, currency || CurrencyEnum.Usd), {
+              currency: currency || CurrencyEnum.Usd,
             })}
           </Typography>
           <Status

@@ -324,7 +324,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
           input: serializeCreditNoteInput(
             invoiceId as string,
             values,
-            data?.invoice?.amountCurrency || CurrencyEnum.Usd
+            data?.invoice?.currency || CurrencyEnum.Usd
           ),
         },
       })
