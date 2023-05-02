@@ -76,7 +76,7 @@ gql`
     paymentStatus
     status
     totalAmountCents
-    totalAmountCurrency
+    currency
     refundableAmountCents
     creditableAmountCents
     customer {
@@ -197,7 +197,7 @@ const CustomerInvoiceDetails = () => {
     number,
     paymentStatus,
     totalAmountCents,
-    totalAmountCurrency,
+    currency,
     status,
     creditableAmountCents,
     refundableAmountCents,
@@ -469,13 +469,10 @@ const CustomerInvoiceDetails = () => {
                     <span>
                       {translate('text_634687079be251fdb43833ad', {
                         totalAmount: intlFormatNumber(
-                          deserializeAmount(
-                            totalAmountCents || 0,
-                            totalAmountCurrency || CurrencyEnum.Usd
-                          ),
+                          deserializeAmount(totalAmountCents || 0, currency || CurrencyEnum.Usd),
                           {
                             currencyDisplay: 'symbol',
-                            currency: totalAmountCurrency,
+                            currency: currency || CurrencyEnum.Usd,
                           }
                         ),
                       })}

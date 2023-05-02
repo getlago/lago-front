@@ -49,7 +49,7 @@ import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoice
 gql`
   fragment CreateCreditNoteInvoice on Invoice {
     id
-    amountCurrency
+    currency
     number
     paymentStatus
     creditableAmountCents
@@ -101,10 +101,11 @@ const CreateCreditNote = () => {
   const { id, invoiceId } = useParams()
   const navigate = useNavigate()
   const { loading, invoice, feesPerInvoice, feeForAddOn, onCreate } = useCreateCreditNote()
+  const currency = invoice?.currency || CurrencyEnum.Usd
 
   const feesValidation = useMemo(
-    () => generateFeesSchema(feesPerInvoice || {}, invoice?.amountCurrency || CurrencyEnum.Usd),
-    [feesPerInvoice, invoice?.amountCurrency]
+    () => generateFeesSchema(feesPerInvoice || {}, currency),
+    [feesPerInvoice, currency]
   )
 
   const statusMap = mapStatus(invoice?.paymentStatus)
@@ -123,7 +124,7 @@ const CreateCreditNote = () => {
       fees: feesValidation,
       addOnFee: object().when('maxAmount', (_, schema) => {
         return invoice?.invoiceType === InvoiceTypeEnum.AddOn
-          ? simpleFeeSchema(feeForAddOn?.maxAmount || 0, invoice?.amountCurrency)
+          ? simpleFeeSchema(feeForAddOn?.maxAmount || 0, currency)
           : schema.default(undefined)
       }),
       payBack: array().of(
@@ -134,17 +135,11 @@ const CreateCreditNote = () => {
             .when('type', (type: CreditTypeEnum) => {
               return type === CreditTypeEnum.refund
                 ? number().max(
-                    deserializeAmount(
-                      invoice?.refundableAmountCents,
-                      invoice?.amountCurrency || CurrencyEnum.Usd
-                    ) || 0,
+                    deserializeAmount(invoice?.refundableAmountCents, currency) || 0,
                     PayBackErrorEnum.maxRefund
                   )
                 : number().max(
-                    deserializeAmount(
-                      invoice?.creditableAmountCents,
-                      invoice?.amountCurrency || CurrencyEnum.Usd
-                    ) || 0,
+                    deserializeAmount(invoice?.creditableAmountCents, currency) || 0,
                     PayBackErrorEnum.maxRefund
                   )
             }),
@@ -289,12 +284,9 @@ const CreateCreditNote = () => {
                       {translate('text_636bedf292786b19d3398eca', {
                         invoiceNumber: invoice?.number,
                         subtotal: intlFormatNumber(
-                          deserializeAmount(
-                            invoice?.subTotalVatIncludedAmountCents || 0,
-                            invoice?.amountCurrency || CurrencyEnum.Usd
-                          ),
+                          deserializeAmount(invoice?.subTotalVatIncludedAmountCents || 0, currency),
                           {
-                            currency: invoice?.amountCurrency,
+                            currency,
                           }
                         ),
                       })}
@@ -365,12 +357,9 @@ const CreateCreditNote = () => {
                       {translate('text_636bedf292786b19d3398edc', {
                         invoiceNumber: invoice?.number,
                         subtotal: intlFormatNumber(
-                          deserializeAmount(
-                            invoice?.creditableAmountCents || 0,
-                            invoice?.amountCurrency || CurrencyEnum.Usd
-                          ),
+                          deserializeAmount(invoice?.creditableAmountCents || 0, currency),
                           {
-                            currency: invoice?.amountCurrency,
+                            currency,
                           }
                         ),
                       })}
@@ -381,7 +370,7 @@ const CreateCreditNote = () => {
                     <CreditNoteFormItem
                       key={feeForAddOn?.id}
                       formikProps={formikProps}
-                      currency={invoice?.amountCurrency || CurrencyEnum.Usd}
+                      currency={currency}
                       feeName={feeForAddOn?.name}
                       formikKey={`addOnFee`}
                       maxValue={feeForAddOn?.maxAmount}
@@ -454,7 +443,7 @@ const CreateCreditNote = () => {
                                 <CreditNoteFormItem
                                   key={child?.id}
                                   formikProps={formikProps}
-                                  currency={invoice?.amountCurrency || CurrencyEnum.Usd}
+                                  currency={currency}
                                   feeName={`${child?.name}${
                                     child.isTrueUpFee
                                       ? ` - ${translate('text_64463aaa34904c00a23be4f7')}`
@@ -503,7 +492,7 @@ const CreateCreditNote = () => {
                                     <CreditNoteFormItem
                                       key={fee?.id}
                                       formikProps={formikProps}
-                                      currency={invoice?.amountCurrency || CurrencyEnum.Usd}
+                                      currency={currency}
                                       feeName={fee?.name}
                                       formikKey={`fees.${subKey}.fees.${groupFeeKey}.grouped.${fee?.id}`}
                                       maxValue={fee?.maxAmount || 0}
@@ -539,7 +528,7 @@ const CreateCreditNote = () => {
             loading={loading}
             invoiceId={invoiceId as string}
             formValues={formikProps.values as CreditNoteForm}
-            currency={invoice?.amountCurrency || CurrencyEnum.Usd}
+            currency={currency}
           />
         </Side>
       </Content>

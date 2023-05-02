@@ -9,6 +9,7 @@ import {
   InvoicePaymentStatusTypeEnum,
   LagoApiError,
   CreditNoteFormFragment,
+  CurrencyEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { intlFormatNumber, getCurrencySymbol } from '~/core/formats/intlFormatNumber'
@@ -33,7 +34,7 @@ gql`
     creditableAmountCents
     refundableAmountCents
     vatRate
-    amountCurrency
+    currency
   }
 `
 
@@ -49,6 +50,7 @@ export const CreditNoteFormCalculation = ({
   const { translate } = useInternationalization()
   const canOnlyCredit = invoice?.paymentStatus !== InvoicePaymentStatusTypeEnum.Succeeded
   const hasFeeError = !!formikProps.errors.fees
+  const currency = invoice?.currency || CurrencyEnum.Usd
   const calculation = useMemo(() => {
     if (hasFeeError) return { totalExcludedVat: undefined, vatAmount: undefined }
 
@@ -150,7 +152,7 @@ export const CreditNoteFormCalculation = ({
             {!totalExcludedVat
               ? '-'
               : intlFormatNumber(totalExcludedVat, {
-                  currency: invoice?.amountCurrency,
+                  currency,
                 })}
           </Typography>
         </Line>
@@ -160,7 +162,7 @@ export const CreditNoteFormCalculation = ({
             {vatAmount === undefined
               ? '-'
               : intlFormatNumber(vatAmount, {
-                  currency: invoice?.amountCurrency,
+                  currency,
                 })}
           </Typography>
         </Line>
@@ -172,7 +174,7 @@ export const CreditNoteFormCalculation = ({
             {!totalTaxIncluded
               ? '-'
               : intlFormatNumber(totalTaxIncluded, {
-                  currency: invoice?.amountCurrency,
+                  currency,
                 })}
           </Typography>
         </Line>
@@ -185,7 +187,7 @@ export const CreditNoteFormCalculation = ({
               {totalTaxIncluded === undefined
                 ? '-'
                 : intlFormatNumber(totalTaxIncluded, {
-                    currency: invoice?.amountCurrency,
+                    currency,
                   })}
             </Typography>
           </Line>
@@ -233,12 +235,9 @@ export const CreditNoteFormCalculation = ({
                       : 'text_637d0e6d94c87b04785fc6d2',
                     {
                       max: intlFormatNumber(
-                        deserializeAmount(
-                          invoice?.refundableAmountCents || 0,
-                          invoice?.amountCurrency
-                        ),
+                        deserializeAmount(invoice?.refundableAmountCents || 0, currency),
                         {
-                          currency: invoice?.amountCurrency,
+                          currency,
                         }
                       ),
                     }
@@ -251,9 +250,9 @@ export const CreditNoteFormCalculation = ({
                 <Tooltip
                   title={translate('text_637e23e47a15bf0bd71e0d03', {
                     max: intlFormatNumber(
-                      deserializeAmount(invoice?.refundableAmountCents, invoice?.amountCurrency),
+                      deserializeAmount(invoice?.refundableAmountCents, currency),
                       {
-                        currency: invoice?.amountCurrency,
+                        currency,
                       }
                     ),
                   })}
@@ -264,14 +263,14 @@ export const CreditNoteFormCalculation = ({
                 >
                   <StyledTextInput
                     name="payBack.0.value"
-                    currency={invoice?.amountCurrency}
+                    currency={currency}
                     formikProps={formikProps}
                     beforeChangeFormatter={['positiveNumber']}
                     displayErrorText={false}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          {getCurrencySymbol(invoice?.amountCurrency)}
+                          {getCurrencySymbol(currency)}
                         </InputAdornment>
                       ),
                     }}
@@ -295,7 +294,7 @@ export const CreditNoteFormCalculation = ({
                 {!totalTaxIncluded
                   ? '-'
                   : intlFormatNumber(payBack[0]?.value || 0, {
-                      currency: invoice?.amountCurrency,
+                      currency,
                     })}
               </Typography>
             )}
@@ -342,12 +341,9 @@ export const CreditNoteFormCalculation = ({
                         : 'text_637d0e6d94c87b04785fc6d2',
                       {
                         max: intlFormatNumber(
-                          deserializeAmount(
-                            invoice?.refundableAmountCents || 0,
-                            invoice?.amountCurrency
-                          ),
+                          deserializeAmount(invoice?.refundableAmountCents || 0, currency),
                           {
-                            currency: invoice?.amountCurrency,
+                            currency,
                           }
                         ),
                       }
@@ -358,9 +354,9 @@ export const CreditNoteFormCalculation = ({
               <Tooltip
                 title={translate('text_637e23e47a15bf0bd71e0d03', {
                   max: intlFormatNumber(
-                    deserializeAmount(invoice?.refundableAmountCents || 0, invoice?.amountCurrency),
+                    deserializeAmount(invoice?.refundableAmountCents || 0, currency),
                     {
-                      currency: invoice?.amountCurrency,
+                      currency,
                     }
                   ),
                 })}
@@ -371,14 +367,14 @@ export const CreditNoteFormCalculation = ({
               >
                 <StyledTextInput
                   name="payBack.1.value"
-                  currency={invoice?.amountCurrency}
+                  currency={currency}
                   formikProps={formikProps}
                   beforeChangeFormatter={['positiveNumber']}
                   displayErrorText={false}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        {getCurrencySymbol(invoice?.amountCurrency)}
+                        {getCurrencySymbol(currency)}
                       </InputAdornment>
                     ),
                   }}
@@ -405,7 +401,7 @@ export const CreditNoteFormCalculation = ({
         <StyledAlert type="danger">
           {translate('text_637e334680481f653e8caa9d', {
             total: intlFormatNumber(totalTaxIncluded || 0, {
-              currency: invoice?.amountCurrency,
+              currency,
             }),
           })}
         </StyledAlert>
