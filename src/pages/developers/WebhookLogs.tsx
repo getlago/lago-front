@@ -224,43 +224,42 @@ const WebhookLogs = () => {
                   }}
                 >
                   <ListContent>
-                    {(!isLoading || fetchMoreLoading) &&
-                      Object.keys(groupedLogs).map((logDate) => {
-                        return (
-                          <div key={logDate}>
-                            <DateHeader>{logDate}</DateHeader>
-                            {groupedLogs[logDate].map((log) => {
-                              const { id } = log
+                    {Object.keys(groupedLogs).map((logDate) => {
+                      return (
+                        <div key={logDate}>
+                          <DateHeader>{logDate}</DateHeader>
+                          {groupedLogs[logDate].map((log) => {
+                            const { id } = log
 
-                              index += 1
+                            index += 1
 
-                              return (
-                                <div key={id}>
-                                  <WebhookLogItem
-                                    log={log}
-                                    onClick={() => {
-                                      setSelectedLogId(id)
-                                      const element = document.activeElement as HTMLElement
+                            return (
+                              <div key={id}>
+                                <WebhookLogItem
+                                  log={log}
+                                  onClick={() => {
+                                    setSelectedLogId(id)
+                                    const element = document.activeElement as HTMLElement
 
-                                      element.blur && element.blur()
-                                    }}
-                                    selected={selectedLogId === id}
-                                    navigationProps={{
-                                      id: `${WEBHOOK_ITEM_NAV_KEY}${index}`,
-                                      'data-id': id,
-                                    }}
-                                  />
-                                  {selectedLogId === id && (
-                                    <LogInfos>
-                                      <WebhookLogDetails log={log} />
-                                    </LogInfos>
-                                  )}
-                                </div>
-                              )
-                            })}
-                          </div>
-                        )
-                      })}
+                                    element.blur && element.blur()
+                                  }}
+                                  selected={selectedLogId === id}
+                                  navigationProps={{
+                                    id: `${WEBHOOK_ITEM_NAV_KEY}${index}`,
+                                    'data-id': id,
+                                  }}
+                                />
+                                {selectedLogId === id && (
+                                  <LogInfos>
+                                    <WebhookLogDetails log={log} />
+                                  </LogInfos>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )
+                    })}
                     {isLoading &&
                       [0, 1, 2].map((i) => (
                         <WebhookLogItemSkeleton key={`webhook-skeleton-item-${i}`} />
