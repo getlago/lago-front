@@ -7,7 +7,7 @@ COPY . .
 RUN apk add python3 build-base
 RUN yarn && yarn build && npm prune --production
 
-FROM nginx:1.23-alpine
+FROM nginx:1.24-alpine
 
 WORKDIR /usr/share/nginx/html
 
