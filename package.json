@@ -123,7 +123,7 @@
     "styled-components": "5.3.10",
     "@mui/styled-engine": "5.11.11",
     "lodash": "4.17.21",
-    "trim-newlines": "4.1.1",
+    "trim-newlines": "5.0.0",
     "glob-parent": "6.0.2",
     "trim": "1.0.1"
   },
