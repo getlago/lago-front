@@ -16,6 +16,7 @@ import {
   CUSTOMERS_LIST_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMER_DETAILS_ROUTE,
+  CREATE_INVOICE_ROUTE,
 } from '~/core/router'
 import {
   useGetCustomerQuery,
@@ -39,17 +40,12 @@ import {
 } from '~/components/customers/DeleteCustomerDialog'
 import { AddCustomerDrawer, AddCustomerDrawerRef } from '~/components/customers/AddCustomerDrawer'
 import { CustomerCoupons } from '~/components/customers/CustomerCoupons'
-import { CustomerAddOns } from '~/components/customers/CustomerAddOns'
 import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
 import { CustomerMainInfos } from '~/components/customers/CustomerMainInfos'
 import {
   AddCouponToCustomerDialog,
   AddCouponToCustomerDialogRef,
 } from '~/components/customers/AddCouponToCustomerDialog'
-import {
-  AddAddOnToCustomerDialog,
-  AddAddOnToCustomerDialogRef,
-} from '~/components/customers/AddAddOnToCustomerDialog'
 import {
   AddSubscriptionDrawer,
   AddSubscriptionDrawerRef,
@@ -108,7 +104,6 @@ const CustomerDetails = () => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
   const editDialogRef = useRef<AddCustomerDrawerRef>(null)
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
-  const addOnDialogRef = useRef<AddAddOnToCustomerDialogRef>(null)
   const subscriptionsDialogRef = useRef<AddSubscriptionDrawerRef>(null)
   const addWalletToCustomerDialogRef = useRef<AddWalletToCustomerDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
@@ -213,21 +208,12 @@ const CustomerDetails = () => {
                   variant="quaternary"
                   align="left"
                   onClick={() => {
-                    editDialogRef.current?.openDrawer(data?.customer)
+                    navigate(generatePath(CREATE_INVOICE_ROUTE, { id: id as string }))
+
                     closePopper()
                   }}
                 >
-                  {translate('text_626162c62f790600f850b718')}
-                </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    addOnDialogRef.current?.openDialog()
-                    closePopper()
-                  }}
-                >
-                  {translate('text_6295e58352f39200d902b02a')}
+                  {translate('text_6453819268763979024ad083')}
                 </Button>
                 <Button
                   variant="quaternary"
@@ -251,6 +237,17 @@ const CustomerDetails = () => {
                 >
                   {translate('text_62d175066d2dbf1d50bc93a5')}
                 </Button>
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    editDialogRef.current?.openDrawer(data?.customer)
+                    closePopper()
+                  }}
+                >
+                  {translate('text_626162c62f790600f850b718')}
+                </Button>
+
                 <Button
                   variant="quaternary"
                   align="left"
@@ -340,9 +337,6 @@ const CustomerDetails = () => {
                       component: (
                         <SideBlock>
                           {!loading && <CustomerCoupons />}
-                          {!loading && (
-                            <CustomerAddOns ref={addOnDialogRef} customerTimezone={safeTimezone} />
-                          )}
                           <CustomerSubscriptionsList
                             ref={subscriptionsDialogRef}
                             customerTimezone={safeTimezone}
@@ -461,7 +455,6 @@ const CustomerDetails = () => {
             customerId={id as string}
             customerName={data?.customer?.name as string}
           />
-          <AddAddOnToCustomerDialog ref={addOnDialogRef} customerId={id as string} />
           <AddSubscriptionDrawer
             ref={subscriptionsDialogRef}
             customerName={name as string}

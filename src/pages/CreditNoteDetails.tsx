@@ -551,9 +551,7 @@ const CreditNoteDetails = () => {
                                       {groupDimension === 0 || !!isTrueUp ? (
                                         <>
                                           {item?.fee?.feeType === FeeTypesEnum.AddOn
-                                            ? translate('text_6388baa2e514213fed583611', {
-                                                name: item?.fee?.itemName,
-                                              })
+                                            ? item?.fee?.itemName
                                             : `${
                                                 item?.fee?.charge?.billableMetric.name ||
                                                 invoiceDisplayName

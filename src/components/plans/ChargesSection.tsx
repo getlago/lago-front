@@ -135,7 +135,7 @@ export const ChargesSection = memo(
           label: `${name} (${code})`,
           labelNode: (
             <Item>
-              {name}&nbsp;<Typography color="textPrimary">({code})</Typography>
+              {name} <Typography color="textPrimary">({code})</Typography>
             </Item>
           ),
           value: id,
@@ -156,7 +156,7 @@ export const ChargesSection = memo(
           label: `${name} (${code})`,
           labelNode: (
             <Item>
-              {name}&nbsp;<Typography color="textPrimary">({code})</Typography>
+              {name} <Typography color="textPrimary">({code})</Typography>
             </Item>
           ),
           value: id,

@@ -99,7 +99,11 @@ export const InvoiceDetailsTable = memo(
   ({ customer, invoice, loading }: InvoiceDetailsTableProps) => {
     const { translate } = useInternationalization()
 
-    if ([InvoiceTypeEnum.AddOn, InvoiceTypeEnum.Credit].includes(invoice.invoiceType)) {
+    if (
+      [InvoiceTypeEnum.AddOn, InvoiceTypeEnum.Credit, InvoiceTypeEnum.OneOff].includes(
+        invoice.invoiceType
+      )
+    ) {
       return (
         <Wrapper>
           <table className="main-table">
@@ -112,6 +116,8 @@ export const InvoiceDetailsTable = memo(
                     <Typography variant="body" color="grey700">
                       {invoice.invoiceType === InvoiceTypeEnum.AddOn
                         ? translate('text_6388baa2e514213fed583611', { name: fee.itemName })
+                        : invoice.invoiceType === InvoiceTypeEnum.OneOff
+                        ? fee.itemName
                         : translate('text_637ccf8133d2c9a7d11ce6e1')}
                     </Typography>
                   </td>
@@ -137,6 +143,8 @@ export const InvoiceDetailsTable = memo(
                 </tr>
               ))}
             </tbody>
+          </table>
+          <table>
             <InvoiceDetailsTableFooter invoice={invoice} loading={loading} />
           </table>
         </Wrapper>

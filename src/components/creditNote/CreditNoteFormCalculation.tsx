@@ -122,7 +122,16 @@ export const CreditNoteFormCalculation = ({
       },
       { totalExcludedVat: 0, vatAmount: 0 }
     )
-    const { value, vatRate } = formikProps.values.addOnFee || {}
+
+    const { value, vatRate } = formikProps.values.addOnFee?.reduce(
+      (acc, fee) => {
+        return {
+          value: acc.value + (fee.checked ? Number(fee.value) : 0),
+          vatRate: fee.vatRate,
+        }
+      },
+      { value: 0, vatRate: 0 }
+    ) || { value: 0, vatRate: 0 }
 
     let proRatedCouponAmount = 0
     let totalExcludedVat = feeTotal.totalExcludedVat + Number(value || 0)

@@ -38,7 +38,6 @@ gql`
     amountCents
     customerCount
     createdAt
-    appliedAddOnsCount
   }
 `
 
@@ -49,8 +48,7 @@ interface AddOnItemProps {
 }
 
 export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItemProps) => {
-  const { id, name, amountCurrency, amountCents, customerCount, createdAt, appliedAddOnsCount } =
-    addOn
+  const { id, name, amountCurrency, amountCents, customerCount, createdAt } = addOn
 
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
@@ -118,15 +116,10 @@ export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItem
             >
               {translate('text_629728388c4d2300e2d3816a')}
             </ButtonLink>
-            <Tooltip
-              disableHoverListener={!appliedAddOnsCount}
-              title={translate('text_629791022a75b60089e98ea7')}
-              placement="bottom-end"
-            >
+            <Tooltip title={translate('text_629791022a75b60089e98ea7')} placement="bottom-end">
               <Button
                 startIcon="trash"
                 variant="quaternary"
-                disabled={!!appliedAddOnsCount}
                 align="left"
                 fullWidth
                 onClick={() => {

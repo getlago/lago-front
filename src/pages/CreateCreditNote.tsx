@@ -122,11 +122,14 @@ const CreateCreditNote = () => {
     validationSchema: object().shape({
       reason: string().required(''),
       fees: feesValidation,
-      addOnFee: object().when('maxAmount', (_, schema) => {
-        return invoice?.invoiceType === InvoiceTypeEnum.AddOn
-          ? simpleFeeSchema(feeForAddOn?.maxAmount || 0, currency)
-          : schema.default(undefined)
-      }),
+      addOnFee: array().of(
+        object().when('maxAmount', (_, schema) => {
+          return invoice?.invoiceType === InvoiceTypeEnum.AddOn ||
+            invoice?.invoiceType === InvoiceTypeEnum.OneOff
+            ? simpleFeeSchema(invoice.feesAmountCents || 0, currency)
+            : schema.default(undefined)
+        })
+      ),
       payBack: array().of(
         object().shape({
           type: string().required(''),
@@ -366,16 +369,17 @@ const CreateCreditNote = () => {
                     </Typography>
                   </div>
 
-                  {feeForAddOn && (
-                    <CreditNoteFormItem
-                      key={feeForAddOn?.id}
-                      formikProps={formikProps}
-                      currency={currency}
-                      feeName={feeForAddOn?.name}
-                      formikKey={`addOnFee`}
-                      maxValue={feeForAddOn?.maxAmount}
-                    />
-                  )}
+                  {feeForAddOn &&
+                    feeForAddOn.map((fee, i) => (
+                      <CreditNoteFormItem
+                        key={fee?.id}
+                        formikProps={formikProps}
+                        currency={currency}
+                        feeName={fee?.name}
+                        formikKey={`addOnFee.${i}`}
+                        maxValue={fee?.maxAmount}
+                      />
+                    ))}
 
                   {feesPerInvoice &&
                     Object.keys(feesPerInvoice).map((subKey) => {

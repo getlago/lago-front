@@ -149,7 +149,7 @@ const CreateAddOn = () => {
                     />
                     <TextInputField
                       name="code"
-                      disabled={isEdition && !!addOn?.appliedAddOnsCount}
+                      disabled={isEdition}
                       beforeChangeFormatter="code"
                       label={translate('text_629728388c4d2300e2d380b7')}
                       placeholder={translate('text_629728388c4d2300e2d380d9')}
@@ -174,7 +174,7 @@ const CreateAddOn = () => {
                   <LineAmount>
                     <AmountInputField
                       name="amountCents"
-                      disabled={isEdition && !!addOn?.appliedAddOnsCount}
+                      disabled={isEdition}
                       currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
                       beforeChangeFormatter={['positiveNumber']}
                       label={translate('text_629728388c4d2300e2d3812d')}
@@ -182,7 +182,7 @@ const CreateAddOn = () => {
                     />
                     <ComboBoxField
                       name="amountCurrency"
-                      disabled={isEdition && !!addOn?.appliedAddOnsCount}
+                      disabled={isEdition}
                       data={Object.values(CurrencyEnum).map((currencyType) => ({
                         value: currencyType,
                       }))}
