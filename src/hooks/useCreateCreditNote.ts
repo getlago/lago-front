@@ -96,7 +96,7 @@ type UseCreateCreditNoteReturn = {
   loading: boolean
   invoice?: InvoiceCreateCreditNoteFragment
   feesPerInvoice?: FeesPerInvoice
-  feeForAddOn?: FromFee
+  feeForAddOn?: FromFee[]
   onCreate: (
     value: CreditNoteForm
   ) => Promise<{ data?: { createCreditNote?: { id?: string } }; errors?: ApolloError }>
@@ -144,17 +144,24 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
   }
 
   const feeForAddOn = useMemo(() => {
-    if (data?.invoice?.invoiceType === InvoiceTypeEnum.AddOn) {
-      const addOnFee = (data?.invoice?.fees || [])[0]
+    if (
+      data?.invoice?.invoiceType === InvoiceTypeEnum.AddOn ||
+      data?.invoice?.invoiceType === InvoiceTypeEnum.OneOff
+    ) {
+      return data?.invoice?.fees?.reduce<FromFee[]>((acc, fee) => {
+        if (Number(fee?.creditableAmountCents) > 0) {
+          acc.push({
+            id: fee?.id,
+            checked: true,
+            value: deserializeAmount(fee?.creditableAmountCents, fee.amountCurrency),
+            name: fee?.itemName,
+            maxAmount: fee?.creditableAmountCents,
+            vatRate: fee?.vatRate || 0,
+          })
+        }
 
-      return {
-        id: addOnFee?.id,
-        checked: true,
-        value: deserializeAmount(addOnFee?.creditableAmountCents, addOnFee.amountCurrency),
-        name: addOnFee?.itemName,
-        maxAmount: addOnFee?.creditableAmountCents,
-        vatRate: addOnFee?.vatRate || 0,
-      }
+        return acc
+      }, [])
     }
 
     return undefined

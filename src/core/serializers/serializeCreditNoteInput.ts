@@ -37,14 +37,16 @@ export const serializeCreditNoteInput: (
           currency
         ) || 0,
     items: [
-      ...(addOnFee?.value
-        ? [
-            {
-              feeId: addOnFee.id,
-              amountCents: serializeAmount(addOnFee.value, currency),
-            },
-          ]
-        : []),
+      ...(addOnFee?.reduce<CreditNoteItemInput[]>((acc, fee) => {
+        if (fee.checked && Number(fee.value) > 0) {
+          acc.push({
+            feeId: fee.id,
+            amountCents: serializeAmount(fee.value, currency),
+          })
+        }
+
+        return acc
+      }, []) || []),
       ...Object.keys(fees).reduce<CreditNoteItemInput[]>((subAcc, subKey) => {
         const subChild = (fees as FeesPerInvoice)[subKey]
 
