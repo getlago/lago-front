@@ -119,7 +119,14 @@ export const ChargesSection = memo(
     ] = useGetFilteredBillableMetricsLazyQuery({
       fetchPolicy: 'network-only',
       nextFetchPolicy: 'network-only',
-      variables: { limit: 50 },
+      variables: {
+        limit: 50,
+        aggregationTypes: [
+          AggregationTypeEnum.CountAgg,
+          AggregationTypeEnum.SumAgg,
+          AggregationTypeEnum.UniqueCountAgg,
+        ],
+      },
     })
 
     const billableMetrics = useMemo(() => {
@@ -453,17 +460,7 @@ export const ChargesSection = memo(
               <ComboBox
                 name={SEARCH_INSTANT_CHARGE_INPUT_NAME}
                 data={filteredBillableMetrics}
-                searchQuery={() =>
-                  getFilteredBillableMetrics({
-                    variables: {
-                      aggregationTypes: [
-                        AggregationTypeEnum.CountAgg,
-                        AggregationTypeEnum.SumAgg,
-                        AggregationTypeEnum.UniqueCountAgg,
-                      ],
-                    },
-                  })
-                }
+                searchQuery={getFilteredBillableMetrics}
                 loading={filteredBillableMetricsLoading}
                 placeholder={translate('text_6435888d7cc86500646d8981')}
                 emptyText={translate('text_6246b6bc6b25f500b779aa7a')}
