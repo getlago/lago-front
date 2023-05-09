@@ -11,7 +11,6 @@ import {
   SETTINGS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
   EMAILS_SETTINGS_ROUTE,
-  VAT_RATE_ROUTE,
 } from '~/core/router'
 import { NAV_HEIGHT } from '~/styles'
 
@@ -26,7 +25,7 @@ const Settings = () => {
     {
       title: translate('text_62bb10ad2a10bd182d00202d'),
       link: INVOICE_SETTINGS_ROUTE,
-      match: [VAT_RATE_ROUTE, INVOICE_SETTINGS_ROUTE],
+      match: [INVOICE_SETTINGS_ROUTE],
     },
     {
       title: translate('text_6407684eaf41130074c4b2a1'),
