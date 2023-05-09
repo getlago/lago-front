@@ -5,15 +5,17 @@ import { serializeAmount } from '~/core/serializers/serializeAmount'
 
 const { apiUrl } = envGlobalVar()
 
-const getSnippets = (addOn?: CreateAddOnInput) => {
+const getSnippets = (addOn?: CreateAddOnInput, isEdition?: boolean) => {
   if (!addOn || !addOn.code) return '# Fill the form to generate the code snippet'
 
   return `# Assign an add on to a customer
-curl --location --request POST "${apiUrl}/api/v1/applied_add_ons" \\
+curl --location --request ${isEdition ? 'PUT' : 'POST'} "${apiUrl}/api/v1/add_ons${
+    !!isEdition ? '/' + addOn.code : ''
+  }" \\
   --header "Authorization: Bearer $API_KEY" \\
   --header 'Content-Type: application/json' \\
   --data-raw '{
-    "applied_add_on": {
+    "add_on": {
       "external_customer_id": "__EXTERNAL_CUSTOMER_ID__",
       "add_on_code": "${addOn.code}",
       "amount_cents": ${serializeAmount(addOn.amountCents || 0, addOn.amountCurrency)},
@@ -25,10 +27,11 @@ curl --location --request POST "${apiUrl}/api/v1/applied_add_ons" \\
 }
 
 interface AddOnCodeSnippetProps {
-  loading?: boolean
   addOn?: CreateAddOnInput
+  isEdition?: boolean
+  loading?: boolean
 }
 
-export const AddOnCodeSnippet = ({ addOn, loading }: AddOnCodeSnippetProps) => {
-  return <CodeSnippet loading={loading} language="bash" code={getSnippets(addOn)} />
+export const AddOnCodeSnippet = ({ addOn, isEdition, loading }: AddOnCodeSnippetProps) => {
+  return <CodeSnippet loading={loading} language="bash" code={getSnippets(addOn, isEdition)} />
 }
