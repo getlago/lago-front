@@ -209,7 +209,7 @@ const CreateAddOn = () => {
           </div>
         </Main>
         <Side>
-          <AddOnCodeSnippet loading={loading} addOn={formikProps.values} />
+          <AddOnCodeSnippet isEdition={isEdition} loading={loading} addOn={formikProps.values} />
         </Side>
       </Content>
 
