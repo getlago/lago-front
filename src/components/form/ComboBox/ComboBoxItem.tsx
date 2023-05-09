@@ -74,6 +74,7 @@ export const Item = styled.div<{ $virtualized?: boolean }>`
     align-items: center;
     border-radius: 12px;
     cursor: pointer;
+    margin: 0 ${theme.spacing(2)};
     width: ${({ $virtualized }) => ($virtualized ? 'initial' : 'inherit')};
     box-sizing: border-box;
   }
