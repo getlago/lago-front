@@ -382,6 +382,7 @@ export const ChargeAccordion = memo(
                 <Button
                   variant="quaternary"
                   startIcon="plus"
+                  disabled={disabled}
                   endIcon={isPremium ? undefined : 'sparkles'}
                   onClick={() => {
                     if (isPremium) {
