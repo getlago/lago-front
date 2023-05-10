@@ -188,7 +188,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
                   {label}
                 </Typography>
                 {!!infoText && (
-                  <Tooltip placement="bottom-start" title={infoText}>
+                  <Tooltip placement="top-start" title={infoText}>
                     <Icon name="info-circle" />
                   </Tooltip>
                 )}

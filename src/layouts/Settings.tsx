@@ -27,6 +27,11 @@ const Settings = () => {
       link: INVOICE_SETTINGS_ROUTE,
       match: [INVOICE_SETTINGS_ROUTE],
     },
+    // {
+    //   title: translate('text_645bb193927b375079d28a8f'),
+    //   link: TAXES_SETTINGS_ROUTE,
+    //   match: [TAXES_SETTINGS_ROUTE],
+    // },
     {
       title: translate('text_6407684eaf41130074c4b2a1'),
       link: EMAILS_SETTINGS_ROUTE,

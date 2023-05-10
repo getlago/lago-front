@@ -68,7 +68,7 @@ export const Line = styled.div`
 
 export const LineSplit = styled.div`
   display: flex;
-  column-gap: ${theme.spacing(3)};
+  column-gap: ${theme.spacing(6)};
 
   > * {
     flex: 1;
