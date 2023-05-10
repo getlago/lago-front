@@ -19,6 +19,7 @@ const AVATAR_PALETTE = {
 enum AvatarSizeEnum {
   small = 'small',
   medium = 'medium',
+  big = 'big',
   large = 'large',
 }
 
@@ -68,7 +69,7 @@ export const mapAvatarSize = (size: AvatarSize) => {
       return 32
     case 'large':
       return 64
-    default:
+    case 'big':
       return 40
   }
 }
