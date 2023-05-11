@@ -183,7 +183,6 @@ const Content = styled.div`
   pre[class*='language-'] {
     color: #19212e;
     background: none;
-    text-shadow: 0 1px white;
     font-family: IBM Plex Mono, Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
     text-align: left;
     white-space: pre;
