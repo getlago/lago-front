@@ -167,19 +167,17 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
           {country && <Typography color="textSecondary">{CountryCodes[country]}</Typography>}
         </div>
       )}
-      {paymentProvider === ProviderTypeEnum?.Stripe && (
+      {!!paymentProvider && (
         <div>
           <Typography variant="caption">{translate('text_62b5c912506c4905fa755248')}</Typography>
           <Typography color="textSecondary">
-            {translate('text_62b5c912506c4905fa75524a')}
-          </Typography>
-        </div>
-      )}
-      {paymentProvider === ProviderTypeEnum?.Gocardless && (
-        <div>
-          <Typography variant="caption">{translate('text_62b5c912506c4905fa755248')}</Typography>
-          <Typography color="textSecondary">
-            {translate('text_634ea0ecc6147de10ddb6648')}
+            {paymentProvider === ProviderTypeEnum?.Stripe
+              ? translate('text_62b5c912506c4905fa75524a')
+              : paymentProvider === ProviderTypeEnum?.Gocardless
+              ? translate('text_634ea0ecc6147de10ddb6648')
+              : paymentProvider === ProviderTypeEnum?.Adyen
+              ? translate('text_645d071272418a14c1c76a6d')
+              : ''}
           </Typography>
         </div>
       )}

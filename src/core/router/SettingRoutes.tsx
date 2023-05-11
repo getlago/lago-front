@@ -21,6 +21,9 @@ const Members = lazyLoad(() => import(/* webpackChunkName: 'members' */ '~/pages
 const Integrations = lazyLoad(
   () => import(/* webpackChunkName: 'integrations' */ '~/pages/settings/Integrations')
 )
+const AdyenIntegration = lazyLoad(
+  () => import(/* webpackChunkName: 'adyen-integration' */ '~/pages/settings/AdyenIntegration')
+)
 const StripeIntegration = lazyLoad(
   () => import(/* webpackChunkName: 'stripe-integration' */ '~/pages/settings/StripeIntegration')
 )
@@ -44,6 +47,7 @@ export const INVOICE_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/invoice`
 export const TAXES_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/taxes`
 export const ORGANIZATION_INFORMATIONS_ROUTE = `${SETTINGS_ROUTE}/organization-informations`
 export const INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
+export const ADYEN_INTEGRATION_ROUTE = `${SETTINGS_ROUTE}/integrations/adyen`
 export const STRIPE_INTEGRATION_ROUTE = `${SETTINGS_ROUTE}/integrations/stripe`
 export const GOCARDLESS_INTEGRATION_ROUTE = `${SETTINGS_ROUTE}/integrations/gocardless`
 export const MEMBERS_ROUTE = `${SETTINGS_ROUTE}/members`
@@ -86,6 +90,11 @@ export const settingRoutes: CustomRouteObject[] = [
         element: <Members />,
       },
     ],
+  },
+  {
+    path: ADYEN_INTEGRATION_ROUTE,
+    private: true,
+    element: <AdyenIntegration />,
   },
   {
     path: STRIPE_INTEGRATION_ROUTE,

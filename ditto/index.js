@@ -131,6 +131,9 @@ module.exports = {
   "project_63e27c4800ff170963670e71": {
     "base": require('./-wip---settings---webhook-debugger__base.json')
   },
+  "project_645d070fa825baf410cec70c": {
+    "base": require('./-wip---settings--customers---lago-x-adyen-connection__base.json')
+  },
   "project_6295e54aa233f00167720fe8": {
     "base": require('./add-ons---apply-an-add-on-to-a-customer__base.json')
   },
