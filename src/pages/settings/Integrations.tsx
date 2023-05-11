@@ -7,13 +7,18 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { Typography, Selector, Avatar, SelectorSkeleton, Chip } from '~/components/designSystem'
 import Stripe from '~/public/images/stripe.svg'
+import Adyen from '~/public/images/adyen.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import Airbyte from '~/public/images/airbyte.svg'
 import HightTouch from '~/public/images/hightouch.svg'
 import Segment from '~/public/images/segment.svg'
 import Oso from '~/public/images/oso.svg'
 import { useIntegrationsSettingQuery } from '~/generated/graphql'
-import { STRIPE_INTEGRATION_ROUTE, GOCARDLESS_INTEGRATION_ROUTE } from '~/core/router'
+import {
+  STRIPE_INTEGRATION_ROUTE,
+  GOCARDLESS_INTEGRATION_ROUTE,
+  ADYEN_INTEGRATION_ROUTE,
+} from '~/core/router'
 import { envGlobalVar } from '~/core/apolloClient'
 import {
   AddStripeDialog,
@@ -25,6 +30,10 @@ import {
   DOCUMENTATION_SEGMENT,
   DOCUMENTATION_HIGHTTOUCH,
 } from '~/externalUrls'
+import {
+  AddAdyenDialog,
+  AddAdyenDialogRef,
+} from '~/components/settings/integrations/AddAdyenDialog'
 
 gql`
   query integrationsSetting {
@@ -36,6 +45,9 @@ gql`
       gocardlessPaymentProvider {
         id
       }
+      adyenPaymentProvider {
+        id
+      }
     }
   }
 `
@@ -43,8 +55,10 @@ gql`
 const Integrations = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const addDialogRef = useRef<AddStripeDialogRef>(null)
+  const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
+  const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
   const { data, loading } = useIntegrationsSettingQuery()
+  const hasAdyenIntegration = !!data?.organization?.adyenPaymentProvider?.id
   const hasStripeIntegration = !!data?.organization?.stripePaymentProvider?.id
   const hasGocardlessIntegration = !!data?.organization?.gocardlessPaymentProvider?.id
   const { lagoOauthProxyUrl } = envGlobalVar()
@@ -62,6 +76,32 @@ const Integrations = () => {
         </LoadingContainer>
       ) : (
         <>
+          <StyledSelector
+            title={translate('text_645d071272418a14c1c76a6d')}
+            subtitle={translate('text_634ea0ecc6147de10ddb6631')}
+            icon={
+              <Avatar variant="connector">
+                <Adyen />
+              </Avatar>
+            }
+            endIcon={
+              hasAdyenIntegration ? (
+                <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+              ) : undefined
+            }
+            onClick={() => {
+              if (hasAdyenIntegration) {
+                navigate(ADYEN_INTEGRATION_ROUTE)
+              } else {
+                const element = document.activeElement as HTMLElement
+
+                element.blur && element.blur()
+                addAdyenDialogRef.current?.openDialog()
+              }
+            }}
+            fullWidth
+          />
+
           <StyledSelector
             title={translate('text_639c334c3fa0e9c6ca3512b2')}
             subtitle={translate('text_639c334c3fa0e9c6ca3512b4')}
@@ -140,14 +180,16 @@ const Integrations = () => {
                 const element = document.activeElement as HTMLElement
 
                 element.blur && element.blur()
-                addDialogRef.current?.openDialog()
+                addStripeDialogRef.current?.openDialog()
               }
             }}
             fullWidth
           />
         </>
       )}
-      <AddStripeDialog ref={addDialogRef} />
+
+      <AddAdyenDialog ref={addAdyenDialogRef} />
+      <AddStripeDialog ref={addStripeDialogRef} />
     </Page>
   )
 }

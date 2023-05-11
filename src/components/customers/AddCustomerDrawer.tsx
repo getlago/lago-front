@@ -371,7 +371,8 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
               PopperProps={{ displayInDialog: true }}
             />
             {(formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless ||
-              formikProps.values.paymentProvider === ProviderTypeEnum.Stripe) && (
+              formikProps.values.paymentProvider === ProviderTypeEnum.Stripe ||
+              formikProps.values.paymentProvider === ProviderTypeEnum.Adyen) && (
               <>
                 <TextInputField
                   name="providerCustomer.providerCustomerId"
@@ -380,27 +381,37 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                   placeholder={translate('text_62b328ead9a4caef81cd9ca2')}
                   formikProps={formikProps}
                 />
-                <Checkbox
-                  name="providerCustomer.syncWithProvider"
-                  value={!!formikProps.values.providerCustomer?.syncWithProvider}
-                  label={
-                    formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless
-                      ? translate('text_635bdbda84c98758f9bba8aa')
-                      : translate('text_635bdbda84c98758f9bba89e')
-                  }
-                  onChange={(e, checked) => {
-                    setIsDisabled(checked)
-                    formikProps.setFieldValue('providerCustomer.syncWithProvider', checked)
-                    if (!isEdition && checked) {
-                      formikProps.setFieldValue('providerCustomer.providerCustomerId', undefined)
+                {!isEdition && (
+                  <Checkbox
+                    name="providerCustomer.syncWithProvider"
+                    value={!!formikProps.values.providerCustomer?.syncWithProvider}
+                    label={
+                      formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless
+                        ? translate('text_635bdbda84c98758f9bba8aa')
+                        : formikProps.values.paymentProvider === ProviderTypeEnum.Adyen
+                        ? translate('text_645d0728ea0a5a7bbf76d5c7')
+                        : translate('text_635bdbda84c98758f9bba89e')
                     }
-                  }}
-                />
+                    onChange={(e, checked) => {
+                      setIsDisabled(checked)
+                      formikProps.setFieldValue('providerCustomer.syncWithProvider', checked)
+                      if (!isEdition && checked) {
+                        formikProps.setFieldValue('providerCustomer.providerCustomerId', undefined)
+                      }
+                    }}
+                  />
+                )}
               </>
             )}
-            {isDisabled && formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless && (
-              <Alert type="info">{translate('text_635bdbda84c98758f9bba8ae')}</Alert>
-            )}
+            {isDisabled &&
+              (formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless ||
+                formikProps.values.paymentProvider === ProviderTypeEnum.Adyen) && (
+                <Alert type="info">
+                  {formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless
+                    ? translate('text_635bdbda84c98758f9bba8ae')
+                    : translate('text_645d0728ea0a5a7bbf76d5c9')}
+                </Alert>
+              )}
           </AccordionContentWrapper>
         </Accordion>
 

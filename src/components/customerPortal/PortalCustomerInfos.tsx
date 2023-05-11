@@ -32,6 +32,8 @@ const getFormattedPaymentProviderDisplayName = (providerName: string): string =>
       return 'text_641d675a515302007a839491'
     case ProviderTypeEnum.Stripe:
       return 'text_641d6718d6e84b11be5cc475-1'
+    case ProviderTypeEnum.Adyen:
+      return 'text_645d071272418a14c1c76a6d'
     default:
       return ''
   }

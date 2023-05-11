@@ -2508,6 +2508,7 @@ export type ProviderCustomerInput = {
 };
 
 export enum ProviderTypeEnum {
+  Adyen = 'adyen',
   Gocardless = 'gocardless',
   Stripe = 'stripe'
 }
@@ -3986,12 +3987,26 @@ export type UpdateOrganizationLogoMutationVariables = Exact<{
 
 export type UpdateOrganizationLogoMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string, logoUrl?: string | null } | null };
 
+export type AddAdyenApiKeyMutationVariables = Exact<{
+  input: AddAdyenPaymentProviderInput;
+}>;
+
+
+export type AddAdyenApiKeyMutation = { __typename?: 'Mutation', addAdyenPaymentProvider?: { __typename?: 'AdyenProvider', id: string, apiKey: string, hmacKey?: string | null, livePrefix?: string | null, merchantAccount: string } | null };
+
 export type AddStripeApiKeyMutationVariables = Exact<{
   input: AddStripePaymentProviderInput;
 }>;
 
 
 export type AddStripeApiKeyMutation = { __typename?: 'Mutation', addStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, secretKey: string, createCustomers: boolean } | null };
+
+export type DeleteAdyenMutationVariables = Exact<{
+  input: DestroyPaymentProviderInput;
+}>;
+
+
+export type DeleteAdyenMutation = { __typename?: 'Mutation', destroyPaymentProvider?: { __typename?: 'DestroyPaymentProviderPayload', id?: string | null } | null };
 
 export type DeleteStripeMutationVariables = Exact<{
   input: DestroyPaymentProviderInput;
@@ -4554,6 +4569,13 @@ export type GetWebhookLogQueryVariables = Exact<{
 
 export type GetWebhookLogQuery = { __typename?: 'Query', webhooks: { __typename?: 'WebhookCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Webhook', id: string, createdAt: any, status: WebhookStatusEnum, updatedAt: any, webhookType: string, payload?: string | null, response?: string | null, httpStatus?: number | null, endpoint: string, retries: number }> } };
 
+export type AdyenIntegrationFragment = { __typename?: 'AdyenProvider', id: string, apiKey: string, hmacKey?: string | null, livePrefix?: string | null, merchantAccount: string };
+
+export type AdyenIntegrationsSettingQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AdyenIntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, adyenPaymentProvider?: { __typename?: 'AdyenProvider', id: string, apiKey: string, hmacKey?: string | null, livePrefix?: string | null, merchantAccount: string } | null } | null };
+
 export type GocardlessIntegrationsSettingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -4569,7 +4591,7 @@ export type AddGocardlessPaymentProviderMutation = { __typename?: 'Mutation', ad
 export type IntegrationsSettingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type IntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, stripePaymentProvider?: { __typename?: 'StripeProvider', id: string } | null, gocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string } | null } | null };
+export type IntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, stripePaymentProvider?: { __typename?: 'StripeProvider', id: string } | null, gocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string } | null, adyenPaymentProvider?: { __typename?: 'AdyenProvider', id: string } | null } | null };
 
 export type GetOrganizationSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -5847,6 +5869,15 @@ export const WebhookLogFragmentDoc = gql`
 }
     ${WebhookLogItemFragmentDoc}
 ${WebhookLogDetailsFragmentDoc}`;
+export const AdyenIntegrationFragmentDoc = gql`
+    fragment AdyenIntegration on AdyenProvider {
+  id
+  apiKey
+  hmacKey
+  livePrefix
+  merchantAccount
+}
+    `;
 export const OrganizationInformationsFragmentDoc = gql`
     fragment OrganizationInformations on Organization {
   id
@@ -7665,6 +7696,44 @@ export function useUpdateOrganizationLogoMutation(baseOptions?: Apollo.MutationH
 export type UpdateOrganizationLogoMutationHookResult = ReturnType<typeof useUpdateOrganizationLogoMutation>;
 export type UpdateOrganizationLogoMutationResult = Apollo.MutationResult<UpdateOrganizationLogoMutation>;
 export type UpdateOrganizationLogoMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationLogoMutation, UpdateOrganizationLogoMutationVariables>;
+export const AddAdyenApiKeyDocument = gql`
+    mutation addAdyenApiKey($input: AddAdyenPaymentProviderInput!) {
+  addAdyenPaymentProvider(input: $input) {
+    id
+    apiKey
+    hmacKey
+    livePrefix
+    merchantAccount
+    ...AdyenIntegration
+  }
+}
+    ${AdyenIntegrationFragmentDoc}`;
+export type AddAdyenApiKeyMutationFn = Apollo.MutationFunction<AddAdyenApiKeyMutation, AddAdyenApiKeyMutationVariables>;
+
+/**
+ * __useAddAdyenApiKeyMutation__
+ *
+ * To run a mutation, you first call `useAddAdyenApiKeyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddAdyenApiKeyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addAdyenApiKeyMutation, { data, loading, error }] = useAddAdyenApiKeyMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddAdyenApiKeyMutation(baseOptions?: Apollo.MutationHookOptions<AddAdyenApiKeyMutation, AddAdyenApiKeyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddAdyenApiKeyMutation, AddAdyenApiKeyMutationVariables>(AddAdyenApiKeyDocument, options);
+      }
+export type AddAdyenApiKeyMutationHookResult = ReturnType<typeof useAddAdyenApiKeyMutation>;
+export type AddAdyenApiKeyMutationResult = Apollo.MutationResult<AddAdyenApiKeyMutation>;
+export type AddAdyenApiKeyMutationOptions = Apollo.BaseMutationOptions<AddAdyenApiKeyMutation, AddAdyenApiKeyMutationVariables>;
 export const AddStripeApiKeyDocument = gql`
     mutation addStripeApiKey($input: AddStripePaymentProviderInput!) {
   addStripePaymentProvider(input: $input) {
@@ -7699,6 +7768,39 @@ export function useAddStripeApiKeyMutation(baseOptions?: Apollo.MutationHookOpti
 export type AddStripeApiKeyMutationHookResult = ReturnType<typeof useAddStripeApiKeyMutation>;
 export type AddStripeApiKeyMutationResult = Apollo.MutationResult<AddStripeApiKeyMutation>;
 export type AddStripeApiKeyMutationOptions = Apollo.BaseMutationOptions<AddStripeApiKeyMutation, AddStripeApiKeyMutationVariables>;
+export const DeleteAdyenDocument = gql`
+    mutation deleteAdyen($input: DestroyPaymentProviderInput!) {
+  destroyPaymentProvider(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteAdyenMutationFn = Apollo.MutationFunction<DeleteAdyenMutation, DeleteAdyenMutationVariables>;
+
+/**
+ * __useDeleteAdyenMutation__
+ *
+ * To run a mutation, you first call `useDeleteAdyenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAdyenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAdyenMutation, { data, loading, error }] = useDeleteAdyenMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteAdyenMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAdyenMutation, DeleteAdyenMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteAdyenMutation, DeleteAdyenMutationVariables>(DeleteAdyenDocument, options);
+      }
+export type DeleteAdyenMutationHookResult = ReturnType<typeof useDeleteAdyenMutation>;
+export type DeleteAdyenMutationResult = Apollo.MutationResult<DeleteAdyenMutation>;
+export type DeleteAdyenMutationOptions = Apollo.BaseMutationOptions<DeleteAdyenMutation, DeleteAdyenMutationVariables>;
 export const DeleteStripeDocument = gql`
     mutation deleteStripe($input: DestroyPaymentProviderInput!) {
   destroyPaymentProvider(input: $input) {
@@ -10388,6 +10490,43 @@ export function useGetWebhookLogLazyQuery(baseOptions?: Apollo.LazyQueryHookOpti
 export type GetWebhookLogQueryHookResult = ReturnType<typeof useGetWebhookLogQuery>;
 export type GetWebhookLogLazyQueryHookResult = ReturnType<typeof useGetWebhookLogLazyQuery>;
 export type GetWebhookLogQueryResult = Apollo.QueryResult<GetWebhookLogQuery, GetWebhookLogQueryVariables>;
+export const AdyenIntegrationsSettingDocument = gql`
+    query AdyenIntegrationsSetting {
+  organization {
+    id
+    adyenPaymentProvider {
+      ...AdyenIntegration
+    }
+  }
+}
+    ${AdyenIntegrationFragmentDoc}`;
+
+/**
+ * __useAdyenIntegrationsSettingQuery__
+ *
+ * To run a query within a React component, call `useAdyenIntegrationsSettingQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAdyenIntegrationsSettingQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAdyenIntegrationsSettingQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAdyenIntegrationsSettingQuery(baseOptions?: Apollo.QueryHookOptions<AdyenIntegrationsSettingQuery, AdyenIntegrationsSettingQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AdyenIntegrationsSettingQuery, AdyenIntegrationsSettingQueryVariables>(AdyenIntegrationsSettingDocument, options);
+      }
+export function useAdyenIntegrationsSettingLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AdyenIntegrationsSettingQuery, AdyenIntegrationsSettingQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AdyenIntegrationsSettingQuery, AdyenIntegrationsSettingQueryVariables>(AdyenIntegrationsSettingDocument, options);
+        }
+export type AdyenIntegrationsSettingQueryHookResult = ReturnType<typeof useAdyenIntegrationsSettingQuery>;
+export type AdyenIntegrationsSettingLazyQueryHookResult = ReturnType<typeof useAdyenIntegrationsSettingLazyQuery>;
+export type AdyenIntegrationsSettingQueryResult = Apollo.QueryResult<AdyenIntegrationsSettingQuery, AdyenIntegrationsSettingQueryVariables>;
 export const GocardlessIntegrationsSettingDocument = gql`
     query gocardlessIntegrationsSetting {
   organization {
@@ -10470,6 +10609,9 @@ export const IntegrationsSettingDocument = gql`
       id
     }
     gocardlessPaymentProvider {
+      id
+    }
+    adyenPaymentProvider {
       id
     }
   }
