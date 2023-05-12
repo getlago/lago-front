@@ -3,13 +3,13 @@ import { DateTime, Duration } from 'luxon'
 const currentDate = DateTime.now().toISO()
 
 const getOffset = (zone: string) => {
-  const offsetInMinute = DateTime.fromISO(currentDate, { zone }).offset
+  const offsetInMinute = DateTime.fromISO(currentDate as string, { zone }).offset
   const sign = Math.sign(offsetInMinute)
 
   return isNaN(offsetInMinute)
     ? 'NaN'
     : Duration.fromObject({
-        minutes: Math.abs(DateTime.fromISO(currentDate, { zone }).offset),
+        minutes: Math.abs(DateTime.fromISO(currentDate as string, { zone }).offset),
       }).toFormat(`${sign === -1 ? '-' : offsetInMinute === 0 ? '±' : '+'}h:mm`)
 }
 
