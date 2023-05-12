@@ -12,7 +12,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { TextInputField, ComboBoxField, JsonEditorField } from '~/components/form'
 import { BILLABLE_METRICS_ROUTE } from '~/core/router'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { useCreateEditBillableMetric, FORM_ERRORS_ENUM } from '~/hooks/useCreateEditBillableMetric'
+import { useCreateEditBillableMetric } from '~/hooks/useCreateEditBillableMetric'
 import { BillableMetricCodeSnippet } from '~/components/billableMetrics/BillableMetricCodeSnippet'
 import {
   Main,
@@ -24,6 +24,7 @@ import {
   SkeletonHeader,
   ButtonContainer,
 } from '~/styles/mainObjectsForm'
+import { FORM_ERRORS_ENUM } from '~/core/formErrors'
 
 gql`
   fragment EditBillableMetric on BillableMetric {

@@ -7,7 +7,7 @@ import { InputAdornment } from '@mui/material'
 import styled from 'styled-components'
 import isEqual from 'lodash/isEqual'
 
-import { useCreateEditCoupon, FORM_ERRORS_ENUM } from '~/hooks/useCreateEditCoupon'
+import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
 import { PageHeader, Card, theme, ButtonGroup } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
@@ -56,6 +56,7 @@ import {
   AddBillableMetricToCouponDialog,
   AddBillableMetricToCouponDialogRef,
 } from '~/components/coupons/AddBillableMetricToCouponDialog'
+import { FORM_ERRORS_ENUM } from '~/core/formErrors'
 
 import { CouponCodeSnippet } from '../components/coupons/CouponCodeSnippet'
 

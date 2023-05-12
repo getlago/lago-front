@@ -7,9 +7,10 @@ import { ButtonSelectorField, ComboBoxField, TextInputField } from '~/components
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Button, Tooltip, Typography } from '~/components/designSystem'
 import { theme, Card } from '~/styles'
-import { PLAN_FORM_TYPE_ENUM, FORM_ERRORS_ENUM } from '~/hooks/plans/usePlanForm'
+import { PLAN_FORM_TYPE_ENUM } from '~/hooks/plans/usePlanForm'
 import { LineSplit } from '~/styles/mainObjectsForm'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
+import { FORM_ERRORS_ENUM } from '~/core/formErrors'
 
 import { PlanFormInput } from './types'
 

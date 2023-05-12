@@ -11,10 +11,7 @@ import {
 import { ERROR_404_ROUTE, TAXES_SETTINGS_ROUTE } from '~/core/router'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { TaxRateFormInput } from '~/components/taxRates/types'
-
-export enum FORM_ERRORS_ENUM {
-  existingCode = 'existingCode',
-}
+import { FORM_ERRORS_ENUM } from '~/core/formErrors'
 
 gql`
   fragment TaxRateForm on TaxRate {

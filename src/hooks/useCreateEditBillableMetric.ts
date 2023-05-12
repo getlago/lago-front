@@ -16,6 +16,7 @@ import {
 } from '~/generated/graphql'
 import { ERROR_404_ROUTE, BILLABLE_METRICS_ROUTE } from '~/core/router'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { FORM_ERRORS_ENUM } from '~/core/formErrors'
 
 gql`
   query getSingleBillableMetric($id: ID!) {
@@ -49,11 +50,6 @@ type UseCreateEditBillableMetricReturn = {
   billableMetric?: EditBillableMetricFragment
   errorCode?: string
   onSave: (value: CreateBillableMetricInput | UpdateBillableMetricInput) => Promise<void>
-}
-
-export enum FORM_ERRORS_ENUM {
-  existingCode = 'existingCode',
-  invalidGroupValue = 'invalidGroupValue',
 }
 
 export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricReturn = () => {

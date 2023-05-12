@@ -4,7 +4,7 @@ import { useFormik } from 'formik'
 import { object, string, number } from 'yup'
 import styled from 'styled-components'
 
-import { useCreateEditAddOn, FORM_ERRORS_ENUM } from '~/hooks/useCreateEditAddOn'
+import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
 import { PageHeader } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
@@ -25,6 +25,7 @@ import {
   LineAmount,
 } from '~/styles/mainObjectsForm'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { FORM_ERRORS_ENUM } from '~/core/formErrors'
 
 import { AddOnCodeSnippet } from '../components/addOns/AddOnCodeSnippet'
 
