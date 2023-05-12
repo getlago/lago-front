@@ -17,7 +17,7 @@ import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { theme, PageHeader, Card } from '~/styles'
 import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
-import { usePlanForm, PLAN_FORM_TYPE_ENUM, FORM_ERRORS_ENUM } from '~/hooks/plans/usePlanForm'
+import { usePlanForm, PLAN_FORM_TYPE_ENUM } from '~/hooks/plans/usePlanForm'
 import { chargeSchema } from '~/formValidation/chargeSchema'
 import {
   Main,
@@ -32,6 +32,7 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
 import { ChargesSection } from '~/components/plans/ChargesSection'
+import { FORM_ERRORS_ENUM } from '~/core/formErrors'
 
 import { PlanFormInput, LocalChargeInput } from '../components/plans/types'
 

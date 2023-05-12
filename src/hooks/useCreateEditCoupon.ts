@@ -23,10 +23,7 @@ import {
 import { ERROR_404_ROUTE, COUPONS_ROUTE } from '~/core/router'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
-
-export enum FORM_ERRORS_ENUM {
-  existingCode = 'existingCode',
-}
+import { FORM_ERRORS_ENUM } from '~/core/formErrors'
 
 gql`
   fragment EditCoupon on Coupon {

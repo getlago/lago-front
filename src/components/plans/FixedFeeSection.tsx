@@ -8,9 +8,9 @@ import { TextInputField, SwitchField, AmountInputField } from '~/components/form
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Button, Chip, Icon, Tooltip, Typography } from '~/components/designSystem'
 import { theme, Card, NAV_HEIGHT } from '~/styles'
-import { FORM_ERRORS_ENUM } from '~/hooks/plans/usePlanForm'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
+import { FORM_ERRORS_ENUM } from '~/core/formErrors'
 
 import { PlanFormInput } from './types'
 

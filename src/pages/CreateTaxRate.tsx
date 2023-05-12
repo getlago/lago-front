@@ -19,10 +19,11 @@ import {
   SectionTitle,
   LineSplit,
 } from '~/styles/mainObjectsForm'
-import { FORM_ERRORS_ENUM, useCreateEditTaxRate } from '~/hooks/useCreateEditTaxRate'
+import { useCreateEditTaxRate } from '~/hooks/useCreateEditTaxRate'
 import { TaxRateCodeSnippet } from '~/components/taxRates/TaxRateCodeSnippet'
 import { TextInputField } from '~/components/form'
 import { TaxRateFormInput } from '~/components/taxRates/types'
+import { FORM_ERRORS_ENUM } from '~/core/formErrors'
 
 const CreateTaxRate = () => {
   const { isEdition, errorCode, loading, onClose, onSave, taxRate } = useCreateEditTaxRate()
