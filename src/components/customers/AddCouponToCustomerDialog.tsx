@@ -168,26 +168,28 @@ export const AddCouponToCustomerDialog = forwardRef<
       amountCents: number().when('couponType', {
         is: (couponType: CouponTypeEnum) =>
           !!couponType && couponType === CouponTypeEnum.FixedAmount,
-        then: number()
-          .typeError(translate('text_624ea7c29103fd010732ab7d'))
-          .min(0.001, 'text_632d68358f1fedc68eed3e91')
-          .required(''),
+        then: (schema) =>
+          schema
+            .typeError(translate('text_624ea7c29103fd010732ab7d'))
+            .min(0.001, 'text_632d68358f1fedc68eed3e91')
+            .required(''),
       }),
       amountCurrency: string()
         .when('couponType', {
           is: (couponType: CouponTypeEnum) =>
             !!couponType && couponType === CouponTypeEnum.FixedAmount,
-          then: string().required(''),
+          then: (schema) => schema.required(''),
         })
         .nullable(),
       percentageRate: number()
         .when('couponType', {
           is: (couponType: CouponTypeEnum) =>
             !!couponType && couponType === CouponTypeEnum.Percentage,
-          then: number()
-            .typeError(translate('text_624ea7c29103fd010732ab7d'))
-            .min(0.001, 'text_633445d00315a713775f02a6')
-            .required(''),
+          then: (schema) =>
+            schema
+              .typeError(translate('text_624ea7c29103fd010732ab7d'))
+              .min(0.001, 'text_633445d00315a713775f02a6')
+              .required(''),
         })
         .nullable(),
       couponType: string().required('').nullable(),
@@ -196,10 +198,11 @@ export const AddCouponToCustomerDialog = forwardRef<
         .when('frequency', {
           is: (frequency: CouponFrequency) =>
             !!frequency && frequency === CouponFrequency.Recurring,
-          then: number()
-            .typeError(translate('text_63314cfeb607e57577d894c9'))
-            .min(1, 'text_63314cfeb607e57577d894c9')
-            .required(''),
+          then: (schema) =>
+            schema
+              .typeError(translate('text_63314cfeb607e57577d894c9'))
+              .min(1, 'text_63314cfeb607e57577d894c9')
+              .required(''),
         })
         .nullable(),
     }),

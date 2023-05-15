@@ -2,25 +2,25 @@ import { object, string, number, array } from 'yup'
 
 import { BillableMetric, ChargeModelEnum } from '~/generated/graphql'
 
-const standardShape = object().shape({
+const standardShape = {
   amount: number().typeError('text_624ea7c29103fd010732ab7d').required(''),
-})
+}
 
-const packageShape = object().shape({
+const packageShape = {
   amount: number().typeError('text_624ea7c29103fd010732ab7d').required(''),
   packageSize: number()
     .min(1, 'text_6282085b4f283b0102655888')
     .required('text_6282085b4f283b0102655888'),
-})
+}
 
-const percentageShape = object().shape({
+const percentageShape = {
   rate: number().required(''),
   fixedAmount: number(),
   freeUnitsPerEvents: number(),
   freeUnitsPerTotalAggregation: number(),
-})
+}
 
-const graduatedShape = object().shape({
+const graduatedShape = {
   graduatedRanges: array()
     .test({
       test: (graduatedRange) => {
@@ -45,9 +45,9 @@ const graduatedShape = object().shape({
     })
     .min(2)
     .required(''),
-})
+}
 
-const volumeShape = object().shape({
+const volumeShape = {
   volumeRanges: array()
     .test({
       test: (volumeRange) => {
@@ -72,7 +72,7 @@ const volumeShape = object().shape({
     })
     .min(2)
     .required(''),
-})
+}
 
 export const chargeSchema = array().of(
   object().shape({
@@ -84,7 +84,7 @@ export const chargeSchema = array().of(
           chargeModel === ChargeModelEnum.Standard &&
           !!billableMetric &&
           !billableMetric.flatGroups?.length,
-        then: standardShape,
+        then: (schema) => schema.shape(standardShape),
       })
       .when(['chargeModel', 'billableMetric'], {
         is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
@@ -92,7 +92,7 @@ export const chargeSchema = array().of(
           chargeModel === ChargeModelEnum.Package &&
           !!billableMetric &&
           !billableMetric.flatGroups?.length,
-        then: packageShape,
+        then: (schema) => schema.shape(packageShape),
       })
       .when(['chargeModel', 'billableMetric'], {
         is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
@@ -100,7 +100,7 @@ export const chargeSchema = array().of(
           chargeModel === ChargeModelEnum.Percentage &&
           !!billableMetric &&
           !billableMetric.flatGroups?.length,
-        then: percentageShape,
+        then: (schema) => schema.shape(percentageShape),
       })
       .when(['chargeModel', 'billableMetric'], {
         is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
@@ -108,7 +108,7 @@ export const chargeSchema = array().of(
           chargeModel === ChargeModelEnum.Graduated &&
           !!billableMetric &&
           !billableMetric.flatGroups?.length,
-        then: graduatedShape,
+        then: (schema) => schema.shape(graduatedShape),
       })
       .when(['chargeModel', 'billableMetric'], {
         is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
@@ -116,7 +116,7 @@ export const chargeSchema = array().of(
           chargeModel === ChargeModelEnum.Volume &&
           !!billableMetric &&
           !billableMetric.flatGroups?.length,
-        then: volumeShape,
+        then: (schema) => schema.shape(volumeShape),
       }),
     groupProperties: array()
       .when(['chargeModel', 'billableMetric'], {
@@ -125,11 +125,12 @@ export const chargeSchema = array().of(
           chargeModel === ChargeModelEnum.Standard &&
           !!billableMetric &&
           !!billableMetric.flatGroups?.length,
-        then: array().of(
-          object().shape({
-            values: standardShape,
-          })
-        ),
+        then: (schema) =>
+          schema.of(
+            object().shape({
+              values: object().shape(standardShape),
+            })
+          ),
       })
       .when(['chargeModel', 'billableMetric'], {
         is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
@@ -137,11 +138,12 @@ export const chargeSchema = array().of(
           chargeModel === ChargeModelEnum.Package &&
           !!billableMetric &&
           !!billableMetric.flatGroups?.length,
-        then: array().of(
-          object().shape({
-            values: packageShape,
-          })
-        ),
+        then: (schema) =>
+          schema.of(
+            object().shape({
+              values: object().shape(packageShape),
+            })
+          ),
       })
       .when(['chargeModel', 'billableMetric'], {
         is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
@@ -149,11 +151,12 @@ export const chargeSchema = array().of(
           chargeModel === ChargeModelEnum.Percentage &&
           !!billableMetric &&
           !!billableMetric.flatGroups?.length,
-        then: array().of(
-          object().shape({
-            values: percentageShape,
-          })
-        ),
+        then: (schema) =>
+          schema.of(
+            object().shape({
+              values: object().shape(percentageShape),
+            })
+          ),
       })
       .when(['chargeModel', 'billableMetric'], {
         is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
@@ -161,11 +164,12 @@ export const chargeSchema = array().of(
           chargeModel === ChargeModelEnum.Graduated &&
           !!billableMetric &&
           !!billableMetric.flatGroups?.length,
-        then: array().of(
-          object().shape({
-            values: graduatedShape,
-          })
-        ),
+        then: (schema) =>
+          schema.of(
+            object().shape({
+              values: object().shape(graduatedShape),
+            })
+          ),
       })
       .when(['chargeModel', 'billableMetric'], {
         is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
@@ -173,11 +177,12 @@ export const chargeSchema = array().of(
           chargeModel === ChargeModelEnum.Volume &&
           !!billableMetric &&
           !!billableMetric.flatGroups?.length,
-        then: array().of(
-          object().shape({
-            values: volumeShape,
-          })
-        ),
+        then: (schema) =>
+          schema.of(
+            object().shape({
+              values: object().shape(volumeShape),
+            })
+          ),
       }),
   })
 )

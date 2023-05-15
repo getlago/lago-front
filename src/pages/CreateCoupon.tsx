@@ -101,18 +101,20 @@ const CreateCoupon = () => {
       amountCents: number().when('couponType', {
         is: (couponType: CouponTypeEnum) =>
           !!couponType && couponType === CouponTypeEnum.FixedAmount,
-        then: number()
-          .typeError(translate('text_624ea7c29103fd010732ab7d'))
-          .min(0.001, 'text_632d68358f1fedc68eed3e91')
-          .required(''),
+        then: (schema) =>
+          schema
+            .typeError(translate('text_624ea7c29103fd010732ab7d'))
+            .min(0.001, 'text_632d68358f1fedc68eed3e91')
+            .required(''),
       }),
       percentageRate: number().when('couponType', {
         is: (couponType: CouponTypeEnum) =>
           !!couponType && couponType === CouponTypeEnum.Percentage,
-        then: number()
-          .typeError(translate('text_624ea7c29103fd010732ab7d'))
-          .min(0.001, 'text_633445d00315a713775f02a6')
-          .required(''),
+        then: (schema) =>
+          schema
+            .typeError(translate('text_624ea7c29103fd010732ab7d'))
+            .min(0.001, 'text_633445d00315a713775f02a6')
+            .required(''),
       }),
       name: string().required(''),
       amountCurrency: string().required(''),
@@ -121,24 +123,26 @@ const CreateCoupon = () => {
       frequency: string().required(''),
       frequencyDuration: number().when('frequency', {
         is: (frequency: CouponFrequency) => !!frequency && frequency === CouponFrequency.Recurring,
-        then: number()
-          .typeError(translate('text_63314cfeb607e57577d894c9'))
-          .min(1, 'text_63314cfeb607e57577d894c9')
-          .required(''),
+        then: (schema) =>
+          schema
+            .typeError(translate('text_63314cfeb607e57577d894c9'))
+            .min(1, 'text_63314cfeb607e57577d894c9')
+            .required(''),
       }),
       reusable: string().required(''),
       expiration: string().required(''),
       expirationAt: date().when('expiration', {
         is: (expiration: CouponExpiration) =>
           !!expiration && expiration === CouponExpiration.TimeLimit,
-        then: date()
-          .min(
-            DateTime.now().plus({ days: -1 }),
-            translate('text_632d68358f1fedc68eed3ef2', {
-              date: DateTime.now().plus({ days: -1 }).toFormat('LLL. dd, yyyy').toLocaleString(),
-            })
-          )
-          .required(''),
+        then: (schema) =>
+          schema
+            .min(
+              DateTime.now().plus({ days: -1 }),
+              translate('text_632d68358f1fedc68eed3ef2', {
+                date: DateTime.now().plus({ days: -1 }).toFormat('LLL. dd, yyyy').toLocaleString(),
+              })
+            )
+            .required(''),
       }),
     }),
     enableReinitialize: true,
