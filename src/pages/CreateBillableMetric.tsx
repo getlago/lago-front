@@ -66,7 +66,7 @@ const CreateBillableMetric = () => {
       fieldName: string().when('aggregationType', {
         is: (aggregationType: AggregationTypeEnum) =>
           !!aggregationType && aggregationType !== AggregationTypeEnum.CountAgg,
-        then: string().required(''),
+        then: (schema) => schema.required(''),
       }),
     }),
     enableReinitialize: true,

@@ -135,7 +135,7 @@ const CreateCreditNote = () => {
           type: string().required(''),
           value: number()
             .required('')
-            .when('type', (type: CreditTypeEnum) => {
+            .when('type', ([type]) => {
               return type === CreditTypeEnum.refund
                 ? number().max(
                     deserializeAmount(invoice?.refundableAmountCents, currency) || 0,

@@ -1,4 +1,4 @@
-import { object, number, boolean, NumberSchema } from 'yup'
+import { object, number, boolean } from 'yup'
 import _get from 'lodash/get'
 
 import {
@@ -15,9 +15,9 @@ export const simpleFeeSchema = (maxAmount: number, currency: CurrencyEnum) =>
     checked: boolean(),
     value: number()
       .default(0)
-      .when('checked', (checked: boolean, schema: NumberSchema) => {
+      .when('checked', ([checked], schema) => {
         return !!checked
-          ? number()
+          ? schema
               .min(0.0000000000000001, CreditNoteFeeErrorEnum.minZero)
               .max(deserializeAmount(maxAmount, currency), CreditNoteFeeErrorEnum.overMax)
               .required('')
