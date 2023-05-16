@@ -5946,10 +5946,10 @@ getpass@^0.1.1:
   dependencies:
     assert-plus "^1.0.0"
 
-gettext-extractor@3.7.1:
-  version "3.7.1"
-  resolved "https://registry.yarnpkg.com/gettext-extractor/-/gettext-extractor-3.7.1.tgz#8678538a198a9397fe9272ffdd29818e1bb60566"
-  integrity sha512-sLMXbl5qf+vkWtEJXKV2xaUqt1DFuUMshoQaGQNAXPrK1ds8l7mhbWLHJIVwrlOK2OUSVDgVOxRrjyf0g/epKg==
+gettext-extractor@3.7.2:
+  version "3.7.2"
+  resolved "https://registry.yarnpkg.com/gettext-extractor/-/gettext-extractor-3.7.2.tgz#936786204215249e353c2b1344b931d45fa91383"
+  integrity sha512-nXZDMevReplyum9HsHkU+Y9DemC2kKUkzLL0bu27tSola9TCpUfVkyMpnhvKv1sLj3CcgtMvw3x2FxC4GpsW7A==
   dependencies:
     "@types/glob" "5 - 7"
     "@types/parse5" "^5"
