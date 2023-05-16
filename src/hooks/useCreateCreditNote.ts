@@ -27,7 +27,14 @@ gql`
     id
     amountCurrency
     feeType
-    taxesRate
+    appliedTaxes {
+      id
+      tax {
+        id
+        name
+        rate
+      }
+    }
     creditableAmountCents
     trueUpFee {
       id
@@ -56,7 +63,14 @@ gql`
       itemCode
       itemName
       creditableAmountCents
-      taxesRate
+      appliedTaxes {
+        id
+        tax {
+          id
+          name
+          rate
+        }
+      }
       trueUpFee {
         id
       }
@@ -156,7 +170,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
             value: deserializeAmount(fee?.creditableAmountCents, fee.amountCurrency),
             name: fee?.itemName,
             maxAmount: fee?.creditableAmountCents,
-            taxesRate: fee?.taxesRate || 0,
+            appliedTaxes: fee?.appliedTaxes || [],
           })
         }
 
@@ -238,7 +252,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
                   isTrueUpFee: trueUpFeeIds?.includes(fee?.id),
                   trueUpFee: fee?.trueUpFee,
                   maxAmount: fee?.creditableAmountCents,
-                  taxesRate: fee?.taxesRate,
+                  appliedTaxes: fee?.appliedTaxes || [],
                 },
                 ...groupApp,
               }
@@ -264,7 +278,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
                 isTrueUpFee: trueUpFeeIds?.includes(firstFee?.id),
                 trueUpFee: firstFee?.trueUpFee,
                 maxAmount: firstFee?.creditableAmountCents,
-                taxesRate: firstFee?.taxesRate,
+                appliedTaxes: firstFee?.appliedTaxes || [],
               },
             }
           }
@@ -290,7 +304,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
                   ? `${feeGrouped?.group?.key} • ${feeGrouped?.group?.value}`
                   : (feeGrouped?.group?.value as string),
                 maxAmount: feeGrouped?.creditableAmountCents,
-                taxesRate: feeGrouped?.taxesRate,
+                appliedTaxes: feeGrouped?.appliedTaxes || [],
               },
             }
           }, {})

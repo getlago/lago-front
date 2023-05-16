@@ -11,9 +11,6 @@ module.exports = {
   "project_633336529ca3243d15ac9df4": {
     "base": require('./-ready-for-dev---all---replace-success-screen-by-success-toast__base.json')
   },
-  "project_63105dba2074ec779d08c6b4": {
-    "base": require('./-ready-for-dev---b.metrics---persistent-bm-in-aggregation-type__base.json')
-  },
   "project_637b4d9f764dcb190431ad4d": {
     "base": require('./-ready-for-dev---coupons---apply-several-coupons-to-customer__base.json')
   },
@@ -133,6 +130,9 @@ module.exports = {
   },
   "project_645d070fa825baf410cec70c": {
     "base": require('./-wip---settings--customers---lago-x-adyen-connection__base.json')
+  },
+  "project_64999d7a720a1412d1a72cf6": {
+    "base": require('./add-missing-keys__base.json')
   },
   "project_6295e54aa233f00167720fe8": {
     "base": require('./add-ons---apply-an-add-on-to-a-customer__base.json')

@@ -4,13 +4,13 @@ import { Fee, FeeTypesEnum, InvoiceSubscription } from '~/generated/graphql'
 
 type ExtendedRemainingFee = Fee & {
   displayName: string
-  isGroupParentFee?: boolean
   isGroupChildFee?: boolean
   isTrueUpFee?: boolean
   isNormalFee?: boolean
 }
 
 interface BaseFormattedInvoiceSubscription {
+  invoiceSubscription: InvoiceSubscription
   currentSubscription: InvoiceSubscription['subscription']
   invoiceDisplayName: string
   subscriptionFees: InvoiceSubscription['subscription']['fees']
@@ -27,6 +27,7 @@ const formatInvoiceItemsMap = (data: InvoiceSubscription[]) => {
     const currentSubscription = invoiceSubscription.subscription
 
     let formattedData: FormattedInvoiceSubscription = {
+      invoiceSubscription,
       currentSubscription,
       invoiceDisplayName: !!currentSubscription
         ? currentSubscription?.name || currentSubscription?.plan?.name
@@ -68,8 +69,6 @@ const _deepFormatRemainingFees = (
 ) => {
   return Object.values(_groupBy(remainingFees, (fee) => fee?.charge?.id))
     .map((fees) => {
-      let hasAnyGroup = false
-
       const feesData: ExtendedRemainingFee[] = []
 
       // Mark fees depending on their type and add a display name
@@ -77,8 +76,6 @@ const _deepFormatRemainingFees = (
         const fee = fees[i]
 
         if (!!fee.group?.id) {
-          hasAnyGroup = true
-
           feesData.push({
             ...fee,
             isGroupChildFee: true,
@@ -99,35 +96,14 @@ const _deepFormatRemainingFees = (
         }
       }
 
-      // If any of the fees are grouped, add an extra fee that represents the total of all the grouped fees
-      if (hasAnyGroup) {
-        const totalUnits = feesData.reduce(
-          (acc, cur) => (acc += cur.isTrueUpFee ? 0 : Number(cur.units)),
-          0
-        )
-
-        feesData.push({
-          ...fees[0],
-          isGroupParentFee: true,
-          displayName: `${feesData[0].charge?.billableMetric?.name || ''}`,
-          units: totalUnits,
-          amountCents: null,
-        })
-      }
-
       // return sorted feesData
       // - Normal fees
-      // - Group parent fees
       // - Group child fees
       // - True-up fees
       return feesData.sort((a, b) => {
         if (!!a.isNormalFee && !b.isNormalFee) {
           return -1
         } else if (!a.isNormalFee && !!b.isNormalFee) {
-          return 1
-        } else if (!!a.isGroupParentFee && !b.isGroupParentFee) {
-          return -1
-        } else if (!a.isGroupParentFee && !!b.isGroupParentFee) {
           return 1
         } else if (!!a.isGroupChildFee && !b.isGroupChildFee) {
           return -1

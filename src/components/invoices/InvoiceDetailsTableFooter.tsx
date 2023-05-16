@@ -17,9 +17,17 @@ gql`
     subTotalIncludingTaxesAmountCents
     totalAmountCents
     currency
-    taxesAmountCents
     prepaidCreditAmountCents
     versionNumber
+    appliedTaxes {
+      id
+      amountCents
+      tax {
+        id
+        name
+        rate
+      }
+    }
   }
 `
 
@@ -100,25 +108,54 @@ export const InvoiceDetailsTableFooter = memo(
                     </Typography>
                   </td>
                 </tr>
-                <tr>
-                  <td></td>
-                  <td>
-                    <Typography variant="bodyHl" color="grey600">
-                      {translate('text_637ccf8133d2c9a7d11ce6fd')}
-                    </Typography>
-                  </td>
-                  <td>
-                    <Typography variant="body" color="grey700">
-                      {intlFormatNumber(
-                        deserializeAmount(invoice?.taxesAmountCents || 0, currency),
-                        {
+                {!!invoice.appliedTaxes?.length ? (
+                  <>
+                    {invoice.appliedTaxes.map((appliedTax) => (
+                      <tr key={`invoice-details-table-footer-tax-${appliedTax.id}`}>
+                        <td></td>
+                        <td>
+                          <Typography variant="bodyHl" color="grey600">
+                            {`${appliedTax.tax.name} (${intlFormatNumber(
+                              appliedTax.tax.rate / 100 || 0,
+                              {
+                                maximumFractionDigits: 2,
+                                style: 'percent',
+                              }
+                            )})`}
+                          </Typography>
+                        </td>
+                        <td>
+                          <Typography variant="body" color="grey700">
+                            {intlFormatNumber(
+                              deserializeAmount(appliedTax.amountCents || 0, currency),
+                              {
+                                currencyDisplay: 'symbol',
+                                currency,
+                              }
+                            )}
+                          </Typography>
+                        </td>
+                      </tr>
+                    ))}
+                  </>
+                ) : (
+                  <tr>
+                    <td></td>
+                    <td>
+                      <Typography variant="bodyHl" color="grey600">
+                        {`${translate('text_637ccf8133d2c9a7d11ce6fd')} (0%)`}
+                      </Typography>
+                    </td>
+                    <td>
+                      <Typography variant="body" color="grey700">
+                        {intlFormatNumber(0, {
                           currencyDisplay: 'symbol',
                           currency,
-                        }
-                      )}
-                    </Typography>
-                  </td>
-                </tr>
+                        })}
+                      </Typography>
+                    </td>
+                  </tr>
+                )}
                 <tr>
                   <td></td>
                   <td>
@@ -233,9 +270,9 @@ export const InvoiceDetailsTableFooter = memo(
             {invoice.status === InvoiceStatusTypeEnum.Draft && (
               <tr>
                 <td></td>
-                <td colSpan={2}>
+                <NoShadowTD colSpan={2}>
                   <Alert type="info">{translate('text_63b6f4e9b074e3b8beebb97f')}</Alert>
-                </td>
+                </NoShadowTD>
               </tr>
             )}
           </>
@@ -250,8 +287,12 @@ const RightSkeleton = styled(Skeleton)`
 `
 const LoadingTR = styled.tr`
   > td {
-    padding: ${theme.spacing(4)} 0;
+    padding: ${theme.spacing(3)} 0;
   }
+`
+
+const NoShadowTD = styled.td`
+  box-shadow: none !important;
 `
 
 InvoiceDetailsTableFooter.displayName = 'InvoiceDetailsTableFooter'

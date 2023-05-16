@@ -129,7 +129,7 @@ export const InvoiceOverview = memo(
           )}
         </SectionHeader>
 
-        <Content>
+        <>
           {loading ? (
             <>
               {[1, 2, 3, 4].map((i) => (
@@ -144,15 +144,17 @@ export const InvoiceOverview = memo(
           ) : (
             <>
               {invoice?.status === InvoiceStatusTypeEnum.Draft && (
-                <DraftAlert type="info">
-                  {translate('text_63a41a8eabb9ae67047c1c0c', {
-                    issuingDate: formatDateToTZ(
-                      invoice.issuingDate,
-                      customer?.applicableTimezone,
-                      "LLL. dd, yyyy U'T'CZ"
-                    ),
-                  })}
-                </DraftAlert>
+                <DraftAlertWrapper>
+                  <Alert type="info">
+                    {translate('text_63a41a8eabb9ae67047c1c0c', {
+                      issuingDate: formatDateToTZ(
+                        invoice.issuingDate,
+                        customer?.applicableTimezone,
+                        "LLL. dd, yyyy U'T'CZ"
+                      ),
+                    })}
+                  </Alert>
+                </DraftAlertWrapper>
               )}
               <InvoiceCustomerInfos invoice={invoice} />
               <InvoiceDetailsTable
@@ -173,7 +175,7 @@ export const InvoiceOverview = memo(
               <Metadatas customer={customer} invoice={invoice} />
             </>
           )}
-        </Content>
+        </>
         <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       </>
     )
@@ -181,10 +183,6 @@ export const InvoiceOverview = memo(
 )
 
 InvoiceOverview.displayName = 'InvoiceOverview'
-
-const Content = styled.div`
-  padding-top: ${theme.spacing(6)};
-`
 
 const ErrorPlaceholder = styled(GenericPlaceholder)`
   padding-top: ${theme.spacing(12)};
@@ -203,8 +201,8 @@ const NavigationRightActions = styled.div`
   }
 `
 
-const DraftAlert = styled(Alert)`
-  margin-bottom: ${theme.spacing(6)};
+const DraftAlertWrapper = styled.div`
+  padding-top: ${theme.spacing(3)} 0;
 `
 
 export default InvoiceOverview

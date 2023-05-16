@@ -1,130 +1,162 @@
-import { forwardRef, useState, useEffect } from 'react'
+import { forwardRef, useState, useMemo } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
-import { InputAdornment } from '@mui/material'
 
-import { Dialog, Button, DialogRef } from '~/components/designSystem'
-import { TextInput } from '~/components/form'
+import { CREATE_TAX_ROUTE } from '~/core/router'
+import { Dialog, Button, DialogRef, Typography } from '~/components/designSystem'
+import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
-  useUpdateCustomerVatRateMutation,
-  LagoApiError,
+  CustomerAppliedTaxRatesForSettingsFragmentDoc,
   EditCustomerVatRateFragment,
+  useCreateCustomerAppliedTaxMutation,
+  useGetTaxRatesForEditCustomerLazyQuery,
 } from '~/generated/graphql'
 import { theme } from '~/styles'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast } from '~/core/apolloClient'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+
+import { Item } from '../form/ComboBox/ComboBoxItem'
 
 gql`
   fragment EditCustomerVatRate on Customer {
     id
     name
-    vatRate
   }
 
-  mutation updateCustomerVatRate($input: UpdateCustomerVatRateInput!) {
-    updateCustomerVatRate(input: $input) {
-      id
-      ...EditCustomerVatRate
+  query getTaxRatesForEditCustomer($limit: Int, $page: Int, $searchTerm: String) {
+    taxes(limit: $limit, page: $page, searchTerm: $searchTerm) {
+      metadata {
+        currentPage
+        totalPages
+      }
+      collection {
+        id
+        name
+        rate
+      }
     }
   }
+
+  mutation createCustomerAppliedTax($input: CreateCustomerAppliedTaxInput!) {
+    createCustomerAppliedTax(input: $input) {
+      id
+      customer {
+        ...CustomerAppliedTaxRatesForSettings
+      }
+    }
+  }
+
+  ${CustomerAppliedTaxRatesForSettingsFragmentDoc}
 `
+
 export interface EditCustomerVatRateDialogRef extends DialogRef {}
 
 interface EditCustomerVatRateDialogProps {
   customer: EditCustomerVatRateFragment
+  appliedTaxRatesTaxesIds?: string[]
 }
 
 export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRateDialogProps>(
-  ({ customer }: EditCustomerVatRateDialogProps, ref) => {
+  ({ appliedTaxRatesTaxesIds, customer }: EditCustomerVatRateDialogProps, ref) => {
     const { translate } = useInternationalization()
-    const [mutationError, setMutationError] = useState<string | undefined>(undefined)
-    const vatRate = typeof customer?.vatRate === 'number' ? customer?.vatRate : undefined
-    const [localVatRate, setLocalVatRate] = useState<number | undefined>(vatRate)
-    const isEdition = typeof vatRate === 'number'
-    const [updateVatRate] = useUpdateCustomerVatRateMutation({
-      context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    const [localTax, setLocalTaxRate] = useState<string>('')
+    const [getTaxRates, { loading, data }] = useGetTaxRatesForEditCustomerLazyQuery({
+      variables: { limit: 20 },
+    })
+    const [createCustomerAppliedTax] = useCreateCustomerAppliedTaxMutation({
+      onCompleted({ createCustomerAppliedTax: mutationRes }) {
+        if (mutationRes?.id) {
+          addToast({
+            message: translate('text_64639f5e63a5cc0076779de0'),
+            severity: 'success',
+          })
+        }
+      },
     })
 
-    useEffect(() => {
-      setLocalVatRate(vatRate)
-    }, [vatRate])
+    const comboboxTaxRatesData = useMemo(() => {
+      if (!data || !data?.taxes || !data?.taxes?.collection) return []
+
+      return data?.taxes?.collection.map((taxRate) => {
+        const { id, name, rate } = taxRate
+
+        return {
+          label: `${name} - (${intlFormatNumber((rate || 0) / 100, {
+            minimumFractionDigits: 2,
+            style: 'percent',
+          })})`,
+          labelNode: (
+            <Item>
+              {name}&nbsp;
+              <Typography color="textPrimary">
+                (
+                {intlFormatNumber((rate || 0) / 100, {
+                  minimumFractionDigits: 2,
+                  style: 'percent',
+                })}
+                )
+              </Typography>
+            </Item>
+          ),
+          value: id,
+          disabled: appliedTaxRatesTaxesIds?.includes(id),
+        }
+      })
+    }, [appliedTaxRatesTaxesIds, data])
 
     return (
       <Dialog
         ref={ref}
-        title={translate(
-          isEdition ? 'text_62728ff857d47b013204c748' : 'text_627387d5053a1000c5287ca1'
-        )}
-        description={
-          isEdition
-            ? translate('text_62728ff857d47b013204c770', { customeFullName: customer.name })
-            : translate('text_627387d5053a1000c5287ca3')
-        }
+        title={translate('text_64639f5e63a5cc0076779d42', { name: customer.name })}
+        description={translate('text_64639f5e63a5cc0076779d46')}
+        onClickAway={() => {
+          setLocalTaxRate('')
+        }}
         actions={({ closeDialog }) => (
           <>
             <Button
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                setLocalVatRate(vatRate)
+                setLocalTaxRate('')
               }}
             >
               {translate('text_627387d5053a1000c5287cab')}
             </Button>
             <Button
               variant="primary"
-              disabled={
-                typeof localVatRate !== 'number' || localVatRate === vatRate || !!mutationError
-              }
+              disabled={!localTax}
               onClick={async () => {
-                const res = await updateVatRate({
-                  variables: {
-                    input: {
-                      id: customer.id,
-                      vatRate: localVatRate as number,
-                    },
-                  },
+                const res = await createCustomerAppliedTax({
+                  variables: { input: { customerId: customer.id, taxId: localTax } },
                 })
-                const { errors } = res
 
-                if (hasDefinedGQLError('ValueIsOutOfRange', errors)) {
-                  setMutationError(translate('text_6272a16eea94bd01089abaa7'))
-                } else if (!errors) {
-                  addToast({
-                    message: translate(
-                      isEdition ? 'text_62728ff857d47b013204cc4f' : 'text_62728ff857d47b013204cc62'
-                    ),
-                    severity: 'success',
-                  })
-                  closeDialog()
-                }
+                if (res.errors) return
+                setLocalTaxRate('')
+                closeDialog()
               }}
             >
-              {translate(
-                isEdition ? 'text_62728ff857d47b013204c7f2' : 'text_627387d5053a1000c5287cad'
-              )}
+              {translate('text_64639f5e63a5cc0076779d57')}
             </Button>
           </>
         )}
       >
         <Content data-test="edit-customer-vat-rate-dialog">
-          <TextInput
-            label={translate('text_627387d5053a1000c5287ca5')}
-            placeholder={translate('text_627387d5053a1000c5287ca7')}
-            value={localVatRate}
-            beforeChangeFormatter="positiveNumber"
-            error={mutationError}
-            onChange={(value) => {
-              !!mutationError && setMutationError(undefined)
-              setLocalVatRate(value === '' ? undefined : Number(value))
+          <ComboBox
+            allowAddValue
+            addValueProps={{
+              label: translate('text_64639c4d172d7a006ef30516'),
+              redirectionUrl: CREATE_TAX_ROUTE,
             }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  {translate('text_62728ff857d47b013204c7ce')}
-                </InputAdornment>
-              ),
-            }}
+            data={comboboxTaxRatesData}
+            label={translate('text_64639c4d172d7a006ef30514')}
+            loading={loading}
+            onChange={setLocalTaxRate}
+            placeholder={translate('text_64639c4d172d7a006ef30515')}
+            PopperProps={{ displayInDialog: true }}
+            searchQuery={getTaxRates}
+            value={localTax}
           />
         </Content>
       </Dialog>

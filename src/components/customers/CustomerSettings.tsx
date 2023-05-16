@@ -4,19 +4,25 @@ import styled from 'styled-components'
 
 import { SideSection } from '~/styles/customer'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Button, Typography, Popper, Skeleton } from '~/components/designSystem'
+import {
+  Button,
+  Typography,
+  Popper,
+  Skeleton,
+  Avatar,
+  Icon,
+  Tooltip,
+} from '~/components/designSystem'
 import { theme, NAV_HEIGHT, MenuPopper } from '~/styles'
 import {
   DeleteCustomerDocumentLocaleFragmentDoc,
   DeleteCustomerGracePeriodFragmentDoc,
-  DeleteCustomerVatRateFragmentDoc,
   EditCustomerDocumentLocaleFragmentDoc,
   EditCustomerInvoiceGracePeriodFragmentDoc,
   EditCustomerVatRateFragmentDoc,
   useGetCustomerSettingsQuery,
 } from '~/generated/graphql'
 import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   EditCustomerVatRateDialog,
   EditCustomerVatRateDialogRef,
@@ -25,6 +31,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { DocumentLocales } from '~/core/translations/documentLocales'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 
 import {
   EditCustomerInvoiceGracePeriodDialog,
@@ -47,19 +54,33 @@ import { DeleteCustomerDocumentLocaleDialog } from './DeleteCustomerDocumentLoca
 import { GenericPlaceholder } from '../GenericPlaceholder'
 
 gql`
+  fragment CustomerAppliedTaxRatesForSettings on Customer {
+    id
+    appliedTaxes {
+      id
+      tax {
+        id
+        name
+        code
+        rate
+      }
+    }
+  }
+
   query getCustomerSettings($id: ID!) {
     customer(id: $id) {
       id
-      vatRate
       invoiceGracePeriod
       billingConfiguration {
         id
         documentLocale
       }
-      ...EditCustomerDocumentLocale
+
+      ...CustomerAppliedTaxRatesForSettings
+
       ...EditCustomerVatRate
+      ...EditCustomerDocumentLocale
       ...EditCustomerInvoiceGracePeriod
-      ...DeleteCustomerVatRate
       ...DeleteCustomerGracePeriod
       ...DeleteCustomerDocumentLocale
     }
@@ -68,7 +89,6 @@ gql`
       id
       billingConfiguration {
         id
-        vatRate
         invoiceGracePeriod
         documentLocale
       }
@@ -78,7 +98,6 @@ gql`
   ${EditCustomerVatRateFragmentDoc}
   ${EditCustomerInvoiceGracePeriodFragmentDoc}
   ${EditCustomerDocumentLocaleFragmentDoc}
-  ${DeleteCustomerVatRateFragmentDoc}
   ${DeleteCustomerGracePeriodFragmentDoc}
   ${DeleteCustomerDocumentLocaleFragmentDoc}
 `
@@ -96,7 +115,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   })
   const customer = data?.customer
   const organization = data?.organization
-  const editDialogRef = useRef<EditCustomerVatRateDialogRef>(null)
+  const editVATDialogRef = useRef<EditCustomerVatRateDialogRef>(null)
   const deleteVatRateDialogRef = useRef<DeleteCustomerVatRateDialogRef>(null)
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
   const deleteGracePeriodDialogRef = useRef<DeleteCustomerGracePeriodeDialogRef>(null)
@@ -123,54 +142,17 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
         <Typography variant="subhead" color="grey700">
           {translate('text_637f819eff19cd55a56d55e6')}
         </Typography>
-        {typeof customer?.vatRate !== 'number' ? (
-          <Button
-            disabled={loading}
-            variant="quaternary"
-            // it needs to be an anonymous function to be re-rendered on customer fetch
-            onClick={() => editDialogRef?.current?.openDialog()}
-            data-test="add-vat-rate-button"
-          >
-            {translate('text_62728ff857d47b013204cab3')}
-          </Button>
-        ) : (
-          <Popper
-            PopperProps={{ placement: 'bottom-end' }}
-            opener={<Button icon="dots-horizontal" variant="quaternary" />}
-          >
-            {({ closePopper }) => (
-              <MenuPopper>
-                <Button
-                  disabled={loading}
-                  startIcon="pen"
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    editDialogRef.current?.openDialog()
-                    closePopper()
-                  }}
-                >
-                  {translate('text_63aa085d28b8510cd46443f7')}
-                </Button>
-                <Button
-                  disabled={loading}
-                  startIcon="trash"
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    deleteVatRateDialogRef.current?.openDialog()
-                    closePopper()
-                  }}
-                >
-                  {translate('text_63aa085d28b8510cd46443ff')}
-                </Button>
-              </MenuPopper>
-            )}
-          </Popper>
-        )}
+        <Button
+          variant="quaternary"
+          disabled={loading}
+          onClick={() => editVATDialogRef?.current?.openDialog()}
+          data-test="add-vat-rate-button"
+        >
+          {translate('text_62728ff857d47b013204cab3')}
+        </Button>
       </InlineSectionTitle>
 
-      <InfoBlock>
+      <InfoBlock $loading={loading} $hasSeparator={!customer?.appliedTaxes?.length}>
         {loading ? (
           <>
             <Skeleton variant="text" width={320} height={12} marginBottom={theme.spacing(4)} />
@@ -178,33 +160,51 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
           </>
         ) : (
           <>
-            <Typography variant="body" color="grey700">
-              {typeof customer?.vatRate !== 'number'
-                ? translate('text_63aa085d28b8510cd46443ed', {
-                    rate: intlFormatNumber(
-                      (organization?.billingConfiguration?.vatRate || 0) / 100,
-                      {
-                        minimumFractionDigits: 2,
-                        style: 'percent',
-                      }
-                    ),
-                  })
-                : intlFormatNumber((customer?.vatRate || 0) / 100, {
-                    minimumFractionDigits: 2,
-                    style: 'percent',
-                  })}
-            </Typography>
-            <Typography
-              variant="caption"
-              color="grey600"
-              html={
-                typeof customer?.vatRate !== 'number'
-                  ? translate('text_638e13576861f3be8a3d448a', {
-                      link: INVOICE_SETTINGS_ROUTE,
-                    })
-                  : translate('text_638dff9779fb99299bee9146')
-              }
-            />
+            {!customer?.appliedTaxes?.length ? (
+              <Typography variant="caption" color="grey600">
+                {translate('text_64639f5e63a5cc0076779db7')}
+              </Typography>
+            ) : (
+              <>
+                {customer.appliedTaxes?.map(({ id, tax }) => (
+                  <TaxRateItem key={`tax-rate-item-${tax.id}`}>
+                    <LeftSection>
+                      <Avatar size="big" variant="connector">
+                        <Icon size="medium" name="percentage" color="dark" />
+                      </Avatar>
+                      <div>
+                        <Typography color="textSecondary" variant="bodyHl" noWrap>
+                          {tax.name}
+                        </Typography>
+                        <Typography variant="caption" noWrap>
+                          {tax.code}
+                        </Typography>
+                      </div>
+                    </LeftSection>
+                    <RightSection>
+                      <Typography variant="body" color="grey700">
+                        {intlFormatNumber((tax.rate || 0) / 100, {
+                          minimumFractionDigits: 2,
+                          style: 'percent',
+                        })}
+                      </Typography>
+                      <Tooltip
+                        placement="top-end"
+                        title={translate('text_64639cfe2e46e9007d11b49d')}
+                      >
+                        <Button
+                          icon="trash"
+                          variant="quaternary"
+                          onClick={() => {
+                            deleteVatRateDialogRef.current?.openDialog(id, tax)
+                          }}
+                        />
+                      </Tooltip>
+                    </RightSection>
+                  </TaxRateItem>
+                ))}
+              </>
+            )}
           </>
         )}
       </InfoBlock>
@@ -263,7 +263,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
         )}
       </InlineSectionTitle>
 
-      <InfoBlock>
+      <InfoBlock $hasSeparator $loading={loading}>
         {loading ? (
           <>
             <Skeleton variant="text" width={320} height={12} marginBottom={theme.spacing(4)} />
@@ -356,7 +356,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
         )}
       </InlineSectionTitle>
 
-      <InfoBlock>
+      <InfoBlock $hasSeparator $loading={loading}>
         {loading ? (
           <>
             <Skeleton variant="text" width={320} height={12} marginBottom={theme.spacing(4)} />
@@ -389,8 +389,12 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
 
       {!!customer && (
         <>
-          <EditCustomerVatRateDialog ref={editDialogRef} customer={customer} />
-          <DeleteCustomerVatRateDialog ref={deleteVatRateDialogRef} customer={customer} />
+          <EditCustomerVatRateDialog
+            ref={editVATDialogRef}
+            customer={customer}
+            appliedTaxRatesTaxesIds={customer.appliedTaxes?.map((t) => t.tax.id)}
+          />
+          <DeleteCustomerVatRateDialog ref={deleteVatRateDialogRef} />
 
           <EditCustomerInvoiceGracePeriodDialog
             ref={editInvoiceGracePeriodDialogRef}
@@ -416,12 +420,36 @@ const InlineSectionTitle = styled.div`
   justify-content: space-between;
 `
 
-const InfoBlock = styled.div<{ $loading?: boolean }>`
+const InfoBlock = styled.div<{ $loading?: boolean; $hasSeparator?: boolean }>`
   padding-top: ${({ $loading }) => ($loading ? theme.spacing(1) : 0)};
-  padding-bottom: ${({ $loading }) => ($loading ? theme.spacing(9) : theme.spacing(8))};
-  box-shadow: ${theme.shadows[7]};
+  padding-bottom: ${({ $loading, $hasSeparator }) =>
+    $loading ? theme.spacing(9) : $hasSeparator ? theme.spacing(8) : 0};
+  box-shadow: ${({ $hasSeparator }) => ($hasSeparator ? theme.shadows[7] : 'none')};
 
   > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(1)};
+    margin-bottom: ${({ $loading }) => ($loading ? theme.spacing(4) : theme.spacing(1))};
   }
+`
+
+const TaxRateItem = styled.div`
+  height: ${NAV_HEIGHT}px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: ${theme.shadows[7]};
+`
+
+const LeftSection = styled.div`
+  display: flex;
+  column-gap: ${theme.spacing(3)};
+  align-items: center;
+  flex: 1;
+`
+
+const RightSection = styled.div`
+  display: flex;
+  column-gap: ${theme.spacing(3)};
+  align-items: center;
+  flex: 1;
+  justify-content: flex-end;
 `

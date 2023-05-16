@@ -13,7 +13,7 @@ import {
   TaxItemFragmentDoc,
   useGetTaxesQuery,
 } from '~/generated/graphql'
-import { CREATE_TAX_RATE_ROUTE } from '~/core/router'
+import { CREATE_TAX_ROUTE } from '~/core/router'
 import { TaxItem, TaxItemSkeleton } from '~/components/taxes/TaxItem'
 import { DeleteTaxDialog, DeleteTaxDialogRef } from '~/components/taxes/DeleteTaxDialog'
 
@@ -62,7 +62,7 @@ const TaxesSettings = () => {
     <>
       <Page>
         <Title variant="headline">{translate('text_645bb193927b375079d28ab5')}</Title>
-        <Subtitle>{translate('text_645bb193927b375079d28acc')}</Subtitle>
+        <Subtitle>{translate('text_645bb193927b375079d28b7e')}</Subtitle>
 
         <InlineSectionTitle>
           <Typography variant="subhead" color="grey700">
@@ -72,7 +72,7 @@ const TaxesSettings = () => {
             variant="quaternary"
             disabled={loading}
             onClick={() => {
-              navigate(CREATE_TAX_RATE_ROUTE)
+              navigate(CREATE_TAX_ROUTE)
             }}
           >
             {translate('text_645bb193927b375079d28ad2')}

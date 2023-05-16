@@ -104,9 +104,6 @@ sources:
     - name: ⚙️ [WIP] - Credits - Create prepaid credits
       id: 62d175018d4659c9a3eec929
       fileName: ⚙️ [WIP] - Credits - Create prepaid credits
-    - name: 👍 [Ready for dev] - B.metrics - Persistent bm in aggregation type
-      id: 63105dba2074ec779d08c6b4
-      fileName: 👍 [Ready for dev] - B.metrics - Persistent bm in aggregation type
     - name: 👍 [Ready for dev] - Onboarding - Invite member to organisation
       id: 63208b60a9b2a4c6186bbd26
       fileName: 👍 [Ready for dev] - Onboarding - Invite member to organisation
@@ -262,5 +259,8 @@ sources:
       fileName: ⚙️ [WIP] - Customer - Add tax_number on customer
     - name: Subscription at drawer fix
       id: 648b171fcdcc85696b5d1cd4
+      fileName: Subscription at drawer fix
+    - name: Add missing keys
+      id: 64999d7a720a1412d1a72cf6
 format: flat
 variants: true

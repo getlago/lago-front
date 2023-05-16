@@ -16,7 +16,7 @@ import {
 } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DeleteTaxFragmentDoc, TaxItemFragment } from '~/generated/graphql'
-import { UPDATE_TAX_RATE_ROUTE } from '~/core/router'
+import { UPDATE_TAX_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 
@@ -47,11 +47,7 @@ export const TaxItem = memo(({ deleteDialogRef, tax }: TaxItemProps) => {
 
   return (
     <ItemContainer>
-      <LocalListItemLink
-        tabIndex={0}
-        to={generatePath(UPDATE_TAX_RATE_ROUTE, { id })}
-        data-test={name}
-      >
+      <LocalListItemLink tabIndex={0} to={generatePath(UPDATE_TAX_ROUTE, { id })} data-test={name}>
         <LeftSection>
           <Avatar size="big" variant="connector">
             <Icon size="medium" name="percentage" color="dark" />
@@ -99,7 +95,7 @@ export const TaxItem = memo(({ deleteDialogRef, tax }: TaxItemProps) => {
                 align: 'left',
                 fullWidth: true,
               }}
-              to={generatePath(UPDATE_TAX_RATE_ROUTE, { id })}
+              to={generatePath(UPDATE_TAX_ROUTE, { id })}
             >
               {translate('text_645bb193927b375079d28b7c')}
             </ButtonLink>

@@ -459,36 +459,10 @@ const CreateCreditNote = () => {
                               )
                             }
 
-                            const childValues = (_get(
-                              formikProps.values.fees,
-                              `${subKey}.fees.${groupFeeKey}.grouped`
-                            ) || {}) as GroupedFee['grouped']
-
                             const grouped = (child as unknown as GroupedFee)?.grouped
 
                             return (
                               <div key={groupFeeKey}>
-                                <HeaderLine>
-                                  <Checkbox
-                                    canBeIndeterminate
-                                    value={_get(checkboxGroupValue, `${subKey}.${groupFeeKey}`)}
-                                    label={child.name}
-                                    onChange={(_, value) => {
-                                      formikProps.setFieldValue(
-                                        `fees.${subKey}.fees.${groupFeeKey}.grouped`,
-                                        Object.keys(childValues).reduce<GroupedFee['grouped']>(
-                                          (acc, key) => {
-                                            const fee = childValues[key]
-
-                                            acc[key] = { ...fee, checked: value }
-                                            return acc
-                                          },
-                                          {}
-                                        )
-                                      )
-                                    }}
-                                  />
-                                </HeaderLine>
                                 {Object.keys(grouped).map((groupedFeeKey) => {
                                   const fee = grouped[groupedFeeKey]
 
@@ -497,10 +471,9 @@ const CreateCreditNote = () => {
                                       key={fee?.id}
                                       formikProps={formikProps}
                                       currency={currency}
-                                      feeName={fee?.name}
+                                      feeName={`${child.name} • ${fee?.name}`}
                                       formikKey={`fees.${subKey}.fees.${groupFeeKey}.grouped.${fee?.id}`}
                                       maxValue={fee?.maxAmount || 0}
-                                      grouped
                                     />
                                   )
                                 })}
