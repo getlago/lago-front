@@ -119,7 +119,7 @@ const Webhook = () => {
                       closePopper()
                     }}
                   >
-                    {translate('text_6271200984178801ba8bdf88')}
+                    {translate('text_638906e7b4f1a919cb61d0f2')}
                   </Button>
                   <Button
                     startIcon="trash"
@@ -130,7 +130,7 @@ const Webhook = () => {
                       closePopper()
                     }}
                   >
-                    {translate('text_6271200984178801ba8bdf8e')}
+                    {translate('text_63aa085d28b8510cd46443ff')}
                   </Button>
                 </MenuPopper>
               )}

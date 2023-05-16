@@ -35,11 +35,29 @@ gql`
     creditableAmountCents
     refundableAmountCents
     feesAmountCents
-    taxesRate
     currency
     versionNumber
+    fees {
+      id
+      appliedTaxes {
+        id
+        tax {
+          id
+          name
+          rate
+        }
+      }
+    }
   }
 `
+
+type TaxMapType = Map<
+  string, // id of the tax
+  {
+    label: string
+    amount: number
+  }
+>
 
 interface CreditNoteFormCalculationProps {
   invoice?: CreditNoteFormFragment
@@ -61,17 +79,64 @@ export const CreditNoteFormCalculation = ({
   // It does parse once all items. If no coupon applied, values are used for display
   // If coupon applied, it will calculate the credit note tax amount based on the coupon value on pro rata of each item
   const calculation = useMemo(() => {
-    if (hasFeeError) return { totalExcludedTax: undefined, taxAmount: undefined }
+    if (hasFeeError) return { totalExcludedTax: undefined, taxes: new Map() }
+
+    const mergeTaxMaps = (map1: TaxMapType, map2: TaxMapType): TaxMapType => {
+      if (!map1.size) return map2
+      if (!map2.size) return map1
+
+      // We assume both map1 and map2 are the same length and contain the same keys
+      const mergedMap = new Map()
+
+      map1.forEach((_, key) => {
+        const previousTax1 = map1.get(key)
+        const previousTax2 = map2.get(key)
+
+        if (previousTax1 && previousTax2) {
+          mergedMap.set(key, {
+            label: previousTax1.label,
+            amount: previousTax1.amount + previousTax2.amount,
+          })
+        }
+      })
+
+      return mergedMap
+    }
+
+    const updateOrCreateTaxMap = (
+      currentTaxesMap: TaxMapType,
+      feeAmount?: number,
+      feeAppliedTaxes?: { id: string; tax: { id: string; name: string; rate: number } }[]
+    ) => {
+      if (!feeAppliedTaxes?.length) return currentTaxesMap
+      if (!currentTaxesMap) currentTaxesMap = new Map()
+
+      feeAppliedTaxes.forEach((appliedTax) => {
+        const { id, name, rate } = appliedTax.tax
+        const amount = ((feeAmount || 0) * rate) / 100
+
+        const previousTax = currentTaxesMap?.get(id)
+
+        if (previousTax) {
+          previousTax.amount += amount
+          currentTaxesMap?.set(id, previousTax)
+        } else {
+          currentTaxesMap?.set(id, { label: `${name} (${rate}%)`, amount })
+        }
+      })
+
+      return currentTaxesMap
+    }
 
     const feeTotal = Object.keys(formikProps?.values.fees || {}).reduce<{
       totalExcludedTax: number
-      taxAmount: number
+      taxes: TaxMapType
     }>(
       (accSub, subKey) => {
         const subChild = ((formikProps?.values.fees as FeesPerInvoice) || {})[subKey]
         const subValues = Object.keys(subChild?.fees || {}).reduce<{
           totalExcludedTax: number
-          taxAmount: number
+          taxes: TaxMapType
         }>(
           (accGroup, groupKey) => {
             const child = subChild?.fees[groupKey] as FromFee
@@ -83,15 +148,18 @@ export const CreditNoteFormCalculation = ({
                 ? accGroup
                 : (accGroup = {
                     totalExcludedTax: accGroup.totalExcludedTax + childExcludedTax,
-                    taxAmount:
-                      accGroup.taxAmount + Math.round(childExcludedTax * child.taxesRate) / 100,
+                    taxes: updateOrCreateTaxMap(
+                      accGroup.taxes,
+                      childExcludedTax,
+                      child?.appliedTaxes
+                    ),
                   })
             }
 
             const grouped = (child as unknown as GroupedFee)?.grouped
             const groupedValues = Object.keys(grouped || {}).reduce<{
               totalExcludedTax: number
-              taxAmount: number
+              taxes: TaxMapType
             }>(
               (accFee, feeKey) => {
                 const fee = grouped[feeKey]
@@ -101,56 +169,58 @@ export const CreditNoteFormCalculation = ({
                   ? accFee
                   : (accFee = {
                       totalExcludedTax: accFee.totalExcludedTax + feeExcludedTax,
-                      taxAmount:
-                        accFee.taxAmount + Math.round(feeExcludedTax * fee.taxesRate) / 100,
+                      taxes: updateOrCreateTaxMap(accFee.taxes, feeExcludedTax, fee?.appliedTaxes),
                     })
               },
-              { totalExcludedTax: 0, taxAmount: 0 }
+              { totalExcludedTax: 0, taxes: new Map() }
             )
 
             return {
               totalExcludedTax: accGroup.totalExcludedTax + groupedValues.totalExcludedTax,
-              taxAmount: accGroup.taxAmount + groupedValues.taxAmount,
+              taxes: mergeTaxMaps(accGroup.taxes, groupedValues.taxes),
             }
           },
-          { totalExcludedTax: 0, taxAmount: 0 }
+          { totalExcludedTax: 0, taxes: new Map() }
         )
 
         return {
           totalExcludedTax: accSub?.totalExcludedTax + subValues.totalExcludedTax,
-          taxAmount: accSub?.taxAmount + subValues.taxAmount,
+          taxes: mergeTaxMaps(accSub?.taxes, subValues.taxes),
         }
       },
-      { totalExcludedTax: 0, taxAmount: 0 }
+      { totalExcludedTax: 0, taxes: new Map() }
     )
 
-    const { value, taxesRate } = formikProps.values.addOnFee?.reduce(
+    const { value: addOnValue, taxes: addOnTaxes } = formikProps.values.addOnFee?.reduce(
       (acc, fee) => {
         return {
           value: acc.value + (fee.checked ? Number(fee.value) : 0),
-          taxesRate: fee.taxesRate,
+          taxes: updateOrCreateTaxMap(
+            acc.taxes,
+            fee.checked ? Number(fee.value) : 0,
+            fee?.appliedTaxes
+          ),
         }
       },
-      { value: 0, taxesRate: 0 }
-    ) || { value: 0, taxesRate: 0 }
+      { value: 0, taxes: new Map() }
+    ) || { value: 0, taxes: new Map() }
 
     let proRatedCouponAmount = 0
-    let totalExcludedTax = feeTotal.totalExcludedTax + Number(value || 0)
-    const totalInvoiceFeesCreditableAmountCentsExcludingTax = invoice?.feesAmountCents || 0
+    let totalExcludedTax = feeTotal.totalExcludedTax + Number(addOnValue || 0)
+    const totalInvoiceFeesCreditableAmountCentsExcludingTax = Number(invoice?.feesAmountCents || 0)
 
-    // If no coupon, return "basic" calculation
-    if (isLegacyInvoice || totalInvoiceFeesCreditableAmountCentsExcludingTax === 0) {
+    // If legacy invoice or no coupon, return "basic" calculation
+    if (isLegacyInvoice || Number(invoice?.couponsAmountCents) === 0) {
       return {
         proRatedCouponAmount,
         totalExcludedTax,
-        taxAmount:
-          feeTotal.taxAmount + Math.round(Number(value || 0) * Number(taxesRate || 0)) / 100,
+        taxes: mergeTaxMaps(feeTotal.taxes, addOnTaxes),
       }
     }
 
     const couponsAdjustmentAmountCents = () => {
       return (
-        (invoice?.couponsAmountCents / totalInvoiceFeesCreditableAmountCentsExcludingTax) *
+        (Number(invoice?.couponsAmountCents) / totalInvoiceFeesCreditableAmountCentsExcludingTax) *
         feeTotal.totalExcludedTax
       )
     }
@@ -159,13 +229,13 @@ export const CreditNoteFormCalculation = ({
     const proRatedTotal = () => {
       return Object.keys(formikProps?.values.fees || {}).reduce<{
         totalExcludedTax: number
-        taxAmount: number
+        taxes: TaxMapType
       }>(
         (accSub, subKey) => {
           const subChild = ((formikProps?.values.fees as FeesPerInvoice) || {})[subKey]
           const subValues = Object.keys(subChild?.fees || {}).reduce<{
             totalExcludedTax: number
-            taxAmount: number
+            taxes: TaxMapType
           }>(
             (accGroup, groupKey) => {
               const child = subChild?.fees[groupKey] as FromFee
@@ -179,16 +249,18 @@ export const CreditNoteFormCalculation = ({
                   ? accGroup
                   : (accGroup = {
                       totalExcludedTax: accGroup.totalExcludedTax + childExcludedTax,
-                      taxAmount:
-                        accGroup.taxAmount +
-                        ((childExcludedTax - proratedCouponAmount) * (child.taxesRate || 0)) / 100,
+                      taxes: updateOrCreateTaxMap(
+                        accGroup.taxes,
+                        childExcludedTax - proratedCouponAmount,
+                        child?.appliedTaxes
+                      ),
                     })
               }
 
               const grouped = (child as unknown as GroupedFee)?.grouped
               const groupedValues = Object.keys(grouped || {}).reduce<{
                 totalExcludedTax: number
-                taxAmount: number
+                taxes: TaxMapType
               }>(
                 (accFee, feeKey) => {
                   const fee = grouped[feeKey]
@@ -200,28 +272,30 @@ export const CreditNoteFormCalculation = ({
                     ? accFee
                     : (accFee = {
                         totalExcludedTax: accFee.totalExcludedTax + feeExcludedTax,
-                        taxAmount:
-                          accFee.taxAmount +
-                          ((feeExcludedTax - proratedCouponAmount) * (fee.taxesRate || 0)) / 100,
+                        taxes: updateOrCreateTaxMap(
+                          accFee.taxes,
+                          feeExcludedTax - proratedCouponAmount,
+                          fee?.appliedTaxes
+                        ),
                       })
                 },
-                { totalExcludedTax: 0, taxAmount: 0 }
+                { totalExcludedTax: 0, taxes: new Map() }
               )
 
               return {
                 totalExcludedTax: accGroup.totalExcludedTax + groupedValues.totalExcludedTax,
-                taxAmount: accGroup.taxAmount + groupedValues.taxAmount,
+                taxes: mergeTaxMaps(accGroup.taxes, groupedValues.taxes),
               }
             },
-            { totalExcludedTax: 0, taxAmount: 0 }
+            { totalExcludedTax: 0, taxes: new Map() }
           )
 
           return {
             totalExcludedTax: accSub?.totalExcludedTax + subValues.totalExcludedTax,
-            taxAmount: accSub?.taxAmount + subValues.taxAmount,
+            taxes: mergeTaxMaps(accSub?.taxes, subValues.taxes),
           }
         },
-        { totalExcludedTax: 0, taxAmount: 0 }
+        { totalExcludedTax: 0, taxes: new Map() }
       )
     }
 
@@ -233,12 +307,12 @@ export const CreditNoteFormCalculation = ({
     // And deduct the coupon amount from the total excluding Tax
     totalExcludedTax -= proRatedCouponAmount
 
-    const { taxAmount: proRatedTaxAmount } = proRatedTotal()
+    const { taxes } = proRatedTotal()
 
     return {
       proRatedCouponAmount,
       totalExcludedTax,
-      taxAmount: proRatedTaxAmount + Math.round(Number(value || 0) * Number(taxesRate || 0)) / 100,
+      taxes,
     }
   }, [
     formikProps?.values.fees,
@@ -249,12 +323,16 @@ export const CreditNoteFormCalculation = ({
     isLegacyInvoice,
   ])
 
-  const { totalExcludedTax, taxAmount, proRatedCouponAmount } = calculation
+  const { totalExcludedTax, taxes, proRatedCouponAmount } = calculation
+  const totalTaxAmount = taxes?.size
+    ? Array.from(taxes.values()).reduce((acc, tax) => acc + tax.amount, 0)
+    : 0
+
   const hasCreditOrCoupon =
     (invoice?.creditableAmountCents || 0) > (invoice?.refundableAmountCents || 0)
   const totalTaxIncluded =
-    !!totalExcludedTax && taxAmount !== undefined
-      ? Number(totalExcludedTax + taxAmount || 0)
+    !!totalExcludedTax && totalTaxAmount !== undefined
+      ? Number(totalExcludedTax + totalTaxAmount || 0)
       : undefined
   const payBack = formikProps.values.payBack || []
 
@@ -303,16 +381,34 @@ export const CreditNoteFormCalculation = ({
                 })}
           </Typography>
         </Line>
-        <Line>
-          <Typography variant="bodyHl">{translate('text_636bedf292786b19d3398f06')}</Typography>
-          <Typography color="grey700">
-            {taxAmount === undefined
-              ? '-'
-              : intlFormatNumber(taxAmount, {
+        {!totalExcludedTax ? (
+          <Line>
+            <Typography variant="bodyHl">{translate('text_636bedf292786b19d3398f06')}</Typography>
+            <Typography color="grey700">-</Typography>
+          </Line>
+        ) : !!taxes?.size ? (
+          Array.from(taxes.values()).map((tax) => (
+            <Line key={tax.label}>
+              <Typography variant="bodyHl">{tax.label}</Typography>
+              <Typography color="grey700">
+                {intlFormatNumber(tax.amount, {
                   currency,
                 })}
-          </Typography>
-        </Line>
+              </Typography>
+            </Line>
+          ))
+        ) : (
+          <Line>
+            <Typography variant="bodyHl">{`${translate(
+              'text_636bedf292786b19d3398f06'
+            )} (0%)`}</Typography>
+            <Typography color="grey700">
+              {intlFormatNumber(0, {
+                currency,
+              })}
+            </Typography>
+          </Line>
+        )}
         <Line>
           <Typography variant="bodyHl" color="grey700">
             {translate('text_636bedf292786b19d3398f0a')}

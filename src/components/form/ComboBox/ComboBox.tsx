@@ -20,6 +20,7 @@ export const ComboBox = ({
   value,
   disabled,
   allowAddValue = false,
+  addValueProps,
   sortValues = true,
   label,
   infoText,
@@ -148,24 +149,26 @@ export const ComboBox = ({
             option={option}
             selected={state.selected}
             virtualized={virtualized}
+            addValueRedirectionUrl={option.addValueRedirectionUrl}
           />
         )
       }}
       filterOptions={(options, params) => {
-        if (searchQuery) return options
-
-        const filtered = filter(
-          options,
-          params.inputValue !== value
-            ? params
-            : { getOptionLabel: params.getOptionLabel, inputValue: '' }
-        )
+        const filtered = searchQuery
+          ? options
+          : filter(
+              options,
+              params.inputValue !== value
+                ? params
+                : { getOptionLabel: params.getOptionLabel, inputValue: '' }
+            )
 
         // Suggest the creation of a new value
-        if (filtered.length === 0 && params.inputValue !== '' && allowAddValue) {
+        if (filtered.length === 0 && params.inputValue !== '' && allowAddValue && addValueProps) {
           filtered.push({
             value: params.inputValue,
-            label: `Add "${params.inputValue}"`,
+            label: addValueProps.label || `Add "${params.inputValue}"`,
+            addValueRedirectionUrl: addValueProps.redirectionUrl,
             customValue: true,
           })
         }

@@ -130,16 +130,11 @@ const WebhookLogs = () => {
             <Skeleton variant="text" width={240} height={12} />
           ) : (
             <>
-              <Title color="textSecondary" variant="bodyHl">
-                {translate('text_63e3a496be166d8f3279b594')}
+              <Title color="textSecondary" variant="bodyHl" noWrap>
+                {translate('text_63e3a496be166d8f3279b594', {
+                  url: webhookUrlData?.organization?.webhookUrl,
+                })}
               </Title>
-              {webhookUrlData?.organization?.webhookUrl && (
-                <Typography color="textSecondary" noWrap>
-                  {translate('text_63e27c56dfe64b846474ef2b', {
-                    url: webhookUrlData?.organization?.webhookUrl,
-                  })}
-                </Typography>
-              )}
             </>
           )}
         </Header>

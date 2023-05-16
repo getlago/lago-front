@@ -23,7 +23,16 @@ describe('serializeCreditNoteInput()', () => {
                   value: 0.74,
                   name: 'Group Plan',
                   maxAmount: 74,
-                  taxesRate: 0,
+                  appliedTaxes: [
+                    {
+                      id: '1234',
+                      tax: {
+                        id: '5678',
+                        name: 'VAT',
+                        rate: 0.2,
+                      },
+                    },
+                  ],
                 },
               },
             },
@@ -73,7 +82,16 @@ describe('serializeCreditNoteInput()', () => {
                   value: 0.74,
                   name: 'Group Plan',
                   maxAmount: 74,
-                  taxesRate: 0,
+                  appliedTaxes: [
+                    {
+                      id: '1234',
+                      tax: {
+                        id: '5678',
+                        name: 'VAT',
+                        rate: 0.2,
+                      },
+                    },
+                  ],
                 },
                 '309591d6-041d-4aa6-a5c2-6189c49e277b': {
                   name: 'Count BM - One dimension',
@@ -84,7 +102,16 @@ describe('serializeCreditNoteInput()', () => {
                       value: 274,
                       name: 'france',
                       maxAmount: 27400,
-                      taxesRate: 0,
+                      appliedTaxes: [
+                        {
+                          id: '1234',
+                          tax: {
+                            id: '5678',
+                            name: 'VAT',
+                            rate: 0.2,
+                          },
+                        },
+                      ],
                     },
                     '3aa1eca1-4a22-4b61-ae65-7f16ee06a670': {
                       id: '3aa1eca1-4a22-4b61-ae65-7f16ee06a670',
@@ -92,7 +119,16 @@ describe('serializeCreditNoteInput()', () => {
                       value: 345,
                       name: 'italy',
                       maxAmount: 34500,
-                      taxesRate: 0,
+                      appliedTaxes: [
+                        {
+                          id: '1234',
+                          tax: {
+                            id: '5678',
+                            name: 'VAT',
+                            rate: 0.2,
+                          },
+                        },
+                      ],
                     },
                   },
                 },
@@ -105,7 +141,16 @@ describe('serializeCreditNoteInput()', () => {
                       value: 0,
                       name: 'AWS • usa',
                       maxAmount: 0,
-                      taxesRate: 0,
+                      appliedTaxes: [
+                        {
+                          id: '1234',
+                          tax: {
+                            id: '5678',
+                            name: 'VAT',
+                            rate: 0.2,
+                          },
+                        },
+                      ],
                     },
                     '7097d3cd-71e9-488a-8d84-6d87e94f120e': {
                       id: '7097d3cd-71e9-488a-8d84-6d87e94f120e',
@@ -113,7 +158,16 @@ describe('serializeCreditNoteInput()', () => {
                       value: 124,
                       name: 'AWS • europe',
                       maxAmount: 12400,
-                      taxesRate: 0,
+                      appliedTaxes: [
+                        {
+                          id: '1234',
+                          tax: {
+                            id: '5678',
+                            name: 'VAT',
+                            rate: 0.2,
+                          },
+                        },
+                      ],
                     },
                     'eb7332f7-146c-4b7f-82aa-ba6f74c06d29': {
                       id: 'eb7332f7-146c-4b7f-82aa-ba6f74c06d29',
@@ -121,7 +175,16 @@ describe('serializeCreditNoteInput()', () => {
                       value: 163,
                       name: 'Google • usa',
                       maxAmount: 16300,
-                      taxesRate: 0,
+                      appliedTaxes: [
+                        {
+                          id: '1234',
+                          tax: {
+                            id: '5678',
+                            name: 'VAT',
+                            rate: 0.2,
+                          },
+                        },
+                      ],
                     },
                   },
                 },

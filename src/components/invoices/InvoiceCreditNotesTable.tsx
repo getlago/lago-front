@@ -6,7 +6,7 @@ import { generatePath } from 'react-router-dom'
 import { Typography } from '~/components/designSystem'
 import { CreditNote, CreditNoteItem, CurrencyEnum, FeeTypesEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
+import { NAV_HEIGHT, theme } from '~/styles'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -24,7 +24,15 @@ gql`
       subTotalExcludingTaxesAmountCents
       currency
       totalAmountCents
-      taxesAmountCents
+      appliedTaxes {
+        id
+        amountCents
+        tax {
+          id
+          name
+          rate
+        }
+      }
       items {
         amountCents
         amountCurrency
@@ -35,6 +43,13 @@ gql`
           units
           feeType
           itemName
+          appliedTaxes {
+            id
+            tax {
+              id
+              rate
+            }
+          }
           trueUpParentFee {
             id
           }
@@ -91,7 +106,7 @@ export const InvoiceCreditNotesTable = memo(
                   : undefined
                 const creditNoteDisplayName = !!subscription
                   ? subscription?.name || subscription?.plan?.name
-                  : ''
+                  : translate('text_649ab559e86bd6005ba9d725')
 
                 return (
                   <React.Fragment key={`formatedCreditNote-${i}-subscriptionItem-${j}`}>
@@ -116,6 +131,11 @@ export const InvoiceCreditNotesTable = memo(
                           </InlineTh>
                           <th>
                             <Typography variant="bodyHl" color="grey500">
+                              {translate('text_636bedf292786b19d3398f06')}
+                            </Typography>
+                          </th>
+                          <th>
+                            <Typography variant="bodyHl" color="grey500">
                               {translate('text_637cd81348c50c26dd05a769')}
                             </Typography>
                           </th>
@@ -134,23 +154,13 @@ export const InvoiceCreditNotesTable = memo(
                             <React.Fragment
                               key={`formatedCreditNote-${i}-subscriptionItem-${j}-charge-${k}`}
                             >
-                              {groupDimension !== 0 && (
-                                <tr key={`formatedCreditNote-${i}-parent-charge-${j}-item-${k}`}>
-                                  <td>
-                                    <Typography variant="body" color="grey700">
-                                      {charge[k].fee.charge?.billableMetric.name}
-                                    </Typography>
-                                  </td>
-                                  <td></td>
-                                </tr>
-                              )}
                               {charge.map((item, l) => {
                                 return (
                                   <React.Fragment
                                     key={`formatedCreditNote-${i}-subscriptionItem-${j}-charge-${k}-item-${l}`}
                                   >
                                     <tr key={`formatedCreditNote-${i}-charge-${j}-item-${k}`}>
-                                      <TD $pad={groupDimension > 0}>
+                                      <td>
                                         <Typography variant="body" color="grey700">
                                           {groupDimension === 0 ? (
                                             <>
@@ -173,13 +183,38 @@ export const InvoiceCreditNotesTable = memo(
                                             <>
                                               <span>
                                                 {groupDimension === 2 &&
-                                                  `${item.fee.group?.key} • `}
+                                                  `${
+                                                    item.fee.charge?.billableMetric?.name
+                                                      ? `${item.fee.charge?.billableMetric?.name} • `
+                                                      : ''
+                                                  } ${item.fee.group?.key} • `}
                                               </span>
                                               <span>{item.fee.group?.value}</span>
                                             </>
                                           )}
                                         </Typography>
-                                      </TD>
+                                      </td>
+                                      <td>
+                                        <Typography variant="body" color="grey700">
+                                          {item.fee.appliedTaxes?.length
+                                            ? item.fee.appliedTaxes?.map((appliedTaxe) => (
+                                                <Typography
+                                                  key={`fee-${item.fee.id}-applied-taxe-${appliedTaxe.id}`}
+                                                  variant="body"
+                                                  color="grey700"
+                                                >
+                                                  {intlFormatNumber(
+                                                    appliedTaxe.tax.rate / 100 || 0,
+                                                    {
+                                                      maximumFractionDigits: 2,
+                                                      style: 'percent',
+                                                    }
+                                                  )}
+                                                </Typography>
+                                              ))
+                                            : '0%'}
+                                        </Typography>
+                                      </td>
                                       <td>
                                         <Typography variant="body" color="success600">
                                           -
@@ -257,29 +292,59 @@ export const InvoiceCreditNotesTable = memo(
                       </Typography>
                     </td>
                   </tr>
-                  <tr>
-                    <td></td>
-                    <td>
-                      <Typography variant="bodyHl" color="grey600">
-                        {translate('text_637ccf8133d2c9a7d11ce741')}
-                      </Typography>
-                    </td>
-                    <td>
-                      <Typography variant="body" color="success600">
-                        -
-                        {intlFormatNumber(
-                          deserializeAmount(
-                            creditNote?.taxesAmountCents || 0,
-                            creditNote?.currency || CurrencyEnum.Usd
-                          ),
-                          {
+                  {!!creditNote.appliedTaxes?.length ? (
+                    <>
+                      {creditNote.appliedTaxes.map((appliedTax) => (
+                        <tr key={`formatedCreditNote-${i}-applied-tax-${appliedTax.id}`}>
+                          <td></td>
+                          <td>
+                            <Typography variant="bodyHl" color="grey600">
+                              {`${appliedTax.tax.name} (${intlFormatNumber(
+                                appliedTax.tax.rate / 100 || 0,
+                                {
+                                  maximumFractionDigits: 2,
+                                  style: 'percent',
+                                }
+                              )})`}
+                            </Typography>
+                          </td>
+                          <td>
+                            <Typography variant="body" color="success600">
+                              -
+                              {intlFormatNumber(
+                                deserializeAmount(
+                                  appliedTax.amountCents || 0,
+                                  creditNote?.currency || CurrencyEnum.Usd
+                                ),
+                                {
+                                  currencyDisplay: 'symbol',
+                                  currency: creditNote?.currency || CurrencyEnum.Usd,
+                                }
+                              )}
+                            </Typography>
+                          </td>
+                        </tr>
+                      ))}
+                    </>
+                  ) : (
+                    <tr>
+                      <td></td>
+                      <td>
+                        <Typography variant="bodyHl" color="grey600">
+                          {translate('text_637ccf8133d2c9a7d11ce741')}
+                        </Typography>
+                      </td>
+                      <td>
+                        <Typography variant="body" color="success600">
+                          -
+                          {intlFormatNumber(0, {
                             currencyDisplay: 'symbol',
                             currency: creditNote?.currency || CurrencyEnum.Usd,
-                          }
-                        )}
-                      </Typography>
-                    </td>
-                  </tr>
+                          })}
+                        </Typography>
+                      </td>
+                    </tr>
+                  )}
                   <tr>
                     <td></td>
                     <td>
@@ -316,8 +381,6 @@ export const InvoiceCreditNotesTable = memo(
 InvoiceCreditNotesTable.displayName = 'InvoiceCreditNotesTable'
 
 const Wrapper = styled.section`
-  margin-bottom: ${theme.spacing(6)};
-
   > table {
     width: 100%;
     border-collapse: collapse;
@@ -325,22 +388,25 @@ const Wrapper = styled.section`
     > thead > tr > th,
     > tbody > tr > td {
       &:nth-child(1) {
-        width: 80%;
+        width: 70%;
       }
       &:nth-child(2) {
+        width: 10%;
+      }
+      &:nth-child(3) {
         width: 20%;
       }
     }
 
     > tfoot > tr > td {
       &:nth-child(1) {
-        width: 60%;
+        width: 50%;
       }
       &:nth-child(2) {
-        width: 30%;
+        width: 35%;
       }
       &:nth-child(3) {
-        width: 10%;
+        width: 15%;
       }
     }
 
@@ -366,31 +432,34 @@ const Wrapper = styled.section`
 
     > tfoot > tr > td {
       text-align: right;
-      padding-bottom: ${theme.spacing(4)};
+      padding: ${theme.spacing(3)} 0;
+    }
+
+    > tfoot > tr > td {
+      &:nth-child(2),
+      &:nth-child(3) {
+        box-shadow: ${theme.shadows[7]};
+      }
     }
 
     > thead > tr {
-      height: ${HEADER_TABLE_HEIGHT}px;
-      box-shadow: ${theme.shadows[7]};
-    }
-
-    > thead > tr > th {
-      height: ${HEADER_TABLE_HEIGHT}px;
-    }
-
-    > tbody > tr > td {
       height: ${NAV_HEIGHT}px;
       box-shadow: ${theme.shadows[7]};
     }
 
-    > tfoot > tr:first-child > td {
-      padding-top: ${theme.spacing(6)};
+    > thead > tr > th {
+      height: ${NAV_HEIGHT}px;
+      box-sizing: border-box;
+      padding: ${theme.spacing(8)} 0 ${theme.spacing(3)} 0;
+    }
+
+    > tbody > tr > td {
+      vertical-align: top;
+      min-height: 44px;
+      padding: ${theme.spacing(3)} 0;
+      box-shadow: ${theme.shadows[7]};
     }
   }
-`
-
-const TD = styled.td<{ $pad?: boolean }>`
-  padding-left: ${({ $pad }) => ($pad ? theme.spacing(8) : 0)};
 `
 
 const InlineTh = styled.th`

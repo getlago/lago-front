@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import _get from 'lodash/get'
 import { FormikProps } from 'formik'
 import { InputAdornment } from '@mui/material'
@@ -20,12 +20,10 @@ interface CreditNoteFormItemProps {
   feeName: string
   formikKey: string
   maxValue: number
-  grouped?: boolean
 }
 
 export const CreditNoteFormItem = ({
   formikProps,
-  grouped = false,
   currency,
   formikKey,
   maxValue,
@@ -35,7 +33,7 @@ export const CreditNoteFormItem = ({
   const error = _get(formikProps.errors, `${formikKey}.value`)
 
   return (
-    <FeeLine $grouped={grouped}>
+    <FeeLine>
       <CheckboxField
         name={`${formikKey}.checked`}
         labelAlignment="center"
@@ -102,16 +100,10 @@ const StyledAmountField = styled(AmountInputField)`
   }
 `
 
-const FeeLine = styled.div<{ $grouped?: boolean }>`
+const FeeLine = styled.div`
   display: flex;
   align-items: center;
   box-shadow: ${theme.shadows[7]};
   height: 68px;
   justify-content: space-between;
-
-  ${({ $grouped }) =>
-    $grouped &&
-    css`
-      padding-left: ${theme.spacing(8)};
-    `}
 `

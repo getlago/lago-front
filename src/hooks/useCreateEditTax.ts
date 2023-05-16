@@ -7,6 +7,7 @@ import {
   useGetSingleTaxQuery,
   LagoApiError,
   useUpdateTaxMutation,
+  TaxFormFragment,
 } from '~/generated/graphql'
 import { ERROR_404_ROUTE, TAXES_SETTINGS_ROUTE } from '~/core/router'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -20,6 +21,7 @@ gql`
     description
     name
     rate
+    customersCount
   }
 
   query getSingleTax($id: ID!) {
@@ -47,8 +49,8 @@ type useCreateEditTaxReturn = {
   errorCode?: string
   loading: boolean
   isEdition: boolean
-  tax?: TaxFormInput
-  onSave: (values: TaxFormInput) => Promise<void>
+  tax?: TaxFormFragment
+  onSave: (value: TaxFormInput) => Promise<void>
   onClose: () => void
 }
 

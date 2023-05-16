@@ -2,19 +2,28 @@ import { useRef } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 
-import { Typography, Button, Skeleton, ShowMoreText } from '~/components/designSystem'
+import {
+  Typography,
+  Button,
+  Skeleton,
+  ShowMoreText,
+  Avatar,
+  Icon,
+  Tooltip,
+} from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { theme, NAV_HEIGHT } from '~/styles'
 import {
+  DeleteOrganizationVatRateFragmentDoc,
   EditOrganizationInvoiceTemplateDialogFragmentDoc,
   useGetOrganizationSettingsQuery,
 } from '~/generated/graphql'
 import {
-  EditOrganizationVatRateDialog,
-  EditOrganizationVatRateDialogRef,
-} from '~/components/settings/EditOrganizationVatRateDialog'
+  AddOrganizationVatRateDialog,
+  AddOrganizationVatRateDialogRef,
+} from '~/components/settings/AddOrganizationVatRateDialog'
 import {
   EditOrganizationInvoiceTemplateDialog,
   EditOrganizationInvoiceTemplateDialogRef,
@@ -28,38 +37,54 @@ import {
   EditOrganizationDocumentLocaleDialogRef,
 } from '~/components/settings/EditOrganizationDocumentLocaleDialog'
 import { DocumentLocales } from '~/core/translations/documentLocales'
+import {
+  DeleteOrganizationVatRateDialog,
+  DeleteOrganizationVatRateDialogRef,
+} from '~/components/settings/DeleteOrganizationVatRateDialog'
 
 const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
 
 gql`
-  query getOrganizationSettings {
+  query getOrganizationSettings($appliedToOrganization: Boolean = true) {
     organization {
       id
       billingConfiguration {
         id
-        vatRate
         invoiceGracePeriod
         invoiceFooter
         documentLocale
       }
       ...EditOrganizationInvoiceTemplateDialog
     }
+
+    taxes(appliedToOrganization: $appliedToOrganization) {
+      collection {
+        id
+        name
+        code
+        rate
+
+        ...DeleteOrganizationVatRate
+      }
+    }
   }
 
+  ${DeleteOrganizationVatRateFragmentDoc}
   ${EditOrganizationInvoiceTemplateDialogFragmentDoc}
 `
 
 const InvoiceSettings = () => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
-  const editVATDialogRef = useRef<EditOrganizationVatRateDialogRef>(null)
+  const editVATDialogRef = useRef<AddOrganizationVatRateDialogRef>(null)
+  const deleteVATDialogRef = useRef<DeleteOrganizationVatRateDialogRef>(null)
   const editInvoiceTemplateDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
   const editGracePeriodDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
   const editDocumentLanguageDialogRef = useRef<EditOrganizationDocumentLocaleDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { data, error, loading } = useGetOrganizationSettingsQuery()
   const organization = data?.organization
-  const vatRate = organization?.billingConfiguration?.vatRate || 0
+  const appliedTaxRates = data?.taxes?.collection || undefined
   const invoiceFooter = organization?.billingConfiguration?.invoiceFooter || ''
   const invoiceGracePeriod = organization?.billingConfiguration?.invoiceGracePeriod || 0
   const documentLocale = organization?.billingConfiguration?.documentLocale || DocumentLocales.en
@@ -91,26 +116,67 @@ const InvoiceSettings = () => {
           disabled={loading}
           onClick={editVATDialogRef?.current?.openDialog}
         >
-          {translate('text_637f819eff19cd55a56d55e4')}
+          {translate('text_645bb193927b375079d28ad2')}
         </Button>
       </InlineSectionTitle>
 
-      <InfoBlock>
+      <InfoBlock $loading={loading}>
         {loading ? (
           <>
-            <Skeleton variant="text" width={320} height={12} marginBottom={theme.spacing(4)} />
+            <Skeleton variant="text" width={320} height={12} />
             <Skeleton variant="text" width={160} height={12} />
           </>
         ) : (
           <>
             <Typography variant="body" color="grey700">
-              {intlFormatNumber((vatRate || 0) / 100, {
-                minimumFractionDigits: 2,
-                style: 'percent',
-              })}
-            </Typography>
-            <Typography variant="caption" color="grey600">
-              {translate('text_637f819eff19cd55a56d55ea')}
+              {!!appliedTaxRates?.length ? (
+                <>
+                  {appliedTaxRates?.map((taxRate) => (
+                    <TaxRateItem key={`tax-rate-item-${taxRate.id}`}>
+                      <LeftSection>
+                        <Avatar size="big" variant="connector">
+                          <Icon size="medium" name="percentage" color="dark" />
+                        </Avatar>
+                        <div>
+                          <Typography color="textSecondary" variant="bodyHl" noWrap>
+                            {taxRate.name}
+                          </Typography>
+                          <Typography variant="caption" noWrap>
+                            {taxRate.code}
+                          </Typography>
+                        </div>
+                      </LeftSection>
+                      <RightSection>
+                        <Typography variant="body" color="grey700">
+                          {intlFormatNumber((taxRate.rate || 0) / 100, {
+                            minimumFractionDigits: 2,
+                            style: 'percent',
+                          })}
+                        </Typography>
+                        <Tooltip
+                          placement="top-end"
+                          title={translate('text_64639cfe2e46e9007d11b49d')}
+                        >
+                          <Button
+                            icon="trash"
+                            variant="quaternary"
+                            onClick={() => {
+                              deleteVATDialogRef.current?.openDialog(taxRate)
+                            }}
+                          />
+                        </Tooltip>
+                      </RightSection>
+                    </TaxRateItem>
+                  ))}
+                  <TopMargedTypography variant="caption" color="grey600">
+                    {translate('text_64639bf298650700512731a3')}
+                  </TopMargedTypography>
+                </>
+              ) : (
+                <Typography variant="caption" color="grey600">
+                  {translate('text_64639bad55d65900f4dd896f')}
+                </Typography>
+              )}
             </Typography>
           </>
         )}
@@ -134,10 +200,10 @@ const InvoiceSettings = () => {
         </Button>
       </InlineSectionTitle>
 
-      <InfoBlock>
+      <InfoBlock $loading={loading}>
         {loading ? (
           <>
-            <Skeleton variant="text" width={320} height={12} marginBottom={theme.spacing(4)} />
+            <Skeleton variant="text" width={320} height={12} />
             <Skeleton variant="text" width={160} height={12} />
           </>
         ) : (
@@ -169,10 +235,10 @@ const InvoiceSettings = () => {
         </Button>
       </InlineSectionTitle>
 
-      <InfoBlock>
+      <InfoBlock $loading={loading}>
         {loading ? (
           <>
-            <Skeleton variant="text" width={320} height={12} marginBottom={theme.spacing(4)} />
+            <Skeleton variant="text" width={320} height={12} />
             <Skeleton variant="text" width={160} height={12} />
           </>
         ) : (
@@ -202,10 +268,10 @@ const InvoiceSettings = () => {
         </Button>
       </InlineSectionTitle>
 
-      <InfoBlock>
+      <InfoBlock $loading={loading}>
         {loading ? (
           <>
-            <Skeleton variant="text" width={320} height={12} marginBottom={theme.spacing(4)} />
+            <Skeleton variant="text" width={320} height={12} />
             <Skeleton variant="text" width={160} height={12} />
           </>
         ) : !invoiceFooter ? (
@@ -227,7 +293,11 @@ const InvoiceSettings = () => {
         )}
       </InfoBlock>
 
-      <EditOrganizationVatRateDialog ref={editVATDialogRef} vatRate={vatRate as number} />
+      <DeleteOrganizationVatRateDialog ref={deleteVATDialogRef} />
+      <AddOrganizationVatRateDialog
+        ref={editVATDialogRef}
+        appliedTaxRatesTaxesIds={appliedTaxRates?.map((t) => t.id)}
+      />
       <EditOrganizationInvoiceTemplateDialog
         ref={editInvoiceTemplateDialogRef}
         invoiceFooter={invoiceFooter}
@@ -271,8 +341,39 @@ const InfoBlock = styled.div<{ $loading?: boolean }>`
   box-shadow: ${theme.shadows[7]};
 
   > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(1)};
+    margin-bottom: ${({ $loading }) => ($loading ? theme.spacing(4) : theme.spacing(1))};
   }
+`
+
+const TaxRateItem = styled.div`
+  height: ${NAV_HEIGHT}px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: ${theme.shadows[7]};
+
+  &:last-child {
+    margin-bottom: ${theme.spacing(3)};
+  }
+`
+
+const TopMargedTypography = styled(Typography)`
+  margin-top: ${theme.spacing(3)};
+`
+
+const LeftSection = styled.div`
+  display: flex;
+  column-gap: ${theme.spacing(3)};
+  align-items: center;
+  flex: 1;
+`
+
+const RightSection = styled.div`
+  display: flex;
+  column-gap: ${theme.spacing(3)};
+  align-items: center;
+  flex: 1;
+  justify-content: flex-end;
 `
 
 export default InvoiceSettings

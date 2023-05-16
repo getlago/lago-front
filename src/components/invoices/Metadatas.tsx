@@ -47,7 +47,7 @@ export const Metadatas = memo(({ customer, invoice }: MetadatasProps) => {
   return (
     <>
       <Wrapper>
-        <StyledSectionHeader variant="subhead">
+        <SectionHeader variant="subhead">
           {translate('text_6405cac5c833dcf18cad019c')}
           <Button
             variant="quaternary"
@@ -62,7 +62,7 @@ export const Metadatas = memo(({ customer, invoice }: MetadatasProps) => {
                 : 'text_6405cac5c833dcf18cad0196'
             )}
           </Button>
-        </StyledSectionHeader>
+        </SectionHeader>
         <div>
           {invoice?.metadata?.length ? (
             invoice?.metadata.map((metadata) => (
@@ -83,9 +83,9 @@ export const Metadatas = memo(({ customer, invoice }: MetadatasProps) => {
         </div>
         {!!customerMetadatas.length && (
           <>
-            <StyledSectionHeader variant="subhead">
+            <SectionHeader variant="subhead">
               {translate('text_63fdc195ee23e51024c607b8')}
-            </StyledSectionHeader>
+            </SectionHeader>
             <div>
               {customerMetadatas.map((metadata) => (
                 <InfoLine key={`customer-metadata-${metadata.id}`}>
@@ -110,13 +110,11 @@ export const Metadatas = memo(({ customer, invoice }: MetadatasProps) => {
 Metadatas.displayName = 'Metadatas'
 
 const Wrapper = styled.section`
+  margin-top: ${theme.spacing(8)};
+
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(6)};
   }
-`
-
-const StyledSectionHeader = styled(SectionHeader)`
-  margin-top: ${theme.spacing(8)};
 `
 
 const InfoLine = styled.div`

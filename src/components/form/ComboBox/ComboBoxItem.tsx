@@ -1,8 +1,10 @@
+import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import clsns from 'classnames'
 
 import { theme } from '~/styles'
 import { Icon, Typography } from '~/components/designSystem'
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 
 import { ComboBoxData } from './types'
 
@@ -16,6 +18,7 @@ interface ComboBoxItemProps {
   selected?: boolean
   comboboxProps: React.HTMLAttributes<HTMLLIElement>
   virtualized?: boolean
+  addValueRedirectionUrl?: string
 }
 
 export const ComboBoxItem = ({
@@ -24,43 +27,63 @@ export const ComboBoxItem = ({
   selected,
   virtualized,
   comboboxProps,
+  addValueRedirectionUrl,
 }: ComboBoxItemProps) => {
   const { className, ...allProps } = comboboxProps
 
   return (
-    // @ts-ignore
-    <Item
-      id={id}
-      $virtualized={virtualized}
-      className={clsns(
-        {
-          'combo-box-item--disabled': disabled,
-        },
-        className
-      )}
-      data-test={value}
-      key={value}
-      {...allProps}
-    >
-      {customValue ? (
-        <>
-          <AddCustomValueIcon name="plus" />
-          <Typography variant="body" noWrap>
-            {labelNode ?? label}
-          </Typography>
-        </>
-      ) : (
-        <Radio
-          disabled={disabled}
-          name={value}
-          value={value}
-          checked={!!selected}
-          label={labelNode || label || value}
-        />
-      )}
-    </Item>
+    <ItemWrapper>
+      <ConditionalWrapper
+        condition={!!addValueRedirectionUrl}
+        invalidWrapper={(children) => <>{children}</>}
+        validWrapper={(children) => <Link to={addValueRedirectionUrl as string}>{children}</Link>}
+      >
+        {/* @ts-ignore */}
+        <Item
+          id={id}
+          $virtualized={virtualized}
+          className={clsns(
+            {
+              'combo-box-item--disabled': disabled,
+            },
+            className
+          )}
+          data-test={value}
+          key={value}
+          {...allProps}
+        >
+          {customValue ? (
+            <>
+              <AddCustomValueIcon color="dark" name="plus" />
+              <Typography variant="body" noWrap>
+                {labelNode ?? label}
+              </Typography>
+            </>
+          ) : (
+            <Radio
+              disabled={disabled}
+              name={value}
+              value={value}
+              checked={!!selected}
+              label={labelNode || label || value}
+            />
+          )}
+        </Item>
+      </ConditionalWrapper>
+    </ItemWrapper>
   )
 }
+
+const ItemWrapper = styled.div`
+  a {
+    &:focus,
+    &:active,
+    &:hover {
+      outline: none;
+      text-decoration: none;
+    }
+  }
+`
 
 const AddCustomValueIcon = styled(Icon)`
   margin-right: ${theme.spacing(4)};

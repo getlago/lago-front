@@ -25,9 +25,10 @@ import { TextInputField } from '~/components/form'
 import { TaxFormInput } from '~/components/taxes/types'
 import { FORM_ERRORS_ENUM } from '~/core/formErrors'
 
-const CreateTax = () => {
+const CreateTaxRate = () => {
   const { isEdition, errorCode, loading, onClose, onSave, tax } = useCreateEditTax()
-  const warningDialogRef = useRef<WarningDialogRef>(null)
+  const leavingNotSavedChagesWarningDialogRef = useRef<WarningDialogRef>(null)
+  const savingAppliedTaxRateWarningDialogRef = useRef<WarningDialogRef>(null)
   const { translate } = useInternationalization()
   const formikProps = useFormik<TaxFormInput>({
     initialValues: {
@@ -35,7 +36,7 @@ const CreateTax = () => {
       description: tax?.description || '',
       name: tax?.name || '',
       // @ts-ignore
-      rate: tax?.rate ? String(tax?.rate) : '',
+      rate: isNaN(Number(tax?.rate)) ? '' : String(tax?.rate),
     },
     validationSchema: object().shape({
       code: string().required(''),
@@ -76,7 +77,11 @@ const CreateTax = () => {
         <Button
           variant="quaternary"
           icon="close"
-          onClick={() => (formikProps.dirty ? warningDialogRef.current?.openDialog() : onClose())}
+          onClick={() =>
+            formikProps.dirty
+              ? leavingNotSavedChagesWarningDialogRef.current?.openDialog()
+              : onClose()
+          }
         />
       </PageHeader>
 
@@ -216,7 +221,11 @@ const CreateTax = () => {
                     disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
                     fullWidth
                     size="large"
-                    onClick={formikProps.submitForm}
+                    onClick={() =>
+                      (tax?.customersCount || 0) > 0
+                        ? savingAppliedTaxRateWarningDialogRef.current?.openDialog()
+                        : formikProps.submitForm()
+                    }
                     data-test="submit"
                   >
                     {translate(
@@ -234,17 +243,33 @@ const CreateTax = () => {
       </Content>
 
       <WarningDialog
-        ref={warningDialogRef}
+        ref={leavingNotSavedChagesWarningDialogRef}
         title={translate('text_645bb193927b375079d289cb')}
         description={translate('text_645bb193927b375079d289d9')}
         continueText={translate('text_645bb193927b375079d289f9')}
         onContinue={onClose}
       />
+      <WarningDialog
+        mode="info"
+        ref={savingAppliedTaxRateWarningDialogRef}
+        title={translate('text_6464a12047f2dd00affa924f', {
+          name: tax?.name,
+        })}
+        description={translate(
+          'text_6464a12047f2dd00affa9250',
+          {
+            customersCount: tax?.customersCount,
+          },
+          tax?.customersCount
+        )}
+        continueText={translate('text_6464a12047f2dd00affa9252')}
+        onContinue={formikProps.submitForm}
+      />
     </div>
   )
 }
 
-export default CreateTax
+export default CreateTaxRate
 
 const InlineDescription = styled.div`
   display: flex;

@@ -6,8 +6,15 @@ export type FromFee = {
   maxAmount: number
   name: string
   value: string | number
-  taxesRate: number
   isTrueUpFee?: boolean
+  appliedTaxes?: {
+    id: string
+    tax: {
+      id: string
+      name: string
+      rate: number
+    }
+  }[]
 }
 
 export type GroupedFee = {

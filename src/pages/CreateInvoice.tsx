@@ -1,5 +1,5 @@
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { DateTime } from 'luxon'
-import { useCallback, useMemo, useRef, useState } from 'react'
 import { InputAdornment } from '@mui/material'
 import _get from 'lodash/get'
 import { useFormik } from 'formik'
@@ -56,9 +56,18 @@ gql`
       legalNumber
       taxIdentificationNumber
       state
-      vatRate
       zipcode
+      appliedTaxes {
+        id
+        tax {
+          id
+          name
+          code
+          rate
+        }
+      }
     }
+
     organization {
       id
       addressLine1
@@ -73,9 +82,14 @@ gql`
       logoUrl
       state
       zipcode
-      billingConfiguration {
+    }
+
+    taxes(appliedToOrganization: true) {
+      collection {
         id
-        vatRate
+        name
+        code
+        rate
       }
     }
   }
@@ -115,13 +129,14 @@ const CreateInvoice = () => {
     skip: !customerId,
     notifyOnNetworkStatusChange: true,
   })
-  const { customer, organization } = data || {}
-  const localVatRate =
-    typeof customer?.vatRate === 'number'
-      ? customer?.vatRate
-      : typeof organization?.billingConfiguration?.vatRate === 'number'
-      ? organization?.billingConfiguration?.vatRate
-      : 0
+  const { customer, organization, taxes } = data || {}
+
+  const appliedTaxes = useMemo(() => {
+    if (!!customer?.appliedTaxes?.length) return customer?.appliedTaxes.map((a) => a.tax)
+    return taxes?.collection
+  }, [customer, taxes])
+
+  // const localVatRate = customer?.vatRate || organization?.billingConfiguration?.vatRate || 0
 
   const [getAddOns, { data: addOnData }] = useGetAddonListForInfoiceLazyQuery({
     variables: { limit: 20 },
@@ -209,14 +224,29 @@ const CreateInvoice = () => {
       return acc
     }, 0)
 
-    const vatAmount = (subTotal * localVatRate) / 100
+    let vatTotalAmount = 0
+    let taxesToDisplay = []
 
-    const total = subTotal + vatAmount
+    if (!!appliedTaxes?.length) {
+      for (let i = 0; i < appliedTaxes.length; i++) {
+        const localTax = appliedTaxes[i]
+        const localValue = deserializeAmount(subTotal * localTax.rate, currency)
 
-    return { subTotal, vatAmount, total }
-  }, [formikProps.values.fees, localVatRate])
+        taxesToDisplay.push({
+          label: `${translate('text_6453819268763979024ad0e9')} (${localTax.rate}%)`,
+          value: localValue,
+        })
 
-  const { subTotal, vatAmount, total } = calculation
+        vatTotalAmount += localValue
+      }
+    }
+
+    const total = subTotal + vatTotalAmount
+
+    return { subTotal, taxesToDisplay, total }
+  }, [formikProps.values.fees, appliedTaxes, currency, translate])
+
+  const { subTotal, taxesToDisplay, total } = calculation
 
   if (!!error && !loading) {
     return (
@@ -496,6 +526,7 @@ const CreateInvoice = () => {
                                 : intlFormatNumber((fee.units || 0) * (fee.unitAmountCents || 0), {
                                     style: 'currency',
                                     currency,
+                                    maximumFractionDigits: 2,
                                   })}
                             </Typography>
                             <Popper
@@ -616,21 +647,46 @@ const CreateInvoice = () => {
                           ? '-'
                           : intlFormatNumber(subTotal, {
                               currency,
+                              maximumFractionDigits: 2,
                             })}
                       </Typography>
                     </InvoiceFooterLine>
-                    <InvoiceFooterLine>
-                      <Typography variant="bodyHl" color="grey600">
-                        {translate('text_6453819268763979024ad0e9')} ({localVatRate}%)
-                      </Typography>
-                      <Typography variant="body" color="grey700">
-                        {!hasAnyFee
-                          ? '-'
-                          : intlFormatNumber(vatAmount, {
-                              currency,
-                            })}
-                      </Typography>
-                    </InvoiceFooterLine>
+                    <>
+                      {!!taxesToDisplay?.length ? (
+                        <>
+                          {taxesToDisplay.map((taxToDisplay, i) => {
+                            return (
+                              <InvoiceFooterLine key={`one-off-invoice-tax-item-${i}`}>
+                                <Typography variant="bodyHl" color="grey600">
+                                  {taxToDisplay.label}
+                                </Typography>
+                                <Typography variant="body" color="grey700">
+                                  {!hasAnyFee
+                                    ? '-'
+                                    : intlFormatNumber(taxToDisplay.value, {
+                                        currency,
+                                        maximumFractionDigits: 2,
+                                      })}
+                                </Typography>
+                              </InvoiceFooterLine>
+                            )
+                          })}
+                        </>
+                      ) : (
+                        <InvoiceFooterLine>
+                          <Typography variant="bodyHl" color="grey600">
+                            {`${translate('text_6453819268763979024ad0e9')} (0%)`}
+                          </Typography>
+                          <Typography variant="body" color="grey700">
+                            {!hasAnyFee
+                              ? '-'
+                              : intlFormatNumber(0, {
+                                  currency,
+                                })}
+                          </Typography>
+                        </InvoiceFooterLine>
+                      )}
+                    </>
                     <InvoiceFooterLine>
                       <Typography variant="bodyHl" color="grey600">
                         {translate('text_6453819268763979024ad0ff')}
@@ -640,6 +696,7 @@ const CreateInvoice = () => {
                           ? '-'
                           : intlFormatNumber(total, {
                               currency,
+                              maximumFractionDigits: 2,
                             })}
                       </Typography>
                     </InvoiceFooterLine>
@@ -652,6 +709,7 @@ const CreateInvoice = () => {
                           ? '-'
                           : intlFormatNumber(total, {
                               currency,
+                              maximumFractionDigits: 2,
                             })}
                       </Typography>
                     </InvoiceFooterLine>

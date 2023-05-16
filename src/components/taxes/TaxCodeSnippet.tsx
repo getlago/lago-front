@@ -9,26 +9,26 @@ const getSnippets = (tax?: TaxFormInput, isEdition?: boolean) => {
   if (!tax) return '# Fill the form to generate the code snippet'
 
   return `# ${isEdition ? 'Edit a tax rate' : 'Create a tax rate'}
-curl --location --request ${isEdition ? 'PUT' : 'POST'} "${apiUrl}/api/v1/tax_rates${
-    isEdition ? (tax.code ? `/${tax.code}` : '/__CODE_OF_TAX_RATE__') : ''
+curl --location --request ${isEdition ? 'PUT' : 'POST'} "${apiUrl}/api/v1/taxes${
+    isEdition ? (tax.code ? `/${tax.code}` : '/__CODE_OF_TAX__') : ''
   }" \\
   --header "Authorization: Bearer $__YOUR_API_KEY__" \\
   --header 'Content-Type: application/json' \\
   --data-raw '{
-    "tax_rate": {
-      "name": "${tax.name || '__NAME_OF_TAX_RATE__'}",
-      "code": "${tax.code || '__CODE_OF_TAX_RATE__'}",${
+    "taxes": {
+      "name": "${tax.name || '__NAME_OF_TAX__'}",
+      "code": "${tax.code || '__CODE_OF_TAX__'}",${
     !!tax.description
       ? `
       "description": "${tax.description}",`
       : ''
   }
-      "rate": "${tax.rate || '_VALUE_OF_TAX_RATE'}",
+      "rate": "${tax.rate || '_VALUE_OF_TAX__'}",
     }
   }'
   
 # To use the snippet, don’t forget to edit your __YOUR_API_KEY__ ${
-    isEdition && !tax.code ? 'and __CODE_OF_TAX_RATE__' : ''
+    isEdition && !tax.code ? 'and __CODE_OF_TAX__' : ''
   }`
 }
 

@@ -193,14 +193,16 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
 InvoiceCustomerInfos.displayName = 'InvoiceCustomerInfos'
 
 const Wrapper = styled.section`
-  margin-bottom: ${theme.spacing(6)};
+  padding: ${theme.spacing(6)} 0;
+  box-shadow: ${theme.shadows[7]};
   display: flex;
+
   > * {
     flex: 1;
+  }
 
-    &:not(:last-child) {
-      margin-right: ${theme.spacing(8)};
-    }
+  > div:first-child > div > *:last-child {
+    padding-right: ${theme.spacing(8)};
   }
 
   ${theme.breakpoints.down('md')} {

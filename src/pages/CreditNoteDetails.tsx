@@ -31,7 +31,7 @@ import {
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { theme, PageHeader, MenuPopper, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
+import { theme, PageHeader, MenuPopper, NAV_HEIGHT } from '~/styles'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
@@ -66,7 +66,6 @@ gql`
       refundStatus
       subTotalExcludingTaxesAmountCents
       totalAmountCents
-      taxesAmountCents
       customer {
         id
         name
@@ -77,6 +76,15 @@ gql`
         id
         number
       }
+      appliedTaxes {
+        id
+        amountCents
+        tax {
+          id
+          name
+          rate
+        }
+      }
       items {
         amountCents
         fee {
@@ -86,6 +94,13 @@ gql`
           units
           feeType
           itemName
+          appliedTaxes {
+            id
+            tax {
+              id
+              rate
+            }
+          }
           trueUpParentFee {
             id
           }
@@ -487,18 +502,15 @@ const CreditNoteDetails = () => {
               </InfoSection>
             )}
 
-            <TableSection></TableSection>
-
             <TableSection>
               {groupedData.map((groupSubscriptionItem, i) => {
                 const subscription =
                   groupSubscriptionItem[0] && groupSubscriptionItem[0][0]
                     ? groupSubscriptionItem[0][0].fee.subscription
-                    : []
+                    : undefined
                 const invoiceDisplayName = !!subscription
-                  ? // @ts-ignore
-                    subscription?.name || subscription?.plan?.name
-                  : ''
+                  ? subscription?.name || subscription?.plan?.name
+                  : translate('text_6388b923e514213fed58331c')
 
                 return (
                   <React.Fragment key={`groupSubscriptionItem-${i}`}>
@@ -508,6 +520,11 @@ const CreditNoteDetails = () => {
                           <th>
                             <Typography variant="bodyHl" color="grey500">
                               {invoiceDisplayName}
+                            </Typography>
+                          </th>
+                          <th>
+                            <Typography variant="bodyHl" color="grey500">
+                              {translate('text_636bedf292786b19d3398f06')}
                             </Typography>
                           </th>
                           <th>
@@ -530,20 +547,8 @@ const CreditNoteDetails = () => {
 
                             return (
                               <React.Fragment key={`groupSubscriptionItem-${i}-list-item-${k}`}>
-                                {groupDimension !== 0 && k === 0 && (
-                                  <tr
-                                    key={`groupSubscriptionItem-${i}-parent-charge-${j}-item-${k}`}
-                                  >
-                                    <td>
-                                      <Typography variant="body" color="grey700">
-                                        {charge[0].fee.charge?.billableMetric.name}
-                                      </Typography>
-                                    </td>
-                                    <td></td>
-                                  </tr>
-                                )}
                                 <tr key={`groupSubscriptionItem-${i}-charge-${j}-item-${k}`}>
-                                  <TD $pad={groupDimension > 0 && !isTrueUp}>
+                                  <td>
                                     <Typography variant="body" color="grey700">
                                       {groupDimension === 0 || !!isTrueUp ? (
                                         <>
@@ -554,7 +559,7 @@ const CreditNoteDetails = () => {
                                                 invoiceDisplayName
                                               }${
                                                 item?.fee?.trueUpParentFee?.id
-                                                  ? ` - ${translate(
+                                                  ? ` • ${translate(
                                                       'text_64463aaa34904c00a23be4f7'
                                                     )}`
                                                   : ''
@@ -563,13 +568,37 @@ const CreditNoteDetails = () => {
                                       ) : (
                                         <>
                                           <span>
-                                            {groupDimension === 2 && `${item.fee.group?.key} • `}
+                                            {groupDimension === 2 &&
+                                              `${
+                                                item.fee.charge?.billableMetric?.name
+                                                  ? `${item.fee.charge?.billableMetric?.name} • `
+                                                  : ''
+                                              }${item.fee.group?.key} • `}
                                           </span>
                                           <span>{item.fee.group?.value}</span>
                                         </>
                                       )}
                                     </Typography>
-                                  </TD>
+                                  </td>
+                                  <td>
+                                    <Typography variant="body" color="grey700">
+                                      {item.fee.appliedTaxes?.length
+                                        ? item.fee.appliedTaxes?.map((appliedTaxe) => (
+                                            <Typography
+                                              key={`fee-${item.fee.id}-applied-taxe-${appliedTaxe.id}`}
+                                              variant="body"
+                                              color="grey700"
+                                            >
+                                              {intlFormatNumber(appliedTaxe.tax.rate / 100 || 0, {
+                                                maximumFractionDigits: 2,
+                                                style: 'percent',
+                                              })}
+                                            </Typography>
+                                          ))
+                                        : '0%'}
+                                    </Typography>
+                                  </td>
+
                                   <td>
                                     <Typography variant="body" color="success600">
                                       -
@@ -645,29 +674,60 @@ const CreditNoteDetails = () => {
                         </Typography>
                       </td>
                     </tr>
-                    <tr>
-                      <td></td>
-                      <td>
-                        <Typography variant="bodyHl" color="grey600">
-                          {translate('text_637655cb50f04bf1c8379d24')}
-                        </Typography>
-                      </td>
-                      <td>
-                        <Typography variant="body" color="success600">
-                          -
-                          {intlFormatNumber(
-                            deserializeAmount(
-                              creditNote?.taxesAmountCents || 0,
-                              creditNote?.currency || CurrencyEnum.Usd
-                            ),
-                            {
+                    {!!creditNote?.appliedTaxes?.length ? (
+                      <>
+                        {creditNote?.appliedTaxes.map((appliedTax) => (
+                          <tr key={`creditNote-${creditNote.id}-applied-tax-${appliedTax.id}`}>
+                            <td></td>
+                            <td>
+                              <Typography variant="bodyHl" color="grey600">
+                                {`${appliedTax.tax.name} (${intlFormatNumber(
+                                  appliedTax.tax.rate / 100 || 0,
+                                  {
+                                    maximumFractionDigits: 2,
+                                    style: 'percent',
+                                  }
+                                )})`}
+                              </Typography>
+                            </td>
+                            <td>
+                              <Typography variant="body" color="success600">
+                                -
+                                {intlFormatNumber(
+                                  deserializeAmount(
+                                    appliedTax.amountCents || 0,
+                                    creditNote?.currency || CurrencyEnum.Usd
+                                  ),
+                                  {
+                                    currencyDisplay: 'symbol',
+                                    currency: creditNote?.currency || CurrencyEnum.Usd,
+                                  }
+                                )}
+                              </Typography>
+                            </td>
+                          </tr>
+                        ))}
+                      </>
+                    ) : (
+                      <tr>
+                        <td></td>
+                        <td>
+                          <Typography variant="bodyHl" color="grey600">
+                            {`${translate('text_637655cb50f04bf1c8379d24')} (0%)`}
+                          </Typography>
+                        </td>
+                        <td>
+                          <Typography variant="body" color="success600">
+                            -
+                            {intlFormatNumber(0, {
                               currencyDisplay: 'symbol',
                               currency: creditNote?.currency || CurrencyEnum.Usd,
-                            }
-                          )}
-                        </Typography>
-                      </td>
-                    </tr>
+                            })}
+                          </Typography>
+                        </td>
+                      </tr>
+                    )}
+
                     {Number(creditNote?.creditAmountCents || 0) > 0 && (
                       <tr>
                         <td></td>
@@ -803,12 +863,11 @@ const InlineTripleTypography = styled(Typography)`
   }
 `
 
-const Section = styled.section`
-  margin: ${theme.spacing(6)} 0;
-`
-
-const InfoSection = styled(Section)`
+const InfoSection = styled.section`
   display: flex;
+  padding: ${theme.spacing(6)} 0;
+  box-shadow: ${theme.shadows[7]};
+
   > * {
     flex: 1;
 
@@ -845,7 +904,7 @@ const InfoLine = styled.div`
   }
 `
 
-const TableSection = styled(Section)`
+const TableSection = styled.section`
   .main-table:not(:first-child) {
     margin-top: ${theme.spacing(10)};
   }
@@ -860,19 +919,22 @@ const TableSection = styled(Section)`
         width: 70%;
       }
       &:nth-child(2) {
-        width: 30%;
+        width: 10%;
+      }
+      &:nth-child(2) {
+        width: 20%;
       }
     }
 
     > tfoot > tr > td {
       &:nth-child(1) {
-        width: 60%;
+        width: 50%;
       }
       &:nth-child(2) {
-        width: 30%;
+        width: 35%;
       }
       &:nth-child(3) {
-        width: 10%;
+        width: 15%;
       }
     }
 
@@ -898,21 +960,28 @@ const TableSection = styled(Section)`
 
     > tfoot > tr > td {
       text-align: right;
-      padding-bottom: ${theme.spacing(4)};
+      padding: ${theme.spacing(3)} 0;
     }
 
-    > thead > tr {
-      height: ${HEADER_TABLE_HEIGHT}px;
+    > tfoot > tr > td {
+      &:nth-child(2),
+      &:nth-child(3) {
+        box-shadow: ${theme.shadows[7]};
+      }
+    }
+
+    > thead > tr > th {
+      height: ${NAV_HEIGHT}px;
+      padding: ${theme.spacing(8)} 0 ${theme.spacing(3)} 0;
+      box-sizing: border-box;
       box-shadow: ${theme.shadows[7]};
     }
 
     > tbody > tr > td {
-      height: ${NAV_HEIGHT}px;
+      vertical-align: top;
+      min-height: 44px;
+      padding: ${theme.spacing(3)} 0;
       box-shadow: ${theme.shadows[7]};
-    }
-
-    > tfoot > tr:first-child > td {
-      padding-top: ${theme.spacing(6)};
     }
   }
 `
@@ -920,10 +989,6 @@ const TableSection = styled(Section)`
 const SkeletonLine = styled.div`
   display: flex;
   margin-top: ${theme.spacing(7)};
-`
-
-const TD = styled.td<{ $pad?: boolean }>`
-  padding-left: ${({ $pad }) => ($pad ? theme.spacing(8) : 0)};
 `
 
 export default CreditNoteDetails

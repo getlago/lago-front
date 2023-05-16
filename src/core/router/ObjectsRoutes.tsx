@@ -58,8 +58,8 @@ export const UPDATE_COUPON_ROUTE = '/update/coupons/:id'
 export const CREATE_ADD_ON_ROUTE = '/create/add-on'
 export const UPDATE_ADD_ON_ROUTE = '/update/add-on/:id'
 
-export const CREATE_TAX_RATE_ROUTE = '/create/tax'
-export const UPDATE_TAX_RATE_ROUTE = '/update/tax/:id'
+export const CREATE_TAX_ROUTE = '/create/tax'
+export const UPDATE_TAX_ROUTE = '/update/tax/:id'
 
 export const CREATE_INVOICE_ROUTE = '/customer/:id/create-invoice'
 
@@ -113,7 +113,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     element: <CreatePlan />,
   },
   {
-    path: [CREATE_TAX_RATE_ROUTE, UPDATE_TAX_RATE_ROUTE],
+    path: [CREATE_TAX_ROUTE, UPDATE_TAX_ROUTE],
     private: true,
     element: <CreateTax />,
   },
