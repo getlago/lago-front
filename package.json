@@ -29,7 +29,7 @@
     "postinstall": "npx yarn-deduplicate"
   },
   "devDependencies": {
-    "@babel/core": "7.21.5",
+    "@babel/core": "7.21.8",
     "@babel/plugin-syntax-dynamic-import": "7.8.3",
     "@babel/preset-env": "7.21.5",
     "@babel/preset-react": "7.18.6",
