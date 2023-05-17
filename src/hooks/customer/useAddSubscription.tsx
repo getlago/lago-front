@@ -149,7 +149,7 @@ export const useAddSubscription: UseAddSubscription = ({
         ? DateTime.fromISO(subscriptionAt)
         : DateTime.now().setLocale('en-gb')
       const formattedCurrentDate = currentDate.toFormat('LL/dd/yyyy')
-      const february29 = '02/29/2020'
+      const february29 = `02/29/${DateTime.now().year}`
       const currentDay = currentDate.get('day')
 
       if (!selectedPlan) return undefined
