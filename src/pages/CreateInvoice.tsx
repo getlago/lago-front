@@ -630,7 +630,7 @@ const CreateInvoice = () => {
               <Button
                 fullWidth
                 size="large"
-                disabled={!formikProps.isValid}
+                disabled={!formikProps.isValid || !formikProps.dirty}
                 onClick={formikProps.submitForm}
               >
                 {translate('text_6453819268763979024ad134')}

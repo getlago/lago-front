@@ -102,7 +102,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       startIcon,
       className,
       endIcon,
-      loading,
+      loading = false,
       children,
       inheritColor,
       onClick,
@@ -125,7 +125,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const localLoading = loading || isLoading
 
     const handleClick = async (e: MouseEvent<HTMLButtonElement>) => {
-      if (onClick) {
+      if (onClick && !localLoading) {
         const res = onClick(e)
 
         if (res !== null && (res as any) instanceof Promise) {
