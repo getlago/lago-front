@@ -92,9 +92,9 @@
   "dependencies": {
     "@apollo/client": "3.7.14",
     "@date-io/luxon": "2.16.1",
-    "@mui/material": "5.11.12",
-    "@mui/styled-engine": "5.11.11",
-    "@mui/styled-engine-sc": "5.11.11",
+    "@mui/material": "5.13.1",
+    "@mui/styled-engine": "5.12.3",
+    "@mui/styled-engine-sc": "5.12.0",
     "@mui/x-date-pickers": "5.0.20",
     "@sentry/react": "7.51.2",
     "@sentry/tracing": "7.51.2",
@@ -121,7 +121,7 @@
   },
   "resolutions": {
     "styled-components": "5.3.10",
-    "@mui/styled-engine": "5.11.11",
+    "@mui/styled-engine": "5.12.3",
     "lodash": "4.17.21",
     "glob-parent": "6.0.2",
     "trim": "1.0.1"
