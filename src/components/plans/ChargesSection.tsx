@@ -294,7 +294,7 @@ export const ChargesSection = memo(
           {!!hasAnyNormalCharge && (
             <Charges>
               {formikProps.values.charges.map((charge, i) => {
-                if (charge.instant) return null
+                if (charge.payInAdvance) return null
 
                 const id = getNewChargeId(charge.billableMetric.id, i)
                 const isNew = !existingCharges?.find(
@@ -340,7 +340,7 @@ export const ChargesSection = memo(
                   formikProps.setFieldValue('charges', [
                     ...previousCharges,
                     {
-                      instant: false,
+                      payInAdvance: false,
                       billableMetric: localBillableMetrics,
                       properties: !localBillableMetrics?.flatGroups?.length
                         ? getPropertyShape({})
@@ -429,7 +429,7 @@ export const ChargesSection = memo(
           {!!hasAnyInstantCharge && (
             <Charges>
               {formikProps.values.charges.map((charge, i) => {
-                if (!charge.instant) return null
+                if (!charge.payInAdvance) return null
 
                 const id = getNewChargeId(charge.billableMetric.id, i)
                 const isNew = !existingCharges?.find(
@@ -475,7 +475,7 @@ export const ChargesSection = memo(
                   formikProps.setFieldValue('charges', [
                     ...previousCharges,
                     {
-                      instant: true,
+                      payInAdvance: true,
                       billableMetric: localBillableMetrics,
                       properties: !localBillableMetrics?.flatGroups?.length
                         ? getPropertyShape({})
