@@ -10,10 +10,14 @@ const CustomerDetails = lazy(
   () => import(/* webpackChunkName: 'customer-details' */ '~/pages/CustomerDetails')
 )
 const CustomerDraftInvoicesList = lazy(
-  () => import(/* webpackChunkName: 'customer-details' */ '~/pages/CustomerDraftInvoicesList')
+  () =>
+    import(
+      /* webpackChunkName: 'customer-draft-invoice-list' */ '~/pages/CustomerDraftInvoicesList'
+    )
 )
 const CustomerInvoiceDetails = lazy(
-  () => import(/* webpackChunkName: 'customer-details' */ '~/layouts/CustomerInvoiceDetails')
+  () =>
+    import(/* webpackChunkName: 'customer-invoice-details' */ '~/layouts/CustomerInvoiceDetails')
 )
 
 // Credit note related

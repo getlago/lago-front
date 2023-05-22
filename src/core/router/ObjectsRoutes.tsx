@@ -20,7 +20,7 @@ const CreateBillableMetric = lazy(
 )
 const CreatePlan = lazy(() => import(/* webpackChunkName: 'create-plan' */ '~/pages/CreatePlan'))
 const CreateTaxRate = lazy(
-  () => import(/* webpackChunkName: 'create-tax-rate4' */ '~/pages/CreateTaxRate')
+  () => import(/* webpackChunkName: 'create-tax-rate' */ '~/pages/CreateTaxRate')
 )
 const CreateInvoice = lazy(
   () => import(/* webpackChunkName: 'create-plan' */ '~/pages/CreateInvoice')
@@ -29,7 +29,7 @@ const CreateCoupon = lazy(
   () => import(/* webpackChunkName: 'create-coupon' */ '~/pages/CreateCoupon')
 )
 const CreateAddOn = lazy(
-  () => import(/* webpackChunkName: 'create-coupon' */ '~/pages/CreateAddOn')
+  () => import(/* webpackChunkName: 'create-add-on' */ '~/pages/CreateAddOn')
 )
 
 // ----------- Routes -----------
