@@ -21,13 +21,15 @@ export * from './SettingRoutes'
 const { appEnv } = envGlobalVar()
 
 // ----------- Layouts -----------
-const SideNavLayout = lazy(() => import(/* webpackChunkName: 'home' */ '~/layouts/SideNavLayout'))
+const SideNavLayout = lazy(
+  () => import(/* webpackChunkName: 'side-nav-layout' */ '~/layouts/SideNavLayout')
+)
 
 // ----------- Pages -----------
 const Error404 = lazy(() => import(/* webpackChunkName: 'error-404' */ '~/pages/Error404'))
 // Route Available only on dev mode
 const DesignSystem = lazy(
-  () => import(/* webpackChunkName: 'home' */ '~/pages/__devOnly/DesignSystem')
+  () => import(/* webpackChunkName: 'design-system' */ '~/pages/__devOnly/DesignSystem')
 )
 
 export const ERROR_404_ROUTE = '/404'

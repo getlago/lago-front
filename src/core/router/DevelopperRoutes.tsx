@@ -14,7 +14,7 @@ const WebhookLogs = lazy(
   () => import(/* webpackChunkName: 'webhook-logs' */ '~/pages/developers/WebhookLogs')
 )
 const Debugger = lazy(
-  () => import(/* webpackChunkName: 'api-keys' */ '~/pages/developers/Debugger')
+  () => import(/* webpackChunkName: 'debugger' */ '~/pages/developers/Debugger')
 )
 
 // ----------- Routes -----------
