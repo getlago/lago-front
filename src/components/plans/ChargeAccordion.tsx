@@ -54,7 +54,7 @@ gql`
   fragment ChargeAccordion on Charge {
     id
     chargeModel
-    instant
+    payInAdvance
     properties {
       amount
     }
@@ -88,10 +88,10 @@ gql`
 
 const mapIntervalCopy = (
   interval: string,
-  isInstant: boolean,
+  isPaidInAdvance: boolean,
   forceMonthlyCharge: boolean
 ): string => {
-  if (isInstant) {
+  if (isPaidInAdvance) {
     return 'text_6435895831d323008a47911e'
   } else if (forceMonthlyCharge) {
     return 'text_624453d52e945301380e49aa'
@@ -135,7 +135,7 @@ export const ChargeAccordion = memo(
     const handleUpdate = useCallback(
       (name: string, value: string | boolean) => {
         if (name === 'chargeModel' && value === ChargeModelEnum.Volume) {
-          formikProps.setFieldValue(`charges.${index}.instant`, false)
+          formikProps.setFieldValue(`charges.${index}.payInAdvance`, false)
         }
         formikProps.setFieldValue(`charges.${index}.${name}`, value)
       },
@@ -166,7 +166,7 @@ export const ChargeAccordion = memo(
         },
       ]
 
-      if (!localCharge.instant) {
+      if (!localCharge.payInAdvance) {
         chargeModels.push({
           label: translate('text_6304e74aab6dbc18d615f386'),
           value: ChargeModelEnum.Volume,
@@ -174,7 +174,7 @@ export const ChargeAccordion = memo(
       }
 
       return chargeModels
-    }, [localCharge.instant, translate])
+    }, [localCharge.payInAdvance, translate])
 
     return (
       <Accordion
@@ -209,10 +209,10 @@ export const ChargeAccordion = memo(
                 label={translate(
                   mapIntervalCopy(
                     formikProps.values.interval,
-                    localCharge.instant || false,
+                    localCharge.payInAdvance || false,
                     (formikProps.values.interval === PlanInterval.Yearly &&
                       !!formikProps.values.billChargesMonthly &&
-                      !localCharge.instant) ||
+                      !localCharge.payInAdvance) ||
                       false
                   )
                 )}
@@ -342,7 +342,7 @@ export const ChargeAccordion = memo(
             )}
           </ConditionalChargeWrapper>
 
-          {!localCharge.instant && (
+          {!localCharge.payInAdvance && (
             <SpendingMinimumWrapper>
               {showSpendingMinimum ? (
                 <>

@@ -165,8 +165,8 @@ const CreatePlan = () => {
   })
 
   const canBeEdited = !plan?.subscriptionsCount
-  const hasAnyNormalCharge = formikProps.values.charges.some((c) => !c.instant)
-  const hasAnyInstantCharge = formikProps.values.charges.some((c) => !!c.instant)
+  const hasAnyNormalCharge = formikProps.values.charges.some((c) => !c.payInAdvance)
+  const hasAnyInstantCharge = formikProps.values.charges.some((c) => !!c.payInAdvance)
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
