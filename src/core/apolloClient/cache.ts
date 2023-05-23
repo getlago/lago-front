@@ -84,7 +84,7 @@ export const cache = new InMemoryCache({
           keyArgs: false,
           merge: mergePaginatedCollection,
         },
-        taxRates: {
+        taxes: {
           keyArgs: false,
           merge: mergePaginatedCollection,
         },

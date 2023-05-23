@@ -2,37 +2,37 @@ import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { Typography, DialogRef } from '~/components/designSystem'
-import { DeleteTaxRateFragment, useDeleteTaxRateMutation } from '~/generated/graphql'
+import { DeleteTaxFragment, useDeleteTaxMutation } from '~/generated/graphql'
 import { WarningDialog } from '~/components/WarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 
 gql`
-  fragment DeleteTaxRate on TaxRate {
+  fragment DeleteTax on Tax {
     id
     name
     customersCount
   }
 
-  mutation deleteTaxRate($input: DestroyTaxRateInput!) {
-    destroyTaxRate(input: $input) {
+  mutation deleteTax($input: DestroyTaxInput!) {
+    destroyTax(input: $input) {
       id
     }
   }
 `
 
-export interface DeleteTaxRateDialogRef {
-  openDialog: (taxRate: DeleteTaxRateFragment) => unknown
+export interface DeleteTaxDialogRef {
+  openDialog: (tax: DeleteTaxFragment) => unknown
   closeDialog: () => unknown
 }
 
-export const DeleteTaxRateDialog = forwardRef<DeleteTaxRateDialogRef>((_, ref) => {
+export const DeleteTaxDialog = forwardRef<DeleteTaxDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)
-  const [taxRate, setTaxRate] = useState<DeleteTaxRateFragment | undefined>(undefined)
-  const [deleteTaxRate] = useDeleteTaxRateMutation({
+  const [tax, setTax] = useState<DeleteTaxFragment | undefined>(undefined)
+  const [deleteTax] = useDeleteTaxMutation({
     onCompleted(data) {
-      if (data && data.destroyTaxRate) {
+      if (data && data.destroyTax) {
         addToast({
           message: translate('text_645bb193927b375079d28b5a'),
           severity: 'success',
@@ -40,10 +40,10 @@ export const DeleteTaxRateDialog = forwardRef<DeleteTaxRateDialogRef>((_, ref) =
       }
     },
     update(cache, { data }) {
-      if (!data?.destroyTaxRate) return
+      if (!data?.destroyTax) return
       const cacheId = cache.identify({
-        id: data?.destroyTaxRate.id,
-        __typename: 'TaxRate',
+        id: data?.destroyTax.id,
+        __typename: 'Tax',
       })
 
       cache.evict({ id: cacheId })
@@ -52,7 +52,7 @@ export const DeleteTaxRateDialog = forwardRef<DeleteTaxRateDialogRef>((_, ref) =
 
   useImperativeHandle(ref, () => ({
     openDialog: (data) => {
-      setTaxRate(data)
+      setTax(data)
       dialogRef.current?.openDialog()
     },
     closeDialog: () => {
@@ -64,18 +64,18 @@ export const DeleteTaxRateDialog = forwardRef<DeleteTaxRateDialogRef>((_, ref) =
     <WarningDialog
       ref={dialogRef}
       title={translate('text_645bb193927b375079d28af7', {
-        name: taxRate?.name,
+        name: tax?.name,
       })}
       description={
         <Typography>
-          {!!taxRate?.customersCount
-            ? translate('text_645bb193927b375079d28b0c', { count: taxRate?.customersCount })
+          {!!tax?.customersCount
+            ? translate('text_645bb193927b375079d28b0c', { count: tax?.customersCount })
             : translate('text_645cb766cca2dd00e2956271')}
         </Typography>
       }
       onContinue={async () =>
-        await deleteTaxRate({
-          variables: { input: { id: taxRate?.id || '' } },
+        await deleteTax({
+          variables: { input: { id: tax?.id || '' } },
         })
       }
       continueText={translate('text_645bb193927b375079d28b34')}
@@ -83,4 +83,4 @@ export const DeleteTaxRateDialog = forwardRef<DeleteTaxRateDialogRef>((_, ref) =
   )
 })
 
-DeleteTaxRateDialog.displayName = 'DeleteTaxRateDialog'
+DeleteTaxDialog.displayName = 'DeleteTaxDialog'

@@ -16,7 +16,7 @@ const InvoiceSettings = lazy(
   () => import(/* webpackChunkName: 'invoice-settings' */ '~/pages/settings/InvoiceSettings')
 )
 const TaxesSettings = lazy(
-  () => import(/* webpackChunkName: 'tax-rate-settings' */ '~/pages/settings/TaxesSettings')
+  () => import(/* webpackChunkName: 'tax-settings' */ '~/pages/settings/TaxesSettings')
 )
 const Members = lazy(() => import(/* webpackChunkName: 'members' */ '~/pages/settings/Members'))
 const Integrations = lazy(

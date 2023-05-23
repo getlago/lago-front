@@ -19,29 +19,29 @@ import {
   SectionTitle,
   LineSplit,
 } from '~/styles/mainObjectsForm'
-import { useCreateEditTaxRate } from '~/hooks/useCreateEditTaxRate'
-import { TaxRateCodeSnippet } from '~/components/taxRates/TaxRateCodeSnippet'
+import { useCreateEditTax } from '~/hooks/useCreateEditTax'
+import { TaxCodeSnippet } from '~/components/taxes/TaxCodeSnippet'
 import { TextInputField } from '~/components/form'
-import { TaxRateFormInput } from '~/components/taxRates/types'
+import { TaxFormInput } from '~/components/taxes/types'
 import { FORM_ERRORS_ENUM } from '~/core/formErrors'
 
-const CreateTaxRate = () => {
-  const { isEdition, errorCode, loading, onClose, onSave, taxRate } = useCreateEditTaxRate()
+const CreateTax = () => {
+  const { isEdition, errorCode, loading, onClose, onSave, tax } = useCreateEditTax()
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const { translate } = useInternationalization()
-  const formikProps = useFormik<TaxRateFormInput>({
+  const formikProps = useFormik<TaxFormInput>({
     initialValues: {
-      code: taxRate?.code || '',
-      description: taxRate?.description || '',
-      name: taxRate?.name || '',
+      code: tax?.code || '',
+      description: tax?.description || '',
+      name: tax?.name || '',
       // @ts-ignore
-      value: taxRate?.value ? String(taxRate?.value) : '',
+      rate: tax?.rate ? String(tax?.rate) : '',
     },
     validationSchema: object().shape({
       code: string().required(''),
       description: string(),
       name: string().required(''),
-      value: number().max(100, 'text_645bb193927b375079d28b88').required(''),
+      rate: number().max(100, 'text_645bb193927b375079d28b88').required(''),
     }),
     enableReinitialize: true,
     validateOnMount: true,
@@ -83,7 +83,7 @@ const CreateTaxRate = () => {
       <Content>
         <Main>
           <div>
-            {loading && !taxRate ? (
+            {loading && !tax ? (
               <>
                 <SkeletonHeader>
                   <Skeleton
@@ -196,7 +196,7 @@ const CreateTaxRate = () => {
                   )}
 
                   <TextInputField
-                    name="value"
+                    name="rate"
                     label={translate('text_645bb193927b375079d28b2c')}
                     beforeChangeFormatter={['positiveNumber', 'decimal']}
                     placeholder={translate('text_632d68358f1fedc68eed3e86')}
@@ -229,11 +229,7 @@ const CreateTaxRate = () => {
           </div>
         </Main>
         <Side>
-          <TaxRateCodeSnippet
-            loading={loading}
-            taxRate={formikProps.values}
-            isEdition={isEdition}
-          />
+          <TaxCodeSnippet loading={loading} tax={formikProps.values} isEdition={isEdition} />
         </Side>
       </Content>
 
@@ -248,7 +244,7 @@ const CreateTaxRate = () => {
   )
 }
 
-export default CreateTaxRate
+export default CreateTax
 
 const InlineDescription = styled.div`
   display: flex;
