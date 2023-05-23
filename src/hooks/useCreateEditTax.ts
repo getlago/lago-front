@@ -3,78 +3,78 @@ import { gql } from '@apollo/client'
 import { useParams, useNavigate } from 'react-router-dom'
 
 import {
-  useCreateTaxRateMutation,
-  useGetSingleTaxRateQuery,
+  useCreateTaxMutation,
+  useGetSingleTaxQuery,
   LagoApiError,
-  useUpdateTaxRateMutation,
+  useUpdateTaxMutation,
 } from '~/generated/graphql'
 import { ERROR_404_ROUTE, TAXES_SETTINGS_ROUTE } from '~/core/router'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { TaxRateFormInput } from '~/components/taxRates/types'
+import { TaxFormInput } from '~/components/taxes/types'
 import { FORM_ERRORS_ENUM } from '~/core/formErrors'
 
 gql`
-  fragment TaxRateForm on TaxRate {
+  fragment TaxForm on Tax {
     id
     code
     description
     name
-    value
+    rate
   }
 
-  query getSingleTaxRate($id: ID!) {
-    taxRate(id: $id) {
+  query getSingleTax($id: ID!) {
+    tax(id: $id) {
       id
-      ...TaxRateForm
+      ...TaxForm
     }
   }
 
-  mutation createTaxRate($input: TaxRateCreateInput!) {
-    createTaxRate(input: $input) {
+  mutation createTax($input: TaxCreateInput!) {
+    createTax(input: $input) {
       id
-      ...TaxRateForm
+      ...TaxForm
     }
   }
 
-  mutation updateTaxRate($input: TaxRateUpdateInput!) {
-    updateTaxRate(input: $input) {
-      ...TaxRateForm
+  mutation updateTax($input: TaxUpdateInput!) {
+    updateTax(input: $input) {
+      ...TaxForm
     }
   }
 `
 
-type useCreateEditTaxRateReturn = {
+type useCreateEditTaxReturn = {
   errorCode?: string
   loading: boolean
   isEdition: boolean
-  taxRate?: TaxRateFormInput
-  onSave: (value: TaxRateFormInput) => Promise<void>
+  tax?: TaxFormInput
+  onSave: (values: TaxFormInput) => Promise<void>
   onClose: () => void
 }
 
-const formatTaxRateInput = (values: TaxRateFormInput) => {
-  const { code, name, value, ...others } = values
+const formatTaxInput = (values: TaxFormInput) => {
+  const { code, name, rate, ...others } = values
 
   return {
     code: code || '',
     name: name || '',
-    value: Number(value) || 0,
+    rate: Number(rate) || 0,
     ...others,
   }
 }
 
-export const useCreateEditTaxRate: () => useCreateEditTaxRateReturn = () => {
+export const useCreateEditTax: () => useCreateEditTaxReturn = () => {
   const navigate = useNavigate()
   const { id } = useParams()
-  const { data, loading, error } = useGetSingleTaxRateQuery({
+  const { data, loading, error } = useGetSingleTaxQuery({
     context: { silentError: LagoApiError.NotFound },
     variables: { id: id as string },
     skip: !id,
   })
-  const [update, { error: createError }] = useUpdateTaxRateMutation({
+  const [update, { error: createError }] = useUpdateTaxMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    onCompleted({ updateTaxRate }) {
-      if (!!updateTaxRate) {
+    onCompleted({ updateTax }) {
+      if (!!updateTax) {
         addToast({
           severity: 'success',
           translateKey: 'text_645bb193927b375079d28b71',
@@ -84,10 +84,10 @@ export const useCreateEditTaxRate: () => useCreateEditTaxRateReturn = () => {
     },
   })
 
-  const [create, { error: updateError }] = useCreateTaxRateMutation({
+  const [create, { error: updateError }] = useCreateTaxMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    onCompleted({ createTaxRate }) {
-      if (!!createTaxRate) {
+    onCompleted({ createTax }) {
+      if (!!createTax) {
         addToast({
           severity: 'success',
           translateKey: 'text_645bb193927b375079d28bc1',
@@ -98,7 +98,7 @@ export const useCreateEditTaxRate: () => useCreateEditTaxRateReturn = () => {
   })
 
   useEffect(() => {
-    if (hasDefinedGQLError('NotFound', error, 'tax-rate')) {
+    if (hasDefinedGQLError('NotFound', error, 'tax')) {
       navigate(ERROR_404_ROUTE)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -117,7 +117,7 @@ export const useCreateEditTaxRate: () => useCreateEditTaxRateReturn = () => {
       loading,
       errorCode,
       isEdition: !!id,
-      taxRate: data?.taxRate || undefined,
+      tax: data?.tax || undefined,
       onClose: () => {
         navigate(TAXES_SETTINGS_ROUTE)
       },
@@ -127,7 +127,7 @@ export const useCreateEditTaxRate: () => useCreateEditTaxRateReturn = () => {
               variables: {
                 input: {
                   id,
-                  ...formatTaxRateInput(values),
+                  ...formatTaxInput(values),
                 },
               },
             })
@@ -135,7 +135,7 @@ export const useCreateEditTaxRate: () => useCreateEditTaxRateReturn = () => {
         : async (values) => {
             await create({
               variables: {
-                input: { ...formatTaxRateInput(values) },
+                input: { ...formatTaxInput(values) },
               },
             })
           },

@@ -10,43 +10,40 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { theme, NAV_HEIGHT } from '~/styles'
 import {
   EditOrganizationInvoiceTemplateDialogFragmentDoc,
-  TaxRateItemFragmentDoc,
-  useGetTaxRatesQuery,
+  TaxItemFragmentDoc,
+  useGetTaxesQuery,
 } from '~/generated/graphql'
 import { CREATE_TAX_RATE_ROUTE } from '~/core/router'
-import { TaxRateItem, TaxRateItemSkeleton } from '~/components/taxRates/TaxRateItem'
-import {
-  DeleteTaxRateDialog,
-  DeleteTaxRateDialogRef,
-} from '~/components/taxRates/DeleteTaxRateDialog'
+import { TaxItem, TaxItemSkeleton } from '~/components/taxes/TaxItem'
+import { DeleteTaxDialog, DeleteTaxDialogRef } from '~/components/taxes/DeleteTaxDialog'
 
 gql`
-  query getTaxRates($limit: Int, $page: Int) {
-    taxRates(limit: $limit, page: $page) {
+  query getTaxes($limit: Int, $page: Int) {
+    taxes(limit: $limit, page: $page) {
       metadata {
         currentPage
         totalPages
       }
       collection {
         id
-        ...TaxRateItem
+        ...TaxItem
       }
     }
   }
 
-  ${TaxRateItemFragmentDoc}
+  ${TaxItemFragmentDoc}
   ${EditOrganizationInvoiceTemplateDialogFragmentDoc}
 `
 
 const TaxesSettings = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
-  const deleteDialogRef = useRef<DeleteTaxRateDialogRef>(null)
-  const { data, error, loading, fetchMore } = useGetTaxRatesQuery({
+  const deleteDialogRef = useRef<DeleteTaxDialogRef>(null)
+  const { data, error, loading, fetchMore } = useGetTaxesQuery({
     variables: { limit: 20 },
     notifyOnNetworkStatusChange: true,
   })
-  const { metadata, collection } = data?.taxRates || {}
+  const { metadata, collection } = data?.taxes || {}
 
   if (!!error && !loading) {
     return (
@@ -108,21 +105,20 @@ const TaxesSettings = () => {
               {!!collection &&
                 collection.map((tax) => {
                   return (
-                    <TaxRateItem
-                      key={`tax-rate-item-${tax.id}`}
-                      taxRate={tax}
+                    <TaxItem
+                      key={`tax-item-${tax.id}`}
+                      tax={tax}
                       deleteDialogRef={deleteDialogRef}
                     />
                   )
                 })}
-              {loading &&
-                [0, 1, 2].map((_, i) => <TaxRateItemSkeleton key={`tax-rate-skeleton-${i}`} />)}
+              {loading && [0, 1, 2].map((_, i) => <TaxItemSkeleton key={`tax-skeleton-${i}`} />)}
             </InfiniteScroll>
           )}
         </InfoBlock>
       </Page>
 
-      <DeleteTaxRateDialog ref={deleteDialogRef} />
+      <DeleteTaxDialog ref={deleteDialogRef} />
     </>
   )
 }

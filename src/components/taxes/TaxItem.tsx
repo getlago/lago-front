@@ -15,35 +15,35 @@ import {
   Popper,
 } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { DeleteTaxRateFragmentDoc, TaxRateItemFragment } from '~/generated/graphql'
+import { DeleteTaxFragmentDoc, TaxItemFragment } from '~/generated/graphql'
 import { UPDATE_TAX_RATE_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 
-import { DeleteTaxRateDialogRef } from './DeleteTaxRateDialog'
+import { DeleteTaxDialogRef } from './DeleteTaxDialog'
 
 gql`
-  fragment TaxRateItem on TaxRate {
+  fragment TaxItem on Tax {
     id
     code
     name
-    value
+    rate
 
-    ...DeleteTaxRate
+    ...DeleteTax
   }
 
-  ${DeleteTaxRateFragmentDoc}
+  ${DeleteTaxFragmentDoc}
 `
 
-interface TaxRateItemProps {
-  deleteDialogRef: RefObject<DeleteTaxRateDialogRef>
+interface TaxItemProps {
+  deleteDialogRef: RefObject<DeleteTaxDialogRef>
   navigationProps?: ListKeyNavigationItemProps
-  taxRate: TaxRateItemFragment
+  tax: TaxItemFragment
 }
 
-export const TaxRateItem = memo(({ deleteDialogRef, taxRate }: TaxRateItemProps) => {
+export const TaxItem = memo(({ deleteDialogRef, tax }: TaxItemProps) => {
   const { translate } = useInternationalization()
-  const { id, name, code, value } = taxRate
+  const { id, name, code, rate } = tax
 
   return (
     <ItemContainer>
@@ -67,7 +67,7 @@ export const TaxRateItem = memo(({ deleteDialogRef, taxRate }: TaxRateItemProps)
         </LeftSection>
         <RightSection>
           <Typography variant="body" color="grey700">
-            {intlFormatNumber((value || 0) / 100, {
+            {intlFormatNumber((rate || 0) / 100, {
               minimumFractionDigits: 2,
               style: 'percent',
             })}
@@ -109,7 +109,7 @@ export const TaxRateItem = memo(({ deleteDialogRef, taxRate }: TaxRateItemProps)
               variant="quaternary"
               align="left"
               onClick={() => {
-                deleteDialogRef.current?.openDialog(taxRate)
+                deleteDialogRef.current?.openDialog(tax)
                 closePopper()
               }}
             >
@@ -122,7 +122,7 @@ export const TaxRateItem = memo(({ deleteDialogRef, taxRate }: TaxRateItemProps)
   )
 })
 
-export const TaxRateItemSkeleton = () => {
+export const TaxItemSkeleton = () => {
   return (
     <SkeletonWrapper>
       <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
@@ -166,4 +166,4 @@ const ButtonMock = styled.div`
   min-width: 40px;
 `
 
-TaxRateItem.displayName = 'TaxRateItem'
+TaxItem.displayName = 'TaxItem'
