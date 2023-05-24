@@ -4,13 +4,12 @@ import styled from 'styled-components'
 import { InputAdornment } from '@mui/material'
 import { gql } from '@apollo/client'
 
-import { TextInputField, SwitchField, AmountInputField } from '~/components/form'
+import { TextInputField, AmountInputField, ButtonSelectorField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Button, Chip, Icon, Tooltip, Typography } from '~/components/designSystem'
 import { theme, Card, NAV_HEIGHT } from '~/styles'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
-import { FORM_ERRORS_ENUM } from '~/core/formErrors'
 
 import { PlanFormInput } from './types'
 
@@ -25,7 +24,6 @@ gql`
 
 interface FixedFeeSectionProps {
   canBeEdited: boolean
-  errorCode: string | undefined
   formikProps: FormikProps<PlanFormInput>
   isEdition: boolean
 }
@@ -45,7 +43,7 @@ const mapIntervalCopy = (interval: string) => {
 }
 
 export const FixedFeeSection = memo(
-  ({ canBeEdited, errorCode, formikProps, isEdition }: FixedFeeSectionProps) => {
+  ({ canBeEdited, formikProps, isEdition }: FixedFeeSectionProps) => {
     const { translate } = useInternationalization()
     const [shouldDisplayTrialPeriod, setShouldDisplayTrialPeriod] = useState(false)
     const hasErrorInSection =
@@ -56,17 +54,6 @@ export const FixedFeeSection = memo(
 
       setShouldDisplayTrialPeriod(!isNaN(initialTrialPeriod) && initialTrialPeriod > 0)
     }, [formikProps.initialValues.trialPeriod])
-
-    useEffect(() => {
-      if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-        formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
-        const rootElement = document.getElementById('root')
-
-        if (!rootElement) return
-        rootElement.scrollTo({ top: 0 })
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [errorCode])
 
     return (
       <Card>
@@ -107,13 +94,28 @@ export const FixedFeeSection = memo(
                 ),
               }}
             />
-            <SwitchField
+            <ButtonSelectorField
               name="payInAdvance"
-              disabled={isEdition && !canBeEdited}
-              label={translate('text_624d90e6a93343010cd14b40')}
-              subLabel={translate('text_624d90e6a93343010cd14b4c')}
+              label={translate('text_646e2d0cc536351b62ba6f86')}
               formikProps={formikProps}
+              disabled={isEdition && !canBeEdited}
+              helperText={
+                formikProps.values.payInAdvance
+                  ? translate('text_646e2d0cc536351b62ba6fc5')
+                  : translate('text_646e2d0cc536351b62ba6fb0')
+              }
+              options={[
+                {
+                  label: translate('text_646e2d0cc536351b62ba6f8c'),
+                  value: false,
+                },
+                {
+                  label: translate('text_646e2d0cc536351b62ba6faa'),
+                  value: true,
+                },
+              ]}
             />
+
             {shouldDisplayTrialPeriod ? (
               <InlineTrialPeriod>
                 <InputTrialPeriod

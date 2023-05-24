@@ -110,6 +110,9 @@ module.exports = {
   "project_62f50d2512182c6df6c39e37": {
     "base": require('./-wip---general---fe-environment-infos__base.json')
   },
+  "project_646e2d05cf47b79ad4b5ccf5": {
+    "base": require('./-wip---plan---charges-paid-in-advance__base.json')
+  },
   "project_645bb18f29c95e96f9cd43e9": {
     "base": require('./-wip---settings---create-tax-rate-object--apply-on-org--cus__base.json')
   },

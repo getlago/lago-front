@@ -250,5 +250,8 @@ sources:
       fileName: ⚙️ [WIP] - Customer - Create an one off invoice (ex-applied_add-on)
     - name: ⚙️ [WIP] - Settings - Create tax rate object & apply on org & cus
       id: 645bb18f29c95e96f9cd43e9
+      fileName: ⚙️ [WIP] - Settings - Create tax rate object & apply on org & cus
+    - name: ⚙️ [WIP] - Plan - Charges paid in-advance
+      id: 646e2d05cf47b79ad4b5ccf5
 format: flat
 variants: true

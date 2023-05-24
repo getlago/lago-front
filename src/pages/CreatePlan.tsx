@@ -64,6 +64,7 @@ gql`
     charges {
       id
       minAmountCents
+      payInAdvance
       billableMetric {
         id
         code
@@ -127,27 +128,30 @@ const CreatePlan = () => {
           : plan?.trialPeriod,
       billChargesMonthly: plan?.billChargesMonthly || undefined,
       charges: plan?.charges
-        ? plan?.charges.map(({ properties, groupProperties, minAmountCents, ...charge }) => ({
-            minAmountCents: isNaN(minAmountCents)
-              ? undefined
-              : String(
-                  deserializeAmount(minAmountCents || 0, plan.amountCurrency || CurrencyEnum.Usd)
-                ),
-            properties:
-              properties && !charge.billableMetric.flatGroups?.length
-                ? getPropertyShape(properties)
-                : undefined,
-            groupProperties:
-              groupProperties?.length && !!charge.billableMetric.flatGroups?.length
-                ? groupProperties?.map((prop) => {
-                    return {
-                      groupId: prop.groupId,
-                      values: getPropertyShape(prop.values),
-                    }
-                  })
-                : undefined,
-            ...charge,
-          }))
+        ? plan?.charges.map(
+            ({ properties, groupProperties, minAmountCents, payInAdvance, ...charge }) => ({
+              minAmountCents: isNaN(minAmountCents)
+                ? undefined
+                : String(
+                    deserializeAmount(minAmountCents || 0, plan.amountCurrency || CurrencyEnum.Usd)
+                  ),
+              payInAdvance: payInAdvance || false,
+              properties:
+                properties && !charge.billableMetric.flatGroups?.length
+                  ? getPropertyShape(properties)
+                  : undefined,
+              groupProperties:
+                groupProperties?.length && !!charge.billableMetric.flatGroups?.length
+                  ? groupProperties?.map((prop) => {
+                      return {
+                        groupId: prop.groupId,
+                        values: getPropertyShape(prop.values),
+                      }
+                    })
+                  : undefined,
+              ...charge,
+            })
+          )
         : ([] as LocalChargeInput[]),
     },
     validationSchema: object().shape({
@@ -165,8 +169,6 @@ const CreatePlan = () => {
   })
 
   const canBeEdited = !plan?.subscriptionsCount
-  const hasAnyNormalCharge = formikProps.values.charges.some((c) => !c.payInAdvance)
-  const hasAnyInstantCharge = formikProps.values.charges.some((c) => !!c.payInAdvance)
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
@@ -283,7 +285,6 @@ const CreatePlan = () => {
 
                 <FixedFeeSection
                   canBeEdited={canBeEdited}
-                  errorCode={errorCode}
                   formikProps={formikProps}
                   isEdition={isEdition}
                 />
@@ -291,10 +292,8 @@ const CreatePlan = () => {
                 <ChargesSection
                   canBeEdited={canBeEdited}
                   isEdition={isEdition}
-                  hasAnyNormalCharge={hasAnyNormalCharge}
-                  hasAnyInstantCharge={hasAnyInstantCharge}
                   formikProps={formikProps}
-                  existingCharges={plan?.charges}
+                  alreadyExistingCharges={plan?.charges}
                   getPropertyShape={getPropertyShape}
                 />
 
