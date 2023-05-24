@@ -9,7 +9,7 @@ import { Typography } from '../../designSystem/Typography'
 
 export interface TabButtonProps {
   active?: boolean
-  title?: string | number
+  title?: string | number | boolean
   disabled?: boolean
   icon?: IconName | ReactNode
   className?: string

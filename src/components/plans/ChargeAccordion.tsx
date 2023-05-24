@@ -1,4 +1,4 @@
-import { useCallback, MouseEvent, memo, useMemo, useState, RefObject, useEffect } from 'react'
+import { useCallback, MouseEvent, memo, useState, RefObject, useEffect, useMemo } from 'react'
 import { FormikProps } from 'formik'
 import styled from 'styled-components'
 import { InputAdornment } from '@mui/material'
@@ -23,8 +23,10 @@ import {
   PackageChargeFragmentDoc,
   PercentageChargeFragmentDoc,
   PlanInterval,
+  ChargeForChargeOptionsAccordionFragmentDoc,
+  AggregationTypeEnum,
 } from '~/generated/graphql'
-import { AmountInput, ComboBox } from '~/components/form'
+import { AmountInput, ButtonSelector, ComboBox, Switch } from '~/components/form'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
@@ -35,6 +37,7 @@ import { PlanFormInput } from './types'
 import { VolumeChargeTable } from './VolumeChargeTable'
 import { ConditionalChargeWrapper } from './ConditionalChargeWrapper'
 import { RemoveChargeWarningDialogRef } from './RemoveChargeWarningDialog'
+import { ChargeOptionsAccordion } from './ChargeOptionsAccordion'
 
 import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
@@ -54,6 +57,8 @@ gql`
   fragment ChargeAccordion on Charge {
     id
     chargeModel
+    invoiceable
+    minAmountCents
     payInAdvance
     properties {
       amount
@@ -79,21 +84,17 @@ gql`
     ...VolumeRanges
     ...PackageCharge
     ...PercentageCharge
+    ...ChargeForChargeOptionsAccordion
   }
   ${GraduatedChargeFragmentDoc}
   ${VolumeRangesFragmentDoc}
   ${PackageChargeFragmentDoc}
   ${PercentageChargeFragmentDoc}
+  ${ChargeForChargeOptionsAccordionFragmentDoc}
 `
 
-const mapIntervalCopy = (
-  interval: string,
-  isPaidInAdvance: boolean,
-  forceMonthlyCharge: boolean
-): string => {
-  if (isPaidInAdvance) {
-    return 'text_6435895831d323008a47911e'
-  } else if (forceMonthlyCharge) {
+const mapIntervalCopy = (interval: string, forceMonthlyCharge: boolean): string => {
+  if (forceMonthlyCharge) {
     return 'text_624453d52e945301380e49aa'
   } else if (interval === PlanInterval.Monthly) {
     return 'text_624453d52e945301380e49aa'
@@ -122,6 +123,9 @@ export const ChargeAccordion = memo(
     const { isPremium } = useCurrentUser()
     const localCharge = formikProps.values.charges[index]
     const initialLocalCharge = formikProps.initialValues.charges[index]
+    const hasErrorInCharges = Boolean(
+      formikProps.errors.charges && formikProps.errors.charges[index]
+    )
     const [showSpendingMinimum, setShowSpendingMinimum] = useState(
       !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0
     )
@@ -134,47 +138,52 @@ export const ChargeAccordion = memo(
 
     const handleUpdate = useCallback(
       (name: string, value: string | boolean) => {
-        if (name === 'chargeModel' && value === ChargeModelEnum.Volume) {
+        if (
+          name === 'chargeModel' &&
+          (value === ChargeModelEnum.Volume ||
+            localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg ||
+            localCharge.billableMetric.aggregationType === AggregationTypeEnum.RecurringCountAgg)
+        ) {
           formikProps.setFieldValue(`charges.${index}.payInAdvance`, false)
         }
+
+        if (name === 'payInAdvance') {
+          if (value === true) {
+            // Pay in advance
+            formikProps.setFieldValue(`charges.${index}.minAmountCents`, undefined)
+          } else {
+            // Pay in arrears
+            formikProps.setFieldValue(`charges.${index}.invoiceable`, true)
+          }
+        }
+
         formikProps.setFieldValue(`charges.${index}.${name}`, value)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [index, formikProps.setFieldValue]
     )
-    const hasErrorInCharges = Boolean(
-      formikProps.errors.charges && formikProps.errors.charges[index]
-    )
 
-    const chargeModelData = useMemo(() => {
-      const chargeModels = [
-        {
-          label: translate('text_624aa732d6af4e0103d40e6f'),
-          value: ChargeModelEnum.Standard,
-        },
-        {
-          label: translate('text_62793bbb599f1c01522e919f'),
-          value: ChargeModelEnum.Graduated,
-        },
-        {
-          label: translate('text_62a0b7107afa2700a65ef6e2'),
-          value: ChargeModelEnum.Percentage,
-        },
-        {
-          label: translate('text_6282085b4f283b0102655868'),
-          value: ChargeModelEnum.Package,
-        },
-      ]
-
-      if (!localCharge.payInAdvance) {
-        chargeModels.push({
-          label: translate('text_6304e74aab6dbc18d615f386'),
-          value: ChargeModelEnum.Volume,
-        })
+    const chargePayInAdvanceSwitchHelperText = useMemo(() => {
+      if (localCharge.chargeModel === ChargeModelEnum.Volume) {
+        return translate('text_646e2d0cc536351b62ba6fc0')
+      } else if (localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg) {
+        return translate('text_646e2d0cc536351b62ba6f48')
+      } else if (
+        localCharge.billableMetric.aggregationType === AggregationTypeEnum.RecurringCountAgg
+      ) {
+        return translate('text_646e2d0cc536351b62ba6efd')
+      } else if (localCharge.payInAdvance) {
+        return translate('text_646e2d0cc536351b62ba6f12')
       }
 
-      return chargeModels
-    }, [localCharge.payInAdvance, translate])
+      // Charge paid in arrears
+      return translate('text_646e2d0cc536351b62ba6f53')
+    }, [
+      localCharge.chargeModel,
+      localCharge.payInAdvance,
+      localCharge.billableMetric.aggregationType,
+      translate,
+    ])
 
     return (
       <Accordion
@@ -209,10 +218,8 @@ export const ChargeAccordion = memo(
                 label={translate(
                   mapIntervalCopy(
                     formikProps.values.interval,
-                    localCharge.payInAdvance || false,
                     (formikProps.values.interval === PlanInterval.Yearly &&
-                      !!formikProps.values.billChargesMonthly &&
-                      !localCharge.payInAdvance) ||
+                      !!formikProps.values.billChargesMonthly) ||
                       false
                   )
                 )}
@@ -247,6 +254,7 @@ export const ChargeAccordion = memo(
         }
       >
         <>
+          {/* Charge main infos */}
           <PaddedContent>
             {!!shouldDisplayAlreadyUsedChargeAlert && (
               <Alert type="warning">{translate('text_6435895831d323008a47911f')}</Alert>
@@ -255,7 +263,28 @@ export const ChargeAccordion = memo(
               name="chargeModel"
               disabled={disabled}
               label={translate('text_624c5eadff7db800acc4ca0d')}
-              data={chargeModelData}
+              data={[
+                {
+                  label: translate('text_624aa732d6af4e0103d40e6f'),
+                  value: ChargeModelEnum.Standard,
+                },
+                {
+                  label: translate('text_62793bbb599f1c01522e919f'),
+                  value: ChargeModelEnum.Graduated,
+                },
+                {
+                  label: translate('text_62a0b7107afa2700a65ef6e2'),
+                  value: ChargeModelEnum.Percentage,
+                },
+                {
+                  label: translate('text_6282085b4f283b0102655868'),
+                  value: ChargeModelEnum.Package,
+                },
+                {
+                  label: translate('text_6304e74aab6dbc18d615f386'),
+                  value: ChargeModelEnum.Volume,
+                },
+              ]}
               disableClearable
               value={localCharge.chargeModel}
               helperText={translate(
@@ -272,7 +301,6 @@ export const ChargeAccordion = memo(
               onChange={(value) => handleUpdate('chargeModel', value)}
             />
           </PaddedContent>
-
           <ConditionalChargeWrapper
             chargeIndex={index}
             localCharge={localCharge}
@@ -342,64 +370,108 @@ export const ChargeAccordion = memo(
             )}
           </ConditionalChargeWrapper>
 
-          {!localCharge.payInAdvance && (
-            <SpendingMinimumWrapper>
-              {showSpendingMinimum ? (
-                <>
-                  <SpendingMinimumInput
-                    id={`spending-minimum-input-${index}`}
-                    beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
-                    label={translate('text_643e592657fc1ba5ce110c30')}
-                    currency={currency}
-                    placeholder={translate('text_643e592657fc1ba5ce110c80')}
-                    disabled={disabled}
-                    value={localCharge?.minAmountCents || ''}
-                    onChange={(value) => handleUpdate('minAmountCents', value)}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {getCurrencySymbol(currency)}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  <CloseDescriptionTooltip
-                    placement="top-end"
-                    title={translate('text_63aa085d28b8510cd46443ff')}
-                  >
-                    <Button
-                      icon="trash"
-                      variant="quaternary"
-                      disabled={disabled}
-                      onClick={() => {
-                        formikProps.setFieldValue(`charges.${index}.minAmountCents`, null)
-                        setShowSpendingMinimum(false)
-                      }}
-                    />
-                  </CloseDescriptionTooltip>
-                </>
-              ) : (
-                <Button
-                  variant="quaternary"
-                  startIcon="plus"
+          {/* Charge options */}
+          <ChargeOptionsAccordion charge={localCharge} currency={currency}>
+            <ButtonSelector
+              label={translate('text_646e2d0cc536351b62ba6f1a')}
+              disabled={disabled}
+              helperText={chargePayInAdvanceSwitchHelperText}
+              onChange={(value) => handleUpdate('payInAdvance', Boolean(value))}
+              value={localCharge.payInAdvance || false}
+              options={[
+                {
+                  label: translate('text_646e2d0cc536351b62ba6f2b'),
+                  value: false,
+                },
+                {
+                  label: translate('text_646e2d0cc536351b62ba6f3d'),
+                  value: true,
+                  disabled:
+                    localCharge.chargeModel === ChargeModelEnum.Volume ||
+                    localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg ||
+                    localCharge.billableMetric.aggregationType ===
+                      AggregationTypeEnum.RecurringCountAgg,
+                },
+              ]}
+            />
+            {localCharge.payInAdvance && (
+              <InvoiceableSwitchWrapper>
+                <Switch
+                  name={`charge-${localCharge.id}-invoiceable`}
+                  label={translate('text_646e2d0cc536351b62ba6f25')}
                   disabled={disabled}
-                  endIcon={isPremium ? undefined : 'sparkles'}
-                  onClick={() => {
+                  subLabel={translate('text_646e2d0cc536351b62ba6f35')}
+                  checked={!!localCharge.invoiceable}
+                  onChange={(value) => {
                     if (isPremium) {
-                      setShowSpendingMinimum(true)
-                      setTimeout(() => {
-                        document.getElementById(`spending-minimum-input-${index}`)?.focus()
-                      }, 0)
+                      handleUpdate('invoiceable', value)
                     } else {
                       premiumWarningDialogRef.current?.openDialog()
                     }
                   }}
-                >
-                  {translate('text_643e592657fc1ba5ce110b9e')}
-                </Button>
-              )}
-            </SpendingMinimumWrapper>
-          )}
+                />
+                {!isPremium && <Icon name="sparkles" />}
+              </InvoiceableSwitchWrapper>
+            )}
+            {!localCharge.payInAdvance && (
+              <SpendingMinimumWrapper>
+                {showSpendingMinimum ? (
+                  <>
+                    <SpendingMinimumInput
+                      id={`spending-minimum-input-${index}`}
+                      beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
+                      label={translate('text_643e592657fc1ba5ce110c30')}
+                      currency={currency}
+                      placeholder={translate('text_643e592657fc1ba5ce110c80')}
+                      disabled={disabled}
+                      value={localCharge?.minAmountCents || ''}
+                      onChange={(value) => handleUpdate('minAmountCents', value)}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {getCurrencySymbol(currency)}
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                    <CloseDescriptionTooltip
+                      placement="top-end"
+                      title={translate('text_63aa085d28b8510cd46443ff')}
+                    >
+                      <Button
+                        icon="trash"
+                        variant="quaternary"
+                        disabled={disabled}
+                        onClick={() => {
+                          formikProps.setFieldValue(`charges.${index}.minAmountCents`, null)
+                          setShowSpendingMinimum(false)
+                        }}
+                      />
+                    </CloseDescriptionTooltip>
+                  </>
+                ) : (
+                  <Button
+                    variant="quaternary"
+                    startIcon="plus"
+                    disabled={disabled}
+                    endIcon={isPremium ? undefined : 'sparkles'}
+                    onClick={() => {
+                      if (isPremium) {
+                        setShowSpendingMinimum(true)
+                        setTimeout(() => {
+                          document.getElementById(`spending-minimum-input-${index}`)?.focus()
+                        }, 0)
+                      } else {
+                        premiumWarningDialogRef.current?.openDialog()
+                      }
+                    }}
+                  >
+                    {translate('text_643e592657fc1ba5ce110b9e')}
+                  </Button>
+                )}
+              </SpendingMinimumWrapper>
+            )}
+          </ChargeOptionsAccordion>
         </>
       </Accordion>
     )
@@ -438,9 +510,7 @@ const SummaryRight = styled.div`
 `
 
 const SpendingMinimumWrapper = styled.div`
-  padding: ${theme.spacing(4)};
   display: flex;
-  border-top: 1px solid ${theme.palette.grey[300]};
 `
 
 const SpendingMinimumInput = styled(AmountInput)`
@@ -450,4 +520,13 @@ const SpendingMinimumInput = styled(AmountInput)`
 
 const CloseDescriptionTooltip = styled(Tooltip)`
   margin-top: ${theme.spacing(7)};
+`
+
+const InvoiceableSwitchWrapper = styled.div`
+  display: flex;
+  align-items: center;
+
+  > *:first-child {
+    flex: 1;
+  }
 `

@@ -6,8 +6,10 @@ import { ButtonGroup } from '~/styles'
 
 import { TabButton } from './TabButton'
 
+type ValueType = string | number | boolean
+
 interface ButtonSelectorOption {
-  value: string | number
+  value: ValueType
   label?: string
   disabled?: boolean
 }
@@ -16,12 +18,12 @@ export interface ButtonSelectorProps {
   className?: string
   label?: string
   options: ButtonSelectorOption[]
-  value?: string | number
+  value?: ValueType
   error?: string
   infoText?: string
   helperText?: string
   disabled?: boolean
-  onChange: (value: string | number) => void
+  onChange: (value: ValueType) => void
 }
 
 export const ButtonSelector = ({

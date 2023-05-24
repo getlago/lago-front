@@ -48,9 +48,8 @@ describe('Edit plan', () => {
     cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="open-charge"]').first().click()
 
-    cy.get('[data-test="add-charge"]').click()
-    cy.get('[data-test="add-normal-charge"]').first().click()
-    cy.get('input[name="searchNormalChargeInput"]').click()
+    cy.get('[data-test="add-charge"]').last().click()
+    cy.get('input[name="searchChargeInput"]').click()
     cy.get('[data-option-index="1"]').click()
     cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
