@@ -54,7 +54,7 @@ gql`
     paymentStatus
     creditableAmountCents
     refundableAmountCents
-    subTotalVatIncludedAmountCents
+    subTotalIncludingTaxesAmountCents
     ...CreditNoteForm
   }
 
@@ -287,7 +287,10 @@ const CreateCreditNote = () => {
                       {translate('text_636bedf292786b19d3398eca', {
                         invoiceNumber: invoice?.number,
                         subtotal: intlFormatNumber(
-                          deserializeAmount(invoice?.subTotalVatIncludedAmountCents || 0, currency),
+                          deserializeAmount(
+                            invoice?.subTotalIncludingTaxesAmountCents || 0,
+                            currency
+                          ),
                           {
                             currency,
                           }
