@@ -30,7 +30,7 @@ gql`
   query customerUsage($customerId: ID!, $subscriptionId: ID!) {
     customerUsage(customerId: $customerId, subscriptionId: $subscriptionId) {
       amountCents
-      amountCurrency
+      currency
       fromDatetime
       toDatetime
       chargesUsage {
@@ -63,7 +63,7 @@ export const UsageItem = ({ customerId, subscription, customerTimezone }: UsageI
   const [fetchUsage, { data, error, loading, refetch }] = useCustomerUsageLazyQuery({
     variables: { customerId: customerId, subscriptionId: id },
   })
-  const currency = data?.customerUsage?.amountCurrency || CurrencyEnum.Usd
+  const currency = data?.customerUsage?.currency || CurrencyEnum.Usd
 
   return (
     <Container>

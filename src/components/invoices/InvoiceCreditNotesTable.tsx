@@ -20,21 +20,17 @@ gql`
     creditNotes {
       id
       couponsAdjustmentAmountCents
-      creditAmountCurrency
       number
-      subTotalVatExcludedAmountCents
-      subTotalVatExcludedAmountCurrency
-      totalAmountCents
-      vatAmountCents
-      vatAmountCurrency
+      subTotalExcludingTaxesAmountCents
       currency
+      totalAmountCents
+      taxesAmountCents
       items {
         amountCents
         amountCurrency
         fee {
           id
           amountCents
-          amountCurrency
           eventsCount
           units
           feeType
@@ -250,13 +246,12 @@ export const InvoiceCreditNotesTable = memo(
                         -
                         {intlFormatNumber(
                           deserializeAmount(
-                            creditNote?.subTotalVatExcludedAmountCents || 0,
-                            creditNote?.subTotalVatExcludedAmountCurrency || CurrencyEnum.Usd
+                            creditNote?.subTotalExcludingTaxesAmountCents || 0,
+                            creditNote?.currency || CurrencyEnum.Usd
                           ),
                           {
                             currencyDisplay: 'symbol',
-                            currency:
-                              creditNote?.subTotalVatExcludedAmountCurrency || CurrencyEnum.Usd,
+                            currency: creditNote?.currency || CurrencyEnum.Usd,
                           }
                         )}
                       </Typography>
@@ -274,12 +269,12 @@ export const InvoiceCreditNotesTable = memo(
                         -
                         {intlFormatNumber(
                           deserializeAmount(
-                            creditNote?.vatAmountCents || 0,
-                            creditNote?.creditAmountCurrency || CurrencyEnum.Usd
+                            creditNote?.taxesAmountCents || 0,
+                            creditNote?.currency || CurrencyEnum.Usd
                           ),
                           {
                             currencyDisplay: 'symbol',
-                            currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
+                            currency: creditNote?.currency || CurrencyEnum.Usd,
                           }
                         )}
                       </Typography>
@@ -298,11 +293,11 @@ export const InvoiceCreditNotesTable = memo(
                         {intlFormatNumber(
                           deserializeAmount(
                             creditNote?.totalAmountCents || 0,
-                            creditNote?.creditAmountCurrency || CurrencyEnum.Usd
+                            creditNote?.currency || CurrencyEnum.Usd
                           ),
                           {
                             currencyDisplay: 'symbol',
-                            currency: creditNote?.creditAmountCurrency || CurrencyEnum.Usd,
+                            currency: creditNote?.currency || CurrencyEnum.Usd,
                           }
                         )}
                       </Typography>

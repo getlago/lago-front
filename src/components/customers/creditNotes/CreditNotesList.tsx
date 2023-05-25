@@ -46,9 +46,9 @@ gql`
       canBeVoided
       createdAt
       creditStatus
+      currency
       number
       totalAmountCents
-      totalAmountCurrency
     }
   }
 
@@ -180,13 +180,10 @@ const CreditNotesList = memo(
                     </NumberCell>
                     <AmountCell variant="body" color="success600" align="right" noWrap>
                       {intlFormatNumber(
-                        deserializeAmount(
-                          creditNote.totalAmountCents || 0,
-                          creditNote.totalAmountCurrency
-                        ),
+                        deserializeAmount(creditNote.totalAmountCents || 0, creditNote.currency),
                         {
                           currencyDisplay: 'symbol',
-                          currency: creditNote.totalAmountCurrency,
+                          currency: creditNote.currency,
                         }
                       )}
                     </AmountCell>
@@ -235,7 +232,7 @@ const CreditNotesList = memo(
                               voidCreditNoteDialogRef.current?.openDialog({
                                 id: creditNote.id,
                                 totalAmountCents: creditNote.totalAmountCents,
-                                totalAmountCurrency: creditNote.totalAmountCurrency,
+                                currency: creditNote.currency,
                               })
                               closePopper()
                             }}

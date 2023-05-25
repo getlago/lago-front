@@ -13,11 +13,11 @@ gql`
   fragment InvoiceForDetailsTableFooter on Invoice {
     couponsAmountCents
     creditNotesAmountCents
-    subTotalVatExcludedAmountCents
-    subTotalVatIncludedAmountCents
+    subTotalExcludingTaxesAmountCents
+    subTotalIncludingTaxesAmountCents
     totalAmountCents
     currency
-    vatAmountCents
+    taxesAmountCents
     prepaidCreditAmountCents
     versionNumber
   }
@@ -88,7 +88,10 @@ export const InvoiceDetailsTableFooter = memo(
                   <td>
                     <Typography variant="body" color="grey700">
                       {intlFormatNumber(
-                        deserializeAmount(invoice?.subTotalVatExcludedAmountCents || 0, currency),
+                        deserializeAmount(
+                          invoice?.subTotalExcludingTaxesAmountCents || 0,
+                          currency
+                        ),
                         {
                           currencyDisplay: 'symbol',
                           currency,
@@ -106,10 +109,13 @@ export const InvoiceDetailsTableFooter = memo(
                   </td>
                   <td>
                     <Typography variant="body" color="grey700">
-                      {intlFormatNumber(deserializeAmount(invoice?.vatAmountCents || 0, currency), {
-                        currencyDisplay: 'symbol',
-                        currency,
-                      })}
+                      {intlFormatNumber(
+                        deserializeAmount(invoice?.taxesAmountCents || 0, currency),
+                        {
+                          currencyDisplay: 'symbol',
+                          currency,
+                        }
+                      )}
                     </Typography>
                   </td>
                 </tr>
@@ -123,7 +129,10 @@ export const InvoiceDetailsTableFooter = memo(
                   <td>
                     <Typography variant="body" color="grey700">
                       {intlFormatNumber(
-                        deserializeAmount(invoice?.subTotalVatIncludedAmountCents || 0, currency),
+                        deserializeAmount(
+                          invoice?.subTotalIncludingTaxesAmountCents || 0,
+                          currency
+                        ),
                         {
                           currencyDisplay: 'symbol',
                           currency,

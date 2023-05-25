@@ -6,7 +6,7 @@ export type FromFee = {
   maxAmount: number
   name: string
   value: string | number
-  vatRate: number
+  taxesRate: number
   isTrueUpFee?: boolean
 }
 

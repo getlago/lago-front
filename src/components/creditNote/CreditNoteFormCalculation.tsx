@@ -35,7 +35,7 @@ gql`
     creditableAmountCents
     refundableAmountCents
     feesAmountCents
-    vatRate
+    taxesRate
     currency
     versionNumber
   }
@@ -59,184 +59,186 @@ export const CreditNoteFormCalculation = ({
 
   // This method calculate the credit notes amounts to display
   // It does parse once all items. If no coupon applied, values are used for display
-  // If coupon applied, it will calculate the credit note vat amount based on the coupon value on pro rata of each item
+  // If coupon applied, it will calculate the credit note tax amount based on the coupon value on pro rata of each item
   const calculation = useMemo(() => {
-    if (hasFeeError) return { totalExcludedVat: undefined, vatAmount: undefined }
+    if (hasFeeError) return { totalExcludedTax: undefined, taxAmount: undefined }
 
     const feeTotal = Object.keys(formikProps?.values.fees || {}).reduce<{
-      totalExcludedVat: number
-      vatAmount: number
+      totalExcludedTax: number
+      taxAmount: number
     }>(
       (accSub, subKey) => {
         const subChild = ((formikProps?.values.fees as FeesPerInvoice) || {})[subKey]
         const subValues = Object.keys(subChild?.fees || {}).reduce<{
-          totalExcludedVat: number
-          vatAmount: number
+          totalExcludedTax: number
+          taxAmount: number
         }>(
           (accGroup, groupKey) => {
             const child = subChild?.fees[groupKey] as FromFee
 
             if (typeof child.checked === 'boolean') {
-              const childExcludedVat = Number(child.value as number)
+              const childExcludedTax = Number(child.value as number)
 
               return !child.checked
                 ? accGroup
                 : (accGroup = {
-                    totalExcludedVat: accGroup.totalExcludedVat + childExcludedVat,
-                    vatAmount:
-                      accGroup.vatAmount + Math.round(childExcludedVat * child.vatRate) / 100,
+                    totalExcludedTax: accGroup.totalExcludedTax + childExcludedTax,
+                    taxAmount:
+                      accGroup.taxAmount + Math.round(childExcludedTax * child.taxesRate) / 100,
                   })
             }
 
             const grouped = (child as unknown as GroupedFee)?.grouped
             const groupedValues = Object.keys(grouped || {}).reduce<{
-              totalExcludedVat: number
-              vatAmount: number
+              totalExcludedTax: number
+              taxAmount: number
             }>(
               (accFee, feeKey) => {
                 const fee = grouped[feeKey]
-                const feeExcludedVat = Number(fee.value)
+                const feeExcludedTax = Number(fee.value)
 
                 return !fee.checked
                   ? accFee
                   : (accFee = {
-                      totalExcludedVat: accFee.totalExcludedVat + feeExcludedVat,
-                      vatAmount: accFee.vatAmount + Math.round(feeExcludedVat * fee.vatRate) / 100,
+                      totalExcludedTax: accFee.totalExcludedTax + feeExcludedTax,
+                      taxAmount:
+                        accFee.taxAmount + Math.round(feeExcludedTax * fee.taxesRate) / 100,
                     })
               },
-              { totalExcludedVat: 0, vatAmount: 0 }
+              { totalExcludedTax: 0, taxAmount: 0 }
             )
 
             return {
-              totalExcludedVat: accGroup.totalExcludedVat + groupedValues.totalExcludedVat,
-              vatAmount: accGroup.vatAmount + groupedValues.vatAmount,
+              totalExcludedTax: accGroup.totalExcludedTax + groupedValues.totalExcludedTax,
+              taxAmount: accGroup.taxAmount + groupedValues.taxAmount,
             }
           },
-          { totalExcludedVat: 0, vatAmount: 0 }
+          { totalExcludedTax: 0, taxAmount: 0 }
         )
 
         return {
-          totalExcludedVat: accSub?.totalExcludedVat + subValues.totalExcludedVat,
-          vatAmount: accSub?.vatAmount + subValues.vatAmount,
+          totalExcludedTax: accSub?.totalExcludedTax + subValues.totalExcludedTax,
+          taxAmount: accSub?.taxAmount + subValues.taxAmount,
         }
       },
-      { totalExcludedVat: 0, vatAmount: 0 }
+      { totalExcludedTax: 0, taxAmount: 0 }
     )
 
-    const { value, vatRate } = formikProps.values.addOnFee?.reduce(
+    const { value, taxesRate } = formikProps.values.addOnFee?.reduce(
       (acc, fee) => {
         return {
           value: acc.value + (fee.checked ? Number(fee.value) : 0),
-          vatRate: fee.vatRate,
+          taxesRate: fee.taxesRate,
         }
       },
-      { value: 0, vatRate: 0 }
-    ) || { value: 0, vatRate: 0 }
+      { value: 0, taxesRate: 0 }
+    ) || { value: 0, taxesRate: 0 }
 
     let proRatedCouponAmount = 0
-    let totalExcludedVat = feeTotal.totalExcludedVat + Number(value || 0)
-    const totalInvoiceFeesCreditableAmountCentsExcludingVat = invoice?.feesAmountCents || 0
+    let totalExcludedTax = feeTotal.totalExcludedTax + Number(value || 0)
+    const totalInvoiceFeesCreditableAmountCentsExcludingTax = invoice?.feesAmountCents || 0
 
     // If no coupon, return "basic" calculation
-    if (isLegacyInvoice || totalInvoiceFeesCreditableAmountCentsExcludingVat === 0) {
+    if (isLegacyInvoice || totalInvoiceFeesCreditableAmountCentsExcludingTax === 0) {
       return {
         proRatedCouponAmount,
-        totalExcludedVat,
-        vatAmount: feeTotal.vatAmount + Math.round(Number(value || 0) * Number(vatRate || 0)) / 100,
+        totalExcludedTax,
+        taxAmount:
+          feeTotal.taxAmount + Math.round(Number(value || 0) * Number(taxesRate || 0)) / 100,
       }
     }
 
     const couponsAdjustmentAmountCents = () => {
       return (
-        (invoice?.couponsAmountCents / totalInvoiceFeesCreditableAmountCentsExcludingVat) *
-        feeTotal.totalExcludedVat
+        (invoice?.couponsAmountCents / totalInvoiceFeesCreditableAmountCentsExcludingTax) *
+        feeTotal.totalExcludedTax
       )
     }
 
     // Parse fees a second time to calculate pro-rated amounts
     const proRatedTotal = () => {
       return Object.keys(formikProps?.values.fees || {}).reduce<{
-        totalExcludedVat: number
-        vatAmount: number
+        totalExcludedTax: number
+        taxAmount: number
       }>(
         (accSub, subKey) => {
           const subChild = ((formikProps?.values.fees as FeesPerInvoice) || {})[subKey]
           const subValues = Object.keys(subChild?.fees || {}).reduce<{
-            totalExcludedVat: number
-            vatAmount: number
+            totalExcludedTax: number
+            taxAmount: number
           }>(
             (accGroup, groupKey) => {
               const child = subChild?.fees[groupKey] as FromFee
 
               if (typeof child.checked === 'boolean') {
-                const childExcludedVat = Number(child.value as number)
-                let itemRate = Number(child.value) / feeTotal.totalExcludedVat
+                const childExcludedTax = Number(child.value as number)
+                let itemRate = Number(child.value) / feeTotal.totalExcludedTax
                 let proratedCouponAmount = couponsAdjustmentAmountCents() * itemRate
 
                 return !child.checked
                   ? accGroup
                   : (accGroup = {
-                      totalExcludedVat: accGroup.totalExcludedVat + childExcludedVat,
-                      vatAmount:
-                        accGroup.vatAmount +
-                        ((childExcludedVat - proratedCouponAmount) * (child.vatRate || 0)) / 100,
+                      totalExcludedTax: accGroup.totalExcludedTax + childExcludedTax,
+                      taxAmount:
+                        accGroup.taxAmount +
+                        ((childExcludedTax - proratedCouponAmount) * (child.taxesRate || 0)) / 100,
                     })
               }
 
               const grouped = (child as unknown as GroupedFee)?.grouped
               const groupedValues = Object.keys(grouped || {}).reduce<{
-                totalExcludedVat: number
-                vatAmount: number
+                totalExcludedTax: number
+                taxAmount: number
               }>(
                 (accFee, feeKey) => {
                   const fee = grouped[feeKey]
-                  const feeExcludedVat = Number(fee.value)
-                  let itemRate = Number(fee.value) / feeTotal.totalExcludedVat
+                  const feeExcludedTax = Number(fee.value)
+                  let itemRate = Number(fee.value) / feeTotal.totalExcludedTax
                   let proratedCouponAmount = couponsAdjustmentAmountCents() * itemRate
 
                   return !fee.checked
                     ? accFee
                     : (accFee = {
-                        totalExcludedVat: accFee.totalExcludedVat + feeExcludedVat,
-                        vatAmount:
-                          accFee.vatAmount +
-                          ((feeExcludedVat - proratedCouponAmount) * (fee.vatRate || 0)) / 100,
+                        totalExcludedTax: accFee.totalExcludedTax + feeExcludedTax,
+                        taxAmount:
+                          accFee.taxAmount +
+                          ((feeExcludedTax - proratedCouponAmount) * (fee.taxesRate || 0)) / 100,
                       })
                 },
-                { totalExcludedVat: 0, vatAmount: 0 }
+                { totalExcludedTax: 0, taxAmount: 0 }
               )
 
               return {
-                totalExcludedVat: accGroup.totalExcludedVat + groupedValues.totalExcludedVat,
-                vatAmount: accGroup.vatAmount + groupedValues.vatAmount,
+                totalExcludedTax: accGroup.totalExcludedTax + groupedValues.totalExcludedTax,
+                taxAmount: accGroup.taxAmount + groupedValues.taxAmount,
               }
             },
-            { totalExcludedVat: 0, vatAmount: 0 }
+            { totalExcludedTax: 0, taxAmount: 0 }
           )
 
           return {
-            totalExcludedVat: accSub?.totalExcludedVat + subValues.totalExcludedVat,
-            vatAmount: accSub?.vatAmount + subValues.vatAmount,
+            totalExcludedTax: accSub?.totalExcludedTax + subValues.totalExcludedTax,
+            taxAmount: accSub?.taxAmount + subValues.taxAmount,
           }
         },
-        { totalExcludedVat: 0, vatAmount: 0 }
+        { totalExcludedTax: 0, taxAmount: 0 }
       )
     }
 
-    // If coupon is applied, we need to pro-rate the coupon amount and the vat amount
+    // If coupon is applied, we need to pro-rate the coupon amount and the tax amount
     proRatedCouponAmount =
-      (Number(invoice?.couponsAmountCents) / totalInvoiceFeesCreditableAmountCentsExcludingVat) *
-      feeTotal.totalExcludedVat
+      (Number(invoice?.couponsAmountCents) / totalInvoiceFeesCreditableAmountCentsExcludingTax) *
+      feeTotal.totalExcludedTax
 
-    // And deduct the coupon amount from the total excluding VAT
-    totalExcludedVat -= proRatedCouponAmount
+    // And deduct the coupon amount from the total excluding Tax
+    totalExcludedTax -= proRatedCouponAmount
 
-    const { vatAmount: proRatedVatAmount } = proRatedTotal()
+    const { taxAmount: proRatedTaxAmount } = proRatedTotal()
 
     return {
       proRatedCouponAmount,
-      totalExcludedVat,
-      vatAmount: proRatedVatAmount + Math.round(Number(value || 0) * Number(vatRate || 0)) / 100,
+      totalExcludedTax,
+      taxAmount: proRatedTaxAmount + Math.round(Number(value || 0) * Number(taxesRate || 0)) / 100,
     }
   }, [
     formikProps?.values.fees,
@@ -247,12 +249,12 @@ export const CreditNoteFormCalculation = ({
     isLegacyInvoice,
   ])
 
-  const { totalExcludedVat, vatAmount, proRatedCouponAmount } = calculation
+  const { totalExcludedTax, taxAmount, proRatedCouponAmount } = calculation
   const hasCreditOrCoupon =
     (invoice?.creditableAmountCents || 0) > (invoice?.refundableAmountCents || 0)
   const totalTaxIncluded =
-    !!totalExcludedVat && vatAmount !== undefined
-      ? Number(totalExcludedVat + vatAmount || 0)
+    !!totalExcludedTax && taxAmount !== undefined
+      ? Number(totalExcludedTax + taxAmount || 0)
       : undefined
   const payBack = formikProps.values.payBack || []
 
@@ -294,9 +296,9 @@ export const CreditNoteFormCalculation = ({
         <Line>
           <Typography variant="bodyHl">{translate('text_636bedf292786b19d3398f02')}</Typography>
           <Typography color="grey700">
-            {!totalExcludedVat
+            {!totalExcludedTax
               ? '-'
-              : intlFormatNumber(totalExcludedVat, {
+              : intlFormatNumber(totalExcludedTax, {
                   currency,
                 })}
           </Typography>
@@ -304,9 +306,9 @@ export const CreditNoteFormCalculation = ({
         <Line>
           <Typography variant="bodyHl">{translate('text_636bedf292786b19d3398f06')}</Typography>
           <Typography color="grey700">
-            {vatAmount === undefined
+            {taxAmount === undefined
               ? '-'
-              : intlFormatNumber(vatAmount, {
+              : intlFormatNumber(taxAmount, {
                   currency,
                 })}
           </Typography>

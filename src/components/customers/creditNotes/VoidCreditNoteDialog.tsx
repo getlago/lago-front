@@ -20,7 +20,7 @@ gql`
 type CreditNoteForVoid = {
   id: string
   totalAmountCents: number
-  totalAmountCurrency: CurrencyEnum
+  currency: CurrencyEnum
 }
 
 export interface VoidCreditNoteDialogRef {
@@ -59,11 +59,11 @@ export const VoidCreditNoteDialog = forwardRef<VoidCreditNoteDialogRef>((_, ref)
         amount: intlFormatNumber(
           deserializeAmount(
             creditNote?.totalAmountCents || 0,
-            creditNote?.totalAmountCurrency || CurrencyEnum.Usd
+            creditNote?.currency || CurrencyEnum.Usd
           ),
           {
             currencyDisplay: 'symbol',
-            currency: creditNote?.totalAmountCurrency || CurrencyEnum.Usd,
+            currency: creditNote?.currency || CurrencyEnum.Usd,
           }
         ),
       })}

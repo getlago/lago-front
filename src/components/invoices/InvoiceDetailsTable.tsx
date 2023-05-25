@@ -24,10 +24,9 @@ import { InvoiceDetailsTableFooter } from './InvoiceDetailsTableFooter'
 gql`
   fragment InvoiceForDetailsTable on Invoice {
     invoiceType
-    subTotalVatExcludedAmountCents
-    subTotalVatIncludedAmountCents
+    subTotalExcludingTaxesAmountCents
+    subTotalIncludingTaxesAmountCents
     totalAmountCents
-    vatAmountCents
     currency
 
     ...InvoiceForDetailsTableFooter

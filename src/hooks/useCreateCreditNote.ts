@@ -27,7 +27,7 @@ gql`
     id
     amountCurrency
     feeType
-    vatRate
+    taxesRate
     creditableAmountCents
     trueUpFee {
       id
@@ -56,7 +56,7 @@ gql`
       itemCode
       itemName
       creditableAmountCents
-      vatRate
+      taxesRate
       trueUpFee {
         id
       }
@@ -156,7 +156,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
             value: deserializeAmount(fee?.creditableAmountCents, fee.amountCurrency),
             name: fee?.itemName,
             maxAmount: fee?.creditableAmountCents,
-            vatRate: fee?.vatRate || 0,
+            taxesRate: fee?.taxesRate || 0,
           })
         }
 
@@ -238,7 +238,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
                   isTrueUpFee: trueUpFeeIds?.includes(fee?.id),
                   trueUpFee: fee?.trueUpFee,
                   maxAmount: fee?.creditableAmountCents,
-                  vatRate: fee?.vatRate,
+                  taxesRate: fee?.taxesRate,
                 },
                 ...groupApp,
               }
@@ -264,7 +264,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
                 isTrueUpFee: trueUpFeeIds?.includes(firstFee?.id),
                 trueUpFee: firstFee?.trueUpFee,
                 maxAmount: firstFee?.creditableAmountCents,
-                vatRate: firstFee?.vatRate,
+                taxesRate: firstFee?.taxesRate,
               },
             }
           }
@@ -290,7 +290,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
                   ? `${feeGrouped?.group?.key} • ${feeGrouped?.group?.value}`
                   : (feeGrouped?.group?.value as string),
                 maxAmount: feeGrouped?.creditableAmountCents,
-                vatRate: feeGrouped?.vatRate,
+                taxesRate: feeGrouped?.taxesRate,
               },
             }
           }, {})
