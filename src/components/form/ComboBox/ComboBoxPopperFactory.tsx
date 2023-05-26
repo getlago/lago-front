@@ -47,7 +47,7 @@ export const ComboBoxPopperFactory =
             'combobox-popper--grouped': grouped,
           })}
         >
-          {props.children as ReactNode}
+          {props?.children as ReactNode}
         </div>
       </StyledPopper>
     )

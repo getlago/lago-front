@@ -44,7 +44,7 @@ export const routesFormatter: (
           </Suspense>
         </PageWrapper>
       ),
-      ...(route.children ? { children: routesFormatter(route.children, loggedIn) } : {}),
+      ...(route?.children ? { children: routesFormatter(route.children, loggedIn) } : {}),
     }
 
     if (route.index) {
