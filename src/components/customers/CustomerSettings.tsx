@@ -198,7 +198,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
               variant="caption"
               color="grey600"
               html={
-                !customer?.vatRate
+                typeof customer?.vatRate !== 'number'
                   ? translate('text_638e13576861f3be8a3d448a', {
                       link: INVOICE_SETTINGS_ROUTE,
                     })
