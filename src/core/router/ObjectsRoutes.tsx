@@ -1,32 +1,37 @@
-import { lazy } from 'react'
-
 import { CustomRouteObject } from './types'
+import { lazyLoad } from './utils'
 
 // ----------- Pages -----------
 // Lists
-const BillableMetricsList = lazy(
+const BillableMetricsList = lazyLoad(
   () => import(/* webpackChunkName: 'billable-metrics' */ '~/pages/BillableMetricsList')
 )
-const PlansList = lazy(() => import(/* webpackChunkName: 'plans-list' */ '~/pages/PlansList'))
-const CouponsList = lazy(() => import(/* webpackChunkName: 'coupons-list' */ '~/pages/CouponsList'))
-const AddOnsList = lazy(() => import(/* webpackChunkName: 'add-ons-list' */ '~/pages/AddOnsList'))
-const InvoicesList = lazy(
+const PlansList = lazyLoad(() => import(/* webpackChunkName: 'plans-list' */ '~/pages/PlansList'))
+const CouponsList = lazyLoad(
+  () => import(/* webpackChunkName: 'coupons-list' */ '~/pages/CouponsList')
+)
+const AddOnsList = lazyLoad(
+  () => import(/* webpackChunkName: 'add-ons-list' */ '~/pages/AddOnsList')
+)
+const InvoicesList = lazyLoad(
   () => import(/* webpackChunkName: 'invoices-list' */ '~/pages/InvoicesList')
 )
 
 // Creation
-const CreateBillableMetric = lazy(
+const CreateBillableMetric = lazyLoad(
   () => import(/* webpackChunkName: 'create-billable-metrics' */ '~/pages/CreateBillableMetric')
 )
-const CreatePlan = lazy(() => import(/* webpackChunkName: 'create-plan' */ '~/pages/CreatePlan'))
-const CreateTax = lazy(() => import(/* webpackChunkName: 'create-tax' */ '~/pages/CreateTax'))
-const CreateInvoice = lazy(
+const CreatePlan = lazyLoad(
+  () => import(/* webpackChunkName: 'create-plan' */ '~/pages/CreatePlan')
+)
+const CreateTax = lazyLoad(() => import(/* webpackChunkName: 'create-tax' */ '~/pages/CreateTax'))
+const CreateInvoice = lazyLoad(
   () => import(/* webpackChunkName: 'create-plan' */ '~/pages/CreateInvoice')
 )
-const CreateCoupon = lazy(
+const CreateCoupon = lazyLoad(
   () => import(/* webpackChunkName: 'create-coupon' */ '~/pages/CreateCoupon')
 )
-const CreateAddOn = lazy(
+const CreateAddOn = lazyLoad(
   () => import(/* webpackChunkName: 'create-add-on' */ '~/pages/CreateAddOn')
 )
 

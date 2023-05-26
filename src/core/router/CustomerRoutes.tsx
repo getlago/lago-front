@@ -1,30 +1,29 @@
-import { lazy } from 'react'
-
 import { CustomRouteObject } from './types'
+import { lazyLoad } from './utils'
 
 // ----------- Pages -----------
-const CustomersList = lazy(
+const CustomersList = lazyLoad(
   () => import(/* webpackChunkName: 'customers-list' */ '~/pages/CustomersList')
 )
-const CustomerDetails = lazy(
+const CustomerDetails = lazyLoad(
   () => import(/* webpackChunkName: 'customer-details' */ '~/pages/CustomerDetails')
 )
-const CustomerDraftInvoicesList = lazy(
+const CustomerDraftInvoicesList = lazyLoad(
   () =>
     import(
       /* webpackChunkName: 'customer-draft-invoice-list' */ '~/pages/CustomerDraftInvoicesList'
     )
 )
-const CustomerInvoiceDetails = lazy(
+const CustomerInvoiceDetails = lazyLoad(
   () =>
     import(/* webpackChunkName: 'customer-invoice-details' */ '~/layouts/CustomerInvoiceDetails')
 )
 
 // Credit note related
-const CreateCreditNote = lazy(
+const CreateCreditNote = lazyLoad(
   () => import(/* webpackChunkName: 'create-credit-note' */ '~/pages/CreateCreditNote')
 )
-const CreditNoteDetails = lazy(
+const CreditNoteDetails = lazyLoad(
   () => import(/* webpackChunkName: 'credit-note-details' */ '~/pages/CreditNoteDetails')
 )
 

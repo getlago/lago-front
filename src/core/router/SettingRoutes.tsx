@@ -1,40 +1,39 @@
-import { lazy } from 'react'
-
 import { CustomRouteObject } from './types'
+import { lazyLoad } from './utils'
 
 // ----------- Layouts -----------
-const Settings = lazy(() => import(/* webpackChunkName: 'settings' */ '~/layouts/Settings'))
+const Settings = lazyLoad(() => import(/* webpackChunkName: 'settings' */ '~/layouts/Settings'))
 
 // ----------- Pages -----------
-const OrganizationInformations = lazy(
+const OrganizationInformations = lazyLoad(
   () =>
     import(
       /* webpackChunkName: 'organization-informations' */ '~/pages/settings/OrganizationInformations'
     )
 )
-const InvoiceSettings = lazy(
+const InvoiceSettings = lazyLoad(
   () => import(/* webpackChunkName: 'invoice-settings' */ '~/pages/settings/InvoiceSettings')
 )
-const TaxesSettings = lazy(
+const TaxesSettings = lazyLoad(
   () => import(/* webpackChunkName: 'tax-settings' */ '~/pages/settings/TaxesSettings')
 )
-const Members = lazy(() => import(/* webpackChunkName: 'members' */ '~/pages/settings/Members'))
-const Integrations = lazy(
+const Members = lazyLoad(() => import(/* webpackChunkName: 'members' */ '~/pages/settings/Members'))
+const Integrations = lazyLoad(
   () => import(/* webpackChunkName: 'integrations' */ '~/pages/settings/Integrations')
 )
-const StripeIntegration = lazy(
+const StripeIntegration = lazyLoad(
   () => import(/* webpackChunkName: 'stripe-integration' */ '~/pages/settings/StripeIntegration')
 )
-const GocardlessIntegration = lazy(
+const GocardlessIntegration = lazyLoad(
   () =>
     import(
       /* webpackChunkName: 'gocardless-integration' */ '~/pages/settings/GocardlessIntegration'
     )
 )
-const EmailSettings = lazy(
+const EmailSettings = lazyLoad(
   () => import(/* webpackChunkName: 'email-settings' */ '~/pages/settings/EmailSettings')
 )
-const EmailScenarioConfig = lazy(
+const EmailScenarioConfig = lazyLoad(
   () =>
     import(/* webpackChunkName: 'email-scenario-config' */ '~/pages/settings/EmailScenarioConfig')
 )
