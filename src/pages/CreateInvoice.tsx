@@ -110,7 +110,12 @@ const CreateInvoice = () => {
     notifyOnNetworkStatusChange: true,
   })
   const { customer, organization } = data || {}
-  const localVatRate = customer?.vatRate || organization?.billingConfiguration?.vatRate || 0
+  const localVatRate =
+    typeof customer?.vatRate === 'number'
+      ? customer?.vatRate
+      : typeof organization?.billingConfiguration?.vatRate === 'number'
+      ? organization?.billingConfiguration?.vatRate
+      : 0
 
   const [getAddOns, { data: addOnData }] = useGetAddonListForInfoiceLazyQuery({
     variables: { limit: 20 },
