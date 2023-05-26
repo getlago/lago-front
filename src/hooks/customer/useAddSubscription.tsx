@@ -82,8 +82,8 @@ export const useAddSubscription: UseAddSubscription = ({
     context: {
       silentErrorCodes: [LagoApiError.UnprocessableEntity],
     },
-    onCompleted: async ({ createSubscription }) => {
-      if (!!createSubscription) {
+    onCompleted: async (res) => {
+      if (!!res?.createSubscription) {
         addToast({
           message: existingSubscription
             ? translate('text_62d7f6178ec94cd09370e69a')
