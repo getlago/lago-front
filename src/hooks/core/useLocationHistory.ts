@@ -74,7 +74,7 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
          */
         navigate(LOGIN_ROUTE)
         addLocationToHistory(location)
-      } else if (!routeConfig.children && !routeConfig.onlyPublic) {
+      } else if (!routeConfig?.children && !routeConfig.onlyPublic) {
         /**
          * We add the current location to the history only if :
          * - Current route has no children (to avoid adding Layout route which will result in duplicates)
