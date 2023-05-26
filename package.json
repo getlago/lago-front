@@ -117,7 +117,7 @@
     "sanitize-html": "2.10.0",
     "styled-components": "5.3.11",
     "yarn": "1.22.19",
-    "yup": "1.1.1"
+    "yup": "1.2.0"
   },
   "resolutions": {
     "styled-components": "5.3.11",
