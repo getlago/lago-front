@@ -1,9 +1,8 @@
-import { lazy } from 'react'
-
 import { CustomRouteObject } from './types'
+import { lazyLoad } from './utils'
 
 // ----------- Pages -----------
-const PortalInit = lazy(
+const PortalInit = lazyLoad(
   () => import(/* webpackChunkName: 'customer-portal-init' */ '~/pages/auth/PortalInit')
 )
 

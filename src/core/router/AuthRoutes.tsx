@@ -1,22 +1,21 @@
-import { lazy } from 'react'
-
 import { envGlobalVar } from '~/core/apolloClient'
 
 import { CustomRouteObject } from './types'
+import { lazyLoad } from './utils'
 
 const { disableSignUp } = envGlobalVar()
 
 // ----------- Pages -----------
-const Login = lazy(() => import(/* webpackChunkName: 'login' */ '~/pages/auth/Login'))
-const SignUp = lazy(() => import(/* webpackChunkName: 'sign-up' */ '~/pages/auth/SignUp'))
-const ForgotPassword = lazy(
+const Login = lazyLoad(() => import(/* webpackChunkName: 'login' */ '~/pages/auth/Login'))
+const SignUp = lazyLoad(() => import(/* webpackChunkName: 'sign-up' */ '~/pages/auth/SignUp'))
+const ForgotPassword = lazyLoad(
   () => import(/* webpackChunkName: 'forgot-password' */ '~/pages/auth/ForgotPassword')
 )
-const ResetPassword = lazy(
+const ResetPassword = lazyLoad(
   () => import(/* webpackChunkName: 'reset-password' */ '~/pages/auth/ResetPassword')
 )
 
-const Invitation = lazy(() => import(/* webpackChunkName: 'invitation' */ '~/pages/Invitation'))
+const Invitation = lazyLoad(() => import(/* webpackChunkName: 'invitation' */ '~/pages/Invitation'))
 
 // ----------- Routes -----------
 export const LOGIN_ROUTE = '/login'

@@ -1,5 +1,3 @@
-import { lazy } from 'react'
-
 import { AppEnvEnum } from '~/globalTypes'
 import { envGlobalVar } from '~/core/apolloClient'
 
@@ -10,6 +8,7 @@ import { developperRoutes } from './DevelopperRoutes'
 import { objectListRoutes, objectCreationRoutes } from './ObjectsRoutes'
 import { settingRoutes } from './SettingRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
+import { lazyLoad } from './utils'
 
 export * from './types'
 export * from './AuthRoutes'
@@ -21,14 +20,14 @@ export * from './SettingRoutes'
 const { appEnv } = envGlobalVar()
 
 // ----------- Layouts -----------
-const SideNavLayout = lazy(
+const SideNavLayout = lazyLoad(
   () => import(/* webpackChunkName: 'side-nav-layout' */ '~/layouts/SideNavLayout')
 )
 
 // ----------- Pages -----------
-const Error404 = lazy(() => import(/* webpackChunkName: 'error-404' */ '~/pages/Error404'))
+const Error404 = lazyLoad(() => import(/* webpackChunkName: 'error-404' */ '~/pages/Error404'))
 // Route Available only on dev mode
-const DesignSystem = lazy(
+const DesignSystem = lazyLoad(
   () => import(/* webpackChunkName: 'design-system' */ '~/pages/__devOnly/DesignSystem')
 )
 

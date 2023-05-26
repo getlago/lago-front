@@ -1,19 +1,22 @@
-import { lazy } from 'react'
-
 import { CustomRouteObject } from './types'
+import { lazyLoad } from './utils'
 
 // ----------- Layouts -----------
-const Developers = lazy(
+const Developers = lazyLoad(
   () => import(/* webpackChunkName: 'developers-layout' */ '~/layouts/Developers')
 )
 // ----------- Pages -----------
 
-const ApiKeys = lazy(() => import(/* webpackChunkName: 'api-keys' */ '~/pages/developers/ApiKeys'))
-const Webhook = lazy(() => import(/* webpackChunkName: 'webhook' */ '~/pages/developers/Webhook'))
-const WebhookLogs = lazy(
+const ApiKeys = lazyLoad(
+  () => import(/* webpackChunkName: 'api-keys' */ '~/pages/developers/ApiKeys')
+)
+const Webhook = lazyLoad(
+  () => import(/* webpackChunkName: 'webhook' */ '~/pages/developers/Webhook')
+)
+const WebhookLogs = lazyLoad(
   () => import(/* webpackChunkName: 'webhook-logs' */ '~/pages/developers/WebhookLogs')
 )
-const Debugger = lazy(
+const Debugger = lazyLoad(
   () => import(/* webpackChunkName: 'debugger' */ '~/pages/developers/Debugger')
 )
 
