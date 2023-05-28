@@ -115,12 +115,12 @@
     "react-router-dom": "6.11.1",
     "react-window": "1.8.8",
     "sanitize-html": "2.10.0",
-    "styled-components": "5.3.10",
+    "styled-components": "5.3.11",
     "yarn": "1.22.19",
     "yup": "1.1.1"
   },
   "resolutions": {
-    "styled-components": "5.3.10",
+    "styled-components": "5.3.11",
     "@mui/styled-engine": "5.12.3",
     "lodash": "4.17.21",
     "glob-parent": "6.0.2",
