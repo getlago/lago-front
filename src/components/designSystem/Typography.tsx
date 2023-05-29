@@ -41,6 +41,7 @@ export interface TypographyProps
   component?: ElementType
   color?: Color
   html?: string
+  forceBreak?: boolean
 }
 
 const mapColor = (variant: TypographyProps['variant'], color?: Color): ColorTypeEnum => {
@@ -70,6 +71,7 @@ export const Typography = memo(
     html,
     component = 'div',
     noWrap,
+    forceBreak,
     ...props
   }: TypographyProps) => {
     const getSanitizedHtml = (htmlString: string) => {
@@ -137,6 +139,7 @@ export const Typography = memo(
           captionCode: 'code',
         }}
         $code={variant === 'captionCode'}
+        $forceBreak={forceBreak}
         $noWrap={noWrap}
         noWrap={noWrap}
         component={component}
@@ -157,10 +160,17 @@ const StyledMuiTypography = styled(MuiTypography)<{
   component?: unknown
   $code?: boolean
   $noWrap?: boolean
+  $forceBreak?: boolean
 }>`
   ${({ $noWrap, $code }) =>
     !$noWrap &&
     css`
       white-space: ${$code ? 'pre' : 'pre-line'};
+    `}
+
+  ${({ $forceBreak }) =>
+    !!$forceBreak &&
+    css`
+      line-break: anywhere;
     `}
 `
