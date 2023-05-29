@@ -100,7 +100,9 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
       {name && (
         <div>
           <Typography variant="caption">{translate('text_626162c62f790600f850b76a')}</Typography>
-          <Typography color="textSecondary">{name}</Typography>
+          <Typography color="textSecondary" forceBreak>
+            {name}
+          </Typography>
         </div>
       )}
       <div>
