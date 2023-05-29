@@ -166,7 +166,7 @@ const CustomerDetails = () => {
           {loading ? (
             <Skeleton variant="text" height={12} width={120} />
           ) : (
-            <Typography variant="bodyHl" color="textSecondary">
+            <Typography variant="bodyHl" color="textSecondary" noWrap>
               {name}
             </Typography>
           )}
@@ -300,7 +300,7 @@ const CustomerDetails = () => {
                   }
                 />
                 <div>
-                  <Name color="textSecondary" variant="headline">
+                  <Name color="textSecondary" variant="headline" forceBreak>
                     {name || translate('text_62f272a7a60b4d7fadad911a')}
                   </Name>
                   <Typography>{externalId}</Typography>
@@ -477,6 +477,11 @@ const CustomerDetails = () => {
 const HeaderInlineBlock = styled.div`
   display: flex;
   align-items: center;
+
+  &:first-child {
+    /* Prevent long name to overflow in header */
+    overflow: hidden;
+  }
 
   > *:first-child {
     margin-right: ${theme.spacing(3)};
