@@ -95,20 +95,20 @@ const Login = () => {
             autoFocus
           />
 
-          <PasswordInput
-            name="password"
-            formikProps={formikProps}
-            password
-            label={translate('text_620bc4d4269a55014d493f32')}
-            labelRight={
-              <Typography variant="caption">
-                <Link to={generatePath(FORGOT_PASSWORD_ROUTE)}>
-                  {translate('text_642707b0da1753a9bb6672b5')}
-                </Link>
-              </Typography>
-            }
-            placeholder={translate('text_620bc4d4269a55014d493f5b')}
-          />
+          <PasswordInputWrapper>
+            <PasswordInput
+              name="password"
+              formikProps={formikProps}
+              password
+              label={translate('text_620bc4d4269a55014d493f32')}
+              placeholder={translate('text_620bc4d4269a55014d493f5b')}
+            />
+            <PasswordForgottenLinkTypo variant="caption">
+              <Link to={generatePath(FORGOT_PASSWORD_ROUTE)}>
+                {translate('text_642707b0da1753a9bb6672b5')}
+              </Link>
+            </PasswordForgottenLinkTypo>
+          </PasswordInputWrapper>
 
           <SubmitButton data-test="submit" fullWidth size="large" onClick={formikProps.submitForm}>
             {translate('text_620bc4d4269a55014d493f6d')}
@@ -134,6 +134,15 @@ const EmailInput = styled(TextInputField)`
   && {
     margin-bottom: ${theme.spacing(4)};
   }
+`
+
+const PasswordInputWrapper = styled.div`
+  position: relative;
+`
+const PasswordForgottenLinkTypo = styled(Typography)`
+  position: absolute;
+  top: 0;
+  right: 0;
 `
 
 const PasswordInput = styled(TextInputField)`

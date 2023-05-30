@@ -30,7 +30,6 @@ export interface TextInputProps
   error?: string | boolean
   name?: string
   label?: string | ReactNode
-  labelRight?: ReactNode
   cleanable?: boolean
   password?: boolean
   value?: string | number
@@ -111,7 +110,6 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
       value = '',
       name,
       label,
-      labelRight,
       helperText,
       infoText,
       maxRows,
@@ -176,7 +174,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
 
     return (
       <Container className={className}>
-        {(!!label || !!labelRight) && (
+        {!!label && (
           <InlineLabelContainer>
             {label && (
               <Label $withInfo={!!infoText}>
@@ -194,7 +192,6 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
                 )}
               </Label>
             )}
-            {!!labelRight && <>{labelRight}</>}
           </InlineLabelContainer>
         )}
         <MuiTextField
