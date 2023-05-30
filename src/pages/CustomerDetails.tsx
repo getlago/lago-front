@@ -153,7 +153,7 @@ const CustomerDetails = () => {
   return (
     <div>
       <PageHeader $withSide>
-        <HeaderInlineBlock>
+        <HeaderInlineBreadcrumbBlock>
           <Button
             icon="arrow-left"
             variant="quaternary"
@@ -170,9 +170,9 @@ const CustomerDetails = () => {
               {name}
             </Typography>
           )}
-        </HeaderInlineBlock>
-        <HeaderInlineBlock>
-          <Button
+        </HeaderInlineBreadcrumbBlock>
+        <HeaderInlineActionsBlock>
+          <GoToPortalButton
             startIcon={isPremium ? 'outside' : 'sparkles'}
             variant="quaternary"
             onClick={async () => {
@@ -182,7 +182,7 @@ const CustomerDetails = () => {
             }}
           >
             {translate('text_641b1b19d6e64300632ca60c')}
-          </Button>
+          </GoToPortalButton>
 
           <Popper
             PopperProps={{ placement: 'bottom-end' }}
@@ -262,7 +262,7 @@ const CustomerDetails = () => {
               </MenuPopper>
             )}
           </Popper>
-        </HeaderInlineBlock>
+        </HeaderInlineActionsBlock>
       </PageHeader>
       {(error || !data?.customer) && !loading ? (
         <GenericPlaceholder
@@ -474,18 +474,24 @@ const CustomerDetails = () => {
   )
 }
 
-const HeaderInlineBlock = styled.div`
+const HeaderInlineBreadcrumbBlock = styled.div`
   display: flex;
   align-items: center;
+  gap: ${theme.spacing(3)};
 
-  &:first-child {
-    /* Prevent long name to overflow in header */
-    overflow: hidden;
-  }
+  /* Prevent long name to not overflow in header */
+  overflow: hidden;
+`
 
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
+const HeaderInlineActionsBlock = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing(3)};
+  flex-shrink: 0;
+`
+
+const GoToPortalButton = styled(Button)`
+  flex-shrink: 0;
 `
 
 const Content = styled.div`

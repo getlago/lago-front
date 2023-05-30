@@ -303,7 +303,7 @@ const CreateInvoice = () => {
                     <Typography variant="caption" color="grey600">
                       {translate('text_6453819268763979024ad027')}
                     </Typography>
-                    <Typography variant="body" color="grey700">
+                    <Typography variant="body" color="grey700" forceBreak>
                       {organization?.name}
                     </Typography>
                     {!!(
@@ -347,7 +347,7 @@ const CreateInvoice = () => {
                     <Typography variant="caption" color="grey600">
                       {translate('text_6453819268763979024ad03f')}
                     </Typography>
-                    <Typography variant="body" color="grey700">
+                    <Typography variant="body" color="grey700" forceBreak>
                       {customer?.name}
                     </Typography>
                     {!!(
