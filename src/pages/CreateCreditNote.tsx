@@ -12,10 +12,9 @@ import {
   CurrencyEnum,
   LagoApiError,
   CreditNoteFormFragmentDoc,
-  InvoiceTypeEnum,
 } from '~/generated/graphql'
 import { hasDefinedGQLError } from '~/core/apolloClient'
-import { generateFeesSchema, simpleFeeSchema } from '~/formValidation/feesSchema'
+import { generateAddOnFeesSchema, generateFeesSchema } from '~/formValidation/feesSchema'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -103,6 +102,11 @@ const CreateCreditNote = () => {
   const { loading, invoice, feesPerInvoice, feeForAddOn, onCreate } = useCreateCreditNote()
   const currency = invoice?.currency || CurrencyEnum.Usd
 
+  const addOnFeesValidation = useMemo(
+    () => generateAddOnFeesSchema(feeForAddOn || [], currency),
+    [feeForAddOn, currency]
+  )
+
   const feesValidation = useMemo(
     () => generateFeesSchema(feesPerInvoice || {}, currency),
     [feesPerInvoice, currency]
@@ -122,14 +126,7 @@ const CreateCreditNote = () => {
     validationSchema: object().shape({
       reason: string().required(''),
       fees: feesValidation,
-      addOnFee: array().of(
-        object().when('maxAmount', (_, schema) => {
-          return invoice?.invoiceType === InvoiceTypeEnum.AddOn ||
-            invoice?.invoiceType === InvoiceTypeEnum.OneOff
-            ? simpleFeeSchema(invoice.feesAmountCents || 0, currency)
-            : schema.default(undefined)
-        })
-      ),
+      addOnFee: addOnFeesValidation,
       payBack: array().of(
         object().shape({
           type: string().required(''),

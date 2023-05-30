@@ -1,4 +1,4 @@
-import { object, number, boolean } from 'yup'
+import { object, number, boolean, ISchema, tuple } from 'yup'
 import _get from 'lodash/get'
 
 import {
@@ -77,3 +77,13 @@ export const generateFeesSchema = (formikInitialFees: FeesPerInvoice, currency: 
       return accSub
     }, {})
   )
+
+export const generateAddOnFeesSchema = (formikInitialFees: FromFee[], currency: CurrencyEnum) => {
+  const validationObject: [ISchema<unknown>] = [{} as unknown as ISchema<unknown>]
+
+  formikInitialFees.forEach((fee, i) => {
+    validationObject[i] = simpleFeeSchema(fee.maxAmount, currency)
+  })
+
+  return tuple(validationObject)
+}

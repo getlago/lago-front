@@ -52,7 +52,7 @@ export const CreditNoteFormCalculation = ({
 }: CreditNoteFormCalculationProps) => {
   const { translate } = useInternationalization()
   const canOnlyCredit = invoice?.paymentStatus !== InvoicePaymentStatusTypeEnum.Succeeded
-  const hasFeeError = !!formikProps.errors.fees
+  const hasFeeError = !!formikProps.errors.fees || !!formikProps.errors.addOnFee
   const currency = invoice?.currency || CurrencyEnum.Usd
   const currencyPrecision = getCurrencyPrecision(currency)
   const isLegacyInvoice = (invoice?.versionNumber || 0) < 3
