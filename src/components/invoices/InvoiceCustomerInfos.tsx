@@ -63,7 +63,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
                 </Link>
               )}
             >
-              <Typography variant="body" color="grey700">
+              <Typography variant="body" color="grey700" forceBreak>
                 {customer?.name}
               </Typography>
             </ConditionalWrapper>
@@ -74,7 +74,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
             <Typography variant="caption" color="grey600" noWrap>
               {translate('text_634687079be251fdb43833d7')}
             </Typography>
-            <Typography variant="body" color="grey700">
+            <Typography variant="body" color="grey700" forceBreak>
               {customer?.legalName}
             </Typography>
           </InfoLine>
