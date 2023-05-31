@@ -58,7 +58,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
         >
           <Header>
             {typeof title === 'string' ? (
-              <Typography variant="bodyHl" color="textSecondary">
+              <Typography variant="bodyHl" color="textSecondary" noWrap>
                 {title}
               </Typography>
             ) : (

@@ -89,7 +89,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
           PaperProps={{ className: 'dialogPaper' }}
           transitionDuration={80}
         >
-          <Title $hasDescription={!!description} variant="headline">
+          <Title $hasDescription={!!description} variant="headline" forceBreak>
             {title}
           </Title>
           {description && <Description>{description}</Description>}
@@ -151,6 +151,8 @@ const Title = styled(Typography)<{ $hasDescription?: boolean }>`
   }
 `
 const Description = styled(Typography)`
+  line-break: anywhere;
+
   && {
     margin-bottom: ${theme.spacing(8)};
   }
