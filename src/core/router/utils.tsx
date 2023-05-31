@@ -15,7 +15,7 @@ const retry = (
             return window.location.reload() // refresh the page as last resort
           }
 
-          retry(fn, retriesLeft - 1, interval)
+          retry(fn, retriesLeft - 1, interval).then(resolve, reject)
         }, interval)
       })
   })
