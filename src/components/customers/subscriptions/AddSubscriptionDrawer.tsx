@@ -93,7 +93,7 @@ export const AddSubscriptionDrawer = forwardRef<
     getPlans,
   } = useAddSubscription({
     existingSubscription,
-    planId: formikProps.values.planId,
+    planId: formikProps.values.planId ? String(formikProps.values.planId) : '',
     billingTime: formikProps.values.billingTime,
     subscriptionAt: formikProps.values.subscriptionAt,
   })
@@ -215,7 +215,7 @@ export const AddSubscriptionDrawer = forwardRef<
                   size="large"
                   onClick={() => {
                     updateOverwritePlanVar({
-                      parentId: formikProps?.values?.planId,
+                      parentId: formikProps.values.planId ? String(formikProps.values.planId) : '',
                       subscriptionInput: formikProps?.values,
                       customerId: customerId,
                       updateInfo: existingSubscription,
