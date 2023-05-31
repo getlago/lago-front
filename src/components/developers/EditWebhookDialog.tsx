@@ -1,6 +1,7 @@
 import { forwardRef, useState, useEffect } from 'react'
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
+import { useNavigate } from 'react-router-dom'
 
 import { Dialog, Button, DialogRef, Typography } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
@@ -8,6 +9,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useUpdateOrganizationMutation, LagoApiError } from '~/generated/graphql'
 import { theme } from '~/styles'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { WEBHOOK_LOGS_ROUTE } from '~/core/router'
 
 gql`
   mutation updateOrganization($input: UpdateOrganizationInput!) {
@@ -26,6 +28,7 @@ interface EditWebhookDialogProps {
 export const EditWebhookDialog = forwardRef<DialogRef, EditWebhookDialogProps>(
   ({ webhook }: EditWebhookDialogProps, ref) => {
     const { translate } = useInternationalization()
+    const navigate = useNavigate()
     const [mutationError, setMutationError] = useState<string | undefined>(undefined)
     const [localWebhook, setLocalWebhook] = useState<string | undefined>(webhook || undefined)
     const isEdition = !!webhook
@@ -75,6 +78,9 @@ export const EditWebhookDialog = forwardRef<DialogRef, EditWebhookDialogProps>(
                     ),
                     severity: 'success',
                   })
+
+                  !isEdition && navigate(WEBHOOK_LOGS_ROUTE)
+
                   closeDialog()
                 }
               }}
@@ -88,6 +94,8 @@ export const EditWebhookDialog = forwardRef<DialogRef, EditWebhookDialogProps>(
       >
         <Content>
           <TextInput
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
             label={translate('text_6271200984178801ba8bdf22')}
             placeholder={translate('text_6271200984178801ba8bdf36')}
             value={localWebhook}
