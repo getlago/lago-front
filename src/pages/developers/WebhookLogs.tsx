@@ -77,6 +77,7 @@ const WebhookLogs = () => {
       variables: { limit: 50, ...(statusFilter ? { status: statusFilter } : {}) },
       notifyOnNetworkStatusChange: true,
     })
+  const hasLogs = !!data?.webhooks?.collection?.length
   const [selectedLogId, setSelectedLogId] = useState<string | undefined>(undefined)
   const { debouncedSearch, isLoading } = useDebouncedSearch(getWebhookLogs, loading)
   const { formatTimeOrgaTZ } = useOrganizationInfos()
@@ -105,12 +106,12 @@ const WebhookLogs = () => {
   })
 
   useEffect(() => {
-    if (!!data?.webhooks?.collection?.length) {
+    if (hasLogs) {
       setSelectedLogId(data?.webhooks?.collection[0]?.id)
     } else {
       setSelectedLogId(undefined)
     }
-  }, [data?.webhooks?.collection])
+  }, [hasLogs, data?.webhooks?.collection])
 
   let index = -1
 
@@ -191,7 +192,7 @@ const WebhookLogs = () => {
                 },
               ]}
             />
-            {!loading && !isLoading && !data?.webhooks?.collection.length ? (
+            {!loading && !isLoading && !hasLogs ? (
               <StyledGenericPlaceholder
                 title={translate(
                   !!variables?.searchTerm
@@ -209,7 +210,7 @@ const WebhookLogs = () => {
               />
             ) : (
               <LogsList>
-                {isLoading && !fetchMoreLoading && <DateHeader />}
+                {isLoading && !fetchMoreLoading && !hasLogs && <DateHeader />}
                 <InfiniteScroll
                   onBottom={async () => {
                     const { currentPage = 0, totalPages = 0 } = data?.webhooks?.metadata || {}
