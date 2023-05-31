@@ -2,16 +2,16 @@ import { ComponentType, lazy } from 'react'
 
 const retry = (
   fn: Function,
-  retriesLeft: number = 2,
+  retriesLeft: number = 3,
   interval: number = 1000
 ): Promise<{ default: ComponentType<unknown> }> => {
   return new Promise((resolve, reject) => {
     fn()
       .then(resolve)
-      .catch((error: Error) => {
+      .catch(() => {
         setTimeout(() => {
           if (retriesLeft === 1) {
-            reject(error)
+            reject('Maximum chunk load retries exceeded. Browser reloaded')
             return window.location.reload() // refresh the page as last resort
           }
 
