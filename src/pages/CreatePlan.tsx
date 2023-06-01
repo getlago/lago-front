@@ -319,7 +319,7 @@ const CreatePlan = () => {
           </div>
         </Main>
         <Side>
-          <PlanCodeSnippet loading={loading} plan={formikProps.values} />
+          <PlanCodeSnippet loading={loading} isEdition={isEdition} plan={formikProps.values} />
         </Side>
       </Content>
 

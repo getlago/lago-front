@@ -10,7 +10,7 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
     ...properties,
     ...([ChargeModelEnum.Package, ChargeModelEnum.Standard].includes(chargeModel)
       ? { amount: !!properties?.amount ? String(properties?.amount) : undefined }
-      : {}),
+      : { amount: undefined }),
     ...(chargeModel === ChargeModelEnum.Graduated
       ? {
           graduatedRanges: properties?.graduatedRanges
@@ -27,6 +27,7 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
       : { graduatedRanges: undefined }),
     ...(chargeModel === ChargeModelEnum.Volume
       ? {
+          amount: undefined,
           volumeRanges: properties?.volumeRanges
             ? (properties?.volumeRanges || []).map(
                 ({ flatAmount, fromValue, perUnitAmount, ...range }) => ({
@@ -45,15 +46,20 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
       : { packageSize: undefined, freeUnits: undefined }),
     ...(chargeModel === ChargeModelEnum.Percentage
       ? {
-          amount: undefined,
           freeUnitsPerEvents: Number(properties?.freeUnitsPerEvents) || undefined,
           fixedAmount:
             Number(properties?.fixedAmount || 0) > 0 ? String(properties?.fixedAmount) : undefined,
           freeUnitsPerTotalAggregation: !!properties?.freeUnitsPerTotalAggregation
             ? String(properties?.freeUnitsPerTotalAggregation)
             : undefined,
+          rate: properties?.rate || undefined,
         }
-      : {}),
+      : {
+          freeUnitsPerEvents: undefined,
+          fixedAmount: undefined,
+          freeUnitsPerTotalAggregation: undefined,
+          rate: undefined,
+        }),
   }
 }
 
