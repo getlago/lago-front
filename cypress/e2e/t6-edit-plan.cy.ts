@@ -1,6 +1,16 @@
 import { planWithChargesName, customerName } from '../support/reusableConstants'
 
 describe('Edit plan', () => {
+  describe('when no data has changed', () => {
+    it('should be able to close the form without warning dialog', () => {
+      cy.visit('/plans')
+      cy.get(`[data-test="${planWithChargesName}"]`).click()
+      cy.get('[data-test="close-create-plan-button"]').click()
+      cy.get('[data-test="close-create-plan-button"]').should('not.exist')
+      cy.url().should('be.equal', Cypress.config().baseUrl + '/plans')
+    })
+  })
+
   it('should be able to update all information of unused plan', () => {
     cy.visit('/plans')
     cy.get(`[data-test="${planWithChargesName}"]`).click()
