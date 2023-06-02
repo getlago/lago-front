@@ -311,7 +311,7 @@ export const AddCouponToCustomerDialog = forwardRef<
       <Container>
         <ComboBox
           name="selectCoupon"
-          value={String(formikProps.values.couponId)}
+          value={formikProps.values.couponId ? String(formikProps.values.couponId) : ''}
           label={translate('text_628b8c693e464200e00e4677')}
           data={coupons}
           loading={loading}

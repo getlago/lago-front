@@ -76,16 +76,7 @@ export const CustomerCoupons = memo(() => {
         })
       }
     },
-    update(cache, { data: updatedData }) {
-      if (!updatedData?.terminateAppliedCoupon) return
-
-      const cacheId = cache.identify({
-        id: updatedData?.terminateAppliedCoupon.id,
-        __typename: 'AppliedCoupon',
-      })
-
-      cache.evict({ id: cacheId })
-    },
+    refetchQueries: ['getCustomerCoupons'],
   })
 
   return (
