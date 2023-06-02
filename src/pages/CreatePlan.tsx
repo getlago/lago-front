@@ -115,7 +115,7 @@ const CreatePlan = () => {
       interval: plan?.interval || PlanInterval.Monthly,
       payInAdvance: plan?.payInAdvance || false,
       amountCents: isNaN(plan?.amountCents)
-        ? undefined
+        ? ''
         : String(
             deserializeAmount(plan?.amountCents || 0, plan?.amountCurrency || CurrencyEnum.Usd)
           ),
@@ -211,6 +211,7 @@ const CreatePlan = () => {
           variant="quaternary"
           icon="close"
           onClick={() => (formikProps.dirty ? warningDialogRef.current?.openDialog() : onClose())}
+          data-test="close-create-plan-button"
         />
       </PageHeader>
 
