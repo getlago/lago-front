@@ -325,7 +325,7 @@ export const AddSubscriptionDrawer = forwardRef<
               onClick={formikProps.submitForm}
               data-test="submit"
             >
-              <Typography noWrap>
+              <Typography color="inherit" noWrap>
                 {existingSubscription
                   ? translate('text_6328e70de459381ed4ba50da')
                   : translate('text_6328e70de459381ed4ba50d4', { customerName })}
