@@ -20,6 +20,7 @@ gql`
     customer {
       id
       name
+      legalNumber
       legalName
       email
       addressLine1
@@ -76,6 +77,16 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
             </Typography>
             <Typography variant="body" color="grey700" forceBreak>
               {customer?.legalName}
+            </Typography>
+          </InfoLine>
+        )}
+        {customer?.legalNumber && (
+          <InfoLine>
+            <Typography variant="caption" color="grey600" noWrap>
+              {translate('text_647ddd5220412a009bfd36f4')}
+            </Typography>
+            <Typography variant="body" color="grey700" forceBreak>
+              {customer?.legalNumber}
             </Typography>
           </InfoLine>
         )}

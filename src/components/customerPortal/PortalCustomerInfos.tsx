@@ -13,6 +13,7 @@ gql`
       id
       name
       legalName
+      legalNumber
       paymentProvider
       email
       addressLine1
@@ -77,6 +78,17 @@ export const PortalCustomerInfos = memo(({ translate }: PortalCustomerInfosProps
                   color={customerPortalUser?.legalName ? 'grey700' : 'grey500'}
                 >
                   {customerPortalUser?.legalName || translate('text_6419c64eace749372fc72b13')}
+                </Typography>
+              </InfoLine>
+              <InfoLine>
+                <Typography variant="caption" color="grey600">
+                  {translate('text_647ddd5220412a009bfd36f4')}
+                </Typography>
+                <Typography
+                  variant="body"
+                  color={customerPortalUser?.legalNumber ? 'grey700' : 'grey500'}
+                >
+                  {customerPortalUser?.legalNumber || translate('text_647ddd5f54fefd00c5754bca')}
                 </Typography>
               </InfoLine>
               <InfoLine>

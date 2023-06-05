@@ -253,5 +253,10 @@ sources:
       fileName: ⚙️ [WIP] - Settings - Create tax rate object & apply on org & cus
     - name: ⚙️ [WIP] - Plan - Charges paid in-advance
       id: 646e2d05cf47b79ad4b5ccf5
+      fileName: ⚙️ [WIP] - Plan - Charges paid in-advance
+    - name: >-
+        ⚙️ [WIP] - Invoices - Add & display on invoices legal number & VAT
+        number
+      id: 647dd63898f1bcde85517ac6
 format: flat
 variants: true
