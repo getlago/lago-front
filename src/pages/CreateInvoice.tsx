@@ -52,6 +52,8 @@ gql`
       currency
       email
       name
+      legalName
+      legalNumber
       state
       vatRate
       zipcode
@@ -64,6 +66,8 @@ gql`
       country
       email
       name
+      legalName
+      legalNumber
       logoUrl
       state
       zipcode
@@ -304,8 +308,13 @@ const CreateInvoice = () => {
                       {translate('text_6453819268763979024ad027')}
                     </Typography>
                     <Typography variant="body" color="grey700" forceBreak>
-                      {organization?.name}
+                      {organization?.legalName || organization?.name}
                     </Typography>
+                    {organization?.legalNumber && (
+                      <Typography variant="body" color="grey700">
+                        {organization?.legalNumber}
+                      </Typography>
+                    )}
                     {!!(
                       organization?.addressLine1 ||
                       organization?.addressLine2 ||
@@ -348,8 +357,13 @@ const CreateInvoice = () => {
                       {translate('text_6453819268763979024ad03f')}
                     </Typography>
                     <Typography variant="body" color="grey700" forceBreak>
-                      {customer?.name}
+                      {customer?.legalName || customer?.name}
                     </Typography>
+                    {customer?.legalNumber && (
+                      <Typography variant="body" color="grey700">
+                        {customer?.legalNumber}
+                      </Typography>
+                    )}
                     {!!(
                       customer?.addressLine1 ||
                       customer?.addressLine2 ||
