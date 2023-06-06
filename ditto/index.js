@@ -110,9 +110,6 @@ module.exports = {
   "project_62f50d2512182c6df6c39e37": {
     "base": require('./-wip---general---fe-environment-infos__base.json')
   },
-  "project_647dd63898f1bcde85517ac6": {
-    "base": require('./-wip---invoices---add--display-on-invoices-legal-number--vat-number__base.json')
-  },
   "project_646e2d05cf47b79ad4b5ccf5": {
     "base": require('./-wip---plan---charges-paid-in-advance__base.json')
   },

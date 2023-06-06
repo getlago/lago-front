@@ -254,10 +254,6 @@ sources:
     - name: ⚙️ [WIP] - Plan - Charges paid in-advance
       id: 646e2d05cf47b79ad4b5ccf5
       fileName: ⚙️ [WIP] - Plan - Charges paid in-advance
-    - name: >-
-        ⚙️ [WIP] - Invoices - Add & display on invoices legal number & VAT
-        number
-      id: 647dd63898f1bcde85517ac6
     - name: ⚙️ [WIP] - Settings / Customers - Lago x Adyen Connection
       id: 645d070fa825baf410cec70c
 format: flat
