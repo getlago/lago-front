@@ -31,6 +31,7 @@ gql`
     externalId
     legalName
     legalNumber
+    taxIdentificationNumber
     name
     paymentProvider
     phone

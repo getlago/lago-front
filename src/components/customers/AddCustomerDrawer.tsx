@@ -80,6 +80,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
       externalId: customer?.externalId ?? '',
       legalName: customer?.legalName ?? undefined,
       legalNumber: customer?.legalNumber ?? undefined,
+      taxIdentificationNumber: customer?.taxIdentificationNumber ?? undefined,
       currency: customer?.currency ?? undefined,
       phone: customer?.phone ?? undefined,
       email: customer?.email ?? undefined,
@@ -164,6 +165,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
             externalId: customer?.externalId ?? '',
             legalName: customer?.legalName ?? undefined,
             legalNumber: customer?.legalNumber ?? undefined,
+            taxIdentificationNumber: customer?.taxIdentificationNumber ?? undefined,
             currency: customer?.currency ?? undefined,
             phone: customer?.phone ?? undefined,
             email: customer?.email ?? undefined,
@@ -283,6 +285,12 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
               name="legalNumber"
               label={translate('text_626c0c09812bbc00e4c59e05')}
               placeholder={translate('text_626c0c09812bbc00e4c59e07')}
+              formikProps={formikProps}
+            />
+            <TextInputField
+              name="taxIdentificationNumber"
+              label={translate('text_648053ee819b60364c675d05')}
+              placeholder={translate('text_648053ee819b60364c675d0b')}
               formikProps={formikProps}
             />
             <TextInputField
