@@ -256,5 +256,8 @@ sources:
       fileName: ⚙️ [WIP] - Plan - Charges paid in-advance
     - name: ⚙️ [WIP] - Settings / Customers - Lago x Adyen Connection
       id: 645d070fa825baf410cec70c
+      fileName: ⚙️ [WIP] - Settings / Customers - Lago x Adyen Connection
+    - name: ⚙️ [WIP] - Customer - Add tax_number on customer
+      id: 648053ecf72671011f9365ff
 format: flat
 variants: true

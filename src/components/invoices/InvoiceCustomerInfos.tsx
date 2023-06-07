@@ -22,6 +22,7 @@ gql`
       name
       legalNumber
       legalName
+      taxIdentificationNumber
       email
       addressLine1
       addressLine2
@@ -136,6 +137,16 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
         )}
       </div>
       <div>
+        {customer?.taxIdentificationNumber && (
+          <InfoLine>
+            <Typography variant="caption" color="grey600" noWrap>
+              {translate('text_648053ee819b60364c675cf1')}
+            </Typography>
+            <Typography variant="body" color="grey700">
+              {customer?.taxIdentificationNumber}
+            </Typography>
+          </InfoLine>
+        )}
         {invoice?.number && (
           <InfoLine>
             <Typography variant="caption" color="grey600" noWrap>
@@ -200,7 +211,7 @@ const Wrapper = styled.section`
 const InfoLine = styled.div`
   display: flex;
   align-items: flex-start;
-  margin-bottom: ${theme.spacing(4)};
+  margin-bottom: ${theme.spacing(2)};
 
   > div:first-child {
     min-width: 140px;

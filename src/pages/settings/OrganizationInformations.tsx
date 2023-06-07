@@ -33,6 +33,7 @@ gql`
     name
     legalName
     legalNumber
+    taxIdentificationNumber
     email
     addressLine1
     addressLine2
@@ -65,6 +66,7 @@ const OrganizationInformations = () => {
     name,
     legalName,
     legalNumber,
+    taxIdentificationNumber,
     email,
     addressLine1,
     addressLine2,
@@ -176,6 +178,13 @@ const OrganizationInformations = () => {
               {legalNumber ? legalNumber : translate('text_62ab2d0396dd6b0361614d74')}
             </SimpleCell>
 
+            <SimpleCell variant="caption">{translate('text_648053ee819b60364c675cf1')}</SimpleCell>
+            <SimpleCell variant="body" color={taxIdentificationNumber ? 'grey700' : 'grey500'}>
+              {taxIdentificationNumber
+                ? taxIdentificationNumber
+                : translate('text_62ab2d0396dd6b0361614d74')}
+            </SimpleCell>
+
             <SimpleCell variant="caption">{translate('text_62ab2d0396dd6b0361614d8c')}</SimpleCell>
             <SimpleCell variant="body" color={email ? 'grey700' : 'grey500'}>
               {email ? email : translate('text_62ab2d0396dd6b0361614d84')}
@@ -253,13 +262,13 @@ const SkeletonLine = styled.div`
 
 const CompanyAvatar = styled(Avatar)`
   grid-column: 1 / span 2;
-  margin-bottom: ${theme.spacing(1)};
+  margin-bottom: ${theme.spacing(3)};
 `
 
 const Grid = styled.div`
   display: grid;
   grid-template-columns: max-content 1fr;
-  gap: ${theme.spacing(3)} ${theme.spacing(6)};
+  gap: ${theme.spacing(2)} ${theme.spacing(6)};
   width: 100%;
   padding-bottom: ${theme.spacing(8)};
   box-shadow: ${theme.shadows[7]};

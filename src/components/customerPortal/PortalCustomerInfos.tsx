@@ -15,6 +15,7 @@ gql`
       legalName
       legalNumber
       paymentProvider
+      taxIdentificationNumber
       email
       addressLine1
       addressLine2
@@ -110,6 +111,18 @@ export const PortalCustomerInfos = memo(({ translate }: PortalCustomerInfosProps
               </InfoLine>
             </div>
             <div>
+              <InfoLine>
+                <Typography variant="caption" color="grey600">
+                  {translate('text_6480a70109b61a005b2092df')}
+                </Typography>
+                <Typography
+                  variant="body"
+                  color={customerPortalUser?.taxIdentificationNumber ? 'grey700' : 'grey500'}
+                >
+                  {customerPortalUser?.taxIdentificationNumber ||
+                    translate('text_6480a707530c5c0053cd11e1')}
+                </Typography>
+              </InfoLine>
               <InfoLine>
                 <Typography variant="caption" color="grey600">
                   {translate('text_6419c64eace749372fc72b27')}
@@ -211,7 +224,7 @@ const InfosContainer = styled.section`
 const InfoLine = styled.div`
   display: flex;
   align-items: flex-start;
-  margin-bottom: ${theme.spacing(3)};
+  margin-bottom: ${theme.spacing(2)};
 
   > div:first-child {
     min-width: 140px;

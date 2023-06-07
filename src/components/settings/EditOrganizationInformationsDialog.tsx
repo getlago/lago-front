@@ -25,6 +25,7 @@ gql`
     name
     legalName
     legalNumber
+    taxIdentificationNumber
     email
     addressLine1
     addressLine2
@@ -69,6 +70,7 @@ export const EditOrganizationInformationsDialog = forwardRef<
     initialValues: {
       legalName: organization?.legalName || '',
       legalNumber: organization?.legalNumber || '',
+      taxIdentificationNumber: organization?.taxIdentificationNumber || '',
       email: organization?.email || '',
       addressLine1: organization?.addressLine1 || '',
       addressLine2: organization?.addressLine2 || '',
@@ -151,6 +153,14 @@ export const EditOrganizationInformationsDialog = forwardRef<
             name="legalNumber"
             label={translate('text_62ab2d0396dd6b0361614d50')}
             placeholder={translate('text_62ab2d0396dd6b0361614d58')}
+            formikProps={formikProps}
+          />
+        </FormSection>
+        <FormSection>
+          <TextInputField
+            name="taxIdentificationNumber"
+            label={translate('text_648053ee819b60364c675d05')}
+            placeholder={translate('text_648053ee819b60364c675d0b')}
             formikProps={formikProps}
           />
         </FormSection>

@@ -16,6 +16,7 @@ gql`
     externalId
     legalName
     legalNumber
+    taxIdentificationNumber
     phone
     email
     currency
@@ -71,6 +72,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     externalId,
     legalName,
     legalNumber,
+    taxIdentificationNumber,
     phone,
     email,
     url,
@@ -136,6 +138,12 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
         <div>
           <Typography variant="caption">{translate('text_626c0c301a16a600ea061475')}</Typography>
           <Typography color="textSecondary">{legalNumber}</Typography>
+        </div>
+      )}
+      {taxIdentificationNumber && (
+        <div>
+          <Typography variant="caption">{translate('text_648053ee819b60364c675d05')}</Typography>
+          <Typography color="textSecondary">{taxIdentificationNumber}</Typography>
         </div>
       )}
       {email && (

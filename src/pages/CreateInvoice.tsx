@@ -54,6 +54,7 @@ gql`
       name
       legalName
       legalNumber
+      taxIdentificationNumber
       state
       vatRate
       zipcode
@@ -68,6 +69,7 @@ gql`
       name
       legalName
       legalNumber
+      taxIdentificationNumber
       logoUrl
       state
       zipcode
@@ -351,6 +353,13 @@ const CreateInvoice = () => {
                         {organization?.email}
                       </Typography>
                     )}
+                    {organization?.taxIdentificationNumber && (
+                      <Typography variant="body" color="grey700">
+                        {translate('text_648053ee819b60364c675c78', {
+                          taxIdentificationNumber: organization.taxIdentificationNumber,
+                        })}
+                      </Typography>
+                    )}
                   </div>
                   <div>
                     <Typography variant="caption" color="grey600">
@@ -398,6 +407,13 @@ const CreateInvoice = () => {
                     {customer?.email && (
                       <Typography variant="body" color="grey700">
                         {customer?.email}
+                      </Typography>
+                    )}
+                    {customer?.taxIdentificationNumber && (
+                      <Typography variant="body" color="grey700">
+                        {translate('text_648053ee819b60364c675c78', {
+                          taxIdentificationNumber: customer.taxIdentificationNumber,
+                        })}
                       </Typography>
                     )}
                   </div>
