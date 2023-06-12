@@ -3,7 +3,7 @@ import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
 import { Skeleton, Typography } from '~/components/designSystem'
-import { ProviderTypeEnum, useGetPortalCustomerInfosQuery } from '~/generated/graphql'
+import { useGetPortalCustomerInfosQuery } from '~/generated/graphql'
 import { CountryCodes } from '~/core/countryCodes'
 import { NAV_HEIGHT, theme } from '~/styles'
 
@@ -14,7 +14,6 @@ gql`
       name
       legalName
       legalNumber
-      paymentProvider
       taxIdentificationNumber
       email
       addressLine1
@@ -26,19 +25,6 @@ gql`
     }
   }
 `
-
-const getFormattedPaymentProviderDisplayName = (providerName: string): string => {
-  switch (providerName) {
-    case ProviderTypeEnum.Gocardless:
-      return 'text_641d675a515302007a839491'
-    case ProviderTypeEnum.Stripe:
-      return 'text_641d6718d6e84b11be5cc475-1'
-    case ProviderTypeEnum.Adyen:
-      return 'text_645d071272418a14c1c76a6d'
-    default:
-      return ''
-  }
-}
 
 interface PortalCustomerInfosProps {
   translate: Function
@@ -96,23 +82,6 @@ export const PortalCustomerInfos = memo(({ translate }: PortalCustomerInfosProps
               </InfoLine>
               <InfoLine>
                 <Typography variant="caption" color="grey600">
-                  {translate('text_6419c64eace749372fc72b1f')}
-                </Typography>
-                <Typography
-                  variant="body"
-                  color={customerPortalUser?.paymentProvider ? 'grey700' : 'grey500'}
-                >
-                  {customerPortalUser?.paymentProvider
-                    ? translate(
-                        getFormattedPaymentProviderDisplayName(customerPortalUser.paymentProvider)
-                      )
-                    : translate('text_6419c64eace749372fc72b1b')}
-                </Typography>
-              </InfoLine>
-            </div>
-            <div>
-              <InfoLine>
-                <Typography variant="caption" color="grey600">
                   {translate('text_6480a70109b61a005b2092df')}
                 </Typography>
                 <Typography
@@ -123,6 +92,8 @@ export const PortalCustomerInfos = memo(({ translate }: PortalCustomerInfosProps
                     translate('text_6480a707530c5c0053cd11e1')}
                 </Typography>
               </InfoLine>
+            </div>
+            <div>
               <InfoLine>
                 <Typography variant="caption" color="grey600">
                   {translate('text_6419c64eace749372fc72b27')}

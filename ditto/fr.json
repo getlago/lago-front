@@ -1,6 +1,4 @@
 {
-  "text_641d6718d6e84b11be5cc475-1": "Stripe",
-  "text_641d675a515302007a839491": "GoCardless",
   "text_641d6ae1d947c400671e6abb": "Quelque chose n'a pas fonctionné",
   "text_641d6aee014c8d00c1425cdd": "Veuillez actualiser la page ou nous contacter si l'erreur persiste.",
   "text_641d6b00ef96c1008754734d": "Actualiser la page",
@@ -12,8 +10,6 @@
   "text_6419c64eace749372fc72b0f": "Nom",
   "text_6419c64eace749372fc72b13": "Nom légal non communiqué",
   "text_6419c64eace749372fc72b17": "Nom légal",
-  "text_6419c64eace749372fc72b1b": "Prestataire de paiement non communiqué",
-  "text_6419c64eace749372fc72b1f": "Prestataire de paiement",
   "text_6419c64eace749372fc72b23": "Email non communiqué",
   "text_6419c64eace749372fc72b27": "Email",
   "text_6419c64eace749372fc72b2b": "Adresse non communiquée",
