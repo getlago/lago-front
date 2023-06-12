@@ -397,7 +397,9 @@ const EmailScenarioConfig = () => {
                   </ContactBlock>
                 </TemplateContent>
                 <Footer>
-                  <span>{translateWithContextualLocal('text_64188b3d9735d5007d712278')}</span>
+                  <Typography variant="note" color="grey500">
+                    {translateWithContextualLocal('text_64188b3d9735d5007d712278')}
+                  </Typography>
                   <Logo height="12px" />
                 </Footer>
               </div>
