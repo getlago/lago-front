@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFormik } from 'formik'
-import { object, string } from 'yup'
+import { bool, object, string } from 'yup'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 
@@ -9,7 +9,12 @@ import { AggregationTypeEnum, CreateBillableMetricInput } from '~/generated/grap
 import { PageHeader, theme, Card } from '~/styles'
 import { Typography, Button, Skeleton, Accordion, Alert } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { TextInputField, ComboBoxField, JsonEditorField } from '~/components/form'
+import {
+  TextInputField,
+  ComboBoxField,
+  JsonEditorField,
+  ButtonSelectorField,
+} from '~/components/form'
 import { BILLABLE_METRICS_ROUTE } from '~/core/router'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { useCreateEditBillableMetric } from '~/hooks/useCreateEditBillableMetric'
@@ -37,13 +42,9 @@ gql`
     fieldName
     subscriptionsCount
     plansCount
+    recurring
   }
 `
-
-enum AGGREGATION_GROUP_ENUM {
-  Metered = 'metered',
-  Persistent = 'persistent',
-}
 
 const CreateBillableMetric = () => {
   const { translate } = useInternationalization()
@@ -59,6 +60,7 @@ const CreateBillableMetric = () => {
       // @ts-ignore
       aggregationType: billableMetric?.aggregationType || '',
       fieldName: billableMetric?.fieldName || undefined,
+      recurring: billableMetric?.recurring || false,
     },
     validationSchema: object().shape({
       name: string().required(''),
@@ -69,6 +71,7 @@ const CreateBillableMetric = () => {
           !!aggregationType && aggregationType !== AggregationTypeEnum.CountAgg,
         then: (schema) => schema.required(''),
       }),
+      recurring: bool().required(''),
     }),
     enableReinitialize: true,
     validateOnMount: true,
@@ -85,6 +88,18 @@ const CreateBillableMetric = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formikProps.values.aggregationType, formikProps.values.fieldName])
+
+  useEffect(() => {
+    if (
+      ![AggregationTypeEnum.SumAgg, AggregationTypeEnum.UniqueCountAgg].includes(
+        formikProps.values.aggregationType
+      )
+    ) {
+      formikProps.setFieldValue('recurring', false)
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formikProps.values.aggregationType])
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
@@ -207,6 +222,7 @@ const CreateBillableMetric = () => {
                   </Typography>
 
                   <ComboBoxField
+                    formikProps={formikProps}
                     name="aggregationType"
                     disabled={isEdition && !canBeEdited}
                     label={translate('text_623b42ff8ee4e000ba87d0ce')}
@@ -217,28 +233,18 @@ const CreateBillableMetric = () => {
                       {
                         label: translate('text_623c4a8c599213014cacc9de'),
                         value: AggregationTypeEnum.CountAgg,
-                        group: AGGREGATION_GROUP_ENUM.Metered,
                       },
                       {
                         label: translate('text_62694d9181be8d00a33f20f0'),
                         value: AggregationTypeEnum.UniqueCountAgg,
-                        group: AGGREGATION_GROUP_ENUM.Metered,
                       },
                       {
                         label: translate('text_62694d9181be8d00a33f20f8'),
                         value: AggregationTypeEnum.MaxAgg,
-                        group: AGGREGATION_GROUP_ENUM.Metered,
                       },
                       {
                         label: translate('text_62694d9181be8d00a33f2100'),
                         value: AggregationTypeEnum.SumAgg,
-                        group: AGGREGATION_GROUP_ENUM.Metered,
-                      },
-
-                      {
-                        label: translate('text_63105dbdd88c7432a3b255eb'),
-                        value: AggregationTypeEnum.RecurringCountAgg,
-                        group: AGGREGATION_GROUP_ENUM.Persistent,
                       },
                     ]}
                     helperText={
@@ -252,35 +258,6 @@ const CreateBillableMetric = () => {
                         ? translate('text_62694d9181be8d00a33f20ec')
                         : undefined
                     }
-                    renderGroupHeader={{
-                      [AGGREGATION_GROUP_ENUM.Metered]: (
-                        <ComboboxHeader>
-                          <Typography variant="captionHl" color="textSecondary">
-                            {translate('text_6310755befed49627644222b')}
-                          </Typography>
-                          <Typography component="span" variant="caption" noWrap>
-                            {translate('text_6310755befed49627644222d')}
-                          </Typography>
-                        </ComboboxHeader>
-                      ),
-                      [AGGREGATION_GROUP_ENUM.Persistent]: (
-                        <ComboboxHeader>
-                          <Typography variant="captionHl" color="textSecondary">
-                            {translate('text_6310755befed49627644222f')}
-                          </Typography>
-                          <Typography component="span" variant="caption" noWrap>
-                            {translate('text_6310755befed496276442231')}
-                          </Typography>
-                        </ComboboxHeader>
-                      ),
-                    }}
-                    renderGroupInputStartAdornment={{
-                      [AGGREGATION_GROUP_ENUM.Metered]: translate('text_6310755befed49627644222b'),
-                      [AGGREGATION_GROUP_ENUM.Persistent]: translate(
-                        'text_6310755befed49627644222f'
-                      ),
-                    }}
-                    formikProps={formikProps}
                   />
 
                   {formikProps.values?.aggregationType &&
@@ -293,6 +270,37 @@ const CreateBillableMetric = () => {
                         formikProps={formikProps}
                       />
                     )}
+
+                  {!![AggregationTypeEnum.SumAgg, AggregationTypeEnum.UniqueCountAgg].includes(
+                    formikProps.values.aggregationType
+                  ) ? (
+                    <>
+                      <ButtonSelectorField
+                        disabled={isEdition && !canBeEdited}
+                        name="recurring"
+                        label={translate('text_648c2be974f70300748a4ca1')}
+                        helperText={translate(
+                          formikProps.values.recurring
+                            ? 'text_648c2be974f70300748a4c8c'
+                            : 'text_648c2be974f70300748a4cad'
+                        )}
+                        options={[
+                          {
+                            label: translate('text_648c2be974f70300748a4ca5'),
+                            value: false,
+                          },
+                          {
+                            label: translate('text_648c2be974f70300748a4c87'),
+                            value: true,
+                          },
+                        ]}
+                        formikProps={formikProps}
+                      />
+                      <Typography variant="caption" color="grey600"></Typography>
+                    </>
+                  ) : !!formikProps.values.aggregationType ? (
+                    <Alert type="info">{translate('text_648c2be974f70300748a4ca6')}</Alert>
+                  ) : null}
                 </Card>
 
                 <Accordion
@@ -368,22 +376,6 @@ const CreateBillableMetric = () => {
     </div>
   )
 }
-
-const ComboboxHeader = styled.div`
-  display: flex;
-  min-width: 0;
-
-  > * {
-    white-space: nowrap;
-
-    &:first-child {
-      margin-right: ${theme.spacing(1)};
-    }
-    &:last-child {
-      min-width: 0;
-    }
-  }
-`
 
 const GroupAlert = styled(Alert)`
   margin-top: ${theme.spacing(6)};

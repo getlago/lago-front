@@ -42,6 +42,7 @@ gql`
     name
     code
     aggregationType
+    recurring
     flatGroups {
       id
       key
@@ -169,6 +170,8 @@ const CreatePlan = () => {
   })
 
   const canBeEdited = !plan?.subscriptionsCount
+  const hasAnyMeteredCharge = formikProps.values.charges.some((c) => !c.billableMetric.recurring)
+  const hasAnyRecurringCharge = formikProps.values.charges.some((c) => !!c.billableMetric.recurring)
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
@@ -291,11 +294,13 @@ const CreatePlan = () => {
                 />
 
                 <ChargesSection
-                  canBeEdited={canBeEdited}
-                  isEdition={isEdition}
-                  formikProps={formikProps}
                   alreadyExistingCharges={plan?.charges}
+                  canBeEdited={canBeEdited}
+                  formikProps={formikProps}
                   getPropertyShape={getPropertyShape}
+                  hasAnyMeteredCharge={hasAnyMeteredCharge}
+                  hasAnyRecurringCharge={hasAnyRecurringCharge}
+                  isEdition={isEdition}
                 />
 
                 <ButtonContainer>

@@ -65,6 +65,13 @@ export const ChargeOptionsAccordion = ({
               />
               <Chip
                 label={
+                  charge.prorated
+                    ? translate('text_649c47c0a6c1f200de8ff48d')
+                    : translate('text_649c49bcebd91c0082d84446')
+                }
+              />
+              <Chip
+                label={
                   charge.invoiceable
                     ? translate('text_646e2d0cc536351b62ba6f16')
                     : translate('text_646e2d0cc536351b62ba6fcb')

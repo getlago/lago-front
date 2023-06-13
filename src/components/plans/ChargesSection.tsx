@@ -5,18 +5,18 @@ import { gql } from '@apollo/client'
 
 import { ComboBox, SwitchField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Button, Tooltip, Typography } from '~/components/designSystem'
-import { theme } from '~/styles'
+import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
+import { MenuPopper, theme } from '~/styles'
 import {
   ChargeModelEnum,
   CurrencyEnum,
   PlanInterval,
-  useGetBillableMetricsLazyQuery,
+  useGetMeteredBillableMetricsLazyQuery,
+  useGetRecurringBillableMetricsLazyQuery,
 } from '~/generated/graphql'
 import { Item } from '~/components/form/ComboBox/ComboBoxItem'
-import { MUI_INPUT_BASE_ROOT_CLASSNAME, SEARCH_CHARGE_INPUT_NAME } from '~/core/constants/form'
 
-import { PlanFormInput } from './types'
+import { LocalChargeInput, PlanFormInput } from './types'
 import { ChargeAccordion } from './ChargeAccordion'
 import {
   RemoveChargeWarningDialog,
@@ -24,6 +24,8 @@ import {
 } from './RemoveChargeWarningDialog'
 
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '../PremiumWarningDialog'
+
+const RESULT_LIMIT = 50
 
 gql`
   fragment PlanForChargeAccordion on Plan {
@@ -35,6 +37,7 @@ gql`
     name
     code
     aggregationType
+    recurring
     flatGroups {
       id
       key
@@ -42,8 +45,17 @@ gql`
     }
   }
 
-  query getBillableMetrics($page: Int, $limit: Int, $searchTerm: String) {
-    billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
+  query getMeteredBillableMetrics($page: Int, $limit: Int, $searchTerm: String) {
+    billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm, recurring: false) {
+      collection {
+        id
+        ...billableMetricForChargeSection
+      }
+    }
+  }
+
+  query getRecurringBillableMetrics($page: Int, $limit: Int, $searchTerm: String) {
+    billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm, recurring: true) {
       collection {
         id
         ...billableMetricForChargeSection
@@ -55,6 +67,8 @@ gql`
 interface ChargesSectionProps {
   canBeEdited: boolean
   isEdition: boolean
+  hasAnyMeteredCharge: boolean
+  hasAnyRecurringCharge: boolean
   getPropertyShape: Function
   formikProps: FormikProps<PlanFormInput>
   alreadyExistingCharges?: PlanFormInput['charges'] | null
@@ -62,38 +76,53 @@ interface ChargesSectionProps {
 
 const getNewChargeId = (id: string, index: number) => `plan-charge-${id}-${index}`
 
+const SEARCH_METERED_CHARGE_INPUT_NAME = 'searchMeteredChargeInput'
+const SEARCH_RECURRING_CHARGE_INPUT_NAME = 'searchRecurringChargeInput'
+
 export const ChargesSection = memo(
   ({
     canBeEdited,
     isEdition,
+    hasAnyMeteredCharge,
+    hasAnyRecurringCharge,
     getPropertyShape,
     formikProps,
     alreadyExistingCharges,
   }: ChargesSectionProps) => {
     const { translate } = useInternationalization()
-    // const { isPremium } = useCurrentUser()
     const hasAnyCharge = !!formikProps.values.charges.length
-    const [showAddCharge, setShowAddCharge] = useState(false)
+    const [showAddMeteredCharge, setShowAddMeteredCharge] = useState(false)
+    const [showAddRecurringCharge, setShowAddRecurringCharge] = useState(false)
     const [newChargeId, setNewChargeId] = useState<string | null>(null)
     const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
     const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
     const alreadyUsedBmsIds = useRef<Map<String, number>>(new Map())
-    const [getBillableMetrics, { loading: billableMetricsLoading, data: billableMetricsData }] =
-      useGetBillableMetricsLazyQuery({
-        fetchPolicy: 'network-only',
-        nextFetchPolicy: 'network-only',
-        variables: { limit: 50 },
-      })
+    const [
+      getMeteredBillableMetrics,
+      { loading: meteredBillableMetricsLoading, data: meteredBillableMetricsData },
+    ] = useGetMeteredBillableMetricsLazyQuery({
+      fetchPolicy: 'network-only',
+      nextFetchPolicy: 'network-only',
+      variables: { limit: RESULT_LIMIT },
+    })
+    const [
+      getRecurringBillableMetrics,
+      { loading: recurringBillableMetricsLoading, data: recurringBillableMetricsData },
+    ] = useGetRecurringBillableMetricsLazyQuery({
+      fetchPolicy: 'network-only',
+      nextFetchPolicy: 'network-only',
+      variables: { limit: RESULT_LIMIT },
+    })
 
-    const billableMetrics = useMemo(() => {
+    const meteredBillableMetrics = useMemo(() => {
       if (
-        !billableMetricsData ||
-        !billableMetricsData?.billableMetrics ||
-        !billableMetricsData?.billableMetrics?.collection
+        !meteredBillableMetricsData ||
+        !meteredBillableMetricsData?.billableMetrics ||
+        !meteredBillableMetricsData?.billableMetrics?.collection
       )
         return []
 
-      return billableMetricsData?.billableMetrics?.collection.map(({ id, name, code }) => {
+      return meteredBillableMetricsData?.billableMetrics?.collection.map(({ id, name, code }) => {
         return {
           label: `${name} (${code})`,
           labelNode: (
@@ -104,7 +133,28 @@ export const ChargesSection = memo(
           value: id,
         }
       })
-    }, [billableMetricsData])
+    }, [meteredBillableMetricsData])
+
+    const recurringBillableMetrics = useMemo(() => {
+      if (
+        !recurringBillableMetricsData ||
+        !recurringBillableMetricsData?.billableMetrics ||
+        !recurringBillableMetricsData?.billableMetrics?.collection
+      )
+        return []
+
+      return recurringBillableMetricsData?.billableMetrics?.collection.map(({ id, name, code }) => {
+        return {
+          label: `${name} (${code})`,
+          labelNode: (
+            <Item>
+              {name} <Typography color="textPrimary">({code})</Typography>
+            </Item>
+          ),
+          value: id,
+        }
+      })
+    }, [recurringBillableMetricsData])
 
     useEffect(() => {
       // When adding a new charge, scroll to the new charge element
@@ -141,28 +191,66 @@ export const ChargesSection = memo(
         <Card>
           <SectionTitle>
             <Typography variant="subhead">{translate('text_6435888d7cc86500646d8977')}</Typography>
-            <Button
-              variant="secondary"
-              data-test="add-charge"
-              onClick={async () => {
-                if (!showAddCharge) setShowAddCharge(true)
-
-                setTimeout(() => {
-                  const element = document.querySelector(
-                    `.${SEARCH_CHARGE_INPUT_NAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
-                  ) as HTMLElement
-
-                  if (!element) return
-
-                  element.scrollIntoView({ behavior: 'smooth' })
-                  element.click()
-                }, 0)
-              }}
+            <Popper
+              PopperProps={{ placement: 'bottom-end' }}
+              opener={
+                <Button variant="secondary" endIcon="chevron-down" data-test="add-charge">
+                  {translate('text_6435888d7cc86500646d8974')}
+                </Button>
+              }
             >
-              {translate('text_6435888d7cc86500646d8974')}
-            </Button>
+              {({ closePopper }) => (
+                <MenuPopper>
+                  <Button
+                    variant="quaternary"
+                    data-test="add-metered-charge"
+                    onClick={async () => {
+                      if (!showAddMeteredCharge) setShowAddMeteredCharge(true)
+
+                      setTimeout(() => {
+                        const element = document.getElementsByName(
+                          SEARCH_METERED_CHARGE_INPUT_NAME
+                        )[0]
+
+                        if (!element) return
+
+                        element.scrollIntoView({ behavior: 'smooth' })
+                        element.focus()
+
+                        closePopper()
+                      }, 0)
+                    }}
+                  >
+                    {translate('text_648c2be974f70300748a4cc6')}
+                  </Button>
+                  <Button
+                    variant="quaternary"
+                    data-test="add-recurring-charge"
+                    onClick={async () => {
+                      if (!showAddRecurringCharge) setShowAddRecurringCharge(true)
+
+                      setTimeout(() => {
+                        const element = document.getElementsByName(
+                          SEARCH_RECURRING_CHARGE_INPUT_NAME
+                        )[0]
+
+                        if (!element) return
+
+                        element.scrollIntoView({ behavior: 'smooth' })
+                        element.focus()
+
+                        closePopper()
+                      }, 0)
+                    }}
+                  >
+                    {translate('text_648c2be974f70300748a4cc8')}
+                  </Button>
+                </MenuPopper>
+              )}
+            </Popper>
           </SectionTitle>
 
+          {/* METERED */}
           {!!hasAnyCharge && formikProps.values.interval === PlanInterval.Yearly && (
             <SwitchField
               label={translate('text_62a30bc79dae432fb055330b')}
@@ -173,9 +261,23 @@ export const ChargesSection = memo(
             />
           )}
 
-          {!!hasAnyCharge && (
+          {(hasAnyMeteredCharge || showAddMeteredCharge) && (
+            <div>
+              <Typography variant="bodyHl" color="grey700">
+                {translate('text_648c2be974f70300748a4cc7')}
+              </Typography>
+              <Typography variant="caption" color="grey600">
+                {translate('text_648c2be974f70300748a4cc9')}
+              </Typography>
+            </div>
+          )}
+
+          {hasAnyMeteredCharge && (
             <Charges>
               {formikProps.values.charges.map((charge, i) => {
+                // Prevent displaying recurring charges
+                if (charge.billableMetric.recurring) return
+
                 const id = getNewChargeId(charge.billableMetric.id, i)
                 const isNew = !alreadyExistingCharges?.find(
                   (chargeFetched) => chargeFetched?.id === charge.id
@@ -200,20 +302,156 @@ export const ChargesSection = memo(
               })}
             </Charges>
           )}
-          {!!showAddCharge && (
+          {!!showAddMeteredCharge && (
             <AddChargeInlineWrapper>
               <ComboBox
-                className={SEARCH_CHARGE_INPUT_NAME}
-                data={billableMetrics}
-                searchQuery={getBillableMetrics}
-                loading={billableMetricsLoading}
+                name={SEARCH_METERED_CHARGE_INPUT_NAME}
+                data={meteredBillableMetrics}
+                searchQuery={getMeteredBillableMetrics}
+                loading={meteredBillableMetricsLoading}
                 placeholder={translate('text_6435888d7cc86500646d8981')}
                 emptyText={translate('text_6246b6bc6b25f500b779aa7a')}
                 onChange={(newCharge) => {
                   const previousCharges = [...formikProps.values.charges]
                   const newId = getNewChargeId(newCharge, previousCharges.length)
                   const localBillableMetrics =
-                    billableMetricsData?.billableMetrics?.collection.find(
+                    meteredBillableMetricsData?.billableMetrics?.collection.find(
+                      (bm) => bm.id === newCharge
+                    )
+                  const lastMeteredIndex = previousCharges.findLastIndex(
+                    (c) => c.billableMetric.recurring === false
+                  )
+                  const newChargeIndex = lastMeteredIndex < 0 ? 0 : lastMeteredIndex + 1
+
+                  previousCharges.splice(newChargeIndex, 0, {
+                    payInAdvance: false,
+                    invoiceable: true,
+                    billableMetric: localBillableMetrics,
+                    properties: !localBillableMetrics?.flatGroups?.length
+                      ? getPropertyShape({})
+                      : undefined,
+                    groupProperties: localBillableMetrics?.flatGroups?.length
+                      ? localBillableMetrics?.flatGroups.map((group) => {
+                          return {
+                            groupId: group.id,
+                            values: getPropertyShape({}),
+                          }
+                        })
+                      : undefined,
+                    chargeModel: ChargeModelEnum.Standard,
+                    amountCents: undefined,
+                  } as LocalChargeInput)
+
+                  formikProps.setFieldValue('charges', previousCharges)
+                  setShowAddMeteredCharge(false)
+                  setNewChargeId(newId)
+                }}
+              />
+              <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
+                <Button
+                  icon="trash"
+                  variant="quaternary"
+                  onClick={() => {
+                    setShowAddMeteredCharge(false)
+                  }}
+                />
+              </Tooltip>
+            </AddChargeInlineWrapper>
+          )}
+
+          {hasAnyCharge && (
+            <InlineButtons>
+              {!showAddMeteredCharge && !!hasAnyMeteredCharge && (
+                <Button
+                  startIcon="plus"
+                  variant="quaternary"
+                  data-test="add-metered-charge"
+                  onClick={() => {
+                    setShowAddMeteredCharge(true)
+                    setTimeout(() => {
+                      document.getElementsByName(SEARCH_METERED_CHARGE_INPUT_NAME)[0].focus()
+                    }, 0)
+                  }}
+                >
+                  {translate('text_648c2be974f70300748a4cce')}
+                </Button>
+              )}
+              {!showAddRecurringCharge && !hasAnyRecurringCharge && (
+                <Button
+                  startIcon="plus"
+                  variant="quaternary"
+                  data-test="add-recurring-charge"
+                  onClick={() => {
+                    setShowAddRecurringCharge(true)
+                    setTimeout(() => {
+                      document.getElementsByName(SEARCH_RECURRING_CHARGE_INPUT_NAME)[0].focus()
+                    }, 0)
+                  }}
+                >
+                  {translate('text_648c2be974f70300748a4cd4')}
+                </Button>
+              )}
+            </InlineButtons>
+          )}
+
+          {/* RECURRING */}
+          {(hasAnyRecurringCharge || showAddRecurringCharge) && (
+            <RecurringSectionTitleWrapper
+              $hasAnyAboveSection={hasAnyMeteredCharge || showAddMeteredCharge}
+            >
+              <Typography variant="bodyHl" color="grey700">
+                {translate('text_648c2be974f70300748a4ccf')}
+              </Typography>
+              <Typography variant="caption" color="grey600">
+                {translate('text_648c2be974f70300748a4cd0')}
+              </Typography>
+            </RecurringSectionTitleWrapper>
+          )}
+
+          {hasAnyRecurringCharge && (
+            <Charges>
+              {formikProps.values.charges.map((charge, i) => {
+                // Prevent displaying metered charges
+                if (!charge.billableMetric.recurring) return
+
+                const id = getNewChargeId(charge.billableMetric.id, i)
+                const isNew = !alreadyExistingCharges?.find(
+                  (chargeFetched) => chargeFetched?.id === charge.id
+                )
+                const shouldDisplayAlreadyUsedChargeAlert =
+                  (alreadyUsedBmsIds.current.get(charge.billableMetric.id) || 0) > 1
+
+                return (
+                  <ChargeAccordion
+                    id={id}
+                    key={id}
+                    shouldDisplayAlreadyUsedChargeAlert={shouldDisplayAlreadyUsedChargeAlert}
+                    removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+                    premiumWarningDialogRef={premiumWarningDialogRef}
+                    isUsedInSubscription={!isNew && !canBeEdited}
+                    currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
+                    index={i}
+                    disabled={isEdition && !canBeEdited && !isNew}
+                    formikProps={formikProps}
+                  />
+                )
+              })}
+            </Charges>
+          )}
+          {!!showAddRecurringCharge && (
+            <AddChargeInlineWrapper>
+              <ComboBox
+                name={SEARCH_RECURRING_CHARGE_INPUT_NAME}
+                data={recurringBillableMetrics}
+                searchQuery={getRecurringBillableMetrics}
+                loading={recurringBillableMetricsLoading}
+                placeholder={translate('text_6435888d7cc86500646d8981')}
+                emptyText={translate('text_6246b6bc6b25f500b779aa7a')}
+                onChange={(newCharge) => {
+                  const previousCharges = [...formikProps.values.charges]
+                  const newId = getNewChargeId(newCharge, previousCharges.length)
+                  const localBillableMetrics =
+                    recurringBillableMetricsData?.billableMetrics?.collection.find(
                       (bm) => bm.id === newCharge
                     )
 
@@ -238,7 +476,7 @@ export const ChargesSection = memo(
                       amountCents: undefined,
                     },
                   ])
-                  setShowAddCharge(false)
+                  setShowAddRecurringCharge(false)
                   setNewChargeId(newId)
                 }}
               />
@@ -247,30 +485,46 @@ export const ChargesSection = memo(
                   icon="trash"
                   variant="quaternary"
                   onClick={() => {
-                    setShowAddCharge(false)
+                    setShowAddRecurringCharge(false)
                   }}
                 />
               </Tooltip>
             </AddChargeInlineWrapper>
           )}
-          {!!hasAnyCharge && !showAddCharge && (
-            <Button
-              startIcon="plus"
-              variant="quaternary"
-              data-test="add-charge"
-              onClick={() => {
-                setShowAddCharge(true)
-                setTimeout(() => {
-                  ;(
-                    document.querySelector(
-                      `.${SEARCH_CHARGE_INPUT_NAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
-                    ) as HTMLElement
-                  ).click()
-                }, 0)
-              }}
-            >
-              {translate('text_6435888d7cc86500646d897a')}
-            </Button>
+
+          {hasAnyCharge && (
+            <InlineButtons>
+              {!showAddMeteredCharge && !hasAnyMeteredCharge && (
+                <Button
+                  startIcon="plus"
+                  variant="quaternary"
+                  data-test="add-metered-charge"
+                  onClick={() => {
+                    setShowAddMeteredCharge(true)
+                    setTimeout(() => {
+                      document.getElementsByName(SEARCH_METERED_CHARGE_INPUT_NAME)[0].focus()
+                    }, 0)
+                  }}
+                >
+                  {translate('text_648c2be974f70300748a4cce')}
+                </Button>
+              )}
+              {!showAddRecurringCharge && !!hasAnyRecurringCharge && (
+                <Button
+                  startIcon="plus"
+                  variant="quaternary"
+                  data-test="add-recurring-charge"
+                  onClick={() => {
+                    setShowAddRecurringCharge(true)
+                    setTimeout(() => {
+                      document.getElementsByName(SEARCH_RECURRING_CHARGE_INPUT_NAME)[0].focus()
+                    }, 0)
+                  }}
+                >
+                  {translate('text_648c2be974f70300748a4cd4')}
+                </Button>
+              )}
+            </InlineButtons>
           )}
         </Card>
 
@@ -312,4 +566,13 @@ const Charges = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(6)};
   }
+`
+
+const InlineButtons = styled.div`
+  display: flex;
+`
+
+const RecurringSectionTitleWrapper = styled.div<{ $hasAnyAboveSection: boolean }>`
+  margin-top: ${({ $hasAnyAboveSection }) =>
+    $hasAnyAboveSection ? `${theme.spacing(12)} !important` : 'initial'};
 `

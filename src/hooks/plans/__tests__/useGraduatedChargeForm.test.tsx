@@ -43,6 +43,7 @@ const prepare = async ({
               id: '1',
               name: 'graduated',
               aggregationType: AggregationTypeEnum.CountAgg,
+              recurring: false,
               code: 'graduated',
               flatGroups:
                 propertyType === 'groupProperties'

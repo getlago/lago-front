@@ -43,6 +43,7 @@ describe('Create plan', () => {
 
     // Standard
     cy.get('[data-test="add-charge"]').first().click()
+    cy.get('[data-test="add-metered-charge"]').first().click()
     cy.get('[data-option-index="0"]').click()
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().should('have.value', 'Standard pricing')
@@ -51,6 +52,7 @@ describe('Create plan', () => {
 
     // Graduated
     cy.get('[data-test="add-charge"]').last().click()
+    cy.get('[data-test="add-metered-charge"]').last().click()
     cy.get('[data-option-index="1"]').click()
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().click()
@@ -66,6 +68,7 @@ describe('Create plan', () => {
 
     // Package
     cy.get('[data-test="add-charge"]').last().click()
+    cy.get('[data-test="add-metered-charge"]').last().click()
     cy.get('[data-option-index="1"]').click()
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().click()
@@ -76,6 +79,7 @@ describe('Create plan', () => {
 
     // Percentage
     cy.get('[data-test="add-charge"]').last().click()
+    cy.get('[data-test="add-metered-charge"]').last().click()
     cy.get('[data-option-index="1"]').click()
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().click()
@@ -94,7 +98,8 @@ describe('Create plan', () => {
 
     // Volume
     cy.get('[data-test="add-charge"]').last().click()
-    cy.get('[data-option-index="1"]').click()
+    cy.get('[data-test="add-recurring-charge"]').last().click()
+    cy.get('[data-option-index="0"]').click()
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().click()
     cy.get('[data-test="volume"]').click()
@@ -127,6 +132,7 @@ describe('Create plan', () => {
 
       // Config charge
       cy.get('[data-test="add-charge"]').last().click()
+      cy.get('[data-test="add-metered-charge"]').last().click()
       cy.get('[data-option-index="1"]').click()
       cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
       cy.get('input[name="chargeModel"]').last().click()
