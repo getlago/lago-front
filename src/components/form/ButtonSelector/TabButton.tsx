@@ -17,7 +17,10 @@ export interface TabButtonProps {
 }
 
 export const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(
-  ({ active = false, title, icon, className, disabled, onClick }: TabButtonProps, ref) => {
+  (
+    { active = false, title, icon, className, disabled, onClick, ...props }: TabButtonProps,
+    ref
+  ) => {
     const [isLoading, setIsLoading] = useState(false)
     const mountedRef = useRef(false)
 
@@ -32,6 +35,7 @@ export const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(
 
     return (
       <Container
+        {...props}
         ref={ref}
         className={className}
         $active={active}

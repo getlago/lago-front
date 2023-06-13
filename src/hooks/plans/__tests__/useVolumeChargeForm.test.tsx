@@ -44,6 +44,7 @@ const prepare = async ({
               aggregationType: AggregationTypeEnum.CountAgg,
               name: 'volume',
               code: 'volume',
+              recurring: false,
               flatGroups:
                 propertyType === 'groupProperties'
                   ? [{ id: '1', key: null, value: 'France' }]

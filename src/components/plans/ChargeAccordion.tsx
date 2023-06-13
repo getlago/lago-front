@@ -60,6 +60,7 @@ gql`
     invoiceable
     minAmountCents
     payInAdvance
+    prorated
     properties {
       amount
     }
@@ -74,6 +75,7 @@ gql`
       name
       code
       aggregationType
+      recurring
       flatGroups {
         id
         key
@@ -138,13 +140,24 @@ export const ChargeAccordion = memo(
 
     const handleUpdate = useCallback(
       (name: string, value: string | boolean) => {
-        if (
-          name === 'chargeModel' &&
-          (value === ChargeModelEnum.Volume ||
+        if (name === 'chargeModel') {
+          // Reset pay in advance when switching charge model
+          if (
+            value === ChargeModelEnum.Volume ||
             localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.RecurringCountAgg)
-        ) {
-          formikProps.setFieldValue(`charges.${index}.payInAdvance`, false)
+            localCharge.billableMetric.aggregationType === AggregationTypeEnum.RecurringCountAgg
+          ) {
+            formikProps.setFieldValue(`charges.${index}.payInAdvance`, false)
+          }
+
+          // Reset prorated when switching charge model
+          if (
+            (localCharge.billableMetric.recurring && value === ChargeModelEnum.Graduated) ||
+            value === ChargeModelEnum.Package ||
+            value === ChargeModelEnum.Percentage
+          ) {
+            formikProps.setFieldValue(`charges.${index}.prorated`, false)
+          }
         }
 
         if (name === 'payInAdvance') {
@@ -156,11 +169,15 @@ export const ChargeAccordion = memo(
             formikProps.setFieldValue(`charges.${index}.invoiceable`, true)
           }
         }
-
         formikProps.setFieldValue(`charges.${index}.${name}`, value)
       },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [index, formikProps.setFieldValue]
+
+      [
+        formikProps,
+        index,
+        localCharge.billableMetric.aggregationType,
+        localCharge.billableMetric.recurring,
+      ]
     )
 
     const chargePayInAdvanceSwitchHelperText = useMemo(() => {
@@ -184,6 +201,21 @@ export const ChargeAccordion = memo(
       localCharge.billableMetric.aggregationType,
       translate,
     ])
+
+    const isProratedOptionDisabled = useMemo(() => {
+      return (
+        localCharge.chargeModel === ChargeModelEnum.Volume ||
+        localCharge.chargeModel === ChargeModelEnum.Package ||
+        localCharge.chargeModel === ChargeModelEnum.Percentage
+      )
+    }, [localCharge.chargeModel])
+
+    const proratedOptionHelperText = useMemo(() => {
+      if (isProratedOptionDisabled)
+        return translate('text_649c54823c9089006247625a', { chargeModel: localCharge.chargeModel })
+
+      return translate('text_649c54823c90890062476259')
+    }, [isProratedOptionDisabled, translate, localCharge.chargeModel])
 
     return (
       <Accordion
@@ -268,18 +300,22 @@ export const ChargeAccordion = memo(
                   label: translate('text_624aa732d6af4e0103d40e6f'),
                   value: ChargeModelEnum.Standard,
                 },
-                {
-                  label: translate('text_62793bbb599f1c01522e919f'),
-                  value: ChargeModelEnum.Graduated,
-                },
-                {
-                  label: translate('text_62a0b7107afa2700a65ef6e2'),
-                  value: ChargeModelEnum.Percentage,
-                },
-                {
-                  label: translate('text_6282085b4f283b0102655868'),
-                  value: ChargeModelEnum.Package,
-                },
+                ...(!localCharge.billableMetric.recurring
+                  ? [
+                      {
+                        label: translate('text_62793bbb599f1c01522e919f'),
+                        value: ChargeModelEnum.Graduated,
+                      },
+                      {
+                        label: translate('text_62a0b7107afa2700a65ef6e2'),
+                        value: ChargeModelEnum.Percentage,
+                      },
+                      {
+                        label: translate('text_6282085b4f283b0102655868'),
+                        value: ChargeModelEnum.Package,
+                      },
+                    ]
+                  : []),
                 {
                   label: translate('text_6304e74aab6dbc18d615f386'),
                   value: ChargeModelEnum.Volume,
@@ -394,6 +430,23 @@ export const ChargeAccordion = memo(
                 },
               ]}
             />
+
+            {!!localCharge.billableMetric.recurring && (
+              <Switch
+                name={`charge-${localCharge.id}-prorated`}
+                label={translate('text_649c54823c90890062476255')}
+                disabled={
+                  disabled ||
+                  (localCharge.billableMetric.recurring &&
+                    localCharge.chargeModel === ChargeModelEnum.Graduated) ||
+                  localCharge.chargeModel === ChargeModelEnum.Package ||
+                  localCharge.chargeModel === ChargeModelEnum.Percentage
+                }
+                subLabel={proratedOptionHelperText}
+                checked={!!localCharge.prorated}
+                onChange={(value) => handleUpdate('prorated', Boolean(value))}
+              />
+            )}
             {localCharge.payInAdvance && (
               <InvoiceableSwitchWrapper>
                 <Switch

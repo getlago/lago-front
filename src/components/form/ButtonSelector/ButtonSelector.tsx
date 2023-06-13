@@ -60,6 +60,7 @@ export const ButtonSelector = ({
               title={optionLabel ?? optionValue}
               active={value === optionValue}
               onClick={() => onChange(optionValue)}
+              data-test={`button-selector-${optionValue}`}
             />
           )
         })}
