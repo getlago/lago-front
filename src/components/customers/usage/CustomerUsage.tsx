@@ -37,7 +37,7 @@ gql`
 `
 
 interface CustomerUsageProps {
-  customerTimezone: TimezoneEnum
+  customerTimezone?: TimezoneEnum
 }
 
 export const CustomerUsage = ({ customerTimezone }: CustomerUsageProps) => {

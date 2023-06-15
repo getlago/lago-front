@@ -42,7 +42,7 @@ gql`
 
 interface SubscriptionItemProps {
   subscription: SubscriptionItemFragment
-  customerTimezone: TimezoneEnum
+  customerTimezone?: TimezoneEnum
 }
 
 export interface SubscriptionItemRef {

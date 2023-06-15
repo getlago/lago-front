@@ -21,7 +21,6 @@ import {
 import {
   useGetCustomerQuery,
   CustomerMainInfosFragmentDoc,
-  TimezoneEnum,
   AddCustomerDrawerFragmentDoc,
   useGenerateCustomerPortalUrlMutation,
 } from '~/generated/graphql'
@@ -71,6 +70,7 @@ gql`
     creditNotesBalanceAmountCents
     applicableTimezone
     activeSubscriptionCount
+    timezone
     ...AddCustomerDrawer
     ...CustomerMainInfos
   }
@@ -147,8 +147,9 @@ const CustomerDetails = () => {
     name,
     activeSubscriptionCount,
     applicableTimezone,
+    timezone,
   } = data?.customer || {}
-  const safeTimezone = applicableTimezone || TimezoneEnum.TzUtc
+  const safeTimezone = applicableTimezone
 
   return (
     <div>
@@ -459,7 +460,7 @@ const CustomerDetails = () => {
             ref={subscriptionsDialogRef}
             customerName={name as string}
             customerId={id as string}
-            customerTimezone={safeTimezone}
+            customerTimezone={timezone}
           />
           <AddWalletToCustomerDialog
             customerId={id as string}

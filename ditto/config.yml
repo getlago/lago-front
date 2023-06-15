@@ -259,5 +259,8 @@ sources:
       fileName: ⚙️ [WIP] - Settings / Customers - Lago x Adyen Connection
     - name: ⚙️ [WIP] - Customer - Add tax_number on customer
       id: 648053ecf72671011f9365ff
+      fileName: ⚙️ [WIP] - Customer - Add tax_number on customer
+    - name: Subscription at drawer fix
+      id: 648b171fcdcc85696b5d1cd4
 format: flat
 variants: true

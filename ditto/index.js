@@ -230,6 +230,9 @@ module.exports = {
   "project_6271200612648800e9bdfd47": {
     "base": require('./settings---webhooks-in-app__base.json')
   },
+  "project_648b171fcdcc85696b5d1cd4": {
+    "base": require('./subscription-at-drawer-fix__base.json')
+  },
   "project_642a94e4409e3692d27eda4c": {
     "base": require('./subscription-drawer---external-id-input__base.json')
   }

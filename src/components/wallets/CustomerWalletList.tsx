@@ -58,7 +58,7 @@ gql`
 
 interface CustommerWalletListProps {
   customerId: string
-  customerTimezone: TimezoneEnum
+  customerTimezone?: TimezoneEnum
 }
 
 export const CustomerWalletsList = forwardRef<

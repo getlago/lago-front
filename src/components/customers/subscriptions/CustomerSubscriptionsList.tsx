@@ -43,7 +43,7 @@ gql`
 `
 
 interface CustomerSubscriptionsListProps {
-  customerTimezone: TimezoneEnum
+  customerTimezone?: TimezoneEnum
 }
 
 export const CustomerSubscriptionsList = forwardRef<

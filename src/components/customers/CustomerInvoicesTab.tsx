@@ -46,7 +46,7 @@ gql`
 
 interface CustomerInvoicesTabProps {
   customerId: string
-  customerTimezone: TimezoneEnum
+  customerTimezone?: TimezoneEnum
 }
 
 export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerInvoicesTabProps) => {

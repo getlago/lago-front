@@ -52,10 +52,14 @@ gql`
 interface UsageItemProps {
   customerId: string
   subscription: CustomerSubscriptionForUsageFragment
-  customerTimezone: TimezoneEnum
+  customerTimezone?: TimezoneEnum
 }
 
-export const UsageItem = ({ customerId, subscription, customerTimezone }: UsageItemProps) => {
+export const UsageItem = ({
+  customerId,
+  subscription,
+  customerTimezone = TimezoneEnum.TzUtc,
+}: UsageItemProps) => {
   const { id, name, plan } = subscription
   const [isOpen, setIsOpen] = useState(false)
   const { translate } = useInternationalization()

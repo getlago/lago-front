@@ -41,7 +41,7 @@ interface SubscriptionLineProps {
   periodEndDate: string
   isDowngrade?: boolean
   status?: StatusTypeEnum | null
-  customerTimezone: TimezoneEnum
+  customerTimezone?: TimezoneEnum
 }
 
 export interface SubscriptionLineRef {

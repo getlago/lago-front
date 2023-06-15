@@ -42,6 +42,7 @@ import { ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '
 import { addToast, TToast } from '~/core/apolloClient'
 import { CurrencyEnum } from '~/generated/graphql'
 import { AmountInputField } from '~/components/form/AmountInput'
+import { TimePickerField } from '~/components/form/TimePicker'
 
 const POSSIBLE_TOAST: TToast[] = [
   {
@@ -93,6 +94,7 @@ const DesignSystem = () => {
       amountCents: undefined,
       amountCurrency: CurrencyEnum.Usd,
       date: undefined,
+      time: undefined,
       input: undefined,
       inputNumber: undefined,
       switch: true,
@@ -112,6 +114,7 @@ const DesignSystem = () => {
       date: string()
         .required()
         .matches(/1992-05-26/, 'Sorry, you owe her a beer 🍺'),
+      time: string().required(),
       input: string()
         .required()
         .matches(/whatever/, "I thought you'd be more fun... 😏"),
@@ -999,6 +1002,27 @@ const DesignSystem = () => {
                     <DatePickerField
                       name="date"
                       label="DatePicker disabled"
+                      disabled
+                      formikProps={formikProps}
+                    />
+                  </Block>
+
+                  <GroupTitle variant="subhead">TimePicker</GroupTitle>
+                  <Block $childMinWidth="325px" $marginBottom={theme.spacing(6)}>
+                    <TimePickerField
+                      name="date"
+                      label="What time is it?"
+                      formikProps={formikProps}
+                    />
+                    <TimePickerField
+                      name="date"
+                      label="DatePicker with helper"
+                      helperText="I'm here to help"
+                      formikProps={formikProps}
+                    />
+                    <TimePickerField
+                      name="date"
+                      label="TimePicker disabled"
                       disabled
                       formikProps={formikProps}
                     />

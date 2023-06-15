@@ -194,7 +194,7 @@ export const useAddSubscription: UseAddSubscription = ({
           input: {
             customerId,
             ...(!existingSubscription
-              ? { subscriptionAt: DateTime.fromISO(subsDate).startOf('day').toUTC().toISO() }
+              ? { subscriptionAt: DateTime.fromISO(subsDate).toUTC().toISO() }
               : { subscriptionId: existingSubscription.subscriptionId }),
             name: name || undefined,
             externalId: externalId || undefined,
