@@ -56,7 +56,7 @@ interface InvoiceListProps {
   isLoading: boolean
   hasError?: boolean
   hasSearchTerm?: boolean
-  customerTimezone: TimezoneEnum
+  customerTimezone?: TimezoneEnum
   invoiceData?: InvoiceForInvoiceListFragment
   context?: keyof typeof CustomerInvoiceListContextEnum
   getOnClickLink: (id: string) => string
@@ -69,7 +69,7 @@ export const CustomerInvoicesList = ({
   hasError = false,
   hasSearchTerm = false,
   invoiceData,
-  customerTimezone,
+  customerTimezone = TimezoneEnum.TzUtc,
   context = CustomerInvoiceListContextEnum.draft,
   getOnClickLink,
   onSeeAll,

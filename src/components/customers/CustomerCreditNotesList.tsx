@@ -44,7 +44,7 @@ interface CustomerCreditNotesListProps {
   creditNotesCreditsAvailableCount?: number
   creditNotesBalanceAmountCents?: string
   userCurrency?: CurrencyEnum
-  customerTimezone: TimezoneEnum
+  customerTimezone?: TimezoneEnum
 }
 
 export const CustomerCreditNotesList = ({

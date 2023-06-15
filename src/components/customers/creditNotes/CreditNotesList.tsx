@@ -67,7 +67,7 @@ interface CreditNotesListProps {
   loading: boolean
   hasSearchQuery?: boolean
   metadata: CreditNotesForListFragment['metadata'] | undefined
-  customerTimezone: TimezoneEnum
+  customerTimezone?: TimezoneEnum
 }
 
 const CreditNotesList = memo(
@@ -78,7 +78,7 @@ const CreditNotesList = memo(
     loading,
     hasSearchQuery = false,
     metadata,
-    customerTimezone,
+    customerTimezone = TimezoneEnum.TzUtc,
   }: CreditNotesListProps) => {
     const { translate } = useInternationalization()
     const navigate = useNavigate()

@@ -17,7 +17,7 @@ interface TimezoneDateProps {
   date: string // Should be given in UTC +0
   mainDateFormat?: string
   mainTimezone?: keyof typeof MainTimezoneEnum
-  customerTimezone: TimezoneEnum
+  customerTimezone?: TimezoneEnum
   mainTypographyProps?: Pick<TypographyProps, 'variant' | 'color'>
   className?: string
 }

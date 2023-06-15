@@ -51,7 +51,7 @@ gql`
 interface WalletTransactionListProps {
   isOpen: boolean
   wallet: WalletInfosForTransactionsFragment
-  customerTimezone: TimezoneEnum
+  customerTimezone?: TimezoneEnum
 }
 
 export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTransactionListProps>(

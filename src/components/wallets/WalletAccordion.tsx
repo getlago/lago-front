@@ -45,7 +45,7 @@ gql`
 
 interface WalletAccordionProps {
   wallet: WalletAccordionFragment
-  customerTimezone: TimezoneEnum
+  customerTimezone?: TimezoneEnum
 }
 
 const mapStatus = (type?: WalletStatusEnum | undefined) => {
