@@ -35,12 +35,12 @@ export const ConditionalChargeWrapper = memo(
     return (
       <>
         {localCharge?.groupProperties?.map((group, groupPropertyIndex) => {
-          const groupKey =
-            localCharge?.billableMetric?.flatGroups &&
-            localCharge?.billableMetric?.flatGroups[groupPropertyIndex].key
-          const groupName =
-            localCharge?.billableMetric?.flatGroups &&
-            localCharge?.billableMetric?.flatGroups[groupPropertyIndex].value
+          const associatedFlagGroup = localCharge?.billableMetric?.flatGroups?.find(
+            (flatGroup) => flatGroup.id === group.groupId
+          )
+
+          const groupKey = associatedFlagGroup?.key
+          const groupName = associatedFlagGroup?.value
           const hasErrorInGroup =
             typeof chargeErrors === 'object' &&
             typeof chargeErrors[chargeIndex] === 'object' &&
