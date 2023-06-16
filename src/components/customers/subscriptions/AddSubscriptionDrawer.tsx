@@ -148,11 +148,13 @@ export const AddSubscriptionDrawer = forwardRef<
     if (formikProps.values.subscriptionAt) {
       if (!!customerTimezone) {
         const date = DateTime.fromISO(formikProps.values.subscriptionAt)
-          .setZone(GMT)
-          .toFormat('LLL. dd, yyyy')
-        const time = DateTime.fromISO(formikProps.values.subscriptionAt)
           .setZone(customerTimezoneConfig.name)
-          .toFormat('t')
+          .toFormat('LLL. dd, yyyy')
+        const time = `${DateTime.fromISO(formikProps.values.subscriptionAt)
+          .setZone(customerTimezoneConfig.name)
+          .toFormat('T')} ${DateTime.fromISO(formikProps.values.subscriptionAt)
+          .setZone(customerTimezoneConfig.name)
+          .toFormat('a')}`
         const offset = TimeZonesConfig[customerTimezone].offset
 
         if (customerTimezoneConfig?.offsetInMinute < 0) {
@@ -162,11 +164,13 @@ export const AddSubscriptionDrawer = forwardRef<
         }
       } else if (!!organizationTimezone) {
         const date = DateTime.fromISO(formikProps.values.subscriptionAt)
-          .setZone(GMT)
-          .toFormat('LLL. dd, yyyy')
-        const time = DateTime.fromISO(formikProps.values.subscriptionAt)
           .setZone(orgaTimezoneConfig.name)
-          .toFormat('t')
+          .toFormat('LLL. dd, yyyy')
+        const time = `${DateTime.fromISO(formikProps.values.subscriptionAt)
+          .setZone(orgaTimezoneConfig.name)
+          .toFormat('T')} ${DateTime.fromISO(formikProps.values.subscriptionAt)
+          .setZone(orgaTimezoneConfig.name)
+          .toFormat('a')}`
         const offset = TimeZonesConfig[organizationTimezone].offset
 
         if (orgaTimezoneConfig.offsetInMinute < 0) {
@@ -181,7 +185,6 @@ export const AddSubscriptionDrawer = forwardRef<
   }, [
     organizationTimezone,
     customerTimezone,
-    GMT,
     customerTimezoneConfig,
     formikProps.values.subscriptionAt,
     orgaTimezoneConfig,
@@ -291,11 +294,13 @@ export const AddSubscriptionDrawer = forwardRef<
                         <DatePickerField
                           name="subscriptionAt"
                           label={translate('text_648b1828ead1c3004b930334')}
+                          defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
                           formikProps={formikProps}
                         />
                         <TimePickerField
                           name="subscriptionAt"
                           label={translate('text_648b1837da6496008dfe4b3c')}
+                          defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
                           formikProps={formikProps}
                         />
                       </InlineFields>

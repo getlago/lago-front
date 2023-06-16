@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon'
-import { DateTime } from 'luxon'
+import { DateTime, Settings } from 'luxon'
 import _omit from 'lodash/omit'
 import { TimePicker as MuiTimePicker } from '@mui/x-date-pickers/TimePicker'
 
@@ -21,6 +21,7 @@ export interface TimePickerProps
   placeholder?: string
   error?: string
   helperText?: string
+  defaultZone?: string // Overrides the default timezone of the date picker
   onError?: (err: keyof typeof TIME_PICKER_ERROR_ENUM | undefined) => void
   onChange: (value?: string | null) => void
 }
@@ -29,6 +30,7 @@ export const TimePicker = ({
   className,
   value,
   error,
+  defaultZone,
   placeholder,
   disabled,
   onError,
@@ -44,6 +46,15 @@ export const TimePicker = ({
     !!value ? (typeof value === 'string' ? DateTime.fromISO(value) : value) : null
   )
   const isInvalid = !!localTime && !localTime.isValid
+
+  useEffect(() => {
+    if (defaultZone) Settings.defaultZone = defaultZone
+
+    return () => {
+      if (defaultZone) Settings.defaultZone = defaultZone
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     setLocalTime(!!value ? (typeof value === 'string' ? DateTime.fromISO(value) : value) : null)

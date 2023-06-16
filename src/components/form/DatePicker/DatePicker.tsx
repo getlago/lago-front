@@ -3,7 +3,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon'
 import { DatePicker as MuiDatePicker } from '@mui/x-date-pickers/DatePicker'
 import { PopperProps as MuiPopperProps } from '@mui/material'
-import { DateTime } from 'luxon'
+import { DateTime, Settings } from 'luxon'
 import styled from 'styled-components'
 import _omit from 'lodash/omit'
 
@@ -25,6 +25,7 @@ export interface DatePickerProps
   placeholder?: string
   error?: string
   helperText?: string
+  defaultZone?: string // Overrides the default timezone of the date picker
   disableFuture?: boolean
   disablePast?: boolean
   placement?: MuiPopperProps['placement']
@@ -40,6 +41,7 @@ export const DatePicker = ({
   className,
   value,
   error,
+  defaultZone,
   disableFuture,
   disablePast,
   placeholder,
@@ -59,6 +61,15 @@ export const DatePicker = ({
 
   const isInvalid = !!localDate && !localDate.isValid
   const { translate } = useInternationalization()
+
+  useEffect(() => {
+    if (defaultZone) Settings.defaultZone = defaultZone
+
+    return () => {
+      if (defaultZone) Settings.defaultZone = defaultZone
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     setLocalDate(!!value ? (typeof value === 'string' ? DateTime.fromISO(value) : value) : null)
