@@ -6,11 +6,21 @@ import { PopperProps as MuiPopperProps } from '@mui/material'
 import { DateTime, Settings } from 'luxon'
 import styled from 'styled-components'
 import _omit from 'lodash/omit'
+import { gql } from '@apollo/client'
 
 import { TextInput, TextInputProps } from '~/components/form'
 import { theme } from '~/styles'
 import { Button, Tooltip } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { getTimezoneConfig } from '~/core/timezone'
+
+gql`
+  fragment OrganizationForDatePicker on Organization {
+    id
+    timezone
+  }
+`
 
 export enum DATE_PICKER_ERROR_ENUM {
   invalid = 'invalid',
@@ -51,6 +61,7 @@ export const DatePicker = ({
   onChange,
   ...props
 }: DatePickerProps) => {
+  const { organization } = useOrganizationInfos()
   const [localDate, setLocalDate] = useState<DateTime | null>(
     /**
      * Date will be passed to the parent as ISO
@@ -66,7 +77,8 @@ export const DatePicker = ({
     if (defaultZone) Settings.defaultZone = defaultZone
 
     return () => {
-      if (defaultZone) Settings.defaultZone = defaultZone
+      // Reset timezone to default
+      if (defaultZone) Settings.defaultZone = getTimezoneConfig(organization?.timezone).name
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
