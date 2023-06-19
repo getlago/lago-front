@@ -4,6 +4,8 @@ import {
   TimezoneEnum,
   useGetOrganizationInfosQuery,
   MainOrganizationInfosFragment,
+  OrganizationForTimePickerFragmentDoc,
+  OrganizationForDatePickerFragmentDoc,
 } from '~/generated/graphql'
 import { TimeZonesConfig, TimezoneConfigObject } from '~/core/timezone'
 import { formatDateToTZ } from '~/core/timezone'
@@ -14,6 +16,9 @@ gql`
     name
     logoUrl
     timezone
+
+    ...OrganizationForDatePicker
+    ...OrganizationForTimePicker
   }
 
   query getOrganizationInfos {
@@ -21,6 +26,9 @@ gql`
       ...MainOrganizationInfos
     }
   }
+
+  ${OrganizationForDatePickerFragmentDoc}
+  ${OrganizationForTimePickerFragmentDoc}
 `
 
 type UseOrganizationInfos = () => {

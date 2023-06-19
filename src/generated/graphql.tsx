@@ -3844,6 +3844,10 @@ export type RetryWebhookMutation = { __typename?: 'Mutation', retryWebhook?: { _
 
 export type WebhookLogItemFragment = { __typename?: 'Webhook', id: string, status: WebhookStatusEnum, updatedAt: any, webhookType: string };
 
+export type OrganizationForDatePickerFragment = { __typename?: 'Organization', id: string, timezone?: TimezoneEnum | null };
+
+export type OrganizationForTimePickerFragment = { __typename?: 'Organization', id: string, timezone?: TimezoneEnum | null };
+
 export type InvoiceMetadatasForMetadataDrawerFragment = { __typename?: 'Invoice', id: string, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null };
 
 export type UpdateInvoiceMetadataMutationVariables = Exact<{
@@ -5305,14 +5309,29 @@ export const CurrentUserInfosFragmentDoc = gql`
   }
 }
     `;
+export const OrganizationForDatePickerFragmentDoc = gql`
+    fragment OrganizationForDatePicker on Organization {
+  id
+  timezone
+}
+    `;
+export const OrganizationForTimePickerFragmentDoc = gql`
+    fragment OrganizationForTimePicker on Organization {
+  id
+  timezone
+}
+    `;
 export const MainOrganizationInfosFragmentDoc = gql`
     fragment MainOrganizationInfos on Organization {
   id
   name
   logoUrl
   timezone
+  ...OrganizationForDatePicker
+  ...OrganizationForTimePicker
 }
-    `;
+    ${OrganizationForDatePickerFragmentDoc}
+${OrganizationForTimePickerFragmentDoc}`;
 export const CustomerMetadatasForInvoiceOverviewFragmentDoc = gql`
     fragment CustomerMetadatasForInvoiceOverview on Customer {
   id

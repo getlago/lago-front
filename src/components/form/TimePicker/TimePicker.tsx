@@ -4,9 +4,19 @@ import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon'
 import { DateTime, Settings } from 'luxon'
 import _omit from 'lodash/omit'
 import { TimePicker as MuiTimePicker } from '@mui/x-date-pickers/TimePicker'
+import { gql } from '@apollo/client'
 
 import { TextInput, TextInputProps } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { getTimezoneConfig } from '~/core/timezone'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+
+gql`
+  fragment OrganizationForTimePicker on Organization {
+    id
+    timezone
+  }
+`
 
 export enum TIME_PICKER_ERROR_ENUM {
   invalid = 'invalid',
@@ -37,6 +47,7 @@ export const TimePicker = ({
   onChange,
   ...props
 }: TimePickerProps) => {
+  const { organization } = useOrganizationInfos()
   const { translate } = useInternationalization()
   const [localTime, setLocalTime] = useState<DateTime | null>(
     /**
@@ -51,7 +62,8 @@ export const TimePicker = ({
     if (defaultZone) Settings.defaultZone = defaultZone
 
     return () => {
-      if (defaultZone) Settings.defaultZone = defaultZone
+      // Reset timezone to default
+      if (defaultZone) Settings.defaultZone = getTimezoneConfig(organization?.timezone).name
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
