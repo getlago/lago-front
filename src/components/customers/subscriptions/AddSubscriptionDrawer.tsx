@@ -152,9 +152,8 @@ export const AddSubscriptionDrawer = forwardRef<
           .toFormat('LLL. dd, yyyy')
         const time = `${DateTime.fromISO(formikProps.values.subscriptionAt)
           .setZone(customerTimezoneConfig.name)
-          .toFormat('T')} ${DateTime.fromISO(formikProps.values.subscriptionAt)
-          .setZone(customerTimezoneConfig.name)
-          .toFormat('a')}`
+          .setLocale('en')
+          .toFormat('t')}`
         const offset = TimeZonesConfig[customerTimezone].offset
 
         if (customerTimezoneConfig?.offsetInMinute < 0) {
@@ -168,9 +167,8 @@ export const AddSubscriptionDrawer = forwardRef<
           .toFormat('LLL. dd, yyyy')
         const time = `${DateTime.fromISO(formikProps.values.subscriptionAt)
           .setZone(orgaTimezoneConfig.name)
-          .toFormat('T')} ${DateTime.fromISO(formikProps.values.subscriptionAt)
-          .setZone(orgaTimezoneConfig.name)
-          .toFormat('a')}`
+          .setLocale('en')
+          .toFormat('t')}`
         const offset = TimeZonesConfig[organizationTimezone].offset
 
         if (orgaTimezoneConfig.offsetInMinute < 0) {
