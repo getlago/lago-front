@@ -106,6 +106,7 @@ const Members = () => {
                   onClick={() => {
                     createInviteDialogRef.current?.openDialog()
                   }}
+                  data-test="create-invite-button"
                 >
                   {translate('text_63208b630aaf8df6bbfb265b')}
                 </Button>
@@ -171,6 +172,7 @@ const Members = () => {
                 onClick={() => {
                   createInviteDialogRef.current?.openDialog()
                 }}
+                data-test="create-invite-button"
               >
                 {translate('text_63208b630aaf8df6bbfb265b')}
               </Button>

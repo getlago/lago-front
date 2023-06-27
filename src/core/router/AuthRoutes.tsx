@@ -16,6 +16,9 @@ const ResetPassword = lazyLoad(
 )
 
 const Invitation = lazyLoad(() => import(/* webpackChunkName: 'invitation' */ '~/pages/Invitation'))
+const InvitationInit = lazyLoad(
+  () => import(/* webpackChunkName: 'invitation-init' */ '~/pages/InvitationInit')
+)
 
 // ----------- Routes -----------
 export const LOGIN_ROUTE = '/login'
@@ -23,6 +26,7 @@ export const FORGOT_PASSWORD_ROUTE = '/forgot-password'
 export const RESET_PASSWORD_ROUTE = '/reset-password/:token'
 export const SIGN_UP_ROUTE = '/sign-up'
 export const INVITATION_ROUTE = '/invitation/:token'
+export const INVITATION_ROUTE_FORM = '/invitation/:token/form'
 
 export const authRoutes: CustomRouteObject[] = [
   ...(!disableSignUp
@@ -51,7 +55,11 @@ export const authRoutes: CustomRouteObject[] = [
   },
   {
     path: INVITATION_ROUTE,
+    element: <InvitationInit />,
+  },
+  {
+    path: INVITATION_ROUTE_FORM,
     element: <Invitation />,
-    onlyPublic: true,
+    invitation: true,
   },
 ]

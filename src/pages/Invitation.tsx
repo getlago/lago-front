@@ -19,6 +19,7 @@ import {
 } from '~/generated/graphql'
 import { onLogIn, hasDefinedGQLError } from '~/core/apolloClient'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
+import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 
 gql`
   query getinvite($token: String!) {
@@ -64,11 +65,13 @@ const PASSWORD_VALIDATION = [
 ]
 
 const Invitation = () => {
+  const { isAuthenticated } = useIsAuthenticated()
   const { translate } = useInternationalization()
   const { token } = useParams()
   const { data, error, loading } = useGetinviteQuery({
     context: { silentErrorCodes: [LagoApiError.InviteNotFound] },
     variables: { token: token || '' },
+    skip: !token || isAuthenticated, // We need to skip when authenticated to prevent an error flash on the form after submit
   })
   const email = data?.invite?.email
   const [acceptInvite, { error: acceptInviteError }] = useAcceptInviteMutation({

@@ -59,6 +59,7 @@ export const InviteItem = forwardRef<RevokeInviteDialogRef, InviteItemProps>(
                   translateKey: 'text_63208b630aaf8df6bbfb2679',
                 })
               }}
+              data-test="copy-invite-link"
             />
           </Tooltip>
           <Tooltip placement="bottom-end" title={translate('text_63208b630aaf8df6bbfb2667')}>

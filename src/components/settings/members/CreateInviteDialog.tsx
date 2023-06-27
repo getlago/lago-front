@@ -141,6 +141,7 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
               onClick={async () => {
                 await formikProps.submitForm()
               }}
+              data-test="submit-invite-button"
             >
               {translate('text_63208c711ce25db7814074d9')}
             </Button>
@@ -159,6 +160,7 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
                 formikProps.resetForm()
                 formikProps.validateForm()
               }}
+              data-test="copy-invite-link-button"
             >
               {translate('text_63208c701ce25db7814074a3')}
             </Button>
