@@ -34,6 +34,15 @@ beforeEach(() => {
       }
     )
   }
+
+  // Allow access to broswer's clipboard api
+  Cypress.automation('remote:debugger:protocol', {
+    command: 'Browser.grantPermissions',
+    params: {
+      permissions: ['clipboardReadWrite', 'clipboardSanitizedWrite'],
+      origin: window.location.origin,
+    },
+  })
 })
 
 // Alternatively you can use CommonJS syntax:
