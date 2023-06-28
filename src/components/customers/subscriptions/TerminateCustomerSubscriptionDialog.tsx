@@ -86,7 +86,9 @@ export const TerminateCustomerSubscriptionDialog =
       <WarningDialog
         ref={dialogRef}
         title={translate('text_62d7f6178ec94cd09370e2f3')}
-        description={translate('text_62d7f6178ec94cd09370e313', { name: subscription?.name })}
+        description={translate('text_62d7f6178ec94cd09370e313', {
+          subscriptionName: subscription?.name,
+        })}
         onContinue={async () =>
           await terminate({
             variables: { input: { id: subscription?.id as string } },

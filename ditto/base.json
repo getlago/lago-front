@@ -1596,7 +1596,7 @@
   "text_62d7f6178ec94cd09370e32d": "Subscription name (optional)",
   "text_62e38a4631937146a6d6d5dd": "Subscription name successfully edited",
   "text_62d7f6178ec94cd09370e2f3": "Terminate subscription?",
-  "text_62d7f6178ec94cd09370e313": "You’re about to terminate {{invoice_display_name}} subscription. The customer will pay usage fees and pro rata of subscription fees. Are you sure?",
+  "text_62d7f6178ec94cd09370e313": "You’re about to terminate {{subscriptionName}} subscription. The customer will pay usage fees and pro rata of subscription fees. Are you sure?",
   "text_62d7f6178ec94cd09370e351": "Terminate subscription",
   "text_62d953aa13c166a6a24cbaf4": "Subscription successfully terminated",
   "text_62d95e42c1e1dfe7376fdf35": "# subscriptions",
