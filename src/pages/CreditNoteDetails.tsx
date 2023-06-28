@@ -9,7 +9,6 @@ import {
   Button,
   Skeleton,
   Popper,
-  ButtonLink,
   Avatar,
   Icon,
   Status,
@@ -46,6 +45,7 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 
 import { CustomerDetailsTabsOptions } from './CustomerDetails'
 
@@ -165,6 +165,7 @@ const consumedMapStatus = (type?: CreditNoteRefundStatusEnum | null | undefined)
 
 const CreditNoteDetails = () => {
   const { translate } = useInternationalization()
+  const { goBack } = useLocationHistory()
   const { id: customerId, invoiceId, creditNoteId } = useParams()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const [downloadCreditNote, { loading: loadingInvoiceDownload }] = useDownloadCreditNoteMutation({
@@ -208,21 +209,23 @@ const CreditNoteDetails = () => {
     <>
       <PageHeader $withSide>
         <HeaderLeft>
-          <ButtonLink
-            to={
-              !!invoiceId
-                ? generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                    id: customerId,
-                    invoiceId,
-                    tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-                  })
-                : generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                    id: customerId,
-                    tab: CustomerDetailsTabsOptions.creditNotes,
-                  })
+          <Button
+            icon="arrow-left"
+            variant="quaternary"
+            onClick={() =>
+              goBack(
+                !!invoiceId
+                  ? generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+                      id: customerId,
+                      invoiceId,
+                      tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+                    })
+                  : generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                      id: customerId,
+                      tab: CustomerDetailsTabsOptions.creditNotes,
+                    })
+              )
             }
-            type="button"
-            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
             <Skeleton variant="text" height={12} width={120} />

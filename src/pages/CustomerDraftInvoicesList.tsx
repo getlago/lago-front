@@ -2,7 +2,7 @@ import { useParams, generatePath } from 'react-router-dom'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 
-import { Typography, Skeleton, ButtonLink, Avatar, Icon } from '~/components/designSystem'
+import { Typography, Skeleton, Avatar, Icon, Button } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CUSTOMER_DETAILS_TAB_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import {
@@ -17,6 +17,7 @@ import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
 import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { SearchInput } from '~/components/SearchInput'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 
 import { CustomerDetailsTabsOptions } from './CustomerDetails'
 
@@ -58,6 +59,7 @@ gql`
 
 const CustomerDraftInvoicesList = () => {
   const { id: customerId = '' } = useParams()
+  const { goBack } = useLocationHistory()
   const { translate } = useInternationalization()
   const [getDraftInvoices, { data, error, loading, fetchMore }] =
     useGetCustomerDraftInvoicesLazyQuery({
@@ -75,15 +77,19 @@ const CustomerDraftInvoicesList = () => {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader $withSide>
         <HeaderLeft>
-          <ButtonLink
-            to={generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-              id: customerId,
-              tab: CustomerDetailsTabsOptions.invoices,
-            })}
-            type="button"
-            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
+          <Button
+            icon="arrow-left"
+            variant="quaternary"
+            onClick={() =>
+              goBack(
+                generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                  id: customerId,
+                  tab: CustomerDetailsTabsOptions.invoices,
+                })
+              )
+            }
           />
           <Typography variant="bodyHl" color="textSecondary">
             {translate('text_638f74bb4d41e3f1d0201647')}
@@ -152,7 +158,6 @@ const CustomerDraftInvoicesList = () => {
 const HeaderLeft = styled.div`
   display: flex;
   align-items: center;
-  width: 100%;
 
   > *:first-child {
     margin-right: ${theme.spacing(3)};
