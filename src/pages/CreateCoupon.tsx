@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFormik } from 'formik'
 import { object, string, number, date } from 'yup'
@@ -86,16 +86,17 @@ const CreateCoupon = () => {
       amountCents: coupon?.amountCents
         ? String(deserializeAmount(coupon?.amountCents, coupon?.amountCurrency || CurrencyEnum.Usd))
         : coupon?.amountCents || undefined,
-      couponType: coupon?.couponType || CouponTypeEnum.FixedAmount,
-      percentageRate: coupon?.percentageRate || undefined,
-      name: coupon?.name || '',
-      frequency: coupon?.frequency || CouponFrequency.Once,
-      frequencyDuration: coupon?.frequencyDuration || undefined,
       amountCurrency: coupon?.amountCurrency || CurrencyEnum.Usd,
       code: coupon?.code || '',
-      reusable: coupon?.reusable === undefined ? true : coupon.reusable,
+      couponType: coupon?.couponType || CouponTypeEnum.FixedAmount,
+      description: coupon?.description || '',
       expiration: coupon?.expiration || CouponExpiration.NoExpiration,
       expirationAt: coupon?.expirationAt || undefined,
+      frequency: coupon?.frequency || CouponFrequency.Once,
+      frequencyDuration: coupon?.frequencyDuration || undefined,
+      name: coupon?.name || '',
+      percentageRate: coupon?.percentageRate || undefined,
+      reusable: coupon?.reusable === undefined ? true : coupon.reusable,
     },
     validationSchema: object().shape({
       amountCents: number().when('couponType', {
@@ -149,6 +150,9 @@ const CreateCoupon = () => {
     validateOnMount: true,
     onSubmit: onSave,
   })
+  const [shouldDisplayDescription, setShouldDisplayDescription] = useState<boolean>(
+    !!formikProps.initialValues.description
+  )
 
   const attachPlanToCoupon = (plan: PlansForCouponsFragment) => {
     if (limitPlansList.length === 0) {
@@ -166,6 +170,10 @@ const CreateCoupon = () => {
       billableMetric,
     ])
   }
+
+  useEffect(() => {
+    setShouldDisplayDescription(!!formikProps.initialValues.description)
+  }, [formikProps.initialValues.description])
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
@@ -286,6 +294,41 @@ const CreateCoupon = () => {
                     formikProps={formikProps}
                     helperText={translate('text_62876e85e32e0300e1803131')}
                   />
+
+                  {shouldDisplayDescription ? (
+                    <InlineDescription>
+                      <TextArea
+                        multiline
+                        name="description"
+                        label={translate('text_649e848fa4c023006e94ca32')}
+                        placeholder={translate('text_649e85d35208d700473f79c9')}
+                        rows="3"
+                        formikProps={formikProps}
+                      />
+                      <CloseDescriptionTooltip
+                        placement="top-end"
+                        title={translate('text_63aa085d28b8510cd46443ff')}
+                      >
+                        <Button
+                          icon="trash"
+                          variant="quaternary"
+                          onClick={() => {
+                            formikProps.setFieldValue('description', '')
+                            setShouldDisplayDescription(false)
+                          }}
+                        />
+                      </CloseDescriptionTooltip>
+                    </InlineDescription>
+                  ) : (
+                    <Button
+                      startIcon="plus"
+                      variant="quaternary"
+                      onClick={() => setShouldDisplayDescription(true)}
+                      data-test="show-description"
+                    >
+                      {translate('text_642d5eb2783a2ad10d670324')}
+                    </Button>
+                  )}
                 </Card>
                 <Card>
                   <Typography variant="subhead">
@@ -655,6 +698,26 @@ const Settings = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(3)};
   }
+`
+
+const InlineDescription = styled.div`
+  display: flex;
+  align-items: center;
+`
+
+const TextArea = styled(TextInputField)`
+  flex: 1;
+  margin-right: ${theme.spacing(3)};
+
+  textarea {
+    min-height: 38px;
+    resize: vertical;
+    white-space: pre-wrap;
+  }
+`
+
+const CloseDescriptionTooltip = styled(Tooltip)`
+  margin-top: ${theme.spacing(6)};
 `
 
 const LimitationCard = styled(Card)`

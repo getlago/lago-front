@@ -29,19 +29,20 @@ gql`
   fragment EditCoupon on Coupon {
     id
     amountCents
-    name
     amountCurrency
+    appliedCouponsCount
     code
-    reusable
+    couponType
+    description
     expiration
     expirationAt
-    couponType
-    percentageRate
     frequency
     frequencyDuration
-    appliedCouponsCount
-    limitedPlans
     limitedBillableMetrics
+    limitedPlans
+    name
+    percentageRate
+    reusable
     plans {
       ...PlansForCoupons
     }

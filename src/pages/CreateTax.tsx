@@ -283,6 +283,7 @@ const TextArea = styled(TextInputField)`
   textarea {
     min-height: 38px;
     resize: vertical;
+    white-space: pre-wrap;
   }
 `
 
