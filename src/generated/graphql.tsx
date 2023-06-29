@@ -732,6 +732,7 @@ export type Coupon = {
   createdAt: Scalars['ISO8601DateTime']['output'];
   /** Number of customers using this coupon */
   customerCount: Scalars['Int']['output'];
+  description?: Maybe<Scalars['String']['output']>;
   expiration: CouponExpiration;
   expirationAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   frequency: CouponFrequency;
@@ -831,6 +832,7 @@ export type CreateCouponInput = {
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code?: InputMaybe<Scalars['String']['input']>;
   couponType: CouponTypeEnum;
+  description?: InputMaybe<Scalars['String']['input']>;
   expiration: CouponExpiration;
   expirationAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   frequency: CouponFrequency;
@@ -3263,6 +3265,7 @@ export type UpdateCouponInput = {
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code?: InputMaybe<Scalars['String']['input']>;
   couponType: CouponTypeEnum;
+  description?: InputMaybe<Scalars['String']['input']>;
   expiration: CouponExpiration;
   expirationAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   frequency: CouponFrequency;
@@ -4232,14 +4235,14 @@ export type UpdateBillableMetricMutationVariables = Exact<{
 
 export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number } | null };
 
-export type EditCouponFragment = { __typename?: 'Coupon', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number, limitedPlans: boolean, limitedBillableMetrics: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null };
+export type EditCouponFragment = { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, appliedCouponsCount: number, code?: string | null, couponType: CouponTypeEnum, description?: string | null, expiration: CouponExpiration, expirationAt?: any | null, frequency: CouponFrequency, frequencyDuration?: number | null, limitedBillableMetrics: boolean, limitedPlans: boolean, name: string, percentageRate?: number | null, reusable: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null };
 
 export type GetSingleCouponQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSingleCouponQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, amountCents?: any | null, name: string, amountCurrency?: CurrencyEnum | null, code?: string | null, reusable: boolean, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number, limitedPlans: boolean, limitedBillableMetrics: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null };
+export type GetSingleCouponQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, appliedCouponsCount: number, code?: string | null, couponType: CouponTypeEnum, description?: string | null, expiration: CouponExpiration, expirationAt?: any | null, frequency: CouponFrequency, frequencyDuration?: number | null, limitedBillableMetrics: boolean, limitedPlans: boolean, name: string, percentageRate?: number | null, reusable: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null };
 
 export type CreateCouponMutationVariables = Exact<{
   input: CreateCouponInput;
@@ -5325,19 +5328,20 @@ export const EditCouponFragmentDoc = gql`
     fragment EditCoupon on Coupon {
   id
   amountCents
-  name
   amountCurrency
+  appliedCouponsCount
   code
-  reusable
+  couponType
+  description
   expiration
   expirationAt
-  couponType
-  percentageRate
   frequency
   frequencyDuration
-  appliedCouponsCount
-  limitedPlans
   limitedBillableMetrics
+  limitedPlans
+  name
+  percentageRate
+  reusable
   plans {
     ...PlansForCoupons
   }
