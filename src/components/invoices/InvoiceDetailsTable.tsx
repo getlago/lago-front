@@ -260,6 +260,43 @@ export const InvoiceDetailsTable = memo(
                     }
                   />
                 </table>
+
+                {/* If no positive fees are present in the invoice, display subscription fee placeholder */}
+                {!hasAnyPositiveSubscriptionFee && !hasAnyPositiveRemainingFee && (
+                  <table key={`invoiceSubscription-${i}-fee-placeholder`}>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <Typography variant="body" color="grey700">
+                            {`${currentSubscription?.plan?.interval
+                              ?.charAt(0)
+                              ?.toUpperCase()}${currentSubscription?.plan?.interval?.slice(1)} - ${
+                              currentSubscription.plan.name
+                            }`}
+                          </Typography>
+                        </td>
+                        <td>
+                          <Typography variant="body" color="grey700">
+                            1
+                          </Typography>
+                        </td>
+                        <td>
+                          <Typography variant="body" color="grey700">
+                            0%
+                          </Typography>
+                        </td>
+                        <td>
+                          <Typography variant="body" color="grey700">
+                            {intlFormatNumber(0, {
+                              currencyDisplay: 'symbol',
+                              currency: currentSubscription?.plan?.amountCurrency,
+                            })}
+                          </Typography>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                )}
                 {subscriptionFees?.map((fee, j) => {
                   const plan = currentSubscription?.plan
                   const planInterval = `${plan?.interval
