@@ -62,7 +62,7 @@
     "auto-changelog": "2.4.0",
     "babel-loader": "9.1.2",
     "babel-plugin-prismjs": "2.1.0",
-    "babel-plugin-styled-components": "2.0.7",
+    "babel-plugin-styled-components": "2.1.4",
     "css-loader": "6.7.3",
     "cypress": "12.13.0",
     "dotenv": "16.0.3",
