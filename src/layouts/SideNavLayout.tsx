@@ -12,7 +12,6 @@ import { AppEnvEnum } from '~/globalTypes'
 import {
   Avatar,
   Button,
-  ButtonLink,
   Icon,
   IconName,
   Popper,
@@ -314,16 +313,6 @@ const SideNav = () => {
       </ClickAwayListener>
       <Content ref={contentRef}>
         <Outlet />
-        <Gift
-          type="button"
-          buttonProps={{ variant: 'quaternary', size: 'medium' }}
-          to="https://www.incredibox.com/demo/"
-          external
-        >
-          <span role="img" aria-label="gift">
-            🎁
-          </span>
-        </Gift>
       </Content>
     </Container>
   )
@@ -495,25 +484,6 @@ const ExternalLink = styled.a`
 
   &:visited {
     color: ${theme.palette.primary[600]};
-  }
-`
-
-const Gift = styled(ButtonLink)`
-  position: absolute;
-  bottom: ${theme.spacing(3)};
-  right: ${theme.spacing(3)};
-  opacity: 0.03;
-  transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-
-  > * {
-    min-width: 30px;
-    height: 30px;
-    width: 30px;
-    padding: 0;
-  }
-
-  &:hover {
-    opacity: 1;
   }
 `
 
