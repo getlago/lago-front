@@ -115,7 +115,7 @@
     "react-dom": "18.2.0",
     "react-router-dom": "6.11.1",
     "react-window": "1.8.8",
-    "sanitize-html": "2.10.0",
+    "sanitize-html": "2.11.0",
     "styled-components": "5.3.11",
     "yarn": "1.22.19",
     "yup": "1.2.0"
