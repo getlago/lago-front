@@ -32,6 +32,7 @@ import {
 import { addToast } from '~/core/apolloClient'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { CountryCodes } from '~/core/countryCodes'
+import { MUI_INPUT_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 
 const ADD_ITEM_INPUT_NAME = 'addItemInput'
 
@@ -581,7 +582,7 @@ const CreateInvoice = () => {
                       {showAddItem ? (
                         <InlineAddonInput>
                           <ComboBox
-                            name={ADD_ITEM_INPUT_NAME}
+                            className={ADD_ITEM_INPUT_NAME}
                             data={addOns}
                             loading={loading}
                             searchQuery={getAddOns}
@@ -626,7 +627,11 @@ const CreateInvoice = () => {
                           onClick={() => {
                             setShowAddItem(true)
                             setTimeout(() => {
-                              document.getElementsByName(ADD_ITEM_INPUT_NAME)[0].focus()
+                              ;(
+                                document.querySelector(
+                                  `.${ADD_ITEM_INPUT_NAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                                ) as HTMLElement
+                              ).click()
                             }, 0)
                           }}
                         >
