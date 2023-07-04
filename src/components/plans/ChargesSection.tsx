@@ -14,6 +14,7 @@ import {
   useGetBillableMetricsLazyQuery,
 } from '~/generated/graphql'
 import { Item } from '~/components/form/ComboBox/ComboBoxItem'
+import { MUI_INPUT_BASE_ROOT_CLASSNAME, SEARCH_CHARGE_INPUT_NAME } from '~/core/constants/form'
 
 import { PlanFormInput } from './types'
 import { ChargeAccordion } from './ChargeAccordion'
@@ -60,8 +61,6 @@ interface ChargesSectionProps {
 }
 
 const getNewChargeId = (id: string, index: number) => `plan-charge-${id}-${index}`
-
-const SEARCH_CHARGE_INPUT_NAME = 'searchChargeInput'
 
 export const ChargesSection = memo(
   ({
@@ -149,12 +148,14 @@ export const ChargesSection = memo(
                 if (!showAddCharge) setShowAddCharge(true)
 
                 setTimeout(() => {
-                  const element = document.getElementsByName(SEARCH_CHARGE_INPUT_NAME)[0]
+                  const element = document.querySelector(
+                    `.${SEARCH_CHARGE_INPUT_NAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                  ) as HTMLElement
 
                   if (!element) return
 
                   element.scrollIntoView({ behavior: 'smooth' })
-                  element.focus()
+                  element.click()
                 }, 0)
               }}
             >
@@ -202,7 +203,7 @@ export const ChargesSection = memo(
           {!!showAddCharge && (
             <AddChargeInlineWrapper>
               <ComboBox
-                name={SEARCH_CHARGE_INPUT_NAME}
+                className={SEARCH_CHARGE_INPUT_NAME}
                 data={billableMetrics}
                 searchQuery={getBillableMetrics}
                 loading={billableMetricsLoading}
@@ -260,7 +261,11 @@ export const ChargesSection = memo(
               onClick={() => {
                 setShowAddCharge(true)
                 setTimeout(() => {
-                  document.getElementsByName(SEARCH_CHARGE_INPUT_NAME)[0].focus()
+                  ;(
+                    document.querySelector(
+                      `.${SEARCH_CHARGE_INPUT_NAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                    ) as HTMLElement
+                  ).click()
                 }, 0)
               }}
             >
