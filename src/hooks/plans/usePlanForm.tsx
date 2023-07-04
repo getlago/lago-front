@@ -22,7 +22,7 @@ import {
 } from '~/core/apolloClient'
 import { ERROR_404_ROUTE, PLANS_ROUTE, CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { serializePlanInput } from '~/core/serializers'
-import { FORM_ERRORS_ENUM } from '~/core/formErrors'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 
 gql`
   query getSinglePlan($id: ID!) {

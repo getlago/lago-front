@@ -12,7 +12,7 @@ import {
 import { ERROR_404_ROUTE, TAXES_SETTINGS_ROUTE } from '~/core/router'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { TaxFormInput } from '~/components/taxes/types'
-import { FORM_ERRORS_ENUM } from '~/core/formErrors'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 
 gql`
   fragment TaxForm on Tax {

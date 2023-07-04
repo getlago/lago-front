@@ -56,7 +56,7 @@ import {
   AddBillableMetricToCouponDialog,
   AddBillableMetricToCouponDialogRef,
 } from '~/components/coupons/AddBillableMetricToCouponDialog'
-import { FORM_ERRORS_ENUM } from '~/core/formErrors'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 
 import { CouponCodeSnippet } from '../components/coupons/CouponCodeSnippet'
 

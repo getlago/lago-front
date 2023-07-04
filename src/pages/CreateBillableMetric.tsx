@@ -24,7 +24,7 @@ import {
   SkeletonHeader,
   ButtonContainer,
 } from '~/styles/mainObjectsForm'
-import { FORM_ERRORS_ENUM } from '~/core/formErrors'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 
 gql`
   fragment EditBillableMetric on BillableMetric {
