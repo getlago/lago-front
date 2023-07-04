@@ -204,11 +204,12 @@ export const ChargeAccordion = memo(
 
     const isProratedOptionDisabled = useMemo(() => {
       return (
-        localCharge.chargeModel === ChargeModelEnum.Volume ||
+        (localCharge.billableMetric.recurring &&
+          localCharge.chargeModel === ChargeModelEnum.Graduated) ||
         localCharge.chargeModel === ChargeModelEnum.Package ||
         localCharge.chargeModel === ChargeModelEnum.Percentage
       )
-    }, [localCharge.chargeModel])
+    }, [localCharge.billableMetric.recurring, localCharge.chargeModel])
 
     const proratedOptionHelperText = useMemo(() => {
       if (isProratedOptionDisabled)
@@ -300,12 +301,12 @@ export const ChargeAccordion = memo(
                   label: translate('text_624aa732d6af4e0103d40e6f'),
                   value: ChargeModelEnum.Standard,
                 },
+                {
+                  label: translate('text_62793bbb599f1c01522e919f'),
+                  value: ChargeModelEnum.Graduated,
+                },
                 ...(!localCharge.billableMetric.recurring
                   ? [
-                      {
-                        label: translate('text_62793bbb599f1c01522e919f'),
-                        value: ChargeModelEnum.Graduated,
-                      },
                       {
                         label: translate('text_62a0b7107afa2700a65ef6e2'),
                         value: ChargeModelEnum.Percentage,
@@ -435,13 +436,7 @@ export const ChargeAccordion = memo(
               <Switch
                 name={`charge-${localCharge.id}-prorated`}
                 label={translate('text_649c54823c90890062476255')}
-                disabled={
-                  disabled ||
-                  (localCharge.billableMetric.recurring &&
-                    localCharge.chargeModel === ChargeModelEnum.Graduated) ||
-                  localCharge.chargeModel === ChargeModelEnum.Package ||
-                  localCharge.chargeModel === ChargeModelEnum.Percentage
-                }
+                disabled={disabled || isProratedOptionDisabled}
                 subLabel={proratedOptionHelperText}
                 checked={!!localCharge.prorated}
                 onChange={(value) => handleUpdate('prorated', Boolean(value))}

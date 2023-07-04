@@ -15,6 +15,11 @@ import {
   useGetRecurringBillableMetricsLazyQuery,
 } from '~/generated/graphql'
 import { Item } from '~/components/form/ComboBox/ComboBoxItem'
+import {
+  MUI_INPUT_BASE_ROOT_CLASSNAME,
+  SEARCH_METERED_CHARGE_INPUT_CLASSNAME,
+  SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME,
+} from '~/core/constants/form'
 
 import { LocalChargeInput, PlanFormInput } from './types'
 import { ChargeAccordion } from './ChargeAccordion'
@@ -75,9 +80,6 @@ interface ChargesSectionProps {
 }
 
 const getNewChargeId = (id: string, index: number) => `plan-charge-${id}-${index}`
-
-const SEARCH_METERED_CHARGE_INPUT_NAME = 'searchMeteredChargeInput'
-const SEARCH_RECURRING_CHARGE_INPUT_NAME = 'searchRecurringChargeInput'
 
 export const ChargesSection = memo(
   ({
@@ -208,14 +210,14 @@ export const ChargesSection = memo(
                       if (!showAddMeteredCharge) setShowAddMeteredCharge(true)
 
                       setTimeout(() => {
-                        const element = document.getElementsByName(
-                          SEARCH_METERED_CHARGE_INPUT_NAME
-                        )[0]
+                        const element = document.querySelector(
+                          `.${SEARCH_METERED_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                        ) as HTMLElement
 
                         if (!element) return
 
                         element.scrollIntoView({ behavior: 'smooth' })
-                        element.focus()
+                        element.click()
 
                         closePopper()
                       }, 0)
@@ -230,14 +232,14 @@ export const ChargesSection = memo(
                       if (!showAddRecurringCharge) setShowAddRecurringCharge(true)
 
                       setTimeout(() => {
-                        const element = document.getElementsByName(
-                          SEARCH_RECURRING_CHARGE_INPUT_NAME
-                        )[0]
+                        const element = document.querySelector(
+                          `.${SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                        ) as HTMLElement
 
                         if (!element) return
 
                         element.scrollIntoView({ behavior: 'smooth' })
-                        element.focus()
+                        element.click()
 
                         closePopper()
                       }, 0)
@@ -305,7 +307,7 @@ export const ChargesSection = memo(
           {!!showAddMeteredCharge && (
             <AddChargeInlineWrapper>
               <ComboBox
-                name={SEARCH_METERED_CHARGE_INPUT_NAME}
+                className={SEARCH_METERED_CHARGE_INPUT_CLASSNAME}
                 data={meteredBillableMetrics}
                 searchQuery={getMeteredBillableMetrics}
                 loading={meteredBillableMetricsLoading}
@@ -369,7 +371,11 @@ export const ChargesSection = memo(
                   onClick={() => {
                     setShowAddMeteredCharge(true)
                     setTimeout(() => {
-                      document.getElementsByName(SEARCH_METERED_CHARGE_INPUT_NAME)[0].focus()
+                      ;(
+                        document.querySelector(
+                          `.${SEARCH_METERED_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                        ) as HTMLElement
+                      )?.click()
                     }, 0)
                   }}
                 >
@@ -384,7 +390,11 @@ export const ChargesSection = memo(
                   onClick={() => {
                     setShowAddRecurringCharge(true)
                     setTimeout(() => {
-                      document.getElementsByName(SEARCH_RECURRING_CHARGE_INPUT_NAME)[0].focus()
+                      ;(
+                        document.querySelector(
+                          `.${SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                        ) as HTMLElement
+                      )?.click()
                     }, 0)
                   }}
                 >
@@ -441,7 +451,7 @@ export const ChargesSection = memo(
           {!!showAddRecurringCharge && (
             <AddChargeInlineWrapper>
               <ComboBox
-                name={SEARCH_RECURRING_CHARGE_INPUT_NAME}
+                className={SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME}
                 data={recurringBillableMetrics}
                 searchQuery={getRecurringBillableMetrics}
                 loading={recurringBillableMetricsLoading}
@@ -502,7 +512,11 @@ export const ChargesSection = memo(
                   onClick={() => {
                     setShowAddMeteredCharge(true)
                     setTimeout(() => {
-                      document.getElementsByName(SEARCH_METERED_CHARGE_INPUT_NAME)[0].focus()
+                      ;(
+                        document.querySelector(
+                          `.${SEARCH_METERED_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                        ) as HTMLElement
+                      )?.click()
                     }, 0)
                   }}
                 >
@@ -517,7 +531,11 @@ export const ChargesSection = memo(
                   onClick={() => {
                     setShowAddRecurringCharge(true)
                     setTimeout(() => {
-                      document.getElementsByName(SEARCH_RECURRING_CHARGE_INPUT_NAME)[0].focus()
+                      ;(
+                        document.querySelector(
+                          `.${SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                        ) as HTMLElement
+                      )?.click()
                     }, 0)
                   }}
                 >
