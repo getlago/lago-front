@@ -32,7 +32,7 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
 import { ChargesSection } from '~/components/plans/ChargesSection'
-import { FORM_ERRORS_ENUM } from '~/core/formErrors'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 
 import { PlanFormInput, LocalChargeInput } from '../components/plans/types'
 

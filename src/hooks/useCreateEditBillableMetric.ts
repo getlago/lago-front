@@ -16,7 +16,7 @@ import {
 } from '~/generated/graphql'
 import { ERROR_404_ROUTE, BILLABLE_METRICS_ROUTE } from '~/core/router'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { FORM_ERRORS_ENUM } from '~/core/formErrors'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 
 gql`
   query getSingleBillableMetric($id: ID!) {

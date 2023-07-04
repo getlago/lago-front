@@ -23,7 +23,7 @@ import {
 import { ERROR_404_ROUTE, COUPONS_ROUTE } from '~/core/router'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
-import { FORM_ERRORS_ENUM } from '~/core/formErrors'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 
 gql`
   fragment EditCoupon on Coupon {

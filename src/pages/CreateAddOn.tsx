@@ -25,7 +25,7 @@ import {
   LineAmount,
 } from '~/styles/mainObjectsForm'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { FORM_ERRORS_ENUM } from '~/core/formErrors'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 
 import { AddOnCodeSnippet } from '../components/addOns/AddOnCodeSnippet'
 

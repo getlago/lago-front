@@ -10,7 +10,7 @@ import { theme, Card } from '~/styles'
 import { PLAN_FORM_TYPE_ENUM } from '~/hooks/plans/usePlanForm'
 import { LineSplit } from '~/styles/mainObjectsForm'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
-import { FORM_ERRORS_ENUM } from '~/core/formErrors'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 
 import { PlanFormInput } from './types'
 

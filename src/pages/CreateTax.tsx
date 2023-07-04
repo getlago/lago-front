@@ -23,7 +23,7 @@ import { useCreateEditTax } from '~/hooks/useCreateEditTax'
 import { TaxCodeSnippet } from '~/components/taxes/TaxCodeSnippet'
 import { TextInputField } from '~/components/form'
 import { TaxFormInput } from '~/components/taxes/types'
-import { FORM_ERRORS_ENUM } from '~/core/formErrors'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 
 const CreateTaxRate = () => {
   const { isEdition, errorCode, loading, onClose, onSave, tax } = useCreateEditTax()
