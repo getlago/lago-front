@@ -6,7 +6,7 @@ This library will allow you to build an entire billing logic from scratch, even 
 
 ## Documentation
 
-The official Lago documentation is available here : https://doc.getlago.com
+The official Lago documentation is available here : https://docs.getlago.com
 
 ## Contributing
 
