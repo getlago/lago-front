@@ -1634,7 +1634,7 @@
   "text_62728ff857d47b013204cab3": "Add a tax rate",
   "text_627387d5053a1000c5287cab": "Cancel",
   "text_6227a2e847fcd700e9038952": "API key copied to clipboard",
-  "text_62ce85fb3fb6842020331d83": "Find all <a rel=\"external\" target=\"_blank\" href=\"https://docs.getlago.com/api-reference/webhooks/format---signature\">the events</a> this webhook is listening",
+  "text_62ce85fb3fb6842020331d83": "Find all <a rel=\"external\" target=\"_blank\" href=\"https://docs.getlago.com/api-reference/webhooks/messages\">the events</a> this webhook is listening",
   "text_62ab2d0396dd6b0361614d10": "Edit organization information",
   "text_62ab2d0396dd6b0361614d18": "Choose file",
   "text_62ab2d0396dd6b0361614d20": "JPG or PNG. Max size of 800K",
