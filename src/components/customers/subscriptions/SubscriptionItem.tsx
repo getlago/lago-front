@@ -35,6 +35,9 @@ gql`
     nextPlan {
       ...SubscriptionLinePlan
     }
+    nextSubscription {
+      id
+    }
   }
 
   ${SubscriptionLinePlanFragmentDoc}
@@ -77,7 +80,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
         {isDowngrading && !!nextPlan && (
           <SubscriptionLine
             ref={ref}
-            subscriptionId={id}
+            subscriptionId={subscription.nextSubscription?.id as string}
             subscriptionExternalId={externalId}
             subscriptionName={nextName}
             date={nextPendingStartDate}

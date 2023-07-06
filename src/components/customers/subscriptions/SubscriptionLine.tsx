@@ -95,107 +95,112 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
         <CellSmall align="right" color="textSecondary">
           <TimezoneDate date={date} customerTimezone={customerTimezone} />
         </CellSmall>
-        {isDowngrade ? (
-          <Button disabled icon="dots-horizontal" variant="quaternary" />
-        ) : (
-          <Popper
-            PopperProps={{ placement: 'bottom-end' }}
-            opener={({ isOpen }) => (
-              <div>
-                <Tooltip
-                  placement="top-end"
-                  disableHoverListener={isOpen}
-                  title={translate('text_62d7f6178ec94cd09370e6cf')}
-                >
+        <Popper
+          PopperProps={{ placement: 'bottom-end' }}
+          opener={({ isOpen }) => (
+            <div>
+              <Tooltip
+                placement="top-end"
+                disableHoverListener={isOpen}
+                title={translate(
+                  isDowngrade
+                    ? 'text_64a803f70b9bde00529d2aa5'
+                    : status === StatusTypeEnum.Pending
+                    ? 'text_64a80400248fe50080d66358'
+                    : 'text_62d7f6178ec94cd09370e6cf'
+                )}
+              >
+                <Button data-test="menu-subscription" icon="dots-horizontal" variant="quaternary" />
+              </Tooltip>
+            </div>
+          )}
+        >
+          {({ closePopper }) => (
+            <MenuPopper>
+              {!isDowngrade && (
+                <>
                   <Button
-                    data-test="menu-subscription"
-                    icon="dots-horizontal"
+                    startIcon="text"
                     variant="quaternary"
-                  />
-                </Tooltip>
-              </div>
-            )}
-          >
-            {({ closePopper }) => (
-              <MenuPopper>
-                <Button
-                  startIcon="text"
-                  variant="quaternary"
-                  data-test="edit-subscription"
-                  align="left"
-                  onClick={() => {
-                    ;(
-                      editSubscriptionDrawerRef as MutableRefObject<EditCustomerSubscriptionDrawerRef>
-                    )?.current?.openDrawer({
-                      id: subscriptionId,
-                      externalId: subscriptionExternalId,
-                      name: subscriptionName,
-                      startDate: date,
-                      status: status as StatusTypeEnum,
-                    })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_62d7f6178ec94cd09370e63c')}
-                </Button>
+                    data-test="edit-subscription"
+                    align="left"
+                    onClick={() => {
+                      ;(
+                        editSubscriptionDrawerRef as MutableRefObject<EditCustomerSubscriptionDrawerRef>
+                      )?.current?.openDrawer({
+                        id: subscriptionId,
+                        externalId: subscriptionExternalId,
+                        name: subscriptionName,
+                        startDate: date,
+                        status: status as StatusTypeEnum,
+                      })
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_62d7f6178ec94cd09370e63c')}
+                  </Button>
 
-                <Button
-                  startIcon="pen"
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    ;(
-                      addSubscriptionDialogRef as MutableRefObject<AddSubscriptionDrawerRef>
-                    )?.current?.openDialog({
-                      subscriptionId,
-                      subscriptionExternalId,
-                      existingPlanId: plan.id,
-                      periodEndDate: periodEndDate,
-                      startDate: date,
-                      status: status as StatusTypeEnum,
-                    })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_62d7f6178ec94cd09370e64a')}
-                </Button>
-                <Button
-                  startIcon="duplicate"
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    copyToClipboard(subscriptionExternalId)
+                  <Button
+                    startIcon="pen"
+                    variant="quaternary"
+                    align="left"
+                    onClick={() => {
+                      ;(
+                        addSubscriptionDialogRef as MutableRefObject<AddSubscriptionDrawerRef>
+                      )?.current?.openDialog({
+                        subscriptionId,
+                        subscriptionExternalId,
+                        existingPlanId: plan.id,
+                        periodEndDate: periodEndDate,
+                        startDate: date,
+                        status: status as StatusTypeEnum,
+                      })
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_62d7f6178ec94cd09370e64a')}
+                  </Button>
+                </>
+              )}
+              <Button
+                startIcon="duplicate"
+                variant="quaternary"
+                align="left"
+                onClick={() => {
+                  copyToClipboard(subscriptionExternalId)
 
-                    addToast({
-                      severity: 'info',
-                      translateKey: 'text_62d94cc9ccc5eebcc03160a0',
-                    })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_62d7f6178ec94cd09370e65b')}
-                </Button>
-                <Button
-                  startIcon="trash"
-                  variant="quaternary"
-                  align="left"
-                  data-test="terminate-subscription"
-                  onClick={() => {
-                    ;(
-                      terminateSubscriptionDialogRef as MutableRefObject<TerminateCustomerSubscriptionDialogRef>
-                    )?.current?.openDialog({
-                      id: subscriptionId,
-                      name: subscriptionName || plan.name,
-                    })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_62d904b97e690a881f2b867c')}
-                </Button>
-              </MenuPopper>
-            )}
-          </Popper>
-        )}
+                  addToast({
+                    severity: 'info',
+                    translateKey: 'text_62d94cc9ccc5eebcc03160a0',
+                  })
+                  closePopper()
+                }}
+              >
+                {translate('text_62d7f6178ec94cd09370e65b')}
+              </Button>
+              <Button
+                startIcon="trash"
+                variant="quaternary"
+                align="left"
+                data-test="terminate-subscription"
+                onClick={() => {
+                  ;(
+                    terminateSubscriptionDialogRef as MutableRefObject<TerminateCustomerSubscriptionDialogRef>
+                  )?.current?.openDialog({
+                    id: subscriptionId,
+                    name: subscriptionName || plan.name,
+                    status: status as StatusTypeEnum,
+                  })
+                  closePopper()
+                }}
+              >
+                {status === StatusTypeEnum.Pending
+                  ? translate('text_64a6d736c23125004817627f')
+                  : translate('text_62d904b97e690a881f2b867c')}
+              </Button>
+            </MenuPopper>
+          )}
+        </Popper>
       </Item>
     )
   }

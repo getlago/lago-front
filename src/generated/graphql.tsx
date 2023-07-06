@@ -2925,6 +2925,7 @@ export type Subscription = {
   nextName?: Maybe<Scalars['String']['output']>;
   nextPendingStartDate?: Maybe<Scalars['ISO8601Date']['output']>;
   nextPlan?: Maybe<Plan>;
+  nextSubscription?: Maybe<Subscription>;
   periodEndDate?: Maybe<Scalars['ISO8601Date']['output']>;
   plan: Plan;
   startedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -3843,7 +3844,7 @@ export type GetCustomerSubscriptionForListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null }> } | null };
+export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null, nextSubscription?: { __typename?: 'Subscription', id: string } | null }> } | null };
 
 export type UpdateCustomerSubscriptionMutationVariables = Exact<{
   input: UpdateSubscriptionInput;
@@ -3852,7 +3853,7 @@ export type UpdateCustomerSubscriptionMutationVariables = Exact<{
 
 export type UpdateCustomerSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, startedAt?: any | null, subscriptionAt?: any | null } | null };
 
-export type SubscriptionItemFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null };
+export type SubscriptionItemFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null, nextSubscription?: { __typename?: 'Subscription', id: string } | null };
 
 export type SubscriptionLinePlanFragment = { __typename?: 'Plan', id: string, name: string, code: string };
 
@@ -5068,6 +5069,9 @@ export const SubscriptionItemFragmentDoc = gql`
   }
   nextPlan {
     ...SubscriptionLinePlan
+  }
+  nextSubscription {
+    id
   }
 }
     ${SubscriptionLinePlanFragmentDoc}`;

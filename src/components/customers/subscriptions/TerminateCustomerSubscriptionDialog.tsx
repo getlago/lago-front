@@ -7,6 +7,7 @@ import { addToast } from '~/core/apolloClient'
 import {
   CustomerDetailsFragment,
   CustomerDetailsFragmentDoc,
+  StatusTypeEnum,
   useTerminateCustomerSubscriptionMutation,
 } from '~/generated/graphql'
 import { WarningDialog } from '~/components/WarningDialog'
@@ -24,7 +25,11 @@ gql`
 `
 
 export interface TerminateCustomerSubscriptionDialogRef {
-  openDialog: (subscriptionInfos: { id: string; name?: string | null }) => unknown
+  openDialog: (subscriptionInfos: {
+    id: string
+    name?: string | null
+    status: StatusTypeEnum
+  }) => unknown
   closeDialog: () => unknown
 }
 
@@ -70,7 +75,7 @@ export const TerminateCustomerSubscriptionDialog =
       },
     })
     const [subscription, setSubscription] = useState<
-      { id: string; name?: string | null } | undefined
+      { id: string; name?: string | null; status: string } | undefined
     >(undefined)
     const { translate } = useInternationalization()
 
@@ -85,17 +90,30 @@ export const TerminateCustomerSubscriptionDialog =
     return (
       <WarningDialog
         ref={dialogRef}
-        title={translate('text_62d7f6178ec94cd09370e2f3')}
-        description={translate('text_62d7f6178ec94cd09370e313', {
-          subscriptionName: subscription?.name,
-        })}
+        title={
+          subscription?.status === StatusTypeEnum.Pending
+            ? translate('text_64a6d8cb9ed7d9007e7121ca')
+            : translate('text_62d7f6178ec94cd09370e2f3')
+        }
+        description={translate(
+          subscription?.status === StatusTypeEnum.Pending
+            ? 'text_64a6d96f84411700a90dbf51'
+            : 'text_62d7f6178ec94cd09370e313',
+          {
+            subscriptionName: subscription?.name,
+          }
+        )}
         onContinue={async () =>
           await terminate({
             variables: { input: { id: subscription?.id as string } },
             refetchQueries: ['getCustomerSubscriptionForList'],
           })
         }
-        continueText={translate('text_62d7f6178ec94cd09370e351')}
+        continueText={
+          status === StatusTypeEnum.Pending
+            ? translate('text_64a6d736c23125004817627f')
+            : translate('text_62d7f6178ec94cd09370e351')
+        }
       />
     )
   })
