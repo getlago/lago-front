@@ -49,6 +49,7 @@ import {
   WEBHOOK_LOGS_ROUTE,
   WEBHOOK_LOGS_TAB_ROUTE,
   WEBHOOK_ROUTE,
+  TAXES_SETTINGS_ROUTE,
 } from '~/core/router'
 import { useSideNavInfosQuery } from '~/generated/graphql'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -296,12 +297,13 @@ const SideNav = () => {
                     link: SETTINGS_ROUTE,
                     canBeClickedOnActive: true,
                     match: [
+                      EMAILS_SCENARIO_CONFIG_ROUTE,
+                      EMAILS_SETTINGS_ROUTE,
+                      INTEGRATIONS_ROUTE,
                       INVOICE_SETTINGS_ROUTE,
                       MEMBERS_ROUTE,
-                      INTEGRATIONS_ROUTE,
                       ORGANIZATION_INFORMATIONS_ROUTE,
-                      EMAILS_SETTINGS_ROUTE,
-                      EMAILS_SCENARIO_CONFIG_ROUTE,
+                      TAXES_SETTINGS_ROUTE,
                     ],
                   },
                 ]}
