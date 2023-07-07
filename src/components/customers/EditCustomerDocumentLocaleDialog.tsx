@@ -105,7 +105,13 @@ export const EditCustomerDocumentLocaleDialog = forwardRef<
       title={translate(
         isEdition ? 'text_63ea0f84f400488553caa65c' : 'text_63ea0f84f400488553caa678'
       )}
-      description={translate('text_63ea0f84f400488553caa680', { customerName: customer.name })}
+      description={
+        <Typography
+          html={translate('text_63ea0f84f400488553caa680', {
+            customerName: `<span class="line-break-anywhere">${customer.name}</span>`,
+          })}
+        />
+      }
       onClickAway={() => {
         formikProps.resetForm()
         formikProps.validateForm()

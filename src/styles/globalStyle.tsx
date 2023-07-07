@@ -50,6 +50,9 @@ export const inputGlobalStyles = (
         lineHeight: '28px',
         fontWeight: 500,
       },
+      'span.line-break-anywhere': {
+        'line-break': 'anywhere',
+      },
     }}
   />
 )
