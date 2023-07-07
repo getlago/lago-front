@@ -5,7 +5,7 @@ import { DialogRef } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   CustomerAppliedTaxRatesForSettingsFragmentDoc,
-  TaxRateForDeleteCustomerVatRateDialogFragment,
+  TaxForDeleteCustomerTaxDialogFragment,
   useRemoveAppliedTaxRateOnCustomerMutation,
 } from '~/generated/graphql'
 import { addToast } from '~/core/apolloClient'
@@ -13,7 +13,7 @@ import { addToast } from '~/core/apolloClient'
 import { WarningDialog } from '../WarningDialog'
 
 gql`
-  fragment TaxRateForDeleteCustomerVatRateDialog on Tax {
+  fragment TaxForDeleteCustomerTaxDialog on Tax {
     id
     name
   }
@@ -30,19 +30,16 @@ gql`
   ${CustomerAppliedTaxRatesForSettingsFragmentDoc}
 `
 
-export interface DeleteCustomerVatRateDialogRef {
-  openDialog: (
-    appliedTaxRateId: string,
-    taxRate: TaxRateForDeleteCustomerVatRateDialogFragment
-  ) => unknown
+export interface DeleteCustomerTaxDialogRef {
+  openDialog: (appliedTaxRateId: string, taxRate: TaxForDeleteCustomerTaxDialogFragment) => unknown
   closeDialog: () => unknown
 }
 
-export const DeleteCustomerVatRateDialog = forwardRef<DeleteCustomerVatRateDialogRef>((_, ref) => {
+export const DeleteCustomerTaxDialog = forwardRef<DeleteCustomerTaxDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)
   const [appliedTaxRateId, setAppliedTaxRateId] = useState<string>('')
-  const [taxRate, setTaxRate] = useState<TaxRateForDeleteCustomerVatRateDialogFragment>()
+  const [taxRate, setTaxRate] = useState<TaxForDeleteCustomerTaxDialogFragment>()
   const [removeAppliedTaxRateOnCustomer] = useRemoveAppliedTaxRateOnCustomerMutation({
     onCompleted({ destroyCustomerAppliedTax }) {
       if (destroyCustomerAppliedTax?.id) {
@@ -83,4 +80,4 @@ export const DeleteCustomerVatRateDialog = forwardRef<DeleteCustomerVatRateDialo
   )
 })
 
-DeleteCustomerVatRateDialog.displayName = 'forwardRef'
+DeleteCustomerTaxDialog.displayName = 'forwardRef'

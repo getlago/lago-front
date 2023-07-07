@@ -3708,7 +3708,7 @@ export type DeleteCustomerGracePeriodMutationVariables = Exact<{
 
 export type DeleteCustomerGracePeriodMutation = { __typename?: 'Mutation', updateCustomerInvoiceGracePeriod?: { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null } | null };
 
-export type TaxRateForDeleteCustomerVatRateDialogFragment = { __typename?: 'Tax', id: string, name: string };
+export type TaxForDeleteCustomerTaxDialogFragment = { __typename?: 'Tax', id: string, name: string };
 
 export type RemoveAppliedTaxRateOnCustomerMutationVariables = Exact<{
   input: DestroyCustomerAppliedTaxInput;
@@ -3735,7 +3735,7 @@ export type UpdateCustomerInvoiceGracePeriodMutationVariables = Exact<{
 
 export type UpdateCustomerInvoiceGracePeriodMutation = { __typename?: 'Mutation', updateCustomerInvoiceGracePeriod?: { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null } | null };
 
-export type EditCustomerVatRateFragment = { __typename?: 'Customer', id: string, name?: string | null };
+export type EditCustomerTaxesFragment = { __typename?: 'Customer', id: string, name?: string | null };
 
 export type GetTaxRatesForEditCustomerQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -4925,8 +4925,8 @@ export const DeleteCustomerGracePeriodFragmentDoc = gql`
   name
 }
     `;
-export const TaxRateForDeleteCustomerVatRateDialogFragmentDoc = gql`
-    fragment TaxRateForDeleteCustomerVatRateDialog on Tax {
+export const TaxForDeleteCustomerTaxDialogFragmentDoc = gql`
+    fragment TaxForDeleteCustomerTaxDialog on Tax {
   id
   name
 }
@@ -4948,8 +4948,8 @@ export const EditCustomerInvoiceGracePeriodFragmentDoc = gql`
   invoiceGracePeriod
 }
     `;
-export const EditCustomerVatRateFragmentDoc = gql`
-    fragment EditCustomerVatRate on Customer {
+export const EditCustomerTaxesFragmentDoc = gql`
+    fragment EditCustomerTaxes on Customer {
   id
   name
 }
@@ -6676,7 +6676,7 @@ export const GetCustomerSettingsDocument = gql`
       documentLocale
     }
     ...CustomerAppliedTaxRatesForSettings
-    ...EditCustomerVatRate
+    ...EditCustomerTaxes
     ...EditCustomerDocumentLocale
     ...EditCustomerInvoiceGracePeriod
     ...DeleteCustomerGracePeriod
@@ -6692,7 +6692,7 @@ export const GetCustomerSettingsDocument = gql`
   }
 }
     ${CustomerAppliedTaxRatesForSettingsFragmentDoc}
-${EditCustomerVatRateFragmentDoc}
+${EditCustomerTaxesFragmentDoc}
 ${EditCustomerDocumentLocaleFragmentDoc}
 ${EditCustomerInvoiceGracePeriodFragmentDoc}
 ${DeleteCustomerGracePeriodFragmentDoc}

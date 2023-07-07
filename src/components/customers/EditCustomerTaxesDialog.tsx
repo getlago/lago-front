@@ -8,7 +8,7 @@ import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   CustomerAppliedTaxRatesForSettingsFragmentDoc,
-  EditCustomerVatRateFragment,
+  EditCustomerTaxesFragment,
   useCreateCustomerAppliedTaxMutation,
   useGetTaxRatesForEditCustomerLazyQuery,
 } from '~/generated/graphql'
@@ -19,7 +19,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { Item } from '../form/ComboBox/ComboBoxItem'
 
 gql`
-  fragment EditCustomerVatRate on Customer {
+  fragment EditCustomerTaxes on Customer {
     id
     name
   }
@@ -50,15 +50,15 @@ gql`
   ${CustomerAppliedTaxRatesForSettingsFragmentDoc}
 `
 
-export interface EditCustomerVatRateDialogRef extends DialogRef {}
+export interface EditCustomerTaxesDialogRef extends DialogRef {}
 
-interface EditCustomerVatRateDialogProps {
-  customer: EditCustomerVatRateFragment
+interface EditCustomerTaxesDialogProps {
+  customer: EditCustomerTaxesFragment
   appliedTaxRatesTaxesIds?: string[]
 }
 
-export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRateDialogProps>(
-  ({ appliedTaxRatesTaxesIds, customer }: EditCustomerVatRateDialogProps, ref) => {
+export const EditCustomerTaxesDialog = forwardRef<DialogRef, EditCustomerTaxesDialogProps>(
+  ({ appliedTaxRatesTaxesIds, customer }: EditCustomerTaxesDialogProps, ref) => {
     const { translate } = useInternationalization()
     const [localTax, setLocalTaxRate] = useState<string>('')
     const [getTaxRates, { loading, data }] = useGetTaxRatesForEditCustomerLazyQuery({
@@ -142,7 +142,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
           </>
         )}
       >
-        <Content data-test="edit-customer-vat-rate-dialog">
+        <Content data-test="edit-customer-taxes-rate-dialog">
           <ComboBox
             allowAddValue
             addValueProps={{
@@ -168,4 +168,4 @@ const Content = styled.div`
   margin-bottom: ${theme.spacing(8)};
 `
 
-EditCustomerVatRateDialog.displayName = 'forwardRef'
+EditCustomerTaxesDialog.displayName = 'forwardRef'

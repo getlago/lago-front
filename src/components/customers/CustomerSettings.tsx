@@ -19,14 +19,14 @@ import {
   DeleteCustomerGracePeriodFragmentDoc,
   EditCustomerDocumentLocaleFragmentDoc,
   EditCustomerInvoiceGracePeriodFragmentDoc,
-  EditCustomerVatRateFragmentDoc,
+  EditCustomerTaxesFragmentDoc,
   useGetCustomerSettingsQuery,
 } from '~/generated/graphql'
 import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
 import {
-  EditCustomerVatRateDialog,
-  EditCustomerVatRateDialogRef,
-} from '~/components/customers/EditCustomerVatRateDialog'
+  EditCustomerTaxesDialog,
+  EditCustomerTaxesDialogRef,
+} from '~/components/customers/EditCustomerTaxesDialog'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -37,10 +37,7 @@ import {
   EditCustomerInvoiceGracePeriodDialog,
   EditCustomerInvoiceGracePeriodDialogRef,
 } from './EditCustomerInvoiceGracePeriodDialog'
-import {
-  DeleteCustomerVatRateDialog,
-  DeleteCustomerVatRateDialogRef,
-} from './DeleteCustomerVatRateDialog'
+import { DeleteCustomerTaxDialog, DeleteCustomerTaxDialogRef } from './DeleteCustomerTaxesDialog'
 import {
   DeleteCustomerGracePeriodeDialog,
   DeleteCustomerGracePeriodeDialogRef,
@@ -78,7 +75,7 @@ gql`
 
       ...CustomerAppliedTaxRatesForSettings
 
-      ...EditCustomerVatRate
+      ...EditCustomerTaxes
       ...EditCustomerDocumentLocale
       ...EditCustomerInvoiceGracePeriod
       ...DeleteCustomerGracePeriod
@@ -95,7 +92,7 @@ gql`
     }
   }
 
-  ${EditCustomerVatRateFragmentDoc}
+  ${EditCustomerTaxesFragmentDoc}
   ${EditCustomerInvoiceGracePeriodFragmentDoc}
   ${EditCustomerDocumentLocaleFragmentDoc}
   ${DeleteCustomerGracePeriodFragmentDoc}
@@ -115,8 +112,8 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   })
   const customer = data?.customer
   const organization = data?.organization
-  const editVATDialogRef = useRef<EditCustomerVatRateDialogRef>(null)
-  const deleteVatRateDialogRef = useRef<DeleteCustomerVatRateDialogRef>(null)
+  const editVATDialogRef = useRef<EditCustomerTaxesDialogRef>(null)
+  const deleteVatRateDialogRef = useRef<DeleteCustomerTaxDialogRef>(null)
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
   const deleteGracePeriodDialogRef = useRef<DeleteCustomerGracePeriodeDialogRef>(null)
   const editCustomerDocumentLocale = useRef<EditCustomerDocumentLocaleDialogRef>(null)
@@ -389,12 +386,12 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
 
       {!!customer && (
         <>
-          <EditCustomerVatRateDialog
+          <EditCustomerTaxesDialog
             ref={editVATDialogRef}
             customer={customer}
             appliedTaxRatesTaxesIds={customer.appliedTaxes?.map((t) => t.tax.id)}
           />
-          <DeleteCustomerVatRateDialog ref={deleteVatRateDialogRef} />
+          <DeleteCustomerTaxDialog ref={deleteVatRateDialogRef} />
 
           <EditCustomerInvoiceGracePeriodDialog
             ref={editInvoiceGracePeriodDialogRef}

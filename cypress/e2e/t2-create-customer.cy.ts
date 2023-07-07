@@ -31,7 +31,7 @@ describe('Create customer', () => {
 
       cy.get('[data-test="tab-internal-button-link-settings"]').last().click()
       cy.get('[data-test="add-vat-rate-button"]').last().click()
-      cy.get('[data-test="edit-customer-vat-rate-dialog"]').should('exist')
+      cy.get('[data-test="edit-customer-taxes-rate-dialog"]').should('exist')
     })
   })
 })

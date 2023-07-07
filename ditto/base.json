@@ -845,7 +845,7 @@
   "text_64639f5e63a5cc0076779d37": "Remove {{name}}",
   "text_64639f5e63a5cc0076779d3b": "By removing this tax rate from the customer, all current & next invoices will not be impacted by this rate anymore. Are you sure?",
   "text_64639f5e63a5cc0076779d43": "Remove tax rate",
-  "text_64639f5e63a5cc0076779db7": "Tax rate undefined, the customer's invoice will automatically use rates from organization level. However, you can override inherited rates by adding a specific rate here.",
+  "text_64639f5e63a5cc0076779db7": "Tax rate is not defined, the customer's invoice will automatically use rates from organization level. However, you can override inherited rates by adding a specific rate here.",
   "text_64639f5e63a5cc0076779dd9": "Tax rate successfully removed",
   "text_6464a12047f2dd00affa924f": "Edit {{name}}?",
   "text_6464a12047f2dd00affa9250": "Please note that the tax rate has been applied on {{customersCount}} customer. If you make any changes, all draft and upcoming invoices will be affected. Are you certain you want to proceed?|Please note that the tax rate has been applied on {{customersCount}} customers. If you make any changes, all draft and upcoming invoices will be affected. Are you certain you want to proceed?",
