@@ -151,8 +151,6 @@ const Title = styled(Typography)<{ $hasDescription?: boolean }>`
   }
 `
 const Description = styled(Typography)`
-  line-break: anywhere;
-
   && {
     margin-bottom: ${theme.spacing(8)};
   }
