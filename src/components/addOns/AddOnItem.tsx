@@ -58,6 +58,7 @@ export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItem
       <ListItemLink
         to={generatePath(UPDATE_ADD_ON_ROUTE, { id })}
         tabIndex={0}
+        data-test={name}
         {...navigationProps}
       >
         <AddOnNameSection>

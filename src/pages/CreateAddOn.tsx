@@ -196,6 +196,7 @@ const CreateAddOn = () => {
                     fullWidth
                     size="large"
                     onClick={formikProps.submitForm}
+                    data-test="submit"
                   >
                     {translate(
                       isEdition ? 'text_629728388c4d2300e2d38170' : 'text_629728388c4d2300e2d38179'
