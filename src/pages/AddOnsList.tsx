@@ -63,7 +63,7 @@ const AddOnsList = () => {
             onChange={debouncedSearch}
             placeholder={translate('text_63bee4e10e2d53912bfe4db8')}
           />
-          <ButtonLink type="button" to={CREATE_ADD_ON_ROUTE}>
+          <ButtonLink type="button" to={CREATE_ADD_ON_ROUTE} data-test="create-addon-cta">
             {translate('text_629728388c4d2300e2d38085')}
           </ButtonLink>
         </HeaderRigthBlock>
