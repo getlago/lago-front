@@ -182,6 +182,7 @@ const Summary = styled.div`
 const ChipsWrapper = styled.div`
   display: flex;
   gap: ${theme.spacing(2)};
+  flex-wrap: wrap;
 `
 
 const Details = styled(AccordionDetails)`
