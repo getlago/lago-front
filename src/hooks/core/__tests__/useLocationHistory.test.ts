@@ -19,7 +19,7 @@ const MOCK_HISTORY_VAR = [
     key: '8yl13l',
   },
   {
-    pathname: '/developers/webhook',
+    pathname: '/developers/webhooks',
     search: '',
     hash: '',
     key: 'hq5vj9',

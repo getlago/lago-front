@@ -84,11 +84,14 @@ export const cache = new InMemoryCache({
           keyArgs: false,
           merge: mergePaginatedCollection,
         },
+        webhookEndpoints: {
+          keyArgs: false,
+          merge: mergePaginatedCollection,
+        },
         appliedtaxes: {
           // Same list if fetch in same page with different results.
           // Difference is made on appliedByDefault value
           keyArgs: ['id'],
-          merge: mergePaginatedCollection,
         },
         taxes: {
           // Same list if fetch in same page with different results.

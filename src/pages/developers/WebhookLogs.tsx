@@ -17,11 +17,11 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { WEBHOOK_ROUTE, WEBHOOK_LOGS_TAB_ROUTE, WEBHOOK_LOGS_ROUTE } from '~/core/router'
 import {
   useGetWebhookLogLazyQuery,
-  useGetWebhookOrganizationQuery,
   WebhookStatusEnum,
   WebhookLogFragment,
   WebhookLogItemFragmentDoc,
   WebhookLogDetailsFragmentDoc,
+  useGetWebhookInformationsQuery,
 } from '~/generated/graphql'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import EmptyImage from '~/public/images/maneki/empty.svg'
@@ -34,8 +34,8 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 
 gql`
-  query getWebhookOrganization {
-    organization {
+  query getWebhookInformations($id: ID!) {
+    webhookEndpoint(id: $id) {
       id
       webhookUrl
     }
@@ -44,12 +44,25 @@ gql`
   fragment WebhookLog on Webhook {
     id
     createdAt
+    endpoint
     ...WebhookLogItem
     ...WebhookLogDetails
   }
 
-  query getWebhookLog($page: Int, $limit: Int, $status: WebhookStatusEnum, $searchTerm: String) {
-    webhooks(page: $page, limit: $limit, status: $status, searchTerm: $searchTerm) {
+  query getWebhookLog(
+    $page: Int
+    $limit: Int
+    $webhookEndpointId: String!
+    $status: WebhookStatusEnum
+    $searchTerm: String
+  ) {
+    webhooks(
+      page: $page
+      limit: $limit
+      webhookEndpointId: $webhookEndpointId
+      status: $status
+      searchTerm: $searchTerm
+    ) {
       metadata {
         currentPage
         totalPages
@@ -67,14 +80,22 @@ gql`
 const WEBHOOK_ITEM_NAV_KEY = 'webhook-item-'
 
 const WebhookLogs = () => {
+  const { webhookId } = useParams<{ webhookId: string }>()
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
-  const { data: webhookUrlData, loading: webhookUrlLoading } = useGetWebhookOrganizationQuery()
+  const { data: webhookUrlData, loading: webhookUrlLoading } = useGetWebhookInformationsQuery({
+    variables: { id: webhookId as string },
+    skip: !webhookId,
+  })
   const { tab: statusFilter } = useParams<{ tab: WebhookStatusEnum }>()
   const [fetchMoreLoading, setFetchMoreLoading] = useState<boolean>(false)
   const [getWebhookLogs, { data, loading, error, refetch, fetchMore, variables }] =
     useGetWebhookLogLazyQuery({
-      variables: { limit: 50, ...(statusFilter ? { status: statusFilter } : {}) },
+      variables: {
+        webhookEndpointId: webhookId as string,
+        limit: 50,
+        ...(statusFilter ? { status: statusFilter } : {}),
+      },
       notifyOnNetworkStatusChange: true,
     })
   const hasLogs = !!data?.webhooks?.collection?.length
@@ -132,7 +153,7 @@ const WebhookLogs = () => {
             <>
               <Title color="textSecondary" variant="bodyHl" noWrap>
                 {translate('text_63e3a496be166d8f3279b594', {
-                  url: webhookUrlData?.organization?.webhookUrl,
+                  url: webhookUrlData?.webhookEndpoint?.webhookUrl,
                 })}
               </Title>
             </>
@@ -173,17 +194,23 @@ const WebhookLogs = () => {
               tabs={[
                 {
                   title: translate('text_63e27c56dfe64b846474ef4c'),
-                  link: WEBHOOK_LOGS_ROUTE,
+                  link: generatePath(WEBHOOK_LOGS_ROUTE, {
+                    webhookId,
+                  }),
                 },
                 {
                   title: translate('text_63e27c56dfe64b846474ef4d'),
                   link: generatePath(WEBHOOK_LOGS_TAB_ROUTE, {
+                    webhookId,
                     tab: WebhookStatusEnum.Succeeded,
                   }),
                 },
                 {
                   title: translate('text_63e27c56dfe64b846474ef4e'),
-                  link: generatePath(WEBHOOK_LOGS_TAB_ROUTE, { tab: WebhookStatusEnum.Failed }),
+                  link: generatePath(WEBHOOK_LOGS_TAB_ROUTE, {
+                    webhookId,
+                    tab: WebhookStatusEnum.Failed,
+                  }),
                 },
               ]}
             />
