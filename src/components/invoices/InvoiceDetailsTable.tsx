@@ -277,7 +277,7 @@ export const InvoiceDetailsTable = memo(
                         </td>
                         <td>
                           <Typography variant="body" color="grey700">
-                            1
+                            0
                           </Typography>
                         </td>
                         <td>
