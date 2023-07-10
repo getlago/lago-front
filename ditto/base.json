@@ -1516,7 +1516,7 @@
   "text_62a99ba2af7535cefacab4ba": "Banco",
   "text_620bc4d4269a55014d493f53": "Set your password",
   "text_620bc4d4269a55014d493fb5": "Sign up",
-  "text_620bc4d4269a55014d493fd4": "By signing up, you agree to our <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/legal/terms-of-service\">Terms of Service</a> and <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/legal/privacy-policy\">Privacy Policy</a>.\nAlready have an account? <a data-text=\"Log in\" href=\"{{link}}\">-</a>",
+  "text_620bc4d4269a55014d493fd4": "By signing up, you agree to our <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/company/terms-of-service\">Terms of Service</a> and <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/company/privacy-policy\">Privacy Policy</a>.\nAlready have an account? <a data-text=\"Log in\" href=\"{{link}}Already have an account? <a data-text=\"Log in\" href=\"{{link}}\">-</a>",
   "text_620bc4d4269a55014d493f57": "One lowercase character",
   "text_620bc4d4269a55014d493f7b": "One uppercase character",
   "text_620bc4d4269a55014d493f8d": "One number",
