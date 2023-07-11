@@ -43,8 +43,6 @@ export const removeItem = (key: string) => {
 
 // --------------------- Auth utils ---------------------
 export const logOut = async (client: ApolloClient<object>, resetLocationHistory?: boolean) => {
-  localStorage && localStorage.clear()
-
   await client.cache.reset()
   updateAuthTokenVar()
   resetLocationHistory && resetLocationHistoryVar()
@@ -52,8 +50,18 @@ export const logOut = async (client: ApolloClient<object>, resetLocationHistory?
 
 export const onLogIn = (token: string, user: CurrentUserFragment) => {
   updateAuthTokenVar(token)
-  const organization = (user?.organizations || [])[0]
+  const previousOrganizationId = getItemFromLS(ORGANIZATION_LS_KEY_ID)
+  let organization
 
+  // Check if user has already logged in an orga and find it in the list
+  if (previousOrganizationId) {
+    organization = (user?.organizations || []).find((org) => org.id === previousOrganizationId)
+  }
+
+  // If still not organization, take the first one
+  if (!organization) organization = (user?.organizations || [])[0]
+
+  // Set the organization id in local storage
   setItemFromLS(ORGANIZATION_LS_KEY_ID, organization?.id)
 }
 
