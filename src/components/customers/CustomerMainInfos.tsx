@@ -5,7 +5,12 @@ import { Typography, Button, Skeleton } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
-import { CustomerMainInfosFragment, ProviderTypeEnum, TimezoneEnum } from '~/generated/graphql'
+import {
+  CustomerMainInfosFragment,
+  ProviderPaymentMethodsEnum,
+  ProviderTypeEnum,
+  TimezoneEnum,
+} from '~/generated/graphql'
 import { CountryCodes } from '~/core/countryCodes'
 import { getTimezoneConfig } from '~/core/timezone'
 
@@ -32,6 +37,7 @@ gql`
     providerCustomer {
       id
       providerCustomerId
+      providerPaymentMethods
     }
     metadata {
       id
@@ -195,6 +201,19 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
           <Typography color="textSecondary">{providerCustomer?.providerCustomerId}</Typography>
         </div>
       )}
+      {paymentProvider === ProviderTypeEnum?.Stripe &&
+        !!providerCustomer?.providerPaymentMethods.length && (
+          <div>
+            <Typography variant="caption">{translate('text_64aeb7b998c4322918c84237')}</Typography>
+            <Typography color="textSecondary">
+              {providerCustomer?.providerPaymentMethods.length === 2
+                ? translate('text_64aeb7b998c4322918c8423b')
+                : providerCustomer?.providerPaymentMethods[0] === ProviderPaymentMethodsEnum?.Card
+                ? translate('text_64aeb7b998c4322918c84208')
+                : translate('text_64aeb7b998c4322918c8420c')}
+            </Typography>
+          </div>
+        )}
       {!!metadata?.length &&
         metadata.map((meta) => (
           <div key={`customer-metadata-${meta.id}`}>
