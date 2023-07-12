@@ -33,6 +33,7 @@ import {
   CurrencyEnum,
   TimezoneEnum,
   CustomerMetadataInput,
+  ProviderPaymentMethodsEnum,
 } from '~/generated/graphql'
 import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
 import { INTEGRATIONS_ROUTE, ORGANIZATION_INFORMATIONS_ROUTE } from '~/core/router'
@@ -95,6 +96,11 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
       providerCustomer: {
         providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? undefined,
         syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
+        providerPaymentMethods: customer?.providerCustomer?.providerPaymentMethods.length
+          ? customer?.providerCustomer?.providerPaymentMethods
+          : customer?.currency !== CurrencyEnum.Eur
+          ? [ProviderPaymentMethodsEnum.Card]
+          : [ProviderPaymentMethodsEnum.Card, ProviderPaymentMethodsEnum.SepaDebit],
       },
       paymentProvider: customer?.paymentProvider ?? undefined,
       metadata: customer?.metadata ?? undefined,
@@ -133,6 +139,12 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
       // If no payment provider, reset stripe customer
       formikProps.setFieldValue('providerCustomer.providerCustomerId', undefined)
       formikProps.setFieldValue('providerCustomer.syncWithProvider', false)
+      formikProps.setFieldValue(
+        'providerCustomer.providerPaymentMethods',
+        formikProps.values.currency !== CurrencyEnum.Eur
+          ? [ProviderPaymentMethodsEnum.Card]
+          : [ProviderPaymentMethodsEnum.Card, ProviderPaymentMethodsEnum.SepaDebit]
+      )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formikProps.values.paymentProvider])
@@ -179,6 +191,11 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
             providerCustomer: {
               providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? undefined,
               syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
+              providerPaymentMethods: customer?.providerCustomer?.providerPaymentMethods.length
+                ? customer?.providerCustomer?.providerPaymentMethods
+                : customer?.currency !== CurrencyEnum.Eur
+                ? [ProviderPaymentMethodsEnum.Card]
+                : [ProviderPaymentMethodsEnum.Card, ProviderPaymentMethodsEnum.SepaDebit],
             },
             paymentProvider: customer?.paymentProvider ?? undefined,
             metadata: customer?.metadata ?? undefined,
@@ -378,9 +395,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
               }
               PopperProps={{ displayInDialog: true }}
             />
-            {(formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless ||
-              formikProps.values.paymentProvider === ProviderTypeEnum.Stripe ||
-              formikProps.values.paymentProvider === ProviderTypeEnum.Adyen) && (
+            {!!formikProps.values.paymentProvider && (
               <>
                 <TextInputField
                   name="providerCustomer.providerCustomerId"
@@ -408,6 +423,85 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                       }
                     }}
                   />
+                )}
+
+                {formikProps.values.paymentProvider === ProviderTypeEnum.Stripe && (
+                  <StripePaymentMethodWrapper>
+                    <Typography variant="captionHl" color="grey700">
+                      {translate('text_64aeb7b998c4322918c84204')}
+                    </Typography>
+                    <Typography variant="caption">
+                      {translate('text_64aeb7b998c4322918c84210')}
+                    </Typography>
+                    <Checkbox
+                      name="providerCustomer.providerPaymentMethods.card"
+                      value={
+                        !!formikProps.values.providerCustomer?.providerPaymentMethods.includes(
+                          ProviderPaymentMethodsEnum.Card
+                        )
+                      }
+                      label={translate('text_64aeb7b998c4322918c84208')}
+                      disabled={
+                        formikProps.values.providerCustomer?.providerPaymentMethods.length === 1 &&
+                        formikProps.values.providerCustomer?.providerPaymentMethods.includes(
+                          ProviderPaymentMethodsEnum.Card
+                        )
+                      }
+                      onChange={(e, checked) => {
+                        const newValue = [
+                          ...(formikProps.values.providerCustomer?.providerPaymentMethods || []),
+                        ]
+
+                        if (checked) {
+                          newValue.push(ProviderPaymentMethodsEnum.Card)
+                        } else {
+                          newValue.splice(newValue.indexOf(ProviderPaymentMethodsEnum.Card), 1)
+                        }
+
+                        formikProps.setFieldValue(
+                          'providerCustomer.providerPaymentMethods',
+                          newValue
+                        )
+                      }}
+                    />
+                    <Checkbox
+                      name="providerCustomer.providerPaymentMethods.sepa_debit"
+                      value={
+                        !!formikProps.values.providerCustomer?.providerPaymentMethods.includes(
+                          ProviderPaymentMethodsEnum.SepaDebit
+                        )
+                      }
+                      label={translate('text_64aeb7b998c4322918c8420c')}
+                      sublabel={
+                        formikProps.values.currency !== CurrencyEnum.Eur &&
+                        translate('text_64b04d6b13f1cc00ab4bf6bf')
+                      }
+                      disabled={
+                        formikProps.values.providerCustomer?.providerPaymentMethods.length === 1 &&
+                        formikProps.values.providerCustomer?.providerPaymentMethods.includes(
+                          ProviderPaymentMethodsEnum.SepaDebit
+                        )
+                      }
+                      onChange={(e, checked) => {
+                        const newValue = [
+                          ...(formikProps.values.providerCustomer?.providerPaymentMethods || []),
+                        ]
+
+                        if (checked) {
+                          newValue.push(ProviderPaymentMethodsEnum.SepaDebit)
+                        } else {
+                          newValue.splice(newValue.indexOf(ProviderPaymentMethodsEnum.SepaDebit), 1)
+                        }
+
+                        formikProps.setFieldValue(
+                          'providerCustomer.providerPaymentMethods',
+                          newValue
+                        )
+                      }}
+                    />
+
+                    <Alert type="info">{translate('text_64aeb7b998c4322918c84214')}</Alert>
+                  </StripePaymentMethodWrapper>
                 )}
               </>
             )}
@@ -609,6 +703,19 @@ const MetadataGrid = styled.div<{ $isHeader?: boolean }>`
 const StyledTooltip = styled(Tooltip)`
   display: flex;
   align-items: center;
+`
+
+const StripePaymentMethodWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  > *:not(:last-child) {
+    margin-bottom: ${theme.spacing(1)};
+  }
+
+  > *:last-child {
+    margin-top: ${theme.spacing(6)};
+  }
 `
 
 AddCustomerDrawer.displayName = 'AddCustomerDrawer'

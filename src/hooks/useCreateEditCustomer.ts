@@ -12,6 +12,7 @@ import {
   AddCustomerDrawerFragment,
   UpdateCustomerMutation,
   CreateCustomerMutation,
+  ProviderPaymentMethodsEnum,
 } from '~/generated/graphql'
 import { addToast } from '~/core/apolloClient'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -43,6 +44,7 @@ gql`
       id
       providerCustomerId
       syncWithProvider
+      providerPaymentMethods
     }
     metadata {
       id
@@ -128,6 +130,9 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
                     ? null
                     : providerCustomer?.providerCustomerId,
                   syncWithProvider: !paymentProvider ? null : providerCustomer?.syncWithProvider,
+                  providerPaymentMethods: !providerCustomer?.providerPaymentMethods?.length
+                    ? [ProviderPaymentMethodsEnum.Card]
+                    : providerCustomer?.providerPaymentMethods,
                 },
                 ...values,
               },
@@ -144,6 +149,9 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
                     ? null
                     : providerCustomer?.providerCustomerId,
                   syncWithProvider: !paymentProvider ? null : providerCustomer?.syncWithProvider,
+                  providerPaymentMethods: !providerCustomer?.providerPaymentMethods?.length
+                    ? [ProviderPaymentMethodsEnum.Card]
+                    : providerCustomer?.providerPaymentMethods,
                 },
               },
             },
