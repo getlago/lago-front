@@ -172,7 +172,9 @@ export const InvoiceOverview = memo(
                   />
                 )}
 
-              <Metadatas customer={customer} invoice={invoice} />
+              {invoice?.status !== InvoiceStatusTypeEnum.Draft && (
+                <Metadatas customer={customer} invoice={invoice} />
+              )}
             </>
           )}
         </>
