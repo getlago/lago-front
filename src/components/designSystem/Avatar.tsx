@@ -18,6 +18,7 @@ const AVATAR_PALETTE = {
 
 enum AvatarSizeEnum {
   small = 'small',
+  intermediate = 'intermediate',
   medium = 'medium',
   big = 'big',
   large = 'large',
@@ -53,6 +54,7 @@ export interface AvatarGenericProps {
 const mapTypographyVariant = (size: AvatarSize) => {
   switch (size) {
     case 'small':
+    case 'intermediate':
       return 'noteHl'
     case 'large':
       return 'subhead'
@@ -65,6 +67,8 @@ export const mapAvatarSize = (size: AvatarSize) => {
   switch (size) {
     case 'small':
       return 16
+    case 'intermediate':
+      return 24
     case 'medium':
       return 32
     case 'large':
@@ -118,7 +122,7 @@ export const Avatar = ({
   }
 
   const getContent = () => {
-    let cursor = size === 'small' ? 1 : 2
+    let cursor = size === 'small' || size === 'intermediate' ? 1 : 2
 
     return (
       <Typography color="inherit" variant={mapTypographyVariant(size)}>
@@ -161,7 +165,7 @@ const StyledAvatar = styled.div<{
   ${(props) =>
     props.$isRounded
       ? css`
-          border-radius: ${props.$size === 16 ? '4px' : '12px'};
+          border-radius: ${props.$size === 16 ? '4px' : props.$size === 24 ? '8px' : '12px'};
         `
       : css`
           border-radius: 50%;

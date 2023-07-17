@@ -226,10 +226,58 @@ const DesignSystem = () => {
 
                 <GroupTitle variant="headline">Chips</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
-                  <Chip label="I'm a 🍟" />
+                  <Chip label="I'm a primary 🍟" />
                   <Chip label="I have an icon" icon="scissor" />
-                  <Chip label="I have an icon" icon="scissor" onClose={() => {}} />
-                  <Chip label="I have an icon" icon="scissor" type="error" onClose={() => {}} />
+                  <Chip
+                    label="I have an icon"
+                    icon="scissor"
+                    onClose={() => {
+                      // eslint-disable-next-line no-console
+                      console.log('Chip clicked')
+                    }}
+                  />
+                  <Chip
+                    label="I have an error"
+                    icon="scissor"
+                    type="error"
+                    onClose={() => {
+                      // eslint-disable-next-line no-console
+                      console.log('Chip clicked')
+                    }}
+                  />
+                  <Chip
+                    label="Secondary"
+                    icon="percentage"
+                    variant="secondary"
+                    closeIcon="trash"
+                    onClose={() => {
+                      // eslint-disable-next-line no-console
+                      console.log('Chip clicked')
+                    }}
+                  />
+                  <Chip
+                    label="Secondary medium"
+                    icon="percentage"
+                    variant="secondary"
+                    size="medium"
+                    closeIcon="trash"
+                    onClose={() => {
+                      // eslint-disable-next-line no-console
+                      console.log('Chip clicked')
+                    }}
+                  />
+                  <Chip
+                    label="Secondary medium with error"
+                    type="error"
+                    icon="lock"
+                    variant="secondary"
+                    size="medium"
+                    closeIcon="trash"
+                    onClose={() => {
+                      // eslint-disable-next-line no-console
+                      console.log('Chip clicked')
+                    }}
+                  />
                 </Block>
 
                 <GroupTitle variant="headline">Alert</GroupTitle>
@@ -448,9 +496,11 @@ const DesignSystem = () => {
                 <GroupTitle variant="subhead">Size</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Avatar variant="user" size="small" identifier="Morguy" initials="ML" />
+                  <Avatar variant="user" size="intermediate" identifier="Morguy" initials="ML" />
                   <Avatar variant="user" size="medium" identifier="Morguy" initials="ML" />
                   <Avatar variant="user" size="large" identifier="Morguy" initials="ML" />
                   <Avatar variant="company" size="small" identifier="Lago Corp" />
+                  <Avatar variant="company" size="intermediate" identifier="Lago Corp" />
                   <Avatar variant="company" size="medium" identifier="Lago Corp" />
                   <Avatar variant="company" size="large" identifier="Lago Corp" />
                   <Avatar variant="connector" size="medium">

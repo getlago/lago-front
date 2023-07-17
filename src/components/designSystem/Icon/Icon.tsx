@@ -29,7 +29,7 @@ interface IconProps {
   color?: IconColor
   className?: string
   animation?: keyof typeof IconAnimationEnum
-  onClick?: () => {}
+  onClick?: () => {} | void | Promise<void>
 }
 
 export enum IconSizeEnum {
