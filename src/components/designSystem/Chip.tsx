@@ -8,10 +8,20 @@ import { Typography } from './Typography'
 import { Button } from './Button'
 import { Icon, IconName } from './Icon'
 
+import { ConditionalWrapper } from '../ConditionalWrapper'
+
+enum ChipVariantEnum {
+  primary = 'primary',
+  secondary = 'secondary',
+}
+
 enum ChipTypeEnum {
   default = 'default',
   error = 'error',
 }
+
+type ChipSize = 'small' | 'medium'
+type ChipVariant = keyof typeof ChipVariantEnum
 
 interface ChipGenericProps {
   label: string
@@ -22,12 +32,18 @@ interface ChipGenericProps {
 
 interface ChipPropsAvatar extends ChipGenericProps {
   icon?: never
+  closeIcon?: IconName
   avatarProps?: Pick<AvatarGenericProps, 'initials' | 'identifier'>
+  size?: ChipSize
+  variant?: ChipVariant
 }
 
 interface ChipPropsIcon extends ChipGenericProps {
   icon: IconName
+  closeIcon?: IconName
   avatarProps?: never
+  size?: ChipSize
+  variant?: ChipVariant
 }
 
 type ChipProps = ChipPropsAvatar | ChipPropsIcon
@@ -36,19 +52,42 @@ export const Chip = ({
   className,
   label,
   icon,
+  closeIcon,
   avatarProps,
   type = ChipTypeEnum.default,
+  variant = ChipVariantEnum.primary,
+  size = 'small',
 
   onClose,
 }: ChipProps) => {
   return (
-    <Container className={clsx(className, `chip-container--${type}`)} data-test={`chip-${label}`}>
+    <Container
+      className={clsx(
+        className,
+        `chip-container--${type} chip-container--${variant} chip-container--${size}`
+      )}
+      data-test={`chip-${label}`}
+    >
       {icon && (
-        <Icon name={icon} size="small" color={type === ChipTypeEnum.error ? 'error' : undefined} />
+        <ConditionalWrapper
+          condition={variant === ChipVariantEnum.secondary}
+          validWrapper={(children) => (
+            <Avatar size="intermediate" variant="connector">
+              {children}
+            </Avatar>
+          )}
+          invalidWrapper={(children) => <>{children}</>}
+        >
+          <Icon
+            name={icon}
+            size="small"
+            color={type === ChipTypeEnum.error ? 'error' : undefined}
+          />
+        </ConditionalWrapper>
       )}
       {avatarProps && <Avatar size="small" variant="user" {...avatarProps} />}
       <Typography
-        variant="captionHl"
+        variant={variant === ChipVariantEnum.secondary ? 'body' : 'captionHl'}
         color={type === ChipTypeEnum.error ? 'danger600' : 'textSecondary'}
       >
         {label}
@@ -58,7 +97,7 @@ export const Chip = ({
           size="small"
           variant="quaternary"
           danger={type === ChipTypeEnum.error}
-          icon="close-circle-filled"
+          icon={!!closeIcon ? closeIcon : 'close-circle-filled'}
           onClick={onClose}
         />
       )}
@@ -68,6 +107,7 @@ export const Chip = ({
 
 const Container = styled.div`
   min-height: 32px;
+  height: fit-content;
   border: 1px solid ${theme.palette.grey[300]};
   background-color: ${theme.palette.grey[100]};
   padding: ${theme.spacing(1)} ${theme.spacing(2)};
@@ -76,20 +116,24 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   width: fit-content;
+  gap: ${theme.spacing(2)};
 
+  /* Variant */
+  &.chip-container--${ChipVariantEnum.secondary} {
+    background-color: ${theme.palette.common.white};
+    color: ${theme.palette.grey[600]};
+    border-color: ${theme.palette.grey[400]};
+  }
+
+  /* Size */
+  &.chip-container--medium {
+    padding: 10px ${theme.spacing(3)};
+  }
+
+  /* Type */
   &.chip-container--${ChipTypeEnum.error} {
     background-color: ${theme.palette.error[100]};
     color: ${theme.palette.error[300]};
     border-color: ${theme.palette.error[300]};
-  }
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(2)};
-  }
-
-  button.button-icon-only {
-    width: 16px;
-    height: 16px;
-    padding: 0;
   }
 `
