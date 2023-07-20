@@ -58,14 +58,11 @@ gql`
       taxIdentificationNumber
       state
       zipcode
-      appliedTaxes {
+      taxes {
         id
-        tax {
-          id
-          name
-          code
-          rate
-        }
+        name
+        code
+        rate
       }
     }
 
@@ -133,7 +130,7 @@ const CreateInvoice = () => {
   const { customer, organization, taxes } = data || {}
 
   const appliedTaxes = useMemo(() => {
-    if (!!customer?.appliedTaxes?.length) return customer?.appliedTaxes.map((a) => a.tax)
+    if (!!customer?.taxes?.length) return customer?.taxes
     return taxes?.collection
   }, [customer, taxes])
 
