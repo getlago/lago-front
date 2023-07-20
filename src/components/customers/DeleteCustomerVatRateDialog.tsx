@@ -5,6 +5,7 @@ import { DialogRef } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   CustomerAppliedTaxRatesForSettingsFragmentDoc,
+  EditCustomerVatRateFragment,
   TaxRateForDeleteCustomerVatRateDialogFragment,
   useRemoveAppliedTaxRateOnCustomerMutation,
 } from '~/generated/graphql'
@@ -13,39 +14,49 @@ import { addToast } from '~/core/apolloClient'
 import { WarningDialog } from '../WarningDialog'
 
 gql`
+  fragment CustomerForDeleteVatRateDialog on Customer {
+    id
+    name
+    externalId
+    taxes {
+      id
+      code
+    }
+  }
+
   fragment TaxRateForDeleteCustomerVatRateDialog on Tax {
     id
     name
   }
 
-  mutation removeAppliedTaxRateOnCustomer($input: DestroyCustomerAppliedTaxInput!) {
-    destroyCustomerAppliedTax(input: $input) {
+  mutation removeAppliedTaxRateOnCustomer($input: UpdateCustomerInput!) {
+    updateCustomer(input: $input) {
       id
-      customer {
-        id
-      }
     }
   }
 
   ${CustomerAppliedTaxRatesForSettingsFragmentDoc}
 `
 
+interface DeleteCustomerVatRateDialogProps {
+  customer: EditCustomerVatRateFragment
+}
+
 export interface DeleteCustomerVatRateDialogRef {
-  openDialog: (
-    appliedTaxRateId: string,
-    taxRate: TaxRateForDeleteCustomerVatRateDialogFragment
-  ) => unknown
+  openDialog: (taxRate: TaxRateForDeleteCustomerVatRateDialogFragment) => unknown
   closeDialog: () => unknown
 }
 
-export const DeleteCustomerVatRateDialog = forwardRef<DeleteCustomerVatRateDialogRef>((_, ref) => {
+export const DeleteCustomerVatRateDialog = forwardRef<
+  DeleteCustomerVatRateDialogRef,
+  DeleteCustomerVatRateDialogProps
+>(({ customer }: DeleteCustomerVatRateDialogProps, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)
-  const [appliedTaxRateId, setAppliedTaxRateId] = useState<string>('')
   const [taxRate, setTaxRate] = useState<TaxRateForDeleteCustomerVatRateDialogFragment>()
   const [removeAppliedTaxRateOnCustomer] = useRemoveAppliedTaxRateOnCustomerMutation({
-    onCompleted({ destroyCustomerAppliedTax }) {
-      if (destroyCustomerAppliedTax?.id) {
+    onCompleted({ updateCustomer }) {
+      if (updateCustomer?.id) {
         addToast({
           message: translate('text_64639f5e63a5cc0076779dd9'),
           severity: 'success',
@@ -56,9 +67,8 @@ export const DeleteCustomerVatRateDialog = forwardRef<DeleteCustomerVatRateDialo
   })
 
   useImperativeHandle(ref, () => ({
-    openDialog: (localId, data) => {
-      setAppliedTaxRateId(localId)
-      setTaxRate(data)
+    openDialog: (taxRateData) => {
+      setTaxRate(taxRateData)
       dialogRef.current?.openDialog()
     },
     closeDialog: () => {
@@ -75,7 +85,18 @@ export const DeleteCustomerVatRateDialog = forwardRef<DeleteCustomerVatRateDialo
       description={translate('text_64639f5e63a5cc0076779d3b')}
       onContinue={async () =>
         await removeAppliedTaxRateOnCustomer({
-          variables: { input: { id: appliedTaxRateId as string } },
+          variables: {
+            input: {
+              id: customer?.id as string,
+              taxCodes:
+                customer?.taxes?.filter((tax) => tax.id !== taxRate?.id).map((tax) => tax.code) ||
+                [],
+              // TODO: API should not require those fields on customer update
+              // To be tackled as improvement
+              externalId: customer?.externalId || '',
+              name: customer?.name || '',
+            },
+          },
         })
       }
       continueText={translate('text_64639f5e63a5cc0076779d43')}

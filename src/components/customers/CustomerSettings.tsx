@@ -15,6 +15,7 @@ import {
 } from '~/components/designSystem'
 import { theme, NAV_HEIGHT, MenuPopper } from '~/styles'
 import {
+  CustomerForDeleteVatRateDialogFragmentDoc,
   DeleteCustomerDocumentLocaleFragmentDoc,
   DeleteCustomerGracePeriodFragmentDoc,
   EditCustomerDocumentLocaleFragmentDoc,
@@ -56,14 +57,11 @@ import { GenericPlaceholder } from '../GenericPlaceholder'
 gql`
   fragment CustomerAppliedTaxRatesForSettings on Customer {
     id
-    appliedTaxes {
+    taxes {
       id
-      tax {
-        id
-        name
-        code
-        rate
-      }
+      name
+      code
+      rate
     }
   }
 
@@ -83,6 +81,7 @@ gql`
       ...EditCustomerInvoiceGracePeriod
       ...DeleteCustomerGracePeriod
       ...DeleteCustomerDocumentLocale
+      ...CustomerForDeleteVatRateDialog
     }
 
     organization {
@@ -100,6 +99,7 @@ gql`
   ${EditCustomerDocumentLocaleFragmentDoc}
   ${DeleteCustomerGracePeriodFragmentDoc}
   ${DeleteCustomerDocumentLocaleFragmentDoc}
+  ${CustomerForDeleteVatRateDialogFragmentDoc}
 `
 
 interface CustomerSettingsProps {
@@ -152,7 +152,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
         </Button>
       </InlineSectionTitle>
 
-      <InfoBlock $loading={loading} $hasSeparator={!customer?.appliedTaxes?.length}>
+      <InfoBlock $loading={loading} $hasSeparator={!customer?.taxes?.length}>
         {loading ? (
           <>
             <Skeleton variant="text" width={320} height={12} marginBottom={theme.spacing(4)} />
@@ -160,49 +160,53 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
           </>
         ) : (
           <>
-            {!customer?.appliedTaxes?.length ? (
+            {!customer?.taxes?.length ? (
               <Typography variant="caption" color="grey600">
                 {translate('text_64639f5e63a5cc0076779db7')}
               </Typography>
             ) : (
               <>
-                {customer.appliedTaxes?.map(({ id, tax }) => (
-                  <TaxRateItem key={`tax-rate-item-${tax.id}`}>
-                    <LeftSection>
-                      <Avatar size="big" variant="connector">
-                        <Icon size="medium" name="percentage" color="dark" />
-                      </Avatar>
-                      <div>
-                        <Typography color="textSecondary" variant="bodyHl" noWrap>
-                          {tax.name}
+                {customer.taxes?.map((tax) => {
+                  const { id, name, code, rate } = tax
+
+                  return (
+                    <TaxRateItem key={`tax-rate-item-${id}`}>
+                      <LeftSection>
+                        <Avatar size="big" variant="connector">
+                          <Icon size="medium" name="percentage" color="dark" />
+                        </Avatar>
+                        <div>
+                          <Typography color="textSecondary" variant="bodyHl" noWrap>
+                            {name}
+                          </Typography>
+                          <Typography variant="caption" noWrap>
+                            {code}
+                          </Typography>
+                        </div>
+                      </LeftSection>
+                      <RightSection>
+                        <Typography variant="body" color="grey700">
+                          {intlFormatNumber((rate || 0) / 100, {
+                            minimumFractionDigits: 2,
+                            style: 'percent',
+                          })}
                         </Typography>
-                        <Typography variant="caption" noWrap>
-                          {tax.code}
-                        </Typography>
-                      </div>
-                    </LeftSection>
-                    <RightSection>
-                      <Typography variant="body" color="grey700">
-                        {intlFormatNumber((tax.rate || 0) / 100, {
-                          minimumFractionDigits: 2,
-                          style: 'percent',
-                        })}
-                      </Typography>
-                      <Tooltip
-                        placement="top-end"
-                        title={translate('text_64639cfe2e46e9007d11b49d')}
-                      >
-                        <Button
-                          icon="trash"
-                          variant="quaternary"
-                          onClick={() => {
-                            deleteVatRateDialogRef.current?.openDialog(id, tax)
-                          }}
-                        />
-                      </Tooltip>
-                    </RightSection>
-                  </TaxRateItem>
-                ))}
+                        <Tooltip
+                          placement="top-end"
+                          title={translate('text_64639cfe2e46e9007d11b49d')}
+                        >
+                          <Button
+                            icon="trash"
+                            variant="quaternary"
+                            onClick={() => {
+                              deleteVatRateDialogRef.current?.openDialog(tax)
+                            }}
+                          />
+                        </Tooltip>
+                      </RightSection>
+                    </TaxRateItem>
+                  )
+                })}
               </>
             )}
           </>
@@ -392,9 +396,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
           <EditCustomerVatRateDialog
             ref={editVATDialogRef}
             customer={customer}
-            appliedTaxRatesTaxesIds={customer.appliedTaxes?.map((t) => t.tax.id)}
+            appliedTaxRatesTaxesIds={customer.taxes?.map((t) => t.id)}
           />
-          <DeleteCustomerVatRateDialog ref={deleteVatRateDialogRef} />
+          <DeleteCustomerVatRateDialog ref={deleteVatRateDialogRef} customer={customer} />
 
           <EditCustomerInvoiceGracePeriodDialog
             ref={editInvoiceGracePeriodDialogRef}

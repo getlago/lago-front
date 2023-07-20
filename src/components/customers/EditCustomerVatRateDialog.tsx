@@ -22,6 +22,11 @@ gql`
   fragment EditCustomerVatRate on Customer {
     id
     name
+    externalId
+    taxes {
+      id
+      code
+    }
   }
 
   query getTaxRatesForEditCustomer($limit: Int, $page: Int, $searchTerm: String) {
@@ -34,16 +39,15 @@ gql`
         id
         name
         rate
+        code
       }
     }
   }
 
-  mutation createCustomerAppliedTax($input: CreateCustomerAppliedTaxInput!) {
-    createCustomerAppliedTax(input: $input) {
+  mutation createCustomerAppliedTax($input: UpdateCustomerInput!) {
+    updateCustomer(input: $input) {
       id
-      customer {
-        ...CustomerAppliedTaxRatesForSettings
-      }
+      ...CustomerAppliedTaxRatesForSettings
     }
   }
 
@@ -60,12 +64,12 @@ interface EditCustomerVatRateDialogProps {
 export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRateDialogProps>(
   ({ appliedTaxRatesTaxesIds, customer }: EditCustomerVatRateDialogProps, ref) => {
     const { translate } = useInternationalization()
-    const [localTax, setLocalTaxRate] = useState<string>('')
+    const [localTax, setLocalTax] = useState<string>('')
     const [getTaxRates, { loading, data }] = useGetTaxRatesForEditCustomerLazyQuery({
       variables: { limit: 20 },
     })
     const [createCustomerAppliedTax] = useCreateCustomerAppliedTaxMutation({
-      onCompleted({ createCustomerAppliedTax: mutationRes }) {
+      onCompleted({ updateCustomer: mutationRes }) {
         if (mutationRes?.id) {
           addToast({
             message: translate('text_64639f5e63a5cc0076779de0'),
@@ -79,7 +83,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
       if (!data || !data?.taxes || !data?.taxes?.collection) return []
 
       return data?.taxes?.collection.map((taxRate) => {
-        const { id, name, rate } = taxRate
+        const { id, name, rate, code } = taxRate
 
         return {
           label: `${name} - (${intlFormatNumber((rate || 0) / 100, {
@@ -99,7 +103,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
               </Typography>
             </Item>
           ),
-          value: id,
+          value: code,
           disabled: appliedTaxRatesTaxesIds?.includes(id),
         }
       })
@@ -111,7 +115,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
         title={translate('text_64639f5e63a5cc0076779d42', { name: customer.name })}
         description={translate('text_64639f5e63a5cc0076779d46')}
         onClickAway={() => {
-          setLocalTaxRate('')
+          setLocalTax('')
         }}
         actions={({ closeDialog }) => (
           <>
@@ -119,7 +123,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                setLocalTaxRate('')
+                setLocalTax('')
               }}
             >
               {translate('text_627387d5053a1000c5287cab')}
@@ -129,11 +133,20 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
               disabled={!localTax}
               onClick={async () => {
                 const res = await createCustomerAppliedTax({
-                  variables: { input: { customerId: customer.id, taxId: localTax } },
+                  variables: {
+                    input: {
+                      id: customer.id,
+                      taxCodes: [...(customer?.taxes?.map((t) => t.code) || []), localTax],
+                      // TODO: API should not require those fields on customer update
+                      // To be tackled as improvement
+                      externalId: customer.externalId,
+                      name: customer.name || '',
+                    },
+                  },
                 })
 
                 if (res.errors) return
-                setLocalTaxRate('')
+                setLocalTax('')
                 closeDialog()
               }}
             >
@@ -152,7 +165,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
             data={comboboxTaxRatesData}
             label={translate('text_64639c4d172d7a006ef30514')}
             loading={loading}
-            onChange={setLocalTaxRate}
+            onChange={setLocalTax}
             placeholder={translate('text_64639c4d172d7a006ef30515')}
             PopperProps={{ displayInDialog: true }}
             searchQuery={getTaxRates}
