@@ -6,7 +6,6 @@ const CURRENCIES_WITH_0_DECIMALS = [
   'CVE',
   'DJF',
   'GNF',
-  'IDR',
   'ISK',
   'JPY',
   'KMF',
