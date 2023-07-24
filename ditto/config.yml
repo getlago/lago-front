@@ -265,5 +265,7 @@ sources:
       fileName: Add missing keys
     - name: 👍 [Ready for dev] - Settings / Customers - Lago x Stripe SDD
       id: 64aeb7b7d5628db33254c4bb
+    - name: 👍 [Ready for dev] - Plans - Add tax to plans
+      id: 64be91077c9f2900a38f3ad3
 format: flat
 variants: true

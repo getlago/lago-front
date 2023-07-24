@@ -54,6 +54,7 @@ describe('serializePlanInput()', () => {
         name: 'My plan',
         payInAdvance: true,
         trialPeriod: 1,
+        taxCodes: [],
       })
 
       expect(plan).toStrictEqual({
@@ -66,6 +67,7 @@ describe('serializePlanInput()', () => {
         name: 'My plan',
         payInAdvance: true,
         trialPeriod: 1,
+        taxCodes: [],
       })
     })
   })
@@ -88,6 +90,7 @@ describe('serializePlanInput()', () => {
               aggregationType: AggregationTypeEnum.CountAgg,
             },
             properties: fullProperty,
+            taxCodes: [],
           },
         ],
         code: 'my-plan',
@@ -95,6 +98,7 @@ describe('serializePlanInput()', () => {
         name: 'My plan',
         payInAdvance: true,
         trialPeriod: 1,
+        taxCodes: [],
       })
 
       expect(plan).toStrictEqual({
@@ -129,6 +133,7 @@ describe('serializePlanInput()', () => {
               rate: '5',
               volumeRanges: undefined,
             },
+            taxCodes: [],
           },
         ],
         code: 'my-plan',
@@ -136,6 +141,7 @@ describe('serializePlanInput()', () => {
         name: 'My plan',
         payInAdvance: true,
         trialPeriod: 1,
+        taxCodes: [],
       })
     })
   })
@@ -164,6 +170,7 @@ describe('serializePlanInput()', () => {
         name: 'My plan',
         payInAdvance: true,
         trialPeriod: 1,
+        taxCodes: [],
       })
 
       expect(plan).toStrictEqual({
@@ -187,6 +194,7 @@ describe('serializePlanInput()', () => {
               rate: '5',
               volumeRanges: undefined,
             },
+            taxCodes: [],
           },
         ],
         code: 'my-plan',
@@ -194,6 +202,7 @@ describe('serializePlanInput()', () => {
         name: 'My plan',
         payInAdvance: true,
         trialPeriod: 1,
+        taxCodes: [],
       })
     })
   })
@@ -215,6 +224,7 @@ describe('serializePlanInput()', () => {
               aggregationType: AggregationTypeEnum.CountAgg,
             },
             properties: fullProperty,
+            taxCodes: [],
           },
         ],
         code: 'my-plan',
@@ -222,6 +232,7 @@ describe('serializePlanInput()', () => {
         name: 'My plan',
         payInAdvance: true,
         trialPeriod: 1,
+        taxCodes: [],
       })
 
       expect(plan).toStrictEqual({
@@ -245,6 +256,7 @@ describe('serializePlanInput()', () => {
               rate: '5',
               volumeRanges: undefined,
             },
+            taxCodes: [],
           },
         ],
         code: 'my-plan',
@@ -252,6 +264,7 @@ describe('serializePlanInput()', () => {
         name: 'My plan',
         payInAdvance: true,
         trialPeriod: 1,
+        taxCodes: [],
       })
     })
   })
@@ -273,6 +286,7 @@ describe('serializePlanInput()', () => {
               aggregationType: AggregationTypeEnum.CountAgg,
             },
             properties: fullProperty,
+            taxCodes: [],
           },
         ],
         code: 'my-plan',
@@ -280,6 +294,7 @@ describe('serializePlanInput()', () => {
         name: 'My plan',
         payInAdvance: true,
         trialPeriod: 1,
+        taxCodes: [],
       })
 
       expect(plan).toStrictEqual({
@@ -303,6 +318,7 @@ describe('serializePlanInput()', () => {
               rate: '5',
               volumeRanges: undefined,
             },
+            taxCodes: [],
           },
         ],
         code: 'my-plan',
@@ -310,6 +326,7 @@ describe('serializePlanInput()', () => {
         name: 'My plan',
         payInAdvance: true,
         trialPeriod: 1,
+        taxCodes: [],
       })
     })
   })
@@ -331,6 +348,7 @@ describe('serializePlanInput()', () => {
               aggregationType: AggregationTypeEnum.CountAgg,
             },
             properties: fullProperty,
+            taxCodes: [],
           },
         ],
         code: 'my-plan',
@@ -338,6 +356,7 @@ describe('serializePlanInput()', () => {
         name: 'My plan',
         payInAdvance: true,
         trialPeriod: 1,
+        taxCodes: [],
       })
 
       expect(plan).toStrictEqual({
@@ -372,6 +391,7 @@ describe('serializePlanInput()', () => {
                 },
               ],
             },
+            taxCodes: [],
           },
         ],
         code: 'my-plan',
@@ -379,6 +399,7 @@ describe('serializePlanInput()', () => {
         name: 'My plan',
         payInAdvance: true,
         trialPeriod: 1,
+        taxCodes: [],
       })
     })
   })

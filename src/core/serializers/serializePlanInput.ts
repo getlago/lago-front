@@ -58,17 +58,27 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
 }
 
 export const serializePlanInput = (values: PlanFormInput) => {
-  const { amountCents, trialPeriod, charges, ...otherValues } = values
+  const { amountCents, trialPeriod, charges, taxes: planTaxes, ...otherValues } = values
 
   return {
     amountCents: Number(serializeAmount(amountCents, values.amountCurrency)),
     trialPeriod: Number(trialPeriod || 0),
+    taxCodes: planTaxes?.map(({ code }) => code) || [],
     charges: charges.map(
-      ({ billableMetric, chargeModel, properties, groupProperties, minAmountCents, ...charge }) => {
+      ({
+        billableMetric,
+        chargeModel,
+        properties,
+        groupProperties,
+        minAmountCents,
+        taxes: chargeTaxes,
+        ...charge
+      }) => {
         return {
           chargeModel,
           billableMetricId: billableMetric.id,
           minAmountCents: Number(serializeAmount(minAmountCents, values.amountCurrency) || 0),
+          taxCodes: chargeTaxes?.map(({ code }) => code) || [],
           properties: properties
             ? {
                 ...serializeProperties(properties as Properties, chargeModel),

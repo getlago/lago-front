@@ -37,6 +37,14 @@ import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { PlanFormInput, LocalChargeInput } from '../components/plans/types'
 
 gql`
+  # Might need to be removed
+  fragment TaxForPlanAndChargesInPlanForm on Tax {
+    id
+    code
+    name
+    rate
+  }
+
   fragment billableMetricForPlan on BillableMetric {
     id
     name
@@ -62,10 +70,16 @@ gql`
     trialPeriod
     subscriptionsCount
     billChargesMonthly
+    taxes {
+      ...TaxForPlanAndChargesInPlanForm
+    }
     charges {
       id
       minAmountCents
       payInAdvance
+      taxes {
+        ...TaxForPlanAndChargesInPlanForm
+      }
       billableMetric {
         id
         code
@@ -114,6 +128,7 @@ const CreatePlan = () => {
       code: plan?.code || '',
       description: plan?.description || '',
       interval: plan?.interval || PlanInterval.Monthly,
+      taxes: plan?.taxes || [],
       payInAdvance: plan?.payInAdvance || false,
       amountCents: isNaN(plan?.amountCents)
         ? ''
@@ -130,7 +145,8 @@ const CreatePlan = () => {
       billChargesMonthly: plan?.billChargesMonthly || undefined,
       charges: plan?.charges
         ? plan?.charges.map(
-            ({ properties, groupProperties, minAmountCents, payInAdvance, ...charge }) => ({
+            ({ taxes, properties, groupProperties, minAmountCents, payInAdvance, ...charge }) => ({
+              taxes: taxes || [],
               minAmountCents: isNaN(minAmountCents)
                 ? undefined
                 : String(
@@ -294,13 +310,13 @@ const CreatePlan = () => {
                 />
 
                 <ChargesSection
-                  alreadyExistingCharges={plan?.charges}
                   canBeEdited={canBeEdited}
+                  isEdition={isEdition}
                   formikProps={formikProps}
+                  alreadyExistingCharges={plan?.charges}
                   getPropertyShape={getPropertyShape}
                   hasAnyMeteredCharge={hasAnyMeteredCharge}
                   hasAnyRecurringCharge={hasAnyRecurringCharge}
-                  isEdition={isEdition}
                 />
 
                 <ButtonContainer>

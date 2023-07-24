@@ -25,13 +25,19 @@ import {
   PlanInterval,
   ChargeForChargeOptionsAccordionFragmentDoc,
   AggregationTypeEnum,
+  useGetTaxesForChargesLazyQuery,
+  TaxForPlanChargeAccordionFragment,
 } from '~/generated/graphql'
 import { AmountInput, ButtonSelector, ComboBox, Switch } from '~/components/form'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
-import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
+import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import {
+  MUI_INPUT_BASE_ROOT_CLASSNAME,
+  SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME,
+} from '~/core/constants/form'
 
 import { PlanFormInput } from './types'
 import { VolumeChargeTable } from './VolumeChargeTable'
@@ -40,6 +46,7 @@ import { RemoveChargeWarningDialogRef } from './RemoveChargeWarningDialog'
 import { ChargeOptionsAccordion } from './ChargeOptionsAccordion'
 
 import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
+import { Item } from '../form/ComboBox/ComboBoxItem'
 
 interface ChargeAccordionProps {
   id: string
@@ -54,6 +61,13 @@ interface ChargeAccordionProps {
 }
 
 gql`
+  fragment TaxForPlanChargeAccordion on Tax {
+    id
+    code
+    name
+    rate
+  }
+
   fragment ChargeAccordion on Charge {
     id
     chargeModel
@@ -82,12 +96,29 @@ gql`
         value
       }
     }
+    taxes {
+      ...TaxForPlanChargeAccordion
+    }
     ...GraduatedCharge
     ...VolumeRanges
     ...PackageCharge
     ...PercentageCharge
     ...ChargeForChargeOptionsAccordion
   }
+
+  query getTaxesForCharges($limit: Int, $page: Int) {
+    taxes(limit: $limit, page: $page) {
+      metadata {
+        currentPage
+        totalPages
+      }
+      collection {
+        id
+        ...TaxForPlanChargeAccordion
+      }
+    }
+  }
+
   ${GraduatedChargeFragmentDoc}
   ${VolumeRangesFragmentDoc}
   ${PackageChargeFragmentDoc}
@@ -131,6 +162,11 @@ export const ChargeAccordion = memo(
     const [showSpendingMinimum, setShowSpendingMinimum] = useState(
       !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0
     )
+    const [shouldDisplayTaxesInput, setShouldDisplayTaxesInput] = useState<boolean>(false)
+    const [getTaxes, { data: taxesData, loading: taxesLoading }] = useGetTaxesForChargesLazyQuery({
+      variables: { limit: 500 },
+    })
+    const { collection: taxesCollection } = taxesData?.taxes || {}
 
     useEffect(() => {
       setShowSpendingMinimum(
@@ -139,7 +175,7 @@ export const ChargeAccordion = memo(
     }, [initialLocalCharge?.minAmountCents])
 
     const handleUpdate = useCallback(
-      (name: string, value: string | boolean) => {
+      (name: string, value: string | boolean | TaxForPlanChargeAccordionFragment[]) => {
         if (name === 'chargeModel') {
           // Reset pay in advance when switching charge model
           if (
@@ -179,6 +215,45 @@ export const ChargeAccordion = memo(
         localCharge.billableMetric.recurring,
       ]
     )
+
+    const taxValueForBadgeDisplay = useMemo((): string | undefined => {
+      if (!localCharge?.taxes?.length && !formikProps?.values?.taxes?.length) return
+
+      if (localCharge.taxes?.length)
+        return String(localCharge.taxes.reduce((acc, cur) => acc + cur.rate, 0))
+
+      return String(formikProps?.values?.taxes?.reduce((acc, cur) => acc + cur.rate, 0))
+    }, [formikProps?.values?.taxes, localCharge.taxes])
+
+    const taxesDataForCombobox = useMemo(() => {
+      if (!taxesCollection) return []
+
+      const chargeTaxesIds = localCharge.taxes?.map((tax) => tax.id) || []
+
+      return taxesCollection.map(({ id: taxId, name, rate }) => {
+        return {
+          label: `${name} (${intlFormatNumber(Number(rate) / 100 || 0, {
+            minimumFractionDigits: 2,
+            style: 'percent',
+          })})`,
+          labelNode: (
+            <Item>
+              {name}&nbsp;
+              <Typography color="textPrimary">
+                (
+                {intlFormatNumber(Number(rate) / 100 || 0, {
+                  minimumFractionDigits: 2,
+                  style: 'percent',
+                })}
+                )
+              </Typography>
+            </Item>
+          ),
+          value: taxId,
+          disabled: chargeTaxesIds.includes(taxId),
+        }
+      })
+    }, [localCharge.taxes, taxesCollection])
 
     const chargePayInAdvanceSwitchHelperText = useMemo(() => {
       if (localCharge.chargeModel === ChargeModelEnum.Volume) {
@@ -247,6 +322,15 @@ export const ChargeAccordion = memo(
                   color={hasErrorInCharges ? 'disabled' : 'success'}
                 />
               </Tooltip>
+
+              {!!taxValueForBadgeDisplay && (
+                <Chip
+                  label={intlFormatNumber(Number(taxValueForBadgeDisplay) / 100 || 0, {
+                    minimumFractionDigits: 2,
+                    style: 'percent',
+                  })}
+                />
+              )}
               <Chip
                 label={translate(
                   mapIntervalCopy(
@@ -461,64 +545,160 @@ export const ChargeAccordion = memo(
                 {!isPremium && <Icon name="sparkles" />}
               </InvoiceableSwitchWrapper>
             )}
-            {!localCharge.payInAdvance && (
+            {!localCharge.payInAdvance && !!showSpendingMinimum && (
               <SpendingMinimumWrapper>
-                {showSpendingMinimum ? (
-                  <>
-                    <SpendingMinimumInput
-                      id={`spending-minimum-input-${index}`}
-                      beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
-                      label={translate('text_643e592657fc1ba5ce110c30')}
-                      currency={currency}
-                      placeholder={translate('text_643e592657fc1ba5ce110c80')}
+                <>
+                  <SpendingMinimumInput
+                    id={`spending-minimum-input-${index}`}
+                    beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
+                    label={translate('text_643e592657fc1ba5ce110c30')}
+                    currency={currency}
+                    placeholder={translate('text_643e592657fc1ba5ce110c80')}
+                    disabled={disabled}
+                    value={localCharge?.minAmountCents || ''}
+                    onChange={(value) => handleUpdate('minAmountCents', value)}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          {getCurrencySymbol(currency)}
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <CloseDescriptionTooltip
+                    placement="top-end"
+                    title={translate('text_63aa085d28b8510cd46443ff')}
+                  >
+                    <Button
+                      icon="trash"
+                      variant="quaternary"
                       disabled={disabled}
-                      value={localCharge?.minAmountCents || ''}
-                      onChange={(value) => handleUpdate('minAmountCents', value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            {getCurrencySymbol(currency)}
-                          </InputAdornment>
-                        ),
+                      onClick={() => {
+                        formikProps.setFieldValue(`charges.${index}.minAmountCents`, null)
+                        setShowSpendingMinimum(false)
                       }}
                     />
-                    <CloseDescriptionTooltip
-                      placement="top-end"
-                      title={translate('text_63aa085d28b8510cd46443ff')}
-                    >
-                      <Button
-                        icon="trash"
-                        variant="quaternary"
-                        disabled={disabled}
-                        onClick={() => {
-                          formikProps.setFieldValue(`charges.${index}.minAmountCents`, null)
-                          setShowSpendingMinimum(false)
-                        }}
-                      />
-                    </CloseDescriptionTooltip>
-                  </>
-                ) : (
-                  <Button
-                    variant="quaternary"
-                    startIcon="plus"
-                    disabled={disabled}
-                    endIcon={isPremium ? undefined : 'sparkles'}
-                    onClick={() => {
-                      if (isPremium) {
-                        setShowSpendingMinimum(true)
-                        setTimeout(() => {
-                          document.getElementById(`spending-minimum-input-${index}`)?.focus()
-                        }, 0)
-                      } else {
-                        premiumWarningDialogRef.current?.openDialog()
-                      }
-                    }}
-                  >
-                    {translate('text_643e592657fc1ba5ce110b9e')}
-                  </Button>
-                )}
+                  </CloseDescriptionTooltip>
+                </>
               </SpendingMinimumWrapper>
             )}
+
+            {!!localCharge?.taxes?.length && (
+              <div>
+                <TaxLabel variant="captionHl" color="grey700">
+                  {translate('text_64be910fba8ef9208686a8e3')}
+                </TaxLabel>
+                <InlineTaxesWrapper>
+                  {localCharge.taxes.map(({ id: localTaxId, name }) => (
+                    <Chip
+                      key={localTaxId}
+                      label={name}
+                      disabled={disabled}
+                      variant="secondary"
+                      size="medium"
+                      closeIcon="trash"
+                      icon="percentage"
+                      onCloseLabel={
+                        disabled ? undefined : translate('text_63aa085d28b8510cd46443ff')
+                      }
+                      onClose={() => {
+                        const newTaxedArray =
+                          localCharge.taxes?.filter((tax) => tax.id !== localTaxId) || []
+
+                        formikProps.setFieldValue(`charges.${index}.taxes`, newTaxedArray)
+                      }}
+                    />
+                  ))}
+                </InlineTaxesWrapper>
+              </div>
+            )}
+
+            {shouldDisplayTaxesInput && (
+              <div>
+                {!localCharge.taxes?.length && (
+                  <TaxLabel variant="captionHl" color="grey700">
+                    {translate('text_64be910fba8ef9208686a8e3')}
+                  </TaxLabel>
+                )}
+                <InlineTaxInputWrapper>
+                  <ComboBox
+                    className={SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME}
+                    data={taxesDataForCombobox}
+                    searchQuery={getTaxes}
+                    loading={taxesLoading}
+                    placeholder={translate('text_64be910fba8ef9208686a8e7')}
+                    emptyText={translate('text_64be91fd0678965126e5657b')}
+                    onChange={(newTaxId) => {
+                      const previousTaxes = [...(localCharge?.taxes || [])]
+                      const newTaxObject = taxesData?.taxes.collection.find(
+                        (t) => t.id === newTaxId
+                      ) as TaxForPlanChargeAccordionFragment
+
+                      handleUpdate('taxes', [...previousTaxes, newTaxObject])
+                      setShouldDisplayTaxesInput(false)
+                    }}
+                  />
+
+                  <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
+                    <Button
+                      icon="trash"
+                      variant="quaternary"
+                      onClick={() => {
+                        setShouldDisplayTaxesInput(false)
+                      }}
+                    />
+                  </Tooltip>
+                </InlineTaxInputWrapper>
+              </div>
+            )}
+
+            <InlineButtonsWrapper>
+              {!localCharge.payInAdvance && !showSpendingMinimum && (
+                <Button
+                  variant="quaternary"
+                  startIcon="plus"
+                  disabled={disabled}
+                  endIcon={isPremium ? undefined : 'sparkles'}
+                  onClick={() => {
+                    if (isPremium) {
+                      setShowSpendingMinimum(true)
+                      setTimeout(() => {
+                        document.getElementById(`spending-minimum-input-${index}`)?.focus()
+                      }, 0)
+                    } else {
+                      premiumWarningDialogRef.current?.openDialog()
+                    }
+                  }}
+                >
+                  {translate('text_643e592657fc1ba5ce110b9e')}
+                </Button>
+              )}
+
+              {!shouldDisplayTaxesInput && (
+                <Button
+                  startIcon="plus"
+                  variant="quaternary"
+                  disabled={disabled}
+                  onClick={() => {
+                    setShouldDisplayTaxesInput(true)
+
+                    setTimeout(() => {
+                      const element = document.querySelector(
+                        `.${SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                      ) as HTMLElement
+
+                      if (!element) return
+
+                      element.scrollIntoView({ behavior: 'smooth' })
+                      element.click()
+                    }, 0)
+                  }}
+                  data-test="show-add-taxes"
+                >
+                  {translate('text_64be910fba8ef9208686a8c9')}
+                </Button>
+              )}
+            </InlineButtonsWrapper>
           </ChargeOptionsAccordion>
         </>
       </Accordion>
@@ -577,4 +757,28 @@ const InvoiceableSwitchWrapper = styled.div`
   > *:first-child {
     flex: 1;
   }
+`
+const InlineButtonsWrapper = styled.div`
+  display: flex;
+`
+
+const TaxLabel = styled(Typography)`
+  margin-bottom: ${theme.spacing(1)};
+`
+
+const InlineTaxInputWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing(3)};
+
+  > *:first-child {
+    flex: 1;
+  }
+`
+
+const InlineTaxesWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing(3)};
+  flex-wrap: wrap;
 `
