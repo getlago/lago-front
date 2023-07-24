@@ -62,7 +62,7 @@ const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
   switch (aggregationType) {
     case AggregationTypeEnum.CountAgg:
       return `curl --location --request POST "${apiUrl}/api/v1/events" \\
-  --header "Authorization: Bearer $__YOUR_API_KEY__" \\
+  --header "Authorization: Bearer __YOUR_API_KEY__" \\
   --header 'Content-Type: application/json' \\
   --data-raw '{
     "event": {
