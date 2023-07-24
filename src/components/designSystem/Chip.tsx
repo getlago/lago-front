@@ -7,6 +7,7 @@ import { AvatarGenericProps, Avatar } from './Avatar'
 import { Typography } from './Typography'
 import { Button } from './Button'
 import { Icon, IconName } from './Icon'
+import { Tooltip } from './Tooltip'
 
 import { ConditionalWrapper } from '../ConditionalWrapper'
 
@@ -26,38 +27,38 @@ type ChipVariant = keyof typeof ChipVariantEnum
 interface ChipGenericProps {
   label: string
   className?: string
+  closeIcon?: IconName
+  onCloseLabel?: string
+  disabled?: boolean
+  size?: ChipSize
   type?: keyof typeof ChipTypeEnum
+  variant?: ChipVariant
   onClose?: () => void | Promise<void>
 }
 
 interface ChipPropsAvatar extends ChipGenericProps {
   icon?: never
-  closeIcon?: IconName
   avatarProps?: Pick<AvatarGenericProps, 'initials' | 'identifier'>
-  size?: ChipSize
-  variant?: ChipVariant
 }
 
 interface ChipPropsIcon extends ChipGenericProps {
   icon: IconName
-  closeIcon?: IconName
   avatarProps?: never
-  size?: ChipSize
-  variant?: ChipVariant
 }
 
 type ChipProps = ChipPropsAvatar | ChipPropsIcon
 
 export const Chip = ({
-  className,
-  label,
-  icon,
-  closeIcon,
   avatarProps,
+  className,
+  closeIcon,
+  disabled = false,
+  icon,
+  label,
+  onCloseLabel,
+  size = 'small',
   type = ChipTypeEnum.default,
   variant = ChipVariantEnum.primary,
-  size = 'small',
-
   onClose,
 }: ChipProps) => {
   return (
@@ -93,13 +94,24 @@ export const Chip = ({
         {label}
       </Typography>
       {onClose && (
-        <Button
-          size="small"
-          variant="quaternary"
-          danger={type === ChipTypeEnum.error}
-          icon={!!closeIcon ? closeIcon : 'close-circle-filled'}
-          onClick={onClose}
-        />
+        <ConditionalWrapper
+          condition={!!onCloseLabel}
+          invalidWrapper={(children) => <>{children}</>}
+          validWrapper={(children) => (
+            <Tooltip placement="top-end" title={onCloseLabel}>
+              <>{children}</>
+            </Tooltip>
+          )}
+        >
+          <Button
+            size="small"
+            variant="quaternary"
+            disabled={disabled}
+            danger={type === ChipTypeEnum.error}
+            icon={!!closeIcon ? closeIcon : 'close-circle-filled'}
+            onClick={onClose}
+          />
+        </ConditionalWrapper>
       )}
     </Container>
   )

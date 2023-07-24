@@ -1,20 +1,33 @@
-import { memo, useEffect, useState } from 'react'
+import { memo, useEffect, useMemo, useState } from 'react'
 import { FormikProps } from 'formik'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
 
-import { ButtonSelectorField, ComboBoxField, TextInputField } from '~/components/form'
+import { Item } from '~/components/form/ComboBox/ComboBoxItem'
+import { ButtonSelectorField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Button, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { theme, Card } from '~/styles'
 import { PLAN_FORM_TYPE_ENUM } from '~/hooks/plans/usePlanForm'
 import { LineSplit } from '~/styles/mainObjectsForm'
-import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
-import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { CurrencyEnum, PlanInterval, useGetTaxesForPlanLazyQuery } from '~/generated/graphql'
+import {
+  FORM_ERRORS_ENUM,
+  MUI_INPUT_BASE_ROOT_CLASSNAME,
+  SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME,
+} from '~/core/constants/form'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 
 import { PlanFormInput } from './types'
 
 gql`
+  fragment TaxForPlanSettingsSection on Tax {
+    id
+    code
+    name
+    rate
+  }
+
   fragment PlanForSettingsSection on Plan {
     id
     amountCurrency
@@ -22,6 +35,22 @@ gql`
     description
     interval
     name
+    taxes {
+      ...TaxForPlanSettingsSection
+    }
+  }
+
+  query getTaxesForPlan($limit: Int, $page: Int) {
+    taxes(limit: $limit, page: $page) {
+      metadata {
+        currentPage
+        totalPages
+      }
+      collection {
+        id
+        ...TaxForPlanSettingsSection
+      }
+    }
   }
 `
 
@@ -38,7 +67,43 @@ export const PlanSettingsSection = memo(
     const [shouldDisplayDescription, setShouldDisplayDescription] = useState<boolean>(
       !!formikProps.initialValues.description
     )
+    const [shouldDisplayTaxesInput, setShouldDisplayTaxesInput] = useState<boolean>(false)
+    const plan = formikProps.values
     const isEdition = type === PLAN_FORM_TYPE_ENUM.edition
+    const [getTaxes, { data: taxesData, loading: taxesLoading }] = useGetTaxesForPlanLazyQuery({
+      variables: { limit: 500 },
+    })
+    const { collection: taxesCollection } = taxesData?.taxes || {}
+
+    const taxesDataForCombobox = useMemo(() => {
+      if (!taxesCollection) return []
+
+      const planTaxesIds = plan.taxes?.map((tax) => tax.id) || []
+
+      return taxesCollection.map(({ id, name, rate }) => {
+        return {
+          label: `${name} (${intlFormatNumber(Number(rate) / 100 || 0, {
+            minimumFractionDigits: 2,
+            style: 'percent',
+          })})`,
+          labelNode: (
+            <Item>
+              {name}&nbsp;
+              <Typography color="textPrimary">
+                (
+                {intlFormatNumber(Number(rate) / 100 || 0, {
+                  minimumFractionDigits: 2,
+                  style: 'percent',
+                })}
+                )
+              </Typography>
+            </Item>
+          ),
+          value: id,
+          disabled: planTaxesIds.includes(id),
+        }
+      })
+    }, [plan.taxes, taxesCollection])
 
     useEffect(() => {
       setShouldDisplayDescription(!!formikProps.initialValues.description)
@@ -149,6 +214,98 @@ export const PlanSettingsSection = memo(
           label={translate('text_642d5eb2783a2ad10d67032e')}
           name="amountCurrency"
         />
+
+        {!!plan?.taxes?.length && (
+          <div>
+            <TaxLabel variant="captionHl" color="grey700">
+              {translate('text_64be910fba8ef9208686a8e3')}
+            </TaxLabel>
+            <InlineTaxesWrapper>
+              {plan.taxes.map(({ id, name }) => (
+                <Chip
+                  key={id}
+                  label={name}
+                  disabled={isEdition && !canBeEdited}
+                  variant="secondary"
+                  size="medium"
+                  closeIcon="trash"
+                  icon="percentage"
+                  onCloseLabel={
+                    isEdition && !canBeEdited
+                      ? undefined
+                      : translate('text_63aa085d28b8510cd46443ff')
+                  }
+                  onClose={() => {
+                    const newTaxedArray = plan.taxes?.filter((tax) => tax.id !== id) || []
+
+                    formikProps.setFieldValue('taxes', newTaxedArray)
+                  }}
+                />
+              ))}
+            </InlineTaxesWrapper>
+          </div>
+        )}
+
+        {shouldDisplayTaxesInput ? (
+          <div>
+            {!plan.taxes?.length && (
+              <TaxLabel variant="captionHl" color="grey700">
+                {translate('text_64be910fba8ef9208686a8e3')}
+              </TaxLabel>
+            )}
+            <InlineTaxInputWrapper>
+              <ComboBox
+                className={SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME}
+                data={taxesDataForCombobox}
+                searchQuery={getTaxes}
+                loading={taxesLoading}
+                placeholder={translate('text_64be910fba8ef9208686a8e7')}
+                emptyText={translate('text_64be91fd0678965126e5657b')}
+                onChange={(newTaxId) => {
+                  const previousTaxes = [...(formikProps.values.taxes || [])]
+                  const newTaxObject = taxesData?.taxes.collection.find((t) => t.id === newTaxId)
+
+                  formikProps.setFieldValue('taxes', [...previousTaxes, newTaxObject])
+                  setShouldDisplayTaxesInput(false)
+                }}
+              />
+
+              <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
+                <Button
+                  icon="trash"
+                  variant="quaternary"
+                  disabled={isEdition && !canBeEdited}
+                  onClick={() => {
+                    setShouldDisplayTaxesInput(false)
+                  }}
+                />
+              </Tooltip>
+            </InlineTaxInputWrapper>
+          </div>
+        ) : (
+          <Button
+            startIcon="plus"
+            variant="quaternary"
+            disabled={isEdition && !canBeEdited}
+            onClick={() => {
+              setShouldDisplayTaxesInput(true)
+
+              setTimeout(() => {
+                const element = document.querySelector(
+                  `.${SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                ) as HTMLElement
+
+                if (!element) return
+
+                element.scrollIntoView({ behavior: 'smooth' })
+                element.click()
+              }, 0)
+            }}
+            data-test="show-add-taxes"
+          >
+            {translate('text_64be910fba8ef9208686a8c9')}
+          </Button>
+        )}
       </Card>
     )
   }
@@ -172,6 +329,27 @@ const AdjustableSection = styled.div<{ $shouldDisplayDescription: boolean }>`
 const InlineDescription = styled.div`
   display: flex;
   align-items: center;
+`
+
+const InlineTaxInputWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing(3)};
+
+  > *:first-child {
+    flex: 1;
+  }
+`
+
+const TaxLabel = styled(Typography)`
+  margin-bottom: ${theme.spacing(1)};
+`
+
+const InlineTaxesWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing(3)};
+  flex-wrap: wrap;
 `
 
 const TextArea = styled(TextInputField)`
