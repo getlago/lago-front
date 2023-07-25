@@ -84,7 +84,7 @@ export const ChargePercentage = ({
         label={translate('text_62a0b7107afa2700a65ef6f6')}
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
-        beforeChangeFormatter={['positiveNumber', 'decimal']}
+        beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
         error={_get(formikProps.errors, `charges.${chargeIndex}.${propertyCursor}.rate`)}
         disabled={disabled}
         placeholder={translate('text_62a0b7107afa2700a65ef700')}
@@ -302,7 +302,7 @@ export const ChargePercentage = ({
         <Typography color="textSecondary">
           {translate('text_62ff5d01a306e274d4ffcc65', {
             percentageFee: intlFormatNumber(Number(valuePointer?.rate) / 100 || 0, {
-              minimumFractionDigits: 2,
+              maximumFractionDigits: 15,
               style: 'percent',
             }),
           })}
