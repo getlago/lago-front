@@ -19,7 +19,6 @@ export interface CheckboxProps {
   disabled?: boolean
   error?: string
   label: string | React.ReactNode
-  sublabel?: string | React.ReactNode
   labelAlignment?: keyof typeof LabelAlignmentEnum
   name?: string
   value?: boolean | undefined
@@ -33,7 +32,6 @@ export const Checkbox = ({
   error,
   label,
   labelAlignment = LabelAlignmentEnum.top,
-  sublabel,
   name,
   value,
   onChange,
@@ -95,21 +93,11 @@ export const Checkbox = ({
             />
           )}
         </InputContainer>
-        <div>
-          {typeof label === 'string' ? (
-            <Typography color={disabled ? 'disabled' : 'textSecondary'}>{label}</Typography>
-          ) : (
-            label
-          )}
-          {!!label &&
-            (typeof sublabel === 'string' ? (
-              <Typography variant="caption" color={disabled ? 'disabled' : 'grey600'}>
-                {sublabel}
-              </Typography>
-            ) : (
-              sublabel
-            ))}
-        </div>
+        {typeof label === 'string' ? (
+          <Typography color={disabled ? 'disabled' : 'textSecondary'}>{label}</Typography>
+        ) : (
+          label
+        )}
       </Main>
       {!!error && (
         <StyledTypography variant="caption" color="danger600">

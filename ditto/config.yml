@@ -262,8 +262,5 @@ sources:
       fileName: Subscription at drawer fix
     - name: Add missing keys
       id: 64999d7a720a1412d1a72cf6
-      fileName: Add missing keys
-    - name: 👍 [Ready for dev] - Settings / Customers - Lago x Stripe SDD
-      id: 64aeb7b7d5628db33254c4bb
 format: flat
 variants: true

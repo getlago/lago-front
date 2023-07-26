@@ -788,22 +788,6 @@ const DesignSystem = () => {
                       value={formikProps.values.checkboxCond2}
                       label="Smart condition you can't remove"
                     />
-
-                    <CheckboxField
-                      name="checkboxCond2"
-                      formikProps={formikProps}
-                      value={formikProps.values.checkboxCond2}
-                      label="Label"
-                      sublabel="Sublabel"
-                    />
-                    <CheckboxField
-                      disabled
-                      name="checkboxCond2"
-                      formikProps={formikProps}
-                      value={formikProps.values.checkboxCond2}
-                      label="Label"
-                      sublabel="Sublabel"
-                    />
                   </Block>
 
                   <GroupTitle variant="subhead">Code Editor</GroupTitle>
