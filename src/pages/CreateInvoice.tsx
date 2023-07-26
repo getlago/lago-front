@@ -228,7 +228,7 @@ const CreateInvoice = () => {
     if (!!appliedTaxes?.length) {
       for (let i = 0; i < appliedTaxes.length; i++) {
         const localTax = appliedTaxes[i]
-        const localValue = deserializeAmount(subTotal * localTax.rate, currency)
+        const localValue = deserializeAmount(Math.round(subTotal * localTax.rate), currency)
 
         taxesToDisplay.push({
           label: `${translate('text_6453819268763979024ad0e9')} (${localTax.rate}%)`,
