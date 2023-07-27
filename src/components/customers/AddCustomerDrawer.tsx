@@ -96,7 +96,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
       providerCustomer: {
         providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? undefined,
         syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
-        providerPaymentMethods: customer?.providerCustomer?.providerPaymentMethods.length
+        providerPaymentMethods: customer?.providerCustomer?.providerPaymentMethods?.length
           ? customer?.providerCustomer?.providerPaymentMethods
           : customer?.currency !== CurrencyEnum.Eur
           ? [ProviderPaymentMethodsEnum.Card]
@@ -191,7 +191,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
             providerCustomer: {
               providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? undefined,
               syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
-              providerPaymentMethods: customer?.providerCustomer?.providerPaymentMethods.length
+              providerPaymentMethods: customer?.providerCustomer?.providerPaymentMethods?.length
                 ? customer?.providerCustomer?.providerPaymentMethods
                 : customer?.currency !== CurrencyEnum.Eur
                 ? [ProviderPaymentMethodsEnum.Card]

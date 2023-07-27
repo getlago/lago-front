@@ -202,11 +202,11 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
         </div>
       )}
       {paymentProvider === ProviderTypeEnum?.Stripe &&
-        !!providerCustomer?.providerPaymentMethods.length && (
+        !!providerCustomer?.providerPaymentMethods?.length && (
           <div>
             <Typography variant="caption">{translate('text_64aeb7b998c4322918c84237')}</Typography>
             <Typography color="textSecondary">
-              {providerCustomer?.providerPaymentMethods.length === 2
+              {providerCustomer?.providerPaymentMethods?.length === 2
                 ? translate('text_64aeb7b998c4322918c8423b')
                 : providerCustomer?.providerPaymentMethods[0] === ProviderPaymentMethodsEnum?.Card
                 ? translate('text_64aeb7b998c4322918c84208')
