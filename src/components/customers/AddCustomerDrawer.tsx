@@ -436,13 +436,13 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                     <Checkbox
                       name="providerCustomer.providerPaymentMethods.card"
                       value={
-                        !!formikProps.values.providerCustomer?.providerPaymentMethods.includes(
+                        !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
                           ProviderPaymentMethodsEnum.Card
                         )
                       }
                       label={translate('text_64aeb7b998c4322918c84208')}
                       disabled={
-                        formikProps.values.providerCustomer?.providerPaymentMethods.length === 1 &&
+                        formikProps.values.providerCustomer?.providerPaymentMethods?.length === 1 &&
                         formikProps.values.providerCustomer?.providerPaymentMethods.includes(
                           ProviderPaymentMethodsEnum.Card
                         )
@@ -467,7 +467,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                     <Checkbox
                       name="providerCustomer.providerPaymentMethods.sepa_debit"
                       value={
-                        !!formikProps.values.providerCustomer?.providerPaymentMethods.includes(
+                        !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
                           ProviderPaymentMethodsEnum.SepaDebit
                         )
                       }
@@ -477,7 +477,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                         translate('text_64b04d6b13f1cc00ab4bf6bf')
                       }
                       disabled={
-                        formikProps.values.providerCustomer?.providerPaymentMethods.length === 1 &&
+                        formikProps.values.providerCustomer?.providerPaymentMethods?.length === 1 &&
                         formikProps.values.providerCustomer?.providerPaymentMethods.includes(
                           ProviderPaymentMethodsEnum.SepaDebit
                         )
