@@ -2505,7 +2505,7 @@ export type ProviderCustomer = {
 
 export type ProviderCustomerInput = {
   providerCustomerId?: InputMaybe<Scalars['ID']['input']>;
-  providerPaymentMethods: Array<ProviderPaymentMethodsEnum>;
+  providerPaymentMethods?: InputMaybe<Array<ProviderPaymentMethodsEnum>>;
   syncWithProvider?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
