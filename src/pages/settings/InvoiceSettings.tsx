@@ -18,6 +18,7 @@ import { theme, NAV_HEIGHT } from '~/styles'
 import {
   DeleteOrganizationVatRateFragmentDoc,
   EditOrganizationInvoiceTemplateDialogFragmentDoc,
+  EditOrganizationNetPaymentTermForDialogFragmentDoc,
   useGetOrganizationSettingsQuery,
 } from '~/generated/graphql'
 import {
@@ -41,6 +42,10 @@ import {
   DeleteOrganizationVatRateDialog,
   DeleteOrganizationVatRateDialogRef,
 } from '~/components/settings/DeleteOrganizationVatRateDialog'
+import {
+  EditNetPaymentTermDialog,
+  EditNetPaymentTermDialogRef,
+} from '~/components/settings/EditNetPaymentTermDialog'
 
 const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
 
@@ -48,6 +53,7 @@ gql`
   query getOrganizationSettings($appliedToOrganization: Boolean = true) {
     organization {
       id
+      netPaymentTerm
       billingConfiguration {
         id
         invoiceGracePeriod
@@ -55,6 +61,7 @@ gql`
         documentLocale
       }
       ...EditOrganizationInvoiceTemplateDialog
+      ...EditOrganizationNetPaymentTermForDialog
     }
 
     taxes(appliedToOrganization: $appliedToOrganization) {
@@ -71,6 +78,7 @@ gql`
 
   ${DeleteOrganizationVatRateFragmentDoc}
   ${EditOrganizationInvoiceTemplateDialogFragmentDoc}
+  ${EditOrganizationNetPaymentTermForDialogFragmentDoc}
 `
 
 const InvoiceSettings = () => {
@@ -81,6 +89,7 @@ const InvoiceSettings = () => {
   const editInvoiceTemplateDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
   const editGracePeriodDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
   const editDocumentLanguageDialogRef = useRef<EditOrganizationDocumentLocaleDialogRef>(null)
+  const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { data, error, loading } = useGetOrganizationSettingsQuery()
   const organization = data?.organization
@@ -177,6 +186,45 @@ const InvoiceSettings = () => {
                   {translate('text_64639bad55d65900f4dd896f')}
                 </Typography>
               )}
+            </Typography>
+          </>
+        )}
+      </InfoBlock>
+
+      <InlineSectionTitle>
+        <Typography variant="subhead" color="grey700">
+          {translate('text_64c7a89b6c67eb6c98898167')}
+        </Typography>
+        <Button
+          variant="quaternary"
+          disabled={loading}
+          onClick={() => editNetPaymentTermDialogRef?.current?.openDialog(organization)}
+        >
+          {translate('text_637f819eff19cd55a56d55e4')}
+        </Button>
+      </InlineSectionTitle>
+
+      <InfoBlock $loading={loading}>
+        {loading ? (
+          <>
+            <Skeleton variant="text" width={320} height={12} />
+            <Skeleton variant="text" width={160} height={12} />
+          </>
+        ) : (
+          <>
+            <Typography variant="body" color="grey700">
+              {organization?.netPaymentTerm === 0
+                ? translate('text_64c7a89b6c67eb6c98898125')
+                : translate(
+                    'text_64c7a89b6c67eb6c9889815f',
+                    {
+                      days: organization?.netPaymentTerm,
+                    },
+                    organization?.netPaymentTerm
+                  )}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {translate('text_64c7a89b6c67eb6c98898182')}
             </Typography>
           </>
         )}
@@ -310,6 +358,10 @@ const InvoiceSettings = () => {
         ref={editDocumentLanguageDialogRef}
         documentLocale={documentLocale}
       />
+      <EditNetPaymentTermDialog
+        ref={editNetPaymentTermDialogRef}
+        description={translate('text_64c7a89b6c67eb6c988980eb')}
+      />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </Page>
   )
@@ -338,6 +390,7 @@ const InlineSectionTitle = styled.div`
 const InfoBlock = styled.div<{ $loading?: boolean }>`
   padding-top: ${({ $loading }) => ($loading ? theme.spacing(1) : 0)};
   padding-bottom: ${({ $loading }) => ($loading ? theme.spacing(9) : theme.spacing(8))};
+  margin-bottom: ${theme.spacing(8)};
   box-shadow: ${theme.shadows[7]};
 
   > *:not(:last-child) {

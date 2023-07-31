@@ -62,6 +62,9 @@ module.exports = {
   "project_634ea0e94c99df2bb59820d9": {
     "base": require('./-ready-for-dev---settings---customers---lago-gocardless-connection__base.json')
   },
+  "project_64c7a896197f1907cbc6371c": {
+    "base": require('./-ready-for-dev---settings---net-payment-term__base.json')
+  },
   "project_64aeb7b7d5628db33254c4bb": {
     "base": require('./-ready-for-dev---settings--customers---lago-x-stripe-sdd__base.json')
   },
