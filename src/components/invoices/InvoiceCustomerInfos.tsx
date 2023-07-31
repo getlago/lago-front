@@ -17,6 +17,7 @@ gql`
   fragment InvoiceForInvoiceInfos on Invoice {
     number
     issuingDate
+    paymentDueDate
     customer {
       id
       name
@@ -158,32 +159,32 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
           </InfoLine>
         )}
         {invoice?.issuingDate && (
-          <>
-            <InfoLine>
-              <Typography variant="caption" color="grey600" noWrap>
-                {translate('text_634687079be251fdb4383407')}
-              </Typography>
-              <Typography variant="body" color="grey700">
-                {formatDateToTZ(
-                  invoice?.issuingDate,
-                  customer?.applicableTimezone,
-                  "LLL. dd, yyyy U'T'CZ"
-                )}
-              </Typography>
-            </InfoLine>
-            <InfoLine>
-              <Typography variant="caption" color="grey600" noWrap>
-                {translate('text_634687079be251fdb4383413')}
-              </Typography>
-              <Typography variant="body" color="grey700">
-                {formatDateToTZ(
-                  invoice?.issuingDate,
-                  customer?.applicableTimezone,
-                  "LLL. dd, yyyy U'T'CZ"
-                )}
-              </Typography>
-            </InfoLine>
-          </>
+          <InfoLine>
+            <Typography variant="caption" color="grey600" noWrap>
+              {translate('text_634687079be251fdb4383407')}
+            </Typography>
+            <Typography variant="body" color="grey700">
+              {formatDateToTZ(
+                invoice?.issuingDate,
+                customer?.applicableTimezone,
+                "LLL. dd, yyyy U'T'CZ"
+              )}
+            </Typography>
+          </InfoLine>
+        )}
+        {invoice?.paymentDueDate && (
+          <InfoLine>
+            <Typography variant="caption" color="grey600" noWrap>
+              {translate('text_634687079be251fdb4383413')}
+            </Typography>
+            <Typography variant="body" color="grey700">
+              {formatDateToTZ(
+                invoice?.paymentDueDate,
+                customer?.applicableTimezone,
+                "LLL. dd, yyyy U'T'CZ"
+              )}
+            </Typography>
+          </InfoLine>
         )}
       </div>
     </Wrapper>

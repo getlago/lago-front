@@ -89,7 +89,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
           PaperProps={{ className: 'dialogPaper' }}
           transitionDuration={80}
         >
-          <Title $hasDescription={!!description} variant="headline" forceBreak>
+          <Title $hasDescription={!!description} variant="headline">
             {title}
           </Title>
           {description && <Description>{description}</Description>}

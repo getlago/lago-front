@@ -18,6 +18,7 @@ import {
   CustomerForDeleteVatRateDialogFragmentDoc,
   DeleteCustomerDocumentLocaleFragmentDoc,
   DeleteCustomerGracePeriodFragmentDoc,
+  DeleteCustomerNetPaymentTermFragmentDoc,
   EditCustomerDocumentLocaleFragmentDoc,
   EditCustomerInvoiceGracePeriodFragmentDoc,
   EditCustomerVatRateFragmentDoc,
@@ -33,6 +34,11 @@ import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/Prem
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { DocumentLocales } from '~/core/translations/documentLocales'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import {
+  EditNetPaymentTermDialog,
+  EditNetPaymentTermDialogRef,
+} from '~/components/settings/EditNetPaymentTermDialog'
 
 import {
   EditCustomerInvoiceGracePeriodDialog,
@@ -51,8 +57,10 @@ import {
   EditCustomerDocumentLocaleDialogRef,
 } from './EditCustomerDocumentLocaleDialog'
 import { DeleteCustomerDocumentLocaleDialog } from './DeleteCustomerDocumentLocaleDialog'
-
-import { GenericPlaceholder } from '../GenericPlaceholder'
+import {
+  DeleteOrganizationNetPaymentTermDialog,
+  DeleteOrganizationNetPaymentTermDialogRef,
+} from './DeleteCustomerNetPaymentTermDialog'
 
 gql`
   fragment CustomerAppliedTaxRatesForSettings on Customer {
@@ -69,6 +77,7 @@ gql`
     customer(id: $id) {
       id
       invoiceGracePeriod
+      netPaymentTerm
       billingConfiguration {
         id
         documentLocale
@@ -82,10 +91,12 @@ gql`
       ...DeleteCustomerGracePeriod
       ...DeleteCustomerDocumentLocale
       ...CustomerForDeleteVatRateDialog
+      ...DeleteCustomerNetPaymentTerm
     }
 
     organization {
       id
+      netPaymentTerm
       billingConfiguration {
         id
         invoiceGracePeriod
@@ -100,6 +111,7 @@ gql`
   ${DeleteCustomerGracePeriodFragmentDoc}
   ${DeleteCustomerDocumentLocaleFragmentDoc}
   ${CustomerForDeleteVatRateDialogFragmentDoc}
+  ${DeleteCustomerNetPaymentTermFragmentDoc}
 `
 
 interface CustomerSettingsProps {
@@ -122,6 +134,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const editCustomerDocumentLocale = useRef<EditCustomerDocumentLocaleDialogRef>(null)
   const deleteCustomerDocumentLocale = useRef<DeleteCustomerGracePeriodeDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
+  const deleteOrganizationNetPaymentTermDialogRef =
+    useRef<DeleteOrganizationNetPaymentTermDialogRef>(null)
 
   {
     !!error && !loading && (
@@ -209,6 +224,95 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                 })}
               </>
             )}
+          </>
+        )}
+      </InfoBlock>
+
+      <InlineSectionTitle>
+        <Typography variant="subhead" color="grey700">
+          {translate('text_64c7a89b6c67eb6c98898109')}
+        </Typography>
+        {typeof customer?.netPaymentTerm !== 'number' ? (
+          <Button
+            disabled={loading}
+            variant="quaternary"
+            onClick={() => editNetPaymentTermDialogRef?.current?.openDialog(customer)}
+          >
+            {translate('text_64c7a89b6c67eb6c9889822d')}
+          </Button>
+        ) : (
+          <Popper
+            PopperProps={{ placement: 'bottom-end' }}
+            opener={<Button disabled={loading} icon="dots-horizontal" variant="quaternary" />}
+          >
+            {({ closePopper }) => (
+              <MenuPopper>
+                <Button
+                  disabled={loading}
+                  startIcon="pen"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    editNetPaymentTermDialogRef?.current?.openDialog(customer)
+                    closePopper()
+                  }}
+                >
+                  {translate('text_63aa15caab5b16980b21b0b8')}
+                </Button>
+                <Button
+                  disabled={loading}
+                  startIcon="trash"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    deleteOrganizationNetPaymentTermDialogRef?.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_63aa15caab5b16980b21b0ba')}
+                </Button>
+              </MenuPopper>
+            )}
+          </Popper>
+        )}
+      </InlineSectionTitle>
+
+      <InfoBlock $hasSeparator $loading={loading}>
+        {loading ? (
+          <>
+            <Skeleton variant="text" width={320} height={12} marginBottom={theme.spacing(4)} />
+            <Skeleton variant="text" width={160} height={12} />
+          </>
+        ) : (
+          <>
+            <Typography variant="body" color="grey700">
+              {typeof customer?.netPaymentTerm !== 'number'
+                ? translate(
+                    'text_64c7a89b6c67eb6c98898241',
+                    {
+                      days: organization?.netPaymentTerm,
+                    },
+                    organization?.netPaymentTerm
+                  )
+                : customer?.netPaymentTerm === 0
+                ? translate('text_64c7a89b6c67eb6c98898125')
+                : translate(
+                    'text_64c7a89b6c67eb6c9889815f',
+                    {
+                      days: customer?.netPaymentTerm,
+                    },
+                    customer?.netPaymentTerm
+                  )}
+            </Typography>
+            <Typography
+              variant="caption"
+              color="grey600"
+              html={
+                typeof customer?.netPaymentTerm !== 'number'
+                  ? translate('text_64c7a89b6c67eb6c9889824d', { link: INVOICE_SETTINGS_ROUTE })
+                  : translate('text_64c7a89b6c67eb6c9889831d')
+              }
+            />
           </>
         )}
       </InfoBlock>
@@ -410,6 +514,14 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
             ref={deleteCustomerDocumentLocale}
             customer={customer}
           />
+          <EditNetPaymentTermDialog
+            ref={editNetPaymentTermDialogRef}
+            description={translate('text_64c7a89b6c67eb6c988980eb')}
+          />
+          <DeleteOrganizationNetPaymentTermDialog
+            ref={deleteOrganizationNetPaymentTermDialogRef}
+            customer={customer}
+          />
         </>
       )}
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
@@ -428,6 +540,7 @@ const InfoBlock = styled.div<{ $loading?: boolean; $hasSeparator?: boolean }>`
   padding-top: ${({ $loading }) => ($loading ? theme.spacing(1) : 0)};
   padding-bottom: ${({ $loading, $hasSeparator }) =>
     $loading ? theme.spacing(9) : $hasSeparator ? theme.spacing(8) : 0};
+  margin-bottom: ${theme.spacing(8)};
   box-shadow: ${({ $hasSeparator }) => ($hasSeparator ? theme.shadows[7] : 'none')};
 
   > *:not(:last-child) {
