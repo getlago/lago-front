@@ -40,10 +40,7 @@ gql`
       feeType
       appliedTaxes {
         id
-        tax {
-          id
-          rate
-        }
+        taxRate
       }
       trueUpFee {
         id
@@ -78,10 +75,7 @@ gql`
         feeType
         appliedTaxes {
           id
-          tax {
-            id
-            rate
-          }
+          taxRate
         }
         trueUpFee {
           id
@@ -155,7 +149,7 @@ export const InvoiceDetailsTable = memo(
                               variant="body"
                               color="grey700"
                             >
-                              {intlFormatNumber(appliedTaxes.tax.rate / 100 || 0, {
+                              {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
                                 maximumFractionDigits: 2,
                                 style: 'percent',
                               })}
@@ -326,7 +320,7 @@ export const InvoiceDetailsTable = memo(
                                       variant="body"
                                       color="grey700"
                                     >
-                                      {intlFormatNumber(appliedTaxes.tax.rate / 100 || 0, {
+                                      {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
                                         maximumFractionDigits: 2,
                                         style: 'percent',
                                       })}
@@ -429,7 +423,7 @@ export const InvoiceDetailsTable = memo(
                                           variant="body"
                                           color="grey700"
                                         >
-                                          {intlFormatNumber(appliedTaxes.tax.rate / 100 || 0, {
+                                          {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
                                             maximumFractionDigits: 2,
                                             style: 'percent',
                                           })}
