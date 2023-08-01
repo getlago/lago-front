@@ -221,10 +221,10 @@ export const PlanSettingsSection = memo(
               {translate('text_64be910fba8ef9208686a8e3')}
             </TaxLabel>
             <InlineTaxesWrapper>
-              {plan.taxes.map(({ id, name }) => (
+              {plan.taxes.map(({ id, name, rate }) => (
                 <Chip
                   key={id}
-                  label={name}
+                  label={`${name} (${rate}%)`}
                   disabled={isEdition && !canBeEdited}
                   variant="secondary"
                   size="medium"
