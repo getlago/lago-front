@@ -8,7 +8,7 @@ import { TextInputField, AmountInputField, ButtonSelectorField } from '~/compone
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Button, Chip, Icon, Tooltip, Typography } from '~/components/designSystem'
 import { theme, Card, NAV_HEIGHT } from '~/styles'
-import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
+import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 
 import { PlanFormInput } from './types'
@@ -75,6 +75,18 @@ export const FixedFeeSection = memo(
               >
                 <Icon name="validate-filled" color={hasErrorInSection ? 'disabled' : 'success'} />
               </Tooltip>
+              {!!formikProps.values?.taxes?.length && (
+                <Chip
+                  label={intlFormatNumber(
+                    Number(formikProps?.values?.taxes?.reduce((acc, cur) => acc + cur.rate, 0)) /
+                      100 || 0,
+                    {
+                      minimumFractionDigits: 2,
+                      style: 'percent',
+                    }
+                  )}
+                />
+              )}
               <Chip label={translate(mapIntervalCopy(formikProps.values.interval))} />
             </BoxHeaderRight>
           </BoxHeader>

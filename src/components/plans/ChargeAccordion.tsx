@@ -589,10 +589,10 @@ export const ChargeAccordion = memo(
                   {translate('text_64be910fba8ef9208686a8e3')}
                 </TaxLabel>
                 <InlineTaxesWrapper>
-                  {localCharge.taxes.map(({ id: localTaxId, name }) => (
+                  {localCharge.taxes.map(({ id: localTaxId, name, rate }) => (
                     <Chip
                       key={localTaxId}
-                      label={name}
+                      label={`${name} (${rate}%)`}
                       disabled={disabled}
                       variant="secondary"
                       size="medium"
