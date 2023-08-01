@@ -186,7 +186,10 @@ module.exports = {
     "base": require('./customers---edit--delete-a-customer__base.json')
   },
   "ditto_component_library": {
-    "base": require('./ditto-component-library__base.json')
+    "base": require('./ditto-component-library__base.json'),
+    "de": require('./ditto-component-library__de.json'),
+    "fr": require('./ditto-component-library__fr.json'),
+    "nb": require('./ditto-component-library__nb.json')
   },
   "project_623b3ac9459a5d00df324533": {
     "base": require('./documentation-asset__base.json')
