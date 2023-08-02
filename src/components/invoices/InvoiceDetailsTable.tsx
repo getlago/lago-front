@@ -200,12 +200,10 @@ export const InvoiceDetailsTable = memo(
             },
             i
           ) => {
-            const hasAnyPositiveSubscriptionFee = subscriptionFees?.some(
-              (fee) => Number(fee.amountCents) > 0
+            const hasAnySubscriptionFeeUnits = subscriptionFees?.some(
+              (fee) => Number(fee.units) > 0
             )
-            const hasAnyPositiveRemainingFee = remainingFees?.some(
-              (fee) => Number(fee.amountCents) > 0
-            )
+            const hasAnyRemainingFeeUnits = remainingFees?.some((fee) => Number(fee.units) > 0)
 
             return (
               <React.Fragment key={`invoiceSubscription=${i}`}>
@@ -215,7 +213,7 @@ export const InvoiceDetailsTable = memo(
                       invoiceDisplayName,
                     })}
                     period={
-                      hasAnyPositiveSubscriptionFee
+                      hasAnySubscriptionFeeUnits
                         ? translate('text_6499a4e4db5730004703f36b', {
                             from: formatDateToTZ(
                               invoiceSubscription?.fromDatetime,
@@ -228,7 +226,9 @@ export const InvoiceDetailsTable = memo(
                               'LLL. dd, yyyy'
                             ),
                           })
-                        : hasAnyPositiveRemainingFee
+                        : !hasAnySubscriptionFeeUnits &&
+                          hasAnyRemainingFeeUnits &&
+                          remainingFees.some((r) => r.units === 0)
                         ? invoiceSubscription?.chargesFromDatetime &&
                           invoiceSubscription?.chargesToDatetime
                           ? translate('text_6499a4e4db5730004703f36b', {
@@ -250,13 +250,26 @@ export const InvoiceDetailsTable = memo(
                                 'LLL. dd, yyyy'
                               ),
                             })
+                        : !hasAnySubscriptionFeeUnits && !hasAnyRemainingFeeUnits
+                        ? translate('text_6499a4e4db5730004703f36b', {
+                            from: formatDateToTZ(
+                              invoiceSubscription?.fromDatetime,
+                              customer?.applicableTimezone,
+                              'LLL. dd, yyyy'
+                            ),
+                            to: formatDateToTZ(
+                              invoiceSubscription?.toDatetime,
+                              customer?.applicableTimezone,
+                              'LLL. dd, yyyy'
+                            ),
+                          })
                         : undefined
                     }
                   />
                 </table>
 
                 {/* If no positive fees are present in the invoice, display subscription fee placeholder */}
-                {!hasAnyPositiveSubscriptionFee && !hasAnyPositiveRemainingFee && (
+                {!hasAnySubscriptionFeeUnits && !hasAnyRemainingFeeUnits && (
                   <table key={`invoiceSubscription-${i}-fee-placeholder`}>
                     <tbody>
                       <tr>
@@ -345,7 +358,8 @@ export const InvoiceDetailsTable = memo(
                     </table>
                   )
                 })}
-                {hasAnyPositiveSubscriptionFee && hasAnyPositiveRemainingFee && (
+                {((hasAnySubscriptionFeeUnits && hasAnyRemainingFeeUnits) ||
+                  remainingFees.some((r) => r.units !== 0 || !r.isGroupChildFee)) && (
                   <ChargePeriodSeparator variant="caption" color="grey500">
                     {invoiceSubscription?.chargesFromDatetime &&
                     invoiceSubscription?.chargesToDatetime
@@ -371,7 +385,7 @@ export const InvoiceDetailsTable = memo(
                   </ChargePeriodSeparator>
                 )}
                 {remainingFees.map((fee, j) => {
-                  if (Number(fee.units) === 0) return
+                  if (Number(fee?.units) === 0 && !!fee?.isGroupChildFee) return
 
                   return (
                     <table key={`invoiceSubscription-${i}-fee-${j}`}>
