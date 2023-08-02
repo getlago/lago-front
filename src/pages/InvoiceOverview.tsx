@@ -204,7 +204,7 @@ const NavigationRightActions = styled.div`
 `
 
 const DraftAlertWrapper = styled.div`
-  padding-top: ${theme.spacing(3)} 0;
+  padding-top: ${theme.spacing(3)};
 `
 
 export default InvoiceOverview
