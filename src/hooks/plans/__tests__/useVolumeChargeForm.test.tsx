@@ -91,9 +91,10 @@ describe('useVolumeChargeForm()', () => {
       it('returns default datas if no charges defined', async () => {
         const { result } = await prepare({ volumeRanges: [], propertyType: 'properties' })
 
-        expect(result.current.tableDatas).toStrictEqual(
-          DEFAULT_VOLUME_CHARGES.map((row) => ({ ...row, disabledDelete: true }))
-        )
+        expect(result.current.tableDatas).toStrictEqual([
+          { ...DEFAULT_VOLUME_CHARGES[0], disabledDelete: true },
+          { ...DEFAULT_VOLUME_CHARGES[1], disabledDelete: false },
+        ])
       })
 
       it('returns in tableDatas the given datas', async () => {
@@ -125,7 +126,7 @@ describe('useVolumeChargeForm()', () => {
         expect(result.current.tableDatas).toStrictEqual(
           volumeRanges.map((row, i) => ({
             ...row,
-            disabledDelete: [0, volumeRanges.length - 1].includes(i),
+            disabledDelete: [0].includes(i),
           }))
         )
       })
@@ -253,7 +254,7 @@ describe('useVolumeChargeForm()', () => {
             fromValue: '503',
             flatAmount: volumeRanges[2].flatAmount,
             perUnitAmount: volumeRanges[2].perUnitAmount,
-            disabledDelete: true,
+            disabledDelete: false,
           },
         ])
       })
@@ -290,14 +291,14 @@ describe('useVolumeChargeForm()', () => {
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
           { ...{ ...volumeRanges[1], toValue: '0' }, disabledDelete: false },
-          { ...{ ...volumeRanges[2], fromValue: '1', toValue: null }, disabledDelete: true },
+          { ...{ ...volumeRanges[2], fromValue: '1', toValue: null }, disabledDelete: false },
         ])
 
         await act(async () => await result.current.handleUpdate(1, 'toValue', 30))
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
           { ...{ ...volumeRanges[1], toValue: '30' }, disabledDelete: false },
-          { ...{ ...volumeRanges[2], fromValue: '31', toValue: null }, disabledDelete: true },
+          { ...{ ...volumeRanges[2], fromValue: '31', toValue: null }, disabledDelete: false },
         ])
         await act(async () => await result.current.handleUpdate(1, 'toValue', 500))
 
@@ -305,7 +306,7 @@ describe('useVolumeChargeForm()', () => {
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
           { ...{ ...volumeRanges[1], flatAmount: 10 }, disabledDelete: false },
-          { ...volumeRanges[2], disabledDelete: true },
+          { ...volumeRanges[2], disabledDelete: false },
         ])
         await act(async () => await result.current.handleUpdate(1, 'flatAmount', '1'))
 
@@ -313,7 +314,7 @@ describe('useVolumeChargeForm()', () => {
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
           { ...{ ...volumeRanges[1], flatAmount: 1, fromValue: 5 }, disabledDelete: false },
-          { ...volumeRanges[2], disabledDelete: true },
+          { ...volumeRanges[2], disabledDelete: false },
         ])
       })
     })
@@ -352,7 +353,7 @@ describe('useVolumeChargeForm()', () => {
         expect(result.current.tableDatas.length).toBe(2)
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
-          { ...{ ...volumeRanges[2], fromValue: '101' }, disabledDelete: true },
+          { ...{ ...volumeRanges[2], fromValue: '101' }, disabledDelete: false },
         ])
       })
     })
@@ -366,9 +367,10 @@ describe('useVolumeChargeForm()', () => {
           propertyType: 'groupProperties',
         })
 
-        expect(result.current.tableDatas).toStrictEqual(
-          DEFAULT_VOLUME_CHARGES.map((row) => ({ ...row, disabledDelete: true }))
-        )
+        expect(result.current.tableDatas).toStrictEqual([
+          { ...DEFAULT_VOLUME_CHARGES[0], disabledDelete: true },
+          { ...DEFAULT_VOLUME_CHARGES[1], disabledDelete: false },
+        ])
       })
 
       it('returns in tableDatas the given datas', async () => {
@@ -400,7 +402,7 @@ describe('useVolumeChargeForm()', () => {
         expect(result.current.tableDatas).toStrictEqual(
           volumeRanges.map((row, i) => ({
             ...row,
-            disabledDelete: [0, volumeRanges.length - 1].includes(i),
+            disabledDelete: [0].includes(i),
           }))
         )
       })
@@ -528,7 +530,7 @@ describe('useVolumeChargeForm()', () => {
             fromValue: '503',
             flatAmount: volumeRanges[2].flatAmount,
             perUnitAmount: volumeRanges[2].perUnitAmount,
-            disabledDelete: true,
+            disabledDelete: false,
           },
         ])
       })
@@ -565,14 +567,14 @@ describe('useVolumeChargeForm()', () => {
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
           { ...{ ...volumeRanges[1], toValue: '0' }, disabledDelete: false },
-          { ...{ ...volumeRanges[2], fromValue: '1', toValue: null }, disabledDelete: true },
+          { ...{ ...volumeRanges[2], fromValue: '1', toValue: null }, disabledDelete: false },
         ])
 
         await act(async () => await result.current.handleUpdate(1, 'toValue', 30))
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
           { ...{ ...volumeRanges[1], toValue: '30' }, disabledDelete: false },
-          { ...{ ...volumeRanges[2], fromValue: '31', toValue: null }, disabledDelete: true },
+          { ...{ ...volumeRanges[2], fromValue: '31', toValue: null }, disabledDelete: false },
         ])
         await act(async () => await result.current.handleUpdate(1, 'toValue', 500))
 
@@ -580,7 +582,7 @@ describe('useVolumeChargeForm()', () => {
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
           { ...{ ...volumeRanges[1], flatAmount: 10 }, disabledDelete: false },
-          { ...volumeRanges[2], disabledDelete: true },
+          { ...volumeRanges[2], disabledDelete: false },
         ])
         await act(async () => await result.current.handleUpdate(1, 'flatAmount', '1'))
 
@@ -588,7 +590,7 @@ describe('useVolumeChargeForm()', () => {
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
           { ...{ ...volumeRanges[1], flatAmount: 1, fromValue: 5 }, disabledDelete: false },
-          { ...volumeRanges[2], disabledDelete: true },
+          { ...volumeRanges[2], disabledDelete: false },
         ])
       })
     })
@@ -627,7 +629,7 @@ describe('useVolumeChargeForm()', () => {
         expect(result.current.tableDatas.length).toBe(2)
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
-          { ...{ ...volumeRanges[2], fromValue: '101' }, disabledDelete: true },
+          { ...{ ...volumeRanges[2], fromValue: '101' }, disabledDelete: false },
         ])
       })
     })

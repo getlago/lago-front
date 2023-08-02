@@ -3,6 +3,7 @@ import { FormikProps } from 'formik'
 
 import { PlanFormInput } from '~/components/plans/types'
 import { GraduatedRangeInput, InputMaybe, PropertiesInput } from '~/generated/graphql'
+import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 
 type RangeType = GraduatedRangeInput & { disabledDelete: boolean }
 type InfoCalculationRow = {
@@ -73,7 +74,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
           return {
             ...range,
             // First and last rows can't be deleted
-            disabledDelete: [0, graduatedRanges.length - 1].includes(i) || !!disabled,
+            disabledDelete: [0].includes(i) || !!disabled,
           }
         }),
       [graduatedRanges, disabled]
@@ -100,11 +101,14 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
               units: 1,
               perUnit,
               flatFee,
-              total: 1 * perUnit + flatFee,
+              total: (graduatedRanges.length === 1 ? 10 : 1) * perUnit + flatFee,
             })
 
             const totalLine = {
-              firstUnit: String(Number(range.fromValue) || 0),
+              firstUnit:
+                graduatedRanges.length === 1
+                  ? `${ONE_TIER_EXAMPLE_UNITS}`
+                  : String(Number(range.fromValue) || 0),
               total: acc.reduce<number>((accTotal, rangeCost) => {
                 return accTotal + rangeCost.total
               }, 0),
@@ -127,7 +131,8 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
           if (i < addIndex) {
             acc.push(range)
           } else if (i === addIndex) {
-            const newToValue = String(Number(graduatedRanges[addIndex - 1]?.toValue || 0) + 1)
+            const newToValue =
+              addIndex === 0 ? '0' : String(Number(graduatedRanges[addIndex - 1]?.toValue || 0) + 1)
 
             acc.push({
               fromValue: newToValue,
@@ -194,7 +199,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
     },
     deleteRange: (rangeIndex) => {
       const newGraduatedRanges = graduatedRanges.reduce<GraduatedRangeInput[]>((acc, range, i) => {
-        if (i < rangeIndex) acc.push(range)
+        if (i < rangeIndex) acc.push({ ...range })
         // fromValue should always be toValueOfPreviousRange + 1
         if (i > rangeIndex) {
           const { toValue } = acc[acc.length - 1]
@@ -206,6 +211,9 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
         }
         return acc
       }, [])
+
+      // Last row needs to has toValue null
+      newGraduatedRanges[newGraduatedRanges.length - 1].toValue = null
 
       formikProps.setFieldValue(formikIdentifier, newGraduatedRanges)
     },

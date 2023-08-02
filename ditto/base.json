@@ -1038,6 +1038,7 @@
   "text_64a803f70b9bde00529d2aa5": "Copy id, cancel",
   "text_64a80400248fe50080d66358": "Edit, cancel & more",
   "text_64ca74b796e2f800bfdb9e62": "{{name}} ({{rate}})",
+  "text_64cac576a11db000acb130b2": "{{tier1LastUnit}} x {{tier1PerUnit}} + {{tier1FlatFee}} = {{totalTier1}}",
   "text_6295e58352f39200d902b01c": "Documentation",
   "text_629728388c4d2300e2d3801a": "Add-ons",
   "text_629728388c4d2300e2d38085": "Add an add-on",
