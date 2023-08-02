@@ -43,7 +43,7 @@ const graduatedShape = {
         return isValid
       },
     })
-    .min(2)
+    .min(1)
     .required(''),
 }
 
@@ -70,7 +70,7 @@ const volumeShape = {
         return isValid
       },
     })
-    .min(2)
+    .min(1)
     .required(''),
 }
 

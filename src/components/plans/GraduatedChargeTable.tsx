@@ -11,6 +11,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
 import { useGraduatedChargeForm } from '~/hooks/plans/useGraduatedChargeForm'
 import { intlFormatNumber, getCurrencySymbol } from '~/core/formats/intlFormatNumber'
+import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 
 import { PlanFormInput } from './types'
 
@@ -229,7 +230,28 @@ export const GraduatedChargeTable = ({
               )
             }
             if (i === 1) {
-              return (
+              return infosCaclucation.length === 2 ? (
+                <Typography key={`calculation-alert-${i}`} color="textSecondary">
+                  {translate('text_64cac576a11db000acb130b2', {
+                    tier1LastUnit: ONE_TIER_EXAMPLE_UNITS,
+                    tier1PerUnit: intlFormatNumber(calculation.perUnit, {
+                      currencyDisplay: 'symbol',
+                      maximumFractionDigits: 15,
+                      currency,
+                    }),
+                    tier1FlatFee: intlFormatNumber(calculation.flatFee, {
+                      currencyDisplay: 'symbol',
+                      maximumFractionDigits: 15,
+                      currency,
+                    }),
+                    totalTier1: intlFormatNumber(calculation.total, {
+                      currencyDisplay: 'symbol',
+                      maximumFractionDigits: 15,
+                      currency,
+                    }),
+                  })}
+                </Typography>
+              ) : (
                 <Typography key={`calculation-alert-${i}`} color="textSecondary">
                   {translate('text_627b69c9fe95530136833958', {
                     tier1LastUnit: calculation.units,

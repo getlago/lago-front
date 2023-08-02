@@ -91,9 +91,10 @@ describe('useGraduatedRange()', () => {
       it('returns default datas if no charges defined', async () => {
         const { result } = await prepare({})
 
-        expect(result.current.tableDatas).toStrictEqual(
-          DEFAULT_GRADUATED_CHARGES.map((row) => ({ ...row, disabledDelete: true }))
-        )
+        expect(result.current.tableDatas).toStrictEqual([
+          { ...DEFAULT_GRADUATED_CHARGES[0], disabledDelete: true },
+          { ...DEFAULT_GRADUATED_CHARGES[1], disabledDelete: false },
+        ])
 
         expect(result.current.infosCaclucation).toStrictEqual([
           {
@@ -143,7 +144,7 @@ describe('useGraduatedRange()', () => {
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,
-            disabledDelete: true,
+            disabledDelete: false,
           },
         ])
         expect(result.current.infosCaclucation).toStrictEqual([
@@ -194,7 +195,7 @@ describe('useGraduatedRange()', () => {
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: 5,
-            disabledDelete: true,
+            disabledDelete: false,
           },
         ])
 
@@ -296,7 +297,7 @@ describe('useGraduatedRange()', () => {
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,
-            disabledDelete: true,
+            disabledDelete: false,
           },
         ])
         expect(result.current.infosCaclucation).toStrictEqual([
@@ -373,10 +374,32 @@ describe('useGraduatedRange()', () => {
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,
-            disabledDelete: true,
+            disabledDelete: false,
           },
         ])
       })
+
+      // it('should delete last row and add new one correctly from default state', async () => {
+      //   const { result } = await prepare({})
+      //   console.log('1', result.current.tableDatas)
+
+      //   await act(async () => await result.current.deleteRange(1))
+      //   console.log('2', result.current.tableDatas)
+      //   expect(result.current.tableDatas).toStrictEqual([
+      //     { ...DEFAULT_GRADUATED_CHARGES[0], toValue: null, disabledDelete: true },
+      //   ])
+      //   console.log('3', result.current.tableDatas)
+
+      //   await act(async () => await result.current.addRange())
+      //   console.log('4', result.current.tableDatas)
+      //   console.log('...DEFAULT_GRADUATED_CHARGES', DEFAULT_GRADUATED_CHARGES)
+
+      //   expect(result.current.tableDatas).toStrictEqual([
+      //     { ...DEFAULT_GRADUATED_CHARGES[0], disabledDelete: true },
+      //     { ...DEFAULT_GRADUATED_CHARGES[1], disabledDelete: false },
+      //   ])
+      //   console.log('5', result.current.tableDatas)
+      // })
     })
   })
 
@@ -385,9 +408,10 @@ describe('useGraduatedRange()', () => {
       it('returns default datas if no charges defined', async () => {
         const { result } = await prepare({})
 
-        expect(result.current.tableDatas).toStrictEqual(
-          DEFAULT_GRADUATED_CHARGES.map((row) => ({ ...row, disabledDelete: true }))
-        )
+        expect(result.current.tableDatas).toStrictEqual([
+          { ...DEFAULT_GRADUATED_CHARGES[0], disabledDelete: true },
+          { ...DEFAULT_GRADUATED_CHARGES[1], disabledDelete: false },
+        ])
 
         expect(result.current.infosCaclucation).toStrictEqual([
           {
@@ -437,7 +461,7 @@ describe('useGraduatedRange()', () => {
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,
-            disabledDelete: true,
+            disabledDelete: false,
           },
         ])
         expect(result.current.infosCaclucation).toStrictEqual([
@@ -488,7 +512,7 @@ describe('useGraduatedRange()', () => {
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: 5,
-            disabledDelete: true,
+            disabledDelete: false,
           },
         ])
 
@@ -590,7 +614,7 @@ describe('useGraduatedRange()', () => {
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,
-            disabledDelete: true,
+            disabledDelete: false,
           },
         ])
         expect(result.current.infosCaclucation).toStrictEqual([
@@ -667,7 +691,7 @@ describe('useGraduatedRange()', () => {
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,
-            disabledDelete: true,
+            disabledDelete: false,
           },
         ])
       })

@@ -3,6 +3,7 @@ import { FormikProps } from 'formik'
 
 import { PlanFormInput } from '~/components/plans/types'
 import { InputMaybe, PropertiesInput, VolumeRangeInput } from '~/generated/graphql'
+import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 
 export const DEFAULT_VOLUME_CHARGES = [
   {
@@ -72,14 +73,15 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
           return {
             ...range,
             // First and last rows can't be deleted
-            disabledDelete: [0, volumeRanges.length - 1].includes(i) || !!disabled,
+            disabledDelete: [0].includes(i) || !!disabled,
           }
         }),
       [volumeRanges, disabled]
     ),
     infosCalculation: useMemo(() => {
       const lastRow = volumeRanges[volumeRanges.length - 1]
-      const lastRowFirstUnit = Number(lastRow?.fromValue || 0)
+      const lastRowFirstUnit =
+        volumeRanges.length === 1 ? ONE_TIER_EXAMPLE_UNITS : Number(lastRow?.fromValue || 0)
       const lastRowPerUnit = Number(lastRow?.perUnitAmount || 0)
       const lastRowFlatFee = Number(lastRow?.flatAmount || 0)
       const value = lastRowFirstUnit * lastRowPerUnit + lastRowFlatFee
@@ -93,7 +95,8 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
         if (i < addIndex) {
           acc.push(range)
         } else if (i === addIndex) {
-          const newToValue = String(Number(volumeRanges[addIndex - 1]?.toValue || 0) + 1)
+          const newToValue =
+            addIndex === 0 ? '0' : String(Number(volumeRanges[addIndex - 1]?.toValue || 0) + 1)
 
           acc.push({
             fromValue: newToValue,
@@ -155,7 +158,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
     },
     deleteRange: (rangeIndex) => {
       const newVolumeRanges = volumeRanges.reduce<VolumeRangeInput[]>((acc, range, i) => {
-        if (i < rangeIndex) acc.push(range)
+        if (i < rangeIndex) acc.push({ ...range })
         // fromValue should always be toValueOfPreviousRange + 1
         if (i > rangeIndex) {
           const { toValue } = acc[acc.length - 1]
@@ -167,6 +170,9 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
         }
         return acc
       }, [])
+
+      // Last row needs to has toValue null
+      newVolumeRanges[newVolumeRanges.length - 1].toValue = null
 
       formikProps.setFieldValue(formikIdentifier, newVolumeRanges)
     },
