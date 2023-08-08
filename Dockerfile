@@ -12,6 +12,7 @@ FROM nginx:1.25-alpine
 WORKDIR /usr/share/nginx/html
 
 RUN apk add --no-cache bash
+RUN apk update && apk upgrade libx11 nghttp2 openssl tiff
 
 COPY --from=build /app/dist .
 COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
