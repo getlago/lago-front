@@ -71,6 +71,9 @@ module.exports = {
   "project_63e26d71cc5ddde09d90bd99": {
     "base": require('./-ready-for-dev---settings-customers---lago-x-osso-connection__base.json')
   },
+  "project_64d23a7dbab3e178ad302aa0": {
+    "base": require('./-ready-for-dev---webhook---select-webhooks-signature__base.json')
+  },
   "project_63cfe207f9f4c2ea8dcf3aa7": {
     "base": require('./-wip---all---delete-objects-linked-to-subscription__base.json')
   },
