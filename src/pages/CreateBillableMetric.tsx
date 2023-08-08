@@ -278,19 +278,19 @@ const CreateBillableMetric = () => {
                       <ButtonSelectorField
                         disabled={isEdition && !canBeEdited}
                         name="recurring"
-                        label={translate('text_648c2be974f70300748a4ca1')}
+                        label={translate('text_64d2709dc5b465004fbd3537')}
                         helperText={translate(
                           formikProps.values.recurring
-                            ? 'text_648c2be974f70300748a4c8c'
-                            : 'text_648c2be974f70300748a4cad'
+                            ? 'text_64d27292062d9600b089aacb'
+                            : 'text_64d272b4df12dc008076e232'
                         )}
                         options={[
                           {
-                            label: translate('text_648c2be974f70300748a4ca5'),
+                            label: translate('text_6310755befed49627644222b'),
                             value: false,
                           },
                           {
-                            label: translate('text_648c2be974f70300748a4c87'),
+                            label: translate('text_64d27259d9a4cd00c1659a7e'),
                             value: true,
                           },
                         ]}
@@ -299,7 +299,7 @@ const CreateBillableMetric = () => {
                       <Typography variant="caption" color="grey600"></Typography>
                     </>
                   ) : !!formikProps.values.aggregationType ? (
-                    <Alert type="info">{translate('text_648c2be974f70300748a4ca6')}</Alert>
+                    <Alert type="info">{translate('text_64d27277ee75720056d78622')}</Alert>
                   ) : null}
                 </Card>
 
