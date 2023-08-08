@@ -3967,6 +3967,18 @@ export type UpdateInvoiceMetadataMutationVariables = Exact<{
 
 export type UpdateInvoiceMetadataMutation = { __typename?: 'Mutation', updateInvoice?: { __typename?: 'Invoice', id: string, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null } | null };
 
+export type TaxForInvoiceEditTaxDialogFragment = { __typename?: 'Tax', id: string, name: string, rate: number, code: string };
+
+export type AddOnForInvoiceEditTaxDialogFragment = { __typename?: 'AddOn', id: string, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null };
+
+export type GetTaxesForInvoiceEditTaxDialogQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetTaxesForInvoiceEditTaxDialogQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> } };
+
 export type InvoiceForUpdateInvoicePaymentStatusFragment = { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum };
 
 export type UpdateInvoicePaymentStatusMutationVariables = Exact<{
@@ -4350,14 +4362,16 @@ export type CreateCreditNoteMutationVariables = Exact<{
 
 export type CreateCreditNoteMutation = { __typename?: 'Mutation', createCreditNote?: { __typename?: 'CreditNote', id: string } | null };
 
-export type EditAddOnFragment = { __typename?: 'AddOn', id: string, name: string, code: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum };
+export type TaxOnAddOnEditCreateFragment = { __typename?: 'Tax', id: string, name: string, code: string, rate: number };
+
+export type EditAddOnFragment = { __typename?: 'AddOn', id: string, name: string, code: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null };
 
 export type GetSingleAddOnQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSingleAddOnQuery = { __typename?: 'Query', addOn?: { __typename?: 'AddOn', id: string, name: string, code: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum } | null };
+export type GetSingleAddOnQuery = { __typename?: 'Query', addOn?: { __typename?: 'AddOn', id: string, name: string, code: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null } | null };
 
 export type CreateAddOnMutationVariables = Exact<{
   input: CreateAddOnInput;
@@ -4537,6 +4551,14 @@ export type CouponsQueryVariables = Exact<{
 
 export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, appliedCouponsCount: number, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null }> } };
 
+export type GetTaxesForAddOnFormQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetTaxesForAddOnFormQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
+
 export type EditBillableMetricFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, group?: any | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, subscriptionsCount: number, plansCount: number, recurring: boolean };
 
 export type CreateCreditNoteInvoiceFragment = { __typename?: 'Invoice', id: string, currency?: CurrencyEnum | null, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, creditableAmountCents: any, refundableAmountCents: any, subTotalIncludingTaxesAmountCents: any, couponsAmountCents: any, feesAmountCents: any, versionNumber: number, fees?: Array<{ __typename?: 'Fee', id: string, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, tax: { __typename?: 'Tax', id: string, name: string, rate: number } }> | null }> | null };
@@ -4562,7 +4584,7 @@ export type GetAddonListForInfoiceQueryVariables = Exact<{
 }>;
 
 
-export type GetAddonListForInfoiceQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum }> } };
+export type GetAddonListForInfoiceQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null }> } };
 
 export type TaxForPlanAndChargesInPlanFormFragment = { __typename?: 'Tax', id: string, code: string, name: string, rate: number };
 
@@ -5225,6 +5247,23 @@ export const WebhookForCreateAndEditFragmentDoc = gql`
   signatureAlgo
 }
     `;
+export const TaxForInvoiceEditTaxDialogFragmentDoc = gql`
+    fragment TaxForInvoiceEditTaxDialog on Tax {
+  id
+  name
+  rate
+  code
+}
+    `;
+export const AddOnForInvoiceEditTaxDialogFragmentDoc = gql`
+    fragment AddOnForInvoiceEditTaxDialog on AddOn {
+  id
+  taxes {
+    id
+    ...TaxForInvoiceEditTaxDialog
+  }
+}
+    ${TaxForInvoiceEditTaxDialogFragmentDoc}`;
 export const BillableMetricForChargeSectionFragmentDoc = gql`
     fragment billableMetricForChargeSection on BillableMetric {
   id
@@ -5513,6 +5552,14 @@ export const InvoiceCreateCreditNoteFragmentDoc = gql`
 }
     ${InvoiceFeeFragmentDoc}
 ${CreateCreditNoteInvoiceFragmentDoc}`;
+export const TaxOnAddOnEditCreateFragmentDoc = gql`
+    fragment TaxOnAddOnEditCreate on Tax {
+  id
+  name
+  code
+  rate
+}
+    `;
 export const EditAddOnFragmentDoc = gql`
     fragment EditAddOn on AddOn {
   id
@@ -5521,8 +5568,12 @@ export const EditAddOnFragmentDoc = gql`
   description
   amountCents
   amountCurrency
+  taxes {
+    id
+    ...TaxOnAddOnEditCreate
+  }
 }
-    `;
+    ${TaxOnAddOnEditCreateFragmentDoc}`;
 export const PlansForCouponsFragmentDoc = gql`
     fragment PlansForCoupons on Plan {
   id
@@ -7740,6 +7791,49 @@ export function useUpdateInvoiceMetadataMutation(baseOptions?: Apollo.MutationHo
 export type UpdateInvoiceMetadataMutationHookResult = ReturnType<typeof useUpdateInvoiceMetadataMutation>;
 export type UpdateInvoiceMetadataMutationResult = Apollo.MutationResult<UpdateInvoiceMetadataMutation>;
 export type UpdateInvoiceMetadataMutationOptions = Apollo.BaseMutationOptions<UpdateInvoiceMetadataMutation, UpdateInvoiceMetadataMutationVariables>;
+export const GetTaxesForInvoiceEditTaxDialogDocument = gql`
+    query getTaxesForInvoiceEditTaxDialog($limit: Int, $page: Int) {
+  taxes(limit: $limit, page: $page) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      ...TaxForInvoiceEditTaxDialog
+    }
+  }
+}
+    ${TaxForInvoiceEditTaxDialogFragmentDoc}`;
+
+/**
+ * __useGetTaxesForInvoiceEditTaxDialogQuery__
+ *
+ * To run a query within a React component, call `useGetTaxesForInvoiceEditTaxDialogQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTaxesForInvoiceEditTaxDialogQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTaxesForInvoiceEditTaxDialogQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      page: // value for 'page'
+ *   },
+ * });
+ */
+export function useGetTaxesForInvoiceEditTaxDialogQuery(baseOptions?: Apollo.QueryHookOptions<GetTaxesForInvoiceEditTaxDialogQuery, GetTaxesForInvoiceEditTaxDialogQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetTaxesForInvoiceEditTaxDialogQuery, GetTaxesForInvoiceEditTaxDialogQueryVariables>(GetTaxesForInvoiceEditTaxDialogDocument, options);
+      }
+export function useGetTaxesForInvoiceEditTaxDialogLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetTaxesForInvoiceEditTaxDialogQuery, GetTaxesForInvoiceEditTaxDialogQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetTaxesForInvoiceEditTaxDialogQuery, GetTaxesForInvoiceEditTaxDialogQueryVariables>(GetTaxesForInvoiceEditTaxDialogDocument, options);
+        }
+export type GetTaxesForInvoiceEditTaxDialogQueryHookResult = ReturnType<typeof useGetTaxesForInvoiceEditTaxDialogQuery>;
+export type GetTaxesForInvoiceEditTaxDialogLazyQueryHookResult = ReturnType<typeof useGetTaxesForInvoiceEditTaxDialogLazyQuery>;
+export type GetTaxesForInvoiceEditTaxDialogQueryResult = Apollo.QueryResult<GetTaxesForInvoiceEditTaxDialogQuery, GetTaxesForInvoiceEditTaxDialogQueryVariables>;
 export const UpdateInvoicePaymentStatusDocument = gql`
     mutation updateInvoicePaymentStatus($input: UpdateInvoiceInput!) {
   updateInvoice(input: $input) {
@@ -10122,6 +10216,49 @@ export function useCouponsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Co
 export type CouponsQueryHookResult = ReturnType<typeof useCouponsQuery>;
 export type CouponsLazyQueryHookResult = ReturnType<typeof useCouponsLazyQuery>;
 export type CouponsQueryResult = Apollo.QueryResult<CouponsQuery, CouponsQueryVariables>;
+export const GetTaxesForAddOnFormDocument = gql`
+    query getTaxesForAddOnForm($limit: Int, $page: Int) {
+  taxes(limit: $limit, page: $page) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      ...TaxOnAddOnEditCreate
+    }
+  }
+}
+    ${TaxOnAddOnEditCreateFragmentDoc}`;
+
+/**
+ * __useGetTaxesForAddOnFormQuery__
+ *
+ * To run a query within a React component, call `useGetTaxesForAddOnFormQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTaxesForAddOnFormQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTaxesForAddOnFormQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      page: // value for 'page'
+ *   },
+ * });
+ */
+export function useGetTaxesForAddOnFormQuery(baseOptions?: Apollo.QueryHookOptions<GetTaxesForAddOnFormQuery, GetTaxesForAddOnFormQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetTaxesForAddOnFormQuery, GetTaxesForAddOnFormQueryVariables>(GetTaxesForAddOnFormDocument, options);
+      }
+export function useGetTaxesForAddOnFormLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetTaxesForAddOnFormQuery, GetTaxesForAddOnFormQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetTaxesForAddOnFormQuery, GetTaxesForAddOnFormQueryVariables>(GetTaxesForAddOnFormDocument, options);
+        }
+export type GetTaxesForAddOnFormQueryHookResult = ReturnType<typeof useGetTaxesForAddOnFormQuery>;
+export type GetTaxesForAddOnFormLazyQueryHookResult = ReturnType<typeof useGetTaxesForAddOnFormLazyQuery>;
+export type GetTaxesForAddOnFormQueryResult = Apollo.QueryResult<GetTaxesForAddOnFormQuery, GetTaxesForAddOnFormQueryVariables>;
 export const CreateInvoiceDocument = gql`
     mutation createInvoice($input: CreateInvoiceInput!) {
   createInvoice(input: $input) {
@@ -10244,10 +10381,11 @@ export const GetAddonListForInfoiceDocument = gql`
       description
       amountCents
       amountCurrency
+      ...AddOnForInvoiceEditTaxDialog
     }
   }
 }
-    `;
+    ${AddOnForInvoiceEditTaxDialogFragmentDoc}`;
 
 /**
  * __useGetAddonListForInfoiceQuery__

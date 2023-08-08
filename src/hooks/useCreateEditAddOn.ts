@@ -16,8 +16,16 @@ import { ERROR_404_ROUTE, ADD_ONS_ROUTE } from '~/core/router'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { AddOnFormInput } from '~/components/addOns/types'
 
 gql`
+  fragment TaxOnAddOnEditCreate on Tax {
+    id
+    name
+    code
+    rate
+  }
+
   fragment EditAddOn on AddOn {
     id
     name
@@ -25,6 +33,10 @@ gql`
     description
     amountCents
     amountCurrency
+    taxes {
+      id
+      ...TaxOnAddOnEditCreate
+    }
   }
 
   query getSingleAddOn($id: ID!) {
@@ -56,12 +68,13 @@ type UseCreateEditAddOnReturn = {
   onSave: (value: CreateAddOnInput | UpdateAddOnInput) => Promise<void>
 }
 
-const formatCouponInput = (values: CreateAddOnInput | UpdateAddOnInput) => {
-  const { amountCents, amountCurrency, ...others } = values
+const formatCouponInput = (values: AddOnFormInput) => {
+  const { amountCents, amountCurrency, taxes: addOnTaxes, ...others } = values
 
   return {
     amountCents: serializeAmount(Number(amountCents), amountCurrency),
     amountCurrency,
+    taxCodes: addOnTaxes?.map(({ code }) => code) || [],
     ...others,
   }
 }

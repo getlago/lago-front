@@ -15,6 +15,7 @@ describe('Add On', () => {
     cy.get('input[name="code"]').type(addOnName)
     cy.get('input[name="amountCents"]').type('30')
     cy.get('[data-test="submit"]').should('be.enabled')
+    cy.get('[data-test="show-description"]').click()
     cy.get('textarea[name="description"]').type(description)
 
     // Submit form
@@ -30,6 +31,7 @@ describe('Add On', () => {
 
     // Update field and submit
     cy.get('[data-test="submit"]').should('be.disabled')
+    cy.get('textarea[name="description"]').should('exist')
     cy.get('input[name="amountCents"]').type('20')
     cy.get('[data-test="submit"]').click()
     cy.url().should('be.equal', Cypress.config().baseUrl + '/add-ons')

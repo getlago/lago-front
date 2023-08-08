@@ -11,6 +11,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { Avatar, Button, Popper, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import {
+  AddOnForInvoiceEditTaxDialogFragmentDoc,
   CreateInvoiceInput,
   CurrencyEnum,
   useCreateInvoiceMutation,
@@ -104,9 +105,12 @@ gql`
         description
         amountCents
         amountCurrency
+        ...AddOnForInvoiceEditTaxDialog
       }
     }
   }
+
+  ${AddOnForInvoiceEditTaxDialogFragmentDoc}
 `
 
 const CELL_HEIGHT = 68
