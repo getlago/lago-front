@@ -223,7 +223,7 @@ export const ChargesSection = memo(
                       }, 0)
                     }}
                   >
-                    {translate('text_648c2be974f70300748a4cc6')}
+                    {translate('text_64d270faa1b07d0097fa287e')}
                   </Button>
                   <Button
                     variant="quaternary"
@@ -245,7 +245,7 @@ export const ChargesSection = memo(
                       }, 0)
                     }}
                   >
-                    {translate('text_648c2be974f70300748a4cc8')}
+                    {translate('text_64d27120a3d1e300b35d0fcc')}
                   </Button>
                 </MenuPopper>
               )}
@@ -266,10 +266,10 @@ export const ChargesSection = memo(
           {(hasAnyMeteredCharge || showAddMeteredCharge) && (
             <div>
               <Typography variant="bodyHl" color="grey700">
-                {translate('text_648c2be974f70300748a4cc7')}
+                {translate('text_64d2713ec021c6005ef64e03')}
               </Typography>
               <Typography variant="caption" color="grey600">
-                {translate('text_648c2be974f70300748a4cc9')}
+                {translate('text_64d2715f868d50004c21fee8')}
               </Typography>
             </div>
           )}
@@ -379,7 +379,7 @@ export const ChargesSection = memo(
                     }, 0)
                   }}
                 >
-                  {translate('text_648c2be974f70300748a4cce')}
+                  {translate('text_64d270faa1b07d0097fa287e')}
                 </Button>
               )}
               {!showAddRecurringCharge && !hasAnyRecurringCharge && (
@@ -398,7 +398,7 @@ export const ChargesSection = memo(
                     }, 0)
                   }}
                 >
-                  {translate('text_648c2be974f70300748a4cd4')}
+                  {translate('text_64d27120a3d1e300b35d0fcc')}
                 </Button>
               )}
             </InlineButtons>
@@ -410,10 +410,10 @@ export const ChargesSection = memo(
               $hasAnyAboveSection={hasAnyMeteredCharge || showAddMeteredCharge}
             >
               <Typography variant="bodyHl" color="grey700">
-                {translate('text_648c2be974f70300748a4ccf')}
+                {translate('text_64d271e20a9c11005bd6688a')}
               </Typography>
               <Typography variant="caption" color="grey600">
-                {translate('text_648c2be974f70300748a4cd0')}
+                {translate('text_64d2720f666bf7007e9ca759')}
               </Typography>
             </RecurringSectionTitleWrapper>
           )}
@@ -520,7 +520,7 @@ export const ChargesSection = memo(
                     }, 0)
                   }}
                 >
-                  {translate('text_648c2be974f70300748a4cce')}
+                  {translate('text_64d270faa1b07d0097fa287e')}
                 </Button>
               )}
               {!showAddRecurringCharge && !!hasAnyRecurringCharge && (
@@ -539,7 +539,7 @@ export const ChargesSection = memo(
                     }, 0)
                   }}
                 >
-                  {translate('text_648c2be974f70300748a4cd4')}
+                  {translate('text_64d27120a3d1e300b35d0fcc')}
                 </Button>
               )}
             </InlineButtons>
