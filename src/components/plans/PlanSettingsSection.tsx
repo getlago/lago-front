@@ -71,7 +71,7 @@ export const PlanSettingsSection = memo(
     const plan = formikProps.values
     const isEdition = type === PLAN_FORM_TYPE_ENUM.edition
     const [getTaxes, { data: taxesData, loading: taxesLoading }] = useGetTaxesForPlanLazyQuery({
-      variables: { limit: 500 },
+      variables: { limit: 20 },
     })
     const { collection: taxesCollection } = taxesData?.taxes || {}
 
@@ -262,8 +262,8 @@ export const PlanSettingsSection = memo(
                 placeholder={translate('text_64be910fba8ef9208686a8e7')}
                 emptyText={translate('text_64be91fd0678965126e5657b')}
                 onChange={(newTaxId) => {
-                  const previousTaxes = [...(formikProps.values.taxes || [])]
-                  const newTaxObject = taxesData?.taxes.collection.find((t) => t.id === newTaxId)
+                  const previousTaxes = [...(formikProps?.values?.taxes || [])]
+                  const newTaxObject = taxesData?.taxes?.collection.find((t) => t.id === newTaxId)
 
                   formikProps.setFieldValue('taxes', [...previousTaxes, newTaxObject])
                   setShouldDisplayTaxesInput(false)

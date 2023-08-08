@@ -1,18 +1,23 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFormik } from 'formik'
 import { object, string, number } from 'yup'
 import styled from 'styled-components'
+import { gql } from '@apollo/client'
 
 import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
 import { PageHeader } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { ADD_ONS_ROUTE } from '~/core/router'
-import { CreateAddOnInput, CurrencyEnum } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  TaxOnAddOnEditCreateFragmentDoc,
+  useGetTaxesForAddOnFormLazyQuery,
+} from '~/generated/graphql'
 import { theme, Card } from '~/styles'
-import { Typography, Button, Skeleton } from '~/components/designSystem'
-import { TextInputField, ComboBoxField, AmountInputField } from '~/components/form'
+import { Typography, Button, Skeleton, Tooltip, Chip } from '~/components/designSystem'
+import { TextInputField, ComboBoxField, AmountInputField, ComboBox } from '~/components/form'
 import {
   Main,
   Content,
@@ -25,16 +30,47 @@ import {
   LineAmount,
 } from '~/styles/mainObjectsForm'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import {
+  FORM_ERRORS_ENUM,
+  MUI_INPUT_BASE_ROOT_CLASSNAME,
+  SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME,
+} from '~/core/constants/form'
+import { AddOnFormInput } from '~/components/addOns/types'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { Item } from '~/components/form/ComboBox/ComboBoxItem'
 
 import { AddOnCodeSnippet } from '../components/addOns/AddOnCodeSnippet'
+
+gql`
+  query getTaxesForAddOnForm($limit: Int, $page: Int) {
+    taxes(limit: $limit, page: $page) {
+      metadata {
+        currentPage
+        totalPages
+      }
+      collection {
+        id
+        name
+        rate
+        ...TaxOnAddOnEditCreate
+      }
+    }
+  }
+
+  ${TaxOnAddOnEditCreateFragmentDoc}
+`
 
 const CreateAddOn = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
   const { isEdition, loading, addOn, errorCode, onSave } = useCreateEditAddOn()
   const warningDialogRef = useRef<WarningDialogRef>(null)
-  const formikProps = useFormik<CreateAddOnInput>({
+  const [getTaxes, { data: taxesData, loading: taxesLoading }] = useGetTaxesForAddOnFormLazyQuery({
+    variables: { limit: 20 },
+  })
+  const { collection: taxesCollection } = taxesData?.taxes || {}
+
+  const formikProps = useFormik<AddOnFormInput>({
     initialValues: {
       name: addOn?.name || '',
       code: addOn?.code || '',
@@ -43,6 +79,7 @@ const CreateAddOn = () => {
         ? String(deserializeAmount(addOn?.amountCents, addOn?.amountCurrency))
         : addOn?.amountCents || undefined,
       amountCurrency: addOn?.amountCurrency || CurrencyEnum.Usd,
+      taxes: addOn?.taxes || [],
     },
     validationSchema: object().shape({
       name: string().required(''),
@@ -54,6 +91,45 @@ const CreateAddOn = () => {
     validateOnMount: true,
     onSubmit: onSave,
   })
+
+  const taxesDataForCombobox = useMemo(() => {
+    if (!taxesCollection) return []
+
+    const addOnTaxesIds = formikProps?.values?.taxes?.map((tax) => tax.id) || []
+
+    return taxesCollection.map(({ id, name, rate }) => {
+      return {
+        label: `${name} (${intlFormatNumber(Number(rate) / 100 || 0, {
+          minimumFractionDigits: 2,
+          style: 'percent',
+        })})`,
+        labelNode: (
+          <Item>
+            {name}&nbsp;
+            <Typography color="textPrimary">
+              (
+              {intlFormatNumber(Number(rate) / 100 || 0, {
+                minimumFractionDigits: 2,
+                style: 'percent',
+              })}
+              )
+            </Typography>
+          </Item>
+        ),
+        value: id,
+        disabled: addOnTaxesIds.includes(id),
+      }
+    })
+  }, [formikProps?.values?.taxes, taxesCollection])
+
+  const [shouldDisplayTaxesInput, setShouldDisplayTaxesInput] = useState<boolean>(false)
+  const [shouldDisplayDescription, setShouldDisplayDescription] = useState<boolean>(
+    !!formikProps.initialValues.description
+  )
+
+  useEffect(() => {
+    setShouldDisplayDescription(!!formikProps.initialValues.description)
+  }, [formikProps.initialValues.description])
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
@@ -157,14 +233,41 @@ const CreateAddOn = () => {
                       infoText={translate('text_629778b2a517d100c19bc524')}
                     />
                   </Line>
-                  <TextInputField
-                    name="description"
-                    label={translate('text_629728388c4d2300e2d380f1')}
-                    placeholder={translate('text_629728388c4d2300e2d38103')}
-                    rows="3"
-                    multiline
-                    formikProps={formikProps}
-                  />
+
+                  {shouldDisplayDescription ? (
+                    <InlineDescription>
+                      <TextArea
+                        name="description"
+                        label={translate('text_629728388c4d2300e2d380f1')}
+                        placeholder={translate('text_629728388c4d2300e2d38103')}
+                        rows="3"
+                        multiline
+                        formikProps={formikProps}
+                      />
+                      <CloseDescriptionTooltip
+                        placement="top-end"
+                        title={translate('text_63aa085d28b8510cd46443ff')}
+                      >
+                        <Button
+                          icon="trash"
+                          variant="quaternary"
+                          onClick={() => {
+                            formikProps.setFieldValue('description', '')
+                            setShouldDisplayDescription(false)
+                          }}
+                        />
+                      </CloseDescriptionTooltip>
+                    </InlineDescription>
+                  ) : (
+                    <Button
+                      startIcon="plus"
+                      variant="quaternary"
+                      onClick={() => setShouldDisplayDescription(true)}
+                      data-test="show-description"
+                    >
+                      {translate('text_642d5eb2783a2ad10d670324')}
+                    </Button>
+                  )}
                 </Card>
                 <Card>
                   <SectionTitle variant="subhead">
@@ -188,6 +291,97 @@ const CreateAddOn = () => {
                       formikProps={formikProps}
                     />
                   </LineAmount>
+
+                  {!!formikProps?.values?.taxes?.length && (
+                    <div>
+                      <TaxLabel variant="captionHl" color="grey700">
+                        {translate('text_64be910fba8ef9208686a8e3')}
+                      </TaxLabel>
+                      <InlineTaxesWrapper>
+                        {formikProps?.values?.taxes?.map(({ id, name, rate }) => (
+                          <Chip
+                            key={id}
+                            label={`${name} (${rate}%)`}
+                            variant="secondary"
+                            size="medium"
+                            closeIcon="trash"
+                            icon="percentage"
+                            onCloseLabel={translate('text_63aa085d28b8510cd46443ff')}
+                            onClose={() => {
+                              const newTaxedArray =
+                                formikProps?.values?.taxes?.filter((tax) => tax.id !== id) || []
+
+                              formikProps.setFieldValue('taxes', newTaxedArray)
+                            }}
+                          />
+                        ))}
+                      </InlineTaxesWrapper>
+                    </div>
+                  )}
+
+                  {shouldDisplayTaxesInput ? (
+                    <div>
+                      {!formikProps?.values?.taxes?.length && (
+                        <TaxLabel variant="captionHl" color="grey700">
+                          {translate('text_64be910fba8ef9208686a8e3')}
+                        </TaxLabel>
+                      )}
+                      <InlineTaxInputWrapper>
+                        <ComboBox
+                          className={SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME}
+                          data={taxesDataForCombobox}
+                          searchQuery={getTaxes}
+                          loading={taxesLoading}
+                          placeholder={translate('text_64be910fba8ef9208686a8e7')}
+                          emptyText={translate('text_64be91fd0678965126e5657b')}
+                          onChange={(newTaxId) => {
+                            const previousTaxes = [...(formikProps?.values?.taxes || [])]
+                            const newTaxObject = taxesData?.taxes?.collection?.find(
+                              (t) => t.id === newTaxId
+                            )
+
+                            formikProps.setFieldValue('taxes', [...previousTaxes, newTaxObject])
+                            setShouldDisplayTaxesInput(false)
+                          }}
+                        />
+
+                        <Tooltip
+                          placement="top-end"
+                          title={translate('text_63aa085d28b8510cd46443ff')}
+                        >
+                          <Button
+                            icon="trash"
+                            variant="quaternary"
+                            onClick={() => {
+                              setShouldDisplayTaxesInput(false)
+                            }}
+                          />
+                        </Tooltip>
+                      </InlineTaxInputWrapper>
+                    </div>
+                  ) : (
+                    <Button
+                      startIcon="plus"
+                      variant="quaternary"
+                      onClick={() => {
+                        setShouldDisplayTaxesInput(true)
+
+                        setTimeout(() => {
+                          const element = document.querySelector(
+                            `.${SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                          ) as HTMLElement
+
+                          if (!element) return
+
+                          element.scrollIntoView({ behavior: 'smooth' })
+                          element.click()
+                        }, 0)
+                      }}
+                      data-test="show-add-taxes"
+                    >
+                      {translate('text_64be910fba8ef9208686a8c9')}
+                    </Button>
+                  )}
                 </Card>
 
                 <ButtonContainer>
@@ -231,6 +425,47 @@ const CreateAddOn = () => {
 
 const SectionTitle = styled(Typography)`
   margin-bottom: ${theme.spacing(6)};
+`
+
+const TextArea = styled(TextInputField)`
+  flex: 1;
+  margin-right: ${theme.spacing(3)};
+
+  textarea {
+    min-height: 38px;
+    resize: vertical;
+    white-space: pre-wrap;
+  }
+`
+
+const CloseDescriptionTooltip = styled(Tooltip)`
+  margin-top: ${theme.spacing(6)};
+`
+
+const InlineDescription = styled.div`
+  display: flex;
+  align-items: center;
+`
+
+const TaxLabel = styled(Typography)`
+  margin-bottom: ${theme.spacing(1)};
+`
+
+const InlineTaxInputWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing(3)};
+
+  > *:first-child {
+    flex: 1;
+  }
+`
+
+const InlineTaxesWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing(3)};
+  flex-wrap: wrap;
 `
 
 export default CreateAddOn
