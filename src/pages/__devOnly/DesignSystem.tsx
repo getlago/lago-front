@@ -1042,12 +1042,14 @@ const DesignSystem = () => {
                       formikProps={formikProps}
                       value="painauchocolat"
                       label="Pain au chocolat"
+                      sublabel="The right answer"
                     />
                     <RadioField
                       value="painauchocolat"
                       name="radio"
                       formikProps={formikProps}
                       label="Disabled"
+                      sublabel="I'm disabled too"
                       disabled
                     />
                   </Block>

@@ -3,11 +3,30 @@ import styled from 'styled-components'
 import { gql } from '@apollo/client'
 import { Link, generatePath } from 'react-router-dom'
 
-import { Typography, Button, Skeleton, Avatar, Icon, Tooltip } from '~/components/designSystem'
+import {
+  Typography,
+  Button,
+  Skeleton,
+  Avatar,
+  Icon,
+  Popper,
+  Tooltip,
+} from '~/components/designSystem'
 import { WEBHOOK_LOGS_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme, NAV_HEIGHT, ItemContainer, ListClickableItemCss } from '~/styles'
-import { useGetWebhookListQuery } from '~/generated/graphql'
+import {
+  theme,
+  NAV_HEIGHT,
+  ItemContainer,
+  ListClickableItemCss,
+  MenuPopper,
+  PopperOpener,
+} from '~/styles'
+import {
+  WebhookEndpointSignatureAlgoEnum,
+  WebhookForCreateAndEditFragmentDoc,
+  useGetWebhookListQuery,
+} from '~/generated/graphql'
 import {
   DeleteWebhookDialog,
   DeleteWebhookDialogRef,
@@ -25,9 +44,13 @@ gql`
       collection {
         id
         webhookUrl
+        signatureAlgo
+        ...WebhookForCreateAndEdit
       }
     }
   }
+
+  ${WebhookForCreateAndEditFragmentDoc}
 `
 
 const Webhooks = () => {
@@ -42,7 +65,7 @@ const Webhooks = () => {
   return (
     <Page>
       <Title variant="headline">{translate('text_6271200984178801ba8bdef2')}</Title>
-      <Subtitle>{translate('text_6491b293bc3bab0092461aea')}</Subtitle>
+      <Subtitle>{translate('text_64d23b49d481ab00681c229b')}</Subtitle>
       <Head>
         <Typography variant="subhead" color="grey700">
           {translate('text_6271200984178801ba8bdf40')}
@@ -50,7 +73,7 @@ const Webhooks = () => {
         <Button
           disabled={webhooks.length >= WEBHOOK_COUNT_LIMIT}
           variant="quaternary"
-          onClick={createDialogRef?.current?.openDialog}
+          onClick={() => createDialogRef?.current?.openDialog()}
         >
           {translate('text_6271200984178801ba8bdf1a')}
         </Button>
@@ -71,7 +94,7 @@ const Webhooks = () => {
       ) : (
         <>
           {webhooks.map((webhook) => {
-            const { id, webhookUrl } = webhook
+            const { id, signatureAlgo, webhookUrl } = webhook
 
             return (
               <ItemContainer key={`webhook-item-${id}`}>
@@ -80,22 +103,63 @@ const Webhooks = () => {
                     <Avatar variant="connector">
                       <Icon color="dark" name="globe" />
                     </Avatar>
-                    <Typography variant="body" color="grey700" noWrap>
-                      {webhookUrl}
-                    </Typography>
+                    <LeftBlockColumn>
+                      <Typography variant="bodyHl" color="grey700" noWrap>
+                        {webhookUrl}
+                      </Typography>
+                      <Typography variant="caption" color="grey600" noWrap>
+                        {signatureAlgo === WebhookEndpointSignatureAlgoEnum.Jwt
+                          ? translate('text_64d23b49d481ab00681c229f')
+                          : translate('text_64d23b49d481ab00681c22a1')}
+                      </Typography>
+                    </LeftBlockColumn>
                   </LeftBlock>
                   <ButtonMock />
                 </WebhookItem>
-                <MenuButton title={translate('text_63aa15caab5b16980b21b0ba')} placement="top-end">
-                  <Button
-                    icon="trash"
-                    variant="quaternary"
-                    align="left"
-                    onClick={() => {
-                      deleleDialogRef.current?.openDialog(id)
-                    }}
-                  />
-                </MenuButton>
+                <Popper
+                  PopperProps={{ placement: 'bottom-end' }}
+                  opener={({ isOpen }) => (
+                    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+                    <PopperWrapper>
+                      <Tooltip
+                        placement="top-end"
+                        disableHoverListener={isOpen}
+                        title={translate('text_6256de3bba111e00b3bfa51b')}
+                      >
+                        <Button disabled={loading} icon="dots-horizontal" variant="quaternary" />
+                      </Tooltip>
+                    </PopperWrapper>
+                  )}
+                >
+                  {({ closePopper }) => (
+                    <MenuPopper>
+                      <Button
+                        disabled={loading}
+                        startIcon="pen"
+                        variant="quaternary"
+                        align="left"
+                        onClick={() => {
+                          createDialogRef?.current?.openDialog(webhook)
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_63aa15caab5b16980b21b0b8')}
+                      </Button>
+                      <Button
+                        disabled={loading}
+                        startIcon="trash"
+                        variant="quaternary"
+                        align="left"
+                        onClick={() => {
+                          deleleDialogRef.current?.openDialog(id)
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_63aa15caab5b16980b21b0ba')}
+                      </Button>
+                    </MenuPopper>
+                  )}
+                </Popper>
               </ItemContainer>
             )
           })}
@@ -157,9 +221,12 @@ const LeftBlock = styled.div`
   }
 `
 
-const MenuButton = styled(Tooltip)`
-  position: absolute;
-  top: ${theme.spacing(4)};
+const LeftBlockColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+`
+
+const PopperWrapper = styled(PopperOpener)`
   right: 0;
 `
 

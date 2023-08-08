@@ -13,11 +13,12 @@ export interface RadioProps {
   checked: boolean
   disabled?: boolean
   label?: string | ReactNode
+  sublabel?: string | ReactNode
   onChange?: (value: string | number) => void
 }
 
 export const Radio = forwardRef<HTMLDivElement, RadioProps>(
-  ({ name, checked, label, disabled, value, onChange }: RadioProps, ref) => {
+  ({ name, checked, label, sublabel, disabled, value, onChange }: RadioProps, ref) => {
     const inputRef = useRef<HTMLInputElement>(null)
     const [focused, setFocused] = useState(false)
 
@@ -50,12 +51,22 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
             <RadioIcon className="radio-icon" />
           )}
         </RadioContainer>
-        <Typography
-          color={disabled ? 'disabled' : 'textSecondary'}
-          component={(labelProps) => <label htmlFor={name} {...labelProps} />}
-        >
-          {label}
-        </Typography>
+        <div>
+          <Typography
+            color={disabled ? 'disabled' : 'textSecondary'}
+            component={(labelProps) => <label htmlFor={name} {...labelProps} />}
+          >
+            {label}
+          </Typography>
+          {!!label &&
+            (typeof sublabel === 'string' ? (
+              <Typography variant="caption" color={disabled ? 'disabled' : 'grey600'}>
+                {sublabel}
+              </Typography>
+            ) : (
+              sublabel
+            ))}
+        </div>
       </Container>
     )
   }

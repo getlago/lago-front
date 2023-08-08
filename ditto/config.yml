@@ -265,7 +265,11 @@ sources:
       fileName: Add missing keys
     - name: 👍 [Ready for dev] - Settings / Customers - Lago x Stripe SDD
       id: 64aeb7b7d5628db33254c4bb
+      fileName: 👍 [Ready for dev] - Settings / Customers - Lago x Stripe SDD
     - name: 👍 [Ready for dev] - Plans - Add tax to plans
       id: 64be91077c9f2900a38f3ad3
+      fileName: 👍 [Ready for dev] - Plans - Add tax to plans
+    - name: 👍 [Ready for dev] - Webhook - Select webhooks signature
+      id: 64d23a7dbab3e178ad302aa0
 format: flat
 variants: true
