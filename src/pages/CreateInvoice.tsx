@@ -12,8 +12,9 @@ import { Avatar, Button, Popper, Skeleton, Tooltip, Typography } from '~/compone
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import {
   AddOnForInvoiceEditTaxDialogFragmentDoc,
-  CreateInvoiceInput,
+  // AddOnForInvoiceEditTaxDialogFragmentDoc,
   CurrencyEnum,
+  TaxInfosForCreateInvoiceFragment,
   useCreateInvoiceMutation,
   useGetAddonListForInfoiceLazyQuery,
   useGetInfosForCreateInvoiceQuery,
@@ -34,10 +35,23 @@ import { addToast } from '~/core/apolloClient'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { CountryCodes } from '~/core/countryCodes'
 import { MUI_INPUT_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
+import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
+import {
+  EditInvoiceItemTaxDialog,
+  EditInvoiceItemTaxDialogRef,
+} from '~/components/invoices/EditInvoiceItemTaxDialog'
 
 const ADD_ITEM_INPUT_NAME = 'addItemInput'
+const CELL_HEIGHT = 68
 
 gql`
+  fragment TaxInfosForCreateInvoice on Tax {
+    id
+    name
+    code
+    rate
+  }
+
   mutation createInvoice($input: CreateInvoiceInput!) {
     createInvoice(input: $input) {
       id
@@ -61,9 +75,7 @@ gql`
       zipcode
       taxes {
         id
-        name
-        code
-        rate
+        ...TaxInfosForCreateInvoice
       }
     }
 
@@ -83,12 +95,10 @@ gql`
       zipcode
     }
 
-    taxes(appliedToOrganization: true) {
+    taxes(page: 1, limit: 1000, appliedToOrganization: true) {
       collection {
         id
-        name
-        code
-        rate
+        ...TaxInfosForCreateInvoice
       }
     }
   }
@@ -106,6 +116,10 @@ gql`
         amountCents
         amountCurrency
         ...AddOnForInvoiceEditTaxDialog
+        taxes {
+          id
+          ...TaxInfosForCreateInvoice
+        }
       }
     }
   }
@@ -113,7 +127,14 @@ gql`
   ${AddOnForInvoiceEditTaxDialogFragmentDoc}
 `
 
-const CELL_HEIGHT = 68
+type TaxMapType = Map<
+  string, // code of the tax
+  {
+    label: string
+    amount: number
+    taxRate: number // Used for sorting purpose
+  }
+>
 
 const CreateInvoice = () => {
   const navigate = useNavigate()
@@ -122,6 +143,7 @@ const CreateInvoice = () => {
   const { translate } = useInternationalization()
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const editDescriptionDialogRef = useRef<EditInvoiceItemDescriptionDialogRef>(null)
+  const editTaxDialogRef = useRef<EditInvoiceItemTaxDialogRef>(null)
   const handleClosePage = useCallback(() => {
     navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: customerId as string }))
   }, [navigate, customerId])
@@ -133,7 +155,7 @@ const CreateInvoice = () => {
   })
   const { customer, organization, taxes } = data || {}
 
-  const appliedTaxes = useMemo(() => {
+  const customerApplicableTax = useMemo(() => {
     if (!!customer?.taxes?.length) return customer?.taxes
     return taxes?.collection
   }, [customer, taxes])
@@ -156,7 +178,7 @@ const CreateInvoice = () => {
     },
   })
 
-  const formikProps = useFormik<CreateInvoiceInput>({
+  const formikProps = useFormik<InvoiceFormInput>({
     initialValues: {
       customerId: customerId || '',
       currency: data?.customer?.currency || CurrencyEnum.Usd,
@@ -182,10 +204,11 @@ const CreateInvoice = () => {
         variables: {
           input: {
             ...values,
-            fees: fees.map(({ unitAmountCents, ...fee }) => {
+            fees: fees.map(({ unitAmountCents, taxes: addonTaxes, ...fee }) => {
               return {
                 ...fee,
                 unitAmountCents: Number(serializeAmount(unitAmountCents, currency) || 0),
+                taxCodes: addonTaxes?.map(({ code }) => code) || [],
               }
             }),
           },
@@ -221,32 +244,53 @@ const CreateInvoice = () => {
   }, [addOnData])
 
   const calculation = useMemo(() => {
-    const subTotal = formikProps.values.fees.reduce((acc, fee) => {
-      acc += (fee?.units || 0) * (fee?.unitAmountCents || 0)
-      return acc
-    }, 0)
+    const updateOrCreateTaxMap = (
+      currentTaxesMap: TaxMapType,
+      feeAmount?: number,
+      feeAppliedTaxes?: TaxInfosForCreateInvoiceFragment[]
+    ) => {
+      if (!feeAppliedTaxes?.length) return currentTaxesMap
+      if (!currentTaxesMap) currentTaxesMap = new Map()
 
-    let vatTotalAmount = 0
-    let taxesToDisplay = []
+      feeAppliedTaxes.forEach((appliedTax) => {
+        const { id, name, rate } = appliedTax
+        const amount = ((Number(feeAmount) || 0) * rate) / 100
 
-    if (!!appliedTaxes?.length) {
-      for (let i = 0; i < appliedTaxes.length; i++) {
-        const localTax = appliedTaxes[i]
-        const localValue = deserializeAmount(Math.round(subTotal * localTax.rate), currency)
+        const previousTax = currentTaxesMap?.get(id)
 
-        taxesToDisplay.push({
-          label: `${translate('text_6453819268763979024ad0e9')} (${localTax.rate}%)`,
-          value: localValue,
-        })
+        if (previousTax) {
+          previousTax.amount += amount
+          currentTaxesMap?.set(id, previousTax)
+        } else {
+          currentTaxesMap?.set(id, { label: `${name} (${rate}%)`, amount, taxRate: rate })
+        }
+      })
 
-        vatTotalAmount += localValue
-      }
+      return currentTaxesMap
     }
 
-    const total = subTotal + vatTotalAmount
+    const totalsReduced = formikProps.values.fees.reduce(
+      (acc, fee) => {
+        acc = {
+          subTotal: acc.subTotal + (fee?.units || 0) * (fee?.unitAmountCents || 0),
+          taxesToDisplay: updateOrCreateTaxMap(
+            acc.taxesToDisplay,
+            fee.unitAmountCents,
+            fee?.taxes || undefined
+          ),
+        }
+        return acc
+      },
+      { subTotal: 0, taxesToDisplay: new Map() }
+    )
 
-    return { subTotal, taxesToDisplay, total }
-  }, [formikProps.values.fees, appliedTaxes, currency, translate])
+    const vatTotalAmount = totalsReduced?.taxesToDisplay?.size
+      ? Array.from(totalsReduced?.taxesToDisplay.values()).reduce((acc, tax) => acc + tax.amount, 0)
+      : 0
+    const total = totalsReduced.subTotal + vatTotalAmount
+
+    return { subTotal: totalsReduced.subTotal, taxesToDisplay: totalsReduced.taxesToDisplay, total }
+  }, [formikProps.values.fees])
 
   const { subTotal, taxesToDisplay, total } = calculation
 
@@ -475,6 +519,9 @@ const CreateInvoice = () => {
                         {translate('text_6453819268763979024ad089')}
                       </Typography>
                       <Typography variant="bodyHl" color="grey500">
+                        {translate('text_636bedf292786b19d3398f06')}
+                      </Typography>
+                      <Typography variant="bodyHl" color="grey500">
                         {translate('text_6453819268763979024ad097')}
                       </Typography>
                       {/* Action column */}
@@ -498,7 +545,9 @@ const CreateInvoice = () => {
                             </div>
                             <Tooltip
                               placement="top-end"
-                              title={translate(`${unitValidationErrorKey}`)}
+                              title={
+                                !!unitValidationErrorKey && translate(`${unitValidationErrorKey}`)
+                              }
                               disableHoverListener={!unitValidationErrorKey}
                             >
                               <TextInputField
@@ -522,6 +571,22 @@ const CreateInvoice = () => {
                                 ),
                               }}
                             />
+                            <TaxCell variant="body" color="grey700">
+                              {fee.taxes?.length
+                                ? fee.taxes.map((tax) => (
+                                    <Typography
+                                      key={`fee-${i}-applied-taxe-${tax.id}`}
+                                      variant="body"
+                                      color="grey700"
+                                    >
+                                      {intlFormatNumber(tax.rate / 100 || 0, {
+                                        maximumFractionDigits: 2,
+                                        style: 'percent',
+                                      })}
+                                    </Typography>
+                                  ))
+                                : '0%'}
+                            </TaxCell>
                             <Typography variant="body" color="grey700">
                               {!fee.units
                                 ? '-'
@@ -559,6 +624,25 @@ const CreateInvoice = () => {
                                     {translate('text_6453819268763979024ad124')}
                                   </Button>
                                   <Button
+                                    startIcon="percentage"
+                                    variant="quaternary"
+                                    align="left"
+                                    onClick={() => {
+                                      editTaxDialogRef.current?.openDialog({
+                                        taxes: fee.taxes,
+                                        callback: (newTaxesArray?: LocalFeeInput['taxes']) => {
+                                          formikProps.setFieldValue(
+                                            `fees.${i}.taxes`,
+                                            newTaxesArray
+                                          )
+                                        },
+                                      })
+                                      closePopper()
+                                    }}
+                                  >
+                                    {translate('text_64d40b7e80e64e40710a49ba')}
+                                  </Button>
+                                  <Button
                                     startIcon="trash"
                                     variant="quaternary"
                                     align="left"
@@ -592,6 +676,9 @@ const CreateInvoice = () => {
                               const addOn = addOnData?.addOns?.collection.find(
                                 (c) => c.id === value
                               )
+                              const addonApplicableTaxes = addOn?.taxes?.length
+                                ? addOn?.taxes
+                                : customerApplicableTax
 
                               if (!!addOn) {
                                 formikProps.setFieldValue('fees', [
@@ -602,6 +689,7 @@ const CreateInvoice = () => {
                                     description: addOn.description,
                                     units: 1,
                                     unitAmountCents: deserializeAmount(addOn.amountCents, currency),
+                                    taxes: addonApplicableTaxes,
                                   },
                                 ])
                               }
@@ -658,25 +746,27 @@ const CreateInvoice = () => {
                       </Typography>
                     </InvoiceFooterLine>
                     <>
-                      {!!taxesToDisplay?.length ? (
+                      {!!taxesToDisplay?.size ? (
                         <>
-                          {taxesToDisplay.map((taxToDisplay, i) => {
-                            return (
-                              <InvoiceFooterLine key={`one-off-invoice-tax-item-${i}`}>
-                                <Typography variant="bodyHl" color="grey600">
-                                  {taxToDisplay.label}
-                                </Typography>
-                                <Typography variant="body" color="grey700">
-                                  {!hasAnyFee
-                                    ? '-'
-                                    : intlFormatNumber(taxToDisplay.value, {
-                                        currency,
-                                        maximumFractionDigits: 2,
-                                      })}
-                                </Typography>
-                              </InvoiceFooterLine>
-                            )
-                          })}
+                          {Array.from(taxesToDisplay.values())
+                            .sort((a, b) => b.taxRate - a.taxRate)
+                            .map((taxToDisplay, i) => {
+                              return (
+                                <InvoiceFooterLine key={`one-off-invoice-tax-item-${i}`}>
+                                  <Typography variant="bodyHl" color="grey600">
+                                    {taxToDisplay.label}
+                                  </Typography>
+                                  <Typography variant="body" color="grey700">
+                                    {!hasAnyFee
+                                      ? '-'
+                                      : intlFormatNumber(taxToDisplay.amount, {
+                                          currency,
+                                          maximumFractionDigits: 2,
+                                        })}
+                                  </Typography>
+                                </InvoiceFooterLine>
+                              )
+                            })}
                         </>
                       ) : (
                         <InvoiceFooterLine>
@@ -748,6 +838,7 @@ const CreateInvoice = () => {
       />
 
       <EditInvoiceItemDescriptionDialog ref={editDescriptionDialogRef} />
+      <EditInvoiceItemTaxDialog ref={editTaxDialogRef} />
     </>
   )
 }
@@ -831,15 +922,19 @@ const InvoiceTableWrapper = styled.div`
 `
 
 const CurrencyComboBoxField = styled(ComboBoxField)`
-  width: 160px;
+  max-width: 160px;
+  width: fit-content;
 `
 
 const Grid = () => css`
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 80px 168px 160px 24px;
+  grid-template-columns:
+    minmax(0, 1fr) minmax(0, 80px) minmax(0, 168px) minmax(0, 64px) minmax(0, 160px)
+    minmax(0, 24px);
   gap: ${theme.spacing(3)};
 
-  > *:nth-child(4) {
+  > *:nth-child(4),
+  > *:nth-child(5) {
     display: flex;
     justify-content: flex-end;
   }
@@ -862,7 +957,7 @@ const InvoiceTableHeader = styled.div`
 
 const InvoiceItem = styled.div`
   ${Grid()}
-  height: ${CELL_HEIGHT}px;
+  min-height: ${CELL_HEIGHT}px;
   align-items: center;
   box-shadow: ${theme.shadows[7]};
 `
@@ -912,4 +1007,11 @@ const InvoiceFooterLine = styled.div`
 
 const SubmitButtonWrapper = styled.div`
   margin: 0 32px;
+`
+
+const TaxCell = styled(Typography)`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: ${theme.spacing(1)} 0;
 `
