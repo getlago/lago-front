@@ -271,7 +271,11 @@ sources:
       fileName: 👍 [Ready for dev] - Plans - Add tax to plans
     - name: 👍 [Ready for dev] - Webhook - Select webhooks signature
       id: 64d23a7dbab3e178ad302aa0
+      fileName: 👍 [Ready for dev] - Webhook - Select webhooks signature
     - name: 👍 [Ready for dev] - Settings - Net payment term
       id: 64c7a896197f1907cbc6371c
+      fileName: 👍 [Ready for dev] - Settings - Net payment term
+    - name: 👍 [Ready for dev] - Add-on - Add tax to add-ons & one off invoice
+      id: 64d40b7c611d58bb88ec7d63
 format: flat
 variants: true

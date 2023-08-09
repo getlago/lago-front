@@ -1,4 +1,7 @@
 {
+  "text_64d40b7e80e64e40710a49ba": "Edit tax rate",
+  "text_64d40b7e80e64e40710a4931": "Line items inherit taxes from add-ons, which can be overridden by adding, replacing, or removing additional taxes. These specified taxes will appear on the invoice.",
+  "text_64d40b7e80e64e40710a4935": "No tax defined, please add a tax to impact this fee.",
   "text_62ff5d01a306e274d4ffcc3e": "Based on events",
   "text_62ff5d01a306e274d4ffcc44": "Based on total amount",
   "text_62ff5d01a306e274d4ffcc06": "Charge per example 10% of the amount of units, apply fixed rate and free units.",

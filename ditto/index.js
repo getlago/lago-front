@@ -1,4 +1,7 @@
 module.exports = {
+  "project_64d40b7c611d58bb88ec7d63": {
+    "base": require('./-ready-for-dev---add-on---add-tax-to-add-ons--one-off-invoice__base.json')
+  },
   "project_62ff5cfec490a4767eccdf6e": {
     "base": require('./-ready-for-dev---add-percentage-in-charge-model__base.json')
   },

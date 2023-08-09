@@ -1669,6 +1669,7 @@ export type FeeInput = {
   addOnId: Scalars['ID']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
   unitAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   units?: InputMaybe<Scalars['Float']['input']>;
 };
@@ -4557,11 +4558,13 @@ export type GetTaxesForAddOnFormQueryVariables = Exact<{
 }>;
 
 
-export type GetTaxesForAddOnFormQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
+export type GetTaxesForAddOnFormQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> } };
 
 export type EditBillableMetricFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, group?: any | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, subscriptionsCount: number, plansCount: number, recurring: boolean };
 
 export type CreateCreditNoteInvoiceFragment = { __typename?: 'Invoice', id: string, currency?: CurrencyEnum | null, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, creditableAmountCents: any, refundableAmountCents: any, subTotalIncludingTaxesAmountCents: any, couponsAmountCents: any, feesAmountCents: any, versionNumber: number, fees?: Array<{ __typename?: 'Fee', id: string, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, tax: { __typename?: 'Tax', id: string, name: string, rate: number } }> | null }> | null };
+
+export type TaxInfosForCreateInvoiceFragment = { __typename?: 'Tax', id: string, name: string, code: string, rate: number };
 
 export type CreateInvoiceMutationVariables = Exact<{
   input: CreateInvoiceInput;
@@ -4584,7 +4587,7 @@ export type GetAddonListForInfoiceQueryVariables = Exact<{
 }>;
 
 
-export type GetAddonListForInfoiceQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null }> } };
+export type GetAddonListForInfoiceQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null }> } };
 
 export type TaxForPlanAndChargesInPlanFormFragment = { __typename?: 'Tax', id: string, code: string, name: string, rate: number };
 
@@ -5930,6 +5933,14 @@ export const EditBillableMetricFragmentDoc = gql`
   subscriptionsCount
   plansCount
   recurring
+}
+    `;
+export const TaxInfosForCreateInvoiceFragmentDoc = gql`
+    fragment TaxInfosForCreateInvoice on Tax {
+  id
+  name
+  code
+  rate
 }
     `;
 export const TaxForPlanAndChargesInPlanFormFragmentDoc = gql`
@@ -10225,6 +10236,8 @@ export const GetTaxesForAddOnFormDocument = gql`
     }
     collection {
       id
+      name
+      rate
       ...TaxOnAddOnEditCreate
     }
   }
@@ -10310,9 +10323,7 @@ export const GetInfosForCreateInvoiceDocument = gql`
     zipcode
     taxes {
       id
-      name
-      code
-      rate
+      ...TaxInfosForCreateInvoice
     }
   }
   organization {
@@ -10330,16 +10341,14 @@ export const GetInfosForCreateInvoiceDocument = gql`
     state
     zipcode
   }
-  taxes(appliedToOrganization: true) {
+  taxes(page: 1, limit: 1000, appliedToOrganization: true) {
     collection {
       id
-      name
-      code
-      rate
+      ...TaxInfosForCreateInvoice
     }
   }
 }
-    `;
+    ${TaxInfosForCreateInvoiceFragmentDoc}`;
 
 /**
  * __useGetInfosForCreateInvoiceQuery__
@@ -10382,10 +10391,15 @@ export const GetAddonListForInfoiceDocument = gql`
       amountCents
       amountCurrency
       ...AddOnForInvoiceEditTaxDialog
+      taxes {
+        id
+        ...TaxInfosForCreateInvoice
+      }
     }
   }
 }
-    ${AddOnForInvoiceEditTaxDialogFragmentDoc}`;
+    ${AddOnForInvoiceEditTaxDialogFragmentDoc}
+${TaxInfosForCreateInvoiceFragmentDoc}`;
 
 /**
  * __useGetAddonListForInfoiceQuery__
