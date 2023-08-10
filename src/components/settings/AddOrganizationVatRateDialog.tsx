@@ -132,15 +132,18 @@ export const AddOrganizationVatRateDialog = forwardRef<
               setLocalVatRate('')
               closeDialog()
             }}
+            data-test="submit-add-organization-tax-dialog-assign-button"
           >
             {translate('text_64639c4d172d7a006ef30518')}
           </Button>
         </>
       )}
+      data-test="add-organization-tax-dialog"
     >
       <Content>
         <ComboBox
           allowAddValue
+          name="selectTax"
           addValueProps={{
             label: translate('text_64639c4d172d7a006ef30516'),
             redirectionUrl: CREATE_TAX_ROUTE,

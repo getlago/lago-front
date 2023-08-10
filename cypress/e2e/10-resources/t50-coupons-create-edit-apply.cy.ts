@@ -1,4 +1,4 @@
-import { customerName } from '../support/reusableConstants'
+import { customerName } from '../../support/reusableConstants'
 
 describe('Coupons', () => {
   const couponName = `Coupon-${Math.round(Math.random() * 10000)}`

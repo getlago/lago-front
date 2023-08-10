@@ -47,7 +47,7 @@ export const TaxItem = memo(({ deleteDialogRef, tax }: TaxItemProps) => {
 
   return (
     <ItemContainer>
-      <LocalListItemLink tabIndex={0} to={generatePath(UPDATE_TAX_ROUTE, { id })} data-test={name}>
+      <LocalListItemLink tabIndex={0} to={generatePath(UPDATE_TAX_ROUTE, { id })} data-test={code}>
         <LeftSection>
           <Avatar size="big" variant="connector">
             <Icon size="medium" name="percentage" color="dark" />

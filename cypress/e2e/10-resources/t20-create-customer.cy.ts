@@ -1,4 +1,4 @@
-import { customerName } from '../support/reusableConstants'
+import { customerName } from '../../support/reusableConstants'
 
 describe('Create customer', () => {
   beforeEach(() => {
