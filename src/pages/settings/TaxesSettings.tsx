@@ -74,6 +74,7 @@ const TaxesSettings = () => {
             onClick={() => {
               navigate(CREATE_TAX_ROUTE)
             }}
+            data-test="create-tax-button"
           >
             {translate('text_645bb193927b375079d28ad2')}
           </Button>
@@ -82,7 +83,7 @@ const TaxesSettings = () => {
         <InfoBlock $hasData={!!collection?.length}>
           {!collection?.length ? (
             <>
-              <Typography variant="body" color="grey700">
+              <Typography variant="body" color="grey700" data-test="empty-title">
                 {translate('text_645bb193927b375079d28aee')}
               </Typography>
               <Typography variant="caption" color="grey600">

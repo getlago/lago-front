@@ -1,4 +1,4 @@
-import { planWithChargesName } from '../support/reusableConstants'
+import { planWithChargesName } from '../../support/reusableConstants'
 
 describe('Create plan', () => {
   beforeEach(() => {

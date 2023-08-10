@@ -124,6 +124,7 @@ const InvoiceSettings = () => {
           variant="quaternary"
           disabled={loading}
           onClick={editVATDialogRef?.current?.openDialog}
+          data-test="add-tax-button"
         >
           {translate('text_645bb193927b375079d28ad2')}
         </Button>
@@ -141,7 +142,10 @@ const InvoiceSettings = () => {
               {!!appliedTaxRates?.length ? (
                 <>
                   {appliedTaxRates?.map((taxRate) => (
-                    <TaxRateItem key={`tax-rate-item-${taxRate.id}`}>
+                    <TaxRateItem
+                      key={`tax-rate-item-${taxRate.id}`}
+                      data-test={`applied-tax-${taxRate.code}`}
+                    >
                       <LeftSection>
                         <Avatar size="big" variant="connector">
                           <Icon size="medium" name="percentage" color="dark" />
@@ -182,7 +186,7 @@ const InvoiceSettings = () => {
                   </TopMargedTypography>
                 </>
               ) : (
-                <Typography variant="caption" color="grey600">
+                <Typography variant="caption" color="grey600" data-test="empty-taxes">
                   {translate('text_64639bad55d65900f4dd896f')}
                 </Typography>
               )}

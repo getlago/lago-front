@@ -41,6 +41,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       onOpen,
       onClickAway,
       open = false,
+      ...props
     }: DialogProps,
     ref
   ) => {
@@ -88,6 +89,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
           }}
           PaperProps={{ className: 'dialogPaper' }}
           transitionDuration={80}
+          {...props}
         >
           <Title $hasDescription={!!description} variant="headline">
             {title}
