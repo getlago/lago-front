@@ -262,7 +262,7 @@ const CreateInvoice = () => {
           previousTax.amount += amount
           currentTaxesMap?.set(id, previousTax)
         } else {
-          currentTaxesMap?.set(id, { label: `${name} (${rate}%)`, amount, taxRate: rate })
+          currentTaxesMap?.set(id, { amount, label: `${name} (${rate}%)`, taxRate: rate })
         }
       })
 

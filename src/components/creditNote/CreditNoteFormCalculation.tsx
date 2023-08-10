@@ -56,6 +56,7 @@ type TaxMapType = Map<
   {
     label: string
     amount: number
+    taxRate: number // Used for sorting purpose
   }
 >
 
@@ -96,6 +97,7 @@ export const CreditNoteFormCalculation = ({
           mergedMap.set(key, {
             label: previousTax1.label,
             amount: previousTax1.amount + previousTax2.amount,
+            taxRate: previousTax1.taxRate,
           })
         }
       })
@@ -121,7 +123,7 @@ export const CreditNoteFormCalculation = ({
           previousTax.amount += amount
           currentTaxesMap?.set(id, previousTax)
         } else {
-          currentTaxesMap?.set(id, { label: `${name} (${rate}%)`, amount })
+          currentTaxesMap?.set(id, { amount, label: `${name} (${rate}%)`, taxRate: rate })
         }
       })
 
@@ -387,16 +389,18 @@ export const CreditNoteFormCalculation = ({
             <Typography color="grey700">-</Typography>
           </Line>
         ) : !!taxes?.size ? (
-          Array.from(taxes.values()).map((tax) => (
-            <Line key={tax.label}>
-              <Typography variant="bodyHl">{tax.label}</Typography>
-              <Typography color="grey700">
-                {intlFormatNumber(tax.amount, {
-                  currency,
-                })}
-              </Typography>
-            </Line>
-          ))
+          Array.from(taxes.values())
+            .sort((a, b) => b.taxRate - a.taxRate)
+            .map((tax) => (
+              <Line key={tax.label}>
+                <Typography variant="bodyHl">{tax.label}</Typography>
+                <Typography color="grey700">
+                  {intlFormatNumber(tax.amount, {
+                    currency,
+                  })}
+                </Typography>
+              </Line>
+            ))
         ) : (
           <Line>
             <Typography variant="bodyHl">{`${translate(
