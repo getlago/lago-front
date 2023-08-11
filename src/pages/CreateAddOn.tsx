@@ -297,7 +297,7 @@ const CreateAddOn = () => {
                       <TaxLabel variant="captionHl" color="grey700">
                         {translate('text_64be910fba8ef9208686a8e3')}
                       </TaxLabel>
-                      <InlineTaxesWrapper>
+                      <InlineTaxesWrapper data-test="tax-chip-wrapper">
                         {formikProps?.values?.taxes?.map(({ id, name, rate }) => (
                           <Chip
                             key={id}
