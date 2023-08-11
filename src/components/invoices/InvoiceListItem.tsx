@@ -114,6 +114,7 @@ export const InvoiceListItem = ({
   navigationProps,
   finalizeInvoiceRef,
   updateInvoicePaymentStatusDialog,
+  ...props
 }: InvoiceListItemProps) => {
   const { translate } = useInternationalization()
   const { id, status, paymentStatus, number, issuingDate, customer, totalAmountCents, currency } =
@@ -156,7 +157,7 @@ export const InvoiceListItem = ({
   })
 
   return (
-    <Container>
+    <Container {...props}>
       <Item className={className} to={to} tabIndex={0} {...navigationProps} $context={context}>
         <GridItem $context={context}>
           <Status

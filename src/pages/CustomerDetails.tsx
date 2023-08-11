@@ -213,6 +213,7 @@ const CustomerDetails = () => {
 
                     closePopper()
                   }}
+                  data-test="create-invoice-action"
                 >
                   {translate('text_6453819268763979024ad083')}
                 </Button>
@@ -315,7 +316,7 @@ const CustomerDetails = () => {
                 customer={data?.customer}
                 onEdit={() => editDialogRef.current?.openDrawer(data?.customer)}
               />
-              <div>
+              <div data-test="customer-navigation-wrapper">
                 <NavigationTab
                   align="superLeft"
                   tabs={[

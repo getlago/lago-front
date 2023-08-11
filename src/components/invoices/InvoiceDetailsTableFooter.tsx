@@ -92,7 +92,11 @@ export const InvoiceDetailsTableFooter = memo(
                     </Typography>
                   </td>
                   <td>
-                    <Typography variant="body" color="grey700">
+                    <Typography
+                      variant="body"
+                      color="grey700"
+                      data-test="invoice-details-table-footer-subtotal-excl-tax-value"
+                    >
                       {intlFormatNumber(
                         deserializeAmount(
                           invoice?.subTotalExcludingTaxesAmountCents || 0,
@@ -108,11 +112,15 @@ export const InvoiceDetailsTableFooter = memo(
                 </tr>
                 {!!invoice.appliedTaxes?.length ? (
                   <>
-                    {invoice.appliedTaxes.map((appliedTax) => (
+                    {invoice.appliedTaxes.map((appliedTax, i) => (
                       <tr key={`invoice-details-table-footer-tax-${appliedTax.id}`}>
                         <td></td>
                         <td>
-                          <Typography variant="bodyHl" color="grey600">
+                          <Typography
+                            variant="bodyHl"
+                            color="grey600"
+                            data-test={`invoice-details-table-footer-tax-${i}-label`}
+                          >
                             {translate('text_64c013a424ce2f00dffb7f4d', {
                               name: appliedTax.taxName,
                               rate: intlFormatNumber(appliedTax.taxRate / 100 || 0, {
@@ -130,7 +138,11 @@ export const InvoiceDetailsTableFooter = memo(
                           </Typography>
                         </td>
                         <td>
-                          <Typography variant="body" color="grey700">
+                          <Typography
+                            variant="body"
+                            color="grey700"
+                            data-test={`invoice-details-table-footer-tax-${i}-value`}
+                          >
                             {intlFormatNumber(
                               deserializeAmount(appliedTax.amountCents || 0, currency),
                               {
@@ -169,7 +181,11 @@ export const InvoiceDetailsTableFooter = memo(
                     </Typography>
                   </td>
                   <td>
-                    <Typography variant="body" color="grey700">
+                    <Typography
+                      variant="body"
+                      color="grey700"
+                      data-test="invoice-details-table-footer-subtotal-incl-tax-value"
+                    >
                       {intlFormatNumber(
                         deserializeAmount(
                           invoice?.subTotalIncludingTaxesAmountCents || 0,
@@ -264,7 +280,11 @@ export const InvoiceDetailsTableFooter = memo(
                 </Typography>
               </td>
               <td>
-                <Typography variant="body" color="grey700">
+                <Typography
+                  variant="body"
+                  color="grey700"
+                  data-test="invoice-details-table-footer-total-value"
+                >
                   {intlFormatNumber(deserializeAmount(invoice?.totalAmountCents || 0, currency), {
                     currencyDisplay: 'symbol',
                     currency,

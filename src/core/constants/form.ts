@@ -16,3 +16,4 @@ export const ONE_TIER_EXAMPLE_UNITS = 10
 export const SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME = 'searchTaxForAddOnInput'
 // Invoices
 export const SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME = 'searchTaxForInvoiceAddOnInput'
+export const ADD_ITEM_FOR_INVOICE_INPUT_NAME = 'addItemInput'
