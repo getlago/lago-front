@@ -12,7 +12,6 @@ import { Avatar, Button, Popper, Skeleton, Tooltip, Typography } from '~/compone
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import {
   AddOnForInvoiceEditTaxDialogFragmentDoc,
-  // AddOnForInvoiceEditTaxDialogFragmentDoc,
   CurrencyEnum,
   TaxInfosForCreateInvoiceFragment,
   useCreateInvoiceMutation,
@@ -34,14 +33,16 @@ import {
 import { addToast } from '~/core/apolloClient'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { CountryCodes } from '~/core/countryCodes'
-import { MUI_INPUT_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
+import {
+  ADD_ITEM_FOR_INVOICE_INPUT_NAME,
+  MUI_INPUT_BASE_ROOT_CLASSNAME,
+} from '~/core/constants/form'
 import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
 import {
   EditInvoiceItemTaxDialog,
   EditInvoiceItemTaxDialogRef,
 } from '~/components/invoices/EditInvoiceItemTaxDialog'
 
-const ADD_ITEM_INPUT_NAME = 'addItemInput'
 const CELL_HEIGHT = 68
 
 gql`
@@ -532,7 +533,7 @@ const CreateInvoice = () => {
                         const unitValidationErrorKey = _get(formikProps.errors, `fees.${i}.units`)
 
                         return (
-                          <InvoiceItem key={`item-${i}`}>
+                          <InvoiceItem key={`item-${i}`} data-test="invoice-item">
                             <div>
                               <Typography variant="body" color="grey700" noWrap>
                                 {fee.name}
@@ -599,7 +600,12 @@ const CreateInvoice = () => {
                             <Popper
                               PopperProps={{ placement: 'bottom-end' }}
                               opener={() => (
-                                <Button icon="dots-horizontal" variant="quaternary" size="small" />
+                                <Button
+                                  icon="dots-horizontal"
+                                  variant="quaternary"
+                                  size="small"
+                                  data-test="invoice-item-actions-button"
+                                />
                               )}
                             >
                               {({ closePopper }) => (
@@ -639,6 +645,7 @@ const CreateInvoice = () => {
                                       })
                                       closePopper()
                                     }}
+                                    data-test="invoice-item-edit-taxes"
                                   >
                                     {translate('text_64d40b7e80e64e40710a49ba')}
                                   </Button>
@@ -667,7 +674,7 @@ const CreateInvoice = () => {
                       {showAddItem ? (
                         <InlineAddonInput>
                           <ComboBox
-                            className={ADD_ITEM_INPUT_NAME}
+                            className={ADD_ITEM_FOR_INVOICE_INPUT_NAME}
                             data={addOns}
                             loading={loading}
                             searchQuery={getAddOns}
@@ -718,11 +725,12 @@ const CreateInvoice = () => {
                             setTimeout(() => {
                               ;(
                                 document.querySelector(
-                                  `.${ADD_ITEM_INPUT_NAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                                  `.${ADD_ITEM_FOR_INVOICE_INPUT_NAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
                                 ) as HTMLElement
                               ).click()
                             }, 0)
                           }}
+                          data-test="add-item-button"
                         >
                           {translate('text_6453819268763979024ad0d7')}
                         </Button>
@@ -736,7 +744,11 @@ const CreateInvoice = () => {
                       <Typography variant="bodyHl" color="grey600">
                         {translate('text_6453819268763979024ad0db')}
                       </Typography>
-                      <Typography variant="body" color="grey700">
+                      <Typography
+                        variant="body"
+                        color="grey700"
+                        data-test="one-off-invoice-subtotal-value"
+                      >
                         {!hasAnyFee
                           ? '-'
                           : intlFormatNumber(subTotal, {
@@ -752,11 +764,22 @@ const CreateInvoice = () => {
                             .sort((a, b) => b.taxRate - a.taxRate)
                             .map((taxToDisplay, i) => {
                               return (
-                                <InvoiceFooterLine key={`one-off-invoice-tax-item-${i}`}>
-                                  <Typography variant="bodyHl" color="grey600">
+                                <InvoiceFooterLine
+                                  key={`one-off-invoice-tax-item-${i}`}
+                                  data-test={`one-off-invoice-tax-item-${i}`}
+                                >
+                                  <Typography
+                                    variant="bodyHl"
+                                    color="grey600"
+                                    data-test={`one-off-invoice-tax-item-${i}-label`}
+                                  >
                                     {taxToDisplay.label}
                                   </Typography>
-                                  <Typography variant="body" color="grey700">
+                                  <Typography
+                                    variant="body"
+                                    color="grey700"
+                                    data-test={`one-off-invoice-tax-item-${i}-value`}
+                                  >
                                     {!hasAnyFee
                                       ? '-'
                                       : intlFormatNumber(taxToDisplay.amount, {
@@ -787,7 +810,11 @@ const CreateInvoice = () => {
                       <Typography variant="bodyHl" color="grey600">
                         {translate('text_6453819268763979024ad0ff')}
                       </Typography>
-                      <Typography variant="body" color="grey700">
+                      <Typography
+                        variant="body"
+                        color="grey700"
+                        data-test="one-off-invoice-subtotal-amount-due-value"
+                      >
                         {!hasAnyFee
                           ? '-'
                           : intlFormatNumber(total, {
@@ -800,7 +827,11 @@ const CreateInvoice = () => {
                       <Typography variant="bodyHl" color="grey700">
                         {translate('text_6453819268763979024ad10f')}
                       </Typography>
-                      <Typography variant="body" color="grey700">
+                      <Typography
+                        variant="body"
+                        color="grey700"
+                        data-test="one-off-invoice-total-amount-due-value"
+                      >
                         {!hasAnyFee
                           ? '-'
                           : intlFormatNumber(total, {
@@ -821,6 +852,7 @@ const CreateInvoice = () => {
                 size="large"
                 disabled={!formikProps.isValid || !formikProps.dirty}
                 onClick={formikProps.submitForm}
+                data-test="create-invoice-button"
               >
                 {translate('text_6453819268763979024ad134')}
               </Button>

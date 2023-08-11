@@ -166,6 +166,7 @@ export const CustomerInvoicesList = ({
                     context="customer"
                     finalizeInvoiceRef={finalizeInvoiceRef}
                     updateInvoicePaymentStatusDialog={updateInvoicePaymentStatusDialog}
+                    data-test={`invoice-list-item-${i}`}
                   />
                 )
               })}

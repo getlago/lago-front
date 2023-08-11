@@ -119,11 +119,13 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
             variant="primary"
             disabled={!formikProps.isValid || !formikProps.dirty}
             onClick={formikProps.submitForm}
+            data-test="edit-invoice-item-tax-dialog-submit-button"
           >
             {translate('text_645bb193927b375079d289b5')}
           </Button>
         </>
       )}
+      data-test="edit-invoice-item-tax-dialog"
     >
       {!formikProps.values?.taxes?.length ? (
         <EmptyText variant="caption" color="grey600">
@@ -214,6 +216,7 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
         onClick={() => {
           formikProps.setFieldValue('taxes', [...(formikProps.values.taxes || []), {}])
         }}
+        data-test="add-tax-button"
       >
         {translate('text_645bb193927b375079d289af')}
       </AddTaxButton>
