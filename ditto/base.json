@@ -1059,7 +1059,6 @@
   "text_64a6d96f84411700a90dbf51": "You’re about to cancel {{subscriptionName}} subscription. The customer won’t be charged. Are you sure?",
   "text_64a803f70b9bde00529d2aa5": "Copy id, cancel",
   "text_64a80400248fe50080d66358": "Edit, cancel & more",
-  "text_64ca74b796e2f800bfdb9e62": "{{name}} ({{rate}})",
   "text_64cac576a11db000acb130b2": "{{tier1LastUnit}} x {{tier1PerUnit}} + {{tier1FlatFee}} = {{totalTier1}}",
   "text_649453975a0bb300724162f6": "This URL is already in use, please add a new one.",
   "text_64d2709dc5b465004fbd3537": "Type",
