@@ -56,7 +56,8 @@ curl --location --request POST "${apiUrl}/api/v1/credit_notes" \\
             )
           }, '')}
         ]
-      }'
+      }
+    }'
 # To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __LAGO_INVOICE_ID__ and  __CREDIT_NOTE_REASON__`
 }
 
