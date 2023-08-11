@@ -201,6 +201,10 @@ export const PlanSettingsSection = memo(
               label: translate('text_62b32ec6b0434070791c2d4c'),
               value: PlanInterval.Weekly,
             },
+            {
+              label: translate('text_64d6357b00dea100ad1cb9e9'),
+              value: PlanInterval.Quarterly,
+            },
           ]}
         />
 

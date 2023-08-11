@@ -133,6 +133,8 @@ const mapIntervalCopy = (interval: string, forceMonthlyCharge: boolean): string 
     return 'text_624453d52e945301380e49aa'
   } else if (interval === PlanInterval.Yearly) {
     return 'text_624453d52e945301380e49ac'
+  } else if (interval === PlanInterval.Quarterly) {
+    return 'text_64d6357b00dea100ad1cb9e9'
   } else if (interval === PlanInterval.Weekly) {
     return 'text_62b32ec6b0434070791c2d4c'
   }
