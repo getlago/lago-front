@@ -22,6 +22,7 @@ gql`
     appliedTaxes {
       id
       amountCents
+      feesAmountCents
       taxRate
       taxName
     }
@@ -112,12 +113,19 @@ export const InvoiceDetailsTableFooter = memo(
                         <td></td>
                         <td>
                           <Typography variant="bodyHl" color="grey600">
-                            {translate('text_64ca74b796e2f800bfdb9e62', {
+                            {translate('text_64c013a424ce2f00dffb7f4d', {
                               name: appliedTax.taxName,
                               rate: intlFormatNumber(appliedTax.taxRate / 100 || 0, {
                                 maximumFractionDigits: 2,
                                 style: 'percent',
                               }),
+                              amount: intlFormatNumber(
+                                deserializeAmount(appliedTax.feesAmountCents || 0, currency),
+                                {
+                                  currencyDisplay: 'symbol',
+                                  currency,
+                                }
+                              ),
                             })}
                           </Typography>
                         </td>
