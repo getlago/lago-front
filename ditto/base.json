@@ -493,7 +493,7 @@
   "text_64d23a81a7d807f8aa570519": "HMAC signature",
   "text_64d23a81a7d807f8aa57051b": "Payload header is short and you won’t have size limitation",
   "text_64d23a81a7d807f8aa57051f": "Edit webhook",
-  "text_64d23b49d481ab00681c229b": "Add webhooks and prrovide real-time information to other applications. Once added, see logs by clicking on items.",
+  "text_64d23b49d481ab00681c229b": "Add webhooks and provide real-time information to other applications. Once added, see logs by clicking on items.",
   "text_64d23b49d481ab00681c229f": "JWT header signature",
   "text_64d23b49d481ab00681c22a1": "HMAC header signature",
   "text_64d23b49d481ab00681c22ab": "Webhook successfully edited",
