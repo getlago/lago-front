@@ -190,20 +190,20 @@ export const PlanSettingsSection = memo(
           formikProps={formikProps}
           options={[
             {
-              label: translate('text_624453d52e945301380e49aa'),
-              value: PlanInterval.Monthly,
-            },
-            {
-              label: translate('text_624453d52e945301380e49ac'),
-              value: PlanInterval.Yearly,
-            },
-            {
               label: translate('text_62b32ec6b0434070791c2d4c'),
               value: PlanInterval.Weekly,
             },
             {
+              label: translate('text_624453d52e945301380e49aa'),
+              value: PlanInterval.Monthly,
+            },
+            {
               label: translate('text_64d6357b00dea100ad1cb9e9'),
               value: PlanInterval.Quarterly,
+            },
+            {
+              label: translate('text_624453d52e945301380e49ac'),
+              value: PlanInterval.Yearly,
             },
           ]}
         />
