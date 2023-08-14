@@ -110,7 +110,7 @@ export const TerminateCustomerSubscriptionDialog =
           })
         }
         continueText={
-          status === StatusTypeEnum.Pending
+          subscription?.status === StatusTypeEnum.Pending
             ? translate('text_64a6d736c23125004817627f')
             : translate('text_62d7f6178ec94cd09370e351')
         }
