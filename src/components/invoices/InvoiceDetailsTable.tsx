@@ -20,6 +20,7 @@ import { formatDateToTZ } from '~/core/timezone'
 
 import { InvoiceDetailsTableHeader } from './InvoiceDetailsTableHeader'
 import { InvoiceDetailsTableFooter } from './InvoiceDetailsTableFooter'
+import { InvoiceDetailsTableFeeItem } from './InvoiceDetailsTableFeeItem'
 
 gql`
   fragment InvoiceForDetailsTable on Invoice {
@@ -45,6 +46,10 @@ gql`
       trueUpFee {
         id
       }
+      charge {
+        id
+        payInAdvance
+      }
     }
     customer {
       id
@@ -56,6 +61,8 @@ gql`
       toDatetime
       chargesFromDatetime
       chargesToDatetime
+      inAdvanceChargesFromDatetime
+      inAdvanceChargesToDatetime
       subscription {
         id
         name
@@ -85,6 +92,7 @@ gql`
         }
         charge {
           id
+          payInAdvance
           billableMetric {
             id
             name
@@ -112,6 +120,7 @@ interface InvoiceDetailsTableProps {
 export const InvoiceDetailsTable = memo(
   ({ customer, invoice, loading }: InvoiceDetailsTableProps) => {
     const { translate } = useInternationalization()
+    const currency = invoice?.currency || CurrencyEnum.Usd
 
     if (
       [InvoiceTypeEnum.AddOn, InvoiceTypeEnum.Credit, InvoiceTypeEnum.OneOff].includes(
@@ -160,16 +169,10 @@ export const InvoiceDetailsTable = memo(
                   </td>
                   <td>
                     <Typography variant="body" color="grey700">
-                      {intlFormatNumber(
-                        deserializeAmount(
-                          fee.amountCents || 0,
-                          customer?.currency || CurrencyEnum.Usd
-                        ),
-                        {
-                          currencyDisplay: 'symbol',
-                          currency: customer?.currency || CurrencyEnum.Usd,
-                        }
-                      )}
+                      {intlFormatNumber(deserializeAmount(fee.amountCents || 0, currency), {
+                        currencyDisplay: 'symbol',
+                        currency,
+                      })}
                     </Typography>
                   </td>
                 </tr>
@@ -196,14 +199,16 @@ export const InvoiceDetailsTable = memo(
               currentSubscription,
               invoiceDisplayName,
               subscriptionFees,
-              remainingFees,
+              feesInArrears,
+              feesInAdvance,
             },
             i
           ) => {
             const hasAnySubscriptionFeeUnits = subscriptionFees?.some(
               (fee) => Number(fee.units) > 0
             )
-            const hasAnyRemainingFeeUnits = remainingFees?.some((fee) => Number(fee.units) > 0)
+            const hasAnyArrearsFeeUnits = feesInArrears?.some((fee) => Number(fee.units) > 0)
+            const hasAnyAdvanceFeeUnits = feesInAdvance?.some((fee) => Number(fee.units) > 0)
 
             return (
               <React.Fragment key={`invoiceSubscription=${i}`}>
@@ -227,8 +232,9 @@ export const InvoiceDetailsTable = memo(
                             ),
                           })
                         : !hasAnySubscriptionFeeUnits &&
-                          hasAnyRemainingFeeUnits &&
-                          remainingFees.some((r) => r.units === 0)
+                          hasAnyArrearsFeeUnits &&
+                          feesInArrears.some((r) => r.units === 0) &&
+                          !hasAnyAdvanceFeeUnits
                         ? invoiceSubscription?.chargesFromDatetime &&
                           invoiceSubscription?.chargesToDatetime
                           ? translate('text_6499a4e4db5730004703f36b', {
@@ -250,7 +256,9 @@ export const InvoiceDetailsTable = memo(
                                 'LLL. dd, yyyy'
                               ),
                             })
-                        : !hasAnySubscriptionFeeUnits && !hasAnyRemainingFeeUnits
+                        : !hasAnySubscriptionFeeUnits &&
+                          !hasAnyArrearsFeeUnits &&
+                          !hasAnyAdvanceFeeUnits
                         ? translate('text_6499a4e4db5730004703f36b', {
                             from: formatDateToTZ(
                               invoiceSubscription?.fromDatetime,
@@ -269,41 +277,43 @@ export const InvoiceDetailsTable = memo(
                 </table>
 
                 {/* If no positive fees are present in the invoice, display subscription fee placeholder */}
-                {!hasAnySubscriptionFeeUnits && !hasAnyRemainingFeeUnits && (
-                  <table key={`invoiceSubscription-${i}-fee-placeholder`}>
-                    <tbody>
-                      <tr>
-                        <td>
-                          <Typography variant="body" color="grey700">
-                            {`${currentSubscription?.plan?.interval
-                              ?.charAt(0)
-                              ?.toUpperCase()}${currentSubscription?.plan?.interval?.slice(1)} - ${
-                              currentSubscription.plan.name
-                            }`}
-                          </Typography>
-                        </td>
-                        <td>
-                          <Typography variant="body" color="grey700">
-                            0
-                          </Typography>
-                        </td>
-                        <td>
-                          <Typography variant="body" color="grey700">
-                            0%
-                          </Typography>
-                        </td>
-                        <td>
-                          <Typography variant="body" color="grey700">
-                            {intlFormatNumber(0, {
-                              currencyDisplay: 'symbol',
-                              currency: currentSubscription?.plan?.amountCurrency,
-                            })}
-                          </Typography>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                )}
+                {!hasAnySubscriptionFeeUnits &&
+                  !hasAnyArrearsFeeUnits &&
+                  !hasAnyAdvanceFeeUnits && (
+                    <table key={`invoiceSubscription-${i}-fee-placeholder`}>
+                      <tbody>
+                        <tr>
+                          <td>
+                            <Typography variant="body" color="grey700">
+                              {`${currentSubscription?.plan?.interval
+                                ?.charAt(0)
+                                ?.toUpperCase()}${currentSubscription?.plan?.interval?.slice(
+                                1
+                              )} - ${currentSubscription.plan.name}`}
+                            </Typography>
+                          </td>
+                          <td>
+                            <Typography variant="body" color="grey700">
+                              0
+                            </Typography>
+                          </td>
+                          <td>
+                            <Typography variant="body" color="grey700">
+                              0%
+                            </Typography>
+                          </td>
+                          <td>
+                            <Typography variant="body" color="grey700">
+                              {intlFormatNumber(0, {
+                                currencyDisplay: 'symbol',
+                                currency,
+                              })}
+                            </Typography>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  )}
                 {subscriptionFees?.map((fee, j) => {
                   const plan = currentSubscription?.plan
                   const planInterval = `${plan?.interval
@@ -344,13 +354,10 @@ export const InvoiceDetailsTable = memo(
                           </td>
                           <td>
                             <Typography variant="body" color="grey700">
-                              {intlFormatNumber(
-                                deserializeAmount(fee.amountCents || 0, plan?.amountCurrency),
-                                {
-                                  currencyDisplay: 'symbol',
-                                  currency: plan?.amountCurrency,
-                                }
-                              )}
+                              {intlFormatNumber(deserializeAmount(fee.amountCents || 0, currency), {
+                                currencyDisplay: 'symbol',
+                                currency,
+                              })}
                             </Typography>
                           </td>
                         </tr>
@@ -358,8 +365,8 @@ export const InvoiceDetailsTable = memo(
                     </table>
                   )
                 })}
-                {((hasAnySubscriptionFeeUnits && hasAnyRemainingFeeUnits) ||
-                  remainingFees.some((r) => r.units !== 0 || !r.isGroupChildFee)) && (
+                {((hasAnySubscriptionFeeUnits && hasAnyArrearsFeeUnits) ||
+                  feesInArrears.some((r) => r.units !== 0 || !r.isGroupChildFee)) && (
                   <ChargePeriodSeparator variant="caption" color="grey500">
                     {invoiceSubscription?.chargesFromDatetime &&
                     invoiceSubscription?.chargesToDatetime
@@ -384,89 +391,81 @@ export const InvoiceDetailsTable = memo(
                         })}
                   </ChargePeriodSeparator>
                 )}
-                {remainingFees.map((fee, j) => {
+                {feesInArrears.map((fee, j) => {
+                  if (Number(fee?.units) === 0 && !!fee?.isGroupChildFee) return
+
+                  {
+                    !!loading && (
+                      <table key={`invoiceSubscription-${i}-fee-${j}`}>
+                        <tbody>
+                          {[1, 2, 3].map((k) => (
+                            <tr key={`invoice-details-loading-${k}`}>
+                              <td>
+                                <Skeleton variant="text" height={12} width={240} />
+                              </td>
+                              <td>
+                                <RightSkeleton variant="text" height={12} width={80} />
+                              </td>
+                              <td>
+                                <RightSkeleton variant="text" height={12} width={40} />
+                              </td>
+                              <td>
+                                <RightSkeleton variant="text" height={12} width={120} />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )
+                  }
+
+                  return (
+                    <InvoiceDetailsTableFeeItem
+                      key={`invoiceSubscription-${i}-fee-${fee.id}`}
+                      currency={currency}
+                      customer={customer}
+                      fee={fee}
+                      invoiceSubscriptionIndex={i}
+                    />
+                  )
+                })}
+                {/* Charge paid in advance */}
+                {!!hasAnyAdvanceFeeUnits && (
+                  <ChargePeriodSeparator variant="caption" color="grey500">
+                    {invoiceSubscription?.inAdvanceChargesFromDatetime &&
+                    invoiceSubscription?.inAdvanceChargesToDatetime
+                      ? translate('text_6499a4e4db5730004703f36b', {
+                          from: formatDateToTZ(
+                            invoiceSubscription?.inAdvanceChargesFromDatetime,
+                            customer?.applicableTimezone,
+                            'LLL. dd, yyyy'
+                          ),
+                          to: formatDateToTZ(
+                            invoiceSubscription?.inAdvanceChargesToDatetime,
+                            customer?.applicableTimezone,
+                            'LLL. dd, yyyy'
+                          ),
+                        })
+                      : translate('text_6499a6209ae0d900826053a7', {
+                          date: formatDateToTZ(
+                            invoice.issuingDate,
+                            customer?.applicableTimezone,
+                            'LLL. dd, yyyy'
+                          ),
+                        })}
+                  </ChargePeriodSeparator>
+                )}
+                {feesInAdvance.map((fee) => {
                   if (Number(fee?.units) === 0 && !!fee?.isGroupChildFee) return
 
                   return (
-                    <table key={`invoiceSubscription-${i}-fee-${j}`}>
-                      <tbody>
-                        {loading ? (
-                          <>
-                            {[1, 2, 3].map((k) => (
-                              <tr key={`invoice-details-loading-${k}`}>
-                                <td>
-                                  <Skeleton variant="text" height={12} width={240} />
-                                </td>
-                                <td>
-                                  <RightSkeleton variant="text" height={12} width={80} />
-                                </td>
-                                <td>
-                                  <RightSkeleton variant="text" height={12} width={40} />
-                                </td>
-                                <td>
-                                  <RightSkeleton variant="text" height={12} width={120} />
-                                </td>
-                              </tr>
-                            ))}
-                          </>
-                        ) : (
-                          <>
-                            <tr>
-                              <td>
-                                <Typography variant="body" color="grey700">
-                                  {fee.isGroupChildFee && fee.charge?.billableMetric?.name
-                                    ? `${fee.charge?.billableMetric?.name} • `
-                                    : ''}
-                                  {fee.displayName}
-                                  {!!fee.isTrueUpFee
-                                    ? ` • ${translate('text_64463aaa34904c00a23be4f7')}`
-                                    : ''}
-                                </Typography>
-                              </td>
-                              <td>
-                                <Typography variant="body" color="grey700">
-                                  {fee.units}
-                                </Typography>
-                              </td>
-                              <td>
-                                <Typography variant="body" color="grey700">
-                                  {fee.appliedTaxes?.length
-                                    ? fee.appliedTaxes.map((appliedTaxes) => (
-                                        <Typography
-                                          key={`fee-${fee.id}-applied-taxe-${appliedTaxes.id}`}
-                                          variant="body"
-                                          color="grey700"
-                                        >
-                                          {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
-                                            maximumFractionDigits: 2,
-                                            style: 'percent',
-                                          })}
-                                        </Typography>
-                                      ))
-                                    : '0%'}
-                                </Typography>
-                              </td>
-                              <td>
-                                {
-                                  <Typography variant="body" color="grey700">
-                                    {intlFormatNumber(
-                                      deserializeAmount(
-                                        fee.amountCents || 0,
-                                        customer?.currency || CurrencyEnum.Usd
-                                      ),
-                                      {
-                                        currencyDisplay: 'symbol',
-                                        currency: customer?.currency || CurrencyEnum.Usd,
-                                      }
-                                    )}
-                                  </Typography>
-                                }
-                              </td>
-                            </tr>
-                          </>
-                        )}
-                      </tbody>
-                    </table>
+                    <InvoiceDetailsTableFeeItem
+                      key={`invoiceSubscription-${i}-fee-${fee.id}`}
+                      currency={currency}
+                      customer={customer}
+                      fee={fee}
+                      invoiceSubscriptionIndex={i}
+                    />
                   )
                 })}
               </React.Fragment>

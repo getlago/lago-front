@@ -2,7 +2,7 @@ import _groupBy from 'lodash/groupBy'
 
 import { Fee, FeeTypesEnum, InvoiceSubscription } from '~/generated/graphql'
 
-type ExtendedRemainingFee = Fee & {
+export type ExtendedRemainingFee = Fee & {
   displayName: string
   isGroupChildFee?: boolean
   isTrueUpFee?: boolean
@@ -14,12 +14,14 @@ interface BaseFormattedInvoiceSubscription {
   currentSubscription: InvoiceSubscription['subscription']
   invoiceDisplayName: string
   subscriptionFees: InvoiceSubscription['subscription']['fees']
-  remainingFees: InvoiceSubscription['subscription']['fees']
+  feesInArrears: InvoiceSubscription['subscription']['fees']
+  feesInAdvance: InvoiceSubscription['subscription']['fees']
 }
 
 interface FormattedInvoiceSubscription
-  extends Omit<BaseFormattedInvoiceSubscription, 'remainingFees'> {
-  remainingFees: ExtendedRemainingFee[]
+  extends Omit<BaseFormattedInvoiceSubscription, 'feesInArrears'> {
+  feesInArrears: ExtendedRemainingFee[]
+  feesInAdvance: ExtendedRemainingFee[]
 }
 
 const formatInvoiceItemsMap = (data: InvoiceSubscription[]) => {
@@ -33,7 +35,8 @@ const formatInvoiceItemsMap = (data: InvoiceSubscription[]) => {
         ? currentSubscription?.name || currentSubscription?.plan?.name
         : '',
       subscriptionFees: [],
-      remainingFees: [],
+      feesInArrears: [],
+      feesInAdvance: [],
     }
 
     if (!invoiceSubscription?.fees?.length) return formattedData
@@ -48,26 +51,38 @@ const formatInvoiceItemsMap = (data: InvoiceSubscription[]) => {
       // Split fees into subscription fees and remaining fees depending on fee type
       if (currentFee.feeType === FeeTypesEnum.Subscription) {
         formattedData?.subscriptionFees?.push(currentFee)
-      } else {
+      } else if (!currentFee?.charge?.payInAdvance) {
+        // Charge paid in arrears
         // @ts-ignore
-        formattedData?.remainingFees?.push(currentFee)
+        formattedData?.feesInArrears?.push(currentFee)
+      } else {
+        // Charge paid in advance
+        // @ts-ignore
+        formattedData?.feesInAdvance?.push(currentFee)
       }
     }
 
-    // Format remaining fees
-    if (formattedData?.remainingFees?.length) {
-      formattedData.remainingFees = _deepFormatRemainingFees(
-        formattedData.remainingFees as unknown as BaseFormattedInvoiceSubscription['remainingFees']
+    // Format fees
+    if (formattedData?.feesInArrears?.length) {
+      formattedData.feesInArrears = _deepFormatFees(
+        formattedData.feesInArrears as unknown as BaseFormattedInvoiceSubscription['feesInArrears']
+      )
+    }
+    if (formattedData?.feesInAdvance?.length) {
+      formattedData.feesInAdvance = _deepFormatFees(
+        formattedData.feesInAdvance as unknown as BaseFormattedInvoiceSubscription['feesInAdvance']
       )
     }
     return formattedData
   })
 }
 
-const _deepFormatRemainingFees = (
-  remainingFees: BaseFormattedInvoiceSubscription['remainingFees']
+const _deepFormatFees = (
+  feesToFormat:
+    | BaseFormattedInvoiceSubscription['feesInArrears']
+    | BaseFormattedInvoiceSubscription['feesInAdvance']
 ) => {
-  return Object.values(_groupBy(remainingFees, (fee) => fee?.charge?.id))
+  return Object.values(_groupBy(feesToFormat, (fee) => fee?.charge?.id))
     .map((fees) => {
       const feesData: ExtendedRemainingFee[] = []
 
