@@ -320,6 +320,8 @@ export const AddSubscriptionDrawer = forwardRef<
                               ? translate('text_62ebd597d5d5130a03ced107')
                               : selectedPlan?.interval === PlanInterval.Weekly
                               ? translate('text_62ebd597d5d5130a03ced101')
+                              : selectedPlan?.interval === PlanInterval.Quarterly
+                              ? translate('text_64d6357b00dea100ad1cba27')
                               : translate('text_62ea7cd44cd4b14bb9ac1db9'),
                           value: BillingTimeEnum.Calendar,
                         },

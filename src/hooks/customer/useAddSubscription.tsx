@@ -175,6 +175,19 @@ export const useAddSubscription: UseAddSubscription = ({
             ? translate('text_62ea7cd44cd4b14bb9ac1d9a')
             : translate('text_62ea7cd44cd4b14bb9ac1d96', { date: currentDate.toFormat('LLL. dd') })
 
+        case PlanInterval.Quarterly:
+          if (billingTime === BillingTimeEnum.Calendar)
+            return translate('text_64d6357b00dea100ad1cba34')
+
+          if (currentDay <= 28) {
+            return translate('text_64d6357b00dea100ad1cba36', { day: currentDay })
+          } else if (currentDay === 29) {
+            return translate('text_64d63ec2f6bd3f41a6e353ac')
+          } else if (currentDay === 30) {
+            return translate('text_64d63ec2f6bd3f41a6e353b0')
+          }
+          return translate('text_64d63ec2f6bd3f41a6e353b4')
+
         case PlanInterval.Weekly:
         default:
           return billingTime === BillingTimeEnum.Calendar

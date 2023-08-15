@@ -277,5 +277,7 @@ sources:
       fileName: 👍 [Ready for dev] - Settings - Net payment term
     - name: 👍 [Ready for dev] - Add-on - Add tax to add-ons & one off invoice
       id: 64d40b7c611d58bb88ec7d63
+    - name: 👍 [Ready for dev] - Plan - Quarterly plan interval
+      id: 64d63579f0cd15ff208e69e3
 format: flat
 variants: true

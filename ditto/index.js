@@ -50,6 +50,9 @@ module.exports = {
   "project_63208b60a9b2a4c6186bbd26": {
     "base": require('./-ready-for-dev---onboarding---invite-member-to-organisation__base.json')
   },
+  "project_64d63579f0cd15ff208e69e3": {
+    "base": require('./-ready-for-dev---plan---quarterly-plan-interval__base.json')
+  },
   "project_64be91077c9f2900a38f3ad3": {
     "base": require('./-ready-for-dev---plans---add-tax-to-plans__base.json')
   },

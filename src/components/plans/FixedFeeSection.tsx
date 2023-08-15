@@ -38,6 +38,9 @@ const mapIntervalCopy = (interval: string) => {
   if (interval === PlanInterval.Weekly) {
     return 'text_62b32ec6b0434070791c2d4c'
   }
+  if (interval === PlanInterval.Quarterly) {
+    return 'text_64d6357b00dea100ad1cb9e9'
+  }
 
   return ''
 }
