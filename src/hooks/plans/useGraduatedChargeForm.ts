@@ -31,7 +31,7 @@ type UseGraduatedChargeForm = ({
   addRange: () => void
   deleteRange: (rangeIndex: number) => void
   tableDatas: RangeType[]
-  infosCaclucation: InfoCalculationRow[]
+  infosCalculation: InfoCalculationRow[]
 }
 
 export const DEFAULT_GRADUATED_CHARGES = [
@@ -79,7 +79,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
         }),
       [graduatedRanges, disabled]
     ),
-    infosCaclucation: useMemo(
+    infosCalculation: useMemo(
       () =>
         graduatedRanges.reduce<InfoCalculationRow[]>((acc, range, i) => {
           const units =
