@@ -58,7 +58,7 @@ interface UseAddSubscriptionReturn {
   onCreate: (
     customerId: string,
     values: Omit<CreateSubscriptionInput, 'customerId'>
-  ) => Promise<boolean>
+  ) => Promise<string | undefined>
 }
 
 type UseAddSubscription = (args: {
@@ -197,6 +197,8 @@ export const useAddSubscription: UseAddSubscription = ({
     }, [selectedPlan, billingTime, subscriptionAt, translate]),
     errorCode: hasDefinedGQLError('CurrenciesDoesNotMatch', error)
       ? LagoApiError.CurrenciesDoesNotMatch
+      : hasDefinedGQLError('ValueAlreadyExist', error)
+      ? LagoApiError.ValueAlreadyExist
       : undefined,
     onOpenDrawer: () => {
       !loading && getPlans()
@@ -216,11 +218,13 @@ export const useAddSubscription: UseAddSubscription = ({
         },
       })
 
-      if (!hasDefinedGQLError('CurrenciesDoesNotMatch', errors)) {
-        return true
+      if (hasDefinedGQLError('CurrenciesDoesNotMatch', errors)) {
+        return 'CurrenciesDoesNotMatch'
+      } else if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+        return 'ValueAlreadyExist'
       }
 
-      return false
+      return
     },
   }
 }

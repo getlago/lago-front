@@ -28,6 +28,7 @@ import {
   PlanInterval,
   StatusTypeEnum,
   TimezoneEnum,
+  LagoApiError,
 } from '~/generated/graphql'
 import { useAddSubscription } from '~/hooks/customer/useAddSubscription'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -80,12 +81,16 @@ export const AddSubscriptionDrawer = forwardRef<
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: async (values, formikBag) => {
-      const canClose = await onCreate(customerId, values)
+      const errorsString = await onCreate(customerId, values)
 
-      if (canClose) {
-        drawerRef?.current?.closeDrawer()
-        formikBag.resetForm()
+      if (errorsString === 'CurrenciesDoesNotMatch') {
+        return formikBag.setFieldError('currency', translate('text_632dbaf1d577afb32ae751f5'))
+      } else if (errorsString === 'ValueAlreadyExist') {
+        return formikBag.setFieldError('externalId', translate('text_64dd2711d878ad007212de91'))
       }
+
+      drawerRef?.current?.closeDrawer()
+      formikBag.resetForm()
     },
   })
   const {
@@ -336,7 +341,7 @@ export const AddSubscriptionDrawer = forwardRef<
               </>
             )}
 
-            {!!errorCode ? (
+            {errorCode === LagoApiError.CurrenciesDoesNotMatch ? (
               <Alert type="danger">{translate('text_632dbaf1d577afb32ae751f5')}</Alert>
             ) : (
               <>
