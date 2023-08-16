@@ -201,8 +201,14 @@ export const AddSubscriptionDrawer = forwardRef<
         existingSubscription ? 'text_6328e70de459381ed4ba50be' : 'text_6328e70de459381ed4ba50bc',
         { customerName }
       )}
-      onClose={formikProps.resetForm}
-      onOpen={onOpenDrawer}
+      onClose={() => {
+        formikProps.resetForm()
+        formikProps.validateForm()
+      }}
+      onOpen={() => {
+        onOpenDrawer()
+        formikProps.validateForm()
+      }}
     >
       <>
         <DrawerContent>
