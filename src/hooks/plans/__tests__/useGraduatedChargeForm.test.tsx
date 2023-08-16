@@ -96,7 +96,7 @@ describe('useGraduatedRange()', () => {
           { ...DEFAULT_GRADUATED_CHARGES[1], disabledDelete: false },
         ])
 
-        expect(result.current.infosCaclucation).toStrictEqual([
+        expect(result.current.infosCalculation).toStrictEqual([
           {
             firstUnit: '2',
             total: 0,
@@ -147,7 +147,7 @@ describe('useGraduatedRange()', () => {
             disabledDelete: false,
           },
         ])
-        expect(result.current.infosCaclucation).toStrictEqual([
+        expect(result.current.infosCalculation).toStrictEqual([
           {
             firstUnit: '4',
             total: 0,
@@ -199,7 +199,7 @@ describe('useGraduatedRange()', () => {
           },
         ])
 
-        expect(result.current.infosCaclucation).toStrictEqual([
+        expect(result.current.infosCalculation).toStrictEqual([
           {
             firstUnit: '2',
             total: 9,
@@ -222,7 +222,7 @@ describe('useGraduatedRange()', () => {
         ])
         await act(async () => await result.current.addRange())
         await act(async () => await result.current.handleUpdate(1, 'perUnitAmount', '8'))
-        expect(result.current.infosCaclucation).toStrictEqual([
+        expect(result.current.infosCalculation).toStrictEqual([
           {
             firstUnit: '4',
             total: 25,
@@ -250,7 +250,7 @@ describe('useGraduatedRange()', () => {
           },
         ])
         await act(async () => await result.current.handleUpdate(1, 'flatAmount', '9'))
-        expect(result.current.infosCaclucation).toStrictEqual([
+        expect(result.current.infosCalculation).toStrictEqual([
           {
             firstUnit: '4',
             total: 34,
@@ -300,7 +300,7 @@ describe('useGraduatedRange()', () => {
             disabledDelete: false,
           },
         ])
-        expect(result.current.infosCaclucation).toStrictEqual([
+        expect(result.current.infosCalculation).toStrictEqual([
           {
             firstUnit: '5',
             total: 0,
@@ -324,7 +324,7 @@ describe('useGraduatedRange()', () => {
 
         await act(async () => await result.current.addRange())
         await act(async () => await result.current.handleUpdate(1, 'toValue', 8))
-        expect(result.current.infosCaclucation).toStrictEqual([
+        expect(result.current.infosCalculation).toStrictEqual([
           {
             firstUnit: '9',
             total: 0,
@@ -413,7 +413,7 @@ describe('useGraduatedRange()', () => {
           { ...DEFAULT_GRADUATED_CHARGES[1], disabledDelete: false },
         ])
 
-        expect(result.current.infosCaclucation).toStrictEqual([
+        expect(result.current.infosCalculation).toStrictEqual([
           {
             firstUnit: '2',
             total: 0,
@@ -464,7 +464,7 @@ describe('useGraduatedRange()', () => {
             disabledDelete: false,
           },
         ])
-        expect(result.current.infosCaclucation).toStrictEqual([
+        expect(result.current.infosCalculation).toStrictEqual([
           {
             firstUnit: '4',
             total: 0,
@@ -516,7 +516,7 @@ describe('useGraduatedRange()', () => {
           },
         ])
 
-        expect(result.current.infosCaclucation).toStrictEqual([
+        expect(result.current.infosCalculation).toStrictEqual([
           {
             firstUnit: '2',
             total: 9,
@@ -539,7 +539,7 @@ describe('useGraduatedRange()', () => {
         ])
         await act(async () => await result.current.addRange())
         await act(async () => await result.current.handleUpdate(1, 'perUnitAmount', '8'))
-        expect(result.current.infosCaclucation).toStrictEqual([
+        expect(result.current.infosCalculation).toStrictEqual([
           {
             firstUnit: '4',
             total: 25,
@@ -567,7 +567,7 @@ describe('useGraduatedRange()', () => {
           },
         ])
         await act(async () => await result.current.handleUpdate(1, 'flatAmount', '9'))
-        expect(result.current.infosCaclucation).toStrictEqual([
+        expect(result.current.infosCalculation).toStrictEqual([
           {
             firstUnit: '4',
             total: 34,
@@ -617,7 +617,7 @@ describe('useGraduatedRange()', () => {
             disabledDelete: false,
           },
         ])
-        expect(result.current.infosCaclucation).toStrictEqual([
+        expect(result.current.infosCalculation).toStrictEqual([
           {
             firstUnit: '5',
             total: 0,
@@ -641,7 +641,7 @@ describe('useGraduatedRange()', () => {
 
         await act(async () => await result.current.addRange())
         await act(async () => await result.current.handleUpdate(1, 'toValue', 8))
-        expect(result.current.infosCaclucation).toStrictEqual([
+        expect(result.current.infosCalculation).toStrictEqual([
           {
             firstUnit: '9',
             total: 0,

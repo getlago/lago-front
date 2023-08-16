@@ -59,7 +59,7 @@ export const GraduatedChargeTable = ({
 }: GraduatedChargeTableProps) => {
   const { translate } = useInternationalization()
   const [errorIndex, setErrorIndex] = useState<number | undefined>()
-  const { tableDatas, addRange, handleUpdate, deleteRange, infosCaclucation } =
+  const { tableDatas, addRange, handleUpdate, deleteRange, infosCalculation } =
     useGraduatedChargeForm({
       chargeIndex,
       disabled,
@@ -214,7 +214,7 @@ export const GraduatedChargeTable = ({
 
       <Alert type="info">
         <>
-          {infosCaclucation.map((calculation, i) => {
+          {infosCalculation.map((calculation, i) => {
             if (i === 0) {
               return (
                 <Typography variant="bodyHl" key={`calculation-alert-${i}`} color="textSecondary">
@@ -230,7 +230,7 @@ export const GraduatedChargeTable = ({
               )
             }
             if (i === 1) {
-              return infosCaclucation.length === 2 ? (
+              return infosCalculation.length === 2 ? (
                 <Typography key={`calculation-alert-${i}`} color="textSecondary">
                   {translate('text_64cac576a11db000acb130b2', {
                     tier1LastUnit: ONE_TIER_EXAMPLE_UNITS,
