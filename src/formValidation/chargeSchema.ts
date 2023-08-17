@@ -47,6 +47,36 @@ const graduatedShape = {
     .required(''),
 }
 
+const graduatedPercentageShape = {
+  graduatedPercentageRanges: array()
+    .test({
+      test: (graduatedPercentageRange) => {
+        let isValid = true
+
+        graduatedPercentageRange?.every(({ fromValue, toValue, rate }, i) => {
+          if (
+            i < graduatedPercentageRange.length - 1 &&
+            Number(fromValue || 0) > Number(toValue || 0)
+          ) {
+            isValid = false
+            return false
+          }
+
+          if (isNaN(Number(rate)) || rate === '' || rate === null) {
+            isValid = false
+            return false
+          }
+
+          return true
+        })
+
+        return isValid
+      },
+    })
+    .min(1)
+    .required(''),
+}
+
 const volumeShape = {
   volumeRanges: array()
     .test({
@@ -113,6 +143,14 @@ export const chargeSchema = array().of(
       .when(['chargeModel', 'billableMetric'], {
         is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
           !!chargeModel &&
+          chargeModel === ChargeModelEnum.GraduatedPercentage &&
+          !!billableMetric &&
+          !billableMetric.flatGroups?.length,
+        then: (schema) => schema.shape(graduatedPercentageShape),
+      })
+      .when(['chargeModel', 'billableMetric'], {
+        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
+          !!chargeModel &&
           chargeModel === ChargeModelEnum.Volume &&
           !!billableMetric &&
           !billableMetric.flatGroups?.length,
@@ -168,6 +206,19 @@ export const chargeSchema = array().of(
           schema.of(
             object().shape({
               values: object().shape(graduatedShape),
+            })
+          ),
+      })
+      .when(['chargeModel', 'billableMetric'], {
+        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
+          !!chargeModel &&
+          chargeModel === ChargeModelEnum.GraduatedPercentage &&
+          !!billableMetric &&
+          !!billableMetric.flatGroups?.length,
+        then: (schema) =>
+          schema.of(
+            object().shape({
+              values: object().shape(graduatedPercentageShape),
             })
           ),
       })

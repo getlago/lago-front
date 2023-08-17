@@ -27,6 +27,7 @@ import {
   AggregationTypeEnum,
   useGetTaxesForChargesLazyQuery,
   TaxForPlanChargeAccordionFragment,
+  GraduatedPercentageChargeFragmentDoc,
 } from '~/generated/graphql'
 import { AmountInput, ButtonSelector, ComboBox, Switch } from '~/components/form'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
@@ -44,9 +45,11 @@ import { VolumeChargeTable } from './VolumeChargeTable'
 import { ConditionalChargeWrapper } from './ConditionalChargeWrapper'
 import { RemoveChargeWarningDialogRef } from './RemoveChargeWarningDialog'
 import { ChargeOptionsAccordion } from './ChargeOptionsAccordion'
+import { GraduatedPercentageChargeTable } from './GraduatedPercentageChargeTable'
 
 import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 import { Item } from '../form/ComboBox/ComboBoxItem'
+import { BetaChip } from '../designSystem/BetaChip'
 
 interface ChargeAccordionProps {
   id: string
@@ -100,6 +103,7 @@ gql`
       ...TaxForPlanChargeAccordion
     }
     ...GraduatedCharge
+    ...GraduatedPercentageCharge
     ...VolumeRanges
     ...PackageCharge
     ...PercentageCharge
@@ -120,6 +124,7 @@ gql`
   }
 
   ${GraduatedChargeFragmentDoc}
+  ${GraduatedPercentageChargeFragmentDoc}
   ${VolumeRangesFragmentDoc}
   ${PackageChargeFragmentDoc}
   ${PercentageChargeFragmentDoc}
@@ -179,6 +184,14 @@ export const ChargeAccordion = memo(
     const handleUpdate = useCallback(
       (name: string, value: string | boolean | TaxForPlanChargeAccordionFragment[]) => {
         if (name === 'chargeModel') {
+          // IMPORTANT: This check should stay first in this function
+          // If user is not premium and try to switch to graduated percentage pricing
+          // We should show the premium modal and prevent any formik value change
+          if (!isPremium && value === ChargeModelEnum.GraduatedPercentage) {
+            premiumWarningDialogRef.current?.openDialog()
+            return
+          }
+
           // Reset pay in advance when switching charge model
           if (
             value === ChargeModelEnum.Volume ||
@@ -191,6 +204,7 @@ export const ChargeAccordion = memo(
           // Reset prorated when switching charge model
           if (
             (localCharge.billableMetric.recurring && value === ChargeModelEnum.Graduated) ||
+            value === ChargeModelEnum.GraduatedPercentage ||
             value === ChargeModelEnum.Package ||
             value === ChargeModelEnum.Percentage
           ) {
@@ -213,8 +227,10 @@ export const ChargeAccordion = memo(
       [
         formikProps,
         index,
+        isPremium,
         localCharge.billableMetric.aggregationType,
         localCharge.billableMetric.recurring,
+        premiumWarningDialogRef,
       ]
     )
 
@@ -283,6 +299,7 @@ export const ChargeAccordion = memo(
       return (
         (localCharge.billableMetric.recurring &&
           localCharge.chargeModel === ChargeModelEnum.Graduated) ||
+        localCharge.chargeModel === ChargeModelEnum.GraduatedPercentage ||
         localCharge.chargeModel === ChargeModelEnum.Package ||
         localCharge.chargeModel === ChargeModelEnum.Percentage
       )
@@ -371,6 +388,7 @@ export const ChargeAccordion = memo(
             </SummaryRight>
           </>
         }
+        data-test={`charge-accordion-${index}`}
       >
         <>
           {/* Charge main infos */}
@@ -379,14 +397,20 @@ export const ChargeAccordion = memo(
               <Alert type="warning">{translate('text_6435895831d323008a47911f')}</Alert>
             )}
             <ComboBox
+              sortValues={false}
               name="chargeModel"
               disabled={disabled}
-              label={translate('text_624c5eadff7db800acc4ca0d')}
+              label={
+                <InlineComboboxLabel>
+                  <Typography variant="captionHl" color="textSecondary">
+                    {translate('text_624c5eadff7db800acc4ca0d')}
+                  </Typography>
+                  {localCharge.chargeModel === ChargeModelEnum.GraduatedPercentage && (
+                    <BetaChip size="xsmall" />
+                  )}
+                </InlineComboboxLabel>
+              }
               data={[
-                {
-                  label: translate('text_624aa732d6af4e0103d40e6f'),
-                  value: ChargeModelEnum.Standard,
-                },
                 {
                   label: translate('text_62793bbb599f1c01522e919f'),
                   value: ChargeModelEnum.Graduated,
@@ -394,15 +418,34 @@ export const ChargeAccordion = memo(
                 ...(!localCharge.billableMetric.recurring
                   ? [
                       {
-                        label: translate('text_62a0b7107afa2700a65ef6e2'),
-                        value: ChargeModelEnum.Percentage,
+                        labelNode: (
+                          <InlineComboboxLabelForPremiumWrapper>
+                            <InlineComboboxLabel>
+                              <Typography variant="body" color="grey700">
+                                {translate('text_64de472463e2da6b31737db0')}
+                              </Typography>
+                              <BetaChip size="xsmall" />
+                            </InlineComboboxLabel>
+                            {!isPremium && <Icon name="sparkles" />}
+                          </InlineComboboxLabelForPremiumWrapper>
+                        ),
+                        label: translate('text_64de472463e2da6b31737db0'),
+                        value: ChargeModelEnum.GraduatedPercentage,
                       },
                       {
                         label: translate('text_6282085b4f283b0102655868'),
                         value: ChargeModelEnum.Package,
                       },
+                      {
+                        label: translate('text_62a0b7107afa2700a65ef6e2'),
+                        value: ChargeModelEnum.Percentage,
+                      },
                     ]
                   : []),
+                {
+                  label: translate('text_624aa732d6af4e0103d40e6f'),
+                  value: ChargeModelEnum.Standard,
+                },
                 {
                   label: translate('text_6304e74aab6dbc18d615f386'),
                   value: ChargeModelEnum.Volume,
@@ -415,6 +458,8 @@ export const ChargeAccordion = memo(
                   ? 'text_62ff5d01a306e274d4ffcc06'
                   : localCharge.chargeModel === ChargeModelEnum.Graduated
                   ? 'text_62793bbb599f1c01522e91a1'
+                  : localCharge.chargeModel === ChargeModelEnum.GraduatedPercentage
+                  ? 'text_64de472463e2da6b31737db8'
                   : localCharge.chargeModel === ChargeModelEnum.Package
                   ? 'text_6282085b4f283b010265586c'
                   : localCharge.chargeModel === ChargeModelEnum.Volume
@@ -461,6 +506,16 @@ export const ChargeAccordion = memo(
                 )}
                 {localCharge.chargeModel === ChargeModelEnum.Graduated && (
                   <GraduatedChargeTable
+                    chargeIndex={index}
+                    currency={currency}
+                    disabled={disabled}
+                    formikProps={formikProps}
+                    propertyCursor={propertyCursor}
+                    valuePointer={valuePointer}
+                  />
+                )}
+                {localCharge.chargeModel === ChargeModelEnum.GraduatedPercentage && (
+                  <GraduatedPercentageChargeTable
                     chargeIndex={index}
                     currency={currency}
                     disabled={disabled}
@@ -783,4 +838,16 @@ const InlineTaxesWrapper = styled.div`
   align-items: center;
   gap: ${theme.spacing(3)};
   flex-wrap: wrap;
+`
+
+const InlineComboboxLabelForPremiumWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`
+
+const InlineComboboxLabel = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing(2)};
 `

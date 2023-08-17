@@ -62,6 +62,9 @@ module.exports = {
   "project_642d5eac2dc55f7f81e01dd4": {
     "base": require('./-ready-for-dev---plans---create-a-plan-ui-refacto__base.json')
   },
+  "project_64de471ef3038f0ad36833f8": {
+    "base": require('./-ready-for-dev---plans---graduated-percentage-charge-model__base.json')
+  },
   "project_643e59213ea23c04674eba8c": {
     "base": require('./-ready-for-dev---plans---set-a-minimum-spending-on-charges__base.json')
   },

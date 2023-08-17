@@ -43,6 +43,7 @@ import { addToast, TToast } from '~/core/apolloClient'
 import { CurrencyEnum } from '~/generated/graphql'
 import { AmountInputField } from '~/components/form/AmountInput'
 import { TimePickerField } from '~/components/form/TimePicker'
+import { BetaChip } from '~/components/designSystem/BetaChip'
 
 const POSSIBLE_TOAST: TToast[] = [
   {
@@ -278,6 +279,12 @@ const DesignSystem = () => {
                       console.log('Chip clicked')
                     }}
                   />
+                </Block>
+
+                <GroupTitle variant="headline">Beta Chip</GroupTitle>
+                <Block $marginBottom={theme.spacing(6)}>
+                  <BetaChip />
+                  <BetaChip size="xsmall" />
                 </Block>
 
                 <GroupTitle variant="headline">Alert</GroupTitle>

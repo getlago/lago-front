@@ -277,7 +277,11 @@ sources:
       fileName: 👍 [Ready for dev] - Settings - Net payment term
     - name: 👍 [Ready for dev] - Add-on - Add tax to add-ons & one off invoice
       id: 64d40b7c611d58bb88ec7d63
+      fileName: 👍 [Ready for dev] - Add-on - Add tax to add-ons & one off invoice
     - name: 👍 [Ready for dev] - Plan - Quarterly plan interval
       id: 64d63579f0cd15ff208e69e3
+      fileName: 👍 [Ready for dev] - Plan - Quarterly plan interval
+    - name: 👍 [Ready for dev] - Plans - Graduated percentage charge model
+      id: 64de471ef3038f0ad36833f8
 format: flat
 variants: true
