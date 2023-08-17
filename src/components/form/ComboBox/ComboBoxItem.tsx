@@ -11,6 +11,7 @@ import { ComboBoxData } from './types'
 import { Radio } from '../Radio'
 
 export const ITEM_HEIGHT = 56
+export const TEST_RUNNER = 1
 
 interface ComboBoxItemProps {
   id: string
