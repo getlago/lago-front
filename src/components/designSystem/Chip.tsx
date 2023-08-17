@@ -19,9 +19,10 @@ enum ChipVariantEnum {
 enum ChipTypeEnum {
   default = 'default',
   error = 'error',
+  beta = 'beta',
 }
 
-type ChipSize = 'small' | 'medium'
+export type ChipSize = 'xsmall' | 'small' | 'medium'
 type ChipVariant = keyof typeof ChipVariantEnum
 
 interface ChipGenericProps {
@@ -88,8 +89,20 @@ export const Chip = ({
       )}
       {avatarProps && <Avatar size="small" variant="user" {...avatarProps} />}
       <Typography
-        variant={variant === ChipVariantEnum.secondary ? 'body' : 'captionHl'}
-        color={type === ChipTypeEnum.error ? 'danger600' : 'textSecondary'}
+        variant={
+          type === ChipTypeEnum.beta
+            ? 'captionCode'
+            : variant === ChipVariantEnum.secondary
+            ? 'body'
+            : 'captionHl'
+        }
+        color={
+          type === ChipTypeEnum.error
+            ? 'danger600'
+            : type === ChipTypeEnum.beta
+            ? 'info600'
+            : 'textSecondary'
+        }
       >
         {label}
       </Typography>
@@ -120,7 +133,8 @@ export const Chip = ({
 const Container = styled.div`
   min-height: 32px;
   height: fit-content;
-  border: 1px solid ${theme.palette.grey[300]};
+  outline: 1px solid ${theme.palette.grey[300]};
+  outline-offset: -1px;
   background-color: ${theme.palette.grey[100]};
   padding: ${theme.spacing(1)} ${theme.spacing(2)};
   box-sizing: border-box;
@@ -138,6 +152,11 @@ const Container = styled.div`
   }
 
   /* Size */
+  &.chip-container--xsmall {
+    min-height: 0;
+    padding: 0 ${theme.spacing(1)};
+    border-radius: 4px;
+  }
   &.chip-container--medium {
     padding: 10px ${theme.spacing(3)};
   }

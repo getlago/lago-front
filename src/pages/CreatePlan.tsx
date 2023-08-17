@@ -112,6 +112,7 @@ const getPropertyShape = (properties: PropertiesInput) => {
     freeUnitsPerTotalAggregation: properties?.freeUnitsPerTotalAggregation || undefined,
     freeUnits: properties?.freeUnits || 0,
     graduatedRanges: properties?.graduatedRanges || undefined,
+    graduatedPercentageRanges: properties?.graduatedPercentageRanges || undefined,
     volumeRanges: properties?.volumeRanges || undefined,
     rate: properties?.rate || undefined,
   }
