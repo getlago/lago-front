@@ -32,7 +32,7 @@ export const ComboBoxItem = ({
   const { className, ...allProps } = comboboxProps
 
   return (
-    <ItemWrapper>
+    <ItemWrapper data-test={`combobox-item-${label}`}>
       <ConditionalWrapper
         condition={!!addValueRedirectionUrl}
         invalidWrapper={(children) => <>{children}</>}

@@ -39,6 +39,20 @@ const fullProperty = {
       perUnitAmount: '1',
     },
   ],
+  graduatedPercentageRanges: [
+    {
+      fromValue: '0',
+      toValue: '1',
+      rate: '0',
+      flatAmount: '0',
+    },
+    {
+      fromValue: '2',
+      toValue: null,
+      rate: '10',
+      flatAmount: '1',
+    },
+  ],
 }
 
 describe('serializePlanInput()', () => {
@@ -129,6 +143,84 @@ describe('serializePlanInput()', () => {
                   perUnitAmount: '1',
                 },
               ],
+              graduatedPercentageRanges: undefined,
+              packageSize: undefined,
+              rate: '5',
+              volumeRanges: undefined,
+            },
+            taxCodes: [],
+          },
+        ],
+        code: 'my-plan',
+        interval: 'monthly',
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+      })
+    })
+  })
+
+  describe('a plan with graduated percentage charge', () => {
+    it('returns plan correctly serialized', () => {
+      const plan = serializePlanInput({
+        amountCents: '1',
+        amountCurrency: CurrencyEnum.Eur,
+        billChargesMonthly: true,
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.GraduatedPercentage,
+            minAmountCents: 100.03,
+            billableMetric: {
+              id: '1234',
+              name: 'simpleBM',
+              code: 'simple-bm',
+              recurring: false,
+              aggregationType: AggregationTypeEnum.CountAgg,
+            },
+            properties: fullProperty,
+            taxCodes: [],
+          },
+        ],
+        code: 'my-plan',
+        interval: PlanInterval.Monthly,
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+      })
+
+      expect(plan).toStrictEqual({
+        amountCents: 100,
+        amountCurrency: 'EUR',
+        billChargesMonthly: true,
+        charges: [
+          {
+            billableMetricId: '1234',
+            minAmountCents: 10003,
+            chargeModel: 'graduated_percentage',
+            groupProperties: undefined,
+            properties: {
+              amount: '1',
+              fixedAmount: '2',
+              freeUnits: undefined,
+              freeUnitsPerEvents: 0,
+              freeUnitsPerTotalAggregation: '1',
+              graduatedPercentageRanges: [
+                {
+                  fromValue: '0',
+                  toValue: '1',
+                  rate: '0',
+                  flatAmount: '0',
+                },
+                {
+                  fromValue: '2',
+                  toValue: null,
+                  rate: '10',
+                  flatAmount: '1',
+                },
+              ],
+              graduatedRanges: undefined,
               packageSize: undefined,
               rate: '5',
               volumeRanges: undefined,
@@ -190,6 +282,7 @@ describe('serializePlanInput()', () => {
               freeUnitsPerEvents: 0,
               freeUnitsPerTotalAggregation: '1',
               graduatedRanges: undefined,
+              graduatedPercentageRanges: undefined,
               packageSize: 12,
               rate: '5',
               volumeRanges: undefined,
@@ -252,6 +345,7 @@ describe('serializePlanInput()', () => {
               freeUnitsPerEvents: undefined,
               freeUnitsPerTotalAggregation: '1',
               graduatedRanges: undefined,
+              graduatedPercentageRanges: undefined,
               packageSize: undefined,
               rate: '5',
               volumeRanges: undefined,
@@ -314,6 +408,7 @@ describe('serializePlanInput()', () => {
               freeUnitsPerEvents: 0,
               freeUnitsPerTotalAggregation: '1',
               graduatedRanges: undefined,
+              graduatedPercentageRanges: undefined,
               packageSize: undefined,
               rate: '5',
               volumeRanges: undefined,
@@ -376,6 +471,7 @@ describe('serializePlanInput()', () => {
               freeUnitsPerEvents: 0,
               freeUnitsPerTotalAggregation: '1',
               graduatedRanges: undefined,
+              graduatedPercentageRanges: undefined,
               packageSize: undefined,
               rate: '5',
               volumeRanges: [

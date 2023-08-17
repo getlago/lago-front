@@ -46,7 +46,7 @@ jobs:
           docker-compose -f ./api/docker-compose.ci.yml -f docker-compose.ci.yml --env-file ./.env up -d redis api front
 
       - name: Cypress run
-        uses: cypress-io/github-action@v4
+        uses: cypress-io/github-action@v5
         env: 
           CYPRESS_GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}

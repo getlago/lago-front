@@ -274,6 +274,10 @@ const DisabledAmountCell = styled.div`
 `
 
 const CellInput = styled(TextInput)`
+  .MuiInputBase-formControl {
+    border-radius: 0;
+  }
+
   && {
     > * {
       margin-bottom: 0;
@@ -298,6 +302,10 @@ const CellInput = styled(TextInput)`
 `
 
 const CellAmount = styled(AmountInput)`
+  .MuiInputBase-formControl {
+    border-radius: 0;
+  }
+
   && {
     > * {
       margin-bottom: 0;

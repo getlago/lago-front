@@ -34,8 +34,10 @@ describe('Coupons', () => {
     cy.get('[data-test="limited-plan-0"]').should('not.exist')
     cy.get('[data-test="add-plan-limit"]').click()
     cy.get('input[name="selectedPlan"]').click()
-    cy.get('[data-option-index="1"]').click()
+    cy.get('[data-option-index="0"]').click()
     cy.get('[data-test="submitAddPlanToCouponDialog"]').click()
+    cy.get('[data-test="submit"]').should('be.disabled')
+    cy.get('input[name="amountCents"]').type('1')
 
     cy.get('[data-test="submit"]').click()
     cy.get(`[data-test="${couponName}"]`).should('exist')

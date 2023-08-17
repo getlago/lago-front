@@ -2,6 +2,11 @@ import { PlanFormInput } from '~/components/plans/types'
 import { ChargeModelEnum, Properties } from '~/generated/graphql'
 
 import { serializeAmount } from './serializeAmount'
+const serializeScientificNotation = (value: string): string => {
+  if (!value) return '0'
+
+  return Number(value).toLocaleString('en-US', { maximumFractionDigits: 15, useGrouping: false })
+}
 
 const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnum) => {
   if (!properties) return
@@ -16,24 +21,38 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
           graduatedRanges: properties?.graduatedRanges
             ? (properties?.graduatedRanges || []).map(
                 ({ flatAmount, fromValue, perUnitAmount, ...range }) => ({
-                  flatAmount: String(flatAmount || '0'),
+                  flatAmount: serializeScientificNotation(flatAmount),
                   fromValue: fromValue || 0,
-                  perUnitAmount: String(perUnitAmount || '0'),
+                  perUnitAmount: serializeScientificNotation(perUnitAmount),
                   ...range,
                 })
               )
             : undefined,
         }
       : { graduatedRanges: undefined }),
+    ...(chargeModel === ChargeModelEnum.GraduatedPercentage
+      ? {
+          graduatedPercentageRanges: properties?.graduatedPercentageRanges
+            ? (properties?.graduatedPercentageRanges || []).map(
+                ({ flatAmount, fromValue, rate, ...range }) => ({
+                  flatAmount: serializeScientificNotation(flatAmount),
+                  fromValue: fromValue || 0,
+                  rate: serializeScientificNotation(rate),
+                  ...range,
+                })
+              )
+            : undefined,
+        }
+      : { graduatedPercentageRanges: undefined }),
     ...(chargeModel === ChargeModelEnum.Volume
       ? {
           volumeRanges: properties?.volumeRanges
             ? (properties?.volumeRanges || []).map(
                 ({ flatAmount, fromValue, perUnitAmount, ...range }) => ({
-                  flatAmount: String(flatAmount || '0'),
+                  flatAmount: serializeScientificNotation(flatAmount),
 
                   fromValue: fromValue || 0,
-                  perUnitAmount: String(perUnitAmount || '0'),
+                  perUnitAmount: serializeScientificNotation(perUnitAmount),
                   ...range,
                 })
               )

@@ -1,38 +1,37 @@
+import { gql } from '@apollo/client'
+import { InputAdornment } from '@mui/material'
+import { FormikProps } from 'formik'
 import { useState } from 'react'
 import styled from 'styled-components'
-import { FormikProps } from 'formik'
-import { InputAdornment } from '@mui/material'
-import { gql } from '@apollo/client'
 
-import { theme } from '~/styles'
-import { Table, Typography, Button, Tooltip, Alert } from '~/components/designSystem'
+import { Alert, Button, Icon, Table, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
-import { useGraduatedChargeForm } from '~/hooks/plans/useGraduatedChargeForm'
-import { intlFormatNumber, getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useGraduatedPercentageChargeForm } from '~/hooks/plans/useGraduatedPercentageChargeForm'
+import { theme } from '~/styles'
 
 import { PlanFormInput } from './types'
 
 gql`
-  fragment GraduatedCharge on Charge {
+  fragment GraduatedPercentageCharge on Charge {
     id
     properties {
-      graduatedRanges {
+      graduatedPercentageRanges {
         flatAmount
         fromValue
-        perUnitAmount
+        rate
         toValue
       }
     }
     groupProperties {
       groupId
       values {
-        graduatedRanges {
+        graduatedPercentageRanges {
           flatAmount
           fromValue
-          perUnitAmount
+          rate
           toValue
         }
       }
@@ -40,7 +39,7 @@ gql`
   }
 `
 
-interface GraduatedChargeTableProps {
+interface GraduatedPercentageChargeTableProps {
   chargeIndex: number
   currency: CurrencyEnum
   disabled?: boolean
@@ -49,18 +48,18 @@ interface GraduatedChargeTableProps {
   valuePointer: InputMaybe<PropertiesInput> | undefined
 }
 
-export const GraduatedChargeTable = ({
+export const GraduatedPercentageChargeTable = ({
   chargeIndex,
   currency,
   disabled,
   formikProps,
   propertyCursor,
   valuePointer,
-}: GraduatedChargeTableProps) => {
+}: GraduatedPercentageChargeTableProps) => {
   const { translate } = useInternationalization()
   const [errorIndex, setErrorIndex] = useState<number | undefined>()
   const { tableDatas, addRange, handleUpdate, deleteRange, infosCalculation } =
-    useGraduatedChargeForm({
+    useGraduatedPercentageChargeForm({
       chargeIndex,
       disabled,
       formikProps,
@@ -81,45 +80,45 @@ export const GraduatedChargeTable = ({
       </AddButton>
       <TableContainer>
         <Table
-          name="graduated-charge-table"
+          name="graduated-percentage-charge-table"
           data={tableDatas}
           onDeleteRow={(_, i) => deleteRange(i)}
           columns={[
             {
               size: 124,
               content: (_, i) => (
-                <DisabledCell variant="captionHl">
+                <TypographyCell variant="captionHl">
                   {translate(
                     i === 0 ? 'text_62793bbb599f1c01522e91c0' : 'text_62793bbb599f1c01522e91fc'
                   )}
-                </DisabledCell>
+                </TypographyCell>
               ),
             },
             {
               title: (
-                <DisabledCell variant="captionHl">
+                <TypographyCell variant="captionHl">
                   {translate('text_62793bbb599f1c01522e91ab')}
-                </DisabledCell>
+                </TypographyCell>
               ),
               size: 124,
               content: (row) => (
-                <DisabledCell color="disabled" noWrap>
+                <TypographyCell color="disabled" noWrap>
                   {row?.fromValue}
-                </DisabledCell>
+                </TypographyCell>
               ),
             },
             {
               title: (
-                <DisabledCell variant="captionHl" noWrap>
+                <TypographyCell variant="captionHl" noWrap>
                   {translate('text_62793bbb599f1c01522e91b1')}
-                </DisabledCell>
+                </TypographyCell>
               ),
               size: 124,
               content: (row, i) =>
                 disabled || i === tableDatas?.length - 1 ? (
-                  <DisabledCell variant="body" color="disabled" noWrap>
+                  <TypographyCell variant="body" color="disabled" noWrap>
                     {row.toValue || '∞'}
-                  </DisabledCell>
+                  </TypographyCell>
                 ) : (
                   <Tooltip
                     placement="top"
@@ -133,7 +132,10 @@ export const GraduatedChargeTable = ({
                       value={row.toValue as number | undefined}
                       beforeChangeFormatter={['int', 'positiveNumber']}
                       onBlur={() => {
-                        if (typeof row.toValue === 'number' && row.toValue < row.fromValue) {
+                        if (
+                          typeof row.toValue === 'string' &&
+                          Number(row.toValue) < Number(row.fromValue)
+                        ) {
                           setErrorIndex(i)
                         }
                       }}
@@ -147,41 +149,46 @@ export const GraduatedChargeTable = ({
             },
             {
               title: (
-                <DisabledCell variant="captionHl">
-                  {translate('text_62793bbb599f1c01522e91b6')}
-                </DisabledCell>
+                <TypographyCell variant="captionHl">
+                  {translate('text_64de472463e2da6b31737de0')}
+                </TypographyCell>
               ),
               size: 124,
               content: (row, i) =>
                 disabled ? (
                   <DisabledAmountCell>
-                    <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
                     <Typography color="disabled" noWrap>
-                      {row.perUnitAmount || '0.0'}
+                      {row.rate || '0.00'}
                     </Typography>
+                    <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
                   </DisabledAmountCell>
                 ) : (
                   <CellAmount
                     beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                     currency={currency}
-                    value={row.perUnitAmount}
-                    onChange={(value) => handleUpdate(i, 'perUnitAmount', value)}
+                    value={row.rate}
+                    onChange={(value) => handleUpdate(i, 'rate', value)}
                     InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          {getCurrencySymbol(currency)}
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          {translate('text_632d68358f1fedc68eed3e93')}
                         </InputAdornment>
                       ),
                     }}
-                    data-test={`cell-amount-${i}`}
+                    data-test={`cell-rate-${i}`}
                   />
                 ),
             },
             {
               title: (
-                <DisabledCell variant="captionHl">
-                  {translate('text_62793bbb599f1c01522e91bc')}
-                </DisabledCell>
+                <CellTitleWithTooltip>
+                  <TypographyCell variant="captionHl">
+                    {translate('text_64de472463e2da6b31737df2')}
+                  </TypographyCell>
+                  <Tooltip placement="top-end" title={translate('text_64de472563e2da6b31737e77')}>
+                    <Icon name="info-circle" />
+                  </Tooltip>
+                </CellTitleWithTooltip>
               ),
               size: 124,
               content: (row, i) =>
@@ -216,35 +223,15 @@ export const GraduatedChargeTable = ({
         <>
           {infosCalculation.map((calculation, i) => {
             if (i === 0) {
-              return (
-                <Typography variant="bodyHl" key={`calculation-alert-${i}`} color="textSecondary">
-                  {translate('text_627b69c9fe95530136833956', {
-                    lastRowUnit: calculation.firstUnit,
-                    value: intlFormatNumber(calculation.total, {
-                      currencyDisplay: 'symbol',
-                      maximumFractionDigits: 15,
-                      currency,
-                    }),
-                  })}
-                </Typography>
-              )
-            }
-            if (i === 1) {
-              return infosCalculation.length === 2 ? (
+              // When only one tier
+              return infosCalculation.length === 1 ? (
                 <Typography key={`calculation-alert-${i}`} color="textSecondary">
-                  {translate('text_64cac576a11db000acb130b2', {
-                    tier1LastUnit: ONE_TIER_EXAMPLE_UNITS,
-                    tier1PerUnit: intlFormatNumber(calculation.perUnit, {
-                      currencyDisplay: 'symbol',
+                  {translate('text_64de5dd470cdf80100c15fdb', {
+                    rate: intlFormatNumber(calculation.rate / 100, {
                       maximumFractionDigits: 15,
-                      currency,
+                      style: 'percent',
                     }),
-                    tier1FlatFee: intlFormatNumber(calculation.flatFee, {
-                      currencyDisplay: 'symbol',
-                      maximumFractionDigits: 15,
-                      currency,
-                    }),
-                    totalTier1: intlFormatNumber(calculation.total, {
+                    flatAmount: intlFormatNumber(calculation.flatAmount, {
                       currencyDisplay: 'symbol',
                       maximumFractionDigits: 15,
                       currency,
@@ -253,19 +240,13 @@ export const GraduatedChargeTable = ({
                 </Typography>
               ) : (
                 <Typography key={`calculation-alert-${i}`} color="textSecondary">
-                  {translate('text_627b69c9fe95530136833958', {
-                    tier1LastUnit: calculation.units,
-                    tier1PerUnit: intlFormatNumber(calculation.perUnit, {
-                      currencyDisplay: 'symbol',
+                  {translate('text_64de472563e2da6b31737e6f', {
+                    units: calculation.units,
+                    rate: intlFormatNumber(calculation.rate / 100, {
                       maximumFractionDigits: 15,
-                      currency,
+                      style: 'percent',
                     }),
-                    tier1FlatFee: intlFormatNumber(calculation.flatFee, {
-                      currencyDisplay: 'symbol',
-                      maximumFractionDigits: 15,
-                      currency,
-                    }),
-                    totalTier1: intlFormatNumber(calculation.total, {
+                    flatAmount: intlFormatNumber(calculation.flatAmount, {
                       currencyDisplay: 'symbol',
                       maximumFractionDigits: 15,
                       currency,
@@ -277,19 +258,13 @@ export const GraduatedChargeTable = ({
 
             return (
               <Typography key={`calculation-alert-${i}`} color="textSecondary">
-                {translate('text_627b69c9fe9553013683395a', {
-                  unitCount: calculation.units,
-                  tierPerUnit: intlFormatNumber(calculation.perUnit, {
-                    currencyDisplay: 'symbol',
+                {translate('text_64de472563e2da6b31737e75', {
+                  units: calculation.units,
+                  rate: intlFormatNumber(calculation.rate / 100, {
                     maximumFractionDigits: 15,
-                    currency,
+                    style: 'percent',
                   }),
-                  tierFlatFee: intlFormatNumber(calculation.flatFee, {
-                    currencyDisplay: 'symbol',
-                    maximumFractionDigits: 15,
-                    currency,
-                  }),
-                  totalTier: intlFormatNumber(calculation.total, {
+                  flatAmount: intlFormatNumber(calculation.flatAmount, {
                     currencyDisplay: 'symbol',
                     maximumFractionDigits: 15,
                     currency,
@@ -318,7 +293,7 @@ const TableContainer = styled.div`
   padding-bottom: ${theme.spacing(6)};
 `
 
-const DisabledCell = styled(Typography)`
+const TypographyCell = styled(Typography)`
   padding: 0px ${theme.spacing(4)};
 `
 
@@ -385,4 +360,13 @@ const CellAmount = styled(AmountInput)`
 const AddButton = styled(Button)`
   margin-left: auto;
   margin-bottom: ${theme.spacing(2)};
+`
+
+const CellTitleWithTooltip = styled.div`
+  display: flex;
+  align-items: center;
+
+  > *:nth-child(2) {
+    height: 16px;
+  }
 `

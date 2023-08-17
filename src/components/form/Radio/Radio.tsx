@@ -51,7 +51,7 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
             <RadioIcon className="radio-icon" />
           )}
         </RadioContainer>
-        <div>
+        <RadioLabelWrapper>
           <Typography
             color={disabled ? 'disabled' : 'textSecondary'}
             component={(labelProps) => <label htmlFor={name} {...labelProps} />}
@@ -66,7 +66,7 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
             ) : (
               sublabel
             ))}
-        </div>
+        </RadioLabelWrapper>
       </Container>
     )
   }
@@ -75,6 +75,7 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
 Radio.displayName = 'Radio'
 
 const Container = styled.div`
+  width: 100%;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -137,4 +138,8 @@ const RadioContainer = styled.div`
     margin: 0;
     padding: 0;
   }
+`
+
+const RadioLabelWrapper = styled.div`
+  width: 100%;
 `
