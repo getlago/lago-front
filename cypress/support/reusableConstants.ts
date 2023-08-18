@@ -6,3 +6,4 @@ export const userPassword = 'P@ssw0rd'
 // Form variable
 export const TAX_TWENTY_CODE = 'twenty'
 export const TAX_TEN_CODE = 'ten'
+export const TEST = 'ten'
