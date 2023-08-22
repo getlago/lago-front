@@ -895,7 +895,7 @@
   "text_645bb193927b375079d28b34": "Delete tax",
   "text_645bb193927b375079d28b5a": "Tax successfully deleted",
   "text_645cb766cca2dd00e2956271": "Please note that deleting this tax rate is a permanent action. Are you sure you want to proceed with this deletion?",
-  "text_64639bad55d65900f4dd896f": "Taxes not define at the organization level, Lago will apply a Tax (0%) by default to invoices. \r\nNeed flexibility on customers? Set up a tax rate on a customer that will override the one above",
+  "text_64639bad55d65900f4dd896f": "No tax rates have been configured at the organizational level. Consequently, Lago will automatically assign a 0% tax rate to each invoice as the default, unless customized for a specific customer or charge.\nNeed a specific tax rate for customers or charges? You can apply a distinct tax rate to customers or charges that will override the rate mentioned above.",
   "text_64639bf298650700512731a3": "Need flexibility on customers ? Set up a tax rate on a customer that will override the one above",
   "text_64639bf298650700512731ac": "Tax rate successfully added",
   "text_64639c4d172d7a006ef30512": "Add a tax rate on organization",
