@@ -94,7 +94,9 @@ export const PortalInvoiceListItem = memo(
       <Item className={className}>
         <GridItem>
           <Typography color="grey700" noWrap>
-            {DateTime.fromISO(issuingDate).toLocaleString(DateTime.DATE_MED, { locale: documentLocale })}
+            {DateTime.fromISO(issuingDate).toLocaleString(DateTime.DATE_MED, {
+              locale: documentLocale,
+            })}
           </Typography>
           <Typography variant="captionCode" color="grey700">
             {number}

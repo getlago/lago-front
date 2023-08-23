@@ -44,7 +44,8 @@ const PortalInit = () => {
     skip: !isPortalAuthenticated || !token,
   })
 
-  let documentLocale = (data?.customerPortalUser?.billingConfiguration?.documentLocale as Locale) ||
+  let documentLocale =
+    (data?.customerPortalUser?.billingConfiguration?.documentLocale as Locale) ||
     (data?.customerPortalOrganization?.billingConfiguration?.documentLocale as Locale) ||
     'en'
   const { translateWithContextualLocal: translate } = useContextualLocale(documentLocale)
