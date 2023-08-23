@@ -63,6 +63,22 @@ export const PortalInvoiceListItem = memo(
   ({ className, invoice, translate }: PortalInvoiceListItemProps) => {
     const { id, issuingDate, number, paymentStatus, totalAmountCents, currency } = invoice
     const statusConfig = mapStatusConfig(paymentStatus)
+
+    const documentLocale = (variant: string) => {
+      switch (variant) {
+        case 'Italian':
+          return 'it'
+        case 'German':
+          return 'de'
+        case 'French':
+          return 'fr'
+        case 'Norwegian':
+          return 'nb'
+        default:
+          return 'en'
+      }
+    }
+
     const [downloadInvoice] = useDownloadCustomerPortalInvoiceMutation({
       onCompleted(data) {
         const fileUrl = data?.downloadCustomerPortalInvoice?.fileUrl
@@ -92,7 +108,9 @@ export const PortalInvoiceListItem = memo(
       <Item className={className}>
         <GridItem>
           <Typography color="grey700" noWrap>
-            {DateTime.fromISO(issuingDate).toFormat('LLL. dd, yyyy')}
+            {DateTime.fromISO(issuingDate).toLocaleString(DateTime.DATE_MED, {
+              locale: documentLocale(translate('__variant-name')),
+            })}
           </Typography>
           <Typography variant="captionCode" color="grey700">
             {number}
