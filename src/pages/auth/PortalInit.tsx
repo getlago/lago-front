@@ -43,11 +43,11 @@ const PortalInit = () => {
     nextFetchPolicy: 'network-only',
     skip: !isPortalAuthenticated || !token,
   })
-  const { translateWithContextualLocal: translate } = useContextualLocale(
-    (data?.customerPortalUser?.billingConfiguration?.documentLocale as Locale) ||
-      (data?.customerPortalOrganization?.billingConfiguration?.documentLocale as Locale) ||
-      'en'
-  )
+
+  let documentLocale = (data?.customerPortalUser?.billingConfiguration?.documentLocale as Locale) ||
+    (data?.customerPortalOrganization?.billingConfiguration?.documentLocale as Locale) ||
+    'en'
+  const { translateWithContextualLocal: translate } = useContextualLocale(documentLocale)
 
   useEffect(() => {
     if (token) {
@@ -79,7 +79,7 @@ const PortalInit = () => {
           </InlineItems>
         </CenteredErrorWrapper>
       ) : (
-        <CustomerPortal translate={translate} />
+        <CustomerPortal translate={translate} documentLocale={documentLocale} />
       )}
     </>
   )

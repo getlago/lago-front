@@ -20,9 +20,10 @@ gql`
 
 interface CutsomerPortalProps {
   translate: Function
+  documentLocale: string
 }
 
-const CustomerPortal = ({ translate }: CutsomerPortalProps) => {
+const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
   const { data, loading } = useGetPortalOrgaInfosQuery()
 
   return (
@@ -55,7 +56,7 @@ const CustomerPortal = ({ translate }: CutsomerPortalProps) => {
       </PageHeader>
 
       <PortalCustomerInfos translate={translate} />
-      <PortalInvoicesList translate={translate} />
+      <PortalInvoicesList translate={translate} documentLocale={documentLocale} />
     </PageWrapper>
   )
 }

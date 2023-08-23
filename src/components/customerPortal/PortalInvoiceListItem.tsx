@@ -49,6 +49,7 @@ interface PortalInvoiceListItemProps {
   invoice: PortalInvoiceListItemFragment
   translate: Function
   className?: string
+  documentLocale: string
 }
 
 const mapStatusConfig = (paymentStatus: InvoicePaymentStatusTypeEnum) => {
@@ -60,24 +61,9 @@ const mapStatusConfig = (paymentStatus: InvoicePaymentStatusTypeEnum) => {
 }
 
 export const PortalInvoiceListItem = memo(
-  ({ className, invoice, translate }: PortalInvoiceListItemProps) => {
+  ({ className, invoice, translate, documentLocale }: PortalInvoiceListItemProps) => {
     const { id, issuingDate, number, paymentStatus, totalAmountCents, currency } = invoice
     const statusConfig = mapStatusConfig(paymentStatus)
-
-    const documentLocale = (variant: string) => {
-      switch (variant) {
-        case 'Italian':
-          return 'it'
-        case 'German':
-          return 'de'
-        case 'French':
-          return 'fr'
-        case 'Norwegian':
-          return 'nb'
-        default:
-          return 'en'
-      }
-    }
 
     const [downloadInvoice] = useDownloadCustomerPortalInvoiceMutation({
       onCompleted(data) {
@@ -108,9 +94,7 @@ export const PortalInvoiceListItem = memo(
       <Item className={className}>
         <GridItem>
           <Typography color="grey700" noWrap>
-            {DateTime.fromISO(issuingDate).toLocaleString(DateTime.DATE_MED, {
-              locale: documentLocale(translate('__variant-name')),
-            })}
+            {DateTime.fromISO(issuingDate).toLocaleString(DateTime.DATE_MED, { locale: documentLocale })}
           </Typography>
           <Typography variant="captionCode" color="grey700">
             {number}

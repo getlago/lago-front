@@ -39,9 +39,10 @@ gql`
 
 interface PortalCustomerInvoicesProps {
   translate: Function
+  documentLocale: string
 }
 
-export const PortalInvoicesList = ({ translate }: PortalCustomerInvoicesProps) => {
+export const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoicesProps) => {
   const [getInvoices, { data, loading, error, fetchMore, variables }] =
     useCustomerPortalInvoicesLazyQuery({
       notifyOnNetworkStatusChange: true,
@@ -142,6 +143,7 @@ export const PortalInvoicesList = ({ translate }: PortalCustomerInvoicesProps) =
                         key={`portal-invoice-list-item-${invoice.id}`}
                         invoice={invoice}
                         translate={translate}
+                        documentLocale={documentLocale}
                       />
                     )
                   })}
