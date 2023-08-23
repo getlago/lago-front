@@ -13,6 +13,7 @@ import {
   Tooltip,
 } from '~/components/designSystem'
 import { theme, NAV_HEIGHT } from '~/styles'
+import { LocaleEnum } from '~/core/translations'
 import { addToast } from '~/core/apolloClient'
 import {
   PortalInvoiceListItemFragment,
@@ -23,7 +24,6 @@ import {
   CurrencyEnum,
 } from '~/generated/graphql'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { LocaleEnum } from '~/core/translations'
 
 gql`
   fragment PortalInvoiceListItem on Invoice {

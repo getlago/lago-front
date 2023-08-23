@@ -10,6 +10,7 @@ import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT } from '~/styles'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import EmptyImage from '~/public/images/maneki/empty.svg'
+import { LocaleEnum } from '~/core/translations'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { SearchInput } from '~/components/SearchInput'
 
@@ -18,7 +19,6 @@ import {
   PortalInvoiceListItemGridTemplate,
   PortalInvoiceListItemSkeleton,
 } from './PortalInvoiceListItem'
-import { LocaleEnum } from '~/core/translations'
 
 gql`
   query customerPortalInvoices($limit: Int, $page: Int, $searchTerm: String) {
