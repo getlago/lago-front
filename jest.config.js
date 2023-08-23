@@ -17,7 +17,7 @@ module.exports = {
     '^.+\\.module\\.(css|sass|scss)$',
   ],
 
-  collectCoverageFrom: ['src/hooks/**/*.{ts,tsx}'],
+  collectCoverageFrom: ['src/**/*.{ts,tsx}'],
   coverageReporters: ['text', 'lcov'],
   collectCoverage: true,
   coverageThreshold: {
@@ -45,6 +45,7 @@ module.exports = {
 
   moduleNameMapper: {
     '^~/(.*)$': '<rootDir>/src/$1',
+    'ace-builds': '<rootDir>/node_modules/ace-builds',
   },
 
   // Module file extensions for importing

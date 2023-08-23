@@ -329,17 +329,16 @@ export const ChargesSection = memo(
                     payInAdvance: false,
                     invoiceable: true,
                     billableMetric: localBillableMetrics,
-                    properties: !localBillableMetrics?.flatGroups?.length
-                      ? getPropertyShape({})
-                      : undefined,
-                    groupProperties: localBillableMetrics?.flatGroups?.length
-                      ? localBillableMetrics?.flatGroups.map((group) => {
-                          return {
-                            groupId: group.id,
-                            values: getPropertyShape({}),
-                          }
-                        })
-                      : undefined,
+                    properties: getPropertyShape({}),
+                    groupProperties: localBillableMetrics?.flatGroups?.length ? [] : undefined,
+
+                    // localBillableMetrics?.flatGroups.map((group) => {
+                    //   return {
+                    //     groupId: group.id,
+                    //     values: getPropertyShape({}),
+                    //   }
+                    // })
+
                     chargeModel: ChargeModelEnum.Standard,
                     amountCents: undefined,
                   } as LocalChargeInput)
@@ -471,9 +470,7 @@ export const ChargesSection = memo(
                       payInAdvance: false,
                       invoiceable: true,
                       billableMetric: localBillableMetrics,
-                      properties: !localBillableMetrics?.flatGroups?.length
-                        ? getPropertyShape({})
-                        : undefined,
+                      properties: getPropertyShape({}),
                       groupProperties: localBillableMetrics?.flatGroups?.length
                         ? localBillableMetrics?.flatGroups.map((group) => {
                             return {

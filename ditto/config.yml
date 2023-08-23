@@ -283,5 +283,8 @@ sources:
       fileName: 👍 [Ready for dev] - Plan - Quarterly plan interval
     - name: 👍 [Ready for dev] - Plans - Graduated percentage charge model
       id: 64de471ef3038f0ad36833f8
+      fileName: 👍 [Ready for dev] - Plans - Graduated percentage charge model
+    - name: 👍 [Ready for dev] - Plans - Set a default price on charge with groups
+      id: 64e620b7fe9d55a6fe1c6127
 format: flat
 variants: true

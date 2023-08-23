@@ -30,38 +30,26 @@ import {
   GraduatedPercentageChargeFragmentDoc,
 } from '~/generated/graphql'
 import { AmountInput, ButtonSelector, ComboBox, Switch } from '~/components/form'
-import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
-import { PackageCharge } from '~/components/plans/PackageCharge'
-import { ChargePercentage } from '~/components/plans/ChargePercentage'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
+  SEARCH_CHARGE_GROUP_INPUT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME,
 } from '~/core/constants/form'
+import { getPropertyShape } from '~/pages/CreatePlan'
 
 import { PlanFormInput } from './types'
-import { VolumeChargeTable } from './VolumeChargeTable'
-import { ConditionalChargeWrapper } from './ConditionalChargeWrapper'
 import { RemoveChargeWarningDialogRef } from './RemoveChargeWarningDialog'
 import { ChargeOptionsAccordion } from './ChargeOptionsAccordion'
-import { GraduatedPercentageChargeTable } from './GraduatedPercentageChargeTable'
+import { ChargeWrapperSwitch } from './ChargeWrapperSwitch'
 
 import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 import { Item } from '../form/ComboBox/ComboBoxItem'
 import { BetaChip } from '../designSystem/BetaChip'
+import { ConditionalWrapper } from '../ConditionalWrapper'
 
-interface ChargeAccordionProps {
-  id: string
-  index: number
-  currency: CurrencyEnum
-  disabled?: boolean
-  shouldDisplayAlreadyUsedChargeAlert: boolean
-  isUsedInSubscription?: boolean
-  formikProps: FormikProps<PlanFormInput>
-  removeChargeWarningDialogRef: RefObject<RemoveChargeWarningDialogRef>
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
-}
+const DEFAULT_GROUP_VALUE = 'DEFAULT'
 
 gql`
   fragment TaxForPlanChargeAccordion on Tax {
@@ -147,6 +135,18 @@ const mapIntervalCopy = (interval: string, forceMonthlyCharge: boolean): string 
   return ''
 }
 
+interface ChargeAccordionProps {
+  id: string
+  index: number
+  currency: CurrencyEnum
+  disabled?: boolean
+  shouldDisplayAlreadyUsedChargeAlert: boolean
+  isUsedInSubscription?: boolean
+  formikProps: FormikProps<PlanFormInput>
+  removeChargeWarningDialogRef?: RefObject<RemoveChargeWarningDialogRef>
+  premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
+}
+
 export const ChargeAccordion = memo(
   ({
     id,
@@ -163,12 +163,23 @@ export const ChargeAccordion = memo(
     const { isPremium } = useCurrentUser()
     const localCharge = formikProps.values.charges[index]
     const initialLocalCharge = formikProps.initialValues.charges[index]
+    const chargeErrors = formikProps?.errors?.charges
+    const hasDefaultPropertiesErrors =
+      typeof chargeErrors === 'object' &&
+      typeof chargeErrors[index] === 'object' &&
+      // @ts-ignore
+      typeof chargeErrors[index].properties === 'object'
+
+    const localChargeExistingGroupPropertiesIds =
+      localCharge?.groupProperties?.map((g) => g.groupId) || []
+
     const hasErrorInCharges = Boolean(
       formikProps.errors.charges && formikProps.errors.charges[index]
     )
     const [showSpendingMinimum, setShowSpendingMinimum] = useState(
       !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0
     )
+    const [showAddGroup, setShowAddGroup] = useState(false)
     const [shouldDisplayTaxesInput, setShouldDisplayTaxesInput] = useState<boolean>(false)
     const [getTaxes, { data: taxesData, loading: taxesLoading }] = useGetTaxesForChargesLazyQuery({
       variables: { limit: 500 },
@@ -182,13 +193,13 @@ export const ChargeAccordion = memo(
     }, [initialLocalCharge?.minAmountCents])
 
     const handleUpdate = useCallback(
-      (name: string, value: string | boolean | TaxForPlanChargeAccordionFragment[]) => {
+      (name: string, value: unknown) => {
         if (name === 'chargeModel') {
           // IMPORTANT: This check should stay first in this function
           // If user is not premium and try to switch to graduated percentage pricing
           // We should show the premium modal and prevent any formik value change
           if (!isPremium && value === ChargeModelEnum.GraduatedPercentage) {
-            premiumWarningDialogRef.current?.openDialog()
+            premiumWarningDialogRef?.current?.openDialog()
             return
           }
 
@@ -221,6 +232,7 @@ export const ChargeAccordion = memo(
             formikProps.setFieldValue(`charges.${index}.invoiceable`, true)
           }
         }
+
         formikProps.setFieldValue(`charges.${index}.${name}`, value)
       },
 
@@ -318,7 +330,7 @@ export const ChargeAccordion = memo(
         id={id}
         initiallyOpen={!formikProps.values.charges?.[index]?.id ? true : false}
         summary={
-          <>
+          <Summary>
             <Title>
               <Typography variant="bodyHl" color="textSecondary" noWrap>
                 {localCharge?.billableMetric?.name}
@@ -386,13 +398,13 @@ export const ChargeAccordion = memo(
                 />
               </Tooltip>
             </SummaryRight>
-          </>
+          </Summary>
         }
         data-test={`charge-accordion-${index}`}
       >
         <>
           {/* Charge main infos */}
-          <PaddedContent>
+          <ChargeModelWrapper data-test="charge-model-wrapper">
             {!!shouldDisplayAlreadyUsedChargeAlert && (
               <Alert type="warning">{translate('text_6435895831d323008a47911f')}</Alert>
             )}
@@ -468,85 +480,278 @@ export const ChargeAccordion = memo(
               )}
               onChange={(value) => handleUpdate('chargeModel', value)}
             />
-          </PaddedContent>
-          <ConditionalChargeWrapper
-            chargeIndex={index}
-            localCharge={localCharge}
-            chargeErrors={formikProps.errors.charges}
+          </ChargeModelWrapper>
+
+          <AllChargesWrapper
+            $hasGroupDisplay={!!localCharge.billableMetric.flatGroups?.length}
+            $hasChargesToDisplay={
+              !!localCharge?.properties || !!localCharge?.groupProperties?.length
+            }
           >
-            {({ propertyCursor, valuePointer }) => (
-              <>
-                {localCharge.chargeModel === ChargeModelEnum.Standard && (
-                  <AmountInput
-                    name={`${propertyCursor}.amount`}
+            {/* Simple charge or default property for groups */}
+            {!!localCharge.properties && (
+              <ConditionalWrapper
+                condition={!!localCharge.billableMetric.flatGroups?.length}
+                invalidWrapper={(children) => (
+                  <div data-test="default-charge-accordion-without-group">{children}</div>
+                )}
+                validWrapper={(children) => (
+                  <Accordion
+                    noContentMargin
+                    summary={
+                      <Summary>
+                        <Title>
+                          <Typography variant="bodyHl" color="textSecondary" noWrap>
+                            {translate('text_64e620bca31226337ffc62ad')}
+                          </Typography>
+                          <Typography variant="caption" noWrap>
+                            {translate('text_64e620bca31226337ffc62af')}
+                          </Typography>
+                        </Title>
+                        <SummaryRight>
+                          <Tooltip
+                            placement="top-end"
+                            title={
+                              hasDefaultPropertiesErrors
+                                ? translate('text_635b975ecea4296eb76924b7')
+                                : translate('text_635b975ecea4296eb76924b1')
+                            }
+                          >
+                            <ValidationIcon
+                              name="validate-filled"
+                              color={hasDefaultPropertiesErrors ? 'disabled' : 'success'}
+                            />
+                          </Tooltip>
+                          <Tooltip
+                            placement="top-end"
+                            title={translate('text_63aa085d28b8510cd46443ff')}
+                            disableHoverListener={disabled}
+                          >
+                            <Button
+                              size="small"
+                              icon="trash"
+                              variant="quaternary"
+                              disabled={disabled}
+                              onClick={() => {
+                                // Remove the default charge
+                                handleUpdate('properties', undefined)
+                              }}
+                            />
+                          </Tooltip>
+                        </SummaryRight>
+                      </Summary>
+                    }
+                    data-test="default-charge-accordion-with-group"
+                  >
+                    {children}
+                  </Accordion>
+                )}
+              >
+                <ChargeWrapperSwitch
+                  currency={currency}
+                  formikProps={formikProps}
+                  index={index}
+                  disabled={disabled}
+                  propertyCursor="properties"
+                  valuePointer={localCharge.properties}
+                  handleUpdate={handleUpdate}
+                />
+              </ConditionalWrapper>
+            )}
+
+            {/* Group properties  */}
+            {localCharge?.groupProperties?.map((group, groupPropertyIndex) => {
+              const associatedFlagGroup = localCharge?.billableMetric?.flatGroups?.find(
+                (flatGroup) => flatGroup.id === group.groupId
+              )
+
+              const groupKey = associatedFlagGroup?.key
+              const groupName = associatedFlagGroup?.value
+              const hasErrorInGroup =
+                typeof chargeErrors === 'object' &&
+                typeof chargeErrors[index] === 'object' &&
+                // @ts-ignore
+                typeof chargeErrors[index].groupProperties === 'object' &&
+                // @ts-ignore
+                typeof chargeErrors[index].groupProperties[groupPropertyIndex] === 'object' &&
+                // @ts-ignore
+                !!chargeErrors[index].groupProperties[groupPropertyIndex].values
+
+              return (
+                <Accordion
+                  key={`charge-${group.groupId}-group-${group.groupId}`}
+                  noContentMargin
+                  summary={
+                    <Summary>
+                      <Typography variant="bodyHl" color="grey700">
+                        <span>{groupKey && `${groupKey} • `}</span>
+                        <span>{groupName}</span>
+                      </Typography>
+                      <ChargeGroupAccodionSummaryRight>
+                        <Tooltip
+                          placement="top-end"
+                          title={
+                            hasErrorInGroup
+                              ? translate('text_635b975ecea4296eb76924b7')
+                              : translate('text_635b975ecea4296eb76924b1')
+                          }
+                        >
+                          <ValidationIcon
+                            name="validate-filled"
+                            color={hasErrorInGroup ? 'disabled' : 'success'}
+                          />
+                        </Tooltip>
+                        <Tooltip
+                          placement="top-end"
+                          title={translate('text_63aa085d28b8510cd46443ff')}
+                          disableHoverListener={disabled}
+                        >
+                          <Button
+                            size="small"
+                            icon="trash"
+                            disabled={disabled}
+                            variant="quaternary"
+                            onClick={() => {
+                              const existingGroupProperties = [
+                                ...(localCharge.groupProperties || []),
+                              ]
+
+                              existingGroupProperties.splice(groupPropertyIndex, 1)
+                              handleUpdate('groupProperties', existingGroupProperties)
+                            }}
+                          />
+                        </Tooltip>
+                      </ChargeGroupAccodionSummaryRight>
+                    </Summary>
+                  }
+                  data-test={`group-charge-accordion-${groupPropertyIndex}`}
+                >
+                  <ChargeWrapperSwitch
                     currency={currency}
-                    beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
+                    formikProps={formikProps}
+                    index={index}
                     disabled={disabled}
-                    label={translate('text_624453d52e945301380e49b6')}
-                    value={valuePointer?.amount || ''}
-                    onChange={(value) => handleUpdate(`${propertyCursor}.amount`, value)}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {getCurrencySymbol(currency)}
-                        </InputAdornment>
-                      ),
+                    propertyCursor={`groupProperties.${groupPropertyIndex}.values`}
+                    valuePointer={
+                      localCharge?.groupProperties &&
+                      localCharge?.groupProperties[groupPropertyIndex].values
+                    }
+                    handleUpdate={handleUpdate}
+                  />
+                </Accordion>
+              )
+            })}
+          </AllChargesWrapper>
+
+          {/* If the charge can have groups */}
+          {!!localCharge.billableMetric.flatGroups?.length && (
+            <>
+              {!!showAddGroup ? (
+                <InlineGroupInputWrapper>
+                  <ComboBox
+                    sortValues={false}
+                    className={SEARCH_CHARGE_GROUP_INPUT_CLASSNAME}
+                    data={[
+                      {
+                        label: translate('text_64e620bca31226337ffc62ad'),
+                        value: DEFAULT_GROUP_VALUE,
+                        disabled: !!localCharge?.properties,
+                      },
+                      ...localCharge.billableMetric.flatGroups?.map((group) => ({
+                        label: `${group.key ? `${group.key} • ` : ''}${group.value}`,
+                        value: group.id,
+                        disabled: localChargeExistingGroupPropertiesIds.includes(group.id),
+                      })),
+                    ]}
+                    placeholder={translate('text_64e6211f8fcca2366dc69005')}
+                    onChange={(newGroupId) => {
+                      if (newGroupId === DEFAULT_GROUP_VALUE) {
+                        handleUpdate('properties', getPropertyShape({}))
+                      } else {
+                        const newGroupProperties = [
+                          ...(localCharge.groupProperties || []),
+                          {
+                            groupId: newGroupId,
+                            value: getPropertyShape({}),
+                          },
+                        ]
+
+                        handleUpdate('groupProperties', newGroupProperties)
+                      }
+                      setShowAddGroup(false)
                     }}
                   />
-                )}
-                {localCharge.chargeModel === ChargeModelEnum.Package && (
-                  <PackageCharge
-                    chargeIndex={index}
-                    currency={currency}
-                    disabled={disabled}
-                    formikProps={formikProps}
-                    propertyCursor={propertyCursor}
-                    valuePointer={valuePointer}
-                  />
-                )}
-                {localCharge.chargeModel === ChargeModelEnum.Graduated && (
-                  <GraduatedChargeTable
-                    chargeIndex={index}
-                    currency={currency}
-                    disabled={disabled}
-                    formikProps={formikProps}
-                    propertyCursor={propertyCursor}
-                    valuePointer={valuePointer}
-                  />
-                )}
-                {localCharge.chargeModel === ChargeModelEnum.GraduatedPercentage && (
-                  <GraduatedPercentageChargeTable
-                    chargeIndex={index}
-                    currency={currency}
-                    disabled={disabled}
-                    formikProps={formikProps}
-                    propertyCursor={propertyCursor}
-                    valuePointer={valuePointer}
-                  />
-                )}
-                {localCharge.chargeModel === ChargeModelEnum.Percentage && (
-                  <ChargePercentage
-                    chargeIndex={index}
-                    currency={currency}
-                    disabled={disabled}
-                    formikProps={formikProps}
-                    propertyCursor={propertyCursor}
-                    valuePointer={valuePointer}
-                  />
-                )}
-                {localCharge.chargeModel === ChargeModelEnum.Volume && (
-                  <VolumeChargeTable
-                    chargeIndex={index}
-                    currency={currency}
-                    disabled={disabled}
-                    formikProps={formikProps}
-                    propertyCursor={propertyCursor}
-                    valuePointer={valuePointer}
-                  />
-                )}
-              </>
-            )}
-          </ConditionalChargeWrapper>
+
+                  <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
+                    <Button
+                      icon="trash"
+                      variant="quaternary"
+                      onClick={() => {
+                        setShowAddGroup(false)
+                      }}
+                    />
+                  </Tooltip>
+                </InlineGroupInputWrapper>
+              ) : (
+                <ChargeAddActionsWrapper data-test="charge-with-group-actions-wrapper">
+                  <ChargeAddActionsWrapperLeft>
+                    <Button
+                      startIcon="plus"
+                      variant="quaternary"
+                      disabled={
+                        disabled ||
+                        ((localCharge.groupProperties?.length || 0) ===
+                          (localCharge.billableMetric.flatGroups?.length || 0) &&
+                          !!localCharge.properties)
+                      }
+                      onClick={() => {
+                        setShowAddGroup(true)
+                        setTimeout(() => {
+                          ;(
+                            document.querySelector(
+                              `.${SEARCH_CHARGE_GROUP_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                            ) as HTMLElement
+                          )?.click()
+                        }, 0)
+                      }}
+                      data-test="add-new-group"
+                    >
+                      {translate('text_64e620bca31226337ffc62b7')}
+                    </Button>
+                    <Button
+                      startIcon="plus"
+                      variant="quaternary"
+                      disabled={
+                        disabled ||
+                        (localCharge.groupProperties?.length || 0) ===
+                          (localCharge.billableMetric.flatGroups?.length || 0)
+                      }
+                      onClick={() => {
+                        const newGroupProperties = [
+                          ...(localCharge.groupProperties || []),
+                          ...(localCharge.billableMetric.flatGroups
+                            ?.filter((g) => !localChargeExistingGroupPropertiesIds.includes(g.id))
+                            .map((group) => ({
+                              groupId: group.id,
+                              values: getPropertyShape({}),
+                            })) || []),
+                        ]
+
+                        handleUpdate('groupProperties', newGroupProperties)
+                      }}
+                      data-test="add-all-group-cta"
+                    >
+                      {translate('text_64e620bca31226337ffc62b9')}
+                    </Button>
+                  </ChargeAddActionsWrapperLeft>
+                  {translate('text_64e620bca31226337ffc62bb', {
+                    count: localCharge.groupProperties?.length || 0,
+                    total: localCharge.billableMetric.flatGroups?.length || 0,
+                  })}
+                </ChargeAddActionsWrapper>
+              )}
+            </>
+          )}
 
           {/* Charge options */}
           <ChargeOptionsAccordion charge={localCharge} currency={currency}>
@@ -595,7 +800,7 @@ export const ChargeAccordion = memo(
                     if (isPremium) {
                       handleUpdate('invoiceable', value)
                     } else {
-                      premiumWarningDialogRef.current?.openDialog()
+                      premiumWarningDialogRef?.current?.openDialog()
                     }
                   }}
                 />
@@ -723,7 +928,7 @@ export const ChargeAccordion = memo(
                         document.getElementById(`spending-minimum-input-${index}`)?.focus()
                       }, 0)
                     } else {
-                      premiumWarningDialogRef.current?.openDialog()
+                      premiumWarningDialogRef?.current?.openDialog()
                     }
                   }}
                 >
@@ -765,12 +970,8 @@ export const ChargeAccordion = memo(
 
 ChargeAccordion.displayName = 'ChargeAccordion'
 
-const PaddedContent = styled.div`
-  padding: ${theme.spacing(4)};
-
-  > *:not(:first-child) {
-    margin-top: ${theme.spacing(6)};
-  }
+const ChargeModelWrapper = styled.div`
+  padding: ${theme.spacing(4)} ${theme.spacing(4)} 0 ${theme.spacing(4)};
 `
 
 const Title = styled.div`
@@ -833,6 +1034,17 @@ const InlineTaxInputWrapper = styled.div`
   }
 `
 
+const InlineGroupInputWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing(3)};
+  padding: 0 ${theme.spacing(4)};
+
+  > *:first-child {
+    flex: 1;
+  }
+`
+
 const InlineTaxesWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -850,4 +1062,42 @@ const InlineComboboxLabel = styled.div`
   display: flex;
   align-items: center;
   gap: ${theme.spacing(2)};
+`
+
+const Summary = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: ${theme.spacing(3)};
+  overflow: hidden;
+`
+
+const AllChargesWrapper = styled.div<{ $hasGroupDisplay?: boolean; $hasChargesToDisplay: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing(4)};
+  margin-top: ${({ $hasChargesToDisplay, $hasGroupDisplay }) =>
+    $hasChargesToDisplay && $hasGroupDisplay ? theme.spacing(6) : 0};
+  padding: ${({ $hasGroupDisplay }) => ($hasGroupDisplay ? `0 ${theme.spacing(4)}` : 0)};
+`
+
+const ChargeAddActionsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 ${theme.spacing(4)};
+  margin: ${theme.spacing(6)} 0 ${theme.spacing(4)} 0;
+`
+
+const ChargeAddActionsWrapperLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing(3)};
+`
+
+const ChargeGroupAccodionSummaryRight = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing(3)};
 `

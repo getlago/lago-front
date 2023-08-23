@@ -81,7 +81,7 @@ export const theme = createTheme({
             },
             '& input': {
               color: palette.grey[600],
-              '-webkit-text-fill-color': 'inherit',
+              WebkitTextFillColor: 'inherit',
             },
             '.MuiInputAdornment-root, .MuiInputAdornment-root > *': {
               color: palette.grey[400],

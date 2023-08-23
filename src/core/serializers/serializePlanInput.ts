@@ -110,7 +110,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
                   ...serializeProperties(property.values, chargeModel),
                 },
               }))
-            : undefined,
+            : [],
           ...charge,
         }
       }
