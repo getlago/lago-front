@@ -100,7 +100,7 @@ gql`
   ${PlanForFixedFeeSectionFragmentDoc}
 `
 
-const getPropertyShape = (properties: PropertiesInput) => {
+export const getPropertyShape = (properties: PropertiesInput | undefined) => {
   return {
     amount: properties?.amount || undefined,
     packageSize:
@@ -154,19 +154,15 @@ const CreatePlan = () => {
                     deserializeAmount(minAmountCents || 0, plan.amountCurrency || CurrencyEnum.Usd)
                   ),
               payInAdvance: payInAdvance || false,
-              properties:
-                properties && !charge.billableMetric.flatGroups?.length
-                  ? getPropertyShape(properties)
-                  : undefined,
-              groupProperties:
-                groupProperties?.length && !!charge.billableMetric.flatGroups?.length
-                  ? groupProperties?.map((prop) => {
-                      return {
-                        groupId: prop.groupId,
-                        values: getPropertyShape(prop.values),
-                      }
-                    })
-                  : undefined,
+              properties: properties ? getPropertyShape(properties) : undefined,
+              groupProperties: groupProperties?.length
+                ? groupProperties?.map((prop) => {
+                    return {
+                      groupId: prop.groupId,
+                      values: getPropertyShape(prop.values),
+                    }
+                  })
+                : [],
               ...charge,
             })
           )

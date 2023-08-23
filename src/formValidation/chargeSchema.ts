@@ -1,6 +1,6 @@
 import { object, string, number, array } from 'yup'
 
-import { BillableMetric, ChargeModelEnum } from '~/generated/graphql'
+import { BillableMetric, ChargeModelEnum, GroupProperties, Properties } from '~/generated/graphql'
 
 const standardShape = {
   amount: number().typeError('text_624ea7c29103fd010732ab7d').required(''),
@@ -108,53 +108,64 @@ export const chargeSchema = array().of(
   object().shape({
     chargeModel: string().required(''),
     properties: object()
-      .when(['chargeModel', 'billableMetric'], {
-        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
-          !!chargeModel &&
-          chargeModel === ChargeModelEnum.Standard &&
-          !!billableMetric &&
-          !billableMetric.flatGroups?.length,
-        then: (schema) => schema.shape(standardShape),
+      .when('chargeModel', {
+        is: (chargeModel: ChargeModelEnum) =>
+          !!chargeModel && chargeModel === ChargeModelEnum.Standard,
+        then: () =>
+          object().when({
+            is: (values: Properties) => !!values,
+            then: (schema) => schema.shape(standardShape),
+          }),
       })
-      .when(['chargeModel', 'billableMetric'], {
-        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
-          !!chargeModel &&
-          chargeModel === ChargeModelEnum.Package &&
-          !!billableMetric &&
-          !billableMetric.flatGroups?.length,
-        then: (schema) => schema.shape(packageShape),
+      .when('chargeModel', {
+        is: (chargeModel: ChargeModelEnum) =>
+          !!chargeModel && chargeModel === ChargeModelEnum.Package,
+        then: () =>
+          object().when({
+            is: (values: Properties) => !!values,
+            then: (schema) => schema.shape(packageShape),
+          }),
       })
-      .when(['chargeModel', 'billableMetric'], {
-        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
-          !!chargeModel &&
-          chargeModel === ChargeModelEnum.Percentage &&
-          !!billableMetric &&
-          !billableMetric.flatGroups?.length,
-        then: (schema) => schema.shape(percentageShape),
+      .when('chargeModel', {
+        is: (chargeModel: ChargeModelEnum) =>
+          !!chargeModel && chargeModel === ChargeModelEnum.Percentage,
+        then: () =>
+          object().when({
+            is: (values: Properties) => !!values,
+            then: (schema) => schema.shape(percentageShape),
+          }),
       })
-      .when(['chargeModel', 'billableMetric'], {
-        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
-          !!chargeModel &&
-          chargeModel === ChargeModelEnum.Graduated &&
-          !!billableMetric &&
-          !billableMetric.flatGroups?.length,
-        then: (schema) => schema.shape(graduatedShape),
+      .when('chargeModel', {
+        is: (chargeModel: ChargeModelEnum) =>
+          !!chargeModel && chargeModel === ChargeModelEnum.Graduated,
+        then: () =>
+          object().when({
+            is: (values: Properties) => !!values,
+            then: (schema) => schema.shape(graduatedShape),
+          }),
       })
-      .when(['chargeModel', 'billableMetric'], {
-        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
-          !!chargeModel &&
-          chargeModel === ChargeModelEnum.GraduatedPercentage &&
-          !!billableMetric &&
-          !billableMetric.flatGroups?.length,
-        then: (schema) => schema.shape(graduatedPercentageShape),
+      .when('chargeModel', {
+        is: (chargeModel: ChargeModelEnum) =>
+          !!chargeModel && chargeModel === ChargeModelEnum.GraduatedPercentage,
+        then: () =>
+          object().when({
+            is: (values: Properties) => !!values,
+            then: (schema) => schema.shape(graduatedPercentageShape),
+          }),
       })
-      .when(['chargeModel', 'billableMetric'], {
-        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
-          !!chargeModel &&
-          chargeModel === ChargeModelEnum.Volume &&
-          !!billableMetric &&
-          !billableMetric.flatGroups?.length,
-        then: (schema) => schema.shape(volumeShape),
+      .when('chargeModel', {
+        is: (chargeModel: ChargeModelEnum) =>
+          !!chargeModel && chargeModel === ChargeModelEnum.Volume,
+        then: () =>
+          object().when({
+            is: (values: Properties) => !!values,
+            then: (schema) => schema.shape(volumeShape),
+          }),
+      })
+      .when(['groupProperties'], {
+        is: (groupProperties: GroupProperties[]) => !groupProperties?.length,
+        then: (schema) => schema.required(),
+        otherwise: (schema) => schema.optional(),
       }),
     groupProperties: array()
       .when(['chargeModel', 'billableMetric'], {

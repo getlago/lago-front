@@ -65,6 +65,9 @@ module.exports = {
   "project_64de471ef3038f0ad36833f8": {
     "base": require('./-ready-for-dev---plans---graduated-percentage-charge-model__base.json')
   },
+  "project_64e620b7fe9d55a6fe1c6127": {
+    "base": require('./-ready-for-dev---plans---set-a-default-price-on-charge-with-groups__base.json')
+  },
   "project_643e59213ea23c04674eba8c": {
     "base": require('./-ready-for-dev---plans---set-a-minimum-spending-on-charges__base.json')
   },
