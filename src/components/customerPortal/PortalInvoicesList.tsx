@@ -18,6 +18,7 @@ import {
   PortalInvoiceListItemGridTemplate,
   PortalInvoiceListItemSkeleton,
 } from './PortalInvoiceListItem'
+import { LocaleEnum } from '~/core/translations'
 
 gql`
   query customerPortalInvoices($limit: Int, $page: Int, $searchTerm: String) {
@@ -39,7 +40,7 @@ gql`
 
 interface PortalCustomerInvoicesProps {
   translate: Function
-  documentLocale: string
+  documentLocale: LocaleEnum
 }
 
 export const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoicesProps) => {

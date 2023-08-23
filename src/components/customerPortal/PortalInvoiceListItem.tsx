@@ -23,6 +23,7 @@ import {
   CurrencyEnum,
 } from '~/generated/graphql'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { LocaleEnum } from '~/core/translations'
 
 gql`
   fragment PortalInvoiceListItem on Invoice {
@@ -49,7 +50,7 @@ interface PortalInvoiceListItemProps {
   invoice: PortalInvoiceListItemFragment
   translate: Function
   className?: string
-  documentLocale: string
+  documentLocale: LocaleEnum
 }
 
 const mapStatusConfig = (paymentStatus: InvoicePaymentStatusTypeEnum) => {

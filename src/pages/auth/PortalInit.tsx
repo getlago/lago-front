@@ -9,7 +9,7 @@ import { Avatar, Icon, Typography } from '~/components/designSystem'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { useGetPortalLocaleQuery } from '~/generated/graphql'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
-import { Locale } from '~/core/translations'
+import { Locale, LocaleEnum } from '~/core/translations'
 import { theme } from '~/styles'
 
 import CustomerPortal from '../customerPortal/CustomerPortal'
@@ -80,7 +80,7 @@ const PortalInit = () => {
           </InlineItems>
         </CenteredErrorWrapper>
       ) : (
-        <CustomerPortal translate={translate} documentLocale={documentLocale} />
+        <CustomerPortal translate={translate} documentLocale={LocaleEnum[documentLocale]} />
       )}
     </>
   )
