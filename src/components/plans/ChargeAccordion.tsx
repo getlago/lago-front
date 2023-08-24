@@ -553,6 +553,7 @@ export const ChargeAccordion = memo(
                   index={index}
                   disabled={disabled}
                   propertyCursor="properties"
+                  premiumWarningDialogRef={premiumWarningDialogRef}
                   valuePointer={localCharge.properties}
                   handleUpdate={handleUpdate}
                 />
@@ -632,6 +633,7 @@ export const ChargeAccordion = memo(
                     index={index}
                     disabled={disabled}
                     propertyCursor={`groupProperties.${groupPropertyIndex}.values`}
+                    premiumWarningDialogRef={premiumWarningDialogRef}
                     valuePointer={
                       localCharge?.groupProperties &&
                       localCharge?.groupProperties[groupPropertyIndex].values

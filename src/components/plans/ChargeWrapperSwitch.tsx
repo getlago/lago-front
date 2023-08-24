@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { RefObject, memo } from 'react'
 import { FormikProps } from 'formik'
 import { InputAdornment } from '@mui/material'
 import styled from 'styled-components'
@@ -21,6 +21,8 @@ import { PlanFormInput } from './types'
 import { VolumeChargeTable } from './VolumeChargeTable'
 import { GraduatedPercentageChargeTable } from './GraduatedPercentageChargeTable'
 
+import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
+
 interface ChargeWrapperSwitchProps {
   propertyCursor: string
   index: number
@@ -28,6 +30,7 @@ interface ChargeWrapperSwitchProps {
   currency: CurrencyEnum
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
+  premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
   handleUpdate: (
     name: string,
     value: string | boolean | TaxForPlanChargeAccordionFragment[]
@@ -41,6 +44,7 @@ export const ChargeWrapperSwitch = memo(
     index,
     currency,
     disabled,
+    premiumWarningDialogRef,
     handleUpdate,
     formikProps,
   }: ChargeWrapperSwitchProps) => {
@@ -103,6 +107,7 @@ export const ChargeWrapperSwitch = memo(
             formikProps={formikProps}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
+            premiumWarningDialogRef={premiumWarningDialogRef}
           />
         )}
         {localCharge.chargeModel === ChargeModelEnum.Volume && (

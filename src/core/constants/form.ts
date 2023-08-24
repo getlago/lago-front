@@ -3,6 +3,7 @@ export enum FORM_ERRORS_ENUM {
   existingCode = 'existingCode',
   invalidGroupValue = 'invalidGroupValue',
 }
+export const MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR = 'minAmountShouldBeLowerThanMax'
 
 /**** Selectors ****/
 export const MUI_INPUT_BASE_ROOT_CLASSNAME = 'MuiInputBase-root'

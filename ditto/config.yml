@@ -286,5 +286,8 @@ sources:
       fileName: 👍 [Ready for dev] - Plans - Graduated percentage charge model
     - name: 👍 [Ready for dev] - Plans - Set a default price on charge with groups
       id: 64e620b7fe9d55a6fe1c6127
+      fileName: 👍 [Ready for dev] - Plans - Set a default price on charge with groups
+    - name: 👍 [Ready for dev] - Plans - Min & max per transaction
+      id: 64e7b269852fc4ff0e0ec11c
 format: flat
 variants: true
