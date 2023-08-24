@@ -1038,7 +1038,7 @@ const InlineGroupInputWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: ${theme.spacing(3)};
-  padding: 0 ${theme.spacing(4)};
+  padding: ${theme.spacing(6)} ${theme.spacing(4)} ${theme.spacing(4)};
 
   > *:first-child {
     flex: 1;
