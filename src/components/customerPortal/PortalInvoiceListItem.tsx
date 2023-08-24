@@ -13,6 +13,7 @@ import {
   Tooltip,
 } from '~/components/designSystem'
 import { theme, NAV_HEIGHT } from '~/styles'
+import { LocaleEnum } from '~/core/translations'
 import { addToast } from '~/core/apolloClient'
 import {
   PortalInvoiceListItemFragment,
@@ -49,6 +50,7 @@ interface PortalInvoiceListItemProps {
   invoice: PortalInvoiceListItemFragment
   translate: Function
   className?: string
+  documentLocale: LocaleEnum
 }
 
 const mapStatusConfig = (paymentStatus: InvoicePaymentStatusTypeEnum) => {
@@ -60,9 +62,10 @@ const mapStatusConfig = (paymentStatus: InvoicePaymentStatusTypeEnum) => {
 }
 
 export const PortalInvoiceListItem = memo(
-  ({ className, invoice, translate }: PortalInvoiceListItemProps) => {
+  ({ className, invoice, translate, documentLocale }: PortalInvoiceListItemProps) => {
     const { id, issuingDate, number, paymentStatus, totalAmountCents, currency } = invoice
     const statusConfig = mapStatusConfig(paymentStatus)
+
     const [downloadInvoice] = useDownloadCustomerPortalInvoiceMutation({
       onCompleted(data) {
         const fileUrl = data?.downloadCustomerPortalInvoice?.fileUrl
@@ -92,7 +95,9 @@ export const PortalInvoiceListItem = memo(
       <Item className={className}>
         <GridItem>
           <Typography color="grey700" noWrap>
-            {DateTime.fromISO(issuingDate).toFormat('LLL. dd, yyyy')}
+            {DateTime.fromISO(issuingDate).toLocaleString(DateTime.DATE_MED, {
+              locale: documentLocale,
+            })}
           </Typography>
           <Typography variant="captionCode" color="grey700">
             {number}

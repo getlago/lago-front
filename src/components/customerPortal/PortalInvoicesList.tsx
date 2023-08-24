@@ -10,6 +10,7 @@ import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT } from '~/styles'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import EmptyImage from '~/public/images/maneki/empty.svg'
+import { LocaleEnum } from '~/core/translations'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { SearchInput } from '~/components/SearchInput'
 
@@ -39,9 +40,10 @@ gql`
 
 interface PortalCustomerInvoicesProps {
   translate: Function
+  documentLocale: LocaleEnum
 }
 
-export const PortalInvoicesList = ({ translate }: PortalCustomerInvoicesProps) => {
+export const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoicesProps) => {
   const [getInvoices, { data, loading, error, fetchMore, variables }] =
     useCustomerPortalInvoicesLazyQuery({
       notifyOnNetworkStatusChange: true,
@@ -142,6 +144,7 @@ export const PortalInvoicesList = ({ translate }: PortalCustomerInvoicesProps) =
                         key={`portal-invoice-list-item-${invoice.id}`}
                         invoice={invoice}
                         translate={translate}
+                        documentLocale={documentLocale}
                       />
                     )
                   })}

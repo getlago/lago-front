@@ -7,4 +7,5 @@ export const DocumentLocales: documentLocalesType = {
   en: 'English',
   de: 'German',
   nb: 'Norwegian (Bokmål)',
+  it: 'Italian',
 }

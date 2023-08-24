@@ -6,7 +6,7 @@ const glob = require('glob')
 
 const DITTO_DIR = './ditto/'
 
-const AVAILABLE_LOCALES = { en: 'en', fr: 'fr', nb: 'nb', de: 'de' }
+const AVAILABLE_LOCALES = { en: 'en', fr: 'fr', nb: 'nb', de: 'de', it: 'it' }
 
 /**
  * Get all files which match a given path

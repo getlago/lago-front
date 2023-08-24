@@ -7,6 +7,7 @@ import { Skeleton, Typography } from '~/components/designSystem'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 import { PortalCustomerInfos } from '~/components/customerPortal/PortalCustomerInfos'
 import PortalInvoicesList from '~/components/customerPortal/PortalInvoicesList'
+import { LocaleEnum } from '~/core/translations'
 
 gql`
   query getPortalOrgaInfos {
@@ -20,9 +21,10 @@ gql`
 
 interface CutsomerPortalProps {
   translate: Function
+  documentLocale: LocaleEnum
 }
 
-const CustomerPortal = ({ translate }: CutsomerPortalProps) => {
+const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
   const { data, loading } = useGetPortalOrgaInfosQuery()
 
   return (
@@ -55,7 +57,7 @@ const CustomerPortal = ({ translate }: CutsomerPortalProps) => {
       </PageHeader>
 
       <PortalCustomerInfos translate={translate} />
-      <PortalInvoicesList translate={translate} />
+      <PortalInvoicesList translate={translate} documentLocale={documentLocale} />
     </PageWrapper>
   )
 }

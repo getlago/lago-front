@@ -9,7 +9,7 @@ import { Avatar, Icon, Typography } from '~/components/designSystem'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { useGetPortalLocaleQuery } from '~/generated/graphql'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
-import { Locale } from '~/core/translations'
+import { Locale, LocaleEnum } from '~/core/translations'
 import { theme } from '~/styles'
 
 import CustomerPortal from '../customerPortal/CustomerPortal'
@@ -43,11 +43,12 @@ const PortalInit = () => {
     nextFetchPolicy: 'network-only',
     skip: !isPortalAuthenticated || !token,
   })
-  const { translateWithContextualLocal: translate } = useContextualLocale(
+
+  const documentLocale =
     (data?.customerPortalUser?.billingConfiguration?.documentLocale as Locale) ||
-      (data?.customerPortalOrganization?.billingConfiguration?.documentLocale as Locale) ||
-      'en'
-  )
+    (data?.customerPortalOrganization?.billingConfiguration?.documentLocale as Locale) ||
+    'en'
+  const { translateWithContextualLocal: translate } = useContextualLocale(documentLocale)
 
   useEffect(() => {
     if (token) {
@@ -79,7 +80,7 @@ const PortalInit = () => {
           </InlineItems>
         </CenteredErrorWrapper>
       ) : (
-        <CustomerPortal translate={translate} />
+        <CustomerPortal translate={translate} documentLocale={LocaleEnum[documentLocale]} />
       )}
     </>
   )
