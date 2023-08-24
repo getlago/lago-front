@@ -110,6 +110,8 @@ export const getPropertyShape = (properties: PropertiesInput | undefined) => {
     fixedAmount: properties?.fixedAmount || undefined,
     freeUnitsPerEvents: properties?.freeUnitsPerEvents || undefined,
     freeUnitsPerTotalAggregation: properties?.freeUnitsPerTotalAggregation || undefined,
+    perTransactionMinAmount: properties?.perTransactionMinAmount || undefined,
+    perTransactionMaxAmount: properties?.perTransactionMaxAmount || undefined,
     freeUnits: properties?.freeUnits || 0,
     graduatedRanges: properties?.graduatedRanges || undefined,
     graduatedPercentageRanges: properties?.graduatedPercentageRanges || undefined,

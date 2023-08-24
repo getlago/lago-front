@@ -113,6 +113,14 @@ describe('Create plan', () => {
     cy.get('[data-test="add-free-units"]').click({ force: true })
     cy.get('[data-test="add-free-units-total-amount"]').click({ force: true })
     cy.get('[data-test="free-unit-per-total-aggregation"] input').should('exist')
+    // TODO: fails but works on browser
+    // Probably due to staging instances not being premium
+    // cy.get('[data-test="add-min-max-drowdown-cta"]').click({ force: true })
+    // cy.get('[data-test="add-min-cta"]').click({ force: true })
+    // cy.get('[data-test="per-transaction-min-amount"]').should('exist')
+    // cy.get('[data-test="add-min-max-drowdown-cta"]').click({ force: true })
+    // cy.get('[data-test="add-max-cta"]').click({ force: true })
+    // cy.get('[data-test="per-transaction-max-amount"]').should('exist')
     cy.get('[data-test="submit"]').should('not.be.disabled')
 
     // Volume

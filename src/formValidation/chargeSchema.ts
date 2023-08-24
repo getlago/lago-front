@@ -1,5 +1,6 @@
 import { object, string, number, array } from 'yup'
 
+import { MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR } from '~/core/constants/form'
 import { BillableMetric, ChargeModelEnum, GroupProperties, Properties } from '~/generated/graphql'
 
 const standardShape = {
@@ -18,6 +19,13 @@ const percentageShape = {
   fixedAmount: number(),
   freeUnitsPerEvents: number(),
   freeUnitsPerTotalAggregation: number(),
+  perTransactionMinAmount: number().test(
+    MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR,
+    MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR,
+    (value, ctx) =>
+      !value || !ctx.parent.perTransactionMaxAmount || value <= ctx.parent.perTransactionMaxAmount
+  ),
+  perTransactionMaxAmount: number(),
 }
 
 const graduatedShape = {

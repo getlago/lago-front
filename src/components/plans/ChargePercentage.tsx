@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { RefObject, useCallback } from 'react'
 import { FormikProps } from 'formik'
 import _get from 'lodash/get'
 import styled from 'styled-components'
@@ -11,8 +11,12 @@ import { MenuPopper, theme } from '~/styles'
 import { Alert, Typography, Button, Tooltip, Popper } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR } from '~/core/constants/form'
 
 import { PlanFormInput } from './types'
+
+import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 gql`
   fragment PercentageCharge on Charge {
@@ -22,6 +26,8 @@ gql`
       freeUnitsPerEvents
       freeUnitsPerTotalAggregation
       rate
+      perTransactionMinAmount
+      perTransactionMaxAmount
     }
     groupProperties {
       groupId
@@ -30,6 +36,8 @@ gql`
         freeUnitsPerEvents
         freeUnitsPerTotalAggregation
         rate
+        perTransactionMinAmount
+        perTransactionMaxAmount
       }
     }
   }
@@ -42,6 +50,7 @@ interface ChargePercentageProps {
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
   valuePointer: InputMaybe<PropertiesInput> | undefined
+  premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
 }
 
 export const ChargePercentage = ({
@@ -51,11 +60,16 @@ export const ChargePercentage = ({
   formikProps,
   propertyCursor,
   valuePointer,
+  premiumWarningDialogRef,
 }: ChargePercentageProps) => {
   const { translate } = useInternationalization()
+  const { isPremium } = useCurrentUser()
+  const chargeErrors = formikProps?.errors?.charges
   const showFixedAmount = valuePointer?.fixedAmount !== undefined
   const showFreeUnitsPerEvents = valuePointer?.freeUnitsPerEvents !== undefined
   const showFreeUnitsPerTotalAggregation = valuePointer?.freeUnitsPerTotalAggregation !== undefined
+  const showPerTransactionMinAmount = valuePointer?.perTransactionMinAmount !== undefined
+  const showPerTransactionMmaxAmount = valuePointer?.perTransactionMaxAmount !== undefined
   let freeUnitsPerTotalAggregationTranslation = translate('text_6303351deffd2a0d70498677', {
     freeAmountUnits: intlFormatNumber(Number(valuePointer?.freeUnitsPerTotalAggregation) || 0, {
       currencyDisplay: 'symbol',
@@ -63,6 +77,17 @@ export const ChargePercentage = ({
       maximumFractionDigits: 15,
     }),
   })
+  const hasMinAmountError =
+    chargeErrors &&
+    chargeErrors[chargeIndex] &&
+    // @ts-ignore
+    (chargeErrors[chargeIndex]?.properties?.perTransactionMinAmount ||
+      // @ts-ignore
+      chargeErrors[chargeIndex]?.groupProperties?.find(
+        // @ts-ignore
+        (e) => e?.values?.perTransactionMinAmount
+      )) === MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR
+
   const handleUpdate = useCallback(
     (name: string, value: string | number) => {
       formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
@@ -82,8 +107,6 @@ export const ChargePercentage = ({
       <Input
         name={`${propertyCursor}.rate`}
         label={translate('text_62a0b7107afa2700a65ef6f6')}
-        // eslint-disable-next-line jsx-a11y/no-autofocus
-        autoFocus
         beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
         error={_get(formikProps.errors, `charges.${chargeIndex}.${propertyCursor}.rate`)}
         disabled={disabled}
@@ -142,8 +165,6 @@ export const ChargePercentage = ({
         <LineAmount>
           <Input
             name={`${propertyCursor}.freeUnitsPerEvents`}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
             beforeChangeFormatter={['positiveNumber', 'int']}
             disabled={disabled}
             label={translate('text_62ff5d01a306e274d4ffcc36')}
@@ -190,8 +211,6 @@ export const ChargePercentage = ({
           <Amount
             name={`${propertyCursor}.freeUnitsPerTotalAggregation`}
             currency={currency}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
             beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
             disabled={disabled}
             label={translate('text_62ff5d01a306e274d4ffcc48')}
@@ -223,6 +242,98 @@ export const ChargePercentage = ({
                 })
               }}
               data-test="remove-free-unit-per-total-aggregation"
+            />
+          </Tooltip>
+        </LineAmount>
+      )}
+
+      {valuePointer?.perTransactionMinAmount !== undefined && (
+        <LineAmount>
+          <Amount
+            name={`${propertyCursor}.perTransactionMinAmount`}
+            beforeChangeFormatter={['positiveNumber']}
+            currency={currency}
+            disabled={disabled}
+            error={
+              !!hasMinAmountError &&
+              translate('text_64e7b273b046851c46d78207', {
+                transac_max: intlFormatNumber(Number(valuePointer?.perTransactionMaxAmount || 0), {
+                  currency,
+                  currencyDisplay: 'symbol',
+                  minimumFractionDigits: 2,
+                }),
+              })
+            }
+            label={translate('text_64e7b273b046851c46d781e5')}
+            placeholder={translate('text_632d68358f1fedc68eed3e86')}
+            helperText={translate('text_64e7b273b046851c46d78201')}
+            value={valuePointer?.perTransactionMinAmount || ''}
+            onChange={(value) => handleUpdate(`${propertyCursor}.perTransactionMinAmount`, value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
+              ),
+            }}
+            data-test="per-transaction-min-amount"
+          />
+          <Tooltip
+            disableHoverListener={disabled}
+            title={translate('text_64e7b273b046851c46d78249')}
+            placement="top-end"
+          >
+            <Button
+              icon="trash"
+              size="small"
+              disabled={disabled}
+              variant="quaternary"
+              onClick={() => {
+                formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
+                  ...valuePointer,
+                  perTransactionMinAmount: undefined,
+                })
+              }}
+              data-test="remove-per-transaction-min-amount-cta"
+            />
+          </Tooltip>
+        </LineAmount>
+      )}
+
+      {valuePointer?.perTransactionMaxAmount !== undefined && (
+        <LineAmount>
+          <Amount
+            name={`${propertyCursor}.perTransactionMaxAmount`}
+            beforeChangeFormatter={['positiveNumber']}
+            currency={currency}
+            disabled={disabled}
+            label={translate('text_64e7b273b046851c46d78205')}
+            placeholder={translate('text_632d68358f1fedc68eed3e86')}
+            helperText={translate('text_64e7b273b046851c46d78221')}
+            value={valuePointer?.perTransactionMaxAmount || ''}
+            onChange={(value) => handleUpdate(`${propertyCursor}.perTransactionMaxAmount`, value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
+              ),
+            }}
+            data-test="per-transaction-max-amount"
+          />
+          <Tooltip
+            disableHoverListener={disabled}
+            title={translate('text_64e7b273b046851c46d782d6')}
+            placement="top-end"
+          >
+            <Button
+              icon="trash"
+              size="small"
+              disabled={disabled}
+              variant="quaternary"
+              onClick={() => {
+                formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
+                  ...valuePointer,
+                  perTransactionMaxAmount: undefined,
+                })
+              }}
+              data-test="remove-per-transaction-max-amount-cta"
             />
           </Tooltip>
         </LineAmount>
@@ -296,6 +407,70 @@ export const ChargePercentage = ({
             </MenuPopper>
           )}
         </Popper>
+
+        <Popper
+          PopperProps={{ placement: 'bottom-end' }}
+          opener={
+            <Button
+              startIcon="plus"
+              endIcon="chevron-down"
+              variant="quaternary"
+              disabled={
+                disabled ||
+                (valuePointer?.perTransactionMinAmount !== undefined &&
+                  valuePointer?.perTransactionMaxAmount !== undefined)
+              }
+              data-test="add-min-max-drowdown-cta"
+            >
+              {translate('text_64e7b273b046851c46d78235')}
+            </Button>
+          }
+        >
+          {({ closePopper }) => (
+            <MenuPopper>
+              <FreeUnitButton
+                variant="quaternary"
+                endIcon={isPremium ? undefined : 'sparkles'}
+                disabled={disabled || valuePointer?.perTransactionMinAmount !== undefined}
+                onClick={() => {
+                  if (isPremium) {
+                    formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
+                      ...valuePointer,
+                      perTransactionMinAmount: '',
+                    })
+                  } else {
+                    premiumWarningDialogRef?.current?.openDialog()
+                  }
+
+                  closePopper()
+                }}
+                data-test="add-min-cta"
+              >
+                {translate('text_64e7b273b046851c46d781e5')}
+              </FreeUnitButton>
+              <FreeUnitButton
+                variant="quaternary"
+                endIcon={isPremium ? undefined : 'sparkles'}
+                disabled={disabled || valuePointer?.perTransactionMaxAmount !== undefined}
+                onClick={() => {
+                  if (isPremium) {
+                    formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
+                      ...valuePointer,
+                      perTransactionMaxAmount: '',
+                    })
+                  } else {
+                    premiumWarningDialogRef?.current?.openDialog()
+                  }
+
+                  closePopper()
+                }}
+                data-test="add-max-cta"
+              >
+                {translate('text_64e7b273b046851c46d78205')}
+              </FreeUnitButton>
+            </MenuPopper>
+          )}
+        </Popper>
       </LineButton>
 
       <Alert type="info">
@@ -349,6 +524,44 @@ export const ChargePercentage = ({
             })}
           </Typography>
         )}
+
+        {/* Min max alert message */}
+        {!!showPerTransactionMinAmount && !showPerTransactionMmaxAmount ? (
+          <Typography color="textSecondary">
+            {translate('text_64e7b273b046851c46d78241', {
+              minAmount: intlFormatNumber(Number(valuePointer?.perTransactionMinAmount || 0), {
+                currency,
+                currencyDisplay: 'symbol',
+                minimumFractionDigits: 2,
+              }),
+            })}
+          </Typography>
+        ) : !showPerTransactionMinAmount && !!showPerTransactionMmaxAmount ? (
+          <Typography color="textSecondary">
+            {translate('text_64e7b273b046851c46d78245', {
+              maxAmount: intlFormatNumber(Number(valuePointer?.perTransactionMaxAmount || 0), {
+                currency,
+                currencyDisplay: 'symbol',
+                minimumFractionDigits: 2,
+              }),
+            })}
+          </Typography>
+        ) : !!showPerTransactionMinAmount && !!showPerTransactionMmaxAmount ? (
+          <Typography color="textSecondary">
+            {translate('text_64e7b273b046851c46d78250', {
+              minAmount: intlFormatNumber(Number(valuePointer?.perTransactionMinAmount || 0), {
+                currency,
+                currencyDisplay: 'symbol',
+                minimumFractionDigits: 2,
+              }),
+              maxAmount: intlFormatNumber(Number(valuePointer?.perTransactionMaxAmount || 0), {
+                currency,
+                currencyDisplay: 'symbol',
+                minimumFractionDigits: 2,
+              }),
+            })}
+          </Typography>
+        ) : undefined}
       </Alert>
     </Container>
   )
@@ -391,8 +604,5 @@ const OrText = styled(Typography)`
 
 const LineButton = styled.div`
   display: flex;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
+  gap: ${theme.spacing(3)};
 `

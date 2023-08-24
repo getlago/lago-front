@@ -71,8 +71,14 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
           freeUnitsPerTotalAggregation: !!properties?.freeUnitsPerTotalAggregation
             ? String(properties?.freeUnitsPerTotalAggregation)
             : undefined,
+          perTransactionMinAmount: !!properties?.perTransactionMinAmount
+            ? String(properties?.perTransactionMinAmount || 0)
+            : undefined,
+          perTransactionMaxAmount: !!properties?.perTransactionMaxAmount
+            ? String(properties?.perTransactionMaxAmount || 0)
+            : undefined,
         }
-      : {}),
+      : { perTransactionMinAmount: undefined, perTransactionMaxAmount: undefined }),
   }
 }
 
