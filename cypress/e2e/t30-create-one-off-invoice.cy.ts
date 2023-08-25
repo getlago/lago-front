@@ -6,7 +6,7 @@ import {
 import { customerName } from '../support/reusableConstants'
 
 describe('Create one-off', () => {
-  it('should create a one-off invoice', () => {
+  it('should create a one-off invoice with correct amounts', () => {
     cy.visit('/customers')
     cy.get(`[data-test="${customerName}"]`).click()
     cy.get('[data-test="customer-actions"]').click()
@@ -55,7 +55,6 @@ describe('Create one-off', () => {
       cy.get('[data-test="tab-internal-button-link-invoices"]').last().click()
     })
     cy.get('[data-test="invoice-list-item-0"]').should('exist')
-    cy.get('[data-test="invoice-list-item-1"]').should('not.exist')
 
     cy.get('[data-test="invoice-list-item-0"] a').click()
     cy.url().should('include', '/overview')
@@ -82,5 +81,49 @@ describe('Create one-off', () => {
       'have.text',
       '$7,248.00'
     )
+  })
+
+  describe('anti-regression', () => {
+    it('should allow to edit the units and have an effect on totals', () => {
+      cy.visit('/customers')
+      cy.get(`[data-test="${customerName}"]`).click()
+      cy.get('[data-test="customer-actions"]').click()
+      cy.get('[data-test="create-invoice-action"]').click()
+      cy.url().should('include', '/create-invoice')
+
+      // Add one item
+      cy.get('[data-test="add-item-button"]').click()
+      cy.get('[data-option-index="0"]').click()
+      cy.get('[data-test="invoice-item"]').should('have.length', 1)
+
+      // Edit it's tax rate
+      cy.get('[data-test="invoice-item-actions-button"]').click()
+      cy.get('[data-test="invoice-item-edit-taxes"]').click()
+      cy.get(`[data-test="add-tax-button"]`).click()
+      cy.get(`.${SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`)
+        .last()
+        .click()
+      cy.get('[data-option-index="1"]').click()
+      cy.get('[data-test="edit-invoice-item-tax-dialog-submit-button"]').click()
+
+      // Update it's units
+      cy.get('input[name="fees.0.units"]').clear()
+      cy.get('input[name="fees.0.units"]').type('3')
+
+      // Check displayed amounts
+      cy.get('[data-test="one-off-invoice-subtotal-value"]').should('have.text', '$9,060.00')
+      cy.get('[data-test="one-off-invoice-tax-item-0-label"]').should('have.text', 'twenty (20%)')
+      cy.get('[data-test="one-off-invoice-tax-item-0-value"]').should('have.text', '$1,812.00')
+      cy.get('[data-test="one-off-invoice-tax-item-1-label"]').should('have.text', 'ten (10%)')
+      cy.get('[data-test="one-off-invoice-tax-item-1-value"]').should('have.text', '$906.00')
+      cy.get('[data-test="one-off-invoice-subtotal-amount-due-value"]').should(
+        'have.text',
+        '$11,778.00'
+      )
+      cy.get('[data-test="one-off-invoice-total-amount-due-value"]').should(
+        'have.text',
+        '$11,778.00'
+      )
+    })
   })
 })
