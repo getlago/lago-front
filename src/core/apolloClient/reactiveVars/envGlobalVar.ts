@@ -1,6 +1,6 @@
 import { makeVar } from '@apollo/client'
 
-import { AppEnvEnum } from '~/globalTypes'
+import { AppEnvEnum } from '~/core/constants/globalTypes'
 
 interface EnvGlobal {
   appEnv: AppEnvEnum

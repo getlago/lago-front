@@ -1,6 +1,6 @@
 interface Window { Cypress: any; }
 
-declare type AppEnvEnum = import('./src/globalTypes').AppEnvEnum
+declare type AppEnvEnum = import('./src/core/constants/globalTypes').AppEnvEnum
 
 declare var APP_ENV: AppEnvEnum
 declare var API_URL: string;

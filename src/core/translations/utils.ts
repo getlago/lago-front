@@ -1,4 +1,4 @@
-import { AppEnvEnum } from '~/globalTypes'
+import { AppEnvEnum } from '~/core/constants/globalTypes'
 
 import { DittoTranslation, Locale, Translations, TranslateData } from './types'
 

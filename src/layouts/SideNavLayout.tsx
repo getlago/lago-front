@@ -8,7 +8,7 @@ import { useLocation, Location } from 'react-router-dom'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { logOut, envGlobalVar, switchCurrentOrganization } from '~/core/apolloClient'
-import { AppEnvEnum } from '~/globalTypes'
+import { AppEnvEnum } from '~/core/constants/globalTypes'
 import {
   Avatar,
   Button,
@@ -20,7 +20,7 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { theme } from '~/styles'
-import { DOCUMENTATION_URL, FEATURE_REQUESTS_URL } from '~/externalUrls'
+import { DOCUMENTATION_URL, FEATURE_REQUESTS_URL } from '~/core/constants/externalUrls'
 import { MenuPopper } from '~/styles/designSystem'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import {

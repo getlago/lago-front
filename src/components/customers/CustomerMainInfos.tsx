@@ -11,7 +11,7 @@ import {
   ProviderTypeEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
-import { CountryCodes } from '~/core/countryCodes'
+import { CountryCodes } from '~/core/constants/countryCodes'
 import { getTimezoneConfig } from '~/core/timezone'
 
 gql`

@@ -40,12 +40,12 @@ import { INTEGRATIONS_ROUTE, ORGANIZATION_INFORMATIONS_ROUTE } from '~/core/rout
 import { getTimezoneConfig } from '~/core/timezone'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { countryDataForCombobox } from '~/core/countryCodes'
 import {
   MetadataErrorsEnum,
   metadataSchema,
   METADATA_VALUE_MAX_LENGTH_DEFAULT,
 } from '~/formValidation/metadataSchema'
+import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 
 const MAX_METADATA_COUNT = 5
 

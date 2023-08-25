@@ -4,8 +4,7 @@ import { BrowserTracing } from '@sentry/tracing'
 
 import App from '~/App'
 import { envGlobalVar } from '~/core/apolloClient'
-
-import { AppEnvEnum } from './globalTypes'
+import { AppEnvEnum } from '~/core/constants/globalTypes'
 
 const { appEnv, sentryDsn } = envGlobalVar()
 

@@ -15,8 +15,8 @@ import {
 } from '~/generated/graphql'
 import { theme } from '~/styles'
 import { addToast } from '~/core/apolloClient'
-import { countryDataForCombobox } from '~/core/countryCodes'
 import { OrganizationLogoPicker } from '~/components/OrganizationLogoPicker'
+import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 
 gql`
   fragment EditOrganizationInformationsDialog on Organization {
