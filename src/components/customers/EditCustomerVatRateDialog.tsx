@@ -15,6 +15,7 @@ import {
 import { theme } from '~/styles'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME } from '~/core/constants/form'
 
 import { Item } from '../form/ComboBox/ComboBoxItem'
 
@@ -59,10 +60,14 @@ export interface EditCustomerVatRateDialogRef extends DialogRef {}
 interface EditCustomerVatRateDialogProps {
   customer: EditCustomerVatRateFragment
   appliedTaxRatesTaxesIds?: string[]
+  forceOpen?: boolean
 }
 
 export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRateDialogProps>(
-  ({ appliedTaxRatesTaxesIds, customer }: EditCustomerVatRateDialogProps, ref) => {
+  (
+    { appliedTaxRatesTaxesIds, customer, forceOpen = false }: EditCustomerVatRateDialogProps,
+    ref
+  ) => {
     const { translate } = useInternationalization()
     const [localTax, setLocalTax] = useState<string>('')
     const [getTaxRates, { loading, data }] = useGetTaxRatesForEditCustomerLazyQuery({
@@ -111,6 +116,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
 
     return (
       <Dialog
+        open={!!forceOpen}
         ref={ref}
         title={translate('text_64639f5e63a5cc0076779d42', { name: customer.name })}
         description={translate('text_64639f5e63a5cc0076779d46')}
@@ -154,10 +160,12 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
             </Button>
           </>
         )}
+        data-test="edit-customer-vat-rate-dialog"
       >
-        <Content data-test="edit-customer-vat-rate-dialog">
+        <Content>
           <ComboBox
             allowAddValue
+            className={SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME}
             addValueProps={{
               label: translate('text_64639c4d172d7a006ef30516'),
               redirectionUrl: CREATE_TAX_ROUTE,

@@ -17,9 +17,15 @@ module.exports = {
     '^.+\\.module\\.(css|sass|scss)$',
   ],
 
-  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/core/constants/*.{ts,tsx}'],
+  collectCoverageFrom: [
+    'src/**/*.{ts,tsx}',
+    '!src/**/types.{ts,tsx}',
+    '!src/core/constants/*.{ts,tsx}',
+    '!src/generated/*.{ts,tsx}',
+    '!src/styles/**',
+  ],
   coverageReporters: ['text', 'lcov'],
-  collectCoverage: true,
+  collectCoverage: false, // set to true to collect coverage
   coverageThreshold: {
     'src/hooks/ui/useShortcuts.tsx': {
       statements: 90,
