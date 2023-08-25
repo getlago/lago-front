@@ -248,6 +248,7 @@ const CreateInvoice = () => {
     const updateOrCreateTaxMap = (
       currentTaxesMap: TaxMapType,
       feeAmount?: number,
+      feeUnits?: number,
       feeAppliedTaxes?: TaxInfosForCreateInvoiceFragment[]
     ) => {
       if (!feeAppliedTaxes?.length) return currentTaxesMap
@@ -255,7 +256,7 @@ const CreateInvoice = () => {
 
       feeAppliedTaxes.forEach((appliedTax) => {
         const { id, name, rate } = appliedTax
-        const amount = ((Number(feeAmount) || 0) * rate) / 100
+        const amount = ((Number(feeAmount) || 0) * Number(feeUnits || 0) * rate) / 100
 
         const previousTax = currentTaxesMap?.get(id)
 
@@ -277,6 +278,7 @@ const CreateInvoice = () => {
           taxesToDisplay: updateOrCreateTaxMap(
             acc.taxesToDisplay,
             fee.unitAmountCents,
+            fee.units || 0,
             fee?.taxes || undefined
           ),
         }
