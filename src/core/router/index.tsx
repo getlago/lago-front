@@ -1,4 +1,4 @@
-import { AppEnvEnum } from '~/globalTypes'
+import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { envGlobalVar } from '~/core/apolloClient'
 
 import { CustomRouteObject } from './types'

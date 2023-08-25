@@ -32,7 +32,7 @@ import {
 } from '~/components/invoices/EditInvoiceItemDescriptionDialog'
 import { addToast } from '~/core/apolloClient'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { CountryCodes } from '~/core/countryCodes'
+import { CountryCodes } from '~/core/constants/countryCodes'
 import {
   ADD_ITEM_FOR_INVOICE_INPUT_NAME,
   MUI_INPUT_BASE_ROOT_CLASSNAME,

@@ -29,7 +29,7 @@ import {
   DOCUMENTATION_OSO,
   DOCUMENTATION_SEGMENT,
   DOCUMENTATION_HIGHTTOUCH,
-} from '~/externalUrls'
+} from '~/core/constants/externalUrls'
 import {
   AddAdyenDialog,
   AddAdyenDialogRef,

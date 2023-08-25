@@ -17,7 +17,7 @@ module.exports = {
     '^.+\\.module\\.(css|sass|scss)$',
   ],
 
-  collectCoverageFrom: ['src/**/*.{ts,tsx}'],
+  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/core/constants/*.{ts,tsx}'],
   coverageReporters: ['text', 'lcov'],
   collectCoverage: true,
   coverageThreshold: {
