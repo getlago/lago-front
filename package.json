@@ -22,7 +22,7 @@
     "lint:fix": "prettier --write src/** && eslint --fix .",
     "codegen": "graphql-codegen --config codegen.yml -r dotenv/config",
     "codegen:watch": "graphql-codegen --config codegen.yml -r dotenv/config --watch",
-    "test": "jest --config jest.config.js --no-cache",
+    "test": "jest --config jest.config.js",
     "test:e2e": "cypress open --config-file cypress/cypress.config.js",
     "inspectTranslations": "node scripts/InspectTranslationKeys",
     "changelog:update": "auto-changelog --template=.changelog/regular.hbs",
