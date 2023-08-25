@@ -23,6 +23,7 @@ module.exports = {
     '!src/core/constants/*.{ts,tsx}',
     '!src/generated/*.{ts,tsx}',
     '!src/styles/**',
+    '!src/pages/__devOnly/*.{ts,tsx}',
   ],
   coverageReporters: ['text', 'lcov'],
   collectCoverage: false, // set to true to collect coverage
