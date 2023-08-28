@@ -1,0 +1,26 @@
+name: Manual Release
+on: workflow_dispatch
+
+jobs:
+  translation-update:
+    name: Get last translation version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      
+      - name: Run yarn command to download translation and merge files
+        run: yarn ditto
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          title: "chore(copy): Get last translations version"
+          commit-message: "chore(copy): Get last translations version"
+          branch: translation-update
+          labels: "🥷 chore"
+          body: |
+            This PR was automatically created by a workflow to update the translations files.
+            Please review the changes and merge it if everything is ok.
+          reviewers: "ansmonjol"
