@@ -1,4 +1,4 @@
-name: Manual Release
+name: Translation Update
 on: workflow_dispatch
 
 jobs:
@@ -8,9 +8,19 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-      
-      - name: Run yarn command to download translation and merge files
-        run: yarn ditto
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Download last translations version from Ditto
+        run: npx @dittowords/cli pull
+        env:
+          DITTO_API_KEY: ${{ secrets.DITTO_API_KEY }}
+
+      - name: Merge translation files
+        run: node scripts/MergeTranslationFiles.js
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
