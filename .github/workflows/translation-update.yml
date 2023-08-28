@@ -14,6 +14,9 @@ jobs:
         with:
           node-version: 16
 
+      - name: Install Node.js dependencies
+        run: yarn
+
       - name: Download last translations version from Ditto
         run: npx @dittowords/cli pull
         env:
