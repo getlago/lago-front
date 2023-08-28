@@ -91,10 +91,10 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
           transitionDuration={80}
           {...props}
         >
-          <Title $hasDescription={!!description} variant="headline">
+          <Title $hasDescription={!!description} variant="headline" data-test="dialog-title">
             {title}
           </Title>
-          {description && <Description>{description}</Description>}
+          {description && <Description data-test="dialog-description">{description}</Description>}
 
           {children && children}
 

@@ -12,19 +12,27 @@ interface WarningDialogProps extends Omit<DialogProps, 'actions'> {
   onCancel?: () => unknown
   mode?: keyof typeof WarningDialogMode
   continueText: string
+  forceOpen?: boolean
 }
 
 export interface WarningDialogRef extends DialogRef {}
 
 export const WarningDialog = forwardRef<DialogRef, WarningDialogProps>(
   (
-    { onContinue, continueText, mode = WarningDialogMode.danger, ...props }: WarningDialogProps,
+    {
+      onContinue,
+      continueText,
+      mode = WarningDialogMode.danger,
+      forceOpen = false,
+      ...props
+    }: WarningDialogProps,
     ref
   ) => {
     const { translate } = useInternationalization()
 
     return (
       <Dialog
+        open={!!forceOpen}
         ref={ref}
         {...props}
         actions={({ closeDialog }) => (
@@ -44,6 +52,7 @@ export const WarningDialog = forwardRef<DialogRef, WarningDialogProps>(
             </Button>
           </>
         )}
+        data-test="warning-dialog"
       />
     )
   }
