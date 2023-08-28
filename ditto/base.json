@@ -1106,6 +1106,7 @@
   "text_64d27292062d9600b089aacb": "The calculated value is not reset to 0, it is persistent over all billable periods",
   "text_64d272b4df12dc008076e232": "The calculated value is reset to 0 at the beginning of each period",
   "text_64dd2711d878ad007212de91": "Subscription external id already existing on another subscription, please type a new one",
+  "text_64ecb567d3ee9200c3bff436": "test",
   "text_6295e58352f39200d902b01c": "Documentation",
   "text_629728388c4d2300e2d3801a": "Add-ons",
   "text_629728388c4d2300e2d38085": "Add an add-on",
