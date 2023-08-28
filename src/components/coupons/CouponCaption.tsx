@@ -141,7 +141,7 @@ export const CouponCaption = memo(({ coupon, variant = 'caption' }: CouponCaptio
   }
 
   return (
-    <Typography variant={variant} color="grey600" noWrap>
+    <Typography variant={variant} color="grey600" noWrap data-test="coupon-caption">
       {getCaption()}
     </Typography>
   )
