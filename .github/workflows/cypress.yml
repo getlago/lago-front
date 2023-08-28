@@ -36,14 +36,26 @@ jobs:
       - name: Build API local image
         run: |
           docker build -t getlago/api:ci ./api
-      
-      - name: Generate API RSA Key
+
+      - name: Checkout License Git repository
+        uses: actions/checkout@v3
+        with:
+          repository: getlago/lago-license
+          ref: ${{ github.event.inputs.license_branch }}
+          path: license
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Build License local image
         run: |
-          echo "LAGO_RSA_PRIVATE_KEY=\"`openssl genrsa 2048 | base64`\"" >> .env
+          docker build -t getlago/license:ci ./license
 
       - name: Launch APP + API
         run: |
-          docker-compose -f ./api/docker-compose.ci.yml -f docker-compose.ci.yml --env-file ./.env up -d redis api front
+          docker-compose -f ./api/docker-compose.ci.yml -f ./license/docker-compose.dev.ci.yml -f docker-compose.ci.yml --env-file ./.env up -d redis api license front
+      
+      - name: Build license
+        run: |
+          docker-compose -f ./license bundle exec rake db:setup
 
       - name: Cypress run
         uses: cypress-io/github-action@v5
