@@ -16,7 +16,7 @@ import {
   ButtonSelectorField,
 } from '~/components/form'
 import { BILLABLE_METRICS_ROUTE } from '~/core/router'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
+import { WarningDialog, WarningDialogMode, WarningDialogRef } from '~/components/WarningDialog'
 import { useCreateEditBillableMetric } from '~/hooks/useCreateEditBillableMetric'
 import { BillableMetricCodeSnippet } from '~/components/billableMetrics/BillableMetricCodeSnippet'
 import {
@@ -30,6 +30,11 @@ import {
   ButtonContainer,
 } from '~/styles/mainObjectsForm'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { GroupLevelEnum, determineGroupDiffLevel } from '~/core/utils/BMGroupUtils'
+import {
+  EditBillableMetricGroupDialog,
+  EditBillableMetricGroupDialogRef,
+} from '~/components/billableMetrics/EditBillableMetricGroupDialog'
 
 gql`
   fragment EditBillableMetric on BillableMetric {
@@ -49,7 +54,8 @@ gql`
 const CreateBillableMetric = () => {
   const { translate } = useInternationalization()
   const { isEdition, loading, billableMetric, errorCode, onSave } = useCreateEditBillableMetric()
-  const warningDialogRef = useRef<WarningDialogRef>(null)
+  const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
+  const warningGroupEditDialogRef = useRef<EditBillableMetricGroupDialogRef>(null)
   let navigate = useNavigate()
   const formikProps = useFormik<CreateBillableMetricInput>({
     initialValues: {
@@ -124,7 +130,7 @@ const CreateBillableMetric = () => {
           icon="close"
           onClick={() =>
             formikProps.dirty
-              ? warningDialogRef.current?.openDialog()
+              ? warningDirtyAttributesDialogRef.current?.openDialog()
               : navigate(BILLABLE_METRICS_ROUTE)
           }
         />
@@ -310,7 +316,6 @@ const CreateBillableMetric = () => {
                       {translate('text_633d410368cc8282af23212b')}
                     </Typography>
                   }
-                  initiallyOpen={!!isEdition && !!billableMetric?.group?.key}
                 >
                   <JsonEditorField
                     name="group"
@@ -323,7 +328,6 @@ const CreateBillableMetric = () => {
                       />
                     }
                     placeholder={translate('text_633d410368cc8282af23213d')}
-                    disabled={isEdition && !canBeEdited}
                     customInvalidError={translate('text_633b622c201ca8b521bcad59')}
                     formikProps={formikProps}
                   />
@@ -344,7 +348,41 @@ const CreateBillableMetric = () => {
                     fullWidth
                     data-test="submit"
                     size="large"
-                    onClick={formikProps.submitForm}
+                    onClick={async () => {
+                      if (
+                        (!!billableMetric?.group || !!formikProps.values.group) &&
+                        (!!billableMetric?.subscriptionsCount || !!billableMetric?.plansCount) &&
+                        isEdition
+                      ) {
+                        const groupChangeLevel = determineGroupDiffLevel(
+                          billableMetric?.group,
+                          formikProps?.values?.group
+                        )
+
+                        if (groupChangeLevel === GroupLevelEnum.StructuralChange) {
+                          warningGroupEditDialogRef.current?.openDialog({
+                            mode: WarningDialogMode.danger,
+                            plansCount: billableMetric?.plansCount,
+                            subscriptionsCount: billableMetric?.subscriptionsCount,
+                            onContinue: async () => {
+                              await formikProps.submitForm()
+                            },
+                          })
+                          return
+                        } else if (groupChangeLevel === GroupLevelEnum.AddOrRemove) {
+                          warningGroupEditDialogRef.current?.openDialog({
+                            mode: WarningDialogMode.info,
+                            plansCount: billableMetric?.plansCount,
+                            subscriptionsCount: billableMetric?.subscriptionsCount,
+                            onContinue: async () => {
+                              await formikProps.submitForm()
+                            },
+                          })
+                          return
+                        }
+                      }
+                      await formikProps.submitForm()
+                    }}
                   >
                     {translate(
                       isEdition ? 'text_62582fb4675ece01137a7e6c' : 'text_623b42ff8ee4e000ba87d0d4'
@@ -361,7 +399,7 @@ const CreateBillableMetric = () => {
       </Content>
 
       <WarningDialog
-        ref={warningDialogRef}
+        ref={warningDirtyAttributesDialogRef}
         title={translate(
           isEdition ? 'text_62583bbb86abcf01654f693f' : 'text_6244277fe0975300fe3fb940'
         )}
@@ -373,6 +411,7 @@ const CreateBillableMetric = () => {
         )}
         onContinue={() => navigate(BILLABLE_METRICS_ROUTE)}
       />
+      <EditBillableMetricGroupDialog ref={warningGroupEditDialogRef} />
     </div>
   )
 }

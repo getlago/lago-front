@@ -525,13 +525,11 @@ export const ChargeAccordion = memo(
                           <Tooltip
                             placement="top-end"
                             title={translate('text_63aa085d28b8510cd46443ff')}
-                            disableHoverListener={disabled}
                           >
                             <Button
                               size="small"
                               icon="trash"
                               variant="quaternary"
-                              disabled={disabled}
                               onClick={() => {
                                 // Remove the default charge
                                 handleUpdate('properties', undefined)
@@ -551,7 +549,6 @@ export const ChargeAccordion = memo(
                   currency={currency}
                   formikProps={formikProps}
                   index={index}
-                  disabled={disabled}
                   propertyCursor="properties"
                   premiumWarningDialogRef={premiumWarningDialogRef}
                   valuePointer={localCharge.properties}
@@ -605,12 +602,10 @@ export const ChargeAccordion = memo(
                         <Tooltip
                           placement="top-end"
                           title={translate('text_63aa085d28b8510cd46443ff')}
-                          disableHoverListener={disabled}
                         >
                           <Button
                             size="small"
                             icon="trash"
-                            disabled={disabled}
                             variant="quaternary"
                             onClick={() => {
                               const existingGroupProperties = [
@@ -631,7 +626,6 @@ export const ChargeAccordion = memo(
                     currency={currency}
                     formikProps={formikProps}
                     index={index}
-                    disabled={disabled}
                     propertyCursor={`groupProperties.${groupPropertyIndex}.values`}
                     premiumWarningDialogRef={premiumWarningDialogRef}
                     valuePointer={
@@ -701,10 +695,9 @@ export const ChargeAccordion = memo(
                       startIcon="plus"
                       variant="quaternary"
                       disabled={
-                        disabled ||
-                        ((localCharge.groupProperties?.length || 0) ===
+                        (localCharge.groupProperties?.length || 0) ===
                           (localCharge.billableMetric.flatGroups?.length || 0) &&
-                          !!localCharge.properties)
+                        !!localCharge.properties
                       }
                       onClick={() => {
                         setShowAddGroup(true)
@@ -724,9 +717,8 @@ export const ChargeAccordion = memo(
                       startIcon="plus"
                       variant="quaternary"
                       disabled={
-                        disabled ||
                         (localCharge.groupProperties?.length || 0) ===
-                          (localCharge.billableMetric.flatGroups?.length || 0)
+                        (localCharge.billableMetric.flatGroups?.length || 0)
                       }
                       onClick={() => {
                         const newGroupProperties = [

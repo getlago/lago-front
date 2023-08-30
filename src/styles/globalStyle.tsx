@@ -50,6 +50,10 @@ export const inputGlobalStyles = (
         lineHeight: '28px',
         fontWeight: 500,
       },
+      ul: {
+        margin: 0,
+        'padding-left': '24px',
+      },
       'span.line-break-anywhere': {
         'line-break': 'anywhere',
       },

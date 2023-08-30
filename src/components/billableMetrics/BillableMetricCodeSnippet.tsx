@@ -1,6 +1,7 @@
 import { AggregationTypeEnum, CreateBillableMetricInput } from '~/generated/graphql'
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { envGlobalVar } from '~/core/apolloClient'
+import { isGroupValid, isOneDimension, isTwoDimension } from '~/core/utils/BMGroupUtils'
 
 const { apiUrl } = envGlobalVar()
 
@@ -9,38 +10,8 @@ const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
 
   const { aggregationType, code, fieldName, group, recurring } = billableMetric
 
-  const isValidJSON = (string: string) => {
-    try {
-      JSON.parse(string)
-    } catch (e) {
-      return false
-    }
-
-    return true
-  }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const isOneDimension = (object: any): boolean => {
-    if (!object) return false
-
-    return !!object.key && !!object.values && !!object.values.length
-  }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const isTwoDimension = (object: any): boolean => {
-    if (!object) return false
-
-    return (
-      !!object.key &&
-      !!object.values &&
-      !!object.values.length &&
-      !!object.values[0] &&
-      !!object.values[0].name &&
-      !!object.values[0].values &&
-      !!object.values[0].values.length
-    )
-  }
-
-  const hasGroup = !!group && group !== '{}' && isValidJSON(group)
-  const parsedGroup = !!hasGroup && JSON.parse(group)
+  const hasGroup = isGroupValid(JSON.stringify(group))
+  const parsedGroup = !!hasGroup && JSON.parse(JSON.stringify(group))
   const groupDimension =
     hasGroup && isTwoDimension(parsedGroup) ? 2 : isOneDimension(parsedGroup) ? 1 : 0
   const groupDimensionMessage = `${
