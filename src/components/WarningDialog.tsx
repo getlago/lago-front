@@ -3,7 +3,7 @@ import { forwardRef } from 'react'
 import { Dialog, DialogProps, Button, DialogRef } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-enum WarningDialogMode {
+export enum WarningDialogMode {
   info = 'info',
   danger = 'danger',
 }

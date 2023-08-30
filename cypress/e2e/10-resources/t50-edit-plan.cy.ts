@@ -54,7 +54,7 @@ describe('Edit plan', () => {
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('[data-test="open-charge"]').first().click()
     cy.get('input[name="chargeModel"]').should('be.disabled')
-    cy.get('input[name="properties.amount"]').should('be.disabled')
+    cy.get('input[name="properties.amount"]').should('not.be.disabled')
     cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="open-charge"]').first().click()
 
