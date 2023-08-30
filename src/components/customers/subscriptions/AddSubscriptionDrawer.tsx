@@ -1,11 +1,11 @@
 import { useFormik } from 'formik'
 import { DateTime } from 'luxon'
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { object, string } from 'yup'
 
-import { Alert, Button, Drawer, DrawerRef, Typography } from '~/components/designSystem'
+import { Alert, Button, Drawer, DrawerRef, Icon, Typography } from '~/components/designSystem'
 import {
   ButtonSelectorField,
   ComboBoxField,
@@ -13,15 +13,15 @@ import {
   TextInput,
   TextInputField,
 } from '~/components/form'
-import { TimePickerField } from '~/components/form/TimePicker'
 import {
   overwritePlanVar,
   resetOverwritePlanVar,
   SubscriptionUpdateInfo,
   updateOverwritePlanVar,
 } from '~/core/apolloClient'
+import { dateErrorCodes } from '~/core/constants/form'
 import { CREATE_PLAN_ROUTE } from '~/core/router'
-import { getTimezoneConfig, TimeZonesConfig } from '~/core/timezone'
+import { getTimezoneConfig } from '~/core/timezone'
 import {
   BillingTimeEnum,
   CreateSubscriptionInput,
@@ -34,6 +34,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAddSubscription } from '~/hooks/customer/useAddSubscription'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { Card, DrawerContent, DrawerSubmitButton, DrawerTitle, theme } from '~/styles'
+
+import { SubscriptionDatesOffsetHelperComponent } from './SubscriptionDatesOffsetHelperComponent'
 
 export interface AddSubscriptionDrawerRef {
   openDialog: (existingSubscription?: SubscriptionUpdateInfo) => unknown
@@ -52,14 +54,9 @@ export const AddSubscriptionDrawer = forwardRef<
 >(({ customerId, customerName, customerTimezone }: AddSubscriptionDrawerProps, ref) => {
   const navigate = useNavigate()
   const drawerRef = useRef<DrawerRef>(null)
-  const {
-    timezone: organizationTimezone,
-    timezoneConfig: orgaTimezoneConfig,
-    formatTimeOrgaTZ,
-  } = useOrganizationInfos()
-  const customerTimezoneConfig = getTimezoneConfig(customerTimezone)
+  const { formatTimeOrgaTZ } = useOrganizationInfos()
   const GMT = getTimezoneConfig(TimezoneEnum.TzUtc).name
-  const currentDateRef = useRef<string>(DateTime.now().setZone(GMT).toISO())
+  const currentDateRef = useRef<string>(DateTime.now().setZone(GMT).startOf('day').toISO())
 
   const [existingSubscription, setExistingSubscription] = useState<
     SubscriptionUpdateInfo | undefined
@@ -71,12 +68,47 @@ export const AddSubscriptionDrawer = forwardRef<
       planId: undefined,
       name: '',
       externalId: '',
-      subscriptionAt: currentDateRef?.current,
+      subscriptionAt: existingSubscription?.startDate || currentDateRef?.current,
+      endingAt: existingSubscription?.endDate || undefined,
       billingTime: BillingTimeEnum.Calendar,
     },
     validationSchema: object().shape({
       planId: string().required(''),
       subscriptionAt: string().required(''),
+      endingAt: string()
+        .test({
+          test: function (value, { from, path }) {
+            // Value can be undefined
+            if (!value) {
+              return true
+            }
+
+            // Make sure value has correct format
+            if (!DateTime.fromISO(value).isValid) {
+              return this.createError({
+                path,
+                message: dateErrorCodes.wrongFormat,
+              })
+            }
+
+            // If subscription at is present
+            if (from && from[0] && from[0].value && from[0].value.subscriptionAt) {
+              const subscriptionAt = DateTime.fromISO(from[0].value.subscriptionAt)
+              const endingAt = DateTime.fromISO(value)
+
+              // Make sure endingAt is set later than subscriptionAt and in the future
+              if (endingAt <= subscriptionAt || DateTime.now().diff(endingAt, 'days').days >= 0) {
+                return this.createError({
+                  path,
+                  message: dateErrorCodes.shouldBeFutureAndBiggerThanSubscriptionAt,
+                })
+              }
+            }
+
+            return true
+          },
+        })
+        .nullable(),
     }),
     validateOnMount: true,
     enableReinitialize: true,
@@ -121,10 +153,11 @@ export const AddSubscriptionDrawer = forwardRef<
     const { subscriptionInput, updateInfo } = overwritePlanVar()
 
     if (!!subscriptionInput) {
-      const { planId, name, billingTime, subscriptionAt } = subscriptionInput
+      const { planId, name, billingTime, subscriptionAt, endingAt } = subscriptionInput
 
       formikProps.setValues({
         subscriptionAt: subscriptionAt || currentDateRef?.current,
+        endingAt: endingAt || undefined,
         planId: planId || '',
         name: name || undefined,
         billingTime: billingTime || BillingTimeEnum.Calendar,
@@ -142,57 +175,6 @@ export const AddSubscriptionDrawer = forwardRef<
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const subscriptionAtHelperText = useMemo(() => {
-    if (
-      !formikProps.values.subscriptionAt ||
-      (customerTimezoneConfig?.offsetInMinute === 0 && orgaTimezoneConfig.offsetInMinute === 0)
-    )
-      return undefined
-
-    if (formikProps.values.subscriptionAt) {
-      if (!!customerTimezone) {
-        const date = DateTime.fromISO(formikProps.values.subscriptionAt)
-          .setZone(customerTimezoneConfig.name)
-          .toFormat('LLL. dd, yyyy')
-        const time = `${DateTime.fromISO(formikProps.values.subscriptionAt)
-          .setZone(customerTimezoneConfig.name)
-          .setLocale('en')
-          .toFormat('t')}`
-        const offset = TimeZonesConfig[customerTimezone].offset
-
-        if (customerTimezoneConfig?.offsetInMinute < 0) {
-          return translate('text_648b280da2ff5a00723b6b88', { date, time, offset })
-        } else if (customerTimezoneConfig?.offsetInMinute > 0) {
-          return translate('text_648b280da2ff5a00723b6b88', { date, time, offset })
-        }
-      } else if (!!organizationTimezone) {
-        const date = DateTime.fromISO(formikProps.values.subscriptionAt)
-          .setZone(orgaTimezoneConfig.name)
-          .toFormat('LLL. dd, yyyy')
-        const time = `${DateTime.fromISO(formikProps.values.subscriptionAt)
-          .setZone(orgaTimezoneConfig.name)
-          .setLocale('en')
-          .toFormat('t')}`
-        const offset = TimeZonesConfig[organizationTimezone].offset
-
-        if (orgaTimezoneConfig.offsetInMinute < 0) {
-          return translate('text_648b280da2ff5a00723b6b88', { date, time, offset })
-        } else if (orgaTimezoneConfig.offsetInMinute > 0) {
-          return translate('text_648b280da2ff5a00723b6b88', { date, time, offset })
-        }
-      }
-    }
-
-    return undefined
-  }, [
-    organizationTimezone,
-    customerTimezone,
-    customerTimezoneConfig,
-    formikProps.values.subscriptionAt,
-    orgaTimezoneConfig,
-    translate,
-  ])
 
   return (
     <Drawer
@@ -298,53 +280,69 @@ export const AddSubscriptionDrawer = forwardRef<
                 />
 
                 {!existingSubscription && (
-                  <>
-                    <div>
-                      <InlineFields>
-                        <DatePickerField
-                          name="subscriptionAt"
-                          label={translate('text_648b1828ead1c3004b930334')}
-                          defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
-                          formikProps={formikProps}
-                        />
-                        <TimePickerField
-                          name="subscriptionAt"
-                          label={translate('text_648b1837da6496008dfe4b3c')}
-                          defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
-                          formikProps={formikProps}
-                        />
-                      </InlineFields>
-                      {!!subscriptionAtHelperText && (
-                        <InlineFieldsHelperText variant="caption" color="grey600">
-                          {subscriptionAtHelperText}
-                        </InlineFieldsHelperText>
-                      )}
-                    </div>
-                    <ButtonSelectorField
-                      name="billingTime"
-                      label={translate('text_62ea7cd44cd4b14bb9ac1db7')}
-                      formikProps={formikProps}
-                      helperText={billingTimeHelper}
-                      options={[
-                        {
-                          label:
-                            selectedPlan?.interval === PlanInterval.Yearly
-                              ? translate('text_62ebd597d5d5130a03ced107')
-                              : selectedPlan?.interval === PlanInterval.Weekly
-                              ? translate('text_62ebd597d5d5130a03ced101')
-                              : selectedPlan?.interval === PlanInterval.Quarterly
-                              ? translate('text_64d6357b00dea100ad1cba27')
-                              : translate('text_62ea7cd44cd4b14bb9ac1db9'),
-                          value: BillingTimeEnum.Calendar,
-                        },
-                        {
-                          label: translate('text_62ea7cd44cd4b14bb9ac1dbb'),
-                          value: BillingTimeEnum.Anniversary,
-                        },
-                      ]}
-                    />
-                  </>
+                  <ButtonSelectorField
+                    name="billingTime"
+                    label={translate('text_62ea7cd44cd4b14bb9ac1db7')}
+                    formikProps={formikProps}
+                    helperText={billingTimeHelper}
+                    options={[
+                      {
+                        label:
+                          selectedPlan?.interval === PlanInterval.Yearly
+                            ? translate('text_62ebd597d5d5130a03ced107')
+                            : selectedPlan?.interval === PlanInterval.Weekly
+                            ? translate('text_62ebd597d5d5130a03ced101')
+                            : selectedPlan?.interval === PlanInterval.Quarterly
+                            ? translate('text_64d6357b00dea100ad1cba27')
+                            : translate('text_62ea7cd44cd4b14bb9ac1db9'),
+                        value: BillingTimeEnum.Calendar,
+                      },
+                      {
+                        label: translate('text_62ea7cd44cd4b14bb9ac1dbb'),
+                        value: BillingTimeEnum.Anniversary,
+                      },
+                    ]}
+                  />
                 )}
+
+                <div>
+                  <InlineFields>
+                    <DatePickerField
+                      disabled={
+                        !!existingSubscription && !!formikProps.initialValues.subscriptionAt
+                      }
+                      name="subscriptionAt"
+                      label={translate('text_64ef55a730b88e3d2117b3c4')}
+                      defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
+                      placement="auto"
+                      formikProps={formikProps}
+                    />
+                    <InlineFieldsIcon name="arrow-right" />
+                    <DatePickerField
+                      disablePast
+                      name="endingAt"
+                      label={translate('text_64ef55a730b88e3d2117b3cc')}
+                      defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
+                      formikProps={formikProps}
+                      placement="auto"
+                      error={
+                        formikProps.errors.endingAt ===
+                        dateErrorCodes.shouldBeFutureAndBiggerThanSubscriptionAt
+                          ? translate('text_64ef55a730b88e3d2117b3d4')
+                          : undefined
+                      }
+                      inputProps={{ cleanable: true }}
+                    />
+                  </InlineFields>
+
+                  {!formikProps.errors.endingAt && !formikProps.errors.subscriptionAt && (
+                    <LocalSubscriptionDatesOffsetHelperComponent
+                      customerTimezone={customerTimezone}
+                      subscriptionAt={formikProps.values.subscriptionAt}
+                      endingAt={formikProps.values.endingAt}
+                    />
+                  )}
+                </div>
               </>
             )}
 
@@ -410,17 +408,17 @@ const InlineFields = styled.div`
   display: flex;
   gap: ${theme.spacing(3)};
 
-  > *:first-child {
-    flex: 1;
-  }
-
+  > *:first-child,
   > *:last-child {
     flex: 1;
-    max-width: 192px;
   }
 `
 
-const InlineFieldsHelperText = styled(Typography)`
+const InlineFieldsIcon = styled(Icon)`
+  margin-top: ${theme.spacing(10)};
+`
+
+const LocalSubscriptionDatesOffsetHelperComponent = styled(SubscriptionDatesOffsetHelperComponent)`
   margin-top: ${theme.spacing(1)};
 `
 

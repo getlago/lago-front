@@ -3925,16 +3925,16 @@ export type GetCustomerSubscriptionForListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null, nextSubscription?: { __typename?: 'Subscription', id: string } | null }> } | null };
+export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionAt?: any | null, endingAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null, nextSubscription?: { __typename?: 'Subscription', id: string } | null }> } | null };
 
 export type UpdateCustomerSubscriptionMutationVariables = Exact<{
   input: UpdateSubscriptionInput;
 }>;
 
 
-export type UpdateCustomerSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, startedAt?: any | null, subscriptionAt?: any | null } | null };
+export type UpdateCustomerSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, startedAt?: any | null, subscriptionAt?: any | null, endingAt?: any | null } | null };
 
-export type SubscriptionItemFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null, nextSubscription?: { __typename?: 'Subscription', id: string } | null };
+export type SubscriptionItemFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, periodEndDate?: any | null, subscriptionAt?: any | null, endingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null, nextSubscription?: { __typename?: 'Subscription', id: string } | null };
 
 export type SubscriptionLinePlanFragment = { __typename?: 'Plan', id: string, name: string, code: string };
 
@@ -5253,6 +5253,7 @@ export const SubscriptionItemFragmentDoc = gql`
   externalId
   periodEndDate
   subscriptionAt
+  endingAt
   plan {
     ...SubscriptionLinePlan
   }
@@ -5299,6 +5300,12 @@ export const WebhookForCreateAndEditFragmentDoc = gql`
   id
   webhookUrl
   signatureAlgo
+}
+    `;
+export const OrganizationForTimePickerFragmentDoc = gql`
+    fragment OrganizationForTimePicker on Organization {
+  id
+  timezone
 }
     `;
 export const TaxForInvoiceEditTaxDialogFragmentDoc = gql`
@@ -5698,12 +5705,6 @@ export const OrganizationForDatePickerFragmentDoc = gql`
   timezone
 }
     `;
-export const OrganizationForTimePickerFragmentDoc = gql`
-    fragment OrganizationForTimePicker on Organization {
-  id
-  timezone
-}
-    `;
 export const MainOrganizationInfosFragmentDoc = gql`
     fragment MainOrganizationInfos on Organization {
   id
@@ -5711,10 +5712,8 @@ export const MainOrganizationInfosFragmentDoc = gql`
   logoUrl
   timezone
   ...OrganizationForDatePicker
-  ...OrganizationForTimePicker
 }
-    ${OrganizationForDatePickerFragmentDoc}
-${OrganizationForTimePickerFragmentDoc}`;
+    ${OrganizationForDatePickerFragmentDoc}`;
 export const CustomerMetadatasForInvoiceOverviewFragmentDoc = gql`
     fragment CustomerMetadatasForInvoiceOverview on Customer {
   id
@@ -7669,6 +7668,7 @@ export const UpdateCustomerSubscriptionDocument = gql`
     status
     startedAt
     subscriptionAt
+    endingAt
   }
 }
     `;

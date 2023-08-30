@@ -29,6 +29,7 @@ gql`
     externalId
     periodEndDate
     subscriptionAt
+    endingAt
     plan {
       ...SubscriptionLinePlan
     }
@@ -69,6 +70,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
       name,
       startedAt,
       subscriptionAt,
+      endingAt,
     } = subscription || {}
     const { formatTimeOrgaTZ } = useOrganizationInfos()
     const isDowngrading = !!nextPlan
@@ -77,7 +79,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
 
     return (
       <SubscriptionContainer key={id}>
-        {isDowngrading && !!nextPlan && (
+        {isDowngrading && (
           <SubscriptionLine
             ref={ref}
             subscriptionId={subscription.nextSubscription?.id as string}
@@ -97,12 +99,13 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
           subscriptionExternalId={externalId}
           subscriptionName={name}
           date={startedAt || subscriptionAt}
+          endDate={endingAt}
           periodEndDate={periodEndDate}
           plan={plan}
           status={status}
           customerTimezone={customerTimezone}
         />
-        {isDowngrading && !!nextPlan && (
+        {isDowngrading ? (
           <DateInfos variant="caption">
             {translate('text_62681c60582e4f00aa82938a', {
               planName: nextPlan?.name,
@@ -111,15 +114,21 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
                 : formatTimeOrgaTZ(nextPendingStartDate),
             })}
           </DateInfos>
-        )}
-        {status === StatusTypeEnum.Pending && (
+        ) : status === StatusTypeEnum.Pending ? (
           <DateInfos variant="caption">
             {translate('text_6335e50b0b089e1d8ed50960', {
               planName: plan?.name,
               startDate: formatTimeOrgaTZ(subscriptionAt),
             })}
           </DateInfos>
-        )}
+        ) : status === StatusTypeEnum.Active && !!endingAt ? (
+          <DateInfos variant="caption">
+            {translate('text_64ef55a730b88e3d2117b44e', {
+              planName: plan?.name,
+              date: formatTimeOrgaTZ(endingAt),
+            })}
+          </DateInfos>
+        ) : null}
       </SubscriptionContainer>
     )
   }

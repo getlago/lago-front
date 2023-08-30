@@ -41,6 +41,9 @@ module.exports = {
   "project_63eba8199c936977d8e98991": {
     "base": require('./-ready-for-dev---customer-invoice---update-invoice.payment_status__base.json')
   },
+  "project_64ef55a23bdcf2d86567cbed": {
+    "base": require('./-ready-for-dev---customers---add-subscription-end-date__base.json')
+  },
   "project_634687058efb4a10996fdbdc": {
     "base": require('./-ready-for-dev---customers---invoice-detail-page__base.json')
   },

@@ -204,14 +204,26 @@ export const useAddSubscription: UseAddSubscription = ({
     onOpenDrawer: () => {
       !loading && getPlans()
     },
-    onCreate: async (customerId, { subscriptionAt: subsDate, name, externalId, ...values }) => {
+    onCreate: async (
+      customerId,
+      { subscriptionAt: subsDate, name, externalId, endingAt: subEndDate, ...values }
+    ) => {
       const { errors } = await create({
         variables: {
           input: {
             customerId,
             ...(!existingSubscription
-              ? { subscriptionAt: DateTime.fromISO(subsDate).toUTC().toISO() }
-              : { subscriptionId: existingSubscription.subscriptionId }),
+              ? {
+                  subscriptionAt: DateTime.fromISO(subsDate).toUTC().toISO(),
+                  endingAt: !!subEndDate ? DateTime.fromISO(subEndDate).toUTC().toISO() : undefined,
+                } // Format to UTC only if it's a new creation (no upgrade, downgrade, edit)
+              : {
+                  subscriptionId: existingSubscription.subscriptionId,
+                  subscriptionAt: !!existingSubscription.startDate
+                    ? DateTime.fromISO(existingSubscription.startDate).toUTC().toISO()
+                    : undefined,
+                  endingAt: !!subEndDate ? DateTime.fromISO(subEndDate).toUTC().toISO() : null,
+                }),
             name: name || undefined,
             externalId: externalId || undefined,
             ...values,

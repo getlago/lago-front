@@ -21,6 +21,7 @@ export type SubscriptionUpdateInfo = {
   existingPlanId?: string
   periodEndDate?: string
   startDate?: string
+  endDate?: string
   status: StatusTypeEnum
 }
 

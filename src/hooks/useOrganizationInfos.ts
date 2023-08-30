@@ -5,7 +5,6 @@ import { formatDateToTZ } from '~/core/timezone'
 import {
   MainOrganizationInfosFragment,
   OrganizationForDatePickerFragmentDoc,
-  OrganizationForTimePickerFragmentDoc,
   TimezoneEnum,
   useGetOrganizationInfosQuery,
 } from '~/generated/graphql'
@@ -18,7 +17,6 @@ gql`
     timezone
 
     ...OrganizationForDatePicker
-    ...OrganizationForTimePicker
   }
 
   query getOrganizationInfos {
@@ -28,7 +26,6 @@ gql`
   }
 
   ${OrganizationForDatePickerFragmentDoc}
-  ${OrganizationForTimePickerFragmentDoc}
 `
 
 type UseOrganizationInfos = () => {
