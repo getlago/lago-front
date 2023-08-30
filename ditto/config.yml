@@ -297,5 +297,7 @@ sources:
       id: 65018c8af04a866c7bcc6cb8
     - name: 👍 [Ready for dev] - Billable metrics - Weighted sum
       id: 6500621fbbf7ebe75d11e890
+    - name: 👍 [Ready for dev] - Customers - Add subscription end date
+      id: 64ef55a23bdcf2d86567cbed
 format: flat
 variants: true

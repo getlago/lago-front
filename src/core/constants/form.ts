@@ -3,6 +3,11 @@ export enum FORM_ERRORS_ENUM {
   existingCode = 'existingCode',
   invalidGroupValue = 'invalidGroupValue',
 }
+export const dateErrorCodes = {
+  wrongFormat: 'wrongFormat',
+  shouldBeInFuture: 'shouldBeInFuture',
+  shouldBeFutureAndBiggerThanSubscriptionAt: 'shouldBeFutureAndBiggerThanSubscriptionAt',
+} as const
 export const MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR = 'minAmountShouldBeLowerThanMax'
 
 /**** Selectors ****/

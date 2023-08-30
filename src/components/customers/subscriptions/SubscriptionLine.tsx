@@ -37,6 +37,7 @@ interface SubscriptionLineProps {
   subscriptionExternalId: string
   subscriptionName?: string | null
   date: string
+  endDate?: string
   plan: SubscriptionLinePlanFragment
   periodEndDate: string
   isDowngrade?: boolean
@@ -57,6 +58,7 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
       subscriptionExternalId,
       subscriptionName,
       date,
+      endDate,
       plan,
       periodEndDate,
       isDowngrade,
@@ -132,7 +134,9 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
                         externalId: subscriptionExternalId,
                         name: subscriptionName,
                         startDate: date,
+                        endDate: endDate,
                         status: status as StatusTypeEnum,
+                        customerTimezone,
                       })
                       closePopper()
                     }}
@@ -153,6 +157,7 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
                         existingPlanId: plan.id,
                         periodEndDate: periodEndDate,
                         startDate: date,
+                        endDate: endDate,
                         status: status as StatusTypeEnum,
                       })
                       closePopper()

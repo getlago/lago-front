@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { PopperProps as MuiPopperProps } from '@mui/material'
+import { InputAdornment, PopperProps as MuiPopperProps } from '@mui/material'
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon'
 import { DatePicker as MuiDatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
@@ -55,7 +55,7 @@ export const DatePicker = ({
   disableFuture,
   disablePast,
   placeholder,
-  disabled,
+  disabled = false,
   placement = 'bottom-end',
   onError,
   onChange,
@@ -157,20 +157,32 @@ export const DatePicker = ({
                 disabled={disabled}
                 InputProps={{
                   endAdornment: (
-                    <Tooltip
-                      title={translate('text_62cd78ea9bff25e3391b2437')}
-                      placement="top-end"
-                      disableHoverListener={disabled}
-                    >
-                      <CalendarButton
-                        disabled={disabled}
-                        icon="calendar"
-                        size="small"
-                        variant="quaternary"
-                        // @ts-ignore
-                        onClick={InputProps?.endAdornment?.props?.children?.props?.onClick}
-                      />
-                    </Tooltip>
+                    <PickerInputAdornment position="end">
+                      {!!props?.inputProps?.cleanable && !!localDate && !disabled && (
+                        <Button
+                          className="button-clear-date"
+                          disabled={disabled}
+                          size="small"
+                          icon="close-circle-filled"
+                          variant="quaternary"
+                          onClick={() => onChange && onChange(undefined)}
+                        />
+                      )}
+                      <Tooltip
+                        title={translate('text_62cd78ea9bff25e3391b2437')}
+                        placement="top-end"
+                        disableHoverListener={disabled}
+                      >
+                        <Button
+                          disabled={disabled}
+                          icon="calendar"
+                          size="small"
+                          variant="quaternary"
+                          // @ts-ignore
+                          onClick={InputProps?.endAdornment?.props?.children?.props?.onClick}
+                        />
+                      </Tooltip>
+                    </PickerInputAdornment>
                   ),
                 }}
               />
@@ -388,10 +400,20 @@ const Container = styled.div`
       color: ${theme.palette.grey[400]} !important;
     }
   }
+
+  .button-clear-date {
+    opacity: 0;
+    animation: fadeIn 0.2s ease-in-out forwards;
+  }
+
+  .MuiInputBase-root:hover {
+    .button-clear-date {
+      opacity: 1;
+    }
+  }
 `
 
-const CalendarButton = styled(Button)`
-  && {
-    margin-right: ${theme.spacing(4)};
-  }
+const PickerInputAdornment = styled(InputAdornment)`
+  height: 24px;
+  align-items: flex-end;
 `
