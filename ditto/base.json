@@ -814,7 +814,7 @@
   "text_6328e70de459381ed4ba50c2": "Upgrade or downgrade plan",
   "text_6328e70de459381ed4ba50c6": "Upgrade or downgrade the current plan to another one.",
   "text_6328e70de459381ed4ba50ca": "Subscription information",
-  "text_6328e70de459381ed4ba50d6": "Upgrade effective immediately - downgrade effective after {{subscriptionEndDate}}",
+  "text_6328e70de459381ed4ba50d6": "The subscription upgrade will take effect immediately for your customer\nHowever, the downgrade will be effective after {{subscriptionEndDate}}",
   "text_6328e70de459381ed4ba50da": "Upgrade/downgrade plan",
   "text_6328e911e1eede3a429e8861": "Overwrite",
   "text_6329fd60c32c30152678a6e8": "Duplicate {{planName}}",
