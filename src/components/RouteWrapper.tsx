@@ -1,5 +1,5 @@
 import { Suspense, ReactNode, useEffect } from 'react'
-import { IndexRouteProps, useRoutes } from 'react-router-dom'
+import { useRoutes } from 'react-router-dom'
 import styled from 'styled-components'
 import { useLocation } from 'react-router-dom'
 import type { RouteObject } from 'react-router-dom'
@@ -51,7 +51,7 @@ export const routesFormatter: (
       acc.push({
         index: true,
         ...routeConfig,
-      } as IndexRouteProps)
+      } as RouteObject)
     } else if (!route.path) {
       acc.push(routeConfig)
     } else if (typeof route.path === 'string') {
