@@ -42,7 +42,7 @@
     "@graphql-codegen/typescript-react-apollo": "3.3.7",
     "@svgr/webpack": "8.0.1",
     "@testing-library/dom": "^9.3.1",
-    "@testing-library/jest-dom": "5.17.0",
+    "@testing-library/jest-dom": "6.1.2",
     "@testing-library/react": "14.0.0",
     "@testing-library/user-event": "^14.4.3",
     "@types/apollo-upload-client": "17.0.2",
