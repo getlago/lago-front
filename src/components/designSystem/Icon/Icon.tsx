@@ -1,4 +1,4 @@
-import { cloneElement } from 'react'
+import { Box } from '@mui/material'
 import styled from 'styled-components'
 import clsns from 'classnames'
 
@@ -76,20 +76,24 @@ export const Icon = ({
   const SVGIcon = ALL_ICONS[name]
 
   return (
-    <StyledIcon
+    <StyledBox
       title={`${name}/${size}`}
       data-test={`${name}/${size}`}
       $size={size}
       $canClick={!!onClick}
       className={clsns('svg-icon', className, { [`icon-animation--${animation}`]: animation })}
       $color={mapColor(color)}
-      component={<SVGIcon />}
+      component={SVGIcon}
       onClick={onClick}
     />
   )
 }
 
-const StyledIcon = styled(({ component, ...props }) => cloneElement(component, props))`
+const StyledBox = styled(Box)<{
+  $size: keyof typeof IconSizeEnum
+  $canClick: boolean
+  $color: string
+}>`
   width: ${(props: { $size: keyof typeof IconSizeEnum }) => IconSizeEnum[props.$size]};
   min-width: ${(props: { $size: keyof typeof IconSizeEnum }) => IconSizeEnum[props.$size]};
   height: ${(props: { $size: keyof typeof IconSizeEnum }) => IconSizeEnum[props.$size]};

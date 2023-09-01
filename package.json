@@ -56,7 +56,6 @@
     "@types/react-router-dom": "5.3.3",
     "@types/react-window": "1.8.5",
     "@types/sanitize-html": "2.9.0",
-    "@types/styled-components": "5.1.26",
     "@types/webpack": "5.28.2",
     "@typescript-eslint/eslint-plugin": "6.4.1",
     "@typescript-eslint/parser": "6.4.1",
@@ -117,12 +116,11 @@
     "react-router-dom": "6.11.1",
     "react-window": "1.8.9",
     "sanitize-html": "2.11.0",
-    "styled-components": "5.3.11",
+    "styled-components": "6.0.7",
     "yarn": "1.22.19",
     "yup": "1.2.0"
   },
   "resolutions": {
-    "styled-components": "5.3.11",
     "@mui/styled-engine": "5.13.2",
     "lodash": "4.17.21",
     "glob-parent": "6.0.2",
