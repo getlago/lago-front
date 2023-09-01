@@ -115,7 +115,7 @@
     "react-ace": "10.1.0",
     "react-dom": "18.2.0",
     "react-router-dom": "6.11.1",
-    "react-window": "1.8.8",
+    "react-window": "1.8.9",
     "sanitize-html": "2.11.0",
     "styled-components": "5.3.11",
     "yarn": "1.22.19",
