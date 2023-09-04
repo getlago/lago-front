@@ -172,7 +172,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           localLoading && !icon && !!startIcon ? (
             <Icon animation="spin" name="processing" />
           ) : (
-            startIcon && <Icon name={startIcon} />
+            startIcon && <Icon name={startIcon} onClick={() => handleClick} />
           )
         }
         {...mapProperties(variant, !!inheritColor)}
@@ -182,7 +182,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           localLoading ? (
             <Icon animation="spin" name="processing" />
           ) : (
-            <Icon name={icon} />
+            <Icon name={icon} onClick={() => handleClick} />
           )
         ) : (
           children
