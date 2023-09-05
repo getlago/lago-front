@@ -17,10 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout API Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: getlago/lago-api
           ref: ${{ github.event.inputs.api_branch }}
