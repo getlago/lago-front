@@ -1,5 +1,6 @@
+import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev'
 import React, { ReactElement, useEffect } from 'react'
-import { BrowserRouter } from 'react-router-dom'
+import Router, { BrowserRouter } from 'react-router-dom'
 import { configure, render, RenderOptions } from '@testing-library/react'
 import { ThemeProvider } from '@mui/material'
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
@@ -10,28 +11,43 @@ import { initializeYup } from './formValidation/initializeYup'
 
 configure({ testIdAttribute: 'data-test' })
 
-export type TestMocksType = MockedResponse<Record<string, unknown>, Record<string, unknown>>[]
+const mockNavigate = jest.fn()
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
+  useNavigate: () => mockNavigate,
+  useParams: jest.fn(),
 }))
 
-const AllTheProviders = ({
+export type TestMocksType = MockedResponse<Record<string, unknown>, Record<string, unknown>>[]
+
+export const AllTheProviders = ({
   children,
   mocks,
+  useParams,
+  // Needed when using fragments in queries
+  // https://github.com/apollographql/apollo-client/issues/8276#issuecomment-847064393
+  // TODO: AllTheProviders type should force forceTypenames true if mocks includes __typename
+  forceTypenames = false,
 }: {
   children: React.ReactNode
   mocks?: TestMocksType
+  useParams?: { [key: string]: string }
+  forceTypenames?: boolean
 }) => {
   useEffect(() => {
     initializeTranslations()
     initializeYup()
   }, [])
+  // Get Apollo error messages explicitely
+  loadDevMessages()
+  loadErrorMessages()
+
+  !!useParams && jest.spyOn(Router, 'useParams').mockReturnValue(useParams)
 
   return (
     <BrowserRouter basename="/">
-      <MockedProvider addTypename={false} mocks={mocks}>
+      <MockedProvider addTypename={forceTypenames} mocks={mocks}>
         <ThemeProvider theme={theme}>{children}</ThemeProvider>
       </MockedProvider>
     </BrowserRouter>
@@ -48,3 +64,4 @@ const customRender = (
   })
 
 export { customRender as render }
+export { mockNavigate as testMockNavigateFn }
