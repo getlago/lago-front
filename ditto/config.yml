@@ -289,5 +289,7 @@ sources:
       fileName: 👍 [Ready for dev] - Plans - Min & max per transaction
     - name: Duplicate plan
       id: 64fa170c8bbf9b0e6adc8b02
+    - name: 👍 [Ready for dev] - B.Metrics - Add last aggregation type
+      id: 64f8823bc0558274c87c6e0e
 format: flat
 variants: true

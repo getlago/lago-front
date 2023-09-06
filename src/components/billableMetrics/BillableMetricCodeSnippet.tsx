@@ -107,6 +107,32 @@ ${groupDimensionMessage}
 # To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__, __EXTERNAL_SUBSCRIPTION_ID__ and __EXTERNAL_CUSTOMER_ID__
 ${groupDimensionMessage}
 `
+
+    case AggregationTypeEnum.LatestAgg:
+      return `curl --location --request POST "${apiUrl}/api/v1/events" \\
+  --header "Authorization: Bearer $__YOUR_API_KEY__" \\
+  --header 'Content-Type: application/json' \\
+  --data-raw '{
+    "event": { 
+      "transaction_id": "__UNIQUE_ID__", 
+      "external_subscription_id": "__EXTERNAL_SUBSCRIPTION_ID__",
+      "external_customer_id": "__EXTERNAL_CUSTOMER_ID__", 
+      "code": "${code}",
+      "timestamp": $(date +%s), 
+      "properties":  { 
+        "${fieldName}": 12${
+        groupDimension > 0
+          ? `,
+        ${propertiesForGroup}`
+          : ''
+      }
+      }
+    }
+  }'
+
+# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__, __EXTERNAL_SUBSCRIPTION_ID__ and __EXTERNAL_CUSTOMER_ID__
+${groupDimensionMessage}
+`
     default:
       return '# Fill the form to generate the code snippet'
   }

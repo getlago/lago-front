@@ -207,6 +207,7 @@ export const ChargeAccordion = memo(
           if (
             value === ChargeModelEnum.Volume ||
             localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg ||
+            localCharge.billableMetric.aggregationType === AggregationTypeEnum.LatestAgg ||
             localCharge.billableMetric.aggregationType === AggregationTypeEnum.RecurringCountAgg
           ) {
             formikProps.setFieldValue(`charges.${index}.payInAdvance`, false)
@@ -429,29 +430,40 @@ export const ChargeAccordion = memo(
                 },
                 ...(!localCharge.billableMetric.recurring
                   ? [
-                      {
-                        labelNode: (
-                          <InlineComboboxLabelForPremiumWrapper>
-                            <InlineComboboxLabel>
-                              <Typography variant="body" color="grey700">
-                                {translate('text_64de472463e2da6b31737db0')}
-                              </Typography>
-                              <BetaChip size="xsmall" />
-                            </InlineComboboxLabel>
-                            {!isPremium && <Icon name="sparkles" />}
-                          </InlineComboboxLabelForPremiumWrapper>
-                        ),
-                        label: translate('text_64de472463e2da6b31737db0'),
-                        value: ChargeModelEnum.GraduatedPercentage,
-                      },
+                      ...(localCharge.billableMetric.aggregationType !==
+                      AggregationTypeEnum.LatestAgg
+                        ? [
+                            {
+                              labelNode: (
+                                <InlineComboboxLabelForPremiumWrapper>
+                                  <InlineComboboxLabel>
+                                    <Typography variant="body" color="grey700">
+                                      {translate('text_64de472463e2da6b31737db0')}
+                                    </Typography>
+                                    <BetaChip size="xsmall" />
+                                  </InlineComboboxLabel>
+                                  {!isPremium && <Icon name="sparkles" />}
+                                </InlineComboboxLabelForPremiumWrapper>
+                              ),
+                              label: translate('text_64de472463e2da6b31737db0'),
+                              value: ChargeModelEnum.GraduatedPercentage,
+                            },
+                          ]
+                        : []),
                       {
                         label: translate('text_6282085b4f283b0102655868'),
                         value: ChargeModelEnum.Package,
                       },
-                      {
-                        label: translate('text_62a0b7107afa2700a65ef6e2'),
-                        value: ChargeModelEnum.Percentage,
-                      },
+
+                      ...(localCharge.billableMetric.aggregationType !==
+                      AggregationTypeEnum.LatestAgg
+                        ? [
+                            {
+                              label: translate('text_62a0b7107afa2700a65ef6e2'),
+                              value: ChargeModelEnum.Percentage,
+                            },
+                          ]
+                        : []),
                     ]
                   : []),
                 {
@@ -766,6 +778,7 @@ export const ChargeAccordion = memo(
                   disabled:
                     localCharge.chargeModel === ChargeModelEnum.Volume ||
                     localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg ||
+                    localCharge.billableMetric.aggregationType === AggregationTypeEnum.LatestAgg ||
                     localCharge.billableMetric.aggregationType ===
                       AggregationTypeEnum.RecurringCountAgg,
                 },
