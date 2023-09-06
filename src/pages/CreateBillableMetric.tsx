@@ -97,9 +97,11 @@ const CreateBillableMetric = () => {
 
   useEffect(() => {
     if (
-      ![AggregationTypeEnum.SumAgg, AggregationTypeEnum.UniqueCountAgg].includes(
-        formikProps.values.aggregationType
-      )
+      ![
+        AggregationTypeEnum.SumAgg,
+        AggregationTypeEnum.UniqueCountAgg,
+        AggregationTypeEnum.LatestAgg,
+      ].includes(formikProps.values.aggregationType)
     ) {
       formikProps.setFieldValue('recurring', false)
     }
@@ -228,6 +230,7 @@ const CreateBillableMetric = () => {
                   </Typography>
 
                   <ComboBoxField
+                    sortValues={false}
                     formikProps={formikProps}
                     name="aggregationType"
                     disabled={isEdition && !canBeEdited}
@@ -245,6 +248,10 @@ const CreateBillableMetric = () => {
                         value: AggregationTypeEnum.UniqueCountAgg,
                       },
                       {
+                        label: translate('text_64f8823d75521b6faaee8549'),
+                        value: AggregationTypeEnum.LatestAgg,
+                      },
+                      {
                         label: translate('text_62694d9181be8d00a33f20f8'),
                         value: AggregationTypeEnum.MaxAgg,
                       },
@@ -258,6 +265,8 @@ const CreateBillableMetric = () => {
                         ? translate('text_6241cc759211e600ea57f4f1')
                         : formikProps.values?.aggregationType === AggregationTypeEnum.UniqueCountAgg
                         ? translate('text_62694d9181be8d00a33f20f6')
+                        : formikProps.values?.aggregationType === AggregationTypeEnum.LatestAgg
+                        ? translate('text_64f8823d75521b6faaee854b')
                         : formikProps.values?.aggregationType === AggregationTypeEnum.MaxAgg
                         ? translate('text_62694d9181be8d00a33f20f2')
                         : formikProps.values?.aggregationType === AggregationTypeEnum.SumAgg

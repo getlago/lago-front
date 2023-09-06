@@ -95,6 +95,7 @@ export type AdyenProvider = {
 
 export enum AggregationTypeEnum {
   CountAgg = 'count_agg',
+  LatestAgg = 'latest_agg',
   MaxAgg = 'max_agg',
   RecurringCountAgg = 'recurring_count_agg',
   SumAgg = 'sum_agg',

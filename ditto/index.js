@@ -14,6 +14,9 @@ module.exports = {
   "project_633336529ca3243d15ac9df4": {
     "base": require('./-ready-for-dev---all---replace-success-screen-by-success-toast__base.json')
   },
+  "project_64f8823bc0558274c87c6e0e": {
+    "base": require('./-ready-for-dev---b.metrics---add-last-aggregation-type__base.json')
+  },
   "project_637b4d9f764dcb190431ad4d": {
     "base": require('./-ready-for-dev---coupons---apply-several-coupons-to-customer__base.json')
   },
