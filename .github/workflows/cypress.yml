@@ -46,3 +46,9 @@ jobs:
           browser: chrome
           record: false
           config: baseUrl=http://localhost,projectId=u863yi
+          spec: |
+            cypress/e2e/00-auth/*
+            cypress/e2e/10-resources/*
+            cypress/e2e/t10-*
+            cypress/e2e/t20-*
+            cypress/e2e/t30-*
