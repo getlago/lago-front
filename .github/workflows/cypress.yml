@@ -29,14 +29,6 @@ jobs:
         with:
           ref: ${{ github.event.inputs.front_branch }}
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Install Node.js dependencies
-        run: yarn
-
       - name: Build Front local image
         run: |
           docker build -t getlago/front:ci ./
