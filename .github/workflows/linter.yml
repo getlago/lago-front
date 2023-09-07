@@ -28,3 +28,7 @@ jobs:
           eslint_extensions: js,ts,tsx
           continue_on_error: false
           prettier: true
+
+      - name: Run Translation Check
+        run: |
+          yarn inspectTranslations
