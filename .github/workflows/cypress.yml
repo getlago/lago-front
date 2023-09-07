@@ -45,17 +45,12 @@ jobs:
           path: license
           token: ${{ secrets.GH_TOKEN }}
 
-      - name: Build License local image
+      - name: Launch APPs
         run: |
           docker build -t getlago/license:ci ./license
-
-      - name: Launch APP + API
-        run: |
-          docker-compose -f ./api/docker-compose.ci.yml -f ./license/docker-compose.dev.ci.yml -f docker-compose.ci.yml --env-file ./.env up -d redis api license front
-      
-      - name: Build license
-        run: |
-          docker-compose -f ./license bundle exec rake db:setup
+          docker-compose -f ./api/docker-compose.ci.yml -f ./license/docker-compose.ci.yml db license
+          export LAGO_LICENSE=$(docker-compose -f ./license/docker-compose.ci.yml run license bundle exec rake license:generate['Lago',nil])
+          docker-compose -f ./api/docker-compose.ci.yml -f docker-compose.ci.yml --env-file ./.env up -d redis db api front
 
       - name: Cypress run
         uses: cypress-io/github-action@v5
