@@ -44,5 +44,5 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
         with:
           browser: chrome
-          record: true
+          record: false
           config: baseUrl=http://localhost,projectId=u863yi

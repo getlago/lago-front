@@ -31,7 +31,7 @@ services:
     ports:
       - 3000:3000
     environment:
-      RAILS_ENV: development
+      RAILS_ENV: production
       DATABASE_URL: postgres://lago:lago@db:5432/lago
       REDIS_URL: redis://redis:6379
       LAGO_FRONT_URL: http://localhost
