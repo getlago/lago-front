@@ -28,6 +28,8 @@ services:
     restart: unless-stopped
     depends_on: 
       - "db"
+    ports:
+      - 3000:3000
     environment:
       RAILS_ENV: production
       DATABASE_URL: postgres://lago:lago@db:5432/lago
