@@ -6,6 +6,13 @@ import { getItemFromLS, setItemFromLS } from '../cacheUtils'
 
 export const OVERWRITE_PLAN_LS_KEY = 'overwritePlan'
 
+export enum PLAN_FORM_TYPE_ENUM {
+  creation = 'creation',
+  edition = 'edition',
+  override = 'override',
+  duplicate = 'duplicate',
+}
+
 export type SubscriptionUpdateInfo = {
   subscriptionId?: string
   subscriptionExternalId?: string
@@ -15,7 +22,8 @@ export type SubscriptionUpdateInfo = {
   status: StatusTypeEnum
 }
 
-interface OverwritePlanVar {
+type OverwritePlanVar = {
+  type: keyof typeof PLAN_FORM_TYPE_ENUM
   parentId?: string
   customerId?: string
   subscriptionInput?: Partial<CreateSubscriptionInput>
@@ -23,6 +31,7 @@ interface OverwritePlanVar {
 }
 
 const initial = {
+  type: PLAN_FORM_TYPE_ENUM.creation,
   parentId: undefined,
   subscriptionInput: undefined,
   customerId: undefined,

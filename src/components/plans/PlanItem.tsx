@@ -1,7 +1,7 @@
 import { memo, RefObject } from 'react'
 import styled from 'styled-components'
 import { gql } from '@apollo/client'
-import { generatePath } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 
 import {
   theme,
@@ -23,9 +23,10 @@ import {
 } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PlanItemFragment, DeletePlanDialogFragmentDoc } from '~/generated/graphql'
-import { UPDATE_PLAN_ROUTE } from '~/core/router'
+import { CREATE_PLAN_ROUTE, UPDATE_PLAN_ROUTE } from '~/core/router'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { updateOverwritePlanVar } from '~/core/apolloClient'
 
 import { DeletePlanDialogRef } from './DeletePlanDialog'
 
@@ -51,6 +52,7 @@ interface PlanItemProps {
 
 export const PlanItem = memo(({ deleteDialogRef, navigationProps, plan }: PlanItemProps) => {
   const { id, name, code, customerCount, chargeCount, createdAt } = plan
+  const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
 
@@ -90,7 +92,7 @@ export const PlanItem = memo(({ deleteDialogRef, navigationProps, plan }: PlanIt
             <Tooltip
               placement="top-end"
               disableHoverListener={isOpen}
-              title={translate('text_6256de3bba111e00b3bfa51b')}
+              title={translate('text_64fa1756d7ccc300a03a09f4')}
             >
               <Button icon="dots-horizontal" variant="quaternary" />
             </Tooltip>
@@ -111,6 +113,21 @@ export const PlanItem = memo(({ deleteDialogRef, navigationProps, plan }: PlanIt
             >
               {translate('text_625fd39a15394c0117e7d792')}
             </ButtonLink>
+
+            <Button
+              startIcon="duplicate"
+              variant="quaternary"
+              align="left"
+              onClick={() => {
+                updateOverwritePlanVar({
+                  type: 'duplicate',
+                  parentId: id,
+                })
+                navigate(CREATE_PLAN_ROUTE)
+              }}
+            >
+              {translate('text_64fa170e02f348164797a6af')}
+            </Button>
 
             <Button
               startIcon="trash"

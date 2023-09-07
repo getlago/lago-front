@@ -211,6 +211,9 @@ module.exports = {
   "project_623b3ac9459a5d00df324533": {
     "base": require('./documentation-asset__base.json')
   },
+  "project_64fa170c8bbf9b0e6adc8b02": {
+    "base": require('./duplicate-plan__base.json')
+  },
   "project_62b1edda611dee64a01ad185": {
     "base": require('./lago--stripe-connection--impact-on-customer-view__base.json')
   },
