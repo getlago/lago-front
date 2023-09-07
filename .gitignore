@@ -5,3 +5,4 @@ dist
 yarn-error.log
 coverage
 ditto/*__*.json
+cypress/*
