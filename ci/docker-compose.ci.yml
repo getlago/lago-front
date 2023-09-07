@@ -31,10 +31,10 @@ services:
     ports:
       - 3000:3000
     environment:
-      RAILS_ENV: production
+      RAILS_ENV: development
       DATABASE_URL: postgres://lago:lago@db:5432/lago
       REDIS_URL: redis://redis:6379
-      LAGO_FRONT_URL: http://front
+      LAGO_FRONT_URL: http://localhost
       SECRET_KEY_BASE: secret-key
       LAGO_RSA_PRIVATE_KEY: ${LAGO_RSA_PRIVATE_KEY}
       LAGO_DISABLE_SEGMENT: "true"
@@ -55,7 +55,7 @@ services:
     container_name: lago-front
     restart: unless-stopped
     environment:
-      API_URL: http://api:3000
+      API_URL: http://localhost:3000
       NODE_ENV: staging
     ports:
       - 80:80
