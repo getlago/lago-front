@@ -34,7 +34,7 @@ services:
       RAILS_ENV: production
       DATABASE_URL: postgres://lago:lago@db:5432/lago
       REDIS_URL: redis://redis:6379
-      LAGO_FRONT_URL: http://localhost
+      LAGO_FRONT_URL: http://front
       SECRET_KEY_BASE: secret-key
       LAGO_RSA_PRIVATE_KEY: ${LAGO_RSA_PRIVATE_KEY}
       LAGO_DISABLE_SEGMENT: "true"
