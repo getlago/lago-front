@@ -1,6 +1,20 @@
 name: TestE2E
 
 on:
+  workflow_dispatch:
+    inputs:
+      api_branch:
+        description: License Branch
+        required: true
+        default: 'main'
+      license_branch:
+        description: API Branch
+        required: true
+        default: 'main'
+      front_branch:
+        description: Front Branch
+        required: true
+        default: 'main'
   pull_request:
     types: [opened, reopened, review_requested, ready_for_review, synchronize]
 
@@ -11,7 +25,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.front_branch }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
