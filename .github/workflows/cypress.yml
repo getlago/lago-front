@@ -29,10 +29,6 @@ jobs:
         with:
           ref: ${{ github.event.inputs.front_branch }}
 
-      - name: Build Front local image
-        run: |
-          docker build -t getlago/front:ci ./
-
       - name: Checkout API Git repository
         uses: actions/checkout@v4
         with:
@@ -40,10 +36,6 @@ jobs:
           ref: ${{ github.event.inputs.api_branch }}
           path: api
           token: ${{ secrets.GH_TOKEN }}
-
-      - name: Build API local image
-        run: |
-          docker build -t getlago/api:ci ./api
 
       - name: Checkout License Git repository
         uses: actions/checkout@v3
@@ -55,6 +47,8 @@ jobs:
 
       - name: Launch APPs
         run: |
+          docker build -t getlago/front:ci ./
+          docker build -t getlago/api:ci ./api
           docker build -t getlago/license:ci ./license
           docker-compose -f ./api/docker-compose.ci.yml -f ./license/docker-compose.ci.yml up -d db license
           export LAGO_LICENSE=$(docker-compose -f ./license/docker-compose.ci.yml run license bundle exec rake license:generate['Lago',nil])
