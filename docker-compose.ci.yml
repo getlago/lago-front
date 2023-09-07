@@ -3,6 +3,10 @@
 
 version: '3.8'
 
+networks:
+  default:
+    name: lago-ci
+
 services:
   front:
     image: getlago/front:ci
@@ -13,3 +17,5 @@ services:
       NODE_ENV: staging
     ports:
       - 80:80
+    networks:
+      - lago-ci
