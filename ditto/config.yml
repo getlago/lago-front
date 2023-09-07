@@ -286,5 +286,8 @@ sources:
       fileName: 👍 [Ready for dev] - Plans - Set a default price on charge with groups
     - name: 👍 [Ready for dev] - Plans - Min & max per transaction
       id: 64e7b269852fc4ff0e0ec11c
+      fileName: 👍 [Ready for dev] - Plans - Min & max per transaction
+    - name: Duplicate plan
+      id: 64fa170c8bbf9b0e6adc8b02
 format: flat
 variants: true

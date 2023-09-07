@@ -8,7 +8,6 @@ import { ButtonSelectorField, ComboBox, ComboBoxField, TextInputField } from '~/
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { theme, Card } from '~/styles'
-import { PLAN_FORM_TYPE_ENUM } from '~/hooks/plans/usePlanForm'
 import { LineSplit } from '~/styles/mainObjectsForm'
 import { CurrencyEnum, PlanInterval, useGetTaxesForPlanLazyQuery } from '~/generated/graphql'
 import {
@@ -17,6 +16,7 @@ import {
   SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME,
 } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { PLAN_FORM_TYPE_ENUM } from '~/core/apolloClient'
 
 import { PlanFormInput } from './types'
 
