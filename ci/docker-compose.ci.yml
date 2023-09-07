@@ -53,7 +53,7 @@ services:
     container_name: lago-front
     restart: unless-stopped
     environment:
-      API_URL: http://localhost:3000
+      API_URL: http://api:3000
       NODE_ENV: staging
     ports:
       - 80:80
