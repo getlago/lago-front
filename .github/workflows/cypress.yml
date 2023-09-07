@@ -51,7 +51,8 @@ jobs:
           docker build -t getlago/api:ci ./api
           docker build -t getlago/license:ci ./license
           docker-compose -f ./api/docker-compose.ci.yml -f ./license/docker-compose.ci.yml up -d db license
-          export LAGO_LICENSE=$(docker-compose -f ./license/docker-compose.ci.yml run license bundle exec rake license:generate['Lago',nil])
+          echo "LAGO_RSA_PRIVATE_KEY=\"`openssl genrsa 2048 | base64`\"" >> .env
+          echo "LAGO_LICENSE=\"`docker-compose -f ./license/docker-compose.ci.yml run license bundle exec rake license:generate['Lago',nil]`\"" >> .env
           docker-compose -f ./api/docker-compose.ci.yml -f docker-compose.ci.yml --env-file ./.env up -d redis db api front
 
       - name: Cypress run
