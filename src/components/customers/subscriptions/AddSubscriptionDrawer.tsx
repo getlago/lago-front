@@ -252,6 +252,7 @@ export const AddSubscriptionDrawer = forwardRef<
                   size="large"
                   onClick={() => {
                     updateOverwritePlanVar({
+                      type: 'override',
                       parentId: formikProps.values.planId ? String(formikProps.values.planId) : '',
                       subscriptionInput: formikProps?.values,
                       customerId: customerId,

@@ -19,6 +19,8 @@ import {
   addToast,
   updateOverwritePlanVar,
   hasDefinedGQLError,
+  PLAN_FORM_TYPE_ENUM,
+  resetOverwritePlanVar,
 } from '~/core/apolloClient'
 import { ERROR_404_ROUTE, PLANS_ROUTE, CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { serializePlanInput } from '~/core/serializers'
@@ -49,12 +51,6 @@ gql`
   ${EditPlanFragmentDoc}
 `
 
-export enum PLAN_FORM_TYPE_ENUM {
-  creation = 'creation',
-  edition = 'edition',
-  override = 'override',
-}
-
 export type PLAN_FORM_TYPE = keyof typeof PLAN_FORM_TYPE_ENUM
 
 export interface UsePlanFormReturn {
@@ -70,14 +66,15 @@ export interface UsePlanFormReturn {
 export const usePlanForm: () => UsePlanFormReturn = () => {
   const navigate = useNavigate()
   const { id } = useParams()
-  const { parentId, subscriptionInput, customerId } = useOverwritePlanVar()
+  const { parentId, subscriptionInput, customerId, type: actionType } = useOverwritePlanVar()
   const { data, loading, error } = useGetSinglePlanQuery({
     context: { silentError: LagoApiError.NotFound },
     variables: { id: (id as string) || (parentId as string) },
     skip: !id && !parentId,
   })
-  const isOverride = !!parentId
-  const type = !!id ? 'edition' : isOverride ? 'override' : 'creation'
+  const isOverride = actionType === 'override' && !!parentId
+  const isDuplicate = actionType === 'duplicate' && !!parentId
+  const type = !!id ? 'edition' : isDuplicate ? 'duplicate' : isOverride ? 'override' : 'creation'
   const [create, { error: createError }] = useCreatePlanMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ createPlan }) {
@@ -88,9 +85,16 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
             translateKey: 'text_632b3780e409ac86609cbd05',
           })
           updateOverwritePlanVar({
+            type: 'override',
             subscriptionInput: { ...subscriptionInput, planId: createPlan?.id },
           })
           navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: customerId as string }))
+        } else if (type === PLAN_FORM_TYPE_ENUM.duplicate) {
+          addToast({
+            severity: 'success',
+            translateKey: 'text_64fa176933e3b8008e3f15eb',
+          })
+          navigate(PLANS_ROUTE)
         } else {
           addToast({
             severity: 'success',
@@ -121,6 +125,16 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error])
 
+  // Clear duplicate plan var when leaving the page
+  useEffect(() => {
+    return () => {
+      if (type === PLAN_FORM_TYPE_ENUM.duplicate) {
+        resetOverwritePlanVar()
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const errorCode = useMemo(() => {
     if (hasDefinedGQLError('ValueAlreadyExist', createError || updateError)) {
       return FORM_ERRORS_ENUM.existingCode
@@ -136,7 +150,7 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
       errorCode,
       parentPlanName: data?.plan?.name,
       plan:
-        type === PLAN_FORM_TYPE_ENUM.override
+        type === PLAN_FORM_TYPE_ENUM.override || type === PLAN_FORM_TYPE_ENUM.duplicate
           ? _omit(data?.plan || undefined, ['name', 'code'])
           : data?.plan || undefined,
       onSave:
