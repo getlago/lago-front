@@ -6,6 +6,7 @@ import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { BILLABLE_METRICS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
 import {
+  AggregationTypeEnum,
   BillableMetricItemFragmentDoc,
   CreateBillableMetricInput,
   DeleteBillableMetricDialogFragmentDoc,
@@ -16,6 +17,7 @@ import {
   useCreateBillableMetricMutation,
   useGetSingleBillableMetricQuery,
   useUpdateBillableMetricMutation,
+  WeightedIntervalEnum,
 } from '~/generated/graphql'
 
 gql`
@@ -102,6 +104,17 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
     return undefined
   }, [createError, updateError])
 
+  const mutationInput = (values: CreateBillableMetricInput | UpdateBillableMetricInput) => {
+    return {
+      ...values,
+      weightedInterval:
+        values.aggregationType === AggregationTypeEnum.WeightedSumAgg
+          ? WeightedIntervalEnum.Seconds
+          : null,
+      group: JSON.parse(values.group || '{}'),
+    }
+  }
+
   return useMemo(
     () => ({
       loading,
@@ -112,14 +125,19 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
         ? async (values) => {
             await update({
               variables: {
-                input: { id, ...values, group: JSON.parse(values.group || '{}') },
+                input: {
+                  id,
+                  ...mutationInput(values),
+                },
               },
             })
           }
         : async (values) => {
             await create({
               variables: {
-                input: { ...values, group: JSON.parse(values.group || '{}') },
+                input: {
+                  ...mutationInput(values),
+                },
               },
             })
           },

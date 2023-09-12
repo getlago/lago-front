@@ -111,4 +111,27 @@ describe('Create billable metrics', () => {
     cy.url().should('be.equal', Cypress.config().baseUrl + '/billable-metrics')
     cy.contains(bmName).should('exist')
   })
+
+  it('should create recurring count billable metric', () => {
+    const randomId = Math.round(Math.random() * 1000)
+    const bmName = `bm weighted sum ${randomId}`
+
+    cy.get('[data-test="create-bm"]').click()
+    cy.url().should('be.equal', Cypress.config().baseUrl + '/create/billable-metrics')
+    cy.get('input[name="name"]').type(bmName)
+    cy.get('[data-test="submit"]').should('be.disabled')
+    cy.get('[data-test="recurring-switch"] [data-test="button-selector-true"]').click()
+    cy.get('[data-test="submit"]').should('be.disabled')
+    cy.get('input[name="code"]').type(bmName)
+    cy.get('[data-test="submit"]').should('be.disabled')
+    cy.get('textarea[name="description"]').type('I am a description')
+    cy.get('[data-test="submit"]').should('be.disabled')
+    cy.get('input[name="aggregationType"]').click()
+    cy.get('[data-test="weighted_sum_agg"]').click()
+    cy.get('input[name="fieldName"]').type('whatever')
+    cy.get('[data-test="submit"]').should('not.be.disabled')
+    cy.get('[data-test="submit"]').click()
+    cy.url().should('be.equal', Cypress.config().baseUrl + '/billable-metrics')
+    cy.contains(bmName).should('exist')
+  })
 })

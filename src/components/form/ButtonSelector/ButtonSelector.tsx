@@ -36,9 +36,10 @@ export const ButtonSelector = ({
   helperText,
   disabled,
   onChange,
+  ...props
 }: ButtonSelectorProps) => {
   return (
-    <Container className={className}>
+    <Container className={className} {...props}>
       {!!label && (
         <Label $withInfo={!!infoText}>
           <Typography variant="captionHl" color="textSecondary">

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { bool, object, string } from 'yup'
@@ -11,12 +11,8 @@ import {
   EditBillableMetricGroupDialogRef,
 } from '~/components/billableMetrics/EditBillableMetricGroupDialog'
 import { Accordion, Alert, Button, Skeleton, Typography } from '~/components/designSystem'
-import {
-  ButtonSelectorField,
-  ComboBoxField,
-  JsonEditorField,
-  TextInputField,
-} from '~/components/form'
+import { BetaChip } from '~/components/designSystem/BetaChip'
+import { ButtonSelector, ComboBoxField, JsonEditorField, TextInputField } from '~/components/form'
 import { WarningDialog, WarningDialogMode, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { BILLABLE_METRICS_ROUTE } from '~/core/router'
@@ -96,20 +92,6 @@ const CreateBillableMetric = () => {
   }, [formikProps.values.aggregationType, formikProps.values.fieldName])
 
   useEffect(() => {
-    if (
-      ![
-        AggregationTypeEnum.SumAgg,
-        AggregationTypeEnum.UniqueCountAgg,
-        AggregationTypeEnum.LatestAgg,
-      ].includes(formikProps.values.aggregationType)
-    ) {
-      formikProps.setFieldValue('recurring', false)
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formikProps.values.aggregationType])
-
-  useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
       formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
       const rootElement = document.getElementById('root')
@@ -120,6 +102,24 @@ const CreateBillableMetric = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorCode])
+
+  const handleUpdate = useCallback(
+    (name: string, value: unknown) => {
+      // Reset aggregationType if the recurring changes and is not compatible
+      if (
+        name === 'recurring' &&
+        (formikProps.values.aggregationType === AggregationTypeEnum.CountAgg ||
+          formikProps.values.aggregationType === AggregationTypeEnum.LatestAgg ||
+          formikProps.values.aggregationType === AggregationTypeEnum.MaxAgg)
+      ) {
+        formikProps.setFieldValue('aggregationType', '')
+      }
+
+      formikProps.setFieldValue(name, value)
+    },
+
+    [formikProps]
+  )
 
   return (
     <div>
@@ -229,35 +229,89 @@ const CreateBillableMetric = () => {
                     {translate('text_623b42ff8ee4e000ba87d0cc')}
                   </Typography>
 
+                  <ButtonSelector
+                    disabled={isEdition && !canBeEdited}
+                    label={translate('text_64d2709dc5b465004fbd3537')}
+                    helperText={translate(
+                      formikProps.values.recurring
+                        ? 'text_64d27292062d9600b089aacb'
+                        : 'text_64d272b4df12dc008076e232'
+                    )}
+                    options={[
+                      {
+                        label: translate('text_6310755befed49627644222b'),
+                        value: false,
+                      },
+                      {
+                        label: translate('text_64d27259d9a4cd00c1659a7e'),
+                        value: true,
+                      },
+                    ]}
+                    value={!!formikProps.values.recurring}
+                    onChange={(value) => handleUpdate('recurring', value)}
+                    data-test="recurring-switch"
+                  />
+
                   <ComboBoxField
                     sortValues={false}
                     formikProps={formikProps}
                     name="aggregationType"
                     disabled={isEdition && !canBeEdited}
-                    label={translate('text_623b42ff8ee4e000ba87d0ce')}
+                    label={
+                      <InlineComboboxLabel>
+                        <Typography variant="captionHl" color="textSecondary">
+                          {translate('text_623b42ff8ee4e000ba87d0ce')}
+                        </Typography>
+                        {formikProps.values.aggregationType ===
+                          AggregationTypeEnum.WeightedSumAgg && <BetaChip size="xsmall" />}
+                      </InlineComboboxLabel>
+                    }
                     infoText={translate('text_624d9adba93343010cd14c56')}
                     placeholder={translate('text_623b42ff8ee4e000ba87d0d0')}
                     virtualized={false}
                     data={[
-                      {
-                        label: translate('text_623c4a8c599213014cacc9de'),
-                        value: AggregationTypeEnum.CountAgg,
-                      },
+                      ...(!formikProps.values?.recurring
+                        ? [
+                            {
+                              label: translate('text_623c4a8c599213014cacc9de'),
+                              value: AggregationTypeEnum.CountAgg,
+                            },
+                          ]
+                        : []),
+
                       {
                         label: translate('text_62694d9181be8d00a33f20f0'),
                         value: AggregationTypeEnum.UniqueCountAgg,
                       },
-                      {
-                        label: translate('text_64f8823d75521b6faaee8549'),
-                        value: AggregationTypeEnum.LatestAgg,
-                      },
-                      {
-                        label: translate('text_62694d9181be8d00a33f20f8'),
-                        value: AggregationTypeEnum.MaxAgg,
-                      },
+                      ...(!formikProps.values?.recurring
+                        ? [
+                            {
+                              label: translate('text_64f8823d75521b6faaee8549'),
+                              value: AggregationTypeEnum.LatestAgg,
+                            },
+                            {
+                              label: translate('text_62694d9181be8d00a33f20f8'),
+                              value: AggregationTypeEnum.MaxAgg,
+                            },
+                          ]
+                        : []),
+
                       {
                         label: translate('text_62694d9181be8d00a33f2100'),
                         value: AggregationTypeEnum.SumAgg,
+                      },
+                      {
+                        labelNode: (
+                          <InlineComboboxLabel>
+                            <Typography variant="body" color="grey700">
+                              {translate('text_650062226a33c46e82050486')}
+                            </Typography>
+                            <BetaChip size="xsmall" />
+                          </InlineComboboxLabel>
+                        ),
+
+                        label: translate('text_650062226a33c46e82050486'),
+                        value: AggregationTypeEnum.WeightedSumAgg,
                       },
                     ]}
                     helperText={
@@ -271,11 +325,13 @@ const CreateBillableMetric = () => {
                         ? translate('text_62694d9181be8d00a33f20f2')
                         : formikProps.values?.aggregationType === AggregationTypeEnum.SumAgg
                         ? translate('text_62694d9181be8d00a33f20ec')
+                        : formikProps.values?.aggregationType === AggregationTypeEnum.WeightedSumAgg
+                        ? translate('text_650062226a33c46e82050488')
                         : undefined
                     }
                   />
 
-                  {formikProps.values?.aggregationType &&
+                  {!!formikProps.values?.aggregationType &&
                     formikProps.values?.aggregationType !== AggregationTypeEnum.CountAgg && (
                       <TextInputField
                         name="fieldName"
@@ -286,36 +342,9 @@ const CreateBillableMetric = () => {
                       />
                     )}
 
-                  {!![AggregationTypeEnum.SumAgg, AggregationTypeEnum.UniqueCountAgg].includes(
-                    formikProps.values.aggregationType
-                  ) ? (
-                    <>
-                      <ButtonSelectorField
-                        disabled={isEdition && !canBeEdited}
-                        name="recurring"
-                        label={translate('text_64d2709dc5b465004fbd3537')}
-                        helperText={translate(
-                          formikProps.values.recurring
-                            ? 'text_64d27292062d9600b089aacb'
-                            : 'text_64d272b4df12dc008076e232'
-                        )}
-                        options={[
-                          {
-                            label: translate('text_6310755befed49627644222b'),
-                            value: false,
-                          },
-                          {
-                            label: translate('text_64d27259d9a4cd00c1659a7e'),
-                            value: true,
-                          },
-                        ]}
-                        formikProps={formikProps}
-                      />
-                      <Typography variant="caption" color="grey600"></Typography>
-                    </>
-                  ) : !!formikProps.values.aggregationType ? (
-                    <Alert type="info">{translate('text_64d27277ee75720056d78622')}</Alert>
-                  ) : null}
+                  {formikProps.values?.aggregationType === AggregationTypeEnum.WeightedSumAgg && (
+                    <Alert type="info">{translate('text_650062226a33c46e8205048e')}</Alert>
+                  )}
                 </Card>
 
                 <Accordion
@@ -427,6 +456,12 @@ const CreateBillableMetric = () => {
 
 const GroupAlert = styled(Alert)`
   margin-top: ${theme.spacing(6)};
+`
+
+const InlineComboboxLabel = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing(2)};
 `
 
 export default CreateBillableMetric
