@@ -1,21 +1,21 @@
-import { forwardRef } from 'react'
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { object, string, date } from 'yup'
-import styled from 'styled-components'
 import { DateTime } from 'luxon'
+import { forwardRef } from 'react'
+import styled from 'styled-components'
+import { date, object, string } from 'yup'
 
-import { theme } from '~/styles'
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { DatePickerField, TextInputField } from '~/components/form'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { addToast } from '~/core/apolloClient'
 import {
   UpdateCustomerWalletInput,
   useUpdateCustomerWalletMutation,
   WalletForUpdateFragment,
   WalletForUpdateFragmentDoc,
 } from '~/generated/graphql'
-import { addToast } from '~/core/apolloClient'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { theme } from '~/styles'
 
 gql`
   mutation updateCustomerWallet($input: UpdateCustomerWalletInput!) {

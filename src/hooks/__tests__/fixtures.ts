@@ -1,6 +1,7 @@
 // For future me, fixture like that are terrible, I know.
 // We should have an other system for that, but I don't have time for that right now.
 import { InvoiceTypeEnum } from '~/generated/graphql'
+
 export const INVOICE_FIXTURE_ID = '1234'
 
 export const fourOFourInvoiceMock = () => ({

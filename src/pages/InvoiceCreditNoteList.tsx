@@ -1,30 +1,30 @@
-import { useRef } from 'react'
-import styled from 'styled-components'
 import { gql } from '@apollo/client'
-import { useParams, generatePath } from 'react-router-dom'
+import { useRef } from 'react'
+import { generatePath, useParams } from 'react-router-dom'
+import styled from 'styled-components'
 
-import { theme, NAV_HEIGHT } from '~/styles'
-import { Typography, ButtonLink, Button } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  useGetInvoiceCreditNotesQuery,
-  CreditNotesForListFragmentDoc,
-  TimezoneEnum,
-  InvoiceStatusTypeEnum,
-} from '~/generated/graphql'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import {
-  CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
-  CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
-} from '~/core/router'
+import CreditNotesList from '~/components/customers/creditNotes/CreditNotesList'
 import {
   VoidCreditNoteDialog,
   VoidCreditNoteDialogRef,
 } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
-import CreditNotesList from '~/components/customers/creditNotes/CreditNotesList'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { Button, ButtonLink, Typography } from '~/components/designSystem'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import {
+  CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
+  CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
+} from '~/core/router'
+import {
+  CreditNotesForListFragmentDoc,
+  InvoiceStatusTypeEnum,
+  TimezoneEnum,
+  useGetInvoiceCreditNotesQuery,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 gql`
   query getInvoiceCreditNotes($invoiceId: ID!, $page: Int, $limit: Int) {

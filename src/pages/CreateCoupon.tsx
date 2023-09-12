@@ -1,62 +1,62 @@
-import { useRef, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useFormik } from 'formik'
-import { object, string, number, date } from 'yup'
-import { DateTime } from 'luxon'
 import { InputAdornment } from '@mui/material'
-import styled from 'styled-components'
+import { useFormik } from 'formik'
 import isEqual from 'lodash/isEqual'
+import { DateTime } from 'luxon'
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
+import { date, number, object, string } from 'yup'
 
-import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
-import { PageHeader, Card, theme, ButtonGroup } from '~/styles'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
-  Typography,
-  Button,
-  Skeleton,
-  Alert,
-  Icon,
-  Avatar,
-  Tooltip,
-} from '~/components/designSystem'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { COUPONS_ROUTE } from '~/core/router'
-import {
-  TextInputField,
-  ComboBoxField,
-  DatePickerField,
-  Checkbox,
-  AmountInputField,
-} from '~/components/form'
-import {
-  CreateCouponInput,
-  CurrencyEnum,
-  CouponExpiration,
-  CouponTypeEnum,
-  CouponFrequency,
-  PlansForCouponsFragment,
-  BillableMetricsForCouponsFragment,
-} from '~/generated/graphql'
-import {
-  Main,
-  Content,
-  Title,
-  Subtitle,
-  Side,
-  SkeletonHeader,
-  ButtonContainer,
-  LineAmount,
-} from '~/styles/mainObjectsForm'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
+  AddBillableMetricToCouponDialog,
+  AddBillableMetricToCouponDialogRef,
+} from '~/components/coupons/AddBillableMetricToCouponDialog'
 import {
   AddPlanToCouponDialog,
   AddPlanToCouponDialogRef,
 } from '~/components/coupons/AddPlanToCouponDialog'
 import {
-  AddBillableMetricToCouponDialog,
-  AddBillableMetricToCouponDialogRef,
-} from '~/components/coupons/AddBillableMetricToCouponDialog'
+  Alert,
+  Avatar,
+  Button,
+  Icon,
+  Skeleton,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
+import {
+  AmountInputField,
+  Checkbox,
+  ComboBoxField,
+  DatePickerField,
+  TextInputField,
+} from '~/components/form'
+import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { COUPONS_ROUTE } from '~/core/router'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import {
+  BillableMetricsForCouponsFragment,
+  CouponExpiration,
+  CouponFrequency,
+  CouponTypeEnum,
+  CreateCouponInput,
+  CurrencyEnum,
+  PlansForCouponsFragment,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
+import { ButtonGroup, Card, PageHeader, theme } from '~/styles'
+import {
+  ButtonContainer,
+  Content,
+  LineAmount,
+  Main,
+  Side,
+  SkeletonHeader,
+  Subtitle,
+  Title,
+} from '~/styles/mainObjectsForm'
 
 import { CouponCodeSnippet } from '../components/coupons/CouponCodeSnippet'
 

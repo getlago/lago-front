@@ -1,12 +1,12 @@
-import { useRef, ChangeEvent, useState } from 'react'
-import styled from 'styled-components'
 import clsns from 'classnames'
+import { ChangeEvent, useRef, useState } from 'react'
+import styled from 'styled-components'
 
+import { Typography } from '~/components/designSystem'
 import CheckedIcon from '~/public/icons/forms/checkbox-checked.svg'
 import IndeterminateIcon from '~/public/icons/forms/checkbox-indeterminate.svg'
 import Icon from '~/public/icons/forms/checkbox.svg'
 import { theme } from '~/styles'
-import { Typography } from '~/components/designSystem'
 
 enum LabelAlignmentEnum {
   top = 'top',

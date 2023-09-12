@@ -1,8 +1,8 @@
 import { addOnFeeMock, feesMock, feesMockAmountCents } from './fixtures'
 
 import {
-  CreditNoteFormCalculationCalculationProps,
   creditNoteFormCalculationCalculation,
+  CreditNoteFormCalculationCalculationProps,
   mergeTaxMaps,
   updateOrCreateTaxMap,
 } from '../utils'

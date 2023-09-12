@@ -3,8 +3,8 @@
  * React-router doesn't explicitly give access to the history, not allowing to have fallbacks in case of no previous routes.
  * This var exists to address this problem by allowing to have access to the previous routes.
  */
-import { Location } from 'react-router-dom'
 import { makeVar } from '@apollo/client'
+import { Location } from 'react-router-dom'
 
 const MAX_HISTORY_KEPT = 5
 

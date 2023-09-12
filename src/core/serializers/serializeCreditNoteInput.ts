@@ -1,17 +1,17 @@
 import {
-  CreditNoteItemInput,
-  CreateCreditNoteInput,
-  CreditNoteReasonEnum,
-  CurrencyEnum,
-} from '~/generated/graphql'
-import {
   CreditNoteForm,
-  FromFee,
   CreditTypeEnum,
   FeesPerInvoice,
+  FromFee,
   GroupedFee,
 } from '~/components/creditNote/types'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
+import {
+  CreateCreditNoteInput,
+  CreditNoteItemInput,
+  CreditNoteReasonEnum,
+  CurrencyEnum,
+} from '~/generated/graphql'
 
 export const serializeCreditNoteInput: (
   invoiceId: string,

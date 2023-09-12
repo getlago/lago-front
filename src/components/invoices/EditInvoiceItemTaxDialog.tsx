@@ -1,16 +1,16 @@
+import { gql } from '@apollo/client'
+import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { array, object, string } from 'yup'
-import { useFormik } from 'formik'
-import { gql } from '@apollo/client'
 
-import { theme } from '~/styles'
-import { Dialog, Button, DialogRef, Tooltip, Typography } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { Button, Dialog, DialogRef, Tooltip, Typography } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
 import { SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME } from '~/core/constants/form'
-import { useGetTaxesForInvoiceEditTaxDialogQuery } from '~/generated/graphql'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { useGetTaxesForInvoiceEditTaxDialogQuery } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { theme } from '~/styles'
 
 import { LocalFeeInput } from './types'
 

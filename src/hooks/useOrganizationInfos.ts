@@ -1,14 +1,14 @@
 import { gql } from '@apollo/client'
 
+import { TimezoneConfigObject, TimeZonesConfig } from '~/core/timezone'
+import { formatDateToTZ } from '~/core/timezone'
 import {
+  MainOrganizationInfosFragment,
+  OrganizationForDatePickerFragmentDoc,
+  OrganizationForTimePickerFragmentDoc,
   TimezoneEnum,
   useGetOrganizationInfosQuery,
-  MainOrganizationInfosFragment,
-  OrganizationForTimePickerFragmentDoc,
-  OrganizationForDatePickerFragmentDoc,
 } from '~/generated/graphql'
-import { TimeZonesConfig, TimezoneConfigObject } from '~/core/timezone'
-import { formatDateToTZ } from '~/core/timezone'
 
 gql`
   fragment MainOrganizationInfos on Organization {

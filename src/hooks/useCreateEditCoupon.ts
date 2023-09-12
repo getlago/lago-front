@@ -1,29 +1,29 @@
-import { useMemo, useEffect, useState } from 'react'
 import { gql } from '@apollo/client'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { COUPONS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
+import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
+  BillableMetricsForCouponsFragment,
+  BillableMetricsForCouponsFragmentDoc,
+  CouponExpiration,
+  CouponFrequency,
+  CouponItemFragmentDoc,
+  CouponTypeEnum,
   CreateCouponInput,
+  CurrencyEnum,
+  EditCouponFragment,
+  LagoApiError,
+  PlansForCouponsFragment,
+  PlansForCouponsFragmentDoc,
+  UpdateCouponInput,
   useCreateCouponMutation,
   useGetSingleCouponQuery,
-  EditCouponFragment,
-  CouponItemFragmentDoc,
   useUpdateCouponMutation,
-  UpdateCouponInput,
-  CouponExpiration,
-  CouponTypeEnum,
-  CouponFrequency,
-  LagoApiError,
-  CurrencyEnum,
-  PlansForCouponsFragmentDoc,
-  PlansForCouponsFragment,
-  BillableMetricsForCouponsFragmentDoc,
-  BillableMetricsForCouponsFragment,
 } from '~/generated/graphql'
-import { ERROR_404_ROUTE, COUPONS_ROUTE } from '~/core/router'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { serializeAmount } from '~/core/serializers/serializeAmount'
-import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 
 gql`
   fragment EditCoupon on Coupon {

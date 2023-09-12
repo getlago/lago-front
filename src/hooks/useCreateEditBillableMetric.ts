@@ -1,22 +1,22 @@
-import { useMemo, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
 import { gql } from '@apollo/client'
+import { useEffect, useMemo } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
-import {
-  useGetSingleBillableMetricQuery,
-  EditBillableMetricFragment,
-  CreateBillableMetricInput,
-  useCreateBillableMetricMutation,
-  BillableMetricItemFragmentDoc,
-  DeleteBillableMetricDialogFragmentDoc,
-  UpdateBillableMetricInput,
-  useUpdateBillableMetricMutation,
-  LagoApiError,
-  EditBillableMetricFragmentDoc,
-} from '~/generated/graphql'
-import { ERROR_404_ROUTE, BILLABLE_METRICS_ROUTE } from '~/core/router'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { BILLABLE_METRICS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
+import {
+  BillableMetricItemFragmentDoc,
+  CreateBillableMetricInput,
+  DeleteBillableMetricDialogFragmentDoc,
+  EditBillableMetricFragment,
+  EditBillableMetricFragmentDoc,
+  LagoApiError,
+  UpdateBillableMetricInput,
+  useCreateBillableMetricMutation,
+  useGetSingleBillableMetricQuery,
+  useUpdateBillableMetricMutation,
+} from '~/generated/graphql'
 
 gql`
   query getSingleBillableMetric($id: ID!) {

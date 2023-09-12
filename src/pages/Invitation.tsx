@@ -1,25 +1,25 @@
-import { useState, useMemo, useEffect } from 'react'
 import { gql } from '@apollo/client'
-import { object, string } from 'yup'
-import styled from 'styled-components'
 import _findKey from 'lodash/findKey'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import styled from 'styled-components'
+import { object, string } from 'yup'
 
-import { Page, Title, Subtitle, StyledLogo, Card } from '~/styles/auth'
-import { Typography, Alert, Button, Skeleton } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
+import { Alert, Button, Skeleton, Typography } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
+import { hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
 import { LOGIN_ROUTE } from '~/core/router'
 import {
-  useAcceptInviteMutation,
-  LagoApiError,
-  useGetinviteQuery,
   CurrentUserFragmentDoc,
+  LagoApiError,
+  useAcceptInviteMutation,
+  useGetinviteQuery,
 } from '~/generated/graphql'
-import { onLogIn, hasDefinedGQLError } from '~/core/apolloClient'
-import { useShortcuts } from '~/hooks/ui/useShortcuts'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useShortcuts } from '~/hooks/ui/useShortcuts'
+import { theme } from '~/styles'
+import { Card, Page, StyledLogo, Subtitle, Title } from '~/styles/auth'
 
 gql`
   query getinvite($token: String!) {

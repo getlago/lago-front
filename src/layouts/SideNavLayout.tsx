@@ -1,28 +1,24 @@
 import { gql } from '@apollo/client'
-import { useNavigate, Outlet } from 'react-router-dom'
-import { useState, useRef, useEffect } from 'react'
-import styled from 'styled-components'
-import { ClickAwayListener } from '@mui/material'
 import { useApolloClient } from '@apollo/client'
-import { useLocation, Location } from 'react-router-dom'
+import { ClickAwayListener } from '@mui/material'
+import { useEffect, useRef, useState } from 'react'
+import { Outlet, useNavigate } from 'react-router-dom'
+import { Location, useLocation } from 'react-router-dom'
+import styled from 'styled-components'
 
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { logOut, envGlobalVar, switchCurrentOrganization } from '~/core/apolloClient'
-import { AppEnvEnum } from '~/core/constants/globalTypes'
 import {
   Avatar,
   Button,
   Icon,
   IconName,
+  NavigationTab,
   Popper,
   Skeleton,
-  NavigationTab,
   Typography,
 } from '~/components/designSystem'
-import { theme } from '~/styles'
+import { envGlobalVar, logOut, switchCurrentOrganization } from '~/core/apolloClient'
 import { DOCUMENTATION_URL, FEATURE_REQUESTS_URL } from '~/core/constants/externalUrls'
-import { MenuPopper } from '~/styles/designSystem'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { AppEnvEnum } from '~/core/constants/globalTypes'
 import {
   ADD_ONS_ROUTE,
   API_KEYS_ROUTE,
@@ -33,6 +29,8 @@ import {
   CUSTOMERS_LIST_ROUTE,
   DEBUGGER_ROUTE,
   DEVELOPERS_ROUTE,
+  EMAILS_SCENARIO_CONFIG_ROUTE,
+  EMAILS_SETTINGS_ROUTE,
   HOME_ROUTE,
   INTEGRATIONS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
@@ -42,17 +40,19 @@ import {
   ONLY_DEV_DESIGN_SYSTEM_ROUTE,
   ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE,
   ORGANIZATION_INFORMATIONS_ROUTE,
-  EMAILS_SETTINGS_ROUTE,
-  EMAILS_SCENARIO_CONFIG_ROUTE,
   PLANS_ROUTE,
   SETTINGS_ROUTE,
+  TAXES_SETTINGS_ROUTE,
   WEBHOOK_LOGS_ROUTE,
   WEBHOOK_LOGS_TAB_ROUTE,
   WEBHOOK_ROUTE,
-  TAXES_SETTINGS_ROUTE,
 } from '~/core/router'
 import { useSideNavInfosQuery } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { theme } from '~/styles'
+import { MenuPopper } from '~/styles/designSystem'
 
 const NAV_WIDTH = 240
 const { appEnv } = envGlobalVar()

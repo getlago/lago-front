@@ -1,18 +1,18 @@
-import { useState } from 'react'
-import { useFormik } from 'formik'
-import { object, string } from 'yup'
 import { gql } from '@apollo/client'
+import { useFormik } from 'formik'
+import { useState } from 'react'
 import styled from 'styled-components'
+import { object, string } from 'yup'
 
 import { Button, ButtonLink } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { LOGIN_ROUTE } from '~/core/router'
-import { Page, Title, Subtitle, StyledLogo, Card } from '~/styles/auth'
-import { useShortcuts } from '~/hooks/ui/useShortcuts'
 import { TextInputField } from '~/components/form'
-import { theme } from '~/styles'
-import { LagoApiError, useCreatePasswordResetMutation } from '~/generated/graphql'
 import { hasDefinedGQLError } from '~/core/apolloClient'
+import { LOGIN_ROUTE } from '~/core/router'
+import { LagoApiError, useCreatePasswordResetMutation } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useShortcuts } from '~/hooks/ui/useShortcuts'
+import { theme } from '~/styles'
+import { Card, Page, StyledLogo, Subtitle, Title } from '~/styles/auth'
 
 gql`
   mutation createPasswordReset($input: CreatePasswordResetInput!) {

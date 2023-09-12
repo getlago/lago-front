@@ -1,34 +1,34 @@
-import { memo, RefObject } from 'react'
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
+import { memo, RefObject } from 'react'
 import { generatePath } from 'react-router-dom'
+import styled from 'styled-components'
 
+import {
+  Avatar,
+  Button,
+  ButtonLink,
+  Icon,
+  Popper,
+  Skeleton,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
+import { UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import {
   BillableMetricItemFragment,
   DeleteBillableMetricDialogFragmentDoc,
 } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import {
-  Typography,
-  Avatar,
-  Icon,
-  Skeleton,
-  Popper,
-  Button,
-  ButtonLink,
-  Tooltip,
-} from '~/components/designSystem'
-import {
-  theme,
   BaseListItem,
+  ItemContainer,
   ListItemLink,
   MenuPopper,
   PopperOpener,
-  ItemContainer,
+  theme,
 } from '~/styles'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
-import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { DeleteBillableMetricDialogRef } from './DeleteBillableMetricDialog'
 

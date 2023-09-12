@@ -1,16 +1,16 @@
-import React, { memo } from 'react'
 import { gql } from '@apollo/client'
+import React, { memo } from 'react'
 
 import { Typography } from '~/components/designSystem'
+import { ExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
   Customer,
   InvoiceForDetailsTableFooterFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { ExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 
 gql`
   fragment InvoiceForDetailsTable on Invoice {

@@ -1,22 +1,22 @@
-import { forwardRef, ForwardedRef } from 'react'
-import styled from 'styled-components'
 import { gql } from '@apollo/client'
+import { ForwardedRef, forwardRef } from 'react'
+import styled from 'styled-components'
 
-import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT } from '~/styles'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { Skeleton, Typography } from '~/components/designSystem'
 import {
-  SubscriptionLinePlanFragmentDoc,
-  SubscriptionItemFragment,
   StatusTypeEnum,
+  SubscriptionItemFragment,
+  SubscriptionLinePlanFragmentDoc,
   TimezoneEnum,
 } from '~/generated/graphql'
-import { Typography, Skeleton } from '~/components/designSystem'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
 
 import { AddSubscriptionDrawerRef } from './AddSubscriptionDrawer'
 import { EditCustomerSubscriptionDrawerRef } from './EditCustomerSubscriptionDrawer'
-import { TerminateCustomerSubscriptionDialogRef } from './TerminateCustomerSubscriptionDialog'
 import { SubscriptionLine } from './SubscriptionLine'
+import { TerminateCustomerSubscriptionDialogRef } from './TerminateCustomerSubscriptionDialog'
 
 gql`
   fragment SubscriptionItem on Subscription {

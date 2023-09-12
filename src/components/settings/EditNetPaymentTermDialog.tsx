@@ -1,22 +1,22 @@
-import { forwardRef, useState, useRef, useImperativeHandle } from 'react'
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
 import { InputAdornment } from '@mui/material'
-import { string, object, number } from 'yup'
 import { useFormik } from 'formik'
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import styled from 'styled-components'
+import { number, object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { ComboBoxField, TextInputField } from '~/components/form'
+import { addToast } from '~/core/apolloClient'
+import { NetPaymentTermValuesEnum } from '~/core/constants/paymentTerm'
 import {
   EditCustomerNetPaymentTermForDialogFragment,
   EditOrganizationNetPaymentTermForDialogFragment,
   useUpdateCustomerNetPaymentTermMutation,
   useUpdateOrganizationNetPaymentTermMutation,
 } from '~/generated/graphql'
-import { ComboBoxField, TextInputField } from '~/components/form'
-import { addToast } from '~/core/apolloClient'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
-import { NetPaymentTermValuesEnum } from '~/core/constants/paymentTerm'
 
 gql`
   fragment EditCustomerNetPaymentTermForDialog on Customer {

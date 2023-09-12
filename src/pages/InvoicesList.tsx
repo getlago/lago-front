@@ -1,47 +1,47 @@
-import { useRef, useEffect } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { gql } from '@apollo/client'
+import { useEffect, useRef } from 'react'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Typography, NavigationTab, InfiniteScroll, Button } from '~/components/designSystem'
-import {
-  INVOICES_TAB_ROUTE,
-  INVOICES_ROUTE,
-  CUSTOMER_INVOICE_DETAILS_ROUTE,
-  INVOICE_SETTINGS_ROUTE,
-} from '~/core/router'
-import {
-  InvoiceStatusTypeEnum,
-  InvoicePaymentStatusTypeEnum,
-  InvoiceListItemFragmentDoc,
-  useRetryAllInvoicePaymentsMutation,
-  LagoApiError,
-  useInvoicesListLazyQuery,
-} from '~/generated/graphql'
-import { theme, PageHeader, ListHeader, ListContainer, NAV_HEIGHT } from '~/styles'
+import { Button, InfiniteScroll, NavigationTab, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import EmptyImage from '~/public/images/maneki/empty.svg'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
-  InvoiceListItemSkeleton,
-  InvoiceListItem,
-  InvoiceListItemGridTemplate,
-  InvoiceListItemContextEnum,
-} from '~/components/invoices/InvoiceListItem'
-import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
-import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
-import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { SearchInput } from '~/components/SearchInput'
+  UpdateInvoicePaymentStatusDialog,
+  UpdateInvoicePaymentStatusDialogRef,
+} from '~/components/invoices/EditInvoicePaymentStatusDialog'
 import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
 import {
-  UpdateInvoicePaymentStatusDialog,
-  UpdateInvoicePaymentStatusDialogRef,
-} from '~/components/invoices/EditInvoicePaymentStatusDialog'
+  InvoiceListItem,
+  InvoiceListItemContextEnum,
+  InvoiceListItemGridTemplate,
+  InvoiceListItemSkeleton,
+} from '~/components/invoices/InvoiceListItem'
+import { SearchInput } from '~/components/SearchInput'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import {
+  CUSTOMER_INVOICE_DETAILS_ROUTE,
+  INVOICE_SETTINGS_ROUTE,
+  INVOICES_ROUTE,
+  INVOICES_TAB_ROUTE,
+} from '~/core/router'
+import {
+  InvoiceListItemFragmentDoc,
+  InvoicePaymentStatusTypeEnum,
+  InvoiceStatusTypeEnum,
+  LagoApiError,
+  useInvoicesListLazyQuery,
+  useRetryAllInvoicePaymentsMutation,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
+import EmptyImage from '~/public/images/maneki/empty.svg'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { ListContainer, ListHeader, NAV_HEIGHT, PageHeader, theme } from '~/styles'
 
 gql`
   query invoicesList(

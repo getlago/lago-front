@@ -1,22 +1,22 @@
-import { useMemo, useEffect } from 'react'
 import { gql } from '@apollo/client'
-import { FormikProps } from 'formik'
-import styled, { css } from 'styled-components'
 import { InputAdornment } from '@mui/material'
+import { FormikProps } from 'formik'
 import _get from 'lodash/get'
+import { useEffect, useMemo } from 'react'
+import styled, { css } from 'styled-components'
 
+import { Alert, Button, Icon, Tooltip, Typography } from '~/components/designSystem'
+import { AmountInputField, ComboBox, ComboBoxField } from '~/components/form'
+import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
-  InvoicePaymentStatusTypeEnum,
-  LagoApiError,
   CreditNoteFormFragment,
   CurrencyEnum,
+  InvoicePaymentStatusTypeEnum,
+  LagoApiError,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { intlFormatNumber, getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { ComboBoxField, ComboBox, AmountInputField } from '~/components/form'
-import { Typography, Button, Tooltip, Alert, Icon } from '~/components/designSystem'
 import { theme } from '~/styles'
-import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 
 import { CreditNoteForm, CreditTypeEnum, PayBackErrorEnum } from './types'
 import { creditNoteFormCalculationCalculation } from './utils'

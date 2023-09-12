@@ -4,7 +4,8 @@ import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { object, string } from 'yup'
 
-import { Dialog, Button, DialogRef } from '~/components/designSystem'
+import { Button, Dialog, DialogRef } from '~/components/designSystem'
+import { ComboBoxField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
@@ -14,7 +15,6 @@ import {
   useUpdateInvoicePaymentStatusMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { ComboBoxField } from '~/components/form'
 import { theme } from '~/styles'
 
 gql`

@@ -1,23 +1,24 @@
-import { ApolloClient, NormalizedCacheObject, ApolloLink } from '@apollo/client'
+import { ApolloClient, ApolloLink, NormalizedCacheObject } from '@apollo/client'
 import { onError } from '@apollo/client/link/error'
+import { LocalForageWrapper, persistCache } from 'apollo3-cache-persist'
 import ApolloLinkTimeout from 'apollo-link-timeout'
 import { createUploadLink } from 'apollo-upload-client'
-import { persistCache, LocalForageWrapper } from 'apollo3-cache-persist'
 import localForage from 'localforage'
 
+// IMPORTANT: Keep reactiveVars import before cacheUtils
+import {
+  addToast,
+  AUTH_TOKEN_LS_KEY,
+  CUSTOMER_PORTAL_TOKEN_LS_KEY,
+  envGlobalVar,
+  ORGANIZATION_LS_KEY_ID,
+} from '~/core/apolloClient/reactiveVars'
 import { LagoApiError } from '~/generated/graphql'
 
 import { cache } from './cache'
-import {
-  AUTH_TOKEN_LS_KEY,
-  ORGANIZATION_LS_KEY_ID,
-  addToast,
-  envGlobalVar,
-  CUSTOMER_PORTAL_TOKEN_LS_KEY,
-} from './reactiveVars'
-import { logOut, getItemFromLS, omitDeep } from './cacheUtils'
+import { getItemFromLS, logOut, omitDeep } from './cacheUtils'
 import { LagoGQLError } from './errorUtils'
-import { typeDefs, resolvers } from './graphqlResolvers'
+import { resolvers, typeDefs } from './graphqlResolvers'
 
 let globalApolloClient: ApolloClient<NormalizedCacheObject> | null = null
 

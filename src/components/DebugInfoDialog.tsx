@@ -1,12 +1,12 @@
 import { forwardRef } from 'react'
 import styled from 'styled-components'
 
-import { Dialog, DialogRef, Typography, Button } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { envGlobalVar, addToast } from '~/core/apolloClient'
-import { theme } from '~/styles'
+import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { theme } from '~/styles'
 
 const { appEnv, apiUrl, appVersion } = envGlobalVar()
 

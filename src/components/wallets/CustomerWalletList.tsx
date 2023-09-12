@@ -1,34 +1,34 @@
-import { forwardRef, MutableRefObject, useRef } from 'react'
 import { gql } from '@apollo/client'
+import { forwardRef, MutableRefObject, useRef } from 'react'
 import styled from 'styled-components'
 
 import { Button, InfiniteScroll, Popper, Typography } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { SectionHeader, SideSection } from '~/styles/customer'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import ErrorImage from '~/public/images/maneki/error.svg'
 import {
+  TimezoneEnum,
   useGetCustomerWalletListQuery,
   WalletAccordionFragmentDoc,
   WalletForTopupFragmentDoc,
   WalletForUpdateFragmentDoc,
   WalletInfosForTransactionsFragmentDoc,
   WalletStatusEnum,
-  TimezoneEnum,
 } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, theme } from '~/styles'
+import { SectionHeader, SideSection } from '~/styles/customer'
 
 import { AddWalletToCustomerDialogRef } from './AddWalletToCustomerDialog'
-import { WalletAccordion, WalletAccordionSkeleton } from './WalletAccordion'
-import {
-  UpdateCustomerWalletDialog,
-  UpdateCustomerWalletDialogRef,
-} from './UpdateCustomerWalletDialog'
 import {
   TerminateCustomerWalletDialog,
   TerminateCustomerWalletDialogRef,
 } from './TerminateCustomerWalletDialog'
 import { TopupWalletDialog, TopupWalletDialogRef } from './TopupWalletDialog'
+import {
+  UpdateCustomerWalletDialog,
+  UpdateCustomerWalletDialogRef,
+} from './UpdateCustomerWalletDialog'
+import { WalletAccordion, WalletAccordionSkeleton } from './WalletAccordion'
 
 gql`
   fragment CustomerWallet on Wallet {

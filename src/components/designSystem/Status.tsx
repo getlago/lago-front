@@ -1,8 +1,8 @@
 import { ReactNode } from 'react'
 import styled from 'styled-components'
 
-import { theme } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { theme } from '~/styles'
 
 import { Typography } from './Typography'
 

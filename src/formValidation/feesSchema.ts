@@ -1,9 +1,9 @@
-import { object, number, boolean, ISchema, tuple } from 'yup'
 import _get from 'lodash/get'
+import { boolean, ISchema, number, object, tuple } from 'yup'
 
 import {
-  FeesPerInvoice,
   CreditNoteFeeErrorEnum,
+  FeesPerInvoice,
   FromFee,
   GroupedFee,
 } from '~/components/creditNote/types'

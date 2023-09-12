@@ -1,15 +1,15 @@
+import { gql } from '@apollo/client'
 import React, { memo, useRef } from 'react'
 import styled from 'styled-components'
-import { gql } from '@apollo/client'
 
 import { Button, Typography } from '~/components/designSystem'
 import {
   CustomerMetadatasForInvoiceOverviewFragment,
   InvoiceMetadatasForInvoiceOverviewFragment,
 } from '~/generated/graphql'
-import { SectionHeader } from '~/styles/customer'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
+import { SectionHeader } from '~/styles/customer'
 
 import { AddMetadataDrawer, AddMetadataDrawerRef } from './AddMetadataDrawer'
 

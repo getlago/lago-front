@@ -1,7 +1,7 @@
-import { memo } from 'react'
 import { FormikProps } from 'formik'
 import _get from 'lodash/get'
 import _isEqual from 'lodash/isEqual'
+import { memo } from 'react'
 
 import { JsonEditor, JsonEditorProps } from './JsonEditor'
 

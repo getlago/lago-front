@@ -1,10 +1,10 @@
 import { Outlet } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { PageHeader } from '~/styles'
+import { NavigationTab, Typography } from '~/components/designSystem'
+import { API_KEYS_ROUTE, DEBUGGER_ROUTE, DEVELOPERS_ROUTE, WEBHOOK_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Typography, NavigationTab } from '~/components/designSystem'
-import { API_KEYS_ROUTE, WEBHOOK_ROUTE, DEVELOPERS_ROUTE, DEBUGGER_ROUTE } from '~/core/router'
+import { PageHeader } from '~/styles'
 import { NAV_HEIGHT } from '~/styles'
 
 const Developers = () => {

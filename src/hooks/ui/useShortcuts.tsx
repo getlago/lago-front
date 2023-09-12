@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useCallback, KeyboardEvent } from 'react'
+import { KeyboardEvent, useCallback, useEffect, useMemo, useRef } from 'react'
 
 export interface Shortcut {
   keys: string[]

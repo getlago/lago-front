@@ -1,8 +1,8 @@
-import styled from 'styled-components'
 import clsns from 'classnames'
+import styled from 'styled-components'
 
-import { theme } from '~/styles'
 import { Icon, Typography } from '~/components/designSystem'
+import { theme } from '~/styles'
 
 export const ITEM_HEIGHT = 56
 

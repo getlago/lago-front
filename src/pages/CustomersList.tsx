@@ -1,19 +1,19 @@
-import { useRef } from 'react'
 import { gql } from '@apollo/client'
+import { useRef } from 'react'
 import styled from 'styled-components'
 
-import { Typography, Button, InfiniteScroll } from '~/components/designSystem'
+import { AddCustomerDrawer, AddCustomerDrawerRef } from '~/components/customers/AddCustomerDrawer'
+import { CustomerItem, CustomerItemSkeleton } from '~/components/customers/CustomerItem'
+import { Button, InfiniteScroll, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { SearchInput } from '~/components/SearchInput'
 import { CustomerItemFragmentDoc, useCustomersLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import EmptyImage from '~/public/images/maneki/empty.svg'
-import { AddCustomerDrawer, AddCustomerDrawerRef } from '~/components/customers/AddCustomerDrawer'
-import { CustomerItemSkeleton, CustomerItem } from '~/components/customers/CustomerItem'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
-import { SearchInput } from '~/components/SearchInput'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import EmptyImage from '~/public/images/maneki/empty.svg'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { ListContainer, ListHeader, PageHeader, theme } from '~/styles'
 
 gql`
   query customers($page: Int, $limit: Int, $searchTerm: String) {

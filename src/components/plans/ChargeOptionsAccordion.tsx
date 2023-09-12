@@ -1,15 +1,15 @@
+import { gql } from '@apollo/client'
+import { AccordionDetails, AccordionSummary, Accordion as MuiAccordion } from '@mui/material'
+import { TransitionProps } from '@mui/material/transitions'
 import { useState } from 'react'
 import { ReactNode } from 'react'
-import { gql } from '@apollo/client'
-import { Accordion as MuiAccordion, AccordionSummary, AccordionDetails } from '@mui/material'
-import { TransitionProps } from '@mui/material/transitions'
 import styled from 'styled-components'
 
-import { theme, NAV_HEIGHT } from '~/styles'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Typography, Chip, Button, Tooltip } from '~/components/designSystem'
+import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 import { LocalChargeInput } from './types'
 

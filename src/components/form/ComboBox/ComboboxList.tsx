@@ -1,16 +1,16 @@
-import { forwardRef, ReactNode, ForwardedRef, useMemo, Children, ReactElement } from 'react'
-import styled, { css } from 'styled-components'
 import _groupBy from 'lodash/groupBy'
+import { Children, ForwardedRef, forwardRef, ReactElement, ReactNode, useMemo } from 'react'
+import styled, { css } from 'styled-components'
 
-import { theme } from '~/styles'
 import { Typography } from '~/components/designSystem'
+import { theme } from '~/styles'
 
 import {
   ComboBoxVirtualizedList,
   GROUP_HEADER_HEIGHT,
   GROUP_ITEM_KEY,
 } from './ComboBoxVirtualizedList'
-import { ComboBoxProps, ComboBoxData } from './types'
+import { ComboBoxData, ComboBoxProps } from './types'
 
 const randomKey = Math.round(Math.random() * 100000)
 

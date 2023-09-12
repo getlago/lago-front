@@ -1,25 +1,25 @@
-import { useRef, useState } from 'react'
 import { gql } from '@apollo/client'
+import { Accordion, AccordionDetails, AccordionSummary } from '@mui/material'
+import { useRef, useState } from 'react'
 import styled from 'styled-components'
-import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
 
+import { Avatar, Button, Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { formatDateToTZ, getTimezoneConfig } from '~/core/timezone'
 import {
   ChargeUsage,
   CurrencyEnum,
-  CustomerUsageForUsageDetailsFragmentDoc,
   CustomerSubscriptionForUsageFragment,
-  useCustomerUsageLazyQuery,
+  CustomerUsageForUsageDetailsFragmentDoc,
   TimezoneEnum,
+  useCustomerUsageLazyQuery,
 } from '~/generated/graphql'
-import { Skeleton, Icon, Button, Tooltip, Avatar, Typography } from '~/components/designSystem'
-import { theme, NAV_HEIGHT } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import ErrorImage from '~/public/images/maneki/error.svg'
 import EmptyImage from '~/public/images/maneki/empty.svg'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { getTimezoneConfig, formatDateToTZ } from '~/core/timezone'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 import {
   CustomerUsageDetailDrawer,

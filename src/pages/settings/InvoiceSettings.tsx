@@ -1,43 +1,22 @@
+import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import styled from 'styled-components'
-import { gql } from '@apollo/client'
 
 import {
-  Typography,
-  Button,
-  Skeleton,
-  ShowMoreText,
   Avatar,
+  Button,
   Icon,
+  ShowMoreText,
+  Skeleton,
   Tooltip,
+  Typography,
 } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import ErrorImage from '~/public/images/maneki/error.svg'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { theme, NAV_HEIGHT } from '~/styles'
-import {
-  DeleteOrganizationVatRateFragmentDoc,
-  EditOrganizationInvoiceTemplateDialogFragmentDoc,
-  EditOrganizationNetPaymentTermForDialogFragmentDoc,
-  useGetOrganizationSettingsQuery,
-} from '~/generated/graphql'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   AddOrganizationVatRateDialog,
   AddOrganizationVatRateDialogRef,
 } from '~/components/settings/AddOrganizationVatRateDialog'
-import {
-  EditOrganizationInvoiceTemplateDialog,
-  EditOrganizationInvoiceTemplateDialogRef,
-} from '~/components/settings/EditOrganizationInvoiceTemplateDialog'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { EditOrganizationGracePeriodDialog } from '~/components/settings/EditOrganizationGracePeriodDialog'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import {
-  EditOrganizationDocumentLocaleDialog,
-  EditOrganizationDocumentLocaleDialogRef,
-} from '~/components/settings/EditOrganizationDocumentLocaleDialog'
-import { DocumentLocales } from '~/core/translations/documentLocales'
 import {
   DeleteOrganizationVatRateDialog,
   DeleteOrganizationVatRateDialogRef,
@@ -46,6 +25,27 @@ import {
   EditNetPaymentTermDialog,
   EditNetPaymentTermDialogRef,
 } from '~/components/settings/EditNetPaymentTermDialog'
+import {
+  EditOrganizationDocumentLocaleDialog,
+  EditOrganizationDocumentLocaleDialogRef,
+} from '~/components/settings/EditOrganizationDocumentLocaleDialog'
+import { EditOrganizationGracePeriodDialog } from '~/components/settings/EditOrganizationGracePeriodDialog'
+import {
+  EditOrganizationInvoiceTemplateDialog,
+  EditOrganizationInvoiceTemplateDialogRef,
+} from '~/components/settings/EditOrganizationInvoiceTemplateDialog'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { DocumentLocales } from '~/core/translations/documentLocales'
+import {
+  DeleteOrganizationVatRateFragmentDoc,
+  EditOrganizationInvoiceTemplateDialogFragmentDoc,
+  EditOrganizationNetPaymentTermForDialogFragmentDoc,
+  useGetOrganizationSettingsQuery,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
 

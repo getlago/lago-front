@@ -2,6 +2,7 @@ import { PlanFormInput } from '~/components/plans/types'
 import { ChargeModelEnum, Properties } from '~/generated/graphql'
 
 import { serializeAmount } from './serializeAmount'
+
 const serializeScientificNotation = (value: string): string => {
   if (!value) return '0'
 

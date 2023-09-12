@@ -1,28 +1,28 @@
-import { forwardRef, useState } from 'react'
-import { generatePath } from 'react-router-dom'
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { object, string } from 'yup'
+import { forwardRef, useState } from 'react'
+import { generatePath } from 'react-router-dom'
 import styled from 'styled-components'
+import { object, string } from 'yup'
 
-import { theme } from '~/styles'
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  CreateInviteInput,
-  LagoApiError,
-  useCreateInviteMutation,
-  GetInvitesQuery,
-  GetInvitesDocument,
-  InviteItemFragmentDoc,
-} from '~/generated/graphql'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVITATION_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import {
+  CreateInviteInput,
+  GetInvitesDocument,
+  GetInvitesQuery,
+  InviteItemFragmentDoc,
+  LagoApiError,
+  useCreateInviteMutation,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { theme } from '~/styles'
 
 gql`
   mutation createInvite($input: CreateInviteInput!) {

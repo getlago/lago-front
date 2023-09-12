@@ -1,16 +1,16 @@
-import { Settings } from 'luxon'
 import { gql } from '@apollo/client'
-import { useEffect, useRef } from 'react'
 import * as Sentry from '@sentry/browser'
+import { Settings } from 'luxon'
+import { useEffect, useRef } from 'react'
 
 import { addToast } from '~/core/apolloClient'
-import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
-  useUserIdentifierQuery,
-  MainOrganizationInfosFragmentDoc,
   CurrentUserInfosFragmentDoc,
+  MainOrganizationInfosFragmentDoc,
+  useUserIdentifierQuery,
 } from '~/generated/graphql'
+import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 
 gql`
   query UserIdentifier {

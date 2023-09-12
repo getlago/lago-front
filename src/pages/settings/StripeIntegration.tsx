@@ -1,22 +1,17 @@
+import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import styled from 'styled-components'
-import { gql } from '@apollo/client'
 
-import { theme, PageHeader, NAV_HEIGHT, MenuPopper } from '~/styles'
-import { INTEGRATIONS_ROUTE } from '~/core/router'
 import {
-  Typography,
+  Avatar,
   Button,
   ButtonLink,
-  Skeleton,
-  Avatar,
   Chip,
   Icon,
   Popper,
+  Skeleton,
+  Typography,
 } from '~/components/designSystem'
-import { useStripeIntegrationsSettingQuery } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import Stripe from '~/public/images/stripe.svg'
 import {
   AddStripeDialog,
   AddStripeDialogRef,
@@ -25,6 +20,11 @@ import {
   DeleteStripeIntegrationDialog,
   DeleteStripeIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteStripeIntegrationDialog'
+import { INTEGRATIONS_ROUTE } from '~/core/router'
+import { useStripeIntegrationsSettingQuery } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import Stripe from '~/public/images/stripe.svg'
+import { MenuPopper, NAV_HEIGHT, PageHeader, theme } from '~/styles'
 
 gql`
   fragment StripeIntegration on StripeProvider {

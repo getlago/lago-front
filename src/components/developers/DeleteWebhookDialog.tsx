@@ -1,11 +1,11 @@
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { gql } from '@apollo/client'
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { DialogRef } from '~/components/designSystem'
-import { useDeleteWebhookMutation } from '~/generated/graphql'
 import { WarningDialog } from '~/components/WarningDialog'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
+import { useDeleteWebhookMutation } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   mutation deleteWebhook($input: DestroyWebhookEndpointInput!) {

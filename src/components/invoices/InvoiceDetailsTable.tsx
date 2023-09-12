@@ -1,8 +1,12 @@
+import { gql } from '@apollo/client'
 import React, { memo } from 'react'
 import styled from 'styled-components'
-import { gql } from '@apollo/client'
 
 import { Skeleton, Typography } from '~/components/designSystem'
+import formatInvoiceItemsMap from '~/core/formats/formatInvoiceItemsMap'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { formatDateToTZ } from '~/core/timezone'
 import {
   CurrencyEnum,
   Customer,
@@ -13,14 +17,10 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NAV_HEIGHT, theme } from '~/styles'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import formatInvoiceItemsMap from '~/core/formats/formatInvoiceItemsMap'
-import { formatDateToTZ } from '~/core/timezone'
 
-import { InvoiceDetailsTableHeader } from './InvoiceDetailsTableHeader'
-import { InvoiceDetailsTableFooter } from './InvoiceDetailsTableFooter'
 import { InvoiceDetailsTableFeeItem } from './InvoiceDetailsTableFeeItem'
+import { InvoiceDetailsTableFooter } from './InvoiceDetailsTableFooter'
+import { InvoiceDetailsTableHeader } from './InvoiceDetailsTableHeader'
 
 gql`
   fragment InvoiceForDetailsTable on Invoice {

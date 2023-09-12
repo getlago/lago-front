@@ -1,22 +1,22 @@
-import { useEffect, useMemo } from 'react'
 import { gql } from '@apollo/client'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
+import { AddOnFormInput } from '~/components/addOns/types'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { ADD_ONS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
+import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
-  useUpdateAddOnMutation,
-  useCreateAddOnMutation,
-  useGetSingleAddOnQuery,
-  EditAddOnFragment,
   AddOnItemFragmentDoc,
   CreateAddOnInput,
-  UpdateAddOnInput,
+  EditAddOnFragment,
   LagoApiError,
+  UpdateAddOnInput,
+  useCreateAddOnMutation,
+  useGetSingleAddOnQuery,
+  useUpdateAddOnMutation,
 } from '~/generated/graphql'
-import { ERROR_404_ROUTE, ADD_ONS_ROUTE } from '~/core/router'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { serializeAmount } from '~/core/serializers/serializeAmount'
-import { FORM_ERRORS_ENUM } from '~/core/constants/form'
-import { AddOnFormInput } from '~/components/addOns/types'
 
 gql`
   fragment TaxOnAddOnEditCreate on Tax {

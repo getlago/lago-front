@@ -1,7 +1,7 @@
 import { CodeSnippet } from '~/components/CodeSnippet'
-import { CreateAddOnInput } from '~/generated/graphql'
 import { envGlobalVar } from '~/core/apolloClient'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
+import { CreateAddOnInput } from '~/generated/graphql'
 
 const { apiUrl } = envGlobalVar()
 

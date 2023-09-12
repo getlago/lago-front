@@ -1,10 +1,10 @@
-import { memo } from 'react'
 import { gql } from '@apollo/client'
+import { memo } from 'react'
 import styled from 'styled-components'
 
 import { Skeleton, Typography } from '~/components/designSystem'
-import { useGetPortalCustomerInfosQuery } from '~/generated/graphql'
 import { CountryCodes } from '~/core/constants/countryCodes'
+import { useGetPortalCustomerInfosQuery } from '~/generated/graphql'
 import { NAV_HEIGHT, theme } from '~/styles'
 
 gql`

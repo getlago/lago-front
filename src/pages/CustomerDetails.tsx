@@ -1,62 +1,62 @@
-import { useRef } from 'react'
 import { gql } from '@apollo/client'
-import { useNavigate, useParams, generatePath } from 'react-router-dom'
+import { useRef } from 'react'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-import {
-  Typography,
-  Button,
-  Skeleton,
-  Avatar,
-  Popper,
-  NavigationTab,
-} from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  CUSTOMERS_LIST_ROUTE,
-  CUSTOMER_DETAILS_TAB_ROUTE,
-  CUSTOMER_DETAILS_ROUTE,
-  CREATE_INVOICE_ROUTE,
-} from '~/core/router'
-import {
-  useGetCustomerQuery,
-  CustomerMainInfosFragmentDoc,
-  AddCustomerDrawerFragmentDoc,
-  useGenerateCustomerPortalUrlMutation,
-} from '~/generated/graphql'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import { CustomerSubscriptionsList } from '~/components/customers/subscriptions/CustomerSubscriptionsList'
-import { CustomerWalletsList } from '~/components/wallets/CustomerWalletList'
-import { useLocationHistory } from '~/hooks/core/useLocationHistory'
-import { CustomerInvoicesTab } from '~/components/customers/CustomerInvoicesTab'
-import { CustomerSettings } from '~/components/customers/CustomerSettings'
-import { theme, PageHeader, MenuPopper } from '~/styles'
-import { SectionHeader } from '~/styles/customer'
-import {
-  DeleteCustomerDialog,
-  DeleteCustomerDialogRef,
-} from '~/components/customers/DeleteCustomerDialog'
-import { AddCustomerDrawer, AddCustomerDrawerRef } from '~/components/customers/AddCustomerDrawer'
-import { CustomerCoupons } from '~/components/customers/CustomerCoupons'
-import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
-import { CustomerMainInfos } from '~/components/customers/CustomerMainInfos'
 import {
   AddCouponToCustomerDialog,
   AddCouponToCustomerDialogRef,
 } from '~/components/customers/AddCouponToCustomerDialog'
+import { AddCustomerDrawer, AddCustomerDrawerRef } from '~/components/customers/AddCustomerDrawer'
+import { CustomerCoupons } from '~/components/customers/CustomerCoupons'
+import { CustomerCreditNotesList } from '~/components/customers/CustomerCreditNotesList'
+import { CustomerInvoicesTab } from '~/components/customers/CustomerInvoicesTab'
+import { CustomerMainInfos } from '~/components/customers/CustomerMainInfos'
+import { CustomerSettings } from '~/components/customers/CustomerSettings'
+import {
+  DeleteCustomerDialog,
+  DeleteCustomerDialogRef,
+} from '~/components/customers/DeleteCustomerDialog'
 import {
   AddSubscriptionDrawer,
   AddSubscriptionDrawerRef,
 } from '~/components/customers/subscriptions/AddSubscriptionDrawer'
+import { CustomerSubscriptionsList } from '~/components/customers/subscriptions/CustomerSubscriptionsList'
+import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
+import {
+  Avatar,
+  Button,
+  NavigationTab,
+  Popper,
+  Skeleton,
+  Typography,
+} from '~/components/designSystem'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   AddWalletToCustomerDialog,
   AddWalletToCustomerDialogRef,
 } from '~/components/wallets/AddWalletToCustomerDialog'
-import { CustomerCreditNotesList } from '~/components/customers/CustomerCreditNotesList'
+import { CustomerWalletsList } from '~/components/wallets/CustomerWalletList'
 import { addToast } from '~/core/apolloClient'
+import {
+  CREATE_INVOICE_ROUTE,
+  CUSTOMER_DETAILS_ROUTE,
+  CUSTOMER_DETAILS_TAB_ROUTE,
+  CUSTOMERS_LIST_ROUTE,
+} from '~/core/router'
+import {
+  AddCustomerDrawerFragmentDoc,
+  CustomerMainInfosFragmentDoc,
+  useGenerateCustomerPortalUrlMutation,
+  useGetCustomerQuery,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { MenuPopper, PageHeader, theme } from '~/styles'
+import { SectionHeader } from '~/styles/customer'
 
 gql`
   fragment CustomerDetails on Customer {

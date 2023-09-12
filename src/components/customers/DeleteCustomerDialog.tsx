@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
 import { forwardRef } from 'react'
 
-import { Typography, DialogRef } from '~/components/designSystem'
-import { DeleteCustomerDialogFragment, useDeleteCustomerMutation } from '~/generated/graphql'
+import { DialogRef, Typography } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
+import { DeleteCustomerDialogFragment, useDeleteCustomerMutation } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   fragment DeleteCustomerDialog on Customer {

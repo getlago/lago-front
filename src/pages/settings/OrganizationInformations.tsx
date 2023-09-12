@@ -1,18 +1,10 @@
+import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import styled from 'styled-components'
-import { gql } from '@apollo/client'
 
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Avatar, Button, Skeleton, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import { theme, NAV_HEIGHT } from '~/styles'
-import {
-  useGetOrganizationInformationsQuery,
-  EditOrganizationInformationsDialogFragmentDoc,
-  EditOrganizationInformationsDialogFragment,
-  TimezoneEnum,
-} from '~/generated/graphql'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   EditOrganizationInformationsDialog,
   EditOrganizationInformationsDialogRef,
@@ -23,8 +15,16 @@ import {
 } from '~/components/settings/EditOrganizationTimezoneDialog'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import { getTimezoneConfig } from '~/core/timezone'
+import {
+  EditOrganizationInformationsDialogFragment,
+  EditOrganizationInformationsDialogFragmentDoc,
+  TimezoneEnum,
+  useGetOrganizationInformationsQuery,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 gql`
   fragment OrganizationInformations on Organization {

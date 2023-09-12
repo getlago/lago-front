@@ -1,12 +1,12 @@
+import clsns from 'classnames'
 import { ReactNode } from 'react'
 import styled from 'styled-components'
-import clsns from 'classnames'
 
 import { theme } from '~/styles'
 
-import { Icon, IconName, IconColor } from './Icon'
-import { Typography } from './Typography'
 import { Button, ButtonProps as TButtonProps } from './Button'
+import { Icon, IconColor, IconName } from './Icon'
+import { Typography } from './Typography'
 
 enum AlertType {
   info = 'info',

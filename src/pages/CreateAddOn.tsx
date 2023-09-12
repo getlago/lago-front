@@ -1,43 +1,43 @@
-import { useRef, useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useFormik } from 'formik'
-import { object, string, number } from 'yup'
-import styled from 'styled-components'
 import { gql } from '@apollo/client'
+import { useFormik } from 'formik'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
+import { number, object, string } from 'yup'
 
-import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
-import { PageHeader } from '~/styles'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { AddOnFormInput } from '~/components/addOns/types'
+import { Button, Chip, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { AmountInputField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
+import { Item } from '~/components/form/ComboBox/ComboBoxItem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { ADD_ONS_ROUTE } from '~/core/router'
-import {
-  CurrencyEnum,
-  TaxOnAddOnEditCreateFragmentDoc,
-  useGetTaxesForAddOnFormLazyQuery,
-} from '~/generated/graphql'
-import { theme, Card } from '~/styles'
-import { Typography, Button, Skeleton, Tooltip, Chip } from '~/components/designSystem'
-import { TextInputField, ComboBoxField, AmountInputField, ComboBox } from '~/components/form'
-import {
-  Main,
-  Content,
-  Title,
-  Subtitle,
-  Side,
-  Line,
-  SkeletonHeader,
-  ButtonContainer,
-  LineAmount,
-} from '~/styles/mainObjectsForm'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   FORM_ERRORS_ENUM,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME,
 } from '~/core/constants/form'
-import { AddOnFormInput } from '~/components/addOns/types'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { Item } from '~/components/form/ComboBox/ComboBoxItem'
+import { ADD_ONS_ROUTE } from '~/core/router'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import {
+  CurrencyEnum,
+  TaxOnAddOnEditCreateFragmentDoc,
+  useGetTaxesForAddOnFormLazyQuery,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
+import { PageHeader } from '~/styles'
+import { Card, theme } from '~/styles'
+import {
+  ButtonContainer,
+  Content,
+  Line,
+  LineAmount,
+  Main,
+  Side,
+  SkeletonHeader,
+  Subtitle,
+  Title,
+} from '~/styles/mainObjectsForm'
 
 import { AddOnCodeSnippet } from '../components/addOns/AddOnCodeSnippet'
 

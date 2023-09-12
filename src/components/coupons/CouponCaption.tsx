@@ -1,17 +1,17 @@
-import { memo } from 'react'
 import { gql } from '@apollo/client'
 import { TypographyProps } from '@mui/material'
+import { memo } from 'react'
 
+import { Typography } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
+  CouponFrequency,
   CouponItemFragment,
   CouponTypeEnum,
-  CouponFrequency,
   CurrencyEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Typography } from '~/components/designSystem'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
   fragment CouponCaption on Coupon {

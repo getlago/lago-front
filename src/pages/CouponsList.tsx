@@ -1,29 +1,29 @@
-import { useRef } from 'react'
 import { gql } from '@apollo/client'
+import { useRef } from 'react'
+import { generatePath, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { useNavigate, generatePath } from 'react-router-dom'
 
-import { CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
-import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
-import { Typography, ButtonLink, InfiniteScroll } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import EmptyImage from '~/public/images/maneki/empty.svg'
 import { CouponItem, CouponItemSkeleton } from '~/components/coupons/CouponItem'
-import {
-  CouponItemFragmentDoc,
-  CouponCaptionFragmentDoc,
-  useCouponsLazyQuery,
-} from '~/generated/graphql'
-import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
-import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { SearchInput } from '~/components/SearchInput'
 import { DeleteCouponDialog, DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
 import {
   TerminateCouponDialog,
   TerminateCouponDialogRef,
 } from '~/components/coupons/TerminateCouponDialog'
+import { ButtonLink, InfiniteScroll, Typography } from '~/components/designSystem'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { SearchInput } from '~/components/SearchInput'
+import { CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
+import {
+  CouponCaptionFragmentDoc,
+  CouponItemFragmentDoc,
+  useCouponsLazyQuery,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import EmptyImage from '~/public/images/maneki/empty.svg'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { ListContainer, ListHeader, PageHeader, theme } from '~/styles'
 
 gql`
   query coupons($page: Int, $limit: Int, $searchTerm: String) {

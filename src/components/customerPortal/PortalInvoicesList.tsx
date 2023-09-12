@@ -1,18 +1,18 @@
 import { gql } from '@apollo/client'
 import styled, { css } from 'styled-components'
 
-import { Typography, InfiniteScroll } from '~/components/designSystem'
+import { InfiniteScroll, Typography } from '~/components/designSystem'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { SearchInput } from '~/components/SearchInput'
+import { LocaleEnum } from '~/core/translations'
 import {
   PortalInvoiceListItemFragmentDoc,
   useCustomerPortalInvoicesLazyQuery,
 } from '~/generated/graphql'
-import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT } from '~/styles'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import EmptyImage from '~/public/images/maneki/empty.svg'
-import { LocaleEnum } from '~/core/translations'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { SearchInput } from '~/components/SearchInput'
+import EmptyImage from '~/public/images/maneki/empty.svg'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
 
 import {
   PortalInvoiceListItem,

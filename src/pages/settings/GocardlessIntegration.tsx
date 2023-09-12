@@ -1,29 +1,29 @@
-import styled from 'styled-components'
-import { useLocation } from 'react-router-dom'
-import { useState, useEffect } from 'react'
 import { gql } from '@apollo/client'
+import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
+import styled from 'styled-components'
 
-import { theme, PageHeader, NAV_HEIGHT, HEADER_TABLE_HEIGHT } from '~/styles'
-import { INTEGRATIONS_ROUTE } from '~/core/router'
-import { envGlobalVar } from '~/core/apolloClient'
 import {
-  Typography,
-  ButtonLink,
-  Skeleton,
   Avatar,
-  Chip,
   Button,
+  ButtonLink,
+  Chip,
   Icon,
+  Skeleton,
   Tooltip,
+  Typography,
 } from '~/components/designSystem'
+import { envGlobalVar } from '~/core/apolloClient'
+import { addToast } from '~/core/apolloClient'
+import { INTEGRATIONS_ROUTE } from '~/core/router'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
-  useGocardlessIntegrationsSettingQuery,
   useAddGocardlessPaymentProviderMutation,
+  useGocardlessIntegrationsSettingQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import GoCardless from '~/public/images/gocardless-large.svg'
-import { addToast } from '~/core/apolloClient'
-import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, PageHeader, theme } from '~/styles'
 
 gql`
   query gocardlessIntegrationsSetting {

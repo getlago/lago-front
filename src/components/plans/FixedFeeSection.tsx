@@ -1,15 +1,15 @@
-import { useEffect, memo, useState } from 'react'
-import { FormikProps } from 'formik'
-import styled from 'styled-components'
-import { InputAdornment } from '@mui/material'
 import { gql } from '@apollo/client'
+import { InputAdornment } from '@mui/material'
+import { FormikProps } from 'formik'
+import { memo, useEffect, useState } from 'react'
+import styled from 'styled-components'
 
-import { TextInputField, AmountInputField, ButtonSelectorField } from '~/components/form'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Button, Chip, Icon, Tooltip, Typography } from '~/components/designSystem'
-import { theme, Card, NAV_HEIGHT } from '~/styles'
+import { AmountInputField, ButtonSelectorField, TextInputField } from '~/components/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { Card, NAV_HEIGHT, theme } from '~/styles'
 
 import { PlanFormInput } from './types'
 

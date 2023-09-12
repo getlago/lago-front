@@ -1,53 +1,53 @@
-import { useCallback, MouseEvent, memo, useState, RefObject, useEffect, useMemo } from 'react'
-import { FormikProps } from 'formik'
-import styled from 'styled-components'
-import { InputAdornment } from '@mui/material'
 import { gql } from '@apollo/client'
+import { InputAdornment } from '@mui/material'
+import { FormikProps } from 'formik'
+import { memo, MouseEvent, RefObject, useCallback, useEffect, useMemo, useState } from 'react'
+import styled from 'styled-components'
 
-import { theme } from '~/styles'
 import {
-  Button,
-  Typography,
-  Tooltip,
   Accordion,
-  Icon,
   Alert,
+  Button,
   Chip,
+  Icon,
+  Tooltip,
+  Typography,
 } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  ChargeModelEnum,
-  CurrencyEnum,
-  VolumeRangesFragmentDoc,
-  GraduatedChargeFragmentDoc,
-  PackageChargeFragmentDoc,
-  PercentageChargeFragmentDoc,
-  PlanInterval,
-  ChargeForChargeOptionsAccordionFragmentDoc,
-  AggregationTypeEnum,
-  useGetTaxesForChargesLazyQuery,
-  TaxForPlanChargeAccordionFragment,
-  GraduatedPercentageChargeFragmentDoc,
-} from '~/generated/graphql'
 import { AmountInput, ButtonSelector, ComboBox, Switch } from '~/components/form'
-import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_CHARGE_GROUP_INPUT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME,
 } from '~/core/constants/form'
+import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import {
+  AggregationTypeEnum,
+  ChargeForChargeOptionsAccordionFragmentDoc,
+  ChargeModelEnum,
+  CurrencyEnum,
+  GraduatedChargeFragmentDoc,
+  GraduatedPercentageChargeFragmentDoc,
+  PackageChargeFragmentDoc,
+  PercentageChargeFragmentDoc,
+  PlanInterval,
+  TaxForPlanChargeAccordionFragment,
+  useGetTaxesForChargesLazyQuery,
+  VolumeRangesFragmentDoc,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { getPropertyShape } from '~/pages/CreatePlan'
+import { theme } from '~/styles'
 
-import { PlanFormInput } from './types'
-import { RemoveChargeWarningDialogRef } from './RemoveChargeWarningDialog'
 import { ChargeOptionsAccordion } from './ChargeOptionsAccordion'
 import { ChargeWrapperSwitch } from './ChargeWrapperSwitch'
+import { RemoveChargeWarningDialogRef } from './RemoveChargeWarningDialog'
+import { PlanFormInput } from './types'
 
-import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
-import { Item } from '../form/ComboBox/ComboBoxItem'
-import { BetaChip } from '../designSystem/BetaChip'
 import { ConditionalWrapper } from '../ConditionalWrapper'
+import { BetaChip } from '../designSystem/BetaChip'
+import { Item } from '../form/ComboBox/ComboBoxItem'
+import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 const DEFAULT_GROUP_VALUE = 'DEFAULT'
 

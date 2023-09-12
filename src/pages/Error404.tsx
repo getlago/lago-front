@@ -1,9 +1,9 @@
 import styled from 'styled-components'
 
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { HOME_ROUTE } from '~/core/router'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme } from '~/styles'
 

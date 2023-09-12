@@ -1,5 +1,5 @@
-import { ReactNode, Component, ErrorInfo } from 'react'
 import * as Sentry from '@sentry/browser'
+import { Component, ErrorInfo, ReactNode } from 'react'
 
 import { addToast } from '~/core/apolloClient'
 

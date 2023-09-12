@@ -1,13 +1,13 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
+import { envGlobalVar } from '~/core/apolloClient'
 import {
-  Locale,
   DittoTranslation,
   getTranslations,
-  translateKey,
+  Locale,
   TranslateData,
+  translateKey,
 } from '~/core/translations'
-import { envGlobalVar } from '~/core/apolloClient'
 
 const { appEnv } = envGlobalVar()
 

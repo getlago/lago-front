@@ -1,15 +1,15 @@
-import { forwardRef, MutableRefObject } from 'react'
-import styled from 'styled-components'
-import { generatePath } from 'react-router-dom'
 import { gql } from '@apollo/client'
+import { forwardRef, MutableRefObject } from 'react'
+import { generatePath } from 'react-router-dom'
+import styled from 'styled-components'
 
-import { theme } from '~/styles'
-import { Avatar, Typography, Skeleton, Button, Tooltip, Chip } from '~/components/designSystem'
-import { InviteItemFragment } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { Avatar, Button, Chip, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import { INVITATION_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { InviteItemFragment } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { theme } from '~/styles'
 
 import { RevokeInviteDialogRef } from './RevokeInviteDialog'
 

@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
 import { useApolloClient } from '@apollo/client'
-import { Outlet, generatePath, useNavigate, useParams } from 'react-router-dom'
+import { useEffect } from 'react'
+import { generatePath, Outlet, useNavigate, useParams } from 'react-router-dom'
 
 import { logOut } from '~/core/apolloClient'
 import { INVITATION_ROUTE_FORM } from '~/core/router'

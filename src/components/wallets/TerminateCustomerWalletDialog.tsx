@@ -1,16 +1,16 @@
-import { forwardRef } from 'react'
 import { gql } from '@apollo/client'
+import { forwardRef } from 'react'
 
 import { DialogRef } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { addToast } from '~/core/apolloClient'
 import {
   CustomerDetailsFragment,
   CustomerDetailsFragmentDoc,
   useTerminateCustomerWalletMutation,
   WalletAccordionFragmentDoc,
 } from '~/generated/graphql'
-import { addToast } from '~/core/apolloClient'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   mutation terminateCustomerWallet($input: TerminateCustomerWalletInput!) {

@@ -1,25 +1,25 @@
-import { useMemo } from 'react'
-import { gql, ApolloError } from '@apollo/client'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { ApolloError, gql } from '@apollo/client'
 import _groupBy from 'lodash/groupBy'
+import { useMemo } from 'react'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import {
-  useGetInvoiceCreateCreditNoteQuery,
-  LagoApiError,
-  InvoiceCreateCreditNoteFragment,
-  FeeTypesEnum,
-  useCreateCreditNoteMutation,
-  InvoiceFeeFragment,
-  CreateCreditNoteInvoiceFragmentDoc,
-  InvoiceTypeEnum,
-  CurrencyEnum,
-  Fee,
-} from '~/generated/graphql'
-import { ERROR_404_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
-import { hasDefinedGQLError, addToast } from '~/core/apolloClient'
-import { FeesPerInvoice, CreditNoteForm, FromFee } from '~/components/creditNote/types'
+import { CreditNoteForm, FeesPerInvoice, FromFee } from '~/components/creditNote/types'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { CUSTOMER_INVOICE_DETAILS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
 import { serializeCreditNoteInput } from '~/core/serializers'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import {
+  CreateCreditNoteInvoiceFragmentDoc,
+  CurrencyEnum,
+  Fee,
+  FeeTypesEnum,
+  InvoiceCreateCreditNoteFragment,
+  InvoiceFeeFragment,
+  InvoiceTypeEnum,
+  LagoApiError,
+  useCreateCreditNoteMutation,
+  useGetInvoiceCreateCreditNoteQuery,
+} from '~/generated/graphql'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 
 gql`

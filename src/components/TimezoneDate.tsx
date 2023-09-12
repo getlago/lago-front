@@ -1,11 +1,11 @@
 import styled from 'styled-components'
 
-import { Typography, Tooltip, Icon, TypographyProps } from '~/components/designSystem'
+import { Icon, Tooltip, Typography, TypographyProps } from '~/components/designSystem'
+import { formatDateToTZ, getTimezoneConfig } from '~/core/timezone'
 import { TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { getTimezoneConfig, formatDateToTZ } from '~/core/timezone'
+import { theme } from '~/styles'
 
 enum MainTimezoneEnum {
   utc0 = 'utc0',

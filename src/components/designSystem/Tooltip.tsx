@@ -1,5 +1,5 @@
-import { forwardRef, useState } from 'react'
 import { Tooltip as MuiTooltip, TooltipProps as MuiTooltipProps } from '@mui/material'
+import { forwardRef, useState } from 'react'
 
 interface TooltipProps
   extends Pick<

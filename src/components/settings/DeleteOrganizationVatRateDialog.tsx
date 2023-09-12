@@ -1,14 +1,14 @@
-import { forwardRef, useState, useRef, useImperativeHandle } from 'react'
 import { gql } from '@apollo/client'
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { DialogRef, Typography } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { addToast } from '~/core/apolloClient'
 import {
+  DeleteOrganizationVatRateFragment,
   LagoApiError,
   useAssignTaxRateToOrganizationMutation,
-  DeleteOrganizationVatRateFragment,
 } from '~/generated/graphql'
-import { addToast } from '~/core/apolloClient'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { WarningDialog } from '../WarningDialog'
 

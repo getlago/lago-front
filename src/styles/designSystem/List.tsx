@@ -1,7 +1,7 @@
-import styled, { css } from 'styled-components'
 import { Link } from 'react-router-dom'
+import styled, { css } from 'styled-components'
 
-import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT } from '~/styles'
+import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
 
 export const ListItemCss = css`
   width: 100%;

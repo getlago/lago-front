@@ -1,16 +1,16 @@
-import styled from 'styled-components'
 import { generatePath } from 'react-router-dom'
+import styled from 'styled-components'
 
-import { NAV_HEIGHT, theme } from '~/styles'
 import { Typography } from '~/components/designSystem'
-import { EmailSettingsEnum } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
-  EmailSettingItemSkeleton,
   EmailSettingItem,
+  EmailSettingItemSkeleton,
 } from '~/components/settings/emails/EmailSettingItem'
 import { EMAILS_SCENARIO_CONFIG_ROUTE } from '~/core/router'
+import { EmailSettingsEnum } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useEmailConfig } from '~/hooks/useEmailConfig'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 const EmailSettings = () => {
   const { translate } = useInternationalization()

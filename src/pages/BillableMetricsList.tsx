@@ -1,27 +1,27 @@
-import { useRef } from 'react'
 import { gql } from '@apollo/client'
+import { useRef } from 'react'
+import { generatePath, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { useNavigate, generatePath } from 'react-router-dom'
 
-import { Typography, ButtonLink, InfiniteScroll } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme, PageHeader, ListHeader, ListContainer } from '~/styles'
-import { CREATE_BILLABLE_METRIC_ROUTE, UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
-import { BillableMetricItemFragmentDoc, useBillableMetricsLazyQuery } from '~/generated/graphql'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import EmptyImage from '~/public/images/maneki/empty.svg'
 import {
   BillableMetricItem,
   BillableMetricItemSkeleton,
 } from '~/components/billableMetrics/BillableMetricItem'
-import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
-import { SearchInput } from '~/components/SearchInput'
-import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import {
   DeleteBillableMetricDialog,
   DeleteBillableMetricDialogRef,
 } from '~/components/billableMetrics/DeleteBillableMetricDialog'
+import { ButtonLink, InfiniteScroll, Typography } from '~/components/designSystem'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { SearchInput } from '~/components/SearchInput'
+import { CREATE_BILLABLE_METRIC_ROUTE, UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
+import { BillableMetricItemFragmentDoc, useBillableMetricsLazyQuery } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import EmptyImage from '~/public/images/maneki/empty.svg'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { ListContainer, ListHeader, PageHeader, theme } from '~/styles'
 
 gql`
   query billableMetrics($page: Int, $limit: Int, $searchTerm: String) {

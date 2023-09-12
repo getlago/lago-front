@@ -1,8 +1,8 @@
 import { Typography as MuiTypography, TypographyProps as MuiTypographyProps } from '@mui/material'
-import { ElementType, memo } from 'react'
-import sanitizeHtml from 'sanitize-html'
-import { Link } from 'react-router-dom'
 import _isEqual from 'lodash/isEqual'
+import { ElementType, memo } from 'react'
+import { Link } from 'react-router-dom'
+import sanitizeHtml from 'sanitize-html'
 import styled, { css } from 'styled-components'
 
 const defaultSanitizerOptions = {

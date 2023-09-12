@@ -1,21 +1,21 @@
+import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { gql } from '@apollo/client'
 
-import { Typography, Button, InfiniteScroll } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import ErrorImage from '~/public/images/maneki/error.svg'
+import { Button, InfiniteScroll, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { theme, NAV_HEIGHT } from '~/styles'
+import { DeleteTaxDialog, DeleteTaxDialogRef } from '~/components/taxes/DeleteTaxDialog'
+import { TaxItem, TaxItemSkeleton } from '~/components/taxes/TaxItem'
+import { CREATE_TAX_ROUTE } from '~/core/router'
 import {
   EditOrganizationInvoiceTemplateDialogFragmentDoc,
   TaxItemFragmentDoc,
   useGetTaxesQuery,
 } from '~/generated/graphql'
-import { CREATE_TAX_ROUTE } from '~/core/router'
-import { TaxItem, TaxItemSkeleton } from '~/components/taxes/TaxItem'
-import { DeleteTaxDialog, DeleteTaxDialogRef } from '~/components/taxes/DeleteTaxDialog'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 gql`
   query getTaxes($limit: Int, $page: Int) {

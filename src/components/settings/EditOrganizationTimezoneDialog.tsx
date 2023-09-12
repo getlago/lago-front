@@ -1,17 +1,17 @@
-import { forwardRef } from 'react'
-import { useFormik } from 'formik'
 import { gql } from '@apollo/client'
-import { object, string } from 'yup'
-import styled from 'styled-components'
+import { useFormik } from 'formik'
 import { Settings } from 'luxon'
+import { forwardRef } from 'react'
+import styled from 'styled-components'
+import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { ComboBoxField } from '~/components/form'
-import { TimezoneEnum, useUpdateOrganizationTimezoneMutation } from '~/generated/graphql'
 import { addToast } from '~/core/apolloClient'
-import { theme } from '~/styles'
 import { getTimezoneConfig } from '~/core/timezone'
+import { TimezoneEnum, useUpdateOrganizationTimezoneMutation } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { theme } from '~/styles'
 
 gql`
   mutation updateOrganizationTimezone($input: UpdateOrganizationInput!) {
