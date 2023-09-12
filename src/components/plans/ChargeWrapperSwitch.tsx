@@ -1,9 +1,13 @@
-import { RefObject, memo } from 'react'
-import { FormikProps } from 'formik'
 import { InputAdornment } from '@mui/material'
+import { FormikProps } from 'formik'
+import { memo, RefObject } from 'react'
 import styled from 'styled-components'
 
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { AmountInput } from '~/components/form'
+import { ChargePercentage } from '~/components/plans/ChargePercentage'
+import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
+import { PackageCharge } from '~/components/plans/PackageCharge'
+import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import {
   ChargeModelEnum,
   CurrencyEnum,
@@ -11,15 +15,11 @@ import {
   PropertiesInput,
   TaxForPlanChargeAccordionFragment,
 } from '~/generated/graphql'
-import { AmountInput } from '~/components/form'
-import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
-import { PackageCharge } from '~/components/plans/PackageCharge'
-import { ChargePercentage } from '~/components/plans/ChargePercentage'
-import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import { GraduatedPercentageChargeTable } from './GraduatedPercentageChargeTable'
 import { PlanFormInput } from './types'
 import { VolumeChargeTable } from './VolumeChargeTable'
-import { GraduatedPercentageChargeTable } from './GraduatedPercentageChargeTable'
 
 import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 

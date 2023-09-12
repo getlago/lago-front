@@ -1,17 +1,17 @@
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
+import { CodeSnippet } from '~/components/CodeSnippet'
+import { Button, Chip, Typography } from '~/components/designSystem'
+import { addToast } from '~/core/apolloClient'
 import {
+  useRetryWebhookMutation,
   WebhookLogDetailsFragment,
   WebhookStatusEnum,
-  useRetryWebhookMutation,
 } from '~/generated/graphql'
-import { Typography, Chip, Button } from '~/components/designSystem'
-import { theme, NAV_HEIGHT } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { CodeSnippet } from '~/components/CodeSnippet'
-import { addToast } from '~/core/apolloClient'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 gql`
   fragment WebhookLogDetails on Webhook {

@@ -1,4 +1,4 @@
-import { object, array, string } from 'yup'
+import { array, object, string } from 'yup'
 
 export const METADATA_VALUE_MAX_LENGTH_DEFAULT = 40
 const KEY_MAX_LENGTH = 20

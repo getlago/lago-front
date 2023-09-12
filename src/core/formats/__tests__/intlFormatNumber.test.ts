@@ -1,6 +1,6 @@
 import { CurrencyEnum } from '~/generated/graphql'
 
-import { intlFormatNumber, getCurrencySymbol } from '../intlFormatNumber'
+import { getCurrencySymbol, intlFormatNumber } from '../intlFormatNumber'
 
 describe('Currency tools', () => {
   describe('intlFormatNumber()', () => {

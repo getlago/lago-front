@@ -1,24 +1,24 @@
-import { memo, RefObject } from 'react'
-import styled from 'styled-components'
 import { gql } from '@apollo/client'
+import { memo, RefObject } from 'react'
 import { generatePath } from 'react-router-dom'
+import styled from 'styled-components'
 
-import { theme, MenuPopper, ItemContainer, ListItemLink, PopperOpener } from '~/styles'
 import {
-  Typography,
   Avatar,
-  Icon,
-  Skeleton,
   Button,
   ButtonLink,
-  Tooltip,
+  Icon,
   Popper,
+  Skeleton,
+  Tooltip,
+  Typography,
 } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { DeleteTaxFragmentDoc, TaxItemFragment } from '~/generated/graphql'
-import { UPDATE_TAX_ROUTE } from '~/core/router'
-import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { UPDATE_TAX_ROUTE } from '~/core/router'
+import { DeleteTaxFragmentDoc, TaxItemFragment } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
+import { ItemContainer, ListItemLink, MenuPopper, PopperOpener, theme } from '~/styles'
 
 import { DeleteTaxDialogRef } from './DeleteTaxDialog'
 

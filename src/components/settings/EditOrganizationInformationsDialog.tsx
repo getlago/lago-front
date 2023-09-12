@@ -1,22 +1,22 @@
-import { forwardRef, useState } from 'react'
-import { useFormik } from 'formik'
-import { object, string } from 'yup'
 import { gql } from '@apollo/client'
+import { useFormik } from 'formik'
+import { forwardRef, useState } from 'react'
 import styled from 'styled-components'
+import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { ComboBoxField, TextInput, TextInputField } from '~/components/form'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { OrganizationLogoPicker } from '~/components/OrganizationLogoPicker'
+import { addToast } from '~/core/apolloClient'
+import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import {
   EditOrganizationInformationsDialogFragment,
   OrganizationInformationsFragmentDoc,
   UpdateOrganizationInput,
   useUpdateOrganizationInformationsMutation,
 } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
-import { addToast } from '~/core/apolloClient'
-import { OrganizationLogoPicker } from '~/components/OrganizationLogoPicker'
-import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 
 gql`
   fragment EditOrganizationInformationsDialog on Organization {

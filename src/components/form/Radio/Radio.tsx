@@ -1,11 +1,11 @@
-import { forwardRef, ReactNode, useRef, useState } from 'react'
 import clsns from 'classnames'
+import { forwardRef, ReactNode, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import { Typography } from '~/components/designSystem'
-import { theme } from '~/styles'
-import RadioIcon from '~/public/icons/forms/radio.svg'
 import RadioCheckedIcon from '~/public/icons/forms/radio-checked.svg'
+import RadioIcon from '~/public/icons/forms/radio.svg'
+import { theme } from '~/styles'
 
 export interface RadioProps {
   name?: string

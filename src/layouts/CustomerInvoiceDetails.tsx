@@ -1,32 +1,47 @@
-import { useMemo, useRef } from 'react'
 import { gql } from '@apollo/client'
-import { useParams, generatePath, Outlet, useNavigate } from 'react-router-dom'
+import { useMemo, useRef } from 'react'
+import { generatePath, Outlet, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import {
-  Typography,
-  Button,
-  Skeleton,
-  Popper,
-  NavigationTab,
   Avatar,
+  Button,
+  Chip,
   Icon,
+  NavigationTab,
+  Popper,
+  Skeleton,
   Status,
   StatusEnum,
-  Chip,
+  Typography,
 } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
 import {
-  CUSTOMER_DETAILS_TAB_ROUTE,
-  CUSTOMER_INVOICE_DETAILS_ROUTE,
-  CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
+  UpdateInvoicePaymentStatusDialog,
+  UpdateInvoicePaymentStatusDialogRef,
+} from '~/components/invoices/EditInvoicePaymentStatusDialog'
+import {
+  FinalizeInvoiceDialog,
+  FinalizeInvoiceDialogRef,
+} from '~/components/invoices/FinalizeInvoiceDialog'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { addToast } from '~/core/apolloClient'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import {
   CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
+  CUSTOMER_DETAILS_TAB_ROUTE,
+  CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
+  CUSTOMER_INVOICE_DETAILS_ROUTE,
 } from '~/core/router'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
   CurrencyEnum,
+  CustomerMetadatasForInvoiceOverviewFragmentDoc,
   Invoice,
   InvoiceDetailsForInvoiceOverviewFragmentDoc,
   InvoiceForCreditNotesTableFragmentDoc,
@@ -35,38 +50,23 @@ import {
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForInvoiceInfosFragmentDoc,
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
-  CustomerMetadatasForInvoiceOverviewFragmentDoc,
+  InvoiceMetadatasForInvoiceOverviewFragmentDoc,
+  InvoiceMetadatasForMetadataDrawerFragmentDoc,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   InvoiceTypeEnum,
   useDownloadInvoiceMutation,
   useGetInvoiceDetailsQuery,
   useRefreshInvoiceMutation,
-  InvoiceMetadatasForInvoiceOverviewFragmentDoc,
-  InvoiceMetadatasForMetadataDrawerFragmentDoc,
 } from '~/generated/graphql'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import { theme, PageHeader, MenuPopper } from '~/styles'
-import { addToast } from '~/core/apolloClient'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import InvoiceOverview from '~/pages/InvoiceOverview'
-import InvoiceCreditNoteList from '~/pages/InvoiceCreditNoteList'
-import { CustomerDetailsTabsOptions } from '~/pages/CustomerDetails'
-import {
-  FinalizeInvoiceDialog,
-  FinalizeInvoiceDialogRef,
-} from '~/components/invoices/FinalizeInvoiceDialog'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import {
-  UpdateInvoicePaymentStatusDialog,
-  UpdateInvoicePaymentStatusDialogRef,
-} from '~/components/invoices/EditInvoicePaymentStatusDialog'
-import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
+import { CustomerDetailsTabsOptions } from '~/pages/CustomerDetails'
+import InvoiceCreditNoteList from '~/pages/InvoiceCreditNoteList'
+import InvoiceOverview from '~/pages/InvoiceOverview'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { MenuPopper, PageHeader, theme } from '~/styles'
 
 gql`
   fragment AllInvoiceDetailsForCustomerInvoiceDetails on Invoice {

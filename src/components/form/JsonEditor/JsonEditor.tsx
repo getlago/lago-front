@@ -1,17 +1,17 @@
-import { useState, ReactNode, useEffect } from 'react'
-import AceEditor from 'react-ace'
-import styled, { css } from 'styled-components'
-import 'ace-builds/src-noconflict/mode-json'
-import 'ace-builds/src-noconflict/ext-language_tools'
 import ace from 'ace-builds/src-noconflict/ace'
-import 'ace-builds/webpack-resolver'
+import 'ace-builds/src-noconflict/ext-language_tools'
+import 'ace-builds/src-noconflict/mode-json'
 import 'ace-builds/src-noconflict/mode-json'
 import 'ace-builds/src-noconflict/theme-github'
+import 'ace-builds/webpack-resolver'
 // @ts-ignore
 import jsonWorkerUrl from 'file-loader!ace-builds/src-noconflict/worker-json'
+import { ReactNode, useEffect, useState } from 'react'
+import AceEditor from 'react-ace'
+import styled, { css } from 'styled-components'
 
+import { Icon, Tooltip, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Typography, Tooltip, Icon } from '~/components/designSystem'
 import { theme } from '~/styles'
 
 ace.config.setModuleUrl('ace/mode/json_worker', jsonWorkerUrl)

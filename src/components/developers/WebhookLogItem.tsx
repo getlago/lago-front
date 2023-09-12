@@ -1,11 +1,11 @@
-import styled, { css } from 'styled-components'
 import { gql } from '@apollo/client'
+import styled, { css } from 'styled-components'
 
-import { theme, BaseListItem, ListItem, ItemContainer } from '~/styles'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { Skeleton, Icon, Typography, Avatar } from '~/components/designSystem'
+import { Avatar, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { WebhookLogItemFragment, WebhookStatusEnum } from '~/generated/graphql'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { BaseListItem, ItemContainer, ListItem, theme } from '~/styles'
 
 gql`
   fragment WebhookLogItem on Webhook {

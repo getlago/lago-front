@@ -1,11 +1,11 @@
 import { useRef } from 'react'
 import styled from 'styled-components'
 
-import { theme, NAV_HEIGHT, ListItemLink, INNER_CONTENT_WIDTH } from '~/styles'
-import { Skeleton, Avatar, Icon, Typography, Button } from '~/components/designSystem'
+import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { Switch } from '~/components/form'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { INNER_CONTENT_WIDTH, ListItemLink, NAV_HEIGHT, theme } from '~/styles'
 
 interface EmailSettingItemProps {
   title: String

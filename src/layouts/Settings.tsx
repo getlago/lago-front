@@ -1,18 +1,18 @@
 import { Outlet } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { PageHeader } from '~/styles'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Typography, NavigationTab } from '~/components/designSystem'
+import { NavigationTab, Typography } from '~/components/designSystem'
 import {
+  EMAILS_SETTINGS_ROUTE,
   INTEGRATIONS_ROUTE,
+  INVOICE_SETTINGS_ROUTE,
   MEMBERS_ROUTE,
   ORGANIZATION_INFORMATIONS_ROUTE,
   SETTINGS_ROUTE,
-  INVOICE_SETTINGS_ROUTE,
-  EMAILS_SETTINGS_ROUTE,
   TAXES_SETTINGS_ROUTE,
 } from '~/core/router'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { PageHeader } from '~/styles'
 import { NAV_HEIGHT } from '~/styles'
 
 const Settings = () => {

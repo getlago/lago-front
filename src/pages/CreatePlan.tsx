@@ -1,41 +1,41 @@
-import { useRef, useEffect } from 'react'
-import { useFormik } from 'formik'
-import { object, string, number } from 'yup'
 import { gql } from '@apollo/client'
+import { useFormik } from 'formik'
+import { useEffect, useRef } from 'react'
+import { number, object, string } from 'yup'
 
-import {
-  PlanInterval,
-  CurrencyEnum,
-  ChargeAccordionFragmentDoc,
-  PropertiesInput,
-  PlanForSettingsSectionFragmentDoc,
-  PlanForFixedFeeSectionFragmentDoc,
-  PlanForChargeAccordionFragmentDoc,
-} from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { Typography, Button, Skeleton } from '~/components/designSystem'
-import { theme, PageHeader, Card } from '~/styles'
+import { Button, Skeleton, Typography } from '~/components/designSystem'
+import { ChargesSection } from '~/components/plans/ChargesSection'
+import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
 import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
-import { usePlanForm } from '~/hooks/plans/usePlanForm'
+import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
+import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
+import { PLAN_FORM_TYPE_ENUM } from '~/core/apolloClient'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { chargeSchema } from '~/formValidation/chargeSchema'
 import {
-  Main,
+  ChargeAccordionFragmentDoc,
+  CurrencyEnum,
+  PlanForChargeAccordionFragmentDoc,
+  PlanForFixedFeeSectionFragmentDoc,
+  PlanForSettingsSectionFragmentDoc,
+  PlanInterval,
+  PropertiesInput,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePlanForm } from '~/hooks/plans/usePlanForm'
+import { Card, PageHeader, theme } from '~/styles'
+import {
+  ButtonContainer,
   Content,
-  Title,
-  Subtitle,
+  Main,
   Side,
   SkeletonHeader,
-  ButtonContainer,
+  Subtitle,
+  Title,
 } from '~/styles/mainObjectsForm'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
-import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
-import { ChargesSection } from '~/components/plans/ChargesSection'
-import { FORM_ERRORS_ENUM } from '~/core/constants/form'
-import { PLAN_FORM_TYPE_ENUM } from '~/core/apolloClient'
 
-import { PlanFormInput, LocalChargeInput } from '../components/plans/types'
+import { LocalChargeInput, PlanFormInput } from '../components/plans/types'
 
 gql`
   # Might need to be removed

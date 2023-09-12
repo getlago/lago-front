@@ -1,4 +1,4 @@
-import { object, string, number, array } from 'yup'
+import { array, number, object, string } from 'yup'
 
 import { MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR } from '~/core/constants/form'
 import { BillableMetric, ChargeModelEnum, GroupProperties, Properties } from '~/generated/graphql'

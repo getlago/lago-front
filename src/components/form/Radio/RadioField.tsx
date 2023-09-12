@@ -1,6 +1,6 @@
 import { FormikProps } from 'formik'
-import { forwardRef, memo } from 'react'
 import _isEqual from 'lodash/isEqual'
+import { forwardRef, memo } from 'react'
 
 import { Radio, RadioProps } from './Radio'
 

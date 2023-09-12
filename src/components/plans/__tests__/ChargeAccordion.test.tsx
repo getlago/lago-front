@@ -3,17 +3,17 @@ import userEvent from '@testing-library/user-event'
 import { FormikProps, useFormik } from 'formik'
 import { object } from 'yup'
 
-import { render } from '~/test-utils'
+import { MUI_BUTTON_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
+import { chargeSchema } from '~/formValidation/chargeSchema'
 import {
   AggregationTypeEnum,
   ChargeModelEnum,
   CurrencyEnum,
   GroupProperties,
 } from '~/generated/graphql'
-import { chargeSchema } from '~/formValidation/chargeSchema'
 import { Properties } from '~/generated/graphql'
 import { getPropertyShape } from '~/pages/CreatePlan'
-import { MUI_BUTTON_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
+import { render } from '~/test-utils'
 
 import { ChargeAccordion } from '../ChargeAccordion'
 import { PlanFormInput } from '../types'

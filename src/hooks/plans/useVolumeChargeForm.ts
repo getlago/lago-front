@@ -1,9 +1,9 @@
-import { useEffect, useMemo } from 'react'
 import { FormikProps } from 'formik'
+import { useEffect, useMemo } from 'react'
 
 import { PlanFormInput } from '~/components/plans/types'
-import { InputMaybe, PropertiesInput, VolumeRangeInput } from '~/generated/graphql'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
+import { InputMaybe, PropertiesInput, VolumeRangeInput } from '~/generated/graphql'
 
 export const DEFAULT_VOLUME_CHARGES = [
   {

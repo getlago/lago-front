@@ -1,49 +1,49 @@
-import { useRef, useMemo } from 'react'
 import { gql } from '@apollo/client'
-import { useParams, generatePath, useNavigate } from 'react-router-dom'
-import styled, { css } from 'styled-components'
 import { useFormik } from 'formik'
-import { object, string, number, array } from 'yup'
 import _get from 'lodash/get'
+import { useMemo, useRef } from 'react'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import styled, { css } from 'styled-components'
+import { array, number, object, string } from 'yup'
 
-import {
-  InvoicePaymentStatusTypeEnum,
-  CreditNoteReasonEnum,
-  CurrencyEnum,
-  LagoApiError,
-  CreditNoteFormFragmentDoc,
-} from '~/generated/graphql'
-import { hasDefinedGQLError } from '~/core/apolloClient'
-import { generateAddOnFeesSchema, generateFeesSchema } from '~/formValidation/feesSchema'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { useCreateCreditNote } from '~/hooks/useCreateCreditNote'
-import {
-  Typography,
-  Button,
-  Avatar,
-  Icon,
-  Status,
-  StatusEnum,
-  Skeleton,
-} from '~/components/designSystem'
-import { TextInputField, ComboBoxField, Checkbox } from '~/components/form'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { CreditNoteFormItem } from '~/components/creditNote/CreditNoteFormItem'
-import { CreditNoteFormCalculation } from '~/components/creditNote/CreditNoteFormCalculation'
 import { CreditNoteCodeSnippet } from '~/components/creditNote/CreditNoteCodeSnippet'
+import { CreditNoteFormCalculation } from '~/components/creditNote/CreditNoteFormCalculation'
+import { CreditNoteFormItem } from '~/components/creditNote/CreditNoteFormItem'
 import {
   CreditNoteForm,
+  CreditTypeEnum,
   FromFee,
   GroupedFee,
-  CreditTypeEnum,
   PayBackErrorEnum,
 } from '~/components/creditNote/types'
-import { Main, Content, Title, Subtitle, Side } from '~/styles/mainObjectsForm'
-import { PageHeader, theme, Card, HEADER_TABLE_HEIGHT } from '~/styles'
+import {
+  Avatar,
+  Button,
+  Icon,
+  Skeleton,
+  Status,
+  StatusEnum,
+  Typography,
+} from '~/components/designSystem'
+import { Checkbox, ComboBoxField, TextInputField } from '~/components/form'
+import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
+import { hasDefinedGQLError } from '~/core/apolloClient'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { generateAddOnFeesSchema, generateFeesSchema } from '~/formValidation/feesSchema'
+import {
+  CreditNoteFormFragmentDoc,
+  CreditNoteReasonEnum,
+  CurrencyEnum,
+  InvoicePaymentStatusTypeEnum,
+  LagoApiError,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCreateCreditNote } from '~/hooks/useCreateCreditNote'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
+import { Card, HEADER_TABLE_HEIGHT, PageHeader, theme } from '~/styles'
+import { Content, Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 gql`
   fragment CreateCreditNoteInvoice on Invoice {

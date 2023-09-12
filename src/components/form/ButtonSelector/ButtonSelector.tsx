@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components'
 
+import { Icon, Tooltip, Typography } from '~/components/designSystem'
 import { theme } from '~/styles'
-import { Typography, Tooltip, Icon } from '~/components/designSystem'
 import { ButtonGroup } from '~/styles'
 
 import { TabButton } from './TabButton'

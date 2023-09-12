@@ -1,11 +1,11 @@
+import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { object, string } from 'yup'
-import { useFormik } from 'formik'
 
-import { Dialog, Button, DialogRef } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
 const MAX_CHAR_LIMIT = 255

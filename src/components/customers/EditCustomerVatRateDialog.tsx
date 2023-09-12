@@ -1,21 +1,21 @@
-import { forwardRef, useState, useMemo } from 'react'
 import { gql } from '@apollo/client'
+import { forwardRef, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
-import { CREATE_TAX_ROUTE } from '~/core/router'
-import { Dialog, Button, DialogRef, Typography } from '~/components/designSystem'
+import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { addToast } from '~/core/apolloClient'
+import { SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME } from '~/core/constants/form'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { CREATE_TAX_ROUTE } from '~/core/router'
 import {
   CustomerAppliedTaxRatesForSettingsFragmentDoc,
   EditCustomerVatRateFragment,
   useCreateCustomerAppliedTaxMutation,
   useGetTaxRatesForEditCustomerLazyQuery,
 } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
-import { addToast } from '~/core/apolloClient'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME } from '~/core/constants/form'
 
 import { Item } from '../form/ComboBox/ComboBoxItem'
 

@@ -1,17 +1,17 @@
-import { memo, useEffect, useRef } from 'react'
 import Prism from 'prismjs'
-import 'prismjs/components/prism-javascript'
-import 'prismjs/components/prism-ruby'
 import 'prismjs/components/prism-bash'
+import 'prismjs/components/prism-javascript'
 import 'prismjs/components/prism-json'
+import 'prismjs/components/prism-ruby'
 import 'prismjs/plugins/line-numbers/prism-line-numbers'
+import { memo, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 
-import { Typography, Button } from '~/components/designSystem'
-import { theme, NAV_HEIGHT } from '~/styles'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { Button, Typography } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 Prism.manual = true
 

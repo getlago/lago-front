@@ -1,6 +1,6 @@
-import { memo } from 'react'
 import { FormikProps } from 'formik'
 import _isEqual from 'lodash/isEqual'
+import { memo } from 'react'
 
 import { ButtonSelector, ButtonSelectorProps } from './ButtonSelector'
 

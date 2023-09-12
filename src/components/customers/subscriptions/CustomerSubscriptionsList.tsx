@@ -1,24 +1,24 @@
-import { forwardRef, MutableRefObject, useRef } from 'react'
-import styled, { css } from 'styled-components'
-import { useParams } from 'react-router-dom'
 import { gql } from '@apollo/client'
+import { forwardRef, MutableRefObject, useRef } from 'react'
+import { useParams } from 'react-router-dom'
+import styled, { css } from 'styled-components'
 
+import { Button, Typography } from '~/components/designSystem'
 import {
   SubscriptionItemFragmentDoc,
   TimezoneEnum,
   useGetCustomerSubscriptionForListQuery,
 } from '~/generated/graphql'
-import { Typography, Button } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme, HEADER_TABLE_HEIGHT } from '~/styles'
+import { HEADER_TABLE_HEIGHT, theme } from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
 
-import { SubscriptionItem, SubscriptionItemSkeleton, SubscriptionItemRef } from './SubscriptionItem'
 import { AddSubscriptionDrawerRef } from './AddSubscriptionDrawer'
 import {
   EditCustomerSubscriptionDrawer,
   EditCustomerSubscriptionDrawerRef,
 } from './EditCustomerSubscriptionDrawer'
+import { SubscriptionItem, SubscriptionItemRef, SubscriptionItemSkeleton } from './SubscriptionItem'
 import {
   TerminateCustomerSubscriptionDialog,
   TerminateCustomerSubscriptionDialogRef,

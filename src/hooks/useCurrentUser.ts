@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 
-import { useGetCurrentUserInfosQuery, CurrentUserInfosFragment } from '~/generated/graphql'
+import { CurrentUserInfosFragment, useGetCurrentUserInfosQuery } from '~/generated/graphql'
 
 import { useIsAuthenticated } from './auth/useIsAuthenticated'
 

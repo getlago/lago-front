@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useRef, ReactElement } from 'react'
+import { ReactElement, useEffect, useRef } from 'react'
 import { VariableSizeList } from 'react-window'
 
 import { ITEM_HEIGHT } from './ComboBoxItem'

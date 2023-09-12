@@ -1,35 +1,35 @@
-import { forwardRef, RefObject, useState } from 'react'
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { object, string, date } from 'yup'
-import styled from 'styled-components'
-import { DateTime } from 'luxon'
 import { InputAdornment } from '@mui/material'
+import { useFormik } from 'formik'
+import { DateTime } from 'luxon'
+import { forwardRef, RefObject, useState } from 'react'
+import styled from 'styled-components'
+import { date, object, string } from 'yup'
 
-import { theme } from '~/styles'
 import { Alert, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import {
+  AmountInputField,
+  ComboBoxField,
   DatePickerField,
   TextInput,
   TextInputField,
-  ComboBoxField,
-  AmountInputField,
 } from '~/components/form'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  CreateCustomerWalletInput,
-  CurrencyEnum,
-  useCreateCustomerWalletMutation,
-  LagoApiError,
-  CustomerWalletFragmentDoc,
-  GetCustomerWalletListDocument,
-  GetCustomerWalletListQuery,
-  CustomerDetailsFragment,
-  CustomerDetailsFragmentDoc,
-} from '~/generated/graphql'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'
+import {
+  CreateCustomerWalletInput,
+  CurrencyEnum,
+  CustomerDetailsFragment,
+  CustomerDetailsFragmentDoc,
+  CustomerWalletFragmentDoc,
+  GetCustomerWalletListDocument,
+  GetCustomerWalletListQuery,
+  LagoApiError,
+  useCreateCustomerWalletMutation,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { theme } from '~/styles'
 
 gql`
   mutation createCustomerWallet($input: CreateCustomerWalletInput!) {

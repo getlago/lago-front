@@ -1,18 +1,18 @@
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
-import { Typography, Button, Skeleton } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
-import { SectionHeader } from '~/styles/customer'
+import { Button, Skeleton, Typography } from '~/components/designSystem'
+import { CountryCodes } from '~/core/constants/countryCodes'
+import { getTimezoneConfig } from '~/core/timezone'
 import {
   CustomerMainInfosFragment,
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
-import { CountryCodes } from '~/core/constants/countryCodes'
-import { getTimezoneConfig } from '~/core/timezone'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { theme } from '~/styles'
+import { SectionHeader } from '~/styles/customer'
 
 gql`
   fragment CustomerMainInfos on Customer {

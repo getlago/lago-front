@@ -1,9 +1,9 @@
-import { useEffect, useMemo } from 'react'
 import { FormikProps } from 'formik'
+import { useEffect, useMemo } from 'react'
 
 import { PlanFormInput } from '~/components/plans/types'
-import { GraduatedRangeInput, InputMaybe, PropertiesInput } from '~/generated/graphql'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
+import { GraduatedRangeInput, InputMaybe, PropertiesInput } from '~/generated/graphql'
 
 type RangeType = GraduatedRangeInput & { disabledDelete: boolean }
 type InfoCalculationRow = {

@@ -2,7 +2,7 @@ import styled from 'styled-components'
 
 import { Typography } from '~/components/designSystem'
 
-import { theme, NAV_HEIGHT } from './muiTheme'
+import { NAV_HEIGHT, theme } from './muiTheme'
 
 export const Main = styled.div`
   width: 60%;

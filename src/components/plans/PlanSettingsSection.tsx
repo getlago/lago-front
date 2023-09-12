@@ -1,22 +1,22 @@
-import { memo, useEffect, useMemo, useState } from 'react'
-import { FormikProps } from 'formik'
-import styled from 'styled-components'
 import { gql } from '@apollo/client'
+import { FormikProps } from 'formik'
+import { memo, useEffect, useMemo, useState } from 'react'
+import styled from 'styled-components'
 
-import { Item } from '~/components/form/ComboBox/ComboBoxItem'
-import { ButtonSelectorField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
-import { theme, Card } from '~/styles'
-import { LineSplit } from '~/styles/mainObjectsForm'
-import { CurrencyEnum, PlanInterval, useGetTaxesForPlanLazyQuery } from '~/generated/graphql'
+import { ButtonSelectorField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
+import { Item } from '~/components/form/ComboBox/ComboBoxItem'
+import { PLAN_FORM_TYPE_ENUM } from '~/core/apolloClient'
 import {
   FORM_ERRORS_ENUM,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME,
 } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { PLAN_FORM_TYPE_ENUM } from '~/core/apolloClient'
+import { CurrencyEnum, PlanInterval, useGetTaxesForPlanLazyQuery } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { Card, theme } from '~/styles'
+import { LineSplit } from '~/styles/mainObjectsForm'
 
 import { PlanFormInput } from './types'
 

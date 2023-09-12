@@ -1,29 +1,29 @@
-import { useRef, useEffect, useState } from 'react'
-import { useFormik } from 'formik'
-import { object, string, number } from 'yup'
-import styled from 'styled-components'
 import { InputAdornment } from '@mui/material'
+import { useFormik } from 'formik'
+import { useEffect, useRef, useState } from 'react'
+import styled from 'styled-components'
+import { number, object, string } from 'yup'
 
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { Button, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { TextInputField } from '~/components/form'
+import { TaxCodeSnippet } from '~/components/taxes/TaxCodeSnippet'
+import { TaxFormInput } from '~/components/taxes/types'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { Typography, Button, Skeleton, Tooltip } from '~/components/designSystem'
-import { theme, PageHeader, Card } from '~/styles'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCreateEditTax } from '~/hooks/useCreateEditTax'
+import { Card, PageHeader, theme } from '~/styles'
 import {
-  Main,
+  ButtonContainer,
   Content,
-  Title,
-  Subtitle,
+  LineSplit,
+  Main,
+  SectionTitle,
   Side,
   SkeletonHeader,
-  ButtonContainer,
-  SectionTitle,
-  LineSplit,
+  Subtitle,
+  Title,
 } from '~/styles/mainObjectsForm'
-import { useCreateEditTax } from '~/hooks/useCreateEditTax'
-import { TaxCodeSnippet } from '~/components/taxes/TaxCodeSnippet'
-import { TextInputField } from '~/components/form'
-import { TaxFormInput } from '~/components/taxes/types'
-import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 
 const CreateTaxRate = () => {
   const { isEdition, errorCode, loading, onClose, onSave, tax } = useCreateEditTax()

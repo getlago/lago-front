@@ -1,4 +1,4 @@
-import { planWithChargesName, customerName } from '../../support/reusableConstants'
+import { customerName, planWithChargesName } from '../../support/reusableConstants'
 
 describe('Edit plan', () => {
   describe('when no data has changed', () => {

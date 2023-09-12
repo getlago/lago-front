@@ -1,21 +1,21 @@
-import { object, string } from 'yup'
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
+import { useFormik } from 'formik'
 import { forwardRef } from 'react'
 import { useNavigate } from 'react-router'
-import { useFormik } from 'formik'
+import styled from 'styled-components'
+import { object, string } from 'yup'
 
-import { Dialog, Button, DialogRef } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
+import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
-import {
-  useAddAdyenApiKeyMutation,
-  AdyenIntegrationFragmentDoc,
-  AddAdyenPaymentProviderInput,
-} from '~/generated/graphql'
 import { addToast } from '~/core/apolloClient'
 import { ADYEN_INTEGRATION_ROUTE } from '~/core/router'
+import {
+  AddAdyenPaymentProviderInput,
+  AdyenIntegrationFragmentDoc,
+  useAddAdyenApiKeyMutation,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { theme } from '~/styles'
 
 gql`
   mutation addAdyenApiKey($input: AddAdyenPaymentProviderInput!) {

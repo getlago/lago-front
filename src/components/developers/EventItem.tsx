@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
 import styled, { css } from 'styled-components'
 
+import { Avatar, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { EventItemFragment } from '~/generated/graphql'
-import { theme, BaseListItem, ListItem, ItemContainer } from '~/styles'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
-import { Skeleton, Icon, Typography, Avatar } from '~/components/designSystem'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { BaseListItem, ItemContainer, ListItem, theme } from '~/styles'
 
 gql`
   fragment EventItem on Event {

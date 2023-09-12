@@ -1,7 +1,7 @@
-import { AggregationTypeEnum, CreateBillableMetricInput } from '~/generated/graphql'
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { envGlobalVar } from '~/core/apolloClient'
 import { isGroupValid, isOneDimension, isTwoDimension } from '~/core/utils/BMGroupUtils'
+import { AggregationTypeEnum, CreateBillableMetricInput } from '~/generated/graphql'
 
 const { apiUrl } = envGlobalVar()
 

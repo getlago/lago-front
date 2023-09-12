@@ -1,8 +1,8 @@
-import styled, { css } from 'styled-components'
 import clsns from 'classnames'
-import { useRef, useState, useEffect, MouseEvent } from 'react'
+import { MouseEvent, useEffect, useRef, useState } from 'react'
+import styled, { css } from 'styled-components'
 
-import { Typography, Icon } from '~/components/designSystem'
+import { Icon, Typography } from '~/components/designSystem'
 import { theme } from '~/styles'
 
 enum LabelPositionEnum {

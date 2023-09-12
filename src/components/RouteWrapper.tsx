@@ -1,12 +1,12 @@
-import { Suspense, ReactNode, useEffect } from 'react'
+import { ReactNode, Suspense, useEffect } from 'react'
 import { useRoutes } from 'react-router-dom'
-import styled from 'styled-components'
 import { useLocation } from 'react-router-dom'
 import type { RouteObject } from 'react-router-dom'
+import styled from 'styled-components'
 
 import { Icon } from '~/components/designSystem'
+import { CustomRouteObject, routes } from '~/core/router'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
-import { routes, CustomRouteObject } from '~/core/router'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 
 interface PageWrapperProps {

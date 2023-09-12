@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 import { Typography } from '~/components/designSystem'
-import { theme, NAV_HEIGHT } from '~/styles'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 export const SideSection = styled.div<{ $empty?: boolean }>`
   > *:first-child {

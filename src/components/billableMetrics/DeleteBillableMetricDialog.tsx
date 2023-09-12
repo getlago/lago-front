@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { Typography, DialogRef } from '~/components/designSystem'
-import { BillableMetricItemFragment, useDeleteBillableMetricMutation } from '~/generated/graphql'
+import { DialogRef, Typography } from '~/components/designSystem'
 import { WarningDialog } from '~/components/WarningDialog'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
+import { BillableMetricItemFragment, useDeleteBillableMetricMutation } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   fragment DeleteBillableMetricDialog on BillableMetric {

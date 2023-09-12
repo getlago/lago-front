@@ -2,12 +2,12 @@ import { gql } from '@apollo/client'
 import { forwardRef } from 'react'
 import { useNavigate } from 'react-router'
 
-import { Typography, DialogRef } from '~/components/designSystem'
-import { useDeleteAdyenMutation } from '~/generated/graphql'
+import { DialogRef, Typography } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
 import { INTEGRATIONS_ROUTE } from '~/core/router'
+import { useDeleteAdyenMutation } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   mutation deleteAdyen($input: DestroyPaymentProviderInput!) {

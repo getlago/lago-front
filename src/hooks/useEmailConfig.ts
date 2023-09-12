@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
 
+import { addToast } from '~/core/apolloClient'
 import {
   EmailSettingsEnum,
   useGetEmailSettingsQuery,
   useUpdateEmailSettingMutation,
 } from '~/generated/graphql'
-import { addToast } from '~/core/apolloClient'
 
 gql`
   query getEmailSettings {

@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
-import { forwardRef, memo } from 'react'
+import { FormikProps } from 'formik'
 import _get from 'lodash/get'
 import _isEqual from 'lodash/isEqual'
-import { FormikProps } from 'formik'
+import { forwardRef, memo } from 'react'
 
 import { CurrencyEnum } from '~/generated/graphql'
 

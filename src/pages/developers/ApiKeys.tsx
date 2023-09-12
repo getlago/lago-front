@@ -1,12 +1,12 @@
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
+import { Button, Skeleton, Typography } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Typography, Button, Skeleton } from '~/components/designSystem'
-import { NAV_HEIGHT, theme } from '~/styles'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useGetOrganizationApiKeyQuery } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 gql`
   query getOrganizationApiKey {

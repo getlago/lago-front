@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-import { theme, NAV_HEIGHT } from '~/styles'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 export const PageHeader = styled.div<{ $withSide?: boolean }>`
   align-items: center;

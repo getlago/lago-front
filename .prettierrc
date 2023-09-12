@@ -1,8 +1,13 @@
 {
+  "plugins": ["@trivago/prettier-plugin-sort-imports"],
   "semi": false,
   "singleQuote": true,
   "printWidth": 100,
   "tabWidth": 2,
+  "importOrder": ["^@core/(.*)$", "^[~/]", "^./(.*)", "^../(..*)"],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "importOrderCaseInsensitive": true,
   "overrides": [
     {
       "files": "*.svg",

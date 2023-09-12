@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { debounce, DebouncedFunc } from 'lodash'
 import { LazyQueryExecFunction } from '@apollo/client'
+import { debounce, DebouncedFunc } from 'lodash'
 import { DateTime } from 'luxon'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export const DEBOUNCE_SEARCH_MS = window.Cypress ? 0 : 500
 

@@ -1,39 +1,39 @@
-import { useRef } from 'react'
-import styled from 'styled-components'
 import { gql } from '@apollo/client'
+import { useRef } from 'react'
 import { useNavigate } from 'react-router'
+import styled from 'styled-components'
 
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
-import { Typography, Selector, Avatar, SelectorSkeleton, Chip } from '~/components/designSystem'
-import Stripe from '~/public/images/stripe.svg'
-import Adyen from '~/public/images/adyen.svg'
-import GoCardless from '~/public/images/gocardless.svg'
-import Airbyte from '~/public/images/airbyte.svg'
-import HightTouch from '~/public/images/hightouch.svg'
-import Segment from '~/public/images/segment.svg'
-import Oso from '~/public/images/oso.svg'
-import { useIntegrationsSettingQuery } from '~/generated/graphql'
-import {
-  STRIPE_INTEGRATION_ROUTE,
-  GOCARDLESS_INTEGRATION_ROUTE,
-  ADYEN_INTEGRATION_ROUTE,
-} from '~/core/router'
-import { envGlobalVar } from '~/core/apolloClient'
-import {
-  AddStripeDialog,
-  AddStripeDialogRef,
-} from '~/components/settings/integrations/AddStripeDialog'
-import {
-  DOCUMENTATION_AIRBYTE,
-  DOCUMENTATION_OSO,
-  DOCUMENTATION_SEGMENT,
-  DOCUMENTATION_HIGHTTOUCH,
-} from '~/core/constants/externalUrls'
+import { Avatar, Chip, Selector, SelectorSkeleton, Typography } from '~/components/designSystem'
 import {
   AddAdyenDialog,
   AddAdyenDialogRef,
 } from '~/components/settings/integrations/AddAdyenDialog'
+import {
+  AddStripeDialog,
+  AddStripeDialogRef,
+} from '~/components/settings/integrations/AddStripeDialog'
+import { envGlobalVar } from '~/core/apolloClient'
+import {
+  DOCUMENTATION_AIRBYTE,
+  DOCUMENTATION_HIGHTTOUCH,
+  DOCUMENTATION_OSO,
+  DOCUMENTATION_SEGMENT,
+} from '~/core/constants/externalUrls'
+import {
+  ADYEN_INTEGRATION_ROUTE,
+  GOCARDLESS_INTEGRATION_ROUTE,
+  STRIPE_INTEGRATION_ROUTE,
+} from '~/core/router'
+import { useIntegrationsSettingQuery } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import Adyen from '~/public/images/adyen.svg'
+import Airbyte from '~/public/images/airbyte.svg'
+import GoCardless from '~/public/images/gocardless.svg'
+import HightTouch from '~/public/images/hightouch.svg'
+import Oso from '~/public/images/oso.svg'
+import Segment from '~/public/images/segment.svg'
+import Stripe from '~/public/images/stripe.svg'
+import { theme } from '~/styles'
 
 gql`
   query integrationsSetting {

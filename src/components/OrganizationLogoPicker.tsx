@@ -1,9 +1,9 @@
-import { useState, useRef } from 'react'
+import { useRef, useState } from 'react'
 import styled from 'styled-components'
 
+import { Avatar, Button, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { Avatar, Button, Typography } from '~/components/designSystem'
 import { theme } from '~/styles'
 
 interface OrganizationLogoPickerProps {

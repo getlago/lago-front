@@ -1,24 +1,24 @@
-import { useRef } from 'react'
 import { gql } from '@apollo/client'
+import { useRef } from 'react'
 import styled from 'styled-components'
 
+import CreditNotesList from '~/components/customers/creditNotes/CreditNotesList'
+import { Avatar, Icon, Typography } from '~/components/designSystem'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreditNotesForListFragmentDoc,
   CurrencyEnum,
   TimezoneEnum,
   useGetCustomerCreditNotesLazyQuery,
 } from '~/generated/graphql'
-import { Avatar, Icon, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import ErrorImage from '~/public/images/maneki/error.svg'
 import { NAV_HEIGHT, theme } from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import { CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
-import CreditNotesList from '~/components/customers/creditNotes/CreditNotesList'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
 import { VoidCreditNoteDialog, VoidCreditNoteDialogRef } from './creditNotes/VoidCreditNoteDialog'
 

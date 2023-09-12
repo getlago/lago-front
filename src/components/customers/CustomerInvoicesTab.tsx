@@ -1,20 +1,20 @@
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
 import { generatePath, useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
 
+import { Skeleton, Typography } from '~/components/designSystem'
+import { CUSTOMER_DRAFT_INVOICES_LIST_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import {
+  InvoiceForInvoiceListFragmentDoc,
   InvoiceStatusTypeEnum,
   TimezoneEnum,
-  useGetCustomerInvoicesQuery,
-  InvoiceForInvoiceListFragmentDoc,
   useGetCustomerInvoicesLazyQuery,
+  useGetCustomerInvoicesQuery,
 } from '~/generated/graphql'
-import { Typography, Skeleton } from '~/components/designSystem'
-import { NAV_HEIGHT, theme } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { CUSTOMER_DRAFT_INVOICES_LIST_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
-import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 import { CustomerInvoicesList } from './CustomerInvoicesList'
 

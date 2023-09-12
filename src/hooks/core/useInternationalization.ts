@@ -1,8 +1,8 @@
 import { useCallback } from 'react'
 
-import { useInternationalizationVar, updateIntlLocale } from '~/core/apolloClient'
+import { updateIntlLocale, useInternationalizationVar } from '~/core/apolloClient'
 import { envGlobalVar } from '~/core/apolloClient'
-import { translateKey, TranslateData, Locale } from '~/core/translations'
+import { Locale, TranslateData, translateKey } from '~/core/translations'
 
 const { appEnv } = envGlobalVar()
 
