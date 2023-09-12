@@ -505,9 +505,13 @@ const Wrapper = styled.section`
   > table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 
     > thead > tr > th,
     > tbody > tr > td {
+      overflow: hidden;
+      line-break: anywhere;
+
       &:nth-child(1) {
         width: 50%;
       }

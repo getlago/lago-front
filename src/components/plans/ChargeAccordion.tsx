@@ -208,7 +208,8 @@ export const ChargeAccordion = memo(
             value === ChargeModelEnum.Volume ||
             localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg ||
             localCharge.billableMetric.aggregationType === AggregationTypeEnum.LatestAgg ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.RecurringCountAgg
+            localCharge.billableMetric.aggregationType === AggregationTypeEnum.RecurringCountAgg ||
+            localCharge.billableMetric.aggregationType === AggregationTypeEnum.WeightedSumAgg
           ) {
             formikProps.setFieldValue(`charges.${index}.payInAdvance`, false)
           }
@@ -216,6 +217,7 @@ export const ChargeAccordion = memo(
           // Reset prorated when switching charge model
           if (
             (localCharge.billableMetric.recurring && value === ChargeModelEnum.Graduated) ||
+            localCharge.billableMetric.aggregationType === AggregationTypeEnum.WeightedSumAgg ||
             value === ChargeModelEnum.GraduatedPercentage ||
             value === ChargeModelEnum.Package ||
             value === ChargeModelEnum.Percentage
@@ -314,9 +316,14 @@ export const ChargeAccordion = memo(
           localCharge.chargeModel === ChargeModelEnum.Graduated) ||
         localCharge.chargeModel === ChargeModelEnum.GraduatedPercentage ||
         localCharge.chargeModel === ChargeModelEnum.Package ||
-        localCharge.chargeModel === ChargeModelEnum.Percentage
+        localCharge.chargeModel === ChargeModelEnum.Percentage ||
+        localCharge.billableMetric.aggregationType === AggregationTypeEnum.WeightedSumAgg
       )
-    }, [localCharge.billableMetric.recurring, localCharge.chargeModel])
+    }, [
+      localCharge.billableMetric.aggregationType,
+      localCharge.billableMetric.recurring,
+      localCharge.chargeModel,
+    ])
 
     const proratedOptionHelperText = useMemo(() => {
       if (isProratedOptionDisabled)
@@ -780,7 +787,9 @@ export const ChargeAccordion = memo(
                     localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg ||
                     localCharge.billableMetric.aggregationType === AggregationTypeEnum.LatestAgg ||
                     localCharge.billableMetric.aggregationType ===
-                      AggregationTypeEnum.RecurringCountAgg,
+                      AggregationTypeEnum.RecurringCountAgg ||
+                    localCharge.billableMetric.aggregationType ===
+                      AggregationTypeEnum.WeightedSumAgg,
                 },
               ]}
             />

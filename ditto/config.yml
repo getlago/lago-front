@@ -295,5 +295,7 @@ sources:
       fileName: 👍 [Ready for dev] - B.Metrics - Add last aggregation type
     - name: 👍 [Ready for dev] - Plans - Invoice display names
       id: 65018c8af04a866c7bcc6cb8
+    - name: 👍 [Ready for dev] - Billable metrics - Weighted sum
+      id: 6500621fbbf7ebe75d11e890
 format: flat
 variants: true
