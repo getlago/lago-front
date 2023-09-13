@@ -72,8 +72,6 @@ gql`
 interface ChargesSectionProps {
   canBeEdited: boolean
   isEdition: boolean
-  hasAnyMeteredCharge: boolean
-  hasAnyRecurringCharge: boolean
   getPropertyShape: Function
   formikProps: FormikProps<PlanFormInput>
   alreadyExistingCharges?: PlanFormInput['charges'] | null
@@ -85,8 +83,6 @@ export const ChargesSection = memo(
   ({
     canBeEdited,
     isEdition,
-    hasAnyMeteredCharge,
-    hasAnyRecurringCharge,
     getPropertyShape,
     formikProps,
     alreadyExistingCharges,
@@ -99,6 +95,10 @@ export const ChargesSection = memo(
     const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
     const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
     const alreadyUsedBmsIds = useRef<Map<String, number>>(new Map())
+    const hasAnyMeteredCharge = formikProps.values.charges.some((c) => !c.billableMetric.recurring)
+    const hasAnyRecurringCharge = formikProps.values.charges.some(
+      (c) => !!c.billableMetric.recurring
+    )
     const [
       getMeteredBillableMetrics,
       { loading: meteredBillableMetricsLoading, data: meteredBillableMetricsData },
