@@ -293,7 +293,6 @@ export const PlanSettingsSection = memo(
             disabled={isEdition && !canBeEdited}
             onClick={() => {
               setShouldDisplayTaxesInput(true)
-
               setTimeout(() => {
                 const element = document.querySelector(
                   `.${SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
@@ -301,7 +300,7 @@ export const PlanSettingsSection = memo(
 
                 if (!element) return
 
-                element.scrollIntoView({ behavior: 'smooth' })
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' })
                 element.click()
               }, 0)
             }}
