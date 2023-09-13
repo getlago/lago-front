@@ -8,6 +8,7 @@ import { LocalChargeInput, PlanFormInput } from '~/components/plans/types'
 import {
   addToast,
   hasDefinedGQLError,
+  PLAN_FORM_TYPE,
   PLAN_FORM_TYPE_ENUM,
   resetOverwritePlanVar,
   updateOverwritePlanVar,
@@ -58,8 +59,6 @@ gql`
   ${DeletePlanDialogFragmentDoc}
   ${EditPlanFragmentDoc}
 `
-
-export type PLAN_FORM_TYPE = keyof typeof PLAN_FORM_TYPE_ENUM
 
 export interface UsePlanFormReturn {
   errorCode?: string
@@ -116,6 +115,7 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
       description: plan?.description || '',
       interval: plan?.interval || PlanInterval.Monthly,
       taxes: plan?.taxes || [],
+      invoiceDisplayName: plan?.invoiceDisplayName || undefined,
       payInAdvance: plan?.payInAdvance || false,
       amountCents: isNaN(plan?.amountCents)
         ? ''

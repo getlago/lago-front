@@ -6,12 +6,14 @@ import { getItemFromLS, setItemFromLS } from '../cacheUtils'
 
 export const OVERWRITE_PLAN_LS_KEY = 'overwritePlan'
 
-export enum PLAN_FORM_TYPE_ENUM {
-  creation = 'creation',
-  edition = 'edition',
-  override = 'override',
-  duplicate = 'duplicate',
-}
+export const PLAN_FORM_TYPE_ENUM = {
+  creation: 'creation',
+  edition: 'edition',
+  override: 'override',
+  duplicate: 'duplicate',
+} as const
+
+export type PLAN_FORM_TYPE = keyof typeof PLAN_FORM_TYPE_ENUM
 
 export type SubscriptionUpdateInfo = {
   subscriptionId?: string
@@ -23,7 +25,7 @@ export type SubscriptionUpdateInfo = {
 }
 
 type OverwritePlanVar = {
-  type: keyof typeof PLAN_FORM_TYPE_ENUM
+  type: PLAN_FORM_TYPE
   parentId?: string
   customerId?: string
   subscriptionInput?: Partial<CreateSubscriptionInput>
