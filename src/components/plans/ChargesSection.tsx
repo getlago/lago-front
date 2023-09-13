@@ -216,7 +216,7 @@ export const ChargesSection = memo(
 
                         if (!element) return
 
-                        element.scrollIntoView({ behavior: 'smooth' })
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
                         element.click()
 
                         closePopper()
@@ -238,7 +238,7 @@ export const ChargesSection = memo(
 
                         if (!element) return
 
-                        element.scrollIntoView({ behavior: 'smooth' })
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
                         element.click()
 
                         closePopper()

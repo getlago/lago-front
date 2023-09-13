@@ -373,7 +373,7 @@ const CreateAddOn = () => {
 
                           if (!element) return
 
-                          element.scrollIntoView({ behavior: 'smooth' })
+                          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
                           element.click()
                         }, 0)
                       }}
