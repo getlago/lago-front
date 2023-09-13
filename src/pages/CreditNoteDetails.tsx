@@ -229,12 +229,12 @@ const CreditNoteDetails = () => {
               goBack(
                 !!invoiceId
                   ? generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                      id: customerId,
+                      id: customerId as string,
                       invoiceId,
                       tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
                     })
                   : generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                      id: customerId,
+                      id: customerId as string,
                       tab: CustomerDetailsTabsOptions.creditNotes,
                     })
               )
