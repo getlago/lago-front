@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { ButtonSelectorField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
 import { Item } from '~/components/form/ComboBox/ComboBoxItem'
-import { PLAN_FORM_TYPE_ENUM } from '~/core/apolloClient'
+import { PLAN_FORM_TYPE, PLAN_FORM_TYPE_ENUM } from '~/core/apolloClient'
 import {
   FORM_ERRORS_ENUM,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
@@ -58,7 +58,7 @@ interface PlanSettingsSectionProps {
   canBeEdited: boolean
   errorCode: string | undefined
   formikProps: FormikProps<PlanFormInput>
-  type: keyof typeof PLAN_FORM_TYPE_ENUM
+  type: PLAN_FORM_TYPE
 }
 
 export const PlanSettingsSection = memo(

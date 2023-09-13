@@ -13,7 +13,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
-  fragment InvoiceForDetailsTable on Invoice {
+  fragment InvoiceForDetailsTableFee on Invoice {
     invoiceType
     subTotalExcludingTaxesAmountCents
     subTotalIncludingTaxesAmountCents

@@ -11,9 +11,11 @@ import {
   CurrencyEnum,
   Customer,
   Invoice,
+  InvoiceForDetailsTableFeeFragmentDoc,
   InvoiceForDetailsTableFooterFragmentDoc,
   InvoiceSubscription,
   InvoiceTypeEnum,
+  Subscription,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NAV_HEIGHT, theme } from '~/styles'
@@ -31,6 +33,7 @@ gql`
     currency
     issuingDate
 
+    ...InvoiceForDetailsTableFee
     ...InvoiceForDetailsTableFooter
 
     fees {
@@ -72,6 +75,7 @@ gql`
           interval
           amountCents
           amountCurrency
+          invoiceDisplayName
         }
       }
       fees {
@@ -80,6 +84,16 @@ gql`
         eventsCount
         units
         feeType
+        subscription {
+          id
+          name
+          plan {
+            id
+            name
+            invoiceDisplayName
+          }
+        }
+
         appliedTaxes {
           id
           taxRate
@@ -108,6 +122,7 @@ gql`
     }
   }
 
+  ${InvoiceForDetailsTableFeeFragmentDoc}
   ${InvoiceForDetailsTableFooterFragmentDoc}
 `
 
@@ -115,6 +130,19 @@ interface InvoiceDetailsTableProps {
   customer: Customer
   invoice: Invoice
   loading: boolean
+}
+
+const getSubscriptionDisplayName = (subscription: Subscription) => {
+  if (!!subscription.name) {
+    return subscription.name
+  } else if (!!subscription.plan?.invoiceDisplayName) {
+    return subscription.plan.invoiceDisplayName
+  }
+
+  const plan = subscription?.plan
+  const planInterval = `${plan?.interval?.charAt(0)?.toUpperCase()}${plan?.interval?.slice(1)}`
+
+  return `${planInterval} - ${plan?.name}`
 }
 
 export const InvoiceDetailsTable = memo(
@@ -285,11 +313,7 @@ export const InvoiceDetailsTable = memo(
                         <tr>
                           <td>
                             <Typography variant="body" color="grey700">
-                              {`${currentSubscription?.plan?.interval
-                                ?.charAt(0)
-                                ?.toUpperCase()}${currentSubscription?.plan?.interval?.slice(
-                                1
-                              )} - ${currentSubscription.plan.name}`}
+                              {getSubscriptionDisplayName(currentSubscription)}
                             </Typography>
                           </td>
                           <td>
@@ -315,18 +339,13 @@ export const InvoiceDetailsTable = memo(
                     </table>
                   )}
                 {subscriptionFees?.map((fee, j) => {
-                  const plan = currentSubscription?.plan
-                  const planInterval = `${plan?.interval
-                    ?.charAt(0)
-                    ?.toUpperCase()}${plan?.interval?.slice(1)}`
-
                   return (
                     <table key={`invoiceSubscription-${i}-subscription-fee-${j}`}>
                       <tbody>
                         <tr>
                           <td>
                             <Typography variant="body" color="grey700">
-                              {planInterval} - {plan?.name}
+                              {getSubscriptionDisplayName(currentSubscription)}
                             </Typography>
                           </td>
                           <td>

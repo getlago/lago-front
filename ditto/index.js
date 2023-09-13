@@ -68,6 +68,9 @@ module.exports = {
   "project_64de471ef3038f0ad36833f8": {
     "base": require('./-ready-for-dev---plans---graduated-percentage-charge-model__base.json')
   },
+  "project_65018c8af04a866c7bcc6cb8": {
+    "base": require('./-ready-for-dev---plans---invoice-display-names__base.json')
+  },
   "project_64e7b269852fc4ff0e0ec11c": {
     "base": require('./-ready-for-dev---plans---min--max-per-transaction__base.json')
   },

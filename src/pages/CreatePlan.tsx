@@ -2,6 +2,10 @@ import { gql } from '@apollo/client'
 import { useRef } from 'react'
 
 import { Button, Skeleton, Typography } from '~/components/designSystem'
+import {
+  EditInvoiceDisplayName,
+  EditInvoiceDisplayNameRef,
+} from '~/components/invoices/EditInvoiceDisplayName'
 import { ChargesSection } from '~/components/plans/ChargesSection'
 import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
 import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
@@ -57,6 +61,7 @@ gql`
     description
     interval
     payInAdvance
+    invoiceDisplayName
     amountCents
     amountCurrency
     trialPeriod
@@ -116,6 +121,7 @@ const CreatePlan = () => {
   const { errorCode, formikProps, isEdition, loading, parentPlanName, plan, type, onClose } =
     usePlanForm()
   const warningDialogRef = useRef<WarningDialogRef>(null)
+  const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
   const { translate } = useInternationalization()
 
   const canBeEdited = !plan?.subscriptionsCount
@@ -208,9 +214,11 @@ const CreatePlan = () => {
                 />
 
                 <FixedFeeSection
+                  type={type}
                   canBeEdited={canBeEdited}
                   formikProps={formikProps}
                   isEdition={isEdition}
+                  editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
                 />
 
                 <ChargesSection
@@ -260,6 +268,8 @@ const CreatePlan = () => {
         )}
         onContinue={onClose}
       />
+
+      <EditInvoiceDisplayName ref={editInvoiceDisplayNameRef} />
     </div>
   )
 }
