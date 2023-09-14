@@ -119,7 +119,7 @@ export const CreditNoteFormCalculation = ({
                 <Icon name="info-circle" />
               </Tooltip>
             </InlineLabel>
-            <Typography color="grey700">
+            <Typography color="grey700" data-test="prorated-coupon-amount">
               -
               {intlFormatNumber(proRatedCouponAmount || 0, {
                 currency,
@@ -129,7 +129,7 @@ export const CreditNoteFormCalculation = ({
         )}
         <Line>
           <Typography variant="bodyHl">{translate('text_636bedf292786b19d3398f02')}</Typography>
-          <Typography color="grey700">
+          <Typography color="grey700" data-test="total-excluded-tax">
             {!totalExcludedTax
               ? '-'
               : intlFormatNumber(totalExcludedTax, {
@@ -148,7 +148,7 @@ export const CreditNoteFormCalculation = ({
             .map((tax) => (
               <Line key={tax.label}>
                 <Typography variant="bodyHl">{tax.label}</Typography>
-                <Typography color="grey700">
+                <Typography color="grey700" data-test={`tax-${tax.taxRate}-amount`}>
                   {intlFormatNumber(tax.amount, {
                     currency,
                   })}
@@ -171,7 +171,7 @@ export const CreditNoteFormCalculation = ({
           <Typography variant="bodyHl" color="grey700">
             {translate('text_636bedf292786b19d3398f0a')}
           </Typography>
-          <Typography color="grey700">
+          <Typography color="grey700" data-test="total-tax-included">
             {!totalTaxIncluded
               ? '-'
               : intlFormatNumber(totalTaxIncluded, {
