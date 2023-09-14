@@ -79,7 +79,7 @@ export const generateFeesSchema = (formikInitialFees: FeesPerInvoice, currency: 
   )
 
 export const generateAddOnFeesSchema = (formikInitialFees: FromFee[], currency: CurrencyEnum) => {
-  const validationObject: [ISchema<unknown>] = [{} as unknown as ISchema<unknown>]
+  const validationObject: [ISchema<unknown>] = [{} as ISchema<unknown>]
 
   formikInitialFees.forEach((fee, i) => {
     validationObject[i] = simpleFeeSchema(fee.maxAmount, currency)

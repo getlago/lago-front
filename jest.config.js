@@ -20,6 +20,7 @@ module.exports = {
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/types.{ts,tsx}',
+    '!src/**/fixtures.ts',
     '!src/core/constants/*.{ts,tsx}',
     '!src/generated/*.{ts,tsx}',
     '!src/styles/**',

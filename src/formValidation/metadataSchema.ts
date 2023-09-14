@@ -1,7 +1,7 @@
 import { array, object, string } from 'yup'
 
 export const METADATA_VALUE_MAX_LENGTH_DEFAULT = 40
-const KEY_MAX_LENGTH = 20
+export const METADATA_KEY_MAX_LENGTH = 20
 
 export enum MetadataErrorsEnum {
   uniqueness = 'uniqueness',
@@ -31,7 +31,7 @@ export const metadataSchema = ({ valueMaxLength = METADATA_VALUE_MAX_LENGTH_DEFA
             }
           }
 
-          if (value.length > KEY_MAX_LENGTH) {
+          if (value.length > METADATA_KEY_MAX_LENGTH) {
             return createError({
               path,
               message: MetadataErrorsEnum.maxLength,
