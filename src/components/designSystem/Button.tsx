@@ -85,12 +85,6 @@ const mapProperties = (variant: ButtonVariant, inheritColor: boolean) => {
   }
 }
 
-const getDataQa = (variant: ButtonVariant, size: string, danger?: boolean, disabled?: boolean) => {
-  if (disabled) return `${variant}--disabled/${size}`
-  if (danger) return `${variant}--danger/${size}`
-  return `${variant}/${size}`
-}
-
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
@@ -157,7 +151,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         $align={align}
         onClick={handleClick}
         size={size}
-        data-test={getDataQa(variant, size, danger, disabled)}
+        data-test="button"
         disableElevation
         disableRipple
         disabled={disabled}
