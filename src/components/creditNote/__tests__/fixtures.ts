@@ -1,3 +1,5 @@
+import { CurrencyEnum, InvoicePaymentStatusTypeEnum } from '~/generated/graphql'
+
 export const feesMock = {
   subscriptionId1: {
     subscriptionName: 'Subscription 1',
@@ -149,3 +151,16 @@ export const addOnFeeMock = [
     ],
   },
 ]
+
+export const invoiceMock = {
+  id: '1234',
+  couponsAmountCents: '1010',
+  paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
+  creditableAmountCents: '0',
+  refundableAmountCents: '0',
+  feesAmountCents: '62833',
+  currency: CurrencyEnum.Eur,
+  versionNumber: 3,
+  fees: addOnFeeMock,
+  invoiceSubscriptions: feesMock,
+}
