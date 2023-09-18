@@ -10,9 +10,9 @@ import {
   hasDefinedGQLError,
   PLAN_FORM_TYPE,
   PLAN_FORM_TYPE_ENUM,
-  resetOverwritePlanVar,
-  updateOverwritePlanVar,
-  useOverwritePlanVar,
+  resetDuplicatePlanVar,
+  updateDuplicatePlanVar,
+  useDuplicatePlanVar,
 } from '~/core/apolloClient'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { CUSTOMER_DETAILS_ROUTE, ERROR_404_ROUTE, PLANS_ROUTE } from '~/core/router'
@@ -75,7 +75,7 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { id } = useParams()
-  const { parentId, subscriptionInput, customerId, type: actionType } = useOverwritePlanVar()
+  const { parentId, subscriptionInput, customerId, type: actionType } = useDuplicatePlanVar()
   const { data, loading, error } = useGetSinglePlanQuery({
     context: { silentError: LagoApiError.NotFound },
     variables: { id: (id as string) || (parentId as string) },
@@ -187,7 +187,7 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
             severity: 'success',
             translateKey: 'text_632b3780e409ac86609cbd05',
           })
-          updateOverwritePlanVar({
+          updateDuplicatePlanVar({
             type: 'override',
             subscriptionInput: { ...subscriptionInput, planId: createPlan?.id },
           })
@@ -233,7 +233,7 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
   useEffect(() => {
     return () => {
       if (type === PLAN_FORM_TYPE_ENUM.duplicate) {
-        resetOverwritePlanVar()
+        resetDuplicatePlanVar()
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

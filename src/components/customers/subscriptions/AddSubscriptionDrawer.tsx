@@ -14,10 +14,10 @@ import {
   TextInputField,
 } from '~/components/form'
 import {
-  overwritePlanVar,
-  resetOverwritePlanVar,
+  duplicatePlanVar,
+  resetDuplicatePlanVar,
   SubscriptionUpdateInfo,
-  updateOverwritePlanVar,
+  updateDuplicatePlanVar,
 } from '~/core/apolloClient'
 import { dateErrorCodes } from '~/core/constants/form'
 import { CREATE_PLAN_ROUTE } from '~/core/router'
@@ -150,7 +150,7 @@ export const AddSubscriptionDrawer = forwardRef<
   }))
 
   useEffect(() => {
-    const { subscriptionInput, updateInfo } = overwritePlanVar()
+    const { subscriptionInput, updateInfo } = duplicatePlanVar()
 
     if (!!subscriptionInput) {
       const { planId, name, billingTime, subscriptionAt, endingAt } = subscriptionInput
@@ -170,7 +170,7 @@ export const AddSubscriptionDrawer = forwardRef<
           status: updateInfo?.status,
         })
       }
-      resetOverwritePlanVar()
+      resetDuplicatePlanVar()
       drawerRef?.current?.openDrawer()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -233,7 +233,7 @@ export const AddSubscriptionDrawer = forwardRef<
                   startIcon="pen"
                   size="large"
                   onClick={() => {
-                    updateOverwritePlanVar({
+                    updateDuplicatePlanVar({
                       type: 'override',
                       parentId: formikProps.values.planId ? String(formikProps.values.planId) : '',
                       subscriptionInput: formikProps?.values,

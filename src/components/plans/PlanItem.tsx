@@ -13,7 +13,7 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
-import { updateOverwritePlanVar } from '~/core/apolloClient'
+import { updateDuplicatePlanVar } from '~/core/apolloClient'
 import { CREATE_PLAN_ROUTE, UPDATE_PLAN_ROUTE } from '~/core/router'
 import { DeletePlanDialogFragmentDoc, PlanItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -119,7 +119,7 @@ export const PlanItem = memo(({ deleteDialogRef, navigationProps, plan }: PlanIt
               variant="quaternary"
               align="left"
               onClick={() => {
-                updateOverwritePlanVar({
+                updateDuplicatePlanVar({
                   type: 'duplicate',
                   parentId: id,
                 })

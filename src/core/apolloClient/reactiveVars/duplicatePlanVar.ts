@@ -4,12 +4,12 @@ import { CreateSubscriptionInput, StatusTypeEnum } from '~/generated/graphql'
 
 import { getItemFromLS, setItemFromLS } from '../cacheUtils'
 
-export const OVERWRITE_PLAN_LS_KEY = 'overwritePlan'
+export const DUPLICATE_PLAN_LS_KEY = 'duplicatePlan'
 
 export const PLAN_FORM_TYPE_ENUM = {
   creation: 'creation',
   edition: 'edition',
-  override: 'override',
+  override: 'override', //  TODO: remove this type
   duplicate: 'duplicate',
 } as const
 
@@ -25,7 +25,7 @@ export type SubscriptionUpdateInfo = {
   status: StatusTypeEnum
 }
 
-type OverwritePlanVar = {
+type DuplicatePlanVar = {
   type: PLAN_FORM_TYPE
   parentId?: string
   customerId?: string
@@ -41,24 +41,24 @@ const initial = {
   updateInfo: undefined,
 }
 
-export const overwritePlanVar = makeVar<OverwritePlanVar>(
-  getItemFromLS(OVERWRITE_PLAN_LS_KEY) || initial
+export const duplicatePlanVar = makeVar<DuplicatePlanVar>(
+  getItemFromLS(DUPLICATE_PLAN_LS_KEY) || initial
 )
 
-export const updateOverwritePlanVar = (input: OverwritePlanVar) => {
-  const previousInfos = overwritePlanVar()
+export const updateDuplicatePlanVar = (input: DuplicatePlanVar) => {
+  const previousInfos = duplicatePlanVar()
   const updatedInfos = {
     ...previousInfos,
     ...input,
   }
 
-  setItemFromLS(OVERWRITE_PLAN_LS_KEY, updatedInfos)
-  overwritePlanVar(updatedInfos)
+  setItemFromLS(DUPLICATE_PLAN_LS_KEY, updatedInfos)
+  duplicatePlanVar(updatedInfos)
 }
 
-export const resetOverwritePlanVar = () => {
-  setItemFromLS(OVERWRITE_PLAN_LS_KEY, initial)
-  overwritePlanVar(initial)
+export const resetDuplicatePlanVar = () => {
+  setItemFromLS(DUPLICATE_PLAN_LS_KEY, initial)
+  duplicatePlanVar(initial)
 }
 
-export const useOverwritePlanVar = () => useReactiveVar(overwritePlanVar)
+export const useDuplicatePlanVar = () => useReactiveVar(duplicatePlanVar)
