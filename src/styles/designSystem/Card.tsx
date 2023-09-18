@@ -7,6 +7,7 @@ export const Card = styled.div<{ $disableChildSpacing?: boolean }>`
   border: 1px solid ${theme.palette.grey[300]};
   border-radius: 12px;
   box-sizing: border-box;
+  background-color: ${theme.palette.common.white};
 
   ${({ $disableChildSpacing }) =>
     !$disableChildSpacing &&

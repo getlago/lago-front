@@ -43,7 +43,7 @@ jobs:
         with:
           browser: chrome
           record: false
-          config: baseUrl=http://localhost
+          config: baseUrl=http://localhost,viewportHeight=99999,viewportWidth=1280
           spec: |
             cypress/e2e/00-auth/*
             cypress/e2e/10-resources/*

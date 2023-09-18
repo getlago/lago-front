@@ -18,7 +18,7 @@ interface SelectorProps {
   className?: string
   fullWidth?: boolean
   disabled?: boolean
-  onClick: () => Promise<void> | unknown
+  onClick?: () => Promise<void> | unknown
 }
 
 export const Selector = ({
@@ -40,7 +40,7 @@ export const Selector = ({
       className={className}
       onClick={async () => {
         if (loading || disabled) return
-        let result = onClick()
+        let result = !!onClick && onClick()
 
         if (result instanceof Promise) {
           setLoading(true)
@@ -162,9 +162,13 @@ const Container = styled.button<{
         border-radius: 12px;
       }
 
-      :hover:not(:active) {
-        background-color: ${$selected ? theme.palette.primary[200] : theme.palette.grey[100]};
-      }
+      ${() =>
+        !!$clickable &&
+        css`
+          :hover:not(:active) {
+            background-color: ${$selected ? theme.palette.primary[200] : theme.palette.grey[100]};
+          }
+        `}
     `}
 
   ${({ $selected, $clickable }) =>

@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client'
-import { forwardRef, MutableRefObject, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { useRef } from 'react'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
 import { Button, Typography } from '~/components/designSystem'
+import { CREATE_SUBSCRIPTION } from '~/core/router'
 import {
   SubscriptionItemFragmentDoc,
   TimezoneEnum,
@@ -13,12 +14,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { HEADER_TABLE_HEIGHT, theme } from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
 
-import { AddSubscriptionDrawerRef } from './AddSubscriptionDrawer'
-import {
-  EditCustomerSubscriptionDrawer,
-  EditCustomerSubscriptionDrawerRef,
-} from './EditCustomerSubscriptionDrawer'
-import { SubscriptionItem, SubscriptionItemRef, SubscriptionItemSkeleton } from './SubscriptionItem'
+import { SubscriptionItem, SubscriptionItemSkeleton } from './SubscriptionItem'
 import {
   TerminateCustomerSubscriptionDialog,
   TerminateCustomerSubscriptionDialogRef,
@@ -46,11 +42,9 @@ interface CustomerSubscriptionsListProps {
   customerTimezone?: TimezoneEnum
 }
 
-export const CustomerSubscriptionsList = forwardRef<
-  AddSubscriptionDrawerRef,
-  CustomerSubscriptionsListProps
->(({ customerTimezone }: CustomerSubscriptionsListProps, addSubscriptionDialogRef) => {
+export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscriptionsListProps) => {
   const { id } = useParams()
+  const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { data, loading } = useGetCustomerSubscriptionForListQuery({
     variables: { id: id as string },
@@ -58,13 +52,7 @@ export const CustomerSubscriptionsList = forwardRef<
   })
   const subscriptions = data?.customer?.subscriptions
   const hasNoSubscription = !subscriptions || !subscriptions.length
-  const editSubscriptionDrawerRef = useRef<EditCustomerSubscriptionDrawerRef>(null)
   const terminateSubscriptionDialogRef = useRef<TerminateCustomerSubscriptionDialogRef>(null)
-  const subscriptionItemRef = useRef<SubscriptionItemRef>({
-    addSubscriptionDialogRef,
-    editSubscriptionDrawerRef,
-    terminateSubscriptionDialogRef,
-  })
 
   return (
     <SideSection $empty={hasNoSubscription}>
@@ -74,9 +62,11 @@ export const CustomerSubscriptionsList = forwardRef<
           data-test="add-subscription"
           variant="quaternary"
           onClick={() =>
-            (
-              addSubscriptionDialogRef as MutableRefObject<AddSubscriptionDrawerRef>
-            )?.current?.openDialog()
+            navigate(
+              generatePath(CREATE_SUBSCRIPTION, {
+                id: id as string,
+              })
+            )
           }
         >
           {translate('text_6250304370f0f700a8fdc28b')}
@@ -107,7 +97,7 @@ export const CustomerSubscriptionsList = forwardRef<
             {subscriptions.map((subscription, i) => {
               return (
                 <SubscriptionItem
-                  ref={subscriptionItemRef}
+                  terminateSubscriptionDialogRef={terminateSubscriptionDialogRef}
                   key={`${subscription?.id}-${i}`}
                   subscription={subscription}
                   customerTimezone={customerTimezone}
@@ -117,11 +107,10 @@ export const CustomerSubscriptionsList = forwardRef<
           </List>
         </>
       )}
-      <EditCustomerSubscriptionDrawer ref={editSubscriptionDrawerRef} />
       <TerminateCustomerSubscriptionDialog ref={terminateSubscriptionDialogRef} />
     </SideSection>
   )
-})
+}
 
 CustomerSubscriptionsList.displayName = 'CustomerSubscriptionsList'
 

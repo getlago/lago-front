@@ -328,6 +328,12 @@ const DesignSystem = () => {
                     onClick={() => {}}
                   />
                   <Selector
+                    title="Non clickable selector"
+                    subtitle="Alexandre Monjol"
+                    titleFirst={false}
+                    icon="user"
+                  />
+                  <Selector
                     title="A simple selector disabled"
                     subtitle="Subtitle first"
                     titleFirst={false}

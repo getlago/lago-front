@@ -98,7 +98,7 @@ const StyledButton = styled(Button)`
 
     &.MuiAutocomplete-clearIndicatorDirty {
       display: inherit;
-      visibility: hidden;
+      display: none;
     }
   }
 `
@@ -106,7 +106,7 @@ const StyledButton = styled(Button)`
 const StyledTextInput = styled(TextInput)`
   &:hover {
     .MuiAutocomplete-clearIndicatorDirty {
-      visibility: visible;
+      display: flex;
     }
   }
 `

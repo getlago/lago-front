@@ -295,9 +295,14 @@ sources:
       fileName: 👍 [Ready for dev] - B.Metrics - Add last aggregation type
     - name: 👍 [Ready for dev] - Plans - Invoice display names
       id: 65018c8af04a866c7bcc6cb8
+      fileName: 👍 [Ready for dev] - Plans - Invoice display names
     - name: 👍 [Ready for dev] - Billable metrics - Weighted sum
       id: 6500621fbbf7ebe75d11e890
+      fileName: 👍 [Ready for dev] - Billable metrics - Weighted sum
     - name: 👍 [Ready for dev] - Customers - Add subscription end date
       id: 64ef55a23bdcf2d86567cbed
+      fileName: 👍 [Ready for dev] - Customers - Add subscription end date
+    - name: ⚙️ [WIP] - Subscription/Plans - Overrides plans and subscriptions
+      id: 65118a3c24d30a816a60ca92
 format: flat
 variants: true

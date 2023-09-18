@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { FormikProps } from 'formik'
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import styled from 'styled-components'
 
 import { Alert, Button, Table, Tooltip, Typography } from '~/components/designSystem'
@@ -49,178 +49,248 @@ interface GraduatedChargeTableProps {
   valuePointer: InputMaybe<PropertiesInput> | undefined
 }
 
-export const GraduatedChargeTable = ({
-  chargeIndex,
-  currency,
-  disabled,
-  formikProps,
-  propertyCursor,
-  valuePointer,
-}: GraduatedChargeTableProps) => {
-  const { translate } = useInternationalization()
-  const [errorIndex, setErrorIndex] = useState<number | undefined>()
-  const { tableDatas, addRange, handleUpdate, deleteRange, infosCalculation } =
-    useGraduatedChargeForm({
-      chargeIndex,
-      disabled,
-      formikProps,
-      propertyCursor,
-      valuePointer,
-    })
+export const GraduatedChargeTable = memo(
+  ({
+    chargeIndex,
+    currency,
+    disabled,
+    formikProps,
+    propertyCursor,
+    valuePointer,
+  }: GraduatedChargeTableProps) => {
+    const { translate } = useInternationalization()
+    const [errorIndex, setErrorIndex] = useState<number | undefined>()
+    const { tableDatas, addRange, handleUpdate, deleteRange, infosCalculation } =
+      useGraduatedChargeForm({
+        chargeIndex,
+        disabled,
+        formikProps,
+        propertyCursor,
+        valuePointer,
+      })
 
-  return (
-    <Container>
-      <AddButton
-        startIcon="plus"
-        variant="quaternary"
-        onClick={addRange}
-        disabled={disabled}
-        data-test="add-tier"
-      >
-        {translate('text_62793bbb599f1c01522e91a5')}
-      </AddButton>
-      <TableContainer>
-        <Table
-          name="graduated-charge-table"
-          data={tableDatas}
-          onDeleteRow={(_, i) => deleteRange(i)}
-          columns={[
-            {
-              size: 124,
-              content: (_, i) => (
-                <DisabledCell variant="captionHl">
-                  {translate(
-                    i === 0 ? 'text_62793bbb599f1c01522e91c0' : 'text_62793bbb599f1c01522e91fc'
-                  )}
-                </DisabledCell>
-              ),
-            },
-            {
-              title: (
-                <DisabledCell variant="captionHl">
-                  {translate('text_62793bbb599f1c01522e91ab')}
-                </DisabledCell>
-              ),
-              size: 124,
-              content: (row) => (
-                <DisabledCell color="disabled" noWrap>
-                  {row?.fromValue}
-                </DisabledCell>
-              ),
-            },
-            {
-              title: (
-                <DisabledCell variant="captionHl" noWrap>
-                  {translate('text_62793bbb599f1c01522e91b1')}
-                </DisabledCell>
-              ),
-              size: 124,
-              content: (row, i) =>
-                disabled || i === tableDatas?.length - 1 ? (
-                  <DisabledCell variant="body" color="disabled" noWrap>
-                    {row.toValue || '∞'}
+    return (
+      <Container>
+        <AddButton
+          startIcon="plus"
+          variant="quaternary"
+          onClick={addRange}
+          disabled={disabled}
+          data-test="add-tier"
+        >
+          {translate('text_62793bbb599f1c01522e91a5')}
+        </AddButton>
+        <TableContainer>
+          <Table
+            name="graduated-charge-table"
+            data={tableDatas}
+            onDeleteRow={(_, i) => deleteRange(i)}
+            columns={[
+              {
+                size: 124,
+                content: (_, i) => (
+                  <DisabledCell variant="captionHl">
+                    {translate(
+                      i === 0 ? 'text_62793bbb599f1c01522e91c0' : 'text_62793bbb599f1c01522e91fc'
+                    )}
                   </DisabledCell>
-                ) : (
-                  <Tooltip
-                    placement="top"
-                    title={translate('text_62793bbb599f1c01522e9232', {
-                      value: row.fromValue - 1,
-                    })}
-                    disableHoverListener={errorIndex !== i}
-                  >
-                    <CellInput
-                      error={errorIndex === i}
-                      value={row.toValue as number | undefined}
-                      beforeChangeFormatter={['int', 'positiveNumber']}
-                      onBlur={() => {
-                        if (typeof row.toValue === 'number' && row.toValue < row.fromValue) {
-                          setErrorIndex(i)
-                        }
+                ),
+              },
+              {
+                title: (
+                  <DisabledCell variant="captionHl">
+                    {translate('text_62793bbb599f1c01522e91ab')}
+                  </DisabledCell>
+                ),
+                size: 124,
+                content: (row) => (
+                  <DisabledCell color="disabled" noWrap>
+                    {row?.fromValue}
+                  </DisabledCell>
+                ),
+              },
+              {
+                title: (
+                  <DisabledCell variant="captionHl" noWrap>
+                    {translate('text_62793bbb599f1c01522e91b1')}
+                  </DisabledCell>
+                ),
+                size: 124,
+                content: (row, i) =>
+                  disabled || i === tableDatas?.length - 1 ? (
+                    <DisabledCell variant="body" color="disabled" noWrap>
+                      {row.toValue || '∞'}
+                    </DisabledCell>
+                  ) : (
+                    <Tooltip
+                      placement="top"
+                      title={translate('text_62793bbb599f1c01522e9232', {
+                        value: row.fromValue - 1,
+                      })}
+                      disableHoverListener={errorIndex !== i}
+                    >
+                      <CellInput
+                        error={errorIndex === i}
+                        value={row.toValue as number | undefined}
+                        beforeChangeFormatter={['int', 'positiveNumber']}
+                        onBlur={() => {
+                          if (typeof row.toValue === 'number' && row.toValue < row.fromValue) {
+                            setErrorIndex(i)
+                          }
+                        }}
+                        onChange={(value) => {
+                          if (typeof errorIndex === 'number') setErrorIndex(undefined)
+                          handleUpdate(i, 'toValue', value)
+                        }}
+                      />
+                    </Tooltip>
+                  ),
+              },
+              {
+                title: (
+                  <DisabledCell variant="captionHl">
+                    {translate('text_62793bbb599f1c01522e91b6')}
+                  </DisabledCell>
+                ),
+                size: 124,
+                content: (row, i) =>
+                  disabled ? (
+                    <DisabledAmountCell>
+                      <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
+                      <Typography color="disabled" noWrap>
+                        {row.perUnitAmount || '0.0'}
+                      </Typography>
+                    </DisabledAmountCell>
+                  ) : (
+                    <CellAmount
+                      beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
+                      currency={currency}
+                      value={row.perUnitAmount}
+                      onChange={(value) => handleUpdate(i, 'perUnitAmount', value)}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            {getCurrencySymbol(currency)}
+                          </InputAdornment>
+                        ),
                       }}
-                      onChange={(value) => {
-                        if (typeof errorIndex === 'number') setErrorIndex(undefined)
-                        handleUpdate(i, 'toValue', value)
+                      data-test={`cell-amount-${i}`}
+                    />
+                  ),
+              },
+              {
+                title: (
+                  <DisabledCell variant="captionHl">
+                    {translate('text_62793bbb599f1c01522e91bc')}
+                  </DisabledCell>
+                ),
+                size: 124,
+                content: (row, i) =>
+                  disabled ? (
+                    <DisabledAmountCell>
+                      <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
+                      <Typography color="disabled" noWrap>
+                        {row.flatAmount || '0.0'}
+                      </Typography>
+                    </DisabledAmountCell>
+                  ) : (
+                    <CellAmount
+                      beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
+                      currency={currency}
+                      value={row.flatAmount}
+                      onChange={(value) => handleUpdate(i, 'flatAmount', value)}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            {getCurrencySymbol(currency)}
+                          </InputAdornment>
+                        ),
                       }}
                     />
-                  </Tooltip>
-                ),
-            },
-            {
-              title: (
-                <DisabledCell variant="captionHl">
-                  {translate('text_62793bbb599f1c01522e91b6')}
-                </DisabledCell>
-              ),
-              size: 124,
-              content: (row, i) =>
-                disabled ? (
-                  <DisabledAmountCell>
-                    <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
-                    <Typography color="disabled" noWrap>
-                      {row.perUnitAmount || '0.0'}
-                    </Typography>
-                  </DisabledAmountCell>
-                ) : (
-                  <CellAmount
-                    beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
-                    currency={currency}
-                    value={row.perUnitAmount}
-                    onChange={(value) => handleUpdate(i, 'perUnitAmount', value)}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          {getCurrencySymbol(currency)}
-                        </InputAdornment>
-                      ),
-                    }}
-                    data-test={`cell-amount-${i}`}
-                  />
-                ),
-            },
-            {
-              title: (
-                <DisabledCell variant="captionHl">
-                  {translate('text_62793bbb599f1c01522e91bc')}
-                </DisabledCell>
-              ),
-              size: 124,
-              content: (row, i) =>
-                disabled ? (
-                  <DisabledAmountCell>
-                    <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
-                    <Typography color="disabled" noWrap>
-                      {row.flatAmount || '0.0'}
-                    </Typography>
-                  </DisabledAmountCell>
-                ) : (
-                  <CellAmount
-                    beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
-                    currency={currency}
-                    value={row.flatAmount}
-                    onChange={(value) => handleUpdate(i, 'flatAmount', value)}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          {getCurrencySymbol(currency)}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                ),
-            },
-          ]}
-        />
-      </TableContainer>
+                  ),
+              },
+            ]}
+          />
+        </TableContainer>
 
-      <Alert type="info">
-        <>
-          {infosCalculation.map((calculation, i) => {
-            if (i === 0) {
+        <Alert type="info">
+          <>
+            {infosCalculation.map((calculation, i) => {
+              if (i === 0) {
+                return (
+                  <Typography variant="bodyHl" key={`calculation-alert-${i}`} color="textSecondary">
+                    {translate('text_627b69c9fe95530136833956', {
+                      lastRowUnit: calculation.firstUnit,
+                      value: intlFormatNumber(calculation.total, {
+                        currencyDisplay: 'symbol',
+                        maximumFractionDigits: 15,
+                        currency,
+                      }),
+                    })}
+                  </Typography>
+                )
+              }
+              if (i === 1) {
+                return infosCalculation.length === 2 ? (
+                  <Typography key={`calculation-alert-${i}`} color="textSecondary">
+                    {translate('text_64cac576a11db000acb130b2', {
+                      tier1LastUnit: ONE_TIER_EXAMPLE_UNITS,
+                      tier1PerUnit: intlFormatNumber(calculation.perUnit, {
+                        currencyDisplay: 'symbol',
+                        maximumFractionDigits: 15,
+                        currency,
+                      }),
+                      tier1FlatFee: intlFormatNumber(calculation.flatFee, {
+                        currencyDisplay: 'symbol',
+                        maximumFractionDigits: 15,
+                        currency,
+                      }),
+                      totalTier1: intlFormatNumber(calculation.total, {
+                        currencyDisplay: 'symbol',
+                        maximumFractionDigits: 15,
+                        currency,
+                      }),
+                    })}
+                  </Typography>
+                ) : (
+                  <Typography key={`calculation-alert-${i}`} color="textSecondary">
+                    {translate('text_627b69c9fe95530136833958', {
+                      tier1LastUnit: calculation.units,
+                      tier1PerUnit: intlFormatNumber(calculation.perUnit, {
+                        currencyDisplay: 'symbol',
+                        maximumFractionDigits: 15,
+                        currency,
+                      }),
+                      tier1FlatFee: intlFormatNumber(calculation.flatFee, {
+                        currencyDisplay: 'symbol',
+                        maximumFractionDigits: 15,
+                        currency,
+                      }),
+                      totalTier1: intlFormatNumber(calculation.total, {
+                        currencyDisplay: 'symbol',
+                        maximumFractionDigits: 15,
+                        currency,
+                      }),
+                    })}
+                  </Typography>
+                )
+              }
+
               return (
-                <Typography variant="bodyHl" key={`calculation-alert-${i}`} color="textSecondary">
-                  {translate('text_627b69c9fe95530136833956', {
-                    lastRowUnit: calculation.firstUnit,
-                    value: intlFormatNumber(calculation.total, {
+                <Typography key={`calculation-alert-${i}`} color="textSecondary">
+                  {translate('text_627b69c9fe9553013683395a', {
+                    unitCount: calculation.units,
+                    tierPerUnit: intlFormatNumber(calculation.perUnit, {
+                      currencyDisplay: 'symbol',
+                      maximumFractionDigits: 15,
+                      currency,
+                    }),
+                    tierFlatFee: intlFormatNumber(calculation.flatFee, {
+                      currencyDisplay: 'symbol',
+                      maximumFractionDigits: 15,
+                      currency,
+                    }),
+                    totalTier: intlFormatNumber(calculation.total, {
                       currencyDisplay: 'symbol',
                       maximumFractionDigits: 15,
                       currency,
@@ -228,81 +298,15 @@ export const GraduatedChargeTable = ({
                   })}
                 </Typography>
               )
-            }
-            if (i === 1) {
-              return infosCalculation.length === 2 ? (
-                <Typography key={`calculation-alert-${i}`} color="textSecondary">
-                  {translate('text_64cac576a11db000acb130b2', {
-                    tier1LastUnit: ONE_TIER_EXAMPLE_UNITS,
-                    tier1PerUnit: intlFormatNumber(calculation.perUnit, {
-                      currencyDisplay: 'symbol',
-                      maximumFractionDigits: 15,
-                      currency,
-                    }),
-                    tier1FlatFee: intlFormatNumber(calculation.flatFee, {
-                      currencyDisplay: 'symbol',
-                      maximumFractionDigits: 15,
-                      currency,
-                    }),
-                    totalTier1: intlFormatNumber(calculation.total, {
-                      currencyDisplay: 'symbol',
-                      maximumFractionDigits: 15,
-                      currency,
-                    }),
-                  })}
-                </Typography>
-              ) : (
-                <Typography key={`calculation-alert-${i}`} color="textSecondary">
-                  {translate('text_627b69c9fe95530136833958', {
-                    tier1LastUnit: calculation.units,
-                    tier1PerUnit: intlFormatNumber(calculation.perUnit, {
-                      currencyDisplay: 'symbol',
-                      maximumFractionDigits: 15,
-                      currency,
-                    }),
-                    tier1FlatFee: intlFormatNumber(calculation.flatFee, {
-                      currencyDisplay: 'symbol',
-                      maximumFractionDigits: 15,
-                      currency,
-                    }),
-                    totalTier1: intlFormatNumber(calculation.total, {
-                      currencyDisplay: 'symbol',
-                      maximumFractionDigits: 15,
-                      currency,
-                    }),
-                  })}
-                </Typography>
-              )
-            }
+            })}
+          </>
+        </Alert>
+      </Container>
+    )
+  }
+)
 
-            return (
-              <Typography key={`calculation-alert-${i}`} color="textSecondary">
-                {translate('text_627b69c9fe9553013683395a', {
-                  unitCount: calculation.units,
-                  tierPerUnit: intlFormatNumber(calculation.perUnit, {
-                    currencyDisplay: 'symbol',
-                    maximumFractionDigits: 15,
-                    currency,
-                  }),
-                  tierFlatFee: intlFormatNumber(calculation.flatFee, {
-                    currencyDisplay: 'symbol',
-                    maximumFractionDigits: 15,
-                    currency,
-                  }),
-                  totalTier: intlFormatNumber(calculation.total, {
-                    currencyDisplay: 'symbol',
-                    maximumFractionDigits: 15,
-                    currency,
-                  }),
-                })}
-              </Typography>
-            )
-          })}
-        </>
-      </Alert>
-    </Container>
-  )
-}
+GraduatedChargeTable.displayName = 'GraduatedChargeTable'
 
 const Container = styled.div`
   display: flex;

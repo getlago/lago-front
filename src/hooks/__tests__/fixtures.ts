@@ -225,6 +225,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
             plan: {
               id: '3a16e062-7c1a-42b8-ba38-02fa11b1279d',
               name: 'group true up',
+              invoiceDisplayName: 'Standard Plan',
               __typename: 'Plan',
             },
             __typename: 'Subscription',
@@ -439,7 +440,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           id: 'b7e53061-73b5-46bf-8f1a-2f49d50c672c',
           isTrueUpFee: false,
           maxAmount: '167',
-          name: 'group true up',
+          name: 'Standard Plan',
           trueUpFee: null,
           value: 1.67,
         },
@@ -514,7 +515,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           name: 'Count BM - Two dimensions',
         },
       },
-      subscriptionName: 'group true up',
+      subscriptionName: 'Standard Plan',
     },
   },
 })

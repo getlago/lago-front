@@ -34,6 +34,14 @@ const CreateCoupon = lazyLoad(
 const CreateAddOn = lazyLoad(
   () => import(/* webpackChunkName: 'create-add-on' */ '~/pages/CreateAddOn')
 )
+const CreateSubscription = lazyLoad(
+  () => import(/* webpackChunkName: 'create-subscription' */ '~/pages/CreateSubscription')
+)
+
+// Details
+const SubscriptionDetails = lazyLoad(
+  () => import(/* webpackChunkName: 'subscription-details' */ '~/pages/SubscriptionDetails')
+)
 
 // ----------- Routes -----------
 // Lists
@@ -50,7 +58,7 @@ export const CREATE_BILLABLE_METRIC_ROUTE = '/create/billable-metrics'
 export const UPDATE_BILLABLE_METRIC_ROUTE = '/update/billable-metric/:id'
 
 export const CREATE_PLAN_ROUTE = '/create/plans'
-export const UPDATE_PLAN_ROUTE = '/update/plan/:id'
+export const UPDATE_PLAN_ROUTE = '/update/plan/:planId'
 
 export const CREATE_COUPON_ROUTE = '/create/coupons'
 export const UPDATE_COUPON_ROUTE = '/update/coupons/:id'
@@ -62,6 +70,14 @@ export const CREATE_TAX_ROUTE = '/create/tax'
 export const UPDATE_TAX_ROUTE = '/update/tax/:id'
 
 export const CREATE_INVOICE_ROUTE = '/customer/:id/create-invoice'
+
+export const CREATE_SUBSCRIPTION = '/customer/:id/create/subscription'
+export const UPDATE_SUBSCRIPTION = '/customer/:id/update/subscription/:subscriptionId'
+export const UPGRADE_DOWNGRADE_SUBSCRIPTION =
+  '/customer/:id/upgrade-downgrade/subscription/:subscriptionId'
+// Details
+export const CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE =
+  '/customer/:customerId/subscription/:subscriptionId/:tab'
 
 export const objectListRoutes: CustomRouteObject[] = [
   {
@@ -121,5 +137,18 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     path: [CREATE_INVOICE_ROUTE],
     private: true,
     element: <CreateInvoice />,
+  },
+  {
+    path: [CREATE_SUBSCRIPTION, UPDATE_SUBSCRIPTION, UPGRADE_DOWNGRADE_SUBSCRIPTION],
+    private: true,
+    element: <CreateSubscription />,
+  },
+]
+
+export const objectDetailsRoutes: CustomRouteObject[] = [
+  {
+    path: [CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE],
+    private: true,
+    element: <SubscriptionDetails />,
   },
 ]

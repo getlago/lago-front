@@ -2,10 +2,10 @@ import { alpha, createTheme } from '@mui/material/styles'
 
 import { palette } from './colorsPalette'
 
-export const MAX_WIDTH = 1600
 export const NAV_HEIGHT = 72
 export const HEADER_TABLE_HEIGHT = 48
 export const INNER_CONTENT_WIDTH = 672
+export const BREAKPOINT_LG = 1024
 
 const typographyBody = {
   fontSize: '16px',
@@ -28,8 +28,8 @@ export const theme = createTheme({
       xs: 0,
       sm: 0,
       md: 776,
-      lg: MAX_WIDTH,
-      xl: MAX_WIDTH,
+      lg: BREAKPOINT_LG,
+      xl: 1600,
     },
   },
   shape: {

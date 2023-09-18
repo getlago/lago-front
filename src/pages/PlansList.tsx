@@ -47,7 +47,7 @@ const PlansList = () => {
   const list = data?.plans?.collection || []
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `plan-item-${i}`,
-    navigate: (id) => navigate(generatePath(UPDATE_PLAN_ROUTE, { id: String(id) })),
+    navigate: (id) => navigate(generatePath(UPDATE_PLAN_ROUTE, { planId: String(id) })),
   })
   let index = -1
 
@@ -77,7 +77,7 @@ const PlansList = () => {
           </PlanNameSection>
           <PlanInfosSection>
             <MediumCell color="disabled" variant="bodyHl">
-              {translate('text_62442e40cea25600b0b6d854')}
+              {translate('text_62d95e42c1e1dfe7376fdf35')}
             </MediumCell>
             <SmallCell color="disabled" variant="bodyHl">
               {translate('text_62442e40cea25600b0b6d856')}
@@ -198,7 +198,7 @@ const HeaderRigthBlock = styled.div`
 
 const MediumCell = styled(Typography)`
   text-align: right;
-  width: 112px;
+  width: 118px;
 `
 
 const SmallCell = styled(Typography)`

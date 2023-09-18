@@ -5,7 +5,7 @@ import { authRoutes } from './AuthRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
 import { customerObjectCreationRoutes, customerRoutes } from './CustomerRoutes'
 import { developperRoutes } from './DevelopperRoutes'
-import { objectCreationRoutes, objectListRoutes } from './ObjectsRoutes'
+import { objectCreationRoutes, objectDetailsRoutes, objectListRoutes } from './ObjectsRoutes'
 import { settingRoutes } from './SettingRoutes'
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
@@ -53,6 +53,7 @@ export const routes: CustomRouteObject[] = [
       ...customerRoutes,
       ...developperRoutes,
       ...objectListRoutes,
+      ...objectDetailsRoutes,
       ...settingRoutes,
       ...([AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv)
         ? [

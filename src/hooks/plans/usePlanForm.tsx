@@ -1,22 +1,20 @@
 import { gql } from '@apollo/client'
 import { FormikProps, useFormik } from 'formik'
 import { useEffect, useMemo } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { number, object, string } from 'yup'
 
 import { LocalChargeInput, PlanFormInput } from '~/components/plans/types'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
-  addToast,
-  hasDefinedGQLError,
   PLAN_FORM_TYPE,
-  PLAN_FORM_TYPE_ENUM,
-  resetOverwritePlanVar,
-  updateOverwritePlanVar,
-  useOverwritePlanVar,
-} from '~/core/apolloClient'
-import { FORM_ERRORS_ENUM } from '~/core/constants/form'
-import { CUSTOMER_DETAILS_ROUTE, ERROR_404_ROUTE, PLANS_ROUTE } from '~/core/router'
+  resetDuplicatePlanVar,
+  useDuplicatePlanVar,
+} from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
+import { FORM_ERRORS_ENUM, FORM_TYPE_ENUM } from '~/core/constants/form'
+import { ERROR_404_ROUTE, PLANS_ROUTE } from '~/core/router'
 import { serializePlanInput } from '~/core/serializers'
+import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { chargeSchema } from '~/formValidation/chargeSchema'
 import {
@@ -31,7 +29,6 @@ import {
   useGetSinglePlanQuery,
   useUpdatePlanMutation,
 } from '~/generated/graphql'
-import { getPropertyShape } from '~/pages/CreatePlan'
 
 import { useInternationalization } from '../core/useInternationalization'
 
@@ -65,31 +62,28 @@ export interface UsePlanFormReturn {
   formikProps: FormikProps<PlanFormInput>
   isEdition: boolean
   loading: boolean
-  parentPlanName?: string
   plan?: (Omit<EditPlanFragment, 'name' | 'code'> & { name?: string; code?: string }) | null
   type: PLAN_FORM_TYPE
-  onClose: () => void
 }
 
-export const usePlanForm: () => UsePlanFormReturn = () => {
+export const usePlanForm: ({ planIdToFetch }: { planIdToFetch?: string }) => UsePlanFormReturn = ({
+  planIdToFetch,
+}) => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
-  const { id } = useParams()
-  const { parentId, subscriptionInput, customerId, type: actionType } = useOverwritePlanVar()
+  const { planId: id } = useParams()
+  const { parentId, type: actionType } = useDuplicatePlanVar()
   const { data, loading, error } = useGetSinglePlanQuery({
     context: { silentError: LagoApiError.NotFound },
-    variables: { id: (id as string) || (parentId as string) },
-    skip: !id && !parentId,
+    variables: { id: (id as string) || (parentId as string) || (planIdToFetch as string) },
+    skip: !id && !parentId && !planIdToFetch,
   })
-  const isOverride = actionType === 'override' && !!parentId
   const isDuplicate = actionType === 'duplicate' && !!parentId
-  const type = !!id ? 'edition' : isDuplicate ? 'duplicate' : isOverride ? 'override' : 'creation'
-  const isEdition = type === PLAN_FORM_TYPE_ENUM.edition
+  const type = !!id ? 'edition' : isDuplicate ? 'duplicate' : 'creation'
+  const isEdition = type === FORM_TYPE_ENUM.edition
   const plan = data?.plan
-  const shouldOffuscateForDuplicateAndOverride =
-    type === PLAN_FORM_TYPE_ENUM.override || type === PLAN_FORM_TYPE_ENUM.duplicate
   const onSave =
-    type === PLAN_FORM_TYPE_ENUM.edition
+    type === FORM_TYPE_ENUM.edition
       ? async (values: PlanFormInput) => {
           await update({
             variables: {
@@ -109,8 +103,8 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
 
   const formikProps = useFormik<PlanFormInput>({
     initialValues: {
-      name: shouldOffuscateForDuplicateAndOverride ? '' : plan?.name || '',
-      code: shouldOffuscateForDuplicateAndOverride ? '' : plan?.code || '',
+      name: type === FORM_TYPE_ENUM.duplicate ? '' : plan?.name || '',
+      code: type === FORM_TYPE_ENUM.duplicate ? '' : plan?.code || '',
       description: plan?.description || '',
       interval: plan?.interval || PlanInterval.Monthly,
       taxes: plan?.taxes || [],
@@ -182,17 +176,7 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ createPlan }) {
       if (!!createPlan) {
-        if (type === PLAN_FORM_TYPE_ENUM.override) {
-          addToast({
-            severity: 'success',
-            translateKey: 'text_632b3780e409ac86609cbd05',
-          })
-          updateOverwritePlanVar({
-            type: 'override',
-            subscriptionInput: { ...subscriptionInput, planId: createPlan?.id },
-          })
-          navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: customerId as string }))
-        } else if (type === PLAN_FORM_TYPE_ENUM.duplicate) {
+        if (type === FORM_TYPE_ENUM.duplicate) {
           addToast({
             severity: 'success',
             translateKey: 'text_64fa176933e3b8008e3f15eb',
@@ -232,8 +216,8 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
   // Clear duplicate plan var when leaving the page
   useEffect(() => {
     return () => {
-      if (type === PLAN_FORM_TYPE_ENUM.duplicate) {
-        resetOverwritePlanVar()
+      if (type === FORM_TYPE_ENUM.duplicate) {
+        resetDuplicatePlanVar()
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -281,15 +265,7 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
       loading,
       type,
       plan,
-      parentPlanName: data?.plan?.name,
-      onClose: () => {
-        if (type === PLAN_FORM_TYPE_ENUM.override) {
-          navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: customerId as string }))
-        } else {
-          navigate(PLANS_ROUTE)
-        }
-      },
     }),
-    [errorCode, formikProps, isEdition, loading, type, plan, data?.plan?.name, navigate, customerId]
+    [errorCode, formikProps, isEdition, loading, type, plan]
   )
 }

@@ -15,11 +15,13 @@ import {
 } from '~/components/designSystem'
 import { AmountInput, ButtonSelector, ComboBox, Switch } from '~/components/form'
 import {
+  FORM_TYPE_ENUM,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_CHARGE_GROUP_INPUT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME,
 } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import getPropertyShape from '~/core/serializers/getPropertyShape'
 import {
   AggregationTypeEnum,
   ChargeForChargeOptionsAccordionFragmentDoc,
@@ -36,7 +38,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { getPropertyShape } from '~/pages/CreatePlan'
 import { theme } from '~/styles'
 
 import { ChargeOptionsAccordion } from './ChargeOptionsAccordion'
@@ -138,22 +139,23 @@ const mapIntervalCopy = (interval: string, forceMonthlyCharge: boolean): string 
 }
 
 interface ChargeAccordionProps {
-  id: string
-  index: number
   currency: CurrencyEnum
   disabled?: boolean
-  shouldDisplayAlreadyUsedChargeAlert: boolean
-  isUsedInSubscription?: boolean
+  isInitiallyOpen?: boolean
+  isInSubscriptionForm?: boolean
   formikProps: FormikProps<PlanFormInput>
-  removeChargeWarningDialogRef?: RefObject<RemoveChargeWarningDialogRef>
+  id: string
+  index: number
+  isUsedInSubscription?: boolean
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
   editInvoiceDisplayNameRef: RefObject<EditInvoiceDisplayNameRef>
+  removeChargeWarningDialogRef?: RefObject<RemoveChargeWarningDialogRef>
+  subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
+  shouldDisplayAlreadyUsedChargeAlert: boolean
 }
 
 export const ChargeAccordion = memo(
   ({
-    id,
-    index,
     currency,
     disabled,
     shouldDisplayAlreadyUsedChargeAlert,
@@ -161,25 +163,34 @@ export const ChargeAccordion = memo(
     premiumWarningDialogRef,
     editInvoiceDisplayNameRef,
     isUsedInSubscription,
+    isInitiallyOpen,
+    isInSubscriptionForm,
     formikProps,
+    id,
+    index,
+    subscriptionFormType,
   }: ChargeAccordionProps) => {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
-    const localCharge = formikProps.values.charges[index]
-    const initialLocalCharge = formikProps.initialValues.charges[index]
     const chargeErrors = formikProps?.errors?.charges
-    const hasDefaultPropertiesErrors =
-      typeof chargeErrors === 'object' &&
-      typeof chargeErrors[index] === 'object' &&
-      // @ts-ignore
-      typeof chargeErrors[index].properties === 'object'
+
+    const { localCharge, initialLocalCharge, hasDefaultPropertiesErrors, hasErrorInCharges } =
+      useMemo(() => {
+        return {
+          localCharge: formikProps.values.charges[index],
+          initialLocalCharge: formikProps.initialValues.charges[index],
+          hasDefaultPropertiesErrors:
+            typeof chargeErrors === 'object' &&
+            typeof chargeErrors[index] === 'object' &&
+            // @ts-ignore
+            typeof chargeErrors[index].properties === 'object',
+          hasErrorInCharges: Boolean(chargeErrors && chargeErrors[index]),
+        }
+      }, [chargeErrors, formikProps.initialValues.charges, formikProps.values.charges, index])
 
     const localChargeExistingGroupPropertiesIds =
       localCharge?.groupProperties?.map((g) => g.groupId) || []
 
-    const hasErrorInCharges = Boolean(
-      formikProps.errors.charges && formikProps.errors.charges[index]
-    )
     const [showSpendingMinimum, setShowSpendingMinimum] = useState(
       !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0
     )
@@ -340,7 +351,7 @@ export const ChargeAccordion = memo(
       <Accordion
         noContentMargin
         id={id}
-        initiallyOpen={!formikProps.values.charges?.[index]?.id ? true : false}
+        initiallyOpen={isInitiallyOpen || !formikProps.values.charges?.[index]?.id ? true : false}
         summary={
           <Summary>
             <ChargeSummaryLeftWrapper>
@@ -406,31 +417,33 @@ export const ChargeAccordion = memo(
                   )
                 )}
               />
-              <Tooltip placement="top-end" title={translate('text_624aa732d6af4e0103d40e65')}>
-                <Button
-                  variant="quaternary"
-                  size="small"
-                  icon="trash"
-                  data-test="remove-charge"
-                  onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                    e.stopPropagation()
-                    e.preventDefault()
+              {!isInSubscriptionForm && (
+                <Tooltip placement="top-end" title={translate('text_624aa732d6af4e0103d40e65')}>
+                  <Button
+                    variant="quaternary"
+                    size="small"
+                    icon="trash"
+                    data-test="remove-charge"
+                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                      e.stopPropagation()
+                      e.preventDefault()
 
-                    const deleteCharge = () => {
-                      const charges = [...formikProps.values.charges]
+                      const deleteCharge = () => {
+                        const charges = [...formikProps.values.charges]
 
-                      charges.splice(index, 1)
-                      formikProps.setFieldValue('charges', charges)
-                    }
+                        charges.splice(index, 1)
+                        formikProps.setFieldValue('charges', charges)
+                      }
 
-                    if (isUsedInSubscription) {
-                      removeChargeWarningDialogRef?.current?.openDialog(index)
-                    } else {
-                      deleteCharge()
-                    }
-                  }}
-                />
-              </Tooltip>
+                      if (isUsedInSubscription) {
+                        removeChargeWarningDialogRef?.current?.openDialog(index)
+                      } else {
+                        deleteCharge()
+                      }
+                    }}
+                  />
+                </Tooltip>
+              )}
             </SummaryRight>
           </Summary>
         }
@@ -445,9 +458,10 @@ export const ChargeAccordion = memo(
               </ChargeModelWrapperAlert>
             )}
             <ComboBox
+              disableClearable
               sortValues={false}
               name="chargeModel"
-              disabled={disabled}
+              disabled={isInSubscriptionForm || disabled}
               label={
                 <InlineComboboxLabel>
                   <Typography variant="captionHl" color="textSecondary">
@@ -510,7 +524,6 @@ export const ChargeAccordion = memo(
                   value: ChargeModelEnum.Volume,
                 },
               ]}
-              disableClearable
               value={localCharge.chargeModel}
               helperText={translate(
                 localCharge.chargeModel === ChargeModelEnum.Percentage
@@ -831,7 +844,7 @@ export const ChargeAccordion = memo(
           <ChargeOptionsAccordion charge={localCharge} currency={currency}>
             <ButtonSelector
               label={translate('text_646e2d0cc536351b62ba6f1a')}
-              disabled={disabled}
+              disabled={isInSubscriptionForm || disabled}
               helperText={chargePayInAdvanceSwitchHelperText}
               onChange={(value) => handleUpdate('payInAdvance', Boolean(value))}
               value={localCharge.payInAdvance || false}
@@ -859,7 +872,7 @@ export const ChargeAccordion = memo(
               <Switch
                 name={`charge-${localCharge.id}-prorated`}
                 label={translate('text_649c54823c90890062476255')}
-                disabled={disabled || isProratedOptionDisabled}
+                disabled={isInSubscriptionForm || disabled || isProratedOptionDisabled}
                 subLabel={proratedOptionHelperText}
                 checked={!!localCharge.prorated}
                 onChange={(value) => handleUpdate('prorated', Boolean(value))}
@@ -870,7 +883,7 @@ export const ChargeAccordion = memo(
                 <Switch
                   name={`charge-${localCharge.id}-invoiceable`}
                   label={translate('text_646e2d0cc536351b62ba6f25')}
-                  disabled={disabled}
+                  disabled={isInSubscriptionForm || disabled}
                   subLabel={translate('text_646e2d0cc536351b62ba6f35')}
                   checked={!!localCharge.invoiceable}
                   onChange={(value) => {
@@ -893,7 +906,7 @@ export const ChargeAccordion = memo(
                     label={translate('text_643e592657fc1ba5ce110c30')}
                     currency={currency}
                     placeholder={translate('text_643e592657fc1ba5ce110c80')}
-                    disabled={disabled}
+                    disabled={subscriptionFormType === FORM_TYPE_ENUM.edition || disabled}
                     value={localCharge?.minAmountCents || ''}
                     onChange={(value) => handleUpdate('minAmountCents', value)}
                     InputProps={{
@@ -996,7 +1009,7 @@ export const ChargeAccordion = memo(
                 <Button
                   variant="quaternary"
                   startIcon="plus"
-                  disabled={disabled}
+                  disabled={subscriptionFormType === FORM_TYPE_ENUM.edition || disabled}
                   endIcon={isPremium ? undefined : 'sparkles'}
                   onClick={() => {
                     if (isPremium) {
@@ -1017,7 +1030,7 @@ export const ChargeAccordion = memo(
                 <Button
                   startIcon="plus"
                   variant="quaternary"
-                  disabled={disabled}
+                  disabled={subscriptionFormType === FORM_TYPE_ENUM.edition || disabled}
                   onClick={() => {
                     setShouldDisplayTaxesInput(true)
 
@@ -1169,6 +1182,7 @@ const AllChargesWrapper = styled.div<{ $hasGroupDisplay?: boolean; $hasChargesTo
   gap: ${theme.spacing(4)};
   margin-top: ${({ $hasChargesToDisplay, $hasGroupDisplay }) =>
     $hasChargesToDisplay && $hasGroupDisplay ? theme.spacing(6) : 0};
+  margin-bottom: ${theme.spacing(6)};
   padding: ${({ $hasGroupDisplay }) => ($hasGroupDisplay ? `0 ${theme.spacing(4)}` : 0)};
 `
 
@@ -1177,7 +1191,7 @@ const ChargeAddActionsWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 0 ${theme.spacing(4)};
-  margin: ${theme.spacing(6)} 0 ${theme.spacing(4)} 0;
+  margin-bottom: ${theme.spacing(4)};
 `
 
 const ChargeAddActionsWrapperLeft = styled.div`
