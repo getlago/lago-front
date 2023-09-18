@@ -117,20 +117,18 @@ export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItem
             >
               {translate('text_629728388c4d2300e2d3816a')}
             </ButtonLink>
-            <Tooltip title={translate('text_629791022a75b60089e98ea7')} placement="bottom-end">
-              <Button
-                startIcon="trash"
-                variant="quaternary"
-                align="left"
-                fullWidth
-                onClick={() => {
-                  deleteDialogRef.current?.openDialog(addOn)
-                  closePopper()
-                }}
-              >
-                {translate('text_629728388c4d2300e2d38182')}
-              </Button>
-            </Tooltip>
+            <Button
+              startIcon="trash"
+              variant="quaternary"
+              align="left"
+              fullWidth
+              onClick={() => {
+                deleteDialogRef.current?.openDialog(addOn)
+                closePopper()
+              }}
+            >
+              {translate('text_629728388c4d2300e2d38182')}
+            </Button>
           </MenuPopper>
         )}
       </Popper>
