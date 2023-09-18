@@ -6,9 +6,9 @@ import styled from 'styled-components'
 import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { ButtonSelectorField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
 import { Item } from '~/components/form/ComboBox/ComboBoxItem'
-import { PLAN_FORM_TYPE, PLAN_FORM_TYPE_ENUM } from '~/core/apolloClient'
 import {
   FORM_ERRORS_ENUM,
+  FORM_TYPE_ENUM,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME,
 } from '~/core/constants/form'
@@ -54,22 +54,30 @@ gql`
   }
 `
 
-interface PlanSettingsSectionProps {
-  canBeEdited: boolean
+type PlanSettingsSectionProps = {
+  canBeEdited?: boolean
+  isInSubscriptionForm?: boolean
+  subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
   errorCode: string | undefined
   formikProps: FormikProps<PlanFormInput>
-  type: PLAN_FORM_TYPE
+  isEdition?: boolean
 }
 
 export const PlanSettingsSection = memo(
-  ({ canBeEdited, errorCode, formikProps, type }: PlanSettingsSectionProps) => {
+  ({
+    canBeEdited,
+    isInSubscriptionForm,
+    subscriptionFormType,
+    errorCode,
+    formikProps,
+    isEdition,
+  }: PlanSettingsSectionProps) => {
     const { translate } = useInternationalization()
     const [shouldDisplayDescription, setShouldDisplayDescription] = useState<boolean>(
       !!formikProps.initialValues.description
     )
     const [shouldDisplayTaxesInput, setShouldDisplayTaxesInput] = useState<boolean>(false)
     const plan = formikProps.values
-    const isEdition = type === PLAN_FORM_TYPE_ENUM.edition
     const [getTaxes, { data: taxesData, loading: taxesLoading }] = useGetTaxesForPlanLazyQuery({
       variables: { limit: 20 },
     })
@@ -130,14 +138,12 @@ export const PlanSettingsSection = memo(
               name="name"
               label={translate('text_642d5eb2783a2ad10d67031c')}
               placeholder={translate('text_624453d52e945301380e499c')}
-              // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus
               formikProps={formikProps}
             />
             <TextInputField
               name="code"
               beforeChangeFormatter="code"
-              disabled={isEdition && !canBeEdited}
+              disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
               label={translate('text_642d5eb2783a2ad10d670320')}
               placeholder={translate('text_624453d52e945301380e499e')}
               formikProps={formikProps}
@@ -147,8 +153,6 @@ export const PlanSettingsSection = memo(
           {shouldDisplayDescription ? (
             <InlineDescription>
               <TextArea
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus
                 multiline
                 name="description"
                 label={translate('text_642d616c8d9eb000716e2bf1')}
@@ -183,7 +187,7 @@ export const PlanSettingsSection = memo(
         </AdjustableSection>
 
         <ButtonSelectorField
-          disabled={isEdition && !canBeEdited}
+          disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
           name="interval"
           label={translate('text_642d5eb2783a2ad10d670326')}
           infoText={translate('text_624d9adba93343010cd14ca3')}
@@ -213,7 +217,7 @@ export const PlanSettingsSection = memo(
             value: currencyType,
           }))}
           disableClearable
-          disabled={isEdition && !canBeEdited}
+          disabled={subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)}
           formikProps={formikProps}
           label={translate('text_642d5eb2783a2ad10d67032e')}
           name="amountCurrency"
@@ -229,13 +233,15 @@ export const PlanSettingsSection = memo(
                 <Chip
                   key={id}
                   label={`${name} (${rate}%)`}
-                  disabled={isEdition && !canBeEdited}
+                  disabled={
+                    subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
+                  }
                   variant="secondary"
                   size="medium"
                   closeIcon="trash"
                   icon="percentage"
                   onCloseLabel={
-                    isEdition && !canBeEdited
+                    subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
                       ? undefined
                       : translate('text_63aa085d28b8510cd46443ff')
                   }
@@ -261,6 +267,9 @@ export const PlanSettingsSection = memo(
               <ComboBox
                 className={SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME}
                 data={taxesDataForCombobox}
+                disabled={
+                  subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
+                }
                 searchQuery={getTaxes}
                 loading={taxesLoading}
                 placeholder={translate('text_64be910fba8ef9208686a8e7')}
@@ -278,7 +287,9 @@ export const PlanSettingsSection = memo(
                 <Button
                   icon="trash"
                   variant="quaternary"
-                  disabled={isEdition && !canBeEdited}
+                  disabled={
+                    subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
+                  }
                   onClick={() => {
                     setShouldDisplayTaxesInput(false)
                   }}
@@ -290,7 +301,9 @@ export const PlanSettingsSection = memo(
           <Button
             startIcon="plus"
             variant="quaternary"
-            disabled={isEdition && !canBeEdited}
+            disabled={
+              subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
+            }
             onClick={() => {
               setShouldDisplayTaxesInput(true)
               setTimeout(() => {

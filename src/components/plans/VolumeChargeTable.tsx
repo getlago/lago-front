@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { FormikProps } from 'formik'
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import styled from 'styled-components'
 
 import { Alert, Button, Table, Tooltip, Typography } from '~/components/designSystem'
@@ -47,203 +47,206 @@ interface VolumeChargeTableProps {
   valuePointer: InputMaybe<PropertiesInput> | undefined
 }
 
-export const VolumeChargeTable = ({
-  chargeIndex,
-  currency,
-  disabled,
-  formikProps,
-  propertyCursor,
-  valuePointer,
-}: VolumeChargeTableProps) => {
-  const { translate } = useInternationalization()
-  const [errorIndex, setErrorIndex] = useState<number | undefined>()
-  const { tableDatas, addRange, handleUpdate, deleteRange, infosCalculation } = useVolumeChargeForm(
-    {
-      chargeIndex,
-      disabled,
-      formikProps,
-      propertyCursor,
-      valuePointer,
-    }
-  )
+export const VolumeChargeTable = memo(
+  ({
+    chargeIndex,
+    currency,
+    disabled,
+    formikProps,
+    propertyCursor,
+    valuePointer,
+  }: VolumeChargeTableProps) => {
+    const { translate } = useInternationalization()
+    const [errorIndex, setErrorIndex] = useState<number | undefined>()
+    const { tableDatas, addRange, handleUpdate, deleteRange, infosCalculation } =
+      useVolumeChargeForm({
+        chargeIndex,
+        disabled,
+        formikProps,
+        propertyCursor,
+        valuePointer,
+      })
 
-  return (
-    <Container>
-      <AddButton
-        startIcon="plus"
-        variant="quaternary"
-        onClick={addRange}
-        disabled={disabled}
-        data-test="add-tier"
-      >
-        {translate('text_6304e74aab6dbc18d615f38e')}
-      </AddButton>
-      <TableContainer>
-        <Table
-          name="volume-charge-table"
-          data={tableDatas}
-          onDeleteRow={(_, i) => deleteRange(i)}
-          columns={[
-            {
-              size: 124,
-              content: () => (
-                <DisabledCell variant="captionHl">
-                  {translate('text_6304e74aab6dbc18d615f3a2')}
-                </DisabledCell>
-              ),
-            },
-            {
-              title: (
-                <DisabledCell variant="captionHl">
-                  {translate('text_6304e74aab6dbc18d615f392')}
-                </DisabledCell>
-              ),
-              size: 124,
-              content: (row) => (
-                <DisabledCell color="disabled" noWrap>
-                  {row?.fromValue}
-                </DisabledCell>
-              ),
-            },
-            {
-              title: (
-                <DisabledCell variant="captionHl" noWrap>
-                  {translate('text_6304e74aab6dbc18d615f396')}
-                </DisabledCell>
-              ),
-              size: 124,
-              content: (row, i) =>
-                disabled || i === tableDatas?.length - 1 ? (
-                  <DisabledCell variant="body" color="disabled" noWrap>
-                    {row.toValue || '∞'}
+    return (
+      <Container>
+        <AddButton
+          startIcon="plus"
+          variant="quaternary"
+          onClick={addRange}
+          disabled={disabled}
+          data-test="add-tier"
+        >
+          {translate('text_6304e74aab6dbc18d615f38e')}
+        </AddButton>
+        <TableContainer>
+          <Table
+            name="volume-charge-table"
+            data={tableDatas}
+            onDeleteRow={(_, i) => deleteRange(i)}
+            columns={[
+              {
+                size: 124,
+                content: () => (
+                  <DisabledCell variant="captionHl">
+                    {translate('text_6304e74aab6dbc18d615f3a2')}
                   </DisabledCell>
-                ) : (
-                  <Tooltip
-                    placement="top"
-                    title={translate('text_6304e74aab6dbc18d615f420', {
-                      value: row.fromValue - 1,
-                    })}
-                    disableHoverListener={errorIndex !== i}
-                  >
-                    <CellInput
-                      error={errorIndex === i}
-                      value={row.toValue as number | undefined}
-                      beforeChangeFormatter={['int', 'positiveNumber']}
-                      onBlur={() => {
-                        if (typeof row.toValue === 'number' && row.toValue < row.fromValue) {
-                          setErrorIndex(i)
-                        }
+                ),
+              },
+              {
+                title: (
+                  <DisabledCell variant="captionHl">
+                    {translate('text_6304e74aab6dbc18d615f392')}
+                  </DisabledCell>
+                ),
+                size: 124,
+                content: (row) => (
+                  <DisabledCell color="disabled" noWrap>
+                    {row?.fromValue}
+                  </DisabledCell>
+                ),
+              },
+              {
+                title: (
+                  <DisabledCell variant="captionHl" noWrap>
+                    {translate('text_6304e74aab6dbc18d615f396')}
+                  </DisabledCell>
+                ),
+                size: 124,
+                content: (row, i) =>
+                  disabled || i === tableDatas?.length - 1 ? (
+                    <DisabledCell variant="body" color="disabled" noWrap>
+                      {row.toValue || '∞'}
+                    </DisabledCell>
+                  ) : (
+                    <Tooltip
+                      placement="top"
+                      title={translate('text_6304e74aab6dbc18d615f420', {
+                        value: row.fromValue - 1,
+                      })}
+                      disableHoverListener={errorIndex !== i}
+                    >
+                      <CellInput
+                        error={errorIndex === i}
+                        value={row.toValue as number | undefined}
+                        beforeChangeFormatter={['int', 'positiveNumber']}
+                        onBlur={() => {
+                          if (typeof row.toValue === 'number' && row.toValue < row.fromValue) {
+                            setErrorIndex(i)
+                          }
+                        }}
+                        onChange={(value) => {
+                          if (typeof errorIndex === 'number') setErrorIndex(undefined)
+                          handleUpdate(i, 'toValue', value)
+                        }}
+                      />
+                    </Tooltip>
+                  ),
+              },
+              {
+                title: (
+                  <DisabledCell variant="captionHl">
+                    {translate('text_6304e74aab6dbc18d615f39a')}
+                  </DisabledCell>
+                ),
+                size: 124,
+                content: (row, i) =>
+                  disabled ? (
+                    <DisabledAmountCell>
+                      <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
+                      <Typography color="disabled" noWrap>
+                        {row.perUnitAmount || '0.0'}
+                      </Typography>
+                    </DisabledAmountCell>
+                  ) : (
+                    <CellAmount
+                      beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
+                      currency={currency}
+                      value={row.perUnitAmount}
+                      onChange={(value) => handleUpdate(i, 'perUnitAmount', value)}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            {getCurrencySymbol(currency)}
+                          </InputAdornment>
+                        ),
                       }}
-                      onChange={(value) => {
-                        if (typeof errorIndex === 'number') setErrorIndex(undefined)
-                        handleUpdate(i, 'toValue', value)
+                      data-test={`cell-amount-${i}`}
+                    />
+                  ),
+              },
+              {
+                title: (
+                  <DisabledCell variant="captionHl">
+                    {translate('text_6304e74aab6dbc18d615f39e')}
+                  </DisabledCell>
+                ),
+                size: 124,
+                content: (row, i) =>
+                  disabled ? (
+                    <DisabledAmountCell>
+                      <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
+                      <Typography color="disabled" noWrap>
+                        {row.flatAmount || '0.0'}
+                      </Typography>
+                    </DisabledAmountCell>
+                  ) : (
+                    <CellAmount
+                      beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
+                      currency={currency}
+                      value={row.flatAmount}
+                      onChange={(value) => handleUpdate(i, 'flatAmount', value)}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            {getCurrencySymbol(currency)}
+                          </InputAdornment>
+                        ),
                       }}
                     />
-                  </Tooltip>
-                ),
-            },
-            {
-              title: (
-                <DisabledCell variant="captionHl">
-                  {translate('text_6304e74aab6dbc18d615f39a')}
-                </DisabledCell>
-              ),
-              size: 124,
-              content: (row, i) =>
-                disabled ? (
-                  <DisabledAmountCell>
-                    <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
-                    <Typography color="disabled" noWrap>
-                      {row.perUnitAmount || '0.0'}
-                    </Typography>
-                  </DisabledAmountCell>
-                ) : (
-                  <CellAmount
-                    beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
-                    currency={currency}
-                    value={row.perUnitAmount}
-                    onChange={(value) => handleUpdate(i, 'perUnitAmount', value)}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          {getCurrencySymbol(currency)}
-                        </InputAdornment>
-                      ),
-                    }}
-                    data-test={`cell-amount-${i}`}
-                  />
-                ),
-            },
-            {
-              title: (
-                <DisabledCell variant="captionHl">
-                  {translate('text_6304e74aab6dbc18d615f39e')}
-                </DisabledCell>
-              ),
-              size: 124,
-              content: (row, i) =>
-                disabled ? (
-                  <DisabledAmountCell>
-                    <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
-                    <Typography color="disabled" noWrap>
-                      {row.flatAmount || '0.0'}
-                    </Typography>
-                  </DisabledAmountCell>
-                ) : (
-                  <CellAmount
-                    beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
-                    currency={currency}
-                    value={row.flatAmount}
-                    onChange={(value) => handleUpdate(i, 'flatAmount', value)}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          {getCurrencySymbol(currency)}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                ),
-            },
-          ]}
-        />
-      </TableContainer>
+                  ),
+              },
+            ]}
+          />
+        </TableContainer>
 
-      <Alert type="info">
-        <Typography variant="bodyHl" color="textSecondary">
-          {translate('text_6304e74aab6dbc18d615f412', {
-            lastRowFirstUnit: infosCalculation.lastRowFirstUnit,
-            value: intlFormatNumber(infosCalculation.value, {
-              currencyDisplay: 'symbol',
-              maximumFractionDigits: 15,
-              currency,
-            }),
-          })}
-        </Typography>
-        <Typography variant="body" color="textSecondary">
-          {translate('text_6304e74aab6dbc18d615f416', {
-            lastRowFirstUnit: infosCalculation.lastRowFirstUnit,
-            lastRowPerUnit: intlFormatNumber(infosCalculation.lastRowPerUnit, {
-              currencyDisplay: 'symbol',
-              maximumFractionDigits: 15,
-              currency,
-            }),
-            lastRowFlatFee: intlFormatNumber(infosCalculation.lastRowFlatFee, {
-              currencyDisplay: 'symbol',
-              maximumFractionDigits: 15,
-              currency,
-            }),
-            value: intlFormatNumber(infosCalculation.value, {
-              currencyDisplay: 'symbol',
-              maximumFractionDigits: 15,
-              currency,
-            }),
-          })}
-        </Typography>
-      </Alert>
-    </Container>
-  )
-}
+        <Alert type="info">
+          <Typography variant="bodyHl" color="textSecondary">
+            {translate('text_6304e74aab6dbc18d615f412', {
+              lastRowFirstUnit: infosCalculation.lastRowFirstUnit,
+              value: intlFormatNumber(infosCalculation.value, {
+                currencyDisplay: 'symbol',
+                maximumFractionDigits: 15,
+                currency,
+              }),
+            })}
+          </Typography>
+          <Typography variant="body" color="textSecondary">
+            {translate('text_6304e74aab6dbc18d615f416', {
+              lastRowFirstUnit: infosCalculation.lastRowFirstUnit,
+              lastRowPerUnit: intlFormatNumber(infosCalculation.lastRowPerUnit, {
+                currencyDisplay: 'symbol',
+                maximumFractionDigits: 15,
+                currency,
+              }),
+              lastRowFlatFee: intlFormatNumber(infosCalculation.lastRowFlatFee, {
+                currencyDisplay: 'symbol',
+                maximumFractionDigits: 15,
+                currency,
+              }),
+              value: intlFormatNumber(infosCalculation.value, {
+                currencyDisplay: 'symbol',
+                maximumFractionDigits: 15,
+                currency,
+              }),
+            })}
+          </Typography>
+        </Alert>
+      </Container>
+    )
+  }
+)
+
+VolumeChargeTable.displayName = 'VolumeChargeTable'
 
 const Container = styled.div`
   display: flex;

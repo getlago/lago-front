@@ -29,12 +29,19 @@ export interface TerminateCustomerSubscriptionDialogRef {
     id: string
     name?: string | null
     status: StatusTypeEnum
+    callback?: () => unknown
   }) => unknown
   closeDialog: () => unknown
 }
 
 export const TerminateCustomerSubscriptionDialog =
   forwardRef<TerminateCustomerSubscriptionDialogRef>((_, ref) => {
+    const { translate } = useInternationalization()
+    const [context, setContext] = useState<
+      | { id: string; name?: string | null; status: string; callback?: (() => unknown) | undefined }
+      | undefined
+    >(undefined)
+
     const dialogRef = useRef<DialogRef>(null)
     const [terminate] = useTerminateCustomerSubscriptionMutation({
       onCompleted({ terminateSubscription }) {
@@ -43,6 +50,10 @@ export const TerminateCustomerSubscriptionDialog =
             severity: 'success',
             translateKey: 'text_62d953aa13c166a6a24cbaf4',
           })
+
+          if (!!context?.callback) {
+            context?.callback()
+          }
         }
       },
       update(cache, { data }) {
@@ -74,14 +85,10 @@ export const TerminateCustomerSubscriptionDialog =
         })
       },
     })
-    const [subscription, setSubscription] = useState<
-      { id: string; name?: string | null; status: string } | undefined
-    >(undefined)
-    const { translate } = useInternationalization()
 
     useImperativeHandle(ref, () => ({
       openDialog: (infos) => {
-        setSubscription(infos)
+        setContext(infos)
         dialogRef.current?.openDialog()
       },
       closeDialog: () => dialogRef.current?.closeDialog(),
@@ -91,26 +98,26 @@ export const TerminateCustomerSubscriptionDialog =
       <WarningDialog
         ref={dialogRef}
         title={
-          subscription?.status === StatusTypeEnum.Pending
+          context?.status === StatusTypeEnum.Pending
             ? translate('text_64a6d8cb9ed7d9007e7121ca')
             : translate('text_62d7f6178ec94cd09370e2f3')
         }
         description={translate(
-          subscription?.status === StatusTypeEnum.Pending
+          context?.status === StatusTypeEnum.Pending
             ? 'text_64a6d96f84411700a90dbf51'
             : 'text_62d7f6178ec94cd09370e313',
           {
-            subscriptionName: subscription?.name,
+            subscriptionName: context?.name,
           }
         )}
         onContinue={async () =>
           await terminate({
-            variables: { input: { id: subscription?.id as string } },
+            variables: { input: { id: context?.id as string } },
             refetchQueries: ['getCustomerSubscriptionForList'],
           })
         }
         continueText={
-          subscription?.status === StatusTypeEnum.Pending
+          context?.status === StatusTypeEnum.Pending
             ? translate('text_64a6d736c23125004817627f')
             : translate('text_62d7f6178ec94cd09370e351')
         }

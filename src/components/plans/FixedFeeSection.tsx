@@ -6,7 +6,7 @@ import styled from 'styled-components'
 
 import { Accordion, Button, Chip, Icon, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField, ButtonSelectorField, TextInputField } from '~/components/form'
-import { PLAN_FORM_TYPE, PLAN_FORM_TYPE_ENUM } from '~/core/apolloClient'
+import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -27,11 +27,13 @@ gql`
 `
 
 interface FixedFeeSectionProps {
-  type: PLAN_FORM_TYPE
-  canBeEdited: boolean
-  formikProps: FormikProps<PlanFormInput>
-  isEdition: boolean
+  canBeEdited?: boolean
+  isInSubscriptionForm?: boolean
+  subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
   editInvoiceDisplayNameRef: RefObject<EditInvoiceDisplayNameRef>
+  formikProps: FormikProps<PlanFormInput>
+  isEdition?: boolean
+  isInitiallyOpen?: boolean
 }
 
 const mapIntervalCopy = (interval: string) => {
@@ -53,11 +55,13 @@ const mapIntervalCopy = (interval: string) => {
 
 export const FixedFeeSection = memo(
   ({
-    type,
     canBeEdited,
+    isInSubscriptionForm,
+    subscriptionFormType,
+    editInvoiceDisplayNameRef,
     formikProps,
     isEdition,
-    editInvoiceDisplayNameRef,
+    isInitiallyOpen,
   }: FixedFeeSectionProps) => {
     const { translate } = useInternationalization()
     const [shouldDisplayTrialPeriod, setShouldDisplayTrialPeriod] = useState(false)
@@ -76,7 +80,7 @@ export const FixedFeeSection = memo(
 
         <Accordion
           noContentMargin
-          initiallyOpen={type === PLAN_FORM_TYPE_ENUM.creation}
+          initiallyOpen={isInitiallyOpen}
           summary={
             <BoxHeader>
               <BoxHeaderGroupLeft>
@@ -136,7 +140,9 @@ export const FixedFeeSection = memo(
               name="amountCents"
               currency={formikProps.values.amountCurrency}
               beforeChangeFormatter={['positiveNumber']}
-              disabled={isEdition && !canBeEdited}
+              disabled={
+                subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
+              }
               label={translate('text_624453d52e945301380e49b6')}
               formikProps={formikProps}
               InputProps={{
@@ -151,7 +157,7 @@ export const FixedFeeSection = memo(
               name="payInAdvance"
               label={translate('text_646e2d0cc536351b62ba6f86')}
               formikProps={formikProps}
-              disabled={isEdition && !canBeEdited}
+              disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
               helperText={
                 formikProps.values.payInAdvance
                   ? translate('text_646e2d0cc536351b62ba6fc5')
@@ -173,7 +179,9 @@ export const FixedFeeSection = memo(
               <InlineTrialPeriod>
                 <InputTrialPeriod
                   name="trialPeriod"
-                  disabled={isEdition && !canBeEdited}
+                  disabled={
+                    subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
+                  }
                   label={translate('text_624453d52e945301380e49c2')}
                   beforeChangeFormatter={['positiveNumber', 'int']}
                   placeholder={translate('text_624453d52e945301380e49c4')}
@@ -189,12 +197,16 @@ export const FixedFeeSection = memo(
                 <CloseTrialPeriodTooltip
                   placement="top-end"
                   title={translate('text_63aa085d28b8510cd46443ff')}
-                  disableHoverListener={isEdition && !canBeEdited}
+                  disableHoverListener={
+                    subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
+                  }
                 >
                   <Button
                     icon="trash"
                     variant="quaternary"
-                    disabled={isEdition && !canBeEdited}
+                    disabled={
+                      subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
+                    }
                     onClick={() => {
                       formikProps.setFieldValue('trialPeriod', null)
                       setShouldDisplayTrialPeriod(false)
@@ -205,7 +217,9 @@ export const FixedFeeSection = memo(
             ) : (
               <Button
                 startIcon="plus"
-                disabled={isEdition && !canBeEdited}
+                disabled={
+                  subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
+                }
                 variant="quaternary"
                 data-test="show-trial-period"
                 onClick={() => setShouldDisplayTrialPeriod(true)}

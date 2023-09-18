@@ -7,10 +7,12 @@ import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
 import { ComboBox, SwitchField } from '~/components/form'
 import { Item } from '~/components/form/ComboBox/ComboBoxItem'
 import {
+  FORM_TYPE_ENUM,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_METERED_CHARGE_INPUT_CLASSNAME,
   SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME,
 } from '~/core/constants/form'
+import getPropertyShape from '~/core/serializers/getPropertyShape'
 import {
   ChargeModelEnum,
   CurrencyEnum,
@@ -71,36 +73,46 @@ gql`
 `
 
 interface ChargesSectionProps {
-  canBeEdited: boolean
-  isEdition: boolean
-  getPropertyShape: Function
-  formikProps: FormikProps<PlanFormInput>
   alreadyExistingCharges?: PlanFormInput['charges'] | null
   editInvoiceDisplayNameRef: RefObject<EditInvoiceDisplayNameRef>
+  canBeEdited?: boolean
+  isInitiallyOpen?: boolean
+  isInSubscriptionForm?: boolean
+  formikProps: FormikProps<PlanFormInput>
+  isEdition?: boolean
+  subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
 }
 
 const getNewChargeId = (id: string, index: number) => `plan-charge-${id}-${index}`
 
 export const ChargesSection = memo(
   ({
-    canBeEdited,
-    isEdition,
-    getPropertyShape,
-    formikProps,
     alreadyExistingCharges,
     editInvoiceDisplayNameRef,
+    canBeEdited,
+    isInitiallyOpen,
+    isInSubscriptionForm,
+    formikProps,
+    isEdition,
+    subscriptionFormType,
   }: ChargesSectionProps) => {
     const { translate } = useInternationalization()
     const hasAnyCharge = !!formikProps.values.charges.length
     const [showAddMeteredCharge, setShowAddMeteredCharge] = useState(false)
     const [showAddRecurringCharge, setShowAddRecurringCharge] = useState(false)
-    const [newChargeId, setNewChargeId] = useState<string | null>(null)
+    const newChargeId = useRef<string | null>(null)
     const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
     const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
     const alreadyUsedBmsIds = useRef<Map<String, number>>(new Map())
-    const hasAnyMeteredCharge = formikProps.values.charges.some((c) => !c.billableMetric.recurring)
-    const hasAnyRecurringCharge = formikProps.values.charges.some(
-      (c) => !!c.billableMetric.recurring
+    const hasAnyMeteredCharge = useMemo(
+      () => formikProps.values.charges.some((c) => !c.billableMetric.recurring),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [formikProps.values.charges.length]
+    )
+    const hasAnyRecurringCharge = useMemo(
+      () => formikProps.values.charges.some((c) => !!c.billableMetric.recurring),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [formikProps.values.charges.length]
     )
     const [
       getMeteredBillableMetrics,
@@ -163,8 +175,8 @@ export const ChargesSection = memo(
 
     useEffect(() => {
       // When adding a new charge, scroll to the new charge element
-      if (!!newChargeId) {
-        const element = document.getElementById(newChargeId)
+      if (!!newChargeId.current) {
+        const element = document.getElementById(newChargeId.current)
         const rootElement = document.getElementById('root')
 
         if (!element || !rootElement) return
@@ -196,63 +208,65 @@ export const ChargesSection = memo(
         <Card>
           <SectionTitle>
             <Typography variant="subhead">{translate('text_6435888d7cc86500646d8977')}</Typography>
-            <Popper
-              PopperProps={{ placement: 'bottom-end' }}
-              opener={
-                <Button variant="secondary" endIcon="chevron-down" data-test="add-charge">
-                  {translate('text_6435888d7cc86500646d8974')}
-                </Button>
-              }
-            >
-              {({ closePopper }) => (
-                <MenuPopper>
-                  <Button
-                    variant="quaternary"
-                    data-test="add-metered-charge"
-                    onClick={async () => {
-                      if (!showAddMeteredCharge) setShowAddMeteredCharge(true)
-
-                      setTimeout(() => {
-                        const element = document.querySelector(
-                          `.${SEARCH_METERED_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
-                        ) as HTMLElement
-
-                        if (!element) return
-
-                        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                        element.click()
-
-                        closePopper()
-                      }, 0)
-                    }}
-                  >
-                    {translate('text_64d270faa1b07d0097fa287e')}
+            {!isInSubscriptionForm && (
+              <Popper
+                PopperProps={{ placement: 'bottom-end' }}
+                opener={
+                  <Button variant="secondary" endIcon="chevron-down" data-test="add-charge">
+                    {translate('text_6435888d7cc86500646d8974')}
                   </Button>
-                  <Button
-                    variant="quaternary"
-                    data-test="add-recurring-charge"
-                    onClick={async () => {
-                      if (!showAddRecurringCharge) setShowAddRecurringCharge(true)
+                }
+              >
+                {({ closePopper }) => (
+                  <MenuPopper>
+                    <Button
+                      variant="quaternary"
+                      data-test="add-metered-charge"
+                      onClick={async () => {
+                        if (!showAddMeteredCharge) setShowAddMeteredCharge(true)
 
-                      setTimeout(() => {
-                        const element = document.querySelector(
-                          `.${SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
-                        ) as HTMLElement
+                        setTimeout(() => {
+                          const element = document.querySelector(
+                            `.${SEARCH_METERED_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                          ) as HTMLElement
 
-                        if (!element) return
+                          if (!element) return
 
-                        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                        element.click()
+                          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                          element.click()
 
-                        closePopper()
-                      }, 0)
-                    }}
-                  >
-                    {translate('text_64d27120a3d1e300b35d0fcc')}
-                  </Button>
-                </MenuPopper>
-              )}
-            </Popper>
+                          closePopper()
+                        }, 0)
+                      }}
+                    >
+                      {translate('text_64d270faa1b07d0097fa287e')}
+                    </Button>
+                    <Button
+                      variant="quaternary"
+                      data-test="add-recurring-charge"
+                      onClick={async () => {
+                        if (!showAddRecurringCharge) setShowAddRecurringCharge(true)
+
+                        setTimeout(() => {
+                          const element = document.querySelector(
+                            `.${SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                          ) as HTMLElement
+
+                          if (!element) return
+
+                          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                          element.click()
+
+                          closePopper()
+                        }, 0)
+                      }}
+                    >
+                      {translate('text_64d27120a3d1e300b35d0fcc')}
+                    </Button>
+                  </MenuPopper>
+                )}
+              </Popper>
+            )}
           </SectionTitle>
 
           {/* METERED */}
@@ -261,7 +275,7 @@ export const ChargesSection = memo(
               label={translate('text_62a30bc79dae432fb055330b')}
               subLabel={translate('text_64358e074a3b7500714f256c')}
               name="billChargesMonthly"
-              disabled={isEdition && !canBeEdited}
+              disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
               formikProps={formikProps}
             />
           )}
@@ -294,6 +308,9 @@ export const ChargesSection = memo(
                   <ChargeAccordion
                     id={id}
                     key={id}
+                    isInitiallyOpen={isInitiallyOpen}
+                    isInSubscriptionForm={isInSubscriptionForm}
+                    subscriptionFormType={subscriptionFormType}
                     shouldDisplayAlreadyUsedChargeAlert={shouldDisplayAlreadyUsedChargeAlert}
                     removeChargeWarningDialogRef={removeChargeWarningDialogRef}
                     premiumWarningDialogRef={premiumWarningDialogRef}
@@ -335,21 +352,13 @@ export const ChargesSection = memo(
                     billableMetric: localBillableMetrics,
                     properties: getPropertyShape({}),
                     groupProperties: localBillableMetrics?.flatGroups?.length ? [] : undefined,
-
-                    // localBillableMetrics?.flatGroups.map((group) => {
-                    //   return {
-                    //     groupId: group.id,
-                    //     values: getPropertyShape({}),
-                    //   }
-                    // })
-
                     chargeModel: ChargeModelEnum.Standard,
                     amountCents: undefined,
                   } as LocalChargeInput)
 
                   formikProps.setFieldValue('charges', previousCharges)
                   setShowAddMeteredCharge(false)
-                  setNewChargeId(newId)
+                  newChargeId.current = newId
                 }}
               />
               <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
@@ -364,7 +373,7 @@ export const ChargesSection = memo(
             </AddChargeInlineWrapper>
           )}
 
-          {hasAnyCharge && (
+          {hasAnyCharge && !isInSubscriptionForm && (
             <InlineButtons>
               {!showAddMeteredCharge && !!hasAnyMeteredCharge && (
                 <Button
@@ -438,6 +447,9 @@ export const ChargesSection = memo(
                   <ChargeAccordion
                     id={id}
                     key={id}
+                    isInitiallyOpen={isInitiallyOpen}
+                    isInSubscriptionForm={isInSubscriptionForm}
+                    subscriptionFormType={subscriptionFormType}
                     shouldDisplayAlreadyUsedChargeAlert={shouldDisplayAlreadyUsedChargeAlert}
                     removeChargeWarningDialogRef={removeChargeWarningDialogRef}
                     premiumWarningDialogRef={premiumWarningDialogRef}
@@ -489,7 +501,7 @@ export const ChargesSection = memo(
                     },
                   ])
                   setShowAddRecurringCharge(false)
-                  setNewChargeId(newId)
+                  newChargeId.current = newId
                 }}
               />
               <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
@@ -504,7 +516,7 @@ export const ChargesSection = memo(
             </AddChargeInlineWrapper>
           )}
 
-          {hasAnyCharge && (
+          {hasAnyCharge && !isInSubscriptionForm && (
             <InlineButtons>
               {!showAddMeteredCharge && !hasAnyMeteredCharge && (
                 <Button
@@ -552,6 +564,21 @@ export const ChargesSection = memo(
         <PremiumWarningDialog ref={premiumWarningDialogRef} />
       </>
     )
+  },
+  (oldProps, newProps) => {
+    return (
+      oldProps.alreadyExistingCharges === newProps.alreadyExistingCharges &&
+      oldProps.canBeEdited === newProps.canBeEdited &&
+      oldProps.isInitiallyOpen === newProps.isInitiallyOpen &&
+      oldProps.isInSubscriptionForm === newProps.isInSubscriptionForm &&
+      oldProps.isEdition === newProps.isEdition &&
+      oldProps.subscriptionFormType === newProps.subscriptionFormType &&
+      oldProps.formikProps.values.interval === newProps.formikProps.values.interval &&
+      oldProps.formikProps.values.charges === newProps.formikProps.values.charges &&
+      // Used in sub components
+      oldProps.formikProps.errors === newProps.formikProps.errors &&
+      oldProps.formikProps.initialValues === newProps.formikProps.initialValues
+    )
   }
 )
 
@@ -566,6 +593,7 @@ const SectionTitle = styled.div`
 const Card = styled.div`
   padding: ${theme.spacing(8)};
   border: 1px solid ${theme.palette.grey[300]};
+  background-color: ${theme.palette.common.white};
   border-radius: 12px;
   box-sizing: border-box;
 
