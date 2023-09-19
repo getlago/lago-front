@@ -1,18 +1,18 @@
-import { useState, useEffect, useRef } from 'react'
-import { BrowserRouter } from 'react-router-dom'
+import { ApolloClient, ApolloProvider, NormalizedCacheObject } from '@apollo/client'
 import { ThemeProvider } from '@mui/material'
-import { ApolloClient, NormalizedCacheObject, ApolloProvider } from '@apollo/client'
+import { useEffect, useRef, useState } from 'react'
+import { BrowserRouter } from 'react-router-dom'
 
-import { initializeApolloClient, initializeTranslations } from '~/core/apolloClient'
-import { theme } from '~/styles'
-import { UserIdentifier } from '~/components/UserIdentifier'
+import { DebugInfoDialog, DebugInfoDialogRef } from '~/components/DebugInfoDialog'
 import { ToastContainer } from '~/components/designSystem/Toasts'
-import { inputGlobalStyles } from '~/styles/globalStyle'
 import { ErrorBoundary } from '~/components/ErrorBoundary'
 import { RouteWrapper } from '~/components/RouteWrapper'
-import { useShortcuts } from '~/hooks/ui/useShortcuts'
-import { DebugInfoDialog, DebugInfoDialogRef } from '~/components/DebugInfoDialog'
+import { UserIdentifier } from '~/components/UserIdentifier'
+import { initializeApolloClient, initializeTranslations } from '~/core/apolloClient'
 import { initializeYup } from '~/formValidation/initializeYup'
+import { useShortcuts } from '~/hooks/ui/useShortcuts'
+import { theme } from '~/styles'
+import { inputGlobalStyles } from '~/styles/globalStyle'
 
 const App = () => {
   const [client, setClient] = useState<ApolloClient<NormalizedCacheObject> | null>(null)

@@ -4,9 +4,9 @@ import { ApolloClient } from '@apollo/client'
 import { CurrentUserFragment } from '~/generated/graphql'
 
 import {
-  updateAuthTokenVar,
-  resetLocationHistoryVar,
   ORGANIZATION_LS_KEY_ID,
+  resetLocationHistoryVar,
+  updateAuthTokenVar,
   updateCustomerPortalTokenVar,
 } from './reactiveVars'
 

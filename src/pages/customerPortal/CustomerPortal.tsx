@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
-import { theme } from '~/styles'
-import { useGetPortalOrgaInfosQuery } from '~/generated/graphql'
-import { Skeleton, Typography } from '~/components/designSystem'
-import Logo from '~/public/images/logo/lago-logo-grey.svg'
 import { PortalCustomerInfos } from '~/components/customerPortal/PortalCustomerInfos'
 import PortalInvoicesList from '~/components/customerPortal/PortalInvoicesList'
+import { Skeleton, Typography } from '~/components/designSystem'
 import { LocaleEnum } from '~/core/translations'
+import { useGetPortalOrgaInfosQuery } from '~/generated/graphql'
+import Logo from '~/public/images/logo/lago-logo-grey.svg'
+import { theme } from '~/styles'
 
 gql`
   query getPortalOrgaInfos {

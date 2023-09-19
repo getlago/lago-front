@@ -1,15 +1,15 @@
 import { CodeSnippet } from '~/components/CodeSnippet'
+import { envGlobalVar } from '~/core/apolloClient'
+import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
+  BillableMetricsForCouponsFragment,
   CouponExpiration,
   CouponFrequency,
   CouponTypeEnum,
   CreateCouponInput,
   CurrencyEnum,
   PlansForCouponsFragment,
-  BillableMetricsForCouponsFragment,
 } from '~/generated/graphql'
-import { envGlobalVar } from '~/core/apolloClient'
-import { serializeAmount } from '~/core/serializers/serializeAmount'
 
 const { apiUrl } = envGlobalVar()
 

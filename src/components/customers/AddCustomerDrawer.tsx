@@ -1,51 +1,51 @@
-import React, {
-  forwardRef,
-  useEffect,
-  useState,
-  RefObject,
-  useImperativeHandle,
-  useRef,
-} from 'react'
-import styled, { css } from 'styled-components'
 import { useFormik } from 'formik'
-import { object, string } from 'yup'
 import { FieldWithPossiblyUndefined } from 'lodash'
 import _get from 'lodash/get'
+import React, {
+  forwardRef,
+  RefObject,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react'
+import styled, { css } from 'styled-components'
+import { object, string } from 'yup'
 
 import {
-  Drawer,
-  Button,
-  DrawerRef,
-  Typography,
   Accordion,
   Alert,
+  Button,
+  Drawer,
+  DrawerRef,
   Tooltip,
+  Typography,
 } from '~/components/designSystem'
-import { TextInputField, ComboBoxField, Checkbox, Switch } from '~/components/form'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { Checkbox, ComboBoxField, Switch, TextInputField } from '~/components/form'
 import { hasDefinedGQLError } from '~/core/apolloClient'
-import { theme, Card, DrawerTitle, DrawerContent, DrawerSubmitButton } from '~/styles'
+import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
+import { INTEGRATIONS_ROUTE, ORGANIZATION_INFORMATIONS_ROUTE } from '~/core/router'
+import { getTimezoneConfig } from '~/core/timezone'
+import {
+  METADATA_VALUE_MAX_LENGTH_DEFAULT,
+  MetadataErrorsEnum,
+  metadataSchema,
+} from '~/formValidation/metadataSchema'
 import {
   AddCustomerDrawerFragment,
   CreateCustomerInput,
-  UpdateCustomerInput,
-  ProviderTypeEnum,
   CurrencyEnum,
-  TimezoneEnum,
   CustomerMetadataInput,
   ProviderPaymentMethodsEnum,
+  ProviderTypeEnum,
+  TimezoneEnum,
+  UpdateCustomerInput,
 } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
-import { INTEGRATIONS_ROUTE, ORGANIZATION_INFORMATIONS_ROUTE } from '~/core/router'
-import { getTimezoneConfig } from '~/core/timezone'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import {
-  MetadataErrorsEnum,
-  metadataSchema,
-  METADATA_VALUE_MAX_LENGTH_DEFAULT,
-} from '~/formValidation/metadataSchema'
-import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { Card, DrawerContent, DrawerSubmitButton, DrawerTitle, theme } from '~/styles'
 
 const MAX_METADATA_COUNT = 5
 

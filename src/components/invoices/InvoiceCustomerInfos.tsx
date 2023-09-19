@@ -1,15 +1,15 @@
-import { memo } from 'react'
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
+import { memo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
+import styled from 'styled-components'
 
 import { Typography } from '~/components/designSystem'
-import { InvoiceForInvoiceInfosFragment } from '~/generated/graphql'
-import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { CountryCodes } from '~/core/constants/countryCodes'
+import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
+import { formatDateToTZ } from '~/core/timezone'
+import { InvoiceForInvoiceInfosFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
-import { formatDateToTZ } from '~/core/timezone'
 
 import { ConditionalWrapper } from '../ConditionalWrapper'
 

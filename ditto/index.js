@@ -14,6 +14,9 @@ module.exports = {
   "project_633336529ca3243d15ac9df4": {
     "base": require('./-ready-for-dev---all---replace-success-screen-by-success-toast__base.json')
   },
+  "project_64f8823bc0558274c87c6e0e": {
+    "base": require('./-ready-for-dev---b.metrics---add-last-aggregation-type__base.json')
+  },
   "project_637b4d9f764dcb190431ad4d": {
     "base": require('./-ready-for-dev---coupons---apply-several-coupons-to-customer__base.json')
   },
@@ -64,6 +67,9 @@ module.exports = {
   },
   "project_64de471ef3038f0ad36833f8": {
     "base": require('./-ready-for-dev---plans---graduated-percentage-charge-model__base.json')
+  },
+  "project_65018c8af04a866c7bcc6cb8": {
+    "base": require('./-ready-for-dev---plans---invoice-display-names__base.json')
   },
   "project_64e7b269852fc4ff0e0ec11c": {
     "base": require('./-ready-for-dev---plans---min--max-per-transaction__base.json')
@@ -210,6 +216,9 @@ module.exports = {
   },
   "project_623b3ac9459a5d00df324533": {
     "base": require('./documentation-asset__base.json')
+  },
+  "project_64fa170c8bbf9b0e6adc8b02": {
+    "base": require('./duplicate-plan__base.json')
   },
   "project_62b1edda611dee64a01ad185": {
     "base": require('./lago--stripe-connection--impact-on-customer-view__base.json')

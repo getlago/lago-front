@@ -36,7 +36,7 @@ jobs:
           echo "LAGO_RSA_PRIVATE_KEY=\"`openssl genrsa 2048 | base64`\"" >> .env
       
       - name: Launch API
-        run: docker-compose -f ./api/docker-compose.ci.yml --env-file ./.env up -d api
+        run: docker-compose -f ./ci/docker-compose.ci.yml --env-file ./.env up -d api
       
       - name: Set up Node.js
         uses: actions/setup-node@v3

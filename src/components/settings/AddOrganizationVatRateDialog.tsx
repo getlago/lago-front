@@ -1,19 +1,19 @@
-import { forwardRef, useState, useMemo } from 'react'
 import { gql } from '@apollo/client'
+import { forwardRef, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
-import { Dialog, Button, DialogRef, Typography } from '~/components/designSystem'
+import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { addToast } from '~/core/apolloClient'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { CREATE_TAX_ROUTE } from '~/core/router'
 import {
   LagoApiError,
-  useGetTaxRatesForEditOrgaLazyQuery,
   useAssignTaxRateToOrganizationMutation,
+  useGetTaxRatesForEditOrgaLazyQuery,
 } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
-import { addToast } from '~/core/apolloClient'
-import { CREATE_TAX_ROUTE } from '~/core/router'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 
 import { Item } from '../form/ComboBox/ComboBoxItem'
 

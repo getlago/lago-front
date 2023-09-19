@@ -1,11 +1,11 @@
+import { AccordionDetails, AccordionSummary, Accordion as MuiAccordion } from '@mui/material'
+import { TransitionProps } from '@mui/material/transitions'
 import { useState } from 'react'
 import { ReactNode } from 'react'
-import { Accordion as MuiAccordion, AccordionSummary, AccordionDetails } from '@mui/material'
-import { TransitionProps } from '@mui/material/transitions'
 import styled from 'styled-components'
 
-import { theme, NAV_HEIGHT } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 import { Button } from './Button'
 import { Tooltip } from './Tooltip'

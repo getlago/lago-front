@@ -1,15 +1,15 @@
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
 import { forwardRef, useState } from 'react'
 import { useNavigate } from 'react-router'
+import styled from 'styled-components'
 
-import { Dialog, Button, DialogRef } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
+import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
-import { useAddStripeApiKeyMutation, StripeIntegrationFragmentDoc } from '~/generated/graphql'
 import { addToast } from '~/core/apolloClient'
 import { STRIPE_INTEGRATION_ROUTE } from '~/core/router'
+import { StripeIntegrationFragmentDoc, useAddStripeApiKeyMutation } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { theme } from '~/styles'
 
 gql`
   mutation addStripeApiKey($input: AddStripePaymentProviderInput!) {

@@ -1,23 +1,23 @@
-import { useState, useMemo, useEffect } from 'react'
 import { gql } from '@apollo/client'
-import { object, string } from 'yup'
-import styled from 'styled-components'
 import _findKey from 'lodash/findKey'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import styled from 'styled-components'
+import { object, string } from 'yup'
 
-import { Page, Title, Subtitle, StyledLogo, Card } from '~/styles/auth'
-import { Typography, Alert, Button, Skeleton } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
+import { Alert, Button, Skeleton, Typography } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
+import { addToast, onLogIn } from '~/core/apolloClient'
 import {
-  LagoApiError,
   CurrentUserFragmentDoc,
+  LagoApiError,
   useGetPasswordResetQuery,
   useResetPasswordMutation,
 } from '~/generated/graphql'
-import { onLogIn, addToast } from '~/core/apolloClient'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
+import { theme } from '~/styles'
+import { Card, Page, StyledLogo, Subtitle, Title } from '~/styles/auth'
 
 gql`
   query getPasswordReset($token: String!) {

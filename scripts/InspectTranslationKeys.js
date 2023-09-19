@@ -3,28 +3,11 @@ const fs = require('fs')
 const path = require('path')
 
 const _ = require('lodash')
-const glob = require('glob')
+const { globSync } = require('glob')
 const { GettextExtractor, JsExtractors } = require('gettext-extractor')
 
 const SRC_DIR = './src/'
 const TRANSLATION_FILES_PATH = './ditto/base.json' // './ditto/**.json' for when we'll support several languages
-
-/**
- * Get all files which match a given path
- * @param {string} path
- * @returns {string[]}
- */
-function getFiles(fromPath) {
-  return new Promise((resolve, reject) =>
-    glob(fromPath, (error, files) => {
-      if (error) {
-        reject(error)
-        return
-      }
-      resolve(files)
-    })
-  )
-}
 
 async function extract() {
   // Extract all the translation keys by parsing the 'translate' function
@@ -42,7 +25,7 @@ async function extract() {
   }, [])
 
   // Extract all the translation keys not used with 'translate' by matching 'text_[all]'
-  const files = await getFiles(path.join(SRC_DIR, '**/*.@(ts|js|tsx|jsx)'))
+  const files = globSync(path.join(SRC_DIR, '**/*.@(ts|js|tsx|jsx)'))
   const usedKeysWithoutTranslate = files.reduce((acc, file) => {
     const content = fs.readFileSync(file, 'utf-8')
     const usedKeys = content.match(/\'text_(.*?)\'/g)
@@ -56,7 +39,7 @@ async function extract() {
 
   foundKeys.push(...usedKeysWithoutTranslate)
 
-  const translationFiles = await getFiles(TRANSLATION_FILES_PATH)
+  const translationFiles = globSync(TRANSLATION_FILES_PATH)
 
   translationFiles.forEach((file) => {
     // Get all translation keys from the ditto file

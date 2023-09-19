@@ -1,37 +1,37 @@
-import { RefObject } from 'react'
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
+import { RefObject } from 'react'
 import { generatePath } from 'react-router-dom'
+import styled from 'styled-components'
 
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
+import { CouponCaption } from '~/components/coupons/CouponCaption'
+import { DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
+import { TerminateCouponDialogRef } from '~/components/coupons/TerminateCouponDialog'
 import {
-  theme,
+  Avatar,
+  Button,
+  ButtonLink,
+  Icon,
+  Popper,
+  Skeleton,
+  Status,
+  StatusEnum,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
+import { UPDATE_COUPON_ROUTE } from '~/core/router'
+import { CouponItemFragment, CouponStatusEnum } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import {
   BaseListItem,
+  ItemContainer,
   ListItemLink,
   MenuPopper,
   PopperOpener,
-  ItemContainer,
+  theme,
 } from '~/styles'
-import {
-  Typography,
-  Avatar,
-  Icon,
-  Skeleton,
-  Button,
-  ButtonLink,
-  Tooltip,
-  Popper,
-  Status,
-  StatusEnum,
-} from '~/components/designSystem'
-import { UPDATE_COUPON_ROUTE } from '~/core/router'
-import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
-import { CouponStatusEnum, CouponItemFragment } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
-import { CouponCaption } from '~/components/coupons/CouponCaption'
-import { ConditionalWrapper } from '~/components/ConditionalWrapper'
-import { TerminateCouponDialogRef } from '~/components/coupons/TerminateCouponDialog'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment CouponItem on Coupon {

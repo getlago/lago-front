@@ -1,18 +1,18 @@
-import { generatePath, Link } from 'react-router-dom'
 import { gql } from '@apollo/client'
+import { useFormik } from 'formik'
+import { generatePath, Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { object, string } from 'yup'
-import { useFormik } from 'formik'
 
-import { theme } from '~/styles'
-import { Typography, Button, Alert } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useLoginUserMutation, LagoApiError, CurrentUserFragmentDoc } from '~/generated/graphql'
-import { onLogIn, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
+import { Alert, Button, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
+import { envGlobalVar, hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
 import { FORGOT_PASSWORD_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
-import { Page, Title, Subtitle, StyledLogo, Card } from '~/styles/auth'
+import { CurrentUserFragmentDoc, LagoApiError, useLoginUserMutation } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
+import { theme } from '~/styles'
+import { Card, Page, StyledLogo, Subtitle, Title } from '~/styles/auth'
 
 const { disableSignUp } = envGlobalVar()
 

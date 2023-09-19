@@ -1,31 +1,31 @@
+import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import styled from 'styled-components'
-import { gql } from '@apollo/client'
 
-import { theme, PageHeader, NAV_HEIGHT, MenuPopper, PopperOpener } from '~/styles'
-import { INTEGRATIONS_ROUTE } from '~/core/router'
 import {
-  Typography,
+  Avatar,
   Button,
   ButtonLink,
-  Skeleton,
-  Avatar,
   Chip,
   Icon,
   Popper,
+  Skeleton,
   Tooltip,
+  Typography,
 } from '~/components/designSystem'
-import { useAdyenIntegrationsSettingQuery } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import Adyen from '~/public/images/adyen.svg'
-import {
-  DeleteAdyenIntegrationDialog,
-  DeleteAdyenIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteAdyenIntegrationDialog'
 import {
   AddAdyenDialog,
   AddAdyenDialogRef,
 } from '~/components/settings/integrations/AddAdyenDialog'
+import {
+  DeleteAdyenIntegrationDialog,
+  DeleteAdyenIntegrationDialogRef,
+} from '~/components/settings/integrations/DeleteAdyenIntegrationDialog'
+import { INTEGRATIONS_ROUTE } from '~/core/router'
+import { useAdyenIntegrationsSettingQuery } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import Adyen from '~/public/images/adyen.svg'
+import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener, theme } from '~/styles'
 
 gql`
   fragment AdyenIntegration on AdyenProvider {

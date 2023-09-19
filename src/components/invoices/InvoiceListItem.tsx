@@ -1,30 +1,30 @@
+import { gql } from '@apollo/client'
 import { RefObject } from 'react'
 import styled, { css } from 'styled-components'
-import { gql } from '@apollo/client'
 
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { Skeleton, Button, Typography, StatusEnum, Status, Popper } from '~/components/designSystem'
-import { theme, BaseListItem, ListItemLink, MenuPopper, NAV_HEIGHT } from '~/styles'
+import { Button, Popper, Skeleton, Status, StatusEnum, Typography } from '~/components/designSystem'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import {
-  InvoiceListItemFragment,
-  InvoiceStatusTypeEnum,
-  InvoicePaymentStatusTypeEnum,
-  useDownloadInvoiceItemMutation,
-  InvoiceForFinalizeInvoiceFragmentDoc,
-  useRetryInvoicePaymentMutation,
-  LagoApiError,
-  InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
-  CurrencyEnum,
-} from '~/generated/graphql'
-import { formatDateToTZ } from '~/core/timezone'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { formatDateToTZ } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import {
+  CurrencyEnum,
+  InvoiceForFinalizeInvoiceFragmentDoc,
+  InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
+  InvoiceListItemFragment,
+  InvoicePaymentStatusTypeEnum,
+  InvoiceStatusTypeEnum,
+  LagoApiError,
+  useDownloadInvoiceItemMutation,
+  useRetryInvoicePaymentMutation,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
+import { BaseListItem, ListItemLink, MenuPopper, NAV_HEIGHT, theme } from '~/styles'
 
-import { FinalizeInvoiceDialogRef } from './FinalizeInvoiceDialog'
 import { UpdateInvoicePaymentStatusDialogRef } from './EditInvoicePaymentStatusDialog'
+import { FinalizeInvoiceDialogRef } from './FinalizeInvoiceDialog'
 
 gql`
   fragment InvoiceListItem on Invoice {

@@ -3,10 +3,10 @@ import styled, { css } from 'styled-components'
 
 import { theme } from '~/styles'
 
-import { IconName, Icon } from './Icon'
-import { Typography } from './Typography'
-import { Skeleton } from './Skeleton'
 import { Avatar } from './Avatar'
+import { Icon, IconName } from './Icon'
+import { Skeleton } from './Skeleton'
+import { Typography } from './Typography'
 
 interface SelectorProps {
   title: string

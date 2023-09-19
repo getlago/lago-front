@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { Shortcut, useShortcuts, getCleanKey } from '../useShortcuts'
+import { getCleanKey, Shortcut, useShortcuts } from '../useShortcuts'
 
 const MyTestComponentThatUsesShortcuts = ({ shortcuts }: { shortcuts: Shortcut[] }) => {
   useShortcuts(shortcuts)

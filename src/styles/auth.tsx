@@ -1,8 +1,8 @@
 import styled from 'styled-components'
 
-import { theme } from '~/styles'
 import { Typography } from '~/components/designSystem'
 import Logo from '~/public/images/logo/lago-logo.svg'
+import { theme } from '~/styles'
 
 export const Page = styled.div`
   box-sizing: border-box;

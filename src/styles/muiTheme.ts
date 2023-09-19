@@ -1,4 +1,4 @@
-import { createTheme, alpha } from '@mui/material/styles'
+import { alpha, createTheme } from '@mui/material/styles'
 
 import { palette } from './colorsPalette'
 

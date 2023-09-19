@@ -1,17 +1,20 @@
-import { useEffect, memo, useState } from 'react'
-import { FormikProps } from 'formik'
-import styled from 'styled-components'
-import { InputAdornment } from '@mui/material'
 import { gql } from '@apollo/client'
+import { InputAdornment } from '@mui/material'
+import { FormikProps } from 'formik'
+import { memo, RefObject, useEffect, useState } from 'react'
+import styled from 'styled-components'
 
-import { TextInputField, AmountInputField, ButtonSelectorField } from '~/components/form'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Button, Chip, Icon, Tooltip, Typography } from '~/components/designSystem'
-import { theme, Card, NAV_HEIGHT } from '~/styles'
+import { Accordion, Button, Chip, Icon, Tooltip, Typography } from '~/components/designSystem'
+import { AmountInputField, ButtonSelectorField, TextInputField } from '~/components/form'
+import { PLAN_FORM_TYPE, PLAN_FORM_TYPE_ENUM } from '~/core/apolloClient'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { Card, NAV_HEIGHT, theme } from '~/styles'
 
 import { PlanFormInput } from './types'
+
+import { EditInvoiceDisplayNameRef } from '../invoices/EditInvoiceDisplayName'
 
 gql`
   fragment PlanForFixedFeeSection on Plan {
@@ -19,13 +22,16 @@ gql`
     amountCents
     payInAdvance
     trialPeriod
+    invoiceDisplayName
   }
 `
 
 interface FixedFeeSectionProps {
+  type: PLAN_FORM_TYPE
   canBeEdited: boolean
   formikProps: FormikProps<PlanFormInput>
   isEdition: boolean
+  editInvoiceDisplayNameRef: RefObject<EditInvoiceDisplayNameRef>
 }
 
 const mapIntervalCopy = (interval: string) => {
@@ -46,7 +52,13 @@ const mapIntervalCopy = (interval: string) => {
 }
 
 export const FixedFeeSection = memo(
-  ({ canBeEdited, formikProps, isEdition }: FixedFeeSectionProps) => {
+  ({
+    type,
+    canBeEdited,
+    formikProps,
+    isEdition,
+    editInvoiceDisplayNameRef,
+  }: FixedFeeSectionProps) => {
     const { translate } = useInternationalization()
     const [shouldDisplayTrialPeriod, setShouldDisplayTrialPeriod] = useState(false)
     const hasErrorInSection =
@@ -62,37 +74,63 @@ export const FixedFeeSection = memo(
       <Card>
         <SectionTitle variant="subhead">{translate('text_642d5eb2783a2ad10d670332')}</SectionTitle>
 
-        <BoxWrapper>
-          <BoxHeader>
-            <Typography variant="bodyHl" color="grey700">
-              {translate('text_642d5eb2783a2ad10d670336')}
-            </Typography>
-            <BoxHeaderRight>
-              <Tooltip
-                placement="top-end"
-                title={
-                  hasErrorInSection
-                    ? translate('text_635b975ecea4296eb76924b7')
-                    : translate('text_635b975ecea4296eb76924b1')
-                }
-              >
-                <Icon name="validate-filled" color={hasErrorInSection ? 'disabled' : 'success'} />
-              </Tooltip>
-              {!!formikProps.values?.taxes?.length && (
-                <Chip
-                  label={intlFormatNumber(
-                    Number(formikProps?.values?.taxes?.reduce((acc, cur) => acc + cur.rate, 0)) /
-                      100 || 0,
-                    {
-                      minimumFractionDigits: 2,
-                      style: 'percent',
-                    }
-                  )}
-                />
-              )}
-              <Chip label={translate(mapIntervalCopy(formikProps.values.interval))} />
-            </BoxHeaderRight>
-          </BoxHeader>
+        <Accordion
+          noContentMargin
+          initiallyOpen={type === PLAN_FORM_TYPE_ENUM.creation}
+          summary={
+            <BoxHeader>
+              <BoxHeaderGroupLeft>
+                <Typography noWrap variant="bodyHl" color="grey700">
+                  {formikProps.values.invoiceDisplayName ||
+                    translate('text_642d5eb2783a2ad10d670336')}
+                </Typography>
+                <Tooltip title={translate('text_65018c8e5c6b626f030bcf8d')} placement="top-end">
+                  <Button
+                    icon="pen"
+                    variant="quaternary"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation()
+
+                      editInvoiceDisplayNameRef.current?.openDialog({
+                        invoiceDisplayName: formikProps.values.invoiceDisplayName,
+                        callback: (invoiceDisplayName: string) => {
+                          formikProps.setFieldValue('invoiceDisplayName', invoiceDisplayName)
+                        },
+                      })
+                    }}
+                  />
+                </Tooltip>
+              </BoxHeaderGroupLeft>
+              <BoxHeaderGroupRight>
+                <ValidationTooltip
+                  placement="top-end"
+                  title={
+                    hasErrorInSection
+                      ? translate('text_635b975ecea4296eb76924b7')
+                      : translate('text_635b975ecea4296eb76924b1')
+                  }
+                >
+                  <Icon name="validate-filled" color={hasErrorInSection ? 'disabled' : 'success'} />
+                </ValidationTooltip>
+                {!!formikProps.values?.taxes?.length && (
+                  <Chip
+                    label={intlFormatNumber(
+                      Number(formikProps?.values?.taxes?.reduce((acc, cur) => acc + cur.rate, 0)) /
+                        100 || 0,
+                      {
+                        minimumFractionDigits: 2,
+                        style: 'percent',
+                      }
+                    )}
+                  />
+                )}
+                <Chip label={translate(mapIntervalCopy(formikProps.values.interval))} />
+              </BoxHeaderGroupRight>
+            </BoxHeader>
+          }
+          data-test="fixed-fee-section-accordion"
+        >
           <BoxContent>
             <AmountInputField
               name="amountCents"
@@ -176,7 +214,7 @@ export const FixedFeeSection = memo(
               </Button>
             )}
           </BoxContent>
-        </BoxWrapper>
+        </Accordion>
       </Card>
     )
   }
@@ -204,28 +242,29 @@ const CloseTrialPeriodTooltip = styled(Tooltip)`
   margin-top: ${theme.spacing(6)};
 `
 
-const BoxWrapper = styled.div`
-  width: 100%;
-  border: 1px solid ${theme.palette.grey[300]};
-  border-radius: 12px;
-`
-
 const BoxHeader = styled.div`
+  /* Used to prevent long invoice display name to overflow */
+  overflow: hidden;
+  width: 100%;
   height: ${NAV_HEIGHT}px;
-  padding: 0 ${theme.spacing(4)};
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: ${theme.shadows[7]};
+  gap: ${theme.spacing(3)};
 `
 
-const BoxHeaderRight = styled.div`
+const BoxHeaderGroupLeft = styled.div`
+  /* Used to prevent long invoice display name to overflow */
+  overflow: hidden;
   display: flex;
   align-items: center;
+  gap: ${theme.spacing(3)};
+`
 
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(3)};
-  }
+const BoxHeaderGroupRight = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing(3)};
 `
 
 const BoxContent = styled.div`
@@ -234,4 +273,7 @@ const BoxContent = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(8)};
   }
+`
+const ValidationTooltip = styled(Tooltip)`
+  height: 16px;
 `

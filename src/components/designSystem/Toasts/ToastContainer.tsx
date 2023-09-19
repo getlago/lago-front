@@ -1,8 +1,8 @@
-import { useEffect, useRef, createRef } from 'react'
-import styled from 'styled-components'
 import { useReactiveVar } from '@apollo/client'
+import { createRef, useEffect, useRef } from 'react'
+import styled from 'styled-components'
 
-import { toastsVar, removeAllToasts } from '~/core/apolloClient'
+import { removeAllToasts, toastsVar } from '~/core/apolloClient'
 import { theme } from '~/styles'
 
 import { Toast } from './Toast'

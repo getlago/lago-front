@@ -1,13 +1,13 @@
-import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev'
+import { loadDevMessages, loadErrorMessages } from '@apollo/client/dev'
+import { MockedProvider, MockedResponse } from '@apollo/client/testing'
+import { ThemeProvider } from '@mui/material'
+import { configure, render, RenderOptions } from '@testing-library/react'
 import React, { ReactElement, useEffect } from 'react'
 import Router, { BrowserRouter } from 'react-router-dom'
-import { configure, render, RenderOptions } from '@testing-library/react'
-import { ThemeProvider } from '@mui/material'
-import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 
 import { initializeTranslations } from './core/apolloClient'
-import { theme } from './styles'
 import { initializeYup } from './formValidation/initializeYup'
+import { theme } from './styles'
 
 configure({ testIdAttribute: 'data-test' })
 

@@ -1,22 +1,22 @@
-import { gql, FetchResult } from '@apollo/client'
-import { useNavigate, generatePath } from 'react-router-dom'
+import { FetchResult, gql } from '@apollo/client'
+import { generatePath, useNavigate } from 'react-router-dom'
 
-import {
-  useCreateCustomerMutation,
-  CustomerItemFragmentDoc,
-  useUpdateCustomerMutation,
-  CreateCustomerInput,
-  UpdateCustomerInput,
-  AddCustomerDrawerFragmentDoc,
-  LagoApiError,
-  AddCustomerDrawerFragment,
-  UpdateCustomerMutation,
-  CreateCustomerMutation,
-  ProviderPaymentMethodsEnum,
-} from '~/generated/graphql'
 import { addToast } from '~/core/apolloClient'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
+import {
+  AddCustomerDrawerFragment,
+  AddCustomerDrawerFragmentDoc,
+  CreateCustomerInput,
+  CreateCustomerMutation,
+  CustomerItemFragmentDoc,
+  LagoApiError,
+  ProviderPaymentMethodsEnum,
+  UpdateCustomerInput,
+  UpdateCustomerMutation,
+  useCreateCustomerMutation,
+  useUpdateCustomerMutation,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   fragment AddCustomerDrawer on Customer {

@@ -1,13 +1,13 @@
-import styled from 'styled-components'
 import { clsx } from 'clsx'
+import styled from 'styled-components'
 
 import { theme } from '~/styles'
 
-import { AvatarGenericProps, Avatar } from './Avatar'
-import { Typography } from './Typography'
+import { Avatar, AvatarGenericProps } from './Avatar'
 import { Button } from './Button'
 import { Icon, IconName } from './Icon'
 import { Tooltip } from './Tooltip'
+import { Typography } from './Typography'
 
 import { ConditionalWrapper } from '../ConditionalWrapper'
 

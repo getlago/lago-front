@@ -3,11 +3,11 @@ import { useFormik } from 'formik'
 
 import { PlanFormInput } from '~/components/plans/types'
 import {
+  AggregationTypeEnum,
   ChargeModelEnum,
   CurrencyEnum,
-  PlanInterval,
   GraduatedRangeInput,
-  AggregationTypeEnum,
+  PlanInterval,
 } from '~/generated/graphql'
 
 import {

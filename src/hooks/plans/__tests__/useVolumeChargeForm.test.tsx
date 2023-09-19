@@ -3,11 +3,11 @@ import { useFormik } from 'formik'
 
 import { PlanFormInput } from '~/components/plans/types'
 import {
+  AggregationTypeEnum,
   ChargeModelEnum,
   CurrencyEnum,
   PlanInterval,
   VolumeRangeInput,
-  AggregationTypeEnum,
 } from '~/generated/graphql'
 
 import { DEFAULT_VOLUME_CHARGES, useVolumeChargeForm } from '../useVolumeChargeForm'

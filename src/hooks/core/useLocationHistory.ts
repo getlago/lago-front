@@ -1,7 +1,7 @@
-import { useNavigate, Location, matchPath } from 'react-router-dom'
+import { Location, matchPath, useNavigate } from 'react-router-dom'
 
-import { locationHistoryVar, authTokenVar, addLocationToHistory } from '~/core/apolloClient'
-import { CustomRouteObject, LOGIN_ROUTE, HOME_ROUTE } from '~/core/router'
+import { addLocationToHistory, authTokenVar, locationHistoryVar } from '~/core/apolloClient'
+import { CustomRouteObject, HOME_ROUTE, LOGIN_ROUTE } from '~/core/router'
 
 type GoBack = (
   fallback: string,

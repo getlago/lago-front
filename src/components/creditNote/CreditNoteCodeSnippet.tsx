@@ -1,8 +1,8 @@
-import { serializeCreditNoteInput } from '~/core/serializers'
-import { CreateCreditNoteInput, CurrencyEnum } from '~/generated/graphql'
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { CreditNoteForm } from '~/components/creditNote/types'
 import { envGlobalVar } from '~/core/apolloClient'
+import { serializeCreditNoteInput } from '~/core/serializers'
+import { CreateCreditNoteInput, CurrencyEnum } from '~/generated/graphql'
 
 const { apiUrl } = envGlobalVar()
 

@@ -1,6 +1,6 @@
 import { forwardRef } from 'react'
 
-import { Dialog, DialogProps, Button, DialogRef } from '~/components/designSystem'
+import { Button, Dialog, DialogProps, DialogRef } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export enum WarningDialogMode {

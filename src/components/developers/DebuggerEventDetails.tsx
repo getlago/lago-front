@@ -1,12 +1,12 @@
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
-import { Typography, Tooltip, Icon, Alert } from '~/components/designSystem'
-import { DebuggerEventDetailsFragment } from '~/generated/graphql'
-import { TimezoneDate } from '~/components/TimezoneDate'
-import { theme, NAV_HEIGHT } from '~/styles'
 import { CodeSnippet } from '~/components/CodeSnippet'
+import { Alert, Icon, Tooltip, Typography } from '~/components/designSystem'
+import { TimezoneDate } from '~/components/TimezoneDate'
+import { DebuggerEventDetailsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 gql`
   fragment DebuggerEventDetails on Event {

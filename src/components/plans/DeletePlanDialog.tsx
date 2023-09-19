@@ -2,10 +2,10 @@ import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { DialogRef } from '~/components/designSystem'
-import { DeletePlanDialogFragment, useDeletePlanMutation } from '~/generated/graphql'
 import { WarningDialog } from '~/components/WarningDialog'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
+import { DeletePlanDialogFragment, useDeletePlanMutation } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   fragment DeletePlanDialog on Plan {

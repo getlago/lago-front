@@ -1,22 +1,22 @@
-import { memo, useEffect, useMemo, useState } from 'react'
-import { FormikProps } from 'formik'
-import styled from 'styled-components'
 import { gql } from '@apollo/client'
+import { FormikProps } from 'formik'
+import { memo, useEffect, useMemo, useState } from 'react'
+import styled from 'styled-components'
 
-import { Item } from '~/components/form/ComboBox/ComboBoxItem'
-import { ButtonSelectorField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
-import { theme, Card } from '~/styles'
-import { PLAN_FORM_TYPE_ENUM } from '~/hooks/plans/usePlanForm'
-import { LineSplit } from '~/styles/mainObjectsForm'
-import { CurrencyEnum, PlanInterval, useGetTaxesForPlanLazyQuery } from '~/generated/graphql'
+import { ButtonSelectorField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
+import { Item } from '~/components/form/ComboBox/ComboBoxItem'
+import { PLAN_FORM_TYPE, PLAN_FORM_TYPE_ENUM } from '~/core/apolloClient'
 import {
   FORM_ERRORS_ENUM,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME,
 } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { CurrencyEnum, PlanInterval, useGetTaxesForPlanLazyQuery } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { Card, theme } from '~/styles'
+import { LineSplit } from '~/styles/mainObjectsForm'
 
 import { PlanFormInput } from './types'
 
@@ -58,7 +58,7 @@ interface PlanSettingsSectionProps {
   canBeEdited: boolean
   errorCode: string | undefined
   formikProps: FormikProps<PlanFormInput>
-  type: keyof typeof PLAN_FORM_TYPE_ENUM
+  type: PLAN_FORM_TYPE
 }
 
 export const PlanSettingsSection = memo(
@@ -293,7 +293,6 @@ export const PlanSettingsSection = memo(
             disabled={isEdition && !canBeEdited}
             onClick={() => {
               setShouldDisplayTaxesInput(true)
-
               setTimeout(() => {
                 const element = document.querySelector(
                   `.${SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
@@ -301,7 +300,7 @@ export const PlanSettingsSection = memo(
 
                 if (!element) return
 
-                element.scrollIntoView({ behavior: 'smooth' })
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' })
                 element.click()
               }, 0)
             }}

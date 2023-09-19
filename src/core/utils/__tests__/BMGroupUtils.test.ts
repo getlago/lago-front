@@ -1,4 +1,4 @@
-import { GroupLevelEnum, determineGroupDiffLevel } from '../BMGroupUtils'
+import { determineGroupDiffLevel, GroupLevelEnum } from '../BMGroupUtils'
 
 describe('BMGroupUtils', () => {
   describe('determineGroupDiffLevel', () => {

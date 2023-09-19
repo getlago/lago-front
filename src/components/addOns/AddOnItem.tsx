@@ -1,34 +1,34 @@
-import { RefObject } from 'react'
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
+import { RefObject } from 'react'
 import { generatePath } from 'react-router-dom'
+import styled from 'styled-components'
 
+import { DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
 import {
-  theme,
+  Avatar,
+  Button,
+  ButtonLink,
+  Icon,
+  Popper,
+  Skeleton,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { UPDATE_ADD_ON_ROUTE } from '~/core/router'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { AddOnItemFragment } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import {
   BaseListItem,
+  ItemContainer,
   ListItemLink,
   MenuPopper,
   PopperOpener,
-  ItemContainer,
+  theme,
 } from '~/styles'
-import {
-  Typography,
-  Avatar,
-  Icon,
-  Skeleton,
-  Button,
-  Tooltip,
-  Popper,
-  ButtonLink,
-} from '~/components/designSystem'
-import { UPDATE_ADD_ON_ROUTE } from '~/core/router'
-import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
-import { AddOnItemFragment } from '~/generated/graphql'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
   fragment AddOnItem on AddOn {
@@ -117,20 +117,18 @@ export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItem
             >
               {translate('text_629728388c4d2300e2d3816a')}
             </ButtonLink>
-            <Tooltip title={translate('text_629791022a75b60089e98ea7')} placement="bottom-end">
-              <Button
-                startIcon="trash"
-                variant="quaternary"
-                align="left"
-                fullWidth
-                onClick={() => {
-                  deleteDialogRef.current?.openDialog(addOn)
-                  closePopper()
-                }}
-              >
-                {translate('text_629728388c4d2300e2d38182')}
-              </Button>
-            </Tooltip>
+            <Button
+              startIcon="trash"
+              variant="quaternary"
+              align="left"
+              fullWidth
+              onClick={() => {
+                deleteDialogRef.current?.openDialog(addOn)
+                closePopper()
+              }}
+            >
+              {translate('text_629728388c4d2300e2d38182')}
+            </Button>
           </MenuPopper>
         )}
       </Popper>

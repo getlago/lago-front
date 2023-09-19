@@ -1,23 +1,23 @@
-import { useParams, generatePath } from 'react-router-dom'
-import styled from 'styled-components'
 import { gql } from '@apollo/client'
+import { generatePath, useParams } from 'react-router-dom'
+import styled from 'styled-components'
 
-import { Typography, Skeleton, Avatar, Icon, Button } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
+import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
+import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_DETAILS_TAB_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import {
+  InvoiceForInvoiceListFragmentDoc,
   InvoiceStatusTypeEnum,
   TimezoneEnum,
-  InvoiceForInvoiceListFragmentDoc,
   useGetCustomerDraftInvoicesLazyQuery,
   useGetCustomerInfosForDraftInvoicesListQuery,
 } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
-import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
-import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { SearchInput } from '~/components/SearchInput'
-import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 
 import { CustomerDetailsTabsOptions } from './CustomerDetails'
 

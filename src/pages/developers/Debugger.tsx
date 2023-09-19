@@ -1,23 +1,23 @@
 import { gql } from '@apollo/client'
-import { useMemo, useState, useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Typography, Button, InfiniteScroll, Tooltip, Skeleton } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import EmptyImage from '~/public/images/maneki/empty.svg'
-import { theme, NAV_HEIGHT, HEADER_TABLE_HEIGHT } from '~/styles'
-import {
-  useEventsQuery,
-  EventListFragment,
-  EventItemFragmentDoc,
-  DebuggerEventDetailsFragmentDoc,
-} from '~/generated/graphql'
+import { Button, InfiniteScroll, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { DebuggerEventDetails } from '~/components/developers/DebuggerEventDetails'
 import { EventItem, EventItemSkeleton } from '~/components/developers/EventItem'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import {
+  DebuggerEventDetailsFragmentDoc,
+  EventItemFragmentDoc,
+  EventListFragment,
+  useEventsQuery,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { DebuggerEventDetails } from '~/components/developers/DebuggerEventDetails'
+import EmptyImage from '~/public/images/maneki/empty.svg'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
 
 gql`
   fragment EventList on Event {

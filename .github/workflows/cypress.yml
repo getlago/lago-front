@@ -36,6 +36,10 @@ jobs:
           ref: ${{ github.event.inputs.api_branch }}
           path: api
           token: ${{ secrets.GH_TOKEN }}
+      
+      - name: Build Front local image
+        run: |
+          docker build -t getlago/front:ci ./
 
       - name: Checkout License Git repository
         uses: actions/checkout@v4
@@ -55,6 +59,7 @@ jobs:
           echo "LAGO_LICENSE=\"`docker-compose -f ./ci/docker-compose.ci.yml exec license bundle exec rake license:generate['Lago',nil]`\"" >> .env
           docker-compose -f ./ci/docker-compose.ci.yml --env-file ./.env up -d redis db api front
 
+
       - name: Cypress run
         uses: cypress-io/github-action@v5
         env: 
@@ -63,3 +68,9 @@ jobs:
           browser: chrome
           record: false
           config: baseUrl=http://localhost
+          spec: |
+            cypress/e2e/00-auth/*
+            cypress/e2e/10-resources/*
+            cypress/e2e/t10-*
+            cypress/e2e/t20-*
+            cypress/e2e/t30-*

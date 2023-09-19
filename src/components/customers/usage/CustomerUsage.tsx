@@ -1,15 +1,15 @@
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
 import { useParams } from 'react-router-dom'
+import styled from 'styled-components'
 
+import { Typography } from '~/components/designSystem'
 import {
   StatusTypeEnum,
   TimezoneEnum,
   useGetCustomerSubscriptionForUsageQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme, NAV_HEIGHT } from '~/styles'
-import { Typography } from '~/components/designSystem'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 import { UsageItem, UsageItemSkeleton } from './UsageItem'
 

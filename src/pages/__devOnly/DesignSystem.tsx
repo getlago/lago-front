@@ -1,49 +1,49 @@
-import styled, { css } from 'styled-components'
+import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import { generatePath } from 'react-router-dom'
+import styled, { css } from 'styled-components'
 import { boolean, number, object, string } from 'yup'
-import { InputAdornment } from '@mui/material'
 
-import Stripe from '~/public/images/stripe.svg'
 import {
-  Avatar,
-  Typography,
-  ButtonLink,
-  NavigationTab,
-  Drawer,
-  Button,
-  Dialog,
-  Tooltip,
-  Skeleton,
-  Popper,
-  Icon,
-  ALL_ICONS,
-  Chip,
   Alert,
-  Status,
+  ALL_ICONS,
+  Avatar,
+  Button,
+  ButtonLink,
+  Chip,
+  Dialog,
+  Drawer,
+  Icon,
+  IconName,
+  NavigationTab,
+  Popper,
   Selector,
   ShowMoreText,
+  Skeleton,
+  Status,
   Table,
-  IconName,
+  Tooltip,
+  Typography,
 } from '~/components/designSystem'
-import { theme, PageHeader, MenuPopper } from '~/styles'
+import { BetaChip } from '~/components/designSystem/BetaChip'
 import {
+  ButtonSelectorField,
   Checkbox,
   CheckboxField,
-  DatePickerField,
-  TextInputField,
   ComboBoxField,
-  SwitchField,
-  RadioField,
-  ButtonSelectorField,
+  DatePickerField,
   JsonEditorField,
+  RadioField,
+  SwitchField,
+  TextInputField,
 } from '~/components/form'
-import { ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
-import { addToast, TToast } from '~/core/apolloClient'
-import { CurrencyEnum } from '~/generated/graphql'
 import { AmountInputField } from '~/components/form/AmountInput'
 import { TimePickerField } from '~/components/form/TimePicker'
-import { BetaChip } from '~/components/designSystem/BetaChip'
+import { addToast, TToast } from '~/core/apolloClient'
+import { ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
+import { CurrencyEnum } from '~/generated/graphql'
+import Stripe from '~/public/images/stripe.svg'
+import { MenuPopper, PageHeader, theme } from '~/styles'
 
 const POSSIBLE_TOAST: TToast[] = [
   {

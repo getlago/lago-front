@@ -1,22 +1,22 @@
-import { useMemo, useEffect } from 'react'
 import { gql } from '@apollo/client'
-import { FormikProps } from 'formik'
-import styled, { css } from 'styled-components'
 import { InputAdornment } from '@mui/material'
+import { FormikProps } from 'formik'
 import _get from 'lodash/get'
+import { useEffect, useMemo } from 'react'
+import styled, { css } from 'styled-components'
 
+import { Alert, Button, Icon, Tooltip, Typography } from '~/components/designSystem'
+import { AmountInputField, ComboBox, ComboBoxField } from '~/components/form'
+import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
-  InvoicePaymentStatusTypeEnum,
-  LagoApiError,
   CreditNoteFormFragment,
   CurrencyEnum,
+  InvoicePaymentStatusTypeEnum,
+  LagoApiError,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { intlFormatNumber, getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { ComboBoxField, ComboBox, AmountInputField } from '~/components/form'
-import { Typography, Button, Tooltip, Alert, Icon } from '~/components/designSystem'
 import { theme } from '~/styles'
-import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 
 import { CreditNoteForm, CreditTypeEnum, PayBackErrorEnum } from './types'
 import { creditNoteFormCalculationCalculation } from './utils'
@@ -119,7 +119,7 @@ export const CreditNoteFormCalculation = ({
                 <Icon name="info-circle" />
               </Tooltip>
             </InlineLabel>
-            <Typography color="grey700">
+            <Typography color="grey700" data-test="prorated-coupon-amount">
               -
               {intlFormatNumber(proRatedCouponAmount || 0, {
                 currency,
@@ -129,7 +129,7 @@ export const CreditNoteFormCalculation = ({
         )}
         <Line>
           <Typography variant="bodyHl">{translate('text_636bedf292786b19d3398f02')}</Typography>
-          <Typography color="grey700">
+          <Typography color="grey700" data-test="total-excluded-tax">
             {!totalExcludedTax
               ? '-'
               : intlFormatNumber(totalExcludedTax, {
@@ -148,7 +148,7 @@ export const CreditNoteFormCalculation = ({
             .map((tax) => (
               <Line key={tax.label}>
                 <Typography variant="bodyHl">{tax.label}</Typography>
-                <Typography color="grey700">
+                <Typography color="grey700" data-test={`tax-${tax.taxRate}-amount`}>
                   {intlFormatNumber(tax.amount, {
                     currency,
                   })}
@@ -171,7 +171,7 @@ export const CreditNoteFormCalculation = ({
           <Typography variant="bodyHl" color="grey700">
             {translate('text_636bedf292786b19d3398f0a')}
           </Typography>
-          <Typography color="grey700">
+          <Typography color="grey700" data-test="total-tax-included">
             {!totalTaxIncluded
               ? '-'
               : intlFormatNumber(totalTaxIncluded, {

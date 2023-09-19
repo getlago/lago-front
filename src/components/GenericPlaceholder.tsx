@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import styled from 'styled-components'
 
-import { Typography, Button, ButtonVariant } from '~/components/designSystem'
+import { Button, ButtonVariant, Typography } from '~/components/designSystem'
 import { theme } from '~/styles'
 
 export interface GenericPlaceholderProps {

@@ -1,12 +1,12 @@
+import clsns from 'classnames'
 import { forwardRef, MouseEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import styled, { css } from 'styled-components'
-import clsns from 'classnames'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 
-import { IconName } from './Icon'
 import { Button, ButtonProps } from './Button'
+import { IconName } from './Icon'
 
 enum ButtonLinkTypeEnum {
   tab = 'tab',
@@ -89,6 +89,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
             ref={ref}
             rel="noopener noreferrer"
             target="_blank"
+            data-test="external-button-link"
             {...props}
           >
             {wrapperChildren}
@@ -108,7 +109,13 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
         )}
       >
         {/* @ts-ignore */}
-        <Button onClick={onClick} disabled={disabled} {...props} {...updatedButtonProps}>
+        <Button
+          onClick={onClick}
+          disabled={disabled}
+          data-test="button-link-button"
+          {...props}
+          {...updatedButtonProps}
+        >
           {children}
         </Button>
       </ConditionalWrapper>

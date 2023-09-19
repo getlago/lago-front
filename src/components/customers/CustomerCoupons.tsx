@@ -1,21 +1,21 @@
 /* eslint-disable react/prop-types */
-import { useRef, memo } from 'react'
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
+import { memo, useRef } from 'react'
 import { useParams } from 'react-router-dom'
+import styled from 'styled-components'
 
+import { CouponCaption, CouponMixedType } from '~/components/coupons/CouponCaption'
+import { Avatar, Button, Icon, Tooltip, Typography } from '~/components/designSystem'
+import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
+import { addToast } from '~/core/apolloClient'
 import {
   AppliedCouponCaptionFragmentDoc,
   useGetCustomerCouponsQuery,
   useRemoveCouponMutation,
 } from '~/generated/graphql'
-import { SectionHeader } from '~/styles/customer'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Typography, Avatar, Icon, Button, Tooltip } from '~/components/designSystem'
-import { CouponCaption, CouponMixedType } from '~/components/coupons/CouponCaption'
-import { theme, HEADER_TABLE_HEIGHT, NAV_HEIGHT } from '~/styles'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { addToast } from '~/core/apolloClient'
+import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
+import { SectionHeader } from '~/styles/customer'
 
 import {
   AddCouponToCustomerDialog,

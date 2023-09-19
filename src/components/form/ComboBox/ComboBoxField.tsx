@@ -1,10 +1,10 @@
-import { memo } from 'react'
 import { FormikProps } from 'formik'
 import _get from 'lodash/get'
 import _isEqual from 'lodash/isEqual'
+import { memo } from 'react'
 
 import { ComboBox } from './ComboBox'
-import { ComboBoxProps, BasicComboBoxData, ComboboxDataGrouped } from './types'
+import { BasicComboBoxData, ComboboxDataGrouped, ComboBoxProps } from './types'
 
 interface ComboBoxFieldProps extends Omit<ComboBoxProps, 'onChange' | 'value' | 'name'> {
   name: string

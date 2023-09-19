@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
-import { forwardRef, memo } from 'react'
 import { FormikProps } from 'formik'
 import _get from 'lodash/get'
 import _isEqual from 'lodash/isEqual'
+import { forwardRef, memo } from 'react'
 import styled, { css } from 'styled-components'
 
 import { TextInput, TextInputProps } from './TextInput'

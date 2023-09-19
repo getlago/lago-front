@@ -1,15 +1,15 @@
-import React, { forwardRef, useState, useImperativeHandle, useRef } from 'react'
-import styled from 'styled-components'
 import { gql } from '@apollo/client'
 import _groupBy from 'lodash/groupBy'
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import styled from 'styled-components'
 
-import { Drawer, DrawerRef, Button, Typography } from '~/components/designSystem'
+import { Button, Drawer, DrawerRef, Typography } from '~/components/designSystem'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { formatDateToTZ } from '~/core/timezone'
+import { ChargeUsage, CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NAV_HEIGHT, theme } from '~/styles'
-import { ChargeUsage, CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { formatDateToTZ } from '~/core/timezone'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
   fragment CustomerUsageForUsageDetails on CustomerUsage {

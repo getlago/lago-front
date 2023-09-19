@@ -1,17 +1,17 @@
-import { useEffect, useMemo, useRef } from 'react'
 import { Autocomplete, createFilterOptions } from '@mui/material'
 import _sortBy from 'lodash/sortBy'
+import { useEffect, useMemo, useRef } from 'react'
 import styled from 'styled-components'
 
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
-import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { Skeleton } from '~/components/designSystem'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { theme } from '~/styles'
 
-import { ComboBoxItem, ITEM_HEIGHT } from './ComboBoxItem'
 import { ComboBoxInput } from './ComboBoxInput'
-import { ComboBoxPopperFactory } from './ComboBoxPopperFactory'
+import { ComboBoxItem, ITEM_HEIGHT } from './ComboBoxItem'
 import { ComboboxList } from './ComboboxList'
+import { ComboBoxPopperFactory } from './ComboBoxPopperFactory'
 import { ComboBoxData, ComboBoxProps } from './types'
 
 export const ComboBox = ({

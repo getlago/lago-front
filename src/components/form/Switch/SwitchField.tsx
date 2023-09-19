@@ -1,6 +1,6 @@
-import { memo } from 'react'
 import { FormikProps } from 'formik'
 import _isEqual from 'lodash/isEqual'
+import { memo } from 'react'
 
 import { Switch, SwitchProps } from './Switch'
 

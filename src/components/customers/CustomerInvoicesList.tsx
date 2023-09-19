@@ -1,31 +1,31 @@
+import { FetchMoreQueryOptions, gql } from '@apollo/client'
 import { useRef } from 'react'
-import { gql, FetchMoreQueryOptions } from '@apollo/client'
 import styled from 'styled-components'
 
+import { Button, InfiniteScroll, Tooltip, Typography } from '~/components/designSystem'
 import {
-  TimezoneEnum,
+  InvoiceListItem,
+  InvoiceListItemContextEnum,
+  InvoiceListItemGridTemplate,
+  InvoiceListItemSkeleton,
+} from '~/components/invoices/InvoiceListItem'
+import { getTimezoneConfig } from '~/core/timezone'
+import {
   InvoiceForInvoiceListFragment,
   InvoiceListItemFragmentDoc,
+  TimezoneEnum,
 } from '~/generated/graphql'
-import { Typography, Tooltip, InfiniteScroll, Button } from '~/components/designSystem'
-import { theme, HEADER_TABLE_HEIGHT } from '~/styles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { getTimezoneConfig } from '~/core/timezone'
-import ErrorImage from '~/public/images/maneki/error.svg'
 import EmptyImage from '~/public/images/maneki/empty.svg'
-import {
-  InvoiceListItemSkeleton,
-  InvoiceListItem,
-  InvoiceListItemGridTemplate,
-  InvoiceListItemContextEnum,
-} from '~/components/invoices/InvoiceListItem'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { HEADER_TABLE_HEIGHT, theme } from '~/styles'
 
 import { GenericPlaceholder } from '../GenericPlaceholder'
-import { FinalizeInvoiceDialog, FinalizeInvoiceDialogRef } from '../invoices/FinalizeInvoiceDialog'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
 } from '../invoices/EditInvoicePaymentStatusDialog'
+import { FinalizeInvoiceDialog, FinalizeInvoiceDialogRef } from '../invoices/FinalizeInvoiceDialog'
 
 gql`
   fragment InvoiceForInvoiceList on InvoiceCollection {

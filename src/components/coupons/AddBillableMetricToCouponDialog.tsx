@@ -1,15 +1,15 @@
+import { gql } from '@apollo/client'
 import { forwardRef, useMemo, useState } from 'react'
 import styled from 'styled-components'
-import { gql } from '@apollo/client'
 
 import { Alert, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { ComboBox } from '~/components/form'
 import {
   BillableMetricsForCouponsFragment,
   BillableMetricsForCouponsFragmentDoc,
   useGetBillableMetricsForCouponsLazyQuery,
 } from '~/generated/graphql'
-import { ComboBox } from '~/components/form'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
 gql`

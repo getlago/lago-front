@@ -1,10 +1,10 @@
+import clsns from 'classnames'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
-import clsns from 'classnames'
 
-import { theme } from '~/styles'
-import { Icon, Typography } from '~/components/designSystem'
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
+import { Icon, Typography } from '~/components/designSystem'
+import { theme } from '~/styles'
 
 import { ComboBoxData } from './types'
 

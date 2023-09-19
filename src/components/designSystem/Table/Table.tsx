@@ -1,6 +1,6 @@
+import _get from 'lodash/get'
 import { ReactNode } from 'react'
 import styled from 'styled-components'
-import _get from 'lodash/get'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'

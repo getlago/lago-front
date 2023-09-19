@@ -1,15 +1,36 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react'
-import { DateTime } from 'luxon'
-import { InputAdornment } from '@mui/material'
-import _get from 'lodash/get'
-import { useFormik } from 'formik'
 import { gql } from '@apollo/client'
-import { array, number, object, string } from 'yup'
-import styled, { css } from 'styled-components'
+import { InputAdornment } from '@mui/material'
+import { useFormik } from 'formik'
+import _get from 'lodash/get'
+import { DateTime } from 'luxon'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import styled, { css } from 'styled-components'
+import { array, number, object, string } from 'yup'
 
 import { Avatar, Button, Popper, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { AmountInputField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
+import { Item } from '~/components/form/ComboBox/ComboBoxItem'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import {
+  EditInvoiceItemDescriptionDialog,
+  EditInvoiceItemDescriptionDialogRef,
+} from '~/components/invoices/EditInvoiceItemDescriptionDialog'
+import {
+  EditInvoiceItemTaxDialog,
+  EditInvoiceItemTaxDialogRef,
+} from '~/components/invoices/EditInvoiceItemTaxDialog'
+import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
+import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
+import { addToast } from '~/core/apolloClient'
+import { CountryCodes } from '~/core/constants/countryCodes'
+import {
+  ADD_ITEM_FOR_INVOICE_INPUT_NAME,
+  MUI_INPUT_BASE_ROOT_CLASSNAME,
+} from '~/core/constants/form'
+import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
+import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   AddOnForInvoiceEditTaxDialogFragmentDoc,
   CurrencyEnum,
@@ -18,30 +39,9 @@ import {
   useGetAddonListForInfoiceLazyQuery,
   useGetInfosForCreateInvoiceQuery,
 } from '~/generated/graphql'
-import ErrorImage from '~/public/images/maneki/error.svg'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import ErrorImage from '~/public/images/maneki/error.svg'
 import { Card, HEADER_TABLE_HEIGHT, MenuPopper, PageHeader, theme } from '~/styles'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { AmountInputField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
-import { Item } from '~/components/form/ComboBox/ComboBoxItem'
-import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
-import {
-  EditInvoiceItemDescriptionDialog,
-  EditInvoiceItemDescriptionDialogRef,
-} from '~/components/invoices/EditInvoiceItemDescriptionDialog'
-import { addToast } from '~/core/apolloClient'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { CountryCodes } from '~/core/constants/countryCodes'
-import {
-  ADD_ITEM_FOR_INVOICE_INPUT_NAME,
-  MUI_INPUT_BASE_ROOT_CLASSNAME,
-} from '~/core/constants/form'
-import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
-import {
-  EditInvoiceItemTaxDialog,
-  EditInvoiceItemTaxDialogRef,
-} from '~/components/invoices/EditInvoiceItemTaxDialog'
 
 const CELL_HEIGHT = 68
 

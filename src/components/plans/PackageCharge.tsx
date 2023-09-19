@@ -1,16 +1,16 @@
-import { useCallback } from 'react'
+import { gql } from '@apollo/client'
+import { InputAdornment } from '@mui/material'
 import { FormikProps } from 'formik'
 import _get from 'lodash/get'
-import { InputAdornment } from '@mui/material'
-import { gql } from '@apollo/client'
+import { useCallback } from 'react'
 import styled from 'styled-components'
 
-import { theme } from '~/styles'
-import { TextInput } from '~/components/form'
 import { Alert, Typography } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TextInput } from '~/components/form'
+import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
-import { intlFormatNumber, getCurrencySymbol } from '~/core/formats/intlFormatNumber'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { theme } from '~/styles'
 
 import { PlanFormInput } from './types'
 

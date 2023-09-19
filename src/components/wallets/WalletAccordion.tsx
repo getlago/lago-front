@@ -1,10 +1,10 @@
+import { gql } from '@apollo/client'
+import { DateTime } from 'luxon'
 import { forwardRef } from 'react'
 import styled, { css } from 'styled-components'
-import { DateTime } from 'luxon'
-import { gql } from '@apollo/client'
 
-import { theme } from '~/styles'
 import {
+  Accordion,
   Avatar,
   Icon,
   Skeleton,
@@ -12,17 +12,17 @@ import {
   StatusEnum,
   Tooltip,
   Typography,
-  Accordion,
 } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { WalletAccordionFragment, WalletStatusEnum, TimezoneEnum } from '~/generated/graphql'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { TimezoneDate } from '~/components/TimezoneDate'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { TimezoneEnum, WalletAccordionFragment, WalletStatusEnum } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { theme } from '~/styles'
 
-import { WalletTransactionList } from './WalletTransactionList'
 import { TopupWalletDialogRef } from './TopupWalletDialog'
+import { WalletTransactionList } from './WalletTransactionList'
 
 gql`
   fragment WalletAccordion on Wallet {

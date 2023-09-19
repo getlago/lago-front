@@ -1,12 +1,12 @@
-import { forwardRef, useState } from 'react'
 import { gql } from '@apollo/client'
+import { forwardRef, useState } from 'react'
 import styled from 'styled-components'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { OrganizationLogoPicker } from '~/components/OrganizationLogoPicker'
-import { theme } from '~/styles'
 import { useUpdateOrganizationLogoMutation } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { theme } from '~/styles'
 
 gql`
   mutation updateOrganizationLogo($input: UpdateOrganizationInput!) {

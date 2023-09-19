@@ -1,22 +1,22 @@
-import React, { forwardRef, RefObject } from 'react'
-import styled, { css } from 'styled-components'
-import { useFormik } from 'formik'
-import { object } from 'yup'
 import { gql } from '@apollo/client'
+import { useFormik } from 'formik'
 import { FieldWithPossiblyUndefined } from 'lodash'
 import _get from 'lodash/get'
+import React, { forwardRef, RefObject } from 'react'
+import styled, { css } from 'styled-components'
+import { object } from 'yup'
 
-import { Drawer, Button, DrawerRef, Typography, Tooltip } from '~/components/designSystem'
+import { Button, Drawer, DrawerRef, Tooltip, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { addToast } from '~/core/apolloClient'
-import { theme, Card, DrawerTitle, DrawerContent, DrawerSubmitButton } from '~/styles'
+import { MetadataErrorsEnum, metadataSchema } from '~/formValidation/metadataSchema'
 import {
-  UpdateInvoiceInput,
   InvoiceMetadatasForMetadataDrawerFragment,
+  UpdateInvoiceInput,
   useUpdateInvoiceMetadataMutation,
 } from '~/generated/graphql'
-import { MetadataErrorsEnum, metadataSchema } from '~/formValidation/metadataSchema'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { Card, DrawerContent, DrawerSubmitButton, DrawerTitle, theme } from '~/styles'
 
 const MAX_METADATA_COUNT = 5
 const METADATA_VALUE_MAX_LENGTH = 255

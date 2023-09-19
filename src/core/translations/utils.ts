@@ -1,6 +1,6 @@
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 
-import { DittoTranslation, Locale, Translations, TranslateData } from './types'
+import { DittoTranslation, Locale, TranslateData, Translations } from './types'
 
 export const getTranslations: (locale: Locale) => Promise<Record<string, string>> = async (
   locale

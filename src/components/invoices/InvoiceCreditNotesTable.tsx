@@ -1,15 +1,15 @@
-import React, { memo } from 'react'
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
+import React, { memo } from 'react'
 import { generatePath } from 'react-router-dom'
+import styled from 'styled-components'
 
 import { Typography } from '~/components/designSystem'
-import { CreditNote, CreditNoteItem, CurrencyEnum, FeeTypesEnum } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { NAV_HEIGHT, theme } from '~/styles'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { CreditNote, CreditNoteItem, CurrencyEnum, FeeTypesEnum } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 gql`
   fragment InvoiceForCreditNotesTable on Invoice {

@@ -1,13 +1,13 @@
+import { gql } from '@apollo/client'
 import { forwardRef, MutableRefObject } from 'react'
 import styled from 'styled-components'
-import { gql } from '@apollo/client'
 
-import { theme } from '~/styles'
-import { Avatar, Typography, Skeleton, Button, Tooltip } from '~/components/designSystem'
+import { Avatar, Button, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { MembershipItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { theme } from '~/styles'
 
 import { RevokeMembershipDialogRef } from './RevokeMembershipDialog'
 

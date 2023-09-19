@@ -1,35 +1,35 @@
-import { forwardRef, useMemo, RefObject } from 'react'
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
-import { object, string, number } from 'yup'
 import { useFormik } from 'formik'
+import { forwardRef, RefObject, useMemo } from 'react'
+import styled from 'styled-components'
+import { number, object, string } from 'yup'
 
-import { Dialog, Button, DialogRef, Alert, Typography, Chip } from '~/components/designSystem'
-import { ComboBoxField, TextInputField, ComboBox, AmountInputField } from '~/components/form'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { CouponCaption } from '~/components/coupons/CouponCaption'
+import { Alert, Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import { AmountInputField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import {
-  useGetCouponForCustomerLazyQuery,
-  CreateAppliedCouponInput,
-  CurrencyEnum,
-  useAddCouponMutation,
-  LagoApiError,
-  CouponStatusEnum,
-  CouponCaptionFragmentDoc,
-  CouponItemFragment,
-  CouponTypeEnum,
-  CouponFrequency,
   CouponBillableMetricsForCustomerFragment,
   CouponBillableMetricsForCustomerFragmentDoc,
+  CouponCaptionFragmentDoc,
+  CouponFrequency,
+  CouponItemFragment,
   CouponPlansForCustomerFragment,
   CouponPlansForCustomerFragmentDoc,
-  CustomerCouponFragmentDoc,
+  CouponStatusEnum,
+  CouponTypeEnum,
+  CreateAppliedCouponInput,
+  CurrencyEnum,
   CustomerAppliedCouponsFragment,
   CustomerAppliedCouponsFragmentDoc,
+  CustomerCouponFragmentDoc,
+  LagoApiError,
+  useAddCouponMutation,
+  useGetCouponForCustomerLazyQuery,
 } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { CouponCaption } from '~/components/coupons/CouponCaption'
-import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 
 gql`
   fragment CouponPlansForCustomer on Plan {

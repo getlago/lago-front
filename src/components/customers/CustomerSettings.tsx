@@ -1,19 +1,29 @@
-import { useRef } from 'react'
 import { gql } from '@apollo/client'
+import { useRef } from 'react'
 import styled from 'styled-components'
 
-import { SideSection } from '~/styles/customer'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
+  EditCustomerVatRateDialog,
+  EditCustomerVatRateDialogRef,
+} from '~/components/customers/EditCustomerVatRateDialog'
+import {
+  Avatar,
   Button,
-  Typography,
+  Icon,
   Popper,
   Skeleton,
-  Avatar,
-  Icon,
   Tooltip,
+  Typography,
 } from '~/components/designSystem'
-import { theme, NAV_HEIGHT, MenuPopper } from '~/styles'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import {
+  EditNetPaymentTermDialog,
+  EditNetPaymentTermDialogRef,
+} from '~/components/settings/EditNetPaymentTermDialog'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
+import { DocumentLocales } from '~/core/translations/documentLocales'
 import {
   CustomerForDeleteVatRateDialogFragmentDoc,
   DeleteCustomerDocumentLocaleFragmentDoc,
@@ -24,43 +34,33 @@ import {
   EditCustomerVatRateFragmentDoc,
   useGetCustomerSettingsQuery,
 } from '~/generated/graphql'
-import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
-import {
-  EditCustomerVatRateDialog,
-  EditCustomerVatRateDialogRef,
-} from '~/components/customers/EditCustomerVatRateDialog'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { DocumentLocales } from '~/core/translations/documentLocales'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import {
-  EditNetPaymentTermDialog,
-  EditNetPaymentTermDialogRef,
-} from '~/components/settings/EditNetPaymentTermDialog'
+import { MenuPopper, NAV_HEIGHT, theme } from '~/styles'
+import { SideSection } from '~/styles/customer'
 
-import {
-  EditCustomerInvoiceGracePeriodDialog,
-  EditCustomerInvoiceGracePeriodDialogRef,
-} from './EditCustomerInvoiceGracePeriodDialog'
-import {
-  DeleteCustomerVatRateDialog,
-  DeleteCustomerVatRateDialogRef,
-} from './DeleteCustomerVatRateDialog'
+import { DeleteCustomerDocumentLocaleDialog } from './DeleteCustomerDocumentLocaleDialog'
 import {
   DeleteCustomerGracePeriodeDialog,
   DeleteCustomerGracePeriodeDialogRef,
 } from './DeleteCustomerGracePeriodeDialog'
 import {
-  EditCustomerDocumentLocaleDialog,
-  EditCustomerDocumentLocaleDialogRef,
-} from './EditCustomerDocumentLocaleDialog'
-import { DeleteCustomerDocumentLocaleDialog } from './DeleteCustomerDocumentLocaleDialog'
-import {
   DeleteOrganizationNetPaymentTermDialog,
   DeleteOrganizationNetPaymentTermDialogRef,
 } from './DeleteCustomerNetPaymentTermDialog'
+import {
+  DeleteCustomerVatRateDialog,
+  DeleteCustomerVatRateDialogRef,
+} from './DeleteCustomerVatRateDialog'
+import {
+  EditCustomerDocumentLocaleDialog,
+  EditCustomerDocumentLocaleDialogRef,
+} from './EditCustomerDocumentLocaleDialog'
+import {
+  EditCustomerInvoiceGracePeriodDialog,
+  EditCustomerInvoiceGracePeriodDialogRef,
+} from './EditCustomerInvoiceGracePeriodDialog'
 
 gql`
   fragment CustomerAppliedTaxRatesForSettings on Customer {

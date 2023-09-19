@@ -1,12 +1,16 @@
-import { useEffect, memo, useState, useMemo, useRef } from 'react'
-import { FormikProps } from 'formik'
-import styled from 'styled-components'
 import { gql } from '@apollo/client'
+import { FormikProps } from 'formik'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import styled from 'styled-components'
 
-import { ComboBox, SwitchField } from '~/components/form'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
-import { MenuPopper, theme } from '~/styles'
+import { ComboBox, SwitchField } from '~/components/form'
+import { Item } from '~/components/form/ComboBox/ComboBoxItem'
+import {
+  MUI_INPUT_BASE_ROOT_CLASSNAME,
+  SEARCH_METERED_CHARGE_INPUT_CLASSNAME,
+  SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME,
+} from '~/core/constants/form'
 import {
   ChargeModelEnum,
   CurrencyEnum,
@@ -14,19 +18,15 @@ import {
   useGetMeteredBillableMetricsLazyQuery,
   useGetRecurringBillableMetricsLazyQuery,
 } from '~/generated/graphql'
-import { Item } from '~/components/form/ComboBox/ComboBoxItem'
-import {
-  MUI_INPUT_BASE_ROOT_CLASSNAME,
-  SEARCH_METERED_CHARGE_INPUT_CLASSNAME,
-  SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME,
-} from '~/core/constants/form'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { MenuPopper, theme } from '~/styles'
 
-import { LocalChargeInput, PlanFormInput } from './types'
 import { ChargeAccordion } from './ChargeAccordion'
 import {
   RemoveChargeWarningDialog,
   RemoveChargeWarningDialogRef,
 } from './RemoveChargeWarningDialog'
+import { LocalChargeInput, PlanFormInput } from './types'
 
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
@@ -72,8 +72,6 @@ gql`
 interface ChargesSectionProps {
   canBeEdited: boolean
   isEdition: boolean
-  hasAnyMeteredCharge: boolean
-  hasAnyRecurringCharge: boolean
   getPropertyShape: Function
   formikProps: FormikProps<PlanFormInput>
   alreadyExistingCharges?: PlanFormInput['charges'] | null
@@ -85,8 +83,6 @@ export const ChargesSection = memo(
   ({
     canBeEdited,
     isEdition,
-    hasAnyMeteredCharge,
-    hasAnyRecurringCharge,
     getPropertyShape,
     formikProps,
     alreadyExistingCharges,
@@ -99,6 +95,10 @@ export const ChargesSection = memo(
     const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
     const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
     const alreadyUsedBmsIds = useRef<Map<String, number>>(new Map())
+    const hasAnyMeteredCharge = formikProps.values.charges.some((c) => !c.billableMetric.recurring)
+    const hasAnyRecurringCharge = formikProps.values.charges.some(
+      (c) => !!c.billableMetric.recurring
+    )
     const [
       getMeteredBillableMetrics,
       { loading: meteredBillableMetricsLoading, data: meteredBillableMetricsData },
@@ -216,7 +216,7 @@ export const ChargesSection = memo(
 
                         if (!element) return
 
-                        element.scrollIntoView({ behavior: 'smooth' })
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
                         element.click()
 
                         closePopper()
@@ -238,7 +238,7 @@ export const ChargesSection = memo(
 
                         if (!element) return
 
-                        element.scrollIntoView({ behavior: 'smooth' })
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
                         element.click()
 
                         closePopper()

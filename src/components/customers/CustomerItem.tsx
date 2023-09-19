@@ -1,26 +1,26 @@
-import { memo, RefObject, useRef } from 'react'
-import styled from 'styled-components'
 import { gql } from '@apollo/client'
+import { memo, RefObject, useRef } from 'react'
 import { generatePath } from 'react-router-dom'
+import styled from 'styled-components'
 
-import {
-  theme,
-  BaseListItem,
-  ListItemLink,
-  MenuPopper,
-  PopperOpener,
-  ItemContainer,
-} from '~/styles'
-import { Avatar, Typography, Skeleton, Popper, Button, Tooltip } from '~/components/designSystem'
-import { CustomerItemFragment, AddCustomerDrawerFragmentDoc } from '~/generated/graphql'
-import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { AddCustomerDrawerRef } from '~/components/customers/AddCustomerDrawer'
 import {
   DeleteCustomerDialog,
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
-import { AddCustomerDrawerRef } from '~/components/customers/AddCustomerDrawer'
+import { Avatar, Button, Popper, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
+import { AddCustomerDrawerFragmentDoc, CustomerItemFragment } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import {
+  BaseListItem,
+  ItemContainer,
+  ListItemLink,
+  MenuPopper,
+  PopperOpener,
+  theme,
+} from '~/styles'
 
 gql`
   fragment CustomerItem on Customer {

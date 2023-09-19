@@ -1,25 +1,36 @@
-import React, { useRef } from 'react'
 import { gql } from '@apollo/client'
-import { useParams, generatePath } from 'react-router-dom'
+import React, { useRef } from 'react'
+import { generatePath, useParams } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import {
-  Typography,
-  Button,
-  Skeleton,
-  Popper,
+  VoidCreditNoteDialog,
+  VoidCreditNoteDialogRef,
+} from '~/components/customers/creditNotes/VoidCreditNoteDialog'
+import {
   Avatar,
+  Button,
   Icon,
+  Popper,
+  Skeleton,
   Status,
   StatusEnum,
+  Typography,
 } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { addToast } from '~/core/apolloClient'
+import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
 } from '~/core/router'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { formatDateToTZ } from '~/core/timezone'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   CreditNoteCreditStatusEnum,
   CreditNoteItem,
@@ -29,23 +40,12 @@ import {
   useDownloadCreditNoteMutation,
   useGetCreditNoteQuery,
 } from '~/generated/graphql'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import { theme, PageHeader, MenuPopper, NAV_HEIGHT } from '~/styles'
-import { addToast } from '~/core/apolloClient'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
-import {
-  VoidCreditNoteDialog,
-  VoidCreditNoteDialogRef,
-} from '~/components/customers/creditNotes/VoidCreditNoteDialog'
-import { SectionHeader } from '~/styles/customer'
-import { formatDateToTZ } from '~/core/timezone'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
-import { ConditionalWrapper } from '~/components/ConditionalWrapper'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { MenuPopper, NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { SectionHeader } from '~/styles/customer'
 
 import { CustomerDetailsTabsOptions } from './CustomerDetails'
 
@@ -229,12 +229,12 @@ const CreditNoteDetails = () => {
               goBack(
                 !!invoiceId
                   ? generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                      id: customerId,
+                      id: customerId as string,
                       invoiceId,
                       tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
                     })
                   : generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                      id: customerId,
+                      id: customerId as string,
                       tab: CustomerDetailsTabsOptions.creditNotes,
                     })
               )

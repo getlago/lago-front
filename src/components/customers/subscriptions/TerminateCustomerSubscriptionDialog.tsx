@@ -1,8 +1,8 @@
-import { forwardRef, useRef, useState, useImperativeHandle } from 'react'
 import { gql } from '@apollo/client'
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { DialogRef } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { WarningDialog } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   CustomerDetailsFragment,
@@ -10,7 +10,7 @@ import {
   StatusTypeEnum,
   useTerminateCustomerSubscriptionMutation,
 } from '~/generated/graphql'
-import { WarningDialog } from '~/components/WarningDialog'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   mutation terminateCustomerSubscription($input: TerminateSubscriptionInput!) {

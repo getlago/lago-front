@@ -1,13 +1,14 @@
-import { useState, forwardRef, useImperativeHandle, useRef, useEffect, useCallback } from 'react'
-import styled, { css } from 'styled-components'
 import clsns from 'classnames'
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import styled, { css } from 'styled-components'
 
-import { palette, theme } from '~/styles'
-import { removeToast, TToast, TSeverity, ToastSeverityEnum } from '~/core/apolloClient'
+import { removeToast, ToastSeverityEnum, TSeverity, TToast } from '~/core/apolloClient'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { palette, theme } from '~/styles'
 
-import { Typography } from '../Typography'
 import { Button } from '../Button'
+import { Typography } from '../Typography'
+
 interface ToastProps {
   toast: TToast
 }

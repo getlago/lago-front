@@ -1,18 +1,18 @@
-import { useMemo, useEffect } from 'react'
 import { gql } from '@apollo/client'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
+import { TaxFormInput } from '~/components/taxes/types'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { ERROR_404_ROUTE, TAXES_SETTINGS_ROUTE } from '~/core/router'
 import {
+  LagoApiError,
+  TaxFormFragment,
   useCreateTaxMutation,
   useGetSingleTaxQuery,
-  LagoApiError,
   useUpdateTaxMutation,
-  TaxFormFragment,
 } from '~/generated/graphql'
-import { ERROR_404_ROUTE, TAXES_SETTINGS_ROUTE } from '~/core/router'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { TaxFormInput } from '~/components/taxes/types'
-import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 
 gql`
   fragment TaxForm on Tax {

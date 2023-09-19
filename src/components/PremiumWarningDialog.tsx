@@ -1,7 +1,7 @@
 import { forwardRef } from 'react'
 import styled from 'styled-components'
 
-import { Dialog, DialogRef, Button } from '~/components/designSystem'
+import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export interface PremiumWarningDialogRef extends DialogRef {}

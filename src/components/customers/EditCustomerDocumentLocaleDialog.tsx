@@ -1,20 +1,20 @@
-import { forwardRef } from 'react'
 import { gql } from '@apollo/client'
+import { useFormik } from 'formik'
+import { forwardRef } from 'react'
 import styled from 'styled-components'
 import { object, string } from 'yup'
-import { useFormik } from 'formik'
 
-import { Dialog, Button, DialogRef, Typography } from '~/components/designSystem'
+import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { ComboBoxField } from '~/components/form'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { addToast } from '~/core/apolloClient'
+import { DocumentLocales } from '~/core/translations/documentLocales'
 import {
   EditCustomerDocumentLocaleFragment,
   UpdateCustomerInput,
   useUpdateCustomerDocumentLocaleMutation,
 } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
-import { DocumentLocales } from '~/core/translations/documentLocales'
-import { addToast } from '~/core/apolloClient'
 
 gql`
   fragment EditCustomerDocumentLocale on Customer {

@@ -1,23 +1,23 @@
+import { gql } from '@apollo/client'
 import { forwardRef, MutableRefObject, useEffect } from 'react'
 import styled from 'styled-components'
-import { gql } from '@apollo/client'
 
-import { theme } from '~/styles'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import EmptyImage from '~/public/images/maneki/empty.svg'
 import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { TimezoneDate } from '~/components/TimezoneDate'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
+  TimezoneEnum,
   useGetWalletTransactionsLazyQuery,
   WalletInfosForTransactionsFragment,
   WalletStatusEnum,
   WalletTransactionStatusEnum,
   WalletTransactionTransactionTypeEnum,
-  TimezoneEnum,
 } from '~/generated/graphql'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { TimezoneDate } from '~/components/TimezoneDate'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import EmptyImage from '~/public/images/maneki/empty.svg'
+import ErrorImage from '~/public/images/maneki/error.svg'
+import { theme } from '~/styles'
 
 import { TopupWalletDialogRef } from './TopupWalletDialog'
 

@@ -1,32 +1,32 @@
-import { useState, useRef } from 'react'
-import styled from 'styled-components'
+import { useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import styled from 'styled-components'
 
-import { theme, PageHeader, NAV_HEIGHT, MenuPopper } from '~/styles'
 import {
-  Typography,
-  Button,
-  Skeleton,
   Avatar,
+  Button,
   Icon,
   Popper,
+  Skeleton,
   Tooltip,
+  Typography,
 } from '~/components/designSystem'
 import { Switch } from '~/components/form'
-import { EmailSettingsEnum } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useLocationHistory } from '~/hooks/core/useLocationHistory'
-import { EMAILS_SETTINGS_ROUTE, EMAILS_SCENARIO_CONFIG_ROUTE } from '~/core/router'
-import Logo from '~/public/images/logo/lago-logo-grey.svg'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { useEmailConfig } from '~/hooks/useEmailConfig'
-import { LocaleEnum } from '~/core/translations'
-import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import {
   UpdateOrganizationLogoDialog,
   UpdateOrganizationLogoDialogRef,
 } from '~/components/settings/emails/UpdateOrganizationLogoDialog'
+import { EMAILS_SCENARIO_CONFIG_ROUTE, EMAILS_SETTINGS_ROUTE } from '~/core/router'
+import { LocaleEnum } from '~/core/translations'
+import { EmailSettingsEnum } from '~/generated/graphql'
+import { useContextualLocale } from '~/hooks/core/useContextualLocale'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useEmailConfig } from '~/hooks/useEmailConfig'
+import Logo from '~/public/images/logo/lago-logo-grey.svg'
+import { MenuPopper, NAV_HEIGHT, PageHeader, theme } from '~/styles'
 
 export enum DisplayEnum {
   desktop = 'desktop',

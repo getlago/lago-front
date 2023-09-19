@@ -1,40 +1,36 @@
-import { useRef, useEffect } from 'react'
-import { useFormik } from 'formik'
-import { object, string, number } from 'yup'
 import { gql } from '@apollo/client'
+import { useRef } from 'react'
 
+import { Button, Skeleton, Typography } from '~/components/designSystem'
 import {
-  PlanInterval,
-  CurrencyEnum,
+  EditInvoiceDisplayName,
+  EditInvoiceDisplayNameRef,
+} from '~/components/invoices/EditInvoiceDisplayName'
+import { ChargesSection } from '~/components/plans/ChargesSection'
+import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
+import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
+import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
+import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
+import { PLAN_FORM_TYPE_ENUM } from '~/core/apolloClient'
+import {
   ChargeAccordionFragmentDoc,
-  PropertiesInput,
-  PlanForSettingsSectionFragmentDoc,
-  PlanForFixedFeeSectionFragmentDoc,
   PlanForChargeAccordionFragmentDoc,
+  PlanForFixedFeeSectionFragmentDoc,
+  PlanForSettingsSectionFragmentDoc,
+  PropertiesInput,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { Typography, Button, Skeleton } from '~/components/designSystem'
-import { theme, PageHeader, Card } from '~/styles'
-import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
-import { usePlanForm, PLAN_FORM_TYPE_ENUM } from '~/hooks/plans/usePlanForm'
-import { chargeSchema } from '~/formValidation/chargeSchema'
+import { usePlanForm } from '~/hooks/plans/usePlanForm'
+import { Card, PageHeader, theme } from '~/styles'
 import {
-  Main,
+  ButtonContainer,
   Content,
-  Title,
-  Subtitle,
+  Main,
   Side,
   SkeletonHeader,
-  ButtonContainer,
+  Subtitle,
+  Title,
 } from '~/styles/mainObjectsForm'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
-import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
-import { ChargesSection } from '~/components/plans/ChargesSection'
-import { FORM_ERRORS_ENUM } from '~/core/constants/form'
-
-import { PlanFormInput, LocalChargeInput } from '../components/plans/types'
 
 gql`
   # Might need to be removed
@@ -65,6 +61,7 @@ gql`
     description
     interval
     payInAdvance
+    invoiceDisplayName
     amountCents
     amountCurrency
     trialPeriod
@@ -121,99 +118,13 @@ export const getPropertyShape = (properties: PropertiesInput | undefined) => {
 }
 
 const CreatePlan = () => {
-  const { loading, type, plan, parentPlanName, errorCode, onSave, onClose } = usePlanForm()
+  const { errorCode, formikProps, isEdition, loading, parentPlanName, plan, type, onClose } =
+    usePlanForm()
   const warningDialogRef = useRef<WarningDialogRef>(null)
+  const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
   const { translate } = useInternationalization()
-  const isEdition = type === PLAN_FORM_TYPE_ENUM.edition
-  const formikProps = useFormik<PlanFormInput>({
-    initialValues: {
-      name: plan?.name || '',
-      code: plan?.code || '',
-      description: plan?.description || '',
-      interval: plan?.interval || PlanInterval.Monthly,
-      taxes: plan?.taxes || [],
-      payInAdvance: plan?.payInAdvance || false,
-      amountCents: isNaN(plan?.amountCents)
-        ? ''
-        : String(
-            deserializeAmount(plan?.amountCents || 0, plan?.amountCurrency || CurrencyEnum.Usd)
-          ),
-      amountCurrency: plan?.amountCurrency || CurrencyEnum.Usd,
-      trialPeriod:
-        plan?.trialPeriod === null || plan?.trialPeriod === undefined
-          ? isEdition
-            ? 0
-            : undefined
-          : plan?.trialPeriod,
-      billChargesMonthly: plan?.billChargesMonthly || undefined,
-      charges: plan?.charges
-        ? plan?.charges.map(
-            ({ taxes, properties, groupProperties, minAmountCents, payInAdvance, ...charge }) => ({
-              taxes: taxes || [],
-              minAmountCents: isNaN(minAmountCents)
-                ? undefined
-                : String(
-                    deserializeAmount(minAmountCents || 0, plan.amountCurrency || CurrencyEnum.Usd)
-                  ),
-              payInAdvance: payInAdvance || false,
-              properties: properties ? getPropertyShape(properties) : undefined,
-              groupProperties: groupProperties?.length
-                ? groupProperties?.map((prop) => {
-                    return {
-                      groupId: prop.groupId,
-                      values: getPropertyShape(prop.values),
-                    }
-                  })
-                : [],
-              ...charge,
-            })
-          )
-        : ([] as LocalChargeInput[]),
-    },
-    validationSchema: object().shape({
-      name: string().required(''),
-      code: string().required(''),
-      interval: string().required(''),
-      amountCents: string().required(''),
-      trialPeriod: number().typeError(translate('text_624ea7c29103fd010732ab7d')).nullable(),
-      amountCurrency: string().required(''),
-      charges: chargeSchema,
-    }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: onSave,
-  })
 
   const canBeEdited = !plan?.subscriptionsCount
-  const hasAnyMeteredCharge = formikProps.values.charges.some((c) => !c.billableMetric.recurring)
-  const hasAnyRecurringCharge = formikProps.values.charges.some((c) => !!c.billableMetric.recurring)
-
-  useEffect(() => {
-    if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-      formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
-      const rootElement = document.getElementById('root')
-
-      if (!rootElement) return
-      rootElement.scrollTo({ top: 0 })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [errorCode])
-
-  useEffect(() => {
-    if (
-      (!formikProps.values.charges ||
-        !formikProps.values.charges.length ||
-        formikProps.values.interval !== PlanInterval.Yearly) &&
-      !!formikProps.values.billChargesMonthly
-    ) {
-      formikProps.setFieldValue('billChargesMonthly', false)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    formikProps.values.charges,
-    formikProps.values.billChargesMonthly,
-    formikProps.values.interval,
-  ])
 
   return (
     <div>
@@ -303,9 +214,11 @@ const CreatePlan = () => {
                 />
 
                 <FixedFeeSection
+                  type={type}
                   canBeEdited={canBeEdited}
                   formikProps={formikProps}
                   isEdition={isEdition}
+                  editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
                 />
 
                 <ChargesSection
@@ -314,8 +227,6 @@ const CreatePlan = () => {
                   formikProps={formikProps}
                   alreadyExistingCharges={plan?.charges}
                   getPropertyShape={getPropertyShape}
-                  hasAnyMeteredCharge={hasAnyMeteredCharge}
-                  hasAnyRecurringCharge={hasAnyRecurringCharge}
                 />
 
                 <ButtonContainer>
@@ -357,6 +268,8 @@ const CreatePlan = () => {
         )}
         onContinue={onClose}
       />
+
+      <EditInvoiceDisplayName ref={editInvoiceDisplayNameRef} />
     </div>
   )
 }
