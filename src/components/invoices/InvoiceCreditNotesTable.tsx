@@ -65,6 +65,7 @@ gql`
             plan {
               id
               name
+              invoiceDisplayName
             }
           }
           group {
@@ -103,7 +104,9 @@ export const InvoiceCreditNotesTable = memo(
                   ? subscriptionItem[0][0]?.fee.subscription
                   : undefined
                 const creditNoteDisplayName = !!subscription
-                  ? subscription?.name || subscription?.plan?.name
+                  ? subscription?.name ||
+                    subscription.plan.invoiceDisplayName ||
+                    subscription?.plan?.name
                   : translate('text_649ab559e86bd6005ba9d725')
 
                 return (
