@@ -116,6 +116,7 @@ gql`
             plan {
               id
               name
+              invoiceDisplayName
             }
           }
           group {
@@ -507,7 +508,9 @@ const CreditNoteDetails = () => {
                     ? groupSubscriptionItem[0][0].fee.subscription
                     : undefined
                 const invoiceDisplayName = !!subscription
-                  ? subscription?.name || subscription?.plan?.name
+                  ? subscription?.name ||
+                    subscription.plan.invoiceDisplayName ||
+                    subscription?.plan?.name
                   : translate('text_6388b923e514213fed58331c')
 
                 return (

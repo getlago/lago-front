@@ -82,6 +82,7 @@ gql`
         plan {
           id
           name
+          invoiceDisplayName
         }
       }
       fees {
@@ -236,7 +237,9 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
         }
 
         const subscriptionName: string =
-          invoiceSubscription?.subscription?.name || invoiceSubscription?.subscription?.plan?.name
+          invoiceSubscription?.subscription?.name ||
+          invoiceSubscription.subscription.plan.invoiceDisplayName ||
+          invoiceSubscription?.subscription?.plan?.name
 
         const subscriptionFees = Object.keys(groupedFees).reduce((groupApp, groupKey, index) => {
           if (groupKey === 'undefined') {
