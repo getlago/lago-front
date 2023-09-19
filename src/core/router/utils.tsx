@@ -2,7 +2,7 @@ import { ComponentType, lazy } from 'react'
 
 const retry = (
   fn: Function,
-  retriesLeft: number = 3,
+  retriesLeft: number = 2,
   interval: number = 1000
 ): Promise<{ default: ComponentType<unknown> }> => {
   return new Promise((resolve) => {
@@ -10,7 +10,7 @@ const retry = (
       .then(resolve)
       .catch(() => {
         setTimeout(() => {
-          if (retriesLeft === 1) {
+          if (retriesLeft === 0) {
             return window.location.reload() // refresh the page as last resort
           }
 
