@@ -67,23 +67,23 @@ describe('Create plan', () => {
     cy.get('[data-test="submit"]').should('not.be.disabled')
 
     // Graduated percentage
-    // cy.get('[data-test="add-charge"]').last().click({ force: true })
-    // cy.get('[data-test="add-metered-charge"]').last().click({ force: true })
-    // cy.get('[data-option-index="1"]').click({ force: true })
-    // cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
-    // cy.get('input[name="chargeModel"]').last().click({ force: true })
-    // cy.get('[data-test="graduated_percentage"]').click({ force: true })
-    // cy.get('[data-test="charge-accordion-2"]').within(() => {
-    //   cy.get('input[name="chargeModel"]')
-    //     .last()
-    //     .should('have.value', 'Graduated percentage pricing')
-    //   cy.get('[data-test="add-tier"]').last().click({ force: true })
-    //   cy.get('[data-test="cell-rate-0"]').type('1')
-    //   cy.get('[data-test="cell-rate-1"]').type('1')
-    //   cy.get('[data-test="cell-rate-2"]').type('1')
-    // })
-    // cy.get('[data-test="row-2"]').should('have.length', 2)
-    // cy.get('[data-test="submit"]').should('not.be.disabled')
+    cy.get('[data-test="add-charge"]').last().click({ force: true })
+    cy.get('[data-test="add-metered-charge"]').last().click({ force: true })
+    cy.get('[data-option-index="1"]').click({ force: true })
+    cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
+    cy.get('input[name="chargeModel"]').last().click({ force: true })
+    cy.get('[data-test="graduated_percentage"]').click({ force: true })
+    cy.get('[data-test="charge-accordion-2"]').within(() => {
+      cy.get('input[name="chargeModel"]')
+        .last()
+        .should('have.value', 'Graduated percentage pricing')
+      cy.get('[data-test="add-tier"]').last().click({ force: true })
+      cy.get('[data-test="cell-rate-0"]').type('1')
+      cy.get('[data-test="cell-rate-1"]').type('1')
+      cy.get('[data-test="cell-rate-2"]').type('1')
+    })
+    cy.get('[data-test="row-2"]').should('have.length', 2)
+    cy.get('[data-test="submit"]').should('not.be.disabled')
 
     // Package
     cy.get('[data-test="add-charge"]').last().click({ force: true })
@@ -113,14 +113,14 @@ describe('Create plan', () => {
     cy.get('[data-test="add-free-units"]').click({ force: true })
     cy.get('[data-test="add-free-units-total-amount"]').click({ force: true })
     cy.get('[data-test="free-unit-per-total-aggregation"] input').should('exist')
-    // TODO: fails but works on browser
-    // Probably due to staging instances not being premium
-    // cy.get('[data-test="add-min-max-drowdown-cta"]').click({ force: true })
-    // cy.get('[data-test="add-min-cta"]').click({ force: true })
-    // cy.get('[data-test="per-transaction-min-amount"]').should('exist')
-    // cy.get('[data-test="add-min-max-drowdown-cta"]').click({ force: true })
-    // cy.get('[data-test="add-max-cta"]').click({ force: true })
-    // cy.get('[data-test="per-transaction-max-amount"]').should('exist')
+
+    // Min max
+    cy.get('[data-test="add-min-max-drowdown-cta"]').click({ force: true })
+    cy.get('[data-test="add-min-cta"]').click({ force: true })
+    cy.get('[data-test="per-transaction-min-amount"]').should('exist')
+    cy.get('[data-test="add-min-max-drowdown-cta"]').click({ force: true })
+    cy.get('[data-test="add-max-cta"]').click({ force: true })
+    cy.get('[data-test="per-transaction-max-amount"]').should('exist')
     cy.get('[data-test="submit"]').should('not.be.disabled')
 
     // Volume
