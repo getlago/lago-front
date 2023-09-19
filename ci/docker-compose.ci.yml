@@ -29,9 +29,9 @@ services:
     depends_on: 
       - "db"
     ports:
-      - 3001:3000
+      - 3000:3000
     environment:
-      RAILS_ENV: development
+      RAILS_ENV: production
       DATABASE_URL: postgres://lago:lago@db:5432/lago
       REDIS_URL: redis://redis:6379
       LAGO_FRONT_URL: http://localhost
@@ -40,24 +40,13 @@ services:
       LAGO_DISABLE_SEGMENT: "true"
       RAILS_LOG_TO_STDOUT: "true"
       LAGO_LICENSE: ${LAGO_LICENSE}
-  
-  license:
-    image: getlago/license:ci
-    container_name: lago_license
-    restart: unless-stopped
-    depends_on: 
-      - "db"
-    ports:
-      - 3000:3000
-    environment:
-      - DATABASE_URL=postgres://lago:lago@db:5432/lago
 
   front:
     image: getlago/front:ci
     container_name: lago-front
     restart: unless-stopped
     environment:
-      API_URL: http://localhost:3001
+      API_URL: http://localhost:3000
       NODE_ENV: staging
     ports:
       - 80:80
