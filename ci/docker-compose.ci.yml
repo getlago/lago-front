@@ -28,6 +28,8 @@ services:
     restart: unless-stopped
     depends_on: 
       - "db"
+    ports:
+      - 3001:3000
     environment:
       RAILS_ENV: development
       DATABASE_URL: postgres://lago:lago@db:5432/lago
@@ -45,6 +47,8 @@ services:
     restart: unless-stopped
     depends_on: 
       - "db"
+    ports:
+      - 3000:3000
     environment:
       - DATABASE_URL=postgres://lago:lago@db:5432/lago
 
@@ -53,7 +57,7 @@ services:
     container_name: lago-front
     restart: unless-stopped
     environment:
-      API_URL: http://api:3000
+      API_URL: http://api:3001
       NODE_ENV: staging
     ports:
       - 80:80
