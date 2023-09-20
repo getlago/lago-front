@@ -71,10 +71,10 @@ export const mapAvatarSize = (size: AvatarSize) => {
       return 24
     case 'medium':
       return 32
-    case 'large':
-      return 64
     case 'big':
       return 40
+    case 'large':
+      return 64
   }
 }
 
