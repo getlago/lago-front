@@ -28,24 +28,22 @@ jobs:
       - name: Build API local image
         run: |
           docker build -t getlago/api:ci ./api
-      
-      - name: Generate API RSA Key
-        run: |
-          echo "LAGO_RSA_PRIVATE_KEY=\"`openssl genrsa 2048 | base64`\"" >> .env
 
       - name: Launch APP + API
+        env:
+          LAGO_RSA_PRIVATE_KEY: ${{ secrets.LAGO_RSA_PRIVATE_KEY }}
+          LAGO_LICENSE: ${{ secrets.LAGO_LICENSE }}
         run: |
-          docker-compose -f ./ci/docker-compose.ci.yml --env-file ./.env up -d db redis api front
+          docker-compose -f ./ci/docker-compose.ci.yml up -d db redis api front
 
       - name: Cypress run
         uses: cypress-io/github-action@v5
         env: 
           CYPRESS_GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
         with:
           browser: chrome
           record: false
-          config: baseUrl=http://localhost,projectId=u863yi
+          config: baseUrl=http://localhost
           spec: |
             cypress/e2e/00-auth/*
             cypress/e2e/10-resources/*

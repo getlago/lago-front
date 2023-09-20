@@ -40,15 +40,6 @@ services:
       LAGO_DISABLE_SEGMENT: "true"
       RAILS_LOG_TO_STDOUT: "true"
       LAGO_LICENSE: ${LAGO_LICENSE}
-  
-  license:
-    image: getlago/license:ci
-    container_name: lago_license
-    restart: unless-stopped
-    depends_on: 
-      - "db"
-    environment:
-      - DATABASE_URL=postgres://lago:lago@db:5432/lago
 
   front:
     image: getlago/front:ci
