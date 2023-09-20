@@ -13,7 +13,7 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
-import { updateDuplicatePlanVar } from '~/core/apolloClient'
+import { updateDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import { CREATE_PLAN_ROUTE, UPDATE_PLAN_ROUTE } from '~/core/router'
 import { DeletePlanDialogFragmentDoc, PlanItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -36,7 +36,7 @@ gql`
     name
     code
     chargesCount
-    customersCount
+    activeSubscriptionsCount
     createdAt
     ...DeletePlanDialog
   }
@@ -51,7 +51,7 @@ interface PlanItemProps {
 }
 
 export const PlanItem = memo(({ deleteDialogRef, navigationProps, plan }: PlanItemProps) => {
-  const { id, name, code, customersCount, chargesCount, createdAt } = plan
+  const { id, name, code, activeSubscriptionsCount, chargesCount, createdAt } = plan
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
@@ -60,7 +60,7 @@ export const PlanItem = memo(({ deleteDialogRef, navigationProps, plan }: PlanIt
     <ItemContainer>
       <ListItemLink
         tabIndex={0}
-        to={generatePath(UPDATE_PLAN_ROUTE, { id })}
+        to={generatePath(UPDATE_PLAN_ROUTE, { planId: id })}
         data-test={name}
         {...navigationProps}
       >
@@ -78,7 +78,7 @@ export const PlanItem = memo(({ deleteDialogRef, navigationProps, plan }: PlanIt
           </NameBlock>
         </PlanNameSection>
         <PlanInfosSection>
-          <MediumCell>{customersCount}</MediumCell>
+          <MediumCell>{activeSubscriptionsCount}</MediumCell>
           <SmallCell>{chargesCount}</SmallCell>
           <MediumCell>{formatTimeOrgaTZ(createdAt)}</MediumCell>
         </PlanInfosSection>
@@ -109,7 +109,7 @@ export const PlanItem = memo(({ deleteDialogRef, navigationProps, plan }: PlanIt
                 align: 'left',
                 fullWidth: true,
               }}
-              to={generatePath(UPDATE_PLAN_ROUTE, { id })}
+              to={generatePath(UPDATE_PLAN_ROUTE, { planId: id })}
             >
               {translate('text_625fd39a15394c0117e7d792')}
             </ButtonLink>

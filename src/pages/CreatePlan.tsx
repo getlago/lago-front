@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { Button, Skeleton, Typography } from '~/components/designSystem'
 import {
@@ -11,13 +12,13 @@ import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
 import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { PLAN_FORM_TYPE_ENUM } from '~/core/apolloClient'
+import { FORM_TYPE_ENUM } from '~/core/constants/form'
+import { PLANS_ROUTE } from '~/core/router'
 import {
   ChargeAccordionFragmentDoc,
   PlanForChargeAccordionFragmentDoc,
   PlanForFixedFeeSectionFragmentDoc,
   PlanForSettingsSectionFragmentDoc,
-  PropertiesInput,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
@@ -97,32 +98,12 @@ gql`
   ${PlanForFixedFeeSectionFragmentDoc}
 `
 
-export const getPropertyShape = (properties: PropertiesInput | undefined) => {
-  return {
-    amount: properties?.amount || undefined,
-    packageSize:
-      properties?.packageSize === null || properties?.packageSize === undefined
-        ? 10
-        : properties?.packageSize,
-    fixedAmount: properties?.fixedAmount || undefined,
-    freeUnitsPerEvents: properties?.freeUnitsPerEvents || undefined,
-    freeUnitsPerTotalAggregation: properties?.freeUnitsPerTotalAggregation || undefined,
-    perTransactionMinAmount: properties?.perTransactionMinAmount || undefined,
-    perTransactionMaxAmount: properties?.perTransactionMaxAmount || undefined,
-    freeUnits: properties?.freeUnits || 0,
-    graduatedRanges: properties?.graduatedRanges || undefined,
-    graduatedPercentageRanges: properties?.graduatedPercentageRanges || undefined,
-    volumeRanges: properties?.volumeRanges || undefined,
-    rate: properties?.rate || undefined,
-  }
-}
-
 const CreatePlan = () => {
-  const { errorCode, formikProps, isEdition, loading, parentPlanName, plan, type, onClose } =
-    usePlanForm()
+  const navigate = useNavigate()
+  const { translate } = useInternationalization()
+  const { errorCode, formikProps, isEdition, loading, plan, type } = usePlanForm({})
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
-  const { translate } = useInternationalization()
 
   const canBeEdited = !plan?.subscriptionsCount
 
@@ -130,16 +111,14 @@ const CreatePlan = () => {
     <div>
       <PageHeader>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {type === PLAN_FORM_TYPE_ENUM.override
-            ? translate('text_6329fd60c32c30152678a6e8', { planName: parentPlanName })
-            : translate(
-                isEdition ? 'text_625fd165963a7b00c8f59767' : 'text_624453d52e945301380e4988'
-              )}
+          {translate(isEdition ? 'text_625fd165963a7b00c8f59767' : 'text_624453d52e945301380e4988')}
         </Typography>
         <Button
           variant="quaternary"
           icon="close"
-          onClick={() => (formikProps.dirty ? warningDialogRef.current?.openDialog() : onClose())}
+          onClick={() =>
+            formikProps.dirty ? warningDialogRef.current?.openDialog() : navigate(PLANS_ROUTE)
+          }
           data-test="close-create-plan-button"
         />
       </PageHeader>
@@ -187,19 +166,13 @@ const CreatePlan = () => {
               <>
                 <div>
                   <Title variant="headline">
-                    {type === PLAN_FORM_TYPE_ENUM.override
-                      ? translate('text_6329fd60c32c30152678a6f4', { planName: parentPlanName })
-                      : translate(
-                          isEdition
-                            ? 'text_625fd165963a7b00c8f59771'
-                            : 'text_624453d52e945301380e498a'
-                        )}
+                    {translate(
+                      isEdition ? 'text_625fd165963a7b00c8f59771' : 'text_624453d52e945301380e498a'
+                    )}
                   </Title>
                   <Subtitle>
                     {translate(
-                      type === PLAN_FORM_TYPE_ENUM.override
-                        ? 'text_6329fd60c32c30152678a6f6'
-                        : type === PLAN_FORM_TYPE_ENUM.edition
+                      type === FORM_TYPE_ENUM.edition
                         ? 'text_625fd165963a7b00c8f5977b'
                         : 'text_642d5eb2783a2ad10d670318'
                     )}
@@ -210,11 +183,11 @@ const CreatePlan = () => {
                   canBeEdited={canBeEdited}
                   errorCode={errorCode}
                   formikProps={formikProps}
-                  type={type}
+                  isEdition={isEdition}
                 />
 
                 <FixedFeeSection
-                  type={type}
+                  isInitiallyOpen={type === FORM_TYPE_ENUM.creation}
                   canBeEdited={canBeEdited}
                   formikProps={formikProps}
                   isEdition={isEdition}
@@ -227,7 +200,6 @@ const CreatePlan = () => {
                   formikProps={formikProps}
                   alreadyExistingCharges={plan?.charges}
                   editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
-                  getPropertyShape={getPropertyShape}
                 />
 
                 <ButtonContainer>
@@ -239,9 +211,7 @@ const CreatePlan = () => {
                     data-test="submit"
                   >
                     {translate(
-                      type === PLAN_FORM_TYPE_ENUM.override
-                        ? 'text_6329fd60c32c30152678a73c'
-                        : type === PLAN_FORM_TYPE_ENUM.edition
+                      type === FORM_TYPE_ENUM.edition
                         ? 'text_625fd165963a7b00c8f598aa'
                         : 'text_62ff5d01a306e274d4ffcc75'
                     )}
@@ -267,7 +237,7 @@ const CreatePlan = () => {
         continueText={translate(
           isEdition ? 'text_625fd165963a7b00c8f59795' : 'text_624454dd67656e00c534bc41'
         )}
-        onContinue={onClose}
+        onContinue={() => navigate(PLANS_ROUTE)}
       />
 
       <EditInvoiceDisplayName ref={editInvoiceDisplayNameRef} />

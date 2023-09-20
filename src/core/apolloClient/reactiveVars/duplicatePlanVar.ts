@@ -1,43 +1,32 @@
 import { makeVar, useReactiveVar } from '@apollo/client'
 
-import { CreateSubscriptionInput, StatusTypeEnum } from '~/generated/graphql'
+import { FORM_TYPE_ENUM } from '~/core/constants/form'
+import { StatusTypeEnum } from '~/generated/graphql'
 
 import { getItemFromLS, setItemFromLS } from '../cacheUtils'
 
 export const DUPLICATE_PLAN_LS_KEY = 'duplicatePlan'
 
-export const PLAN_FORM_TYPE_ENUM = {
-  creation: 'creation',
-  edition: 'edition',
-  override: 'override', //  TODO: remove this type
-  duplicate: 'duplicate',
-} as const
-
-export type PLAN_FORM_TYPE = keyof typeof PLAN_FORM_TYPE_ENUM
+export type PLAN_FORM_TYPE = keyof typeof FORM_TYPE_ENUM
 
 export type SubscriptionUpdateInfo = {
   subscriptionId?: string
   subscriptionExternalId?: string
-  existingPlanId?: string
   periodEndDate?: string
   startDate?: string
   endDate?: string
-  status: StatusTypeEnum
+  status?: StatusTypeEnum | null
 }
 
 type DuplicatePlanVar = {
   type: PLAN_FORM_TYPE
   parentId?: string
-  customerId?: string
-  subscriptionInput?: Partial<CreateSubscriptionInput>
   updateInfo?: SubscriptionUpdateInfo
 }
 
 const initial = {
-  type: PLAN_FORM_TYPE_ENUM.creation,
+  type: FORM_TYPE_ENUM.creation,
   parentId: undefined,
-  subscriptionInput: undefined,
-  customerId: undefined,
   updateInfo: undefined,
 }
 

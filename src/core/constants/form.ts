@@ -27,3 +27,10 @@ export const SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME = 'searchTaxForInvoic
 export const ADD_ITEM_FOR_INVOICE_INPUT_NAME = 'addItemInput'
 // Customer
 export const SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME = 'searchTaxForCustomerInput'
+
+export const FORM_TYPE_ENUM = {
+  creation: 'creation',
+  edition: 'edition',
+  duplicate: 'duplicate',
+  upgradeDowngrade: 'upgradeDowngrade',
+} as const

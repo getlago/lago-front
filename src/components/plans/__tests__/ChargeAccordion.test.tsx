@@ -5,6 +5,7 @@ import { object } from 'yup'
 
 import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisplayName'
 import { MUI_BUTTON_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
+import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { chargeSchema } from '~/formValidation/chargeSchema'
 import {
   AggregationTypeEnum,
@@ -13,7 +14,6 @@ import {
   GroupProperties,
 } from '~/generated/graphql'
 import { Properties } from '~/generated/graphql'
-import { getPropertyShape } from '~/pages/CreatePlan'
 import { render } from '~/test-utils'
 
 import { ChargeAccordion } from '../ChargeAccordion'

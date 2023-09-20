@@ -17,10 +17,6 @@ import {
   DeleteCustomerDialog,
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
-import {
-  AddSubscriptionDrawer,
-  AddSubscriptionDrawerRef,
-} from '~/components/customers/subscriptions/AddSubscriptionDrawer'
 import { CustomerSubscriptionsList } from '~/components/customers/subscriptions/CustomerSubscriptionsList'
 import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
 import {
@@ -41,6 +37,7 @@ import { CustomerWalletsList } from '~/components/wallets/CustomerWalletList'
 import { addToast } from '~/core/apolloClient'
 import {
   CREATE_INVOICE_ROUTE,
+  CREATE_SUBSCRIPTION,
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMERS_LIST_ROUTE,
@@ -52,7 +49,6 @@ import {
   useGetCustomerQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
@@ -70,7 +66,6 @@ gql`
     creditNotesBalanceAmountCents
     applicableTimezone
     activeSubscriptionsCount
-    timezone
     ...AddCustomerDrawer
     ...CustomerMainInfos
   }
@@ -104,7 +99,6 @@ const CustomerDetails = () => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
   const editDialogRef = useRef<AddCustomerDrawerRef>(null)
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
-  const subscriptionsDialogRef = useRef<AddSubscriptionDrawerRef>(null)
   const addWalletToCustomerDialogRef = useRef<AddWalletToCustomerDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { translate } = useInternationalization()
@@ -137,7 +131,7 @@ const CustomerDetails = () => {
       }
     },
   })
-  const { goBack } = useLocationHistory()
+  // const { goBack } = useLocationHistory()
   const {
     creditNotesCreditsAvailableCount,
     creditNotesBalanceAmountCents,
@@ -147,7 +141,6 @@ const CustomerDetails = () => {
     name,
     activeSubscriptionsCount,
     applicableTimezone,
-    timezone,
   } = data?.customer || {}
   const safeTimezone = applicableTimezone
 
@@ -158,11 +151,7 @@ const CustomerDetails = () => {
           <Button
             icon="arrow-left"
             variant="quaternary"
-            onClick={() =>
-              goBack(CUSTOMERS_LIST_ROUTE, {
-                exclude: [CUSTOMER_DETAILS_TAB_ROUTE, CUSTOMER_DETAILS_ROUTE],
-              })
-            }
+            onClick={() => navigate(CUSTOMERS_LIST_ROUTE)}
           />
           {loading ? (
             <Skeleton variant="text" height={12} width={120} />
@@ -199,7 +188,11 @@ const CustomerDetails = () => {
                   variant="quaternary"
                   align="left"
                   onClick={() => {
-                    subscriptionsDialogRef?.current?.openDialog()
+                    navigate(
+                      generatePath(CREATE_SUBSCRIPTION, {
+                        id: id as string,
+                      })
+                    )
                     closePopper()
                   }}
                 >
@@ -323,13 +316,13 @@ const CustomerDetails = () => {
                     {
                       title: translate('text_628cf761cbe6820138b8f2e4'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        id,
+                        id: id as string,
                         tab: CustomerDetailsTabsOptions.overview,
                       }),
                       routerState: { disableScrollTop: true },
                       match: [
                         generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                          id,
+                          id: id as string,
                           tab: CustomerDetailsTabsOptions.overview,
                         }),
                         generatePath(CUSTOMER_DETAILS_ROUTE, {
@@ -339,17 +332,14 @@ const CustomerDetails = () => {
                       component: (
                         <SideBlock>
                           {!loading && <CustomerCoupons />}
-                          <CustomerSubscriptionsList
-                            ref={subscriptionsDialogRef}
-                            customerTimezone={safeTimezone}
-                          />
+                          <CustomerSubscriptionsList customerTimezone={safeTimezone} />
                         </SideBlock>
                       ),
                     },
                     {
                       title: translate('text_62d175066d2dbf1d50bc937c'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        id,
+                        id: id as string,
                         tab: CustomerDetailsTabsOptions.wallet,
                       }),
                       routerState: { disableScrollTop: true },
@@ -366,7 +356,7 @@ const CustomerDetails = () => {
                     {
                       title: translate('text_62c3f3fca8a1625624e83365'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        id,
+                        id: id as string,
                         tab: CustomerDetailsTabsOptions.usage,
                       }),
                       routerState: { disableScrollTop: true },
@@ -380,7 +370,7 @@ const CustomerDetails = () => {
                     {
                       title: translate('text_628cf761cbe6820138b8f2e6'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        id,
+                        id: id as string,
                         tab: CustomerDetailsTabsOptions.invoices,
                       }),
                       routerState: { disableScrollTop: true },
@@ -396,7 +386,7 @@ const CustomerDetails = () => {
                     {
                       title: translate('text_63725b30957fd5b26b308dd3'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        id,
+                        id: id as string,
                         tab: CustomerDetailsTabsOptions.creditNotes,
                       }),
                       routerState: { disableScrollTop: true },
@@ -416,7 +406,7 @@ const CustomerDetails = () => {
                     {
                       title: translate('text_638dff9779fb99299bee9126'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        id,
+                        id: id as string,
                         tab: CustomerDetailsTabsOptions.settings,
                       }),
                       routerState: { disableScrollTop: true },
@@ -456,12 +446,6 @@ const CustomerDetails = () => {
             ref={addCouponDialogRef}
             customerId={id as string}
             customerName={data?.customer?.name as string}
-          />
-          <AddSubscriptionDrawer
-            ref={subscriptionsDialogRef}
-            customerName={name as string}
-            customerId={id as string}
-            customerTimezone={timezone}
           />
           <AddWalletToCustomerDialog
             customerId={id as string}

@@ -172,6 +172,9 @@ module.exports = {
   "project_645d070fa825baf410cec70c": {
     "base": require('./-wip---settings--customers---lago-x-adyen-connection__base.json')
   },
+  "project_65118a3c24d30a816a60ca92": {
+    "base": require('./-wip---subscriptionplans---overrides-plans-and-subscriptions__base.json')
+  },
   "project_64999d7a720a1412d1a72cf6": {
     "base": require('./add-missing-keys__base.json')
   },
