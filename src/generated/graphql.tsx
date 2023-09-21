@@ -60,7 +60,7 @@ export type AddOn = {
   code: Scalars['String']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
   /** Number of customers using this add-on */
-  customerCount: Scalars['Int']['output'];
+  customersCount: Scalars['Int']['output'];
   deletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -212,6 +212,13 @@ export enum ChargeModelEnum {
   Standard = 'standard',
   Volume = 'volume'
 }
+
+export type ChargeOverridesInput = {
+  groupProperties?: InputMaybe<Array<GroupPropertiesInput>>;
+  minAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
+  properties?: InputMaybe<PropertiesInput>;
+  taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
+};
 
 export type ChargeUsage = {
   __typename?: 'ChargeUsage';
@@ -741,7 +748,7 @@ export type Coupon = {
   couponType: CouponTypeEnum;
   createdAt: Scalars['ISO8601DateTime']['output'];
   /** Number of customers using this coupon */
-  customerCount: Scalars['Int']['output'];
+  customersCount: Scalars['Int']['output'];
   description?: Maybe<Scalars['String']['output']>;
   expiration: CouponExpiration;
   expirationAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -969,6 +976,7 @@ export type CreateSubscriptionInput = {
   externalId?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   planId: Scalars['ID']['input'];
+  planOverrides?: InputMaybe<PlanOverridesInput>;
   subscriptionAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   subscriptionId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -1349,7 +1357,7 @@ export type CurrentVersion = {
 export type Customer = {
   __typename?: 'Customer';
   /** Number of active subscriptions per customer */
-  activeSubscriptionCount: Scalars['Int']['output'];
+  activeSubscriptionsCount: Scalars['Int']['output'];
   addressLine1?: Maybe<Scalars['String']['output']>;
   addressLine2?: Maybe<Scalars['String']['output']>;
   applicableTimezone: TimezoneEnum;
@@ -2458,13 +2466,13 @@ export type Plan = {
   amountCents: Scalars['BigInt']['output'];
   amountCurrency: CurrencyEnum;
   billChargesMonthly?: Maybe<Scalars['Boolean']['output']>;
-  /** Number of charges attached to a plan */
-  chargeCount: Scalars['Int']['output'];
   charges?: Maybe<Array<Charge>>;
+  /** Number of charges attached to a plan */
+  chargesCount: Scalars['Int']['output'];
   code: Scalars['String']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
   /** Number of customers attached to a plan */
-  customerCount: Scalars['Int']['output'];
+  customersCount: Scalars['Int']['output'];
   description?: Maybe<Scalars['String']['output']>;
   draftInvoicesCount: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
@@ -2492,6 +2500,15 @@ export enum PlanInterval {
   Weekly = 'weekly',
   Yearly = 'yearly'
 }
+
+export type PlanOverridesInput = {
+  amountCents?: InputMaybe<Scalars['BigInt']['input']>;
+  amountCurrency?: InputMaybe<CurrencyEnum>;
+  charges?: InputMaybe<Array<ChargeOverridesInput>>;
+  invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
+  taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
+  trialPeriod?: InputMaybe<Scalars['Float']['input']>;
+};
 
 export type Properties = {
   __typename?: 'Properties';
@@ -3636,7 +3653,7 @@ export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> | null }, organization?: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null } | null };
 
-export type AddOnItemFragment = { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customerCount: number, createdAt: any };
+export type AddOnItemFragment = { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customersCount: number, createdAt: any };
 
 export type DeleteAddOnFragment = { __typename?: 'AddOn', id: string, name: string };
 
@@ -3684,7 +3701,7 @@ export type CouponCaptionFragment = { __typename?: 'Coupon', id: string, amountC
 
 export type AppliedCouponCaptionFragment = { __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null };
 
-export type CouponItemFragment = { __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, appliedCouponsCount: number, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
+export type CouponItemFragment = { __typename?: 'Coupon', id: string, name: string, customersCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, appliedCouponsCount: number, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
 
 export type DeleteCouponFragment = { __typename?: 'Coupon', id: string, name: string };
 
@@ -3791,7 +3808,7 @@ export type GetCustomerInvoicesQueryVariables = Exact<{
 
 export type GetCustomerInvoicesQuery = { __typename?: 'Query', customerInvoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, name?: string | null } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
 
-export type CustomerItemFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, createdAt: any, activeSubscriptionCount: number, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
+export type CustomerItemFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, createdAt: any, activeSubscriptionsCount: number, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
 
 export type CustomerMainInfosFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, email?: string | null, currency?: CurrencyEnum | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, url?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, timezone?: TimezoneEnum | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string }> | null };
 
@@ -3926,7 +3943,7 @@ export type TerminateCustomerSubscriptionMutationVariables = Exact<{
 }>;
 
 
-export type TerminateCustomerSubscriptionMutation = { __typename?: 'Mutation', terminateSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionCount: number } } | null };
+export type TerminateCustomerSubscriptionMutation = { __typename?: 'Mutation', terminateSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number } } | null };
 
 export type CustomerSubscriptionForUsageFragment = { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } };
 
@@ -4113,7 +4130,7 @@ export type GraduatedPercentageChargeFragment = { __typename?: 'Charge', id: str
 
 export type PackageChargeFragment = { __typename?: 'Charge', id: string, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null } }> | null };
 
-export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number };
+export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, customersCount: number, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number };
 
 export type TaxForPlanSettingsSectionFragment = { __typename?: 'Tax', id: string, code: string, name: string, rate: number };
 
@@ -4356,7 +4373,7 @@ export type CreateSubscriptionMutationVariables = Exact<{
 }>;
 
 
-export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionCount: number } } | null };
+export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number } } | null };
 
 export type GetSinglePlanQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -4377,7 +4394,7 @@ export type UpdatePlanMutationVariables = Exact<{
 }>;
 
 
-export type UpdatePlanMutation = { __typename?: 'Mutation', updatePlan?: { __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number } | null };
+export type UpdatePlanMutation = { __typename?: 'Mutation', updatePlan?: { __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, customersCount: number, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number } | null };
 
 export type InvoiceFeeFragment = { __typename?: 'Fee', id: string, amountCurrency: CurrencyEnum, feeType: FeeTypesEnum, creditableAmountCents: any, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, tax: { __typename?: 'Tax', id: string, name: string, rate: number } }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, group?: { __typename?: 'Group', key?: string | null, value: string } | null };
 
@@ -4420,7 +4437,7 @@ export type UpdateAddOnMutationVariables = Exact<{
 }>;
 
 
-export type UpdateAddOnMutation = { __typename?: 'Mutation', updateAddOn?: { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customerCount: number, createdAt: any } | null };
+export type UpdateAddOnMutation = { __typename?: 'Mutation', updateAddOn?: { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customersCount: number, createdAt: any } | null };
 
 export type GetSingleBillableMetricQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -4464,7 +4481,7 @@ export type UpdateCouponMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCouponMutation = { __typename?: 'Mutation', updateCoupon?: { __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, appliedCouponsCount: number, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null } | null };
+export type UpdateCouponMutation = { __typename?: 'Mutation', updateCoupon?: { __typename?: 'Coupon', id: string, name: string, customersCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, appliedCouponsCount: number, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null } | null };
 
 export type AddCustomerDrawerFragment = { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
 
@@ -4473,14 +4490,14 @@ export type CreateCustomerMutationVariables = Exact<{
 }>;
 
 
-export type CreateCustomerMutation = { __typename?: 'Mutation', createCustomer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, createdAt: any, activeSubscriptionCount: number, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
+export type CreateCustomerMutation = { __typename?: 'Mutation', createCustomer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, createdAt: any, activeSubscriptionsCount: number, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
 
 export type UpdateCustomerMutationVariables = Exact<{
   input: UpdateCustomerInput;
 }>;
 
 
-export type UpdateCustomerMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, createdAt: any, activeSubscriptionCount: number, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
+export type UpdateCustomerMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, createdAt: any, activeSubscriptionsCount: number, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
 
 export type TaxFormFragment = { __typename?: 'Tax', id: string, code: string, description?: string | null, name: string, rate: number, customersCount: number };
 
@@ -4566,7 +4583,7 @@ export type AddOnsQueryVariables = Exact<{
 }>;
 
 
-export type AddOnsQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customerCount: number, createdAt: any }> } };
+export type AddOnsQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customersCount: number, createdAt: any }> } };
 
 export type BillableMetricsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -4584,7 +4601,7 @@ export type CouponsQueryVariables = Exact<{
 }>;
 
 
-export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customerCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, appliedCouponsCount: number, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null }> } };
+export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customersCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, appliedCouponsCount: number, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null }> } };
 
 export type GetTaxesForAddOnFormQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -4636,14 +4653,14 @@ export type GetCreditNoteQueryVariables = Exact<{
 
 export type GetCreditNoteQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, balanceAmountCents: any, canBeVoided: boolean, couponsAdjustmentAmountCents: any, createdAt: any, creditAmountCents: any, creditStatus?: CreditNoteCreditStatusEnum | null, currency: CurrencyEnum, number: string, refundAmountCents: any, refundedAt?: any | null, refundStatus?: CreditNoteRefundStatusEnum | null, subTotalExcludingTaxesAmountCents: any, totalAmountCents: any, customer: { __typename?: 'Customer', id: string, name?: string | null, deletedAt?: any | null, applicableTimezone: TimezoneEnum }, invoice?: { __typename?: 'Invoice', id: string, number: string } | null, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, itemName: string, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, tax: { __typename?: 'Tax', id: string, rate: number } }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null } }> } | null };
 
-export type CustomerDetailsFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, activeSubscriptionCount: number, timezone?: TimezoneEnum | null, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
+export type CustomerDetailsFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, activeSubscriptionsCount: number, timezone?: TimezoneEnum | null, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
 
 export type GetCustomerQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, activeSubscriptionCount: number, timezone?: TimezoneEnum | null, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
+export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, activeSubscriptionsCount: number, timezone?: TimezoneEnum | null, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
 
 export type GenerateCustomerPortalUrlMutationVariables = Exact<{
   input: GenerateCustomerPortalUrlInput;
@@ -4678,7 +4695,7 @@ export type CustomersQueryVariables = Exact<{
 }>;
 
 
-export type CustomersQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Customer', id: string, name?: string | null, externalId: string, createdAt: any, activeSubscriptionCount: number, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null }> } };
+export type CustomersQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Customer', id: string, name?: string | null, externalId: string, createdAt: any, activeSubscriptionsCount: number, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null }> } };
 
 export type GetinviteQueryVariables = Exact<{
   token: Scalars['String']['input'];
@@ -4730,7 +4747,7 @@ export type PlansQueryVariables = Exact<{
 }>;
 
 
-export type PlansQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, name: string, code: string, chargeCount: number, customerCount: number, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number }> } };
+export type PlansQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, customersCount: number, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number }> } };
 
 export type CreatePasswordResetMutationVariables = Exact<{
   input: CreatePasswordResetInput;
@@ -4901,7 +4918,7 @@ export const AddOnItemFragmentDoc = gql`
   name
   amountCurrency
   amountCents
-  customerCount
+  customersCount
   createdAt
 }
     `;
@@ -4943,7 +4960,7 @@ export const CouponItemFragmentDoc = gql`
     fragment CouponItem on Coupon {
   id
   name
-  customerCount
+  customersCount
   status
   amountCurrency
   amountCents
@@ -5114,7 +5131,7 @@ export const CustomerItemFragmentDoc = gql`
   name
   externalId
   createdAt
-  activeSubscriptionCount
+  activeSubscriptionsCount
   ...AddCustomerDrawer
 }
     ${AddCustomerDrawerFragmentDoc}`;
@@ -5328,8 +5345,8 @@ export const PlanItemFragmentDoc = gql`
   id
   name
   code
-  chargeCount
-  customerCount
+  chargesCount
+  customersCount
   createdAt
   ...DeletePlanDialog
 }
@@ -6400,7 +6417,7 @@ export const CustomerDetailsFragmentDoc = gql`
   creditNotesCreditsAvailableCount
   creditNotesBalanceAmountCents
   applicableTimezone
-  activeSubscriptionCount
+  activeSubscriptionsCount
   timezone
   ...AddCustomerDrawer
   ...CustomerMainInfos
@@ -7687,7 +7704,7 @@ export const TerminateCustomerSubscriptionDocument = gql`
     id
     customer {
       id
-      activeSubscriptionCount
+      activeSubscriptionsCount
     }
   }
 }
@@ -9308,7 +9325,7 @@ export const CreateSubscriptionDocument = gql`
     id
     customer {
       id
-      activeSubscriptionCount
+      activeSubscriptionsCount
     }
   }
 }

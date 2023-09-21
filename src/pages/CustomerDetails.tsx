@@ -69,7 +69,7 @@ gql`
     creditNotesCreditsAvailableCount
     creditNotesBalanceAmountCents
     applicableTimezone
-    activeSubscriptionCount
+    activeSubscriptionsCount
     timezone
     ...AddCustomerDrawer
     ...CustomerMainInfos
@@ -145,7 +145,7 @@ const CustomerDetails = () => {
     hasActiveWallet,
     hasCreditNotes,
     name,
-    activeSubscriptionCount,
+    activeSubscriptionsCount,
     applicableTimezone,
     timezone,
   } = data?.customer || {}
@@ -370,7 +370,7 @@ const CustomerDetails = () => {
                         tab: CustomerDetailsTabsOptions.usage,
                       }),
                       routerState: { disableScrollTop: true },
-                      hidden: activeSubscriptionCount === 0,
+                      hidden: activeSubscriptionsCount === 0,
                       component: (
                         <SideBlock>
                           <CustomerUsage customerTimezone={safeTimezone} />

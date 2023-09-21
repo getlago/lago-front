@@ -36,7 +36,7 @@ gql`
     name
     amountCurrency
     amountCents
-    customerCount
+    customersCount
     createdAt
   }
 `
@@ -48,7 +48,7 @@ interface AddOnItemProps {
 }
 
 export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItemProps) => {
-  const { id, name, amountCurrency, amountCents, customerCount, createdAt } = addOn
+  const { id, name, amountCurrency, amountCents, customersCount, createdAt } = addOn
 
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
@@ -83,7 +83,7 @@ export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItem
           </NameBlock>
         </AddOnNameSection>
         <CouponInfosSection>
-          <SmallCell>{customerCount}</SmallCell>
+          <SmallCell>{customersCount}</SmallCell>
           <MediumCell>{formatTimeOrgaTZ(createdAt)}</MediumCell>
         </CouponInfosSection>
         <ButtonMock />

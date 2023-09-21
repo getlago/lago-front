@@ -37,7 +37,7 @@ gql`
   fragment CouponItem on Coupon {
     id
     name
-    customerCount
+    customersCount
     status
     amountCurrency
     amountCents
@@ -79,7 +79,7 @@ export const CouponItem = ({
   navigationProps,
   terminateDialogRef,
 }: CouponItemProps) => {
-  const { id, name, customerCount, status, appliedCouponsCount, expirationAt } = coupon
+  const { id, name, customersCount, status, appliedCouponsCount, expirationAt } = coupon
   const { translate } = useInternationalization()
   const formattedStatus = mapStatus(status)
   const { formatTimeOrgaTZ } = useOrganizationInfos()
@@ -111,7 +111,7 @@ export const CouponItem = ({
           </NameBlock>
         </CouponNameSection>
         <CouponInfosSection>
-          <SmallCell>{customerCount}</SmallCell>
+          <SmallCell>{customersCount}</SmallCell>
           <MediumCell>
             {!expirationAt
               ? translate('text_62876a50ea3bba00b56d2c2c')

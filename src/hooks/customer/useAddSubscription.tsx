@@ -40,7 +40,7 @@ gql`
       id
       customer {
         id
-        activeSubscriptionCount
+        activeSubscriptionsCount
       }
     }
   }
@@ -109,7 +109,8 @@ export const useAddSubscription: UseAddSubscription = ({
         fragmentName: 'CustomerDetails',
         data: {
           ...previousData,
-          activeSubscriptionCount: updatedData.createSubscription.customer.activeSubscriptionCount,
+          activeSubscriptionsCount:
+            updatedData.createSubscription.customer.activeSubscriptionsCount,
         },
       })
     },
