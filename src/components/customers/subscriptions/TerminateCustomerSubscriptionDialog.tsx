@@ -18,7 +18,7 @@ gql`
       id
       customer {
         id
-        activeSubscriptionCount
+        activeSubscriptionsCount
       }
     }
   }
@@ -69,7 +69,7 @@ export const TerminateCustomerSubscriptionDialog =
           fragmentName: 'CustomerDetails',
           data: {
             ...previousData,
-            activeSubscriptionCount: data.terminateSubscription.customer.activeSubscriptionCount,
+            activeSubscriptionsCount: data.terminateSubscription.customer.activeSubscriptionsCount,
           },
         })
       },

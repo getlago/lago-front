@@ -35,8 +35,8 @@ gql`
     id
     name
     code
-    chargeCount
-    customerCount
+    chargesCount
+    customersCount
     createdAt
     ...DeletePlanDialog
   }
@@ -51,7 +51,7 @@ interface PlanItemProps {
 }
 
 export const PlanItem = memo(({ deleteDialogRef, navigationProps, plan }: PlanItemProps) => {
-  const { id, name, code, customerCount, chargeCount, createdAt } = plan
+  const { id, name, code, customersCount, chargesCount, createdAt } = plan
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
@@ -78,8 +78,8 @@ export const PlanItem = memo(({ deleteDialogRef, navigationProps, plan }: PlanIt
           </NameBlock>
         </PlanNameSection>
         <PlanInfosSection>
-          <MediumCell>{customerCount}</MediumCell>
-          <SmallCell>{chargeCount}</SmallCell>
+          <MediumCell>{customersCount}</MediumCell>
+          <SmallCell>{chargesCount}</SmallCell>
           <MediumCell>{formatTimeOrgaTZ(createdAt)}</MediumCell>
         </PlanInfosSection>
         <ButtonMock />

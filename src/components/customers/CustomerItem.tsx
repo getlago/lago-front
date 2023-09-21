@@ -28,7 +28,7 @@ gql`
     name
     externalId
     createdAt
-    activeSubscriptionCount
+    activeSubscriptionsCount
     ...AddCustomerDrawer
   }
 
@@ -43,7 +43,7 @@ interface CustomerItemProps {
 
 export const CustomerItem = memo(({ rowId, customer, editDialogRef }: CustomerItemProps) => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
-  const { id, name, externalId, createdAt, activeSubscriptionCount } = customer
+  const { id, name, externalId, createdAt, activeSubscriptionsCount } = customer
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
 
@@ -71,7 +71,7 @@ export const CustomerItem = memo(({ rowId, customer, editDialogRef }: CustomerIt
           </NameBlock>
         </CustomerNameSection>
         <PlanInfosSection>
-          <Typography align="right">{activeSubscriptionCount}</Typography>
+          <Typography align="right">{activeSubscriptionsCount}</Typography>
           <SmallCell align="right">{formatTimeOrgaTZ(createdAt)}</SmallCell>
         </PlanInfosSection>
         <ButtonMock />
