@@ -960,7 +960,6 @@ export type CreatePlanInput = {
   interval: PlanInterval;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
-  parentId?: InputMaybe<Scalars['ID']['input']>;
   payInAdvance: Scalars['Boolean']['input'];
   taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
   trialPeriod?: InputMaybe<Scalars['Float']['input']>;
@@ -4004,8 +4003,6 @@ export type WebhookLogItemFragment = { __typename?: 'Webhook', id: string, statu
 
 export type OrganizationForDatePickerFragment = { __typename?: 'Organization', id: string, timezone?: TimezoneEnum | null };
 
-export type OrganizationForTimePickerFragment = { __typename?: 'Organization', id: string, timezone?: TimezoneEnum | null };
-
 export type InvoiceMetadatasForMetadataDrawerFragment = { __typename?: 'Invoice', id: string, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null };
 
 export type UpdateInvoiceMetadataMutationVariables = Exact<{
@@ -5300,12 +5297,6 @@ export const WebhookForCreateAndEditFragmentDoc = gql`
   id
   webhookUrl
   signatureAlgo
-}
-    `;
-export const OrganizationForTimePickerFragmentDoc = gql`
-    fragment OrganizationForTimePicker on Organization {
-  id
-  timezone
 }
     `;
 export const TaxForInvoiceEditTaxDialogFragmentDoc = gql`
