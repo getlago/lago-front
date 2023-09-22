@@ -101,7 +101,6 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
           await create({
             variables: {
               input: {
-                ...(type === PLAN_FORM_TYPE_ENUM.override ? { parentId } : {}),
                 ...serializePlanInput(values),
               },
             },
