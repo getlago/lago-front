@@ -2504,7 +2504,9 @@ export type PlanOverridesInput = {
   amountCents?: InputMaybe<Scalars['BigInt']['input']>;
   amountCurrency?: InputMaybe<CurrencyEnum>;
   charges?: InputMaybe<Array<ChargeOverridesInput>>;
+  description?: InputMaybe<Scalars['String']['input']>;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
   taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
   trialPeriod?: InputMaybe<Scalars['Float']['input']>;
 };
@@ -3480,6 +3482,7 @@ export type UpdateSubscriptionInput = {
   endingAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+  planOverrides?: InputMaybe<PlanOverridesInput>;
   subscriptionAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
 };
 
