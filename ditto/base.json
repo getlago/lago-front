@@ -1222,7 +1222,7 @@
   "text_64352657267c3d916f962751": "Limit the usage of a coupon based on a billable metric. Please select a billable metric.",
   "text_64352657267c3d916f962757": "Billable metric",
   "text_64352657267c3d916f96275d": "Search or select a billable metric",
-  "text_64352657267c3d916f962763": "Instant charges linked to this billable metric won’t be impacted by this coupon.",
+  "text_64352657267c3d916f962763": "Charges paid in advance linked to this billable metric won’t be impacted by this coupon.",
   "text_64352657267c3d916f962769": "Cancel",
   "text_64352657267c3d916f96276f": "Add billable metric",
   "text_64352657267c3d916f9627a4": "Limit the coupon to specific plans or billable metrics",
