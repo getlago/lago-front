@@ -113,7 +113,7 @@ describe('chargeSchema Volume', () => {
         expect(result).toBeFalsy()
       })
 
-      it.only('has fromValue bigger than toValue with two range', () => {
+      it('has fromValue bigger than toValue with two range', () => {
         const values = [
           {
             chargeModel: ChargeModelEnum.Volume,

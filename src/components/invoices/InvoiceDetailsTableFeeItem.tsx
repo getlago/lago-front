@@ -29,6 +29,7 @@ gql`
       itemName
       units
       feeType
+      invoiceDisplayName
       appliedTaxes {
         id
         taxRate
@@ -70,6 +71,8 @@ gql`
         eventsCount
         units
         feeType
+        invoiceDisplayName
+        groupName
         appliedTaxes {
           id
           taxRate
@@ -113,6 +116,7 @@ interface InvoiceDetailsTableFeeItemProps {
 export const InvoiceDetailsTableFeeItem = memo(
   ({ customer, fee, invoiceSubscriptionIndex, label, units }: InvoiceDetailsTableFeeItemProps) => {
     const { translate } = useInternationalization()
+    // console.log(fee)
 
     return (
       <table key={`invoiceSubscription-${invoiceSubscriptionIndex}-fee-${fee.id}`}>
@@ -124,11 +128,8 @@ export const InvoiceDetailsTableFeeItem = memo(
                   <>{label}</>
                 ) : (
                   <>
-                    {fee.isGroupChildFee && fee.charge?.billableMetric?.name
-                      ? `${fee.charge?.billableMetric?.name} • `
-                      : ''}
                     {fee.displayName}
-                    {!!fee.isTrueUpFee ? ` • ${translate('text_64463aaa34904c00a23be4f7')}` : ''}
+                    {!!fee.isTrueUpFee ? ` - ${translate('text_64463aaa34904c00a23be4f7')}` : ''}
                   </>
                 )}
               </Typography>

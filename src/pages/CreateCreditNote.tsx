@@ -234,8 +234,8 @@ const CreateCreditNote = () => {
               ? warningDialogRef.current?.openDialog()
               : navigate(
                   generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                    id,
-                    invoiceId,
+                    id: id as string,
+                    invoiceId: invoiceId as string,
                     tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
                   })
                 )
@@ -518,8 +518,8 @@ const CreateCreditNote = () => {
         onContinue={() =>
           navigate(
             generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-              id,
-              invoiceId,
+              id: id as string,
+              invoiceId: invoiceId as string,
               tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
             })
           )

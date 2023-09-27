@@ -1,8 +1,8 @@
 import { customerName } from '../../support/reusableConstants'
 
-describe('Coupons', () => {
-  const couponName = `Coupon-${Math.round(Math.random() * 10000)}`
+const couponName = `Coupon-${Math.round(Math.random() * 10000)}`
 
+describe('Coupons', () => {
   it('should be able create a coupon with plan limitation', () => {
     cy.visit('/coupons')
     cy.get(`[data-test="add-coupon"]`).click()
@@ -63,7 +63,9 @@ describe('Coupons', () => {
     cy.get('[data-test="USD"]').click()
 
     cy.get('[data-test="submit"]').click()
-    cy.get(`[data-test="${couponName}"]`).should('exist')
+    cy.get(`[data-test="customer-coupon-container"]`).within(() => {
+      cy.get(`[data-test="${couponName}"]`).should('exist')
+    })
   })
 
   it('should not able to apply the same coupon to a customer multiple time', () => {

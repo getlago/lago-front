@@ -131,7 +131,17 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
       billChargesMonthly: plan?.billChargesMonthly || undefined,
       charges: plan?.charges
         ? plan?.charges.map(
-            ({ taxes, properties, groupProperties, minAmountCents, payInAdvance, ...charge }) => ({
+            ({
+              taxes,
+              properties,
+              groupProperties,
+              minAmountCents,
+              payInAdvance,
+              invoiceDisplayName,
+              ...charge
+            }) => ({
+              // Used to not enable submit button on invoiceDisplayName reset
+              invoiceDisplayName: invoiceDisplayName || '',
               taxes: taxes || [],
               minAmountCents: isNaN(minAmountCents)
                 ? undefined
@@ -144,6 +154,7 @@ export const usePlanForm: () => UsePlanFormReturn = () => {
                 ? groupProperties?.map((prop) => {
                     return {
                       groupId: prop.groupId,
+                      invoiceDisplayName: prop.invoiceDisplayName || '',
                       values: getPropertyShape(prop.values),
                     }
                   })

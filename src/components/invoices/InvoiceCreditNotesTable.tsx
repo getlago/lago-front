@@ -40,7 +40,9 @@ gql`
           eventsCount
           units
           feeType
+          groupName
           itemName
+          invoiceName
           appliedTaxes {
             id
             tax {
@@ -167,9 +169,11 @@ export const InvoiceCreditNotesTable = memo(
                                             <>
                                               {item?.fee?.feeType === FeeTypesEnum.AddOn
                                                 ? translate('text_6388baa2e514213fed583611', {
-                                                    name: item?.fee?.itemName,
+                                                    name:
+                                                      item.fee.invoiceName || item?.fee?.itemName,
                                                   })
                                                 : `${
+                                                    item.fee?.invoiceName ||
                                                     item.fee.charge?.billableMetric.name ||
                                                     creditNoteDisplayName
                                                   }${
@@ -183,14 +187,37 @@ export const InvoiceCreditNotesTable = memo(
                                           ) : (
                                             <>
                                               <span>
-                                                {groupDimension === 2 &&
-                                                  `${
-                                                    item.fee.charge?.billableMetric?.name
-                                                      ? `${item.fee.charge?.billableMetric?.name} • `
-                                                      : ''
-                                                  } ${item.fee.group?.key} • `}
+                                                {groupDimension === 2
+                                                  ? `${
+                                                      item.fee.invoiceName ||
+                                                      item.fee.charge?.billableMetric?.name
+                                                    }${
+                                                      item.fee.groupName
+                                                        ? ` • ${item.fee.groupName}`
+                                                        : item.fee.group?.key
+                                                        ? `${` • ${item.fee.group?.key} • `}${
+                                                            item.fee.group.value
+                                                          }`
+                                                        : ''
+                                                    }`
+                                                  : `${
+                                                      item.fee.invoiceName ||
+                                                      item.fee.charge?.billableMetric?.name
+                                                    }${
+                                                      item.fee.groupName
+                                                        ? ` • ${item.fee.groupName}`
+                                                        : item.fee.group?.value
+                                                        ? ` • ${item.fee.group?.value}`
+                                                        : ''
+                                                    }`}
                                               </span>
-                                              <span>{item.fee.group?.value}</span>
+                                              <span>
+                                                {item?.fee?.trueUpParentFee?.id
+                                                  ? ` - ${translate(
+                                                      'text_64463aaa34904c00a23be4f7'
+                                                    )}`
+                                                  : ''}
+                                              </span>
                                             </>
                                           )}
                                         </Typography>

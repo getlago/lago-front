@@ -13,6 +13,10 @@ import { AmountInputField, ComboBox, ComboBoxField, TextInputField } from '~/com
 import { Item } from '~/components/form/ComboBox/ComboBoxItem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import {
+  EditInvoiceDisplayName,
+  EditInvoiceDisplayNameRef,
+} from '~/components/invoices/EditInvoiceDisplayName'
+import {
   EditInvoiceItemDescriptionDialog,
   EditInvoiceItemDescriptionDialogRef,
 } from '~/components/invoices/EditInvoiceItemDescriptionDialog'
@@ -116,6 +120,7 @@ gql`
         description
         amountCents
         amountCurrency
+        invoiceDisplayName
         ...AddOnForInvoiceEditTaxDialog
         taxes {
           id
@@ -145,6 +150,7 @@ const CreateInvoice = () => {
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const editDescriptionDialogRef = useRef<EditInvoiceItemDescriptionDialogRef>(null)
   const editTaxDialogRef = useRef<EditInvoiceItemTaxDialogRef>(null)
+  const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
   const handleClosePage = useCallback(() => {
     navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: customerId as string }))
   }, [navigate, customerId])
@@ -537,9 +543,34 @@ const CreateInvoice = () => {
                         return (
                           <InvoiceItem key={`item-${i}`} data-test="invoice-item">
                             <div>
-                              <Typography variant="body" color="grey700" noWrap>
-                                {fee.name}
-                              </Typography>
+                              <ItenName>
+                                <Typography variant="body" color="grey700" noWrap>
+                                  {fee.invoiceDisplayName || fee.name}
+                                </Typography>
+                                <Tooltip
+                                  title={translate('text_65018c8e5c6b626f030bcf8d')}
+                                  placement="top-end"
+                                >
+                                  <Button
+                                    icon="pen"
+                                    variant="quaternary"
+                                    size="small"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+
+                                      editInvoiceDisplayNameRef.current?.openDialog({
+                                        invoiceDisplayName: fee.invoiceDisplayName,
+                                        callback: (invoiceDisplayName: string) => {
+                                          formikProps.setFieldValue(
+                                            `fees.${i}.invoiceDisplayName`,
+                                            invoiceDisplayName
+                                          )
+                                        },
+                                      })
+                                    }}
+                                  />
+                                </Tooltip>
+                              </ItenName>
                               {!!fee.description && (
                                 <Typography variant="body" color="grey600" noWrap>
                                   {fee.description}
@@ -696,6 +727,7 @@ const CreateInvoice = () => {
                                     addOnId: addOn.id,
                                     name: addOn.name,
                                     description: addOn.description,
+                                    invoiceDisplayName: addOn.invoiceDisplayName || '',
                                     units: 1,
                                     unitAmountCents: deserializeAmount(addOn.amountCents, currency),
                                     taxes: addonApplicableTaxes,
@@ -873,6 +905,7 @@ const CreateInvoice = () => {
 
       <EditInvoiceItemDescriptionDialog ref={editDescriptionDialogRef} />
       <EditInvoiceItemTaxDialog ref={editTaxDialogRef} />
+      <EditInvoiceDisplayName ref={editInvoiceDisplayNameRef} />
     </>
   )
 }
@@ -987,6 +1020,12 @@ const InvoiceTableHeader = styled.div`
     display: flex;
     align-items: center;
   }
+`
+
+const ItenName = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing(2)};
 `
 
 const InvoiceItem = styled.div`

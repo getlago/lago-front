@@ -40,6 +40,9 @@ gql`
       id
       amountCents
       itemName
+      invoiceDisplayName
+      groupName
+      itemName
       units
       feeType
       appliedTaxes {
@@ -52,6 +55,7 @@ gql`
       charge {
         id
         payInAdvance
+        invoiceDisplayName
       }
     }
     customer {
@@ -84,6 +88,9 @@ gql`
         eventsCount
         units
         feeType
+        invoiceName
+        groupName
+        itemName
         subscription {
           id
           name
@@ -107,6 +114,7 @@ gql`
         charge {
           id
           payInAdvance
+          invoiceDisplayName
           billableMetric {
             id
             name
@@ -168,7 +176,7 @@ export const InvoiceDetailsTable = memo(
                       {invoice.invoiceType === InvoiceTypeEnum.AddOn
                         ? translate('text_6388baa2e514213fed583611', { name: fee.itemName })
                         : invoice.invoiceType === InvoiceTypeEnum.OneOff
-                        ? fee.itemName
+                        ? fee.invoiceDisplayName || fee.itemName
                         : translate('text_637ccf8133d2c9a7d11ce6e1')}
                     </Typography>
                   </td>
@@ -411,7 +419,7 @@ export const InvoiceDetailsTable = memo(
                   </ChargePeriodSeparator>
                 )}
                 {feesInArrears.map((fee, j) => {
-                  if (Number(fee?.units) === 0 && !!fee?.isGroupChildFee) return
+                  if (Number(fee?.units) === 0) return
 
                   {
                     !!loading && (

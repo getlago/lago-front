@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
@@ -28,6 +28,7 @@ import {
 } from './RemoveChargeWarningDialog'
 import { LocalChargeInput, PlanFormInput } from './types'
 
+import { EditInvoiceDisplayNameRef } from '../invoices/EditInvoiceDisplayName'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 const RESULT_LIMIT = 50
@@ -75,6 +76,7 @@ interface ChargesSectionProps {
   getPropertyShape: Function
   formikProps: FormikProps<PlanFormInput>
   alreadyExistingCharges?: PlanFormInput['charges'] | null
+  editInvoiceDisplayNameRef: RefObject<EditInvoiceDisplayNameRef>
 }
 
 const getNewChargeId = (id: string, index: number) => `plan-charge-${id}-${index}`
@@ -86,6 +88,7 @@ export const ChargesSection = memo(
     getPropertyShape,
     formikProps,
     alreadyExistingCharges,
+    editInvoiceDisplayNameRef,
   }: ChargesSectionProps) => {
     const { translate } = useInternationalization()
     const hasAnyCharge = !!formikProps.values.charges.length
@@ -294,6 +297,7 @@ export const ChargesSection = memo(
                     shouldDisplayAlreadyUsedChargeAlert={shouldDisplayAlreadyUsedChargeAlert}
                     removeChargeWarningDialogRef={removeChargeWarningDialogRef}
                     premiumWarningDialogRef={premiumWarningDialogRef}
+                    editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
                     isUsedInSubscription={!isNew && !canBeEdited}
                     currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
                     index={i}
@@ -437,6 +441,7 @@ export const ChargesSection = memo(
                     shouldDisplayAlreadyUsedChargeAlert={shouldDisplayAlreadyUsedChargeAlert}
                     removeChargeWarningDialogRef={removeChargeWarningDialogRef}
                     premiumWarningDialogRef={premiumWarningDialogRef}
+                    editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
                     isUsedInSubscription={!isNew && !canBeEdited}
                     currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
                     index={i}

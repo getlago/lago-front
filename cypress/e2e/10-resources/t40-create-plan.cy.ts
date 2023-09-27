@@ -26,7 +26,7 @@ describe('Create plan', () => {
     cy.contains(planName).should('exist')
   })
 
-  it.only('should be able to create a plan with all 0 dimension charges and submit', () => {
+  it('should be able to create a plan with all 0 dimension charges and submit', () => {
     cy.get('[data-test="create-plan"]').click({ force: true })
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
     cy.get('input[name="name"]').type(planWithChargesName)

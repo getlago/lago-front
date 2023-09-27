@@ -226,6 +226,7 @@ const CreatePlan = () => {
                   isEdition={isEdition}
                   formikProps={formikProps}
                   alreadyExistingCharges={plan?.charges}
+                  editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
                   getPropertyShape={getPropertyShape}
                 />
 
