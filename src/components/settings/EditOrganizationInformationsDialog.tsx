@@ -167,6 +167,7 @@ export const EditOrganizationInformationsDialog = forwardRef<
         <FormSection>
           <TextInputField
             name="email"
+            beforeChangeFormatter={['lowercase']}
             label={translate('text_62ab2d0396dd6b0361614d60')}
             placeholder={translate('text_62ab2d0396dd6b0361614d68')}
             formikProps={formikProps}

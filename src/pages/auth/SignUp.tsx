@@ -134,6 +134,7 @@ const SignUp = () => {
           />
           <Input
             name="email"
+            beforeChangeFormatter={['lowercase']}
             onChange={(value) => setFormFields((prev) => ({ ...prev, email: value }))}
             label={translate('text_62a99ba2af7535cefacab4aa')}
             placeholder={translate('text_62a99ba2af7535cefacab4bf')}

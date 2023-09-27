@@ -169,6 +169,7 @@ const Invitation = () => {
               <Input
                 disabled
                 name="email"
+                beforeChangeFormatter={['lowercase']}
                 label={translate('text_63246f875e2228ab7b63dcdc')}
                 value={email}
               />

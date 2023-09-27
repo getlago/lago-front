@@ -19,6 +19,7 @@ export enum ValueFormatter {
   positiveNumber = 'positiveNumber',
   code = 'code', // Replace all the spaces by "_"
   chargeDecimal = 'chargeDecimal', // Truncate charge numbers to 15 decimals
+  lowercase = 'lowercase',
 }
 
 export type ValueFormatterType = keyof typeof ValueFormatter
@@ -98,6 +99,10 @@ export const formatValue = (
 
   if (formatterFunctions.includes(ValueFormatter.code)) {
     formattedValue = String(value).replace(/\s/g, '_')
+  }
+
+  if (formatterFunctions.includes(ValueFormatter.lowercase)) {
+    formattedValue = String(value).toLowerCase()
   }
 
   return !formattedValue && formattedValue !== 0 ? '' : formattedValue

@@ -90,6 +90,7 @@ const ForgotPassword = () => {
             <form onSubmit={(e) => e.preventDefault()}>
               <EmailInput
                 name="email"
+                beforeChangeFormatter={['lowercase']}
                 formikProps={formikProps}
                 label={translate('text_62a99ba2af7535cefacab4aa')}
                 placeholder={translate('text_62a99ba2af7535cefacab4bf')}

@@ -113,6 +113,16 @@ describe('Text input formatValue', () => {
     expect(number).toBe('938884')
   })
 
+  it('should return a lowercase string for "lowercase" formatter', () => {
+    const lowercase = formatValue('May the Force be with you', 'lowercase')
+    const uppercase = formatValue('MY PRECIOUS.', 'lowercase')
+    const number = formatValue(938884, 'lowercase')
+
+    expect(lowercase).toBe('may the force be with you')
+    expect(uppercase).toBe('my precious.')
+    expect(number).toBe('938884')
+  })
+
   it('should return the right value for combined formatters', () => {
     const decimalPositive = formatValue(-13.459484, ['decimal', 'positiveNumber'])
     const intPositive = formatValue(-11.459484, ['int', 'positiveNumber'])
