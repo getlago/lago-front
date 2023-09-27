@@ -172,6 +172,7 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
         {!inviteToken ? (
           <TextInputField
             name="email"
+            beforeChangeFormatter={['lowercase']}
             label={translate('text_63208c701ce25db7814074ab')}
             placeholder={translate('text_63208c711ce25db7814074c1')}
             formikProps={formikProps}

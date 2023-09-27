@@ -312,6 +312,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
             />
             <TextInputField
               name="email"
+              beforeChangeFormatter={['lowercase']}
               label={translate('text_626c0c09812bbc00e4c59e09')}
               placeholder={translate('text_626c0c09812bbc00e4c59e0b')}
               formikProps={formikProps}
