@@ -94,19 +94,23 @@ const _deepFormatFees = (
           feesData.push({
             ...fee,
             isGroupChildFee: true,
-            displayName: `${!!fee.group?.key ? `${fee.group?.key} • ` : ''}${fee.group?.value}`,
+            displayName: `${`${fee.invoiceName || fee.charge?.billableMetric?.name} • `}${
+              fee.groupName
+                ? fee.groupName
+                : `${!!fee.group?.key ? `${fee.group?.key} • ` : ''}${fee.group.value}`
+            }`,
           })
         } else if (!!fee?.trueUpParentFee?.id) {
           feesData.push({
             ...fee,
             isTrueUpFee: true,
-            displayName: fee.charge?.billableMetric?.name || '',
+            displayName: fee.groupName || fee.invoiceName || fee.charge?.billableMetric?.name || '',
           })
         } else {
           feesData.push({
             ...fee,
             isNormalFee: true,
-            displayName: fee.charge?.billableMetric?.name || '',
+            displayName: fee.invoiceName || fee.charge?.billableMetric?.name || '',
           })
         }
       }

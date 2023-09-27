@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { FormikProps, useFormik } from 'formik'
 import { object } from 'yup'
 
+import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisplayName'
 import { MUI_BUTTON_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 import { chargeSchema } from '~/formValidation/chargeSchema'
 import {
@@ -69,6 +70,7 @@ async function prepare({ properties, groupProperties = [] }: PrepareProps = {}) 
         currency={CurrencyEnum.Usd}
         shouldDisplayAlreadyUsedChargeAlert={false}
         formikProps={formikProps as unknown as FormikProps<PlanFormInput>}
+        editInvoiceDisplayNameRef={{} as React.RefObject<EditInvoiceDisplayNameRef>}
       />
     )
   }

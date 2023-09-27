@@ -47,6 +47,7 @@ import { PlanFormInput } from './types'
 import { ConditionalWrapper } from '../ConditionalWrapper'
 import { BetaChip } from '../designSystem/BetaChip'
 import { Item } from '../form/ComboBox/ComboBoxItem'
+import { EditInvoiceDisplayNameRef } from '../invoices/EditInvoiceDisplayName'
 import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 const DEFAULT_GROUP_VALUE = 'DEFAULT'
@@ -66,11 +67,13 @@ gql`
     minAmountCents
     payInAdvance
     prorated
+    invoiceDisplayName
     properties {
       amount
     }
     groupProperties {
       groupId
+      invoiceDisplayName
       values {
         amount
       }
@@ -78,7 +81,6 @@ gql`
     billableMetric {
       id
       name
-      code
       aggregationType
       recurring
       flatGroups {
@@ -145,6 +147,7 @@ interface ChargeAccordionProps {
   formikProps: FormikProps<PlanFormInput>
   removeChargeWarningDialogRef?: RefObject<RemoveChargeWarningDialogRef>
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
+  editInvoiceDisplayNameRef: RefObject<EditInvoiceDisplayNameRef>
 }
 
 export const ChargeAccordion = memo(
@@ -156,6 +159,7 @@ export const ChargeAccordion = memo(
     shouldDisplayAlreadyUsedChargeAlert,
     removeChargeWarningDialogRef,
     premiumWarningDialogRef,
+    editInvoiceDisplayNameRef,
     isUsedInSubscription,
     formikProps,
   }: ChargeAccordionProps) => {
@@ -339,14 +343,31 @@ export const ChargeAccordion = memo(
         initiallyOpen={!formikProps.values.charges?.[index]?.id ? true : false}
         summary={
           <Summary>
-            <Title>
+            <SummaryLeft>
               <Typography variant="bodyHl" color="textSecondary" noWrap>
-                {localCharge?.billableMetric?.name}
+                {localCharge.invoiceDisplayName || localCharge?.billableMetric?.name}
               </Typography>
-              <Typography variant="caption" noWrap>
-                {localCharge?.billableMetric?.code}
-              </Typography>
-            </Title>
+              <Tooltip title={translate('text_65018c8e5c6b626f030bcf8d')} placement="top-end">
+                <Button
+                  icon="pen"
+                  variant="quaternary"
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation()
+
+                    editInvoiceDisplayNameRef.current?.openDialog({
+                      invoiceDisplayName: localCharge.invoiceDisplayName,
+                      callback: (invoiceDisplayName: string) => {
+                        formikProps.setFieldValue(
+                          `charges.${index}.invoiceDisplayName`,
+                          invoiceDisplayName
+                        )
+                      },
+                    })
+                  }}
+                />
+              </Tooltip>
+            </SummaryLeft>
             <SummaryRight>
               <Tooltip
                 placement="top-end"
@@ -600,10 +621,43 @@ export const ChargeAccordion = memo(
                   noContentMargin
                   summary={
                     <Summary>
-                      <Typography variant="bodyHl" color="grey700">
-                        <span>{groupKey && `${groupKey} • `}</span>
-                        <span>{groupName}</span>
-                      </Typography>
+                      <SummaryLeft>
+                        <Typography variant="bodyHl" color="grey700">
+                          {localCharge?.groupProperties?.[groupPropertyIndex]
+                            .invoiceDisplayName || (
+                            <>
+                              <span>{groupKey && `${groupKey} • `}</span>
+                              <span>{groupName}</span>
+                            </>
+                          )}
+                        </Typography>
+                        <Tooltip
+                          title={translate('text_65018c8e5c6b626f030bcf8d')}
+                          placement="top-end"
+                        >
+                          <Button
+                            icon="pen"
+                            variant="quaternary"
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation()
+
+                              editInvoiceDisplayNameRef.current?.openDialog({
+                                invoiceDisplayName:
+                                  localCharge?.groupProperties?.[groupPropertyIndex]
+                                    .invoiceDisplayName,
+                                callback: (invoiceDisplayName: string) => {
+                                  formikProps.setFieldValue(
+                                    `charges.${index}.groupProperties.${groupPropertyIndex}.invoiceDisplayName`,
+                                    invoiceDisplayName
+                                  )
+                                },
+                              })
+                            }}
+                          />
+                        </Tooltip>
+                      </SummaryLeft>
+
                       <ChargeGroupAccodionSummaryRight>
                         <Tooltip
                           placement="top-end"
@@ -1001,6 +1055,15 @@ const Title = styled.div`
 const ValidationIcon = styled(Icon)`
   display: flex;
   align-items: center;
+`
+
+const SummaryLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing(2)};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `
 
 const SummaryRight = styled.div`

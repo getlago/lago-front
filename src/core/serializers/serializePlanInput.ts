@@ -113,6 +113,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
           groupProperties: groupProperties?.length
             ? groupProperties?.map((property) => ({
                 groupId: property.groupId,
+                invoiceDisplayName: property.invoiceDisplayName || undefined,
                 values: {
                   ...serializeProperties(property.values, chargeModel),
                 },

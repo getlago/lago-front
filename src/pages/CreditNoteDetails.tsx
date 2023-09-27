@@ -92,6 +92,8 @@ gql`
           units
           feeType
           itemName
+          groupName
+          invoiceName
           appliedTaxes {
             id
             tax {
@@ -554,13 +556,14 @@ const CreditNoteDetails = () => {
                                       {groupDimension === 0 || !!isTrueUp ? (
                                         <>
                                           {item?.fee?.feeType === FeeTypesEnum.AddOn
-                                            ? item?.fee?.itemName
+                                            ? item.fee.invoiceName || item?.fee?.itemName
                                             : `${
+                                                item.fee?.invoiceName ||
                                                 item?.fee?.charge?.billableMetric.name ||
                                                 invoiceDisplayName
                                               }${
                                                 item?.fee?.trueUpParentFee?.id
-                                                  ? ` • ${translate(
+                                                  ? ` - ${translate(
                                                       'text_64463aaa34904c00a23be4f7'
                                                     )}`
                                                   : ''
@@ -569,14 +572,35 @@ const CreditNoteDetails = () => {
                                       ) : (
                                         <>
                                           <span>
-                                            {groupDimension === 2 &&
-                                              `${
-                                                item.fee.charge?.billableMetric?.name
-                                                  ? `${item.fee.charge?.billableMetric?.name} • `
-                                                  : ''
-                                              }${item.fee.group?.key} • `}
+                                            {groupDimension === 2
+                                              ? `${
+                                                  item.fee.invoiceName ||
+                                                  item.fee.charge?.billableMetric?.name
+                                                }${
+                                                  item.fee.groupName
+                                                    ? ` • ${item.fee.groupName}`
+                                                    : item.fee.group?.key
+                                                    ? `${` • ${item.fee.group?.key} • `}${
+                                                        item.fee.group.value
+                                                      }`
+                                                    : ''
+                                                }`
+                                              : `${
+                                                  item.fee.invoiceName ||
+                                                  item.fee.charge?.billableMetric?.name
+                                                }${
+                                                  item.fee.groupName
+                                                    ? ` • ${item.fee.groupName}`
+                                                    : item.fee.group?.value
+                                                    ? ` • ${item.fee.group?.value}`
+                                                    : ''
+                                                }`}
                                           </span>
-                                          <span>{item.fee.group?.value}</span>
+                                          <span>
+                                            {item?.fee?.trueUpParentFee?.id
+                                              ? ` - ${translate('text_64463aaa34904c00a23be4f7')}`
+                                              : ''}
+                                          </span>
                                         </>
                                       )}
                                     </Typography>

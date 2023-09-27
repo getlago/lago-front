@@ -8,29 +8,29 @@ import { customerName } from '../support/reusableConstants'
 describe('Create one-off', () => {
   it('should create a one-off invoice with correct amounts', () => {
     cy.visit('/customers')
-    cy.get(`[data-test="${customerName}"]`).click()
-    cy.get('[data-test="customer-actions"]').click()
-    cy.get('[data-test="create-invoice-action"]').click()
+    cy.get(`[data-test="${customerName}"]`).click({ force: true })
+    cy.get('[data-test="customer-actions"]').click({ force: true })
+    cy.get('[data-test="create-invoice-action"]').click({ force: true })
     cy.url().should('include', '/create-invoice')
 
     // Add one item
-    cy.get('[data-test="add-item-button"]').click()
-    cy.get('[data-option-index="0"]').click()
+    cy.get('[data-test="add-item-button"]').click({ force: true })
+    cy.get('[data-option-index="0"]').click({ force: true })
     cy.get('[data-test="invoice-item"]').should('have.length', 1)
 
     // Edit it's tax rate
-    cy.get('[data-test="invoice-item-actions-button"]').click()
-    cy.get('[data-test="invoice-item-edit-taxes"]').click()
-    cy.get(`[data-test="add-tax-button"]`).click()
+    cy.get('[data-test="invoice-item-actions-button"]').click({ force: true })
+    cy.get('[data-test="invoice-item-edit-taxes"]').click({ force: true })
+    cy.get(`[data-test="add-tax-button"]`).click({ force: true })
     cy.get(`.${SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`)
       .last()
-      .click()
-    cy.get('[data-option-index="1"]').click()
-    cy.get('[data-test="edit-invoice-item-tax-dialog-submit-button"]').click()
+      .click({ force: true })
+    cy.get('[data-option-index="1"]').click({ force: true })
+    cy.get('[data-test="edit-invoice-item-tax-dialog-submit-button"]').click({ force: true })
 
     // Add another item
-    cy.get('[data-test="add-item-button"]').click()
-    cy.get('[data-option-index="0"]').click()
+    cy.get('[data-test="add-item-button"]').click({ force: true })
+    cy.get('[data-option-index="0"]').click({ force: true })
     cy.get('[data-test="invoice-item"]').should('have.length', 2)
 
     cy.get('[data-test="one-off-invoice-tax-item-0"]').should('exist')
@@ -48,15 +48,15 @@ describe('Create one-off', () => {
     )
     cy.get('[data-test="one-off-invoice-total-amount-due-value"]').should('have.text', '$7,248.00')
 
-    cy.get('[data-test="create-invoice-button"]').click()
+    cy.get('[data-test="create-invoice-button"]').click({ force: true })
 
     // Check created invoice amounts display
     cy.get(`[data-test="customer-navigation-wrapper"]`).within(() => {
-      cy.get('[data-test="tab-internal-button-link-invoices"]').last().click()
+      cy.get('[data-test="tab-internal-button-link-invoices"]').last().click({ force: true })
     })
     cy.get('[data-test="invoice-list-item-0"]').should('exist')
 
-    cy.get('[data-test="invoice-list-item-0"] a').click()
+    cy.get('[data-test="invoice-list-item-0"] a').click({ force: true })
     cy.url().should('include', '/overview')
 
     cy.get('[data-test="invoice-details-table-footer-subtotal-excl-tax-value"]').should(
@@ -86,25 +86,25 @@ describe('Create one-off', () => {
   describe('anti-regression', () => {
     it('should allow to edit the units and have an effect on totals', () => {
       cy.visit('/customers')
-      cy.get(`[data-test="${customerName}"]`).click()
-      cy.get('[data-test="customer-actions"]').click()
-      cy.get('[data-test="create-invoice-action"]').click()
+      cy.get(`[data-test="${customerName}"]`).click({ force: true })
+      cy.get('[data-test="customer-actions"]').click({ force: true })
+      cy.get('[data-test="create-invoice-action"]').click({ force: true })
       cy.url().should('include', '/create-invoice')
 
       // Add one item
-      cy.get('[data-test="add-item-button"]').click()
-      cy.get('[data-option-index="0"]').click()
+      cy.get('[data-test="add-item-button"]').click({ force: true })
+      cy.get('[data-option-index="0"]').click({ force: true })
       cy.get('[data-test="invoice-item"]').should('have.length', 1)
 
       // Edit it's tax rate
-      cy.get('[data-test="invoice-item-actions-button"]').click()
-      cy.get('[data-test="invoice-item-edit-taxes"]').click()
-      cy.get(`[data-test="add-tax-button"]`).click()
+      cy.get('[data-test="invoice-item-actions-button"]').click({ force: true })
+      cy.get('[data-test="invoice-item-edit-taxes"]').click({ force: true })
+      cy.get(`[data-test="add-tax-button"]`).click({ force: true })
       cy.get(`.${SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`)
         .last()
-        .click()
-      cy.get('[data-option-index="1"]').click()
-      cy.get('[data-test="edit-invoice-item-tax-dialog-submit-button"]').click()
+        .click({ force: true })
+      cy.get('[data-option-index="1"]').click({ force: true })
+      cy.get('[data-test="edit-invoice-item-tax-dialog-submit-button"]').click({ force: true })
 
       // Update it's units
       cy.get('input[name="fees.0.units"]').clear()

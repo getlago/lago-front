@@ -16,6 +16,10 @@ gql`
     fromDatetime
     toDatetime
     chargesUsage {
+      charge {
+        id
+        invoiceDisplayName
+      }
       billableMetric {
         name
       }
@@ -25,6 +29,7 @@ gql`
         key
         units
         value
+        invoiceDisplayName
       }
     }
   }
@@ -53,6 +58,7 @@ export const CustomerUsageDetailDrawer = forwardRef<
     const { translate } = useInternationalization()
     const drawerRef = useRef<DrawerRef>(null)
     const [usage, setUsage] = useState<ChargeUsage>()
+    const displayName = usage?.charge.invoiceDisplayName || usage?.billableMetric.name
 
     useImperativeHandle(ref, () => ({
       openDrawer: (data) => {
@@ -66,7 +72,7 @@ export const CustomerUsageDetailDrawer = forwardRef<
       <Drawer
         ref={drawerRef}
         title={translate('text_633dae57ca9a923dd53c208f', {
-          billableMetricName: usage?.billableMetric.name,
+          billableMetricName: displayName,
         })}
       >
         <>
@@ -74,7 +80,7 @@ export const CustomerUsageDetailDrawer = forwardRef<
             <Title>
               <Typography variant="headline">
                 {translate('text_633dae57ca9a923dd53c2093', {
-                  billableMetricName: usage?.billableMetric.name,
+                  billableMetricName: displayName,
                 })}
               </Typography>
               <Typography>
@@ -97,7 +103,7 @@ export const CustomerUsageDetailDrawer = forwardRef<
                       <GroupItem key={`usage-group-${i}-value-${j}`} className="item">
                         <div>
                           <Typography variant="bodyHl" color="grey700">
-                            {value.value}
+                            {value.invoiceDisplayName || value.value}
                           </Typography>
                           <Typography variant="body" color="grey600">
                             {translate('text_633dae57ca9a923dd53c20a3', {

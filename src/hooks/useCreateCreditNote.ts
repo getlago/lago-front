@@ -27,6 +27,8 @@ gql`
     id
     amountCurrency
     feeType
+    invoiceName
+    groupName
     appliedTaxes {
       id
       tax {
@@ -62,6 +64,7 @@ gql`
       amountCurrency
       itemCode
       itemName
+      invoiceName
       creditableAmountCents
       appliedTaxes {
         id
@@ -141,8 +144,8 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
 
         navigate(
           generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-            id,
-            invoiceId,
+            id: id as string,
+            invoiceId: invoiceId as string,
             tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
           })
         )
@@ -169,7 +172,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
             id: fee?.id,
             checked: true,
             value: deserializeAmount(fee?.creditableAmountCents, fee.amountCurrency),
-            name: fee?.itemName,
+            name: fee?.invoiceName || fee.itemName,
             maxAmount: fee?.creditableAmountCents,
             appliedTaxes: fee?.appliedTaxes || [],
           })
@@ -251,7 +254,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
                   id: fee?.id,
                   checked: true,
                   value: deserializeAmount(fee?.creditableAmountCents, fee.amountCurrency),
-                  name: subscriptionName,
+                  name: fee?.invoiceName || subscriptionName,
                   isTrueUpFee: trueUpFeeIds?.includes(fee?.id),
                   trueUpFee: fee?.trueUpFee,
                   maxAmount: fee?.creditableAmountCents,
@@ -277,7 +280,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
                 id: firstFee?.id,
                 checked: true,
                 value: deserializeAmount(firstFee?.creditableAmountCents, firstFee.amountCurrency),
-                name: firstFee?.charge?.billableMetric?.name,
+                name: firstFee.invoiceName || firstFee?.charge?.billableMetric?.name,
                 isTrueUpFee: trueUpFeeIds?.includes(firstFee?.id),
                 trueUpFee: firstFee?.trueUpFee,
                 maxAmount: firstFee?.creditableAmountCents,
@@ -303,7 +306,9 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
                   feeGrouped?.creditableAmountCents,
                   feeGrouped.amountCurrency
                 ),
-                name: feeGrouped?.group?.key
+                name: !!feeGrouped?.groupName
+                  ? feeGrouped?.groupName
+                  : feeGrouped?.group?.key
                   ? `${feeGrouped?.group?.key} • ${feeGrouped?.group?.value}`
                   : (feeGrouped?.group?.value as string),
                 maxAmount: feeGrouped?.creditableAmountCents,
@@ -316,7 +321,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
             ? {
                 ...groupApp,
                 [groupKey]: {
-                  name: firstFee?.charge?.billableMetric?.name as string,
+                  name: firstFee.invoiceName || (firstFee?.charge?.billableMetric?.name as string),
                   grouped,
                 },
               }

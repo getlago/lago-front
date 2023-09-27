@@ -36,6 +36,10 @@ gql`
       chargesUsage {
         units
         amountCents
+        charge {
+          id
+          invoiceDisplayName
+        }
         billableMetric {
           id
           code
@@ -208,14 +212,14 @@ export const UsageItem = ({
                       )
                     })
                   : data?.customerUsage?.chargesUsage?.map((usage, i) => {
-                      const { billableMetric, units, amountCents } = usage
+                      const { billableMetric, charge, units, amountCents } = usage
 
                       return (
                         <ItemContainer key={`customer-usage-${i}`}>
                           <BillableMetricHeaderLine>
                             <div>
                               <Typography variant="bodyHl" color="textSecondary">
-                                {billableMetric?.name}
+                                {charge.invoiceDisplayName || billableMetric?.name}
                               </Typography>
                               <UsageSubtitle variant="caption">
                                 {billableMetric?.code}
