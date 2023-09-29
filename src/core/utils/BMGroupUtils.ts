@@ -21,7 +21,7 @@ type twoDimensionGroupType = {
 }
 type groupType = oneDimensionGroupType | twoDimensionGroupType | {}
 
-const isValidJSON = (string: string) => {
+export const isValidJSON = (string: string) => {
   try {
     JSON.parse(string)
   } catch (e) {

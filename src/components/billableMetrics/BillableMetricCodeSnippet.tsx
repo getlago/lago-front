@@ -1,6 +1,11 @@
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { envGlobalVar } from '~/core/apolloClient'
-import { isGroupValid, isOneDimension, isTwoDimension } from '~/core/utils/BMGroupUtils'
+import {
+  isGroupValid,
+  isOneDimension,
+  isTwoDimension,
+  isValidJSON,
+} from '~/core/utils/BMGroupUtils'
 import { AggregationTypeEnum, CreateBillableMetricInput } from '~/generated/graphql'
 
 const { apiUrl } = envGlobalVar()
@@ -8,10 +13,14 @@ const { apiUrl } = envGlobalVar()
 const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
   if (!billableMetric) return '# Fill the form to generate the code snippet'
 
-  const { aggregationType, code, fieldName, group } = billableMetric
+  const { aggregationType, code, fieldName, group, recurring } = billableMetric
 
   const hasGroup = isGroupValid(JSON.stringify(group))
-  const parsedGroup = !!hasGroup && JSON.parse(JSON.stringify(group))
+  const parsedGroup =
+    !!hasGroup &&
+    (typeof group === 'string' && isValidJSON(group)
+      ? JSON.parse(group)
+      : JSON.parse(JSON.stringify(group)))
   const groupDimension =
     hasGroup && isTwoDimension(parsedGroup) ? 2 : isOneDimension(parsedGroup) ? 1 : 0
   const groupDimensionMessage = `${
@@ -31,6 +40,32 @@ const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
   }`
 
   switch (aggregationType) {
+    case AggregationTypeEnum.WeightedSumAgg:
+      return `curl --location --request POST "${apiUrl}/api/v1/events" \\
+  --header "Authorization: Bearer __YOUR_API_KEY__" \\
+  --header 'Content-Type: application/json' \\
+  --data-raw '{
+    "event": {
+      "transaction_id": "__UNIQUE_ID__", 
+      "external_subscription_id": "__EXTERNAL_SUBSCRIPTION_ID__",
+      "external_customer_id": "__EXTERNAL_CUSTOMER_ID__", 
+      "code": "${code}",
+      "recurring": ${recurring},
+      "timestamp": $(date +%s), 
+      "properties":  { 
+        "${fieldName}": 12${
+        groupDimension > 0
+          ? `,
+        ${propertiesForGroup}`
+          : ''
+      }
+      }
+    }
+  }'
+  
+# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__, __EXTERNAL_SUBSCRIPTION_ID__ and __EXTERNAL_CUSTOMER_ID__
+${groupDimensionMessage}
+`
     case AggregationTypeEnum.CountAgg:
       return `curl --location --request POST "${apiUrl}/api/v1/events" \\
   --header "Authorization: Bearer __YOUR_API_KEY__" \\
