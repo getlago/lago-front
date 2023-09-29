@@ -66,6 +66,8 @@ export const UsageItem = ({
   const customerUsageDetailDrawerRef = useRef<CustomerUsageDetailDrawerRef>(null)
   const [fetchUsage, { data, error, loading, refetch }] = useCustomerUsageLazyQuery({
     variables: { customerId: customerId, subscriptionId: id },
+    // Fixes https://github.com/getlago/lago-front/pull/1243
+    fetchPolicy: 'no-cache',
   })
   const currency = data?.customerUsage?.currency || CurrencyEnum.Usd
 
