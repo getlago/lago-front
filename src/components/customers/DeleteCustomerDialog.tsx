@@ -56,7 +56,7 @@ export const DeleteCustomerDialog = forwardRef<DialogRef, DeleteCustomerDialogPr
       <WarningDialog
         ref={ref}
         title={translate('text_626162c62f790600f850b6e8', {
-          customerFullName: customer?.name,
+          customerFullName: customer?.name || translate('text_651a8ab50fd34e005d1c1dc7'),
         })}
         description={<Typography html={translate('text_626162c62f790600f850b6f8')} />}
         onContinue={async () =>
