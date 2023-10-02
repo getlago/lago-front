@@ -739,6 +739,7 @@
   "text_64d27292062d9600b089aacb": "The calculated value is not reset to 0, it is persistent over all billable periods",
   "text_64d272b4df12dc008076e232": "The calculated value is reset to 0 at the beginning of each period",
   "text_64dd2711d878ad007212de91": "Subscription external id already existing on another subscription, please type a new one",
+  "text_651a8ab50fd34e005d1c1dc7": "customer",
   "text_645d071272418a14c1c76a5f": "Connect to Adyen",
   "text_645d071272418a14c1c76a6b": "To connect to Adyen, please enter the API key generated from your Adyen account and the Merchant Account.",
   "text_645d071272418a14c1c76ad8": "Connect to Adyen",
