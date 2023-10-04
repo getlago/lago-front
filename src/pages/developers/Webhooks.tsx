@@ -113,8 +113,8 @@ const Webhooks = () => {
                           : translate('text_64d23b49d481ab00681c22a1')}
                       </Typography>
                     </LeftBlockColumn>
+                    <ButtonMock />
                   </LeftBlock>
-                  <ButtonMock />
                 </WebhookItem>
                 <Popper
                   PopperProps={{ placement: 'bottom-end' }}
@@ -222,6 +222,7 @@ const LeftBlock = styled.div`
 `
 
 const LeftBlockColumn = styled.div`
+  min-width: 0;
   display: flex;
   flex-direction: column;
 `
