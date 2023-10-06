@@ -27,7 +27,7 @@ export const cache = new InMemoryCache({
           merge: mergePaginatedCollection,
         },
         customers: {
-          keyArgs: false,
+          keyArgs: ['id', 'externalId'],
           merge: mergePaginatedCollection,
         },
         coupons: {
