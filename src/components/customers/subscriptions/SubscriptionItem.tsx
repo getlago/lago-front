@@ -74,6 +74,8 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
     } = subscription || {}
     const { formatTimeOrgaTZ } = useOrganizationInfos()
     const isDowngrading = !!nextPlan
+    const isPending = status === StatusTypeEnum.Pending
+    const hasEndingAtForActive = status === StatusTypeEnum.Active && !!endingAt
 
     if (!subscription) return null
 
@@ -87,6 +89,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
             subscriptionName={nextName}
             date={nextPendingStartDate}
             plan={nextPlan}
+            hasBottomSection={isDowngrading || isPending || hasEndingAtForActive}
             periodEndDate={periodEndDate}
             status={StatusTypeEnum.Pending}
             isDowngrade
@@ -100,6 +103,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
           subscriptionName={name}
           date={startedAt || subscriptionAt}
           endDate={endingAt}
+          hasBottomSection={isDowngrading || isPending || hasEndingAtForActive}
           periodEndDate={periodEndDate}
           plan={plan}
           status={status}
@@ -114,14 +118,14 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
                 : formatTimeOrgaTZ(nextPendingStartDate),
             })}
           </DateInfos>
-        ) : status === StatusTypeEnum.Pending ? (
+        ) : isPending ? (
           <DateInfos variant="caption">
             {translate('text_6335e50b0b089e1d8ed50960', {
               planName: plan?.name,
               startDate: formatTimeOrgaTZ(subscriptionAt),
             })}
           </DateInfos>
-        ) : status === StatusTypeEnum.Active && !!endingAt ? (
+        ) : hasEndingAtForActive ? (
           <DateInfos variant="caption">
             {translate('text_64ef55a730b88e3d2117b44e', {
               planName: plan?.name,

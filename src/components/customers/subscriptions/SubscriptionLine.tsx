@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 import { ForwardedRef, forwardRef, MutableRefObject } from 'react'
+import { generatePath, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import {
@@ -15,10 +16,12 @@ import {
 } from '~/components/designSystem'
 import { TimezoneDate } from '~/components/TimezoneDate'
 import { addToast } from '~/core/apolloClient'
+import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { StatusTypeEnum, SubscriptionLinePlanFragment, TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { MenuPopper, NAV_HEIGHT, theme } from '~/styles'
+import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/pages/SubscriptionDetails'
+import { ItemContainer, ListItemLink, MenuPopper, NAV_HEIGHT, PopperOpener, theme } from '~/styles'
 
 import { AddSubscriptionDrawerRef } from './AddSubscriptionDrawer'
 import { EditCustomerSubscriptionDrawerRef } from './EditCustomerSubscriptionDrawer'
@@ -41,6 +44,7 @@ interface SubscriptionLineProps {
   plan: SubscriptionLinePlanFragment
   periodEndDate: string
   isDowngrade?: boolean
+  hasBottomSection?: boolean
   status?: StatusTypeEnum | null
   customerTimezone?: TimezoneEnum
 }
@@ -64,43 +68,57 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
       isDowngrade,
       status,
       customerTimezone,
+      hasBottomSection,
     }: SubscriptionLineProps,
     ref
   ) => {
+    const { id } = useParams()
     const { translate } = useInternationalization()
     const { addSubscriptionDialogRef, editSubscriptionDrawerRef, terminateSubscriptionDialogRef } =
       (ref as MutableRefObject<SubscriptionLineRef>)?.current
 
     return (
-      <Item data-test={subscriptionName}>
-        <CellBig>
-          <Avatar variant="connector">
-            <Icon name="clock" color="dark" />
-          </Avatar>
-          <NameBlock>
-            <Typography color="textSecondary" variant="bodyHl" noWrap>
-              {subscriptionName || plan.name}
-            </Typography>
-            <Typography variant="caption" noWrap>
-              {plan.code}
-            </Typography>
-          </NameBlock>
-        </CellBig>
-        <CellStatus
-          type={status === StatusTypeEnum.Pending ? StatusEnum.paused : StatusEnum.running}
-          label={
-            status === StatusTypeEnum.Pending
-              ? translate('text_624efab67eb2570101d117f6')
-              : translate('text_624efab67eb2570101d1180e')
-          }
-        />
-        <CellSmall align="right" color="textSecondary">
-          <TimezoneDate date={date} customerTimezone={customerTimezone} />
-        </CellSmall>
+      <ItemContainer>
+        <Item
+          tabIndex={0}
+          to={generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+            customerId: id as string,
+            subscriptionId,
+            tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+          })}
+          $hasBottomSection={hasBottomSection}
+          data-test={subscriptionName}
+        >
+          <CellBig>
+            <Avatar variant="connector">
+              <Icon name="clock" color="dark" />
+            </Avatar>
+            <NameBlock>
+              <Typography color="textSecondary" variant="bodyHl" noWrap>
+                {subscriptionName || plan.name}
+              </Typography>
+              <Typography variant="caption" noWrap>
+                {plan.code}
+              </Typography>
+            </NameBlock>
+          </CellBig>
+          <CellStatus
+            type={status === StatusTypeEnum.Pending ? StatusEnum.paused : StatusEnum.running}
+            label={
+              status === StatusTypeEnum.Pending
+                ? translate('text_624efab67eb2570101d117f6')
+                : translate('text_624efab67eb2570101d1180e')
+            }
+          />
+          <CellSmall align="right" color="textSecondary">
+            <TimezoneDate date={date} customerTimezone={customerTimezone} />
+          </CellSmall>
+          <ButtonMock />
+        </Item>
         <Popper
           PopperProps={{ placement: 'bottom-end' }}
           opener={({ isOpen }) => (
-            <div>
+            <LocalPopperOpener>
               <Tooltip
                 placement="top-end"
                 disableHoverListener={isOpen}
@@ -114,7 +132,7 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
               >
                 <Button data-test="menu-subscription" icon="dots-horizontal" variant="quaternary" />
               </Tooltip>
-            </div>
+            </LocalPopperOpener>
           )}
         >
           {({ closePopper }) => (
@@ -206,7 +224,7 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
             </MenuPopper>
           )}
         </Popper>
-      </Item>
+      </ItemContainer>
     )
   }
 )
@@ -234,11 +252,18 @@ const SkeletonItem = styled.div`
   border-radius: 12px;
 `
 
-const Item = styled.div`
+const Item = styled(ListItemLink)<{ $hasBottomSection?: boolean }>`
   height: ${NAV_HEIGHT}px;
   display: flex;
   align-items: center;
   padding: 0 ${theme.spacing(4)};
+  box-shadow: none;
+
+  &:hover,
+  &:active {
+    box-shadow: none;
+    border-radius: ${({ $hasBottomSection }) => ($hasBottomSection ? '12px 12px 0 0' : '12px')};
+  }
 
   > *:not(:last-child) {
     margin-right: ${theme.spacing(4)};
@@ -270,4 +295,12 @@ const CellSmall = styled(Typography)`
 
 const NameBlock = styled.div`
   min-width: 0;
+`
+
+const ButtonMock = styled.div`
+  width: 40px;
+`
+
+const LocalPopperOpener = styled(PopperOpener)`
+  right: ${theme.spacing(4)};
 `

@@ -26,6 +26,7 @@ import {
   COUPONS_ROUTE,
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
+  CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   CUSTOMERS_LIST_ROUTE,
   DEBUGGER_ROUTE,
   DEVELOPERS_ROUTE,
@@ -240,6 +241,7 @@ const SideNav = () => {
                       CUSTOMERS_LIST_ROUTE,
                       CUSTOMER_DETAILS_ROUTE,
                       CUSTOMER_DETAILS_TAB_ROUTE,
+                      CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
                     ],
                   },
                   {

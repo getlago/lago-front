@@ -4163,6 +4163,13 @@ export type GetTaxesForPlanQuery = { __typename?: 'Query', taxes: { __typename?:
 
 export type VolumeRangesFragment = { __typename?: 'Charge', properties?: { __typename?: 'Properties', volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null };
 
+export type GetPlanForDetailsOverviewSectionQueryVariables = Exact<{
+  plan: Scalars['ID']['input'];
+}>;
+
+
+export type GetPlanForDetailsOverviewSectionQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, invoiceDisplayName?: string | null, amountCents: any, amountCurrency: CurrencyEnum, trialPeriod?: number | null, subscriptionsCount: number, billChargesMonthly?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, charges?: Array<{ __typename?: 'Charge', id: string, minAmountCents: any, payInAdvance: boolean, chargeModel: ChargeModelEnum, invoiceable: boolean, prorated: boolean, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, invoiceDisplayName?: string | null, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null }> | null } | null };
+
 export type GetTaxRatesForEditOrgaQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -4304,6 +4311,15 @@ export type RevokeMembershipMutationVariables = Exact<{
 
 
 export type RevokeMembershipMutation = { __typename?: 'Mutation', revokeMembership?: { __typename?: 'Membership', id: string } | null };
+
+export type GetSubscriptionForDetailsOverviewQueryVariables = Exact<{
+  subscriptionId: Scalars['ID']['input'];
+}>;
+
+
+export type GetSubscriptionForDetailsOverviewQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, nextPendingStartDate?: any | null, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, customer: { __typename?: 'Customer', id: string, name?: string | null } } | null };
+
+export type SubscriptionForSubscriptionInformationsFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, nextPendingStartDate?: any | null, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, customer: { __typename?: 'Customer', id: string, name?: string | null }, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null } };
 
 export type DeleteTaxFragment = { __typename?: 'Tax', id: string, name: string, customersCount: number };
 
@@ -4765,6 +4781,13 @@ export type PlansQueryVariables = Exact<{
 
 
 export type PlansQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, customersCount: number, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number }> } };
+
+export type GetSubscriptionForDetailsQueryVariables = Exact<{
+  subscriptionId: Scalars['ID']['input'];
+}>;
+
+
+export type GetSubscriptionForDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, externalId: string, plan: { __typename?: 'Plan', id: string, name: string, code: string } } | null };
 
 export type CreatePasswordResetMutationVariables = Exact<{
   input: CreatePasswordResetInput;
@@ -5438,6 +5461,31 @@ export const MembershipItemFragmentDoc = gql`
   user {
     id
     email
+  }
+}
+    `;
+export const SubscriptionForSubscriptionInformationsFragmentDoc = gql`
+    fragment SubscriptionForSubscriptionInformations on Subscription {
+  id
+  status
+  subscriptionAt
+  endingAt
+  nextPendingStartDate
+  nextPlan {
+    id
+    name
+  }
+  customer {
+    id
+    name
+  }
+  plan {
+    id
+    name
+    parent {
+      id
+      name
+    }
   }
 }
     `;
@@ -8418,6 +8466,41 @@ export function useGetTaxesForPlanLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
 export type GetTaxesForPlanQueryHookResult = ReturnType<typeof useGetTaxesForPlanQuery>;
 export type GetTaxesForPlanLazyQueryHookResult = ReturnType<typeof useGetTaxesForPlanLazyQuery>;
 export type GetTaxesForPlanQueryResult = Apollo.QueryResult<GetTaxesForPlanQuery, GetTaxesForPlanQueryVariables>;
+export const GetPlanForDetailsOverviewSectionDocument = gql`
+    query getPlanForDetailsOverviewSection($plan: ID!) {
+  plan(id: $plan) {
+    ...EditPlan
+  }
+}
+    ${EditPlanFragmentDoc}`;
+
+/**
+ * __useGetPlanForDetailsOverviewSectionQuery__
+ *
+ * To run a query within a React component, call `useGetPlanForDetailsOverviewSectionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPlanForDetailsOverviewSectionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPlanForDetailsOverviewSectionQuery({
+ *   variables: {
+ *      plan: // value for 'plan'
+ *   },
+ * });
+ */
+export function useGetPlanForDetailsOverviewSectionQuery(baseOptions: Apollo.QueryHookOptions<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>(GetPlanForDetailsOverviewSectionDocument, options);
+      }
+export function useGetPlanForDetailsOverviewSectionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>(GetPlanForDetailsOverviewSectionDocument, options);
+        }
+export type GetPlanForDetailsOverviewSectionQueryHookResult = ReturnType<typeof useGetPlanForDetailsOverviewSectionQuery>;
+export type GetPlanForDetailsOverviewSectionLazyQueryHookResult = ReturnType<typeof useGetPlanForDetailsOverviewSectionLazyQuery>;
+export type GetPlanForDetailsOverviewSectionQueryResult = Apollo.QueryResult<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>;
 export const GetTaxRatesForEditOrgaDocument = gql`
     query getTaxRatesForEditOrga($limit: Int, $page: Int, $searchTerm: String) {
   taxes(limit: $limit, page: $page, searchTerm: $searchTerm) {
@@ -9048,6 +9131,45 @@ export function useRevokeMembershipMutation(baseOptions?: Apollo.MutationHookOpt
 export type RevokeMembershipMutationHookResult = ReturnType<typeof useRevokeMembershipMutation>;
 export type RevokeMembershipMutationResult = Apollo.MutationResult<RevokeMembershipMutation>;
 export type RevokeMembershipMutationOptions = Apollo.BaseMutationOptions<RevokeMembershipMutation, RevokeMembershipMutationVariables>;
+export const GetSubscriptionForDetailsOverviewDocument = gql`
+    query getSubscriptionForDetailsOverview($subscriptionId: ID!) {
+  subscription(id: $subscriptionId) {
+    id
+    plan {
+      id
+    }
+    ...SubscriptionForSubscriptionInformations
+  }
+}
+    ${SubscriptionForSubscriptionInformationsFragmentDoc}`;
+
+/**
+ * __useGetSubscriptionForDetailsOverviewQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionForDetailsOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionForDetailsOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionForDetailsOverviewQuery({
+ *   variables: {
+ *      subscriptionId: // value for 'subscriptionId'
+ *   },
+ * });
+ */
+export function useGetSubscriptionForDetailsOverviewQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>(GetSubscriptionForDetailsOverviewDocument, options);
+      }
+export function useGetSubscriptionForDetailsOverviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>(GetSubscriptionForDetailsOverviewDocument, options);
+        }
+export type GetSubscriptionForDetailsOverviewQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsOverviewQuery>;
+export type GetSubscriptionForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsOverviewLazyQuery>;
+export type GetSubscriptionForDetailsOverviewQueryResult = Apollo.QueryResult<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>;
 export const DeleteTaxDocument = gql`
     mutation deleteTax($input: DestroyTaxInput!) {
   destroyTax(input: $input) {
@@ -11223,6 +11345,49 @@ export function usePlansLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Plan
 export type PlansQueryHookResult = ReturnType<typeof usePlansQuery>;
 export type PlansLazyQueryHookResult = ReturnType<typeof usePlansLazyQuery>;
 export type PlansQueryResult = Apollo.QueryResult<PlansQuery, PlansQueryVariables>;
+export const GetSubscriptionForDetailsDocument = gql`
+    query getSubscriptionForDetails($subscriptionId: ID!) {
+  subscription(id: $subscriptionId) {
+    id
+    name
+    status
+    externalId
+    plan {
+      id
+      name
+      code
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetSubscriptionForDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionForDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionForDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionForDetailsQuery({
+ *   variables: {
+ *      subscriptionId: // value for 'subscriptionId'
+ *   },
+ * });
+ */
+export function useGetSubscriptionForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>(GetSubscriptionForDetailsDocument, options);
+      }
+export function useGetSubscriptionForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>(GetSubscriptionForDetailsDocument, options);
+        }
+export type GetSubscriptionForDetailsQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsQuery>;
+export type GetSubscriptionForDetailsLazyQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsLazyQuery>;
+export type GetSubscriptionForDetailsQueryResult = Apollo.QueryResult<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>;
 export const CreatePasswordResetDocument = gql`
     mutation createPasswordReset($input: CreatePasswordResetInput!) {
   createPasswordReset(input: $input) {

@@ -35,6 +35,11 @@ const CreateAddOn = lazyLoad(
   () => import(/* webpackChunkName: 'create-add-on' */ '~/pages/CreateAddOn')
 )
 
+// Details
+const SubscriptionDetails = lazyLoad(
+  () => import(/* webpackChunkName: 'subscription-details' */ '~/pages/SubscriptionDetails')
+)
+
 // ----------- Routes -----------
 // Lists
 export const HOME_ROUTE = '/'
@@ -62,6 +67,10 @@ export const CREATE_TAX_ROUTE = '/create/tax'
 export const UPDATE_TAX_ROUTE = '/update/tax/:id'
 
 export const CREATE_INVOICE_ROUTE = '/customer/:id/create-invoice'
+
+// Details
+export const CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE =
+  '/customer/:customerId/subscription/:subscriptionId/:tab'
 
 export const objectListRoutes: CustomRouteObject[] = [
   {
@@ -121,5 +130,13 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     path: [CREATE_INVOICE_ROUTE],
     private: true,
     element: <CreateInvoice />,
+  },
+]
+
+export const objectDetailsRoutes: CustomRouteObject[] = [
+  {
+    path: [CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE],
+    private: true,
+    element: <SubscriptionDetails />,
   },
 ]

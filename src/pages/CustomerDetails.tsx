@@ -52,7 +52,6 @@ import {
   useGetCustomerQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
@@ -137,7 +136,6 @@ const CustomerDetails = () => {
       }
     },
   })
-  const { goBack } = useLocationHistory()
   const {
     creditNotesCreditsAvailableCount,
     creditNotesBalanceAmountCents,
@@ -158,11 +156,7 @@ const CustomerDetails = () => {
           <Button
             icon="arrow-left"
             variant="quaternary"
-            onClick={() =>
-              goBack(CUSTOMERS_LIST_ROUTE, {
-                exclude: [CUSTOMER_DETAILS_TAB_ROUTE, CUSTOMER_DETAILS_ROUTE],
-              })
-            }
+            onClick={() => navigate(CUSTOMERS_LIST_ROUTE)}
           />
           {loading ? (
             <Skeleton variant="text" height={12} width={120} />
