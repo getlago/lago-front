@@ -343,31 +343,36 @@ export const ChargeAccordion = memo(
         initiallyOpen={!formikProps.values.charges?.[index]?.id ? true : false}
         summary={
           <Summary>
-            <SummaryLeft>
-              <Typography variant="bodyHl" color="textSecondary" noWrap>
-                {localCharge.invoiceDisplayName || localCharge?.billableMetric?.name}
-              </Typography>
-              <Tooltip title={translate('text_65018c8e5c6b626f030bcf8d')} placement="top-end">
-                <Button
-                  icon="pen"
-                  variant="quaternary"
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation()
+            <ChargeSummaryLeftWrapper>
+              <SummaryLeft>
+                <Typography variant="bodyHl" color="textSecondary" noWrap>
+                  {localCharge.invoiceDisplayName || localCharge?.billableMetric?.name}
+                </Typography>
+                <Tooltip title={translate('text_65018c8e5c6b626f030bcf8d')} placement="top-end">
+                  <Button
+                    icon="pen"
+                    variant="quaternary"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation()
 
-                    editInvoiceDisplayNameRef.current?.openDialog({
-                      invoiceDisplayName: localCharge.invoiceDisplayName,
-                      callback: (invoiceDisplayName: string) => {
-                        formikProps.setFieldValue(
-                          `charges.${index}.invoiceDisplayName`,
-                          invoiceDisplayName
-                        )
-                      },
-                    })
-                  }}
-                />
-              </Tooltip>
-            </SummaryLeft>
+                      editInvoiceDisplayNameRef.current?.openDialog({
+                        invoiceDisplayName: localCharge.invoiceDisplayName,
+                        callback: (invoiceDisplayName: string) => {
+                          formikProps.setFieldValue(
+                            `charges.${index}.invoiceDisplayName`,
+                            invoiceDisplayName
+                          )
+                        },
+                      })
+                    }}
+                  />
+                </Tooltip>
+              </SummaryLeft>
+              <Typography variant="caption" noWrap>
+                {localCharge?.billableMetric?.code}
+              </Typography>
+            </ChargeSummaryLeftWrapper>
             <SummaryRight>
               <Tooltip
                 placement="top-end"
@@ -1179,4 +1184,9 @@ const ChargeGroupAccodionSummaryRight = styled.div`
   display: flex;
   align-items: center;
   gap: ${theme.spacing(3)};
+`
+
+const ChargeSummaryLeftWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
 `
