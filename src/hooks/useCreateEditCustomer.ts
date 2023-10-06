@@ -30,6 +30,7 @@ gql`
     currency
     email
     externalId
+    externalSalesforceId
     legalName
     legalNumber
     taxIdentificationNumber

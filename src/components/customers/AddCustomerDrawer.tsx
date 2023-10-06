@@ -79,6 +79,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
     initialValues: {
       name: customer?.name ?? '',
       externalId: customer?.externalId ?? '',
+      externalSalesforceId: customer?.externalSalesforceId ?? '',
       legalName: customer?.legalName ?? undefined,
       legalNumber: customer?.legalNumber ?? undefined,
       taxIdentificationNumber: customer?.taxIdentificationNumber ?? undefined,
@@ -175,6 +176,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
           values: {
             name: customer?.name ?? '',
             externalId: customer?.externalId ?? '',
+            externalSalesforceId: customer?.externalSalesforceId ?? '',
             legalName: customer?.legalName ?? undefined,
             legalNumber: customer?.legalNumber ?? undefined,
             taxIdentificationNumber: customer?.taxIdentificationNumber ?? undefined,
@@ -264,6 +266,13 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                 offset: getTimezoneConfig(timezoneValue).offset,
               }),
             }))}
+          />
+          <TextInputField
+            name="externalSalesforceId"
+            label={translate('text_651fd3f644384c00999fbd81')}
+            placeholder={translate('text_651fd408a57493006d00504e')}
+            helperText={translate('text_651fd41846f44c0064408b07')}
+            formikProps={formikProps}
           />
         </Card>
         <Accordion

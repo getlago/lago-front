@@ -19,6 +19,7 @@ gql`
     id
     name
     externalId
+    externalSalesforceId
     legalName
     legalNumber
     taxIdentificationNumber
@@ -76,6 +77,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
   const {
     name,
     externalId,
+    externalSalesforceId,
     legalName,
     legalNumber,
     taxIdentificationNumber,
@@ -126,6 +128,12 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
               offset: getTimezoneConfig(timezone).offset,
             })}
           </Typography>
+        </div>
+      )}
+      {externalSalesforceId && (
+        <div>
+          <Typography variant="caption">{translate('text_651fd42936a03200c126c683')}</Typography>
+          <Typography color="textSecondary">{externalSalesforceId}</Typography>
         </div>
       )}
       {currency && (
