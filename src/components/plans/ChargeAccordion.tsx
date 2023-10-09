@@ -440,7 +440,9 @@ export const ChargeAccordion = memo(
           {/* Charge main infos */}
           <ChargeModelWrapper data-test="charge-model-wrapper">
             {!!shouldDisplayAlreadyUsedChargeAlert && (
-              <Alert type="warning">{translate('text_6435895831d323008a47911f')}</Alert>
+              <ChargeModelWrapperAlert type="warning">
+                {translate('text_6435895831d323008a47911f')}
+              </ChargeModelWrapperAlert>
             )}
             <ComboBox
               sortValues={false}
@@ -1047,6 +1049,10 @@ ChargeAccordion.displayName = 'ChargeAccordion'
 
 const ChargeModelWrapper = styled.div`
   padding: ${theme.spacing(4)} ${theme.spacing(4)} 0 ${theme.spacing(4)};
+`
+
+const ChargeModelWrapperAlert = styled(Alert)`
+  margin-bottom: ${theme.spacing(4)};
 `
 
 const Title = styled.div`
