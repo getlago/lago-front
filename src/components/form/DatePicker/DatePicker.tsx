@@ -103,7 +103,7 @@ export const DatePicker = ({
             modifiers: [
               {
                 name: 'flip',
-                enabled: false,
+                enabled: placement === 'auto',
               },
               {
                 name: 'offset',
