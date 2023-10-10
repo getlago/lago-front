@@ -7,7 +7,7 @@ import { NAV_HEIGHT, theme } from '~/styles'
 export const DetailsInfoItem = ({ label, value }: { label: string; value: ReactNode | string }) => {
   return (
     <div>
-      <Typography>{label}</Typography>
+      <Typography variant="caption">{label}</Typography>
       <Typography variant="body" color="grey700">
         {value}
       </Typography>
