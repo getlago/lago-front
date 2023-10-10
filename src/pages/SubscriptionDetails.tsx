@@ -18,7 +18,12 @@ import {
 } from '~/components/designSystem'
 import SubscriptionDetailsOverview from '~/components/subscriptions/SubscriptionDetailsOverview'
 import { addToast } from '~/core/apolloClient'
-import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_DETAILS_ROUTE,
+  CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
+  UPDATE_SUBSCRIPTION,
+  UPGRADE_DOWNGRADE_SUBSCRIPTION,
+} from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { StatusTypeEnum, useGetSubscriptionForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -86,27 +91,36 @@ const SubscriptionDetails = () => {
         >
           {({ closePopper }) => (
             <MenuPopper>
-              {/* <Button
+              <Button
                 variant="quaternary"
                 align="left"
                 onClick={() => {
-                  // subscriptionsDialogRef?.current?.openDialog()
+                  navigate(
+                    generatePath(UPDATE_SUBSCRIPTION, {
+                      id: customerId as string,
+                      subscriptionId: subscriptionId as string,
+                    })
+                  )
                   closePopper()
                 }}
               >
-                {translate('TODO: Edit subscription')}
-              </Button> */}
-              {/* <Button
+                {translate('text_62d7f6178ec94cd09370e63c')}
+              </Button>
+              <Button
                 variant="quaternary"
                 align="left"
                 onClick={() => {
-                  // navigate(generatePath(CREATE_INVOICE_ROUTE, { id: id as string }))
-
+                  navigate(
+                    generatePath(UPGRADE_DOWNGRADE_SUBSCRIPTION, {
+                      id: customerId as string,
+                      subscriptionId: subscriptionId as string,
+                    })
+                  )
                   closePopper()
                 }}
               >
-                {translate('TODO: Upgrade/downgrade plan')}
-              </Button> */}
+                {translate('text_62d7f6178ec94cd09370e64a')}
+              </Button>
               <Button
                 variant="quaternary"
                 align="left"
