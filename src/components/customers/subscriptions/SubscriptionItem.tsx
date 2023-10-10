@@ -103,6 +103,7 @@ export const SubscriptionItem = forwardRef<SubscriptionItemRef, SubscriptionItem
           subscriptionName={name}
           date={startedAt || subscriptionAt}
           endDate={endingAt}
+          hasAboveSection={isDowngrading}
           hasBottomSection={isDowngrading || isPending || hasEndingAtForActive}
           periodEndDate={periodEndDate}
           plan={plan}

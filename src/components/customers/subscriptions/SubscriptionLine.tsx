@@ -45,6 +45,7 @@ interface SubscriptionLineProps {
   periodEndDate: string
   isDowngrade?: boolean
   hasBottomSection?: boolean
+  hasAboveSection?: boolean
   status?: StatusTypeEnum | null
   customerTimezone?: TimezoneEnum
 }
@@ -69,6 +70,7 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
       status,
       customerTimezone,
       hasBottomSection,
+      hasAboveSection,
     }: SubscriptionLineProps,
     ref
   ) => {
@@ -87,6 +89,7 @@ export const SubscriptionLine = forwardRef<SubscriptionLineRef, SubscriptionLine
             tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
           })}
           $hasBottomSection={hasBottomSection}
+          $hasAboveSection={hasAboveSection}
           data-test={subscriptionName}
         >
           <CellBig>
@@ -252,7 +255,7 @@ const SkeletonItem = styled.div`
   border-radius: 12px;
 `
 
-const Item = styled(ListItemLink)<{ $hasBottomSection?: boolean }>`
+const Item = styled(ListItemLink)<{ $hasBottomSection?: boolean; $hasAboveSection?: boolean }>`
   height: ${NAV_HEIGHT}px;
   display: flex;
   align-items: center;
@@ -262,7 +265,8 @@ const Item = styled(ListItemLink)<{ $hasBottomSection?: boolean }>`
   &:hover,
   &:active {
     box-shadow: none;
-    border-radius: ${({ $hasBottomSection }) => ($hasBottomSection ? '12px 12px 0 0' : '12px')};
+    border-radius: ${({ $hasBottomSection, $hasAboveSection }) =>
+      $hasAboveSection ? '0px' : $hasBottomSection ? '12px 12px 0 0' : '12px'};
   }
 
   > *:not(:last-child) {
