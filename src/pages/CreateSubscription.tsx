@@ -651,7 +651,7 @@ const CreateSubscription = () => {
                   )}
                 </Card>
 
-                {!isPremium && (
+                {!isPremium ? (
                   <FreemiumCard>
                     <FreemiumCardLeft>
                       <FreemiumCardLeftTitleContainer>
@@ -673,7 +673,11 @@ const CreateSubscription = () => {
                       {translate('text_65118a52df984447c18694d0')}
                     </Button>
                   </FreemiumCard>
-                )}
+                ) : formType !== FORM_TYPE_ENUM.edition || !subscription?.plan.parent?.id ? (
+                  <OverridePlanSeparatorTypography variant="captionHl" color="grey500">
+                    {translate('text_65118a52df984447c18694d0')}
+                  </OverridePlanSeparatorTypography>
+                ) : null}
 
                 <PlanFormConditionalWrapper $isPremium={isPremium}>
                   <PlanSettingsSection
@@ -858,7 +862,7 @@ const FreemiumCard = styled(Card)`
 
   /* Reset <Card> style */
   > * {
-    margin-bottom: 0;
+    margin-bottom: 0 !important;
   }
 `
 
@@ -896,6 +900,23 @@ const AccordionSkeleton = styled.div`
   height: ${SELECTOR_HEIGHT}px;
   border-radius: 12px;
   border: 1px solid ${theme.palette.grey[400]};
+`
+
+const OverridePlanSeparatorTypography = styled(Typography)`
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  text-transform: uppercase;
+  gap: ${theme.spacing(4)};
+
+  &::before,
+  &::after {
+    content: '';
+    display: inline-block;
+    height: 2px;
+    width: 100%;
+    background-color: ${theme.palette.grey[300]};
+  }
 `
 
 export default CreateSubscription
