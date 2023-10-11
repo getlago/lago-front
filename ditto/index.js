@@ -134,7 +134,8 @@ module.exports = {
     "es": require('./-wip---customer---customer-portal__es.json'),
     "fr": require('./-wip---customer---customer-portal__fr.json'),
     "it": require('./-wip---customer---customer-portal__it.json'),
-    "nb": require('./-wip---customer---customer-portal__nb.json')
+    "nb": require('./-wip---customer---customer-portal__nb.json'),
+    "sv": require('./-wip---customer---customer-portal__sv.json')
   },
   "project_632b49dccdbed9536c8497ab": {
     "base": require('./-wip---customers---customer-hold-currency__base.json')
@@ -166,7 +167,8 @@ module.exports = {
     "es": require('./-wip---settings---email-invoices-to-final-customers__es.json'),
     "fr": require('./-wip---settings---email-invoices-to-final-customers__fr.json'),
     "it": require('./-wip---settings---email-invoices-to-final-customers__it.json'),
-    "nb": require('./-wip---settings---email-invoices-to-final-customers__nb.json')
+    "nb": require('./-wip---settings---email-invoices-to-final-customers__nb.json'),
+    "sv": require('./-wip---settings---email-invoices-to-final-customers__sv.json')
   },
   "project_63e27c4800ff170963670e71": {
     "base": require('./-wip---settings---webhook-debugger__base.json')
