@@ -131,6 +131,7 @@ module.exports = {
   "project_6419c64c72d2468f025ea25d": {
     "base": require('./-wip---customer---customer-portal__base.json'),
     "de": require('./-wip---customer---customer-portal__de.json'),
+    "es": require('./-wip---customer---customer-portal__es.json'),
     "fr": require('./-wip---customer---customer-portal__fr.json'),
     "it": require('./-wip---customer---customer-portal__it.json'),
     "nb": require('./-wip---customer---customer-portal__nb.json')
@@ -162,6 +163,7 @@ module.exports = {
   "project_640766f4ff20c7dac058261b": {
     "base": require('./-wip---settings---email-invoices-to-final-customers__base.json'),
     "de": require('./-wip---settings---email-invoices-to-final-customers__de.json'),
+    "es": require('./-wip---settings---email-invoices-to-final-customers__es.json'),
     "fr": require('./-wip---settings---email-invoices-to-final-customers__fr.json'),
     "it": require('./-wip---settings---email-invoices-to-final-customers__it.json'),
     "nb": require('./-wip---settings---email-invoices-to-final-customers__nb.json')
