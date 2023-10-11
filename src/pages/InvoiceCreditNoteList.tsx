@@ -66,26 +66,33 @@ const InvoiceCreditNoteList = () => {
           <Typography variant="subhead">{translate('text_636bdef6565341dcb9cfb129')}</Typography>
           {data?.invoice?.status !== InvoiceStatusTypeEnum.Draft && (
             <>
-              {isPremium ? (
-                <ButtonLink
-                  type="button"
-                  disabled={
-                    data?.invoice?.creditableAmountCents === '0' &&
-                    data?.invoice?.refundableAmountCents === '0'
-                  }
-                  buttonProps={{ variant: 'quaternary' }}
-                  to={generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, { id, invoiceId })}
-                >
-                  {translate('text_636bdef6565341dcb9cfb127')}
-                </ButtonLink>
-              ) : (
-                <Button
-                  variant="quaternary"
-                  onClick={premiumWarningDialogRef.current?.openDialog}
-                  endIcon="sparkles"
-                >
-                  {translate('text_636bdef6565341dcb9cfb127')}
-                </Button>
+              {data?.invoice?.status !== InvoiceStatusTypeEnum.Voided && (
+                <>
+                  {isPremium ? (
+                    <ButtonLink
+                      type="button"
+                      disabled={
+                        data?.invoice?.creditableAmountCents === '0' &&
+                        data?.invoice?.refundableAmountCents === '0'
+                      }
+                      buttonProps={{ variant: 'quaternary' }}
+                      to={generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+                        id: id as string,
+                        invoiceId: invoiceId as string,
+                      })}
+                    >
+                      {translate('text_636bdef6565341dcb9cfb127')}
+                    </ButtonLink>
+                  ) : (
+                    <Button
+                      variant="quaternary"
+                      onClick={premiumWarningDialogRef.current?.openDialog}
+                      endIcon="sparkles"
+                    >
+                      {translate('text_636bdef6565341dcb9cfb127')}
+                    </Button>
+                  )}
+                </>
               )}
             </>
           )}

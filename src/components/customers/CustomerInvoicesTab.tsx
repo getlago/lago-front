@@ -27,7 +27,7 @@ gql`
     $customerId: ID!
     $limit: Int
     $page: Int
-    $status: InvoiceStatusTypeEnum
+    $status: [InvoiceStatusTypeEnum!]
     $searchTerm: String
   ) {
     customerInvoices(
@@ -60,7 +60,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
     variables: {
       customerId,
       limit: DRAFT_INVOICES_ITEMS_COUNT,
-      status: InvoiceStatusTypeEnum.Draft,
+      status: [InvoiceStatusTypeEnum.Draft],
     },
   })
   const [
@@ -76,7 +76,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
     variables: {
       customerId,
       limit: 20,
-      status: InvoiceStatusTypeEnum.Finalized,
+      status: [InvoiceStatusTypeEnum.Finalized, InvoiceStatusTypeEnum.Voided],
     },
     notifyOnNetworkStatusChange: true,
   })

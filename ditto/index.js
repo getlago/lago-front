@@ -50,6 +50,9 @@ module.exports = {
   "project_637f813a9ec65c29fc3ceef3": {
     "base": require('./-ready-for-dev---customers---invoice-grace-period__base.json')
   },
+  "project_65269b3f720470569cb17228": {
+    "base": require('./-ready-for-dev---invoices---void-invoices__base.json')
+  },
   "project_63ac86d51bd1437a2a21f1f9": {
     "base": require('./-ready-for-dev---invoices--invoice-list__base.json')
   },

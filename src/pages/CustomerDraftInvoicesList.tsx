@@ -26,7 +26,7 @@ gql`
     $customerId: ID!
     $limit: Int
     $page: Int
-    $status: InvoiceStatusTypeEnum
+    $status: [InvoiceStatusTypeEnum!]
     $searchTerm: String
   ) {
     customerInvoices(
@@ -40,7 +40,7 @@ gql`
     }
   }
 
-  query getCustomerInfosForDraftInvoicesList($customerId: ID!, $status: InvoiceStatusTypeEnum) {
+  query getCustomerInfosForDraftInvoicesList($customerId: ID!, $status: [InvoiceStatusTypeEnum!]) {
     customer(id: $customerId) {
       id
       name
@@ -63,13 +63,13 @@ const CustomerDraftInvoicesList = () => {
   const { translate } = useInternationalization()
   const [getDraftInvoices, { data, error, loading, fetchMore }] =
     useGetCustomerDraftInvoicesLazyQuery({
-      variables: { customerId, limit: 20, status: InvoiceStatusTypeEnum.Draft },
+      variables: { customerId, limit: 20, status: [InvoiceStatusTypeEnum.Draft] },
     })
   const { data: customerData, loading: customerLoading } =
     useGetCustomerInfosForDraftInvoicesListQuery({
       variables: {
         customerId,
-        status: InvoiceStatusTypeEnum.Draft,
+        status: [InvoiceStatusTypeEnum.Draft],
       },
     })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getDraftInvoices, loading)

@@ -6,6 +6,7 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { SearchInput } from '~/components/SearchInput'
 import { LocaleEnum } from '~/core/translations'
 import {
+  InvoiceStatusTypeEnum,
   PortalInvoiceListItemFragmentDoc,
   useCustomerPortalInvoicesLazyQuery,
 } from '~/generated/graphql'
@@ -21,8 +22,13 @@ import {
 } from './PortalInvoiceListItem'
 
 gql`
-  query customerPortalInvoices($limit: Int, $page: Int, $searchTerm: String) {
-    customerPortalInvoices(limit: $limit, page: $page, searchTerm: $searchTerm) {
+  query customerPortalInvoices(
+    $limit: Int
+    $page: Int
+    $searchTerm: String
+    $status: [InvoiceStatusTypeEnum!]
+  ) {
+    customerPortalInvoices(limit: $limit, page: $page, searchTerm: $searchTerm, status: $status) {
       metadata {
         currentPage
         totalPages
@@ -51,6 +57,7 @@ export const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomer
       nextFetchPolicy: 'network-only',
       variables: {
         limit: 20,
+        status: [InvoiceStatusTypeEnum.Finalized, InvoiceStatusTypeEnum.Draft],
       },
     })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getInvoices, loading)

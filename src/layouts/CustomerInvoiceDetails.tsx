@@ -13,6 +13,7 @@ import {
   Skeleton,
   Status,
   StatusEnum,
+  Tooltip,
   Typography,
 } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -25,6 +26,7 @@ import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
+import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -79,6 +81,7 @@ gql`
     currency
     refundableAmountCents
     creditableAmountCents
+    voidable
     customer {
       ...CustomerMetadatasForInvoiceOverview
     }
@@ -130,24 +133,23 @@ export enum CustomerInvoiceDetailsTabsOptionsEnum {
   creditNotes = 'credit-notes',
 }
 
-const mapStatus = (type?: InvoicePaymentStatusTypeEnum | undefined) => {
-  switch (type) {
-    case InvoicePaymentStatusTypeEnum.Succeeded:
-      return {
-        type: StatusEnum.running,
-        label: 'text_634687079be251fdb43833a7',
-      }
-    case InvoicePaymentStatusTypeEnum.Failed:
-      return {
-        type: StatusEnum.failed,
-        label: 'text_634687079be251fdb438339d',
-      }
-    default:
-      return {
-        type: StatusEnum.paused,
-        label: 'text_634687079be251fdb438339f',
-      }
+const mapStatus = (
+  status: InvoiceStatusTypeEnum,
+  paymentStatus?: InvoicePaymentStatusTypeEnum | undefined
+) => {
+  if (status === InvoiceStatusTypeEnum.Draft) {
+    return { label: 'text_63ac8850ff7117ad55777d31', type: StatusEnum.draft }
+  } else if (status === InvoiceStatusTypeEnum.Voided) {
+    return { label: 'Voided', type: StatusEnum.voided }
+  } else if (paymentStatus === InvoicePaymentStatusTypeEnum.Pending) {
+    return { label: 'text_63ac8850ff7117ad55777d3b', type: StatusEnum.paused }
+  } else if (paymentStatus === InvoicePaymentStatusTypeEnum.Failed) {
+    return { label: 'text_63ac8850ff7117ad55777d45', type: StatusEnum.failed }
+  } else if (paymentStatus === InvoicePaymentStatusTypeEnum.Succeeded) {
+    return { label: 'text_63ac8850ff7117ad55777d4f', type: StatusEnum.running }
   }
+
+  return { label: '-', type: StatusEnum.draft }
 }
 
 const CustomerInvoiceDetails = () => {
@@ -160,6 +162,7 @@ const CustomerInvoiceDetails = () => {
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
+  const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const [refreshInvoice, { loading: loadingRefreshInvoice }] = useRefreshInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
   })
@@ -201,9 +204,10 @@ const CustomerInvoiceDetails = () => {
     status,
     creditableAmountCents,
     refundableAmountCents,
+    voidable,
   } = (data?.invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
 
-  const formattedStatus = mapStatus(paymentStatus)
+  const formattedStatus = mapStatus(status, paymentStatus)
   const hasError = (!!error || !data?.invoice) && !loading
 
   const tabsOptions = useMemo(() => {
@@ -211,15 +215,15 @@ const CustomerInvoiceDetails = () => {
       {
         title: translate('text_634687079be251fdb43833b7'),
         link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-          id,
-          invoiceId,
+          id: id as string,
+          invoiceId: invoiceId as string,
           tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
         }),
         routerState: { disableScrollTop: true },
         match: [
           generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-            id,
-            invoiceId,
+            id: id as string,
+            invoiceId: invoiceId as string,
             tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
           }),
         ],
@@ -241,15 +245,15 @@ const CustomerInvoiceDetails = () => {
       tabs.push({
         title: translate('text_636bdef6565341dcb9cfb125'),
         link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-          id,
-          invoiceId,
+          id: id as string,
+          invoiceId: invoiceId as string,
           tab: CustomerInvoiceDetailsTabsOptionsEnum.creditNotes,
         }),
         routerState: { disableScrollTop: true },
         match: [
           generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-            id,
-            invoiceId,
+            id: id as string,
+            invoiceId: invoiceId as string,
             tab: CustomerInvoiceDetailsTabsOptionsEnum.creditNotes,
           }),
         ],
@@ -283,7 +287,7 @@ const CustomerInvoiceDetails = () => {
             onClick={() =>
               goBack(
                 generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                  id,
+                  id: id as string,
                   tab: CustomerDetailsTabsOptions.invoices,
                 }),
                 {
@@ -355,30 +359,36 @@ const CustomerInvoiceDetails = () => {
                     >
                       {translate('text_634687079be251fdb4383395')}
                     </Button>
-                    {isPremium ? (
-                      <Button
-                        variant="quaternary"
-                        align="left"
-                        disabled={creditableAmountCents === '0' && refundableAmountCents === '0'}
-                        onClick={async () => {
-                          navigate(
-                            generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
-                              id,
-                              invoiceId,
-                            })
-                          )
-                        }}
-                      >
-                        {translate('text_6386589e4e82fa85eadcaa7a')}
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="quaternary"
-                        onClick={premiumWarningDialogRef.current?.openDialog}
-                        endIcon="sparkles"
-                      >
-                        {translate('text_6386589e4e82fa85eadcaa7a')}
-                      </Button>
+                    {status !== InvoiceStatusTypeEnum.Voided && (
+                      <>
+                        {isPremium ? (
+                          <Button
+                            variant="quaternary"
+                            align="left"
+                            disabled={
+                              creditableAmountCents === '0' && refundableAmountCents === '0'
+                            }
+                            onClick={async () => {
+                              navigate(
+                                generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+                                  id: id as string,
+                                  invoiceId: invoiceId as string,
+                                })
+                              )
+                            }}
+                          >
+                            {translate('text_6386589e4e82fa85eadcaa7a')}
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="quaternary"
+                            onClick={premiumWarningDialogRef.current?.openDialog}
+                            endIcon="sparkles"
+                          >
+                            {translate('text_6386589e4e82fa85eadcaa7a')}
+                          </Button>
+                        )}
+                      </>
                     )}
                   </>
                 )}
@@ -397,33 +407,57 @@ const CustomerInvoiceDetails = () => {
                 >
                   {translate('text_634687079be251fdb438339b')}
                 </Button>
-                {status !== InvoiceStatusTypeEnum.Draft && (
-                  <>
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      onClick={() => {
-                        !!data?.invoice &&
-                          updateInvoicePaymentStatusDialog?.current?.openDialog(data.invoice)
-                        closePopper()
-                      }}
+                {status !== InvoiceStatusTypeEnum.Draft &&
+                  status !== InvoiceStatusTypeEnum.Voided && (
+                    <>
+                      <Button
+                        variant="quaternary"
+                        align="left"
+                        onClick={() => {
+                          !!data?.invoice &&
+                            updateInvoicePaymentStatusDialog?.current?.openDialog(data.invoice)
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_63eba8c65a6c8043feee2a01')}
+                      </Button>
+                      <Button
+                        variant="quaternary"
+                        align="left"
+                        onClick={() => {
+                          addMetadataDrawerDialogRef.current?.openDrawer()
+                          closePopper()
+                        }}
+                      >
+                        {!!data?.invoice?.metadata?.length
+                          ? translate('text_6405cac5c833dcf18cacff36')
+                          : translate('text_6405cac5c833dcf18cacff40')}
+                      </Button>
+                    </>
+                  )}
+                {status === InvoiceStatusTypeEnum.Finalized &&
+                  [
+                    InvoicePaymentStatusTypeEnum.Pending,
+                    InvoicePaymentStatusTypeEnum.Failed,
+                  ].includes(paymentStatus) && (
+                    <Tooltip
+                      title={translate('text_65269c2e471133226211fdd0')}
+                      placement="bottom-end"
+                      disableHoverListener={voidable}
                     >
-                      {translate('text_63eba8c65a6c8043feee2a01')}
-                    </Button>
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      onClick={() => {
-                        addMetadataDrawerDialogRef.current?.openDrawer()
-                        closePopper()
-                      }}
-                    >
-                      {!!data?.invoice?.metadata?.length
-                        ? translate('text_6405cac5c833dcf18cacff36')
-                        : translate('text_6405cac5c833dcf18cacff40')}
-                    </Button>
-                  </>
-                )}
+                      <VoidInvoiceButton
+                        variant="quaternary"
+                        align="left"
+                        disabled={!voidable}
+                        onClick={() => {
+                          voidInvoiceDialogRef?.current?.openDialog({ invoice: data?.invoice })
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_65269b43d4d2b15dd929a259')}
+                      </VoidInvoiceButton>
+                    </Tooltip>
+                  )}
               </MenuPopper>
             )}
           </Popper>
@@ -492,6 +526,7 @@ const CustomerInvoiceDetails = () => {
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
+      <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
       {!!data?.invoice && (
         <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoice={data.invoice} />
       )}
@@ -547,6 +582,10 @@ const InlineTripleTypography = styled(Typography)`
   > span:nth-child(2) {
     margin: 0 ${theme.spacing(2)};
   }
+`
+
+const VoidInvoiceButton = styled(Button)`
+  width: 100%;
 `
 
 export default CustomerInvoiceDetails

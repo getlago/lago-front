@@ -10,6 +10,7 @@ import { addToast } from '~/core/apolloClient'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
   InvoiceForUpdateInvoicePaymentStatusFragment,
+  InvoiceListItemFragmentDoc,
   InvoicePaymentStatusTypeEnum,
   UpdateInvoiceInput,
   useUpdateInvoicePaymentStatusMutation,
@@ -27,10 +28,13 @@ gql`
     updateInvoice(input: $input) {
       id
       ...InvoiceForUpdateInvoicePaymentStatus
+      ...InvoiceListItem
+      ...AllInvoiceDetailsForCustomerInvoiceDetails
     }
   }
 
   ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}
+  ${InvoiceListItemFragmentDoc}
 `
 
 export interface UpdateInvoicePaymentStatusDialogRef {
