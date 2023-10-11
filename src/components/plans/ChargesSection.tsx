@@ -488,14 +488,7 @@ export const ChargesSection = memo(
                       invoiceable: true,
                       billableMetric: localBillableMetrics,
                       properties: getPropertyShape({}),
-                      groupProperties: localBillableMetrics?.flatGroups?.length
-                        ? localBillableMetrics?.flatGroups.map((group) => {
-                            return {
-                              groupId: group.id,
-                              values: getPropertyShape({}),
-                            }
-                          })
-                        : undefined,
+                      groupProperties: localBillableMetrics?.flatGroups?.length ? [] : undefined,
                       chargeModel: ChargeModelEnum.Standard,
                       amountCents: undefined,
                     },
