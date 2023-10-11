@@ -5,7 +5,7 @@ const { globSync } = require('glob')
 
 const DITTO_DIR = './ditto/'
 
-const AVAILABLE_LOCALES = { en: 'en', fr: 'fr', nb: 'nb', de: 'de', it: 'it' }
+const AVAILABLE_LOCALES = { en: 'en', fr: 'fr', nb: 'nb', de: 'de', it: 'it', es: 'es' }
 
 async function extract(locale) {
   const fileLocaleKey = locale === AVAILABLE_LOCALES.en ? 'base' : locale

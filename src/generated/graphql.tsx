@@ -2644,6 +2644,8 @@ export type Query = {
   plans: PlanCollection;
   /** Query a single subscription of an organization */
   subscription?: Maybe<Subscription>;
+  /** Query subscriptions of an organization */
+  subscriptions: SubscriptionCollection;
   /** Query a single tax of an organization */
   tax?: Maybe<Tax>;
   /** Query taxes of an organization */
@@ -2821,6 +2823,13 @@ export type QuerySubscriptionArgs = {
 };
 
 
+export type QuerySubscriptionsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryTaxArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2986,6 +2995,12 @@ export type Subscription = {
   subscriptionAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   terminatedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   updatedAt: Scalars['ISO8601DateTime']['output'];
+};
+
+export type SubscriptionCollection = {
+  __typename?: 'SubscriptionCollection';
+  collection: Array<Subscription>;
+  metadata: CollectionMetadata;
 };
 
 export type Tax = {
