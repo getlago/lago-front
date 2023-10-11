@@ -26,6 +26,7 @@ import {
   UpdateInvoicePaymentStatusDialogRef,
 } from '../invoices/EditInvoicePaymentStatusDialog'
 import { FinalizeInvoiceDialog, FinalizeInvoiceDialogRef } from '../invoices/FinalizeInvoiceDialog'
+import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '../invoices/VoidInvoiceDialog'
 
 gql`
   fragment InvoiceForInvoiceList on InvoiceCollection {
@@ -77,6 +78,7 @@ export const CustomerInvoicesList = ({
 }: InvoiceListProps) => {
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
+  const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const { metadata, collection } = invoiceData || {}
   const { translate } = useInternationalization()
 
@@ -166,6 +168,7 @@ export const CustomerInvoicesList = ({
                     context="customer"
                     finalizeInvoiceRef={finalizeInvoiceRef}
                     updateInvoicePaymentStatusDialog={updateInvoicePaymentStatusDialog}
+                    voidInvoiceDialogRef={voidInvoiceDialogRef}
                     data-test={`invoice-list-item-${i}`}
                   />
                 )
@@ -191,6 +194,7 @@ export const CustomerInvoicesList = ({
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
+      <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
     </ScrollWrapper>
   )
 }

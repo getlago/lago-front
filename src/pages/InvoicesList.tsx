@@ -19,6 +19,7 @@ import {
   InvoiceListItemGridTemplate,
   InvoiceListItemSkeleton,
 } from '~/components/invoices/InvoiceListItem'
+import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
@@ -86,6 +87,7 @@ export enum InvoiceListTabEnum {
   'draft' = 'draft',
   'pendingFailed' = 'pendingFailed',
   'succeeded' = 'succeeded',
+  'voided' = 'voided',
 }
 
 // Needed to be able to pass both ids to the keyboard navigation function
@@ -98,6 +100,7 @@ const InvoicesList = () => {
   const navigate = useNavigate()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
+  const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const [getInvoices, { data, loading, error, fetchMore, variables }] = useInvoicesListLazyQuery({
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
@@ -105,6 +108,7 @@ const InvoicesList = () => {
     variables: {
       limit: 20,
       ...(tab === InvoiceListTabEnum.draft && { status: InvoiceStatusTypeEnum.Draft }),
+      ...(tab === InvoiceListTabEnum.voided && { status: InvoiceStatusTypeEnum.Voided }),
       ...(tab === InvoiceListTabEnum.pendingFailed && {
         status: InvoiceStatusTypeEnum.Finalized,
         paymentStatus: [InvoicePaymentStatusTypeEnum.Failed, InvoicePaymentStatusTypeEnum.Pending],
@@ -202,6 +206,10 @@ const InvoicesList = () => {
             title: translate('text_63ac86d797f728a87b2f9fa1'),
             link: generatePath(INVOICES_TAB_ROUTE, { tab: InvoiceListTabEnum.succeeded }),
           },
+          {
+            title: translate('text_6376641a2a9c70fff5bddcd5'),
+            link: generatePath(INVOICES_TAB_ROUTE, { tab: InvoiceListTabEnum.voided }),
+          },
         ]}
       />
       <ScrollContainer ref={listContainerElementRef}>
@@ -262,6 +270,8 @@ const InvoicesList = () => {
                       ? 'text_63c67d2913c20b8d7d05c442'
                       : tab === InvoiceListTabEnum.pendingFailed
                       ? 'text_63c67d8796db41749ada51ca'
+                      : tab === InvoiceListTabEnum.voided
+                      ? 'text_65269cd46e7ec037a6823fd8'
                       : 'text_63c67d2913c20b8d7d05c43e'
                   )}
                   subtitle={translate('text_63c67d2913c20b8d7d05c446')}
@@ -276,6 +286,8 @@ const InvoicesList = () => {
                       ? 'text_63b578e959c1366df5d1455b'
                       : tab === InvoiceListTabEnum.pendingFailed
                       ? 'text_63b578e959c1366df5d1456e'
+                      : tab === InvoiceListTabEnum.voided
+                      ? 'text_65269cd46e7ec037a6823fd6'
                       : 'text_63b578e959c1366df5d14569'
                   )}
                   subtitle={
@@ -289,6 +301,8 @@ const InvoicesList = () => {
                       />
                     ) : tab === InvoiceListTabEnum.pendingFailed ? (
                       translate('text_63b578e959c1366df5d14570')
+                    ) : tab === InvoiceListTabEnum.voided ? (
+                      translate('text_65269cd46e7ec037a6823fda')
                     ) : (
                       translate('text_63b578e959c1366df5d1456d')
                     )
@@ -328,6 +342,7 @@ const InvoicesList = () => {
                     })}
                     finalizeInvoiceRef={finalizeInvoiceRef}
                     updateInvoicePaymentStatusDialog={updateInvoicePaymentStatusDialog}
+                    voidInvoiceDialogRef={voidInvoiceDialogRef}
                   />
                 )
               })}
@@ -345,6 +360,7 @@ const InvoicesList = () => {
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
+      <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
     </div>
   )
 }

@@ -3,11 +3,15 @@ import { memo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Typography } from '~/components/designSystem'
+import { Status, StatusEnum, Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { formatDateToTZ } from '~/core/timezone'
-import { InvoiceForInvoiceInfosFragment } from '~/generated/graphql'
+import {
+  InvoiceForInvoiceInfosFragment,
+  InvoicePaymentStatusTypeEnum,
+  InvoiceStatusTypeEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
@@ -18,6 +22,8 @@ gql`
     number
     issuingDate
     paymentDueDate
+    status
+    paymentStatus
     customer {
       id
       name
@@ -37,6 +43,38 @@ gql`
   }
 `
 
+const mapStatusConfig = (status?: InvoiceStatusTypeEnum) => {
+  switch (status) {
+    case InvoiceStatusTypeEnum.Draft:
+      return { label: 'text_63ac8850ff7117ad55777d31', type: StatusEnum.draft }
+    case InvoiceStatusTypeEnum.Voided:
+      return { label: 'text_6376641a2a9c70fff5bddcd5', type: StatusEnum.voided }
+    case InvoiceStatusTypeEnum.Finalized:
+      return { label: 'text_65269c2e471133226211fd74', type: StatusEnum.running }
+    default:
+      return {
+        label: '-',
+        color: theme.palette.grey[600],
+      }
+  }
+}
+
+const mapPaymentStatusConfig = (status?: InvoicePaymentStatusTypeEnum) => {
+  switch (status) {
+    case InvoicePaymentStatusTypeEnum.Failed:
+      return { label: 'text_63ac8850ff7117ad55777d45', type: StatusEnum.failed }
+    case InvoicePaymentStatusTypeEnum.Pending:
+      return { label: 'text_63ac8850ff7117ad55777d3b', type: StatusEnum.paused }
+    case InvoicePaymentStatusTypeEnum.Succeeded:
+      return { label: 'text_63ac86d797f728a87b2f9fa1', type: StatusEnum.running }
+    default:
+      return {
+        label: '-',
+        color: theme.palette.grey[600],
+      }
+  }
+}
+
 interface InvoiceCustomerInfosProps {
   invoice?: InvoiceForInvoiceInfosFragment | null
 }
@@ -44,6 +82,8 @@ interface InvoiceCustomerInfosProps {
 export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps) => {
   const { customer } = invoice || {}
   const { translate } = useInternationalization()
+  const statusConfig = mapStatusConfig(invoice?.status)
+  const paymentStatusConfig = mapPaymentStatusConfig(invoice?.paymentStatus)
 
   return (
     <Wrapper>
@@ -186,6 +226,35 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
             </Typography>
           </InfoLine>
         )}
+        <InfoLine>
+          <Typography variant="caption" color="grey600" noWrap>
+            {translate('text_65269b6afe1fda4ad9bf672b')}
+          </Typography>
+          <Typography variant="body" color="grey700">
+            <Status
+              type={statusConfig?.type as StatusEnum}
+              label={translate(statusConfig?.label || '')}
+            />
+          </Typography>
+        </InfoLine>
+        <InfoLine>
+          <Typography variant="caption" color="grey600" noWrap>
+            {translate('text_63eba8c65a6c8043feee2a0f')}
+          </Typography>
+          <Typography variant="body" color="grey700">
+            {invoice?.status === InvoiceStatusTypeEnum.Draft ||
+            invoice?.status === InvoiceStatusTypeEnum.Voided ? (
+              <Typography variant="body" color="grey700">
+                -
+              </Typography>
+            ) : (
+              <Status
+                type={paymentStatusConfig?.type as StatusEnum}
+                label={translate(paymentStatusConfig?.label || '')}
+              />
+            )}
+          </Typography>
+        </InfoLine>
       </div>
     </Wrapper>
   )

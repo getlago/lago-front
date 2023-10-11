@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
+import { Icon, IconColor, IconName } from './Icon'
 import { Typography } from './Typography'
 
 export enum StatusEnum {
@@ -12,6 +13,7 @@ export enum StatusEnum {
   draft = 'draft',
   failed = 'failed',
   error = 'error',
+  voided = 'voided',
 }
 
 export type StatusType = keyof typeof StatusEnum
@@ -22,7 +24,13 @@ interface StatusProps {
   hideLabel?: boolean
 }
 
-const STATUS_CONFIG = {
+const STATUS_CONFIG: {
+  [key in StatusType]: {
+    label: string
+    color: string | IconColor
+    icon?: IconName
+  }
+} = {
   [StatusEnum.running]: {
     label: 'text_624efab67eb2570101d1180e',
     color: theme.palette.success[600],
@@ -36,12 +44,17 @@ const STATUS_CONFIG = {
     color: theme.palette.grey[500],
   },
   [StatusEnum.failed]: {
-    label: 'text_624efab67eb2570101d11826', // TODO
+    label: 'text_624efab67eb2570101d11826',
     color: theme.palette.warning[600],
   },
   [StatusEnum.error]: {
     label: 'text_624efab67eb2570101d11826',
     color: theme.palette.error[600],
+  },
+  [StatusEnum.voided]: {
+    label: 'text_6376641a2a9c70fff5bddcd5',
+    color: 'input',
+    icon: 'stop',
   },
 }
 
@@ -59,6 +72,15 @@ export const Status = ({ type, className, label, hideLabel = false }: StatusProp
           <svg height={STATUS_SIZE} width={STATUS_SIZE}>
             <circle cx="6" cy="6" r="5" fill="none" stroke={config.color} strokeWidth="2" />
           </svg>
+          {!hideLabel && (
+            <Typography color="grey500">{label ?? translate(config.label)}</Typography>
+          )}
+        </Container>
+      )
+    case StatusEnum.voided:
+      return (
+        <Container data-test={type} className={className}>
+          <Icon name={config.icon as IconName} size="small" color={config.color as IconColor} />
           {!hideLabel && (
             <Typography color="grey500">{label ?? translate(config.label)}</Typography>
           )}

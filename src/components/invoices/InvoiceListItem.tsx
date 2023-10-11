@@ -2,7 +2,15 @@ import { gql } from '@apollo/client'
 import { RefObject } from 'react'
 import styled, { css } from 'styled-components'
 
-import { Button, Popper, Skeleton, Status, StatusEnum, Typography } from '~/components/designSystem'
+import {
+  Button,
+  Popper,
+  Skeleton,
+  Status,
+  StatusEnum,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -25,6 +33,7 @@ import { BaseListItem, ListItemLink, MenuPopper, NAV_HEIGHT, theme } from '~/sty
 
 import { UpdateInvoicePaymentStatusDialogRef } from './EditInvoicePaymentStatusDialog'
 import { FinalizeInvoiceDialogRef } from './FinalizeInvoiceDialog'
+import { VoidInvoiceDialogRef } from './VoidInvoiceDialog'
 
 gql`
   fragment InvoiceListItem on Invoice {
@@ -35,6 +44,7 @@ gql`
     issuingDate
     totalAmountCents
     currency
+    voidable
     customer {
       id
       name
@@ -77,6 +87,7 @@ interface InvoiceListItemProps {
   className?: string
   finalizeInvoiceRef: RefObject<FinalizeInvoiceDialogRef>
   updateInvoicePaymentStatusDialog: RefObject<UpdateInvoicePaymentStatusDialogRef>
+  voidInvoiceDialogRef: RefObject<VoidInvoiceDialogRef>
 }
 
 const mapStatusConfig = (
@@ -85,6 +96,10 @@ const mapStatusConfig = (
 ) => {
   if (status === InvoiceStatusTypeEnum.Draft) {
     return { label: 'text_63ac8850ff7117ad55777d31', type: StatusEnum.draft }
+  }
+
+  if (status === InvoiceStatusTypeEnum.Voided) {
+    return { label: 'text_6376641a2a9c70fff5bddcd5', type: StatusEnum.voided }
   }
 
   if (paymentStatus === InvoicePaymentStatusTypeEnum.Succeeded) {
@@ -114,12 +129,23 @@ export const InvoiceListItem = ({
   navigationProps,
   finalizeInvoiceRef,
   updateInvoicePaymentStatusDialog,
+  voidInvoiceDialogRef,
   ...props
 }: InvoiceListItemProps) => {
   const { translate } = useInternationalization()
-  const { id, status, paymentStatus, number, issuingDate, customer, totalAmountCents, currency } =
-    invoice
+  const {
+    id,
+    status,
+    paymentStatus,
+    number,
+    issuingDate,
+    customer,
+    totalAmountCents,
+    currency,
+    voidable,
+  } = invoice
   const statusConfig = mapStatusConfig(status, paymentStatus)
+
   const [retryCollect] = useRetryInvoicePaymentMutation({
     context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
     onCompleted({ retryInvoicePayment }) {
@@ -263,7 +289,7 @@ export const InvoiceListItem = ({
             >
               {translate('text_63ac86d897f728a87b2fa031')}
             </Button>
-            {status !== InvoiceStatusTypeEnum.Draft && (
+            {status !== InvoiceStatusTypeEnum.Draft && status !== InvoiceStatusTypeEnum.Voided && (
               <Button
                 startIcon="coin-dollar"
                 variant="quaternary"
@@ -276,6 +302,29 @@ export const InvoiceListItem = ({
                 {translate('text_63eba8c65a6c8043feee2a01')}
               </Button>
             )}
+            {status === InvoiceStatusTypeEnum.Finalized &&
+              [InvoicePaymentStatusTypeEnum.Pending, InvoicePaymentStatusTypeEnum.Failed].includes(
+                paymentStatus
+              ) && (
+                <Tooltip
+                  title={translate('text_65269c2e471133226211fdd0')}
+                  placement="bottom-end"
+                  disableHoverListener={voidable}
+                >
+                  <VoidInvoiceButton
+                    startIcon="stop"
+                    variant="quaternary"
+                    align="left"
+                    disabled={!voidable}
+                    onClick={() => {
+                      voidInvoiceDialogRef?.current?.openDialog({ invoice })
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_65269b43d4d2b15dd929a259')}
+                  </VoidInvoiceButton>
+                </Tooltip>
+              )}
           </MenuPopper>
         )}
       </Popper>
@@ -374,4 +423,8 @@ const PopperOpener = styled.div<{ $context: InvoiceListContext }>`
 
 const Container = styled.div`
   position: relative;
+`
+
+const VoidInvoiceButton = styled(Button)`
+  width: 100%;
 `
