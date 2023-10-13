@@ -11,7 +11,7 @@ import { theme } from '~/styles'
 import SubscriptionInformations from './SubscriptionInformations'
 
 import PlanDetailsOverview from '../plans/details/PlanDetailsOverview'
-import SkeletonDetailsPage from '../SkeletonDetailsPage'
+import SkeletonDetailsPage, { LoadingSkeletonWrapper } from '../SkeletonDetailsPage'
 
 gql`
   query getSubscriptionForDetailsOverview($subscriptionId: ID!) {
@@ -56,12 +56,6 @@ const SubscriptionDetailsOverview = () => {
 export default SubscriptionDetailsOverview
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(12)};
-`
-
-const LoadingSkeletonWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${theme.spacing(12)};

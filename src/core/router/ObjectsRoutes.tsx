@@ -42,6 +42,9 @@ const CreateSubscription = lazyLoad(
 const SubscriptionDetails = lazyLoad(
   () => import(/* webpackChunkName: 'subscription-details' */ '~/pages/SubscriptionDetails')
 )
+const PlanDetails = lazyLoad(
+  () => import(/* webpackChunkName: 'plan-details' */ '~/pages/PlanDetails')
+)
 
 // ----------- Routes -----------
 // Lists
@@ -75,9 +78,14 @@ export const CREATE_SUBSCRIPTION = '/customer/:id/create/subscription'
 export const UPDATE_SUBSCRIPTION = '/customer/:id/update/subscription/:subscriptionId'
 export const UPGRADE_DOWNGRADE_SUBSCRIPTION =
   '/customer/:id/upgrade-downgrade/subscription/:subscriptionId'
+
 // Details
 export const CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE =
   '/customer/:customerId/subscription/:subscriptionId/:tab'
+export const PLAN_SUBSCRIPTION_DETAILS_ROUTE = '/plan/:planId/subscription/:subscriptionId/:tab'
+export const PLAN_DETAILS_ROUTE = '/plan/:planId/:tab'
+export const CUSTOMER_SUBSCRIPTION_PLAN_DETAILS =
+  '/customer/:customerId/subscription/:subscriptionId/plan/:planId/:tab'
 
 export const objectListRoutes: CustomRouteObject[] = [
   {
@@ -147,8 +155,13 @@ export const objectCreationRoutes: CustomRouteObject[] = [
 
 export const objectDetailsRoutes: CustomRouteObject[] = [
   {
-    path: [CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE],
+    path: [CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, PLAN_SUBSCRIPTION_DETAILS_ROUTE],
     private: true,
     element: <SubscriptionDetails />,
+  },
+  {
+    path: [PLAN_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS],
+    private: true,
+    element: <PlanDetails />,
   },
 ]

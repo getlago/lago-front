@@ -152,7 +152,7 @@ export const PlanDetailsChargeWrapperSwitch = ({
                 intlFormatNumber(Number(values?.fixedAmount) || 0, {
                   currency: currency,
                 }),
-                values?.freeUnitsPerEvents,
+                !!values?.freeUnitsPerEvents ? values?.freeUnitsPerEvents : 0,
                 intlFormatNumber(Number(values?.freeUnitsPerTotalAggregation) || 0, {
                   currency: currency,
                 }),

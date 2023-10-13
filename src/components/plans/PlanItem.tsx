@@ -14,11 +14,12 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { updateDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
-import { CREATE_PLAN_ROUTE, UPDATE_PLAN_ROUTE } from '~/core/router'
+import { CREATE_PLAN_ROUTE, PLAN_DETAILS_ROUTE, UPDATE_PLAN_ROUTE } from '~/core/router'
 import { DeletePlanDialogFragmentDoc, PlanItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { PlanDetailsTabsOptionsEnum } from '~/pages/PlanDetails'
 import {
   BaseListItem,
   ItemContainer,
@@ -57,10 +58,13 @@ export const PlanItem = memo(({ deleteDialogRef, navigationProps, plan }: PlanIt
   const { formatTimeOrgaTZ } = useOrganizationInfos()
 
   return (
-    <ItemContainer>
+    <ItemContainer data-test={`${name}-wrapper`}>
       <ListItemLink
         tabIndex={0}
-        to={generatePath(UPDATE_PLAN_ROUTE, { planId: id })}
+        to={generatePath(PLAN_DETAILS_ROUTE, {
+          planId: id,
+          tab: PlanDetailsTabsOptionsEnum.overview,
+        })}
         data-test={name}
         {...navigationProps}
       >
@@ -94,7 +98,7 @@ export const PlanItem = memo(({ deleteDialogRef, navigationProps, plan }: PlanIt
               disableHoverListener={isOpen}
               title={translate('text_64fa1756d7ccc300a03a09f4')}
             >
-              <Button icon="dots-horizontal" variant="quaternary" />
+              <Button icon="dots-horizontal" variant="quaternary" data-test="plan-item-options" />
             </Tooltip>
           </PopperOpener>
         )}
@@ -102,6 +106,7 @@ export const PlanItem = memo(({ deleteDialogRef, navigationProps, plan }: PlanIt
         {({ closePopper }) => (
           <MenuPopper>
             <ButtonLink
+              title="update-plan"
               type="button"
               buttonProps={{
                 startIcon: 'pen',
@@ -134,7 +139,7 @@ export const PlanItem = memo(({ deleteDialogRef, navigationProps, plan }: PlanIt
               variant="quaternary"
               align="left"
               onClick={() => {
-                deleteDialogRef.current?.openDialog(plan)
+                deleteDialogRef.current?.openDialog({ plan })
                 closePopper()
               }}
             >

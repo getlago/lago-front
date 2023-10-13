@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { FormikProps, useFormik } from 'formik'
 import { useEffect, useMemo } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { number, object, string } from 'yup'
 
 import { LocalChargeInput, PlanFormInput } from '~/components/plans/types'
@@ -12,7 +12,7 @@ import {
   useDuplicatePlanVar,
 } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import { FORM_ERRORS_ENUM, FORM_TYPE_ENUM } from '~/core/constants/form'
-import { ERROR_404_ROUTE, PLANS_ROUTE } from '~/core/router'
+import { ERROR_404_ROUTE, PLAN_DETAILS_ROUTE } from '~/core/router'
 import { serializePlanInput } from '~/core/serializers'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -29,6 +29,7 @@ import {
   useGetSinglePlanQuery,
   useUpdatePlanMutation,
 } from '~/generated/graphql'
+import { PlanDetailsTabsOptionsEnum } from '~/pages/PlanDetails'
 
 import { useInternationalization } from '../core/useInternationalization'
 
@@ -181,14 +182,19 @@ export const usePlanForm: ({ planIdToFetch }: { planIdToFetch?: string }) => Use
             severity: 'success',
             translateKey: 'text_64fa176933e3b8008e3f15eb',
           })
-          navigate(PLANS_ROUTE)
         } else {
           addToast({
             severity: 'success',
             translateKey: 'text_633336532bdf72cb62dc0694',
           })
-          navigate(PLANS_ROUTE)
         }
+
+        navigate(
+          generatePath(PLAN_DETAILS_ROUTE, {
+            planId: createPlan.id,
+            tab: PlanDetailsTabsOptionsEnum.overview,
+          })
+        )
       }
     },
   })
@@ -200,7 +206,12 @@ export const usePlanForm: ({ planIdToFetch }: { planIdToFetch?: string }) => Use
           severity: 'success',
           translateKey: 'text_625fd165963a7b00c8f598a0',
         })
-        navigate(PLANS_ROUTE)
+        navigate(
+          generatePath(PLAN_DETAILS_ROUTE, {
+            planId: updatePlan.id,
+            tab: PlanDetailsTabsOptionsEnum.overview,
+          })
+        )
       }
     },
   })

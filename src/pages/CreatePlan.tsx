@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Button, Skeleton, Typography } from '~/components/designSystem'
 import {
@@ -13,7 +13,7 @@ import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
-import { PLANS_ROUTE } from '~/core/router'
+import { PLAN_DETAILS_ROUTE, PLANS_ROUTE } from '~/core/router'
 import {
   ChargeAccordionFragmentDoc,
   PlanForChargeAccordionFragmentDoc,
@@ -32,6 +32,8 @@ import {
   Subtitle,
   Title,
 } from '~/styles/mainObjectsForm'
+
+import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
 
 gql`
   # Might need to be removed
@@ -107,6 +109,19 @@ const CreatePlan = () => {
 
   const canBeEdited = !plan?.subscriptionsCount
 
+  const planCloseRedirection = () => {
+    if (plan?.id) {
+      navigate(
+        generatePath(PLAN_DETAILS_ROUTE, {
+          planId: plan.id,
+          tab: PlanDetailsTabsOptionsEnum.overview,
+        })
+      )
+    } else {
+      navigate(PLANS_ROUTE)
+    }
+  }
+
   return (
     <div>
       <PageHeader>
@@ -117,7 +132,7 @@ const CreatePlan = () => {
           variant="quaternary"
           icon="close"
           onClick={() =>
-            formikProps.dirty ? warningDialogRef.current?.openDialog() : navigate(PLANS_ROUTE)
+            formikProps.dirty ? warningDialogRef.current?.openDialog() : planCloseRedirection()
           }
           data-test="close-create-plan-button"
         />
@@ -237,7 +252,7 @@ const CreatePlan = () => {
         continueText={translate(
           isEdition ? 'text_625fd165963a7b00c8f59795' : 'text_624454dd67656e00c534bc41'
         )}
-        onContinue={() => navigate(PLANS_ROUTE)}
+        onContinue={() => planCloseRedirection()}
       />
 
       <EditInvoiceDisplayName ref={editInvoiceDisplayNameRef} />

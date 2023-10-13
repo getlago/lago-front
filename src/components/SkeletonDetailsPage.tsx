@@ -60,3 +60,9 @@ const SkeletonBodySecond = styled.div`
   display: flex;
   gap: ${theme.spacing(4)};
 `
+
+export const LoadingSkeletonWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing(12)};
+`
