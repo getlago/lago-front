@@ -8,7 +8,7 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 import { PlanItem, PlanItemSkeleton } from '~/components/plans/PlanItem'
 import { SearchInput } from '~/components/SearchInput'
-import { CREATE_PLAN_ROUTE, UPDATE_PLAN_ROUTE } from '~/core/router'
+import { CREATE_PLAN_ROUTE, PLAN_DETAILS_ROUTE } from '~/core/router'
 import { PlanItemFragmentDoc, usePlansLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
@@ -16,6 +16,8 @@ import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { ListContainer, ListHeader, PageHeader, theme } from '~/styles'
+
+import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
 
 gql`
   query plans($page: Int, $limit: Int, $searchTerm: String) {
@@ -47,7 +49,13 @@ const PlansList = () => {
   const list = data?.plans?.collection || []
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `plan-item-${i}`,
-    navigate: (id) => navigate(generatePath(UPDATE_PLAN_ROUTE, { planId: String(id) })),
+    navigate: (id) =>
+      navigate(
+        generatePath(PLAN_DETAILS_ROUTE, {
+          planId: String(id),
+          tab: PlanDetailsTabsOptionsEnum.overview,
+        })
+      ),
   })
   let index = -1
 

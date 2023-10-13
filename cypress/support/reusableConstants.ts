@@ -1,7 +1,7 @@
 export const planWithChargesName = `a plan with charges`
 export const customerName = 'George de la jungle'
-export const userEmail = 'usertest1@lago.com'
-export const userPassword = 'P@ssw0rd'
+export const userEmail = 'usertest1@lago.comd'
+export const userPassword = 'P@ssw0rdd'
 
 // Form variable
 export const TAX_TWENTY_CODE = 'twenty'

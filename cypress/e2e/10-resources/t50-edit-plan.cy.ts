@@ -4,16 +4,22 @@ describe('Edit plan', () => {
   describe('when no data has changed', () => {
     it('should be able to close the form without warning dialog', () => {
       cy.visit('/plans')
-      cy.get(`[data-test="${planWithChargesName}"]`).click({ force: true })
+      cy.get(`[data-test="${planWithChargesName}-wrapper"]`).within(() => {
+        cy.get('[data-test="plan-item-options"]').click({ force: true })
+      })
+      cy.get('[data-test="tab-internal-button-link-update-plan"]').click({ force: true })
       cy.get('[data-test="close-create-plan-button"]').click({ force: true })
       cy.get('[data-test="close-create-plan-button"]').should('not.exist')
-      cy.url().should('be.equal', Cypress.config().baseUrl + '/plans')
+      cy.url().should('include', '/overview')
     })
   })
 
   it('should be able to update all information of unused plan', () => {
     cy.visit('/plans')
-    cy.get(`[data-test="${planWithChargesName}"]`).click({ force: true })
+    cy.get(`[data-test="${planWithChargesName}-wrapper"]`).within(() => {
+      cy.get('[data-test="plan-item-options"]').click({ force: true })
+    })
+    cy.get('[data-test="tab-internal-button-link-update-plan"]').click({ force: true })
     cy.get('input[name="name"]').should('not.be.disabled')
     cy.get('input[name="code"]').should('not.be.disabled')
     cy.get('textarea[name="description"]', { timeout: 10000 }).should('not.be.disabled')
@@ -48,7 +54,10 @@ describe('Edit plan', () => {
 
   it('should not be able to update all information of unused plan', () => {
     cy.visit('/plans')
-    cy.get(`[data-test="${planWithChargesName}"]`).click({ force: true })
+    cy.get(`[data-test="${planWithChargesName}-wrapper"]`).within(() => {
+      cy.get('[data-test="plan-item-options"]').click({ force: true })
+    })
+    cy.get('[data-test="tab-internal-button-link-update-plan"]').click({ force: true })
     cy.get('input[name="name"]').should('not.be.disabled')
     cy.get('input[name="code"]').should('be.disabled')
     cy.get('textarea[name="description"]', { timeout: 10000 }).should('not.be.disabled')

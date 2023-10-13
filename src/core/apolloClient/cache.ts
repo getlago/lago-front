@@ -26,6 +26,10 @@ export const cache = new InMemoryCache({
           keyArgs: false,
           merge: mergePaginatedCollection,
         },
+        subscriptions: {
+          keyArgs: false,
+          merge: mergePaginatedCollection,
+        },
         customers: {
           keyArgs: ['id', 'externalId'],
           merge: mergePaginatedCollection,

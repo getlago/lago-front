@@ -114,7 +114,7 @@ const PlanDetailsChargesSection = ({
                 <PaddedChargeModelWrapper>
                   <DetailsInfoItem
                     label={translate('text_65201b8216455901fe273dd5')}
-                    value={charge.chargeModel}
+                    value={translate(chargeModelLookupTranslation[charge.chargeModel])}
                   />
                 </PaddedChargeModelWrapper>
                 <PlanDetailsChargesSectionAccordion

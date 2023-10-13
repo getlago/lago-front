@@ -3,13 +3,14 @@ import { DateTime } from 'luxon'
 import { generatePath, Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
+import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS } from '~/core/router'
 import {
   StatusTypeEnum,
   SubscriptionForSubscriptionInformationsFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { PlanDetailsTabsOptionsEnum } from '~/pages/PlanDetails'
 import { theme } from '~/styles'
 import { DetailsInfoGrid, DetailsInfoItem, DetailsSectionTitle } from '~/styles/detailsPage'
 
@@ -103,28 +104,32 @@ const SubscriptionInformations = ({
             value={DateTime.fromISO(subscription?.subscriptionAt).toFormat('LLL. dd, yyyy')}
           />
 
-          {!!subscription?.endingAt && (
-            <DetailsInfoItem
-              label={translate('text_65201c5a175a4b0238abf2a0')}
-              value={DateTime.fromISO(subscription?.endingAt).toFormat('LLL. dd, yyyy')}
-            />
-          )}
+          <DetailsInfoItem
+            label={translate('text_65201c5a175a4b0238abf2a0')}
+            value={
+              !!subscription?.endingAt
+                ? DateTime.fromISO(subscription?.endingAt).toFormat('LLL. dd, yyyy')
+                : '-'
+            }
+          />
 
-          {/* TODO: add when plan details page exists */}
-          {/* {!!subscription?.plan?.parent?.id && (
+          {!!subscription?.plan?.parent?.id && (
             <DetailsInfoItem
               label={translate('text_65201c5a175a4b0238abf2a2')}
               value={
                 <Link
-                  to={generatePath(PLAN_DETAILS, {
-                    id: subscription?.plan?.parent?.id as string,
+                  to={generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
+                    customerId: subscription?.customer?.id as string,
+                    subscriptionId: subscription?.id as string,
+                    planId: subscription?.plan?.parent?.id as string,
+                    tab: PlanDetailsTabsOptionsEnum.overview,
                   })}
                 >
                   {subscription?.plan?.parent?.name}
                 </Link>
               }
             />
-          )} */}
+          )}
         </DetailsInfoGrid>
       </ContentWrapper>
     </section>

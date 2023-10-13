@@ -22,7 +22,7 @@ describe('Create plan', () => {
     cy.get('textarea[name="description"]').type('I am a description')
     cy.get('input[name="amountCents"]').type('30000')
     cy.get('[data-test="submit"]').click({ force: true })
-    cy.url().should('be.equal', Cypress.config().baseUrl + '/plans')
+    cy.url().should('include', '/overview')
     cy.contains(planName).should('exist')
   })
 
@@ -138,7 +138,7 @@ describe('Create plan', () => {
     cy.get('[data-test="submit"]').should('not.be.disabled')
 
     cy.get('[data-test="submit"]').click({ force: true })
-    cy.url().should('be.equal', Cypress.config().baseUrl + '/plans')
+    cy.url().should('include', '/overview')
     cy.contains(planWithChargesName).should('exist')
   })
 
@@ -183,7 +183,7 @@ describe('Create plan', () => {
       cy.get('input[name="properties.rate"]').should('have.value', '1')
 
       cy.get('[data-test="submit"]').click({ force: true })
-      cy.url().should('be.equal', Cypress.config().baseUrl + '/plans')
+      cy.url().should('include', '/overview')
       cy.contains(planName).should('exist')
     })
   })

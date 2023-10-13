@@ -22,16 +22,26 @@ gql`
   }
 `
 
+type DeletePlanDialogProps = {
+  plan: DeletePlanDialogFragment
+  callback?: () => void
+}
+
 export interface DeletePlanDialogRef {
-  openDialog: (billableMetric: DeletePlanDialogFragment) => unknown
+  openDialog: ({ plan, callback }: DeletePlanDialogProps) => unknown
   closeDialog: () => unknown
 }
 
 export const DeletePlanDialog = forwardRef<DeletePlanDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)
-  const [plan, setPlan] = useState<DeletePlanDialogFragment | undefined>(undefined)
-  const { id = '', name = '', draftInvoicesCount = 0, activeSubscriptionsCount = 0 } = plan || {}
+  const [localData, setLocalData] = useState<DeletePlanDialogProps | undefined>(undefined)
+  const {
+    id = '',
+    name = '',
+    draftInvoicesCount = 0,
+    activeSubscriptionsCount = 0,
+  } = localData?.plan || {}
 
   const [deletePlan] = useDeletePlanMutation({
     onCompleted(data) {
@@ -40,6 +50,8 @@ export const DeletePlanDialog = forwardRef<DeletePlanDialogRef>((_, ref) => {
           message: translate('text_625fd165963a7b00c8f59879'),
           severity: 'success',
         })
+
+        localData?.callback && localData.callback()
       }
     },
     update(cache, { data }) {
@@ -56,7 +68,7 @@ export const DeletePlanDialog = forwardRef<DeletePlanDialogRef>((_, ref) => {
 
   useImperativeHandle(ref, () => ({
     openDialog: (data) => {
-      setPlan(data)
+      setLocalData(data)
       dialogRef.current?.openDialog()
     },
     closeDialog: () => dialogRef.current?.closeDialog(),

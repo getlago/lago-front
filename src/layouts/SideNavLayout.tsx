@@ -27,6 +27,7 @@ import {
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
+  CUSTOMER_SUBSCRIPTION_PLAN_DETAILS,
   CUSTOMERS_LIST_ROUTE,
   DEBUGGER_ROUTE,
   DEVELOPERS_ROUTE,
@@ -41,6 +42,8 @@ import {
   ONLY_DEV_DESIGN_SYSTEM_ROUTE,
   ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE,
   ORGANIZATION_INFORMATIONS_ROUTE,
+  PLAN_DETAILS_ROUTE,
+  PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
   SETTINGS_ROUTE,
   TAXES_SETTINGS_ROUTE,
@@ -221,6 +224,7 @@ const SideNav = () => {
                     title: translate('text_62442e40cea25600b0b6d85a'),
                     icon: 'board',
                     link: PLANS_ROUTE,
+                    match: [PLANS_ROUTE, PLAN_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS],
                   },
                   {
                     title: translate('text_629728388c4d2300e2d3801a'),
@@ -242,6 +246,7 @@ const SideNav = () => {
                       CUSTOMER_DETAILS_ROUTE,
                       CUSTOMER_DETAILS_TAB_ROUTE,
                       CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
+                      PLAN_SUBSCRIPTION_DETAILS_ROUTE,
                     ],
                   },
                   {

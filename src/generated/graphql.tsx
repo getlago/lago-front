@@ -2829,6 +2829,7 @@ export type QuerySubscriptionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   planCode?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Array<StatusTypeEnum>>;
 };
 
 
@@ -4182,6 +4183,18 @@ export type GetPlanForDetailsOverviewSectionQueryVariables = Exact<{
 
 export type GetPlanForDetailsOverviewSectionQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, invoiceDisplayName?: string | null, amountCents: any, amountCurrency: CurrencyEnum, trialPeriod?: number | null, subscriptionsCount: number, billChargesMonthly?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, charges?: Array<{ __typename?: 'Charge', id: string, minAmountCents: any, payInAdvance: boolean, chargeModel: ChargeModelEnum, invoiceable: boolean, prorated: boolean, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, invoiceDisplayName?: string | null, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null }> | null } | null };
 
+export type GetSubscribtionsForPlanDetailsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Array<StatusTypeEnum> | StatusTypeEnum>;
+}>;
+
+
+export type GetSubscribtionsForPlanDetailsQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, endingAt?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, parent?: { __typename?: 'Plan', id: string } | null }, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
+
+export type PlanSubscriptionListItemForSubscriptionListFragment = { __typename?: 'Subscription', id: string, endingAt?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, parent?: { __typename?: 'Plan', id: string } | null }, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string } };
+
 export type GetTaxRatesForEditOrgaQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -4806,6 +4819,13 @@ export type RetryAllInvoicePaymentsMutationVariables = Exact<{
 
 export type RetryAllInvoicePaymentsMutation = { __typename?: 'Mutation', retryAllInvoicePayments?: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string }> } | null };
 
+export type GetPlanForDetailsQueryVariables = Exact<{
+  planId: Scalars['ID']['input'];
+}>;
+
+
+export type GetPlanForDetailsQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, name: string, code: string, draftInvoicesCount: number, activeSubscriptionsCount: number } | null };
+
 export type PlansQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -4820,7 +4840,7 @@ export type GetSubscriptionForDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionForDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, externalId: string, plan: { __typename?: 'Plan', id: string, name: string, code: string } } | null };
+export type GetSubscriptionForDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, externalId: string, plan: { __typename?: 'Plan', id: string, name: string, code: string }, customer: { __typename?: 'Customer', id: string } } | null };
 
 export type CreatePasswordResetMutationVariables = Exact<{
   input: CreatePasswordResetInput;
@@ -5430,6 +5450,24 @@ export const PlanItemFragmentDoc = gql`
   ...DeletePlanDialog
 }
     ${DeletePlanDialogFragmentDoc}`;
+export const PlanSubscriptionListItemForSubscriptionListFragmentDoc = gql`
+    fragment PlanSubscriptionListItemForSubscriptionList on Subscription {
+  id
+  endingAt
+  subscriptionAt
+  plan {
+    id
+    parent {
+      id
+    }
+  }
+  customer {
+    id
+    name
+    externalId
+  }
+}
+    `;
 export const DeleteOrganizationVatRateFragmentDoc = gql`
     fragment DeleteOrganizationVatRate on Tax {
   id
@@ -8495,6 +8533,51 @@ export function useGetPlanForDetailsOverviewSectionLazyQuery(baseOptions?: Apoll
 export type GetPlanForDetailsOverviewSectionQueryHookResult = ReturnType<typeof useGetPlanForDetailsOverviewSectionQuery>;
 export type GetPlanForDetailsOverviewSectionLazyQueryHookResult = ReturnType<typeof useGetPlanForDetailsOverviewSectionLazyQuery>;
 export type GetPlanForDetailsOverviewSectionQueryResult = Apollo.QueryResult<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>;
+export const GetSubscribtionsForPlanDetailsDocument = gql`
+    query getSubscribtionsForPlanDetails($page: Int, $limit: Int, $planCode: String, $status: [StatusTypeEnum!]) {
+  subscriptions(page: $page, limit: $limit, planCode: $planCode, status: $status) {
+    collection {
+      id
+      ...PlanSubscriptionListItemForSubscriptionList
+    }
+    metadata {
+      currentPage
+      totalPages
+    }
+  }
+}
+    ${PlanSubscriptionListItemForSubscriptionListFragmentDoc}`;
+
+/**
+ * __useGetSubscribtionsForPlanDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetSubscribtionsForPlanDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscribtionsForPlanDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscribtionsForPlanDetailsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      planCode: // value for 'planCode'
+ *      status: // value for 'status'
+ *   },
+ * });
+ */
+export function useGetSubscribtionsForPlanDetailsQuery(baseOptions?: Apollo.QueryHookOptions<GetSubscribtionsForPlanDetailsQuery, GetSubscribtionsForPlanDetailsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSubscribtionsForPlanDetailsQuery, GetSubscribtionsForPlanDetailsQueryVariables>(GetSubscribtionsForPlanDetailsDocument, options);
+      }
+export function useGetSubscribtionsForPlanDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscribtionsForPlanDetailsQuery, GetSubscribtionsForPlanDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSubscribtionsForPlanDetailsQuery, GetSubscribtionsForPlanDetailsQueryVariables>(GetSubscribtionsForPlanDetailsDocument, options);
+        }
+export type GetSubscribtionsForPlanDetailsQueryHookResult = ReturnType<typeof useGetSubscribtionsForPlanDetailsQuery>;
+export type GetSubscribtionsForPlanDetailsLazyQueryHookResult = ReturnType<typeof useGetSubscribtionsForPlanDetailsLazyQuery>;
+export type GetSubscribtionsForPlanDetailsQueryResult = Apollo.QueryResult<GetSubscribtionsForPlanDetailsQuery, GetSubscribtionsForPlanDetailsQueryVariables>;
 export const GetTaxRatesForEditOrgaDocument = gql`
     query getTaxRatesForEditOrga($limit: Int, $page: Int, $searchTerm: String) {
   taxes(limit: $limit, page: $page, searchTerm: $searchTerm) {
@@ -11423,6 +11506,44 @@ export function useRetryAllInvoicePaymentsMutation(baseOptions?: Apollo.Mutation
 export type RetryAllInvoicePaymentsMutationHookResult = ReturnType<typeof useRetryAllInvoicePaymentsMutation>;
 export type RetryAllInvoicePaymentsMutationResult = Apollo.MutationResult<RetryAllInvoicePaymentsMutation>;
 export type RetryAllInvoicePaymentsMutationOptions = Apollo.BaseMutationOptions<RetryAllInvoicePaymentsMutation, RetryAllInvoicePaymentsMutationVariables>;
+export const GetPlanForDetailsDocument = gql`
+    query getPlanForDetails($planId: ID!) {
+  plan(id: $planId) {
+    id
+    name
+    code
+    ...DeletePlanDialog
+  }
+}
+    ${DeletePlanDialogFragmentDoc}`;
+
+/**
+ * __useGetPlanForDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetPlanForDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPlanForDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPlanForDetailsQuery({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *   },
+ * });
+ */
+export function useGetPlanForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables>(GetPlanForDetailsDocument, options);
+      }
+export function useGetPlanForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables>(GetPlanForDetailsDocument, options);
+        }
+export type GetPlanForDetailsQueryHookResult = ReturnType<typeof useGetPlanForDetailsQuery>;
+export type GetPlanForDetailsLazyQueryHookResult = ReturnType<typeof useGetPlanForDetailsLazyQuery>;
+export type GetPlanForDetailsQueryResult = Apollo.QueryResult<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables>;
 export const PlansDocument = gql`
     query plans($page: Int, $limit: Int, $searchTerm: String) {
   plans(page: $page, limit: $limit, searchTerm: $searchTerm) {
@@ -11477,6 +11598,9 @@ export const GetSubscriptionForDetailsDocument = gql`
       id
       name
       code
+    }
+    customer {
+      id
     }
   }
 }
