@@ -20,6 +20,7 @@ import {
   Typography,
 } from '~/components/designSystem'
 import {
+  BasicComboBoxData,
   ButtonSelectorField,
   ComboBoxField,
   DatePickerField,
@@ -253,21 +254,29 @@ const CreateSubscription = () => {
       localPlanCollection.unshift(subscription?.plan)
     }
 
-    return localPlanCollection.map(({ id, name, code }) => {
-      return {
-        label: `${name} - (${code})`,
-        labelNode: (
-          <PlanItem>
-            {name} <Typography color="textPrimary">({code})</Typography>
-          </PlanItem>
-        ),
-        value: id,
-        disabled:
-          formType === FORM_TYPE_ENUM.upgradeDowngrade &&
-          !!subscription?.plan.id &&
-          subscription?.plan.id === id,
+    return localPlanCollection.reduce<BasicComboBoxData[]>((acc, { id, name, code }) => {
+      // Hide parent plan
+      if (formType === FORM_TYPE_ENUM.upgradeDowngrade && id === subscription?.plan?.parent?.id) {
+        return acc
       }
-    })
+
+      return [
+        ...acc,
+        {
+          label: `${name} - (${code})`,
+          labelNode: (
+            <PlanItem>
+              {name} <Typography color="textPrimary">({code})</Typography>
+            </PlanItem>
+          ),
+          value: id,
+          disabled:
+            formType === FORM_TYPE_ENUM.upgradeDowngrade &&
+            !!subscription?.plan.id &&
+            subscription?.plan.id === id,
+        },
+      ]
+    }, [])
   }, [formType, planData?.plans?.collection, subscription?.plan])
 
   const billingTimeHelper = useMemo(() => {
