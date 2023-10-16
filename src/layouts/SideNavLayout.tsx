@@ -224,6 +224,7 @@ const SideNav = () => {
                     title: translate('text_62442e40cea25600b0b6d85a'),
                     icon: 'board',
                     link: PLANS_ROUTE,
+                    canBeClickedOnActive: true,
                     match: [PLANS_ROUTE, PLAN_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS],
                   },
                   {
