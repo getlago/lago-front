@@ -254,7 +254,9 @@ export const InvoiceDetailsTable = memo(
                       invoiceDisplayName,
                     })}
                     period={
-                      hasAnySubscriptionFeeUnits
+                      hasAnySubscriptionFeeUnits &&
+                      !!invoiceSubscription?.fromDatetime &&
+                      !!invoiceSubscription?.toDatetime
                         ? translate('text_6499a4e4db5730004703f36b', {
                             from: formatDateToTZ(
                               invoiceSubscription?.fromDatetime,
@@ -294,7 +296,9 @@ export const InvoiceDetailsTable = memo(
                             })
                         : !hasAnySubscriptionFeeUnits &&
                           !hasAnyArrearsFeeUnits &&
-                          !hasAnyAdvanceFeeUnits
+                          !hasAnyAdvanceFeeUnits &&
+                          !!invoiceSubscription?.fromDatetime &&
+                          !!invoiceSubscription?.toDatetime
                         ? translate('text_6499a4e4db5730004703f36b', {
                             from: formatDateToTZ(
                               invoiceSubscription?.fromDatetime,
@@ -315,7 +319,10 @@ export const InvoiceDetailsTable = memo(
                 {/* If no positive fees are present in the invoice, display subscription fee placeholder */}
                 {!hasAnySubscriptionFeeUnits &&
                   !hasAnyArrearsFeeUnits &&
-                  !hasAnyAdvanceFeeUnits && (
+                  // Same condition as bellow to show/hide fees in advance
+                  !feesInAdvance?.some(
+                    (fee) => !(Number(fee?.units) === 0 && !!fee?.isGroupChildFee)
+                  ) && (
                     <table key={`invoiceSubscription-${i}-fee-placeholder`}>
                       <tbody>
                         <tr>
