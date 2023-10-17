@@ -75,5 +75,5 @@ export const useDebouncedSearch: UseDebouncedSearch = (searchQuery, loading) => 
     }
   }, [debouncedSearch])
 
-  return { debouncedSearch: debouncedSearch || undefined, isLoading: isLoading || false }
+  return { debouncedSearch: debouncedSearch || undefined, isLoading: isLoading || loading || false }
 }
