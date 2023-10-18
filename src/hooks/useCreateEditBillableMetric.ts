@@ -56,11 +56,11 @@ type UseCreateEditBillableMetricReturn = {
 
 export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricReturn = () => {
   const navigate = useNavigate()
-  const { id } = useParams()
+  const { billableMetricId } = useParams()
   const { data, loading, error } = useGetSingleBillableMetricQuery({
     context: { silentError: LagoApiError.NotFound },
-    variables: { id: id as string },
-    skip: !id,
+    variables: { id: billableMetricId as string },
+    skip: !billableMetricId,
   })
   const [create, { error: createError }] = useCreateBillableMetricMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
@@ -118,15 +118,15 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
   return useMemo(
     () => ({
       loading,
-      isEdition: !!id,
+      isEdition: !!billableMetricId,
       errorCode,
       billableMetric: !data?.billableMetric ? undefined : data?.billableMetric,
-      onSave: !!id
+      onSave: !!billableMetricId
         ? async (values) => {
             await update({
               variables: {
                 input: {
-                  id,
+                  id: billableMetricId,
                   ...mutationInput(values),
                 },
               },
@@ -142,6 +142,6 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
             })
           },
     }),
-    [loading, id, data, errorCode, update, create]
+    [loading, billableMetricId, errorCode, data?.billableMetric, update, create]
   )
 }

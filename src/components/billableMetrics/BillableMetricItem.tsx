@@ -52,14 +52,14 @@ interface BillableMetricItemProps {
 
 export const BillableMetricItem = memo(
   ({ billableMetric, deleteDialogRef, navigationProps }: BillableMetricItemProps) => {
-    const { id, name, code, createdAt } = billableMetric
+    const { id: billableMetricId, name, code, createdAt } = billableMetric
     const { translate } = useInternationalization()
     const { formatTimeOrgaTZ } = useOrganizationInfos()
 
     return (
       <ItemContainer>
         <ListItemLink
-          to={generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { id })}
+          to={generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { billableMetricId })}
           tabIndex={0}
           {...navigationProps}
         >
@@ -104,7 +104,7 @@ export const BillableMetricItem = memo(
                   align: 'left',
                   fullWidth: true,
                 }}
-                to={generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { id })}
+                to={generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { billableMetricId })}
               >
                 {translate('text_6256de3bba111e00b3bfa531')}
               </ButtonLink>

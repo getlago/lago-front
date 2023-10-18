@@ -54,7 +54,8 @@ const BillableMetricsList = () => {
   const list = data?.billableMetrics?.collection || []
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `billable-metric-item-${i}`,
-    navigate: (id) => navigate(generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { id: String(id) })),
+    navigate: (id) =>
+      navigate(generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { billableMetricId: String(id) })),
   })
   let index = -1
 

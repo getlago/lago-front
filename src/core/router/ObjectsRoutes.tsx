@@ -58,7 +58,7 @@ export const INVOICES_TAB_ROUTE = '/invoices/:tab'
 
 // Creation
 export const CREATE_BILLABLE_METRIC_ROUTE = '/create/billable-metrics'
-export const UPDATE_BILLABLE_METRIC_ROUTE = '/update/billable-metric/:id'
+export const UPDATE_BILLABLE_METRIC_ROUTE = '/update/billable-metric/:billableMetricId'
 
 export const CREATE_PLAN_ROUTE = '/create/plans'
 export const UPDATE_PLAN_ROUTE = '/update/plan/:planId'
