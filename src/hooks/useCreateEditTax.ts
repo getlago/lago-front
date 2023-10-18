@@ -67,11 +67,11 @@ const formatTaxInput = (values: TaxFormInput) => {
 
 export const useCreateEditTax: () => useCreateEditTaxReturn = () => {
   const navigate = useNavigate()
-  const { id } = useParams()
+  const { taxId } = useParams()
   const { data, loading, error } = useGetSingleTaxQuery({
     context: { silentError: LagoApiError.NotFound },
-    variables: { id: id as string },
-    skip: !id,
+    variables: { id: taxId as string },
+    skip: !taxId,
   })
   const [update, { error: createError }] = useUpdateTaxMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
@@ -118,17 +118,17 @@ export const useCreateEditTax: () => useCreateEditTaxReturn = () => {
     () => ({
       loading,
       errorCode,
-      isEdition: !!id,
+      isEdition: !!taxId,
       tax: data?.tax || undefined,
       onClose: () => {
         navigate(TAXES_SETTINGS_ROUTE)
       },
-      onSave: !!id
+      onSave: !!taxId
         ? async (values) => {
             await update({
               variables: {
                 input: {
-                  id,
+                  id: taxId,
                   ...formatTaxInput(values),
                 },
               },
@@ -142,6 +142,6 @@ export const useCreateEditTax: () => useCreateEditTaxReturn = () => {
             })
           },
     }),
-    [id, create, data, errorCode, loading, navigate, update]
+    [loading, errorCode, taxId, data?.tax, navigate, update, create]
   )
 }

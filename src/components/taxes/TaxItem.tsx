@@ -43,11 +43,15 @@ interface TaxItemProps {
 
 export const TaxItem = memo(({ deleteDialogRef, tax }: TaxItemProps) => {
   const { translate } = useInternationalization()
-  const { id, name, code, rate } = tax
+  const { id: taxId, name, code, rate } = tax
 
   return (
     <ItemContainer>
-      <LocalListItemLink tabIndex={0} to={generatePath(UPDATE_TAX_ROUTE, { id })} data-test={code}>
+      <LocalListItemLink
+        tabIndex={0}
+        to={generatePath(UPDATE_TAX_ROUTE, { taxId })}
+        data-test={code}
+      >
         <LeftSection>
           <Avatar size="big" variant="connector">
             <Icon size="medium" name="percentage" color="dark" />
@@ -95,7 +99,7 @@ export const TaxItem = memo(({ deleteDialogRef, tax }: TaxItemProps) => {
                 align: 'left',
                 fullWidth: true,
               }}
-              to={generatePath(UPDATE_TAX_ROUTE, { id })}
+              to={generatePath(UPDATE_TAX_ROUTE, { taxId })}
             >
               {translate('text_645bb193927b375079d28b7c')}
             </ButtonLink>
