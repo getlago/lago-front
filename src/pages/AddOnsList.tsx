@@ -40,7 +40,7 @@ const AddOnsList = () => {
   const deleteDialogRef = useRef<DeleteAddOnDialogRef>(null)
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `add-on-item-${i}`,
-    navigate: (id) => navigate(generatePath(UPDATE_ADD_ON_ROUTE, { id: String(id) })),
+    navigate: (id) => navigate(generatePath(UPDATE_ADD_ON_ROUTE, { addOnId: String(id) })),
   })
   const [getAddOns, { data, error, loading, fetchMore, variables }] = useAddOnsLazyQuery({
     variables: { limit: 20 },

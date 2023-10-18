@@ -48,7 +48,7 @@ interface AddOnItemProps {
 }
 
 export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItemProps) => {
-  const { id, name, amountCurrency, amountCents, customersCount, createdAt } = addOn
+  const { id: addOnId, name, amountCurrency, amountCents, customersCount, createdAt } = addOn
 
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
@@ -56,7 +56,7 @@ export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItem
   return (
     <ItemContainer>
       <ListItemLink
-        to={generatePath(UPDATE_ADD_ON_ROUTE, { id })}
+        to={generatePath(UPDATE_ADD_ON_ROUTE, { addOnId })}
         tabIndex={0}
         data-test={name}
         {...navigationProps}
@@ -106,7 +106,7 @@ export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItem
         {({ closePopper }) => (
           <MenuPopper>
             <ButtonLink
-              to={generatePath(UPDATE_ADD_ON_ROUTE, { id })}
+              to={generatePath(UPDATE_ADD_ON_ROUTE, { addOnId })}
               type="button"
               buttonProps={{
                 variant: 'quaternary',
