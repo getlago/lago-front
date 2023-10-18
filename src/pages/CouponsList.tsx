@@ -50,7 +50,7 @@ const CouponsList = () => {
   const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `coupon-item-${i}`,
-    navigate: (id) => navigate(generatePath(UPDATE_COUPON_ROUTE, { id: String(id) })),
+    navigate: (id) => navigate(generatePath(UPDATE_COUPON_ROUTE, { couponId: String(id) })),
   })
   const [getCoupons, { data, error, loading, fetchMore, variables }] = useCouponsLazyQuery({
     variables: { limit: 20 },

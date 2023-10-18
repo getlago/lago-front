@@ -79,7 +79,7 @@ export const CouponItem = ({
   navigationProps,
   terminateDialogRef,
 }: CouponItemProps) => {
-  const { id, name, customersCount, status, appliedCouponsCount, expirationAt } = coupon
+  const { id: couponId, name, customersCount, status, appliedCouponsCount, expirationAt } = coupon
   const { translate } = useInternationalization()
   const formattedStatus = mapStatus(status)
   const { formatTimeOrgaTZ } = useOrganizationInfos()
@@ -92,7 +92,7 @@ export const CouponItem = ({
         invalidWrapper={(children) => (
           <ListItemLink
             tabIndex={0}
-            to={generatePath(UPDATE_COUPON_ROUTE, { id })}
+            to={generatePath(UPDATE_COUPON_ROUTE, { couponId })}
             {...navigationProps}
           >
             {children}
@@ -154,7 +154,7 @@ export const CouponItem = ({
                   fullWidth: true,
                 }}
                 disabled={status === CouponStatusEnum.Terminated}
-                to={generatePath(UPDATE_COUPON_ROUTE, { id })}
+                to={generatePath(UPDATE_COUPON_ROUTE, { couponId })}
               >
                 {translate('text_62876a50ea3bba00b56d2cb6')}
               </ButtonLink>

@@ -136,11 +136,11 @@ const formatCouponInput = (
 
 export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
   const navigate = useNavigate()
-  const { id } = useParams()
+  const { couponId } = useParams()
   const { data, loading, error } = useGetSingleCouponQuery({
     context: { silentError: LagoApiError.NotFound },
-    variables: { id: id as string },
-    skip: !id,
+    variables: { id: couponId as string },
+    skip: !couponId,
   })
   const [hasPlanLimit, setHasPlanLimit] = useState<boolean>(!!data?.coupon?.limitedPlans)
   const [limitPlansList, setLimitPlansList] = useState<PlansForCouponsFragment[]>(
@@ -218,15 +218,15 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
       setHasBillableMetricLimit,
       limitBillableMetricsList,
       setLimitBillableMetricsList,
-      isEdition: !!id,
+      isEdition: !!couponId,
       errorCode,
       coupon: !data?.coupon ? undefined : data?.coupon,
-      onSave: !!id
+      onSave: !!couponId
         ? async (values) => {
             await update({
               variables: {
                 input: {
-                  id,
+                  id: couponId,
                   ...formatCouponInput(
                     values,
                     hasPlanLimit,
@@ -253,16 +253,16 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
           },
     }),
     [
-      id,
-      data,
       loading,
-      errorCode,
-      create,
-      update,
       hasPlanLimit,
       limitPlansList,
       hasBillableMetricLimit,
       limitBillableMetricsList,
+      couponId,
+      errorCode,
+      data?.coupon,
+      update,
+      create,
     ]
   )
 }
