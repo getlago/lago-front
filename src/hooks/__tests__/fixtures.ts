@@ -64,7 +64,7 @@ export const fullSubscriptionInvoiceMockAndExpect = () => ({
             plan: {
               id: 'invoice-subscription-subscription-1-plan-id',
               name: 'Standard Plan',
-              invoiceDisplayName: 'Subscription custom name',
+              invoiceDisplayName: 'Standard plan',
               __typename: 'Plan',
             },
             __typename: 'Subscription',
