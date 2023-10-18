@@ -81,11 +81,12 @@ const formatCouponInput = (values: AddOnFormInput) => {
 
 export const useCreateEditAddOn: () => UseCreateEditAddOnReturn = () => {
   const navigate = useNavigate()
-  const { id } = useParams()
+  const { addOnId } = useParams()
+
   const { data, loading, error } = useGetSingleAddOnQuery({
     context: { silentError: LagoApiError.NotFound },
-    variables: { id: id as string },
-    skip: !id,
+    variables: { id: addOnId as string },
+    skip: !addOnId,
   })
   const [create, { error: createError }] = useCreateAddOnMutation({
     context: { silentError: LagoApiError.UnprocessableEntity },
@@ -130,15 +131,15 @@ export const useCreateEditAddOn: () => UseCreateEditAddOnReturn = () => {
   return useMemo(
     () => ({
       loading,
-      isEdition: !!id,
+      isEdition: !!addOnId,
       errorCode,
       addOn: !data?.addOn ? undefined : data?.addOn,
-      onSave: !!id
+      onSave: !!addOnId
         ? async (values) => {
             await update({
               variables: {
                 input: {
-                  id,
+                  id: addOnId,
                   ...formatCouponInput(values),
                 },
               },
@@ -152,6 +153,6 @@ export const useCreateEditAddOn: () => UseCreateEditAddOnReturn = () => {
             })
           },
     }),
-    [id, data, loading, errorCode, create, update]
+    [loading, addOnId, errorCode, data?.addOn, update, create]
   )
 }
