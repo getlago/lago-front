@@ -64,7 +64,7 @@ export const CREATE_PLAN_ROUTE = '/create/plans'
 export const UPDATE_PLAN_ROUTE = '/update/plan/:planId'
 
 export const CREATE_COUPON_ROUTE = '/create/coupons'
-export const UPDATE_COUPON_ROUTE = '/update/coupons/:id'
+export const UPDATE_COUPON_ROUTE = '/update/coupons/:couponId'
 
 export const CREATE_ADD_ON_ROUTE = '/create/add-on'
 export const UPDATE_ADD_ON_ROUTE = '/update/add-on/:id'
