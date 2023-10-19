@@ -1,5 +1,6 @@
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
+import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 import { boolean, number, object, string } from 'yup'
@@ -12,6 +13,7 @@ import {
   ButtonLink,
   Chip,
   Dialog,
+  DialogRef,
   Drawer,
   Icon,
   IconName,
@@ -88,6 +90,7 @@ const SKELETON_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: '
 const TABLE_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'table' })
 
 const DesignSystem = () => {
+  const dialogRef = useRef<DialogRef>(null)
   const formikProps = useFormik({
     initialValues: {
       checkbox: false,
@@ -159,8 +162,9 @@ const DesignSystem = () => {
                       allowFullScreen
                     ></iframe>
                   </Drawer>
+                  <Button onClick={() => dialogRef.current?.openDialog()}>Dialog</Button>
                   <Dialog
-                    opener={<Button>Dialog</Button>}
+                    ref={dialogRef}
                     title="Imma dialog"
                     description="And I'm happy to see you"
                     actions={({ closeDialog }) => (
