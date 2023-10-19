@@ -92,9 +92,11 @@ export const theme = createTheme({
           },
           '& .MuiInputBase-inputAdornedStart': {
             paddingLeft: '8px',
+            borderRadius: '0 12px 12px 0',
           },
           '& .MuiInputBase-inputAdornedEnd': {
             paddingRight: '0px',
+            borderRadius: '12px 0 0 12px',
           },
           '.MuiInputAdornment-positionEnd': {
             marginRight: '16px',
@@ -134,6 +136,7 @@ export const theme = createTheme({
           boxSizing: 'border-box',
           padding: '10px 16px',
           color: palette.grey[700],
+          borderRadius: '12px',
           '&::placeholder': {
             color: palette.grey[500],
             opacity: 1,
