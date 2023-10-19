@@ -1,12 +1,5 @@
 import { alpha, Dialog as MuiDialog } from '@mui/material'
-import {
-  cloneElement,
-  forwardRef,
-  ReactElement,
-  ReactNode,
-  useImperativeHandle,
-  useState,
-} from 'react'
+import { forwardRef, ReactNode, useImperativeHandle, useState } from 'react'
 import { useEffect } from 'react'
 import styled from 'styled-components'
 
@@ -15,7 +8,6 @@ import { ButtonGroup, theme } from '~/styles'
 import { Typography } from './Typography'
 
 export interface DialogProps {
-  opener?: ReactElement
   actions?: ReactNode | ((args: { closeDialog: () => void }) => JSX.Element)
   title: ReactNode
   open?: boolean
@@ -35,7 +27,6 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
     {
       title,
       description,
-      opener,
       actions,
       children,
       onOpen,
@@ -64,16 +55,6 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
     return (
       <>
-        {!!opener &&
-          cloneElement(opener, {
-            onClick: () => {
-              opener?.props?.onClick && opener.props.onClick()
-              setIsOpen((prev) => {
-                if (!prev) onOpen && onOpen()
-                return !prev
-              })
-            },
-          })}
         <StyledDialog
           scroll="body"
           onKeyDown={(e) => {
