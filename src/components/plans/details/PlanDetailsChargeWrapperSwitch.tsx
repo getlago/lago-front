@@ -55,6 +55,8 @@ export const PlanDetailsChargeWrapperSwitch = ({
               [
                 intlFormatNumber(Number(values?.amount) || 0, {
                   currency: currency,
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 15,
                 }),
                 values?.packageSize,
                 values?.freeUnits,

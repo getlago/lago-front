@@ -41,11 +41,7 @@ const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null
           />
           <DetailsInfoItem
             label={translate('text_65201b8216455901fe273dcd')}
-            value={
-              plan?.trialPeriod
-                ? translate('text_65251f46339c650084ce0d57')
-                : translate('text_65251f4cd55aeb004e5aa5ef')
-            }
+            value={plan?.trialPeriod}
           />
           <DetailsInfoItem
             label={translate('text_645bb193927b375079d28a8f')}
