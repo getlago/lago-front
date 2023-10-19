@@ -59,15 +59,12 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef, AddStripDialog>(
         description={translate(
           isEdition ? 'text_62b1edddbf5f461ab9712737' : 'text_62b1edddbf5f461ab9712739'
         )}
+        onClose={() => {
+          setStripeApiKey('')
+        }}
         actions={({ closeDialog }) => (
           <>
-            <Button
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                setStripeApiKey('')
-              }}
-            >
+            <Button variant="quaternary" onClick={closeDialog}>
               {translate('text_62b1edddbf5f461ab971276d')}
             </Button>
             <Button

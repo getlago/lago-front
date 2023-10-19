@@ -88,18 +88,12 @@ export const UpdateCustomerWalletDialog = forwardRef<DialogRef, UpdateCustomerWa
         ref={ref}
         title={translate('text_62d9430e8b9fe36851cddd09')}
         description={translate('text_62d9430e8b9fe36851cddd0d')}
-        onClickAway={() => {
+        onClose={() => {
           formikProps.resetForm()
         }}
         actions={({ closeDialog }) => (
           <>
-            <Button
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                formikProps.resetForm()
-              }}
-            >
+            <Button variant="quaternary" onClick={closeDialog}>
               {translate('text_62d9430e8b9fe36851cddd25')}
             </Button>
             <Button
@@ -107,7 +101,6 @@ export const UpdateCustomerWalletDialog = forwardRef<DialogRef, UpdateCustomerWa
               onClick={async () => {
                 await formikProps.submitForm()
                 closeDialog()
-                formikProps.resetForm()
               }}
             >
               {translate('text_62d9430e8b9fe36851cddd29')}

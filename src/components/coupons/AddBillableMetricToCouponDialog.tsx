@@ -79,7 +79,7 @@ export const AddBillableMetricToCouponDialog = forwardRef<
       ref={ref}
       title={translate('text_64352657267c3d916f96274b')}
       description={translate('text_64352657267c3d916f962751')}
-      onClickAway={() => {
+      onClose={() => {
         setSelectedBillableMetric(undefined)
       }}
       onOpen={() => {
@@ -89,13 +89,7 @@ export const AddBillableMetricToCouponDialog = forwardRef<
       }}
       actions={({ closeDialog }) => (
         <>
-          <Button
-            variant="quaternary"
-            onClick={() => {
-              closeDialog()
-              setSelectedBillableMetric(undefined)
-            }}
-          >
+          <Button variant="quaternary" onClick={closeDialog}>
             {translate('text_64352657267c3d916f962769')}
           </Button>
           <Button
@@ -103,7 +97,6 @@ export const AddBillableMetricToCouponDialog = forwardRef<
             onClick={async () => {
               onSubmit(selectedBillableMetric)
               closeDialog()
-              setSelectedBillableMetric(undefined)
             }}
             data-test="submitAddBillableMetricToCouponDialog"
           >

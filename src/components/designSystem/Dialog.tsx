@@ -8,13 +8,13 @@ import { ButtonGroup, theme } from '~/styles'
 import { Typography } from './Typography'
 
 export interface DialogProps {
-  actions?: ReactNode | ((args: { closeDialog: () => void }) => JSX.Element)
+  actions: (args: { closeDialog: () => void }) => JSX.Element
   title: ReactNode
   open?: boolean
   description?: ReactNode
   children?: ReactNode
   onOpen?: () => void
-  onClickAway?: () => void
+  onClose?: () => void
 }
 
 export interface DialogRef {
@@ -24,16 +24,7 @@ export interface DialogRef {
 
 export const Dialog = forwardRef<DialogRef, DialogProps>(
   (
-    {
-      title,
-      description,
-      actions,
-      children,
-      onOpen,
-      onClickAway,
-      open = false,
-      ...props
-    }: DialogProps,
+    { title, description, actions, children, onOpen, onClose, open = false, ...props }: DialogProps,
     ref
   ) => {
     const [isOpen, setIsOpen] = useState(open)
@@ -43,12 +34,12 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
         setIsOpen(true)
         onOpen && onOpen()
       },
-      closeDialog: () => setIsOpen(false),
+      closeDialog: () => onDialogClose(),
     }))
 
     const onDialogClose = () => {
       setIsOpen(false)
-      onClickAway && onClickAway()
+      onClose && onClose()
     }
 
     useEffect(() => setIsOpen(open), [open])
@@ -81,7 +72,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
           <StyledButtonGroup>
             {typeof actions === 'function'
-              ? actions({ closeDialog: () => setIsOpen(false) })
+              ? actions({ closeDialog: () => onDialogClose() })
               : actions}
           </StyledButtonGroup>
         </StyledDialog>

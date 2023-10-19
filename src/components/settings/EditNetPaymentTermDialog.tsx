@@ -177,19 +177,15 @@ export const EditNetPaymentTermDialog = forwardRef<
       ref={dialogRef}
       title={translate(isEdit ? 'text_64c7a89b6c67eb6c988981e0' : 'text_64c7a89b6c67eb6c9889822d')}
       description={description}
-      onClickAway={() => {
+      onClose={() => {
         formikProps.resetForm()
         formikProps.validateForm()
+        setIsEdit(false)
+        setLocalModel(undefined)
       }}
       actions={({ closeDialog }) => (
         <>
-          <Button
-            variant="quaternary"
-            onClick={() => {
-              closeDialog()
-              formikProps.resetForm()
-            }}
-          >
+          <Button variant="quaternary" onClick={closeDialog}>
             {translate('text_62bb10ad2a10bd182d002031')}
           </Button>
           <Button
@@ -198,9 +194,6 @@ export const EditNetPaymentTermDialog = forwardRef<
             onClick={async () => {
               await formikProps.submitForm()
               closeDialog()
-              formikProps.resetForm()
-              setIsEdit(false)
-              setLocalModel(undefined)
             }}
           >
             {translate(isEdit ? 'text_64c7a89b6c67eb6c988981e0' : 'text_64c7a89b6c67eb6c98898073')}

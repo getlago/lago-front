@@ -98,25 +98,22 @@ export const UpdateInvoicePaymentStatusDialog = forwardRef<UpdateInvoicePaymentS
         ref={dialogRef}
         title={translate('text_63eba8c65a6c8043feee2a0d')}
         description={translate('text_63eba8c65a6c8043feee2a0e')}
-        onClickAway={() => {
+        onClose={() => {
           formikProps.resetForm()
           formikProps.validateForm()
         }}
         actions={({ closeDialog }) => (
           <>
-            <Button
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                formikProps.resetForm()
-              }}
-            >
+            <Button variant="quaternary" onClick={closeDialog}>
               {translate('text_63eba8c65a6c8043feee2a14')}
             </Button>
             <Button
               variant="primary"
               disabled={!formikProps.isValid || !formikProps.dirty}
-              onClick={formikProps.submitForm}
+              onClick={async () => {
+                await formikProps.submitForm()
+                closeDialog()
+              }}
             >
               {translate('text_63eba8c65a6c8043feee2a15')}
             </Button>

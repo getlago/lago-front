@@ -117,30 +117,20 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
       onOpen={() => {
         formikProps.validateForm()
       }}
-      onClickAway={() => {
+      onClose={() => {
         setInviteToken('')
         formikProps.resetForm()
         formikProps.validateForm()
       }}
       actions={({ closeDialog }) => (
         <>
-          <Button
-            variant="quaternary"
-            onClick={() => {
-              closeDialog()
-              setInviteToken('')
-              formikProps.resetForm()
-              formikProps.validateForm()
-            }}
-          >
+          <Button variant="quaternary" onClick={closeDialog}>
             {translate('text_63208c711ce25db7814074cd')}
           </Button>
           {!inviteToken ? (
             <Button
               disabled={!formikProps.isValid}
-              onClick={async () => {
-                await formikProps.submitForm()
-              }}
+              onClick={formikProps.submitForm}
               data-test="submit-invite-button"
             >
               {translate('text_63208c711ce25db7814074d9')}
@@ -156,9 +146,6 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
                   translateKey: 'text_63208c711ce25db781407536',
                 })
                 closeDialog()
-                setInviteToken('')
-                formikProps.resetForm()
-                formikProps.validateForm()
               }}
               data-test="copy-invite-link-button"
             >
