@@ -113,7 +113,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
                 customerTimezone={customerTimezone}
                 getOnClickLink={(id) =>
                   generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                    id: customerId,
+                    customerId,
                     invoiceId: id,
                     tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
                   })
@@ -123,9 +123,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
                   (dataDraft?.customerInvoices?.metadata?.totalCount || 0) >
                   DRAFT_INVOICES_ITEMS_COUNT
                     ? () =>
-                        navigate(
-                          generatePath(CUSTOMER_DRAFT_INVOICES_LIST_ROUTE, { id: customerId })
-                        )
+                        navigate(generatePath(CUSTOMER_DRAFT_INVOICES_LIST_ROUTE, { customerId }))
                     : undefined
                 }
               />
@@ -154,7 +152,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
                 invoiceData={dataFinalized?.customerInvoices}
                 getOnClickLink={(id) =>
                   generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                    id: customerId,
+                    customerId,
                     invoiceId: id,
                     tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
                   })

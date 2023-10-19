@@ -75,7 +75,7 @@ const SubscriptionInformations = ({
             value={
               <Link
                 to={generatePath(CUSTOMER_DETAILS_ROUTE, {
-                  id: subscription?.customer?.id as string,
+                  customerId: subscription?.customer?.id as string,
                 })}
               >
                 {subscription?.customer?.name}

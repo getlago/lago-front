@@ -65,7 +65,7 @@ export const SubscriptionLine = ({
   terminateSubscriptionDialogRef,
 }: SubscriptionLineProps) => {
   const navigate = useNavigate()
-  const { id: customerId } = useParams()
+  const { customerId } = useParams()
   const { translate } = useInternationalization()
 
   return (
@@ -139,7 +139,7 @@ export const SubscriptionLine = ({
                   onClick={() => {
                     navigate(
                       generatePath(UPDATE_SUBSCRIPTION, {
-                        id: customerId as string,
+                        customerId: customerId as string,
                         subscriptionId,
                       })
                     )
@@ -156,7 +156,7 @@ export const SubscriptionLine = ({
                   onClick={() => {
                     navigate(
                       generatePath(UPGRADE_DOWNGRADE_SUBSCRIPTION, {
-                        id: customerId as string,
+                        customerId: customerId as string,
                         subscriptionId,
                       })
                     )

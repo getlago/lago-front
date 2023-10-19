@@ -99,7 +99,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
               invalidWrapper={(children) => (
                 <Link
                   to={generatePath(CUSTOMER_DETAILS_ROUTE, {
-                    id: customer.id,
+                    customerId: customer.id,
                   })}
                 >
                   {children}

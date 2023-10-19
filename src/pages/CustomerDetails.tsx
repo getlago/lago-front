@@ -104,10 +104,10 @@ const CustomerDetails = () => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const navigate = useNavigate()
-  const { id, tab } = useParams()
+  const { customerId, tab } = useParams()
   const { data, loading, error } = useGetCustomerQuery({
-    variables: { id: id as string },
-    skip: !id,
+    variables: { id: customerId as string },
+    skip: !customerId,
     notifyOnNetworkStatusChange: true,
   })
   const [generatePortalUrl] = useGenerateCustomerPortalUrlMutation({
@@ -166,7 +166,7 @@ const CustomerDetails = () => {
             variant="quaternary"
             onClick={async () => {
               isPremium
-                ? await generatePortalUrl({ variables: { input: { id: id as string } } })
+                ? await generatePortalUrl({ variables: { input: { id: customerId as string } } })
                 : premiumWarningDialogRef.current?.openDialog()
             }}
           >
@@ -189,7 +189,7 @@ const CustomerDetails = () => {
                   onClick={() => {
                     navigate(
                       generatePath(CREATE_SUBSCRIPTION, {
-                        id: id as string,
+                        customerId: customerId as string,
                       })
                     )
                     closePopper()
@@ -201,7 +201,9 @@ const CustomerDetails = () => {
                   variant="quaternary"
                   align="left"
                   onClick={() => {
-                    navigate(generatePath(CREATE_INVOICE_ROUTE, { id: id as string }))
+                    navigate(
+                      generatePath(CREATE_INVOICE_ROUTE, { customerId: customerId as string })
+                    )
 
                     closePopper()
                   }}
@@ -315,17 +317,17 @@ const CustomerDetails = () => {
                     {
                       title: translate('text_628cf761cbe6820138b8f2e4'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        id: id as string,
+                        customerId: customerId as string,
                         tab: CustomerDetailsTabsOptions.overview,
                       }),
                       routerState: { disableScrollTop: true },
                       match: [
                         generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                          id: id as string,
+                          customerId: customerId as string,
                           tab: CustomerDetailsTabsOptions.overview,
                         }),
                         generatePath(CUSTOMER_DETAILS_ROUTE, {
-                          id: id as string,
+                          customerId: customerId as string,
                         }),
                       ],
                       component: (
@@ -338,7 +340,7 @@ const CustomerDetails = () => {
                     {
                       title: translate('text_62d175066d2dbf1d50bc937c'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        id: id as string,
+                        customerId: customerId as string,
                         tab: CustomerDetailsTabsOptions.wallet,
                       }),
                       routerState: { disableScrollTop: true },
@@ -346,7 +348,7 @@ const CustomerDetails = () => {
                         <SideBlock>
                           <CustomerWalletsList
                             ref={addWalletToCustomerDialogRef}
-                            customerId={id as string}
+                            customerId={customerId as string}
                             customerTimezone={safeTimezone}
                           />
                         </SideBlock>
@@ -355,7 +357,7 @@ const CustomerDetails = () => {
                     {
                       title: translate('text_62c3f3fca8a1625624e83365'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        id: id as string,
+                        customerId: customerId as string,
                         tab: CustomerDetailsTabsOptions.usage,
                       }),
                       routerState: { disableScrollTop: true },
@@ -369,14 +371,14 @@ const CustomerDetails = () => {
                     {
                       title: translate('text_628cf761cbe6820138b8f2e6'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        id: id as string,
+                        customerId: customerId as string,
                         tab: CustomerDetailsTabsOptions.invoices,
                       }),
                       routerState: { disableScrollTop: true },
                       component: (
                         <SideBlock>
                           <CustomerInvoicesTab
-                            customerId={id as string}
+                            customerId={customerId as string}
                             customerTimezone={safeTimezone}
                           />
                         </SideBlock>
@@ -385,7 +387,7 @@ const CustomerDetails = () => {
                     {
                       title: translate('text_63725b30957fd5b26b308dd3'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        id: id as string,
+                        customerId: customerId as string,
                         tab: CustomerDetailsTabsOptions.creditNotes,
                       }),
                       routerState: { disableScrollTop: true },
@@ -393,7 +395,7 @@ const CustomerDetails = () => {
                       component: (
                         <SideBlock>
                           <CustomerCreditNotesList
-                            customerId={id as string}
+                            customerId={customerId as string}
                             creditNotesCreditsAvailableCount={creditNotesCreditsAvailableCount}
                             creditNotesBalanceAmountCents={creditNotesBalanceAmountCents}
                             userCurrency={data?.customer?.currency || undefined}
@@ -405,13 +407,13 @@ const CustomerDetails = () => {
                     {
                       title: translate('text_638dff9779fb99299bee9126'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        id: id as string,
+                        customerId: customerId as string,
                         tab: CustomerDetailsTabsOptions.settings,
                       }),
                       routerState: { disableScrollTop: true },
                       component: (
                         <SideBlock>
-                          <CustomerSettings customerId={id as string} />
+                          <CustomerSettings customerId={customerId as string} />
                         </SideBlock>
                       ),
                     },
@@ -443,11 +445,11 @@ const CustomerDetails = () => {
           />
           <AddCouponToCustomerDialog
             ref={addCouponDialogRef}
-            customerId={id as string}
+            customerId={customerId as string}
             customerName={data?.customer?.name as string}
           />
           <AddWalletToCustomerDialog
-            customerId={id as string}
+            customerId={customerId as string}
             userCurrency={data?.customer?.currency || undefined}
             ref={addWalletToCustomerDialogRef}
           />

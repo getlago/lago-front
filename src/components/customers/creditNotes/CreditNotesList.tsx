@@ -82,7 +82,7 @@ const CreditNotesList = memo(
   }: CreditNotesListProps) => {
     const { translate } = useInternationalization()
     const navigate = useNavigate()
-    const { id: customerId, invoiceId } = useParams()
+    const { customerId, invoiceId } = useParams()
     const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
     const [downloadCreditNote, { loading: loadingCreditNoteDownload }] =
       useDownloadCreditNoteMutation({
@@ -168,7 +168,7 @@ const CreditNotesList = memo(
                     onClick={() =>
                       navigate(
                         generatePath(itemClickRedirection, {
-                          id: customerId,
+                          customerId,
                           invoiceId: invoiceId,
                           creditNoteId: creditNote.id,
                         })

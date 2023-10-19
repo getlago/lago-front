@@ -182,7 +182,7 @@ const consumedMapStatus = (type?: CreditNoteRefundStatusEnum | null | undefined)
 const CreditNoteDetails = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
-  const { id: customerId, invoiceId, creditNoteId } = useParams()
+  const { customerId, invoiceId, creditNoteId } = useParams()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const [downloadCreditNote, { loading: loadingInvoiceDownload }] = useDownloadCreditNoteMutation({
     onCompleted({ downloadCreditNote: downloadCreditNoteData }) {
@@ -232,12 +232,12 @@ const CreditNoteDetails = () => {
               goBack(
                 !!invoiceId
                   ? generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                      id: customerId as string,
+                      customerId: customerId as string,
                       invoiceId,
                       tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
                     })
                   : generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                      id: customerId as string,
+                      customerId: customerId as string,
                       tab: CustomerDetailsTabsOptions.creditNotes,
                     })
               )
@@ -415,7 +415,7 @@ const CreditNoteDetails = () => {
                           invalidWrapper={(children) => (
                             <Link
                               to={generatePath(CUSTOMER_DETAILS_ROUTE, {
-                                id: creditNote?.customer?.id,
+                                customerId: creditNote?.customer?.id,
                               })}
                             >
                               {children}
@@ -434,7 +434,7 @@ const CreditNoteDetails = () => {
                           </Typography>
                           <Link
                             to={generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                              id: creditNote?.customer?.id,
+                              customerId: creditNote?.customer?.id,
                               invoiceId: creditNote?.invoice.id,
                               tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
                             })}

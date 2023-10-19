@@ -112,7 +112,7 @@ const CreateSubscription = () => {
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
-  const { id: customerId, subscriptionId } = useParams()
+  const { customerId, subscriptionId } = useParams()
 
   const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
   const warningDialogRef = useRef<WarningDialogRef>(null)
@@ -396,7 +396,7 @@ const CreateSubscription = () => {
           onClick={() =>
             subscriptionFormikProps.dirty || planFormikProps.dirty
               ? warningDialogRef.current?.openDialog()
-              : navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: customerId as string }))
+              : navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
           }
           data-test="close-create-subscription-button"
         />
@@ -733,7 +733,7 @@ const CreateSubscription = () => {
         description={translate('text_65118a52df984447c18694fe')}
         continueText={translate('text_624454dd67656e00c534bc41')}
         onContinue={() => {
-          navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: customerId as string }))
+          navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
         }}
       />
 

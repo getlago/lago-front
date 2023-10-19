@@ -154,7 +154,7 @@ const mapStatus = (
 
 const CustomerInvoiceDetails = () => {
   const { translate } = useInternationalization()
-  const { id, invoiceId } = useParams()
+  const { customerId, invoiceId } = useParams()
   let navigate = useNavigate()
   const { goBack } = useLocationHistory()
   const { isPremium } = useCurrentUser()
@@ -215,14 +215,14 @@ const CustomerInvoiceDetails = () => {
       {
         title: translate('text_634687079be251fdb43833b7'),
         link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-          id: id as string,
+          customerId: customerId as string,
           invoiceId: invoiceId as string,
           tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
         }),
         routerState: { disableScrollTop: true },
         match: [
           generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-            id: id as string,
+            customerId: customerId as string,
             invoiceId: invoiceId as string,
             tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
           }),
@@ -245,14 +245,14 @@ const CustomerInvoiceDetails = () => {
       tabs.push({
         title: translate('text_636bdef6565341dcb9cfb125'),
         link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-          id: id as string,
+          customerId: customerId as string,
           invoiceId: invoiceId as string,
           tab: CustomerInvoiceDetailsTabsOptionsEnum.creditNotes,
         }),
         routerState: { disableScrollTop: true },
         match: [
           generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-            id: id as string,
+            customerId: customerId as string,
             invoiceId: invoiceId as string,
             tab: CustomerInvoiceDetailsTabsOptionsEnum.creditNotes,
           }),
@@ -263,17 +263,17 @@ const CustomerInvoiceDetails = () => {
 
     return tabs
   }, [
-    downloadInvoice,
-    id,
-    invoiceId,
-    invoiceType,
-    loadingInvoiceDownload,
     translate,
-    refreshInvoice,
-    loadingRefreshInvoice,
+    customerId,
+    invoiceId,
+    downloadInvoice,
     hasError,
+    data?.invoice,
     loading,
-    data,
+    loadingInvoiceDownload,
+    loadingRefreshInvoice,
+    refreshInvoice,
+    invoiceType,
     status,
   ])
 
@@ -287,7 +287,7 @@ const CustomerInvoiceDetails = () => {
             onClick={() =>
               goBack(
                 generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                  id: id as string,
+                  customerId: customerId as string,
                   tab: CustomerDetailsTabsOptions.invoices,
                 }),
                 {
@@ -371,7 +371,7 @@ const CustomerInvoiceDetails = () => {
                             onClick={async () => {
                               navigate(
                                 generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
-                                  id: id as string,
+                                  customerId: customerId as string,
                                   invoiceId: invoiceId as string,
                                 })
                               )

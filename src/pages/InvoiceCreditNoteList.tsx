@@ -48,14 +48,14 @@ gql`
 `
 
 const InvoiceCreditNoteList = () => {
-  const { invoiceId, id } = useParams()
+  const { invoiceId, customerId } = useParams()
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { data, loading, error, fetchMore } = useGetInvoiceCreditNotesQuery({
     variables: { invoiceId: invoiceId as string, limit: 20 },
-    skip: !invoiceId || !id,
+    skip: !invoiceId || !customerId,
   })
   const creditNotes = data?.invoiceCreditNotes?.collection
 
@@ -77,7 +77,7 @@ const InvoiceCreditNoteList = () => {
                       }
                       buttonProps={{ variant: 'quaternary' }}
                       to={generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
-                        id: id as string,
+                        customerId: customerId as string,
                         invoiceId: invoiceId as string,
                       })}
                     >

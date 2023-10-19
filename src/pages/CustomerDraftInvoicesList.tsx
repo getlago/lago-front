@@ -58,7 +58,7 @@ gql`
 `
 
 const CustomerDraftInvoicesList = () => {
-  const { id: customerId = '' } = useParams()
+  const { customerId = '' } = useParams()
   const { goBack } = useLocationHistory()
   const { translate } = useInternationalization()
   const [getDraftInvoices, { data, error, loading, fetchMore }] =
@@ -85,7 +85,7 @@ const CustomerDraftInvoicesList = () => {
             onClick={() =>
               goBack(
                 generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                  id: customerId,
+                  customerId,
                   tab: CustomerDetailsTabsOptions.invoices,
                 })
               )
@@ -143,7 +143,7 @@ const CustomerDraftInvoicesList = () => {
           invoiceData={data?.customerInvoices}
           getOnClickLink={(id) =>
             generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-              id: customerId,
+              customerId,
               invoiceId: id,
               tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
             })

@@ -57,7 +57,7 @@ gql`
 `
 
 export const CustomerCoupons = memo(() => {
-  const { id: customerId } = useParams()
+  const { customerId } = useParams()
   const removeDialogRef = useRef<WarningDialogRef>(null)
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
   const deleteCouponId = useRef<string | null>(null)

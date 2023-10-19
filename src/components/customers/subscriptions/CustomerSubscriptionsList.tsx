@@ -43,12 +43,12 @@ interface CustomerSubscriptionsListProps {
 }
 
 export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscriptionsListProps) => {
-  const { id } = useParams()
+  const { customerId } = useParams()
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { data, loading } = useGetCustomerSubscriptionForListQuery({
-    variables: { id: id as string },
-    skip: !id,
+    variables: { id: customerId as string },
+    skip: !customerId,
   })
   const subscriptions = data?.customer?.subscriptions
   const hasNoSubscription = !subscriptions || !subscriptions.length
@@ -64,7 +64,7 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
           onClick={() =>
             navigate(
               generatePath(CREATE_SUBSCRIPTION, {
-                id: id as string,
+                customerId: customerId as string,
               })
             )
           }

@@ -29,7 +29,7 @@ const CreditNoteDetails = lazyLoad(
 
 // ----------- Routes -----------
 export const CUSTOMERS_LIST_ROUTE = '/customers'
-export const CUSTOMER_DETAILS_ROUTE = '/customer/:id'
+export const CUSTOMER_DETAILS_ROUTE = '/customer/:customerId'
 export const CUSTOMER_DETAILS_TAB_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/:tab`
 export const CUSTOMER_DRAFT_INVOICES_LIST_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/draft-invoices`
 export const CUSTOMER_INVOICE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/:tab`

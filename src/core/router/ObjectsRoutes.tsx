@@ -72,12 +72,12 @@ export const UPDATE_ADD_ON_ROUTE = '/update/add-on/:addOnId'
 export const CREATE_TAX_ROUTE = '/create/tax'
 export const UPDATE_TAX_ROUTE = '/update/tax/:taxId'
 
-export const CREATE_INVOICE_ROUTE = '/customer/:id/create-invoice'
+export const CREATE_INVOICE_ROUTE = '/customer/:customerId/create-invoice'
 
-export const CREATE_SUBSCRIPTION = '/customer/:id/create/subscription'
-export const UPDATE_SUBSCRIPTION = '/customer/:id/update/subscription/:subscriptionId'
+export const CREATE_SUBSCRIPTION = '/customer/:customerId/create/subscription'
+export const UPDATE_SUBSCRIPTION = '/customer/:customerId/update/subscription/:subscriptionId'
 export const UPGRADE_DOWNGRADE_SUBSCRIPTION =
-  '/customer/:id/upgrade-downgrade/subscription/:subscriptionId'
+  '/customer/:customerId/upgrade-downgrade/subscription/:subscriptionId'
 
 // Details
 export const CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE =

@@ -122,7 +122,7 @@ export const InvoiceCreditNotesTable = memo(
                               color="grey500"
                               html={translate('text_637cd81348c50c26dd05a767', {
                                 link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
-                                  id: customerId,
+                                  customerId,
                                   invoiceId,
                                   creditNoteId: creditNote.id,
                                 }),

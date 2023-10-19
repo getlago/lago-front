@@ -144,7 +144,7 @@ type TaxMapType = Map<
 
 const CreateInvoice = () => {
   const navigate = useNavigate()
-  const { id: customerId } = useParams()
+  const { customerId } = useParams()
   const [showAddItem, setShowAddItem] = useState(false)
   const { translate } = useInternationalization()
   const warningDialogRef = useRef<WarningDialogRef>(null)
@@ -152,7 +152,7 @@ const CreateInvoice = () => {
   const editTaxDialogRef = useRef<EditInvoiceItemTaxDialogRef>(null)
   const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
   const handleClosePage = useCallback(() => {
-    navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: customerId as string }))
+    navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
   }, [navigate, customerId])
 
   const { data, loading, error } = useGetInfosForCreateInvoiceQuery({
@@ -180,7 +180,7 @@ const CreateInvoice = () => {
           severity: 'success',
           translateKey: 'text_6453819268763979024ad144',
         })
-        navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: customerId as string }))
+        navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
       }
     },
   })

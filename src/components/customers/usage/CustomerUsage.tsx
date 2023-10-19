@@ -41,11 +41,11 @@ interface CustomerUsageProps {
 }
 
 export const CustomerUsage = ({ customerTimezone }: CustomerUsageProps) => {
-  const { id } = useParams()
+  const { customerId } = useParams()
   const { translate } = useInternationalization()
   const { data, loading } = useGetCustomerSubscriptionForUsageQuery({
-    variables: { id: id as string },
-    skip: !id,
+    variables: { id: customerId as string },
+    skip: !customerId,
   })
   const subscriptions = data?.customer?.subscriptions
 
@@ -67,7 +67,7 @@ export const CustomerUsage = ({ customerTimezone }: CustomerUsageProps) => {
             .map((subscription) => (
               <UsageItem
                 key={subscription?.id}
-                customerId={id as string}
+                customerId={customerId as string}
                 subscription={subscription}
                 customerTimezone={customerTimezone}
               />
