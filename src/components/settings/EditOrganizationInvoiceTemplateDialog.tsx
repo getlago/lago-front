@@ -78,15 +78,10 @@ export const EditOrganizationInvoiceTemplateDialog = forwardRef<
     <Dialog
       ref={ref}
       title={translate('text_62bb10ad2a10bd182d00201d')}
+      onClose={() => formikProps.resetForm()}
       actions={({ closeDialog }) => (
         <>
-          <Button
-            variant="quaternary"
-            onClick={() => {
-              closeDialog()
-              formikProps.resetForm()
-            }}
-          >
+          <Button variant="quaternary" onClick={closeDialog}>
             {translate('text_62bb10ad2a10bd182d002031')}
           </Button>
           <Button
@@ -95,7 +90,6 @@ export const EditOrganizationInvoiceTemplateDialog = forwardRef<
             onClick={async () => {
               await formikProps.submitForm()
               closeDialog()
-              formikProps.resetForm()
             }}
           >
             {translate('text_62bb10ad2a10bd182d002037')}

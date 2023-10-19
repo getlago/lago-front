@@ -101,7 +101,7 @@ export const AddOrganizationVatRateDialog = forwardRef<
       ref={ref}
       title={translate('text_64639c4d172d7a006ef30512')}
       description={translate('text_64639c4d172d7a006ef30513')}
-      onClickAway={() => {
+      onClose={() => {
         setLocalVatRate('')
       }}
       onOpen={() => {
@@ -111,13 +111,7 @@ export const AddOrganizationVatRateDialog = forwardRef<
       }}
       actions={({ closeDialog }) => (
         <>
-          <Button
-            variant="quaternary"
-            onClick={() => {
-              closeDialog()
-              setLocalVatRate('')
-            }}
-          >
+          <Button variant="quaternary" onClick={closeDialog}>
             {translate('text_62728ff857d47b013204c7e4')}
           </Button>
           <Button
@@ -129,7 +123,6 @@ export const AddOrganizationVatRateDialog = forwardRef<
               })
 
               if (res.errors) return
-              setLocalVatRate('')
               closeDialog()
             }}
             data-test="submit-add-organization-tax-dialog-assign-button"

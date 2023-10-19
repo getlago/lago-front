@@ -36,7 +36,7 @@ export const EditInvoiceItemDescriptionDialog = forwardRef<EditInvoiceItemDescri
       validateOnMount: true,
       enableReinitialize: true,
       onSubmit: async (values, formikBag) => {
-        data?.callback(values.description)
+        await data?.callback(values.description)
 
         dialogRef?.current?.closeDialog()
         formikBag.resetForm()
@@ -56,25 +56,22 @@ export const EditInvoiceItemDescriptionDialog = forwardRef<EditInvoiceItemDescri
         ref={dialogRef}
         title={translate('text_6453819268763979024acff7')}
         description={translate('text_6453819268763979024ad005')}
-        onClickAway={() => {
+        onClose={() => {
           formikProps.resetForm()
           formikProps.validateForm()
         }}
         actions={({ closeDialog }) => (
           <>
-            <Button
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                formikProps.resetForm()
-              }}
-            >
+            <Button variant="quaternary" onClick={closeDialog}>
               {translate('text_63eba8c65a6c8043feee2a14')}
             </Button>
             <Button
               variant="primary"
               disabled={!formikProps.isValid || !formikProps.dirty}
-              onClick={formikProps.submitForm}
+              onClick={async () => {
+                await formikProps.submitForm()
+                closeDialog()
+              }}
             >
               {translate('text_6453819268763979024ad041')}
             </Button>

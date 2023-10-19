@@ -100,25 +100,22 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
       ref={dialogRef}
       title={translate('text_645bb193927b375079d289b5')}
       description={translate('text_64d40b7e80e64e40710a4931')}
-      onClickAway={() => {
+      onClose={() => {
         formikProps.resetForm()
         formikProps.validateForm()
       }}
       actions={({ closeDialog }) => (
         <>
-          <Button
-            variant="quaternary"
-            onClick={() => {
-              closeDialog()
-              formikProps.resetForm()
-            }}
-          >
+          <Button variant="quaternary" onClick={closeDialog}>
             {translate('text_63eba8c65a6c8043feee2a14')}
           </Button>
           <Button
             variant="primary"
             disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={formikProps.submitForm}
+            onClick={async () => {
+              await formikProps.submitForm()
+              closeDialog()
+            }}
             data-test="edit-invoice-item-tax-dialog-submit-button"
           >
             {translate('text_645bb193927b375079d289b5')}

@@ -93,18 +93,12 @@ export const EditDefaultCurrencyDialog = forwardRef<EditDefaultCurrencyDialogRef
       ref={dialogRef}
       title={translate('text_6543ca0fdebf76a18e159294')}
       description={translate('text_6543ca0fdebf76a18e159298')}
-      onClickAway={() => {
+      onClose={() => {
         formikProps.resetForm()
       }}
       actions={({ closeDialog }) => (
         <>
-          <Button
-            variant="quaternary"
-            onClick={() => {
-              closeDialog()
-              formikProps.resetForm()
-            }}
-          >
+          <Button variant="quaternary" onClick={closeDialog}>
             {translate('text_62bb10ad2a10bd182d002031')}
           </Button>
           <Button

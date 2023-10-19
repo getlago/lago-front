@@ -90,14 +90,12 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef, AddStripDialog>(
         description={translate(
           isEdition ? 'text_645d071272418a14c1c76a73' : 'text_645d071272418a14c1c76a6b'
         )}
+        onClose={() => {
+          formikProps.resetForm()
+        }}
         actions={({ closeDialog }) => (
           <>
-            <Button
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-              }}
-            >
+            <Button variant="quaternary" onClick={closeDialog}>
               {translate('text_63eba8c65a6c8043feee2a14')}
             </Button>
             <Button
@@ -106,7 +104,6 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef, AddStripDialog>(
               onClick={async () => {
                 await formikProps.submitForm()
                 closeDialog()
-                formikProps.resetForm()
               }}
             >
               {translate(

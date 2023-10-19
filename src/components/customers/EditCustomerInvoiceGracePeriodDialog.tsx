@@ -78,15 +78,10 @@ export const EditCustomerInvoiceGracePeriodDialog = forwardRef<
       ref={ref}
       title={translate('text_638dff9779fb99299bee90b0')}
       description={translate('text_638dff9779fb99299bee90b4')}
+      onClose={() => formikProps.resetForm()}
       actions={({ closeDialog }) => (
         <>
-          <Button
-            variant="quaternary"
-            onClick={() => {
-              closeDialog()
-              formikProps.resetForm()
-            }}
-          >
+          <Button variant="quaternary" onClick={closeDialog}>
             {translate('text_638dff9779fb99299bee90c8')}
           </Button>
           <Button
@@ -95,7 +90,6 @@ export const EditCustomerInvoiceGracePeriodDialog = forwardRef<
             onClick={async () => {
               await formikProps.submitForm()
               closeDialog()
-              formikProps.resetForm()
             }}
           >
             {translate('text_638dff9779fb99299bee90cc')}

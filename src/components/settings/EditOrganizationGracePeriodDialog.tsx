@@ -77,15 +77,10 @@ export const EditOrganizationGracePeriodDialog = forwardRef<
       ref={ref}
       title={translate('text_638dc196fb209d551f3d8139')}
       description={translate('text_638dc196fb209d551f3d813b')}
+      onClose={() => formikProps.resetForm()}
       actions={({ closeDialog }) => (
         <>
-          <Button
-            variant="quaternary"
-            onClick={() => {
-              closeDialog()
-              formikProps.resetForm()
-            }}
-          >
+          <Button variant="quaternary" onClick={closeDialog}>
             {translate('text_62bb10ad2a10bd182d002031')}
           </Button>
           <Button
@@ -94,7 +89,6 @@ export const EditOrganizationGracePeriodDialog = forwardRef<
             onClick={async () => {
               await formikProps.submitForm()
               closeDialog()
-              formikProps.resetForm()
             }}
           >
             {translate('text_638dc196fb209d551f3d8159')}

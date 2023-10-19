@@ -54,25 +54,22 @@ export const EditInvoiceDisplayName = forwardRef<EditInvoiceDisplayNameRef>((_, 
       ref={dialogRef}
       title={translate('text_65018c8e5c6b626f030bcf1e')}
       description={translate('text_65018c8e5c6b626f030bcf22')}
-      onClickAway={() => {
+      onClose={() => {
         formikProps.resetForm()
         formikProps.validateForm()
       }}
       actions={({ closeDialog }) => (
         <>
-          <Button
-            variant="quaternary"
-            onClick={() => {
-              closeDialog()
-              formikProps.resetForm()
-            }}
-          >
+          <Button variant="quaternary" onClick={closeDialog}>
             {translate('text_63eba8c65a6c8043feee2a14')}
           </Button>
           <Button
             variant="primary"
             disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={formikProps.submitForm}
+            onClick={async () => {
+              await formikProps.submitForm()
+              closeDialog()
+            }}
           >
             {translate('text_65018c8e5c6b626f030bcf32')}
           </Button>

@@ -253,20 +253,13 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
             connectionName: localData?.type,
           }
         )}
-        onClickAway={() => {
+        onClose={() => {
           setLocalData(undefined)
           formikProps.resetForm()
         }}
         actions={({ closeDialog }) => (
           <>
-            <Button
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                setLocalData(undefined)
-                formikProps.resetForm()
-              }}
-            >
+            <Button variant="quaternary" onClick={closeDialog}>
               {translate('text_6271200984178801ba8bdf4a')}
             </Button>
             <Button

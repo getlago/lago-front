@@ -76,7 +76,7 @@ export const AddPlanToCouponDialog = forwardRef<DialogRef, AddPlanToCouponDialog
         ref={ref}
         title={translate('text_63d3a658c6d84a5843032141')}
         description={translate('text_63d3a658c6d84a5843032143')}
-        onClickAway={() => {
+        onClose={() => {
           setSelectedPlan(undefined)
         }}
         onOpen={() => {
@@ -86,13 +86,7 @@ export const AddPlanToCouponDialog = forwardRef<DialogRef, AddPlanToCouponDialog
         }}
         actions={({ closeDialog }) => (
           <>
-            <Button
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                setSelectedPlan(undefined)
-              }}
-            >
+            <Button variant="quaternary" onClick={closeDialog}>
               {translate('text_63d3a658c6d84a5843032149')}
             </Button>
             <Button
@@ -100,7 +94,6 @@ export const AddPlanToCouponDialog = forwardRef<DialogRef, AddPlanToCouponDialog
               onClick={async () => {
                 onSubmit(selectedPlan)
                 closeDialog()
-                setSelectedPlan(undefined)
               }}
               data-test="submitAddPlanToCouponDialog"
             >

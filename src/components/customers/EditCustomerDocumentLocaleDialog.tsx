@@ -112,19 +112,13 @@ export const EditCustomerDocumentLocaleDialog = forwardRef<
           })}
         />
       }
-      onClickAway={() => {
+      onClose={() => {
         formikProps.resetForm()
         formikProps.validateForm()
       }}
       actions={({ closeDialog }) => (
         <>
-          <Button
-            variant="quaternary"
-            onClick={() => {
-              closeDialog()
-              formikProps.resetForm()
-            }}
-          >
+          <Button variant="quaternary" onClick={closeDialog}>
             {translate('text_63ea0f84f400488553caa6a5')}
           </Button>
           <Button
@@ -133,7 +127,6 @@ export const EditCustomerDocumentLocaleDialog = forwardRef<
             onClick={async () => {
               await formikProps.submitForm()
               closeDialog()
-              formikProps.resetForm()
             }}
           >
             {isEdition

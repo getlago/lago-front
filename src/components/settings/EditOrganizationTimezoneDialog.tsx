@@ -68,19 +68,13 @@ export const EditOrganizationTimezoneDialog = forwardRef<
       ref={ref}
       title={translate('text_63890710eb171a76814a0c0d')}
       description={translate('text_63890710eb171a76814a0c0f')}
-      onClickAway={() => {
+      onClose={() => {
         formikProps.resetForm()
         formikProps.validateForm()
       }}
       actions={({ closeDialog }) => (
         <>
-          <Button
-            variant="quaternary"
-            onClick={() => {
-              closeDialog()
-              formikProps.resetForm()
-            }}
-          >
+          <Button variant="quaternary" onClick={closeDialog}>
             {translate('text_63890710eb171a76814a0c15')}
           </Button>
           <Button
@@ -89,7 +83,6 @@ export const EditOrganizationTimezoneDialog = forwardRef<
             onClick={async () => {
               await formikProps.submitForm()
               closeDialog()
-              formikProps.resetForm()
             }}
           >
             {translate('text_63890710eb171a76814a0c17')}

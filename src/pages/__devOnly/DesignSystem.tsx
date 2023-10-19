@@ -172,7 +172,7 @@ const DesignSystem = () => {
                         <Button variant="quaternary" onClick={() => closeDialog()}>
                           Oups
                         </Button>
-                        <Button>Ok bye</Button>
+                        <Button onClick={() => closeDialog()}>Ok bye</Button>
                       </>
                     )}
                   >

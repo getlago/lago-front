@@ -150,7 +150,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
       }),
       validateOnMount: true,
       enableReinitialize: true,
-      onSubmit: async ({ grantedCredits, paidCredits, rateAmount, ...values }, formikBag) => {
+      onSubmit: async ({ grantedCredits, paidCredits, rateAmount, ...values }) => {
         const { errors } = await createWallet({
           variables: {
             input: {
@@ -165,8 +165,6 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
 
         if (!hasDefinedGQLError('CurrenciesDoesNotMatch', errors)) {
           ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()
-          formikBag.resetForm()
-          setCurrencyError(false)
         } else {
           setCurrencyError(true)
         }
@@ -178,29 +176,17 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
         ref={ref}
         title={translate('text_62d18855b22699e5cf55f871')}
         description={translate('text_62d18855b22699e5cf55f873')}
-        onClickAway={() => {
+        onClose={() => {
           formikProps.resetForm()
           formikProps.validateForm()
           setCurrencyError(false)
         }}
         actions={({ closeDialog }) => (
           <>
-            <Button
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                formikProps.resetForm()
-                formikProps.validateForm()
-              }}
-            >
+            <Button variant="quaternary" onClick={closeDialog}>
               {translate('text_62d18855b22699e5cf55f89d')}
             </Button>
-            <Button
-              disabled={!formikProps.isValid}
-              onClick={async () => {
-                await formikProps.submitForm()
-              }}
-            >
+            <Button disabled={!formikProps.isValid} onClick={formikProps.submitForm}>
               {translate(
                 'text_62d18855b22699e5cf55f89f',
                 undefined,

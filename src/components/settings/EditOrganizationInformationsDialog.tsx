@@ -65,7 +65,7 @@ export const EditOrganizationInformationsDialog = forwardRef<
       }
     },
   })
-  const [logo, setLogo] = useState<string>()
+  const [logo, setLogo] = useState<string | undefined>(undefined)
   const formikProps = useFormik<UpdateOrganizationInput>({
     initialValues: {
       legalName: organization?.legalName || '',
@@ -100,15 +100,13 @@ export const EditOrganizationInformationsDialog = forwardRef<
     <Dialog
       ref={ref}
       title={translate('text_62ab2d0396dd6b0361614d10')}
+      onClose={() => {
+        formikProps.resetForm()
+        setLogo(undefined)
+      }}
       actions={({ closeDialog }) => (
         <>
-          <Button
-            variant="quaternary"
-            onClick={() => {
-              closeDialog()
-              formikProps.resetForm()
-            }}
-          >
+          <Button variant="quaternary" onClick={closeDialog}>
             {translate('text_62ab2d0396dd6b0361614da8')}
           </Button>
           <Button
@@ -117,7 +115,6 @@ export const EditOrganizationInformationsDialog = forwardRef<
             onClick={async () => {
               await formikProps.submitForm()
               closeDialog()
-              formikProps.resetForm()
             }}
           >
             {translate('text_62ab2d0396dd6b0361614db2')}

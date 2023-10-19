@@ -30,18 +30,12 @@ export const UpdateOrganizationLogoDialog = forwardRef<UpdateOrganizationLogoDia
         ref={ref}
         title={translate('text_6411e69b9bda18008db7ad51')}
         description={translate('text_6411e6a2de0b3f00b25ae488')}
-        onClickAway={() => {
+        onClose={() => {
           setLogo(undefined)
         }}
         actions={({ closeDialog }) => (
           <>
-            <Button
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                setLogo(undefined)
-              }}
-            >
+            <Button variant="quaternary" onClick={closeDialog}>
               {translate('text_6411e6b530cb47007488b027')}
             </Button>
             <Button
@@ -52,7 +46,6 @@ export const UpdateOrganizationLogoDialog = forwardRef<UpdateOrganizationLogoDia
                   variables: { input: { logo } },
                 })
                 closeDialog()
-                setLogo(undefined)
               }}
             >
               {translate('text_6411e6ac9a8c9700a7570a4e')}

@@ -95,20 +95,13 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
         ref={ref}
         title={translate('text_62e79671d23ae6ff149de924')}
         description={translate('text_62e79671d23ae6ff149de928')}
-        onClickAway={() => {
+        onClose={() => {
           formikProps.resetForm()
           formikProps.validateForm()
         }}
         actions={({ closeDialog }) => (
           <>
-            <Button
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                formikProps.resetForm()
-                formikProps.validateForm()
-              }}
-            >
+            <Button variant="quaternary" onClick={closeDialog}>
               {translate('text_62e79671d23ae6ff149de968')}
             </Button>
             <Button
@@ -116,7 +109,6 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
               onClick={async () => {
                 await formikProps.submitForm()
                 closeDialog()
-                formikProps.resetForm()
               }}
             >
               {translate(

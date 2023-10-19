@@ -88,19 +88,13 @@ export const EditOrganizationDocumentLocaleDialog = forwardRef<
       ref={ref}
       title={translate('text_63e51ef4985f0ebd75c2130e')}
       description={translate('text_63e51ef4985f0ebd75c2130f')}
-      onClickAway={() => {
+      onClose={() => {
         formikProps.resetForm()
         formikProps.validateForm()
       }}
       actions={({ closeDialog }) => (
         <>
-          <Button
-            variant="quaternary"
-            onClick={() => {
-              closeDialog()
-              formikProps.resetForm()
-            }}
-          >
+          <Button variant="quaternary" onClick={closeDialog}>
             {translate('text_63e51ef4985f0ebd75c21313')}
           </Button>
           <Button
@@ -109,7 +103,6 @@ export const EditOrganizationDocumentLocaleDialog = forwardRef<
             onClick={async () => {
               await formikProps.submitForm()
               closeDialog()
-              formikProps.resetForm()
             }}
           >
             {translate('text_63e51ef4985f0ebd75c21314')}

@@ -120,18 +120,12 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
         ref={ref}
         title={translate('text_64639f5e63a5cc0076779d42', { name: customer.name })}
         description={translate('text_64639f5e63a5cc0076779d46')}
-        onClickAway={() => {
+        onClose={() => {
           setLocalTax('')
         }}
         actions={({ closeDialog }) => (
           <>
-            <Button
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                setLocalTax('')
-              }}
-            >
+            <Button variant="quaternary" onClick={closeDialog}>
               {translate('text_627387d5053a1000c5287cab')}
             </Button>
             <Button
@@ -152,7 +146,6 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
                 })
 
                 if (res.errors) return
-                setLocalTax('')
                 closeDialog()
               }}
             >
