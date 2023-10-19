@@ -40,7 +40,7 @@ export const EditCustomerInvoiceGracePeriodDialog = forwardRef<
   DialogRef,
   EditCustomerInvoiceGracePeriodDialogProps
 >(({ invoiceGracePeriod }: EditCustomerInvoiceGracePeriodDialogProps, ref) => {
-  const { id: customerId } = useParams()
+  const { customerId } = useParams()
   const { translate } = useInternationalization()
   const [updateCustomerInvoiceGracePeriod] = useUpdateCustomerInvoiceGracePeriodMutation({
     onCompleted(res) {

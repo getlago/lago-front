@@ -138,7 +138,7 @@ const InvoicesList = () => {
 
       navigate(
         generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-          id: splitted[0],
+          customerId: splitted[0],
           invoiceId: splitted[1],
           tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
         })
@@ -336,7 +336,7 @@ const InvoicesList = () => {
                       'data-id': `${invoice?.customer?.id}${ID_SPLIT_KEY}${invoice.id}`,
                     }}
                     to={generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                      id: invoice?.customer?.id,
+                      customerId: invoice?.customer?.id,
                       invoiceId: invoice.id,
                       tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
                     })}

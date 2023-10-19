@@ -97,7 +97,7 @@ const mapStatus = (type?: InvoicePaymentStatusTypeEnum | undefined) => {
 const CreateCreditNote = () => {
   const { translate } = useInternationalization()
   const warningDialogRef = useRef<WarningDialogRef>(null)
-  const { id, invoiceId } = useParams()
+  const { customerId, invoiceId } = useParams()
   const navigate = useNavigate()
   const { loading, invoice, feesPerInvoice, feeForAddOn, onCreate } = useCreateCreditNote()
   const currency = invoice?.currency || CurrencyEnum.Usd
@@ -234,7 +234,7 @@ const CreateCreditNote = () => {
               ? warningDialogRef.current?.openDialog()
               : navigate(
                   generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                    id: id as string,
+                    customerId: customerId as string,
                     invoiceId: invoiceId as string,
                     tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
                   })
@@ -518,7 +518,7 @@ const CreateCreditNote = () => {
         onContinue={() =>
           navigate(
             generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-              id: id as string,
+              customerId: customerId as string,
               invoiceId: invoiceId as string,
               tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
             })

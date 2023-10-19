@@ -121,7 +121,7 @@ type UseCreateCreditNoteReturn = {
 }
 
 export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
-  const { invoiceId, id } = useParams()
+  const { invoiceId, customerId } = useParams()
   const navigate = useNavigate()
   const { data, error, loading } = useGetInvoiceCreateCreditNoteQuery({
     fetchPolicy: 'network-only',
@@ -144,7 +144,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
 
         navigate(
           generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-            id: id as string,
+            customerId: customerId as string,
             invoiceId: invoiceId as string,
             tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
           })

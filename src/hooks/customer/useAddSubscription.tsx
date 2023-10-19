@@ -114,7 +114,9 @@ export const useAddSubscription: UseAddSubscription = ({
         })
 
         navigate(
-          generatePath(CUSTOMER_DETAILS_ROUTE, { id: res.createSubscription.customer.id as string })
+          generatePath(CUSTOMER_DETAILS_ROUTE, {
+            customerId: res.createSubscription.customer.id as string,
+          })
         )
       }
     },
@@ -159,7 +161,9 @@ export const useAddSubscription: UseAddSubscription = ({
       }
 
       navigate(
-        generatePath(CUSTOMER_DETAILS_ROUTE, { id: res?.updateSubscription?.customer.id as string })
+        generatePath(CUSTOMER_DETAILS_ROUTE, {
+          customerId: res?.updateSubscription?.customer.id as string,
+        })
       )
     },
     refetchQueries: ['getCustomerSubscriptionForList'],

@@ -43,7 +43,7 @@ interface CustomerItemProps {
 
 export const CustomerItem = memo(({ rowId, customer, editDialogRef }: CustomerItemProps) => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
-  const { id, name, externalId, createdAt, activeSubscriptionsCount } = customer
+  const { id: customerId, name, externalId, createdAt, activeSubscriptionsCount } = customer
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
 
@@ -51,7 +51,7 @@ export const CustomerItem = memo(({ rowId, customer, editDialogRef }: CustomerIt
     <ItemContainer>
       <Item
         id={rowId}
-        to={generatePath(CUSTOMER_DETAILS_ROUTE, { id })}
+        to={generatePath(CUSTOMER_DETAILS_ROUTE, { customerId })}
         tabIndex={0}
         data-test={name}
       >

@@ -93,7 +93,7 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
           message: translate('text_6250304370f0f700a8fdc295'),
           severity: 'success',
         })
-        navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: createCustomer.id }))
+        navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: createCustomer.id }))
       }
     },
   })

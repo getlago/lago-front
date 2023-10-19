@@ -78,7 +78,7 @@ const SubscriptionDetails = () => {
             variant="quaternary"
             onClick={() => {
               if (!!customerId) {
-                navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { id: customerId }))
+                navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId }))
               } else if (!!planId) {
                 navigate(
                   generatePath(PLAN_DETAILS_ROUTE, {
@@ -114,7 +114,7 @@ const SubscriptionDetails = () => {
                   onClick={() => {
                     navigate(
                       generatePath(UPDATE_SUBSCRIPTION, {
-                        id: subscription?.customer?.id as string,
+                        customerId: subscription?.customer?.id as string,
                         subscriptionId: subscriptionId as string,
                       })
                     )
@@ -129,7 +129,7 @@ const SubscriptionDetails = () => {
                   onClick={() => {
                     navigate(
                       generatePath(UPGRADE_DOWNGRADE_SUBSCRIPTION, {
-                        id: subscription?.customer?.id as string,
+                        customerId: subscription?.customer?.id as string,
                         subscriptionId: subscriptionId as string,
                       })
                     )
@@ -164,7 +164,7 @@ const SubscriptionDetails = () => {
                       callback: () => {
                         navigate(
                           generatePath(CUSTOMER_DETAILS_ROUTE, {
-                            id: subscription?.customer?.id as string,
+                            customerId: subscription?.customer?.id as string,
                           })
                         )
                       },
