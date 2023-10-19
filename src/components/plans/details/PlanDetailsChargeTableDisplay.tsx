@@ -10,7 +10,7 @@ export type ChargeTableDisplayData = {
 
 const PlanDetailsChargeTableDisplay = (data: ChargeTableDisplayData) => {
   return (
-    <Table>
+    <Table $dataLength={data.header.length || 1}>
       <thead>
         <tr>
           {data.header.map((header, index) => (
@@ -35,10 +35,10 @@ const PlanDetailsChargeTableDisplay = (data: ChargeTableDisplayData) => {
   )
 }
 
-const Table = styled.table`
+const Table = styled.table<{ $dataLength: number }>`
   width: 100%;
   border-spacing: 0;
-  table-layout: fixed;
+  table-layout: ${({ $dataLength }) => ($dataLength > 3 ? 'auto' : 'fixed')};
   border: 1px solid ${theme.palette.grey[300]};
   border-radius: 12px;
   /* Used to hide non-rounded elements to overflow */
