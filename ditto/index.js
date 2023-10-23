@@ -89,6 +89,9 @@ module.exports = {
   "project_643e59213ea23c04674eba8c": {
     "base": require('./-ready-for-dev---plans---set-a-minimum-spending-on-charges__base.json')
   },
+  "project_65367cb378995a8fbb5e15f5": {
+    "base": require('./-ready-for-dev---settings---add-redirect-url-to-psp__base.json')
+  },
   "project_634ea0e94c99df2bb59820d9": {
     "base": require('./-ready-for-dev---settings---customers---lago-gocardless-connection__base.json')
   },

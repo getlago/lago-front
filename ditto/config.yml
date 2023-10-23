@@ -307,5 +307,8 @@ sources:
       fileName: ⚙️ [WIP] - Subscription/Plans - Overrides plans and subscriptions
     - name: 👍 [Ready for dev] - Invoices - Void invoices
       id: 65269b3f720470569cb17228
+      fileName: 👍 [Ready for dev] - Invoices - Void invoices
+    - name: 👍 [Ready for dev] - Settings - Add redirect url to PSP
+      id: 65367cb378995a8fbb5e15f5
 format: flat
 variants: true
