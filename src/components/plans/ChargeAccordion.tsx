@@ -220,6 +220,7 @@ export const ChargeAccordion = memo(
 
           // Reset pay in advance when switching charge model
           if (
+            (value === ChargeModelEnum.Graduated && localCharge.payInAdvance) ||
             value === ChargeModelEnum.Volume ||
             localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg ||
             localCharge.billableMetric.aggregationType === AggregationTypeEnum.LatestAgg ||
@@ -245,6 +246,10 @@ export const ChargeAccordion = memo(
           if (value === true) {
             // Pay in advance
             formikProps.setFieldValue(`charges.${index}.minAmountCents`, undefined)
+
+            if (localCharge.chargeModel === ChargeModelEnum.Graduated) {
+              formikProps.setFieldValue(`charges.${index}.prorated`, false)
+            }
           } else {
             // Pay in arrears
             formikProps.setFieldValue(`charges.${index}.invoiceable`, true)
@@ -260,6 +265,8 @@ export const ChargeAccordion = memo(
         isPremium,
         localCharge.billableMetric.aggregationType,
         localCharge.billableMetric.recurring,
+        localCharge.payInAdvance,
+        localCharge.chargeModel,
         premiumWarningDialogRef,
       ]
     )
@@ -327,8 +334,7 @@ export const ChargeAccordion = memo(
 
     const isProratedOptionDisabled = useMemo(() => {
       return (
-        (localCharge.billableMetric.recurring &&
-          localCharge.chargeModel === ChargeModelEnum.Graduated) ||
+        (localCharge.payInAdvance && localCharge.chargeModel === ChargeModelEnum.Graduated) ||
         localCharge.chargeModel === ChargeModelEnum.GraduatedPercentage ||
         localCharge.chargeModel === ChargeModelEnum.Package ||
         localCharge.chargeModel === ChargeModelEnum.Percentage ||
@@ -336,8 +342,8 @@ export const ChargeAccordion = memo(
       )
     }, [
       localCharge.billableMetric.aggregationType,
-      localCharge.billableMetric.recurring,
       localCharge.chargeModel,
+      localCharge.payInAdvance,
     ])
 
     const proratedOptionHelperText = useMemo(() => {
