@@ -122,7 +122,7 @@ gql`
   ${ChargeForChargeOptionsAccordionFragmentDoc}
 `
 
-const mapIntervalCopy = (interval: string, forceMonthlyCharge: boolean): string => {
+export const mapChargeIntervalCopy = (interval: string, forceMonthlyCharge: boolean): string => {
   if (forceMonthlyCharge) {
     return 'text_624453d52e945301380e49aa'
   } else if (interval === PlanInterval.Monthly) {
@@ -409,7 +409,7 @@ export const ChargeAccordion = memo(
               )}
               <Chip
                 label={translate(
-                  mapIntervalCopy(
+                  mapChargeIntervalCopy(
                     formikProps.values.interval,
                     (formikProps.values.interval === PlanInterval.Yearly &&
                       !!formikProps.values.billChargesMonthly) ||
