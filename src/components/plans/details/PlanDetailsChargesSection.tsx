@@ -1,12 +1,20 @@
 import styled from 'styled-components'
 
 import { Accordion, Typography } from '~/components/designSystem'
-import { Charge, ChargeModelEnum, CurrencyEnum, EditPlanFragment } from '~/generated/graphql'
+import {
+  Charge,
+  ChargeModelEnum,
+  CurrencyEnum,
+  EditPlanFragment,
+  PlanInterval,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
-import { DetailsInfoItem } from '~/styles/detailsPage'
+import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
 
 import PlanDetailsChargesSectionAccordion from './PlanDetailsChargesSectionAccordion'
+
+import { mapChargeIntervalCopy } from '../ChargeAccordion'
 
 const chargeModelLookupTranslation = {
   [ChargeModelEnum.Graduated]: 'text_65201b8216455901fe273e11',
@@ -70,10 +78,22 @@ const PlanDetailsChargesSection = ({
             >
               <ChargeSectionWrapper>
                 <PaddedChargeModelWrapper>
-                  <DetailsInfoItem
-                    label={translate('text_65201b8216455901fe273dd5')}
-                    value={translate(chargeModelLookupTranslation[charge.chargeModel])}
-                  />
+                  <DetailsInfoGrid>
+                    <DetailsInfoItem
+                      label={translate('text_65201b8216455901fe273dd5')}
+                      value={translate(chargeModelLookupTranslation[charge.chargeModel])}
+                    />
+                    <DetailsInfoItem
+                      label={translate('text_65201b8216455901fe273dc1')}
+                      value={translate(
+                        mapChargeIntervalCopy(
+                          plan?.interval as PlanInterval,
+                          (plan?.interval === PlanInterval.Yearly && !!plan?.billChargesMonthly) ||
+                            false
+                        )
+                      )}
+                    />
+                  </DetailsInfoGrid>
                 </PaddedChargeModelWrapper>
                 <PlanDetailsChargesSectionAccordion
                   currency={currency}
@@ -112,10 +132,22 @@ const PlanDetailsChargesSection = ({
             >
               <ChargeSectionWrapper>
                 <PaddedChargeModelWrapper>
-                  <DetailsInfoItem
-                    label={translate('text_65201b8216455901fe273dd5')}
-                    value={translate(chargeModelLookupTranslation[charge.chargeModel])}
-                  />
+                  <DetailsInfoGrid>
+                    <DetailsInfoItem
+                      label={translate('text_65201b8216455901fe273dd5')}
+                      value={translate(chargeModelLookupTranslation[charge.chargeModel])}
+                    />
+                    <DetailsInfoItem
+                      label={translate('text_65201b8216455901fe273dc1')}
+                      value={translate(
+                        mapChargeIntervalCopy(
+                          plan?.interval as PlanInterval,
+                          (plan?.interval === PlanInterval.Yearly && !!plan?.billChargesMonthly) ||
+                            false
+                        )
+                      )}
+                    />
+                  </DetailsInfoGrid>
                 </PaddedChargeModelWrapper>
                 <PlanDetailsChargesSectionAccordion
                   currency={currency}
