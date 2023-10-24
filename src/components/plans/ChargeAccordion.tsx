@@ -46,7 +46,6 @@ import { RemoveChargeWarningDialogRef } from './RemoveChargeWarningDialog'
 import { PlanFormInput } from './types'
 
 import { ConditionalWrapper } from '../ConditionalWrapper'
-import { BetaChip } from '../designSystem/BetaChip'
 import { Item } from '../form/ComboBox/ComboBoxItem'
 import { EditInvoiceDisplayNameRef } from '../invoices/EditInvoiceDisplayName'
 import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
@@ -473,9 +472,6 @@ export const ChargeAccordion = memo(
                   <Typography variant="captionHl" color="textSecondary">
                     {translate('text_624c5eadff7db800acc4ca0d')}
                   </Typography>
-                  {localCharge.chargeModel === ChargeModelEnum.GraduatedPercentage && (
-                    <BetaChip size="xsmall" />
-                  )}
                 </InlineComboboxLabel>
               }
               data={[
@@ -495,7 +491,6 @@ export const ChargeAccordion = memo(
                                     <Typography variant="body" color="grey700">
                                       {translate('text_64de472463e2da6b31737db0')}
                                     </Typography>
-                                    <BetaChip size="xsmall" />
                                   </InlineComboboxLabel>
                                   {!isPremium && <Icon name="sparkles" />}
                                 </InlineComboboxLabelForPremiumWrapper>
