@@ -218,6 +218,8 @@ export enum ChargeModelEnum {
 
 export type ChargeOverridesInput = {
   groupProperties?: InputMaybe<Array<GroupPropertiesInput>>;
+  id: Scalars['ID']['input'];
+  invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   minAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   properties?: InputMaybe<PropertiesInput>;
   taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
