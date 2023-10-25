@@ -190,6 +190,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button'
 
 const StyledButton = styled(MuiButton)<{ $align?: ButtonAlign }>`
+  white-space: nowrap;
   justify-content: ${({ $align }) => $align ?? 'inherit'} !important;
   min-width: unset;
 
