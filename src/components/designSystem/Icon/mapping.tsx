@@ -16,6 +16,7 @@ import Box from '~/public/icons/box.svg'
 import Bulb from '~/public/icons/bulb.svg'
 import Burger from '~/public/icons/burger.svg'
 import Calendar from '~/public/icons/calendar.svg'
+import ChartBar from '~/public/icons/chart-bar.svg'
 import Checkmark from '~/public/icons/checkmark.svg'
 import ChevronDown from '~/public/icons/chevron-down.svg'
 import ChevronLeft from '~/public/icons/chevron-left.svg'
@@ -128,6 +129,7 @@ export const ALL_ICONS = {
   burger: Burger,
   box: Box,
   calendar: Calendar,
+  'chart-bar': ChartBar,
   checkmark: Checkmark,
   'chevron-down': ChevronDown,
   'chevron-left': ChevronLeft,
