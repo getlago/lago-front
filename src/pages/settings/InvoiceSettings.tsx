@@ -22,6 +22,10 @@ import {
   DeleteOrganizationVatRateDialogRef,
 } from '~/components/settings/DeleteOrganizationVatRateDialog'
 import {
+  EditDefaultCurrencyDialog,
+  EditDefaultCurrencyDialogRef,
+} from '~/components/settings/EditDefaultCurrencyDialog'
+import {
   EditNetPaymentTermDialog,
   EditNetPaymentTermDialogRef,
 } from '~/components/settings/EditNetPaymentTermDialog'
@@ -38,6 +42,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { DocumentLocales } from '~/core/translations/documentLocales'
 import {
   DeleteOrganizationVatRateFragmentDoc,
+  EditOrganizationDefaultCurrencyForDialogFragmentDoc,
   EditOrganizationInvoiceTemplateDialogFragmentDoc,
   EditOrganizationNetPaymentTermForDialogFragmentDoc,
   useGetOrganizationSettingsQuery,
@@ -54,6 +59,7 @@ gql`
     organization {
       id
       netPaymentTerm
+      defaultCurrency
       billingConfiguration {
         id
         invoiceGracePeriod
@@ -62,6 +68,7 @@ gql`
       }
       ...EditOrganizationInvoiceTemplateDialog
       ...EditOrganizationNetPaymentTermForDialog
+      ...EditOrganizationDefaultCurrencyForDialog
     }
 
     taxes(appliedToOrganization: $appliedToOrganization) {
@@ -79,6 +86,7 @@ gql`
   ${DeleteOrganizationVatRateFragmentDoc}
   ${EditOrganizationInvoiceTemplateDialogFragmentDoc}
   ${EditOrganizationNetPaymentTermForDialogFragmentDoc}
+  ${EditOrganizationDefaultCurrencyForDialogFragmentDoc}
 `
 
 const InvoiceSettings = () => {
@@ -88,6 +96,7 @@ const InvoiceSettings = () => {
   const deleteVATDialogRef = useRef<DeleteOrganizationVatRateDialogRef>(null)
   const editInvoiceTemplateDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
   const editGracePeriodDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
+  const editDefaultCurrencyDialogRef = useRef<EditDefaultCurrencyDialogRef>(null)
   const editDocumentLanguageDialogRef = useRef<EditOrganizationDocumentLocaleDialogRef>(null)
   const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
@@ -276,6 +285,39 @@ const InvoiceSettings = () => {
 
       <InlineSectionTitle>
         <Typography variant="subhead" color="grey700">
+          {translate('text_6543ca0fdebf76a18e15929c')}
+        </Typography>
+        <Button
+          variant="quaternary"
+          disabled={loading}
+          onClick={() => editDefaultCurrencyDialogRef?.current?.openDialog({ organization })}
+        >
+          {translate('text_637f819eff19cd55a56d55e4')}
+        </Button>
+      </InlineSectionTitle>
+
+      <InfoBlock $loading={loading}>
+        {loading ? (
+          <>
+            <Skeleton variant="text" width={320} height={12} />
+            <Skeleton variant="text" width={160} height={12} />
+          </>
+        ) : (
+          <>
+            <Typography variant="body" color="grey700">
+              {organization?.defaultCurrency}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {translate('text_6543ca0fdebf76a18e1592ee', {
+                currency: organization?.defaultCurrency,
+              })}
+            </Typography>
+          </>
+        )}
+      </InfoBlock>
+
+      <InlineSectionTitle>
+        <Typography variant="subhead" color="grey700">
           {translate('text_63e51ef4985f0ebd75c212fd')}
         </Typography>
         <Button
@@ -366,6 +408,7 @@ const InvoiceSettings = () => {
         ref={editNetPaymentTermDialogRef}
         description={translate('text_64c7a89b6c67eb6c988980eb')}
       />
+      <EditDefaultCurrencyDialog ref={editDefaultCurrencyDialogRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </Page>
   )

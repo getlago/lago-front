@@ -25,6 +25,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { PageHeader } from '~/styles'
 import { Card, theme } from '~/styles'
 import {
@@ -63,6 +64,7 @@ gql`
 const CreateAddOn = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
+  const { organization } = useOrganizationInfos()
   const { isEdition, loading, addOn, errorCode, onSave } = useCreateEditAddOn()
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const [getTaxes, { data: taxesData, loading: taxesLoading }] = useGetTaxesForAddOnFormLazyQuery({
@@ -76,9 +78,14 @@ const CreateAddOn = () => {
       code: addOn?.code || '',
       description: addOn?.description || '',
       amountCents: addOn?.amountCents
-        ? String(deserializeAmount(addOn?.amountCents, addOn?.amountCurrency))
+        ? String(
+            deserializeAmount(
+              addOn?.amountCents,
+              addOn?.amountCurrency || organization?.defaultCurrency
+            )
+          )
         : addOn?.amountCents || undefined,
-      amountCurrency: addOn?.amountCurrency || CurrencyEnum.Usd,
+      amountCurrency: addOn?.amountCurrency || organization?.defaultCurrency || CurrencyEnum.Usd,
       taxes: addOn?.taxes || [],
     },
     validationSchema: object().shape({

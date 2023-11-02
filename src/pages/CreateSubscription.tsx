@@ -216,6 +216,7 @@ const CreateSubscription = () => {
     plan,
   } = usePlanForm({
     planIdToFetch: subscriptionFormikProps.values.planId,
+    isUsedInSubscriptionForm: true,
   })
 
   const subscriptionPlanId = subscriptionFormikProps.values.planId

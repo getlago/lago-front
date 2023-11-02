@@ -15,6 +15,7 @@ gql`
     name
     logoUrl
     timezone
+    defaultCurrency
 
     ...OrganizationForDatePicker
   }

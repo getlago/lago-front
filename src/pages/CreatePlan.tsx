@@ -37,7 +37,6 @@ import {
 import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
 
 gql`
-  # Might need to be removed
   fragment TaxForPlanAndChargesInPlanForm on Tax {
     id
     code
