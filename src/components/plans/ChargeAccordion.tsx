@@ -14,6 +14,7 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { AmountInput, ButtonSelector, ComboBox, Switch } from '~/components/form'
+import { useDuplicatePlanVar } from '~/core/apolloClient'
 import {
   FORM_TYPE_ENUM,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
@@ -171,6 +172,7 @@ export const ChargeAccordion = memo(
   }: ChargeAccordionProps) => {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
+    const { type: actionType } = useDuplicatePlanVar()
     const chargeErrors = formikProps?.errors?.charges
 
     const { localCharge, initialLocalCharge, hasDefaultPropertiesErrors, hasErrorInCharges } =
@@ -440,7 +442,7 @@ export const ChargeAccordion = memo(
                         formikProps.setFieldValue('charges', charges)
                       }
 
-                      if (isUsedInSubscription) {
+                      if (actionType !== 'duplicate' && isUsedInSubscription) {
                         removeChargeWarningDialogRef?.current?.openDialog(index)
                       } else {
                         deleteCharge()
