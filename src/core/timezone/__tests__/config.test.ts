@@ -3,10 +3,10 @@ import { TimeZonesConfig } from '../config'
 describe('Timezone fongis', () => {
   describe('TimeZonesConfig', () => {
     it('returns expected config values', () => {
-      expect(TimeZonesConfig['TZ_EUROPE_PARIS']).toStrictEqual({
-        name: 'Europe/Paris',
-        offset: '+2:00',
-        offsetInMinute: 120,
+      expect(TimeZonesConfig['TZ_ASIA_TOKYO']).toStrictEqual({
+        name: 'Asia/Tokyo',
+        offset: '+9:00',
+        offsetInMinute: 540,
       })
       expect(TimeZonesConfig['TZ_AMERICA_LOS_ANGELES']).toStrictEqual({
         name: 'America/Los_Angeles',
