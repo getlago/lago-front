@@ -46,6 +46,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { ButtonGroup, Card, PageHeader, theme } from '~/styles'
 import {
   ButtonContainer,
@@ -63,6 +64,7 @@ import { CouponCodeSnippet } from '../components/coupons/CouponCodeSnippet'
 const CreateCoupon = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
+  const { organization } = useOrganizationInfos()
   const {
     isEdition,
     loading,
@@ -86,7 +88,7 @@ const CreateCoupon = () => {
       amountCents: coupon?.amountCents
         ? String(deserializeAmount(coupon?.amountCents, coupon?.amountCurrency || CurrencyEnum.Usd))
         : coupon?.amountCents || undefined,
-      amountCurrency: coupon?.amountCurrency || CurrencyEnum.Usd,
+      amountCurrency: coupon?.amountCurrency || organization?.defaultCurrency || CurrencyEnum.Usd,
       code: coupon?.code || '',
       couponType: coupon?.couponType || CouponTypeEnum.FixedAmount,
       description: coupon?.description || '',

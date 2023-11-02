@@ -98,6 +98,7 @@ gql`
       logoUrl
       state
       zipcode
+      defaultCurrency
     }
 
     taxes(page: 1, limit: 1000, appliedToOrganization: true) {
@@ -188,7 +189,7 @@ const CreateInvoice = () => {
   const formikProps = useFormik<InvoiceFormInput>({
     initialValues: {
       customerId: customerId || '',
-      currency: data?.customer?.currency || CurrencyEnum.Usd,
+      currency: data?.customer?.currency || data?.organization?.defaultCurrency || CurrencyEnum.Usd,
       fees: [],
     },
     validationSchema: object().shape({

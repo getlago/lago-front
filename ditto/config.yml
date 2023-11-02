@@ -310,5 +310,8 @@ sources:
       fileName: 👍 [Ready for dev] - Invoices - Void invoices
     - name: 👍 [Ready for dev] - Settings - Add redirect url to PSP
       id: 65367cb378995a8fbb5e15f5
+      fileName: 👍 [Ready for dev] - Settings - Add redirect url to PSP
+    - name: 👍 [Ready for dev] - Dashboards -  Add financial reporting to Lago
+      id: 6543ca0b70910093c87cd539
 format: flat
 variants: true

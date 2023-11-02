@@ -8,10 +8,10 @@ describe('Timezone fongis', () => {
         offset: '+9:00',
         offsetInMinute: 540,
       })
-      expect(TimeZonesConfig['TZ_AMERICA_LOS_ANGELES']).toStrictEqual({
-        name: 'America/Los_Angeles',
-        offset: '-7:00',
-        offsetInMinute: -420,
+      expect(TimeZonesConfig['TZ_AMERICA_ARGENTINA_BUENOS_AIRES']).toStrictEqual({
+        name: 'America/Argentina/Buenos_Aires',
+        offset: '-3:00',
+        offsetInMinute: -180,
       })
       expect(TimeZonesConfig['TZ_UTC']).toStrictEqual({
         name: 'UTC',

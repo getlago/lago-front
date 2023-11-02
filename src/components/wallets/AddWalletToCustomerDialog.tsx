@@ -29,6 +29,7 @@ import {
   useCreateCustomerWalletMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { theme } from '~/styles'
 
 gql`
@@ -56,8 +57,11 @@ interface AddWalletToCustomerDialogProps {
 export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustomerDialogProps>(
   ({ customerId, userCurrency }: AddWalletToCustomerDialogProps, ref) => {
     const { translate } = useInternationalization()
+    const { organization } = useOrganizationInfos()
     const [currencyError, setCurrencyError] = useState(false)
-    const currencyPrecision = getCurrencyPrecision(userCurrency || CurrencyEnum.Usd)
+    const currencyPrecision = getCurrencyPrecision(
+      userCurrency || organization?.defaultCurrency || CurrencyEnum.Usd
+    )
     const [createWallet] = useCreateCustomerWalletMutation({
       context: {
         silentErrorCodes: [LagoApiError.UnprocessableEntity],
@@ -115,7 +119,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
         grantedCredits: '',
         name: '',
         paidCredits: '',
-        currency: userCurrency || CurrencyEnum.Usd,
+        currency: userCurrency || organization?.defaultCurrency || CurrencyEnum.Usd,
         rateAmount: `1${
           currencyPrecision === 3 ? '.000' : currencyPrecision === 4 ? '.0000' : '.00'
         }`,

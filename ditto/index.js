@@ -50,6 +50,9 @@ module.exports = {
   "project_637f813a9ec65c29fc3ceef3": {
     "base": require('./-ready-for-dev---customers---invoice-grace-period__base.json')
   },
+  "project_6543ca0b70910093c87cd539": {
+    "base": require('./-ready-for-dev---dashboards---add-financial-reporting-to-lago__base.json')
+  },
   "project_65269b3f720470569cb17228": {
     "base": require('./-ready-for-dev---invoices---void-invoices__base.json')
   },

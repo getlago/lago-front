@@ -32,6 +32,7 @@ import {
 import { PlanDetailsTabsOptionsEnum } from '~/pages/PlanDetails'
 
 import { useInternationalization } from '../core/useInternationalization'
+import { useOrganizationInfos } from '../useOrganizationInfos'
 
 gql`
   query getSinglePlan($id: ID!) {
@@ -67,10 +68,15 @@ export interface UsePlanFormReturn {
   type: PLAN_FORM_TYPE
 }
 
-export const usePlanForm: ({ planIdToFetch }: { planIdToFetch?: string }) => UsePlanFormReturn = ({
+export const usePlanForm: ({
   planIdToFetch,
-}) => {
+  isUsedInSubscriptionForm,
+}: {
+  planIdToFetch?: string
+  isUsedInSubscriptionForm?: boolean
+}) => UsePlanFormReturn = ({ planIdToFetch, isUsedInSubscriptionForm }) => {
   const navigate = useNavigate()
+  const { organization } = useOrganizationInfos()
   const { translate } = useInternationalization()
   const { planId: id } = useParams()
   const { parentId, type: actionType } = useDuplicatePlanVar()
@@ -81,8 +87,13 @@ export const usePlanForm: ({ planIdToFetch }: { planIdToFetch?: string }) => Use
   })
   const isDuplicate = actionType === 'duplicate' && !!parentId
   const type = !!id ? 'edition' : isDuplicate ? 'duplicate' : 'creation'
+
   const isEdition = type === FORM_TYPE_ENUM.edition
   const plan = data?.plan
+  const initialCurrency =
+    type === FORM_TYPE_ENUM.creation && !isUsedInSubscriptionForm
+      ? organization?.defaultCurrency
+      : plan?.amountCurrency || CurrencyEnum.Usd
   const onSave =
     type === FORM_TYPE_ENUM.edition
       ? async (values: PlanFormInput) => {
@@ -113,10 +124,8 @@ export const usePlanForm: ({ planIdToFetch }: { planIdToFetch?: string }) => Use
       payInAdvance: plan?.payInAdvance || false,
       amountCents: isNaN(plan?.amountCents)
         ? ''
-        : String(
-            deserializeAmount(plan?.amountCents || 0, plan?.amountCurrency || CurrencyEnum.Usd)
-          ),
-      amountCurrency: plan?.amountCurrency || CurrencyEnum.Usd,
+        : String(deserializeAmount(plan?.amountCents || 0, initialCurrency || CurrencyEnum.Usd)),
+      amountCurrency: initialCurrency || CurrencyEnum.Usd,
       trialPeriod:
         plan?.trialPeriod === null || plan?.trialPeriod === undefined
           ? isEdition

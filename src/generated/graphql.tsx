@@ -1053,6 +1053,20 @@ export enum CreditNoteCreditStatusEnum {
   Voided = 'voided'
 }
 
+/** Estimate amounts for credit note creation */
+export type CreditNoteEstimate = {
+  __typename?: 'CreditNoteEstimate';
+  appliedTaxes: Array<CreditNoteAppliedTax>;
+  couponsAdjustmentAmountCents: Scalars['BigInt']['output'];
+  currency: CurrencyEnum;
+  items: Array<CreditNoteItemEstimate>;
+  maxCreditableAmountCents: Scalars['BigInt']['output'];
+  maxRefundableAmountCents: Scalars['BigInt']['output'];
+  subTotalExcludingTaxesAmountCents: Scalars['BigInt']['output'];
+  taxesAmountCents: Scalars['BigInt']['output'];
+  taxesRate: Scalars['Float']['output'];
+};
+
 export type CreditNoteItem = {
   __typename?: 'CreditNoteItem';
   amountCents: Scalars['BigInt']['output'];
@@ -1060,6 +1074,12 @@ export type CreditNoteItem = {
   createdAt: Scalars['ISO8601DateTime']['output'];
   fee: Fee;
   id: Scalars['ID']['output'];
+};
+
+export type CreditNoteItemEstimate = {
+  __typename?: 'CreditNoteItemEstimate';
+  amountCents: Scalars['BigInt']['output'];
+  fee: Fee;
 };
 
 export type CreditNoteItemInput = {
@@ -1663,6 +1683,7 @@ export type Fee = InvoiceItem & {
   itemCode: Scalars['String']['output'];
   itemName: Scalars['String']['output'];
   itemType: Scalars['String']['output'];
+  preciseUnitAmount: Scalars['Float']['output'];
   subscription?: Maybe<Subscription>;
   taxesAmountCents: Scalars['BigInt']['output'];
   taxesRate?: Maybe<Scalars['Float']['output']>;
@@ -2468,6 +2489,7 @@ export type Organization = {
   city?: Maybe<Scalars['String']['output']>;
   country?: Maybe<CountryCode>;
   createdAt: Scalars['ISO8601DateTime']['output'];
+  defaultCurrency: CurrencyEnum;
   email?: Maybe<Scalars['String']['output']>;
   emailSettings?: Maybe<Array<EmailSettingsEnum>>;
   gocardlessPaymentProvider?: Maybe<GocardlessProvider>;
@@ -2637,6 +2659,8 @@ export type Query = {
   coupons: CouponCollection;
   /** Query a single credit note */
   creditNote?: Maybe<CreditNote>;
+  /** Fetch amounts for credit note creation */
+  creditNoteEstimate: CreditNoteEstimate;
   /** Retrieves currently connected user */
   currentUser: User;
   /** Retrieve the version of the application */
@@ -2744,6 +2768,12 @@ export type QueryCouponsArgs = {
 
 export type QueryCreditNoteArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryCreditNoteEstimateArgs = {
+  invoiceId: Scalars['ID']['input'];
+  items: Array<CreditNoteItemInput>;
 };
 
 
@@ -3530,6 +3560,7 @@ export type UpdateOrganizationInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<CountryCode>;
+  defaultCurrency?: InputMaybe<CurrencyEnum>;
   email?: InputMaybe<Scalars['String']['input']>;
   emailSettings?: InputMaybe<Array<EmailSettingsEnum>>;
   legalName?: InputMaybe<Scalars['String']['input']>;
@@ -3754,7 +3785,7 @@ export enum WeightedIntervalEnum {
 export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> | null }, organization?: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null } | null };
+export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> | null }, organization?: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum } | null };
 
 export type AddOnItemFragment = { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customersCount: number, createdAt: any };
 
@@ -4294,6 +4325,15 @@ export type UnassignTaxRateToOrganizationMutationVariables = Exact<{
 
 export type UnassignTaxRateToOrganizationMutation = { __typename?: 'Mutation', updateTax?: { __typename?: 'Tax', id: string, name: string, appliedToOrganization: boolean } | null };
 
+export type EditOrganizationDefaultCurrencyForDialogFragment = { __typename?: 'Organization', id: string, defaultCurrency: CurrencyEnum };
+
+export type UpdateOrganizationDefaultCurrencyMutationVariables = Exact<{
+  input: UpdateOrganizationInput;
+}>;
+
+
+export type UpdateOrganizationDefaultCurrencyMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string, defaultCurrency: CurrencyEnum } | null };
+
 export type EditCustomerNetPaymentTermForDialogFragment = { __typename?: 'Customer', id: string, externalId: string, name?: string | null, netPaymentTerm?: number | null };
 
 export type EditOrganizationNetPaymentTermForDialogFragment = { __typename?: 'Organization', id: string, netPaymentTerm: number };
@@ -4696,12 +4736,12 @@ export type UpdateEmailSettingMutationVariables = Exact<{
 
 export type UpdateEmailSettingMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string, emailSettings?: Array<EmailSettingsEnum> | null } | null };
 
-export type MainOrganizationInfosFragment = { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null };
+export type MainOrganizationInfosFragment = { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum };
 
 export type GetOrganizationInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetOrganizationInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null } | null };
+export type GetOrganizationInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum } | null };
 
 export type AllInvoiceDetailsForCustomerInvoiceDetailsFragment = { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, issuingDate: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, paymentDueDate: any, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, versionNumber: number, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, name?: string | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupName?: string | null, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, tax: { __typename?: 'Tax', id: string, rate: number } }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null } }> }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, itemName: string, invoiceDisplayName?: string | null, groupName?: string | null, units: number, feeType: FeeTypesEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, invoiceName?: string | null, groupName?: string | null, itemName: string, invoiceDisplayName?: string | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null }> | null }> | null, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxRate: number, taxName: string }> | null };
 
@@ -4784,7 +4824,7 @@ export type GetInfosForCreateInvoiceQueryVariables = Exact<{
 }>;
 
 
-export type GetInfosForCreateInvoiceQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, state?: string | null, zipcode?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null } | null, organization?: { __typename?: 'Organization', id: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, email?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, logoUrl?: string | null, state?: string | null, zipcode?: string | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
+export type GetInfosForCreateInvoiceQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, state?: string | null, zipcode?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null } | null, organization?: { __typename?: 'Organization', id: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, email?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, logoUrl?: string | null, state?: string | null, zipcode?: string | null, defaultCurrency: CurrencyEnum } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
 
 export type GetAddonListForInfoiceQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -5059,7 +5099,7 @@ export type GetOrganizationSettingsQueryVariables = Exact<{
 }>;
 
 
-export type GetOrganizationSettingsQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, invoiceGracePeriod: number, invoiceFooter?: string | null, documentLocale?: string | null } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, appliedToOrganization: boolean }> } };
+export type GetOrganizationSettingsQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, netPaymentTerm: number, defaultCurrency: CurrencyEnum, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, invoiceGracePeriod: number, invoiceFooter?: string | null, documentLocale?: string | null } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, appliedToOrganization: boolean }> } };
 
 export type GetInvitesQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -5583,6 +5623,12 @@ export const DeleteOrganizationVatRateFragmentDoc = gql`
   appliedToOrganization
 }
     `;
+export const EditOrganizationDefaultCurrencyForDialogFragmentDoc = gql`
+    fragment EditOrganizationDefaultCurrencyForDialog on Organization {
+  id
+  defaultCurrency
+}
+    `;
 export const EditCustomerNetPaymentTermForDialogFragmentDoc = gql`
     fragment EditCustomerNetPaymentTermForDialog on Customer {
   id
@@ -5968,6 +6014,7 @@ export const MainOrganizationInfosFragmentDoc = gql`
   name
   logoUrl
   timezone
+  defaultCurrency
   ...OrganizationForDatePicker
 }
     ${OrganizationForDatePickerFragmentDoc}`;
@@ -8867,6 +8914,40 @@ export function useUnassignTaxRateToOrganizationMutation(baseOptions?: Apollo.Mu
 export type UnassignTaxRateToOrganizationMutationHookResult = ReturnType<typeof useUnassignTaxRateToOrganizationMutation>;
 export type UnassignTaxRateToOrganizationMutationResult = Apollo.MutationResult<UnassignTaxRateToOrganizationMutation>;
 export type UnassignTaxRateToOrganizationMutationOptions = Apollo.BaseMutationOptions<UnassignTaxRateToOrganizationMutation, UnassignTaxRateToOrganizationMutationVariables>;
+export const UpdateOrganizationDefaultCurrencyDocument = gql`
+    mutation updateOrganizationDefaultCurrency($input: UpdateOrganizationInput!) {
+  updateOrganization(input: $input) {
+    id
+    ...EditOrganizationDefaultCurrencyForDialog
+  }
+}
+    ${EditOrganizationDefaultCurrencyForDialogFragmentDoc}`;
+export type UpdateOrganizationDefaultCurrencyMutationFn = Apollo.MutationFunction<UpdateOrganizationDefaultCurrencyMutation, UpdateOrganizationDefaultCurrencyMutationVariables>;
+
+/**
+ * __useUpdateOrganizationDefaultCurrencyMutation__
+ *
+ * To run a mutation, you first call `useUpdateOrganizationDefaultCurrencyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOrganizationDefaultCurrencyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOrganizationDefaultCurrencyMutation, { data, loading, error }] = useUpdateOrganizationDefaultCurrencyMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOrganizationDefaultCurrencyMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationDefaultCurrencyMutation, UpdateOrganizationDefaultCurrencyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateOrganizationDefaultCurrencyMutation, UpdateOrganizationDefaultCurrencyMutationVariables>(UpdateOrganizationDefaultCurrencyDocument, options);
+      }
+export type UpdateOrganizationDefaultCurrencyMutationHookResult = ReturnType<typeof useUpdateOrganizationDefaultCurrencyMutation>;
+export type UpdateOrganizationDefaultCurrencyMutationResult = Apollo.MutationResult<UpdateOrganizationDefaultCurrencyMutation>;
+export type UpdateOrganizationDefaultCurrencyMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationDefaultCurrencyMutation, UpdateOrganizationDefaultCurrencyMutationVariables>;
 export const UpdateCustomerNetPaymentTermDocument = gql`
     mutation updateCustomerNetPaymentTerm($input: UpdateCustomerInput!) {
   updateCustomer(input: $input) {
@@ -11046,6 +11127,7 @@ export const GetInfosForCreateInvoiceDocument = gql`
     logoUrl
     state
     zipcode
+    defaultCurrency
   }
   taxes(page: 1, limit: 1000, appliedToOrganization: true) {
     collection {
@@ -12546,6 +12628,7 @@ export const GetOrganizationSettingsDocument = gql`
   organization {
     id
     netPaymentTerm
+    defaultCurrency
     billingConfiguration {
       id
       invoiceGracePeriod
@@ -12554,6 +12637,7 @@ export const GetOrganizationSettingsDocument = gql`
     }
     ...EditOrganizationInvoiceTemplateDialog
     ...EditOrganizationNetPaymentTermForDialog
+    ...EditOrganizationDefaultCurrencyForDialog
   }
   taxes(appliedToOrganization: $appliedToOrganization) {
     collection {
@@ -12567,6 +12651,7 @@ export const GetOrganizationSettingsDocument = gql`
 }
     ${EditOrganizationInvoiceTemplateDialogFragmentDoc}
 ${EditOrganizationNetPaymentTermForDialogFragmentDoc}
+${EditOrganizationDefaultCurrencyForDialogFragmentDoc}
 ${DeleteOrganizationVatRateFragmentDoc}`;
 
 /**
