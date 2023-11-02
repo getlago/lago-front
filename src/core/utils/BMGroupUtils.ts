@@ -1,3 +1,5 @@
+import _isEqual from 'lodash/isEqual'
+
 export const GroupLevelEnum = {
   NoChange: 'NoChange',
   AddOrRemove: 'AddOrRemove',
@@ -79,8 +81,8 @@ export const determineGroupDiffLevel: (
   group2: groupType | string
 ) => determineGroupDiffLevelReturnType = (group1 = {}, group2 = {}) => {
   // Groups can be empty, replace them with empty object
-  if (group1 === '') group1 = '{}'
-  if (group2 === '') group2 = '{}'
+  if (!group1 || group1 === '') group1 = '{}'
+  if (!group2 || group2 === '') group2 = '{}'
 
   // Key stringify/parse to shallow copy the value
   const parsedGroup1 =
@@ -91,6 +93,10 @@ export const determineGroupDiffLevel: (
   // Check if one of the groups are both valid
   if (!isGroupValid(parsedGroup1) || !isGroupValid(parsedGroup2)) {
     return GroupLevelEnum.StructuralChange
+  }
+
+  if (_isEqual(parsedGroup1, parsedGroup2)) {
+    return GroupLevelEnum.NoChange
   }
 
   // Check if groups have the same dimension

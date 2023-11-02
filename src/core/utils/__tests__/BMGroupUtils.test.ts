@@ -41,6 +41,14 @@ describe('BMGroupUtils', () => {
 
         expect(result).toEqual(GroupLevelEnum.NoChange)
       })
+
+      it('should return NoChange if groups are undefined and empty', () => {
+        const group1 = {}
+        const group2 = '{}'
+        const result = determineGroupDiffLevel(group1, group2)
+
+        expect(result).toEqual(GroupLevelEnum.NoChange)
+      })
     })
 
     describe("when groups don't have the same type", () => {
