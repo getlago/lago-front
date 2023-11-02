@@ -80,13 +80,9 @@ const Webhooks = () => {
       </Head>
 
       {!webhooks.length && !loading ? (
-        <EmptyText
-          variant="caption"
-          color="grey600"
-          html={translate('text_63e27c56dfe64b846474ef0c', {
-            link: WEBHOOK_LOGS_ROUTE,
-          })}
-        />
+        <EmptyText variant="caption" color="grey600">
+          {translate('text_63e27c56dfe64b846474ef0c')}
+        </EmptyText>
       ) : loading ? (
         <LoadingBlock>
           <Skeleton variant="text" width={160} height={12} />
