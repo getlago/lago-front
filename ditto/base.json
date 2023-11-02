@@ -803,7 +803,7 @@
   "text_645d071272418a14c1c76b25": "Adyen connection successfully deleted",
   "text_645d0728ea0a5a7bbf76d5c7": "Automatically create this customer in Adyen",
   "text_645d0728ea0a5a7bbf76d5c9": "To ensure customer creation, their external ID must contain a minimum of 3 characters, and the payment registration must be completed using the checkout URL sent via webhook.",
-  "text_63e27c56dfe64b846474ef0c": "Start now to share real-time information thanks to webhooks or <a data-text=\"see logs\" href=\"{{link}}\">-</a> related to this webhook",
+  "text_63e27c56dfe64b846474ef0c": "Start now to share real-time information thanks to webhooks",
   "text_63ebaf555f88d954d73beb7e": "No webhook message here",
   "text_63ebafc2c3d08550e5c0341c": "There are no webhook messages here. Play a bit with Lago to trigger events or consult our <a rel=\"external\" target=\"_blank\" href=\"https://docs.getlago.com/api-reference/webhooks/messages\">documentation</a> to see events started by Lago.",
   "text_63ebafd12755e50052a86e13": "This webhook message cannot be found",
