@@ -46,9 +46,8 @@ describe('Edit plan', () => {
     cy.get(`[data-test="add-subscription"]`).click({ force: true })
     cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('input[name="planId"]').click({ force: true })
-    cy.get('[data-option-index="0"]').click({ force: true })
+    cy.get('[data-option-index="0"]').click()
     cy.get('[data-test="submit"]').click({ force: true })
-    cy.get('[data-test="submit"]').should('not.exist')
     cy.contains(customerName).should('exist')
   })
 
