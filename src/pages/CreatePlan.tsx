@@ -12,6 +12,7 @@ import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
 import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
+import { useDuplicatePlanVar } from '~/core/apolloClient'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { PLAN_DETAILS_ROUTE, PLANS_ROUTE } from '~/core/router'
 import {
@@ -103,6 +104,7 @@ gql`
 const CreatePlan = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
+  const { type: actionType } = useDuplicatePlanVar()
   const { errorCode, formikProps, isEdition, loading, plan, type } = usePlanForm({})
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
@@ -110,7 +112,7 @@ const CreatePlan = () => {
   const canBeEdited = !plan?.subscriptionsCount
 
   const planCloseRedirection = () => {
-    if (plan?.id) {
+    if (plan?.id && actionType !== FORM_TYPE_ENUM.duplicate) {
       navigate(
         generatePath(PLAN_DETAILS_ROUTE, {
           planId: plan.id,
