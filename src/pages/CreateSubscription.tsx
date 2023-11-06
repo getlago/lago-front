@@ -26,6 +26,7 @@ import {
   DatePickerField,
   TextInputField,
 } from '~/components/form'
+import { Item } from '~/components/form/ComboBox/ComboBoxItem'
 import {
   EditInvoiceDisplayName,
   EditInvoiceDisplayNameRef,
@@ -266,9 +267,15 @@ const CreateSubscription = () => {
         {
           label: `${name} - (${code})`,
           labelNode: (
-            <PlanItem>
-              {name} <Typography color="textPrimary">({code})</Typography>
-            </PlanItem>
+            <Item>
+              <Typography color="grey700" noWrap>
+                {name}
+              </Typography>
+              &nbsp;
+              <Typography color="textPrimary" noWrap>
+                ({code})
+              </Typography>
+            </Item>
           ),
           value: id,
           disabled:
@@ -857,11 +864,6 @@ const ResponsiveButtonWrapper = styled.div`
   height: fit-content;
   background-color: ${theme.palette.common.white};
   padding: ${theme.spacing(3)} ${theme.spacing(12)};
-`
-
-const PlanItem = styled.span`
-  display: flex;
-  white-space: pre;
 `
 
 const FreemiumCard = styled(Card)`
