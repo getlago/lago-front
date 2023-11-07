@@ -73,7 +73,7 @@ describe('Edit plan', () => {
     cy.get('[data-test="open-charge"]').eq(1).click({ force: true })
 
     cy.get('[data-test="add-metered-charge"]').last().click({ force: true })
-    cy.get('[data-option-index="1"]').click({ force: true })
+    cy.get('[data-option-index="1"]').click()
     cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().should('have.value', 'Standard pricing')

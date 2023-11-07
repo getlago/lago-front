@@ -235,7 +235,10 @@ const CreateInvoice = () => {
         label: name,
         labelNode: (
           <Item>
-            {name} -&nbsp;
+            <Typography color="grey700" noWrap>
+              {name}
+            </Typography>
+            &nbsp;-&nbsp;
             <Typography color="textPrimary">
               (
               {intlFormatNumber(deserializeAmount(amountCents, amountCurrency) || 0, {

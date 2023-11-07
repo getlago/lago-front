@@ -12,6 +12,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
+import { Item } from '../form/ComboBox/ComboBoxItem'
+
 gql`
   fragment BillableMetricsForCoupons on BillableMetric {
     id
@@ -56,9 +58,15 @@ export const AddBillableMetricToCouponDialog = forwardRef<
       return {
         label: `${name} - (${code})`,
         labelNode: (
-          <BillableMetricItem>
-            {name} <Typography color="textPrimary">({code})</Typography>
-          </BillableMetricItem>
+          <Item>
+            <Typography color="grey700" noWrap>
+              {name}
+            </Typography>
+            &nbsp;
+            <Typography color="textPrimary" noWrap>
+              ({code})
+            </Typography>
+          </Item>
         ),
         value: id,
         disabled: attachedBillableMetricsIds?.includes(id),
@@ -130,10 +138,6 @@ export const AddBillableMetricToCouponDialog = forwardRef<
 
 AddBillableMetricToCouponDialog.displayName = 'AddBillableMetricToCouponDialog'
 
-const BillableMetricItem = styled.span`
-  display: flex;
-  white-space: pre;
-`
 const StyledComboBox = styled(ComboBox)`
   margin-bottom: ${theme.spacing(8)};
 `
