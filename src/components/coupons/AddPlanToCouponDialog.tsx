@@ -12,6 +12,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
+import { Item } from '../form/ComboBox/ComboBoxItem'
+
 gql`
   fragment PlansForCoupons on Plan {
     id
@@ -53,9 +55,15 @@ export const AddPlanToCouponDialog = forwardRef<DialogRef, AddPlanToCouponDialog
         return {
           label: `${name} - (${code})`,
           labelNode: (
-            <PlanItem>
-              {name} <Typography color="textPrimary">({code})</Typography>
-            </PlanItem>
+            <Item>
+              <Typography color="grey700" noWrap>
+                {name}
+              </Typography>
+              &nbsp;
+              <Typography color="textPrimary" noWrap>
+                ({code})
+              </Typography>
+            </Item>
           ),
           value: id,
           disabled: attachedPlansIds?.includes(id),
@@ -127,10 +135,6 @@ export const AddPlanToCouponDialog = forwardRef<DialogRef, AddPlanToCouponDialog
 
 AddPlanToCouponDialog.displayName = 'AddPlanToCouponDialog'
 
-const PlanItem = styled.span`
-  display: flex;
-  white-space: pre;
-`
 const StyledComboBox = styled(ComboBox)`
   margin-bottom: ${theme.spacing(8)};
 `
