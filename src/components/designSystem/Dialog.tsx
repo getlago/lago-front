@@ -34,10 +34,10 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
         setIsOpen(true)
         onOpen && onOpen()
       },
-      closeDialog: () => onDialogClose(),
+      closeDialog: () => closeDialog(),
     }))
 
-    const onDialogClose = () => {
+    const closeDialog = () => {
       setIsOpen(false)
       onClose && onClose()
     }
@@ -50,13 +50,13 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
           scroll="body"
           onKeyDown={(e) => {
             if (e.code === 'Escape') {
-              onDialogClose()
+              closeDialog()
             }
           }}
           open={isOpen}
           onClose={(_, reason) => {
             if (['backdropClick', 'escapeKeyDown'].includes(reason)) {
-              onDialogClose()
+              closeDialog()
             }
           }}
           PaperProps={{ className: 'dialogPaper' }}
@@ -70,11 +70,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
           {children && children}
 
-          <StyledButtonGroup>
-            {typeof actions === 'function'
-              ? actions({ closeDialog: () => onDialogClose() })
-              : actions}
-          </StyledButtonGroup>
+          <StyledButtonGroup>{actions({ closeDialog })}</StyledButtonGroup>
         </StyledDialog>
       </>
     )
