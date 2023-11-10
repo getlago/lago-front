@@ -52,7 +52,7 @@ const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null
                       <Typography variant="body" color="grey700">
                         {tax.name} (
                         {intlFormatNumber(Number(tax.rate) / 100 || 0, {
-                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
                           style: 'percent',
                         })}
                         )

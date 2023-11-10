@@ -86,7 +86,11 @@ export const usePlanForm: ({
     skip: !id && !parentId && !planIdToFetch,
   })
   const isDuplicate = actionType === 'duplicate' && !!parentId
-  const type = !!id ? 'edition' : isDuplicate ? 'duplicate' : 'creation'
+  const type = !!id
+    ? FORM_TYPE_ENUM.edition
+    : isDuplicate
+    ? FORM_TYPE_ENUM.duplicate
+    : FORM_TYPE_ENUM.creation
 
   const isEdition = type === FORM_TYPE_ENUM.edition
   const plan = data?.plan

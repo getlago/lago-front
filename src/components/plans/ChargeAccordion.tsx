@@ -948,14 +948,11 @@ export const ChargeAccordion = memo(
                     <Chip
                       key={localTaxId}
                       label={`${name} (${rate}%)`}
-                      disabled={disabled}
                       variant="secondary"
                       size="medium"
                       closeIcon="trash"
                       icon="percentage"
-                      onCloseLabel={
-                        disabled ? undefined : translate('text_63aa085d28b8510cd46443ff')
-                      }
+                      onCloseLabel={translate('text_63aa085d28b8510cd46443ff')}
                       onClose={() => {
                         const newTaxedArray =
                           localCharge.taxes?.filter((tax) => tax.id !== localTaxId) || []
@@ -1033,7 +1030,6 @@ export const ChargeAccordion = memo(
                 <Button
                   startIcon="plus"
                   variant="quaternary"
-                  disabled={subscriptionFormType === FORM_TYPE_ENUM.edition || disabled}
                   onClick={() => {
                     setShouldDisplayTaxesInput(true)
 

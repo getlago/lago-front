@@ -576,6 +576,7 @@ export const ChargesSection = memo(
       oldProps.isInSubscriptionForm === newProps.isInSubscriptionForm &&
       oldProps.isEdition === newProps.isEdition &&
       oldProps.subscriptionFormType === newProps.subscriptionFormType &&
+      oldProps.formikProps.values.taxes === newProps.formikProps.values.taxes &&
       oldProps.formikProps.values.interval === newProps.formikProps.values.interval &&
       oldProps.formikProps.values.billChargesMonthly ===
         newProps.formikProps.values.billChargesMonthly &&

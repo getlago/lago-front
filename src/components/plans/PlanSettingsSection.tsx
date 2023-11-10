@@ -233,9 +233,6 @@ export const PlanSettingsSection = memo(
                 <Chip
                   key={id}
                   label={`${name} (${rate}%)`}
-                  disabled={
-                    subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
-                  }
                   variant="secondary"
                   size="medium"
                   closeIcon="trash"
@@ -267,9 +264,6 @@ export const PlanSettingsSection = memo(
               <ComboBox
                 className={SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME}
                 data={taxesDataForCombobox}
-                disabled={
-                  subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
-                }
                 searchQuery={getTaxes}
                 loading={taxesLoading}
                 placeholder={translate('text_64be910fba8ef9208686a8e7')}
@@ -287,9 +281,6 @@ export const PlanSettingsSection = memo(
                 <Button
                   icon="trash"
                   variant="quaternary"
-                  disabled={
-                    subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
-                  }
                   onClick={() => {
                     setShouldDisplayTaxesInput(false)
                   }}
@@ -301,9 +292,6 @@ export const PlanSettingsSection = memo(
           <Button
             startIcon="plus"
             variant="quaternary"
-            disabled={
-              subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
-            }
             onClick={() => {
               setShouldDisplayTaxesInput(true)
               setTimeout(() => {

@@ -58,7 +58,6 @@ describe('Edit plan', () => {
     })
     cy.get('[data-test="tab-internal-button-link-update-plan"]').click({ force: true })
     cy.get('input[name="name"]').should('not.be.disabled')
-    cy.get('input[name="code"]').should('be.disabled')
     cy.get('textarea[name="description"]', { timeout: 10000 }).should('not.be.disabled')
     cy.get(`[data-test="fixed-fee-section-accordion"]`).within(() => {
       cy.get(`.MuiAccordionSummary-root`).click({ force: true })
