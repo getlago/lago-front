@@ -131,7 +131,7 @@ const PlanDetailsChargesSectionAccordion = ({
                     <div key={`plan-details-charges-section-accordion-tax-${i}`}>
                       {tax.name} (
                       {intlFormatNumber(Number(tax.rate) / 100 || 0, {
-                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
                         style: 'percent',
                       })}
                       )
