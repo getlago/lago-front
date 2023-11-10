@@ -3858,7 +3858,15 @@ export type TerminateCouponMutationVariables = Exact<{
 
 export type TerminateCouponMutation = { __typename?: 'Mutation', terminateCoupon?: { __typename?: 'Coupon', id: string } | null };
 
-export type CreditNoteFormFragment = { __typename?: 'Invoice', id: string, couponsAmountCents: any, paymentStatus: InvoicePaymentStatusTypeEnum, creditableAmountCents: any, refundableAmountCents: any, feesAmountCents: any, currency?: CurrencyEnum | null, versionNumber: number, fees?: Array<{ __typename?: 'Fee', id: string, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, tax: { __typename?: 'Tax', id: string, name: string, rate: number } }> | null }> | null };
+export type InvoiceForCreditNoteFormCalculationFragment = { __typename?: 'Invoice', id: string, couponsAmountCents: any, paymentStatus: InvoicePaymentStatusTypeEnum, creditableAmountCents: any, refundableAmountCents: any, feesAmountCents: any, currency?: CurrencyEnum | null, versionNumber: number, fees?: Array<{ __typename?: 'Fee', id: string, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, tax: { __typename?: 'Tax', id: string, name: string, rate: number } }> | null }> | null };
+
+export type CreditNoteEstimateQueryVariables = Exact<{
+  invoiceId: Scalars['ID']['input'];
+  items: Array<CreditNoteItemInput> | CreditNoteItemInput;
+}>;
+
+
+export type CreditNoteEstimateQuery = { __typename?: 'Query', creditNoteEstimate: { __typename?: 'CreditNoteEstimate', couponsAdjustmentAmountCents: any, currency: CurrencyEnum, maxCreditableAmountCents: any, maxRefundableAmountCents: any, subTotalExcludingTaxesAmountCents: any, taxesAmountCents: any, taxesRate: number, appliedTaxes: Array<{ __typename?: 'CreditNoteAppliedTax', taxCode: string, taxName: string, taxRate: number, amountCents: any, tax: { __typename?: 'Tax', id: string } }>, items: Array<{ __typename?: 'CreditNoteItemEstimate', amountCents: any, fee: { __typename?: 'Fee', id: string } }> } };
 
 export type GetPortalCustomerInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -5842,8 +5850,8 @@ export const InvoiceFeeFragmentDoc = gql`
   }
 }
     `;
-export const CreditNoteFormFragmentDoc = gql`
-    fragment CreditNoteForm on Invoice {
+export const InvoiceForCreditNoteFormCalculationFragmentDoc = gql`
+    fragment InvoiceForCreditNoteFormCalculation on Invoice {
   id
   couponsAmountCents
   paymentStatus
@@ -5874,9 +5882,9 @@ export const CreateCreditNoteInvoiceFragmentDoc = gql`
   creditableAmountCents
   refundableAmountCents
   subTotalIncludingTaxesAmountCents
-  ...CreditNoteForm
+  ...InvoiceForCreditNoteFormCalculation
 }
-    ${CreditNoteFormFragmentDoc}`;
+    ${InvoiceForCreditNoteFormCalculationFragmentDoc}`;
 export const InvoiceCreateCreditNoteFragmentDoc = gql`
     fragment InvoiceCreateCreditNote on Invoice {
   id
@@ -7120,6 +7128,63 @@ export function useTerminateCouponMutation(baseOptions?: Apollo.MutationHookOpti
 export type TerminateCouponMutationHookResult = ReturnType<typeof useTerminateCouponMutation>;
 export type TerminateCouponMutationResult = Apollo.MutationResult<TerminateCouponMutation>;
 export type TerminateCouponMutationOptions = Apollo.BaseMutationOptions<TerminateCouponMutation, TerminateCouponMutationVariables>;
+export const CreditNoteEstimateDocument = gql`
+    query creditNoteEstimate($invoiceId: ID!, $items: [CreditNoteItemInput!]!) {
+  creditNoteEstimate(invoiceId: $invoiceId, items: $items) {
+    appliedTaxes {
+      taxCode
+      taxName
+      taxRate
+      amountCents
+      tax {
+        id
+      }
+    }
+    couponsAdjustmentAmountCents
+    currency
+    items {
+      amountCents
+      fee {
+        id
+      }
+    }
+    maxCreditableAmountCents
+    maxRefundableAmountCents
+    subTotalExcludingTaxesAmountCents
+    taxesAmountCents
+    taxesRate
+  }
+}
+    `;
+
+/**
+ * __useCreditNoteEstimateQuery__
+ *
+ * To run a query within a React component, call `useCreditNoteEstimateQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCreditNoteEstimateQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCreditNoteEstimateQuery({
+ *   variables: {
+ *      invoiceId: // value for 'invoiceId'
+ *      items: // value for 'items'
+ *   },
+ * });
+ */
+export function useCreditNoteEstimateQuery(baseOptions: Apollo.QueryHookOptions<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>(CreditNoteEstimateDocument, options);
+      }
+export function useCreditNoteEstimateLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>(CreditNoteEstimateDocument, options);
+        }
+export type CreditNoteEstimateQueryHookResult = ReturnType<typeof useCreditNoteEstimateQuery>;
+export type CreditNoteEstimateLazyQueryHookResult = ReturnType<typeof useCreditNoteEstimateLazyQuery>;
+export type CreditNoteEstimateQueryResult = Apollo.QueryResult<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>;
 export const GetPortalCustomerInfosDocument = gql`
     query getPortalCustomerInfos {
   customerPortalUser {

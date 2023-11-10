@@ -1,21 +1,16 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import _get from 'lodash/get'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled, { css } from 'styled-components'
-import { array, number, object, string } from 'yup'
+import { array, object, string } from 'yup'
 
 import { CreditNoteCodeSnippet } from '~/components/creditNote/CreditNoteCodeSnippet'
 import { CreditNoteFormCalculation } from '~/components/creditNote/CreditNoteFormCalculation'
 import { CreditNoteFormItem } from '~/components/creditNote/CreditNoteFormItem'
-import {
-  CreditNoteForm,
-  CreditTypeEnum,
-  FromFee,
-  GroupedFee,
-  PayBackErrorEnum,
-} from '~/components/creditNote/types'
+import { CreditNoteForm, FromFee, GroupedFee } from '~/components/creditNote/types'
+import { creditNoteFormCalculationCalculation } from '~/components/creditNote/utils'
 import {
   Avatar,
   Button,
@@ -33,9 +28,9 @@ import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { generateAddOnFeesSchema, generateFeesSchema } from '~/formValidation/feesSchema'
 import {
-  CreditNoteFormFragmentDoc,
   CreditNoteReasonEnum,
   CurrencyEnum,
+  InvoiceForCreditNoteFormCalculationFragmentDoc,
   InvoicePaymentStatusTypeEnum,
   LagoApiError,
 } from '~/generated/graphql'
@@ -54,10 +49,10 @@ gql`
     creditableAmountCents
     refundableAmountCents
     subTotalIncludingTaxesAmountCents
-    ...CreditNoteForm
+    ...InvoiceForCreditNoteFormCalculation
   }
 
-  ${CreditNoteFormFragmentDoc}
+  ${InvoiceForCreditNoteFormCalculationFragmentDoc}
 `
 
 const determineCheckboxValue = (
@@ -95,12 +90,35 @@ const mapStatus = (type?: InvoicePaymentStatusTypeEnum | undefined) => {
 }
 
 const CreateCreditNote = () => {
+  const navigate = useNavigate()
   const { translate } = useInternationalization()
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const { customerId, invoiceId } = useParams()
-  const navigate = useNavigate()
   const { loading, invoice, feesPerInvoice, feeForAddOn, onCreate } = useCreateCreditNote()
   const currency = invoice?.currency || CurrencyEnum.Usd
+
+  // setInterval(() => {
+  //   setPayBackValidation(
+  //     array().of(
+  //       object().shape({
+  //         type: string().required(''),
+  //         value: number()
+  //           .required('')
+  //           .when('type', ([type]) => {
+  //             return type === CreditTypeEnum.refund
+  //               ? number().max(
+  //                   deserializeAmount(Math.round(Math.random() * 1000), currency) || 0,
+  //                   PayBackErrorEnum.maxRefund
+  //                 )
+  //               : number().max(
+  //                   deserializeAmount(Math.round(Math.random() * 1000), currency) || 0,
+  //                   PayBackErrorEnum.maxRefund
+  //                 )
+  //           }),
+  //       })
+  //     )
+  //   )
+  // }, 1000)
 
   const addOnFeesValidation = useMemo(
     () => generateAddOnFeesSchema(feeForAddOn || [], currency),
@@ -111,6 +129,8 @@ const CreateCreditNote = () => {
     () => generateFeesSchema(feesPerInvoice || {}, currency),
     [feesPerInvoice, currency]
   )
+
+  const [payBackValidation, setPayBackValidation] = useState(array())
 
   const statusMap = mapStatus(invoice?.paymentStatus)
   const formikProps = useFormik<Partial<CreditNoteForm>>({
@@ -127,24 +147,7 @@ const CreateCreditNote = () => {
       reason: string().required(''),
       fees: feesValidation,
       addOnFee: addOnFeesValidation,
-      payBack: array().of(
-        object().shape({
-          type: string().required(''),
-          value: number()
-            .required('')
-            .when('type', ([type]) => {
-              return type === CreditTypeEnum.refund
-                ? number().max(
-                    deserializeAmount(invoice?.refundableAmountCents, currency) || 0,
-                    PayBackErrorEnum.maxRefund
-                  )
-                : number().max(
-                    deserializeAmount(invoice?.creditableAmountCents, currency) || 0,
-                    PayBackErrorEnum.maxRefund
-                  )
-            }),
-        })
-      ),
+      payBack: payBackValidation,
     }),
     validateOnMount: true,
     enableReinitialize: true,
@@ -162,6 +165,8 @@ const CreateCreditNote = () => {
       }
     },
   })
+
+  const hasError = !!formikProps.errors.fees || !!formikProps.errors.addOnFee
 
   const checkboxGroupValue = useMemo(() => {
     const fees = formikProps.values.fees || {}
@@ -211,6 +216,17 @@ const CreateCreditNote = () => {
       }, {}) || {}
     )
   }, [formikProps.values.fees])
+
+  const { feeForEstimate } = useMemo(
+    () =>
+      creditNoteFormCalculationCalculation({
+        currency,
+        hasError,
+        fees: formikProps.values.fees,
+        addonFees: formikProps.values.addOnFee,
+      }),
+    [currency, formikProps.values.addOnFee, formikProps.values.fees, hasError]
+  )
 
   return (
     <div>
@@ -484,7 +500,13 @@ const CreateCreditNote = () => {
                       )
                     })}
 
-                  <CreditNoteFormCalculation invoice={invoice} formikProps={formikProps} />
+                  <CreditNoteFormCalculation
+                    hasError={hasError}
+                    invoice={invoice}
+                    formikProps={formikProps}
+                    feeForEstimate={feeForEstimate}
+                    setPayBackValidation={setPayBackValidation}
+                  />
                 </Card>
                 <ButtonContainer>
                   <Button
