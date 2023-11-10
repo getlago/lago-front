@@ -1,4 +1,9 @@
-import { CurrencyEnum, InvoicePaymentStatusTypeEnum } from '~/generated/graphql'
+export const feeMockFormatedForEstimate = [
+  { amountCents: 1000000, feeId: 'fee1' },
+  { amountCents: 1900000, feeId: 'fee2' },
+  { amountCents: 50000, feeId: 'fee4' },
+  { amountCents: 50000, feeId: 'fee5' },
+]
 
 export const feesMock = {
   subscriptionId1: {
@@ -101,7 +106,13 @@ export const feesMock = {
     },
   },
 }
-export const feesMockAmountCents = '38010'
+
+export const addonMockFormatedForEstimate = [
+  {
+    amountCents: 50000,
+    feeId: 'addOnFee1',
+  },
+]
 
 export const addOnFeeMock = [
   {
@@ -152,15 +163,15 @@ export const addOnFeeMock = [
   },
 ]
 
-export const invoiceMock = {
-  id: '1234',
-  couponsAmountCents: '1010',
-  paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
-  creditableAmountCents: '0',
-  refundableAmountCents: '0',
-  feesAmountCents: '62833',
-  currency: CurrencyEnum.Eur,
-  versionNumber: 3,
-  fees: addOnFeeMock,
-  invoiceSubscriptions: feesMock,
-}
+// export const invoiceMock = {
+//   id: '1234',
+//   couponsAmountCents: '1010',
+//   paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
+//   creditableAmountCents: '0',
+//   refundableAmountCents: '0',
+//   feesAmountCents: '62833',
+//   currency: CurrencyEnum.Eur,
+//   versionNumber: 3,
+//   fees: addOnFeeMock,
+//   invoiceSubscriptions: feesMock,
+// }
