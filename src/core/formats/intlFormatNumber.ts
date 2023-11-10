@@ -62,7 +62,7 @@ export const bigNumberShortenNotationFormater = (
   } = options || {}
 
   if (amount < 1e3) {
-    return intlFormatNumber(amount, {
+    return intlFormatNumber(Math.floor(amount), {
       style,
       currency,
       currencyDisplay: CurrencyDisplay.symbol,

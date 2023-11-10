@@ -4175,7 +4175,7 @@ export type GetCustomerSubscriptionForUsageQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerSubscriptionForUsageQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, subscriptions: Array<{ __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }> } | null };
+export type GetCustomerSubscriptionForUsageQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, externalId: string, currency?: CurrencyEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }> } | null };
 
 export type CustomerUsageForUsageDetailsFragment = { __typename?: 'CustomerUsage', fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null }, billableMetric: { __typename?: 'BillableMetric', name: string }, groups?: Array<{ __typename?: 'GroupUsage', id: string, amountCents: any, key?: string | null, units: number, value: string, invoiceDisplayName?: string | null }> | null }> };
 
@@ -4226,6 +4226,35 @@ export type RetryWebhookMutation = { __typename?: 'Mutation', retryWebhook?: { _
 export type WebhookLogItemFragment = { __typename?: 'Webhook', id: string, status: WebhookStatusEnum, updatedAt: any, webhookType: string };
 
 export type OrganizationForDatePickerFragment = { __typename?: 'Organization', id: string, timezone?: TimezoneEnum | null };
+
+export type GetGrossRevenuesQueryVariables = Exact<{
+  currency: CurrencyEnum;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetGrossRevenuesQuery = { __typename?: 'Query', grossRevenues: { __typename?: 'GrossRevenueCollection', collection: Array<{ __typename?: 'GrossRevenue', amountCents?: any | null, currency?: CurrencyEnum | null, month: any }> } };
+
+export type GetOutstandingInvoicesQueryVariables = Exact<{
+  currency: CurrencyEnum;
+}>;
+
+
+export type GetOutstandingInvoicesQuery = { __typename?: 'Query', outstandingInvoices: { __typename?: 'OutstandingInvoiceCollection', collection: Array<{ __typename?: 'OutstandingInvoice', paymentStatus?: InvoicePaymentStatusTypeEnum | null, invoicesCount: any, amountCents: any, currency?: CurrencyEnum | null, month: any }> } };
+
+export type GetMrrQueryVariables = Exact<{
+  currency: CurrencyEnum;
+}>;
+
+
+export type GetMrrQuery = { __typename?: 'Query', mrrs: { __typename?: 'MrrCollection', collection: Array<{ __typename?: 'Mrr', amountCents?: any | null, currency?: CurrencyEnum | null, month: any }> } };
+
+export type GetInvoicedUsagesQueryVariables = Exact<{
+  currency: CurrencyEnum;
+}>;
+
+
+export type GetInvoicedUsagesQuery = { __typename?: 'Query', invoicedUsages: { __typename?: 'InvoicedUsageCollection', collection: Array<{ __typename?: 'InvoicedUsage', amountCents: any, month: any, currency: CurrencyEnum, code?: string | null }> } };
 
 export type InvoiceMetadatasForMetadataDrawerFragment = { __typename?: 'Invoice', id: string, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null };
 
@@ -4968,14 +4997,14 @@ export type GetCreditNoteQueryVariables = Exact<{
 
 export type GetCreditNoteQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, balanceAmountCents: any, canBeVoided: boolean, couponsAdjustmentAmountCents: any, createdAt: any, creditAmountCents: any, creditStatus?: CreditNoteCreditStatusEnum | null, currency: CurrencyEnum, number: string, refundAmountCents: any, refundedAt?: any | null, refundStatus?: CreditNoteRefundStatusEnum | null, subTotalExcludingTaxesAmountCents: any, totalAmountCents: any, customer: { __typename?: 'Customer', id: string, name?: string | null, deletedAt?: any | null, applicableTimezone: TimezoneEnum }, invoice?: { __typename?: 'Invoice', id: string, number: string } | null, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, itemName: string, groupName?: string | null, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, tax: { __typename?: 'Tax', id: string, rate: number } }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null } }> } | null };
 
-export type CustomerDetailsFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, activeSubscriptionsCount: number, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
+export type CustomerDetailsFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
 
 export type GetCustomerQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, activeSubscriptionsCount: number, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
+export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
 
 export type GenerateCustomerPortalUrlMutationVariables = Exact<{
   input: GenerateCustomerPortalUrlInput;
@@ -6841,7 +6870,6 @@ export const CustomerDetailsFragmentDoc = gql`
   creditNotesCreditsAvailableCount
   creditNotesBalanceAmountCents
   applicableTimezone
-  activeSubscriptionsCount
   ...AddCustomerDrawer
   ...CustomerMainInfos
 }
@@ -8189,6 +8217,8 @@ export const GetCustomerSubscriptionForUsageDocument = gql`
     query getCustomerSubscriptionForUsage($id: ID!) {
   customer(id: $id) {
     id
+    externalId
+    currency
     subscriptions(status: [active, pending]) {
       id
       ...CustomerSubscriptionForUsage
@@ -8411,6 +8441,166 @@ export function useRetryWebhookMutation(baseOptions?: Apollo.MutationHookOptions
 export type RetryWebhookMutationHookResult = ReturnType<typeof useRetryWebhookMutation>;
 export type RetryWebhookMutationResult = Apollo.MutationResult<RetryWebhookMutation>;
 export type RetryWebhookMutationOptions = Apollo.BaseMutationOptions<RetryWebhookMutation, RetryWebhookMutationVariables>;
+export const GetGrossRevenuesDocument = gql`
+    query getGrossRevenues($currency: CurrencyEnum!, $externalCustomerId: String) {
+  grossRevenues(currency: $currency, externalCustomerId: $externalCustomerId) {
+    collection {
+      amountCents
+      currency
+      month
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetGrossRevenuesQuery__
+ *
+ * To run a query within a React component, call `useGetGrossRevenuesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetGrossRevenuesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetGrossRevenuesQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *   },
+ * });
+ */
+export function useGetGrossRevenuesQuery(baseOptions: Apollo.QueryHookOptions<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>(GetGrossRevenuesDocument, options);
+      }
+export function useGetGrossRevenuesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>(GetGrossRevenuesDocument, options);
+        }
+export type GetGrossRevenuesQueryHookResult = ReturnType<typeof useGetGrossRevenuesQuery>;
+export type GetGrossRevenuesLazyQueryHookResult = ReturnType<typeof useGetGrossRevenuesLazyQuery>;
+export type GetGrossRevenuesQueryResult = Apollo.QueryResult<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>;
+export const GetOutstandingInvoicesDocument = gql`
+    query getOutstandingInvoices($currency: CurrencyEnum!) {
+  outstandingInvoices(currency: $currency) {
+    collection {
+      paymentStatus
+      invoicesCount
+      amountCents
+      currency
+      month
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetOutstandingInvoicesQuery__
+ *
+ * To run a query within a React component, call `useGetOutstandingInvoicesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOutstandingInvoicesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOutstandingInvoicesQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *   },
+ * });
+ */
+export function useGetOutstandingInvoicesQuery(baseOptions: Apollo.QueryHookOptions<GetOutstandingInvoicesQuery, GetOutstandingInvoicesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOutstandingInvoicesQuery, GetOutstandingInvoicesQueryVariables>(GetOutstandingInvoicesDocument, options);
+      }
+export function useGetOutstandingInvoicesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOutstandingInvoicesQuery, GetOutstandingInvoicesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOutstandingInvoicesQuery, GetOutstandingInvoicesQueryVariables>(GetOutstandingInvoicesDocument, options);
+        }
+export type GetOutstandingInvoicesQueryHookResult = ReturnType<typeof useGetOutstandingInvoicesQuery>;
+export type GetOutstandingInvoicesLazyQueryHookResult = ReturnType<typeof useGetOutstandingInvoicesLazyQuery>;
+export type GetOutstandingInvoicesQueryResult = Apollo.QueryResult<GetOutstandingInvoicesQuery, GetOutstandingInvoicesQueryVariables>;
+export const GetMrrDocument = gql`
+    query getMrr($currency: CurrencyEnum!) {
+  mrrs(currency: $currency) {
+    collection {
+      amountCents
+      currency
+      month
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetMrrQuery__
+ *
+ * To run a query within a React component, call `useGetMrrQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMrrQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMrrQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *   },
+ * });
+ */
+export function useGetMrrQuery(baseOptions: Apollo.QueryHookOptions<GetMrrQuery, GetMrrQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetMrrQuery, GetMrrQueryVariables>(GetMrrDocument, options);
+      }
+export function useGetMrrLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMrrQuery, GetMrrQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetMrrQuery, GetMrrQueryVariables>(GetMrrDocument, options);
+        }
+export type GetMrrQueryHookResult = ReturnType<typeof useGetMrrQuery>;
+export type GetMrrLazyQueryHookResult = ReturnType<typeof useGetMrrLazyQuery>;
+export type GetMrrQueryResult = Apollo.QueryResult<GetMrrQuery, GetMrrQueryVariables>;
+export const GetInvoicedUsagesDocument = gql`
+    query getInvoicedUsages($currency: CurrencyEnum!) {
+  invoicedUsages(currency: $currency) {
+    collection {
+      amountCents
+      month
+      currency
+      code
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetInvoicedUsagesQuery__
+ *
+ * To run a query within a React component, call `useGetInvoicedUsagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInvoicedUsagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetInvoicedUsagesQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *   },
+ * });
+ */
+export function useGetInvoicedUsagesQuery(baseOptions: Apollo.QueryHookOptions<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>(GetInvoicedUsagesDocument, options);
+      }
+export function useGetInvoicedUsagesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>(GetInvoicedUsagesDocument, options);
+        }
+export type GetInvoicedUsagesQueryHookResult = ReturnType<typeof useGetInvoicedUsagesQuery>;
+export type GetInvoicedUsagesLazyQueryHookResult = ReturnType<typeof useGetInvoicedUsagesLazyQuery>;
+export type GetInvoicedUsagesQueryResult = Apollo.QueryResult<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>;
 export const UpdateInvoiceMetadataDocument = gql`
     mutation updateInvoiceMetadata($input: UpdateInvoiceInput!) {
   updateInvoice(input: $input) {

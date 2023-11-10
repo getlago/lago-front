@@ -119,6 +119,7 @@
     "react-dom": "18.2.0",
     "react-router-dom": "6.15.0",
     "react-window": "1.8.9",
+    "recharts": "^2.9.0",
     "sanitize-html": "2.11.0",
     "styled-components": "5.3.11",
     "yarn": "1.22.19",

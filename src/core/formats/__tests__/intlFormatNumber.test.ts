@@ -54,10 +54,10 @@ describe('Currency tools', () => {
   })
 
   describe('bigNumberShortenNotationFormater()', () => {
-    it.only('should return amount formatted according to currency', () => {
+    it('should return amount formatted according to currency', () => {
       expect(bigNumberShortenNotationFormater(1)).toBe('$1')
       expect(bigNumberShortenNotationFormater(1, { currency: CurrencyEnum.Eur })).toBe('€1')
-      expect(bigNumberShortenNotationFormater(1.1, { currency: CurrencyEnum.Eur })).toBe('€1.1')
+      expect(bigNumberShortenNotationFormater(1.1, { currency: CurrencyEnum.Eur })).toBe('€1')
       expect(bigNumberShortenNotationFormater(1.01, { currency: CurrencyEnum.Eur })).toBe('€1')
       expect(bigNumberShortenNotationFormater(10, { currency: CurrencyEnum.Eur })).toBe('€10')
       expect(bigNumberShortenNotationFormater(100, { currency: CurrencyEnum.Eur })).toBe('€100')
