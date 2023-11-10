@@ -48,7 +48,6 @@ const PlanDetails = lazyLoad(
 
 // ----------- Routes -----------
 // Lists
-export const HOME_ROUTE = '/'
 export const BILLABLE_METRICS_ROUTE = '/billable-metrics'
 export const PLANS_ROUTE = '/plans'
 export const COUPONS_ROUTE = '/coupons'
@@ -89,7 +88,7 @@ export const CUSTOMER_SUBSCRIPTION_PLAN_DETAILS =
 
 export const objectListRoutes: CustomRouteObject[] = [
   {
-    path: [BILLABLE_METRICS_ROUTE, HOME_ROUTE],
+    path: [BILLABLE_METRICS_ROUTE],
     private: true,
     element: <BillableMetricsList />,
   },

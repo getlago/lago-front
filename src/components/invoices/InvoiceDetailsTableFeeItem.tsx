@@ -116,7 +116,6 @@ interface InvoiceDetailsTableFeeItemProps {
 export const InvoiceDetailsTableFeeItem = memo(
   ({ customer, fee, invoiceSubscriptionIndex, label, units }: InvoiceDetailsTableFeeItemProps) => {
     const { translate } = useInternationalization()
-    // console.log(fee)
 
     return (
       <table key={`invoiceSubscription-${invoiceSubscriptionIndex}-fee-${fee.id}`}>

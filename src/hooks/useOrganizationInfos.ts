@@ -30,6 +30,7 @@ gql`
 `
 
 type UseOrganizationInfos = () => {
+  loading: boolean
   organization?: MainOrganizationInfosFragment
   timezone: TimezoneEnum
   timezoneConfig: TimezoneConfigObject
@@ -37,7 +38,7 @@ type UseOrganizationInfos = () => {
 }
 
 export const useOrganizationInfos: UseOrganizationInfos = () => {
-  const { data } = useGetOrganizationInfosQuery({
+  const { data, loading } = useGetOrganizationInfosQuery({
     fetchPolicy: 'cache-first',
     canonizeResults: true,
   })
@@ -45,6 +46,7 @@ export const useOrganizationInfos: UseOrganizationInfos = () => {
   const timezoneConfig = TimeZonesConfig[orgaTimezone]
 
   return {
+    loading,
     organization: data?.organization || undefined,
     timezone: orgaTimezone || TimezoneEnum.TzUtc,
     timezoneConfig,

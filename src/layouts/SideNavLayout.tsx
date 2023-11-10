@@ -21,6 +21,7 @@ import { DOCUMENTATION_URL, FEATURE_REQUESTS_URL } from '~/core/constants/extern
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import {
   ADD_ONS_ROUTE,
+  ANALYTIC_ROUTE,
   API_KEYS_ROUTE,
   BILLABLE_METRICS_ROUTE,
   COUPONS_ROUTE,
@@ -215,10 +216,16 @@ const SideNav = () => {
                 onClick={() => setOpen(false)}
                 tabs={[
                   {
+                    title: translate('text_6553885df387fd0097fd7384'),
+                    icon: 'chart-bar',
+                    link: ANALYTIC_ROUTE,
+                    match: [ANALYTIC_ROUTE, HOME_ROUTE],
+                  },
+                  {
                     title: translate('text_623b497ad05b960101be3448'),
                     icon: 'pulse',
                     link: BILLABLE_METRICS_ROUTE,
-                    match: [BILLABLE_METRICS_ROUTE, HOME_ROUTE],
+                    match: [BILLABLE_METRICS_ROUTE],
                   },
                   {
                     title: translate('text_62442e40cea25600b0b6d85a'),

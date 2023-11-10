@@ -65,7 +65,6 @@ gql`
     creditNotesCreditsAvailableCount
     creditNotesBalanceAmountCents
     applicableTimezone
-    activeSubscriptionsCount
     ...AddCustomerDrawer
     ...CustomerMainInfos
   }
@@ -138,7 +137,6 @@ const CustomerDetails = () => {
     hasActiveWallet,
     hasCreditNotes,
     name,
-    activeSubscriptionsCount,
     applicableTimezone,
   } = data?.customer || {}
   const safeTimezone = applicableTimezone
@@ -355,16 +353,18 @@ const CustomerDetails = () => {
                       ),
                     },
                     {
-                      title: translate('text_62c3f3fca8a1625624e83365'),
+                      title: translate('text_6553885df387fd0097fd7384'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                         customerId: customerId as string,
                         tab: CustomerDetailsTabsOptions.usage,
                       }),
                       routerState: { disableScrollTop: true },
-                      hidden: activeSubscriptionsCount === 0,
                       component: (
                         <SideBlock>
-                          <CustomerUsage customerTimezone={safeTimezone} />
+                          <CustomerUsage
+                            customerTimezone={safeTimezone}
+                            premiumWarningDialogRef={premiumWarningDialogRef}
+                          />
                         </SideBlock>
                       ),
                     },
