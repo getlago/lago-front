@@ -221,6 +221,7 @@ export enum ChargeModelEnum {
 }
 
 export type ChargeOverridesInput = {
+  billableMetricId: Scalars['ID']['input'];
   groupProperties?: InputMaybe<Array<GroupPropertiesInput>>;
   id: Scalars['ID']['input'];
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
@@ -1062,6 +1063,8 @@ export type CreditNoteEstimate = {
   items: Array<CreditNoteItemEstimate>;
   maxCreditableAmountCents: Scalars['BigInt']['output'];
   maxRefundableAmountCents: Scalars['BigInt']['output'];
+  preciseCouponsAdjustmentAmountCents: Scalars['Float']['output'];
+  preciseTaxesAmountCents: Scalars['Float']['output'];
   subTotalExcludingTaxesAmountCents: Scalars['BigInt']['output'];
   taxesAmountCents: Scalars['BigInt']['output'];
   taxesRate: Scalars['Float']['output'];

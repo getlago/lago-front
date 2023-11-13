@@ -79,7 +79,6 @@ const cleanPlanValues = (planValues: PlanOverridesInput, formType: keyof typeof 
       taxes: undefined,
       payInAdvance: undefined,
       billableMetric: undefined,
-      billableMetricId: undefined,
       chargeModel: undefined,
       invoiceable: undefined,
       prorated: undefined,
