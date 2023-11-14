@@ -132,7 +132,7 @@
     "trim": "1.0.1"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "alias": {
     "@mui/styled-engine": "@mui/styled-engine-sc"
