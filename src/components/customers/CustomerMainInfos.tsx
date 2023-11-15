@@ -163,7 +163,11 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
       {email && (
         <div>
           <Typography variant="caption">{translate('text_626c0c301a16a600ea061479')}</Typography>
-          <Typography color="textSecondary">{email}</Typography>
+          {email.split(',').map((mail) => (
+            <Typography key={`customer-email-${mail}`} color="textSecondary" noWrap>
+              {mail}
+            </Typography>
+          ))}
         </div>
       )}
       {url && (
