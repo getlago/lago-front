@@ -633,7 +633,10 @@ const CreateSubscription = () => {
                         <InlineFields>
                           <DatePickerField
                             name="subscriptionAt"
-                            disabled={formType !== FORM_TYPE_ENUM.creation}
+                            disabled={
+                              formType !== FORM_TYPE_ENUM.creation &&
+                              subscription?.status !== StatusTypeEnum.Pending
+                            }
                             placement="auto"
                             label={translate('text_64ef55a730b88e3d2117b3c4')}
                             defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
