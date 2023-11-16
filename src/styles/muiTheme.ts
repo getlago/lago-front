@@ -161,6 +161,9 @@ export const theme = createTheme({
           },
           textarea: {
             padding: '5px 11px',
+            'min-height': '38px',
+            resize: 'vertical',
+            'white-space': 'pre-wrap',
           },
         },
         notchedOutline: {
