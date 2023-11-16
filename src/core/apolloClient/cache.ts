@@ -20,7 +20,8 @@ export const cache = new InMemoryCache({
     Query: {
       fields: {
         billableMetrics: {
-          keyArgs: false,
+          // Usefull in plan creation, where 2 combobox display billableMetrics with different recurring value
+          keyArgs: ['id', 'recurring'],
           merge: mergePaginatedCollection,
         },
         plans: {
