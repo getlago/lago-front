@@ -1788,6 +1788,19 @@ export type GraduatedRangeInput = {
   toValue?: InputMaybe<Scalars['BigInt']['input']>;
 };
 
+export type GrossRevenue = {
+  __typename?: 'GrossRevenue';
+  amountCents?: Maybe<Scalars['BigInt']['output']>;
+  currency?: Maybe<CurrencyEnum>;
+  month: Scalars['ISO8601DateTime']['output'];
+};
+
+export type GrossRevenueCollection = {
+  __typename?: 'GrossRevenueCollection';
+  collection: Array<GrossRevenue>;
+  metadata: CollectionMetadata;
+};
+
 export type Group = {
   __typename?: 'Group';
   deletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -1968,6 +1981,20 @@ export enum InvoiceTypeEnum {
   Subscription = 'subscription'
 }
 
+export type InvoicedUsage = {
+  __typename?: 'InvoicedUsage';
+  amountCents: Scalars['BigInt']['output'];
+  code?: Maybe<Scalars['String']['output']>;
+  currency: CurrencyEnum;
+  month: Scalars['ISO8601DateTime']['output'];
+};
+
+export type InvoicedUsageCollection = {
+  __typename?: 'InvoicedUsageCollection';
+  collection: Array<InvoicedUsage>;
+  metadata: CollectionMetadata;
+};
+
 export enum LagoApiError {
   CouponIsNotReusable = 'coupon_is_not_reusable',
   CurrenciesDoesNotMatch = 'currencies_does_not_match',
@@ -2035,6 +2062,19 @@ export enum MembershipStatus {
   Active = 'active',
   Revoked = 'revoked'
 }
+
+export type Mrr = {
+  __typename?: 'Mrr';
+  amountCents?: Maybe<Scalars['BigInt']['output']>;
+  currency?: Maybe<CurrencyEnum>;
+  month: Scalars['ISO8601DateTime']['output'];
+};
+
+export type MrrCollection = {
+  __typename?: 'MrrCollection';
+  collection: Array<Mrr>;
+  metadata: CollectionMetadata;
+};
 
 export type Mutation = {
   __typename?: 'Mutation';
@@ -2538,6 +2578,21 @@ export type OrganizationBillingConfigurationInput = {
   invoiceGracePeriod?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type OutstandingInvoice = {
+  __typename?: 'OutstandingInvoice';
+  amountCents: Scalars['BigInt']['output'];
+  currency?: Maybe<CurrencyEnum>;
+  invoicesCount: Scalars['BigInt']['output'];
+  month: Scalars['ISO8601DateTime']['output'];
+  paymentStatus?: Maybe<InvoicePaymentStatusTypeEnum>;
+};
+
+export type OutstandingInvoiceCollection = {
+  __typename?: 'OutstandingInvoiceCollection';
+  collection: Array<OutstandingInvoice>;
+  metadata: CollectionMetadata;
+};
+
 export type Plan = {
   __typename?: 'Plan';
   activeSubscriptionsCount: Scalars['Int']['output'];
@@ -2686,6 +2741,8 @@ export type Query = {
   customers: CustomerCollection;
   /** Query events of an organization */
   events?: Maybe<EventCollection>;
+  /** Query gross revenue of an organization */
+  grossRevenues: GrossRevenueCollection;
   /** Query a single Invite */
   invite?: Maybe<Invite>;
   /** Query pending invites of an organization */
@@ -2694,12 +2751,18 @@ export type Query = {
   invoice?: Maybe<Invoice>;
   /** Query invoice's credit note */
   invoiceCreditNotes?: Maybe<CreditNoteCollection>;
+  /** Query invoiced usage of an organization */
+  invoicedUsages: InvoicedUsageCollection;
   /** Query invoices */
   invoices: InvoiceCollection;
   /** Query memberships of an organization */
   memberships: MembershipCollection;
+  /** Query MRR of an organization */
+  mrrs: MrrCollection;
   /** Query the current organization */
   organization?: Maybe<Organization>;
+  /** Query outstanding invoices of an organization */
+  outstandingInvoices: OutstandingInvoiceCollection;
   /** Query a password reset by token */
   passwordReset: ResetPassword;
   /** Query a single plan of an organization */
@@ -2831,6 +2894,12 @@ export type QueryEventsArgs = {
 };
 
 
+export type QueryGrossRevenuesArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryInviteArgs = {
   token: Scalars['String']['input'];
 };
@@ -2854,6 +2923,11 @@ export type QueryInvoiceCreditNotesArgs = {
 };
 
 
+export type QueryInvoicedUsagesArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
+};
+
+
 export type QueryInvoicesArgs = {
   ids?: InputMaybe<Array<Scalars['ID']['input']>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -2867,6 +2941,16 @@ export type QueryInvoicesArgs = {
 export type QueryMembershipsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryMrrsArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
+};
+
+
+export type QueryOutstandingInvoicesArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
 };
 
 
