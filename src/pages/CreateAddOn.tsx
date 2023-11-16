@@ -244,11 +244,11 @@ const CreateAddOn = () => {
                   {shouldDisplayDescription ? (
                     <InlineDescription>
                       <TextArea
+                        multiline
                         name="description"
                         label={translate('text_629728388c4d2300e2d380f1')}
                         placeholder={translate('text_629728388c4d2300e2d38103')}
                         rows="3"
-                        multiline
                         formikProps={formikProps}
                       />
                       <CloseDescriptionTooltip
@@ -437,12 +437,6 @@ const SectionTitle = styled(Typography)`
 const TextArea = styled(TextInputField)`
   flex: 1;
   margin-right: ${theme.spacing(3)};
-
-  textarea {
-    min-height: 38px;
-    resize: vertical;
-    white-space: pre-wrap;
-  }
 `
 
 const CloseDescriptionTooltip = styled(Tooltip)`

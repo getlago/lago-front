@@ -279,12 +279,6 @@ const InlineDescription = styled.div`
 const TextArea = styled(TextInputField)`
   flex: 1;
   margin-right: ${theme.spacing(3)};
-
-  textarea {
-    min-height: 38px;
-    resize: vertical;
-    white-space: pre-wrap;
-  }
 `
 
 const CloseDescriptionTooltip = styled(Tooltip)`
