@@ -52,9 +52,9 @@ export function getAllDataForGrossDisplay({
   )
 
   if (period === AnalyticsPeriodScopeEnum.Quarter) {
-    formatedData.splice(0, 8)
+    formatedData.splice(0, 9)
   } else if (period === AnalyticsPeriodScopeEnum.Month) {
-    formatedData.splice(0, 10)
+    formatedData.splice(0, 11)
   }
 
   const sum = formatedData.reduce((acc, curr) => acc + Number(curr.value), 0)

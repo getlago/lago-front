@@ -194,14 +194,14 @@ export const getAllDataForInvoicesDisplay = ({
     paddedData.forEach((values, key) => {
       paddedData.set(
         key,
-        values.filter((_, index) => index > 7)
+        values.filter((_, index) => index > 8)
       )
     })
   } else if (period === AnalyticsPeriodScopeEnum.Month) {
     paddedData.forEach((values, key) => {
       paddedData.set(
         key,
-        values.filter((_, index) => index > 9)
+        values.filter((_, index) => index > 10)
       )
     })
   }
