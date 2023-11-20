@@ -39,6 +39,7 @@ describe('components/graphs/Mrr', () => {
       )
 
       expect(typeof res.lastMonthMrr).toBe('number')
+      expect(res.hasOnlyZeroValues).toBeFalsy()
     })
 
     it('should return 12 months on year demo mode', () => {
@@ -158,6 +159,24 @@ describe('components/graphs/Mrr', () => {
       })
 
       expect(res.lastMonthMrr).toBe(3600000)
+    })
+
+    it('should warn about no values', () => {
+      const res = getAllDataForMrrDisplay({
+        data: [
+          {
+            amountCents: '0',
+            currency: CurrencyEnum.Eur,
+            month: DateTime.now().startOf('month').toISO(),
+          },
+        ],
+        currency: CurrencyEnum.Eur,
+        demoMode: false,
+        blur: false,
+        period: AnalyticsPeriodScopeEnum.Month,
+      })
+
+      expect(res.hasOnlyZeroValues).toBeTruthy()
     })
   })
 })
