@@ -38,7 +38,7 @@ describe('components/graphs/Mrr', () => {
         DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
       )
 
-      expect(typeof res.amountSum).toBe('number')
+      expect(typeof res.lastMonthMrr).toBe('number')
     })
 
     it('should return 12 months on year demo mode', () => {
@@ -70,7 +70,7 @@ describe('components/graphs/Mrr', () => {
         DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
       )
 
-      expect(typeof res.amountSum).toBe('number')
+      expect(typeof res.lastMonthMrr).toBe('number')
     })
 
     it('should return 4 months on quarterly demo mode', () => {
@@ -102,7 +102,7 @@ describe('components/graphs/Mrr', () => {
         DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
       )
 
-      expect(typeof res.amountSum).toBe('number')
+      expect(typeof res.lastMonthMrr).toBe('number')
     })
 
     it('should return 2 months on quarterly demo mode', () => {
@@ -134,7 +134,7 @@ describe('components/graphs/Mrr', () => {
         DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
       )
 
-      expect(typeof res.amountSum).toBe('number')
+      expect(typeof res.lastMonthMrr).toBe('number')
     })
 
     it('should return correct total amount', () => {
@@ -157,7 +157,7 @@ describe('components/graphs/Mrr', () => {
         period: AnalyticsPeriodScopeEnum.Month,
       })
 
-      expect(res.amountSum).toBe(9410000)
+      expect(res.lastMonthMrr).toBe(3600000)
     })
   })
 })
