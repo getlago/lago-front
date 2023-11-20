@@ -121,9 +121,9 @@ export function getDataForUsageDisplay({
   let from = lastTwelveMonths[0]
 
   if (period === AnalyticsPeriodScopeEnum.Quarter) {
-    from = lastTwelveMonths[lastTwelveMonths.length - 5]
+    from = lastTwelveMonths[lastTwelveMonths.length - 4]
   } else if (period === AnalyticsPeriodScopeEnum.Month) {
-    from = lastTwelveMonths[lastTwelveMonths.length - 3]
+    from = lastTwelveMonths[lastTwelveMonths.length - 2]
   }
 
   return {

@@ -72,7 +72,7 @@ describe('components/graphs/Usage', () => {
       expect(res.dataLinesForDisplay.length).toBe(5)
       expect(res.dateFrom).toBe(
         DateTime.now()
-          .minus({ month: 4 })
+          .minus({ month: 3 })
           .startOf('month')
           .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
       )
@@ -96,7 +96,7 @@ describe('components/graphs/Usage', () => {
       expect(res.dataLinesForDisplay.length).toBe(5)
       expect(res.dateFrom).toBe(
         DateTime.now()
-          .minus({ month: 2 })
+          .minus({ month: 1 })
           .startOf('month')
           .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
       )
