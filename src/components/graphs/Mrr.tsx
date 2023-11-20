@@ -64,6 +64,7 @@ export function getAllDataForMrrDisplay({
   ]
 
   return {
+    hasOnlyZeroValues: formatedData.reduce((acc, curr) => acc + Number(curr.value), 0) === 0,
     dataForAreaChart: formatedData,
     lastMonthMrr: lastMrr,
     dateFrom,
@@ -84,7 +85,7 @@ const Mrr = ({
     skip: demoMode || blur || !currency,
   })
 
-  const { dataForAreaChart, lastMonthMrr, dateFrom, dateTo } = useMemo(() => {
+  const { dataForAreaChart, lastMonthMrr, dateFrom, dateTo, hasOnlyZeroValues } = useMemo(() => {
     return getAllDataForMrrDisplay({
       data: data?.mrrs?.collection,
       currency,
@@ -121,7 +122,7 @@ const Mrr = ({
             loading={loading}
             blur={blur}
             data={dataForAreaChart}
-            hasOnlyZeroValues={lastMonthMrr === 0}
+            hasOnlyZeroValues={hasOnlyZeroValues}
             currency={currency}
           />
         </>
