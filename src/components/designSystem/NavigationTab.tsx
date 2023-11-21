@@ -8,6 +8,7 @@ import { NAV_HEIGHT, theme } from '~/styles'
 import { BetaChip } from './BetaChip'
 import { ButtonLink, ButtonLinkTabProps } from './ButtonLink'
 import { Icon } from './Icon'
+import { Typography } from './Typography'
 
 enum NavigationTabAlignEnum {
   left = 'left',
@@ -75,7 +76,12 @@ export const NavigationTab = ({
                 onClick={!!onClick ? () => onClick(tab) : undefined}
                 {..._omit(props, ['component', 'match'])}
               >
-                {title}&nbsp;{!!beta && <BetaChip size="xsmall" />}
+                <InlineNavLinkWrapper>
+                  <Typography variant="body" color="inherit">
+                    {title}
+                  </Typography>
+                  {!!beta && <BetaChip size="xsmall" />}
+                </InlineNavLinkWrapper>
               </ButtonLink>
             )
           })}
@@ -166,4 +172,10 @@ const Loader = styled.div`
 const Container = styled.div<{ $vertical?: boolean }>`
   display: flex;
   flex-direction: ${({ $vertical }) => ($vertical ? 'row' : 'column')};
+`
+
+const InlineNavLinkWrapper = styled.div`
+  display: flex;
+  align-items: baseline;
+  gap: ${theme.spacing(2)};
 `
