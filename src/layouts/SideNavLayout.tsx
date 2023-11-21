@@ -220,6 +220,7 @@ const SideNav = () => {
                     icon: 'chart-bar',
                     link: ANALYTIC_ROUTE,
                     match: [ANALYTIC_ROUTE, HOME_ROUTE],
+                    beta: true,
                   },
                   {
                     title: translate('text_623b497ad05b960101be3448'),
