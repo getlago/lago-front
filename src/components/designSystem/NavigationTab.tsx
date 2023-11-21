@@ -5,6 +5,7 @@ import styled, { css } from 'styled-components'
 
 import { NAV_HEIGHT, theme } from '~/styles'
 
+import { BetaChip } from './BetaChip'
 import { ButtonLink, ButtonLinkTabProps } from './ButtonLink'
 import { Icon } from './Icon'
 
@@ -25,6 +26,7 @@ export interface NavigationTabProps extends Omit<ButtonLinkTabProps, 'to' | 'typ
   hidden?: boolean
   title?: string
   component?: ReactNode
+  beta?: boolean
 }
 
 interface NavigationTabsProps {
@@ -59,7 +61,7 @@ export const NavigationTab = ({
       {tabs.length > 1 && (
         <TabsBlock className={`navigation-tab--${orientation}`} $align={align}>
           {tabs.map((tab, i) => {
-            const { link, hidden, title, ...props } = tab
+            const { link, hidden, title, beta, ...props } = tab
 
             if (hidden) return null
 
@@ -73,7 +75,7 @@ export const NavigationTab = ({
                 onClick={!!onClick ? () => onClick(tab) : undefined}
                 {..._omit(props, ['component', 'match'])}
               >
-                {title}
+                {title}&nbsp;{!!beta && <BetaChip size="xsmall" />}
               </ButtonLink>
             )
           })}
