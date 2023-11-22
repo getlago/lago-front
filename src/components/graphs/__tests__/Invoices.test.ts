@@ -121,7 +121,7 @@ describe('components/graphs/Invoices', () => {
     })
   })
 
-  describe('getAllDataForGrossDisplay', () => {
+  describe('getAllDataForInvoicesDisplay', () => {
     it('should return data for year blur mode', () => {
       const res = getAllDataForInvoicesDisplay({
         data: OutstandingInvoicesFakeData,
@@ -132,6 +132,7 @@ describe('components/graphs/Invoices', () => {
       })
 
       expect(res.lineData.size).toBe(4)
+      expect(typeof res.totalAmount).toBe('number')
       Object.values(InvoicePaymentStatusTypeEnum).forEach((status) => {
         expect(Object.keys(res.lineData.get(status) as object).sort()).toEqual([
           'amountCents',
@@ -257,48 +258,82 @@ describe('components/graphs/Invoices', () => {
         DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
       )
     })
-  })
 
-  it('should return custom barGraphData if all values are 0', () => {
-    const res = getAllDataForInvoicesDisplay({
-      data: [
-        {
-          paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
-          invoicesCount: '0',
-          amountCents: '0',
-          currency: CurrencyEnum.Eur,
-          month: DateTime.now().startOf('month').toISO(),
-        },
-        {
-          paymentStatus: InvoicePaymentStatusTypeEnum.Failed,
-          invoicesCount: '0',
-          amountCents: '0',
-          currency: CurrencyEnum.Eur,
-          month: DateTime.now().startOf('month').toISO(),
-        },
-        {
-          paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
-          invoicesCount: '0',
-          amountCents: '0',
-          currency: CurrencyEnum.Eur,
-          month: DateTime.now().startOf('month').toISO(),
-        },
-      ],
-      currency: CurrencyEnum.Eur,
-      demoMode: false,
-      blur: false,
-      period: AnalyticsPeriodScopeEnum.Year,
+    it('should return custom barGraphData if all values are 0', () => {
+      const res = getAllDataForInvoicesDisplay({
+        data: [
+          {
+            paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
+            invoicesCount: '0',
+            amountCents: '0',
+            currency: CurrencyEnum.Eur,
+            month: DateTime.now().startOf('month').toISO(),
+          },
+          {
+            paymentStatus: InvoicePaymentStatusTypeEnum.Failed,
+            invoicesCount: '0',
+            amountCents: '0',
+            currency: CurrencyEnum.Eur,
+            month: DateTime.now().startOf('month').toISO(),
+          },
+          {
+            paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
+            invoicesCount: '0',
+            amountCents: '0',
+            currency: CurrencyEnum.Eur,
+            month: DateTime.now().startOf('month').toISO(),
+          },
+        ],
+        currency: CurrencyEnum.Eur,
+        demoMode: false,
+        blur: false,
+        period: AnalyticsPeriodScopeEnum.Year,
+      })
+
+      expect(res.barGraphData.length).toBe(1)
+      expect(Object.keys(res.barGraphData[0]).length).toBe(3)
+      expect(Object.keys(res.barGraphData[0]).sort()).toEqual([
+        InvoicePaymentStatusTypeEnum.Failed,
+        InvoicePaymentStatusTypeEnum.Pending,
+        InvoicePaymentStatusTypeEnum.Succeeded,
+      ])
+      expect(res.barGraphData[0][InvoicePaymentStatusTypeEnum.Succeeded]).toBe(1)
+      expect(res.barGraphData[0][InvoicePaymentStatusTypeEnum.Pending]).toBe(1)
+      expect(res.barGraphData[0][InvoicePaymentStatusTypeEnum.Failed]).toBe(1)
     })
 
-    expect(res.barGraphData.length).toBe(1)
-    expect(Object.keys(res.barGraphData[0]).length).toBe(3)
-    expect(Object.keys(res.barGraphData[0]).sort()).toEqual([
-      InvoicePaymentStatusTypeEnum.Failed,
-      InvoicePaymentStatusTypeEnum.Pending,
-      InvoicePaymentStatusTypeEnum.Succeeded,
-    ])
-    expect(res.barGraphData[0][InvoicePaymentStatusTypeEnum.Succeeded]).toBe(1)
-    expect(res.barGraphData[0][InvoicePaymentStatusTypeEnum.Pending]).toBe(1)
-    expect(res.barGraphData[0][InvoicePaymentStatusTypeEnum.Failed]).toBe(1)
+    it('should return correct totalAmount', () => {
+      const res = getAllDataForInvoicesDisplay({
+        data: [
+          {
+            paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
+            invoicesCount: '1',
+            amountCents: '1',
+            currency: CurrencyEnum.Eur,
+            month: DateTime.now().startOf('month').toISO(),
+          },
+          {
+            paymentStatus: InvoicePaymentStatusTypeEnum.Failed,
+            invoicesCount: '1',
+            amountCents: '1',
+            currency: CurrencyEnum.Eur,
+            month: DateTime.now().startOf('month').toISO(),
+          },
+          {
+            paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
+            invoicesCount: '1',
+            amountCents: '1',
+            currency: CurrencyEnum.Eur,
+            month: DateTime.now().startOf('month').toISO(),
+          },
+        ],
+        currency: CurrencyEnum.Eur,
+        demoMode: false,
+        blur: false,
+        period: AnalyticsPeriodScopeEnum.Year,
+      })
+
+      expect(res.totalAmount).toBe(2)
+    })
   })
 })

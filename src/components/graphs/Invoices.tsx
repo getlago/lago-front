@@ -214,6 +214,9 @@ export const getAllDataForInvoicesDisplay = ({
   ]
   const extractedData = extractDataForDisplay(paddedData)
   const hasOnlyZeroValues = extractedData.get(LINE_DATA_ALL_KEY_NAME)?.amountCents === 0
+  const total =
+    (extractedData.get(InvoicePaymentStatusTypeEnum.Failed)?.amountCents || 0) +
+    (extractedData.get(InvoicePaymentStatusTypeEnum.Pending)?.amountCents || 0)
 
   const localBarGraphData = [
     {
@@ -230,10 +233,11 @@ export const getAllDataForInvoicesDisplay = ({
   ]
 
   return {
-    lineData: extractedData,
     barGraphData: localBarGraphData,
     dateFrom: from,
     dateTo: to,
+    lineData: extractedData,
+    totalAmount: total,
   }
 }
 
@@ -253,7 +257,7 @@ const Invoices = ({
     skip: demoMode || blur || !currency,
   })
 
-  const { lineData, barGraphData, dateFrom, dateTo } = useMemo(() => {
+  const { barGraphData, dateFrom, dateTo, lineData, totalAmount } = useMemo(() => {
     return getAllDataForInvoicesDisplay({
       data: data?.outstandingInvoices.collection,
       currency,
@@ -276,12 +280,9 @@ const Invoices = ({
           <ChartHeader
             name={translate('text_6553885df387fd0097fd73a0')}
             tooltipText={translate('text_65562f85ed468200b9debb88')}
-            amount={intlFormatNumber(
-              deserializeAmount(lineData.get(LINE_DATA_ALL_KEY_NAME)?.amountCents || 0, currency),
-              {
-                currency,
-              }
-            )}
+            amount={intlFormatNumber(deserializeAmount(totalAmount, currency), {
+              currency,
+            })}
             period={translate('text_633dae57ca9a923dd53c2097', {
               fromDate: dateFrom,
               toDate: dateTo,
