@@ -7,9 +7,9 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
-  GetOutstandingInvoicesQuery,
+  GetInvoiceCollectionsQuery,
   InvoicePaymentStatusTypeEnum,
-  useGetOutstandingInvoicesQuery,
+  useGetInvoiceCollectionsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -24,7 +24,7 @@ import { getLastTwelveMonthsNumbersUntilNow, GRAPH_YEAR_MONTH_DAY_DATE_FORMAT } 
 
 import { Skeleton, Typography } from '../designSystem'
 import ChartHeader from '../designSystem/graphs/ChartHeader'
-import { OutstandingInvoicesFakeData } from '../designSystem/graphs/fixtures'
+import { InvoiceCollectionsFakeData } from '../designSystem/graphs/fixtures'
 import InlineBarsChart from '../designSystem/graphs/InlineBarsChart'
 import { GenericPlaceholder } from '../GenericPlaceholder'
 
@@ -37,8 +37,8 @@ const GRAPH_COLORS = [
 ]
 
 gql`
-  query getOutstandingInvoices($currency: CurrencyEnum!) {
-    outstandingInvoices(currency: $currency) {
+  query getInvoiceCollections($currency: CurrencyEnum!) {
+    invoiceCollections(currency: $currency) {
       collection {
         paymentStatus
         invoicesCount
@@ -50,12 +50,12 @@ gql`
   }
 `
 
-export type TOutstandingInvoicesDataResult =
-  GetOutstandingInvoicesQuery['outstandingInvoices']['collection']
+export type TInvoiceCollectionsDataResult =
+  GetInvoiceCollectionsQuery['invoiceCollections']['collection']
 
-type TFormatOutstandingInvoicesDataReturn = Map<
+type TFormatInvoiceCollectionsDataReturn = Map<
   InvoicePaymentStatusTypeEnum,
-  TOutstandingInvoicesDataResult
+  TInvoiceCollectionsDataResult
 >
 
 const LINE_DATA_ALL_KEY_NAME = 'all'
@@ -67,10 +67,10 @@ const lookupInvoiceLineTranslation = {
 }
 
 export const fillInvoicesDataPerMonthForPaymentStatus = (
-  data: TOutstandingInvoicesDataResult | undefined,
+  data: TInvoiceCollectionsDataResult | undefined,
   paymentStatus: InvoicePaymentStatusTypeEnum,
   currency: CurrencyEnum,
-): TOutstandingInvoicesDataResult => {
+): TInvoiceCollectionsDataResult => {
   const lastTwelveMonths = getLastTwelveMonthsNumbersUntilNow()
   const res = []
 
@@ -100,10 +100,10 @@ export const fillInvoicesDataPerMonthForPaymentStatus = (
   return res
 }
 
-export const formatOutstandingInvoicesData = (
-  data: TOutstandingInvoicesDataResult | undefined,
+export const formatInvoiceCollectionsData = (
+  data: TInvoiceCollectionsDataResult | undefined,
   currency: CurrencyEnum,
-): TFormatOutstandingInvoicesDataReturn => {
+): TFormatInvoiceCollectionsDataReturn => {
   const res = new Map()
 
   res.set(
@@ -127,7 +127,7 @@ export const formatOutstandingInvoicesData = (
 }
 
 export const extractDataForDisplay = (
-  data: TFormatOutstandingInvoicesDataReturn,
+  data: TFormatInvoiceCollectionsDataReturn,
 ): Map<
   InvoicePaymentStatusTypeEnum | typeof LINE_DATA_ALL_KEY_NAME,
   { invoicesCount: number; amountCents: number }
@@ -135,7 +135,7 @@ export const extractDataForDisplay = (
   const res = new Map()
 
   const getStatusDataReducer = (
-    acc: Pick<TOutstandingInvoicesDataResult[0], 'invoicesCount' | 'amountCents'>,
+    acc: Pick<TInvoiceCollectionsDataResult[0], 'invoicesCount' | 'amountCents'>,
     curr: { invoicesCount: string; amountCents: string },
   ) => {
     acc.amountCents += Number(curr.amountCents || 0)
@@ -185,12 +185,12 @@ export const getAllDataForInvoicesDisplay = ({
 }: {
   blur: boolean
   currency: CurrencyEnum
-  data: TOutstandingInvoicesDataResult | undefined
+  data: TInvoiceCollectionsDataResult | undefined
   demoMode: boolean
   period: TPeriodScopeTranslationLookupValue
 }) => {
-  const paddedData = formatOutstandingInvoicesData(
-    demoMode || blur || !data ? OutstandingInvoicesFakeData : data,
+  const paddedData = formatInvoiceCollectionsData(
+    demoMode || blur || !data ? InvoiceCollectionsFakeData : data,
     currency,
   )
 
@@ -254,7 +254,7 @@ const Invoices = ({
 }: TGraphProps) => {
   const { translate } = useInternationalization()
   const [hoveredBarId, setHoveredBarId] = useState<string | undefined>(undefined)
-  const { data, loading, error } = useGetOutstandingInvoicesQuery({
+  const { data, loading, error } = useGetInvoiceCollectionsQuery({
     variables: {
       currency,
     },
@@ -263,13 +263,13 @@ const Invoices = ({
 
   const { barGraphData, dateFrom, dateTo, lineData, totalAmount } = useMemo(() => {
     return getAllDataForInvoicesDisplay({
-      data: data?.outstandingInvoices.collection,
+      data: data?.invoiceCollections.collection,
       currency,
       demoMode,
       blur,
       period,
     })
-  }, [blur, currency, data?.outstandingInvoices.collection, demoMode, period])
+  }, [blur, currency, data?.invoiceCollections.collection, demoMode, period])
 
   return (
     <Wrapper className={className}>

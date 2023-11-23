@@ -1,12 +1,12 @@
 import { DateTime } from 'luxon'
 
-import { OutstandingInvoicesFakeData } from '~/components/designSystem/graphs/fixtures'
+import { InvoiceCollectionsFakeData } from '~/components/designSystem/graphs/fixtures'
 import { CurrencyEnum, InvoicePaymentStatusTypeEnum } from '~/generated/graphql'
 
 import {
   extractDataForDisplay,
   fillInvoicesDataPerMonthForPaymentStatus,
-  formatOutstandingInvoicesData,
+  formatInvoiceCollectionsData,
   getAllDataForInvoicesDisplay,
 } from '../Invoices'
 import { AnalyticsPeriodScopeEnum } from '../MonthSelectorDropdown'
@@ -48,9 +48,9 @@ describe('components/graphs/Invoices', () => {
     })
   })
 
-  describe('formatOutstandingInvoicesData', () => {
+  describe('formatInvoiceCollectionsData', () => {
     it('should return a map with 3 entries', () => {
-      const res = formatOutstandingInvoicesData([], CurrencyEnum.Usd)
+      const res = formatInvoiceCollectionsData([], CurrencyEnum.Usd)
 
       expect(res.size).toBe(3)
       expect(res.get(InvoicePaymentStatusTypeEnum.Succeeded)).toBeDefined()
@@ -70,7 +70,7 @@ describe('components/graphs/Invoices', () => {
         month: DateTime.now().startOf('month').toISO(),
       }
 
-      const res = formatOutstandingInvoicesData([currentMonthData], CurrencyEnum.Eur)
+      const res = formatInvoiceCollectionsData([currentMonthData], CurrencyEnum.Eur)
 
       expect(res.get(InvoicePaymentStatusTypeEnum.Succeeded)?.[0]).toStrictEqual({
         paymentStatus: currentMonthData.paymentStatus,
@@ -93,7 +93,7 @@ describe('components/graphs/Invoices', () => {
 
   describe('extractDataForDisplay', () => {
     it('returns data correctly formated for display', () => {
-      const currentMonthData = formatOutstandingInvoicesData(
+      const currentMonthData = formatInvoiceCollectionsData(
         [
           {
             paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
@@ -124,7 +124,7 @@ describe('components/graphs/Invoices', () => {
   describe('getAllDataForInvoicesDisplay', () => {
     it('should return data for year blur mode', () => {
       const res = getAllDataForInvoicesDisplay({
-        data: OutstandingInvoicesFakeData,
+        data: InvoiceCollectionsFakeData,
         currency: CurrencyEnum.Eur,
         demoMode: false,
         blur: true,
@@ -159,7 +159,7 @@ describe('components/graphs/Invoices', () => {
 
     it('should return data for year demo mode', () => {
       const res = getAllDataForInvoicesDisplay({
-        data: OutstandingInvoicesFakeData,
+        data: InvoiceCollectionsFakeData,
         currency: CurrencyEnum.Eur,
         demoMode: true,
         blur: false,
@@ -193,7 +193,7 @@ describe('components/graphs/Invoices', () => {
 
     it('should return data for quarter demo mode', () => {
       const res = getAllDataForInvoicesDisplay({
-        data: OutstandingInvoicesFakeData,
+        data: InvoiceCollectionsFakeData,
         currency: CurrencyEnum.Eur,
         demoMode: true,
         blur: false,
@@ -227,7 +227,7 @@ describe('components/graphs/Invoices', () => {
 
     it('should return data for month demo mode', () => {
       const res = getAllDataForInvoicesDisplay({
-        data: OutstandingInvoicesFakeData,
+        data: InvoiceCollectionsFakeData,
         currency: CurrencyEnum.Eur,
         demoMode: true,
         blur: false,
