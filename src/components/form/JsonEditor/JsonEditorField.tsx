@@ -33,7 +33,7 @@ export const JsonEditorField = memo(
   },
   (
     { formikProps: prevFormikProps, name: prevName, ...prev },
-    { formikProps: nextformikProps, name: nextName, ...next }
+    { formikProps: nextformikProps, name: nextName, ...next },
   ) => {
     return (
       _isEqual(prev, next) &&
@@ -42,7 +42,7 @@ export const JsonEditorField = memo(
       _get(prevFormikProps.errors, prevName) === _get(nextformikProps.errors, nextName) &&
       _get(prevFormikProps.touched, prevName) === _get(nextformikProps.touched, nextName)
     )
-  }
+  },
 )
 
 JsonEditorField.displayName = 'JsonEditorField'

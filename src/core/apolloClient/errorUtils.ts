@@ -14,7 +14,7 @@ export interface LagoGQLError extends GraphQLError {
 export const hasDefinedGQLError = (
   errorCode: keyof typeof LagoApiError,
   errorObject?: ApolloError | readonly GraphQLError[],
-  key?: string
+  key?: string,
 ) => {
   if (!errorObject) return false
 

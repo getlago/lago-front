@@ -72,7 +72,7 @@ export const DeleteTaxDialog = forwardRef<DeleteTaxDialogRef>((_, ref) => {
             ? translate(
                 'text_645bb193927b375079d28b0c',
                 { count: tax?.customersCount },
-                tax?.customersCount
+                tax?.customersCount,
               )
             : translate('text_645cb766cca2dd00e2956271')}
         </Typography>

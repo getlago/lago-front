@@ -233,7 +233,7 @@ const InvoiceSettings = () => {
                     {
                       days: organization?.netPaymentTerm,
                     },
-                    organization?.netPaymentTerm
+                    organization?.netPaymentTerm,
                   )}
             </Typography>
             <Typography variant="caption" color="grey600">
@@ -273,7 +273,7 @@ const InvoiceSettings = () => {
               {translate(
                 'text_638dc196fb209d551f3d81a2',
                 { gracePeriod: invoiceGracePeriod },
-                invoiceGracePeriod
+                invoiceGracePeriod,
               )}
             </Typography>
             <Typography variant="caption" color="grey600">

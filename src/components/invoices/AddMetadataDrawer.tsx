@@ -54,7 +54,7 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
         if (updateInvoice?.id) {
           addToast({
             message: translate(
-              isEdition ? 'text_6405cac5c833dcf18cad01fb' : 'text_6405cac5c833dcf18cad0204'
+              isEdition ? 'text_6405cac5c833dcf18cad01fb' : 'text_6405cac5c833dcf18cad0204',
             ),
             severity: 'success',
           })
@@ -87,7 +87,7 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
       <Drawer
         ref={ref}
         title={translate(
-          isEdition ? 'text_6405cac5c833dcf18cacff2a' : 'text_6405cac5c833dcf18cacff2c'
+          isEdition ? 'text_6405cac5c833dcf18cacff2a' : 'text_6405cac5c833dcf18cacff2c',
         )}
         onClose={() => {
           formikProps.resetForm()
@@ -98,7 +98,7 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
           <DrawerTitle>
             <Typography variant="headline">
               {translate(
-                isEdition ? 'text_6405cac5c833dcf18cacff6c' : 'text_6405cac5c833dcf18cacff32'
+                isEdition ? 'text_6405cac5c833dcf18cacff6c' : 'text_6405cac5c833dcf18cacff32',
               )}
             </Typography>
             <Typography>{translate('text_6405cac5c833dcf18cacff38')}</Typography>
@@ -128,10 +128,10 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
                       `${number}`
                     > = _get(formikProps.errors, `metadata.${i}.value`)
                     const hasCustomKeyError = Object.keys(MetadataErrorsEnum).includes(
-                      metadataItemKeyError || ''
+                      metadataItemKeyError || '',
                     )
                     const hasCustomValueError = Object.keys(MetadataErrorsEnum).includes(
-                      metadataItemValueError || ''
+                      metadataItemValueError || '',
                     )
 
                     return (
@@ -142,8 +142,8 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
                             metadataItemKeyError === MetadataErrorsEnum.uniqueness
                               ? translate('text_63fcc3218d35b9377840f5dd')
                               : metadataItemKeyError === MetadataErrorsEnum.maxLength
-                              ? translate('text_63fcc3218d35b9377840f5d9')
-                              : undefined
+                                ? translate('text_63fcc3218d35b9377840f5d9')
+                                : undefined
                           }
                           disableHoverListener={!hasCustomKeyError}
                         >
@@ -230,14 +230,14 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
               onClick={formikProps.submitForm}
             >
               {translate(
-                isEdition ? 'text_6405cac5c833dcf18cacffec' : 'text_6405cac5c833dcf18cacff4a'
+                isEdition ? 'text_6405cac5c833dcf18cacffec' : 'text_6405cac5c833dcf18cacff4a',
               )}
             </Button>
           </DrawerSubmitButton>
         </DrawerContent>
       </Drawer>
     )
-  }
+  },
 )
 
 const MetadataGrid = styled.div<{ $isHeader?: boolean }>`

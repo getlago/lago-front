@@ -56,7 +56,7 @@ export const useGraduatedPercentageChargeForm: useGraduatedPercentageChargeForm 
   const formikIdentifier = `charges.${chargeIndex}.${propertyCursor}.graduatedPercentageRanges`
   const graduatedPercentageRanges = useMemo(
     () => valuePointer?.graduatedPercentageRanges || [],
-    [valuePointer]
+    [valuePointer],
   )
 
   useEffect(() => {
@@ -77,7 +77,7 @@ export const useGraduatedPercentageChargeForm: useGraduatedPercentageChargeForm 
             disabledDelete: [0].includes(i) || !!disabled,
           }
         }),
-      [graduatedPercentageRanges, disabled]
+      [graduatedPercentageRanges, disabled],
     ),
     infosCalculation: useMemo(
       () =>
@@ -97,7 +97,7 @@ export const useGraduatedPercentageChargeForm: useGraduatedPercentageChargeForm 
 
           return acc
         }, []),
-      [graduatedPercentageRanges]
+      [graduatedPercentageRanges],
     ),
     addRange: () => {
       const addIndex = graduatedPercentageRanges?.length - 1 // Add before the last range
@@ -132,14 +132,14 @@ export const useGraduatedPercentageChargeForm: useGraduatedPercentageChargeForm 
 
       formikProps.setFieldValue(
         `charges.${chargeIndex}.${propertyCursor}.graduatedPercentageRanges`,
-        newgraduatedPercentageRanges
+        newgraduatedPercentageRanges,
       )
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       if (fieldName !== 'toValue') {
         formikProps.setFieldValue(
           `${formikIdentifier}.${rangeIndex}.${fieldName}`,
-          value !== '' ? Number(value) : value
+          value !== '' ? Number(value) : value,
         )
       } else {
         const newgraduatedPercentageRanges = graduatedPercentageRanges.reduce<
@@ -159,8 +159,8 @@ export const useGraduatedPercentageChargeForm: useGraduatedPercentageChargeForm 
                 range.toValue === null
                   ? null
                   : Number(range.toValue || 0) <= Number(fromValue)
-                  ? String(Number(fromValue) + 1)
-                  : String(range.toValue || 0),
+                    ? String(Number(fromValue) + 1)
+                    : String(range.toValue || 0),
             })
           } else {
             acc.push(range)

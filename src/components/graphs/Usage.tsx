@@ -84,7 +84,7 @@ export function getDataForUsageDisplay({
   })
 
   const sortedDataResult = filteredDataCollection?.sort((a, b) =>
-    Number(a.amountCents) > Number(b.amountCents) ? -1 : 1
+    Number(a.amountCents) > Number(b.amountCents) ? -1 : 1,
   )
 
   const dataLines: [string, number][] = []
@@ -168,7 +168,7 @@ const Usage = ({
         demoMode,
         period,
       }),
-    [blur, currency, data, demoMode, period]
+    [blur, currency, data, demoMode, period],
   )
 
   return (

@@ -25,7 +25,7 @@ describe('components/graphs/Invoices', () => {
       const res = fillInvoicesDataPerMonthForPaymentStatus(
         [currentMonthData],
         InvoicePaymentStatusTypeEnum.Succeeded,
-        CurrencyEnum.Eur
+        CurrencyEnum.Eur,
       )
 
       expect(res.length).toBe(13)
@@ -42,7 +42,7 @@ describe('components/graphs/Invoices', () => {
       expect(res[12]).toStrictEqual({
         ...currentMonthData,
         month: DateTime.fromISO(currentMonthData.month as string).toFormat(
-          GRAPH_YEAR_MONTH_DAY_DATE_FORMAT
+          GRAPH_YEAR_MONTH_DAY_DATE_FORMAT,
         ),
       })
     })
@@ -85,7 +85,7 @@ describe('components/graphs/Invoices', () => {
       expect(res.get(InvoicePaymentStatusTypeEnum.Succeeded)?.[12]).toStrictEqual({
         ...currentMonthData,
         month: DateTime.fromISO(currentMonthData.month as string).toFormat(
-          GRAPH_YEAR_MONTH_DAY_DATE_FORMAT
+          GRAPH_YEAR_MONTH_DAY_DATE_FORMAT,
         ),
       })
     })
@@ -103,7 +103,7 @@ describe('components/graphs/Invoices', () => {
             month: DateTime.now().startOf('month').toISO(),
           },
         ],
-        CurrencyEnum.Eur
+        CurrencyEnum.Eur,
       )
 
       const res = extractDataForDisplay(currentMonthData)
@@ -150,10 +150,10 @@ describe('components/graphs/Invoices', () => {
         DateTime.now()
           .minus({ month: 12 })
           .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
     })
 
@@ -184,10 +184,10 @@ describe('components/graphs/Invoices', () => {
         DateTime.now()
           .minus({ month: 12 })
           .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
     })
 
@@ -218,10 +218,10 @@ describe('components/graphs/Invoices', () => {
         DateTime.now()
           .minus({ month: 3 })
           .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
     })
 
@@ -252,10 +252,10 @@ describe('components/graphs/Invoices', () => {
         DateTime.now()
           .minus({ month: 1 })
           .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
     })
 

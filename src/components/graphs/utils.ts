@@ -29,7 +29,7 @@ export const getLastTwelveMonthsNumbersUntilNow = () => {
 
 export const padAndTransformDataOverLastTwelveMonth = (
   data: TAreaChartDataResult,
-  currency: CurrencyEnum
+  currency: CurrencyEnum,
 ) => {
   const monthsArray = getLastTwelveMonthsNumbersUntilNow()
 
@@ -38,7 +38,7 @@ export const padAndTransformDataOverLastTwelveMonth = (
   return monthsArray.map((month) => {
     const item = data.find(
       (d) =>
-        DateTime.fromISO(d.month as string).toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT) === month
+        DateTime.fromISO(d.month as string).toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT) === month,
     )
 
     return item
@@ -52,19 +52,19 @@ export const padAndTransformDataOverLastTwelveMonth = (
 
 export const formatDataForAreaChart = (
   data: TAreaChartDataResult,
-  currency: CurrencyEnum
+  currency: CurrencyEnum,
 ): AreaChartDataType[] => {
   data = padAndTransformDataOverLastTwelveMonth(data, currency)
 
   return data?.map((item: TAreaChartDataResult[0]) => ({
     tooltipLabel: `${DateTime.fromFormat(
       item.month as string,
-      GRAPH_YEAR_MONTH_DAY_DATE_FORMAT
+      GRAPH_YEAR_MONTH_DAY_DATE_FORMAT,
     ).toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(
       deserializeAmount(item.amountCents, item.currency || CurrencyEnum.Usd),
       {
         currency: item.currency as CurrencyEnum,
-      }
+      },
     )}`,
     value: Number(item.amountCents),
     axisName: item.month as string,

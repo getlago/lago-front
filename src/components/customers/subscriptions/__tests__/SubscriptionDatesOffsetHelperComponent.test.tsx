@@ -28,7 +28,7 @@ async function prepare(
   { customerTimezone, subscriptionAt, endingAt, organizationTimezone }: PrepareType = {
     customerTimezone: TimezoneEnum.TzUtc,
     subscriptionAt: DateTime.now().toISO() as string,
-  }
+  },
 ) {
   const { result } = renderHook(() => useInternationalization())
 
@@ -58,8 +58,8 @@ async function prepare(
       />,
       {
         mocks,
-      }
-    )
+      },
+    ),
   )
 
   return { translate: result.current.translate }

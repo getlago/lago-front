@@ -50,7 +50,7 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
       displayInDialog = false,
       onClickAway,
     }: PopperProps,
-    ref
+    ref,
   ) => {
     const [isOpen, setIsOpen] = useState(false)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -61,7 +61,7 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
       (open: boolean) => {
         setIsOpen(open)
       },
-      [setIsOpen]
+      [setIsOpen],
     )
 
     const toggle = useCallback(() => {
@@ -132,7 +132,7 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
         </div>
       </ClickAwayListener>
     )
-  }
+  },
 )
 
 Popper.displayName = 'Popper'

@@ -49,7 +49,7 @@ const documentLocalesData: { value: string; label: string }[] = Object.keys(Docu
       value: localeKey,
       label: DocumentLocales[localeKey],
     }
-  }
+  },
 )
 
 export const EditCustomerDocumentLocaleDialog = forwardRef<
@@ -103,7 +103,7 @@ export const EditCustomerDocumentLocaleDialog = forwardRef<
     <Dialog
       ref={ref}
       title={translate(
-        isEdition ? 'text_63ea0f84f400488553caa65c' : 'text_63ea0f84f400488553caa678'
+        isEdition ? 'text_63ea0f84f400488553caa65c' : 'text_63ea0f84f400488553caa678',
       )}
       description={
         <Typography

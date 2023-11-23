@@ -19,7 +19,7 @@ export interface TabButtonProps {
 export const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(
   (
     { active = false, title, icon, className, disabled, onClick, ...props }: TabButtonProps,
-    ref
+    ref,
   ) => {
     const [isLoading, setIsLoading] = useState(false)
     const mountedRef = useRef(false)
@@ -78,7 +78,7 @@ export const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(
         )}
       </Container>
     )
-  }
+  },
 )
 
 TabButton.displayName = 'TabButton'

@@ -46,7 +46,7 @@ const PlanDetailsChargesSection = ({
       { meteredCharges: [], recurringCharges: [] } as {
         meteredCharges: EditPlanFragment['charges']
         recurringCharges: EditPlanFragment['charges']
-      }
+      },
     ) ?? {}
 
   return (
@@ -89,8 +89,8 @@ const PlanDetailsChargesSection = ({
                         mapChargeIntervalCopy(
                           plan?.interval as PlanInterval,
                           (plan?.interval === PlanInterval.Yearly && !!plan?.billChargesMonthly) ||
-                            false
-                        )
+                            false,
+                        ),
                       )}
                     />
                   </DetailsInfoGrid>
@@ -143,8 +143,8 @@ const PlanDetailsChargesSection = ({
                         mapChargeIntervalCopy(
                           plan?.interval as PlanInterval,
                           (plan?.interval === PlanInterval.Yearly && !!plan?.billChargesMonthly) ||
-                            false
-                        )
+                            false,
+                        ),
                       )}
                     />
                   </DetailsInfoGrid>

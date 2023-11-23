@@ -59,12 +59,12 @@ export const VoidCreditNoteDialog = forwardRef<VoidCreditNoteDialogRef>((_, ref)
         amount: intlFormatNumber(
           deserializeAmount(
             creditNote?.totalAmountCents || 0,
-            creditNote?.currency || CurrencyEnum.Usd
+            creditNote?.currency || CurrencyEnum.Usd,
           ),
           {
             currencyDisplay: 'symbol',
             currency: creditNote?.currency || CurrencyEnum.Usd,
-          }
+          },
         ),
       })}
       onContinue={async () =>

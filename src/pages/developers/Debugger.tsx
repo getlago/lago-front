@@ -83,7 +83,7 @@ const Debugger = () => {
 
         return acc
       }, {}),
-    [data?.events?.collection, formatTimeOrgaTZ]
+    [data?.events?.collection, formatTimeOrgaTZ],
   )
 
   useEffect(() => {

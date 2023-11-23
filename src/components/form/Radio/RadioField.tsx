@@ -26,11 +26,11 @@ export const RadioField = memo(
           name={name}
         />
       )
-    }
+    },
   ),
   (
     { formikProps: prevFormikProps, name: prevName, ...prev },
-    { formikProps: nextformikProps, name: nextName, ...next }
+    { formikProps: nextformikProps, name: nextName, ...next },
   ) => {
     return (
       _isEqual(prev, next) &&
@@ -39,7 +39,7 @@ export const RadioField = memo(
       prevFormikProps.errors[prevName] === nextformikProps.errors[nextName] &&
       prevFormikProps.touched[prevName] === nextformikProps.touched[nextName]
     )
-  }
+  },
 )
 
 RadioField.displayName = 'RadioField'

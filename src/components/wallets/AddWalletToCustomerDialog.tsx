@@ -60,7 +60,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
     const { organization } = useOrganizationInfos()
     const [currencyError, setCurrencyError] = useState(false)
     const currencyPrecision = getCurrencyPrecision(
-      userCurrency || organization?.defaultCurrency || CurrencyEnum.Usd
+      userCurrency || organization?.defaultCurrency || CurrencyEnum.Usd,
     )
     const [createWallet] = useCreateCustomerWalletMutation({
       context: {
@@ -129,7 +129,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
           DateTime.now().plus({ days: -1 }),
           translate('text_630ccd87b251590eaa5f9831', {
             date: DateTime.now().plus({ days: -1 }).toFormat('LLL. dd, yyyy').toLocaleString(),
-          })
+          }),
         ),
         name: string(),
         paidCredits: string().test({
@@ -191,7 +191,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
                 'text_62d18855b22699e5cf55f89f',
                 undefined,
                 Number(formikProps.values.paidCredits || 0) +
-                  Number(formikProps.values.grantedCredits || 0)
+                  Number(formikProps.values.grantedCredits || 0),
               )}
             </Button>
           </>
@@ -246,7 +246,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
                 {
                   currencyDisplay: 'symbol',
                   currency: formikProps?.values?.currency || CurrencyEnum.Usd,
-                }
+                },
               ),
             })}
             InputProps={{
@@ -274,7 +274,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
                 {
                   currencyDisplay: 'symbol',
                   currency: formikProps?.values?.currency || CurrencyEnum.Usd,
-                }
+                },
               ),
             })}
             InputProps={{
@@ -292,7 +292,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
                 totalCreditCount:
                   Math.round(
                     Number(formikProps.values.paidCredits || 0) * 100 +
-                      Number(formikProps.values.grantedCredits || 0) * 100
+                      Number(formikProps.values.grantedCredits || 0) * 100,
                   ) / 100,
               })}
             </Typography>
@@ -317,7 +317,7 @@ export const AddWalletToCustomerDialog = forwardRef<DialogRef, AddWalletToCustom
         )}
       </Dialog>
     )
-  }
+  },
 )
 
 const Content = styled.div`

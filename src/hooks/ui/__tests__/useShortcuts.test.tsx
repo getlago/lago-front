@@ -24,7 +24,7 @@ describe('useShortcuts()', () => {
       render(
         <div>
           <MyTestComponentThatUsesShortcuts shortcuts={shortcuts} />
-        </div>
+        </div>,
       )
 
       // cf: https://testing-library.com/docs/ecosystem-user-event#keyboardtext-options
@@ -48,7 +48,7 @@ describe('useShortcuts()', () => {
       render(
         <div>
           <MyTestComponentThatUsesShortcuts shortcuts={shortcuts} />
-        </div>
+        </div>,
       )
 
       await userEvent.keyboard('{Meta>}D')
@@ -71,7 +71,7 @@ describe('useShortcuts()', () => {
       render(
         <div>
           <MyTestComponentThatUsesShortcuts shortcuts={shortcuts} />
-        </div>
+        </div>,
       )
 
       await userEvent.keyboard('{Meta>}[Enter]')
@@ -94,7 +94,7 @@ describe('useShortcuts()', () => {
       render(
         <div>
           <MyTestComponentThatUsesShortcuts shortcuts={shortcuts} />
-        </div>
+        </div>,
       )
 
       // cf: https://testing-library.com/docs/ecosystem-user-event#keyboardtext-options

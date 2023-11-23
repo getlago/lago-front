@@ -161,7 +161,7 @@ const AreaChart = memo(({ blur, currency, data, hasOnlyZeroValues, loading }: Ar
                               deserializeAmount(payload.value, currency),
                               {
                                 currency,
-                              }
+                              },
                             )}
                       </text>
                     </g>

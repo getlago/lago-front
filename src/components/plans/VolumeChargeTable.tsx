@@ -243,7 +243,7 @@ export const VolumeChargeTable = memo(
         </Alert>
       </Container>
     )
-  }
+  },
 )
 
 VolumeChargeTable.displayName = 'VolumeChargeTable'

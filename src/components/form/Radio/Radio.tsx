@@ -69,7 +69,7 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
         </RadioLabelWrapper>
       </Container>
     )
-  }
+  },
 )
 
 Radio.displayName = 'Radio'

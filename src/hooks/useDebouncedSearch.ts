@@ -12,7 +12,7 @@ export type UseDebouncedSearch = (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     any
   >,
-  loading?: boolean
+  loading?: boolean,
 ) => {
   debouncedSearch?: DebouncedFunc<(value: unknown) => void>
   isLoading: boolean
@@ -31,7 +31,7 @@ export const useDebouncedSearch: UseDebouncedSearch = (searchQuery, loading) => 
           variables: { searchTerm: value },
         })
     }, DEBOUNCE_SEARCH_MS),
-    []
+    [],
   )
 
   useEffect(() => {

@@ -28,7 +28,7 @@ export const ComboboxList = forwardRef(
       renderGroupHeader,
       ...propsToForward
     }: ComboBoxVirtualizedListProps,
-    ref: ForwardedRef<HTMLDivElement>
+    ref: ForwardedRef<HTMLDivElement>,
   ) => {
     const isGrouped = !!(children as { props: { option: ComboBoxData } }[])[0]?.props?.option?.group
 
@@ -39,7 +39,7 @@ export const ComboboxList = forwardRef(
             <Item key={`combobox-list-item-${randomKey}-${i}`} {...propsToForward}>
               {item}
             </Item>
-          ))
+          )),
         )
       }
 
@@ -49,7 +49,7 @@ export const ComboboxList = forwardRef(
        */
       const groupedBy = _groupBy(
         children as { props: { option: ComboBoxData } }[],
-        (child) => child.props.option.group
+        (child) => child.props.option.group,
       )
 
       return Children.toArray(
@@ -76,7 +76,7 @@ export const ComboboxList = forwardRef(
               </Item>
             )),
           ]
-        }, [])
+        }, []),
       )
     }, [isGrouped, renderGroupHeader, children, propsToForward, virtualized])
 
@@ -89,7 +89,7 @@ export const ComboboxList = forwardRef(
         )}
       </Container>
     )
-  }
+  },
 )
 
 ComboboxList.displayName = 'ComboboxList'
@@ -121,7 +121,9 @@ const GroupHeader = styled.div<{ $isFirst?: boolean; $virtualized?: boolean }>`
   padding: 0 ${theme.spacing(6)};
   background-color: ${theme.palette.grey[100]};
   box-sizing: border-box;
-  box-shadow: ${theme.shadows[7]}, 0px -1px 0px 0px ${theme.palette.divider};
+  box-shadow:
+    ${theme.shadows[7]},
+    0px -1px 0px 0px ${theme.palette.divider};
 
   ${({ $virtualized, $isFirst }) =>
     !$virtualized

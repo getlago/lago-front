@@ -115,7 +115,7 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
                 'text_62e79671d23ae6ff149de96c',
                 undefined,
                 Number(formikProps.values.paidCredits || 0) +
-                  Number(formikProps.values.grantedCredits || 0)
+                  Number(formikProps.values.grantedCredits || 0),
               )}
             </Button>
           </>
@@ -156,7 +156,7 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
                 {
                   currencyDisplay: 'symbol',
                   currency: wallet.currency,
-                }
+                },
               ),
             })}
             InputProps={{
@@ -183,7 +183,7 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
                 {
                   currencyDisplay: 'symbol',
                   currency: wallet.currency,
-                }
+                },
               ),
             })}
             InputProps={{
@@ -201,7 +201,7 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
                 totalCreditCount:
                   Math.round(
                     Number(formikProps.values.paidCredits || 0) * 100 +
-                      Number(formikProps.values.grantedCredits || 0) * 100
+                      Number(formikProps.values.grantedCredits || 0) * 100,
                   ) / 100,
               })}
             </Typography>
@@ -209,7 +209,7 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
         </Content>
       </Dialog>
     )
-  }
+  },
 )
 
 const Content = styled.div`

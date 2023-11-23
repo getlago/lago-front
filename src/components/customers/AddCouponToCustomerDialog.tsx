@@ -210,7 +210,7 @@ export const AddCouponToCustomerDialog = forwardRef<
     enableReinitialize: true,
     onSubmit: async (
       { amountCents, amountCurrency, percentageRate, frequencyDuration, ...values },
-      formikBag
+      formikBag,
     ) => {
       const couponValues = {
         ...values,
@@ -243,7 +243,7 @@ export const AddCouponToCustomerDialog = forwardRef<
       if (hasDefinedGQLError('CouponIsNotReusable', errors)) {
         formikBag.setFieldError(
           'couponId',
-          translate('text_638f48274d41e3f1d01fc119', { customerFullName: customerName })
+          translate('text_638f48274d41e3f1d01fc119', { customerFullName: customerName }),
         )
       } else if (hasDefinedGQLError('CurrenciesDoesNotMatch', errors, 'currency')) {
         formikBag.setFieldError('amountCurrency', '')
@@ -318,7 +318,7 @@ export const AddCouponToCustomerDialog = forwardRef<
                 couponId: coupon.id,
                 amountCents: deserializeAmount(
                   coupon.amountCents || 0,
-                  coupon.amountCurrency || CurrencyEnum.Usd
+                  coupon.amountCurrency || CurrencyEnum.Usd,
                 ),
                 amountCurrency: coupon.amountCurrency,
                 percentageRate: coupon.percentageRate,

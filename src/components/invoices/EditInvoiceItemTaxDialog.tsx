@@ -74,7 +74,7 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
       taxes: array().of(
         object().shape({
           id: string().required(''),
-        })
+        }),
       ),
     }),
     validateOnMount: true,
@@ -167,7 +167,7 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
                             formikProps.values?.taxes?.map((t) => t?.id)?.includes(localTaxId) &&
                             localTaxId !== tax?.id,
                         }
-                      }
+                      },
                     ),
                   ]}
                   value={tax?.id || ''}

@@ -60,7 +60,7 @@ export const CustomerUsage = ({
   const { organization } = useOrganizationInfos()
   const { translate } = useInternationalization()
   const [periodScope, setPeriodScope] = useState<TPeriodScopeTranslationLookupValue>(
-    AnalyticsPeriodScopeEnum.Year
+    AnalyticsPeriodScopeEnum.Year,
   )
   const { data, loading } = useGetCustomerSubscriptionForUsageQuery({
     variables: { id: customerId as string },

@@ -34,12 +34,12 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({ toast }: ToastProps, re
         setClosing(true)
       }, time)
     },
-    [setClosing, autoDismiss]
+    [setClosing, autoDismiss],
   )
 
   const stopTimeout = useCallback(
     () => autoDismiss && !!timeoutRef.current && clearTimeout(timeoutRef.current || undefined),
-    [autoDismiss]
+    [autoDismiss],
   )
 
   useEffect(() => {

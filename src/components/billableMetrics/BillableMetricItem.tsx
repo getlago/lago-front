@@ -124,7 +124,7 @@ export const BillableMetricItem = memo(
         </Popper>
       </ItemContainer>
     )
-  }
+  },
 )
 
 export const BillableMetricItemSkeleton = () => {

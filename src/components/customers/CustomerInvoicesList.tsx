@@ -90,7 +90,7 @@ export const CustomerInvoicesList = ({
             {translate(
               context === CustomerInvoiceListContextEnum.draft
                 ? 'text_63ac86d797f728a87b2f9fa7'
-                : 'text_63b5d225b075850e0fe489f4'
+                : 'text_63b5d225b075850e0fe489f4',
             )}
           </Typography>
           <Typography variant="bodyHl" color="grey500" noWrap>

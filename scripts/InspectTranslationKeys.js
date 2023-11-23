@@ -57,7 +57,7 @@ async function extract() {
             31 +
             'm' +
             `\n----- Keys used but not defined ----- ${keysNotInDitto.length}` +
-            '\u001b[0m'
+            '\u001b[0m',
         )
         console.info(keysNotInDitto.join('\n'))
       }
@@ -67,7 +67,7 @@ async function extract() {
             31 +
             'm' +
             `\n----- Keys defined but not used ----- ${dittoKeysNotUsed.length}` +
-            '\u001b[0m'
+            '\u001b[0m',
         )
         console.info(dittoKeysNotUsed.join('\n'))
       }

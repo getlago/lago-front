@@ -87,7 +87,7 @@ const CustomerDraftInvoicesList = () => {
                 generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                   customerId,
                   tab: CustomerDetailsTabsOptions.invoices,
-                })
+                }),
               )
             }
           />

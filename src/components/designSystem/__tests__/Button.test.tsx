@@ -20,8 +20,8 @@ async function prepare({
         onClick={props?.onClick}
       >
         {children}
-      </Button>
-    )
+      </Button>,
+    ),
   )
 }
 

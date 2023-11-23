@@ -74,7 +74,7 @@ export const PlanSettingsSection = memo(
   }: PlanSettingsSectionProps) => {
     const { translate } = useInternationalization()
     const [shouldDisplayDescription, setShouldDisplayDescription] = useState<boolean>(
-      !!formikProps.initialValues.description
+      !!formikProps.initialValues.description,
     )
     const [shouldDisplayTaxesInput, setShouldDisplayTaxesInput] = useState<boolean>(false)
     const plan = formikProps.values
@@ -296,7 +296,7 @@ export const PlanSettingsSection = memo(
               setShouldDisplayTaxesInput(true)
               setTimeout(() => {
                 const element = document.querySelector(
-                  `.${SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                  `.${SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
                 ) as HTMLElement
 
                 if (!element) return
@@ -312,7 +312,7 @@ export const PlanSettingsSection = memo(
         )}
       </Card>
     )
-  }
+  },
 )
 
 PlanSettingsSection.displayName = 'PlanSettingsSection'

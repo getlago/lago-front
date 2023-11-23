@@ -140,8 +140,8 @@ describe('ChargeAccordion', () => {
         userEvent.click(
           screen
             .queryByTestId('charge-accordion-0')
-            ?.querySelector(`.${MUI_BUTTON_BASE_ROOT_CLASSNAME}`) as HTMLElement
-        )
+            ?.querySelector(`.${MUI_BUTTON_BASE_ROOT_CLASSNAME}`) as HTMLElement,
+        ),
       )
 
       expect(screen.queryByTestId('charge-accordion-0')).toBeInTheDocument()

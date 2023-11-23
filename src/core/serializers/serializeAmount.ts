@@ -33,7 +33,7 @@ export const serializeAmount = (value: string | number, currency: CurrencyEnum) 
     return Number((String(Math.round(Number(value) * 1000)).match(/^-?\d+(?:\.\d{0,3})?/) || [])[0])
   } else if (precision === 4) {
     return Number(
-      (String(Math.round(Number(value) * 10000)).match(/^-?\d+(?:\.\d{0,4})?/) || [])[0]
+      (String(Math.round(Number(value) * 10000)).match(/^-?\d+(?:\.\d{0,4})?/) || [])[0],
     )
   }
 

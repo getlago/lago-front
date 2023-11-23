@@ -69,7 +69,7 @@ const lookupInvoiceLineTranslation = {
 export const fillInvoicesDataPerMonthForPaymentStatus = (
   data: TOutstandingInvoicesDataResult | undefined,
   paymentStatus: InvoicePaymentStatusTypeEnum,
-  currency: CurrencyEnum
+  currency: CurrencyEnum,
 ): TOutstandingInvoicesDataResult => {
   const lastTwelveMonths = getLastTwelveMonthsNumbersUntilNow()
   const res = []
@@ -78,7 +78,7 @@ export const fillInvoicesDataPerMonthForPaymentStatus = (
     const existingMonthData = data?.find(
       (d) =>
         d.paymentStatus === paymentStatus &&
-        DateTime.fromISO(d.month).toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT) === month
+        DateTime.fromISO(d.month).toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT) === month,
     )
 
     if (existingMonthData) {
@@ -102,28 +102,32 @@ export const fillInvoicesDataPerMonthForPaymentStatus = (
 
 export const formatOutstandingInvoicesData = (
   data: TOutstandingInvoicesDataResult | undefined,
-  currency: CurrencyEnum
+  currency: CurrencyEnum,
 ): TFormatOutstandingInvoicesDataReturn => {
   const res = new Map()
 
   res.set(
     InvoicePaymentStatusTypeEnum.Succeeded,
-    fillInvoicesDataPerMonthForPaymentStatus(data, InvoicePaymentStatusTypeEnum.Succeeded, currency)
+    fillInvoicesDataPerMonthForPaymentStatus(
+      data,
+      InvoicePaymentStatusTypeEnum.Succeeded,
+      currency,
+    ),
   )
   res.set(
     InvoicePaymentStatusTypeEnum.Failed,
-    fillInvoicesDataPerMonthForPaymentStatus(data, InvoicePaymentStatusTypeEnum.Failed, currency)
+    fillInvoicesDataPerMonthForPaymentStatus(data, InvoicePaymentStatusTypeEnum.Failed, currency),
   )
   res.set(
     InvoicePaymentStatusTypeEnum.Pending,
-    fillInvoicesDataPerMonthForPaymentStatus(data, InvoicePaymentStatusTypeEnum.Pending, currency)
+    fillInvoicesDataPerMonthForPaymentStatus(data, InvoicePaymentStatusTypeEnum.Pending, currency),
   )
 
   return res
 }
 
 export const extractDataForDisplay = (
-  data: TFormatOutstandingInvoicesDataReturn
+  data: TFormatOutstandingInvoicesDataReturn,
 ): Map<
   InvoicePaymentStatusTypeEnum | typeof LINE_DATA_ALL_KEY_NAME,
   { invoicesCount: number; amountCents: number }
@@ -132,7 +136,7 @@ export const extractDataForDisplay = (
 
   const getStatusDataReducer = (
     acc: Pick<TOutstandingInvoicesDataResult[0], 'invoicesCount' | 'amountCents'>,
-    curr: { invoicesCount: string; amountCents: string }
+    curr: { invoicesCount: string; amountCents: string },
   ) => {
     acc.amountCents += Number(curr.amountCents || 0)
     acc.invoicesCount += Number(curr.invoicesCount || 0)
@@ -144,19 +148,19 @@ export const extractDataForDisplay = (
     InvoicePaymentStatusTypeEnum.Succeeded,
     data
       .get(InvoicePaymentStatusTypeEnum.Succeeded)
-      ?.reduce(getStatusDataReducer, { invoicesCount: 0, amountCents: 0 })
+      ?.reduce(getStatusDataReducer, { invoicesCount: 0, amountCents: 0 }),
   )
   res.set(
     InvoicePaymentStatusTypeEnum.Failed,
     data
       .get(InvoicePaymentStatusTypeEnum.Failed)
-      ?.reduce(getStatusDataReducer, { invoicesCount: 0, amountCents: 0 })
+      ?.reduce(getStatusDataReducer, { invoicesCount: 0, amountCents: 0 }),
   )
   res.set(
     InvoicePaymentStatusTypeEnum.Pending,
     data
       .get(InvoicePaymentStatusTypeEnum.Pending)
-      ?.reduce(getStatusDataReducer, { invoicesCount: 0, amountCents: 0 })
+      ?.reduce(getStatusDataReducer, { invoicesCount: 0, amountCents: 0 }),
   )
   res.set(LINE_DATA_ALL_KEY_NAME, {
     invoicesCount:
@@ -187,21 +191,21 @@ export const getAllDataForInvoicesDisplay = ({
 }) => {
   const paddedData = formatOutstandingInvoicesData(
     demoMode || blur || !data ? OutstandingInvoicesFakeData : data,
-    currency
+    currency,
   )
 
   if (period === AnalyticsPeriodScopeEnum.Quarter) {
     paddedData.forEach((values, key) => {
       paddedData.set(
         key,
-        values.filter((_, index) => index > 8)
+        values.filter((_, index) => index > 8),
       )
     })
   } else if (period === AnalyticsPeriodScopeEnum.Month) {
     paddedData.forEach((values, key) => {
       paddedData.set(
         key,
-        values.filter((_, index) => index > 10)
+        values.filter((_, index) => index > 10),
       )
     })
   }
@@ -336,7 +340,7 @@ const Invoices = ({
                         <Typography variant="caption" color="grey600">
                           {intlFormatNumber(
                             deserializeAmount(lineData.get(status)?.amountCents || 0, currency),
-                            { currency }
+                            { currency },
                           )}
                         </Typography>
                       </InvoiceItem>
@@ -353,11 +357,11 @@ const Invoices = ({
                         {intlFormatNumber(
                           deserializeAmount(
                             lineData.get(LINE_DATA_ALL_KEY_NAME)?.amountCents || 0,
-                            currency
+                            currency,
                           ),
                           {
                             currency,
-                          }
+                          },
                         )}
                       </Typography>
                     </InvoiceItem>

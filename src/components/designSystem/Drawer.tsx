@@ -30,7 +30,7 @@ export interface DrawerRef {
 export const Drawer = forwardRef<DrawerRef, DrawerProps>(
   (
     { forceOpen = false, children, opener, anchor = 'right', title, onOpen, onClose }: DrawerProps,
-    ref
+    ref,
   ) => {
     const [isOpen, setIsOpen] = useState(forceOpen)
 
@@ -81,7 +81,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
         </StyledDrawer>
       </>
     )
-  }
+  },
 )
 
 Drawer.displayName = 'Drawer'

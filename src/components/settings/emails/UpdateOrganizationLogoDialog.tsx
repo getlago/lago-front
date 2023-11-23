@@ -56,7 +56,7 @@ export const UpdateOrganizationLogoDialog = forwardRef<UpdateOrganizationLogoDia
         <StyledOrganizationLogoPicker logoValue={logo} onChange={(value) => setLogo(value)} />
       </Dialog>
     )
-  }
+  },
 )
 
 UpdateOrganizationLogoDialog.displayName = 'UpdateOrganizationLogoDialog'

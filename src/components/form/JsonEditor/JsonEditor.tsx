@@ -122,7 +122,7 @@ export const JsonEditor = ({
         <Typography variant="caption" color={error ? 'danger600' : 'textPrimary'}>
           {!!error
             ? translate(
-                error === JSON_EDITOR_ERROR_ENUM.invalid ? customInvalidError || error : error
+                error === JSON_EDITOR_ERROR_ENUM.invalid ? customInvalidError || error : error,
               )
             : helperText}
         </Typography>
@@ -175,7 +175,13 @@ const Editor = styled(AceEditor)`
   && {
     width: 100%;
     min-height: 250px;
-    font-family: IBM Plex Mono, Consolas, Monaco, Andale Mono, Ubuntu Mono, monospace;
+    font-family:
+      IBM Plex Mono,
+      Consolas,
+      Monaco,
+      Andale Mono,
+      Ubuntu Mono,
+      monospace;
     font-size: 14px;
 
     .ace_active-line {
@@ -278,7 +284,13 @@ const Editor = styled(AceEditor)`
 
     .ace_placeholder {
       color: ${theme.palette.grey[500]};
-      font-family: IBM Plex Mono, Consolas, Monaco, Andale Mono, Ubuntu Mono, monospace;
+      font-family:
+        IBM Plex Mono,
+        Consolas,
+        Monaco,
+        Andale Mono,
+        Ubuntu Mono,
+        monospace;
       font-size: 14px;
       top: 10px;
       padding: 0 !important;

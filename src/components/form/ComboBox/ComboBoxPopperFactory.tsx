@@ -23,34 +23,33 @@ export const ComboBoxPopperFactory =
     virtualized,
   }: ComboBoxPopperFactoryArgs = {}) =>
   // eslint-disable-next-line react/display-name
-  (props: PopperProps) =>
-    (
-      <StyledPopper
-        $minWidth={minWidth || 0}
-        $maxWidth={maxWidth}
-        $displayInDialog={displayInDialog}
-        placement={placement || 'bottom-start'}
-        modifiers={[
-          {
-            name: 'offset',
-            enabled: true,
-            options: {
-              offset: [0, 8],
-            },
+  (props: PopperProps) => (
+    <StyledPopper
+      $minWidth={minWidth || 0}
+      $maxWidth={maxWidth}
+      $displayInDialog={displayInDialog}
+      placement={placement || 'bottom-start'}
+      modifiers={[
+        {
+          name: 'offset',
+          enabled: true,
+          options: {
+            offset: [0, 8],
           },
-        ]}
-        {...props}
+        },
+      ]}
+      {...props}
+    >
+      <div
+        className={clsns({
+          'combobox-popper--virtualized': virtualized,
+          'combobox-popper--grouped': grouped,
+        })}
       >
-        <div
-          className={clsns({
-            'combobox-popper--virtualized': virtualized,
-            'combobox-popper--grouped': grouped,
-          })}
-        >
-          {props?.children as ReactNode}
-        </div>
-      </StyledPopper>
-    )
+        {props?.children as ReactNode}
+      </div>
+    </StyledPopper>
+  )
 
 const StyledPopper = styled(Popper)<{
   $minWidth?: number

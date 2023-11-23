@@ -201,7 +201,7 @@ const CreateInvoice = () => {
             addOnId: string().required(''),
             description: string(),
             units: number().min(1, 'text_645381a65b99559adf6401f0').required(''),
-          })
+          }),
         )
         .required(''),
     }),
@@ -259,7 +259,7 @@ const CreateInvoice = () => {
       currentTaxesMap: TaxMapType,
       feeAmount?: number,
       feeUnits?: number,
-      feeAppliedTaxes?: TaxInfosForCreateInvoiceFragment[]
+      feeAppliedTaxes?: TaxInfosForCreateInvoiceFragment[],
     ) => {
       if (!feeAppliedTaxes?.length) return currentTaxesMap
       if (!currentTaxesMap) currentTaxesMap = new Map()
@@ -289,12 +289,12 @@ const CreateInvoice = () => {
             acc.taxesToDisplay,
             fee.unitAmountCents,
             fee.units || 0,
-            fee?.taxes || undefined
+            fee?.taxes || undefined,
           ),
         }
         return acc
       },
-      { subTotal: 0, taxesToDisplay: new Map() }
+      { subTotal: 0, taxesToDisplay: new Map() },
     )
 
     const vatTotalAmount = totalsReduced?.taxesToDisplay?.size
@@ -567,7 +567,7 @@ const CreateInvoice = () => {
                                         callback: (invoiceDisplayName: string) => {
                                           formikProps.setFieldValue(
                                             `fees.${i}.invoiceDisplayName`,
-                                            invoiceDisplayName
+                                            invoiceDisplayName,
                                           )
                                         },
                                       })
@@ -657,7 +657,7 @@ const CreateInvoice = () => {
                                         callback: (newDescription?: string) => {
                                           formikProps.setFieldValue(
                                             `fees.${i}.description`,
-                                            newDescription
+                                            newDescription,
                                           )
                                         },
                                       })
@@ -676,7 +676,7 @@ const CreateInvoice = () => {
                                         callback: (newTaxesArray?: LocalFeeInput['taxes']) => {
                                           formikProps.setFieldValue(
                                             `fees.${i}.taxes`,
-                                            newTaxesArray
+                                            newTaxesArray,
                                           )
                                         },
                                       })
@@ -718,7 +718,7 @@ const CreateInvoice = () => {
                             placeholder={translate('text_6453819268763979024ad0ad')}
                             onChange={(value) => {
                               const addOn = addOnData?.addOns?.collection.find(
-                                (c) => c.id === value
+                                (c) => c.id === value,
                               )
                               const addonApplicableTaxes = addOn?.taxes?.length
                                 ? addOn?.taxes
@@ -763,7 +763,7 @@ const CreateInvoice = () => {
                             setTimeout(() => {
                               ;(
                                 document.querySelector(
-                                  `.${ADD_ITEM_FOR_INVOICE_INPUT_NAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                                  `.${ADD_ITEM_FOR_INVOICE_INPUT_NAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
                                 ) as HTMLElement
                               ).click()
                             }, 0)

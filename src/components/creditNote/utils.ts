@@ -53,13 +53,13 @@ export const creditNoteFormCalculationCalculation = ({
 
                 return accFee
               },
-              []
+              [],
             )
 
             accGroup = [...accGroup, ...groupedValues]
             return accGroup
           },
-          []
+          [],
         )
 
         accSub = [...accSub, ...subValues]
@@ -67,17 +67,17 @@ export const creditNoteFormCalculationCalculation = ({
         return accSub
       }, [])
     : !!addonFees
-    ? addonFees?.reduce<CreditNoteItemInput[]>((acc, fee) => {
-        if (!!fee.checked) {
-          acc.push({
-            feeId: fee.id,
-            amountCents: serializeAmount(fee.value, currency),
-          })
-        }
+      ? addonFees?.reduce<CreditNoteItemInput[]>((acc, fee) => {
+          if (!!fee.checked) {
+            acc.push({
+              feeId: fee.id,
+              amountCents: serializeAmount(fee.value, currency),
+            })
+          }
 
-        return acc
-      }, [])
-    : undefined
+          return acc
+        }, [])
+      : undefined
 
   return {
     feeForEstimate,

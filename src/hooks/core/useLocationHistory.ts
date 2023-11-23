@@ -9,7 +9,7 @@ type GoBack = (
     // Previous count represents how many location from now you want to go back to
     previousCount?: number
     exclude?: string | string[]
-  }
+  },
 ) => void
 
 type UseLocationHistoryReturn = () => {

@@ -134,7 +134,7 @@ export const UpdateInvoicePaymentStatusDialog = forwardRef<UpdateInvoicePaymentS
         />
       </Dialog>
     )
-  }
+  },
 )
 
 UpdateInvoicePaymentStatusDialog.displayName = 'forwardRef'

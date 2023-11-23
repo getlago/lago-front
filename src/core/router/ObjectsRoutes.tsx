@@ -4,46 +4,46 @@ import { lazyLoad } from './utils'
 // ----------- Pages -----------
 // Lists
 const BillableMetricsList = lazyLoad(
-  () => import(/* webpackChunkName: 'billable-metrics' */ '~/pages/BillableMetricsList')
+  () => import(/* webpackChunkName: 'billable-metrics' */ '~/pages/BillableMetricsList'),
 )
 const PlansList = lazyLoad(() => import(/* webpackChunkName: 'plans-list' */ '~/pages/PlansList'))
 const CouponsList = lazyLoad(
-  () => import(/* webpackChunkName: 'coupons-list' */ '~/pages/CouponsList')
+  () => import(/* webpackChunkName: 'coupons-list' */ '~/pages/CouponsList'),
 )
 const AddOnsList = lazyLoad(
-  () => import(/* webpackChunkName: 'add-ons-list' */ '~/pages/AddOnsList')
+  () => import(/* webpackChunkName: 'add-ons-list' */ '~/pages/AddOnsList'),
 )
 const InvoicesList = lazyLoad(
-  () => import(/* webpackChunkName: 'invoices-list' */ '~/pages/InvoicesList')
+  () => import(/* webpackChunkName: 'invoices-list' */ '~/pages/InvoicesList'),
 )
 
 // Creation
 const CreateBillableMetric = lazyLoad(
-  () => import(/* webpackChunkName: 'create-billable-metrics' */ '~/pages/CreateBillableMetric')
+  () => import(/* webpackChunkName: 'create-billable-metrics' */ '~/pages/CreateBillableMetric'),
 )
 const CreatePlan = lazyLoad(
-  () => import(/* webpackChunkName: 'create-plan' */ '~/pages/CreatePlan')
+  () => import(/* webpackChunkName: 'create-plan' */ '~/pages/CreatePlan'),
 )
 const CreateTax = lazyLoad(() => import(/* webpackChunkName: 'create-tax' */ '~/pages/CreateTax'))
 const CreateInvoice = lazyLoad(
-  () => import(/* webpackChunkName: 'create-plan' */ '~/pages/CreateInvoice')
+  () => import(/* webpackChunkName: 'create-plan' */ '~/pages/CreateInvoice'),
 )
 const CreateCoupon = lazyLoad(
-  () => import(/* webpackChunkName: 'create-coupon' */ '~/pages/CreateCoupon')
+  () => import(/* webpackChunkName: 'create-coupon' */ '~/pages/CreateCoupon'),
 )
 const CreateAddOn = lazyLoad(
-  () => import(/* webpackChunkName: 'create-add-on' */ '~/pages/CreateAddOn')
+  () => import(/* webpackChunkName: 'create-add-on' */ '~/pages/CreateAddOn'),
 )
 const CreateSubscription = lazyLoad(
-  () => import(/* webpackChunkName: 'create-subscription' */ '~/pages/CreateSubscription')
+  () => import(/* webpackChunkName: 'create-subscription' */ '~/pages/CreateSubscription'),
 )
 
 // Details
 const SubscriptionDetails = lazyLoad(
-  () => import(/* webpackChunkName: 'subscription-details' */ '~/pages/SubscriptionDetails')
+  () => import(/* webpackChunkName: 'subscription-details' */ '~/pages/SubscriptionDetails'),
 )
 const PlanDetails = lazyLoad(
-  () => import(/* webpackChunkName: 'plan-details' */ '~/pages/PlanDetails')
+  () => import(/* webpackChunkName: 'plan-details' */ '~/pages/PlanDetails'),
 )
 
 // ----------- Routes -----------

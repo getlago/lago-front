@@ -69,7 +69,7 @@ export const FinalizeInvoiceDialog = forwardRef<FinalizeInvoiceDialogRef>((_, re
         issuingDate: formatDateToTZ(
           invoice?.issuingDate,
           invoice?.customer?.applicableTimezone,
-          "LLL. dd, yyyy U'T'CZ"
+          "LLL. dd, yyyy U'T'CZ",
         ),
       })}
       actions={({ closeDialog }) => (

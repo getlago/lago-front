@@ -76,7 +76,7 @@ export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItem
                   {
                     currencyDisplay: 'symbol',
                     currency: amountCurrency,
-                  }
+                  },
                 ),
               })}
             </Typography>

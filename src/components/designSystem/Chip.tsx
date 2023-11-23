@@ -66,7 +66,7 @@ export const Chip = ({
     <Container
       className={clsx(
         className,
-        `chip-container--${type} chip-container--${variant} chip-container--${size}`
+        `chip-container--${type} chip-container--${variant} chip-container--${size}`,
       )}
       data-test={`chip-${label}`}
     >
@@ -93,15 +93,15 @@ export const Chip = ({
           type === ChipTypeEnum.beta
             ? 'captionCode'
             : variant === ChipVariantEnum.secondary
-            ? 'body'
-            : 'captionHl'
+              ? 'body'
+              : 'captionHl'
         }
         color={
           type === ChipTypeEnum.error
             ? 'danger600'
             : type === ChipTypeEnum.beta
-            ? 'info600'
-            : 'textSecondary'
+              ? 'info600'
+              : 'textSecondary'
         }
       >
         {label}

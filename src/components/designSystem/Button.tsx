@@ -103,7 +103,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       onClick,
       ...props
     }: ButtonProps,
-    ref
+    ref,
   ) => {
     const [isLoading, setIsLoading] = useState(false)
     const mountedRef = useRef(false)
@@ -184,7 +184,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
       </StyledButton>
     )
-  }
+  },
 )
 
 Button.displayName = 'Button'

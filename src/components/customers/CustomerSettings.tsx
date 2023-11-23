@@ -292,17 +292,17 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                     {
                       days: organization?.netPaymentTerm,
                     },
-                    organization?.netPaymentTerm
+                    organization?.netPaymentTerm,
                   )
                 : customer?.netPaymentTerm === 0
-                ? translate('text_64c7a89b6c67eb6c98898125')
-                : translate(
-                    'text_64c7a89b6c67eb6c9889815f',
-                    {
-                      days: customer?.netPaymentTerm,
-                    },
-                    customer?.netPaymentTerm
-                  )}
+                  ? translate('text_64c7a89b6c67eb6c98898125')
+                  : translate(
+                      'text_64c7a89b6c67eb6c9889815f',
+                      {
+                        days: customer?.netPaymentTerm,
+                      },
+                      customer?.netPaymentTerm,
+                    )}
             </Typography>
             <Typography
               variant="caption"
@@ -386,7 +386,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                     {
                       invoiceGracePeriod: customer?.invoiceGracePeriod,
                     },
-                    customer?.invoiceGracePeriod
+                    customer?.invoiceGracePeriod,
                   )
                 : translate(
                     'text_63aa085d28b8510cd464440d',
@@ -394,7 +394,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                       invoiceGracePeriod:
                         organization?.billingConfiguration?.invoiceGracePeriod || 0,
                     },
-                    organization?.billingConfiguration?.invoiceGracePeriod || 0
+                    organization?.billingConfiguration?.invoiceGracePeriod || 0,
                   )}
             </Typography>
             <Typography

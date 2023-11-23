@@ -54,11 +54,11 @@ const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
       "timestamp": $(date +%s), 
       "properties":  { 
         "${fieldName}": 12${
-        groupDimension > 0
-          ? `,
+          groupDimension > 0
+            ? `,
         ${propertiesForGroup}`
-          : ''
-      }
+            : ''
+        }
       }
     }
   }'
@@ -104,11 +104,11 @@ ${groupDimensionMessage}
       "timestamp": $(date +%s), 
       "properties":  { 
         "${fieldName}": "data"${
-        groupDimension > 0
-          ? `,
+          groupDimension > 0
+            ? `,
         ${propertiesForGroup}`
-          : ''
-      }
+            : ''
+        }
       }
     }
   }'
@@ -130,11 +130,11 @@ ${groupDimensionMessage}
       "timestamp": $(date +%s), 
       "properties":  { 
         "${fieldName}": 12${
-        groupDimension > 0
-          ? `,
+          groupDimension > 0
+            ? `,
         ${propertiesForGroup}`
-          : ''
-      }
+            : ''
+        }
       }
     }
   }'
@@ -156,11 +156,11 @@ ${groupDimensionMessage}
       "timestamp": $(date +%s), 
       "properties":  { 
         "${fieldName}": 12${
-        groupDimension > 0
-          ? `,
+          groupDimension > 0
+            ? `,
         ${propertiesForGroup}`
-          : ''
-      }
+            : ''
+        }
       }
     }
   }'

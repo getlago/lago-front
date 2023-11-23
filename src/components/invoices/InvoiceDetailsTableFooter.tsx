@@ -78,7 +78,7 @@ export const InvoiceDetailsTableFooter = memo(
                             {
                               currencyDisplay: 'symbol',
                               currency,
-                            }
+                            },
                           )}
                         </Typography>
                       </td>
@@ -100,12 +100,12 @@ export const InvoiceDetailsTableFooter = memo(
                       {intlFormatNumber(
                         deserializeAmount(
                           invoice?.subTotalExcludingTaxesAmountCents || 0,
-                          currency
+                          currency,
                         ),
                         {
                           currencyDisplay: 'symbol',
                           currency,
-                        }
+                        },
                       )}
                     </Typography>
                   </td>
@@ -132,7 +132,7 @@ export const InvoiceDetailsTableFooter = memo(
                                 {
                                   currencyDisplay: 'symbol',
                                   currency,
-                                }
+                                },
                               ),
                             })}
                           </Typography>
@@ -148,7 +148,7 @@ export const InvoiceDetailsTableFooter = memo(
                               {
                                 currencyDisplay: 'symbol',
                                 currency,
-                              }
+                              },
                             )}
                           </Typography>
                         </td>
@@ -189,12 +189,12 @@ export const InvoiceDetailsTableFooter = memo(
                       {intlFormatNumber(
                         deserializeAmount(
                           invoice?.subTotalIncludingTaxesAmountCents || 0,
-                          currency
+                          currency,
                         ),
                         {
                           currencyDisplay: 'symbol',
                           currency,
-                        }
+                        },
                       )}
                     </Typography>
                   </td>
@@ -217,7 +217,7 @@ export const InvoiceDetailsTableFooter = memo(
                       {
                         currencyDisplay: 'symbol',
                         currency,
-                      }
+                      },
                     )}
                   </Typography>
                 </td>
@@ -241,7 +241,7 @@ export const InvoiceDetailsTableFooter = memo(
                         {
                           currencyDisplay: 'symbol',
                           currency,
-                        }
+                        },
                       )}
                     </Typography>
                   </td>
@@ -264,7 +264,7 @@ export const InvoiceDetailsTableFooter = memo(
                         {
                           currencyDisplay: 'symbol',
                           currency,
-                        }
+                        },
                       )}
                     </Typography>
                   </td>
@@ -304,7 +304,7 @@ export const InvoiceDetailsTableFooter = memo(
         )}
       </tfoot>
     )
-  }
+  },
 )
 
 const RightSkeleton = styled(Skeleton)`

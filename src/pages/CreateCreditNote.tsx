@@ -57,7 +57,7 @@ gql`
 
 const determineCheckboxValue = (
   initialValue: boolean | undefined | null,
-  additionnalValue: boolean | undefined
+  additionnalValue: boolean | undefined,
 ) => {
   if (initialValue === undefined || additionnalValue === undefined) return undefined
   if (initialValue === null) {
@@ -122,12 +122,12 @@ const CreateCreditNote = () => {
 
   const addOnFeesValidation = useMemo(
     () => generateAddOnFeesSchema(feeForAddOn || [], currency),
-    [feeForAddOn, currency]
+    [feeForAddOn, currency],
   )
 
   const feesValidation = useMemo(
     () => generateFeesSchema(feesPerInvoice || {}, currency),
-    [feesPerInvoice, currency]
+    [feesPerInvoice, currency],
   )
 
   const [payBackValidation, setPayBackValidation] = useState(array())
@@ -206,7 +206,7 @@ const CreateCreditNote = () => {
               [childKey]: groupValue,
               value: determineCheckboxValue(
                 subscriptionGroupValues.value,
-                groupValue as unknown as boolean | undefined
+                groupValue as unknown as boolean | undefined,
               ),
             }
           }
@@ -225,7 +225,7 @@ const CreateCreditNote = () => {
         fees: formikProps.values.fees,
         addonFees: formikProps.values.addOnFee,
       }),
-    [currency, formikProps.values.addOnFee, formikProps.values.fees, hasError]
+    [currency, formikProps.values.addOnFee, formikProps.values.fees, hasError],
   )
 
   return (
@@ -253,7 +253,7 @@ const CreateCreditNote = () => {
                     customerId: customerId as string,
                     invoiceId: invoiceId as string,
                     tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-                  })
+                  }),
                 )
           }
         />
@@ -302,11 +302,11 @@ const CreateCreditNote = () => {
                         subtotal: intlFormatNumber(
                           deserializeAmount(
                             invoice?.subTotalIncludingTaxesAmountCents || 0,
-                            currency
+                            currency,
                           ),
                           {
                             currency,
-                          }
+                          },
                         ),
                       })}
                     </Typography>
@@ -379,7 +379,7 @@ const CreateCreditNote = () => {
                           deserializeAmount(invoice?.creditableAmountCents || 0, currency),
                           {
                             currency,
-                          }
+                          },
                         ),
                       })}
                     </Typography>
@@ -415,7 +415,7 @@ const CreateCreditNote = () => {
                               onChange={(_, value) => {
                                 const childValues = _get(
                                   formikProps.values.fees,
-                                  `${subKey}.fees`
+                                  `${subKey}.fees`,
                                 ) as unknown as { [feeGroupId: string]: FromFee | GroupedFee }
 
                                 formikProps.setFieldValue(
@@ -441,13 +441,13 @@ const CreateCreditNote = () => {
                                                 [groupKey]: { ...fee, checked: value },
                                               }
                                             },
-                                            {}
+                                            {},
                                           ),
                                         },
                                       }
                                     }
                                     return acc
-                                  }, {})
+                                  }, {}),
                                 )
                               }}
                             />
@@ -543,7 +543,7 @@ const CreateCreditNote = () => {
               customerId: customerId as string,
               invoiceId: invoiceId as string,
               tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-            })
+            }),
           )
         }
       />

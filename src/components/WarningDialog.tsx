@@ -26,7 +26,7 @@ export const WarningDialog = forwardRef<DialogRef, WarningDialogProps>(
       forceOpen = false,
       ...props
     }: WarningDialogProps,
-    ref
+    ref,
   ) => {
     const { translate } = useInternationalization()
 
@@ -55,7 +55,7 @@ export const WarningDialog = forwardRef<DialogRef, WarningDialogProps>(
         data-test="warning-dialog"
       />
     )
-  }
+  },
 )
 
 WarningDialog.displayName = 'WarningDialog'

@@ -23,19 +23,19 @@ describe('components/graphs/Mrr', () => {
         DateTime.now()
           .minus({ month: 12 })
           .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dataForAreaChart[12].axisName).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dateFrom).toBe(
         DateTime.now()
           .minus({ month: 12 })
           .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
 
       expect(typeof res.lastMonthMrr).toBe('number')
@@ -56,19 +56,19 @@ describe('components/graphs/Mrr', () => {
         DateTime.now()
           .minus({ month: 12 })
           .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dataForAreaChart[12].axisName).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dateFrom).toBe(
         DateTime.now()
           .minus({ month: 12 })
           .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
 
       expect(typeof res.lastMonthMrr).toBe('number')
@@ -88,19 +88,19 @@ describe('components/graphs/Mrr', () => {
         DateTime.now()
           .minus({ month: 3 })
           .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dataForAreaChart[3].axisName).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dateFrom).toBe(
         DateTime.now()
           .minus({ month: 3 })
           .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
 
       expect(typeof res.lastMonthMrr).toBe('number')
@@ -120,19 +120,19 @@ describe('components/graphs/Mrr', () => {
         DateTime.now()
           .minus({ month: 1 })
           .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dataForAreaChart[1].axisName).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dateFrom).toBe(
         DateTime.now()
           .minus({ month: 1 })
           .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
 
       expect(typeof res.lastMonthMrr).toBe('number')

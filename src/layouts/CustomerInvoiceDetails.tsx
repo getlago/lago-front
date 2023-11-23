@@ -135,7 +135,7 @@ export enum CustomerInvoiceDetailsTabsOptionsEnum {
 
 const mapStatus = (
   status: InvoiceStatusTypeEnum,
-  paymentStatus?: InvoicePaymentStatusTypeEnum | undefined
+  paymentStatus?: InvoicePaymentStatusTypeEnum | undefined,
 ) => {
   if (status === InvoiceStatusTypeEnum.Draft) {
     return { label: 'text_63ac8850ff7117ad55777d31', type: StatusEnum.draft }
@@ -297,7 +297,7 @@ const CustomerInvoiceDetails = () => {
                     CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
                     CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
                   ],
-                }
+                },
               )
             }
           />
@@ -325,7 +325,7 @@ const CustomerInvoiceDetails = () => {
                       align="left"
                       onClick={async () => {
                         finalizeInvoiceRef.current?.openDialog(
-                          data?.invoice as InvoiceForFinalizeInvoiceFragment
+                          data?.invoice as InvoiceForFinalizeInvoiceFragment,
                         )
                         closePopper()
                       }}
@@ -373,7 +373,7 @@ const CustomerInvoiceDetails = () => {
                                 generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
                                   customerId: customerId as string,
                                   invoiceId: invoiceId as string,
-                                })
+                                }),
                               )
                             }}
                           >
@@ -507,7 +507,7 @@ const CustomerInvoiceDetails = () => {
                           {
                             currencyDisplay: 'symbol',
                             currency: currency || CurrencyEnum.Usd,
-                          }
+                          },
                         ),
                       })}
                     </span>

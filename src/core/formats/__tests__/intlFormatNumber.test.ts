@@ -105,49 +105,49 @@ describe('Currency tools', () => {
       expect(bigNumberShortenNotationFormater(1_111, { currency: CurrencyEnum.Eur })).toBe('€1.1k')
       expect(bigNumberShortenNotationFormater(10_000, { currency: CurrencyEnum.Eur })).toBe('€10k')
       expect(bigNumberShortenNotationFormater(100_000, { currency: CurrencyEnum.Eur })).toBe(
-        '€100k'
+        '€100k',
       )
       expect(bigNumberShortenNotationFormater(1_000_000, { currency: CurrencyEnum.Eur })).toBe(
-        '€1M'
+        '€1M',
       )
       expect(bigNumberShortenNotationFormater(10_000_000, { currency: CurrencyEnum.Eur })).toBe(
-        '€10M'
+        '€10M',
       )
       expect(bigNumberShortenNotationFormater(100_000_000, { currency: CurrencyEnum.Eur })).toBe(
-        '€100M'
+        '€100M',
       )
       expect(bigNumberShortenNotationFormater(1_000_000_000, { currency: CurrencyEnum.Eur })).toBe(
-        '€1B'
+        '€1B',
       )
       expect(bigNumberShortenNotationFormater(10_000_000_000, { currency: CurrencyEnum.Eur })).toBe(
-        '€10B'
+        '€10B',
       )
       expect(
-        bigNumberShortenNotationFormater(100_000_000_000, { currency: CurrencyEnum.Eur })
+        bigNumberShortenNotationFormater(100_000_000_000, { currency: CurrencyEnum.Eur }),
       ).toBe('€100B')
       expect(
-        bigNumberShortenNotationFormater(1_000_000_000_000, { currency: CurrencyEnum.Eur })
+        bigNumberShortenNotationFormater(1_000_000_000_000, { currency: CurrencyEnum.Eur }),
       ).toBe('€1T')
       expect(
-        bigNumberShortenNotationFormater(10_000_000_000_000, { currency: CurrencyEnum.Eur })
+        bigNumberShortenNotationFormater(10_000_000_000_000, { currency: CurrencyEnum.Eur }),
       ).toBe('€10T')
       expect(
-        bigNumberShortenNotationFormater(100_000_000_000_000, { currency: CurrencyEnum.Eur })
+        bigNumberShortenNotationFormater(100_000_000_000_000, { currency: CurrencyEnum.Eur }),
       ).toBe('€100T')
       expect(
-        bigNumberShortenNotationFormater(1_000_000_000_000_000, { currency: CurrencyEnum.Eur })
+        bigNumberShortenNotationFormater(1_000_000_000_000_000, { currency: CurrencyEnum.Eur }),
       ).toBe('€1Q')
       expect(
         bigNumberShortenNotationFormater(
           deserializeAmount(100_000_000_000_000_000, CurrencyEnum.Eur),
-          { currency: CurrencyEnum.Eur }
-        )
+          { currency: CurrencyEnum.Eur },
+        ),
       ).toBe('€1Q')
       expect(
-        bigNumberShortenNotationFormater(10_000_000_000_000_000, { currency: CurrencyEnum.Eur })
+        bigNumberShortenNotationFormater(10_000_000_000_000_000, { currency: CurrencyEnum.Eur }),
       ).toBe('€10Q')
       expect(
-        bigNumberShortenNotationFormater(100_000_000_000_000_000, { currency: CurrencyEnum.Eur })
+        bigNumberShortenNotationFormater(100_000_000_000_000_000, { currency: CurrencyEnum.Eur }),
       ).toBe('€100Q')
       expect(bigNumberShortenNotationFormater(100_000_000_000_000_000)).toBe('$100Q')
     })

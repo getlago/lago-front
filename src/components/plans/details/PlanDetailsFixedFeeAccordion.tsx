@@ -25,7 +25,7 @@ const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null
             [
               intlFormatNumber(
                 deserializeAmount(plan?.amountCents || 0, plan?.amountCurrency || CurrencyEnum.Usd),
-                { currency: plan?.amountCurrency || CurrencyEnum.Usd }
+                { currency: plan?.amountCurrency || CurrencyEnum.Usd },
               ),
             ],
           ]}

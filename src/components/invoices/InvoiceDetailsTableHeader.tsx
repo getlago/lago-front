@@ -45,7 +45,7 @@ export const InvoiceDetailsTableHeader = memo(
         </tr>
       </thead>
     )
-  }
+  },
 )
 
 InvoiceDetailsTableHeader.displayName = 'InvoiceDetailsTableHeader'

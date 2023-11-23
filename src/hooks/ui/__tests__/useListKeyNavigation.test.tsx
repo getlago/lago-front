@@ -34,7 +34,7 @@ describe('useListKeyNavigation()', () => {
           <a id="item-0">Active element</a>
           <a id="item-1">Next element</a>
           {/* eslint-enable jsx-a11y/anchor-is-valid*/}
-        </MyTestComponentThatUsesNavigation>
+        </MyTestComponentThatUsesNavigation>,
       )
 
       await userEvent.keyboard('{ArrowDown}')
@@ -72,7 +72,7 @@ describe('useListKeyNavigation()', () => {
           </a>
 
           {/* eslint-enable jsx-a11y/anchor-is-valid, jsx-a11y/no-noninteractive-tabindex*/}
-        </MyTestComponentThatUsesNavigation>
+        </MyTestComponentThatUsesNavigation>,
       )
 
       document?.getElementById('item-0')?.focus()
@@ -101,7 +101,7 @@ describe('useListKeyNavigation()', () => {
             First
           </a>
           {/* eslint-enable jsx-a11y/anchor-is-valid, jsx-a11y/no-noninteractive-tabindex*/}
-        </MyTestComponentThatUsesNavigation>
+        </MyTestComponentThatUsesNavigation>,
       )
 
       document?.getElementById('item-0')?.focus()
@@ -140,7 +140,7 @@ describe('useListKeyNavigation()', () => {
           </a>
 
           {/* eslint-enable jsx-a11y/anchor-is-valid, jsx-a11y/no-noninteractive-tabindex*/}
-        </MyTestComponentThatUsesNavigation>
+        </MyTestComponentThatUsesNavigation>,
       )
 
       document?.getElementById('item-2')?.focus()
@@ -169,7 +169,7 @@ describe('useListKeyNavigation()', () => {
             First
           </a>
           {/* eslint-enable jsx-a11y/anchor-is-valid, jsx-a11y/no-noninteractive-tabindex*/}
-        </MyTestComponentThatUsesNavigation>
+        </MyTestComponentThatUsesNavigation>,
       )
 
       document?.getElementById('item-0')?.focus()
@@ -205,7 +205,7 @@ describe('useListKeyNavigation()', () => {
           </a>
 
           {/* eslint-enable jsx-a11y/anchor-is-valid, jsx-a11y/no-noninteractive-tabindex*/}
-        </MyTestComponentThatUsesNavigation>
+        </MyTestComponentThatUsesNavigation>,
       )
 
       document?.getElementById('item-0')?.focus()

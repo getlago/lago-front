@@ -110,8 +110,8 @@ export const Switch = ({
               disabled
                 ? theme.palette.grey[300]
                 : checked
-                ? theme.palette.common.white
-                : theme.palette.grey[500]
+                  ? theme.palette.common.white
+                  : theme.palette.grey[500]
             }
           />
           <circle cx="12" cy="12" r="11" fill={theme.palette.common.white} />
@@ -156,7 +156,8 @@ const Space = styled.div`
 const Loader = styled(Icon)`
   position: absolute;
   left: 20px;
-  transition: left 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
+  transition:
+    left 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
     opacity 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
   opacity: 0;
 `
@@ -164,7 +165,8 @@ const Loader = styled(Icon)`
 const SwitchElement = styled.svg<{ $checked: boolean }>`
   position: absolute;
   left: ${(props) => (props.$checked ? theme.spacing(8) : theme.spacing(1))};
-  transition: left 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
+  transition:
+    left 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
     opacity 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
   opacity: 1;
 `
@@ -172,7 +174,8 @@ const SwitchElement = styled.svg<{ $checked: boolean }>`
 const StyledTypography = styled(Typography)`
   width: 24px;
   text-align: center;
-  transition: left 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
+  transition:
+    left 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
     opacity 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
   opacity: 1;
 `

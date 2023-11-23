@@ -48,7 +48,7 @@ export function getAllDataForMrrDisplay({
 }) {
   const formatedData = formatDataForAreaChart(
     demoMode || blur || !data ? AreaMrrChartFakeData : (data as TAreaChartDataResult),
-    currency
+    currency,
   )
 
   if (period === AnalyticsPeriodScopeEnum.Quarter) {

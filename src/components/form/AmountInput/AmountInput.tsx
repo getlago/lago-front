@@ -19,7 +19,7 @@ export interface AmountInputProps extends Omit<TextInputProps, 'beforeChangeForm
 
 const defineNewBeforeChangeFormatter = (
   beforeChangeFormatter: AmountInputProps['beforeChangeFormatter'],
-  currency: CurrencyEnum
+  currency: CurrencyEnum,
 ) => {
   const newBeforeChangeFormatter: ValueFormatterType[] = [
     beforeChangeFormatter
@@ -67,7 +67,7 @@ export const AmountInput = forwardRef<HTMLDivElement, AmountInputProps>(
       displayErrorText = true,
       ...props
     }: AmountInputProps,
-    ref
+    ref,
   ) => {
     const { translate } = useInternationalization()
     const newBeforeChangeFormatter = defineNewBeforeChangeFormatter(beforeChangeFormatter, currency)
@@ -82,7 +82,7 @@ export const AmountInput = forwardRef<HTMLDivElement, AmountInputProps>(
         {...props}
       />
     )
-  }
+  },
 )
 
 AmountInput.displayName = 'AmountInput'

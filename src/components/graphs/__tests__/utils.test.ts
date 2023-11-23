@@ -267,7 +267,7 @@ describe('components/graphs/utils', () => {
         data.map((d) => ({
           ...d,
           month: DateTime.fromISO(d.month as string).toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
-        }))
+        })),
       )
     })
   })

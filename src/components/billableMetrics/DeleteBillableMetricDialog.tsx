@@ -31,7 +31,7 @@ export const DeleteBillableMetricDialog = forwardRef<DeleteBillableMetricDialogR
   const dialogRef = useRef<DialogRef>(null)
   const { translate } = useInternationalization()
   const [billableMetric, setBillableMetric] = useState<BillableMetricItemFragment | undefined>(
-    undefined
+    undefined,
   )
 
   const {
@@ -86,12 +86,12 @@ export const DeleteBillableMetricDialog = forwardRef<DeleteBillableMetricDialogR
                   usedObject1: translate(
                     'text_63c842ee2cd5dfeb173c2726',
                     { count: activeSubscriptionsCount },
-                    activeSubscriptionsCount
+                    activeSubscriptionsCount,
                   ),
                   usedObject2: translate(
                     'text_63c8431193e8aca80f14cced',
                     { count: draftInvoicesCount },
-                    draftInvoicesCount
+                    draftInvoicesCount,
                   ),
                 }
               : {
@@ -100,15 +100,15 @@ export const DeleteBillableMetricDialog = forwardRef<DeleteBillableMetricDialogR
                       ? translate(
                           'text_63c842ee2cd5dfeb173c2726',
                           { count: activeSubscriptionsCount },
-                          activeSubscriptionsCount
+                          activeSubscriptionsCount,
                         )
                       : translate(
                           'text_63c8431193e8aca80f14cced',
                           { count: draftInvoicesCount },
-                          draftInvoicesCount
+                          draftInvoicesCount,
                         ),
                 },
-            draftInvoicesCount > 0 && activeSubscriptionsCount > 0 ? 2 : 0
+            draftInvoicesCount > 0 && activeSubscriptionsCount > 0 ? 2 : 0,
           )
         ) : (
           <Typography html={translate('text_6256f824b6368e01153caa49')} />

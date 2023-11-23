@@ -151,12 +151,12 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
                             ? translate(
                                 'text_62da6ec24a8e24e44f81289a',
                                 undefined,
-                                Number(creditAmount) || 0
+                                Number(creditAmount) || 0,
                               )
                             : translate(
                                 'text_62da6ec24a8e24e44f812892',
                                 undefined,
-                                Number(creditAmount) || 0
+                                Number(creditAmount) || 0,
                               )}
                         </Typography>
                         <DateBlock variant="caption" color="grey600">
@@ -183,7 +183,7 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
                               style: 'decimal',
                             }),
                           },
-                          Number(creditAmount) || 0
+                          Number(creditAmount) || 0,
                         )}
                       </Typography>
                       <Typography variant="caption" color="grey600">
@@ -218,7 +218,7 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
         </TransactionListWrapper>
       </>
     )
-  }
+  },
 )
 
 const TransactionListHeader = styled.div`

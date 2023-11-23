@@ -41,7 +41,7 @@ async function prepare({
   await act(() =>
     render(<EditCustomerVatRateDialog forceOpen customer={customer} />, {
       mocks,
-    })
+    }),
   )
 }
 
@@ -62,14 +62,14 @@ describe('EditCustomerVatRateDialog', () => {
         screen
           .queryByTestId('edit-customer-vat-rate-dialog')
           ?.querySelector(
-            `.${SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
-          ) as HTMLElement
-      )
+            `.${SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+          ) as HTMLElement,
+      ),
     )
 
     expect(screen.queryByTestId('combobox-item-Create a tax_rate')).toBeInTheDocument()
     expect(
-      screen.queryByTestId('combobox-item-Create a tax_rate')?.querySelector(`a`)
+      screen.queryByTestId('combobox-item-Create a tax_rate')?.querySelector(`a`),
     ).toHaveAttribute('href', CREATE_TAX_ROUTE)
   })
 })

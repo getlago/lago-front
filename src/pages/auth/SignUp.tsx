@@ -77,7 +77,7 @@ const SignUp = () => {
           .matches(RegExp('(.*\\d.*)'), FORM_ERRORS.NUMBER)
           .matches(RegExp('[/_!@#$%^&*(),.?":{}|<>/-]'), FORM_ERRORS.SPECIAL),
       }),
-    []
+    [],
   )
   const onSignUp = async () => {
     await signUp({

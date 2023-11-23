@@ -75,7 +75,7 @@ const PlanDetails = () => {
                     customerId: customerId as string,
                     subscriptionId: subscriptionId as string,
                     tab: PlanDetailsTabsOptionsEnum.overview,
-                  })
+                  }),
                 )
               } else {
                 navigate(PLANS_ROUTE)

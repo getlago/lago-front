@@ -87,12 +87,12 @@ export const DeletePlanDialog = forwardRef<DeletePlanDialogRef>((_, ref) => {
               usedObject1: translate(
                 'text_63d18d34f90cc83a038f843b',
                 { count: activeSubscriptionsCount },
-                activeSubscriptionsCount
+                activeSubscriptionsCount,
               ),
               usedObject2: translate(
                 'text_63d18d3edaed7e11710b4d25',
                 { count: draftInvoicesCount },
-                draftInvoicesCount
+                draftInvoicesCount,
               ),
             }
           : {
@@ -101,17 +101,17 @@ export const DeletePlanDialog = forwardRef<DeletePlanDialogRef>((_, ref) => {
                   ? translate(
                       'text_63d18d34f90cc83a038f843b',
                       { count: activeSubscriptionsCount },
-                      activeSubscriptionsCount
+                      activeSubscriptionsCount,
                     )
                   : draftInvoicesCount > 0
-                  ? translate(
-                      'text_63d18d3edaed7e11710b4d25',
-                      { count: draftInvoicesCount },
-                      draftInvoicesCount
-                    )
-                  : translate('text_63d18d34f90cc83a038f843b', { count: 0 }, 0),
+                    ? translate(
+                        'text_63d18d3edaed7e11710b4d25',
+                        { count: draftInvoicesCount },
+                        draftInvoicesCount,
+                      )
+                    : translate('text_63d18d34f90cc83a038f843b', { count: 0 }, 0),
             },
-        draftInvoicesCount > 0 && activeSubscriptionsCount > 0 ? 2 : 0
+        draftInvoicesCount > 0 && activeSubscriptionsCount > 0 ? 2 : 0,
       )}
       onContinue={async () =>
         await deletePlan({

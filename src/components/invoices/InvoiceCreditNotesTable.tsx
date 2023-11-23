@@ -179,7 +179,7 @@ export const InvoiceCreditNotesTable = memo(
                                                   }${
                                                     item?.fee?.trueUpParentFee?.id
                                                       ? ` - ${translate(
-                                                          'text_64463aaa34904c00a23be4f7'
+                                                          'text_64463aaa34904c00a23be4f7',
                                                         )}`
                                                       : ''
                                                   }`}
@@ -195,10 +195,10 @@ export const InvoiceCreditNotesTable = memo(
                                                       item.fee.groupName
                                                         ? ` • ${item.fee.groupName}`
                                                         : item.fee.group?.key
-                                                        ? `${` • ${item.fee.group?.key} • `}${
-                                                            item.fee.group.value
-                                                          }`
-                                                        : ''
+                                                          ? `${` • ${item.fee.group?.key} • `}${
+                                                              item.fee.group.value
+                                                            }`
+                                                          : ''
                                                     }`
                                                   : `${
                                                       item.fee.invoiceName ||
@@ -207,14 +207,14 @@ export const InvoiceCreditNotesTable = memo(
                                                       item.fee.groupName
                                                         ? ` • ${item.fee.groupName}`
                                                         : item.fee.group?.value
-                                                        ? ` • ${item.fee.group?.value}`
-                                                        : ''
+                                                          ? ` • ${item.fee.group?.value}`
+                                                          : ''
                                                     }`}
                                               </span>
                                               <span>
                                                 {item?.fee?.trueUpParentFee?.id
                                                   ? ` - ${translate(
-                                                      'text_64463aaa34904c00a23be4f7'
+                                                      'text_64463aaa34904c00a23be4f7',
                                                     )}`
                                                   : ''}
                                               </span>
@@ -236,7 +236,7 @@ export const InvoiceCreditNotesTable = memo(
                                                     {
                                                       maximumFractionDigits: 2,
                                                       style: 'percent',
-                                                    }
+                                                    },
                                                   )}
                                                 </Typography>
                                               ))
@@ -249,12 +249,12 @@ export const InvoiceCreditNotesTable = memo(
                                           {intlFormatNumber(
                                             deserializeAmount(
                                               item.amountCents,
-                                              item.amountCurrency
+                                              item.amountCurrency,
                                             ) || 0,
                                             {
                                               currencyDisplay: 'symbol',
                                               currency: item.amountCurrency,
-                                            }
+                                            },
                                           )}
                                         </Typography>
                                       </td>
@@ -286,12 +286,12 @@ export const InvoiceCreditNotesTable = memo(
                           {intlFormatNumber(
                             deserializeAmount(
                               creditNote?.couponsAdjustmentAmountCents || 0,
-                              creditNote?.currency || CurrencyEnum.Usd
+                              creditNote?.currency || CurrencyEnum.Usd,
                             ),
                             {
                               currencyDisplay: 'symbol',
                               currency: creditNote?.currency || CurrencyEnum.Usd,
-                            }
+                            },
                           )}
                         </Typography>
                       </td>
@@ -310,12 +310,12 @@ export const InvoiceCreditNotesTable = memo(
                         {intlFormatNumber(
                           deserializeAmount(
                             creditNote?.subTotalExcludingTaxesAmountCents || 0,
-                            creditNote?.currency || CurrencyEnum.Usd
+                            creditNote?.currency || CurrencyEnum.Usd,
                           ),
                           {
                             currencyDisplay: 'symbol',
                             currency: creditNote?.currency || CurrencyEnum.Usd,
-                          }
+                          },
                         )}
                       </Typography>
                     </td>
@@ -336,12 +336,12 @@ export const InvoiceCreditNotesTable = memo(
                                 amount: intlFormatNumber(
                                   deserializeAmount(
                                     appliedTax.baseAmountCents || 0,
-                                    creditNote?.currency || CurrencyEnum.Usd
+                                    creditNote?.currency || CurrencyEnum.Usd,
                                   ),
                                   {
                                     currencyDisplay: 'symbol',
                                     currency: creditNote?.currency || CurrencyEnum.Usd,
-                                  }
+                                  },
                                 ),
                               })}
                             </Typography>
@@ -352,12 +352,12 @@ export const InvoiceCreditNotesTable = memo(
                               {intlFormatNumber(
                                 deserializeAmount(
                                   appliedTax.amountCents || 0,
-                                  creditNote?.currency || CurrencyEnum.Usd
+                                  creditNote?.currency || CurrencyEnum.Usd,
                                 ),
                                 {
                                   currencyDisplay: 'symbol',
                                   currency: creditNote?.currency || CurrencyEnum.Usd,
-                                }
+                                },
                               )}
                             </Typography>
                           </td>
@@ -396,12 +396,12 @@ export const InvoiceCreditNotesTable = memo(
                         {intlFormatNumber(
                           deserializeAmount(
                             creditNote?.totalAmountCents || 0,
-                            creditNote?.currency || CurrencyEnum.Usd
+                            creditNote?.currency || CurrencyEnum.Usd,
                           ),
                           {
                             currencyDisplay: 'symbol',
                             currency: creditNote?.currency || CurrencyEnum.Usd,
-                          }
+                          },
                         )}
                       </Typography>
                     </td>
@@ -413,7 +413,7 @@ export const InvoiceCreditNotesTable = memo(
         })}
       </Wrapper>
     )
-  }
+  },
 )
 
 InvoiceCreditNotesTable.displayName = 'InvoiceCreditNotesTable'

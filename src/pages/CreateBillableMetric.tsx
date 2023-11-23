@@ -118,7 +118,7 @@ const CreateBillableMetric = () => {
       formikProps.setFieldValue(name, value)
     },
 
-    [formikProps]
+    [formikProps],
   )
 
   return (
@@ -182,12 +182,12 @@ const CreateBillableMetric = () => {
                 <div>
                   <Title variant="headline">
                     {translate(
-                      isEdition ? 'text_62582fb4675ece01137a7e46' : 'text_623b42ff8ee4e000ba87d0b0'
+                      isEdition ? 'text_62582fb4675ece01137a7e46' : 'text_623b42ff8ee4e000ba87d0b0',
                     )}
                   </Title>
                   <Subtitle>
                     {translate(
-                      isEdition ? 'text_62582fb4675ece01137a7e48' : 'text_623b42ff8ee4e000ba87d0b4'
+                      isEdition ? 'text_62582fb4675ece01137a7e48' : 'text_623b42ff8ee4e000ba87d0b4',
                     )}
                   </Subtitle>
                 </div>
@@ -235,7 +235,7 @@ const CreateBillableMetric = () => {
                     helperText={translate(
                       formikProps.values.recurring
                         ? 'text_64d27292062d9600b089aacb'
-                        : 'text_64d272b4df12dc008076e232'
+                        : 'text_64d272b4df12dc008076e232',
                     )}
                     options={[
                       {
@@ -318,16 +318,17 @@ const CreateBillableMetric = () => {
                       formikProps.values?.aggregationType === AggregationTypeEnum.CountAgg
                         ? translate('text_6241cc759211e600ea57f4f1')
                         : formikProps.values?.aggregationType === AggregationTypeEnum.UniqueCountAgg
-                        ? translate('text_62694d9181be8d00a33f20f6')
-                        : formikProps.values?.aggregationType === AggregationTypeEnum.LatestAgg
-                        ? translate('text_64f8823d75521b6faaee854b')
-                        : formikProps.values?.aggregationType === AggregationTypeEnum.MaxAgg
-                        ? translate('text_62694d9181be8d00a33f20f2')
-                        : formikProps.values?.aggregationType === AggregationTypeEnum.SumAgg
-                        ? translate('text_62694d9181be8d00a33f20ec')
-                        : formikProps.values?.aggregationType === AggregationTypeEnum.WeightedSumAgg
-                        ? translate('text_650062226a33c46e82050488')
-                        : undefined
+                          ? translate('text_62694d9181be8d00a33f20f6')
+                          : formikProps.values?.aggregationType === AggregationTypeEnum.LatestAgg
+                            ? translate('text_64f8823d75521b6faaee854b')
+                            : formikProps.values?.aggregationType === AggregationTypeEnum.MaxAgg
+                              ? translate('text_62694d9181be8d00a33f20f2')
+                              : formikProps.values?.aggregationType === AggregationTypeEnum.SumAgg
+                                ? translate('text_62694d9181be8d00a33f20ec')
+                                : formikProps.values?.aggregationType ===
+                                    AggregationTypeEnum.WeightedSumAgg
+                                  ? translate('text_650062226a33c46e82050488')
+                                  : undefined
                     }
                   />
 
@@ -394,7 +395,7 @@ const CreateBillableMetric = () => {
                       ) {
                         const groupChangeLevel = determineGroupDiffLevel(
                           billableMetric?.group,
-                          formikProps?.values?.group
+                          formikProps?.values?.group,
                         )
 
                         if (groupChangeLevel === GroupLevelEnum.StructuralChange) {
@@ -423,7 +424,7 @@ const CreateBillableMetric = () => {
                     }}
                   >
                     {translate(
-                      isEdition ? 'text_62582fb4675ece01137a7e6c' : 'text_623b42ff8ee4e000ba87d0d4'
+                      isEdition ? 'text_62582fb4675ece01137a7e6c' : 'text_623b42ff8ee4e000ba87d0d4',
                     )}
                   </Button>
                 </ButtonContainer>
@@ -439,13 +440,13 @@ const CreateBillableMetric = () => {
       <WarningDialog
         ref={warningDirtyAttributesDialogRef}
         title={translate(
-          isEdition ? 'text_62583bbb86abcf01654f693f' : 'text_6244277fe0975300fe3fb940'
+          isEdition ? 'text_62583bbb86abcf01654f693f' : 'text_6244277fe0975300fe3fb940',
         )}
         description={translate(
-          isEdition ? 'text_62583bbb86abcf01654f6943' : 'text_6244277fe0975300fe3fb946'
+          isEdition ? 'text_62583bbb86abcf01654f6943' : 'text_6244277fe0975300fe3fb946',
         )}
         continueText={translate(
-          isEdition ? 'text_62583bbb86abcf01654f694b' : 'text_6244277fe0975300fe3fb94c'
+          isEdition ? 'text_62583bbb86abcf01654f694b' : 'text_6244277fe0975300fe3fb94c',
         )}
         onContinue={() => navigate(BILLABLE_METRICS_ROUTE)}
       />

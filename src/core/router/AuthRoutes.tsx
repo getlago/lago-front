@@ -9,15 +9,15 @@ const { disableSignUp } = envGlobalVar()
 const Login = lazyLoad(() => import(/* webpackChunkName: 'login' */ '~/pages/auth/Login'))
 const SignUp = lazyLoad(() => import(/* webpackChunkName: 'sign-up' */ '~/pages/auth/SignUp'))
 const ForgotPassword = lazyLoad(
-  () => import(/* webpackChunkName: 'forgot-password' */ '~/pages/auth/ForgotPassword')
+  () => import(/* webpackChunkName: 'forgot-password' */ '~/pages/auth/ForgotPassword'),
 )
 const ResetPassword = lazyLoad(
-  () => import(/* webpackChunkName: 'reset-password' */ '~/pages/auth/ResetPassword')
+  () => import(/* webpackChunkName: 'reset-password' */ '~/pages/auth/ResetPassword'),
 )
 
 const Invitation = lazyLoad(() => import(/* webpackChunkName: 'invitation' */ '~/pages/Invitation'))
 const InvitationInit = lazyLoad(
-  () => import(/* webpackChunkName: 'invitation-init' */ '~/pages/InvitationInit')
+  () => import(/* webpackChunkName: 'invitation-init' */ '~/pages/InvitationInit'),
 )
 
 // ----------- Routes -----------

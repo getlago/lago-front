@@ -150,7 +150,7 @@ export const InvoiceOverview = memo(
                       issuingDate: formatDateToTZ(
                         invoice.issuingDate,
                         customer?.applicableTimezone,
-                        "LLL. dd, yyyy U'T'CZ"
+                        "LLL. dd, yyyy U'T'CZ",
                       ),
                     })}
                   </Alert>
@@ -181,7 +181,7 @@ export const InvoiceOverview = memo(
         <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       </>
     )
-  }
+  },
 )
 
 InvoiceOverview.displayName = 'InvoiceOverview'

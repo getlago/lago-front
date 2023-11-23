@@ -16,7 +16,7 @@ export const InfiniteScroll = ({ children, onBottom }: InfiniteScrollProps) => {
           onBottom && onBottom()
         }
       },
-      { threshold: [0] }
+      { threshold: [0] },
     )
 
     let element: HTMLDivElement

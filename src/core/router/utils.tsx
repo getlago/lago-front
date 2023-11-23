@@ -3,7 +3,7 @@ import { ComponentType, lazy } from 'react'
 const retry = (
   fn: Function,
   retriesLeft: number = 2,
-  interval: number = 1000
+  interval: number = 1000,
 ): Promise<{ default: ComponentType<unknown> }> => {
   return new Promise((resolve) => {
     fn()

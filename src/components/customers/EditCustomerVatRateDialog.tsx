@@ -66,7 +66,7 @@ interface EditCustomerVatRateDialogProps {
 export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRateDialogProps>(
   (
     { appliedTaxRatesTaxesIds, customer, forceOpen = false }: EditCustomerVatRateDialogProps,
-    ref
+    ref,
   ) => {
     const { translate } = useInternationalization()
     const [localTax, setLocalTax] = useState<string>('')
@@ -175,7 +175,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
         </Content>
       </Dialog>
     )
-  }
+  },
 )
 
 const Content = styled.div`

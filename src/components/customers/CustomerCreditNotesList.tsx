@@ -88,12 +88,12 @@ export const CustomerCreditNotesList = ({
           {intlFormatNumber(
             deserializeAmount(
               creditNotesBalanceAmountCents || 0,
-              userCurrency || CurrencyEnum.Usd
+              userCurrency || CurrencyEnum.Usd,
             ) || 0,
             {
               currencyDisplay: 'symbol',
               currency: userCurrency,
-            }
+            },
           )}
         </Typography>
       </TotalCreditAmountWrapper>

@@ -114,12 +114,12 @@ export const Typography = memo(
           sanitizedWithInternalLinks.push(
             <Link key={`link-${i}`} to={internalLink.href}>
               {internalLink['data-text']}
-            </Link>
+            </Link>,
           )
         }
 
         sanitizedWithInternalLinks.push(
-          <span key={i} dangerouslySetInnerHTML={{ __html: string }} />
+          <span key={i} dangerouslySetInnerHTML={{ __html: string }} />,
         )
       })
 
@@ -152,7 +152,7 @@ export const Typography = memo(
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ({ component, ...prevProps }, { component: nextComponent, ...nextProps }) =>
-    _isEqual(prevProps, nextProps)
+    _isEqual(prevProps, nextProps),
 )
 
 Typography.displayName = 'Typography'

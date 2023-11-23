@@ -90,7 +90,7 @@ export const GraduatedPercentageChargeTable = memo(
                 content: (_, i) => (
                   <TypographyCell variant="captionHl">
                     {translate(
-                      i === 0 ? 'text_62793bbb599f1c01522e91c0' : 'text_62793bbb599f1c01522e91fc'
+                      i === 0 ? 'text_62793bbb599f1c01522e91c0' : 'text_62793bbb599f1c01522e91fc',
                     )}
                   </TypographyCell>
                 ),
@@ -278,7 +278,7 @@ export const GraduatedPercentageChargeTable = memo(
         </Alert>
       </Container>
     )
-  }
+  },
 )
 
 GraduatedPercentageChargeTable.displayName = 'GraduatedPercentageChargeTable'

@@ -95,7 +95,7 @@ const formatCouponInput = (
   hasPlanLimit: boolean,
   limitPlansList: PlansForCouponsFragment[],
   hasBillableMetricLimit: boolean,
-  limitBillableMetricsList: BillableMetricsForCouponsFragment[]
+  limitBillableMetricsList: BillableMetricsForCouponsFragment[],
 ) => {
   const {
     amountCents,
@@ -144,10 +144,10 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
   })
   const [hasPlanLimit, setHasPlanLimit] = useState<boolean>(!!data?.coupon?.limitedPlans)
   const [limitPlansList, setLimitPlansList] = useState<PlansForCouponsFragment[]>(
-    data?.coupon?.plans || []
+    data?.coupon?.plans || [],
   )
   const [hasBillableMetricLimit, setHasBillableMetricLimit] = useState<boolean>(
-    !!data?.coupon?.limitedBillableMetrics
+    !!data?.coupon?.limitedBillableMetrics,
   )
   const [limitBillableMetricsList, setLimitBillableMetricsList] = useState<
     BillableMetricsForCouponsFragment[]
@@ -232,7 +232,7 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
                     hasPlanLimit,
                     limitPlansList,
                     hasBillableMetricLimit,
-                    limitBillableMetricsList
+                    limitBillableMetricsList,
                   ),
                 },
               },
@@ -246,7 +246,7 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
                   hasPlanLimit,
                   limitPlansList,
                   hasBillableMetricLimit,
-                  limitBillableMetricsList
+                  limitBillableMetricsList,
                 ),
               },
             })
@@ -263,6 +263,6 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
       data?.coupon,
       update,
       create,
-    ]
+    ],
   )
 }

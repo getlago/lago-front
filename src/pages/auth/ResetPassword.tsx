@@ -100,7 +100,7 @@ const ResetPassword = () => {
           .matches(RegExp('(.*\\d.*)'), FORM_ERRORS.NUMBER)
           .matches(RegExp('[/_!@#$%^&*(),.?":{}|<>/-]'), FORM_ERRORS.SPECIAL),
       }),
-    []
+    [],
   )
   const onResetPassword = async () => {
     const { password } = formFields

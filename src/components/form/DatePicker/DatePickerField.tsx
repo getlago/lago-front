@@ -31,7 +31,7 @@ export const DatePickerField = memo(
   },
   (
     { formikProps: prevFormikProps, name: prevName, ...prev },
-    { formikProps: nextformikProps, name: nextName, ...next }
+    { formikProps: nextformikProps, name: nextName, ...next },
   ) => {
     return (
       _isEqual(prev, next) &&
@@ -40,7 +40,7 @@ export const DatePickerField = memo(
       prevFormikProps.errors[prevName] === nextformikProps.errors[nextName] &&
       prevFormikProps.touched[prevName] === nextformikProps.touched[nextName]
     )
-  }
+  },
 )
 
 DatePickerField.displayName = 'DatePickerField'

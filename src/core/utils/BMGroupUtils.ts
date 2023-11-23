@@ -64,21 +64,21 @@ export const isGroupValid = (object: groupType) =>
 
 const areGroupsOneDimension = (
   group1: oneDimensionGroupType,
-  group2: oneDimensionGroupType
+  group2: oneDimensionGroupType,
 ): boolean => {
   return isOneDimension(group1) && isOneDimension(group2)
 }
 
 const areGroupsTwoDimension = (
   group1: twoDimensionGroupType,
-  group2: twoDimensionGroupType
+  group2: twoDimensionGroupType,
 ): boolean => {
   return isTwoDimension(group1) && isTwoDimension(group2)
 }
 
 export const determineGroupDiffLevel: (
   group1: groupType | string,
-  group2: groupType | string
+  group2: groupType | string,
 ) => determineGroupDiffLevelReturnType = (group1 = {}, group2 = {}) => {
   // Groups can be empty, replace them with empty object
   if (!group1 || group1 === '') group1 = '{}'

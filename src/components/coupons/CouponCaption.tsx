@@ -68,14 +68,14 @@ export const CouponCaption = memo(({ coupon, variant = 'caption' }: CouponCaptio
           amount: intlFormatNumber(
             deserializeAmount(
               Number(amountCentsRemaining) || Number(amountCents),
-              amountCurrency || CurrencyEnum.Usd
+              amountCurrency || CurrencyEnum.Usd,
             ) || 0,
             {
               currencyDisplay: 'symbol',
               currency: amountCurrency || undefined,
-            }
+            },
           ),
-        }
+        },
       )
     } else if (couponType === CouponTypeEnum.Percentage && frequency === CouponFrequency.Once) {
       return translate('text_632d68358f1fedc68eed3eb5', {
@@ -94,16 +94,16 @@ export const CouponCaption = memo(({ coupon, variant = 'caption' }: CouponCaptio
           amount: intlFormatNumber(
             deserializeAmount(
               Number(amountCentsRemaining) || Number(amountCents),
-              amountCurrency || CurrencyEnum.Usd
+              amountCurrency || CurrencyEnum.Usd,
             ) || 0,
             {
               currencyDisplay: 'symbol',
               currency: amountCurrency || undefined,
-            }
+            },
           ),
           duration: frequencyDurationRemaining || frequencyDuration,
         },
-        frequencyDurationRemaining || frequencyDuration || 1
+        frequencyDurationRemaining || frequencyDuration || 1,
       )
     } else if (
       couponType === CouponTypeEnum.Percentage &&
@@ -118,7 +118,7 @@ export const CouponCaption = memo(({ coupon, variant = 'caption' }: CouponCaptio
           }),
           duration: frequencyDurationRemaining || frequencyDuration,
         },
-        frequencyDurationRemaining || frequencyDuration || 1
+        frequencyDurationRemaining || frequencyDuration || 1,
       )
     } else if (couponType === CouponTypeEnum.FixedAmount && frequency === CouponFrequency.Forever) {
       return translate('text_63c946e8bef768ead2fee35c', {
@@ -127,7 +127,7 @@ export const CouponCaption = memo(({ coupon, variant = 'caption' }: CouponCaptio
           {
             currencyDisplay: 'symbol',
             currency: amountCurrency || undefined,
-          }
+          },
         ),
       })
     } else if (couponType === CouponTypeEnum.Percentage && frequency === CouponFrequency.Forever) {

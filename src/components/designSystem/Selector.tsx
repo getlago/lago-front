@@ -132,8 +132,8 @@ const Container = styled.button<{
     $selected
       ? theme.palette.primary[100]
       : $disabled
-      ? theme.palette.grey[100]
-      : theme.palette.background.default};
+        ? theme.palette.grey[100]
+        : theme.palette.background.default};
   border: 1px solid
     ${({ $selected }) => ($selected ? theme.palette.primary[600] : theme.palette.grey[400])};
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'default')};

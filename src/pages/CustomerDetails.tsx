@@ -188,7 +188,7 @@ const CustomerDetails = () => {
                     navigate(
                       generatePath(CREATE_SUBSCRIPTION, {
                         customerId: customerId as string,
-                      })
+                      }),
                     )
                     closePopper()
                   }}
@@ -200,7 +200,7 @@ const CustomerDetails = () => {
                   align="left"
                   onClick={() => {
                     navigate(
-                      generatePath(CREATE_INVOICE_ROUTE, { customerId: customerId as string })
+                      generatePath(CREATE_INVOICE_ROUTE, { customerId: customerId as string }),
                     )
 
                     closePopper()

@@ -64,7 +64,7 @@ export const ComboBox = ({
   useEffect(() => {
     if (prevRawData && data) {
       const deletedOptions = prevRawData.filter(
-        ({ value: oldVal }) => !data.find(({ value: newVal }) => oldVal === newVal)
+        ({ value: oldVal }) => !data.find(({ value: newVal }) => oldVal === newVal),
       )
 
       if (deletedOptions.find(({ value: deletedValue }) => value === deletedValue)) {
@@ -160,7 +160,7 @@ export const ComboBox = ({
               options,
               params.inputValue !== value
                 ? params
-                : { getOptionLabel: params.getOptionLabel, inputValue: '' }
+                : { getOptionLabel: params.getOptionLabel, inputValue: '' },
             )
 
         // Suggest the creation of a new value

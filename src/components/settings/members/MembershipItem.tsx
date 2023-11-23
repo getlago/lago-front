@@ -59,7 +59,7 @@ export const MembershipItem = forwardRef<RevokeMembershipDialogRef, MembershipIt
         )}
       </ItemContainer>
     )
-  }
+  },
 )
 
 MembershipItem.displayName = 'MembershipItem'

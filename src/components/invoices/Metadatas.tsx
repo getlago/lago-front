@@ -59,7 +59,7 @@ export const Metadatas = memo(({ customer, invoice }: MetadatasProps) => {
             {translate(
               !!invoice.metadata?.length
                 ? 'text_6405cac5c833dcf18cad0198'
-                : 'text_6405cac5c833dcf18cad0196'
+                : 'text_6405cac5c833dcf18cad0196',
             )}
           </Button>
         </SectionHeader>

@@ -54,7 +54,7 @@ const PlansList = () => {
         generatePath(PLAN_DETAILS_ROUTE, {
           planId: String(id),
           tab: PlanDetailsTabsOptionsEnum.overview,
-        })
+        }),
       ),
   })
   let index = -1

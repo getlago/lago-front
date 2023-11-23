@@ -125,7 +125,7 @@ export const FixedFeeSection = memo(
                       {
                         minimumFractionDigits: 2,
                         style: 'percent',
-                      }
+                      },
                     )}
                   />
                 )}
@@ -231,7 +231,7 @@ export const FixedFeeSection = memo(
         </Accordion>
       </Card>
     )
-  }
+  },
 )
 
 FixedFeeSection.displayName = 'FixedFeeSection'

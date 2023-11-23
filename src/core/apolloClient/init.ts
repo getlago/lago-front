@@ -83,8 +83,8 @@ export const initializeApolloClient = async () => {
           // eslint-disable-next-line no-console
           console.warn(
             `[GraphQL error]: Message: ${message}, Path: ${path}, Location: ${JSON.stringify(
-              locations
-            )}`
+              locations,
+            )}`,
           )
         })
       }

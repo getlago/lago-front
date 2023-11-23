@@ -164,7 +164,7 @@ export const InvoiceDetailsTableFeeItem = memo(
                     {
                       currencyDisplay: 'symbol',
                       currency: customer?.currency || CurrencyEnum.Usd,
-                    }
+                    },
                   )}
                 </Typography>
               }
@@ -173,7 +173,7 @@ export const InvoiceDetailsTableFeeItem = memo(
         </tbody>
       </table>
     )
-  }
+  },
 )
 
 InvoiceDetailsTableFeeItem.displayName = 'InvoiceDetailsTableFeeItem'

@@ -84,7 +84,7 @@ const SubscriptionDetails = () => {
                   generatePath(PLAN_DETAILS_ROUTE, {
                     planId: planId,
                     tab: PlanDetailsTabsOptionsEnum.subscriptions,
-                  })
+                  }),
                 )
               }
             }}
@@ -116,7 +116,7 @@ const SubscriptionDetails = () => {
                       generatePath(UPDATE_SUBSCRIPTION, {
                         customerId: subscription?.customer?.id as string,
                         subscriptionId: subscriptionId as string,
-                      })
+                      }),
                     )
                     closePopper()
                   }}
@@ -131,7 +131,7 @@ const SubscriptionDetails = () => {
                       generatePath(UPGRADE_DOWNGRADE_SUBSCRIPTION, {
                         customerId: subscription?.customer?.id as string,
                         subscriptionId: subscriptionId as string,
-                      })
+                      }),
                     )
                     closePopper()
                   }}
@@ -165,7 +165,7 @@ const SubscriptionDetails = () => {
                         navigate(
                           generatePath(CUSTOMER_DETAILS_ROUTE, {
                             customerId: subscription?.customer?.id as string,
-                          })
+                          }),
                         )
                       },
                     })

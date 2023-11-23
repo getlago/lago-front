@@ -73,7 +73,7 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef, AddStripDialog>(
           navigate(ADYEN_INTEGRATION_ROUTE)
           addToast({
             message: translate(
-              isEdition ? 'text_645d071272418a14c1c76a3e' : 'text_645d071272418a14c1c76a93'
+              isEdition ? 'text_645d071272418a14c1c76a3e' : 'text_645d071272418a14c1c76a93',
             ),
             severity: 'success',
           })
@@ -85,10 +85,10 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef, AddStripDialog>(
       <Dialog
         ref={ref}
         title={translate(
-          isEdition ? 'text_645d071272418a14c1c76adc' : 'text_645d071272418a14c1c76a5f'
+          isEdition ? 'text_645d071272418a14c1c76adc' : 'text_645d071272418a14c1c76a5f',
         )}
         description={translate(
-          isEdition ? 'text_645d071272418a14c1c76a73' : 'text_645d071272418a14c1c76a6b'
+          isEdition ? 'text_645d071272418a14c1c76a73' : 'text_645d071272418a14c1c76a6b',
         )}
         onClose={() => {
           formikProps.resetForm()
@@ -107,7 +107,7 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef, AddStripDialog>(
               }}
             >
               {translate(
-                isEdition ? 'text_645d071272418a14c1c76a67' : 'text_645d071272418a14c1c76ad8'
+                isEdition ? 'text_645d071272418a14c1c76a67' : 'text_645d071272418a14c1c76ad8',
               )}
             </Button>
           </>
@@ -141,7 +141,7 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef, AddStripDialog>(
         </Content>
       </Dialog>
     )
-  }
+  },
 )
 
 const Content = styled.div`
