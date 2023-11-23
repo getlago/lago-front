@@ -18,7 +18,7 @@ async function extract(locale) {
 
   fs.writeFileSync(
     path.join(DITTO_DIR, `/${fileLocaleKey}.json`),
-    `${JSON.stringify(allKeys, null, 2)}\n`
+    `${JSON.stringify(allKeys, null, 2)}\n`,
   )
 }
 

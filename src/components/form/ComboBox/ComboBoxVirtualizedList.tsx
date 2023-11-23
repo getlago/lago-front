@@ -44,7 +44,7 @@ export const ComboBoxVirtualizedList = (props: ComboBoxVirtualizedListProps) => 
     () => {
       if (gridRef && value && gridRef.current) {
         const valueIndex = elements.findIndex(
-          (el) => el.props?.children?.props?.option?.value === value
+          (el) => el.props?.children?.props?.option?.value === value,
         )
 
         if (valueIndex) {
@@ -53,7 +53,7 @@ export const ComboBoxVirtualizedList = (props: ComboBoxVirtualizedListProps) => 
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [value]
+    [value],
   )
 
   return (
@@ -67,8 +67,8 @@ export const ComboBoxVirtualizedList = (props: ComboBoxVirtualizedListProps) => 
         return index === itemCount - 1
           ? ITEM_HEIGHT
           : ((elements[index].key as string) || '').includes(GROUP_ITEM_KEY)
-          ? GROUP_HEADER_HEIGHT + (index === 0 ? 8 : 12)
-          : ITEM_HEIGHT + 4
+            ? GROUP_HEADER_HEIGHT + (index === 0 ? 8 : 12)
+            : ITEM_HEIGHT + 4
       }}
       overscanCount={5}
       itemCount={itemCount}

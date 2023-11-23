@@ -65,12 +65,12 @@ const formatInvoiceItemsMap = (data: InvoiceSubscription[]) => {
     // Format fees
     if (formattedData?.feesInArrears?.length) {
       formattedData.feesInArrears = _deepFormatFees(
-        formattedData.feesInArrears as unknown as BaseFormattedInvoiceSubscription['feesInArrears']
+        formattedData.feesInArrears as unknown as BaseFormattedInvoiceSubscription['feesInArrears'],
       )
     }
     if (formattedData?.feesInAdvance?.length) {
       formattedData.feesInAdvance = _deepFormatFees(
-        formattedData.feesInAdvance as unknown as BaseFormattedInvoiceSubscription['feesInAdvance']
+        formattedData.feesInAdvance as unknown as BaseFormattedInvoiceSubscription['feesInAdvance'],
       )
     }
     return formattedData
@@ -80,7 +80,7 @@ const formatInvoiceItemsMap = (data: InvoiceSubscription[]) => {
 const _deepFormatFees = (
   feesToFormat:
     | BaseFormattedInvoiceSubscription['feesInArrears']
-    | BaseFormattedInvoiceSubscription['feesInAdvance']
+    | BaseFormattedInvoiceSubscription['feesInAdvance'],
 ) => {
   return Object.values(_groupBy(feesToFormat, (fee) => fee?.charge?.id))
     .map((fees) => {

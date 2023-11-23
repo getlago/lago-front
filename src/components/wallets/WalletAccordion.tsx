@@ -158,7 +158,7 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                     {translate(
                       'text_62da6ec24a8e24e44f81287a',
                       undefined,
-                      Number(creditAmountUnit) || 0
+                      Number(creditAmountUnit) || 0,
                     )}
                   </Typography>
                 </DetailSummaryLine>
@@ -204,7 +204,7 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                     {translate(
                       'text_62da6ec24a8e24e44f812884',
                       undefined,
-                      Number(consumedCreditUnit) || 0
+                      Number(consumedCreditUnit) || 0,
                     )}
                   </Typography>
                 </DetailSummaryLine>
@@ -258,7 +258,7 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
         )}
       </Accordion>
     )
-  }
+  },
 )
 
 export const WalletAccordionSkeleton = () => {

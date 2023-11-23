@@ -59,7 +59,7 @@ export const PackageCharge = memo(
         formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [chargeIndex]
+      [chargeIndex],
     )
 
     return (
@@ -174,7 +174,7 @@ export const PackageCharge = memo(
         </Alert>
       </Container>
     )
-  }
+  },
 )
 
 PackageCharge.displayName = 'PackageCharge'

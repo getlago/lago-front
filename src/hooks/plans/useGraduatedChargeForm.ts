@@ -77,7 +77,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
             disabledDelete: [0].includes(i) || !!disabled,
           }
         }),
-      [graduatedRanges, disabled]
+      [graduatedRanges, disabled],
     ),
     infosCalculation: useMemo(
       () =>
@@ -122,7 +122,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
 
           return acc
         }, []),
-      [graduatedRanges]
+      [graduatedRanges],
     ),
     addRange: () => {
       const addIndex = graduatedRanges?.length - 1 // Add before the last range
@@ -151,19 +151,19 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
 
           return acc
         },
-        []
+        [],
       )
 
       formikProps.setFieldValue(
         `charges.${chargeIndex}.${propertyCursor}.graduatedRanges`,
-        newGraduatedRanges
+        newGraduatedRanges,
       )
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       if (fieldName !== 'toValue') {
         formikProps.setFieldValue(
           `${formikIdentifier}.${rangeIndex}.${fieldName}`,
-          value !== '' ? Number(value) : value
+          value !== '' ? Number(value) : value,
         )
       } else {
         const newGraduatedRanges = graduatedRanges.reduce<GraduatedRangeInput[]>(
@@ -182,8 +182,8 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
                   range.toValue === null
                     ? null
                     : Number(range.toValue || 0) <= Number(fromValue)
-                    ? String(Number(fromValue) + 1)
-                    : String(range.toValue || 0),
+                      ? String(Number(fromValue) + 1)
+                      : String(range.toValue || 0),
               })
             } else {
               acc.push(range)
@@ -191,7 +191,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
 
             return acc
           },
-          []
+          [],
         )
 
         formikProps.setFieldValue(formikIdentifier, newGraduatedRanges)

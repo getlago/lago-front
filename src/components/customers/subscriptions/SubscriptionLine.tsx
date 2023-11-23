@@ -118,8 +118,8 @@ export const SubscriptionLine = ({
                 isDowngrade
                   ? 'text_64a803f70b9bde00529d2aa5'
                   : status === StatusTypeEnum.Pending
-                  ? 'text_64a80400248fe50080d66358'
-                  : 'text_62d7f6178ec94cd09370e6cf'
+                    ? 'text_64a80400248fe50080d66358'
+                    : 'text_62d7f6178ec94cd09370e6cf',
               )}
             >
               <Button data-test="menu-subscription" icon="dots-horizontal" variant="quaternary" />
@@ -141,7 +141,7 @@ export const SubscriptionLine = ({
                       generatePath(UPDATE_SUBSCRIPTION, {
                         customerId: customerId as string,
                         subscriptionId,
-                      })
+                      }),
                     )
                     closePopper()
                   }}
@@ -158,7 +158,7 @@ export const SubscriptionLine = ({
                       generatePath(UPGRADE_DOWNGRADE_SUBSCRIPTION, {
                         customerId: customerId as string,
                         subscriptionId,
-                      })
+                      }),
                     )
                     closePopper()
                   }}

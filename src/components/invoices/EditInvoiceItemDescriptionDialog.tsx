@@ -102,7 +102,7 @@ export const EditInvoiceItemDescriptionDialog = forwardRef<EditInvoiceItemDescri
         />
       </Dialog>
     )
-  }
+  },
 )
 
 EditInvoiceItemDescriptionDialog.displayName = 'forwardRef'

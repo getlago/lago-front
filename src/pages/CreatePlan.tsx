@@ -116,7 +116,7 @@ const CreatePlan = () => {
         generatePath(PLAN_DETAILS_ROUTE, {
           planId: plan.id,
           tab: PlanDetailsTabsOptionsEnum.overview,
-        })
+        }),
       )
     } else {
       navigate(PLANS_ROUTE)
@@ -183,14 +183,14 @@ const CreatePlan = () => {
                 <div>
                   <Title variant="headline">
                     {translate(
-                      isEdition ? 'text_625fd165963a7b00c8f59771' : 'text_624453d52e945301380e498a'
+                      isEdition ? 'text_625fd165963a7b00c8f59771' : 'text_624453d52e945301380e498a',
                     )}
                   </Title>
                   <Subtitle>
                     {translate(
                       type === FORM_TYPE_ENUM.edition
                         ? 'text_625fd165963a7b00c8f5977b'
-                        : 'text_642d5eb2783a2ad10d670318'
+                        : 'text_642d5eb2783a2ad10d670318',
                     )}
                   </Subtitle>
                 </div>
@@ -229,7 +229,7 @@ const CreatePlan = () => {
                     {translate(
                       type === FORM_TYPE_ENUM.edition
                         ? 'text_625fd165963a7b00c8f598aa'
-                        : 'text_62ff5d01a306e274d4ffcc75'
+                        : 'text_62ff5d01a306e274d4ffcc75',
                     )}
                   </Button>
                 </ButtonContainer>
@@ -245,13 +245,13 @@ const CreatePlan = () => {
       <WarningDialog
         ref={warningDialogRef}
         title={translate(
-          isEdition ? 'text_625fd165963a7b00c8f59777' : 'text_624454dd67656e00c534bc35'
+          isEdition ? 'text_625fd165963a7b00c8f59777' : 'text_624454dd67656e00c534bc35',
         )}
         description={translate(
-          isEdition ? 'text_625fd165963a7b00c8f59781' : 'text_624454dd67656e00c534bc3b'
+          isEdition ? 'text_625fd165963a7b00c8f59781' : 'text_624454dd67656e00c534bc3b',
         )}
         continueText={translate(
-          isEdition ? 'text_625fd165963a7b00c8f59795' : 'text_624454dd67656e00c534bc41'
+          isEdition ? 'text_625fd165963a7b00c8f59795' : 'text_624454dd67656e00c534bc41',
         )}
         onContinue={() => planCloseRedirection()}
       />

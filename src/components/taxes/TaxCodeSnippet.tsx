@@ -18,11 +18,11 @@ curl --location --request ${isEdition ? 'PUT' : 'POST'} "${apiUrl}/api/v1/taxes$
     "taxes": {
       "name": "${tax.name || '__NAME_OF_TAX__'}",
       "code": "${tax.code || '__CODE_OF_TAX__'}",${
-    !!tax.description
-      ? `
+        !!tax.description
+          ? `
       "description": "${tax.description}",`
-      : ''
-  }
+          : ''
+      }
       "rate": "${tax.rate || '_VALUE_OF_TAX__'}",
     }
   }'

@@ -96,8 +96,8 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
       localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Delete
         ? 'text_65367cb78324b77fcb6af2c1'
         : localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Add
-        ? 'text_65367cb78324b77fcb6af261'
-        : 'text_65367cb78324b77fcb6af28f'
+          ? 'text_65367cb78324b77fcb6af261'
+          : 'text_65367cb78324b77fcb6af28f',
     )
     const [updateAdyenProvider] = useUpdateAdyenPaymentProviderMutation({
       onCompleted(data) {
@@ -242,8 +242,8 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
           localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Delete
             ? 'text_65367cb78324b77fcb6af200'
             : localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Edit
-            ? 'text_65367cb78324b77fcb6af216'
-            : 'text_65367cb78324b77fcb6af1b4'
+              ? 'text_65367cb78324b77fcb6af216'
+              : 'text_65367cb78324b77fcb6af1b4',
         )}
         description={translate(
           localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Delete
@@ -251,7 +251,7 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
             : 'text_65367cb78324b77fcb6af224',
           {
             connectionName: localData?.type,
-          }
+          },
         )}
         onClose={() => {
           setLocalData(undefined)
@@ -277,8 +277,8 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
                 localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Delete
                   ? 'text_65367cb78324b77fcb6af255'
                   : localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Edit
-                  ? 'text_65367cb78324b77fcb6af249'
-                  : 'text_65367cb78324b77fcb6af1ec'
+                    ? 'text_65367cb78324b77fcb6af249'
+                    : 'text_65367cb78324b77fcb6af1ec',
               )}
             </Button>
           </>

@@ -23,7 +23,7 @@ const percentageShape = {
     MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR,
     MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR,
     (value, ctx) =>
-      !value || !ctx.parent.perTransactionMaxAmount || value <= ctx.parent.perTransactionMaxAmount
+      !value || !ctx.parent.perTransactionMaxAmount || value <= ctx.parent.perTransactionMaxAmount,
   ),
   perTransactionMaxAmount: number(),
 }
@@ -186,7 +186,7 @@ export const chargeSchema = array().of(
           schema.of(
             object().shape({
               values: object().shape(standardShape),
-            })
+            }),
           ),
       })
       .when(['chargeModel', 'billableMetric'], {
@@ -199,7 +199,7 @@ export const chargeSchema = array().of(
           schema.of(
             object().shape({
               values: object().shape(packageShape),
-            })
+            }),
           ),
       })
       .when(['chargeModel', 'billableMetric'], {
@@ -212,7 +212,7 @@ export const chargeSchema = array().of(
           schema.of(
             object().shape({
               values: object().shape(percentageShape),
-            })
+            }),
           ),
       })
       .when(['chargeModel', 'billableMetric'], {
@@ -225,7 +225,7 @@ export const chargeSchema = array().of(
           schema.of(
             object().shape({
               values: object().shape(graduatedShape),
-            })
+            }),
           ),
       })
       .when(['chargeModel', 'billableMetric'], {
@@ -238,7 +238,7 @@ export const chargeSchema = array().of(
           schema.of(
             object().shape({
               values: object().shape(graduatedPercentageShape),
-            })
+            }),
           ),
       })
       .when(['chargeModel', 'billableMetric'], {
@@ -251,8 +251,8 @@ export const chargeSchema = array().of(
           schema.of(
             object().shape({
               values: object().shape(volumeShape),
-            })
+            }),
           ),
       }),
-  })
+  }),
 )

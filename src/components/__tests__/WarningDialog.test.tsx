@@ -16,8 +16,8 @@ async function prepare() {
         description="description"
         continueText="continueText"
         onContinue={onContinueMock}
-      />
-    )
+      />,
+    ),
   )
 }
 

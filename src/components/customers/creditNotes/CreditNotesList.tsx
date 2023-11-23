@@ -171,7 +171,7 @@ const CreditNotesList = memo(
                           customerId,
                           invoiceId: invoiceId,
                           creditNoteId: creditNote.id,
-                        })
+                        }),
                       )
                     }
                   >
@@ -184,7 +184,7 @@ const CreditNotesList = memo(
                         {
                           currencyDisplay: 'symbol',
                           currency: creditNote.currency,
-                        }
+                        },
                       )}
                     </AmountCell>
                     <IssuingDateCell variant="body" color="grey700" noWrap>
@@ -202,7 +202,7 @@ const CreditNotesList = memo(
                           title={translate(
                             creditNote.canBeVoided
                               ? 'text_63728c6434e1344aea76347d'
-                              : 'text_63728c6434e1344aea76347f'
+                              : 'text_63728c6434e1344aea76347f',
                           )}
                         >
                           <Button icon="dots-horizontal" variant="quaternary" />
@@ -279,7 +279,7 @@ const CreditNotesList = memo(
         <VoidCreditNoteDialog ref={voidCreditNoteDialogRef} />
       </>
     )
-  }
+  },
 )
 
 CreditNotesList.displayName = 'CreditNotesList'

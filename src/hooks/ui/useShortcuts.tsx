@@ -77,7 +77,7 @@ export const useShortcuts: UseShortcutReturn = (shortcuts) => {
 
         return acc
       }, {}),
-    [shortcuts, isMac]
+    [shortcuts, isMac],
   )
 
   const onKeyDown: (e: Event) => void = useCallback(
@@ -87,7 +87,7 @@ export const useShortcuts: UseShortcutReturn = (shortcuts) => {
       keyPressedRef.current[cleanKey] = true
 
       const pressKeysID = getShortcutId(
-        Object.keys(keyPressedRef.current).filter((key) => !!keyPressedRef.current[key])
+        Object.keys(keyPressedRef.current).filter((key) => !!keyPressedRef.current[key]),
       )
 
       if (!!usableShortcuts[pressKeysID]) {
@@ -97,7 +97,7 @@ export const useShortcuts: UseShortcutReturn = (shortcuts) => {
         keyPressedRef.current = {}
       }
     },
-    [usableShortcuts]
+    [usableShortcuts],
   )
 
   const onKeyUp: (e: Event) => void = useCallback((e) => {

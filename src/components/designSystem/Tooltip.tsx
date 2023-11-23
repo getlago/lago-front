@@ -16,7 +16,7 @@ export const Tooltip = forwardRef(
   (
     { children, disableHoverListener, className, maxWidth = '320px', ...props }: TooltipProps,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ref: any
+    ref: any,
   ) => {
     const [isOpen, setIsOpen] = useState(false)
 
@@ -39,7 +39,7 @@ export const Tooltip = forwardRef(
         </MuiTooltip>
       </div>
     )
-  }
+  },
 )
 
 Tooltip.displayName = 'Tooltip'

@@ -58,7 +58,7 @@ export const useListKeysNavigation: UseKeyNavigation = ({
 
         elementToFocus && elementToFocus.focus()
       },
-      [disabled, getElmId, navigate]
+      [disabled, getElmId, navigate],
     ),
   }
 }

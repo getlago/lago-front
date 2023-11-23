@@ -153,6 +153,6 @@ export const useCreateEditAddOn: () => UseCreateEditAddOnReturn = () => {
             })
           },
     }),
-    [loading, addOnId, errorCode, data?.addOn, update, create]
+    [loading, addOnId, errorCode, data?.addOn, update, create],
   )
 }

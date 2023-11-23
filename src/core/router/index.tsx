@@ -21,7 +21,7 @@ const { appEnv } = envGlobalVar()
 
 // ----------- Layouts -----------
 const SideNavLayout = lazyLoad(
-  () => import(/* webpackChunkName: 'side-nav-layout' */ '~/layouts/SideNavLayout')
+  () => import(/* webpackChunkName: 'side-nav-layout' */ '~/layouts/SideNavLayout'),
 )
 
 // ----------- Pages -----------
@@ -30,7 +30,7 @@ const Analytic = lazyLoad(() => import(/* webpackChunkName: 'analytics' */ '~/pa
 
 // Route Available only on dev mode
 const DesignSystem = lazyLoad(
-  () => import(/* webpackChunkName: 'design-system' */ '~/pages/__devOnly/DesignSystem')
+  () => import(/* webpackChunkName: 'design-system' */ '~/pages/__devOnly/DesignSystem'),
 )
 
 export const HOME_ROUTE = '/'

@@ -21,7 +21,7 @@ type FormatterOptions = {
 
 export const intlFormatNumber: (amount: number, options?: FormatterOptions) => string = (
   amount,
-  options
+  options,
 ) => {
   let formattedToUnit = amount
 
@@ -53,7 +53,7 @@ export const getCurrencySymbol = (currencyCode: CurrencyEnum) => {
 // Current limitation: does not add the space between amount and currency symbol if the locale notation has one
 export const bigNumberShortenNotationFormater = (
   amount: number,
-  options?: Omit<FormatterOptions, 'currencyDisplay'>
+  options?: Omit<FormatterOptions, 'currencyDisplay'>,
 ) => {
   const {
     style = AmountStyle.currency,

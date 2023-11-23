@@ -53,7 +53,7 @@ export const CustomerUsageDetailDrawer = forwardRef<
 >(
   (
     { currency, fromDatetime, toDatetime, customerTimezone }: CustomerUsageDetailDrawerProps,
-    ref
+    ref,
   ) => {
     const { translate } = useInternationalization()
     const drawerRef = useRef<DrawerRef>(null)
@@ -132,7 +132,7 @@ export const CustomerUsageDetailDrawer = forwardRef<
         </>
       </Drawer>
     )
-  }
+  },
 )
 
 const Content = styled.div`

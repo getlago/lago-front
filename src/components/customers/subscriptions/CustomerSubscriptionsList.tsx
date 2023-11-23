@@ -65,7 +65,7 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
             navigate(
               generatePath(CREATE_SUBSCRIPTION, {
                 customerId: customerId as string,
-              })
+              }),
             )
           }
         >

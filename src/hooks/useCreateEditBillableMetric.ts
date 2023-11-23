@@ -142,6 +142,6 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
             })
           },
     }),
-    [loading, billableMetricId, errorCode, data?.billableMetric, update, create]
+    [loading, billableMetricId, errorCode, data?.billableMetric, update, create],
   )
 }

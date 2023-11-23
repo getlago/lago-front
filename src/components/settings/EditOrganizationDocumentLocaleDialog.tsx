@@ -39,7 +39,7 @@ const documentLocalesData: { value: string; label: string }[] = Object.keys(Docu
       value: localeKey,
       label: DocumentLocales[localeKey],
     }
-  }
+  },
 )
 
 export const EditOrganizationDocumentLocaleDialog = forwardRef<

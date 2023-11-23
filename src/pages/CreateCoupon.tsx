@@ -143,7 +143,7 @@ const CreateCoupon = () => {
               DateTime.now().plus({ days: -1 }),
               translate('text_632d68358f1fedc68eed3ef2', {
                 date: DateTime.now().plus({ days: -1 }).toFormat('LLL. dd, yyyy').toLocaleString(),
-              })
+              }),
             )
             .required(''),
       }),
@@ -153,7 +153,7 @@ const CreateCoupon = () => {
     onSubmit: onSave,
   })
   const [shouldDisplayDescription, setShouldDisplayDescription] = useState<boolean>(
-    !!formikProps.initialValues.description
+    !!formikProps.initialValues.description,
   )
 
   const attachPlanToCoupon = (plan: PlansForCouponsFragment) => {
@@ -265,12 +265,12 @@ const CreateCoupon = () => {
                 <div>
                   <Title variant="headline">
                     {translate(
-                      isEdition ? 'text_6287a9bdac160c00b2e0fc05' : 'text_62876e85e32e0300e1803106'
+                      isEdition ? 'text_6287a9bdac160c00b2e0fc05' : 'text_62876e85e32e0300e1803106',
                     )}
                   </Title>
                   <Subtitle>
                     {translate(
-                      isEdition ? 'text_6287a9bdac160c00b2e0fc0b' : 'text_62876e85e32e0300e180310f'
+                      isEdition ? 'text_6287a9bdac160c00b2e0fc0b' : 'text_62876e85e32e0300e180310f',
                     )}
                   </Subtitle>
                 </div>
@@ -466,7 +466,7 @@ const CreateCoupon = () => {
                       onChange={(_, checked) => {
                         formikProps.setFieldValue(
                           'expiration',
-                          checked ? CouponExpiration.TimeLimit : CouponExpiration.NoExpiration
+                          checked ? CouponExpiration.TimeLimit : CouponExpiration.NoExpiration,
                         )
                       }}
                     />
@@ -578,7 +578,7 @@ const CreateCoupon = () => {
                                     setLimitBillableMetricsList(
                                       (oldArray: BillableMetricsForCouponsFragment[]) => [
                                         ...oldArray.filter((b) => b.id !== billableMetric.id),
-                                      ]
+                                      ],
                                     )
                                   }
                                   data-test={`delete-limited-billable-metric-${i}`}
@@ -633,7 +633,7 @@ const CreateCoupon = () => {
                     data-test="submit"
                   >
                     {translate(
-                      isEdition ? 'text_6287a9bdac160c00b2e0fc6b' : 'text_62876e85e32e0300e180317d'
+                      isEdition ? 'text_6287a9bdac160c00b2e0fc6b' : 'text_62876e85e32e0300e180317d',
                     )}
                   </Button>
                 </ButtonContainer>
@@ -656,13 +656,13 @@ const CreateCoupon = () => {
       <WarningDialog
         ref={warningDialogRef}
         title={translate(
-          isEdition ? 'text_6287a9bdac160c00b2e0fbeb' : 'text_62876e85e32e0300e18030f5'
+          isEdition ? 'text_6287a9bdac160c00b2e0fbeb' : 'text_62876e85e32e0300e18030f5',
         )}
         description={translate(
-          isEdition ? 'text_6287a9bdac160c00b2e0fbf1' : 'text_62876e85e32e0300e18030fc'
+          isEdition ? 'text_6287a9bdac160c00b2e0fbf1' : 'text_62876e85e32e0300e18030fc',
         )}
         continueText={translate(
-          isEdition ? 'text_6287a9bdac160c00b2e0fbfd' : 'text_62876e85e32e0300e180310b'
+          isEdition ? 'text_6287a9bdac160c00b2e0fbfd' : 'text_62876e85e32e0300e180310b',
         )}
         onContinue={() => navigate(COUPONS_ROUTE)}
       />

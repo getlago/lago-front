@@ -123,7 +123,7 @@ export const AddPlanToCouponDialog = forwardRef<DialogRef, AddPlanToCouponDialog
         />
       </Dialog>
     )
-  }
+  },
 )
 
 AddPlanToCouponDialog.displayName = 'AddPlanToCouponDialog'

@@ -43,9 +43,9 @@ export const generateFeesSchema = (formikInitialFees: FeesPerInvoice, currency: 
                   [feeGroupKey]: simpleFeeSchema(
                     _get(
                       formikInitialFees || {},
-                      `${subKey}.fees.${feeGroupKey}.maxAmount`
+                      `${subKey}.fees.${feeGroupKey}.maxAmount`,
                     ) as unknown as number,
-                    currency
+                    currency,
                   ),
                 }
               }
@@ -61,21 +61,21 @@ export const generateFeesSchema = (formikInitialFees: FeesPerInvoice, currency: 
                         [feeKey]: simpleFeeSchema(
                           _get(
                             formikInitialFees || {},
-                            `${subKey}.fees.${feeGroupKey}.grouped.${feeKey}.maxAmount`
+                            `${subKey}.fees.${feeGroupKey}.grouped.${feeKey}.maxAmount`,
                           ) as unknown as number,
-                          currency
+                          currency,
                         ),
                       }
-                    }, {})
+                    }, {}),
                   ),
                 }),
               }
-            }, {})
+            }, {}),
           ),
         }),
       }
       return accSub
-    }, {})
+    }, {}),
   )
 
 export const generateAddOnFeesSchema = (formikInitialFees: FromFee[], currency: CurrencyEnum) => {

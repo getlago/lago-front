@@ -19,7 +19,7 @@ export const metadataSchema = ({ valueMaxLength = METADATA_VALUE_MAX_LENGTH_DEFA
 
           if (arguments[1].from[1]?.value?.metadata.length > 1) {
             const keysList = arguments[1].from[1]?.value?.metadata?.map(
-              (m: { key: string }) => m.key
+              (m: { key: string }) => m.key,
             )
 
             // Check key unicity
@@ -54,5 +54,5 @@ export const metadataSchema = ({ valueMaxLength = METADATA_VALUE_MAX_LENGTH_DEFA
           return true
         },
       }),
-    })
+    }),
   )

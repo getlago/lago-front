@@ -50,7 +50,7 @@ const CreateTaxRate = () => {
   })
 
   const [shouldDisplayDescription, setShouldDisplayDescription] = useState<boolean>(
-    !!formikProps.initialValues.description
+    !!formikProps.initialValues.description,
   )
 
   useEffect(() => {
@@ -129,12 +129,12 @@ const CreateTaxRate = () => {
                 <div>
                   <Title variant="headline">
                     {translate(
-                      isEdition ? 'text_645bb193927b375079d28a0d' : 'text_645bb193927b375079d28a51'
+                      isEdition ? 'text_645bb193927b375079d28a0d' : 'text_645bb193927b375079d28a51',
                     )}
                   </Title>
                   <Subtitle>
                     {translate(
-                      isEdition ? 'text_645bb193927b375079d28a17' : 'text_645bb193927b375079d28a71'
+                      isEdition ? 'text_645bb193927b375079d28a17' : 'text_645bb193927b375079d28a71',
                     )}
                   </Subtitle>
                 </div>
@@ -229,7 +229,7 @@ const CreateTaxRate = () => {
                     data-test="submit"
                   >
                     {translate(
-                      isEdition ? 'text_645bb193927b375079d28ab7' : 'text_645bb193927b375079d28b8e'
+                      isEdition ? 'text_645bb193927b375079d28ab7' : 'text_645bb193927b375079d28b8e',
                     )}
                   </Button>
                 </ButtonContainer>
@@ -260,7 +260,7 @@ const CreateTaxRate = () => {
           {
             customersCount: tax?.customersCount,
           },
-          tax?.customersCount
+          tax?.customersCount,
         )}
         continueText={translate('text_6464a12047f2dd00affa9252')}
         onContinue={formikProps.submitForm}

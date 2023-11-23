@@ -54,7 +54,7 @@ export const NavigationTab = ({
 }: NavigationTabsProps) => {
   const { pathname } = useLocation()
   const activeTab = tabs.find(
-    (tab) => tab.link === pathname || !!tab.match?.find((path) => !!matchPath(path, pathname))
+    (tab) => tab.link === pathname || !!tab.match?.find((path) => !!matchPath(path, pathname)),
   )
 
   return (
@@ -133,18 +133,18 @@ const TabsBlock = styled.div<{
             }
           `
         : $align === NavigationTabAlignEnum.superLeft
-        ? css`
-            padding: ${theme.spacing(4)} 0;
+          ? css`
+              padding: ${theme.spacing(4)} 0;
 
-            ${theme.breakpoints.down('sm')} {
-              padding: ${theme.spacing(4)};
-            }
-          `
-        : css`
-            > * {
-              flex: 1;
-            }
-          `}
+              ${theme.breakpoints.down('sm')} {
+                padding: ${theme.spacing(4)};
+              }
+            `
+          : css`
+              > * {
+                flex: 1;
+              }
+            `}
   }
 
   &.navigation-tab--vertical {

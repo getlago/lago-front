@@ -22,10 +22,10 @@ const createApolloError: (details: Record<string, string | string[]>) => ApolloE
         },
       },
     ],
-  } as unknown as ApolloError)
+  }) as unknown as ApolloError
 
 const createGraphQLError: (details: Record<string, string | string[]>) => GraphQLError[] = (
-  details
+  details,
 ) =>
   [
     {

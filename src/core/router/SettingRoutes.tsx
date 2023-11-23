@@ -9,36 +9,36 @@ const OrganizationInformations = lazyLoad(
   () =>
     import(
       /* webpackChunkName: 'organization-informations' */ '~/pages/settings/OrganizationInformations'
-    )
+    ),
 )
 const InvoiceSettings = lazyLoad(
-  () => import(/* webpackChunkName: 'invoice-settings' */ '~/pages/settings/InvoiceSettings')
+  () => import(/* webpackChunkName: 'invoice-settings' */ '~/pages/settings/InvoiceSettings'),
 )
 const TaxesSettings = lazyLoad(
-  () => import(/* webpackChunkName: 'tax-settings' */ '~/pages/settings/TaxesSettings')
+  () => import(/* webpackChunkName: 'tax-settings' */ '~/pages/settings/TaxesSettings'),
 )
 const Members = lazyLoad(() => import(/* webpackChunkName: 'members' */ '~/pages/settings/Members'))
 const Integrations = lazyLoad(
-  () => import(/* webpackChunkName: 'integrations' */ '~/pages/settings/Integrations')
+  () => import(/* webpackChunkName: 'integrations' */ '~/pages/settings/Integrations'),
 )
 const AdyenIntegration = lazyLoad(
-  () => import(/* webpackChunkName: 'adyen-integration' */ '~/pages/settings/AdyenIntegration')
+  () => import(/* webpackChunkName: 'adyen-integration' */ '~/pages/settings/AdyenIntegration'),
 )
 const StripeIntegration = lazyLoad(
-  () => import(/* webpackChunkName: 'stripe-integration' */ '~/pages/settings/StripeIntegration')
+  () => import(/* webpackChunkName: 'stripe-integration' */ '~/pages/settings/StripeIntegration'),
 )
 const GocardlessIntegration = lazyLoad(
   () =>
     import(
       /* webpackChunkName: 'gocardless-integration' */ '~/pages/settings/GocardlessIntegration'
-    )
+    ),
 )
 const EmailSettings = lazyLoad(
-  () => import(/* webpackChunkName: 'email-settings' */ '~/pages/settings/EmailSettings')
+  () => import(/* webpackChunkName: 'email-settings' */ '~/pages/settings/EmailSettings'),
 )
 const EmailScenarioConfig = lazyLoad(
   () =>
-    import(/* webpackChunkName: 'email-scenario-config' */ '~/pages/settings/EmailScenarioConfig')
+    import(/* webpackChunkName: 'email-scenario-config' */ '~/pages/settings/EmailScenarioConfig'),
 )
 
 // ----------- Routes -----------

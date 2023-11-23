@@ -78,7 +78,7 @@ export const CodeSnippet = memo(
         )}
       </Content>
     )
-  }
+  },
 )
 
 CodeSnippet.displayName = 'CodeSnippet'
@@ -183,7 +183,13 @@ const Content = styled.div`
   pre[class*='language-'] {
     color: #19212e;
     background: none;
-    font-family: IBM Plex Mono, Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-family:
+      IBM Plex Mono,
+      Consolas,
+      Monaco,
+      'Andale Mono',
+      'Ubuntu Mono',
+      monospace;
     text-align: left;
     white-space: pre;
     word-spacing: normal;

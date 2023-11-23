@@ -77,9 +77,9 @@ export const TimezoneDate = ({
           mainTimezone === MainTimezoneEnum.organization
             ? timezone
             : mainTimezone === MainTimezoneEnum.customer
-            ? customerTimezone
-            : TimezoneEnum.TzUtc,
-          mainDateFormat
+              ? customerTimezone
+              : TimezoneEnum.TzUtc,
+          mainDateFormat,
         )}
       </Date>
     </StyledTooltip>

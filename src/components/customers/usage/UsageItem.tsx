@@ -89,7 +89,7 @@ export const UsageItem = ({
           <Tooltip
             placement="top-start"
             title={translate(
-              isOpen ? 'text_62d7f6178ec94cd09370e4cd' : 'text_62d7f6178ec94cd09370e60d'
+              isOpen ? 'text_62d7f6178ec94cd09370e4cd' : 'text_62d7f6178ec94cd09370e60d',
             )}
           >
             <Button
@@ -191,7 +191,7 @@ export const UsageItem = ({
                         {
                           currencyDisplay: 'symbol',
                           currency,
-                        }
+                        },
                       )}
                     </Typography>
                   </UsageHeader>
@@ -236,7 +236,7 @@ export const UsageItem = ({
                                   variant="secondary"
                                   onClick={() => {
                                     customerUsageDetailDrawerRef.current?.openDrawer(
-                                      usage as ChargeUsage
+                                      usage as ChargeUsage,
                                     )
                                   }}
                                 />

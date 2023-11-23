@@ -56,7 +56,7 @@ export const AllTheProviders = ({
 
 const customRender = (
   ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'> & { mocks?: TestMocksType }
+  options?: Omit<RenderOptions, 'wrapper'> & { mocks?: TestMocksType },
 ) =>
   render(ui, {
     wrapper: (props) => <AllTheProviders {...props} mocks={options?.mocks} />,

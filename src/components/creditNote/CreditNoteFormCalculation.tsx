@@ -116,7 +116,7 @@ export const CreditNoteFormCalculation = ({
           },
         })
     }, DEBOUNCE_SEARCH_MS),
-    [invoice?.id, feeForEstimate, getEstimate]
+    [invoice?.id, feeForEstimate, getEstimate],
   )
 
   useEffect(() => {
@@ -147,25 +147,25 @@ export const CreditNoteFormCalculation = ({
       totalTaxIncluded: isError
         ? 0
         : canOnlyCredit
-        ? deserializeAmount(
-            estimationData?.creditNoteEstimate.maxCreditableAmountCents || 0,
-            currency
-          )
-        : deserializeAmount(
-            estimationData?.creditNoteEstimate.maxRefundableAmountCents || 0,
-            currency
-          ),
+          ? deserializeAmount(
+              estimationData?.creditNoteEstimate.maxCreditableAmountCents || 0,
+              currency,
+            )
+          : deserializeAmount(
+              estimationData?.creditNoteEstimate.maxRefundableAmountCents || 0,
+              currency,
+            ),
       proRatedCouponAmount: isError
         ? 0
         : deserializeAmount(
             estimationData?.creditNoteEstimate?.couponsAdjustmentAmountCents || 0,
-            currency
+            currency,
           ),
       totalExcludedTax: isError
         ? 0
         : deserializeAmount(
             estimationData?.creditNoteEstimate?.subTotalExcludingTaxesAmountCents || 0,
-            currency
+            currency,
           ),
       taxes: isError
         ? new Map()
@@ -177,7 +177,7 @@ export const CreditNoteFormCalculation = ({
                 taxRate: tax.taxRate,
                 amount: deserializeAmount(tax.amountCents || 0, currency),
               },
-            ])
+            ]),
           ),
       hasCreditOrCoupon: isError
         ? false
@@ -201,7 +201,7 @@ export const CreditNoteFormCalculation = ({
     } else if (payBack.length < 2) {
       formikProps.setFieldValue(
         'payBack.0.value',
-        !totalTaxIncluded ? undefined : Number(totalTaxIncluded || 0)?.toFixed(currencyPrecision)
+        !totalTaxIncluded ? undefined : Number(totalTaxIncluded || 0)?.toFixed(currencyPrecision),
       )
     }
 
@@ -215,15 +215,15 @@ export const CreditNoteFormCalculation = ({
               return type === CreditTypeEnum.refund
                 ? number().max(
                     deserializeAmount(maxRefundableAmountCents, currency) || 0,
-                    PayBackErrorEnum.maxRefund
+                    PayBackErrorEnum.maxRefund,
                   )
                 : number().max(
                     deserializeAmount(maxCreditableAmountCents, currency) || 0,
-                    PayBackErrorEnum.maxRefund
+                    PayBackErrorEnum.maxRefund,
                   )
             }),
-        })
-      )
+        }),
+      ),
     )
     formikProps.setTouched({
       payBack: true,
@@ -311,7 +311,7 @@ export const CreditNoteFormCalculation = ({
         ) : (
           <Line>
             <Typography variant="bodyHl">{`${translate(
-              'text_636bedf292786b19d3398f06'
+              'text_636bedf292786b19d3398f06',
             )} (0%)`}</Typography>
             <Typography color="grey700">
               {estiationLoading ? (
@@ -379,7 +379,7 @@ export const CreditNoteFormCalculation = ({
                       value:
                         Math.round(
                           (totalTaxIncluded || 0) * 100 -
-                            Number(invoice?.refundableAmountCents || 0)
+                            Number(invoice?.refundableAmountCents || 0),
                         ) / 100,
                     },
                   ])
@@ -406,9 +406,9 @@ export const CreditNoteFormCalculation = ({
                         deserializeAmount(invoice?.refundableAmountCents || 0, currency),
                         {
                           currency,
-                        }
+                        },
                       ),
-                    }
+                    },
                   ),
                 },
               ]}
@@ -513,9 +513,9 @@ export const CreditNoteFormCalculation = ({
                           deserializeAmount(invoice?.refundableAmountCents || 0, currency),
                           {
                             currency,
-                          }
+                          },
                         ),
-                      }
+                      },
                     ),
                   },
                 ]}
@@ -526,7 +526,7 @@ export const CreditNoteFormCalculation = ({
                     deserializeAmount(invoice?.refundableAmountCents || 0, currency),
                     {
                       currency,
-                    }
+                    },
                   ),
                 })}
                 placement="top-end"

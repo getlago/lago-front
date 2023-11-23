@@ -42,7 +42,7 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef, AddStripDialog>(
           setStripeApiKey('')
           addToast({
             message: translate(
-              isEdition ? 'text_62b1edddbf5f461ab97126f6' : 'text_62b1edddbf5f461ab9712743'
+              isEdition ? 'text_62b1edddbf5f461ab97126f6' : 'text_62b1edddbf5f461ab9712743',
             ),
             severity: 'success',
           })
@@ -54,10 +54,10 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef, AddStripDialog>(
       <Dialog
         ref={ref}
         title={translate(
-          isEdition ? 'text_62b1edddbf5f461ab971272d' : 'text_62b1edddbf5f461ab971272b'
+          isEdition ? 'text_62b1edddbf5f461ab971272d' : 'text_62b1edddbf5f461ab971272b',
         )}
         description={translate(
-          isEdition ? 'text_62b1edddbf5f461ab9712737' : 'text_62b1edddbf5f461ab9712739'
+          isEdition ? 'text_62b1edddbf5f461ab9712737' : 'text_62b1edddbf5f461ab9712739',
         )}
         onClose={() => {
           setStripeApiKey('')
@@ -86,7 +86,7 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef, AddStripDialog>(
               }}
             >
               {translate(
-                isEdition ? 'text_62b1edddbf5f461ab9712769' : 'text_62b1edddbf5f461ab9712773'
+                isEdition ? 'text_62b1edddbf5f461ab9712769' : 'text_62b1edddbf5f461ab9712773',
               )}
             </Button>
           </>
@@ -96,7 +96,7 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef, AddStripDialog>(
           <TextInput
             label={translate('text_62b1edddbf5f461ab9712748')}
             placeholder={translate(
-              isEdition ? 'text_62b1edddbf5f461ab9712754' : 'text_62b1edddbf5f461ab9712756'
+              isEdition ? 'text_62b1edddbf5f461ab9712754' : 'text_62b1edddbf5f461ab9712756',
             )}
             value={stripeApiKey}
             onChange={setStripeApiKey}
@@ -104,7 +104,7 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef, AddStripDialog>(
         </Content>
       </Dialog>
     )
-  }
+  },
 )
 
 const Content = styled.div`

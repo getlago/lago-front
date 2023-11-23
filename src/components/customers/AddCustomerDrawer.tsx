@@ -59,7 +59,7 @@ interface LocalCustomerMetadata extends CustomerMetadataInput {
 }
 
 const providerData: { value: ProviderTypeEnum; label: string }[] = Object.keys(
-  ProviderTypeEnum
+  ProviderTypeEnum,
 ).map((provider) => ({
   // @ts-ignore
   value: ProviderTypeEnum[provider],
@@ -100,8 +100,8 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
         providerPaymentMethods: customer?.providerCustomer?.providerPaymentMethods?.length
           ? customer?.providerCustomer?.providerPaymentMethods
           : customer?.currency !== CurrencyEnum.Eur
-          ? [ProviderPaymentMethodsEnum.Card]
-          : [ProviderPaymentMethodsEnum.Card, ProviderPaymentMethodsEnum.SepaDebit],
+            ? [ProviderPaymentMethodsEnum.Card]
+            : [ProviderPaymentMethodsEnum.Card, ProviderPaymentMethodsEnum.SepaDebit],
       },
       paymentProvider: customer?.paymentProvider ?? undefined,
       metadata: customer?.metadata ?? undefined,
@@ -119,7 +119,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
         ...values,
         metadata: ((metadata as LocalCustomerMetadata[]) || []).map(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          ({ localId, ...rest }) => rest
+          ({ localId, ...rest }) => rest,
         ),
       })
 
@@ -144,7 +144,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
         'providerCustomer.providerPaymentMethods',
         formikProps.values.currency !== CurrencyEnum.Eur
           ? [ProviderPaymentMethodsEnum.Card]
-          : [ProviderPaymentMethodsEnum.Card, ProviderPaymentMethodsEnum.SepaDebit]
+          : [ProviderPaymentMethodsEnum.Card, ProviderPaymentMethodsEnum.SepaDebit],
       )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -165,11 +165,11 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
         isEdition
           ? 'text_632b4acf0c41206cbcb8c2f6'
           : customer?.name
-          ? 'text_632b49e2620ea4c6d96c9650'
-          : 'text_632b49e2620ea4c6d96c9652',
+            ? 'text_632b49e2620ea4c6d96c9650'
+            : 'text_632b49e2620ea4c6d96c9652',
         {
           customerName: customer?.name || '',
-        }
+        },
       )}
       onClose={() => {
         formikProps.resetForm({
@@ -196,8 +196,8 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
               providerPaymentMethods: customer?.providerCustomer?.providerPaymentMethods?.length
                 ? customer?.providerCustomer?.providerPaymentMethods
                 : customer?.currency !== CurrencyEnum.Eur
-                ? [ProviderPaymentMethodsEnum.Card]
-                : [ProviderPaymentMethodsEnum.Card, ProviderPaymentMethodsEnum.SepaDebit],
+                  ? [ProviderPaymentMethodsEnum.Card]
+                  : [ProviderPaymentMethodsEnum.Card, ProviderPaymentMethodsEnum.SepaDebit],
             },
             paymentProvider: customer?.paymentProvider ?? undefined,
             metadata: customer?.metadata ?? undefined,
@@ -210,12 +210,12 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
         <DrawerTitle>
           <Typography variant="headline">
             {translate(
-              isEdition ? 'text_632b4acf0c41206cbcb8c2f8' : 'text_632b49e2620ea4c6d96c9652'
+              isEdition ? 'text_632b4acf0c41206cbcb8c2f8' : 'text_632b49e2620ea4c6d96c9652',
             )}
           </Typography>
           <Typography>
             {translate(
-              isEdition ? 'text_632b4acf0c41206cbcb8c2fa' : 'text_632b49e2620ea4c6d96c9654'
+              isEdition ? 'text_632b4acf0c41206cbcb8c2fa' : 'text_632b49e2620ea4c6d96c9654',
             )}
           </Typography>
         </DrawerTitle>
@@ -292,7 +292,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
               infoText={translate(
                 !customer?.canEditAttributes && isEdition
                   ? 'text_632c6e59b73f9a54d4c7223d'
-                  : 'text_632c6e59b73f9a54d4c7223f'
+                  : 'text_632c6e59b73f9a54d4c7223f',
               )}
               name="currency"
               data={Object.values(CurrencyEnum).map((currencyType) => ({
@@ -422,8 +422,8 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                       formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless
                         ? translate('text_635bdbda84c98758f9bba8aa')
                         : formikProps.values.paymentProvider === ProviderTypeEnum.Adyen
-                        ? translate('text_645d0728ea0a5a7bbf76d5c7')
-                        : translate('text_635bdbda84c98758f9bba89e')
+                          ? translate('text_645d0728ea0a5a7bbf76d5c7')
+                          : translate('text_635bdbda84c98758f9bba89e')
                     }
                     onChange={(e, checked) => {
                       setIsDisabled(checked)
@@ -447,14 +447,14 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                       name="providerCustomer.providerPaymentMethods.card"
                       value={
                         !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                          ProviderPaymentMethodsEnum.Card
+                          ProviderPaymentMethodsEnum.Card,
                         )
                       }
                       label={translate('text_64aeb7b998c4322918c84208')}
                       disabled={
                         formikProps.values.providerCustomer?.providerPaymentMethods?.length === 1 &&
                         formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                          ProviderPaymentMethodsEnum.Card
+                          ProviderPaymentMethodsEnum.Card,
                         )
                       }
                       onChange={(e, checked) => {
@@ -470,7 +470,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
 
                         formikProps.setFieldValue(
                           'providerCustomer.providerPaymentMethods',
-                          newValue
+                          newValue,
                         )
                       }}
                     />
@@ -478,7 +478,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                       name="providerCustomer.providerPaymentMethods.sepa_debit"
                       value={
                         !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                          ProviderPaymentMethodsEnum.SepaDebit
+                          ProviderPaymentMethodsEnum.SepaDebit,
                         )
                       }
                       label={translate('text_64aeb7b998c4322918c8420c')}
@@ -489,7 +489,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                       disabled={
                         formikProps.values.providerCustomer?.providerPaymentMethods?.length === 1 &&
                         formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                          ProviderPaymentMethodsEnum.SepaDebit
+                          ProviderPaymentMethodsEnum.SepaDebit,
                         )
                       }
                       onChange={(e, checked) => {
@@ -505,7 +505,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
 
                         formikProps.setFieldValue(
                           'providerCustomer.providerPaymentMethods',
-                          newValue
+                          newValue,
                         )
                       }}
                     />
@@ -561,10 +561,10 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                       `${number}`
                     > = _get(formikProps.errors, `metadata.${i}.value`)
                     const hasCustomKeyError = Object.keys(MetadataErrorsEnum).includes(
-                      metadataItemKeyError || ''
+                      metadataItemKeyError || '',
                     )
                     const hasCustomValueError = Object.keys(MetadataErrorsEnum).includes(
-                      metadataItemValueError || ''
+                      metadataItemValueError || '',
                     )
 
                     return (
@@ -575,8 +575,8 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                             metadataItemKeyError === MetadataErrorsEnum.uniqueness
                               ? translate('text_63fcc3218d35b9377840f5dd')
                               : metadataItemKeyError === MetadataErrorsEnum.maxLength
-                              ? translate('text_63fcc3218d35b9377840f5d9')
-                              : undefined
+                                ? translate('text_63fcc3218d35b9377840f5d9')
+                                : undefined
                           }
                           disableHoverListener={!hasCustomKeyError}
                         >
@@ -672,7 +672,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
             onClick={formikProps.submitForm}
           >
             {translate(
-              isEdition ? 'text_632b4acf0c41206cbcb8c30c' : 'text_632b49e2620ea4c6d96c9666'
+              isEdition ? 'text_632b4acf0c41206cbcb8c30c' : 'text_632b49e2620ea4c6d96c9666',
             )}
           </Button>
         </DrawerSubmitButton>

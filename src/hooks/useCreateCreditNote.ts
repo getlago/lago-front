@@ -116,7 +116,7 @@ type UseCreateCreditNoteReturn = {
   feesPerInvoice?: FeesPerInvoice
   feeForAddOn?: FromFee[]
   onCreate: (
-    value: CreditNoteForm
+    value: CreditNoteForm,
   ) => Promise<{ data?: { createCreditNote?: { id?: string } }; errors?: ApolloError }>
 }
 
@@ -147,7 +147,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
             customerId: customerId as string,
             invoiceId: invoiceId as string,
             tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-          })
+          }),
         )
       }
     },
@@ -201,7 +201,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
           if (!unorderedData.length || trueUpFeeIds?.length === 0) return unorderedData
 
           const feesWithoutTrueUpOnes = invoiceSubscription?.fees?.filter(
-            (fee) => !trueUpFeeIds?.includes(fee?.id)
+            (fee) => !trueUpFeeIds?.includes(fee?.id),
           )
           const newFees = []
 
@@ -212,7 +212,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
               newFees.push(currentFee)
             } else {
               const relatedTrueUpFee = unorderedData.find(
-                (fee) => fee.id === currentFee.trueUpFee?.id
+                (fee) => fee.id === currentFee.trueUpFee?.id,
               )
 
               newFees.push(currentFee)
@@ -304,13 +304,13 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
                 checked: true,
                 value: deserializeAmount(
                   feeGrouped?.creditableAmountCents,
-                  feeGrouped.amountCurrency
+                  feeGrouped.amountCurrency,
                 ),
                 name: !!feeGrouped?.groupName
                   ? feeGrouped?.groupName
                   : feeGrouped?.group?.key
-                  ? `${feeGrouped?.group?.key} • ${feeGrouped?.group?.value}`
-                  : (feeGrouped?.group?.value as string),
+                    ? `${feeGrouped?.group?.key} • ${feeGrouped?.group?.value}`
+                    : (feeGrouped?.group?.value as string),
                 maxAmount: feeGrouped?.creditableAmountCents,
                 appliedTaxes: feeGrouped?.appliedTaxes || [],
               },
@@ -338,7 +338,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
             }
           : subAcc
       },
-      {}
+      {},
     )
   }, [data?.invoice])
 
@@ -353,7 +353,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
           input: serializeCreditNoteInput(
             invoiceId as string,
             values,
-            data?.invoice?.currency || CurrencyEnum.Usd
+            data?.invoice?.currency || CurrencyEnum.Usd,
           ),
         },
       })

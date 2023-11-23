@@ -67,7 +67,7 @@ export const DeleteCustomerDialog = forwardRef<DialogRef, DeleteCustomerDialogPr
         continueText={translate('text_626162c62f790600f850b712')}
       />
     )
-  }
+  },
 )
 
 DeleteCustomerDialog.displayName = 'DeleteCustomerDialog'

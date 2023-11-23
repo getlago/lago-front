@@ -3,21 +3,21 @@ import { lazyLoad } from './utils'
 
 // ----------- Layouts -----------
 const Developers = lazyLoad(
-  () => import(/* webpackChunkName: 'developers-layout' */ '~/layouts/Developers')
+  () => import(/* webpackChunkName: 'developers-layout' */ '~/layouts/Developers'),
 )
 // ----------- Pages -----------
 
 const ApiKeys = lazyLoad(
-  () => import(/* webpackChunkName: 'api-keys' */ '~/pages/developers/ApiKeys')
+  () => import(/* webpackChunkName: 'api-keys' */ '~/pages/developers/ApiKeys'),
 )
 const Webhooks = lazyLoad(
-  () => import(/* webpackChunkName: 'webhook' */ '~/pages/developers/Webhooks')
+  () => import(/* webpackChunkName: 'webhook' */ '~/pages/developers/Webhooks'),
 )
 const WebhookLogs = lazyLoad(
-  () => import(/* webpackChunkName: 'webhook-logs' */ '~/pages/developers/WebhookLogs')
+  () => import(/* webpackChunkName: 'webhook-logs' */ '~/pages/developers/WebhookLogs'),
 )
 const Debugger = lazyLoad(
-  () => import(/* webpackChunkName: 'debugger' */ '~/pages/developers/Debugger')
+  () => import(/* webpackChunkName: 'debugger' */ '~/pages/developers/Debugger'),
 )
 
 // ----------- Routes -----------

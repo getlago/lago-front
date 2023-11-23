@@ -31,7 +31,7 @@ const initial = {
 }
 
 export const duplicatePlanVar = makeVar<DuplicatePlanVar>(
-  getItemFromLS(DUPLICATE_PLAN_LS_KEY) || initial
+  getItemFromLS(DUPLICATE_PLAN_LS_KEY) || initial,
 )
 
 export const updateDuplicatePlanVar = (input: DuplicatePlanVar) => {

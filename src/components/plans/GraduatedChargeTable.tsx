@@ -91,7 +91,7 @@ export const GraduatedChargeTable = memo(
                 content: (_, i) => (
                   <DisabledCell variant="captionHl">
                     {translate(
-                      i === 0 ? 'text_62793bbb599f1c01522e91c0' : 'text_62793bbb599f1c01522e91fc'
+                      i === 0 ? 'text_62793bbb599f1c01522e91c0' : 'text_62793bbb599f1c01522e91fc',
                     )}
                   </DisabledCell>
                 ),
@@ -303,7 +303,7 @@ export const GraduatedChargeTable = memo(
         </Alert>
       </Container>
     )
-  }
+  },
 )
 
 GraduatedChargeTable.displayName = 'GraduatedChargeTable'

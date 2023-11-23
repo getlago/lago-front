@@ -3,28 +3,28 @@ import { lazyLoad } from './utils'
 
 // ----------- Pages -----------
 const CustomersList = lazyLoad(
-  () => import(/* webpackChunkName: 'customers-list' */ '~/pages/CustomersList')
+  () => import(/* webpackChunkName: 'customers-list' */ '~/pages/CustomersList'),
 )
 const CustomerDetails = lazyLoad(
-  () => import(/* webpackChunkName: 'customer-details' */ '~/pages/CustomerDetails')
+  () => import(/* webpackChunkName: 'customer-details' */ '~/pages/CustomerDetails'),
 )
 const CustomerDraftInvoicesList = lazyLoad(
   () =>
     import(
       /* webpackChunkName: 'customer-draft-invoice-list' */ '~/pages/CustomerDraftInvoicesList'
-    )
+    ),
 )
 const CustomerInvoiceDetails = lazyLoad(
   () =>
-    import(/* webpackChunkName: 'customer-invoice-details' */ '~/layouts/CustomerInvoiceDetails')
+    import(/* webpackChunkName: 'customer-invoice-details' */ '~/layouts/CustomerInvoiceDetails'),
 )
 
 // Credit note related
 const CreateCreditNote = lazyLoad(
-  () => import(/* webpackChunkName: 'create-credit-note' */ '~/pages/CreateCreditNote')
+  () => import(/* webpackChunkName: 'create-credit-note' */ '~/pages/CreateCreditNote'),
 )
 const CreditNoteDetails = lazyLoad(
-  () => import(/* webpackChunkName: 'credit-note-details' */ '~/pages/CreditNoteDetails')
+  () => import(/* webpackChunkName: 'credit-note-details' */ '~/pages/CreditNoteDetails'),
 )
 
 // ----------- Routes -----------

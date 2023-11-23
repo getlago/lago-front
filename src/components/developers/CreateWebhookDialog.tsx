@@ -54,7 +54,7 @@ export const CreateWebhookDialog = forwardRef<CreateWebhookDialogRef>((_, ref) =
   const navigate = useNavigate()
   const [mutationError, setMutationError] = useState<string | undefined>(undefined)
   const [localWebhook, setLocalWebhook] = useState<WebhookForCreateAndEditFragment | undefined>(
-    undefined
+    undefined,
   )
   const [isEdit, setIsEdit] = useState<boolean>(false)
   const [createWebhook] = useCreateWebhookEndpointMutation({
@@ -107,7 +107,7 @@ export const CreateWebhookDialog = forwardRef<CreateWebhookDialogRef>((_, ref) =
       } else if (!errors) {
         addToast({
           message: translate(
-            isEdit ? 'text_64d23b49d481ab00681c22ab' : 'text_6271200984178801ba8bdf7f'
+            isEdit ? 'text_64d23b49d481ab00681c22ab' : 'text_6271200984178801ba8bdf7f',
           ),
           severity: 'success',
         })
@@ -117,7 +117,7 @@ export const CreateWebhookDialog = forwardRef<CreateWebhookDialogRef>((_, ref) =
             generatePath(WEBHOOK_LOGS_ROUTE, {
               webhookId: (res?.data as CreateWebhookEndpointMutation)?.createWebhookEndpoint
                 ?.id as string,
-            })
+            }),
           )
         }
         dialogRef.current?.closeDialog()
@@ -140,7 +140,7 @@ export const CreateWebhookDialog = forwardRef<CreateWebhookDialogRef>((_, ref) =
       ref={dialogRef}
       title={translate(isEdit ? 'text_64d23a81a7d807f8aa570509' : 'text_6271200984178801ba8bdec0')}
       description={translate(
-        isEdit ? 'text_64d23a81a7d807f8aa57050b' : 'text_6271200984178801ba8bdee6'
+        isEdit ? 'text_64d23a81a7d807f8aa57050b' : 'text_6271200984178801ba8bdee6',
       )}
       onClose={() => {
         !!mutationError && setMutationError(undefined)

@@ -67,7 +67,7 @@ export const onLogIn = (token: string, user: CurrentUserFragment) => {
 
 export const switchCurrentOrganization = async (
   client: ApolloClient<object>,
-  organizationId: string
+  organizationId: string,
 ) => {
   setItemFromLS(ORGANIZATION_LS_KEY_ID, organizationId)
 

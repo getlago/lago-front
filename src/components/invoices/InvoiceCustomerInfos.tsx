@@ -207,7 +207,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
               {formatDateToTZ(
                 invoice?.issuingDate,
                 customer?.applicableTimezone,
-                "LLL. dd, yyyy U'T'CZ"
+                "LLL. dd, yyyy U'T'CZ",
               )}
             </Typography>
           </InfoLine>
@@ -221,7 +221,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
               {formatDateToTZ(
                 invoice?.paymentDueDate,
                 customer?.applicableTimezone,
-                "LLL. dd, yyyy U'T'CZ"
+                "LLL. dd, yyyy U'T'CZ",
               )}
             </Typography>
           </InfoLine>

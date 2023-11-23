@@ -58,7 +58,7 @@ const PlanDetailsChargesSectionAccordion = ({
         {!!charge?.groupProperties?.length &&
           charge?.groupProperties?.map((group, i) => {
             const associatedFlagGroup = charge?.billableMetric?.flatGroups?.find(
-              (flatGroup) => flatGroup.id === group.groupId
+              (flatGroup) => flatGroup.id === group.groupId,
             )
 
             const groupKey = associatedFlagGroup?.key

@@ -107,12 +107,12 @@ export const ChargesSection = memo(
     const hasAnyMeteredCharge = useMemo(
       () => formikProps.values.charges.some((c) => !c.billableMetric.recurring),
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [formikProps.values.charges.length]
+      [formikProps.values.charges.length],
     )
     const hasAnyRecurringCharge = useMemo(
       () => formikProps.values.charges.some((c) => !!c.billableMetric.recurring),
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [formikProps.values.charges.length]
+      [formikProps.values.charges.length],
     )
     const [
       getMeteredBillableMetrics,
@@ -237,7 +237,7 @@ export const ChargesSection = memo(
 
                         setTimeout(() => {
                           const element = document.querySelector(
-                            `.${SEARCH_METERED_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                            `.${SEARCH_METERED_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
                           ) as HTMLElement
 
                           if (!element) return
@@ -259,7 +259,7 @@ export const ChargesSection = memo(
 
                         setTimeout(() => {
                           const element = document.querySelector(
-                            `.${SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                            `.${SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
                           ) as HTMLElement
 
                           if (!element) return
@@ -309,7 +309,7 @@ export const ChargesSection = memo(
 
                 const id = getNewChargeId(charge.billableMetric.id, i)
                 const isNew = !alreadyExistingCharges?.find(
-                  (chargeFetched) => chargeFetched?.id === charge.id
+                  (chargeFetched) => chargeFetched?.id === charge.id,
                 )
                 const shouldDisplayAlreadyUsedChargeAlert =
                   (alreadyUsedBmsIds.current.get(charge.billableMetric.id) || 0) > 1
@@ -349,10 +349,10 @@ export const ChargesSection = memo(
                   const newId = getNewChargeId(newCharge, previousCharges.length)
                   const localBillableMetrics =
                     meteredBillableMetricsData?.billableMetrics?.collection.find(
-                      (bm) => bm.id === newCharge
+                      (bm) => bm.id === newCharge,
                     )
                   const lastMeteredIndex = previousCharges.findLastIndex(
-                    (c) => c.billableMetric.recurring === false
+                    (c) => c.billableMetric.recurring === false,
                   )
                   const newChargeIndex = lastMeteredIndex < 0 ? 0 : lastMeteredIndex + 1
 
@@ -395,7 +395,7 @@ export const ChargesSection = memo(
                     setTimeout(() => {
                       ;(
                         document.querySelector(
-                          `.${SEARCH_METERED_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                          `.${SEARCH_METERED_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
                         ) as HTMLElement
                       )?.click()
                     }, 0)
@@ -414,7 +414,7 @@ export const ChargesSection = memo(
                     setTimeout(() => {
                       ;(
                         document.querySelector(
-                          `.${SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                          `.${SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
                         ) as HTMLElement
                       )?.click()
                     }, 0)
@@ -448,7 +448,7 @@ export const ChargesSection = memo(
 
                 const id = getNewChargeId(charge.billableMetric.id, i)
                 const isNew = !alreadyExistingCharges?.find(
-                  (chargeFetched) => chargeFetched?.id === charge.id
+                  (chargeFetched) => chargeFetched?.id === charge.id,
                 )
                 const shouldDisplayAlreadyUsedChargeAlert =
                   (alreadyUsedBmsIds.current.get(charge.billableMetric.id) || 0) > 1
@@ -488,7 +488,7 @@ export const ChargesSection = memo(
                   const newId = getNewChargeId(newCharge, previousCharges.length)
                   const localBillableMetrics =
                     recurringBillableMetricsData?.billableMetrics?.collection.find(
-                      (bm) => bm.id === newCharge
+                      (bm) => bm.id === newCharge,
                     )
 
                   formikProps.setFieldValue('charges', [
@@ -531,7 +531,7 @@ export const ChargesSection = memo(
                     setTimeout(() => {
                       ;(
                         document.querySelector(
-                          `.${SEARCH_METERED_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                          `.${SEARCH_METERED_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
                         ) as HTMLElement
                       )?.click()
                     }, 0)
@@ -550,7 +550,7 @@ export const ChargesSection = memo(
                     setTimeout(() => {
                       ;(
                         document.querySelector(
-                          `.${SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                          `.${SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
                         ) as HTMLElement
                       )?.click()
                     }, 0)
@@ -585,7 +585,7 @@ export const ChargesSection = memo(
       oldProps.formikProps.errors === newProps.formikProps.errors &&
       oldProps.formikProps.initialValues === newProps.formikProps.initialValues
     )
-  }
+  },
 )
 
 ChargesSection.displayName = 'ChargesSection'

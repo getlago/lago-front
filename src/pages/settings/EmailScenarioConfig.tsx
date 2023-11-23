@@ -391,12 +391,12 @@ const EmailScenarioConfig = () => {
                       <InfoLine>
                         <Typography variant="caption">
                           {translateWithContextualLocal(
-                            translationsKey.credit_note_number as string
+                            translationsKey.credit_note_number as string,
                           )}
                         </Typography>
                         <Typography variant="caption" color="grey700">
                           {translateWithContextualLocal(
-                            translationsKey.credit_note_number_value as string
+                            translationsKey.credit_note_number_value as string,
                           )}
                         </Typography>
                       </InfoLine>

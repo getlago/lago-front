@@ -87,7 +87,7 @@ export const ChargePercentage = memo(
         // @ts-ignore
         chargeErrors[chargeIndex]?.groupProperties?.find(
           // @ts-ignore
-          (e) => e?.values?.perTransactionMinAmount
+          (e) => e?.values?.perTransactionMinAmount,
         )) === MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR
 
     const handleUpdate = useCallback(
@@ -95,7 +95,7 @@ export const ChargePercentage = memo(
         formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [chargeIndex]
+      [chargeIndex],
     )
 
     if (!showFreeUnitsPerEvents && showFreeUnitsPerTotalAggregation) {
@@ -265,7 +265,7 @@ export const ChargePercentage = memo(
                       currency,
                       currencyDisplay: 'symbol',
                       minimumFractionDigits: 2,
-                    }
+                    },
                   ),
                 })
               }
@@ -496,7 +496,7 @@ export const ChargePercentage = memo(
                   {
                     freeEventUnits: valuePointer?.freeUnitsPerEvents || 0,
                   },
-                  Math.max(Number(valuePointer?.freeUnitsPerEvents) || 0)
+                  Math.max(Number(valuePointer?.freeUnitsPerEvents) || 0),
                 )}
 
               {/* Spaces bellow are important */}
@@ -513,7 +513,7 @@ export const ChargePercentage = memo(
                 },
                 (valuePointer?.freeUnitsPerEvents || 0) < 2 && !showFreeUnitsPerTotalAggregation
                   ? 1
-                  : 2
+                  : 2,
               )}`}
             </Typography>
           )}
@@ -570,7 +570,7 @@ export const ChargePercentage = memo(
         </Alert>
       </Container>
     )
-  }
+  },
 )
 
 ChargePercentage.displayName = 'ChargePercentage'

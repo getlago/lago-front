@@ -33,7 +33,7 @@ interface ChargeWrapperSwitchProps {
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
   handleUpdate: (
     name: string,
-    value: string | boolean | TaxForPlanChargeAccordionFragment[]
+    value: string | boolean | TaxForPlanChargeAccordionFragment[],
   ) => void
 }
 
@@ -122,7 +122,7 @@ export const ChargeWrapperSwitch = memo(
         )}
       </MargedWrapper>
     )
-  }
+  },
 )
 
 ChargeWrapperSwitch.displayName = 'ChargeWrapperSwitch'

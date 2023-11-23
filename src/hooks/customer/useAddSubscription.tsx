@@ -55,7 +55,7 @@ type UseAddSubscriptionReturn = {
     customerId: string,
     values: Omit<CreateSubscriptionInput, 'customerId'>,
     planValues: PlanFormInput,
-    hasPlanBeingChangedFromInitial: boolean
+    hasPlanBeingChangedFromInitial: boolean,
   ) => Promise<string | undefined>
 }
 
@@ -115,7 +115,7 @@ export const useAddSubscription: UseAddSubscription = ({
         navigate(
           generatePath(CUSTOMER_DETAILS_ROUTE, {
             customerId: res.createSubscription.customer.id as string,
-          })
+          }),
         )
       }
     },
@@ -153,7 +153,7 @@ export const useAddSubscription: UseAddSubscription = ({
           message: translate(
             formType === FORM_TYPE_ENUM.upgradeDowngrade
               ? 'text_65118a52df984447c18695f9'
-              : 'text_65118a52df984447c186962e'
+              : 'text_65118a52df984447c186962e',
           ),
           severity: 'success',
         })
@@ -162,7 +162,7 @@ export const useAddSubscription: UseAddSubscription = ({
       navigate(
         generatePath(CUSTOMER_DETAILS_ROUTE, {
           customerId: res?.updateSubscription?.customer.id as string,
-        })
+        }),
       )
     },
     refetchQueries: ['getCustomerSubscriptionForList'],
@@ -187,7 +187,7 @@ export const useAddSubscription: UseAddSubscription = ({
         ...values
       },
       { ...planValues },
-      hasPlanBeingChangedFromInitial
+      hasPlanBeingChangedFromInitial,
     ) => {
       const serializedPlanValues = serializePlanInput(planValues)
       const { errors } =
@@ -229,7 +229,9 @@ export const useAddSubscription: UseAddSubscription = ({
                   ...values,
                   id: existingSubscription?.id as string,
                   subscriptionAt: !!existingSubscription?.startedAt
-                    ? DateTime.fromISO(existingSubscription?.startedAt).toUTC().toISO()
+                    ? DateTime.fromISO(existingSubscription?.startedAt)
+                        .toUTC()
+                        .toISO()
                     : undefined,
                   endingAt: !!subEndDate ? DateTime.fromISO(subEndDate).toUTC().toISO() : null,
                   name: name || undefined,

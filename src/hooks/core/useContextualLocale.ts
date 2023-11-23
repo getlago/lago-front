@@ -33,7 +33,7 @@ export const useContextualLocale: UseContextualLocale = (locale) => {
       (key, data, plural = 0) => {
         return translateKey({ translations, locale, appEnv }, key, data, plural)
       },
-      [translations, locale]
+      [translations, locale],
     ),
   }
 }

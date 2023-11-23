@@ -26,7 +26,7 @@ export const TextInputField = memo(
         displayErrorText = true,
         ...props
       }: TextInputFieldProps,
-      ref
+      ref,
     ) => {
       const { values, errors, touched, handleBlur, setFieldValue } = formikProps
 
@@ -51,11 +51,11 @@ export const TextInputField = memo(
           {...props}
         />
       )
-    }
+    },
   ),
   (
     { formikProps: prevFormikProps, name: prevName, ...prev },
-    { formikProps: nextformikProps, name: nextName, ...next }
+    { formikProps: nextformikProps, name: nextName, ...next },
   ) => {
     return (
       _isEqual(prev, next) &&
@@ -64,7 +64,7 @@ export const TextInputField = memo(
       _get(prevFormikProps.errors, prevName) === _get(nextformikProps.errors, nextName) &&
       _get(prevFormikProps.touched, prevName) === _get(nextformikProps.touched, nextName)
     )
-  }
+  },
 )
 
 TextInputField.displayName = 'TextInputField'

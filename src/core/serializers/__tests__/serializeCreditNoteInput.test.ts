@@ -44,7 +44,7 @@ describe('serializeCreditNoteInput()', () => {
             },
           ],
         },
-        CurrencyEnum.Eur
+        CurrencyEnum.Eur,
       )
 
       expect(plan).toStrictEqual({
@@ -198,7 +198,7 @@ describe('serializeCreditNoteInput()', () => {
             },
           ],
         },
-        CurrencyEnum.Eur
+        CurrencyEnum.Eur,
       )
 
       expect(plan).toStrictEqual({

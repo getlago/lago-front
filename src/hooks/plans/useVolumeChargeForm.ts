@@ -76,7 +76,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
             disabledDelete: [0].includes(i) || !!disabled,
           }
         }),
-      [volumeRanges, disabled]
+      [volumeRanges, disabled],
     ),
     infosCalculation: useMemo(() => {
       const lastRow = volumeRanges[volumeRanges.length - 1]
@@ -118,14 +118,14 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
 
       formikProps.setFieldValue(
         `charges.${chargeIndex}.${propertyCursor}.volumeRanges`,
-        newVolumeRanges
+        newVolumeRanges,
       )
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       if (fieldName !== 'toValue') {
         formikProps.setFieldValue(
           `${formikIdentifier}.${rangeIndex}.${fieldName}`,
-          value !== '' ? Number(value) : value
+          value !== '' ? Number(value) : value,
         )
       } else {
         const newVolumeRanges = volumeRanges.reduce<VolumeRangeInput[]>((acc, range, i) => {
@@ -143,8 +143,8 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
                 range.toValue === null
                   ? null
                   : Number(range.toValue || 0) <= Number(fromValue)
-                  ? String(Number(fromValue) + 1)
-                  : String(range.toValue || 0),
+                    ? String(Number(fromValue) + 1)
+                    : String(range.toValue || 0),
             })
           } else {
             acc.push(range)

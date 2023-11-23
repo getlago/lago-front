@@ -75,7 +75,7 @@ gql`
 type UseCreateEditCustomer = (props: { customer?: AddCustomerDrawerFragment | null }) => {
   isEdition: boolean
   onSave: (
-    values: CreateCustomerInput | UpdateCustomerInput
+    values: CreateCustomerInput | UpdateCustomerInput,
   ) => Promise<
     | FetchResult<UpdateCustomerMutation, Record<string, unknown>, Record<string, unknown>>
     | FetchResult<CreateCustomerMutation, Record<string, unknown>, Record<string, unknown>>

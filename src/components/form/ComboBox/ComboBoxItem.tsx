@@ -46,7 +46,7 @@ export const ComboBoxItem = ({
             {
               'combo-box-item--disabled': disabled,
             },
-            className
+            className,
           )}
           data-test={value}
           key={value}

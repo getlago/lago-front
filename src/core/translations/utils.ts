@@ -3,7 +3,7 @@ import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { DittoTranslation, Locale, TranslateData, Translations } from './types'
 
 export const getTranslations: (locale: Locale) => Promise<Record<string, string>> = async (
-  locale
+  locale,
 ) => {
   let loadedDittoTranslation: DittoTranslation
 
@@ -45,7 +45,7 @@ export const translateKey: (
   },
   key: string,
   data?: TranslateData,
-  plural?: number
+  plural?: number,
 ) => string = ({ translations, locale, appEnv }, key, data, plural = 0) => {
   if (!translations || Object.keys(translations).length === 0) {
     return ''

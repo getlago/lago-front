@@ -89,8 +89,8 @@ export const usePlanForm: ({
   const type = !!id
     ? FORM_TYPE_ENUM.edition
     : isDuplicate
-    ? FORM_TYPE_ENUM.duplicate
-    : FORM_TYPE_ENUM.creation
+      ? FORM_TYPE_ENUM.duplicate
+      : FORM_TYPE_ENUM.creation
 
   const isEdition = type === FORM_TYPE_ENUM.edition
   const plan = data?.plan
@@ -154,7 +154,7 @@ export const usePlanForm: ({
               minAmountCents: isNaN(minAmountCents)
                 ? undefined
                 : String(
-                    deserializeAmount(minAmountCents || 0, plan.amountCurrency || CurrencyEnum.Usd)
+                    deserializeAmount(minAmountCents || 0, plan.amountCurrency || CurrencyEnum.Usd),
                   ),
               payInAdvance: payInAdvance || false,
               properties: properties ? getPropertyShape(properties) : undefined,
@@ -168,7 +168,7 @@ export const usePlanForm: ({
                   })
                 : [],
               ...charge,
-            })
+            }),
           )
         : ([] as LocalChargeInput[]),
     },
@@ -206,7 +206,7 @@ export const usePlanForm: ({
           generatePath(PLAN_DETAILS_ROUTE, {
             planId: createPlan.id,
             tab: PlanDetailsTabsOptionsEnum.overview,
-          })
+          }),
         )
       }
     },
@@ -223,7 +223,7 @@ export const usePlanForm: ({
           generatePath(PLAN_DETAILS_ROUTE, {
             planId: updatePlan.id,
             tab: PlanDetailsTabsOptionsEnum.overview,
-          })
+          }),
         )
       }
     },
@@ -290,6 +290,6 @@ export const usePlanForm: ({
       type,
       plan,
     }),
-    [errorCode, formikProps, isEdition, loading, type, plan]
+    [errorCode, formikProps, isEdition, loading, type, plan],
   )
 }

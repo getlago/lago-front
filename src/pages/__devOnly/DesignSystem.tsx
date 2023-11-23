@@ -732,8 +732,8 @@ const DesignSystem = () => {
                         formikProps.values.checkboxCond1 && formikProps.values.checkboxCond2
                           ? true
                           : !formikProps.values.checkboxCond1 && !formikProps.values.checkboxCond2
-                          ? false
-                          : undefined
+                            ? false
+                            : undefined
                       }
                       onChange={(e, value) => {
                         if (value) {
@@ -759,8 +759,8 @@ const DesignSystem = () => {
                         formikProps.values.checkboxCond1 && formikProps.values.checkboxCond2
                           ? true
                           : !formikProps.values.checkboxCond1 && !formikProps.values.checkboxCond2
-                          ? false
-                          : undefined
+                            ? false
+                            : undefined
                       }
                       onChange={(e, value) => {
                         if (value) {

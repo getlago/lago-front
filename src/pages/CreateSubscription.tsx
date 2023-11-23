@@ -202,7 +202,7 @@ const CreateSubscription = () => {
         customerId as string,
         localValues,
         planFormikProps.values,
-        planFormikProps.dirty
+        planFormikProps.dirty,
       )
 
       if (errorsString === 'CurrenciesDoesNotMatch') {
@@ -225,7 +225,7 @@ const CreateSubscription = () => {
   const [shouldDisplaySubscriptionExternalId, setShouldDisplaySubscriptionExternalId] =
     useState<boolean>(!!subscriptionFormikProps.initialValues.externalId)
   const [shouldDisplaySubscriptionName, setShouldDisplaySubscriptionName] = useState<boolean>(
-    !!subscriptionFormikProps.initialValues.name
+    !!subscriptionFormikProps.initialValues.name,
   )
 
   useEffect(() => {
@@ -316,8 +316,8 @@ const CreateSubscription = () => {
         return billingTime === BillingTimeEnum.Calendar
           ? translate('text_62ea7cd44cd4b14bb9ac1d92')
           : formattedCurrentDate === february29
-          ? translate('text_62ea7cd44cd4b14bb9ac1d9a')
-          : translate('text_62ea7cd44cd4b14bb9ac1d96', { date: currentDate.toFormat('LLL. dd') })
+            ? translate('text_62ea7cd44cd4b14bb9ac1d9a')
+            : translate('text_62ea7cd44cd4b14bb9ac1d96', { date: currentDate.toFormat('LLL. dd') })
 
       case PlanInterval.Quarterly:
         if (billingTime === BillingTimeEnum.Calendar)
@@ -365,8 +365,8 @@ const CreateSubscription = () => {
           {formType === FORM_TYPE_ENUM.creation
             ? translate('text_65118a52df984447c1869463')
             : formType === FORM_TYPE_ENUM.edition
-            ? translate('text_62d7f6178ec94cd09370e63c')
-            : translate('text_65118a52df984447c18694c6')}
+              ? translate('text_62d7f6178ec94cd09370e63c')
+              : translate('text_65118a52df984447c18694c6')}
         </Typography>
       </Button>
     )
@@ -616,10 +616,10 @@ const CreateSubscription = () => {
                               selectedPlan?.interval === PlanInterval.Yearly
                                 ? translate('text_62ebd597d5d5130a03ced107')
                                 : selectedPlan?.interval === PlanInterval.Weekly
-                                ? translate('text_62ebd597d5d5130a03ced101')
-                                : selectedPlan?.interval === PlanInterval.Quarterly
-                                ? translate('text_64d6357b00dea100ad1cba27')
-                                : translate('text_62ea7cd44cd4b14bb9ac1db9'),
+                                  ? translate('text_62ebd597d5d5130a03ced101')
+                                  : selectedPlan?.interval === PlanInterval.Quarterly
+                                    ? translate('text_64d6357b00dea100ad1cba27')
+                                    : translate('text_62ea7cd44cd4b14bb9ac1db9'),
                             value: BillingTimeEnum.Calendar,
                           },
                           {

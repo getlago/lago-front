@@ -127,7 +127,7 @@ describe('useVolumeChargeForm()', () => {
           volumeRanges.map((row, i) => ({
             ...row,
             disabledDelete: [0].includes(i),
-          }))
+          })),
         )
       })
 
@@ -162,7 +162,7 @@ describe('useVolumeChargeForm()', () => {
           volumeRanges.map((row) => ({
             ...row,
             disabledDelete: true,
-          }))
+          })),
         )
       })
     })
@@ -403,7 +403,7 @@ describe('useVolumeChargeForm()', () => {
           volumeRanges.map((row, i) => ({
             ...row,
             disabledDelete: [0].includes(i),
-          }))
+          })),
         )
       })
 
@@ -438,7 +438,7 @@ describe('useVolumeChargeForm()', () => {
           volumeRanges.map((row) => ({
             ...row,
             disabledDelete: true,
-          }))
+          })),
         )
       })
     })

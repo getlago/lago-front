@@ -36,7 +36,7 @@ export const DebugInfoDialog = forwardRef<DialogRef>(({}, ref) => {
                   (!!currentUser?.id
                     ? `
 **User Id :** ${currentUser?.id}`
-                    : '')
+                    : ''),
               )
 
               addToast({

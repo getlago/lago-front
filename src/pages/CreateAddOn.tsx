@@ -81,8 +81,8 @@ const CreateAddOn = () => {
         ? String(
             deserializeAmount(
               addOn?.amountCents,
-              addOn?.amountCurrency || organization?.defaultCurrency
-            )
+              addOn?.amountCurrency || organization?.defaultCurrency,
+            ),
           )
         : addOn?.amountCents || undefined,
       amountCurrency: addOn?.amountCurrency || organization?.defaultCurrency || CurrencyEnum.Usd,
@@ -131,7 +131,7 @@ const CreateAddOn = () => {
 
   const [shouldDisplayTaxesInput, setShouldDisplayTaxesInput] = useState<boolean>(false)
   const [shouldDisplayDescription, setShouldDisplayDescription] = useState<boolean>(
-    !!formikProps.initialValues.description
+    !!formikProps.initialValues.description,
   )
 
   useEffect(() => {
@@ -208,12 +208,12 @@ const CreateAddOn = () => {
                 <div>
                   <Title variant="headline">
                     {translate(
-                      isEdition ? 'text_629728388c4d2300e2d38041' : 'text_629728388c4d2300e2d3803d'
+                      isEdition ? 'text_629728388c4d2300e2d38041' : 'text_629728388c4d2300e2d3803d',
                     )}
                   </Title>
                   <Subtitle>
                     {translate(
-                      isEdition ? 'text_629728388c4d2300e2d38065' : 'text_629728388c4d2300e2d38061'
+                      isEdition ? 'text_629728388c4d2300e2d38065' : 'text_629728388c4d2300e2d38061',
                     )}
                   </Subtitle>
                 </div>
@@ -344,7 +344,7 @@ const CreateAddOn = () => {
                           onChange={(newTaxId) => {
                             const previousTaxes = [...(formikProps?.values?.taxes || [])]
                             const newTaxObject = taxesData?.taxes?.collection?.find(
-                              (t) => t.id === newTaxId
+                              (t) => t.id === newTaxId,
                             )
 
                             formikProps.setFieldValue('taxes', [...previousTaxes, newTaxObject])
@@ -375,7 +375,7 @@ const CreateAddOn = () => {
 
                         setTimeout(() => {
                           const element = document.querySelector(
-                            `.${SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                            `.${SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
                           ) as HTMLElement
 
                           if (!element) return
@@ -400,7 +400,7 @@ const CreateAddOn = () => {
                     data-test="submit"
                   >
                     {translate(
-                      isEdition ? 'text_629728388c4d2300e2d38170' : 'text_629728388c4d2300e2d38179'
+                      isEdition ? 'text_629728388c4d2300e2d38170' : 'text_629728388c4d2300e2d38179',
                     )}
                   </Button>
                 </ButtonContainer>
@@ -416,13 +416,13 @@ const CreateAddOn = () => {
       <WarningDialog
         ref={warningDialogRef}
         title={translate(
-          isEdition ? 'text_629728388c4d2300e2d37fe0' : 'text_629728388c4d2300e2d37fda'
+          isEdition ? 'text_629728388c4d2300e2d37fe0' : 'text_629728388c4d2300e2d37fda',
         )}
         description={translate(
-          isEdition ? 'text_629728388c4d2300e2d37ffa' : 'text_629728388c4d2300e2d37ff4'
+          isEdition ? 'text_629728388c4d2300e2d37ffa' : 'text_629728388c4d2300e2d37ff4',
         )}
         continueText={translate(
-          isEdition ? 'text_629728388c4d2300e2d3802d' : 'text_629728388c4d2300e2d38027'
+          isEdition ? 'text_629728388c4d2300e2d3802d' : 'text_629728388c4d2300e2d38027',
         )}
         onContinue={() => navigate(ADD_ONS_ROUTE)}
       />

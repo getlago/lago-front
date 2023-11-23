@@ -25,11 +25,11 @@ const Analytics = () => {
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
   const [periodScope, setPeriodScope] = useState<TPeriodScopeTranslationLookupValue>(
-    AnalyticsPeriodScopeEnum.Year
+    AnalyticsPeriodScopeEnum.Year,
   )
   const [currencySearch, setCurrencySearch] = useState<string>('')
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyEnum | undefined>(
-    organization?.defaultCurrency || CurrencyEnum.Usd
+    organization?.defaultCurrency || CurrencyEnum.Usd,
   )
 
   useEffect(() => {
@@ -40,7 +40,7 @@ const Analytics = () => {
 
   const currenciesToDisplay = useMemo(() => {
     return Object.values(CurrencyEnum).filter((c) =>
-      c.toLowerCase().includes(currencySearch.toLowerCase())
+      c.toLowerCase().includes(currencySearch.toLowerCase()),
     )
   }, [currencySearch])
 
@@ -62,7 +62,7 @@ const Analytics = () => {
                   } else {
                     setTimeout(() => {
                       const currencyButton = document.querySelector(
-                        `[data-analytics-currency="${selectedCurrency}"]`
+                        `[data-analytics-currency="${selectedCurrency}"]`,
                       )
 
                       if (currencyButton) {

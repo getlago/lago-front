@@ -239,7 +239,7 @@ const CreditNoteDetails = () => {
                   : generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                       customerId: customerId as string,
                       tab: CustomerDetailsTabsOptions.creditNotes,
-                    })
+                    }),
               )
             }
           />
@@ -343,7 +343,7 @@ const CreditNoteDetails = () => {
                     label={translate(status.label, {
                       date: formatDateToTZ(
                         creditNote?.refundedAt,
-                        creditNote?.customer.applicableTimezone
+                        creditNote?.customer.applicableTimezone,
                       ),
                     })}
                   />
@@ -355,12 +355,12 @@ const CreditNoteDetails = () => {
                         amount: intlFormatNumber(
                           deserializeAmount(
                             creditNote?.totalAmountCents || 0,
-                            creditNote?.currency || CurrencyEnum.Usd
+                            creditNote?.currency || CurrencyEnum.Usd,
                           ),
                           {
                             currencyDisplay: 'symbol',
                             currency: creditNote?.currency || CurrencyEnum.Usd,
-                          }
+                          },
                         ),
                       })}
                     </span>
@@ -455,7 +455,7 @@ const CreditNoteDetails = () => {
                       <Typography variant="body" color="grey700">
                         {formatDateToTZ(
                           creditNote?.createdAt,
-                          creditNote?.customer.applicableTimezone
+                          creditNote?.customer.applicableTimezone,
                         )}
                       </Typography>
                     </InfoLine>
@@ -471,12 +471,12 @@ const CreditNoteDetails = () => {
                         {intlFormatNumber(
                           deserializeAmount(
                             creditNote?.balanceAmountCents || 0,
-                            creditNote?.currency || CurrencyEnum.Usd
+                            creditNote?.currency || CurrencyEnum.Usd,
                           ),
                           {
                             currencyDisplay: 'symbol',
                             currency: creditNote?.currency || CurrencyEnum.Usd,
-                          }
+                          },
                         )}
                       </Typography>
                     </InfoLine>
@@ -493,7 +493,7 @@ const CreditNoteDetails = () => {
                         label={translate(status.label, {
                           date: formatDateToTZ(
                             creditNote?.refundedAt,
-                            creditNote?.customer.applicableTimezone
+                            creditNote?.customer.applicableTimezone,
                           ),
                         })}
                       />
@@ -564,7 +564,7 @@ const CreditNoteDetails = () => {
                                               }${
                                                 item?.fee?.trueUpParentFee?.id
                                                   ? ` - ${translate(
-                                                      'text_64463aaa34904c00a23be4f7'
+                                                      'text_64463aaa34904c00a23be4f7',
                                                     )}`
                                                   : ''
                                               }`}
@@ -580,10 +580,10 @@ const CreditNoteDetails = () => {
                                                   item.fee.groupName
                                                     ? ` • ${item.fee.groupName}`
                                                     : item.fee.group?.key
-                                                    ? `${` • ${item.fee.group?.key} • `}${
-                                                        item.fee.group.value
-                                                      }`
-                                                    : ''
+                                                      ? `${` • ${item.fee.group?.key} • `}${
+                                                          item.fee.group.value
+                                                        }`
+                                                      : ''
                                                 }`
                                               : `${
                                                   item.fee.invoiceName ||
@@ -592,8 +592,8 @@ const CreditNoteDetails = () => {
                                                   item.fee.groupName
                                                     ? ` • ${item.fee.groupName}`
                                                     : item.fee.group?.value
-                                                    ? ` • ${item.fee.group?.value}`
-                                                    : ''
+                                                      ? ` • ${item.fee.group?.value}`
+                                                      : ''
                                                 }`}
                                           </span>
                                           <span>
@@ -630,12 +630,12 @@ const CreditNoteDetails = () => {
                                       {intlFormatNumber(
                                         deserializeAmount(
                                           item.amountCents || 0,
-                                          item.amountCurrency
+                                          item.amountCurrency,
                                         ),
                                         {
                                           currencyDisplay: 'symbol',
                                           currency: item.amountCurrency,
-                                        }
+                                        },
                                       )}
                                     </Typography>
                                   </td>
@@ -665,12 +665,12 @@ const CreditNoteDetails = () => {
                             {intlFormatNumber(
                               deserializeAmount(
                                 creditNote?.couponsAdjustmentAmountCents || 0,
-                                creditNote?.currency || CurrencyEnum.Usd
+                                creditNote?.currency || CurrencyEnum.Usd,
                               ),
                               {
                                 currencyDisplay: 'symbol',
                                 currency: creditNote?.currency || CurrencyEnum.Usd,
-                              }
+                              },
                             )}
                           </Typography>
                         </td>
@@ -689,12 +689,12 @@ const CreditNoteDetails = () => {
                           {intlFormatNumber(
                             deserializeAmount(
                               creditNote?.subTotalExcludingTaxesAmountCents || 0,
-                              creditNote?.currency || CurrencyEnum.Usd
+                              creditNote?.currency || CurrencyEnum.Usd,
                             ),
                             {
                               currencyDisplay: 'symbol',
                               currency: creditNote?.currency || CurrencyEnum.Usd,
-                            }
+                            },
                           )}
                         </Typography>
                       </td>
@@ -715,12 +715,12 @@ const CreditNoteDetails = () => {
                                   amount: intlFormatNumber(
                                     deserializeAmount(
                                       appliedTax.baseAmountCents || 0,
-                                      creditNote?.currency || CurrencyEnum.Usd
+                                      creditNote?.currency || CurrencyEnum.Usd,
                                     ),
                                     {
                                       currencyDisplay: 'symbol',
                                       currency: creditNote?.currency || CurrencyEnum.Usd,
-                                    }
+                                    },
                                   ),
                                 })}
                               </Typography>
@@ -731,12 +731,12 @@ const CreditNoteDetails = () => {
                                 {intlFormatNumber(
                                   deserializeAmount(
                                     appliedTax.amountCents || 0,
-                                    creditNote?.currency || CurrencyEnum.Usd
+                                    creditNote?.currency || CurrencyEnum.Usd,
                                   ),
                                   {
                                     currencyDisplay: 'symbol',
                                     currency: creditNote?.currency || CurrencyEnum.Usd,
-                                  }
+                                  },
                                 )}
                               </Typography>
                             </td>
@@ -777,12 +777,12 @@ const CreditNoteDetails = () => {
                             {intlFormatNumber(
                               deserializeAmount(
                                 creditNote?.creditAmountCents || 0,
-                                creditNote?.currency || CurrencyEnum.Usd
+                                creditNote?.currency || CurrencyEnum.Usd,
                               ),
                               {
                                 currencyDisplay: 'symbol',
                                 currency: creditNote?.currency || CurrencyEnum.Usd,
-                              }
+                              },
                             )}
                           </Typography>
                         </td>
@@ -802,12 +802,12 @@ const CreditNoteDetails = () => {
                             {intlFormatNumber(
                               deserializeAmount(
                                 creditNote?.refundAmountCents || 0,
-                                creditNote?.currency || CurrencyEnum.Usd
+                                creditNote?.currency || CurrencyEnum.Usd,
                               ),
                               {
                                 currencyDisplay: 'symbol',
                                 currency: creditNote?.currency || CurrencyEnum.Usd,
-                              }
+                              },
                             )}
                           </Typography>
                         </td>
@@ -826,12 +826,12 @@ const CreditNoteDetails = () => {
                           {intlFormatNumber(
                             deserializeAmount(
                               creditNote?.totalAmountCents || 0,
-                              creditNote?.currency || CurrencyEnum.Usd
+                              creditNote?.currency || CurrencyEnum.Usd,
                             ),
                             {
                               currencyDisplay: 'symbol',
                               currency: creditNote?.currency || CurrencyEnum.Usd,
-                            }
+                            },
                           )}
                         </Typography>
                       </td>

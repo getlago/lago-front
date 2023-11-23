@@ -129,7 +129,7 @@ describe('useLocationHistory()', () => {
         act(() =>
           result.current.goBack(FALLBACK_URL, {
             exclude: [MOCK_HISTORY_VAR[1].pathname, MOCK_HISTORY_VAR[2].pathname],
-          })
+          }),
         )
 
         expect(mockNavigate).toHaveBeenCalledWith(MOCK_HISTORY_VAR[3])
@@ -146,7 +146,7 @@ describe('useLocationHistory()', () => {
               MOCK_HISTORY_VAR[2].pathname,
               MOCK_HISTORY_VAR[3].pathname,
             ],
-          })
+          }),
         )
 
         expect(mockNavigate).toHaveBeenCalledWith(FALLBACK_URL)
@@ -159,7 +159,7 @@ describe('useLocationHistory()', () => {
         act(() =>
           result.current.goBack(FALLBACK_URL, {
             previousCount: -5,
-          })
+          }),
         )
 
         expect(mockNavigate).toHaveBeenCalledWith(FALLBACK_URL)

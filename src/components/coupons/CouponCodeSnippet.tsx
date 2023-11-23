@@ -18,7 +18,7 @@ const getSnippets = (
   hasBillableMetricLimit: boolean,
   limitPlansList?: PlansForCouponsFragment[],
   limitBillableMetricsList?: BillableMetricsForCouponsFragment[],
-  coupon?: CreateCouponInput
+  coupon?: CreateCouponInput,
 ) => {
   if (!coupon || !coupon.code) return '# Fill the form to generate the code snippet'
   const {
@@ -61,20 +61,20 @@ curl --location --request POST "${apiUrl}/api/v1/applied_coupons" \\
       "expiration_date": "${expirationAt ? expirationAt : '__MUST_BE_DEFINED__'}",`
           : `"expiration": "${expiration}",`
       }${
-    !!hasPlanLimit && !!limitPlansList?.length
-      ? `
+        !!hasPlanLimit && !!limitPlansList?.length
+          ? `
       "applies_to": { "plan_codes": [${limitPlansList.map(
-        (p: PlansForCouponsFragment) => `"${p.code}"`
+        (p: PlansForCouponsFragment) => `"${p.code}"`,
       )}] },`
-      : ''
-  }${
-    !!hasBillableMetricLimit && !!limitBillableMetricsList?.length
-      ? `
+          : ''
+      }${
+        !!hasBillableMetricLimit && !!limitBillableMetricsList?.length
+          ? `
       "applies_to": { "billable_metrics_codes": [${limitBillableMetricsList.map(
-        (b: BillableMetricsForCouponsFragment) => `"${b.code}"`
+        (b: BillableMetricsForCouponsFragment) => `"${b.code}"`,
       )}] },`
-      : ''
-  }
+          : ''
+      }
     }
   }'
   
@@ -107,7 +107,7 @@ export const CouponCodeSnippet = ({
         hasBillableMetricLimit,
         limitPlansList,
         limitBillableMetricsList,
-        coupon
+        coupon,
       )}
     />
   )

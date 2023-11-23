@@ -96,7 +96,7 @@ const Invitation = () => {
           .matches(RegExp('(.*\\d.*)'), FORM_ERRORS.NUMBER)
           .matches(RegExp('[/_!@#$%^&*(),.?":{}|<>/-]'), FORM_ERRORS.SPECIAL),
       }),
-    []
+    [],
   )
   const onInvitation = async () => {
     const { password } = formFields

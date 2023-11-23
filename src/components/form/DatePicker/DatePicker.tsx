@@ -67,7 +67,7 @@ export const DatePicker = ({
      * Date will be passed to the parent as ISO
      * So we need to make sure to re-transform to DateTime for the component to read it
      */
-    !!value ? (typeof value === 'string' ? DateTime.fromISO(value) : value) : null
+    !!value ? (typeof value === 'string' ? DateTime.fromISO(value) : value) : null,
   )
 
   const isInvalid = !!localDate && !localDate.isValid

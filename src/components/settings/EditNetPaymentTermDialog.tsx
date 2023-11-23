@@ -57,7 +57,7 @@ export interface EditNetPaymentTermDialogRef {
       | EditCustomerNetPaymentTermForDialogFragment
       | EditOrganizationNetPaymentTermForDialogFragment
       | null
-      | undefined
+      | undefined,
   ) => unknown
   closeDialog: () => unknown
 }
@@ -105,16 +105,16 @@ export const EditNetPaymentTermDialog = forwardRef<
       netPaymentTerm:
         typeof model?.netPaymentTerm === 'number' &&
         !Object.values(NetPaymentTermValuesEnum).includes(
-          String(model?.netPaymentTerm) as unknown as NetPaymentTermValuesEnum
+          String(model?.netPaymentTerm) as unknown as NetPaymentTermValuesEnum,
         )
           ? NetPaymentTermValuesEnum.custom
           : typeof model?.netPaymentTerm === 'number'
-          ? String(model?.netPaymentTerm)
-          : null,
+            ? String(model?.netPaymentTerm)
+            : null,
       customPeriod:
         typeof model?.netPaymentTerm === 'number' &&
         !Object.values(NetPaymentTermValuesEnum).includes(
-          String(model?.netPaymentTerm) as unknown as NetPaymentTermValuesEnum
+          String(model?.netPaymentTerm) as unknown as NetPaymentTermValuesEnum,
         )
           ? model?.netPaymentTerm
           : null,
@@ -220,7 +220,7 @@ export const EditNetPaymentTermDialog = forwardRef<
                 {
                   days: 30,
                 },
-                30
+                30,
               ),
             },
             {
@@ -230,7 +230,7 @@ export const EditNetPaymentTermDialog = forwardRef<
                 {
                   days: 60,
                 },
-                60
+                60,
               ),
             },
             {
@@ -240,7 +240,7 @@ export const EditNetPaymentTermDialog = forwardRef<
                 {
                   days: 90,
                 },
-                90
+                90,
               ),
             },
             {

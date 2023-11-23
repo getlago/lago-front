@@ -112,9 +112,9 @@ const WebhookLogs = () => {
 
           return acc
         },
-        {}
+        {},
       ),
-    [data?.webhooks?.collection, formatTimeOrgaTZ]
+    [data?.webhooks?.collection, formatTimeOrgaTZ],
   )
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `${WEBHOOK_ITEM_NAV_KEY}${i}`,
@@ -219,7 +219,7 @@ const WebhookLogs = () => {
                 title={translate(
                   !!variables?.searchTerm
                     ? 'text_63ebafd12755e50052a86e13'
-                    : 'text_63ebaf555f88d954d73beb7e'
+                    : 'text_63ebaf555f88d954d73beb7e',
                 )}
                 subtitle={
                   !variables?.searchTerm ? (

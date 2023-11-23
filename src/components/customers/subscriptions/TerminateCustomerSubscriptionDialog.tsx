@@ -108,7 +108,7 @@ export const TerminateCustomerSubscriptionDialog =
             : 'text_62d7f6178ec94cd09370e313',
           {
             subscriptionName: context?.name,
-          }
+          },
         )}
         onContinue={async () =>
           await terminate({

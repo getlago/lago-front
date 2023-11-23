@@ -58,7 +58,7 @@ export const EditBillableMetricGroupDialog = forwardRef<EditBillableMetricGroupD
         continueText={translate('text_64f2044bd3655501184fe147')}
       />
     )
-  }
+  },
 )
 
 EditBillableMetricGroupDialog.displayName = 'EditBillableMetricGroupDialog'

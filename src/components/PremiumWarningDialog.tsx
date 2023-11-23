@@ -21,7 +21,7 @@ export const PremiumWarningDialog = forwardRef<DialogRef>(({}, ref) => {
           </Button>
           <LinkTo
             href={`mailto:hello@getlago.com?subject=${translate(
-              'text_63b3f676d44671bf24d81411'
+              'text_63b3f676d44671bf24d81411',
             )}&body=${translate('text_63b3f676d44671bf24d81413')}`}
           >
             <FullWidthButton>{translate('text_63b3155768489ee342482f55')}</FullWidthButton>

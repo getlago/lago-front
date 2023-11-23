@@ -17,7 +17,7 @@ async function prepare(
     props?: Record<string, any>
     type: ButtonLinkBaseProps['type']
     to: string
-  } = { type: 'button', to: '/' }
+  } = { type: 'button', to: '/' },
 ) {
   await act(() =>
     render(
@@ -30,8 +30,8 @@ async function prepare(
         buttonProps={props?.buttonProps}
       >
         {children}
-      </ButtonLink>
-    )
+      </ButtonLink>,
+    ),
   )
 }
 
@@ -72,7 +72,7 @@ describe('ButtonLink', () => {
       expect(onContinueMock).not.toHaveBeenCalled()
 
       await waitFor(() =>
-        userEvent.click(screen.queryByTestId('button-link-button') as HTMLElement)
+        userEvent.click(screen.queryByTestId('button-link-button') as HTMLElement),
       )
 
       expect(onContinueMock).toHaveBeenCalled()
@@ -90,7 +90,7 @@ describe('ButtonLink', () => {
       expect(onContinueMock).not.toHaveBeenCalled()
       expect(screen.queryByTestId('button-link-button')).toBeDisabled()
       expect(screen.queryByTestId('tab-internal-button-link-title')).toHaveClass(
-        'button-link-disabled'
+        'button-link-disabled',
       )
     })
 
@@ -103,7 +103,7 @@ describe('ButtonLink', () => {
 
       expect(screen.queryByTestId('tab-internal-button-link-title')).toHaveAttribute(
         'href',
-        '/this-is-my-route'
+        '/this-is-my-route',
       )
     })
   })

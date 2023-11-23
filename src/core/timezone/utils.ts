@@ -11,7 +11,7 @@ export const getTimezoneConfig = (timezone: TimezoneEnum | null | undefined) => 
 export const formatDateToTZ = (
   date: string,
   timezone: TimezoneEnum | null | undefined,
-  format?: string
+  format?: string,
 ) => {
   return DateTime.fromISO(date, {
     zone: getTimezoneConfig(timezone).name,

@@ -121,7 +121,7 @@ export const PortalInvoiceListItem = memo(
         </GridItem>
       </Item>
     )
-  }
+  },
 )
 
 PortalInvoiceListItem.displayName = 'PortalInvoiceListItem'

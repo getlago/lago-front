@@ -92,7 +92,7 @@ interface InvoiceListItemProps {
 
 const mapStatusConfig = (
   status: InvoiceStatusTypeEnum,
-  paymentStatus: InvoicePaymentStatusTypeEnum
+  paymentStatus: InvoicePaymentStatusTypeEnum,
 ) => {
   if (status === InvoiceStatusTypeEnum.Draft) {
     return { label: 'text_63ac8850ff7117ad55777d31', type: StatusEnum.draft }
@@ -246,7 +246,7 @@ export const InvoiceListItem = ({
             )}
             {status === InvoiceStatusTypeEnum.Finalized &&
               [InvoicePaymentStatusTypeEnum.Failed, InvoicePaymentStatusTypeEnum.Pending].includes(
-                paymentStatus
+                paymentStatus,
               ) && (
                 <Button
                   startIcon="push"
@@ -304,7 +304,7 @@ export const InvoiceListItem = ({
             )}
             {status === InvoiceStatusTypeEnum.Finalized &&
               [InvoicePaymentStatusTypeEnum.Pending, InvoicePaymentStatusTypeEnum.Failed].includes(
-                paymentStatus
+                paymentStatus,
               ) && (
                 <Tooltip
                   title={translate('text_65269c2e471133226211fdd0')}

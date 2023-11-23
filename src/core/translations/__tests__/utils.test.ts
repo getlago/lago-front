@@ -14,7 +14,7 @@ describe('utils', () => {
       })
       it('returns plural for more than 2', () => {
         expect(
-          getPluralTranslation('singular|plural', Math.round(Math.random() * 100) + 2)
+          getPluralTranslation('singular|plural', Math.round(Math.random() * 100) + 2),
         ).toEqual('plural')
       })
     })
@@ -31,7 +31,7 @@ describe('utils', () => {
       })
       it('returns plural for more than 2', () => {
         expect(
-          getPluralTranslation('none|singular|plural', Math.round(Math.random() * 100) + 2)
+          getPluralTranslation('none|singular|plural', Math.round(Math.random() * 100) + 2),
         ).toEqual('plural')
       })
     })
@@ -43,12 +43,12 @@ describe('utils', () => {
     })
     it('replaces the dynamic variable multiple times', () => {
       expect(replaceDynamicVarInString('Hello {{name}}, {{name}}', { name: 'World' })).toEqual(
-        'Hello World, World'
+        'Hello World, World',
       )
     })
     it('replaces the dynamic variabled with multiple words', () => {
       expect(replaceDynamicVarInString('Hello {{name}}', { name: 'World Peace' })).toEqual(
-        'Hello World Peace'
+        'Hello World Peace',
       )
     })
     it('replaces the dynamic variable with numbers', () => {
@@ -59,7 +59,7 @@ describe('utils', () => {
         replaceDynamicVarInString('Hello {{firstName}} {{lastName}}', {
           firstName: 'John',
           lastName: 'Doe',
-        })
+        }),
       ).toEqual('Hello John Doe')
     })
   })

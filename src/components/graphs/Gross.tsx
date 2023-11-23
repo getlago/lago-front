@@ -48,7 +48,7 @@ export function getAllDataForGrossDisplay({
 }) {
   const formatedData = formatDataForAreaChart(
     demoMode || blur || !data ? AreaGrossRevenuesChartFakeData : (data as TAreaChartDataResult),
-    currency
+    currency,
   )
 
   if (period === AnalyticsPeriodScopeEnum.Quarter) {

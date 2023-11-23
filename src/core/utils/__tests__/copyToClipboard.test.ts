@@ -11,7 +11,7 @@ describe('copyToClipboard', () => {
     copyToClipboard('the text that needs to be copied')
 
     expect(window.navigator.clipboard.writeText).toHaveBeenCalledWith(
-      'the text that needs to be copied'
+      'the text that needs to be copied',
     )
   })
 })

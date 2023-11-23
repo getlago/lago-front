@@ -52,7 +52,7 @@ export const Accordion = ({
           <Tooltip
             placement="top-start"
             title={translate(
-              isOpen ? 'text_624aa732d6af4e0103d40e61' : 'text_624aa79870f60300a3c4d074'
+              isOpen ? 'text_624aa732d6af4e0103d40e61' : 'text_624aa79870f60300a3c4d074',
             )}
           >
             <Button
@@ -152,7 +152,7 @@ const Details = styled(AccordionDetails)<{ $size?: AccordionSize; $noContentMarg
       $noContentMargin
         ? 0
         : $size === AccordionSizeEnum.medium
-        ? theme.spacing(4)
-        : theme.spacing(8)};
+          ? theme.spacing(4)
+          : theme.spacing(8)};
   }
 `

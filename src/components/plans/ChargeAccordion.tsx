@@ -193,7 +193,7 @@ export const ChargeAccordion = memo(
       localCharge?.groupProperties?.map((g) => g.groupId) || []
 
     const [showSpendingMinimum, setShowSpendingMinimum] = useState(
-      !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0
+      !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0,
     )
     const [showAddGroup, setShowAddGroup] = useState(false)
     const [shouldDisplayTaxesInput, setShouldDisplayTaxesInput] = useState<boolean>(false)
@@ -204,7 +204,7 @@ export const ChargeAccordion = memo(
 
     useEffect(() => {
       setShowSpendingMinimum(
-        !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0
+        !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0,
       )
     }, [initialLocalCharge?.minAmountCents])
 
@@ -269,7 +269,7 @@ export const ChargeAccordion = memo(
         localCharge.payInAdvance,
         localCharge.chargeModel,
         premiumWarningDialogRef,
-      ]
+      ],
     )
 
     const taxValueForBadgeDisplay = useMemo((): string | undefined => {
@@ -379,7 +379,7 @@ export const ChargeAccordion = memo(
                         callback: (invoiceDisplayName: string) => {
                           formikProps.setFieldValue(
                             `charges.${index}.invoiceDisplayName`,
-                            invoiceDisplayName
+                            invoiceDisplayName,
                           )
                         },
                       })
@@ -420,8 +420,8 @@ export const ChargeAccordion = memo(
                     formikProps.values.interval,
                     (formikProps.values.interval === PlanInterval.Yearly &&
                       !!formikProps.values.billChargesMonthly) ||
-                      false
-                  )
+                      false,
+                  ),
                 )}
               />
               {!isInSubscriptionForm && (
@@ -532,14 +532,14 @@ export const ChargeAccordion = memo(
                 localCharge.chargeModel === ChargeModelEnum.Percentage
                   ? 'text_62ff5d01a306e274d4ffcc06'
                   : localCharge.chargeModel === ChargeModelEnum.Graduated
-                  ? 'text_62793bbb599f1c01522e91a1'
-                  : localCharge.chargeModel === ChargeModelEnum.GraduatedPercentage
-                  ? 'text_64de472463e2da6b31737db8'
-                  : localCharge.chargeModel === ChargeModelEnum.Package
-                  ? 'text_6282085b4f283b010265586c'
-                  : localCharge.chargeModel === ChargeModelEnum.Volume
-                  ? 'text_6304e74aab6dbc18d615f38a'
-                  : 'text_624d9adba93343010cd14ca7'
+                    ? 'text_62793bbb599f1c01522e91a1'
+                    : localCharge.chargeModel === ChargeModelEnum.GraduatedPercentage
+                      ? 'text_64de472463e2da6b31737db8'
+                      : localCharge.chargeModel === ChargeModelEnum.Package
+                        ? 'text_6282085b4f283b010265586c'
+                        : localCharge.chargeModel === ChargeModelEnum.Volume
+                          ? 'text_6304e74aab6dbc18d615f38a'
+                          : 'text_624d9adba93343010cd14ca7',
               )}
               onChange={(value) => handleUpdate('chargeModel', value)}
             />
@@ -623,7 +623,7 @@ export const ChargeAccordion = memo(
             {/* Group properties  */}
             {localCharge?.groupProperties?.map((group, groupPropertyIndex) => {
               const associatedFlagGroup = localCharge?.billableMetric?.flatGroups?.find(
-                (flatGroup) => flatGroup.id === group.groupId
+                (flatGroup) => flatGroup.id === group.groupId,
               )
 
               const groupKey = associatedFlagGroup?.key
@@ -672,7 +672,7 @@ export const ChargeAccordion = memo(
                                 callback: (invoiceDisplayName: string) => {
                                   formikProps.setFieldValue(
                                     `charges.${index}.groupProperties.${groupPropertyIndex}.invoiceDisplayName`,
-                                    invoiceDisplayName
+                                    invoiceDisplayName,
                                   )
                                 },
                               })
@@ -800,7 +800,7 @@ export const ChargeAccordion = memo(
                         setTimeout(() => {
                           ;(
                             document.querySelector(
-                              `.${SEARCH_CHARGE_GROUP_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                              `.${SEARCH_CHARGE_GROUP_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
                             ) as HTMLElement
                           )?.click()
                         }, 0)
@@ -983,7 +983,7 @@ export const ChargeAccordion = memo(
                     onChange={(newTaxId) => {
                       const previousTaxes = [...(localCharge?.taxes || [])]
                       const newTaxObject = taxesData?.taxes.collection.find(
-                        (t) => t.id === newTaxId
+                        (t) => t.id === newTaxId,
                       ) as TaxForPlanChargeAccordionFragment
 
                       handleUpdate('taxes', [...previousTaxes, newTaxObject])
@@ -1035,7 +1035,7 @@ export const ChargeAccordion = memo(
 
                     setTimeout(() => {
                       const element = document.querySelector(
-                        `.${SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`
+                        `.${SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
                       ) as HTMLElement
 
                       if (!element) return
@@ -1054,7 +1054,7 @@ export const ChargeAccordion = memo(
         </>
       </Accordion>
     )
-  }
+  },
 )
 
 ChargeAccordion.displayName = 'ChargeAccordion'

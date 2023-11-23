@@ -62,7 +62,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
       onClick,
       ...props
     }: ButtonLinkProps,
-    ref
+    ref,
   ) => {
     const updatedButtonProps =
       type === ButtonLinkTypeEnum.tab
@@ -120,7 +120,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
         </Button>
       </ConditionalWrapper>
     )
-  }
+  },
 )
 
 ButtonLink.displayName = 'ButtonLink'

@@ -41,12 +41,12 @@ export interface TextInputProps
 }
 
 const numberFormatter = new RegExp(
-  `${ValueFormatter.int}|${ValueFormatter.decimal}|${ValueFormatter.triDecimal}|${ValueFormatter.quadDecimal}|${ValueFormatter.positiveNumber}`
+  `${ValueFormatter.int}|${ValueFormatter.decimal}|${ValueFormatter.triDecimal}|${ValueFormatter.quadDecimal}|${ValueFormatter.positiveNumber}`,
 )
 
 export const formatValue = (
   value: string | number | undefined,
-  formatterFunctions?: ValueFormatterType[] | ValueFormatterType
+  formatterFunctions?: ValueFormatterType[] | ValueFormatterType,
 ) => {
   let formattedValue = value
 
@@ -54,7 +54,7 @@ export const formatValue = (
   if (!formatterFunctions || !formatterFunctions.length) return value
   if (
     numberFormatter.test(
-      typeof formatterFunctions === 'string' ? formatterFunctions : formatterFunctions.join('')
+      typeof formatterFunctions === 'string' ? formatterFunctions : formatterFunctions.join(''),
     )
   ) {
     if (
@@ -128,7 +128,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
       onChange,
       ...props
     }: TextInputProps,
-    ref
+    ref,
   ) => {
     const { translate } = useInternationalization()
     const [localValue, setLocalValue] = useState<string | number>('')
@@ -140,7 +140,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
 
     const udpateValue = (
       newValue: string | number,
-      event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | null
+      event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | null,
     ) => {
       const formattedValue = formatValue(newValue, beforeChangeFormatter)
 
@@ -174,7 +174,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
         udpateValue(event.currentTarget.value, event)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [onChange, beforeChangeFormatter]
+      [onChange, beforeChangeFormatter],
     )
 
     return (
@@ -224,28 +224,28 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
                   ),
                 }
               : password && !!localValue
-              ? {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <Tooltip
-                        placement="top-end"
-                        title={
-                          isVisible
-                            ? translate('text_620bc4d4269a55014d493f9e')
-                            : translate('text_620bc4d4269a55014d493f8f')
-                        }
-                      >
-                        <Button
-                          size="small"
-                          icon={isVisible ? 'eye-hidden' : 'eye'}
-                          variant="quaternary"
-                          onClick={() => setIsVisible((prev) => !prev)}
-                        />
-                      </Tooltip>
-                    </InputAdornment>
-                  ),
-                }
-              : {}),
+                ? {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Tooltip
+                          placement="top-end"
+                          title={
+                            isVisible
+                              ? translate('text_620bc4d4269a55014d493f9e')
+                              : translate('text_620bc4d4269a55014d493f8f')
+                          }
+                        >
+                          <Button
+                            size="small"
+                            icon={isVisible ? 'eye-hidden' : 'eye'}
+                            variant="quaternary"
+                            onClick={() => setIsVisible((prev) => !prev)}
+                          />
+                        </Tooltip>
+                      </InputAdornment>
+                    ),
+                  }
+                : {}),
             ...InputProps,
           }}
           {...props}
@@ -261,7 +261,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
         )}
       </Container>
     )
-  }
+  },
 )
 
 TextInput.displayName = 'TextInput'

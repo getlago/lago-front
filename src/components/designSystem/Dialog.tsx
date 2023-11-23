@@ -25,7 +25,7 @@ export interface DialogRef {
 export const Dialog = forwardRef<DialogRef, DialogProps>(
   (
     { title, description, actions, children, onOpen, onClose, open = false, ...props }: DialogProps,
-    ref
+    ref,
   ) => {
     const [isOpen, setIsOpen] = useState(open)
 
@@ -74,7 +74,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
         </StyledDialog>
       </>
     )
-  }
+  },
 )
 
 Dialog.displayName = 'Dialog'

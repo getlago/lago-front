@@ -66,7 +66,7 @@ export const UpdateCustomerWalletDialog = forwardRef<DialogRef, UpdateCustomerWa
           DateTime.now().plus({ days: -1 }),
           translate('text_630ccd87b251590eaa5f9831', {
             date: DateTime.now().plus({ days: -1 }).toFormat('LLL. dd, yyyy').toLocaleString(),
-          })
+          }),
         ),
       }),
       onSubmit: async (values, formikBag) => {
@@ -127,7 +127,7 @@ export const UpdateCustomerWalletDialog = forwardRef<DialogRef, UpdateCustomerWa
         </Content>
       </Dialog>
     )
-  }
+  },
 )
 
 const Content = styled.div`

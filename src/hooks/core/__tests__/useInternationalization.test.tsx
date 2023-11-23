@@ -21,7 +21,7 @@ describe('useLocationHistory()', () => {
 
     it('returns interpolate variable in strings', () => {
       expect(
-        replaceDynamicVarInString("What' your real name {{fakeName}}?", { fakeName: 'Mr Brown' })
+        replaceDynamicVarInString("What' your real name {{fakeName}}?", { fakeName: 'Mr Brown' }),
       ).toBe("What' your real name Mr Brown?")
     })
   })

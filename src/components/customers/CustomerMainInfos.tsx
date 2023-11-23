@@ -200,10 +200,10 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             {paymentProvider === ProviderTypeEnum?.Stripe
               ? translate('text_62b5c912506c4905fa75524a')
               : paymentProvider === ProviderTypeEnum?.Gocardless
-              ? translate('text_634ea0ecc6147de10ddb6648')
-              : paymentProvider === ProviderTypeEnum?.Adyen
-              ? translate('text_645d071272418a14c1c76a6d')
-              : ''}
+                ? translate('text_634ea0ecc6147de10ddb6648')
+                : paymentProvider === ProviderTypeEnum?.Adyen
+                  ? translate('text_645d071272418a14c1c76a6d')
+                  : ''}
           </Typography>
         </div>
       )}
@@ -221,8 +221,8 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
               {providerCustomer?.providerPaymentMethods?.length === 2
                 ? translate('text_64aeb7b998c4322918c8423b')
                 : providerCustomer?.providerPaymentMethods[0] === ProviderPaymentMethodsEnum?.Card
-                ? translate('text_64aeb7b998c4322918c84208')
-                : translate('text_64aeb7b998c4322918c8420c')}
+                  ? translate('text_64aeb7b998c4322918c84208')
+                  : translate('text_64aeb7b998c4322918c8420c')}
             </Typography>
           </div>
         )}

@@ -141,7 +141,7 @@ const InvoicesList = () => {
           customerId: splitted[0],
           invoiceId: splitted[1],
           tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-        })
+        }),
       )
     },
   })
@@ -267,12 +267,12 @@ const InvoicesList = () => {
                     tab === InvoiceListTabEnum.succeeded
                       ? 'text_63c67d2913c20b8d7d05c44c'
                       : tab === InvoiceListTabEnum.draft
-                      ? 'text_63c67d2913c20b8d7d05c442'
-                      : tab === InvoiceListTabEnum.pendingFailed
-                      ? 'text_63c67d8796db41749ada51ca'
-                      : tab === InvoiceListTabEnum.voided
-                      ? 'text_65269cd46e7ec037a6823fd8'
-                      : 'text_63c67d2913c20b8d7d05c43e'
+                        ? 'text_63c67d2913c20b8d7d05c442'
+                        : tab === InvoiceListTabEnum.pendingFailed
+                          ? 'text_63c67d8796db41749ada51ca'
+                          : tab === InvoiceListTabEnum.voided
+                            ? 'text_65269cd46e7ec037a6823fd8'
+                            : 'text_63c67d2913c20b8d7d05c43e',
                   )}
                   subtitle={translate('text_63c67d2913c20b8d7d05c446')}
                   image={<EmptyImage width="136" height="104" />}
@@ -283,12 +283,12 @@ const InvoicesList = () => {
                     tab === InvoiceListTabEnum.succeeded
                       ? 'text_63b578e959c1366df5d14559'
                       : tab === InvoiceListTabEnum.draft
-                      ? 'text_63b578e959c1366df5d1455b'
-                      : tab === InvoiceListTabEnum.pendingFailed
-                      ? 'text_63b578e959c1366df5d1456e'
-                      : tab === InvoiceListTabEnum.voided
-                      ? 'text_65269cd46e7ec037a6823fd6'
-                      : 'text_63b578e959c1366df5d14569'
+                        ? 'text_63b578e959c1366df5d1455b'
+                        : tab === InvoiceListTabEnum.pendingFailed
+                          ? 'text_63b578e959c1366df5d1456e'
+                          : tab === InvoiceListTabEnum.voided
+                            ? 'text_65269cd46e7ec037a6823fd6'
+                            : 'text_63b578e959c1366df5d14569',
                   )}
                   subtitle={
                     tab === InvoiceListTabEnum.succeeded ? (

@@ -52,7 +52,7 @@ export const InviteItem = forwardRef<RevokeInviteDialogRef, InviteItemProps>(
                 copyToClipboard(
                   `${window.location.origin}${generatePath(INVITATION_ROUTE, {
                     token,
-                  })}`
+                  })}`,
                 )
                 addToast({
                   severity: 'info',
@@ -78,7 +78,7 @@ export const InviteItem = forwardRef<RevokeInviteDialogRef, InviteItemProps>(
         </RightBlock>
       </ItemContainer>
     )
-  }
+  },
 )
 
 InviteItem.displayName = 'InviteItem'

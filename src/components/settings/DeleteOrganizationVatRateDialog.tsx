@@ -74,7 +74,7 @@ export const DeleteOrganizationVatRateDialog = forwardRef<DeleteOrganizationVatR
         continueText={translate('text_64639cfe2e46e9007d11b466')}
       />
     )
-  }
+  },
 )
 
 DeleteOrganizationVatRateDialog.displayName = 'forwardRef'

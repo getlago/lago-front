@@ -26,7 +26,7 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
                   fromValue: fromValue || 0,
                   perUnitAmount: serializeScientificNotation(perUnitAmount),
                   ...range,
-                })
+                }),
               )
             : undefined,
         }
@@ -40,7 +40,7 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
                   fromValue: fromValue || 0,
                   rate: serializeScientificNotation(rate),
                   ...range,
-                })
+                }),
               )
             : undefined,
         }
@@ -55,7 +55,7 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
                   fromValue: fromValue || 0,
                   perUnitAmount: serializeScientificNotation(perUnitAmount),
                   ...range,
-                })
+                }),
               )
             : undefined,
         }
@@ -121,7 +121,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
             : [],
           ...charge,
         }
-      }
+      },
     ),
     ...otherValues,
   }

@@ -142,6 +142,6 @@ export const useCreateEditTax: () => useCreateEditTaxReturn = () => {
             })
           },
     }),
-    [loading, errorCode, taxId, data?.tax, navigate, update, create]
+    [loading, errorCode, taxId, data?.tax, navigate, update, create],
   )
 }

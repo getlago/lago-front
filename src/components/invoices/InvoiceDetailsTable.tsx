@@ -160,7 +160,7 @@ export const InvoiceDetailsTable = memo(
 
     if (
       [InvoiceTypeEnum.AddOn, InvoiceTypeEnum.Credit, InvoiceTypeEnum.OneOff].includes(
-        invoice.invoiceType
+        invoice.invoiceType,
       )
     ) {
       return (
@@ -176,8 +176,8 @@ export const InvoiceDetailsTable = memo(
                       {invoice.invoiceType === InvoiceTypeEnum.AddOn
                         ? translate('text_6388baa2e514213fed583611', { name: fee.itemName })
                         : invoice.invoiceType === InvoiceTypeEnum.OneOff
-                        ? fee.invoiceDisplayName || fee.itemName
-                        : translate('text_637ccf8133d2c9a7d11ce6e1')}
+                          ? fee.invoiceDisplayName || fee.itemName
+                          : translate('text_637ccf8133d2c9a7d11ce6e1')}
                     </Typography>
                   </td>
                   <td>
@@ -223,7 +223,7 @@ export const InvoiceDetailsTable = memo(
     }
 
     const formattedInvoiceItemsMap = formatInvoiceItemsMap(
-      invoice?.invoiceSubscriptions as InvoiceSubscription[]
+      invoice?.invoiceSubscriptions as InvoiceSubscription[],
     )
 
     return (
@@ -238,10 +238,10 @@ export const InvoiceDetailsTable = memo(
               feesInArrears,
               feesInAdvance,
             },
-            i
+            i,
           ) => {
             const hasAnySubscriptionFeeUnits = subscriptionFees?.some(
-              (fee) => Number(fee.units) > 0
+              (fee) => Number(fee.units) > 0,
             )
             const hasAnyArrearsFeeUnits = feesInArrears?.some((fee) => Number(fee.units) > 0)
             const hasAnyAdvanceFeeUnits = feesInAdvance?.some((fee) => Number(fee.units) > 0)
@@ -261,57 +261,57 @@ export const InvoiceDetailsTable = memo(
                             from: formatDateToTZ(
                               invoiceSubscription?.fromDatetime,
                               customer?.applicableTimezone,
-                              'LLL. dd, yyyy'
+                              'LLL. dd, yyyy',
                             ),
                             to: formatDateToTZ(
                               invoiceSubscription?.toDatetime,
                               customer?.applicableTimezone,
-                              'LLL. dd, yyyy'
+                              'LLL. dd, yyyy',
                             ),
                           })
                         : !hasAnySubscriptionFeeUnits &&
-                          hasAnyArrearsFeeUnits &&
-                          feesInArrears.some((r) => r.units === 0) &&
-                          !hasAnyAdvanceFeeUnits
-                        ? invoiceSubscription?.chargesFromDatetime &&
-                          invoiceSubscription?.chargesToDatetime
-                          ? translate('text_6499a4e4db5730004703f36b', {
-                              from: formatDateToTZ(
-                                invoiceSubscription?.chargesFromDatetime,
-                                customer?.applicableTimezone,
-                                'LLL. dd, yyyy'
-                              ),
-                              to: formatDateToTZ(
-                                invoiceSubscription?.chargesToDatetime,
-                                customer?.applicableTimezone,
-                                'LLL. dd, yyyy'
-                              ),
-                            })
-                          : translate('text_6499a6209ae0d900826053a7', {
-                              date: formatDateToTZ(
-                                invoice.issuingDate,
-                                customer?.applicableTimezone,
-                                'LLL. dd, yyyy'
-                              ),
-                            })
-                        : !hasAnySubscriptionFeeUnits &&
-                          !hasAnyArrearsFeeUnits &&
-                          !hasAnyAdvanceFeeUnits &&
-                          !!invoiceSubscription?.fromDatetime &&
-                          !!invoiceSubscription?.toDatetime
-                        ? translate('text_6499a4e4db5730004703f36b', {
-                            from: formatDateToTZ(
-                              invoiceSubscription?.fromDatetime,
-                              customer?.applicableTimezone,
-                              'LLL. dd, yyyy'
-                            ),
-                            to: formatDateToTZ(
-                              invoiceSubscription?.toDatetime,
-                              customer?.applicableTimezone,
-                              'LLL. dd, yyyy'
-                            ),
-                          })
-                        : undefined
+                            hasAnyArrearsFeeUnits &&
+                            feesInArrears.some((r) => r.units === 0) &&
+                            !hasAnyAdvanceFeeUnits
+                          ? invoiceSubscription?.chargesFromDatetime &&
+                            invoiceSubscription?.chargesToDatetime
+                            ? translate('text_6499a4e4db5730004703f36b', {
+                                from: formatDateToTZ(
+                                  invoiceSubscription?.chargesFromDatetime,
+                                  customer?.applicableTimezone,
+                                  'LLL. dd, yyyy',
+                                ),
+                                to: formatDateToTZ(
+                                  invoiceSubscription?.chargesToDatetime,
+                                  customer?.applicableTimezone,
+                                  'LLL. dd, yyyy',
+                                ),
+                              })
+                            : translate('text_6499a6209ae0d900826053a7', {
+                                date: formatDateToTZ(
+                                  invoice.issuingDate,
+                                  customer?.applicableTimezone,
+                                  'LLL. dd, yyyy',
+                                ),
+                              })
+                          : !hasAnySubscriptionFeeUnits &&
+                              !hasAnyArrearsFeeUnits &&
+                              !hasAnyAdvanceFeeUnits &&
+                              !!invoiceSubscription?.fromDatetime &&
+                              !!invoiceSubscription?.toDatetime
+                            ? translate('text_6499a4e4db5730004703f36b', {
+                                from: formatDateToTZ(
+                                  invoiceSubscription?.fromDatetime,
+                                  customer?.applicableTimezone,
+                                  'LLL. dd, yyyy',
+                                ),
+                                to: formatDateToTZ(
+                                  invoiceSubscription?.toDatetime,
+                                  customer?.applicableTimezone,
+                                  'LLL. dd, yyyy',
+                                ),
+                              })
+                            : undefined
                     }
                   />
                 </table>
@@ -321,7 +321,7 @@ export const InvoiceDetailsTable = memo(
                   !hasAnyArrearsFeeUnits &&
                   // Same condition as bellow to show/hide fees in advance
                   !feesInAdvance?.some(
-                    (fee) => !(Number(fee?.units) === 0 && !!fee?.isGroupChildFee)
+                    (fee) => !(Number(fee?.units) === 0 && !!fee?.isGroupChildFee),
                   ) && (
                     <table key={`invoiceSubscription-${i}-fee-placeholder`}>
                       <tbody>
@@ -408,19 +408,19 @@ export const InvoiceDetailsTable = memo(
                           from: formatDateToTZ(
                             invoiceSubscription?.chargesFromDatetime,
                             customer?.applicableTimezone,
-                            'LLL. dd, yyyy'
+                            'LLL. dd, yyyy',
                           ),
                           to: formatDateToTZ(
                             invoiceSubscription?.chargesToDatetime,
                             customer?.applicableTimezone,
-                            'LLL. dd, yyyy'
+                            'LLL. dd, yyyy',
                           ),
                         })
                       : translate('text_6499a6209ae0d900826053a7', {
                           date: formatDateToTZ(
                             invoice.issuingDate,
                             customer?.applicableTimezone,
-                            'LLL. dd, yyyy'
+                            'LLL. dd, yyyy',
                           ),
                         })}
                   </ChargePeriodSeparator>
@@ -472,19 +472,19 @@ export const InvoiceDetailsTable = memo(
                           from: formatDateToTZ(
                             invoiceSubscription?.inAdvanceChargesFromDatetime,
                             customer?.applicableTimezone,
-                            'LLL. dd, yyyy'
+                            'LLL. dd, yyyy',
                           ),
                           to: formatDateToTZ(
                             invoiceSubscription?.inAdvanceChargesToDatetime,
                             customer?.applicableTimezone,
-                            'LLL. dd, yyyy'
+                            'LLL. dd, yyyy',
                           ),
                         })
                       : translate('text_6499a6209ae0d900826053a7', {
                           date: formatDateToTZ(
                             invoice.issuingDate,
                             customer?.applicableTimezone,
-                            'LLL. dd, yyyy'
+                            'LLL. dd, yyyy',
                           ),
                         })}
                   </ChargePeriodSeparator>
@@ -504,14 +504,14 @@ export const InvoiceDetailsTable = memo(
                 })}
               </React.Fragment>
             )
-          }
+          },
         )}
         <table id="table">
           <InvoiceDetailsTableFooter invoice={invoice} loading={loading} />
         </table>
       </Wrapper>
     )
-  }
+  },
 )
 
 InvoiceDetailsTable.displayName = 'InvoiceDetailsTable'
