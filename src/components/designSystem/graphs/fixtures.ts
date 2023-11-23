@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 
-import { TOutstandingInvoicesDataResult } from '~/components/graphs/Invoices'
+import { TInvoiceCollectionsDataResult } from '~/components/graphs/Invoices'
 import { TGetInvoicedUsagesQuery } from '~/components/graphs/Usage'
 import { TAreaChartDataResult } from '~/components/graphs/utils'
 import { CurrencyEnum, InvoicePaymentStatusTypeEnum } from '~/generated/graphql'
@@ -141,7 +141,7 @@ export const AreaMrrChartFakeData: TAreaChartDataResult = [
   },
 ]
 
-export const OutstandingInvoicesFakeData: TOutstandingInvoicesDataResult = [
+export const InvoiceCollectionsFakeData: TInvoiceCollectionsDataResult = [
   {
     paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
     invoicesCount: '6',
