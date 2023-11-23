@@ -5,7 +5,43 @@ import {
   bigNumberShortenNotationFormater,
   getCurrencySymbol,
   intlFormatNumber,
+  intlFormatOrdinalNumber,
 } from '../intlFormatNumber'
+
+const DAYS_ORDINALS_VALUES = [
+  '0th',
+  '1st',
+  '2nd',
+  '3rd',
+  '4th',
+  '5th',
+  '6th',
+  '7th',
+  '8th',
+  '9th',
+  '10th',
+  '11th',
+  '12th',
+  '13th',
+  '14th',
+  '15th',
+  '16th',
+  '17th',
+  '18th',
+  '19th',
+  '20th',
+  '21st',
+  '22nd',
+  '23rd',
+  '24th',
+  '25th',
+  '26th',
+  '27th',
+  '28th',
+  '29th',
+  '30th',
+  '31st',
+]
 
 describe('Currency tools', () => {
   describe('intlFormatNumber()', () => {
@@ -114,6 +150,19 @@ describe('Currency tools', () => {
         bigNumberShortenNotationFormater(100_000_000_000_000_000, { currency: CurrencyEnum.Eur })
       ).toBe('€100Q')
       expect(bigNumberShortenNotationFormater(100_000_000_000_000_000)).toBe('$100Q')
+    })
+  })
+
+  describe('intlFormatOrdinalNumber()', () => {
+    it('formats the numbers as ordinal', () => {
+      DAYS_ORDINALS_VALUES.forEach((expectedValue, index) => {
+        expect(intlFormatOrdinalNumber(index)).toBe(expectedValue)
+      })
+    })
+    it('formats the strings as ordinal', () => {
+      DAYS_ORDINALS_VALUES.forEach((expectedValue, index) => {
+        expect(intlFormatOrdinalNumber(String(index))).toBe(expectedValue)
+      })
     })
   })
 })
