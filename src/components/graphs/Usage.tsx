@@ -27,8 +27,10 @@ import { InvoicedUsageFakeData } from '../designSystem/graphs/fixtures'
 import InlineBarsChart from '../designSystem/graphs/InlineBarsChart'
 import { GenericPlaceholder } from '../GenericPlaceholder'
 
+export const NUMBER_OF_BM_DISPLAYED = 5
+export const LAST_USAGE_GRAPH_LINE_KEY_NAME = 'Others'
+
 const DOT_SIZE = 8
-const NUMBER_OF_BM_DISPLAYED = 5
 
 const GRAPH_COLORS = [
   theme.palette.primary[700],
@@ -37,8 +39,6 @@ const GRAPH_COLORS = [
   theme.palette.primary[200],
   theme.palette.grey[300],
 ]
-
-export const LAST_USAGE_GRAPH_LINE_KEY_NAME = 'Others'
 
 gql`
   query getInvoicedUsages($currency: CurrencyEnum!) {
@@ -54,19 +54,29 @@ gql`
 `
 export type TGetInvoicedUsagesQuery = GetInvoicedUsagesQuery['invoicedUsages']['collection']
 
+type TGetDataForUsageDisplay = {
+  blur: boolean
+  currency: CurrencyEnum
+  data: TGetInvoicedUsagesQuery
+  demoMode?: boolean
+  period: TPeriodScopeTranslationLookupValue
+}
+type TReturnGetDataForUsageDisplay = {
+  totalAmount: number
+  dataBarForDisplay: Record<string, number>[]
+  hasNoDataToDisplay: boolean
+  dataLinesForDisplay: [string, number][]
+  dateFrom: string
+  dateTo: string
+}
+
 export function getDataForUsageDisplay({
   blur,
   currency,
   data,
   demoMode,
   period,
-}: {
-  blur: boolean
-  currency: CurrencyEnum
-  data: TGetInvoicedUsagesQuery
-  demoMode?: boolean
-  period: TPeriodScopeTranslationLookupValue
-}) {
+}: TGetDataForUsageDisplay): TReturnGetDataForUsageDisplay {
   const lastTwelveMonths = getLastTwelveMonthsNumbersUntilNow()
 
   const dataToExploit = demoMode || blur || !currency ? InvoicedUsageFakeData : data
@@ -83,39 +93,7 @@ export function getDataForUsageDisplay({
     return true
   })
 
-  const sortedDataResult = filteredDataCollection?.sort((a, b) =>
-    Number(a.amountCents) > Number(b.amountCents) ? -1 : 1,
-  )
-
-  const dataLines: [string, number][] = []
-
-  for (let i = 0; i < sortedDataResult.length; i++) {
-    if (dataLines.length < NUMBER_OF_BM_DISPLAYED) {
-      dataLines.push([sortedDataResult[i].code || '', Number(sortedDataResult[i].amountCents)])
-    } else {
-      const lastItem = dataLines[NUMBER_OF_BM_DISPLAYED]
-
-      dataLines[dataLines.length - 1] = [
-        LAST_USAGE_GRAPH_LINE_KEY_NAME,
-        (lastItem ? lastItem[1] : 0) + Number(sortedDataResult[i].amountCents),
-      ]
-    }
-  }
-
-  const hasNoData = !dataLines.length
-
-  const dataBar = hasNoData
-    ? [{ '1': 1 }]
-    : [
-        dataLines.reduce((acc, [key, value]) => {
-          return {
-            ...acc,
-            [key]: value,
-          }
-        }, {}),
-      ]
-
-  const total = dataLines.reduce((acc, [, value]) => acc + value, 0)
+  const hasNoData = !filteredDataCollection.length
 
   const to = lastTwelveMonths[lastTwelveMonths.length - 1]
   let from = lastTwelveMonths[0]
@@ -126,11 +104,65 @@ export function getDataForUsageDisplay({
     from = lastTwelveMonths[lastTwelveMonths.length - 2]
   }
 
+  if (hasNoData) {
+    return {
+      totalAmount: 0,
+      dataBarForDisplay: [{ '1': 1 }],
+      hasNoDataToDisplay: true,
+      dataLinesForDisplay: [],
+      dateFrom: from,
+      dateTo: to,
+    }
+  }
+
+  const groupedDatasByCode = filteredDataCollection?.reduce<Record<string, number>>((acc, item) => {
+    const code = item.code || ''
+
+    if (acc[code]) {
+      acc[code] = acc[code] + Number(item.amountCents)
+    } else {
+      acc[code] = Number(item.amountCents)
+    }
+
+    return acc
+  }, {})
+
+  let filteredGroupedDatasByCode = Object.entries(groupedDatasByCode).sort((a, b) =>
+    Number(a[1]) > Number(b[1]) ? -1 : 1,
+  )
+
+  // If more than 5 BM, we group the rest of the BM in a single line
+  if (filteredGroupedDatasByCode.length > NUMBER_OF_BM_DISPLAYED) {
+    const lastLineAmount = filteredGroupedDatasByCode
+      .slice(NUMBER_OF_BM_DISPLAYED - 1)
+      .reduce((acc, item) => acc + Number(item[1]), 0)
+
+    filteredGroupedDatasByCode.splice(NUMBER_OF_BM_DISPLAYED - 1)
+    filteredGroupedDatasByCode.push([LAST_USAGE_GRAPH_LINE_KEY_NAME, lastLineAmount])
+  }
+
+  // should be an array of length 1 with all data as key: value
+  const dataBar = filteredGroupedDatasByCode.reduce<Record<string, number>>(
+    (acc, item) => ({
+      ...acc,
+      [item[0]]: Number(item[1]),
+    }),
+    {},
+  )
+
+  if (Object.values(dataBar).every((item) => item === 0)) {
+    Object.keys(dataBar).forEach((key) => {
+      dataBar[key] = 1
+    })
+  }
+
+  const total = filteredGroupedDatasByCode.reduce((acc, item) => acc + Number(item[1]), 0)
+
   return {
     totalAmount: total,
-    dataBarForDisplay: dataBar,
+    dataBarForDisplay: [dataBar],
     hasNoDataToDisplay: hasNoData,
-    dataLinesForDisplay: dataLines,
+    dataLinesForDisplay: filteredGroupedDatasByCode,
     dateFrom: from,
     dateTo: to,
   }
@@ -221,7 +253,7 @@ const Usage = ({
                     hoveredBarId={hoveredBarId}
                   />
                   <div>
-                    {!dataLinesForDisplay.length ? (
+                    {hasNoDataToDisplay ? (
                       <BMItem $disableHover>
                         <svg height={DOT_SIZE} width={DOT_SIZE}>
                           <circle
