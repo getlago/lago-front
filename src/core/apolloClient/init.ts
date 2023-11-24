@@ -33,6 +33,7 @@ export const initializeApolloClient = async () => {
     const { headers } = operation.getContext()
     const token = getItemFromLS(AUTH_TOKEN_LS_KEY)
     const customerPortalToken = getItemFromLS(CUSTOMER_PORTAL_TOKEN_LS_KEY)
+    const currentOrganizationId = getItemFromLS(ORGANIZATION_LS_KEY_ID)
 
     if (operation.variables && !operation.variables.file) {
       // eslint-disable-next-line
@@ -42,9 +43,9 @@ export const initializeApolloClient = async () => {
     operation.setContext({
       headers: {
         ...headers,
-        ...(!token ? {} : { authorization: `Bearer ${getItemFromLS(AUTH_TOKEN_LS_KEY)}` }),
+        ...(!token ? {} : { authorization: `Bearer ${token}` }),
         ...(!customerPortalToken ? {} : { 'customer-portal-token': customerPortalToken }),
-        'x-lago-organization': getItemFromLS(ORGANIZATION_LS_KEY_ID),
+        'x-lago-organization': currentOrganizationId,
       },
     })
 
