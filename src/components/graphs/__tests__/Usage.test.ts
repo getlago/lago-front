@@ -26,10 +26,10 @@ describe('components/graphs/Usage', () => {
         DateTime.now()
           .minus({ month: 12 })
           .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
     })
 
@@ -50,10 +50,10 @@ describe('components/graphs/Usage', () => {
         DateTime.now()
           .minus({ month: 12 })
           .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
     })
 
@@ -74,10 +74,10 @@ describe('components/graphs/Usage', () => {
         DateTime.now()
           .minus({ month: 3 })
           .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
     })
 
@@ -98,10 +98,10 @@ describe('components/graphs/Usage', () => {
         DateTime.now()
           .minus({ month: 1 })
           .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT)
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
       )
     })
 
@@ -152,7 +152,7 @@ describe('components/graphs/Usage', () => {
       })
 
       expect(res.dataLinesForDisplay[res.dataLinesForDisplay.length - 1][0]).toBe(
-        LAST_USAGE_GRAPH_LINE_KEY_NAME
+        LAST_USAGE_GRAPH_LINE_KEY_NAME,
       )
     })
 
@@ -234,7 +234,7 @@ describe('components/graphs/Usage', () => {
       })
 
       expect(res.dataLinesForDisplay[res.dataLinesForDisplay.length - 1][0]).toBe(
-        'count_bm_one_dimension'
+        'count_bm_one_dimension',
       )
     })
 
