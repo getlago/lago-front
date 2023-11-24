@@ -39,6 +39,7 @@ const Login = () => {
         onLogIn(res.loginUser.token, res?.loginUser?.user)
       }
     },
+    fetchPolicy: 'network-only',
   })
   const formikProps = useFormik({
     initialValues: {
