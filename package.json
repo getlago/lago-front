@@ -39,7 +39,7 @@
     "@graphql-codegen/cli": "5.0.0",
     "@graphql-codegen/typescript": "4.0.1",
     "@graphql-codegen/typescript-operations": "4.0.1",
-    "@graphql-codegen/typescript-react-apollo": "3.3.7",
+    "@graphql-codegen/typescript-react-apollo": "4.1.0",
     "@parcel/watcher": "^2.3.0",
     "@svgr/webpack": "8.1.0",
     "@testing-library/dom": "^9.3.1",
