@@ -77,7 +77,7 @@
     "eslint-plugin-react": "7.33.2",
     "eslint-plugin-react-hooks": "4.6.0",
     "file-loader": "6.2.0",
-    "fork-ts-checker-webpack-plugin": "8.0.0",
+    "fork-ts-checker-webpack-plugin": "9.0.2",
     "gettext-extractor": "3.8.0",
     "glob": "^10.3.4",
     "html-webpack-plugin": "5.5.1",
