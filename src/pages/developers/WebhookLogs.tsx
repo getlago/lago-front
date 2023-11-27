@@ -80,11 +80,11 @@ gql`
 const WEBHOOK_ITEM_NAV_KEY = 'webhook-item-'
 
 const WebhookLogs = () => {
-  const { webhookId } = useParams<{ webhookId: string }>()
+  const { webhookId = '' } = useParams<{ webhookId: string }>()
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
   const { data: webhookUrlData, loading: webhookUrlLoading } = useGetWebhookInformationsQuery({
-    variables: { id: webhookId as string },
+    variables: { id: webhookId },
     skip: !webhookId,
   })
   const { tab: statusFilter } = useParams<{ tab: WebhookStatusEnum }>()
@@ -92,7 +92,7 @@ const WebhookLogs = () => {
   const [getWebhookLogs, { data, loading, error, refetch, fetchMore, variables }] =
     useGetWebhookLogLazyQuery({
       variables: {
-        webhookEndpointId: webhookId as string,
+        webhookEndpointId: webhookId,
         limit: 50,
         ...(statusFilter ? { status: statusFilter } : {}),
       },
