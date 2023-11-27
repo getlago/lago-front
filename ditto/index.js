@@ -110,6 +110,9 @@ module.exports = {
   "project_63e26d71cc5ddde09d90bd99": {
     "base": require('./-ready-for-dev---settings-customers---lago-x-osso-connection__base.json')
   },
+  "project_65608097887826ae4c08828a": {
+    "base": require('./-ready-for-dev---wallets---setup-recurring-prepaid-credit-top-up__base.json')
+  },
   "project_64d23a7dbab3e178ad302aa0": {
     "base": require('./-ready-for-dev---webhook---select-webhooks-signature__base.json')
   },

@@ -37,6 +37,9 @@ const CreateAddOn = lazyLoad(
 const CreateSubscription = lazyLoad(
   () => import(/* webpackChunkName: 'create-subscription' */ '~/pages/CreateSubscription'),
 )
+const WalletForm = lazyLoad(
+  () => import(/* webpackChunkName: 'wallet-form' */ '~/pages/WalletForm'),
+)
 
 // Details
 const SubscriptionDetails = lazyLoad(
@@ -77,6 +80,9 @@ export const CREATE_SUBSCRIPTION = '/customer/:customerId/create/subscription'
 export const UPDATE_SUBSCRIPTION = '/customer/:customerId/update/subscription/:subscriptionId'
 export const UPGRADE_DOWNGRADE_SUBSCRIPTION =
   '/customer/:customerId/upgrade-downgrade/subscription/:subscriptionId'
+
+export const CREATE_WALLET_ROUTE = '/customer/:customerId/wallet/create'
+export const EDIT_WALLET_ROUTE = '/customer/:customerId/wallet/:walletId'
 
 // Details
 export const CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE =
@@ -149,6 +155,11 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     path: [CREATE_SUBSCRIPTION, UPDATE_SUBSCRIPTION, UPGRADE_DOWNGRADE_SUBSCRIPTION],
     private: true,
     element: <CreateSubscription />,
+  },
+  {
+    path: [CREATE_WALLET_ROUTE, EDIT_WALLET_ROUTE],
+    private: true,
+    element: <WalletForm />,
   },
 ]
 
