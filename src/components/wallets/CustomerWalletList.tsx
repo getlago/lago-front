@@ -1,9 +1,11 @@
 import { gql } from '@apollo/client'
-import { forwardRef, MutableRefObject, useRef } from 'react'
+import { useRef } from 'react'
+import { generatePath, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Button, InfiniteScroll, Popper, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { CREATE_WALLET_ROUTE, EDIT_WALLET_ROUTE } from '~/core/router'
 import {
   TimezoneEnum,
   useGetCustomerWalletListQuery,
@@ -18,16 +20,11 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, theme } from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
 
-import { AddWalletToCustomerDialogRef } from './AddWalletToCustomerDialog'
 import {
   TerminateCustomerWalletDialog,
   TerminateCustomerWalletDialogRef,
 } from './TerminateCustomerWalletDialog'
 import { TopupWalletDialog, TopupWalletDialogRef } from './TopupWalletDialog'
-import {
-  UpdateCustomerWalletDialog,
-  UpdateCustomerWalletDialogRef,
-} from './UpdateCustomerWalletDialog'
 import { WalletAccordion, WalletAccordionSkeleton } from './WalletAccordion'
 
 gql`
@@ -61,12 +58,9 @@ interface CustommerWalletListProps {
   customerTimezone?: TimezoneEnum
 }
 
-export const CustomerWalletsList = forwardRef<
-  AddWalletToCustomerDialogRef,
-  CustommerWalletListProps
->(({ customerId, customerTimezone }: CustommerWalletListProps, ref) => {
+export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerWalletListProps) => {
+  const navigate = useNavigate()
   const { translate } = useInternationalization()
-  const updateCustomerWalletDialogRef = useRef<UpdateCustomerWalletDialogRef>(null)
   const terminateCustomerWalletDialogRef = useRef<TerminateCustomerWalletDialogRef>(null)
   const topupWalletDialogRef = useRef<TopupWalletDialogRef>(null)
   const { data, error, loading, fetchMore } = useGetCustomerWalletListQuery({
@@ -97,7 +91,11 @@ export const CustomerWalletsList = forwardRef<
           <Button
             variant="quaternary"
             onClick={() =>
-              (ref as MutableRefObject<AddWalletToCustomerDialogRef>)?.current?.openDialog()
+              navigate(
+                generatePath(CREATE_WALLET_ROUTE, {
+                  customerId: customerId as string,
+                }),
+              )
             }
           >
             {translate('text_62d175066d2dbf1d50bc9382')}
@@ -127,11 +125,16 @@ export const CustomerWalletsList = forwardRef<
                   variant="quaternary"
                   align="left"
                   onClick={() => {
-                    updateCustomerWalletDialogRef?.current?.openDialog()
+                    navigate(
+                      generatePath(EDIT_WALLET_ROUTE, {
+                        customerId: customerId as string,
+                        walletId: activeWallet.id as string,
+                      }),
+                    )
                     closePopper()
                   }}
                 >
-                  {translate('text_62e161ceb87c201025388adc')}
+                  {translate('text_6560809d38fb9de88d8a5495')}
                 </Button>
                 <Button
                   variant="quaternary"
@@ -185,7 +188,6 @@ export const CustomerWalletsList = forwardRef<
       {activeWallet && (
         <>
           <TopupWalletDialog ref={topupWalletDialogRef} wallet={activeWallet} />
-          <UpdateCustomerWalletDialog ref={updateCustomerWalletDialogRef} wallet={activeWallet} />
           <TerminateCustomerWalletDialog
             ref={terminateCustomerWalletDialogRef}
             walletId={activeWallet.id}
@@ -194,7 +196,7 @@ export const CustomerWalletsList = forwardRef<
       )}
     </SideSection>
   )
-})
+}
 
 const WalletList = styled.div`
   > * {

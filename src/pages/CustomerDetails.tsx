@@ -29,15 +29,12 @@ import {
 } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import {
-  AddWalletToCustomerDialog,
-  AddWalletToCustomerDialogRef,
-} from '~/components/wallets/AddWalletToCustomerDialog'
 import { CustomerWalletsList } from '~/components/wallets/CustomerWalletList'
 import { addToast } from '~/core/apolloClient'
 import {
   CREATE_INVOICE_ROUTE,
   CREATE_SUBSCRIPTION,
+  CREATE_WALLET_ROUTE,
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMERS_LIST_ROUTE,
@@ -98,7 +95,6 @@ const CustomerDetails = () => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
   const editDialogRef = useRef<AddCustomerDrawerRef>(null)
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
-  const addWalletToCustomerDialogRef = useRef<AddWalletToCustomerDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
@@ -225,7 +221,11 @@ const CustomerDetails = () => {
                   align="left"
                   disabled={!!hasActiveWallet}
                   onClick={() => {
-                    addWalletToCustomerDialogRef.current?.openDialog()
+                    navigate(
+                      generatePath(CREATE_WALLET_ROUTE, {
+                        customerId: customerId as string,
+                      }),
+                    )
                     closePopper()
                   }}
                 >
@@ -345,7 +345,6 @@ const CustomerDetails = () => {
                       component: (
                         <SideBlock>
                           <CustomerWalletsList
-                            ref={addWalletToCustomerDialogRef}
                             customerId={customerId as string}
                             customerTimezone={safeTimezone}
                           />
@@ -447,11 +446,6 @@ const CustomerDetails = () => {
             ref={addCouponDialogRef}
             customerId={customerId as string}
             customerName={data?.customer?.name as string}
-          />
-          <AddWalletToCustomerDialog
-            customerId={customerId as string}
-            userCurrency={data?.customer?.currency || undefined}
-            ref={addWalletToCustomerDialogRef}
           />
         </>
       )}

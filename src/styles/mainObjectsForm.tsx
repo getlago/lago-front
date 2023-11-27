@@ -1,3 +1,6 @@
+// This file contains styled components for the main objects form
+// Ultimately, only general rules such as responsive or block size should be kept here
+// Parts about spacing between elements should be moved to the components themselves
 import styled from 'styled-components'
 
 import { Typography } from '~/components/designSystem'

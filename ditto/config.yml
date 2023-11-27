@@ -313,5 +313,8 @@ sources:
       fileName: 👍 [Ready for dev] - Settings - Add redirect url to PSP
     - name: 👍 [Ready for dev] - Dashboards -  Add financial reporting to Lago
       id: 6543ca0b70910093c87cd539
+      fileName: 👍 [Ready for dev] - Dashboards -  Add financial reporting to Lago
+    - name: 👍 [Ready for dev] - Wallets - Setup recurring prepaid credit top-up
+      id: 65608097887826ae4c08828a
 format: flat
 variants: true
