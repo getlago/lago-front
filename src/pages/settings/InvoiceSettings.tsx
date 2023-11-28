@@ -125,6 +125,190 @@ const InvoiceSettings = () => {
       <Title variant="headline">{translate('text_62ab2d0396dd6b0361614d24')}</Title>
       <Subtitle>{translate('text_637f819eff19cd55a56d55e2')}</Subtitle>
 
+      {/* Default currency */}
+      <InlineSectionTitle>
+        <Typography variant="subhead" color="grey700">
+          {translate('text_6543ca0fdebf76a18e15929c')}
+        </Typography>
+        <Button
+          variant="quaternary"
+          disabled={loading}
+          onClick={() => editDefaultCurrencyDialogRef?.current?.openDialog({ organization })}
+        >
+          {translate('text_637f819eff19cd55a56d55e4')}
+        </Button>
+      </InlineSectionTitle>
+      <InfoBlock $loading={loading}>
+        {loading ? (
+          <>
+            <Skeleton variant="text" width={320} height={12} />
+            <Skeleton variant="text" width={160} height={12} />
+          </>
+        ) : (
+          <>
+            <Typography variant="body" color="grey700">
+              {organization?.defaultCurrency}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {translate('text_6543ca0fdebf76a18e1592ee', {
+                currency: organization?.defaultCurrency,
+              })}
+            </Typography>
+          </>
+        )}
+      </InfoBlock>
+
+      {/* Document language */}
+      <InlineSectionTitle>
+        <Typography variant="subhead" color="grey700">
+          {translate('text_63e51ef4985f0ebd75c212fd')}
+        </Typography>
+        <Button
+          variant="quaternary"
+          disabled={loading}
+          onClick={editDocumentLanguageDialogRef?.current?.openDialog}
+        >
+          {translate('text_63e51ef4985f0ebd75c212fc')}
+        </Button>
+      </InlineSectionTitle>
+      <InfoBlock $loading={loading}>
+        {loading ? (
+          <>
+            <Skeleton variant="text" width={320} height={12} />
+            <Skeleton variant="text" width={160} height={12} />
+          </>
+        ) : (
+          <>
+            <Typography variant="body" color="grey700">
+              {DocumentLocales[documentLocale]}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {translate('text_63e51ef4985f0ebd75c212ff', {
+                locale: DocumentLocales[documentLocale],
+              })}
+            </Typography>
+          </>
+        )}
+      </InfoBlock>
+
+      {/* Grace period */}
+      <InlineSectionTitle>
+        <Typography variant="subhead" color="grey700">
+          {translate('text_638dc196fb209d551f3d8141')}
+        </Typography>
+        <Button
+          variant="quaternary"
+          endIcon={isPremium ? undefined : 'sparkles'}
+          disabled={loading}
+          onClick={
+            isPremium
+              ? editGracePeriodDialogRef?.current?.openDialog
+              : premiumWarningDialogRef.current?.openDialog
+          }
+        >
+          {translate('text_637f819eff19cd55a56d55e4')}
+        </Button>
+      </InlineSectionTitle>
+      <InfoBlock $loading={loading}>
+        {loading ? (
+          <>
+            <Skeleton variant="text" width={320} height={12} />
+            <Skeleton variant="text" width={160} height={12} />
+          </>
+        ) : (
+          <>
+            <Typography variant="body" color="grey700">
+              {translate(
+                'text_638dc196fb209d551f3d81a2',
+                { gracePeriod: invoiceGracePeriod },
+                invoiceGracePeriod,
+              )}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {translate('text_638dc196fb209d551f3d81a6')}
+            </Typography>
+          </>
+        )}
+      </InfoBlock>
+
+      {/* Invoice default footer */}
+      <InlineSectionTitle>
+        <Typography variant="subhead" color="grey700">
+          {translate('text_637f819eff19cd55a56d55f6')}
+        </Typography>
+        <Button
+          variant="quaternary"
+          disabled={loading}
+          onClick={editInvoiceTemplateDialogRef?.current?.openDialog}
+        >
+          {translate('text_6380d7e60f081e5b777c4b24')}
+        </Button>
+      </InlineSectionTitle>
+      <InfoBlock $loading={loading}>
+        {loading ? (
+          <>
+            <Skeleton variant="text" width={320} height={12} />
+            <Skeleton variant="text" width={160} height={12} />
+          </>
+        ) : !invoiceFooter ? (
+          <>
+            <Typography variant="body" color="grey700">
+              {translate('text_637f819eff19cd55a56d55f8')}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {translate('text_637f819eff19cd55a56d55fa')}
+            </Typography>
+          </>
+        ) : (
+          <ShowMoreText
+            variant="body"
+            color="grey700"
+            text={invoiceFooter}
+            limit={MAX_FOOTER_LENGTH_DISPLAY_LIMIT}
+          />
+        )}
+      </InfoBlock>
+
+      {/* Net payment term */}
+      <InlineSectionTitle>
+        <Typography variant="subhead" color="grey700">
+          {translate('text_64c7a89b6c67eb6c98898167')}
+        </Typography>
+        <Button
+          variant="quaternary"
+          disabled={loading}
+          onClick={() => editNetPaymentTermDialogRef?.current?.openDialog(organization)}
+        >
+          {translate('text_637f819eff19cd55a56d55e4')}
+        </Button>
+      </InlineSectionTitle>
+      <InfoBlock $loading={loading}>
+        {loading ? (
+          <>
+            <Skeleton variant="text" width={320} height={12} />
+            <Skeleton variant="text" width={160} height={12} />
+          </>
+        ) : (
+          <>
+            <Typography variant="body" color="grey700">
+              {organization?.netPaymentTerm === 0
+                ? translate('text_64c7a89b6c67eb6c98898125')
+                : translate(
+                    'text_64c7a89b6c67eb6c9889815f',
+                    {
+                      days: organization?.netPaymentTerm,
+                    },
+                    organization?.netPaymentTerm,
+                  )}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {translate('text_64c7a89b6c67eb6c98898182')}
+            </Typography>
+          </>
+        )}
+      </InfoBlock>
+
+      {/* Tax */}
       <InlineSectionTitle>
         <Typography variant="subhead" color="grey700">
           {translate('text_637f819eff19cd55a56d55e6')}
@@ -138,7 +322,6 @@ const InvoiceSettings = () => {
           {translate('text_645bb193927b375079d28ad2')}
         </Button>
       </InlineSectionTitle>
-
       <InfoBlock $loading={loading}>
         {loading ? (
           <>
@@ -201,189 +384,6 @@ const InvoiceSettings = () => {
               )}
             </Typography>
           </>
-        )}
-      </InfoBlock>
-
-      <InlineSectionTitle>
-        <Typography variant="subhead" color="grey700">
-          {translate('text_64c7a89b6c67eb6c98898167')}
-        </Typography>
-        <Button
-          variant="quaternary"
-          disabled={loading}
-          onClick={() => editNetPaymentTermDialogRef?.current?.openDialog(organization)}
-        >
-          {translate('text_637f819eff19cd55a56d55e4')}
-        </Button>
-      </InlineSectionTitle>
-
-      <InfoBlock $loading={loading}>
-        {loading ? (
-          <>
-            <Skeleton variant="text" width={320} height={12} />
-            <Skeleton variant="text" width={160} height={12} />
-          </>
-        ) : (
-          <>
-            <Typography variant="body" color="grey700">
-              {organization?.netPaymentTerm === 0
-                ? translate('text_64c7a89b6c67eb6c98898125')
-                : translate(
-                    'text_64c7a89b6c67eb6c9889815f',
-                    {
-                      days: organization?.netPaymentTerm,
-                    },
-                    organization?.netPaymentTerm,
-                  )}
-            </Typography>
-            <Typography variant="caption" color="grey600">
-              {translate('text_64c7a89b6c67eb6c98898182')}
-            </Typography>
-          </>
-        )}
-      </InfoBlock>
-
-      <InlineSectionTitle>
-        <Typography variant="subhead" color="grey700">
-          {translate('text_638dc196fb209d551f3d8141')}
-        </Typography>
-        <Button
-          variant="quaternary"
-          endIcon={isPremium ? undefined : 'sparkles'}
-          disabled={loading}
-          onClick={
-            isPremium
-              ? editGracePeriodDialogRef?.current?.openDialog
-              : premiumWarningDialogRef.current?.openDialog
-          }
-        >
-          {translate('text_637f819eff19cd55a56d55e4')}
-        </Button>
-      </InlineSectionTitle>
-
-      <InfoBlock $loading={loading}>
-        {loading ? (
-          <>
-            <Skeleton variant="text" width={320} height={12} />
-            <Skeleton variant="text" width={160} height={12} />
-          </>
-        ) : (
-          <>
-            <Typography variant="body" color="grey700">
-              {translate(
-                'text_638dc196fb209d551f3d81a2',
-                { gracePeriod: invoiceGracePeriod },
-                invoiceGracePeriod,
-              )}
-            </Typography>
-            <Typography variant="caption" color="grey600">
-              {translate('text_638dc196fb209d551f3d81a6')}
-            </Typography>
-          </>
-        )}
-      </InfoBlock>
-
-      <InlineSectionTitle>
-        <Typography variant="subhead" color="grey700">
-          {translate('text_6543ca0fdebf76a18e15929c')}
-        </Typography>
-        <Button
-          variant="quaternary"
-          disabled={loading}
-          onClick={() => editDefaultCurrencyDialogRef?.current?.openDialog({ organization })}
-        >
-          {translate('text_637f819eff19cd55a56d55e4')}
-        </Button>
-      </InlineSectionTitle>
-
-      <InfoBlock $loading={loading}>
-        {loading ? (
-          <>
-            <Skeleton variant="text" width={320} height={12} />
-            <Skeleton variant="text" width={160} height={12} />
-          </>
-        ) : (
-          <>
-            <Typography variant="body" color="grey700">
-              {organization?.defaultCurrency}
-            </Typography>
-            <Typography variant="caption" color="grey600">
-              {translate('text_6543ca0fdebf76a18e1592ee', {
-                currency: organization?.defaultCurrency,
-              })}
-            </Typography>
-          </>
-        )}
-      </InfoBlock>
-
-      <InlineSectionTitle>
-        <Typography variant="subhead" color="grey700">
-          {translate('text_63e51ef4985f0ebd75c212fd')}
-        </Typography>
-        <Button
-          variant="quaternary"
-          disabled={loading}
-          onClick={editDocumentLanguageDialogRef?.current?.openDialog}
-        >
-          {translate('text_63e51ef4985f0ebd75c212fc')}
-        </Button>
-      </InlineSectionTitle>
-
-      <InfoBlock $loading={loading}>
-        {loading ? (
-          <>
-            <Skeleton variant="text" width={320} height={12} />
-            <Skeleton variant="text" width={160} height={12} />
-          </>
-        ) : (
-          <>
-            <Typography variant="body" color="grey700">
-              {DocumentLocales[documentLocale]}
-            </Typography>
-            <Typography variant="caption" color="grey600">
-              {translate('text_63e51ef4985f0ebd75c212ff', {
-                locale: DocumentLocales[documentLocale],
-              })}
-            </Typography>
-          </>
-        )}
-      </InfoBlock>
-
-      <InlineSectionTitle>
-        <Typography variant="subhead" color="grey700">
-          {translate('text_637f819eff19cd55a56d55f6')}
-        </Typography>
-        <Button
-          variant="quaternary"
-          disabled={loading}
-          onClick={editInvoiceTemplateDialogRef?.current?.openDialog}
-        >
-          {translate('text_6380d7e60f081e5b777c4b24')}
-        </Button>
-      </InlineSectionTitle>
-
-      <InfoBlock $loading={loading}>
-        {loading ? (
-          <>
-            <Skeleton variant="text" width={320} height={12} />
-            <Skeleton variant="text" width={160} height={12} />
-          </>
-        ) : !invoiceFooter ? (
-          <>
-            <Typography variant="body" color="grey700">
-              {translate('text_637f819eff19cd55a56d55f8')}
-            </Typography>
-            <Typography variant="caption" color="grey600">
-              {translate('text_637f819eff19cd55a56d55fa')}
-            </Typography>
-          </>
-        ) : (
-          <ShowMoreText
-            variant="body"
-            color="grey700"
-            text={invoiceFooter}
-            limit={MAX_FOOTER_LENGTH_DISPLAY_LIMIT}
-          />
         )}
       </InfoBlock>
 
