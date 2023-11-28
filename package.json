@@ -57,7 +57,7 @@
     "@types/react-dom": "18.2.7",
     "@types/react-router-dom": "5.3.3",
     "@types/react-window": "1.8.5",
-    "@types/sanitize-html": "2.9.0",
+    "@types/sanitize-html": "2.9.5",
     "@types/styled-components": "5.1.26",
     "@types/webpack": "5.28.2",
     "@typescript-eslint/eslint-plugin": "6.12.0",
