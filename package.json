@@ -47,7 +47,7 @@
     "@testing-library/react": "14.0.0",
     "@testing-library/user-event": "^14.4.3",
     "@trivago/prettier-plugin-sort-imports": "^4.2.0",
-    "@types/apollo-upload-client": "17.0.2",
+    "@types/apollo-upload-client": "17.0.5",
     "@types/jest": "29.5.10",
     "@types/jsonwebtoken": "^9.0.2",
     "@types/lodash": "4.14.202",
