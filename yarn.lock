@@ -4829,10 +4829,10 @@ cross-spawn@^7.0.0, cross-spawn@^7.0.2, cross-spawn@^7.0.3:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
-crypto-hash@2.0.1:
-  version "2.0.1"
-  resolved "https://registry.npmjs.org/crypto-hash/-/crypto-hash-2.0.1.tgz"
-  integrity sha512-t4mkp7Vh6MuCZRBf0XLzBOfhkH3nW6YEAotMDSjshVQ1GffCMGdPLSr7pKH0rdXY02jTjAZ7QW2apD0buaZXcQ==
+crypto-hash@3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/crypto-hash/-/crypto-hash-3.0.0.tgz#1f217b7134c5e05adc013d1edce67c64fa459f7f"
+  integrity sha512-5l5xGtzuvGTU28GXxGV1JYVFou68buZWpkV1Fx5hIDRPnfbQ8KzabTlNIuDIeSCYGVPFehupzDqlnbXm2IXmdQ==
 
 css-color-keywords@^1.0.0:
   version "1.0.0"
