@@ -98,6 +98,9 @@ module.exports = {
   "project_634ea0e94c99df2bb59820d9": {
     "base": require('./-ready-for-dev---settings---customers---lago-gocardless-connection__base.json')
   },
+  "project_6566f91e13d6446f022fd7d1": {
+    "base": require('./-ready-for-dev---settings---define-invoice-number__base.json')
+  },
   "project_64c7a896197f1907cbc6371c": {
     "base": require('./-ready-for-dev---settings---net-payment-term__base.json')
   },
