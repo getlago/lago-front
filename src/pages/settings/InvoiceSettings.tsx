@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { DateTime } from 'luxon'
 import { useRef } from 'react'
 import styled from 'styled-components'
 
@@ -35,6 +36,10 @@ import {
 } from '~/components/settings/EditOrganizationDocumentLocaleDialog'
 import { EditOrganizationGracePeriodDialog } from '~/components/settings/EditOrganizationGracePeriodDialog'
 import {
+  EditOrganizationInvoiceNumberingDialog,
+  EditOrganizationInvoiceNumberingDialogRef,
+} from '~/components/settings/EditOrganizationInvoiceNumberingDialog'
+import {
   EditOrganizationInvoiceTemplateDialog,
   EditOrganizationInvoiceTemplateDialogRef,
 } from '~/components/settings/EditOrganizationInvoiceTemplateDialog'
@@ -42,7 +47,9 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { DocumentLocales } from '~/core/translations/documentLocales'
 import {
   DeleteOrganizationVatRateFragmentDoc,
+  DocumentNumberingEnum,
   EditOrganizationDefaultCurrencyForDialogFragmentDoc,
+  EditOrganizationInvoiceNumberingDialogFragmentDoc,
   EditOrganizationInvoiceTemplateDialogFragmentDoc,
   EditOrganizationNetPaymentTermForDialogFragmentDoc,
   useGetOrganizationSettingsQuery,
@@ -54,12 +61,38 @@ import { NAV_HEIGHT, theme } from '~/styles'
 
 const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
 
+const InvoiceNumberingTypeLabelTranslationKey = {
+  [DocumentNumberingEnum.PerCustomer]: 'text_6566f920a1d6c35693d6cdca',
+  [DocumentNumberingEnum.PerOrganization]: 'text_6566f920a1d6c35693d6cd26',
+}
+
+const InvoiceNumberingTypeDescriptionTranslationKey = {
+  [DocumentNumberingEnum.PerCustomer]: 'text_6566f920a1d6c35693d6cdd2',
+  [DocumentNumberingEnum.PerOrganization]: 'text_6566f920a1d6c35693d6cd2e',
+}
+
+export const getInvoiceNumberPreview = (
+  documentNumbering: DocumentNumberingEnum,
+  documentNumberPrefix: string,
+) => {
+  const date = DateTime.now().toFormat('yyyyMM')
+
+  const numberEndging = {
+    [DocumentNumberingEnum.PerCustomer]: '001-001',
+    [DocumentNumberingEnum.PerOrganization]: `${date}-001`,
+  }
+
+  return `${documentNumberPrefix}-${numberEndging[documentNumbering]}`
+}
+
 gql`
   query getOrganizationSettings($appliedToOrganization: Boolean = true) {
     organization {
       id
       netPaymentTerm
       defaultCurrency
+      documentNumbering
+      documentNumberPrefix
       billingConfiguration {
         id
         invoiceGracePeriod
@@ -69,6 +102,7 @@ gql`
       ...EditOrganizationInvoiceTemplateDialog
       ...EditOrganizationNetPaymentTermForDialog
       ...EditOrganizationDefaultCurrencyForDialog
+      ...EditOrganizationInvoiceNumberingDialog
     }
 
     taxes(appliedToOrganization: $appliedToOrganization) {
@@ -87,6 +121,7 @@ gql`
   ${EditOrganizationInvoiceTemplateDialogFragmentDoc}
   ${EditOrganizationNetPaymentTermForDialogFragmentDoc}
   ${EditOrganizationDefaultCurrencyForDialogFragmentDoc}
+  ${EditOrganizationInvoiceNumberingDialogFragmentDoc}
 `
 
 const InvoiceSettings = () => {
@@ -95,6 +130,7 @@ const InvoiceSettings = () => {
   const editVATDialogRef = useRef<AddOrganizationVatRateDialogRef>(null)
   const deleteVATDialogRef = useRef<DeleteOrganizationVatRateDialogRef>(null)
   const editInvoiceTemplateDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
+  const editInvoiceNumberingDialogRef = useRef<EditOrganizationInvoiceNumberingDialogRef>(null)
   const editGracePeriodDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
   const editDefaultCurrencyDialogRef = useRef<EditDefaultCurrencyDialogRef>(null)
   const editDocumentLanguageDialogRef = useRef<EditOrganizationDocumentLocaleDialogRef>(null)
@@ -269,6 +305,53 @@ const InvoiceSettings = () => {
         )}
       </InfoBlock>
 
+      {/* Invoice numbering */}
+      <InlineSectionTitle>
+        <Typography variant="subhead" color="grey700">
+          {translate('text_6566f920a1d6c35693d6cd16')}
+        </Typography>
+        <Button
+          variant="quaternary"
+          disabled={loading}
+          onClick={editInvoiceNumberingDialogRef?.current?.openDialog}
+        >
+          {translate('text_6380d7e60f081e5b777c4b24')}
+        </Button>
+      </InlineSectionTitle>
+      <InfoBlock $loading={loading}>
+        {loading ? (
+          <>
+            <Skeleton variant="text" width={320} height={12} />
+            <Skeleton variant="text" width={160} height={12} />
+          </>
+        ) : (
+          <>
+            <InlineFlexBaseline>
+              <Typography variant="body" color="grey700">
+                {getInvoiceNumberPreview(
+                  organization?.documentNumbering as DocumentNumberingEnum,
+                  organization?.documentNumberPrefix || '',
+                )}
+              </Typography>
+              <Typography variant="body" color="grey600">
+                {translate(
+                  InvoiceNumberingTypeLabelTranslationKey[
+                    organization?.documentNumbering as DocumentNumberingEnum
+                  ],
+                )}
+              </Typography>
+            </InlineFlexBaseline>
+            <Typography variant="caption" color="grey600">
+              {translate(
+                InvoiceNumberingTypeDescriptionTranslationKey[
+                  organization?.documentNumbering as DocumentNumberingEnum
+                ],
+              )}
+            </Typography>
+          </>
+        )}
+      </InfoBlock>
+
       {/* Net payment term */}
       <InlineSectionTitle>
         <Typography variant="subhead" color="grey700">
@@ -396,6 +479,11 @@ const InvoiceSettings = () => {
         ref={editInvoiceTemplateDialogRef}
         invoiceFooter={invoiceFooter}
       />
+      <EditOrganizationInvoiceNumberingDialog
+        ref={editInvoiceNumberingDialogRef}
+        documentNumbering={organization?.documentNumbering}
+        documentNumberPrefix={organization?.documentNumberPrefix}
+      />
       <EditOrganizationGracePeriodDialog
         ref={editGracePeriodDialogRef}
         invoiceGracePeriod={invoiceGracePeriod}
@@ -474,6 +562,12 @@ const RightSection = styled.div`
   align-items: center;
   flex: 1;
   justify-content: flex-end;
+`
+
+const InlineFlexBaseline = styled.div`
+  display: flex;
+  align-items: baseline;
+  column-gap: ${theme.spacing(1)};
 `
 
 export default InvoiceSettings

@@ -1,5 +1,5 @@
 import clsns from 'classnames'
-import { forwardRef, ReactNode, useRef, useState } from 'react'
+import { forwardRef, ReactNode, useId, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import { Typography } from '~/components/designSystem'
@@ -19,6 +19,8 @@ export interface RadioProps {
 
 export const Radio = forwardRef<HTMLDivElement, RadioProps>(
   ({ name, checked, label, sublabel, disabled, value, onChange }: RadioProps, ref) => {
+    const componentId = useId()
+
     const inputRef = useRef<HTMLInputElement>(null)
     const [focused, setFocused] = useState(false)
 
@@ -36,6 +38,7 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
         <RadioContainer>
           <input
             readOnly
+            id={componentId}
             ref={inputRef}
             disabled={disabled}
             aria-label={name}
@@ -54,7 +57,7 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
         <RadioLabelWrapper>
           <Typography
             color={disabled ? 'disabled' : 'textSecondary'}
-            component={(labelProps) => <label htmlFor={name} {...labelProps} />}
+            component={(labelProps) => <label htmlFor={componentId} {...labelProps} />}
           >
             {label}
           </Typography>
