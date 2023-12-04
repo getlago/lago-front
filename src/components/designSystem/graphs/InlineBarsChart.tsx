@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import { theme } from '~/styles'
 
-export type InlineBarsChartProps = {
+type InlineBarsChartProps = {
   data: Record<string, number>[]
   colors: string[]
   hoveredBarId?: string

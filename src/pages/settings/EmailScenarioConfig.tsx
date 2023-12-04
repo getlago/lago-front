@@ -28,7 +28,7 @@ import { useEmailConfig } from '~/hooks/useEmailConfig'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 import { MenuPopper, NAV_HEIGHT, PageHeader, theme } from '~/styles'
 
-export enum DisplayEnum {
+enum DisplayEnum {
   desktop = 'desktop',
   mobile = 'mobile',
 }

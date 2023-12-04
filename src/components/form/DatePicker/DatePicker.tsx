@@ -22,7 +22,7 @@ gql`
   }
 `
 
-export enum DATE_PICKER_ERROR_ENUM {
+enum DATE_PICKER_ERROR_ENUM {
   invalid = 'invalid',
 }
 export interface DatePickerProps

@@ -49,7 +49,7 @@ interface PortalCustomerInvoicesProps {
   documentLocale: LocaleEnum
 }
 
-export const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoicesProps) => {
+const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoicesProps) => {
   const [getInvoices, { data, loading, error, fetchMore, variables }] =
     useCustomerPortalInvoicesLazyQuery({
       notifyOnNetworkStatusChange: true,

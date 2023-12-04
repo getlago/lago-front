@@ -18,7 +18,7 @@ import styled from 'styled-components'
 
 import { theme } from '~/styles'
 
-export interface PopperProps {
+interface PopperProps {
   className?: string
   opener?: ReactElement | (({ isOpen }: { isOpen: boolean }) => ReactElement)
   maxHeight?: number | string
@@ -32,7 +32,7 @@ export interface PopperProps {
   onClickAway?: () => void
 }
 
-export interface PopperRef {
+interface PopperRef {
   openPopper: () => unknown
   closePopper: () => unknown
 }

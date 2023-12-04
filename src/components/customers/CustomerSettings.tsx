@@ -40,7 +40,10 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, NAV_HEIGHT, theme } from '~/styles'
 import { SideSection } from '~/styles/customer'
 
-import { DeleteCustomerDocumentLocaleDialog } from './DeleteCustomerDocumentLocaleDialog'
+import {
+  DeleteCustomerDocumentLocaleDialog,
+  DeleteCustomerDocumentLocaleDialogRef,
+} from './DeleteCustomerDocumentLocaleDialog'
 import {
   DeleteCustomerGracePeriodeDialog,
   DeleteCustomerGracePeriodeDialogRef,
@@ -132,7 +135,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
   const deleteGracePeriodDialogRef = useRef<DeleteCustomerGracePeriodeDialogRef>(null)
   const editCustomerDocumentLocale = useRef<EditCustomerDocumentLocaleDialogRef>(null)
-  const deleteCustomerDocumentLocale = useRef<DeleteCustomerGracePeriodeDialogRef>(null)
+  const deleteCustomerDocumentLocale = useRef<DeleteCustomerDocumentLocaleDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
   const deleteOrganizationNetPaymentTermDialogRef =

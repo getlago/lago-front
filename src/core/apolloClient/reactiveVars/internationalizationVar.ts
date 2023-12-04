@@ -11,7 +11,7 @@ interface InternationalizationVar {
   translations?: Record<string, string>
 }
 
-export const internationalizationVar = makeVar<InternationalizationVar>({
+const internationalizationVar = makeVar<InternationalizationVar>({
   locale: getItemFromLS(LOCALE_LS_KEY) ?? LocaleEnum.en,
   translations: {},
 })

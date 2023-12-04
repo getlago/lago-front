@@ -14,7 +14,7 @@ import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
 
 import PlanDetailsChargeTableDisplay from './PlanDetailsChargeTableDisplay'
 
-export const PlanDetailsChargeWrapperSwitch = ({
+const PlanDetailsChargeWrapperSwitch = ({
   currency,
   chargeModel,
   values,

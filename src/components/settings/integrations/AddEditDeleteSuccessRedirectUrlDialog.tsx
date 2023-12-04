@@ -60,13 +60,13 @@ gql`
   }
 `
 
-export const AddEditDeleteSuccessRedirectUrlDialogMode = {
+const AddEditDeleteSuccessRedirectUrlDialogMode = {
   Add: 'Add',
   Edit: 'Edit',
   Delete: 'Delete',
 } as const
 
-export const AddEditDeleteSuccessRedirectUrlDialogProviderType = {
+const AddEditDeleteSuccessRedirectUrlDialogProviderType = {
   Adyen: 'Adyen',
   Stripe: 'Stripe',
   GoCardless: 'GoCardless',
@@ -169,33 +169,6 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
             },
           },
         })
-
-        // if (localData?.type === AddEditDeleteSuccessRedirectUrlDialogProviderType.Adyen) {
-        // } else if (localData?.type === AddEditDeleteSuccessRedirectUrlDialogProviderType.Stripe) {
-        //   res = await updateStripeProvider({
-        //     variables: {
-        //       input: {
-        //         successRedirectUrl:
-        //           localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Delete
-        //             ? null
-        //             : values.successRedirectUrl,
-        //       },
-        //     },
-        //   })
-        // } else if (
-        //   localData?.type === AddEditDeleteSuccessRedirectUrlDialogProviderType.GoCardless
-        // ) {
-        //   res = await updateGocardlessProvider({
-        //     variables: {
-        //       input: {
-        //         successRedirectUrl:
-        //           localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Delete
-        //             ? null
-        //             : values.successRedirectUrl,
-        //       },
-        //     },
-        //   })
-        // }
 
         if (res?.errors) {
           if (hasDefinedGQLError('UrlIsInvalid', res.errors)) {

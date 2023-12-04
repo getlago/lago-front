@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components'
 
 import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
 
-export const ListItemCss = css`
+const ListItemCss = css`
   width: 100%;
   box-sizing: border-box;
   height: ${NAV_HEIGHT}px;

@@ -7,7 +7,7 @@ import styled, { css } from 'styled-components'
 
 import { TextInput, TextInputProps } from './TextInput'
 
-export interface TextInputFieldProps extends Omit<TextInputProps, 'onChange' | 'name'> {
+interface TextInputFieldProps extends Omit<TextInputProps, 'onChange' | 'name'> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formikProps: FormikProps<any>
   name: string

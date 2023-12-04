@@ -59,7 +59,7 @@ gql`
   ${EditPlanFragmentDoc}
 `
 
-export interface UsePlanFormReturn {
+interface UsePlanFormReturn {
   errorCode?: string
   formikProps: FormikProps<PlanFormInput>
   isEdition: boolean

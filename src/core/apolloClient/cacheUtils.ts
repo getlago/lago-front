@@ -4,11 +4,12 @@ import { ApolloClient } from '@apollo/client'
 import { CurrentUserFragment } from '~/generated/graphql'
 
 import {
-  ORGANIZATION_LS_KEY_ID,
   resetLocationHistoryVar,
   updateAuthTokenVar,
   updateCustomerPortalTokenVar,
 } from './reactiveVars'
+
+export const ORGANIZATION_LS_KEY_ID = 'currentOrganization'
 
 gql`
   fragment CurrentUser on User {
@@ -35,10 +36,6 @@ export const setItemFromLS = (key: string, value: unknown) => {
   const stringify = typeof value !== 'string' ? JSON.stringify(value) : value
 
   return localStorage.setItem(key, stringify)
-}
-
-export const removeItem = (key: string) => {
-  localStorage.removeItem(key)
 }
 
 // --------------------- Auth utils ---------------------

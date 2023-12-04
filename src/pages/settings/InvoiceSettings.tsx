@@ -34,7 +34,10 @@ import {
   EditOrganizationDocumentLocaleDialog,
   EditOrganizationDocumentLocaleDialogRef,
 } from '~/components/settings/EditOrganizationDocumentLocaleDialog'
-import { EditOrganizationGracePeriodDialog } from '~/components/settings/EditOrganizationGracePeriodDialog'
+import {
+  EditOrganizationGracePeriodDialog,
+  EditOrganizationGracePeriodDialogRef,
+} from '~/components/settings/EditOrganizationGracePeriodDialog'
 import {
   EditOrganizationInvoiceNumberingDialog,
   EditOrganizationInvoiceNumberingDialogRef,
@@ -131,7 +134,7 @@ const InvoiceSettings = () => {
   const deleteVATDialogRef = useRef<DeleteOrganizationVatRateDialogRef>(null)
   const editInvoiceTemplateDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
   const editInvoiceNumberingDialogRef = useRef<EditOrganizationInvoiceNumberingDialogRef>(null)
-  const editGracePeriodDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
+  const editGracePeriodDialogRef = useRef<EditOrganizationGracePeriodDialogRef>(null)
   const editDefaultCurrencyDialogRef = useRef<EditDefaultCurrencyDialogRef>(null)
   const editDocumentLanguageDialogRef = useRef<EditOrganizationDocumentLocaleDialogRef>(null)
   const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)

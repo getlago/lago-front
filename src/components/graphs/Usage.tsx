@@ -27,9 +27,9 @@ import { InvoicedUsageFakeData } from '../designSystem/graphs/fixtures'
 import InlineBarsChart from '../designSystem/graphs/InlineBarsChart'
 import { GenericPlaceholder } from '../GenericPlaceholder'
 
-export const NUMBER_OF_BM_DISPLAYED = 5
 export const LAST_USAGE_GRAPH_LINE_KEY_NAME = 'Others'
 
+const NUMBER_OF_BM_DISPLAYED = 5
 const DOT_SIZE = 8
 
 const GRAPH_COLORS = [

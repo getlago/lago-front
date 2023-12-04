@@ -22,7 +22,7 @@ enum NavigationTabOrientationEnum {
   horizontal = 'horizontal',
 }
 
-export interface NavigationTabProps extends Omit<ButtonLinkTabProps, 'to' | 'type' | 'children'> {
+interface NavigationTabProps extends Omit<ButtonLinkTabProps, 'to' | 'type' | 'children'> {
   link: string
   match?: string[]
   hidden?: boolean

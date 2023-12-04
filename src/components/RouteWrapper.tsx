@@ -25,10 +25,10 @@ const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
   return <>{children}</>
 }
 
-export const routesFormatter: (
-  routesToFormat: CustomRouteObject[],
-  loggedIn: boolean,
-) => RouteObject[] = (routesToFormat, loggedIn) => {
+const routesFormatter: (routesToFormat: CustomRouteObject[], loggedIn: boolean) => RouteObject[] = (
+  routesToFormat,
+  loggedIn,
+) => {
   return routesToFormat.reduce<RouteObject[]>((acc, route) => {
     const routeConfig = {
       element: (

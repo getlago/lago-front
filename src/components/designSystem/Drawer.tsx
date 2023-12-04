@@ -12,7 +12,7 @@ import styled from 'styled-components'
 import { Button, Typography } from '~/components/designSystem'
 import { NAV_HEIGHT, theme } from '~/styles'
 
-export interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
+interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
   className?: string
   title: string | ReactNode
   opener?: ReactElement
