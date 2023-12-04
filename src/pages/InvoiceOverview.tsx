@@ -49,7 +49,7 @@ interface InvoiceOverviewProps {
   refreshInvoice: Function
 }
 
-export const InvoiceOverview = memo(
+const InvoiceOverview = memo(
   ({
     downloadInvoice,
     hasError,

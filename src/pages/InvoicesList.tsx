@@ -82,7 +82,7 @@ gql`
   ${InvoiceListItemFragmentDoc}
 `
 
-export enum InvoiceListTabEnum {
+enum InvoiceListTabEnum {
   'all' = 'all',
   'draft' = 'draft',
   'pendingFailed' = 'pendingFailed',

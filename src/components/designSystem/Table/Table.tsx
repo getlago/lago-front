@@ -31,7 +31,7 @@ interface TableColumnContent {
 
 type TableColumnProps<T> = TableColumnMapKey<T> | TableColumnContent
 
-export interface TableProps<T> {
+interface TableProps<T> {
   name: string // this is to allow to have several table on a same page (no duplicated keys)
   columns: TableColumnProps<T>[]
   data: DataType<T>[]

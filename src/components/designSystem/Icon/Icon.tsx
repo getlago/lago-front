@@ -32,7 +32,7 @@ interface IconProps {
   onClick?: () => {} | void | Promise<void>
 }
 
-export enum IconSizeEnum {
+enum IconSizeEnum {
   small = '12px',
   medium = '16px',
   large = '24px',

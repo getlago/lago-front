@@ -16,7 +16,7 @@ export enum StatusEnum {
   voided = 'voided',
 }
 
-export type StatusType = keyof typeof StatusEnum
+type StatusType = keyof typeof StatusEnum
 interface StatusProps {
   type: StatusType
   className?: string
@@ -58,7 +58,7 @@ const STATUS_CONFIG: {
   },
 }
 
-export const STATUS_WIDTH = 84
+const STATUS_WIDTH = 84
 const STATUS_SIZE = 12
 
 export const Status = ({ type, className, label, hideLabel = false }: StatusProps) => {

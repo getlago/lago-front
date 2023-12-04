@@ -5,11 +5,9 @@ import { StatusTypeEnum } from '~/generated/graphql'
 
 import { getItemFromLS, setItemFromLS } from '../cacheUtils'
 
-export const DUPLICATE_PLAN_LS_KEY = 'duplicatePlan'
-
 export type PLAN_FORM_TYPE = keyof typeof FORM_TYPE_ENUM
 
-export type SubscriptionUpdateInfo = {
+type SubscriptionUpdateInfo = {
   subscriptionId?: string
   subscriptionExternalId?: string
   periodEndDate?: string
@@ -24,6 +22,7 @@ type DuplicatePlanVar = {
   updateInfo?: SubscriptionUpdateInfo
 }
 
+const DUPLICATE_PLAN_LS_KEY = 'duplicatePlan'
 const initial = {
   type: FORM_TYPE_ENUM.creation,
   parentId: undefined,

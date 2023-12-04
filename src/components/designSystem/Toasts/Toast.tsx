@@ -13,7 +13,7 @@ interface ToastProps {
   toast: TToast
 }
 
-export interface ToastRef {
+interface ToastRef {
   closeToast: () => unknown
 }
 

@@ -8,7 +8,7 @@ import { CurrencyEnum } from '~/generated/graphql'
 
 import { AmountInput, AmountInputProps } from './AmountInput'
 
-export interface AmountInputFieldProps extends AmountInputProps {
+interface AmountInputFieldProps extends AmountInputProps {
   currency: CurrencyEnum
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formikProps: FormikProps<any>

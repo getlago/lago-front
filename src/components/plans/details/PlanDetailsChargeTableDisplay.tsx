@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import { HEADER_TABLE_HEIGHT, theme } from '~/styles'
 
-export type ChargeTableDisplayData = {
+type ChargeTableDisplayData = {
   header: Array<string>
   body: Array<Array<string | number>>
 }

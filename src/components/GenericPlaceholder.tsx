@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { Button, ButtonVariant, Typography } from '~/components/designSystem'
 import { theme } from '~/styles'
 
-export interface GenericPlaceholderProps {
+interface GenericPlaceholderProps {
   className?: string
   title?: string
   subtitle: string | ReactNode

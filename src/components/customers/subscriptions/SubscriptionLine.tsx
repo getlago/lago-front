@@ -8,7 +8,6 @@ import {
   Button,
   Icon,
   Popper,
-  Skeleton,
   Status,
   StatusEnum,
   Tooltip,
@@ -209,27 +208,6 @@ export const SubscriptionLine = ({
 }
 
 SubscriptionLine.displayName = 'SubscriptionLine'
-
-export const SubscriptionLineSkeleton = () => {
-  return (
-    <SkeletonItem>
-      <Skeleton variant="connectorAvatar" size="medium" marginRight="12px" />
-      <div>
-        <Skeleton variant="text" width={240} height={12} marginBottom="12px" />
-        <Skeleton variant="text" width={120} height={12} />
-      </div>
-    </SkeletonItem>
-  )
-}
-
-const SkeletonItem = styled.div`
-  border: 1px solid ${theme.palette.grey[400]};
-  height: ${NAV_HEIGHT}px;
-  align-items: center;
-  display: flex;
-  padding: 0 ${theme.spacing(4)};
-  border-radius: 12px;
-`
 
 const Item = styled(ListItemLink)<{ $hasBottomSection?: boolean; $hasAboveSection?: boolean }>`
   height: ${NAV_HEIGHT}px;
