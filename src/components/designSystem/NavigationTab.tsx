@@ -1,3 +1,4 @@
+import { Stack } from '@mui/material'
 import _omit from 'lodash/omit'
 import { ReactNode } from 'react'
 import { matchPath, useLocation } from 'react-router-dom'
@@ -62,7 +63,7 @@ export const NavigationTab = ({
       {tabs.length > 1 && (
         <TabsBlock className={`navigation-tab--${orientation}`} $align={align}>
           {tabs.map((tab, i) => {
-            const { link, hidden, title, beta, ...props } = tab
+            const { link, hidden, title, beta, external, ...props } = tab
 
             if (hidden) return null
 
@@ -76,12 +77,20 @@ export const NavigationTab = ({
                 onClick={!!onClick ? () => onClick(tab) : undefined}
                 {..._omit(props, ['component', 'match'])}
               >
-                <InlineNavLinkWrapper>
-                  <Typography variant="body" color="inherit">
-                    {title}
-                  </Typography>
-                  {!!beta && <BetaChip size="xsmall" />}
-                </InlineNavLinkWrapper>
+                <Stack
+                  width="100%"
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <InlineNavLinkWrapper>
+                    <Typography variant="body" color="inherit">
+                      {title}
+                    </Typography>
+                    {!!beta && <BetaChip size="xsmall" />}
+                  </InlineNavLinkWrapper>
+                  {!!external && <Icon name="outside" />}
+                </Stack>
               </ButtonLink>
             )
           })}
