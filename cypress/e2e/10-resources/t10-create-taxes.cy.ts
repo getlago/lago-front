@@ -29,16 +29,18 @@ describe('Create taxes', () => {
   it('sould assign tax to organization', () => {
     cy.visit('/settings/invoice')
     cy.url().should('include', '/settings/invoice')
+    cy.intercept('/graphql').as('query')
+    cy.wait('@query').then(() => {
+      // Make sure no tax are already assigned
+      cy.get('[data-test="empty-taxes"]').should('exist')
 
-    // Make sure no tax are already assigned
-    cy.get('[data-test="empty-taxes"]').should('exist')
-
-    // Assign tax 20%
-    cy.get('[data-test="add-tax-button"]').click()
-    cy.get('[data-test="add-organization-tax-dialog"]').should('exist')
-    cy.get('input[name="selectTax"]').click()
-    cy.get('[data-option-index="1"]').click()
-    cy.get('[data-test="submit-add-organization-tax-dialog-assign-button"]').click()
-    cy.get(`[data-test="applied-tax-${TAX_TWENTY_CODE}"]`).should('exist')
+      // Assign tax 20%
+      cy.get('[data-test="add-tax-button"]').click()
+      cy.get('[data-test="add-organization-tax-dialog"]').should('exist')
+      cy.get('input[name="selectTax"]').click()
+      cy.get('[data-option-index="1"]').click()
+      cy.get('[data-test="submit-add-organization-tax-dialog-assign-button"]').click()
+      cy.get(`[data-test="applied-tax-${TAX_TWENTY_CODE}"]`).should('exist')
+    })
   })
 })

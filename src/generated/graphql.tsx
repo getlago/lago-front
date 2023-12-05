@@ -2557,6 +2557,7 @@ export type Organization = {
   defaultCurrency: CurrencyEnum;
   email?: Maybe<Scalars['String']['output']>;
   emailSettings?: Maybe<Array<EmailSettingsEnum>>;
+  euTaxManagement: Scalars['Boolean']['output'];
   gocardlessPaymentProvider?: Maybe<GocardlessProvider>;
   id: Scalars['ID']['output'];
   legalName?: Maybe<Scalars['String']['output']>;
@@ -3688,6 +3689,7 @@ export type UpdateOrganizationInput = {
   defaultCurrency?: InputMaybe<CurrencyEnum>;
   email?: InputMaybe<Scalars['String']['input']>;
   emailSettings?: InputMaybe<Array<EmailSettingsEnum>>;
+  euTaxManagement?: InputMaybe<Scalars['Boolean']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
   legalNumber?: InputMaybe<Scalars['String']['input']>;
   logo?: InputMaybe<Scalars['String']['input']>;
