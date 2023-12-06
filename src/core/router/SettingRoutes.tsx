@@ -33,6 +33,12 @@ const GocardlessIntegration = lazyLoad(
       /* webpackChunkName: 'gocardless-integration' */ '~/pages/settings/GocardlessIntegration'
     ),
 )
+const TaxManagementIntegration = lazyLoad(
+  () =>
+    import(
+      /* webpackChunkName: 'tax-management-integration' */ '~/pages/settings/LagoTaxManagementIntegration'
+    ),
+)
 const EmailSettings = lazyLoad(
   () => import(/* webpackChunkName: 'email-settings' */ '~/pages/settings/EmailSettings'),
 )
@@ -50,6 +56,7 @@ export const INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
 export const ADYEN_INTEGRATION_ROUTE = `${SETTINGS_ROUTE}/integrations/adyen`
 export const STRIPE_INTEGRATION_ROUTE = `${SETTINGS_ROUTE}/integrations/stripe`
 export const GOCARDLESS_INTEGRATION_ROUTE = `${SETTINGS_ROUTE}/integrations/gocardless`
+export const TAX_MANAGEMENT_INTEGRATION_ROUTE = `${SETTINGS_ROUTE}/integrations/lago-tax-management`
 export const MEMBERS_ROUTE = `${SETTINGS_ROUTE}/members`
 export const EMAILS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/emails`
 export const EMAILS_SCENARIO_CONFIG_ROUTE = `${SETTINGS_ROUTE}/emails/config/:type`
@@ -105,6 +112,11 @@ export const settingRoutes: CustomRouteObject[] = [
     path: GOCARDLESS_INTEGRATION_ROUTE,
     private: true,
     element: <GocardlessIntegration />,
+  },
+  {
+    path: TAX_MANAGEMENT_INTEGRATION_ROUTE,
+    private: true,
+    element: <TaxManagementIntegration />,
   },
   {
     path: EMAILS_SCENARIO_CONFIG_ROUTE,

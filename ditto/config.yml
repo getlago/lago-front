@@ -316,7 +316,11 @@ sources:
       fileName: 👍 [Ready for dev] - Dashboards -  Add financial reporting to Lago
     - name: 👍 [Ready for dev] - Wallets - Setup recurring prepaid credit top-up
       id: 65608097887826ae4c08828a
+      fileName: 👍 [Ready for dev] - Wallets - Setup recurring prepaid credit top-up
     - name: 👍 [Ready for dev] - Settings - Define invoice number
       id: 6566f91e13d6446f022fd7d1
+      fileName: 👍 [Ready for dev] - Settings - Define invoice number
+    - name: ⚙️ [WIP] - Integration - Lago EU tax integration
+      id: 657078becf8335e0955b5bf4
 format: flat
 variants: true

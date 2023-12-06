@@ -9,6 +9,10 @@ import {
   AddAdyenDialogRef,
 } from '~/components/settings/integrations/AddAdyenDialog'
 import {
+  AddLagoTaxManagementDialog,
+  AddLagoTaxManagementDialogRef,
+} from '~/components/settings/integrations/AddLagoTaxManagementDialog'
+import {
   AddStripeDialog,
   AddStripeDialogRef,
 } from '~/components/settings/integrations/AddStripeDialog'
@@ -23,6 +27,7 @@ import {
   ADYEN_INTEGRATION_ROUTE,
   GOCARDLESS_INTEGRATION_ROUTE,
   STRIPE_INTEGRATION_ROUTE,
+  TAX_MANAGEMENT_INTEGRATION_ROUTE,
 } from '~/core/router'
 import { useIntegrationsSettingQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -30,6 +35,7 @@ import Adyen from '~/public/images/adyen.svg'
 import Airbyte from '~/public/images/airbyte.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import HightTouch from '~/public/images/hightouch.svg'
+import LagoTaxManagement from '~/public/images/lago-tax-management.svg'
 import Oso from '~/public/images/oso.svg'
 import Segment from '~/public/images/segment.svg'
 import Stripe from '~/public/images/stripe.svg'
@@ -39,6 +45,8 @@ gql`
   query integrationsSetting {
     organization {
       id
+      euTaxManagement
+      country
       stripePaymentProvider {
         id
       }
@@ -57,10 +65,14 @@ const Integrations = () => {
   const navigate = useNavigate()
   const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
   const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
+  const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
   const { data, loading } = useIntegrationsSettingQuery()
-  const hasAdyenIntegration = !!data?.organization?.adyenPaymentProvider?.id
-  const hasStripeIntegration = !!data?.organization?.stripePaymentProvider?.id
-  const hasGocardlessIntegration = !!data?.organization?.gocardlessPaymentProvider?.id
+
+  const organization = data?.organization
+  const hasAdyenIntegration = !!organization?.adyenPaymentProvider?.id
+  const hasStripeIntegration = !!organization?.stripePaymentProvider?.id
+  const hasGocardlessIntegration = !!organization?.gocardlessPaymentProvider?.id
+  const hasTaxManagement = !!organization?.euTaxManagement
   const { lagoOauthProxyUrl } = envGlobalVar()
 
   return (
@@ -152,6 +164,27 @@ const Integrations = () => {
             fullWidth
           />
           <StyledSelector
+            fullWidth
+            title={translate('text_657078c28394d6b1ae1b9713')}
+            subtitle={translate('text_657078c28394d6b1ae1b971f')}
+            icon={<Avatar variant="connector">{<LagoTaxManagement />}</Avatar>}
+            endIcon={
+              hasTaxManagement ? (
+                <Chip label={translate('text_634ea0ecc6147de10ddb6646')} />
+              ) : undefined
+            }
+            onClick={() => {
+              if (hasTaxManagement) {
+                navigate(TAX_MANAGEMENT_INTEGRATION_ROUTE)
+              } else {
+                const element = document.activeElement as HTMLElement
+
+                element.blur && element.blur()
+                addLagoTaxManagementDialog.current?.openDialog()
+              }
+            }}
+          />
+          <StyledSelector
             title={translate('text_641b42035d62fd004e07cdde')}
             subtitle={translate('text_641b420ccd75240062f2386e')}
             icon={<Avatar variant="connector">{<Segment />}</Avatar>}
@@ -190,6 +223,10 @@ const Integrations = () => {
 
       <AddAdyenDialog ref={addAdyenDialogRef} />
       <AddStripeDialog ref={addStripeDialogRef} />
+      <AddLagoTaxManagementDialog
+        country={organization?.country}
+        ref={addLagoTaxManagementDialog}
+      />
     </Page>
   )
 }
