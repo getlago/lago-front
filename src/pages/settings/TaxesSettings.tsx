@@ -8,18 +8,14 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { DeleteTaxDialog, DeleteTaxDialogRef } from '~/components/taxes/DeleteTaxDialog'
 import { TaxItem, TaxItemSkeleton } from '~/components/taxes/TaxItem'
 import { CREATE_TAX_ROUTE } from '~/core/router'
-import {
-  EditOrganizationInvoiceTemplateDialogFragmentDoc,
-  TaxItemFragmentDoc,
-  useGetTaxesQuery,
-} from '~/generated/graphql'
+import { TaxItemFragmentDoc, useGetTaxesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { NAV_HEIGHT, theme } from '~/styles'
 
 gql`
   query getTaxes($limit: Int, $page: Int) {
-    taxes(limit: $limit, page: $page) {
+    taxes(limit: $limit, page: $page, order: "name") {
       metadata {
         currentPage
         totalPages
@@ -32,7 +28,6 @@ gql`
   }
 
   ${TaxItemFragmentDoc}
-  ${EditOrganizationInvoiceTemplateDialogFragmentDoc}
 `
 
 const TaxesSettings = () => {

@@ -830,11 +830,19 @@ const CreateInvoice = () => {
                             })}
                         </>
                       ) : (
-                        <InvoiceFooterLine>
-                          <Typography variant="bodyHl" color="grey600">
+                        <InvoiceFooterLine data-test="one-off-invoice-tax-item-no-tax">
+                          <Typography
+                            variant="bodyHl"
+                            color="grey600"
+                            data-test="one-off-invoice-tax-item-no-tax-label"
+                          >
                             {`${translate('text_6453819268763979024ad0e9')} (0%)`}
                           </Typography>
-                          <Typography variant="body" color="grey700">
+                          <Typography
+                            variant="body"
+                            color="grey700"
+                            data-test="one-off-invoice-tax-item-no-tax-value"
+                          >
                             {!hasAnyFee
                               ? '-'
                               : intlFormatNumber(0, {

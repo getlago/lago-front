@@ -4,4 +4,4 @@ dist
 globals.d.ts
 generated
 ditto
-
+cypress/*
