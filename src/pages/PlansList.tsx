@@ -46,7 +46,7 @@ const PlansList = () => {
     nextFetchPolicy: 'network-only',
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getPlans, loading)
-  const list = data?.plans?.collection || []
+  const list = data?.plans?.collection || [] || []
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `plan-item-${i}`,
     navigate: (id) =>
