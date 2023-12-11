@@ -25,6 +25,43 @@ import { InvoiceDetailsTableFooter } from './InvoiceDetailsTableFooter'
 import { InvoiceDetailsTableHeader } from './InvoiceDetailsTableHeader'
 
 gql`
+  fragment FeeForInvoiceDetailsTable on Fee {
+    id
+    amountCents
+    description
+    feeType
+    groupName
+    invoiceDisplayName
+    itemName
+    units
+    preciseUnitAmount
+    appliedTaxes {
+      id
+      taxRate
+    }
+    trueUpFee {
+      id
+    }
+    trueUpParentFee {
+      id
+    }
+    charge {
+      id
+      payInAdvance
+      invoiceDisplayName
+      billableMetric {
+        id
+        name
+        aggregationType
+      }
+    }
+    group {
+      id
+      key
+      value
+    }
+  }
+
   fragment InvoiceForDetailsTable on Invoice {
     invoiceType
     subTotalExcludingTaxesAmountCents
@@ -38,25 +75,7 @@ gql`
 
     fees {
       id
-      amountCents
-      itemName
-      invoiceDisplayName
-      groupName
-      itemName
-      units
-      feeType
-      appliedTaxes {
-        id
-        taxRate
-      }
-      trueUpFee {
-        id
-      }
-      charge {
-        id
-        payInAdvance
-        invoiceDisplayName
-      }
+      ...FeeForInvoiceDetailsTable
     }
     customer {
       id
@@ -84,13 +103,6 @@ gql`
       }
       fees {
         id
-        amountCents
-        eventsCount
-        units
-        feeType
-        invoiceName
-        groupName
-        itemName
         subscription {
           id
           name
@@ -100,32 +112,7 @@ gql`
             invoiceDisplayName
           }
         }
-
-        appliedTaxes {
-          id
-          taxRate
-        }
-        trueUpFee {
-          id
-        }
-        trueUpParentFee {
-          id
-        }
-        charge {
-          id
-          payInAdvance
-          invoiceDisplayName
-          billableMetric {
-            id
-            name
-            aggregationType
-          }
-        }
-        group {
-          id
-          key
-          value
-        }
+        ...FeeForInvoiceDetailsTable
       }
     }
   }
@@ -164,25 +151,41 @@ export const InvoiceDetailsTable = memo(
       )
     ) {
       return (
-        <Wrapper>
+        <InvoiceWrapper>
           <table>
-            <InvoiceDetailsTableHeader displayName={translate('text_6388b923e514213fed58331c')} />
+            <InvoiceDetailsTableHeader
+              newFormat // TODO: Remove when all invoices are migrated to new format
+              displayName={translate('text_6388b923e514213fed58331c')}
+            />
 
             <tbody>
               {invoice.fees?.map((fee, i) => (
                 <tr key={`fee-${i}`}>
                   <td>
-                    <Typography variant="body" color="grey700">
+                    <Typography variant="bodyHl" color="grey700">
                       {invoice.invoiceType === InvoiceTypeEnum.AddOn
                         ? translate('text_6388baa2e514213fed583611', { name: fee.itemName })
                         : invoice.invoiceType === InvoiceTypeEnum.OneOff
                           ? fee.invoiceDisplayName || fee.itemName
                           : translate('text_637ccf8133d2c9a7d11ce6e1')}
                     </Typography>
+                    {!!fee.description && (
+                      <Typography variant="caption" color="grey600">
+                        {fee.description}
+                      </Typography>
+                    )}
                   </td>
                   <td>
                     <Typography variant="body" color="grey700">
                       {fee.units}
+                    </Typography>
+                  </td>
+                  <td>
+                    <Typography variant="body" color="grey700">
+                      {intlFormatNumber(fee.preciseUnitAmount || 0, {
+                        currencyDisplay: 'symbol',
+                        currency,
+                      })}
                     </Typography>
                   </td>
                   <td>
@@ -216,9 +219,9 @@ export const InvoiceDetailsTable = memo(
             </tbody>
           </table>
           <table>
-            <InvoiceDetailsTableFooter invoice={invoice} loading={loading} />
+            <InvoiceDetailsTableFooter newFormat invoice={invoice} loading={loading} />
           </table>
-        </Wrapper>
+        </InvoiceWrapper>
       )
     }
 
@@ -516,6 +519,97 @@ export const InvoiceDetailsTable = memo(
 
 InvoiceDetailsTable.displayName = 'InvoiceDetailsTable'
 
+const InvoiceWrapper = styled.section`
+  > table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+
+    > thead > tr > th,
+    > tbody > tr > td {
+      overflow: hidden;
+      line-break: anywhere;
+
+      &:nth-child(1) {
+        width: 50%;
+      }
+      &:nth-child(2) {
+        width: 10%;
+      }
+      &:nth-child(3) {
+        width: 15%;
+      }
+      &:nth-child(4) {
+        width: 10%;
+      }
+      &:nth-child(5) {
+        width: 15%;
+      }
+    }
+
+    > tfoot > tr > td {
+      &:nth-child(1) {
+        width: 50%;
+      }
+      &:nth-child(2) {
+        width: 35%;
+      }
+      &:nth-child(3) {
+        width: 15%;
+      }
+    }
+
+    > tfoot > tr > td {
+      &:nth-child(2) {
+        text-align: left;
+      }
+    }
+
+    th:not(:last-child),
+    td:not(:last-child) {
+      padding-right: ${theme.spacing(3)};
+      box-sizing: border-box;
+    }
+
+    > thead > tr > th,
+    > tbody > tr > td {
+      text-align: right;
+
+      &:nth-child(1) {
+        text-align: left;
+      }
+    }
+
+    > tfoot > tr > td {
+      text-align: right;
+      padding: ${theme.spacing(3)} 0;
+      box-sizing: border-box;
+    }
+
+    > tfoot > tr > td {
+      &:nth-child(2),
+      &:nth-child(3) {
+        box-shadow: ${theme.shadows[7]};
+      }
+    }
+
+    > thead > tr > th {
+      height: ${NAV_HEIGHT}px;
+      padding: ${theme.spacing(8)} 0 ${theme.spacing(3)} 0;
+      box-sizing: border-box;
+      box-shadow: ${theme.shadows[7]};
+    }
+
+    > tbody > tr > td {
+      vertical-align: top;
+      min-height: 44px;
+      padding: ${theme.spacing(3)} 0;
+      box-sizing: border-box;
+      box-shadow: ${theme.shadows[7]};
+    }
+  }
+`
+
 const Wrapper = styled.section`
   > table {
     width: 100%;
@@ -562,6 +656,7 @@ const Wrapper = styled.section`
     th:not(:last-child),
     td:not(:last-child) {
       padding-right: ${theme.spacing(3)};
+      box-sizing: border-box;
     }
 
     > thead > tr > th,
@@ -577,6 +672,7 @@ const Wrapper = styled.section`
     > tfoot > tr > td {
       text-align: right;
       padding: ${theme.spacing(3)} 0;
+      box-sizing: border-box;
     }
 
     > tfoot > tr > td {
@@ -597,6 +693,7 @@ const Wrapper = styled.section`
       vertical-align: top;
       min-height: 44px;
       padding: ${theme.spacing(3)} 0;
+      box-sizing: border-box;
       box-shadow: ${theme.shadows[7]};
     }
   }
@@ -608,5 +705,6 @@ const RightSkeleton = styled(Skeleton)`
 
 const ChargePeriodSeparator = styled(Typography)`
   padding: ${theme.spacing(3)} 0;
+  box-sizing: border-box;
   box-shadow: ${theme.shadows[7]};
 `
