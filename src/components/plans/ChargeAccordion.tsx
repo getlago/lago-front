@@ -225,7 +225,6 @@ export const ChargeAccordion = memo(
             value === ChargeModelEnum.Volume ||
             localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg ||
             localCharge.billableMetric.aggregationType === AggregationTypeEnum.LatestAgg ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.RecurringCountAgg ||
             localCharge.billableMetric.aggregationType === AggregationTypeEnum.WeightedSumAgg
           ) {
             formikProps.setFieldValue(`charges.${index}.payInAdvance`, false)
@@ -316,10 +315,6 @@ export const ChargeAccordion = memo(
         return translate('text_646e2d0cc536351b62ba6fc0')
       } else if (localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg) {
         return translate('text_646e2d0cc536351b62ba6f48')
-      } else if (
-        localCharge.billableMetric.aggregationType === AggregationTypeEnum.RecurringCountAgg
-      ) {
-        return translate('text_646e2d0cc536351b62ba6efd')
       } else if (localCharge.payInAdvance) {
         return translate('text_646e2d0cc536351b62ba6f12')
       }
@@ -863,8 +858,6 @@ export const ChargeAccordion = memo(
                     localCharge.chargeModel === ChargeModelEnum.Volume ||
                     localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg ||
                     localCharge.billableMetric.aggregationType === AggregationTypeEnum.LatestAgg ||
-                    localCharge.billableMetric.aggregationType ===
-                      AggregationTypeEnum.RecurringCountAgg ||
                     localCharge.billableMetric.aggregationType ===
                       AggregationTypeEnum.WeightedSumAgg,
                 },

@@ -1000,7 +1000,6 @@
   "text_646e2d0cc536351b62ba6f12": "Charges are invoiced each time an event is received.",
   "text_646e2d0cc536351b62ba6f25": "Generate an invoice for each event",
   "text_646e2d0cc536351b62ba6f35": "Turn it off to avoid generating an invoice for each event.",
-  "text_646e2d0cc536351b62ba6efd": "Charges are invoiced at the end of the billing period and cannot be charged in advance due to their aggregation type being defined as recurring count.",
   "text_649c54823c90890062476255": "Prorate charge amount",
   "text_649c47c0a6c1f200de8ff48d": "Prorated charge",
   "text_649c54823c9089006247625a": "Can’t be prorated due to {{chargeModel}} charge model defined above.",
