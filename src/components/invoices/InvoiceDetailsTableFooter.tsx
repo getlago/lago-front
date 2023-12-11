@@ -32,10 +32,11 @@ gql`
 interface InvoiceDetailsTableFooterProps {
   invoice: Invoice
   loading: boolean
+  newFormat?: boolean
 }
 
 export const InvoiceDetailsTableFooter = memo(
-  ({ invoice, loading }: InvoiceDetailsTableFooterProps) => {
+  ({ invoice, loading, newFormat }: InvoiceDetailsTableFooterProps) => {
     const { translate } = useInternationalization()
     const currency = invoice?.currency || CurrencyEnum.Usd
     const isLegacyInvoice = invoice?.versionNumber < 3
@@ -47,7 +48,7 @@ export const InvoiceDetailsTableFooter = memo(
             {[1, 2, 3, 4].map((i) => (
               <LoadingTR key={`invoice-details-table-footer-loading-${i}`}>
                 <td></td>
-                <td>
+                <td colSpan={newFormat ? 3 : 2}>
                   <Skeleton variant="text" height={12} width={160} />
                 </td>
                 <td>
@@ -65,7 +66,7 @@ export const InvoiceDetailsTableFooter = memo(
                   !isLegacyInvoice && (
                     <tr>
                       <td></td>
-                      <td>
+                      <td colSpan={newFormat ? 3 : 2}>
                         <Typography variant="bodyHl" color="grey600">
                           {translate('text_637ccf8133d2c9a7d11ce705')}
                         </Typography>
@@ -86,7 +87,7 @@ export const InvoiceDetailsTableFooter = memo(
                   )}
                 <tr>
                   <td></td>
-                  <td>
+                  <td colSpan={newFormat ? 3 : 2}>
                     <Typography variant="bodyHl" color="grey600">
                       {translate('text_637ccf8133d2c9a7d11ce6f9')}
                     </Typography>
@@ -115,7 +116,7 @@ export const InvoiceDetailsTableFooter = memo(
                     {invoice.appliedTaxes.map((appliedTax, i) => (
                       <tr key={`invoice-details-table-footer-tax-${appliedTax.id}`}>
                         <td></td>
-                        <td>
+                        <td colSpan={newFormat ? 3 : 2}>
                           <Typography
                             variant="bodyHl"
                             color="grey600"
@@ -158,7 +159,7 @@ export const InvoiceDetailsTableFooter = memo(
                 ) : (
                   <tr>
                     <td></td>
-                    <td>
+                    <td colSpan={newFormat ? 3 : 2}>
                       <Typography variant="bodyHl" color="grey600">
                         {`${translate('text_637ccf8133d2c9a7d11ce6fd')} (0%)`}
                       </Typography>
@@ -175,7 +176,7 @@ export const InvoiceDetailsTableFooter = memo(
                 )}
                 <tr>
                   <td></td>
-                  <td>
+                  <td colSpan={newFormat ? 3 : 2}>
                     <Typography variant="bodyHl" color="grey600">
                       {translate('text_637ccf8133d2c9a7d11ce701')}
                     </Typography>
@@ -204,7 +205,7 @@ export const InvoiceDetailsTableFooter = memo(
             {!!Number(invoice?.creditNotesAmountCents) && (
               <tr>
                 <td></td>
-                <td>
+                <td colSpan={newFormat ? 3 : 2}>
                   <Typography variant="bodyHl" color="grey600">
                     {translate('text_637ccf8133d2c9a7d11ce708')}
                   </Typography>
@@ -228,7 +229,7 @@ export const InvoiceDetailsTableFooter = memo(
               !!isLegacyInvoice && (
                 <tr>
                   <td></td>
-                  <td>
+                  <td colSpan={newFormat ? 3 : 2}>
                     <Typography variant="bodyHl" color="grey600">
                       {translate('text_637ccf8133d2c9a7d11ce705')}
                     </Typography>
@@ -251,7 +252,7 @@ export const InvoiceDetailsTableFooter = memo(
               !!Number(invoice?.prepaidCreditAmountCents) && (
                 <tr>
                   <td></td>
-                  <td>
+                  <td colSpan={newFormat ? 3 : 2}>
                     <Typography variant="bodyHl" color="grey600">
                       {translate('text_6391f05df4bf96d81f3660a7')}
                     </Typography>
@@ -272,7 +273,7 @@ export const InvoiceDetailsTableFooter = memo(
               )}
             <tr>
               <td></td>
-              <td>
+              <td colSpan={newFormat ? 3 : 2}>
                 <Typography variant="bodyHl" color="grey700">
                   {invoice.invoiceType === InvoiceTypeEnum.Credit
                     ? translate('text_63887b52e514213fed57fc1c')
@@ -295,7 +296,7 @@ export const InvoiceDetailsTableFooter = memo(
             {invoice.status === InvoiceStatusTypeEnum.Draft && (
               <tr>
                 <td></td>
-                <NoShadowTD colSpan={2}>
+                <NoShadowTD colSpan={newFormat ? 3 : 2}>
                   <Alert type="info">{translate('text_63b6f4e9b074e3b8beebb97f')}</Alert>
                 </NoShadowTD>
               </tr>
@@ -312,6 +313,7 @@ const RightSkeleton = styled(Skeleton)`
 `
 const LoadingTR = styled.tr`
   > td {
+    box-sizing: border-box;
     padding: ${theme.spacing(3)} 0;
   }
 `
