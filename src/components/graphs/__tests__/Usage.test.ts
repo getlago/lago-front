@@ -5,7 +5,7 @@ import { CurrencyEnum } from '~/generated/graphql'
 
 import { AnalyticsPeriodScopeEnum } from '../MonthSelectorDropdown'
 import { getDataForUsageDisplay, LAST_USAGE_GRAPH_LINE_KEY_NAME } from '../Usage'
-import { GRAPH_YEAR_MONTH_DAY_DATE_FORMAT } from '../utils'
+import { GRAPH_YEAR_MONTH_DATE_FORMAT } from '../utils'
 
 describe('components/graphs/Usage', () => {
   describe('getDataForUsageDisplay', () => {
@@ -23,13 +23,10 @@ describe('components/graphs/Usage', () => {
       expect(res.hasNoDataToDisplay).toBeFalsy()
       expect(res.dataLinesForDisplay.length).toBe(5)
       expect(res.dateFrom).toBe(
-        DateTime.now()
-          .minus({ month: 12 })
-          .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().minus({ month: 12 }).startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
     })
 
@@ -47,13 +44,10 @@ describe('components/graphs/Usage', () => {
       expect(res.hasNoDataToDisplay).toBeFalsy()
       expect(res.dataLinesForDisplay.length).toBe(5)
       expect(res.dateFrom).toBe(
-        DateTime.now()
-          .minus({ month: 12 })
-          .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().minus({ month: 12 }).startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
     })
 
@@ -71,13 +65,10 @@ describe('components/graphs/Usage', () => {
       expect(res.hasNoDataToDisplay).toBeFalsy()
       expect(res.dataLinesForDisplay.length).toBe(5)
       expect(res.dateFrom).toBe(
-        DateTime.now()
-          .minus({ month: 3 })
-          .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().minus({ month: 3 }).startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
     })
 
@@ -95,13 +86,10 @@ describe('components/graphs/Usage', () => {
       expect(res.hasNoDataToDisplay).toBeFalsy()
       expect(res.dataLinesForDisplay.length).toBe(5)
       expect(res.dateFrom).toBe(
-        DateTime.now()
-          .minus({ month: 1 })
-          .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().minus({ month: 1 }).startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
     })
 

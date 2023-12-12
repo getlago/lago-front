@@ -20,7 +20,7 @@ import {
   TPeriodScopeTranslationLookupValue,
 } from './MonthSelectorDropdown'
 import { TGraphProps } from './types'
-import { getLastTwelveMonthsNumbersUntilNow, GRAPH_YEAR_MONTH_DAY_DATE_FORMAT } from './utils'
+import { getLastTwelveMonthsNumbersUntilNow, GRAPH_YEAR_MONTH_DATE_FORMAT } from './utils'
 
 import { Skeleton, Typography } from '../designSystem'
 import ChartHeader from '../designSystem/graphs/ChartHeader'
@@ -78,13 +78,13 @@ export const fillInvoicesDataPerMonthForPaymentStatus = (
     const existingMonthData = data?.find(
       (d) =>
         d.paymentStatus === paymentStatus &&
-        DateTime.fromISO(d.month).toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT) === month,
+        DateTime.fromISO(d.month).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT) === month,
     )
 
     if (existingMonthData) {
       res.push({
         ...existingMonthData,
-        month: DateTime.fromISO(existingMonthData.month).toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        month: DateTime.fromISO(existingMonthData.month).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       })
     } else {
       res.push({

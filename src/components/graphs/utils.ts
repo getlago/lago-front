@@ -6,8 +6,7 @@ import { CurrencyEnum } from '~/generated/graphql'
 
 import { AreaChartDataType } from '../designSystem/graphs/types'
 
-export const GRAPH_YEAR_MONTH_DAY_DATE_FORMAT = 'LLL. dd, yyyy'
-export const GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT = 'LLL. yyyy'
+export const GRAPH_YEAR_MONTH_DATE_FORMAT = 'LLL. yyyy'
 
 export type TAreaChartDataResult = {
   amountCents: string | number
@@ -20,7 +19,7 @@ export const getLastTwelveMonthsNumbersUntilNow = () => {
   let cursor = DateTime.now().startOf('month')
 
   while (monthsNumberList.length < 13) {
-    monthsNumberList.unshift(cursor.toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT))
+    monthsNumberList.unshift(cursor.toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT))
     cursor = cursor.minus({ month: 1 })
   }
 
@@ -37,14 +36,13 @@ export const padAndTransformDataOverLastTwelveMonth = (
   // Or create a new object with the month and the amountCents set to 0
   return monthsArray.map((month) => {
     const item = data.find(
-      (d) =>
-        DateTime.fromISO(d.month as string).toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT) === month,
+      (d) => DateTime.fromISO(d.month as string).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT) === month,
     )
 
     return item
       ? {
           ...item,
-          month: DateTime.fromISO(item.month as string).toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+          month: DateTime.fromISO(item.month as string).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
         }
       : { currency, month, amountCents: 0 }
   })
@@ -57,10 +55,7 @@ export const formatDataForAreaChart = (
   data = padAndTransformDataOverLastTwelveMonth(data, currency)
 
   return data?.map((item: TAreaChartDataResult[0]) => ({
-    tooltipLabel: `${DateTime.fromFormat(
-      item.month as string,
-      GRAPH_YEAR_MONTH_DAY_DATE_FORMAT,
-    ).toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(
+    tooltipLabel: `${item.month}: ${intlFormatNumber(
       deserializeAmount(item.amountCents, item.currency || CurrencyEnum.Usd),
       {
         currency: item.currency as CurrencyEnum,

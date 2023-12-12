@@ -5,7 +5,7 @@ import { CurrencyEnum } from '~/generated/graphql'
 
 import { AnalyticsPeriodScopeEnum } from '../MonthSelectorDropdown'
 import { getAllDataForMrrDisplay } from '../Mrr'
-import { GRAPH_YEAR_MONTH_DAY_DATE_FORMAT } from '../utils'
+import { GRAPH_YEAR_MONTH_DATE_FORMAT } from '../utils'
 
 describe('components/graphs/Mrr', () => {
   describe('getAllDataForMrrDisplay', () => {
@@ -20,22 +20,16 @@ describe('components/graphs/Mrr', () => {
 
       expect(res.dataForAreaChart.length).toBe(13)
       expect(res.dataForAreaChart[0].axisName).toBe(
-        DateTime.now()
-          .minus({ month: 12 })
-          .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().minus({ month: 12 }).startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
       expect(res.dataForAreaChart[12].axisName).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
       expect(res.dateFrom).toBe(
-        DateTime.now()
-          .minus({ month: 12 })
-          .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().minus({ month: 12 }).startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
 
       expect(typeof res.lastMonthMrr).toBe('number')
@@ -53,22 +47,16 @@ describe('components/graphs/Mrr', () => {
 
       expect(res.dataForAreaChart.length).toBe(13)
       expect(res.dataForAreaChart[0].axisName).toBe(
-        DateTime.now()
-          .minus({ month: 12 })
-          .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().minus({ month: 12 }).startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
       expect(res.dataForAreaChart[12].axisName).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
       expect(res.dateFrom).toBe(
-        DateTime.now()
-          .minus({ month: 12 })
-          .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().minus({ month: 12 }).startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
 
       expect(typeof res.lastMonthMrr).toBe('number')
@@ -85,22 +73,16 @@ describe('components/graphs/Mrr', () => {
 
       expect(res.dataForAreaChart.length).toBe(4)
       expect(res.dataForAreaChart[0].axisName).toBe(
-        DateTime.now()
-          .minus({ month: 3 })
-          .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().minus({ month: 3 }).startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
       expect(res.dataForAreaChart[3].axisName).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
       expect(res.dateFrom).toBe(
-        DateTime.now()
-          .minus({ month: 3 })
-          .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().minus({ month: 3 }).startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
 
       expect(typeof res.lastMonthMrr).toBe('number')
@@ -117,22 +99,16 @@ describe('components/graphs/Mrr', () => {
 
       expect(res.dataForAreaChart.length).toBe(2)
       expect(res.dataForAreaChart[0].axisName).toBe(
-        DateTime.now()
-          .minus({ month: 1 })
-          .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().minus({ month: 1 }).startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
       expect(res.dataForAreaChart[1].axisName).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
       expect(res.dateFrom).toBe(
-        DateTime.now()
-          .minus({ month: 1 })
-          .startOf('month')
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().minus({ month: 1 }).startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
       expect(res.dateTo).toBe(
-        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.now().startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       )
 
       expect(typeof res.lastMonthMrr).toBe('number')

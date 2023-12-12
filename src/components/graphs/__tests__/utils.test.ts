@@ -6,8 +6,7 @@ import { CurrencyEnum } from '~/generated/graphql'
 import {
   formatDataForAreaChart,
   getLastTwelveMonthsNumbersUntilNow,
-  GRAPH_YEAR_MONTH_DAY_DATE_FORMAT,
-  GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT,
+  GRAPH_YEAR_MONTH_DATE_FORMAT,
   padAndTransformDataOverLastTwelveMonth,
   TAreaChartDataResult,
 } from '../utils'
@@ -19,55 +18,19 @@ describe('components/graphs/utils', () => {
 
       expect(builtArray.length).toBe(13)
       expect(getLastTwelveMonthsNumbersUntilNow()).toStrictEqual([
-        DateTime.utc()
-          .startOf('month')
-          .minus({ month: 12 })
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
-        DateTime.utc()
-          .startOf('month')
-          .minus({ month: 11 })
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
-        DateTime.utc()
-          .startOf('month')
-          .minus({ month: 10 })
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
-        DateTime.utc()
-          .startOf('month')
-          .minus({ month: 9 })
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
-        DateTime.utc()
-          .startOf('month')
-          .minus({ month: 8 })
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
-        DateTime.utc()
-          .startOf('month')
-          .minus({ month: 7 })
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
-        DateTime.utc()
-          .startOf('month')
-          .minus({ month: 6 })
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
-        DateTime.utc()
-          .startOf('month')
-          .minus({ month: 5 })
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
-        DateTime.utc()
-          .startOf('month')
-          .minus({ month: 4 })
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
-        DateTime.utc()
-          .startOf('month')
-          .minus({ month: 3 })
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
-        DateTime.utc()
-          .startOf('month')
-          .minus({ month: 2 })
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
-        DateTime.utc()
-          .startOf('month')
-          .minus({ month: 1 })
-          .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
-        DateTime.utc().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+        DateTime.utc().startOf('month').minus({ month: 12 }).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
+        DateTime.utc().startOf('month').minus({ month: 11 }).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
+        DateTime.utc().startOf('month').minus({ month: 10 }).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
+        DateTime.utc().startOf('month').minus({ month: 9 }).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
+        DateTime.utc().startOf('month').minus({ month: 8 }).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
+        DateTime.utc().startOf('month').minus({ month: 7 }).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
+        DateTime.utc().startOf('month').minus({ month: 6 }).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
+        DateTime.utc().startOf('month').minus({ month: 5 }).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
+        DateTime.utc().startOf('month').minus({ month: 4 }).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
+        DateTime.utc().startOf('month').minus({ month: 3 }).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
+        DateTime.utc().startOf('month').minus({ month: 2 }).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
+        DateTime.utc().startOf('month').minus({ month: 1 }).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
+        DateTime.utc().startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
       ])
     })
   })
@@ -90,7 +53,7 @@ describe('components/graphs/utils', () => {
           month: DateTime.utc()
             .startOf('month')
             .minus({ month: 12 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
           amountCents: 0,
           currency: CurrencyEnum.Eur,
         },
@@ -98,7 +61,7 @@ describe('components/graphs/utils', () => {
           month: DateTime.utc()
             .startOf('month')
             .minus({ month: 11 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
           amountCents: 0,
           currency: CurrencyEnum.Eur,
         },
@@ -106,7 +69,7 @@ describe('components/graphs/utils', () => {
           month: DateTime.utc()
             .startOf('month')
             .minus({ month: 10 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
           amountCents: 0,
           currency: CurrencyEnum.Eur,
         },
@@ -114,7 +77,7 @@ describe('components/graphs/utils', () => {
           month: DateTime.utc()
             .startOf('month')
             .minus({ month: 9 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
           amountCents: 0,
           currency: CurrencyEnum.Eur,
         },
@@ -122,7 +85,7 @@ describe('components/graphs/utils', () => {
           month: DateTime.utc()
             .startOf('month')
             .minus({ month: 8 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
           amountCents: 0,
           currency: CurrencyEnum.Eur,
         },
@@ -130,7 +93,7 @@ describe('components/graphs/utils', () => {
           month: DateTime.utc()
             .startOf('month')
             .minus({ month: 7 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
           amountCents: 0,
           currency: CurrencyEnum.Eur,
         },
@@ -138,7 +101,7 @@ describe('components/graphs/utils', () => {
           month: DateTime.utc()
             .startOf('month')
             .minus({ month: 6 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
           amountCents: 0,
           currency: CurrencyEnum.Eur,
         },
@@ -146,7 +109,7 @@ describe('components/graphs/utils', () => {
           month: DateTime.utc()
             .startOf('month')
             .minus({ month: 5 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
           amountCents: 0,
           currency: CurrencyEnum.Eur,
         },
@@ -154,7 +117,7 @@ describe('components/graphs/utils', () => {
           month: DateTime.utc()
             .startOf('month')
             .minus({ month: 4 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
           amountCents: 0,
           currency: CurrencyEnum.Eur,
         },
@@ -162,7 +125,7 @@ describe('components/graphs/utils', () => {
           month: DateTime.utc()
             .startOf('month')
             .minus({ month: 3 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
           amountCents: 0,
           currency: CurrencyEnum.Eur,
         },
@@ -170,7 +133,7 @@ describe('components/graphs/utils', () => {
           month: DateTime.utc()
             .startOf('month')
             .minus({ month: 2 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
           amountCents: 0,
           currency: CurrencyEnum.Eur,
         },
@@ -178,12 +141,12 @@ describe('components/graphs/utils', () => {
           month: DateTime.utc()
             .startOf('month')
             .minus({ month: 1 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
           amountCents: 100,
           currency: CurrencyEnum.Eur,
         },
         {
-          month: DateTime.utc().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+          month: DateTime.utc().startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
           amountCents: 0,
           currency: CurrencyEnum.Eur,
         },
@@ -266,7 +229,7 @@ describe('components/graphs/utils', () => {
       expect(builtArray).toStrictEqual(
         data.map((d) => ({
           ...d,
-          month: DateTime.fromISO(d.month as string).toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+          month: DateTime.fromISO(d.month as string).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
         })),
       )
     })
@@ -290,166 +253,166 @@ describe('components/graphs/utils', () => {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 12 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(0, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(0, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 0,
           axisName: DateTime.utc()
             .startOf('month')
             .minus({ month: 12 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
         },
         {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 11 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(0, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(0, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 0,
           axisName: DateTime.utc()
             .startOf('month')
             .minus({ month: 11 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
         },
         {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 10 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(0, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(0, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 0,
           axisName: DateTime.utc()
             .startOf('month')
             .minus({ month: 10 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
         },
         {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 9 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(0, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(0, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 0,
           axisName: DateTime.utc()
             .startOf('month')
             .minus({ month: 9 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
         },
         {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 8 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(0, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(0, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 0,
           axisName: DateTime.utc()
             .startOf('month')
             .minus({ month: 8 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
         },
         {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 7 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(0, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(0, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 0,
           axisName: DateTime.utc()
             .startOf('month')
             .minus({ month: 7 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
         },
         {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 6 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(0, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(0, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 0,
           axisName: DateTime.utc()
             .startOf('month')
             .minus({ month: 6 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
         },
         {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 5 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(0, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(0, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 0,
           axisName: DateTime.utc()
             .startOf('month')
             .minus({ month: 5 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
         },
         {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 4 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(0, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(0, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 0,
           axisName: DateTime.utc()
             .startOf('month')
             .minus({ month: 4 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
         },
         {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 3 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(0, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(0, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 0,
           axisName: DateTime.utc()
             .startOf('month')
             .minus({ month: 3 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
         },
         {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 2 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(0, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(0, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 0,
           axisName: DateTime.utc()
             .startOf('month')
             .minus({ month: 2 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
         },
         {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 1 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(1, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(1, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 100,
           axisName: DateTime.utc()
             .startOf('month')
             .minus({ month: 1 })
-            .toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
         },
         {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(0, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(0, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 0,
-          axisName: DateTime.utc().startOf('month').toFormat(GRAPH_YEAR_MONTH_DAY_DATE_FORMAT),
+          axisName: DateTime.utc().startOf('month').toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
         },
       ])
     })
@@ -532,7 +495,7 @@ describe('components/graphs/utils', () => {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 12 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(11, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(11, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 1100,
@@ -542,7 +505,7 @@ describe('components/graphs/utils', () => {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 11 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(11, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(11, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 1100,
@@ -552,7 +515,7 @@ describe('components/graphs/utils', () => {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 10 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(10, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(10, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 1000,
@@ -562,7 +525,7 @@ describe('components/graphs/utils', () => {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 9 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(9, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(9, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 900,
@@ -572,7 +535,7 @@ describe('components/graphs/utils', () => {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 8 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(8, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(8, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 800,
@@ -582,7 +545,7 @@ describe('components/graphs/utils', () => {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 7 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(7, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(7, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 700,
@@ -592,7 +555,7 @@ describe('components/graphs/utils', () => {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 6 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(6, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(6, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 600,
@@ -602,7 +565,7 @@ describe('components/graphs/utils', () => {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 5 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(5, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(5, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 500,
@@ -612,7 +575,7 @@ describe('components/graphs/utils', () => {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 4 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(4, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(4, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 400,
@@ -622,7 +585,7 @@ describe('components/graphs/utils', () => {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 3 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(3, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(3, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 300,
@@ -632,7 +595,7 @@ describe('components/graphs/utils', () => {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 2 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(2, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(2, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 200,
@@ -642,7 +605,7 @@ describe('components/graphs/utils', () => {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
             .minus({ month: 1 })
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(1, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(1, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 100,
@@ -651,7 +614,7 @@ describe('components/graphs/utils', () => {
         {
           tooltipLabel: `${DateTime.utc()
             .startOf('month')
-            .toFormat(GRAPH_YEAR_MONTH_TOOLTIP_DATE_FORMAT)}: ${intlFormatNumber(12, {
+            .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)}: ${intlFormatNumber(12, {
             currency: CurrencyEnum.Eur,
           })}`,
           value: 1200,
