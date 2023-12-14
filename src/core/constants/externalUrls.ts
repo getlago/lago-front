@@ -1,4 +1,6 @@
 export const DOCUMENTATION_URL = 'https://docs.getlago.com/'
+export const LAGO_TAX_DOCUMENTATION_URL =
+  'https://docs.getlago.com/integrations/taxes/lago-eu-taxes'
 export const DOCUMENTATION_AIRBYTE = 'https://docs.airbyte.com/integrations/sources/getlago/'
 export const DOCUMENTATION_SEGMENT = 'https://docs.getlago.com/integrations/usage/segment'
 export const DOCUMENTATION_HIGHTTOUCH = 'https://docs.getlago.com/integrations/usage/hightouch'

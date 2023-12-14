@@ -9,7 +9,7 @@ import { object, string } from 'yup'
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { ComboBoxField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
-import { DOCUMENTATION_URL } from '~/core/constants/externalUrls'
+import { LAGO_TAX_DOCUMENTATION_URL } from '~/core/constants/externalUrls'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import { TAX_MANAGEMENT_INTEGRATION_ROUTE } from '~/core/router'
 import {
@@ -79,7 +79,7 @@ export const AddLagoTaxManagementDialog = forwardRef<AddLagoTaxManagementDialogR
             variant="body"
             color="grey600"
             html={translate('text_657078c28394d6b1ae1b9759', {
-              href: DOCUMENTATION_URL,
+              href: LAGO_TAX_DOCUMENTATION_URL,
             })}
           />
         }
