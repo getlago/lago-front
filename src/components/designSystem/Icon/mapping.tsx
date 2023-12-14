@@ -53,6 +53,7 @@ import Globe from '~/public/icons/globe.svg'
 import Google from '~/public/icons/google.svg'
 import Handle from '~/public/icons/handle.svg'
 import Hashtag from '~/public/icons/hashtag.svg'
+import Id from '~/public/icons/id.svg'
 import InfoCircle from '~/public/icons/info-circle.svg'
 import Key from '~/public/icons/key.svg'
 import KeyboardEnter from '~/public/icons/keyboard-enter.svg'
@@ -166,6 +167,7 @@ export const ALL_ICONS = {
   google: Google,
   handle: Handle,
   hashtag: Hashtag,
+  id: Id,
   'info-circle': InfoCircle,
   'keyboard-enter': KeyboardEnter,
   'magnifying-glass': MagnifyingGlass,
