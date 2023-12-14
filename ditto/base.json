@@ -797,7 +797,7 @@
   "text_645d071272418a14c1c76a73": "By editing the API key or the Merchant Account, upcoming data will be synchronized to the newly connected Adyen account.",
   "text_645d071272418a14c1c76adc": "Edit Adyen connection",
   "text_645d071272418a14c1c76a3e": "Adyen connection successfully edited",
-  "text_645d071272418a14c1c76a5d": "Delete Adyen connection",
+  "text_645d071272418a14c1c76a5d": "Delete Adyen connection ",
   "text_645d071272418a14c1c76a69": "By deleting this Adyen connection, the existing connection will not be used anymore and upcoming data will not be synchronized to the connected Adyen account. Are you sure?",
   "text_645d071272418a14c1c76a81": "Delete connection",
   "text_645d071272418a14c1c76b25": "Adyen connection successfully deleted",
