@@ -128,8 +128,8 @@ const Description = styled(Typography)`
 
 const StyledButtonGroup = styled(ButtonGroup)`
   && {
-    margin-left: auto;
     align-items: initial;
+    justify-content: flex-end;
 
     ${theme.breakpoints.down('md')} {
       margin-left: 0;
