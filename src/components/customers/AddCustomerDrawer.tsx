@@ -6,6 +6,7 @@ import React, {
   RefObject,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -21,7 +22,13 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
-import { Checkbox, ComboBoxField, Switch, TextInputField } from '~/components/form'
+import {
+  BasicComboBoxData,
+  Checkbox,
+  ComboBoxField,
+  Switch,
+  TextInputField,
+} from '~/components/form'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import { INTEGRATIONS_ROUTE, ORGANIZATION_INFORMATIONS_ROUTE } from '~/core/router'
@@ -47,7 +54,15 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { Card, DrawerContent, DrawerSubmitButton, DrawerTitle, theme } from '~/styles'
 
+import { ITEM_HEIGHT } from '../form/ComboBox/ComboBoxItem'
+
 const MAX_METADATA_COUNT = 5
+
+const paymentProviderCodeEmptyTextLookup = {
+  [ProviderTypeEnum.Stripe]: 'text_65940198687ce7b05cd62b64',
+  [ProviderTypeEnum.Gocardless]: 'text_65940198687ce7b05cd62b65',
+  [ProviderTypeEnum.Adyen]: 'text_65940198687ce7b05cd62b63',
+}
 
 export interface AddCustomerDrawerRef {
   openDrawer: (customer?: AddCustomerDrawerFragment | null) => unknown
@@ -71,9 +86,10 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
   const drawerRef = useRef<DrawerRef>(null)
   const [customer, setCustomer] = useState<AddCustomerDrawerFragment | null | undefined>(null)
   const { isPremium } = useCurrentUser()
-  const { isEdition, onSave } = useCreateEditCustomer({
+  const { isEdition, onSave, paymentProvidersList } = useCreateEditCustomer({
     customer,
   })
+
   const [isDisabled, setIsDisabled] = useState<boolean>(false)
   const formikProps = useFormik<CreateCustomerInput | UpdateCustomerInput>({
     initialValues: {
@@ -94,6 +110,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
       zipcode: customer?.zipcode ?? undefined,
       timezone: customer?.timezone ?? undefined,
       url: customer?.url ?? undefined,
+      paymentProviderCode: customer?.paymentProviderCode ?? undefined,
       providerCustomer: {
         providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? undefined,
         syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
@@ -111,6 +128,21 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
       email: string().email('text_620bc4d4269a55014d493fc3'),
       externalId: string().required(''),
       metadata: metadataSchema(),
+      providerCustomer: object().test({
+        test: function (value, { from }) {
+          // Value can be undefined if no paymentProvider is selected
+          if (value && from && from[1] && !from[1].value.paymentProvider) {
+            return true
+          }
+
+          // if code is not selected, validation fails
+          if (value && from && from[1] && !from[1].value.paymentProviderCode) {
+            return false
+          }
+
+          return true
+        },
+      }),
     }),
     validateOnMount: true,
     enableReinitialize: true,
@@ -134,6 +166,28 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
     },
   })
   const { timezoneConfig } = useOrganizationInfos()
+  const connectedProvidersData: BasicComboBoxData[] | [] = useMemo(() => {
+    if (!paymentProvidersList || !formikProps.values.paymentProvider) return []
+    const localProvider = paymentProvidersList[formikProps.values.paymentProvider]
+
+    if (!localProvider) return []
+
+    return localProvider.map((provider) => ({
+      value: provider.code,
+      label: provider.name,
+      labelNode: (
+        <Item>
+          <Typography color="grey700" noWrap>
+            {provider.name}
+          </Typography>
+          &nbsp;
+          <Typography color="textPrimary" noWrap>
+            ({provider.code})
+          </Typography>
+        </Item>
+      ),
+    }))
+  }, [formikProps.values.paymentProvider, paymentProvidersList])
 
   useEffect(() => {
     if (!formikProps.values.paymentProvider) {
@@ -172,37 +226,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
         },
       )}
       onClose={() => {
-        formikProps.resetForm({
-          values: {
-            name: customer?.name ?? '',
-            externalId: customer?.externalId ?? '',
-            externalSalesforceId: customer?.externalSalesforceId ?? '',
-            legalName: customer?.legalName ?? undefined,
-            legalNumber: customer?.legalNumber ?? undefined,
-            taxIdentificationNumber: customer?.taxIdentificationNumber ?? undefined,
-            currency: customer?.currency ?? undefined,
-            phone: customer?.phone ?? undefined,
-            email: customer?.email ?? undefined,
-            url: customer?.url ?? undefined,
-            addressLine1: customer?.addressLine1 ?? undefined,
-            addressLine2: customer?.addressLine2 ?? undefined,
-            state: customer?.state ?? undefined,
-            country: customer?.country ?? undefined,
-            city: customer?.city ?? undefined,
-            zipcode: customer?.zipcode ?? undefined,
-            providerCustomer: {
-              providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? undefined,
-              syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
-              providerPaymentMethods: customer?.providerCustomer?.providerPaymentMethods?.length
-                ? customer?.providerCustomer?.providerPaymentMethods
-                : customer?.currency !== CurrencyEnum.Eur
-                  ? [ProviderPaymentMethodsEnum.Card]
-                  : [ProviderPaymentMethodsEnum.Card, ProviderPaymentMethodsEnum.SepaDebit],
-            },
-            paymentProvider: customer?.paymentProvider ?? undefined,
-            metadata: customer?.metadata ?? undefined,
-          },
-        })
+        formikProps.resetForm()
         formikProps.validateForm()
       }}
     >
@@ -223,6 +247,8 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
         <Card>
           <Typography variant="subhead">{translate('text_626c0c09812bbc00e4c59df1')}</Typography>
           <TextInputField
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus={!isEdition}
             name="name"
             label={translate('text_624efab67eb2570101d117be')}
             placeholder={translate('text_624efab67eb2570101d117c6')}
@@ -407,6 +433,17 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
             />
             {!!formikProps.values.paymentProvider && (
               <>
+                <ComboBoxField
+                  data={connectedProvidersData}
+                  name="paymentProviderCode"
+                  label={translate('text_65940198687ce7b05cd62b61')}
+                  placeholder={translate('text_65940198687ce7b05cd62b62')}
+                  emptyText={translate(
+                    paymentProviderCodeEmptyTextLookup[formikProps.values.paymentProvider],
+                  )}
+                  formikProps={formikProps}
+                  PopperProps={{ displayInDialog: true }}
+                />
                 <TextInputField
                   name="providerCustomer.providerCustomerId"
                   disabled={isDisabled}
@@ -418,13 +455,19 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                   <Checkbox
                     name="providerCustomer.syncWithProvider"
                     value={!!formikProps.values.providerCustomer?.syncWithProvider}
-                    label={
+                    label={`${
                       formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless
                         ? translate('text_635bdbda84c98758f9bba8aa')
                         : formikProps.values.paymentProvider === ProviderTypeEnum.Adyen
                           ? translate('text_645d0728ea0a5a7bbf76d5c7')
                           : translate('text_635bdbda84c98758f9bba89e')
-                    }
+                    }${
+                      formikProps.values.paymentProviderCode
+                        ? ` • ${connectedProvidersData.find(
+                            (provider) => provider.value === formikProps.values.paymentProviderCode,
+                          )?.label}`
+                        : ''
+                    }`}
                     onChange={(e, checked) => {
                       setIsDisabled(checked)
                       formikProps.setFieldValue('providerCustomer.syncWithProvider', checked)
@@ -726,6 +769,16 @@ const StripePaymentMethodWrapper = styled.div`
   > *:last-child {
     margin-top: ${theme.spacing(6)};
   }
+`
+
+const Item = styled.div`
+  min-height: ${ITEM_HEIGHT}px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  cursor: pointer;
+  box-sizing: border-box;
 `
 
 AddCustomerDrawer.displayName = 'AddCustomerDrawer'

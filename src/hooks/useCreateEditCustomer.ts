@@ -11,9 +11,11 @@ import {
   CustomerItemFragmentDoc,
   LagoApiError,
   ProviderPaymentMethodsEnum,
+  ProviderTypeEnum,
   UpdateCustomerInput,
   UpdateCustomerMutation,
   useCreateCustomerMutation,
+  useIntegrationsListForCustomerCreateEditQuery,
   useUpdateCustomerMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -41,6 +43,7 @@ gql`
     timezone
     zipcode
     url
+    paymentProviderCode
     providerCustomer {
       id
       providerCustomerId
@@ -69,10 +72,51 @@ gql`
     }
   }
 
+  query integrationsListForCustomerCreateEdit($limit: Int) {
+    paymentProviders(limit: $limit) {
+      collection {
+        ... on StripeProvider {
+          __typename
+          id
+          name
+          code
+        }
+
+        ... on GocardlessProvider {
+          __typename
+          id
+          name
+          code
+        }
+
+        ... on AdyenProvider {
+          __typename
+          id
+          name
+          code
+        }
+      }
+    }
+  }
+
   ${CustomerItemFragmentDoc}
 `
 
+type TPaymentProviderForCustomer = {
+  __typename: string
+  type: ProviderTypeEnum
+  id: string
+  name: string
+  code: string
+}
+
+type TPaymentProviderForCustomerGroupByTypename =
+  | Record<TPaymentProviderForCustomer['type'], TPaymentProviderForCustomer[]>
+  | undefined
+  | null
+
 type UseCreateEditCustomer = (props: { customer?: AddCustomerDrawerFragment | null }) => {
+  paymentProvidersList: TPaymentProviderForCustomerGroupByTypename
   isEdition: boolean
   onSave: (
     values: CreateCustomerInput | UpdateCustomerInput,
@@ -85,6 +129,23 @@ type UseCreateEditCustomer = (props: { customer?: AddCustomerDrawerFragment | nu
 export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
+  const { data: providersData } = useIntegrationsListForCustomerCreateEditQuery({
+    variables: { limit: 100 },
+  })
+  // group payment providers by __typeName
+  const paymentProvidersList = providersData?.paymentProviders?.collection.reduce<
+    Record<TPaymentProviderForCustomer['type'], TPaymentProviderForCustomer[]> | undefined | null
+  >((acc, curr) => {
+    if (!acc) return
+    const type = curr.__typename.toLowerCase().replace('provider', '') as ProviderTypeEnum
+
+    if (!acc[type]) {
+      acc[type] = []
+    }
+    acc[type].push({ ...curr, type })
+    return acc
+  }, {} as TPaymentProviderForCustomerGroupByTypename)
+
   const [create] = useCreateCustomerMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ createCustomer }) {
@@ -118,6 +179,7 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
   })
 
   return {
+    paymentProvidersList,
     isEdition: !!customer,
     onSave: !!customer
       ? async ({ providerCustomer, paymentProvider, ...values }) =>

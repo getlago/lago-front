@@ -40,9 +40,11 @@ export type AddAdyenPaymentProviderInput = {
   apiKey: Scalars['String']['input'];
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code: Scalars['String']['input'];
   hmacKey?: InputMaybe<Scalars['String']['input']>;
   livePrefix?: InputMaybe<Scalars['String']['input']>;
   merchantAccount: Scalars['String']['input'];
+  name: Scalars['String']['input'];
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -51,6 +53,8 @@ export type AddGocardlessPaymentProviderInput = {
   accessCode?: InputMaybe<Scalars['String']['input']>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code: Scalars['String']['input'];
+  name: Scalars['String']['input'];
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -83,18 +87,21 @@ export type AddOnCollection = {
 export type AddStripePaymentProviderInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  createCustomers?: InputMaybe<Scalars['Boolean']['input']>;
+  code: Scalars['String']['input'];
+  name: Scalars['String']['input'];
   secretKey?: InputMaybe<Scalars['String']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type AdyenProvider = {
   __typename?: 'AdyenProvider';
-  apiKey: Scalars['String']['output'];
+  apiKey?: Maybe<Scalars['String']['output']>;
+  code: Scalars['String']['output'];
   hmacKey?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   livePrefix?: Maybe<Scalars['String']['output']>;
   merchantAccount: Scalars['String']['output'];
+  name: Scalars['String']['output'];
   successRedirectUrl?: Maybe<Scalars['String']['output']>;
 };
 
@@ -906,6 +913,7 @@ export type CreateCustomerInput = {
   name: Scalars['String']['input'];
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
+  paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
   providerCustomer?: InputMaybe<ProviderCustomerInput>;
   state?: InputMaybe<Scalars['String']['input']>;
@@ -1443,6 +1451,7 @@ export type Customer = {
   name?: Maybe<Scalars['String']['output']>;
   netPaymentTerm?: Maybe<Scalars['Int']['output']>;
   paymentProvider?: Maybe<ProviderTypeEnum>;
+  paymentProviderCode?: Maybe<Scalars['String']['output']>;
   phone?: Maybe<Scalars['String']['output']>;
   providerCustomer?: Maybe<ProviderCustomer>;
   sequentialId: Scalars['String']['output'];
@@ -1848,8 +1857,10 @@ export type GenerateCustomerPortalUrlPayload = {
 
 export type GocardlessProvider = {
   __typename?: 'GocardlessProvider';
+  code: Scalars['String']['output'];
   hasAccessToken: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
   successRedirectUrl?: Maybe<Scalars['String']['output']>;
   webhookSecret?: Maybe<Scalars['String']['output']>;
 };
@@ -2636,7 +2647,7 @@ export type Organization = {
   __typename?: 'Organization';
   addressLine1?: Maybe<Scalars['String']['output']>;
   addressLine2?: Maybe<Scalars['String']['output']>;
-  adyenPaymentProvider?: Maybe<AdyenProvider>;
+  adyenPaymentProviders?: Maybe<Array<AdyenProvider>>;
   apiKey: Scalars['String']['output'];
   billingConfiguration?: Maybe<OrganizationBillingConfiguration>;
   city?: Maybe<Scalars['String']['output']>;
@@ -2648,7 +2659,7 @@ export type Organization = {
   email?: Maybe<Scalars['String']['output']>;
   emailSettings?: Maybe<Array<EmailSettingsEnum>>;
   euTaxManagement: Scalars['Boolean']['output'];
-  gocardlessPaymentProvider?: Maybe<GocardlessProvider>;
+  gocardlessPaymentProviders?: Maybe<Array<GocardlessProvider>>;
   id: Scalars['ID']['output'];
   legalName?: Maybe<Scalars['String']['output']>;
   legalNumber?: Maybe<Scalars['String']['output']>;
@@ -2656,7 +2667,7 @@ export type Organization = {
   name: Scalars['String']['output'];
   netPaymentTerm: Scalars['Int']['output'];
   state?: Maybe<Scalars['String']['output']>;
-  stripePaymentProvider?: Maybe<StripeProvider>;
+  stripePaymentProviders?: Maybe<Array<StripeProvider>>;
   taxIdentificationNumber?: Maybe<Scalars['String']['output']>;
   /** Query taxes of an organization */
   taxes?: Maybe<Array<Tax>>;
@@ -2691,6 +2702,14 @@ export type OrganizationBillingConfigurationInput = {
   documentLocale?: InputMaybe<Scalars['String']['input']>;
   invoiceFooter?: InputMaybe<Scalars['String']['input']>;
   invoiceGracePeriod?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type PaymentProvider = AdyenProvider | GocardlessProvider | StripeProvider;
+
+export type PaymentProviderCollection = {
+  __typename?: 'PaymentProviderCollection';
+  collection: Array<PaymentProvider>;
+  metadata: CollectionMetadata;
 };
 
 export type Plan = {
@@ -2865,6 +2884,10 @@ export type Query = {
   organization?: Maybe<Organization>;
   /** Query a password reset by token */
   passwordReset: ResetPassword;
+  /** Query a single payment provider */
+  paymentProvider?: Maybe<PaymentProvider>;
+  /** Query organization's payment providers */
+  paymentProviders?: Maybe<PaymentProviderCollection>;
   /** Query a single plan of an organization */
   plan?: Maybe<Plan>;
   /** Query plans of an organization */
@@ -3058,6 +3081,19 @@ export type QueryMrrsArgs = {
 
 export type QueryPasswordResetArgs = {
   token: Scalars['String']['input'];
+};
+
+
+export type QueryPaymentProviderArgs = {
+  code?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryPaymentProvidersArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<ProviderTypeEnum>;
 };
 
 
@@ -3255,9 +3291,10 @@ export enum StatusTypeEnum {
 
 export type StripeProvider = {
   __typename?: 'StripeProvider';
-  createCustomers: Scalars['Boolean']['output'];
+  code: Scalars['String']['output'];
   id: Scalars['ID']['output'];
-  secretKey: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  secretKey?: Maybe<Scalars['String']['output']>;
   successRedirectUrl?: Maybe<Scalars['String']['output']>;
 };
 
@@ -3656,10 +3693,13 @@ export type UpdateAddOnInput = {
   taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
-/** Autogenerated input type of UpdateAdyenPaymentProvider */
+/** Update input arguments */
 export type UpdateAdyenPaymentProviderInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -3728,6 +3768,7 @@ export type UpdateCustomerInput = {
   name: Scalars['String']['input'];
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
+  paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
   providerCustomer?: InputMaybe<ProviderCustomerInput>;
   state?: InputMaybe<Scalars['String']['input']>;
@@ -3756,10 +3797,13 @@ export type UpdateCustomerWalletInput = {
   recurringTransactionRules?: InputMaybe<Array<UpdateRecurringTransactionRuleInput>>;
 };
 
-/** Autogenerated input type of UpdateGocardlessPaymentProvider */
+/** Update input arguments */
 export type UpdateGocardlessPaymentProviderInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -3826,10 +3870,13 @@ export type UpdateRecurringTransactionRuleInput = {
   thresholdCredits?: InputMaybe<Scalars['String']['input']>;
 };
 
-/** Autogenerated input type of UpdateStripePaymentProvider */
+/** Update input arguments */
 export type UpdateStripePaymentProviderInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -4185,9 +4232,16 @@ export type GetCustomerInvoicesQueryVariables = Exact<{
 
 export type GetCustomerInvoicesQuery = { __typename?: 'Query', customerInvoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, name?: string | null } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
 
-export type CustomerItemFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, createdAt: any, activeSubscriptionsCount: number, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
+export type CustomerItemFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, createdAt: any, activeSubscriptionsCount: number, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
 
-export type CustomerMainInfosFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, email?: string | null, currency?: CurrencyEnum | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, url?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, timezone?: TimezoneEnum | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string }> | null };
+export type CustomerMainInfosFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, email?: string | null, currency?: CurrencyEnum | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, url?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, timezone?: TimezoneEnum | null, paymentProviderCode?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string }> | null };
+
+export type IntegrationsListForCustomerMainInfosQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type IntegrationsListForCustomerMainInfosQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string, name: string, code: string } | { __typename?: 'GocardlessProvider', id: string, name: string, code: string } | { __typename?: 'StripeProvider', id: string, name: string, code: string }> } | null };
 
 export type CustomerAppliedTaxRatesForSettingsFragment = { __typename?: 'Customer', id: string, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null };
 
@@ -4690,12 +4744,28 @@ export type UpdateOrganizationLogoMutationVariables = Exact<{
 
 export type UpdateOrganizationLogoMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string, logoUrl?: string | null } | null };
 
+export type AddAdyenProviderDialogFragment = { __typename?: 'AdyenProvider', id: string, name: string, code: string, apiKey?: string | null, hmacKey?: string | null, livePrefix?: string | null, merchantAccount: string };
+
+export type GetProviderByCodeForAdyenQueryVariables = Exact<{
+  code?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetProviderByCodeForAdyenQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'StripeProvider', id: string } | null };
+
 export type AddAdyenApiKeyMutationVariables = Exact<{
   input: AddAdyenPaymentProviderInput;
 }>;
 
 
-export type AddAdyenApiKeyMutation = { __typename?: 'Mutation', addAdyenPaymentProvider?: { __typename?: 'AdyenProvider', id: string, apiKey: string, hmacKey?: string | null, livePrefix?: string | null, merchantAccount: string } | null };
+export type AddAdyenApiKeyMutation = { __typename?: 'Mutation', addAdyenPaymentProvider?: { __typename?: 'AdyenProvider', id: string, name: string, code: string, apiKey?: string | null, hmacKey?: string | null, livePrefix?: string | null, merchantAccount: string, successRedirectUrl?: string | null } | null };
+
+export type UpdateAdyenApiKeyMutationVariables = Exact<{
+  input: UpdateAdyenPaymentProviderInput;
+}>;
+
+
+export type UpdateAdyenApiKeyMutation = { __typename?: 'Mutation', updateAdyenPaymentProvider?: { __typename?: 'AdyenProvider', id: string, name: string, code: string, apiKey?: string | null, hmacKey?: string | null, livePrefix?: string | null, merchantAccount: string, successRedirectUrl?: string | null } | null };
 
 export type AdyenForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'AdyenProvider', id: string, successRedirectUrl?: string | null };
 
@@ -4724,26 +4794,71 @@ export type UpdateStripePaymentProviderMutationVariables = Exact<{
 
 export type UpdateStripePaymentProviderMutation = { __typename?: 'Mutation', updateStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, successRedirectUrl?: string | null } | null };
 
-export type UpdateOrgaForTagoTaxManagementMutationVariables = Exact<{
+export type AddGocardlessProviderDialogFragment = { __typename?: 'GocardlessProvider', id: string, name: string, code: string };
+
+export type GetProviderByCodeForGocardlessQueryVariables = Exact<{
+  code?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetProviderByCodeForGocardlessQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'StripeProvider', id: string } | null };
+
+export type UpdateGocardlessApiKeyMutationVariables = Exact<{
+  input: UpdateGocardlessPaymentProviderInput;
+}>;
+
+
+export type UpdateGocardlessApiKeyMutation = { __typename?: 'Mutation', updateGocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string, name: string, code: string, successRedirectUrl?: string | null, webhookSecret?: string | null } | null };
+
+export type UpdateOrgaForLagoTaxManagementMutationVariables = Exact<{
   input: UpdateOrganizationInput;
 }>;
 
 
-export type UpdateOrgaForTagoTaxManagementMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string } | null };
+export type UpdateOrgaForLagoTaxManagementMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'Organization', id: string } | null };
+
+export type AddStripeProviderDialogFragment = { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: string | null };
+
+export type GetProviderByCodeForStripeQueryVariables = Exact<{
+  code?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetProviderByCodeForStripeQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'StripeProvider', id: string } | null };
 
 export type AddStripeApiKeyMutationVariables = Exact<{
   input: AddStripePaymentProviderInput;
 }>;
 
 
-export type AddStripeApiKeyMutation = { __typename?: 'Mutation', addStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, secretKey: string, createCustomers: boolean, successRedirectUrl?: string | null } | null };
+export type AddStripeApiKeyMutation = { __typename?: 'Mutation', addStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: string | null, successRedirectUrl?: string | null } | null };
 
-export type DeleteAdyenMutationVariables = Exact<{
+export type UpdateStripeApiKeyMutationVariables = Exact<{
+  input: UpdateStripePaymentProviderInput;
+}>;
+
+
+export type UpdateStripeApiKeyMutation = { __typename?: 'Mutation', updateStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: string | null, successRedirectUrl?: string | null } | null };
+
+export type DeleteAdyenIntegrationDialogFragment = { __typename?: 'AdyenProvider', id: string, name: string };
+
+export type DeleteAdyenIntegrationMutationVariables = Exact<{
   input: DestroyPaymentProviderInput;
 }>;
 
 
-export type DeleteAdyenMutation = { __typename?: 'Mutation', destroyPaymentProvider?: { __typename?: 'DestroyPaymentProviderPayload', id?: string | null } | null };
+export type DeleteAdyenIntegrationMutation = { __typename?: 'Mutation', destroyPaymentProvider?: { __typename?: 'DestroyPaymentProviderPayload', id?: string | null } | null };
+
+export type DeleteGocardlessIntegrationDialogFragment = { __typename?: 'GocardlessProvider', id: string, name: string };
+
+export type DeleteGocardlessMutationVariables = Exact<{
+  input: DestroyPaymentProviderInput;
+}>;
+
+
+export type DeleteGocardlessMutation = { __typename?: 'Mutation', destroyPaymentProvider?: { __typename?: 'DestroyPaymentProviderPayload', id?: string | null } | null };
+
+export type DeleteStripeIntegrationDialogFragment = { __typename?: 'StripeProvider', id: string, name: string };
 
 export type DeleteStripeMutationVariables = Exact<{
   input: DestroyPaymentProviderInput;
@@ -4846,14 +4961,14 @@ export type CreateSubscriptionMutationVariables = Exact<{
 }>;
 
 
-export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } } | null };
+export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } } | null };
 
 export type UpdateSubscriptionMutationVariables = Exact<{
   input: UpdateSubscriptionInput;
 }>;
 
 
-export type UpdateSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } } | null };
+export type UpdateSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } } | null };
 
 export type GetSinglePlanQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -4963,21 +5078,28 @@ export type UpdateCouponMutationVariables = Exact<{
 
 export type UpdateCouponMutation = { __typename?: 'Mutation', updateCoupon?: { __typename?: 'Coupon', id: string, name: string, customersCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, appliedCouponsCount: number, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null } | null };
 
-export type AddCustomerDrawerFragment = { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
+export type AddCustomerDrawerFragment = { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
 
 export type CreateCustomerMutationVariables = Exact<{
   input: CreateCustomerInput;
 }>;
 
 
-export type CreateCustomerMutation = { __typename?: 'Mutation', createCustomer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, createdAt: any, activeSubscriptionsCount: number, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
+export type CreateCustomerMutation = { __typename?: 'Mutation', createCustomer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, createdAt: any, activeSubscriptionsCount: number, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
 
 export type UpdateCustomerMutationVariables = Exact<{
   input: UpdateCustomerInput;
 }>;
 
 
-export type UpdateCustomerMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, createdAt: any, activeSubscriptionsCount: number, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
+export type UpdateCustomerMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, createdAt: any, activeSubscriptionsCount: number, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
+
+export type IntegrationsListForCustomerCreateEditQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type IntegrationsListForCustomerCreateEditQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename: 'AdyenProvider', id: string, name: string, code: string } | { __typename: 'GocardlessProvider', id: string, name: string, code: string } | { __typename: 'StripeProvider', id: string, name: string, code: string }> } | null };
 
 export type TaxFormFragment = { __typename?: 'Tax', id: string, code: string, description?: string | null, name: string, rate: number, customersCount: number };
 
@@ -5160,14 +5282,14 @@ export type GetCreditNoteQueryVariables = Exact<{
 
 export type GetCreditNoteQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, balanceAmountCents: any, canBeVoided: boolean, couponsAdjustmentAmountCents: any, createdAt: any, creditAmountCents: any, creditStatus?: CreditNoteCreditStatusEnum | null, currency: CurrencyEnum, number: string, refundAmountCents: any, refundedAt?: any | null, refundStatus?: CreditNoteRefundStatusEnum | null, subTotalExcludingTaxesAmountCents: any, totalAmountCents: any, customer: { __typename?: 'Customer', id: string, name?: string | null, deletedAt?: any | null, applicableTimezone: TimezoneEnum }, invoice?: { __typename?: 'Invoice', id: string, number: string } | null, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, itemName: string, groupName?: string | null, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, tax: { __typename?: 'Tax', id: string, rate: number } }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, group?: { __typename?: 'Group', id: string, key?: string | null, value: string } | null } }> } | null };
 
-export type CustomerDetailsFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
+export type CustomerDetailsFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
 
 export type GetCustomerQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
+export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
 
 export type GenerateCustomerPortalUrlMutationVariables = Exact<{
   input: GenerateCustomerPortalUrlInput;
@@ -5202,7 +5324,7 @@ export type CustomersQueryVariables = Exact<{
 }>;
 
 
-export type CustomersQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Customer', id: string, name?: string | null, externalId: string, createdAt: any, activeSubscriptionsCount: number, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null }> } };
+export type CustomersQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Customer', id: string, name?: string | null, externalId: string, createdAt: any, activeSubscriptionsCount: number, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null }> } };
 
 export type GetinviteQueryVariables = Exact<{
   token: Scalars['String']['input'];
@@ -5387,29 +5509,63 @@ export type GetWebhookListQueryVariables = Exact<{
 
 export type GetWebhookListQuery = { __typename?: 'Query', webhookEndpoints: { __typename?: 'WebhookEndpointCollection', collection: Array<{ __typename?: 'WebhookEndpoint', id: string, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null }> } };
 
-export type AdyenIntegrationFragment = { __typename?: 'AdyenProvider', id: string, apiKey: string, hmacKey?: string | null, livePrefix?: string | null, merchantAccount: string };
+export type AdyenIntegrationDetailsFragment = { __typename?: 'AdyenProvider', id: string, apiKey?: string | null, code: string, hmacKey?: string | null, livePrefix?: string | null, merchantAccount: string, successRedirectUrl?: string | null, name: string };
 
-export type AdyenIntegrationsSettingQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetAdyenIntegrationsDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<ProviderTypeEnum>;
+}>;
 
 
-export type AdyenIntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, adyenPaymentProvider?: { __typename?: 'AdyenProvider', id: string, successRedirectUrl?: string | null, apiKey: string, hmacKey?: string | null, livePrefix?: string | null, merchantAccount: string } | null } | null };
+export type GetAdyenIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider', id: string, apiKey?: string | null, code: string, hmacKey?: string | null, livePrefix?: string | null, merchantAccount: string, successRedirectUrl?: string | null, name: string } | { __typename?: 'GocardlessProvider' } | { __typename?: 'StripeProvider' } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string } | { __typename?: 'GocardlessProvider' } | { __typename?: 'StripeProvider' }> } | null };
 
-export type GocardlessIntegrationsSettingQueryVariables = Exact<{ [key: string]: never; }>;
+export type AdyenIntegrationsFragment = { __typename?: 'AdyenProvider', id: string, name: string, code: string };
+
+export type GetAdyenIntegrationsListQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<ProviderTypeEnum>;
+}>;
 
 
-export type GocardlessIntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, gocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string, hasAccessToken: boolean, webhookSecret?: string | null, successRedirectUrl?: string | null } | null } | null };
+export type GetAdyenIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string, name: string, code: string, apiKey?: string | null, hmacKey?: string | null, livePrefix?: string | null, merchantAccount: string } | { __typename?: 'GocardlessProvider' } | { __typename?: 'StripeProvider' }> } | null };
 
-export type AddGocardlessPaymentProviderMutationVariables = Exact<{
+export type GocardlessIntegrationDetailsFragment = { __typename?: 'GocardlessProvider', id: string, code: string, name: string, successRedirectUrl?: string | null, webhookSecret?: string | null };
+
+export type GetGocardlessIntegrationsDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<ProviderTypeEnum>;
+}>;
+
+
+export type GetGocardlessIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider' } | { __typename?: 'GocardlessProvider', id: string, code: string, name: string, successRedirectUrl?: string | null, webhookSecret?: string | null } | { __typename?: 'StripeProvider' } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'StripeProvider' }> } | null };
+
+export type GocardlessIntegrationOauthCallbackFragment = { __typename?: 'GocardlessProvider', id: string, name: string, code: string };
+
+export type AddGocardlessApiKeyMutationVariables = Exact<{
   input: AddGocardlessPaymentProviderInput;
 }>;
 
 
-export type AddGocardlessPaymentProviderMutation = { __typename?: 'Mutation', addGocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string, hasAccessToken: boolean, webhookSecret?: string | null, successRedirectUrl?: string | null } | null };
+export type AddGocardlessApiKeyMutation = { __typename?: 'Mutation', addGocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string, name: string, code: string } | null };
 
-export type IntegrationsSettingQueryVariables = Exact<{ [key: string]: never; }>;
+export type GocardlessIntegrationsFragment = { __typename?: 'GocardlessProvider', id: string, name: string, code: string };
+
+export type GetGocardlessIntegrationsListQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<ProviderTypeEnum>;
+}>;
 
 
-export type IntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, euTaxManagement: boolean, country?: CountryCode | null, stripePaymentProvider?: { __typename?: 'StripeProvider', id: string } | null, gocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string } | null, adyenPaymentProvider?: { __typename?: 'AdyenProvider', id: string } | null } | null };
+export type GetGocardlessIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'GocardlessProvider', id: string, name: string, code: string } | { __typename?: 'StripeProvider' }> } | null };
+
+export type IntegrationsSettingQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type IntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, euTaxManagement: boolean, country?: CountryCode | null } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'StripeProvider', id: string }> } | null };
 
 export type GetOrganizationSettingsQueryVariables = Exact<{
   appliedToOrganization?: InputMaybe<Scalars['Boolean']['input']>;
@@ -5458,19 +5614,26 @@ export type GetOrganizationInformationsQueryVariables = Exact<{ [key: string]: n
 
 export type GetOrganizationInformationsQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, timezone?: TimezoneEnum | null } | null };
 
-export type StripeIntegrationFragment = { __typename?: 'StripeProvider', id: string, secretKey: string, createCustomers: boolean, successRedirectUrl?: string | null };
+export type StripeIntegrationDetailsFragment = { __typename?: 'StripeProvider', id: string, code: string, name: string, secretKey?: string | null, successRedirectUrl?: string | null };
 
-export type StripeIntegrationsSettingQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type StripeIntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, stripePaymentProvider?: { __typename?: 'StripeProvider', id: string, secretKey: string, createCustomers: boolean, successRedirectUrl?: string | null } | null } | null };
-
-export type UpdateStripeIntegrationMutationVariables = Exact<{
-  input: AddStripePaymentProviderInput;
+export type GetStripeIntegrationsDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<ProviderTypeEnum>;
 }>;
 
 
-export type UpdateStripeIntegrationMutation = { __typename?: 'Mutation', addStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, secretKey: string, createCustomers: boolean, successRedirectUrl?: string | null } | null };
+export type GetStripeIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'StripeProvider', id: string, code: string, name: string, secretKey?: string | null, successRedirectUrl?: string | null } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'StripeProvider', id: string }> } | null };
+
+export type StripeIntegrationsFragment = { __typename?: 'StripeProvider', id: string, name: string, code: string };
+
+export type GetStripeIntegrationsListQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<ProviderTypeEnum>;
+}>;
+
+
+export type GetStripeIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: string | null }> } | null };
 
 export type GetTaxesQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -5681,6 +5844,7 @@ export const AddCustomerDrawerFragmentDoc = gql`
   timezone
   zipcode
   url
+  paymentProviderCode
   providerCustomer {
     id
     providerCustomerId
@@ -6010,6 +6174,17 @@ export const EditOrganizationInvoiceTemplateDialogFragmentDoc = gql`
   }
 }
     `;
+export const AddAdyenProviderDialogFragmentDoc = gql`
+    fragment AddAdyenProviderDialog on AdyenProvider {
+  id
+  name
+  code
+  apiKey
+  hmacKey
+  livePrefix
+  merchantAccount
+}
+    `;
 export const AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
     fragment AdyenForCreateAndEditSuccessRedirectUrl on AdyenProvider {
   id
@@ -6023,9 +6198,42 @@ export const GocardlessForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
 }
     `;
 export const StripeForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
-    fragment stripeForCreateAndEditSuccessRedirectUrl on StripeProvider {
+    fragment StripeForCreateAndEditSuccessRedirectUrl on StripeProvider {
   id
   successRedirectUrl
+}
+    `;
+export const AddGocardlessProviderDialogFragmentDoc = gql`
+    fragment AddGocardlessProviderDialog on GocardlessProvider {
+  id
+  name
+  code
+}
+    `;
+export const AddStripeProviderDialogFragmentDoc = gql`
+    fragment AddStripeProviderDialog on StripeProvider {
+  id
+  name
+  code
+  secretKey
+}
+    `;
+export const DeleteAdyenIntegrationDialogFragmentDoc = gql`
+    fragment DeleteAdyenIntegrationDialog on AdyenProvider {
+  id
+  name
+}
+    `;
+export const DeleteGocardlessIntegrationDialogFragmentDoc = gql`
+    fragment DeleteGocardlessIntegrationDialog on GocardlessProvider {
+  id
+  name
+}
+    `;
+export const DeleteStripeIntegrationDialogFragmentDoc = gql`
+    fragment DeleteStripeIntegrationDialog on StripeProvider {
+  id
+  name
 }
     `;
 export const InviteItemFragmentDoc = gql`
@@ -7157,6 +7365,7 @@ export const CustomerMainInfosFragmentDoc = gql`
   zipcode
   paymentProvider
   timezone
+  paymentProviderCode
   providerCustomer {
     id
     providerCustomerId
@@ -7265,13 +7474,46 @@ export const WebhookLogFragmentDoc = gql`
 }
     ${WebhookLogItemFragmentDoc}
 ${WebhookLogDetailsFragmentDoc}`;
-export const AdyenIntegrationFragmentDoc = gql`
-    fragment AdyenIntegration on AdyenProvider {
+export const AdyenIntegrationDetailsFragmentDoc = gql`
+    fragment AdyenIntegrationDetails on AdyenProvider {
   id
   apiKey
+  code
   hmacKey
   livePrefix
   merchantAccount
+  successRedirectUrl
+  name
+}
+    `;
+export const AdyenIntegrationsFragmentDoc = gql`
+    fragment AdyenIntegrations on AdyenProvider {
+  id
+  name
+  code
+}
+    `;
+export const GocardlessIntegrationDetailsFragmentDoc = gql`
+    fragment GocardlessIntegrationDetails on GocardlessProvider {
+  id
+  code
+  name
+  successRedirectUrl
+  webhookSecret
+}
+    `;
+export const GocardlessIntegrationOauthCallbackFragmentDoc = gql`
+    fragment GocardlessIntegrationOauthCallback on GocardlessProvider {
+  id
+  name
+  code
+}
+    `;
+export const GocardlessIntegrationsFragmentDoc = gql`
+    fragment GocardlessIntegrations on GocardlessProvider {
+  id
+  name
+  code
 }
     `;
 export const OrganizationInformationsFragmentDoc = gql`
@@ -7292,12 +7534,20 @@ export const OrganizationInformationsFragmentDoc = gql`
   timezone
 }
     `;
-export const StripeIntegrationFragmentDoc = gql`
-    fragment StripeIntegration on StripeProvider {
+export const StripeIntegrationDetailsFragmentDoc = gql`
+    fragment StripeIntegrationDetails on StripeProvider {
   id
+  code
+  name
   secretKey
-  createCustomers
   successRedirectUrl
+}
+    `;
+export const StripeIntegrationsFragmentDoc = gql`
+    fragment StripeIntegrations on StripeProvider {
+  id
+  name
+  code
 }
     `;
 export const UserIdentifierDocument = gql`
@@ -8039,6 +8289,62 @@ export type GetCustomerInvoicesQueryHookResult = ReturnType<typeof useGetCustome
 export type GetCustomerInvoicesLazyQueryHookResult = ReturnType<typeof useGetCustomerInvoicesLazyQuery>;
 export type GetCustomerInvoicesSuspenseQueryHookResult = ReturnType<typeof useGetCustomerInvoicesSuspenseQuery>;
 export type GetCustomerInvoicesQueryResult = Apollo.QueryResult<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>;
+export const IntegrationsListForCustomerMainInfosDocument = gql`
+    query integrationsListForCustomerMainInfos($limit: Int) {
+  paymentProviders(limit: $limit) {
+    collection {
+      ... on StripeProvider {
+        id
+        name
+        code
+      }
+      ... on GocardlessProvider {
+        id
+        name
+        code
+      }
+      ... on AdyenProvider {
+        id
+        name
+        code
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useIntegrationsListForCustomerMainInfosQuery__
+ *
+ * To run a query within a React component, call `useIntegrationsListForCustomerMainInfosQuery` and pass it any options that fit your needs.
+ * When your component renders, `useIntegrationsListForCustomerMainInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useIntegrationsListForCustomerMainInfosQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useIntegrationsListForCustomerMainInfosQuery(baseOptions?: Apollo.QueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
+      }
+export function useIntegrationsListForCustomerMainInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
+        }
+export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
+        }
+export type IntegrationsListForCustomerMainInfosQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosQuery>;
+export type IntegrationsListForCustomerMainInfosLazyQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosLazyQuery>;
+export type IntegrationsListForCustomerMainInfosSuspenseQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosSuspenseQuery>;
+export type IntegrationsListForCustomerMainInfosQueryResult = Apollo.QueryResult<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>;
 export const GetCustomerSettingsDocument = gql`
     query getCustomerSettings($id: ID!) {
   customer(id: $id) {
@@ -10048,18 +10354,64 @@ export function useUpdateOrganizationLogoMutation(baseOptions?: Apollo.MutationH
 export type UpdateOrganizationLogoMutationHookResult = ReturnType<typeof useUpdateOrganizationLogoMutation>;
 export type UpdateOrganizationLogoMutationResult = Apollo.MutationResult<UpdateOrganizationLogoMutation>;
 export type UpdateOrganizationLogoMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationLogoMutation, UpdateOrganizationLogoMutationVariables>;
+export const GetProviderByCodeForAdyenDocument = gql`
+    query getProviderByCodeForAdyen($code: String) {
+  paymentProvider(code: $code) {
+    ... on AdyenProvider {
+      id
+    }
+    ... on GocardlessProvider {
+      id
+    }
+    ... on StripeProvider {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetProviderByCodeForAdyenQuery__
+ *
+ * To run a query within a React component, call `useGetProviderByCodeForAdyenQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProviderByCodeForAdyenQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProviderByCodeForAdyenQuery({
+ *   variables: {
+ *      code: // value for 'code'
+ *   },
+ * });
+ */
+export function useGetProviderByCodeForAdyenQuery(baseOptions?: Apollo.QueryHookOptions<GetProviderByCodeForAdyenQuery, GetProviderByCodeForAdyenQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProviderByCodeForAdyenQuery, GetProviderByCodeForAdyenQueryVariables>(GetProviderByCodeForAdyenDocument, options);
+      }
+export function useGetProviderByCodeForAdyenLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProviderByCodeForAdyenQuery, GetProviderByCodeForAdyenQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProviderByCodeForAdyenQuery, GetProviderByCodeForAdyenQueryVariables>(GetProviderByCodeForAdyenDocument, options);
+        }
+export function useGetProviderByCodeForAdyenSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProviderByCodeForAdyenQuery, GetProviderByCodeForAdyenQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProviderByCodeForAdyenQuery, GetProviderByCodeForAdyenQueryVariables>(GetProviderByCodeForAdyenDocument, options);
+        }
+export type GetProviderByCodeForAdyenQueryHookResult = ReturnType<typeof useGetProviderByCodeForAdyenQuery>;
+export type GetProviderByCodeForAdyenLazyQueryHookResult = ReturnType<typeof useGetProviderByCodeForAdyenLazyQuery>;
+export type GetProviderByCodeForAdyenSuspenseQueryHookResult = ReturnType<typeof useGetProviderByCodeForAdyenSuspenseQuery>;
+export type GetProviderByCodeForAdyenQueryResult = Apollo.QueryResult<GetProviderByCodeForAdyenQuery, GetProviderByCodeForAdyenQueryVariables>;
 export const AddAdyenApiKeyDocument = gql`
     mutation addAdyenApiKey($input: AddAdyenPaymentProviderInput!) {
   addAdyenPaymentProvider(input: $input) {
     id
-    apiKey
-    hmacKey
-    livePrefix
-    merchantAccount
-    ...AdyenIntegration
+    ...AddAdyenProviderDialog
+    ...AdyenIntegrationDetails
   }
 }
-    ${AdyenIntegrationFragmentDoc}`;
+    ${AddAdyenProviderDialogFragmentDoc}
+${AdyenIntegrationDetailsFragmentDoc}`;
 export type AddAdyenApiKeyMutationFn = Apollo.MutationFunction<AddAdyenApiKeyMutation, AddAdyenApiKeyMutationVariables>;
 
 /**
@@ -10086,6 +10438,42 @@ export function useAddAdyenApiKeyMutation(baseOptions?: Apollo.MutationHookOptio
 export type AddAdyenApiKeyMutationHookResult = ReturnType<typeof useAddAdyenApiKeyMutation>;
 export type AddAdyenApiKeyMutationResult = Apollo.MutationResult<AddAdyenApiKeyMutation>;
 export type AddAdyenApiKeyMutationOptions = Apollo.BaseMutationOptions<AddAdyenApiKeyMutation, AddAdyenApiKeyMutationVariables>;
+export const UpdateAdyenApiKeyDocument = gql`
+    mutation updateAdyenApiKey($input: UpdateAdyenPaymentProviderInput!) {
+  updateAdyenPaymentProvider(input: $input) {
+    id
+    ...AddAdyenProviderDialog
+    ...AdyenIntegrationDetails
+  }
+}
+    ${AddAdyenProviderDialogFragmentDoc}
+${AdyenIntegrationDetailsFragmentDoc}`;
+export type UpdateAdyenApiKeyMutationFn = Apollo.MutationFunction<UpdateAdyenApiKeyMutation, UpdateAdyenApiKeyMutationVariables>;
+
+/**
+ * __useUpdateAdyenApiKeyMutation__
+ *
+ * To run a mutation, you first call `useUpdateAdyenApiKeyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAdyenApiKeyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAdyenApiKeyMutation, { data, loading, error }] = useUpdateAdyenApiKeyMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateAdyenApiKeyMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAdyenApiKeyMutation, UpdateAdyenApiKeyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAdyenApiKeyMutation, UpdateAdyenApiKeyMutationVariables>(UpdateAdyenApiKeyDocument, options);
+      }
+export type UpdateAdyenApiKeyMutationHookResult = ReturnType<typeof useUpdateAdyenApiKeyMutation>;
+export type UpdateAdyenApiKeyMutationResult = Apollo.MutationResult<UpdateAdyenApiKeyMutation>;
+export type UpdateAdyenApiKeyMutationOptions = Apollo.BaseMutationOptions<UpdateAdyenApiKeyMutation, UpdateAdyenApiKeyMutationVariables>;
 export const UpdateAdyenPaymentProviderDocument = gql`
     mutation updateAdyenPaymentProvider($input: UpdateAdyenPaymentProviderInput!) {
   updateAdyenPaymentProvider(input: $input) {
@@ -10188,47 +10576,181 @@ export function useUpdateStripePaymentProviderMutation(baseOptions?: Apollo.Muta
 export type UpdateStripePaymentProviderMutationHookResult = ReturnType<typeof useUpdateStripePaymentProviderMutation>;
 export type UpdateStripePaymentProviderMutationResult = Apollo.MutationResult<UpdateStripePaymentProviderMutation>;
 export type UpdateStripePaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateStripePaymentProviderMutation, UpdateStripePaymentProviderMutationVariables>;
-export const UpdateOrgaForTagoTaxManagementDocument = gql`
-    mutation updateOrgaForTagoTaxManagement($input: UpdateOrganizationInput!) {
-  updateOrganization(input: $input) {
-    id
+export const GetProviderByCodeForGocardlessDocument = gql`
+    query getProviderByCodeForGocardless($code: String) {
+  paymentProvider(code: $code) {
+    ... on GocardlessProvider {
+      id
+    }
+    ... on AdyenProvider {
+      id
+    }
+    ... on StripeProvider {
+      id
+    }
   }
 }
     `;
-export type UpdateOrgaForTagoTaxManagementMutationFn = Apollo.MutationFunction<UpdateOrgaForTagoTaxManagementMutation, UpdateOrgaForTagoTaxManagementMutationVariables>;
 
 /**
- * __useUpdateOrgaForTagoTaxManagementMutation__
+ * __useGetProviderByCodeForGocardlessQuery__
  *
- * To run a mutation, you first call `useUpdateOrgaForTagoTaxManagementMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateOrgaForTagoTaxManagementMutation` returns a tuple that includes:
+ * To run a query within a React component, call `useGetProviderByCodeForGocardlessQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProviderByCodeForGocardlessQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProviderByCodeForGocardlessQuery({
+ *   variables: {
+ *      code: // value for 'code'
+ *   },
+ * });
+ */
+export function useGetProviderByCodeForGocardlessQuery(baseOptions?: Apollo.QueryHookOptions<GetProviderByCodeForGocardlessQuery, GetProviderByCodeForGocardlessQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProviderByCodeForGocardlessQuery, GetProviderByCodeForGocardlessQueryVariables>(GetProviderByCodeForGocardlessDocument, options);
+      }
+export function useGetProviderByCodeForGocardlessLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProviderByCodeForGocardlessQuery, GetProviderByCodeForGocardlessQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProviderByCodeForGocardlessQuery, GetProviderByCodeForGocardlessQueryVariables>(GetProviderByCodeForGocardlessDocument, options);
+        }
+export function useGetProviderByCodeForGocardlessSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProviderByCodeForGocardlessQuery, GetProviderByCodeForGocardlessQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProviderByCodeForGocardlessQuery, GetProviderByCodeForGocardlessQueryVariables>(GetProviderByCodeForGocardlessDocument, options);
+        }
+export type GetProviderByCodeForGocardlessQueryHookResult = ReturnType<typeof useGetProviderByCodeForGocardlessQuery>;
+export type GetProviderByCodeForGocardlessLazyQueryHookResult = ReturnType<typeof useGetProviderByCodeForGocardlessLazyQuery>;
+export type GetProviderByCodeForGocardlessSuspenseQueryHookResult = ReturnType<typeof useGetProviderByCodeForGocardlessSuspenseQuery>;
+export type GetProviderByCodeForGocardlessQueryResult = Apollo.QueryResult<GetProviderByCodeForGocardlessQuery, GetProviderByCodeForGocardlessQueryVariables>;
+export const UpdateGocardlessApiKeyDocument = gql`
+    mutation updateGocardlessApiKey($input: UpdateGocardlessPaymentProviderInput!) {
+  updateGocardlessPaymentProvider(input: $input) {
+    id
+    ...AddGocardlessProviderDialog
+    ...GocardlessIntegrationDetails
+  }
+}
+    ${AddGocardlessProviderDialogFragmentDoc}
+${GocardlessIntegrationDetailsFragmentDoc}`;
+export type UpdateGocardlessApiKeyMutationFn = Apollo.MutationFunction<UpdateGocardlessApiKeyMutation, UpdateGocardlessApiKeyMutationVariables>;
+
+/**
+ * __useUpdateGocardlessApiKeyMutation__
+ *
+ * To run a mutation, you first call `useUpdateGocardlessApiKeyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateGocardlessApiKeyMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updateOrgaForTagoTaxManagementMutation, { data, loading, error }] = useUpdateOrgaForTagoTaxManagementMutation({
+ * const [updateGocardlessApiKeyMutation, { data, loading, error }] = useUpdateGocardlessApiKeyMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useUpdateOrgaForTagoTaxManagementMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrgaForTagoTaxManagementMutation, UpdateOrgaForTagoTaxManagementMutationVariables>) {
+export function useUpdateGocardlessApiKeyMutation(baseOptions?: Apollo.MutationHookOptions<UpdateGocardlessApiKeyMutation, UpdateGocardlessApiKeyMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateOrgaForTagoTaxManagementMutation, UpdateOrgaForTagoTaxManagementMutationVariables>(UpdateOrgaForTagoTaxManagementDocument, options);
+        return Apollo.useMutation<UpdateGocardlessApiKeyMutation, UpdateGocardlessApiKeyMutationVariables>(UpdateGocardlessApiKeyDocument, options);
       }
-export type UpdateOrgaForTagoTaxManagementMutationHookResult = ReturnType<typeof useUpdateOrgaForTagoTaxManagementMutation>;
-export type UpdateOrgaForTagoTaxManagementMutationResult = Apollo.MutationResult<UpdateOrgaForTagoTaxManagementMutation>;
-export type UpdateOrgaForTagoTaxManagementMutationOptions = Apollo.BaseMutationOptions<UpdateOrgaForTagoTaxManagementMutation, UpdateOrgaForTagoTaxManagementMutationVariables>;
+export type UpdateGocardlessApiKeyMutationHookResult = ReturnType<typeof useUpdateGocardlessApiKeyMutation>;
+export type UpdateGocardlessApiKeyMutationResult = Apollo.MutationResult<UpdateGocardlessApiKeyMutation>;
+export type UpdateGocardlessApiKeyMutationOptions = Apollo.BaseMutationOptions<UpdateGocardlessApiKeyMutation, UpdateGocardlessApiKeyMutationVariables>;
+export const UpdateOrgaForLagoTaxManagementDocument = gql`
+    mutation updateOrgaForLagoTaxManagement($input: UpdateOrganizationInput!) {
+  updateOrganization(input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateOrgaForLagoTaxManagementMutationFn = Apollo.MutationFunction<UpdateOrgaForLagoTaxManagementMutation, UpdateOrgaForLagoTaxManagementMutationVariables>;
+
+/**
+ * __useUpdateOrgaForLagoTaxManagementMutation__
+ *
+ * To run a mutation, you first call `useUpdateOrgaForLagoTaxManagementMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOrgaForLagoTaxManagementMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOrgaForLagoTaxManagementMutation, { data, loading, error }] = useUpdateOrgaForLagoTaxManagementMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOrgaForLagoTaxManagementMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrgaForLagoTaxManagementMutation, UpdateOrgaForLagoTaxManagementMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateOrgaForLagoTaxManagementMutation, UpdateOrgaForLagoTaxManagementMutationVariables>(UpdateOrgaForLagoTaxManagementDocument, options);
+      }
+export type UpdateOrgaForLagoTaxManagementMutationHookResult = ReturnType<typeof useUpdateOrgaForLagoTaxManagementMutation>;
+export type UpdateOrgaForLagoTaxManagementMutationResult = Apollo.MutationResult<UpdateOrgaForLagoTaxManagementMutation>;
+export type UpdateOrgaForLagoTaxManagementMutationOptions = Apollo.BaseMutationOptions<UpdateOrgaForLagoTaxManagementMutation, UpdateOrgaForLagoTaxManagementMutationVariables>;
+export const GetProviderByCodeForStripeDocument = gql`
+    query getProviderByCodeForStripe($code: String) {
+  paymentProvider(code: $code) {
+    ... on StripeProvider {
+      id
+    }
+    ... on GocardlessProvider {
+      id
+    }
+    ... on AdyenProvider {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetProviderByCodeForStripeQuery__
+ *
+ * To run a query within a React component, call `useGetProviderByCodeForStripeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProviderByCodeForStripeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProviderByCodeForStripeQuery({
+ *   variables: {
+ *      code: // value for 'code'
+ *   },
+ * });
+ */
+export function useGetProviderByCodeForStripeQuery(baseOptions?: Apollo.QueryHookOptions<GetProviderByCodeForStripeQuery, GetProviderByCodeForStripeQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProviderByCodeForStripeQuery, GetProviderByCodeForStripeQueryVariables>(GetProviderByCodeForStripeDocument, options);
+      }
+export function useGetProviderByCodeForStripeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProviderByCodeForStripeQuery, GetProviderByCodeForStripeQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProviderByCodeForStripeQuery, GetProviderByCodeForStripeQueryVariables>(GetProviderByCodeForStripeDocument, options);
+        }
+export function useGetProviderByCodeForStripeSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProviderByCodeForStripeQuery, GetProviderByCodeForStripeQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProviderByCodeForStripeQuery, GetProviderByCodeForStripeQueryVariables>(GetProviderByCodeForStripeDocument, options);
+        }
+export type GetProviderByCodeForStripeQueryHookResult = ReturnType<typeof useGetProviderByCodeForStripeQuery>;
+export type GetProviderByCodeForStripeLazyQueryHookResult = ReturnType<typeof useGetProviderByCodeForStripeLazyQuery>;
+export type GetProviderByCodeForStripeSuspenseQueryHookResult = ReturnType<typeof useGetProviderByCodeForStripeSuspenseQuery>;
+export type GetProviderByCodeForStripeQueryResult = Apollo.QueryResult<GetProviderByCodeForStripeQuery, GetProviderByCodeForStripeQueryVariables>;
 export const AddStripeApiKeyDocument = gql`
     mutation addStripeApiKey($input: AddStripePaymentProviderInput!) {
   addStripePaymentProvider(input: $input) {
     id
-    ...StripeIntegration
+    ...AddStripeProviderDialog
+    ...StripeIntegrationDetails
   }
 }
-    ${StripeIntegrationFragmentDoc}`;
+    ${AddStripeProviderDialogFragmentDoc}
+${StripeIntegrationDetailsFragmentDoc}`;
 export type AddStripeApiKeyMutationFn = Apollo.MutationFunction<AddStripeApiKeyMutation, AddStripeApiKeyMutationVariables>;
 
 /**
@@ -10255,39 +10777,108 @@ export function useAddStripeApiKeyMutation(baseOptions?: Apollo.MutationHookOpti
 export type AddStripeApiKeyMutationHookResult = ReturnType<typeof useAddStripeApiKeyMutation>;
 export type AddStripeApiKeyMutationResult = Apollo.MutationResult<AddStripeApiKeyMutation>;
 export type AddStripeApiKeyMutationOptions = Apollo.BaseMutationOptions<AddStripeApiKeyMutation, AddStripeApiKeyMutationVariables>;
-export const DeleteAdyenDocument = gql`
-    mutation deleteAdyen($input: DestroyPaymentProviderInput!) {
-  destroyPaymentProvider(input: $input) {
+export const UpdateStripeApiKeyDocument = gql`
+    mutation updateStripeApiKey($input: UpdateStripePaymentProviderInput!) {
+  updateStripePaymentProvider(input: $input) {
     id
+    ...AddStripeProviderDialog
+    ...StripeIntegrationDetails
   }
 }
-    `;
-export type DeleteAdyenMutationFn = Apollo.MutationFunction<DeleteAdyenMutation, DeleteAdyenMutationVariables>;
+    ${AddStripeProviderDialogFragmentDoc}
+${StripeIntegrationDetailsFragmentDoc}`;
+export type UpdateStripeApiKeyMutationFn = Apollo.MutationFunction<UpdateStripeApiKeyMutation, UpdateStripeApiKeyMutationVariables>;
 
 /**
- * __useDeleteAdyenMutation__
+ * __useUpdateStripeApiKeyMutation__
  *
- * To run a mutation, you first call `useDeleteAdyenMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteAdyenMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdateStripeApiKeyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateStripeApiKeyMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [deleteAdyenMutation, { data, loading, error }] = useDeleteAdyenMutation({
+ * const [updateStripeApiKeyMutation, { data, loading, error }] = useUpdateStripeApiKeyMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useDeleteAdyenMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAdyenMutation, DeleteAdyenMutationVariables>) {
+export function useUpdateStripeApiKeyMutation(baseOptions?: Apollo.MutationHookOptions<UpdateStripeApiKeyMutation, UpdateStripeApiKeyMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteAdyenMutation, DeleteAdyenMutationVariables>(DeleteAdyenDocument, options);
+        return Apollo.useMutation<UpdateStripeApiKeyMutation, UpdateStripeApiKeyMutationVariables>(UpdateStripeApiKeyDocument, options);
       }
-export type DeleteAdyenMutationHookResult = ReturnType<typeof useDeleteAdyenMutation>;
-export type DeleteAdyenMutationResult = Apollo.MutationResult<DeleteAdyenMutation>;
-export type DeleteAdyenMutationOptions = Apollo.BaseMutationOptions<DeleteAdyenMutation, DeleteAdyenMutationVariables>;
+export type UpdateStripeApiKeyMutationHookResult = ReturnType<typeof useUpdateStripeApiKeyMutation>;
+export type UpdateStripeApiKeyMutationResult = Apollo.MutationResult<UpdateStripeApiKeyMutation>;
+export type UpdateStripeApiKeyMutationOptions = Apollo.BaseMutationOptions<UpdateStripeApiKeyMutation, UpdateStripeApiKeyMutationVariables>;
+export const DeleteAdyenIntegrationDocument = gql`
+    mutation deleteAdyenIntegration($input: DestroyPaymentProviderInput!) {
+  destroyPaymentProvider(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteAdyenIntegrationMutationFn = Apollo.MutationFunction<DeleteAdyenIntegrationMutation, DeleteAdyenIntegrationMutationVariables>;
+
+/**
+ * __useDeleteAdyenIntegrationMutation__
+ *
+ * To run a mutation, you first call `useDeleteAdyenIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAdyenIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAdyenIntegrationMutation, { data, loading, error }] = useDeleteAdyenIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteAdyenIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAdyenIntegrationMutation, DeleteAdyenIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteAdyenIntegrationMutation, DeleteAdyenIntegrationMutationVariables>(DeleteAdyenIntegrationDocument, options);
+      }
+export type DeleteAdyenIntegrationMutationHookResult = ReturnType<typeof useDeleteAdyenIntegrationMutation>;
+export type DeleteAdyenIntegrationMutationResult = Apollo.MutationResult<DeleteAdyenIntegrationMutation>;
+export type DeleteAdyenIntegrationMutationOptions = Apollo.BaseMutationOptions<DeleteAdyenIntegrationMutation, DeleteAdyenIntegrationMutationVariables>;
+export const DeleteGocardlessDocument = gql`
+    mutation deleteGocardless($input: DestroyPaymentProviderInput!) {
+  destroyPaymentProvider(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteGocardlessMutationFn = Apollo.MutationFunction<DeleteGocardlessMutation, DeleteGocardlessMutationVariables>;
+
+/**
+ * __useDeleteGocardlessMutation__
+ *
+ * To run a mutation, you first call `useDeleteGocardlessMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteGocardlessMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteGocardlessMutation, { data, loading, error }] = useDeleteGocardlessMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteGocardlessMutation(baseOptions?: Apollo.MutationHookOptions<DeleteGocardlessMutation, DeleteGocardlessMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteGocardlessMutation, DeleteGocardlessMutationVariables>(DeleteGocardlessDocument, options);
+      }
+export type DeleteGocardlessMutationHookResult = ReturnType<typeof useDeleteGocardlessMutation>;
+export type DeleteGocardlessMutationResult = Apollo.MutationResult<DeleteGocardlessMutation>;
+export type DeleteGocardlessMutationOptions = Apollo.BaseMutationOptions<DeleteGocardlessMutation, DeleteGocardlessMutationVariables>;
 export const DeleteStripeDocument = gql`
     mutation deleteStripe($input: DestroyPaymentProviderInput!) {
   destroyPaymentProvider(input: $input) {
@@ -11324,6 +11915,65 @@ export function useUpdateCustomerMutation(baseOptions?: Apollo.MutationHookOptio
 export type UpdateCustomerMutationHookResult = ReturnType<typeof useUpdateCustomerMutation>;
 export type UpdateCustomerMutationResult = Apollo.MutationResult<UpdateCustomerMutation>;
 export type UpdateCustomerMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
+export const IntegrationsListForCustomerCreateEditDocument = gql`
+    query integrationsListForCustomerCreateEdit($limit: Int) {
+  paymentProviders(limit: $limit) {
+    collection {
+      ... on StripeProvider {
+        __typename
+        id
+        name
+        code
+      }
+      ... on GocardlessProvider {
+        __typename
+        id
+        name
+        code
+      }
+      ... on AdyenProvider {
+        __typename
+        id
+        name
+        code
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useIntegrationsListForCustomerCreateEditQuery__
+ *
+ * To run a query within a React component, call `useIntegrationsListForCustomerCreateEditQuery` and pass it any options that fit your needs.
+ * When your component renders, `useIntegrationsListForCustomerCreateEditQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useIntegrationsListForCustomerCreateEditQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useIntegrationsListForCustomerCreateEditQuery(baseOptions?: Apollo.QueryHookOptions<IntegrationsListForCustomerCreateEditQuery, IntegrationsListForCustomerCreateEditQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<IntegrationsListForCustomerCreateEditQuery, IntegrationsListForCustomerCreateEditQueryVariables>(IntegrationsListForCustomerCreateEditDocument, options);
+      }
+export function useIntegrationsListForCustomerCreateEditLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IntegrationsListForCustomerCreateEditQuery, IntegrationsListForCustomerCreateEditQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<IntegrationsListForCustomerCreateEditQuery, IntegrationsListForCustomerCreateEditQueryVariables>(IntegrationsListForCustomerCreateEditDocument, options);
+        }
+export function useIntegrationsListForCustomerCreateEditSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerCreateEditQuery, IntegrationsListForCustomerCreateEditQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<IntegrationsListForCustomerCreateEditQuery, IntegrationsListForCustomerCreateEditQueryVariables>(IntegrationsListForCustomerCreateEditDocument, options);
+        }
+export type IntegrationsListForCustomerCreateEditQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerCreateEditQuery>;
+export type IntegrationsListForCustomerCreateEditLazyQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerCreateEditLazyQuery>;
+export type IntegrationsListForCustomerCreateEditSuspenseQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerCreateEditSuspenseQuery>;
+export type IntegrationsListForCustomerCreateEditQueryResult = Apollo.QueryResult<IntegrationsListForCustomerCreateEditQuery, IntegrationsListForCustomerCreateEditQueryVariables>;
 export const GetSingleTaxDocument = gql`
     query getSingleTax($id: ID!) {
   tax(id: $id) {
@@ -13610,148 +14260,274 @@ export type GetWebhookListQueryHookResult = ReturnType<typeof useGetWebhookListQ
 export type GetWebhookListLazyQueryHookResult = ReturnType<typeof useGetWebhookListLazyQuery>;
 export type GetWebhookListSuspenseQueryHookResult = ReturnType<typeof useGetWebhookListSuspenseQuery>;
 export type GetWebhookListQueryResult = Apollo.QueryResult<GetWebhookListQuery, GetWebhookListQueryVariables>;
-export const AdyenIntegrationsSettingDocument = gql`
-    query AdyenIntegrationsSetting {
-  organization {
-    id
-    adyenPaymentProvider {
+export const GetAdyenIntegrationsDetailsDocument = gql`
+    query getAdyenIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
+  paymentProvider(id: $id) {
+    ... on AdyenProvider {
       id
-      successRedirectUrl
-      ...AdyenIntegration
+      ...AdyenIntegrationDetails
+      ...DeleteAdyenIntegrationDialog
+      ...AddAdyenProviderDialog
       ...AdyenForCreateAndEditSuccessRedirectUrl
     }
   }
-}
-    ${AdyenIntegrationFragmentDoc}
-${AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc}`;
-
-/**
- * __useAdyenIntegrationsSettingQuery__
- *
- * To run a query within a React component, call `useAdyenIntegrationsSettingQuery` and pass it any options that fit your needs.
- * When your component renders, `useAdyenIntegrationsSettingQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useAdyenIntegrationsSettingQuery({
- *   variables: {
- *   },
- * });
- */
-export function useAdyenIntegrationsSettingQuery(baseOptions?: Apollo.QueryHookOptions<AdyenIntegrationsSettingQuery, AdyenIntegrationsSettingQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<AdyenIntegrationsSettingQuery, AdyenIntegrationsSettingQueryVariables>(AdyenIntegrationsSettingDocument, options);
+  paymentProviders(limit: $limit, type: $type) {
+    collection {
+      ... on AdyenProvider {
+        id
       }
-export function useAdyenIntegrationsSettingLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AdyenIntegrationsSettingQuery, AdyenIntegrationsSettingQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<AdyenIntegrationsSettingQuery, AdyenIntegrationsSettingQueryVariables>(AdyenIntegrationsSettingDocument, options);
-        }
-export function useAdyenIntegrationsSettingSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AdyenIntegrationsSettingQuery, AdyenIntegrationsSettingQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<AdyenIntegrationsSettingQuery, AdyenIntegrationsSettingQueryVariables>(AdyenIntegrationsSettingDocument, options);
-        }
-export type AdyenIntegrationsSettingQueryHookResult = ReturnType<typeof useAdyenIntegrationsSettingQuery>;
-export type AdyenIntegrationsSettingLazyQueryHookResult = ReturnType<typeof useAdyenIntegrationsSettingLazyQuery>;
-export type AdyenIntegrationsSettingSuspenseQueryHookResult = ReturnType<typeof useAdyenIntegrationsSettingSuspenseQuery>;
-export type AdyenIntegrationsSettingQueryResult = Apollo.QueryResult<AdyenIntegrationsSettingQuery, AdyenIntegrationsSettingQueryVariables>;
-export const GocardlessIntegrationsSettingDocument = gql`
-    query gocardlessIntegrationsSetting {
-  organization {
-    id
-    gocardlessPaymentProvider {
-      id
-      hasAccessToken
-      webhookSecret
-      successRedirectUrl
-      ...gocardlessForCreateAndEditSuccessRedirectUrl
     }
   }
 }
-    ${GocardlessForCreateAndEditSuccessRedirectUrlFragmentDoc}`;
+    ${AdyenIntegrationDetailsFragmentDoc}
+${DeleteAdyenIntegrationDialogFragmentDoc}
+${AddAdyenProviderDialogFragmentDoc}
+${AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc}`;
 
 /**
- * __useGocardlessIntegrationsSettingQuery__
+ * __useGetAdyenIntegrationsDetailsQuery__
  *
- * To run a query within a React component, call `useGocardlessIntegrationsSettingQuery` and pass it any options that fit your needs.
- * When your component renders, `useGocardlessIntegrationsSettingQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetAdyenIntegrationsDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAdyenIntegrationsDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGocardlessIntegrationsSettingQuery({
+ * const { data, loading, error } = useGetAdyenIntegrationsDetailsQuery({
  *   variables: {
+ *      id: // value for 'id'
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
  *   },
  * });
  */
-export function useGocardlessIntegrationsSettingQuery(baseOptions?: Apollo.QueryHookOptions<GocardlessIntegrationsSettingQuery, GocardlessIntegrationsSettingQueryVariables>) {
+export function useGetAdyenIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GocardlessIntegrationsSettingQuery, GocardlessIntegrationsSettingQueryVariables>(GocardlessIntegrationsSettingDocument, options);
+        return Apollo.useQuery<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>(GetAdyenIntegrationsDetailsDocument, options);
       }
-export function useGocardlessIntegrationsSettingLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GocardlessIntegrationsSettingQuery, GocardlessIntegrationsSettingQueryVariables>) {
+export function useGetAdyenIntegrationsDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GocardlessIntegrationsSettingQuery, GocardlessIntegrationsSettingQueryVariables>(GocardlessIntegrationsSettingDocument, options);
+          return Apollo.useLazyQuery<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>(GetAdyenIntegrationsDetailsDocument, options);
         }
-export function useGocardlessIntegrationsSettingSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GocardlessIntegrationsSettingQuery, GocardlessIntegrationsSettingQueryVariables>) {
+export function useGetAdyenIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GocardlessIntegrationsSettingQuery, GocardlessIntegrationsSettingQueryVariables>(GocardlessIntegrationsSettingDocument, options);
+          return Apollo.useSuspenseQuery<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>(GetAdyenIntegrationsDetailsDocument, options);
         }
-export type GocardlessIntegrationsSettingQueryHookResult = ReturnType<typeof useGocardlessIntegrationsSettingQuery>;
-export type GocardlessIntegrationsSettingLazyQueryHookResult = ReturnType<typeof useGocardlessIntegrationsSettingLazyQuery>;
-export type GocardlessIntegrationsSettingSuspenseQueryHookResult = ReturnType<typeof useGocardlessIntegrationsSettingSuspenseQuery>;
-export type GocardlessIntegrationsSettingQueryResult = Apollo.QueryResult<GocardlessIntegrationsSettingQuery, GocardlessIntegrationsSettingQueryVariables>;
-export const AddGocardlessPaymentProviderDocument = gql`
-    mutation addGocardlessPaymentProvider($input: AddGocardlessPaymentProviderInput!) {
-  addGocardlessPaymentProvider(input: $input) {
-    id
-    hasAccessToken
-    webhookSecret
-    successRedirectUrl
+export type GetAdyenIntegrationsDetailsQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsDetailsQuery>;
+export type GetAdyenIntegrationsDetailsLazyQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsDetailsLazyQuery>;
+export type GetAdyenIntegrationsDetailsSuspenseQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsDetailsSuspenseQuery>;
+export type GetAdyenIntegrationsDetailsQueryResult = Apollo.QueryResult<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>;
+export const GetAdyenIntegrationsListDocument = gql`
+    query getAdyenIntegrationsList($limit: Int, $type: ProviderTypeEnum) {
+  paymentProviders(limit: $limit, type: $type) {
+    collection {
+      ... on AdyenProvider {
+        id
+        ...AdyenIntegrations
+        ...AddAdyenProviderDialog
+        ...DeleteAdyenIntegrationDialog
+      }
+    }
   }
 }
-    `;
-export type AddGocardlessPaymentProviderMutationFn = Apollo.MutationFunction<AddGocardlessPaymentProviderMutation, AddGocardlessPaymentProviderMutationVariables>;
+    ${AdyenIntegrationsFragmentDoc}
+${AddAdyenProviderDialogFragmentDoc}
+${DeleteAdyenIntegrationDialogFragmentDoc}`;
 
 /**
- * __useAddGocardlessPaymentProviderMutation__
+ * __useGetAdyenIntegrationsListQuery__
  *
- * To run a mutation, you first call `useAddGocardlessPaymentProviderMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddGocardlessPaymentProviderMutation` returns a tuple that includes:
+ * To run a query within a React component, call `useGetAdyenIntegrationsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAdyenIntegrationsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAdyenIntegrationsListQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useGetAdyenIntegrationsListQuery(baseOptions?: Apollo.QueryHookOptions<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>(GetAdyenIntegrationsListDocument, options);
+      }
+export function useGetAdyenIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>(GetAdyenIntegrationsListDocument, options);
+        }
+export function useGetAdyenIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>(GetAdyenIntegrationsListDocument, options);
+        }
+export type GetAdyenIntegrationsListQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsListQuery>;
+export type GetAdyenIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsListLazyQuery>;
+export type GetAdyenIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsListSuspenseQuery>;
+export type GetAdyenIntegrationsListQueryResult = Apollo.QueryResult<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>;
+export const GetGocardlessIntegrationsDetailsDocument = gql`
+    query getGocardlessIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
+  paymentProvider(id: $id) {
+    ... on GocardlessProvider {
+      id
+      ...GocardlessIntegrationDetails
+      ...DeleteGocardlessIntegrationDialog
+      ...AddGocardlessProviderDialog
+    }
+  }
+  paymentProviders(limit: $limit, type: $type) {
+    collection {
+      ... on GocardlessProvider {
+        id
+      }
+    }
+  }
+}
+    ${GocardlessIntegrationDetailsFragmentDoc}
+${DeleteGocardlessIntegrationDialogFragmentDoc}
+${AddGocardlessProviderDialogFragmentDoc}`;
+
+/**
+ * __useGetGocardlessIntegrationsDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetGocardlessIntegrationsDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetGocardlessIntegrationsDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetGocardlessIntegrationsDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useGetGocardlessIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>(GetGocardlessIntegrationsDetailsDocument, options);
+      }
+export function useGetGocardlessIntegrationsDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>(GetGocardlessIntegrationsDetailsDocument, options);
+        }
+export function useGetGocardlessIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>(GetGocardlessIntegrationsDetailsDocument, options);
+        }
+export type GetGocardlessIntegrationsDetailsQueryHookResult = ReturnType<typeof useGetGocardlessIntegrationsDetailsQuery>;
+export type GetGocardlessIntegrationsDetailsLazyQueryHookResult = ReturnType<typeof useGetGocardlessIntegrationsDetailsLazyQuery>;
+export type GetGocardlessIntegrationsDetailsSuspenseQueryHookResult = ReturnType<typeof useGetGocardlessIntegrationsDetailsSuspenseQuery>;
+export type GetGocardlessIntegrationsDetailsQueryResult = Apollo.QueryResult<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>;
+export const AddGocardlessApiKeyDocument = gql`
+    mutation addGocardlessApiKey($input: AddGocardlessPaymentProviderInput!) {
+  addGocardlessPaymentProvider(input: $input) {
+    id
+    ...AddGocardlessProviderDialog
+    ...GocardlessIntegrationOauthCallback
+  }
+}
+    ${AddGocardlessProviderDialogFragmentDoc}
+${GocardlessIntegrationOauthCallbackFragmentDoc}`;
+export type AddGocardlessApiKeyMutationFn = Apollo.MutationFunction<AddGocardlessApiKeyMutation, AddGocardlessApiKeyMutationVariables>;
+
+/**
+ * __useAddGocardlessApiKeyMutation__
+ *
+ * To run a mutation, you first call `useAddGocardlessApiKeyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddGocardlessApiKeyMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [addGocardlessPaymentProviderMutation, { data, loading, error }] = useAddGocardlessPaymentProviderMutation({
+ * const [addGocardlessApiKeyMutation, { data, loading, error }] = useAddGocardlessApiKeyMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useAddGocardlessPaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<AddGocardlessPaymentProviderMutation, AddGocardlessPaymentProviderMutationVariables>) {
+export function useAddGocardlessApiKeyMutation(baseOptions?: Apollo.MutationHookOptions<AddGocardlessApiKeyMutation, AddGocardlessApiKeyMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AddGocardlessPaymentProviderMutation, AddGocardlessPaymentProviderMutationVariables>(AddGocardlessPaymentProviderDocument, options);
+        return Apollo.useMutation<AddGocardlessApiKeyMutation, AddGocardlessApiKeyMutationVariables>(AddGocardlessApiKeyDocument, options);
       }
-export type AddGocardlessPaymentProviderMutationHookResult = ReturnType<typeof useAddGocardlessPaymentProviderMutation>;
-export type AddGocardlessPaymentProviderMutationResult = Apollo.MutationResult<AddGocardlessPaymentProviderMutation>;
-export type AddGocardlessPaymentProviderMutationOptions = Apollo.BaseMutationOptions<AddGocardlessPaymentProviderMutation, AddGocardlessPaymentProviderMutationVariables>;
+export type AddGocardlessApiKeyMutationHookResult = ReturnType<typeof useAddGocardlessApiKeyMutation>;
+export type AddGocardlessApiKeyMutationResult = Apollo.MutationResult<AddGocardlessApiKeyMutation>;
+export type AddGocardlessApiKeyMutationOptions = Apollo.BaseMutationOptions<AddGocardlessApiKeyMutation, AddGocardlessApiKeyMutationVariables>;
+export const GetGocardlessIntegrationsListDocument = gql`
+    query getGocardlessIntegrationsList($limit: Int, $type: ProviderTypeEnum) {
+  paymentProviders(limit: $limit, type: $type) {
+    collection {
+      ... on GocardlessProvider {
+        id
+        ...GocardlessIntegrations
+        ...AddGocardlessProviderDialog
+        ...DeleteGocardlessIntegrationDialog
+      }
+    }
+  }
+}
+    ${GocardlessIntegrationsFragmentDoc}
+${AddGocardlessProviderDialogFragmentDoc}
+${DeleteGocardlessIntegrationDialogFragmentDoc}`;
+
+/**
+ * __useGetGocardlessIntegrationsListQuery__
+ *
+ * To run a query within a React component, call `useGetGocardlessIntegrationsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetGocardlessIntegrationsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetGocardlessIntegrationsListQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useGetGocardlessIntegrationsListQuery(baseOptions?: Apollo.QueryHookOptions<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>(GetGocardlessIntegrationsListDocument, options);
+      }
+export function useGetGocardlessIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>(GetGocardlessIntegrationsListDocument, options);
+        }
+export function useGetGocardlessIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>(GetGocardlessIntegrationsListDocument, options);
+        }
+export type GetGocardlessIntegrationsListQueryHookResult = ReturnType<typeof useGetGocardlessIntegrationsListQuery>;
+export type GetGocardlessIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetGocardlessIntegrationsListLazyQuery>;
+export type GetGocardlessIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetGocardlessIntegrationsListSuspenseQuery>;
+export type GetGocardlessIntegrationsListQueryResult = Apollo.QueryResult<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>;
 export const IntegrationsSettingDocument = gql`
-    query integrationsSetting {
+    query integrationsSetting($limit: Int) {
   organization {
     id
     euTaxManagement
     country
-    stripePaymentProvider {
-      id
-    }
-    gocardlessPaymentProvider {
-      id
-    }
-    adyenPaymentProvider {
-      id
+  }
+  paymentProviders(limit: $limit) {
+    collection {
+      ... on StripeProvider {
+        id
+      }
+      ... on GocardlessProvider {
+        id
+      }
+      ... on AdyenProvider {
+        id
+      }
     }
   }
 }
@@ -13769,6 +14545,7 @@ export const IntegrationsSettingDocument = gql`
  * @example
  * const { data, loading, error } = useIntegrationsSettingQuery({
  *   variables: {
+ *      limit: // value for 'limit'
  *   },
  * });
  */
@@ -14112,81 +14889,114 @@ export type GetOrganizationInformationsQueryHookResult = ReturnType<typeof useGe
 export type GetOrganizationInformationsLazyQueryHookResult = ReturnType<typeof useGetOrganizationInformationsLazyQuery>;
 export type GetOrganizationInformationsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationInformationsSuspenseQuery>;
 export type GetOrganizationInformationsQueryResult = Apollo.QueryResult<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>;
-export const StripeIntegrationsSettingDocument = gql`
-    query stripeIntegrationsSetting {
-  organization {
-    id
-    stripePaymentProvider {
-      ...StripeIntegration
+export const GetStripeIntegrationsDetailsDocument = gql`
+    query getStripeIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
+  paymentProvider(id: $id) {
+    ... on StripeProvider {
+      id
+      ...StripeIntegrationDetails
+      ...DeleteStripeIntegrationDialog
+      ...AddStripeProviderDialog
+      ...StripeForCreateAndEditSuccessRedirectUrl
+    }
+  }
+  paymentProviders(limit: $limit, type: $type) {
+    collection {
+      ... on StripeProvider {
+        id
+      }
     }
   }
 }
-    ${StripeIntegrationFragmentDoc}`;
+    ${StripeIntegrationDetailsFragmentDoc}
+${DeleteStripeIntegrationDialogFragmentDoc}
+${AddStripeProviderDialogFragmentDoc}
+${StripeForCreateAndEditSuccessRedirectUrlFragmentDoc}`;
 
 /**
- * __useStripeIntegrationsSettingQuery__
+ * __useGetStripeIntegrationsDetailsQuery__
  *
- * To run a query within a React component, call `useStripeIntegrationsSettingQuery` and pass it any options that fit your needs.
- * When your component renders, `useStripeIntegrationsSettingQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetStripeIntegrationsDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetStripeIntegrationsDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useStripeIntegrationsSettingQuery({
+ * const { data, loading, error } = useGetStripeIntegrationsDetailsQuery({
  *   variables: {
+ *      id: // value for 'id'
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
  *   },
  * });
  */
-export function useStripeIntegrationsSettingQuery(baseOptions?: Apollo.QueryHookOptions<StripeIntegrationsSettingQuery, StripeIntegrationsSettingQueryVariables>) {
+export function useGetStripeIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<StripeIntegrationsSettingQuery, StripeIntegrationsSettingQueryVariables>(StripeIntegrationsSettingDocument, options);
+        return Apollo.useQuery<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>(GetStripeIntegrationsDetailsDocument, options);
       }
-export function useStripeIntegrationsSettingLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<StripeIntegrationsSettingQuery, StripeIntegrationsSettingQueryVariables>) {
+export function useGetStripeIntegrationsDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<StripeIntegrationsSettingQuery, StripeIntegrationsSettingQueryVariables>(StripeIntegrationsSettingDocument, options);
+          return Apollo.useLazyQuery<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>(GetStripeIntegrationsDetailsDocument, options);
         }
-export function useStripeIntegrationsSettingSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<StripeIntegrationsSettingQuery, StripeIntegrationsSettingQueryVariables>) {
+export function useGetStripeIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<StripeIntegrationsSettingQuery, StripeIntegrationsSettingQueryVariables>(StripeIntegrationsSettingDocument, options);
+          return Apollo.useSuspenseQuery<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>(GetStripeIntegrationsDetailsDocument, options);
         }
-export type StripeIntegrationsSettingQueryHookResult = ReturnType<typeof useStripeIntegrationsSettingQuery>;
-export type StripeIntegrationsSettingLazyQueryHookResult = ReturnType<typeof useStripeIntegrationsSettingLazyQuery>;
-export type StripeIntegrationsSettingSuspenseQueryHookResult = ReturnType<typeof useStripeIntegrationsSettingSuspenseQuery>;
-export type StripeIntegrationsSettingQueryResult = Apollo.QueryResult<StripeIntegrationsSettingQuery, StripeIntegrationsSettingQueryVariables>;
-export const UpdateStripeIntegrationDocument = gql`
-    mutation updateStripeIntegration($input: AddStripePaymentProviderInput!) {
-  addStripePaymentProvider(input: $input) {
-    ...StripeIntegration
+export type GetStripeIntegrationsDetailsQueryHookResult = ReturnType<typeof useGetStripeIntegrationsDetailsQuery>;
+export type GetStripeIntegrationsDetailsLazyQueryHookResult = ReturnType<typeof useGetStripeIntegrationsDetailsLazyQuery>;
+export type GetStripeIntegrationsDetailsSuspenseQueryHookResult = ReturnType<typeof useGetStripeIntegrationsDetailsSuspenseQuery>;
+export type GetStripeIntegrationsDetailsQueryResult = Apollo.QueryResult<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>;
+export const GetStripeIntegrationsListDocument = gql`
+    query getStripeIntegrationsList($limit: Int, $type: ProviderTypeEnum) {
+  paymentProviders(limit: $limit, type: $type) {
+    collection {
+      ... on StripeProvider {
+        id
+        ...StripeIntegrations
+        ...AddStripeProviderDialog
+        ...DeleteStripeIntegrationDialog
+      }
+    }
   }
 }
-    ${StripeIntegrationFragmentDoc}`;
-export type UpdateStripeIntegrationMutationFn = Apollo.MutationFunction<UpdateStripeIntegrationMutation, UpdateStripeIntegrationMutationVariables>;
+    ${StripeIntegrationsFragmentDoc}
+${AddStripeProviderDialogFragmentDoc}
+${DeleteStripeIntegrationDialogFragmentDoc}`;
 
 /**
- * __useUpdateStripeIntegrationMutation__
+ * __useGetStripeIntegrationsListQuery__
  *
- * To run a mutation, you first call `useUpdateStripeIntegrationMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateStripeIntegrationMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
+ * To run a query within a React component, call `useGetStripeIntegrationsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetStripeIntegrationsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const [updateStripeIntegrationMutation, { data, loading, error }] = useUpdateStripeIntegrationMutation({
+ * const { data, loading, error } = useGetStripeIntegrationsListQuery({
  *   variables: {
- *      input: // value for 'input'
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
  *   },
  * });
  */
-export function useUpdateStripeIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<UpdateStripeIntegrationMutation, UpdateStripeIntegrationMutationVariables>) {
+export function useGetStripeIntegrationsListQuery(baseOptions?: Apollo.QueryHookOptions<GetStripeIntegrationsListQuery, GetStripeIntegrationsListQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateStripeIntegrationMutation, UpdateStripeIntegrationMutationVariables>(UpdateStripeIntegrationDocument, options);
+        return Apollo.useQuery<GetStripeIntegrationsListQuery, GetStripeIntegrationsListQueryVariables>(GetStripeIntegrationsListDocument, options);
       }
-export type UpdateStripeIntegrationMutationHookResult = ReturnType<typeof useUpdateStripeIntegrationMutation>;
-export type UpdateStripeIntegrationMutationResult = Apollo.MutationResult<UpdateStripeIntegrationMutation>;
-export type UpdateStripeIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateStripeIntegrationMutation, UpdateStripeIntegrationMutationVariables>;
+export function useGetStripeIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetStripeIntegrationsListQuery, GetStripeIntegrationsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetStripeIntegrationsListQuery, GetStripeIntegrationsListQueryVariables>(GetStripeIntegrationsListDocument, options);
+        }
+export function useGetStripeIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetStripeIntegrationsListQuery, GetStripeIntegrationsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetStripeIntegrationsListQuery, GetStripeIntegrationsListQueryVariables>(GetStripeIntegrationsListDocument, options);
+        }
+export type GetStripeIntegrationsListQueryHookResult = ReturnType<typeof useGetStripeIntegrationsListQuery>;
+export type GetStripeIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetStripeIntegrationsListLazyQuery>;
+export type GetStripeIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetStripeIntegrationsListSuspenseQuery>;
+export type GetStripeIntegrationsListQueryResult = Apollo.QueryResult<GetStripeIntegrationsListQuery, GetStripeIntegrationsListQueryVariables>;
 export const GetTaxesDocument = gql`
     query getTaxes($limit: Int, $page: Int) {
   taxes(limit: $limit, page: $page, order: "name") {

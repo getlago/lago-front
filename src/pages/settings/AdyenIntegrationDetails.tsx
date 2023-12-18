@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import {
@@ -25,53 +26,88 @@ import {
   DeleteAdyenIntegrationDialog,
   DeleteAdyenIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteAdyenIntegrationDialog'
-import { INTEGRATIONS_ROUTE } from '~/core/router'
+import { ADYEN_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
 import {
+  AddAdyenProviderDialogFragmentDoc,
   AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc,
-  useAdyenIntegrationsSettingQuery,
+  AdyenIntegrationDetailsFragment,
+  DeleteAdyenIntegrationDialogFragmentDoc,
+  ProviderTypeEnum,
+  useGetAdyenIntegrationsDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
 import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener, theme } from '~/styles'
 
+const PROVIDER_CONNECTION_LIMIT = 2
+
 gql`
-  fragment AdyenIntegration on AdyenProvider {
+  fragment AdyenIntegrationDetails on AdyenProvider {
     id
     apiKey
+    code
     hmacKey
     livePrefix
     merchantAccount
+    successRedirectUrl
+    name
   }
 
-  query AdyenIntegrationsSetting {
-    organization {
-      id
-      adyenPaymentProvider {
+  query getAdyenIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
+    paymentProvider(id: $id) {
+      ... on AdyenProvider {
         id
-        successRedirectUrl
-        ...AdyenIntegration
+        ...AdyenIntegrationDetails
+        ...DeleteAdyenIntegrationDialog
+        ...AddAdyenProviderDialog
         ...AdyenForCreateAndEditSuccessRedirectUrl
+      }
+    }
+
+    paymentProviders(limit: $limit, type: $type) {
+      collection {
+        ... on AdyenProvider {
+          id
+        }
       }
     }
   }
 
   ${AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc}
+  ${DeleteAdyenIntegrationDialogFragmentDoc}
+  ${AddAdyenProviderDialogFragmentDoc}
 `
 
-const AdyenIntegration = () => {
+const AdyenIntegrationDetails = () => {
+  const navigate = useNavigate()
+  const { integrationId } = useParams()
   const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
   const deleteDialogRef = useRef<DeleteAdyenIntegrationDialogRef>(null)
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
-  const { data, loading } = useAdyenIntegrationsSettingQuery()
-  const adyenPaymentProvider = data?.organization?.adyenPaymentProvider
+  const { data, loading } = useGetAdyenIntegrationsDetailsQuery({
+    variables: {
+      id: integrationId as string,
+      limit: PROVIDER_CONNECTION_LIMIT,
+      type: ProviderTypeEnum.Adyen,
+    },
+    skip: !integrationId,
+  })
+  const adyenPaymentProvider = data?.paymentProvider as AdyenIntegrationDetailsFragment
+  const deleteDialogCallback = () => {
+    if (data?.paymentProviders?.collection.length === PROVIDER_CONNECTION_LIMIT) {
+      navigate(ADYEN_INTEGRATION_ROUTE)
+    } else {
+      navigate(INTEGRATIONS_ROUTE)
+    }
+  }
 
   return (
     <>
       <PageHeader $withSide>
         <HeaderBlock>
           <ButtonLink
-            to={INTEGRATIONS_ROUTE}
+            to={ADYEN_INTEGRATION_ROUTE}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
@@ -79,11 +115,52 @@ const AdyenIntegration = () => {
             <Skeleton variant="text" height={12} width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
-              {translate('text_645d071272418a14c1c76a6d')}
+              {adyenPaymentProvider?.name}
             </Typography>
           )}
         </HeaderBlock>
+        <Popper
+          PopperProps={{ placement: 'bottom-end' }}
+          opener={
+            <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
+          }
+        >
+          {({ closePopper }) => (
+            <MenuPopper>
+              <Button
+                variant="quaternary"
+                fullWidth
+                align="left"
+                onClick={() => {
+                  addAdyenDialogRef.current?.openDialog({
+                    provider: adyenPaymentProvider,
+                    deleteModalRef: deleteDialogRef,
+                    deleteDialogCallback,
+                  })
+                  closePopper()
+                }}
+              >
+                {translate('text_65845f35d7d69c3ab4793dac')}
+              </Button>
+              <Button
+                variant="quaternary"
+                align="left"
+                fullWidth
+                onClick={() => {
+                  deleteDialogRef.current?.openDialog({
+                    provider: adyenPaymentProvider,
+                    callback: deleteDialogCallback,
+                  })
+                  closePopper()
+                }}
+              >
+                {translate('text_65845f35d7d69c3ab4793dad')}
+              </Button>
+            </MenuPopper>
+          )}
+        </Popper>
       </PageHeader>
+
       <MainInfos>
         {loading ? (
           <>
@@ -100,12 +177,13 @@ const AdyenIntegration = () => {
             </StyledAvatar>
             <div>
               <Line>
-                <Typography variant="headline">
-                  {translate('text_645d071272418a14c1c76a6d')}
-                </Typography>
+                <Typography variant="headline">{adyenPaymentProvider?.name}</Typography>
                 <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
               </Line>
-              <Typography>{translate('text_62b1edddbf5f461ab971271f')}</Typography>
+              <Typography>
+                {translate('text_645d071272418a14c1c76a6d')}&nbsp;•&nbsp;
+                {translate('text_62b1edddbf5f461ab971271f')}
+              </Typography>
             </div>
           </>
         )}
@@ -115,54 +193,25 @@ const AdyenIntegration = () => {
         <section>
           <InlineTitle>
             <Typography variant="subhead">{translate('text_645d071272418a14c1c76a9a')}</Typography>
-            <LocalPopper
-              PopperProps={{ placement: 'bottom-end' }}
-              opener={({ isOpen }) => (
-                <PopperOpener>
-                  <Tooltip
-                    placement="top-end"
-                    disableHoverListener={isOpen}
-                    title={translate('text_629728388c4d2300e2d3810d')}
-                  >
-                    <Button icon="dots-horizontal" variant="quaternary" />
-                  </Tooltip>
-                </PopperOpener>
-              )}
+            <Button
+              variant="quaternary"
+              disabled={loading}
+              onClick={() => {
+                addAdyenDialogRef.current?.openDialog({
+                  provider: adyenPaymentProvider,
+                  deleteModalRef: deleteDialogRef,
+                  deleteDialogCallback,
+                })
+              }}
             >
-              {({ closePopper }) => (
-                <MenuPopper>
-                  <Button
-                    startIcon="pen"
-                    variant="quaternary"
-                    fullWidth
-                    align="left"
-                    onClick={() => {
-                      addAdyenDialogRef.current?.openDialog()
-                    }}
-                  >
-                    {translate('text_62b1edddbf5f461ab9712787')}
-                  </Button>
-                  <Button
-                    startIcon="trash"
-                    variant="quaternary"
-                    align="left"
-                    fullWidth
-                    onClick={() => {
-                      deleteDialogRef.current?.openDialog()
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_62b1edddbf5f461ab971279f')}
-                  </Button>
-                </MenuPopper>
-              )}
-            </LocalPopper>
+              {translate('text_62b1edddbf5f461ab9712787')}
+            </Button>
           </InlineTitle>
 
           <>
             {loading ? (
               <>
-                {[1, 2].map((i) => (
+                {[0, 1, 2].map((i) => (
                   <ApiKeyItem key={`item-skeleton-item-${i}`}>
                     <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
                     <Skeleton variant="text" width={240} height={12} />
@@ -171,6 +220,32 @@ const AdyenIntegration = () => {
               </>
             ) : (
               <>
+                <ApiKeyItem>
+                  <Avatar variant="connector" size="big">
+                    <Icon name="text" color="dark" />
+                  </Avatar>
+                  <div>
+                    <Typography variant="caption" color="grey600">
+                      {translate('text_626162c62f790600f850b76a')}
+                    </Typography>
+                    <Typography variant="body" color="grey700">
+                      {adyenPaymentProvider?.name}
+                    </Typography>
+                  </div>
+                </ApiKeyItem>
+                <ApiKeyItem>
+                  <Avatar variant="connector" size="big">
+                    <Icon name="id" color="dark" />
+                  </Avatar>
+                  <div>
+                    <Typography variant="caption" color="grey600">
+                      {translate('text_62876e85e32e0300e1803127')}
+                    </Typography>
+                    <Typography variant="body" color="grey700">
+                      {adyenPaymentProvider?.code}
+                    </Typography>
+                  </div>
+                </ApiKeyItem>
                 <ApiKeyItem>
                   <Avatar variant="connector" size="big">
                     <Icon name="key" color="dark" />
@@ -336,8 +411,8 @@ const AdyenIntegration = () => {
         </section>
       </Settings>
 
-      <AddAdyenDialog isEdition ref={addAdyenDialogRef} />
-      <DeleteAdyenIntegrationDialog id={adyenPaymentProvider?.id || ''} ref={deleteDialogRef} />
+      <AddAdyenDialog ref={addAdyenDialogRef} />
+      <DeleteAdyenIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
@@ -423,4 +498,4 @@ const Line = styled.div`
   }
 `
 
-export default AdyenIntegration
+export default AdyenIntegrationDetails
