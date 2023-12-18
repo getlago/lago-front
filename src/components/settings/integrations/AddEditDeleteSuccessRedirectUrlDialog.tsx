@@ -33,7 +33,7 @@ gql`
     successRedirectUrl
   }
 
-  fragment stripeForCreateAndEditSuccessRedirectUrl on StripeProvider {
+  fragment StripeForCreateAndEditSuccessRedirectUrl on StripeProvider {
     id
     successRedirectUrl
   }
@@ -138,6 +138,7 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
       | UpdateStripePaymentProviderInput
     >({
       initialValues: {
+        id: localData?.provider?.id || '',
         successRedirectUrl: localData?.provider?.successRedirectUrl || '',
       },
       validateOnMount: true,
@@ -153,15 +154,11 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
         }
 
         const method = methodLoojup[localData?.type as LocalProviderType['type']]
-        // localData?.type === AddEditDeleteSuccessRedirectUrlDialogProviderType.Adyen
-        //   ? updateAdyenProvider
-        //   : localData?.type === AddEditDeleteSuccessRedirectUrlDialogProviderType.Stripe
-        //   ? updateStripeProvider
-        //   : updateGocardlessProvider
 
         const res = await method({
           variables: {
             input: {
+              id: values.id,
               successRedirectUrl:
                 localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Delete
                   ? null

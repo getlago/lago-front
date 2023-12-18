@@ -9,6 +9,10 @@ import {
   AddAdyenDialogRef,
 } from '~/components/settings/integrations/AddAdyenDialog'
 import {
+  AddGocardlessDialog,
+  AddGocardlessDialogRef,
+} from '~/components/settings/integrations/AddGocardlessDialog'
+import {
   AddLagoTaxManagementDialog,
   AddLagoTaxManagementDialogRef,
 } from '~/components/settings/integrations/AddLagoTaxManagementDialog'
@@ -16,7 +20,6 @@ import {
   AddStripeDialog,
   AddStripeDialogRef,
 } from '~/components/settings/integrations/AddStripeDialog'
-import { envGlobalVar } from '~/core/apolloClient'
 import {
   DOCUMENTATION_AIRBYTE,
   DOCUMENTATION_HIGHTTOUCH,
@@ -42,19 +45,26 @@ import Stripe from '~/public/images/stripe.svg'
 import { theme } from '~/styles'
 
 gql`
-  query integrationsSetting {
+  query integrationsSetting($limit: Int) {
     organization {
       id
       euTaxManagement
       country
-      stripePaymentProvider {
-        id
-      }
-      gocardlessPaymentProvider {
-        id
-      }
-      adyenPaymentProvider {
-        id
+    }
+
+    paymentProviders(limit: $limit) {
+      collection {
+        ... on StripeProvider {
+          id
+        }
+
+        ... on GocardlessProvider {
+          id
+        }
+
+        ... on AdyenProvider {
+          id
+        }
       }
     }
   }
@@ -65,15 +75,23 @@ const Integrations = () => {
   const navigate = useNavigate()
   const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
   const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
+  const addGocardlessnDialogRef = useRef<AddGocardlessDialogRef>(null)
   const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
-  const { data, loading } = useIntegrationsSettingQuery()
+  const { data, loading } = useIntegrationsSettingQuery({
+    variables: { limit: 1000 },
+  })
 
   const organization = data?.organization
-  const hasAdyenIntegration = !!organization?.adyenPaymentProvider?.id
-  const hasStripeIntegration = !!organization?.stripePaymentProvider?.id
-  const hasGocardlessIntegration = !!organization?.gocardlessPaymentProvider?.id
+  const hasAdyenIntegration = data?.paymentProviders?.collection?.some(
+    (provider) => provider?.__typename === 'AdyenProvider',
+  )
+  const hasStripeIntegration = data?.paymentProviders?.collection?.some(
+    (provider) => provider?.__typename === 'StripeProvider',
+  )
+  const hasGocardlessIntegration = data?.paymentProviders?.collection?.some(
+    (provider) => provider?.__typename === 'GocardlessProvider',
+  )
   const hasTaxManagement = !!organization?.euTaxManagement
-  const { lagoOauthProxyUrl } = envGlobalVar()
 
   return (
     <Page>
@@ -149,7 +167,7 @@ const Integrations = () => {
               if (hasGocardlessIntegration) {
                 navigate(GOCARDLESS_INTEGRATION_ROUTE)
               } else {
-                window.open(`${lagoOauthProxyUrl}/gocardless/auth`, '_blank')
+                addGocardlessnDialogRef.current?.openDialog()
               }
             }}
             fullWidth
@@ -177,9 +195,6 @@ const Integrations = () => {
               if (hasTaxManagement) {
                 navigate(TAX_MANAGEMENT_INTEGRATION_ROUTE)
               } else {
-                const element = document.activeElement as HTMLElement
-
-                element.blur && element.blur()
                 addLagoTaxManagementDialog.current?.openDialog()
               }
             }}
@@ -223,6 +238,7 @@ const Integrations = () => {
 
       <AddAdyenDialog ref={addAdyenDialogRef} />
       <AddStripeDialog ref={addStripeDialogRef} />
+      <AddGocardlessDialog ref={addGocardlessnDialogRef} />
       <AddLagoTaxManagementDialog
         country={organization?.country}
         ref={addLagoTaxManagementDialog}
@@ -232,6 +248,7 @@ const Integrations = () => {
 }
 
 const Page = styled.div`
+  max-width: 672px;
   padding: ${theme.spacing(8)} ${theme.spacing(12)};
 `
 

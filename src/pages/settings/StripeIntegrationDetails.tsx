@@ -1,5 +1,7 @@
 import { gql } from '@apollo/client'
+import { Stack } from '@mui/material'
 import { useRef } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import {
@@ -25,50 +27,85 @@ import {
   DeleteStripeIntegrationDialog,
   DeleteStripeIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteStripeIntegrationDialog'
-import { INTEGRATIONS_ROUTE } from '~/core/router'
-import { useStripeIntegrationsSettingQuery } from '~/generated/graphql'
+import { INTEGRATIONS_ROUTE, STRIPE_INTEGRATION_ROUTE } from '~/core/router'
+import {
+  AddStripeProviderDialogFragmentDoc,
+  DeleteStripeIntegrationDialogFragmentDoc,
+  ProviderTypeEnum,
+  StripeForCreateAndEditSuccessRedirectUrlFragmentDoc,
+  StripeIntegrationDetailsFragment,
+  useGetStripeIntegrationsDetailsQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Stripe from '~/public/images/stripe.svg'
 import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener, theme } from '~/styles'
 
+const PROVIDER_CONNECTION_LIMIT = 2
+
 gql`
-  fragment StripeIntegration on StripeProvider {
+  fragment StripeIntegrationDetails on StripeProvider {
     id
+    code
+    name
     secretKey
-    createCustomers
     successRedirectUrl
   }
 
-  query stripeIntegrationsSetting {
-    organization {
-      id
-      stripePaymentProvider {
-        ...StripeIntegration
+  query getStripeIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
+    paymentProvider(id: $id) {
+      ... on StripeProvider {
+        id
+        ...StripeIntegrationDetails
+        ...DeleteStripeIntegrationDialog
+        ...AddStripeProviderDialog
+        ...StripeForCreateAndEditSuccessRedirectUrl
+      }
+    }
+
+    paymentProviders(limit: $limit, type: $type) {
+      collection {
+        ... on StripeProvider {
+          id
+        }
       }
     }
   }
 
-  mutation updateStripeIntegration($input: AddStripePaymentProviderInput!) {
-    addStripePaymentProvider(input: $input) {
-      ...StripeIntegration
-    }
-  }
+  ${DeleteStripeIntegrationDialogFragmentDoc}
+  ${AddStripeProviderDialogFragmentDoc}
+  ${StripeForCreateAndEditSuccessRedirectUrlFragmentDoc}
 `
 
-const StripeIntegration = () => {
+const StripeIntegrationDetails = () => {
+  const navigate = useNavigate()
+  const { integrationId } = useParams()
   const addDialogRef = useRef<AddStripeDialogRef>(null)
   const deleteDialogRef = useRef<DeleteStripeIntegrationDialogRef>(null)
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
-  const { data, loading } = useStripeIntegrationsSettingQuery()
-  const stripePaymentProvider = data?.organization?.stripePaymentProvider
+  const { data, loading } = useGetStripeIntegrationsDetailsQuery({
+    variables: {
+      id: integrationId as string,
+      limit: PROVIDER_CONNECTION_LIMIT,
+      type: ProviderTypeEnum.Stripe,
+    },
+    skip: !integrationId,
+  })
+  const stripePaymentProvider = data?.paymentProvider as StripeIntegrationDetailsFragment
+  const deleteDialogCallback = () => {
+    if (data?.paymentProviders?.collection.length === PROVIDER_CONNECTION_LIMIT) {
+      navigate(STRIPE_INTEGRATION_ROUTE)
+    } else {
+      navigate(INTEGRATIONS_ROUTE)
+    }
+  }
 
   return (
-    <div>
+    <>
       <PageHeader $withSide>
         <HeaderBlock>
           <ButtonLink
-            to={INTEGRATIONS_ROUTE}
+            to={STRIPE_INTEGRATION_ROUTE}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
@@ -76,11 +113,52 @@ const StripeIntegration = () => {
             <Skeleton variant="text" height={12} width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
-              {translate('text_62b1edddbf5f461ab97126ee')}
+              {stripePaymentProvider?.name}
             </Typography>
           )}
         </HeaderBlock>
+        <Popper
+          PopperProps={{ placement: 'bottom-end' }}
+          opener={
+            <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
+          }
+        >
+          {({ closePopper }) => (
+            <MenuPopper>
+              <Button
+                variant="quaternary"
+                fullWidth
+                align="left"
+                onClick={() => {
+                  addDialogRef.current?.openDialog({
+                    provider: stripePaymentProvider,
+                    deleteModalRef: deleteDialogRef,
+                    deleteDialogCallback,
+                  })
+                  closePopper()
+                }}
+              >
+                {translate('text_65845f35d7d69c3ab4793dac')}
+              </Button>
+              <Button
+                variant="quaternary"
+                align="left"
+                fullWidth
+                onClick={() => {
+                  deleteDialogRef.current?.openDialog({
+                    provider: stripePaymentProvider,
+                    callback: deleteDialogCallback,
+                  })
+                  closePopper()
+                }}
+              >
+                {translate('text_65845f35d7d69c3ab4793dad')}
+              </Button>
+            </MenuPopper>
+          )}
+        </Popper>
       </PageHeader>
+
       <MainInfos>
         {loading ? (
           <>
@@ -97,12 +175,13 @@ const StripeIntegration = () => {
             </StyledAvatar>
             <div>
               <Line>
-                <Typography variant="headline">
-                  {translate('text_62b1edddbf5f461ab9712707')}
-                </Typography>
+                <Typography variant="headline">{stripePaymentProvider?.name}</Typography>
                 <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
               </Line>
-              <Typography>{translate('text_62b1edddbf5f461ab971271f')}</Typography>
+              <Typography>
+                {translate('text_62b1edddbf5f461ab9712707')}&nbsp;•&nbsp;
+                {translate('text_62b1edddbf5f461ab971271f')}
+              </Typography>
             </div>
           </>
         )}
@@ -110,8 +189,64 @@ const StripeIntegration = () => {
 
       <ContentWrapper>
         <section>
-          <Title variant="subhead">{translate('text_62b1edddbf5f461ab971273f')}</Title>
-          <ApiKeyItem>
+          <InlineTitle>
+            <Title variant="subhead">{translate('text_657078c28394d6b1ae1b9725')}</Title>
+            <Button
+              variant="quaternary"
+              disabled={loading}
+              onClick={() => {
+                addDialogRef.current?.openDialog({
+                  provider: stripePaymentProvider,
+                  deleteModalRef: deleteDialogRef,
+                  deleteDialogCallback,
+                })
+              }}
+            >
+              {translate('text_62b1edddbf5f461ab9712787')}
+            </Button>
+          </InlineTitle>
+
+          <LineItem>
+            {loading ? (
+              <>
+                <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
+                <Skeleton variant="text" width={240} height={12} />
+              </>
+            ) : (
+              <>
+                <Avatar variant="connector" size="big">
+                  <Icon color="dark" name="text" />
+                </Avatar>
+                <Stack>
+                  <Typography variant="caption" color="grey600">
+                    {translate('text_626162c62f790600f850b76a')}
+                  </Typography>
+                  <Typography color="textSecondary">{stripePaymentProvider?.name}</Typography>
+                </Stack>
+              </>
+            )}
+          </LineItem>
+          <LineItem>
+            {loading ? (
+              <>
+                <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
+                <Skeleton variant="text" width={240} height={12} />
+              </>
+            ) : (
+              <>
+                <Avatar variant="connector" size="big">
+                  <Icon color="dark" name="id" />
+                </Avatar>
+                <Stack>
+                  <Typography variant="caption" color="grey600">
+                    {translate('text_62876e85e32e0300e1803127')}
+                  </Typography>
+                  <Typography color="textSecondary">{stripePaymentProvider?.code}</Typography>
+                </Stack>
+              </>
+            )}
+          </LineItem>
+          <LineItem>
             {loading ? (
               <>
                 <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
@@ -122,45 +257,18 @@ const StripeIntegration = () => {
                 <Avatar variant="connector" size="big">
                   <Icon color="dark" name="key" />
                 </Avatar>
-                <ApiKey color="textSecondary">{stripePaymentProvider?.secretKey}</ApiKey>
-                <Popper
-                  PopperProps={{ placement: 'bottom-end' }}
-                  opener={<Button icon="dots-horizontal" variant="quaternary" />}
-                >
-                  {({ closePopper }) => (
-                    <MenuPopper>
-                      <Button
-                        startIcon="pen"
-                        variant="quaternary"
-                        fullWidth
-                        align="left"
-                        onClick={() => {
-                          addDialogRef.current?.openDialog()
-                        }}
-                      >
-                        {translate('text_62b1edddbf5f461ab9712787')}
-                      </Button>
-                      <Button
-                        startIcon="trash"
-                        variant="quaternary"
-                        align="left"
-                        fullWidth
-                        onClick={() => {
-                          deleteDialogRef.current?.openDialog()
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_62b1edddbf5f461ab971279f')}
-                      </Button>
-                    </MenuPopper>
-                  )}
-                </Popper>
+                <Stack>
+                  <Typography variant="caption" color="grey600">
+                    {translate('text_62b1edddbf5f461ab9712748')}
+                  </Typography>
+                  <Typography color="textSecondary">{stripePaymentProvider?.secretKey}</Typography>
+                </Stack>
               </>
             )}
-          </ApiKeyItem>
-          <Typography variant="caption" color="grey600">
+          </LineItem>
+          <LineItemCaption variant="caption" color="grey600">
             {translate('text_637f813d31381b1ed90ab30e')}
-          </Typography>
+          </LineItemCaption>
         </section>
 
         <section>
@@ -168,7 +276,7 @@ const StripeIntegration = () => {
             <Typography variant="subhead">{translate('text_65367cb78324b77fcb6af21c')}</Typography>
             <Button
               variant="quaternary"
-              disabled={!!stripePaymentProvider?.successRedirectUrl}
+              disabled={!!stripePaymentProvider?.successRedirectUrl || loading}
               onClick={() => {
                 successRedirectUrlDialogRef.current?.openDialog({
                   mode: 'Add',
@@ -182,10 +290,10 @@ const StripeIntegration = () => {
           </InlineTitle>
 
           {loading ? (
-            <ApiKeyItem>
+            <LineItem>
               <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
               <Skeleton variant="text" width={240} height={12} />
-            </ApiKeyItem>
+            </LineItem>
           ) : (
             <>
               {!stripePaymentProvider?.successRedirectUrl ? (
@@ -267,10 +375,10 @@ const StripeIntegration = () => {
         </section>
       </ContentWrapper>
 
-      <AddStripeDialog isEdition ref={addDialogRef} />
-      <DeleteStripeIntegrationDialog id={stripePaymentProvider?.id || ''} ref={deleteDialogRef} />
+      <AddStripeDialog ref={addDialogRef} />
+      <DeleteStripeIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
-    </div>
+    </>
   )
 }
 
@@ -305,17 +413,20 @@ const Title = styled(Typography)`
   align-items: center;
 `
 
-const ApiKeyItem = styled.div`
+const LineItem = styled.div`
   height: ${NAV_HEIGHT}px;
   max-width: ${theme.spacing(168)};
   box-shadow: ${theme.shadows[7]};
   display: flex;
   align-items: center;
-  margin-bottom: ${theme.spacing(3)};
 
   > *:first-child {
     margin-right: ${theme.spacing(3)};
   }
+`
+
+const LineItemCaption = styled(Typography)`
+  margin-top: ${theme.spacing(3)};
 `
 
 const StyledAvatar = styled(Avatar)`
@@ -329,10 +440,6 @@ const Line = styled.div`
   > *:first-child {
     margin-right: ${theme.spacing(2)};
   }
-`
-
-const ApiKey = styled(Typography)`
-  margin-right: auto;
 `
 
 const InlineTitle = styled.div`
@@ -367,4 +474,4 @@ const SuccessPaumentRedirectUrlItemLeft = styled.div`
   gap: ${theme.spacing(3)};
 `
 
-export default StripeIntegration
+export default StripeIntegrationDetails
