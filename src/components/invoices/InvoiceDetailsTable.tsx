@@ -32,6 +32,7 @@ gql`
     feeType
     groupName
     invoiceDisplayName
+    invoiceName
     itemName
     units
     preciseUnitAmount
