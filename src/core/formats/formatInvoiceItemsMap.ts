@@ -110,7 +110,8 @@ const _deepFormatFees = (
           feesData.push({
             ...fee,
             isNormalFee: true,
-            displayName: fee.invoiceName || fee.charge?.billableMetric?.name || '',
+            displayName:
+              fee.invoiceDisplayName || fee.invoiceName || fee.charge?.billableMetric?.name || '',
           })
         }
       }
