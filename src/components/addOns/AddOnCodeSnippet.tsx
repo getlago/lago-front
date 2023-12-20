@@ -19,7 +19,7 @@ curl --location --request ${isEdition ? 'PUT' : 'POST'} "${apiUrl}/api/v1/add_on
       "external_customer_id": "__EXTERNAL_CUSTOMER_ID__",
       "add_on_code": "${addOn.code}",
       "amount_cents": ${serializeAmount(addOn.amountCents || 0, addOn.amountCurrency)},
-      "amount_currency": "EUR"
+      "amount_currency": "${addOn.amountCurrency}"
     }
   }'
   
