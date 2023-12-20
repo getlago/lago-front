@@ -74,6 +74,7 @@ const cleanPlanValues = (planValues: PlanOverridesInput, formType: keyof typeof 
     taxCodes: formType === FORM_TYPE_ENUM.edition ? undefined : planValues.taxCodes,
     taxes: undefined,
     payInAdvance: undefined,
+    billChargesMonthly: undefined,
     charges: planValues?.charges?.map((charge) => ({
       ...charge,
       taxes: undefined,
