@@ -166,23 +166,23 @@ const Analytics = () => {
       <ContentWrapper>
         <Gross className="analytics-graph" currency={selectedCurrency} period={periodScope} />
         <Mrr
-          demoMode={!isPremium && !!currentUser}
+          demoMode={!isPremium || !currentUser}
           className="analytics-graph"
-          blur={!isPremium && !!currentUser}
+          blur={!isPremium || !currentUser}
           currency={selectedCurrency}
           period={periodScope}
         />
         <Usage
-          demoMode={!isPremium && !!currentUser}
+          demoMode={!isPremium || !currentUser}
           className="analytics-graph"
-          blur={!isPremium && !!currentUser}
+          blur={!isPremium || !currentUser}
           currency={selectedCurrency}
           period={periodScope}
         />
         <Invoices
-          demoMode={!isPremium && !!currentUser}
+          demoMode={!isPremium || !currentUser}
           className="analytics-graph"
-          blur={!isPremium && !!currentUser}
+          blur={!isPremium || !currentUser}
           currency={selectedCurrency}
           period={periodScope}
         />
