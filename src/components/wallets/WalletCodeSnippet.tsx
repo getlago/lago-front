@@ -11,7 +11,9 @@ const getSnippets = ({ wallet, isEdition }: { wallet?: TWalletDataForm; isEditio
   const { name, rateAmount, currency, recurringTransactionRules } = wallet
 
   return `# ${isEdition ? 'Edit' : 'Create'} a wallet on a customer
-curl --location --request POST "${apiUrl}/api/v1/wallets${isEdition ? '/:lago_id' : ''}" \\
+curl --location --request ${isEdition ? 'PUT' : 'POST'} "${apiUrl}/api/v1/wallets${
+    isEdition ? '/:lago_id' : ''
+  }" \\
   --header "Authorization: Bearer $__YOUR_API_KEY__" \\
   --header 'Content-Type: application/json' \\
   --data-raw '{
@@ -28,12 +30,12 @@ curl --location --request POST "${apiUrl}/api/v1/wallets${isEdition ? '/:lago_id
     }
         "rate_amount": "${rateAmount}",
         "currency": "${currency}",
-        "external_customer_id": "__EXTERNAL_CUSTOMER_ID__","${
+        "external_customer_id": "__EXTERNAL_CUSTOMER_ID__"${
           wallet.expirationAt
-            ? `
+            ? `,
         "expiration_at": "${wallet.expirationAt}",`
             : ''
-        }"${
+        }${
           !isEdition
             ? `
         "paid_credits": "${
@@ -41,11 +43,11 @@ curl --location --request POST "${apiUrl}/api/v1/wallets${isEdition ? '/:lago_id
         }",
         "granted_credits": "${
           wallet.grantedCredits ? serializeAmount(wallet.grantedCredits, wallet.currency) : '0'
-        }",`
+        }"`
             : ''
         }${
           !!recurringTransactionRules?.[0]
-            ? `
+            ? `,
         "recurring_transaction_rules": [
           {${
             isEdition && recurringTransactionRules[0].lagoId
@@ -55,37 +57,37 @@ curl --location --request POST "${apiUrl}/api/v1/wallets${isEdition ? '/:lago_id
           }
             "rule_type": "${
               wallet.recurringTransactionRules?.[0].ruleType || '__MUST_BE_DEFINED__'
-            }",${
+            }"${
               wallet.recurringTransactionRules?.[0].ruleType ===
               RecurringTransactionRuleTypeEnum.Interval
-                ? `
+                ? `,
             "interval": "${
               wallet.recurringTransactionRules?.[0].interval || '__MUST_BE_DEFINED__'
-            }",`
+            }"`
                 : ''
             }${
               wallet.recurringTransactionRules?.[0].ruleType ===
               RecurringTransactionRuleTypeEnum.Threshold
-                ? `
+                ? `,
             "threshold_credits": "${
               wallet.recurringTransactionRules?.[0].thresholdCredits || '__MUST_BE_DEFINED__'
-            }",`
+            }"`
                 : ''
             }${
               wallet.recurringTransactionRules?.[0].paidCredits
-                ? `
+                ? `,
             "paid_credits": "${serializeAmount(
               wallet.recurringTransactionRules?.[0].paidCredits,
               wallet.currency,
-            )}",`
+            )}"`
                 : ''
             }${
               wallet.recurringTransactionRules?.[0].grantedCredits
-                ? `
+                ? `,
             "granted_credits": "${serializeAmount(
               wallet.recurringTransactionRules?.[0].grantedCredits,
               wallet.currency,
-            )}",`
+            )}"`
                 : ''
             }
           }
