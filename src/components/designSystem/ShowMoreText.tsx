@@ -20,23 +20,25 @@ export const ShowMoreText = ({ text, limit, showMore, ...props }: ShowMoreTextPr
   return (
     <Typography {...props}>
       <TruncatedText>{text.substring(0, limit)}...</TruncatedText>
-      <span>
+      <ShowMoreHandler>
         {!showMore || typeof showMore === 'string' ? (
           /* eslint-disable jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events, jsx-a11y/anchor-is-valid */
-          <ShowMoreHandler onClick={() => setIsTextTruncated(false)}>
+          <span onClick={() => setIsTextTruncated(false)}>
             {showMore ? showMore : translate('text_62bdbf07117c3d1f178d6517')}
-          </ShowMoreHandler>
+          </span>
         ) : (
           /* eslint-enable jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events, jsx-a11y/anchor-is-valid */
           !!showMore &&
           cloneElement(showMore as ReactElement, { onClick: () => setIsTextTruncated(false) })
         )}
-      </span>
+      </ShowMoreHandler>
     </Typography>
   )
 }
 
-const ShowMoreHandler = styled.a`
+const ShowMoreHandler = styled.span`
+  color: ${theme.palette.primary[600]};
+
   &:hover {
     cursor: pointer;
   }
