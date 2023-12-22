@@ -101,7 +101,7 @@ const LagoTaxManagementIntegration = () => {
             <Skeleton variant="text" height={12} width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
-              {translate('text_634ea0ecc6147de10ddb6629')}
+              {translate('text_657078c28394d6b1ae1b9713')}
             </Typography>
           )}
         </HeaderBlock>
