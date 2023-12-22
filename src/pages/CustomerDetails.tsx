@@ -502,7 +502,7 @@ const Infos = styled.div`
     width: 320px;
     margin-right: ${theme.spacing(8)};
 
-    @media (max-width: 1024px) {
+    ${theme.breakpoints.down('lg')} {
       flex: 1;
       width: inherit;
       margin-right: 0;
@@ -513,7 +513,7 @@ const Infos = styled.div`
     min-width: 0;
   }
 
-  @media (max-width: 1024px) {
+  ${theme.breakpoints.down('lg')} {
     flex-direction: column;
   }
 `
