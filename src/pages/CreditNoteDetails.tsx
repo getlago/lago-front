@@ -85,6 +85,7 @@ gql`
       }
       items {
         amountCents
+        amountCurrency
         fee {
           id
           amountCents
