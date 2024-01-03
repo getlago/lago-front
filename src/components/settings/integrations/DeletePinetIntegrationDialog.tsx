@@ -17,7 +17,7 @@ gql`
   }
 `
 
-export interface DeletePinetIntegrationDialogRef extends WarningDialogRef { }
+export interface DeletePinetIntegrationDialogRef extends WarningDialogRef {}
 
 interface DeletePinetIntegrationDialogProps {
   id: string

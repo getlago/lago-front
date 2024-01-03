@@ -22,7 +22,7 @@ gql`
   ${PinetIntegrationFragmentDoc}
 `
 
-export interface AddPinetDialogRef extends DialogRef { }
+export interface AddPinetDialogRef extends DialogRef {}
 
 interface AddPinetDialog {
   isEdition?: boolean
@@ -112,4 +112,3 @@ const Content = styled.div`
 `
 
 AddPinetDialog.displayName = 'AddPinetDialog'
-

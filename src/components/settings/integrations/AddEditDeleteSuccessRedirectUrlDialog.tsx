@@ -91,11 +91,11 @@ type LocalProviderType = {
   mode: keyof typeof AddEditDeleteSuccessRedirectUrlDialogMode
   type: keyof typeof AddEditDeleteSuccessRedirectUrlDialogProviderType
   provider?:
-  | AdyenForCreateAndEditSuccessRedirectUrlFragment
-  | GocardlessForCreateAndEditSuccessRedirectUrlFragment
-  | StripeForCreateAndEditSuccessRedirectUrlFragment
-  | PinetForCreateAndEditSuccessRedirectUrlFragment
-  | null
+    | AdyenForCreateAndEditSuccessRedirectUrlFragment
+    | GocardlessForCreateAndEditSuccessRedirectUrlFragment
+    | StripeForCreateAndEditSuccessRedirectUrlFragment
+    | PinetForCreateAndEditSuccessRedirectUrlFragment
+    | null
 }
 
 export interface AddEditDeleteSuccessRedirectUrlDialogRef {
