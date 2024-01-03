@@ -203,7 +203,9 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                 ? translate('text_634ea0ecc6147de10ddb6648')
                 : paymentProvider === ProviderTypeEnum?.Adyen
                   ? translate('text_645d071272418a14c1c76a6d')
-                  : ''}
+                  : paymentProvider === ProviderTypeEnum?.Pinet
+                    ? 'Pinet'
+                    : ''}
           </Typography>
         </div>
       )}
@@ -226,6 +228,12 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             </Typography>
           </div>
         )}
+      {paymentProvider === ProviderTypeEnum?.Pinet && (
+        <div>
+          <Typography variant="caption">Payment token</Typography>
+          <Typography color="textSecondary"></Typography>
+        </div>
+      )}
       {!!metadata?.length &&
         metadata.map((meta) => (
           <div key={`customer-metadata-${meta.id}`}>

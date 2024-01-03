@@ -13,6 +13,10 @@ import {
   AddLagoTaxManagementDialogRef,
 } from '~/components/settings/integrations/AddLagoTaxManagementDialog'
 import {
+  AddPinetDialog,
+  AddPinetDialogRef,
+} from '~/components/settings/integrations/AddPinetDialog'
+import {
   AddStripeDialog,
   AddStripeDialogRef,
 } from '~/components/settings/integrations/AddStripeDialog'
@@ -26,6 +30,7 @@ import {
 import {
   ADYEN_INTEGRATION_ROUTE,
   GOCARDLESS_INTEGRATION_ROUTE,
+  PINET_INTEGRATION_ROUTE,
   STRIPE_INTEGRATION_ROUTE,
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
 } from '~/core/router'
@@ -37,6 +42,7 @@ import GoCardless from '~/public/images/gocardless.svg'
 import HightTouch from '~/public/images/hightouch.svg'
 import LagoTaxManagement from '~/public/images/lago-tax-management.svg'
 import Oso from '~/public/images/oso.svg'
+import Pinet from '~/public/images/pinet.svg'
 import Segment from '~/public/images/segment.svg'
 import Stripe from '~/public/images/stripe.svg'
 import { theme } from '~/styles'
@@ -56,6 +62,9 @@ gql`
       adyenPaymentProvider {
         id
       }
+      pinetPaymentProvider {
+        id
+      }
     }
   }
 `
@@ -65,6 +74,7 @@ const Integrations = () => {
   const navigate = useNavigate()
   const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
   const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
+  const addPinetDialogRef = useRef<AddPinetDialogRef>(null)
   const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
   const { data, loading } = useIntegrationsSettingQuery()
 
@@ -72,6 +82,7 @@ const Integrations = () => {
   const hasAdyenIntegration = !!organization?.adyenPaymentProvider?.id
   const hasStripeIntegration = !!organization?.stripePaymentProvider?.id
   const hasGocardlessIntegration = !!organization?.gocardlessPaymentProvider?.id
+  const hasPinetIntegration = !!organization?.pinetPaymentProvider?.id
   const hasTaxManagement = !!organization?.euTaxManagement
   const { lagoOauthProxyUrl } = envGlobalVar()
 
@@ -88,6 +99,31 @@ const Integrations = () => {
         </LoadingContainer>
       ) : (
         <>
+          <StyledSelector
+            title={'PINET'}
+            subtitle={'Publisher interchange network'}
+            icon={
+              <Avatar variant="connector">
+                <Pinet />
+              </Avatar>
+            }
+            endIcon={
+              hasPinetIntegration ? (
+                <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+              ) : undefined
+            }
+            onClick={() => {
+              if (hasPinetIntegration) {
+                navigate(PINET_INTEGRATION_ROUTE)
+              } else {
+                const element = document.activeElement as HTMLElement
+
+                element.blur && element.blur()
+                addPinetDialogRef.current?.openDialog()
+              }
+            }}
+            fullWidth
+          />
           <StyledSelector
             title={translate('text_645d071272418a14c1c76a6d')}
             subtitle={translate('text_634ea0ecc6147de10ddb6631')}
@@ -227,6 +263,7 @@ const Integrations = () => {
         country={organization?.country}
         ref={addLagoTaxManagementDialog}
       />
+      <AddPinetDialog ref={addPinetDialogRef} />
     </Page>
   )
 }
