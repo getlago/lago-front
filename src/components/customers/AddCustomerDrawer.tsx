@@ -414,7 +414,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                   placeholder={translate('text_62b328ead9a4caef81cd9ca2')}
                   formikProps={formikProps}
                 />
-                {!isEdition && (
+                {!isEdition && formikProps.values.paymentProvider !== ProviderTypeEnum.Pinet && (
                   <Checkbox
                     name="providerCustomer.syncWithProvider"
                     value={!!formikProps.values.providerCustomer?.syncWithProvider}

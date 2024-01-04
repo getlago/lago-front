@@ -11,12 +11,14 @@ import { ADYEN_SUCCESS_LINK_SPEC_URL } from '~/core/constants/externalUrls'
 import {
   AdyenForCreateAndEditSuccessRedirectUrlFragment,
   GocardlessForCreateAndEditSuccessRedirectUrlFragment,
+  PinetForCreateAndEditSuccessRedirectUrlFragment,
   StripeForCreateAndEditSuccessRedirectUrlFragment,
   UpdateAdyenPaymentProviderInput,
   UpdateGocardlessPaymentProviderInput,
   UpdateStripePaymentProviderInput,
   useUpdateAdyenPaymentProviderMutation,
   useUpdateGocardlessPaymentProviderMutation,
+  useUpdatePinetPaymentProviderMutation,
   useUpdateStripePaymentProviderMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -34,6 +36,11 @@ gql`
   }
 
   fragment stripeForCreateAndEditSuccessRedirectUrl on StripeProvider {
+    id
+    successRedirectUrl
+  }
+
+  fragment pinetForCreateAndEditSuccessRedirectUrl on PinetProvider {
     id
     successRedirectUrl
   }
@@ -58,6 +65,13 @@ gql`
       successRedirectUrl
     }
   }
+
+  mutation updatePinetPaymentProvider($input: UpdatePinetPaymentProviderInput!) {
+    updatePinetPaymentProvider(input: $input) {
+      id
+      successRedirectUrl
+    }
+  }
 `
 
 const AddEditDeleteSuccessRedirectUrlDialogMode = {
@@ -70,6 +84,7 @@ const AddEditDeleteSuccessRedirectUrlDialogProviderType = {
   Adyen: 'Adyen',
   Stripe: 'Stripe',
   GoCardless: 'GoCardless',
+  Pinet: 'Pinet',
 } as const
 
 type LocalProviderType = {
@@ -79,6 +94,7 @@ type LocalProviderType = {
     | AdyenForCreateAndEditSuccessRedirectUrlFragment
     | GocardlessForCreateAndEditSuccessRedirectUrlFragment
     | StripeForCreateAndEditSuccessRedirectUrlFragment
+    | PinetForCreateAndEditSuccessRedirectUrlFragment
     | null
 }
 
@@ -132,6 +148,17 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
       },
     })
 
+    const [updatePinetProvider] = useUpdatePinetPaymentProviderMutation({
+      onCompleted(data) {
+        if (data && data.updatePinetPaymentProvider) {
+          addToast({
+            message: successToastMessage,
+            severity: 'success',
+          })
+        }
+      },
+    })
+
     const formikProps = useFormik<
       | UpdateAdyenPaymentProviderInput
       | UpdateGocardlessPaymentProviderInput
@@ -150,6 +177,7 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.Adyen]: updateAdyenProvider,
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.Stripe]: updateStripeProvider,
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.GoCardless]: updateGocardlessProvider,
+          [AddEditDeleteSuccessRedirectUrlDialogProviderType.Pinet]: updatePinetProvider,
         }
 
         const method = methodLoojup[localData?.type as LocalProviderType['type']]
