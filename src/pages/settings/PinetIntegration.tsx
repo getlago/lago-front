@@ -97,7 +97,7 @@ const PinetIntegration = () => {
             </StyledAvatar>
             <div>
               <Line>
-                <Typography variant="headline">{'Pinet'}</Typography>
+                <Typography variant="headline">{'PINET'}</Typography>
                 <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
               </Line>
               <Typography>{'Publisher interchange network'}</Typography>

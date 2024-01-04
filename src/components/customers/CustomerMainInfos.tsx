@@ -204,7 +204,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                 : paymentProvider === ProviderTypeEnum?.Adyen
                   ? translate('text_645d071272418a14c1c76a6d')
                   : paymentProvider === ProviderTypeEnum?.Pinet
-                    ? 'Pinet'
+                    ? 'PINET'
                     : ''}
           </Typography>
         </div>
