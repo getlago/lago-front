@@ -265,18 +265,13 @@ InvoiceCustomerInfos.displayName = 'InvoiceCustomerInfos'
 const Wrapper = styled.section`
   padding: ${theme.spacing(6)} 0;
   box-shadow: ${theme.shadows[7]};
-  display: flex;
-
-  > * {
-    flex: 1;
-  }
-
-  > div:first-child > div > *:last-child {
-    padding-right: ${theme.spacing(8)};
-  }
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: ${theme.spacing(8)};
 
   ${theme.breakpoints.down('md')} {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+    gap: initial;
   }
 `
 

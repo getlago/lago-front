@@ -53,6 +53,9 @@ module.exports = {
   "project_6543ca0b70910093c87cd539": {
     "base": require('./-ready-for-dev---dashboards---add-financial-reporting-to-lago__base.json')
   },
+  "project_659e67cc6afb842e8db57be5": {
+    "base": require('./-ready-for-dev---invoices---display-unit-price-to-item-in-invoices__base.json')
+  },
   "project_65269b3f720470569cb17228": {
     "base": require('./-ready-for-dev---invoices---void-invoices__base.json')
   },

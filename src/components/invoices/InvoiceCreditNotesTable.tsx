@@ -9,7 +9,7 @@ import { CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CreditNote, CreditNoteItem, CurrencyEnum, FeeTypesEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { NAV_HEIGHT, theme } from '~/styles'
+import { theme } from '~/styles'
 
 gql`
   fragment InvoiceForCreditNotesTable on Invoice {
@@ -105,40 +105,38 @@ export const InvoiceCreditNotesTable = memo(
                 const subscription = subscriptionItem[0][0]
                   ? subscriptionItem[0][0]?.fee.subscription
                   : undefined
-                const creditNoteDisplayName = !!subscription
-                  ? subscription?.name ||
-                    subscription.plan.invoiceDisplayName ||
-                    subscription?.plan?.name
-                  : translate('text_649ab559e86bd6005ba9d725')
+                const creditNoteDisplayName =
+                  subscription?.name ||
+                  subscription?.plan.invoiceDisplayName ||
+                  subscription?.plan?.name
 
                 return (
                   <React.Fragment key={`formatedCreditNote-${i}-subscriptionItem-${j}`}>
                     <table>
                       <thead>
                         <tr>
-                          <InlineTh>
+                          <th>
                             <Typography
-                              variant="bodyHl"
-                              color="grey500"
-                              html={translate('text_637cd81348c50c26dd05a767', {
+                              variant="captionHl"
+                              color="grey600"
+                              html={translate('text_659522c816b5850068729025', {
                                 link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
                                   customerId,
                                   invoiceId,
                                   creditNoteId: creditNote.id,
                                 }),
                                 CreditNoteNumber: creditNote.number,
-                                displayName: creditNoteDisplayName,
                               })}
                               noWrap
                             />
-                          </InlineTh>
+                          </th>
                           <th>
-                            <Typography variant="bodyHl" color="grey500">
+                            <Typography variant="captionHl" color="grey600">
                               {translate('text_636bedf292786b19d3398f06')}
                             </Typography>
                           </th>
                           <th>
-                            <Typography variant="bodyHl" color="grey500">
+                            <Typography variant="captionHl" color="grey600">
                               {translate('text_637cd81348c50c26dd05a769')}
                             </Typography>
                           </th>
@@ -164,7 +162,7 @@ export const InvoiceCreditNotesTable = memo(
                                   >
                                     <tr key={`formatedCreditNote-${i}-charge-${j}-item-${k}`}>
                                       <td>
-                                        <Typography variant="body" color="grey700">
+                                        <Typography variant="bodyHl" color="grey700">
                                           {groupDimension === 0 ? (
                                             <>
                                               {item?.fee?.feeType === FeeTypesEnum.AddOn
@@ -427,84 +425,63 @@ const Wrapper = styled.section`
     > thead > tr > th,
     > tbody > tr > td {
       overflow: hidden;
-      line-break: anywhere;
+      text-align: right;
+
+      &:not(:first-child) {
+        line-break: anywhere;
+      }
+
+      &:not(:last-child) {
+        padding-right: ${theme.spacing(8)};
+        box-sizing: border-box;
+      }
 
       &:nth-child(1) {
-        width: 70%;
+        width: 75%;
+        text-align: left;
       }
       &:nth-child(2) {
         width: 10%;
-      }
-      &:nth-child(3) {
-        width: 20%;
-      }
-    }
-
-    > tfoot > tr > td {
-      &:nth-child(1) {
-        width: 50%;
-      }
-      &:nth-child(2) {
-        width: 35%;
       }
       &:nth-child(3) {
         width: 15%;
       }
     }
 
-    > tfoot > tr > td {
-      &:nth-child(2) {
-        text-align: left;
-      }
-    }
-
-    th:not(:last-child),
-    td:not(:last-child) {
-      padding-right: ${theme.spacing(3)};
-    }
-
-    > thead > tr > th,
-    > tbody > tr > td {
-      text-align: right;
-
-      &:first-child {
-        text-align: left;
-      }
-    }
-
-    > tfoot > tr > td {
-      text-align: right;
-      padding: ${theme.spacing(3)} 0;
-    }
-
-    > tfoot > tr > td {
-      &:nth-child(2),
-      &:nth-child(3) {
-        box-shadow: ${theme.shadows[7]};
-      }
-    }
-
-    > thead > tr {
-      height: ${NAV_HEIGHT}px;
-      box-shadow: ${theme.shadows[7]};
-    }
-
     > thead > tr > th {
-      height: ${NAV_HEIGHT}px;
-      box-sizing: border-box;
+      position: sticky;
+      top: 72px;
+      background-color: ${theme.palette.common.white};
       padding: ${theme.spacing(8)} 0 ${theme.spacing(3)} 0;
+      box-sizing: border-box;
+      box-shadow: ${theme.shadows[7]};
     }
 
     > tbody > tr > td {
       vertical-align: top;
       min-height: 44px;
       padding: ${theme.spacing(3)} 0;
+      box-sizing: border-box;
       box-shadow: ${theme.shadows[7]};
     }
-  }
-`
 
-const InlineTh = styled.th`
-  display: flex;
-  align-items: center;
+    > tfoot > tr > td {
+      text-align: right;
+      padding: ${theme.spacing(3)} 0;
+      box-sizing: border-box;
+
+      &:nth-child(1) {
+        width: 50%;
+      }
+      &:nth-child(2) {
+        width: 35%;
+        text-align: left;
+        box-shadow: ${theme.shadows[7]};
+      }
+      &:nth-child(3) {
+        width: 15%;
+        box-shadow: ${theme.shadows[7]};
+      }
+    }
+  }
 `

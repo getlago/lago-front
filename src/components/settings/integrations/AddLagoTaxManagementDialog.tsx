@@ -1,4 +1,3 @@
-// TODO:
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef } from 'react'

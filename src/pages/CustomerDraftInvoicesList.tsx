@@ -119,7 +119,7 @@ const CustomerDraftInvoicesList = () => {
               </Name>
               <Typography>
                 {translate('text_638f74bb4d41e3f1d020164b', {
-                  count: customerData?.customerInvoices?.metadata.totalCount,
+                  count: customerData?.customerInvoices?.metadata?.totalCount,
                 })}
               </Typography>
             </div>

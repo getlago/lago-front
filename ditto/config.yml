@@ -322,5 +322,8 @@ sources:
       fileName: 👍 [Ready for dev] - Settings - Define invoice number
     - name: ⚙️ [WIP] - Integration - Lago EU tax integration
       id: 657078becf8335e0955b5bf4
+      fileName: ⚙️ [WIP] - Integration - Lago EU tax integration
+    - name: 👍 [Ready for dev] - Invoices - Display unit price to item in invoices
+      id: 659e67cc6afb842e8db57be5
 format: flat
 variants: true
