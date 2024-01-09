@@ -1,144 +1,243 @@
-import _groupBy from 'lodash/groupBy'
+import { gql } from '@apollo/client'
 
 import { Fee, FeeTypesEnum, InvoiceSubscription } from '~/generated/graphql'
 
-export type ExtendedRemainingFee = Fee & {
-  displayName: string
-  isGroupChildFee?: boolean
-  isTrueUpFee?: boolean
-  isNormalFee?: boolean
-}
-
-interface BaseFormattedInvoiceSubscription {
-  invoiceSubscription: InvoiceSubscription
-  currentSubscription: InvoiceSubscription['subscription']
-  invoiceDisplayName: string
-  subscriptionFees: InvoiceSubscription['subscription']['fees']
-  feesInArrears: InvoiceSubscription['subscription']['fees']
-  feesInAdvance: InvoiceSubscription['subscription']['fees']
-}
-
-interface FormattedInvoiceSubscription
-  extends Omit<BaseFormattedInvoiceSubscription, 'feesInArrears'> {
-  feesInArrears: ExtendedRemainingFee[]
-  feesInAdvance: ExtendedRemainingFee[]
-}
-
-const formatInvoiceItemsMap = (data: InvoiceSubscription[]) => {
-  return data.map((invoiceSubscription) => {
-    const currentSubscription = invoiceSubscription.subscription
-
-    let formattedData: FormattedInvoiceSubscription = {
-      invoiceSubscription,
-      currentSubscription,
-      invoiceDisplayName: !!currentSubscription
-        ? currentSubscription?.name || currentSubscription?.plan?.name
-        : '',
-      subscriptionFees: [],
-      feesInArrears: [],
-      feesInAdvance: [],
-    }
-
-    if (!invoiceSubscription?.fees?.length) return formattedData
-
-    // Build up data
-    for (let i = 0; i < invoiceSubscription?.fees?.length; i++) {
-      const currentFee = invoiceSubscription?.fees[i]
-
-      // Prevent zero amount fees from being displayed
-      if (currentFee.amountCents === 0) continue
-
-      // Split fees into subscription fees and remaining fees depending on fee type
-      if (currentFee.feeType === FeeTypesEnum.Subscription) {
-        formattedData?.subscriptionFees?.push(currentFee)
-      } else if (!currentFee?.charge?.payInAdvance) {
-        // Charge paid in arrears
-        // @ts-ignore
-        formattedData?.feesInArrears?.push(currentFee)
-      } else {
-        // Charge paid in advance
-        // @ts-ignore
-        formattedData?.feesInAdvance?.push(currentFee)
+gql`
+  fragment InvoiceSubscriptionFormating on InvoiceSubscription {
+    fromDatetime
+    toDatetime
+    chargesFromDatetime
+    chargesToDatetime
+    inAdvanceChargesFromDatetime
+    inAdvanceChargesToDatetime
+    fees {
+      id
+      amountCents
+      invoiceName
+      invoiceDisplayName
+      groupName
+      units
+      charge {
+        id
+        payInAdvance
+        minAmountCents
+        billableMetric {
+          id
+          name
+        }
+      }
+      subscription {
+        id
+        plan {
+          id
+          interval
+        }
       }
     }
+    subscription {
+      id
+      name
+      plan {
+        id
+        name
+        invoiceDisplayName
+      }
+    }
+  }
+`
+export type TExtendedRemainingFee = Fee & {
+  metadata: {
+    displayName: string
+    isSubscriptionFee?: boolean
+    isGroupChildFee?: boolean
+    isTrueUpFee?: boolean
+    isNormalFee?: boolean
+  }
+}
+type TSubscriptionDataForDisplay = {
+  [invoiceSubscriptionId: string]: {
+    feesInArrears: TExtendedRemainingFee[]
+    feesInAdvance: TExtendedRemainingFee[]
+    metadata: {
+      differentBoundariesForSubscriptionAndCharges: boolean
+      subscriptionDisplayName: string
+      fromDatetime: string
+      toDatetime: string
+      chargesFromDatetime: string
+      chargesToDatetime: string
+      inAdvanceChargesFromDatetime: string
+      inAdvanceChargesToDatetime: string
+    }
+  }
+}
+type TFormatedInvoiceSubscriptionDataForDisplay = {
+  subscriptions: TSubscriptionDataForDisplay
+  metadata: {
+    hasAnyFeeParsed: boolean
+  }
+}
 
-    // Format fees
-    if (formattedData?.feesInArrears?.length) {
-      formattedData.feesInArrears = _deepFormatFees(
-        formattedData.feesInArrears as unknown as BaseFormattedInvoiceSubscription['feesInArrears'],
+export const getSubscriptionFeeDisplayName = (fee: TExtendedRemainingFee) => {
+  if (!!fee.invoiceDisplayName) {
+    return fee.invoiceDisplayName
+  }
+
+  const plan = fee.subscription?.plan
+  const capitalizedPlanInterval = `${plan?.interval
+    ?.charAt(0)
+    ?.toUpperCase()}${plan?.interval?.slice(1)}`
+
+  return `${capitalizedPlanInterval} subscription fee - ${plan?.name}`
+}
+
+export const groupAndFormatFees = (
+  invoiceSubscription: InvoiceSubscription[] | null | undefined,
+): TFormatedInvoiceSubscriptionDataForDisplay => {
+  let hasAnyFeeParsed = false
+
+  if (!invoiceSubscription?.length) return { subscriptions: {}, metadata: { hasAnyFeeParsed } }
+
+  const feesGroupedBySubscription = invoiceSubscription?.reduce<TSubscriptionDataForDisplay>(
+    (acc, invoiceSub) => {
+      const subscriptionId = invoiceSub?.subscription?.id
+
+      if (!subscriptionId) return acc
+
+      const differentBoundariesForSubscriptionAndCharges: boolean =
+        invoiceSub.fromDatetime !== invoiceSub.chargesFromDatetime &&
+        invoiceSub.toDatetime !== invoiceSub.chargesToDatetime
+
+      if (!acc[subscriptionId]) {
+        acc[subscriptionId] = {
+          feesInArrears: [],
+          feesInAdvance: [],
+          metadata: {
+            differentBoundariesForSubscriptionAndCharges,
+            subscriptionDisplayName:
+              invoiceSub.subscription.name || invoiceSub.subscription.plan.name,
+            fromDatetime: invoiceSub?.fromDatetime,
+            toDatetime: invoiceSub?.toDatetime,
+            chargesFromDatetime: invoiceSub?.chargesFromDatetime,
+            chargesToDatetime: invoiceSub?.chargesToDatetime,
+            inAdvanceChargesFromDatetime: invoiceSub?.inAdvanceChargesFromDatetime,
+            inAdvanceChargesToDatetime: invoiceSub?.inAdvanceChargesToDatetime,
+          },
+        }
+      }
+
+      if (!invoiceSub?.fees?.length) return acc
+
+      // Group fees advance / arrear
+      for (let i = 0; i < invoiceSub?.fees?.length; i++) {
+        const currentFee = invoiceSub?.fees[i] as TExtendedRemainingFee
+
+        // Prevent zero amount fees from being displayed
+        if (
+          (currentFee.feeType === FeeTypesEnum.Subscription &&
+            Number(currentFee.amountCents) === 0) ||
+          (currentFee.units === 0 && Number(currentFee.amountCents) === 0)
+        )
+          continue
+
+        // Flag that at least one fee has been parsed
+        !hasAnyFeeParsed && (hasAnyFeeParsed = true)
+        const isSubscriptionFeeInAdvance =
+          currentFee.feeType === FeeTypesEnum.Subscription &&
+          differentBoundariesForSubscriptionAndCharges
+
+        if (currentFee?.charge?.payInAdvance || isSubscriptionFeeInAdvance) {
+          acc[subscriptionId]?.feesInAdvance?.push(currentFee)
+        } else {
+          acc[subscriptionId]?.feesInArrears?.push(currentFee)
+        }
+      }
+
+      return acc
+    },
+    {},
+  )
+
+  // Format fees
+  Object.keys(feesGroupedBySubscription).forEach((subscriptionId) => {
+    const subscription = feesGroupedBySubscription[subscriptionId]
+
+    if (subscription?.feesInArrears?.length) {
+      feesGroupedBySubscription[subscriptionId].feesInArrears = _newDeepFormatFees(
+        subscription.feesInArrears,
       )
     }
-    if (formattedData?.feesInAdvance?.length) {
-      formattedData.feesInAdvance = _deepFormatFees(
-        formattedData.feesInAdvance as unknown as BaseFormattedInvoiceSubscription['feesInAdvance'],
+    if (subscription?.feesInAdvance?.length) {
+      feesGroupedBySubscription[subscriptionId].feesInAdvance = _newDeepFormatFees(
+        subscription.feesInAdvance,
       )
     }
-    return formattedData
+  })
+
+  return {
+    subscriptions: feesGroupedBySubscription,
+    metadata: {
+      hasAnyFeeParsed,
+    },
+  }
+}
+
+const _newDeepFormatFees = (feesToFormat: TExtendedRemainingFee[]): TExtendedRemainingFee[] => {
+  const feesData: TExtendedRemainingFee[] = []
+
+  // Mark fees depending on their type and add a display name
+  for (let i = 0; i < feesToFormat.length; i++) {
+    const fee = feesToFormat[i]
+
+    if (fee.feeType === FeeTypesEnum.Subscription) {
+      feesData.push({
+        ...fee,
+        metadata: {
+          isSubscriptionFee: true,
+          displayName: getSubscriptionFeeDisplayName(fee),
+        },
+      })
+    } else if (!!fee.group?.id) {
+      feesData.push({
+        ...fee,
+        metadata: {
+          isGroupChildFee: true,
+          displayName: `${`${fee.invoiceName || fee.charge?.billableMetric?.name} • `}${
+            fee.groupName
+              ? fee.groupName
+              : `${!!fee.group?.key ? `${fee.group?.key} • ` : ''}${fee.group.value}`
+          }`,
+        },
+      })
+    } else if (!!fee?.trueUpParentFee?.id) {
+      feesData.push({
+        ...fee,
+        metadata: {
+          isTrueUpFee: true,
+          displayName: fee.groupName || fee.invoiceName || fee.charge?.billableMetric?.name || '',
+        },
+      })
+    } else {
+      feesData.push({
+        ...fee,
+        metadata: {
+          isNormalFee: true,
+          displayName:
+            fee.invoiceDisplayName || fee.invoiceName || fee.charge?.billableMetric?.name || '',
+        },
+      })
+    }
+  }
+
+  return feesData.sort((a, b) => {
+    if (!!a?.metadata?.isSubscriptionFee && !b?.metadata?.isSubscriptionFee) {
+      return -1
+    } else if (!a?.metadata?.isSubscriptionFee && !!b?.metadata?.isSubscriptionFee) {
+      return 1
+    } else if (a?.metadata?.displayName.toLowerCase() < b?.metadata?.displayName.toLowerCase()) {
+      return -1
+    } else if (a?.metadata?.displayName.toLowerCase() > b?.metadata?.displayName.toLowerCase()) {
+      return 1
+    }
+    return 0
   })
 }
-
-const _deepFormatFees = (
-  feesToFormat:
-    | BaseFormattedInvoiceSubscription['feesInArrears']
-    | BaseFormattedInvoiceSubscription['feesInAdvance'],
-) => {
-  return Object.values(_groupBy(feesToFormat, (fee) => fee?.charge?.id))
-    .map((fees) => {
-      const feesData: ExtendedRemainingFee[] = []
-
-      // Mark fees depending on their type and add a display name
-      for (let i = 0; i < fees.length; i++) {
-        const fee = fees[i]
-
-        if (!!fee.group?.id) {
-          feesData.push({
-            ...fee,
-            isGroupChildFee: true,
-            displayName: `${`${fee.invoiceName || fee.charge?.billableMetric?.name} • `}${
-              fee.groupName
-                ? fee.groupName
-                : `${!!fee.group?.key ? `${fee.group?.key} • ` : ''}${fee.group.value}`
-            }`,
-          })
-        } else if (!!fee?.trueUpParentFee?.id) {
-          feesData.push({
-            ...fee,
-            isTrueUpFee: true,
-            displayName: fee.groupName || fee.invoiceName || fee.charge?.billableMetric?.name || '',
-          })
-        } else {
-          feesData.push({
-            ...fee,
-            isNormalFee: true,
-            displayName:
-              fee.invoiceDisplayName || fee.invoiceName || fee.charge?.billableMetric?.name || '',
-          })
-        }
-      }
-
-      // return sorted feesData
-      // - Normal fees
-      // - Group child fees
-      // - True-up fees
-      return feesData.sort((a, b) => {
-        if (!!a.isNormalFee && !b.isNormalFee) {
-          return -1
-        } else if (!a.isNormalFee && !!b.isNormalFee) {
-          return 1
-        } else if (!!a.isGroupChildFee && !b.isGroupChildFee) {
-          return -1
-        } else if (!a.isGroupChildFee && !!b.isGroupChildFee) {
-          return 1
-        } else if (!!a.isTrueUpFee && !b.isTrueUpFee) {
-          return -1
-        } else if (!a.isTrueUpFee && !!b.isTrueUpFee) {
-          return 1
-        }
-
-        return 0
-      })
-    })
-    .flat()
-}
-
-export default formatInvoiceItemsMap

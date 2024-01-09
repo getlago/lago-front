@@ -17,7 +17,7 @@ export const metadataSchema = ({ valueMaxLength = METADATA_VALUE_MAX_LENGTH_DEFA
             return false
           }
 
-          if (arguments[1].from[1]?.value?.metadata.length > 1) {
+          if (arguments[1].from[1]?.value?.metadata?.length > 1) {
             const keysList = arguments[1].from[1]?.value?.metadata?.map(
               (m: { key: string }) => m.key,
             )
