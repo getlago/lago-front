@@ -154,10 +154,7 @@ export const InvoiceDetailsTable = memo(
       return (
         <InvoiceWrapper>
           <table>
-            <InvoiceDetailsTableHeader
-              newFormat // TODO: Remove when all invoices are migrated to new format
-              displayName={translate('text_6388b923e514213fed58331c')}
-            />
+            <InvoiceDetailsTableHeader displayName={translate('text_6388b923e514213fed58331c')} />
 
             <tbody>
               {invoice.fees?.map((fee, i) => (
@@ -179,14 +176,6 @@ export const InvoiceDetailsTable = memo(
                   <td>
                     <Typography variant="body" color="grey700">
                       {fee.units}
-                    </Typography>
-                  </td>
-                  <td>
-                    <Typography variant="body" color="grey700">
-                      {intlFormatNumber(fee.preciseUnitAmount || 0, {
-                        currencyDisplay: 'symbol',
-                        currency,
-                      })}
                     </Typography>
                   </td>
                   <td>
@@ -220,7 +209,7 @@ export const InvoiceDetailsTable = memo(
             </tbody>
           </table>
           <table>
-            <InvoiceDetailsTableFooter newFormat invoice={invoice} loading={loading} />
+            <InvoiceDetailsTableFooter invoice={invoice} loading={loading} />
           </table>
         </InvoiceWrapper>
       )
