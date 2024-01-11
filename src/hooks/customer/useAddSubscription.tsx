@@ -233,7 +233,9 @@ export const useAddSubscription: UseAddSubscription = ({
                     ? DateTime.fromISO(existingSubscription?.startedAt)
                         .toUTC()
                         .toISO()
-                    : undefined,
+                    : subsDate
+                      ? DateTime.fromISO(subsDate).toUTC().toISO()
+                      : undefined,
                   endingAt: !!subEndDate ? DateTime.fromISO(subEndDate).toUTC().toISO() : null,
                   name: name || undefined,
                   planOverrides: hasPlanBeingChangedFromInitial
