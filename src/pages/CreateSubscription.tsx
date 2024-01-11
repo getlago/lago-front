@@ -820,7 +820,7 @@ const FormPlanWrapper = styled.div`
 const InlineFields = styled.div`
   display: flex;
   gap: ${theme.spacing(6)};
-  align-items: flex-end;
+  align-items: flex-start;
 
   > * {
     flex: 1;
