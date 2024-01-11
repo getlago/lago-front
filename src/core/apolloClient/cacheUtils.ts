@@ -16,6 +16,7 @@ gql`
     id
     organizations {
       id
+      name
       timezone
     }
   }
@@ -56,7 +57,10 @@ export const onLogIn = (token: string, user: CurrentUserFragment) => {
   }
 
   // If still not organization, take the first one
-  if (!organization) organization = (user?.organizations || [])[0]
+  if (!organization)
+    organization = (user?.organizations || []).sort(
+      (a, b) => a.name.toLowerCase()?.localeCompare(b.name.toLowerCase() ?? '') ?? 0,
+    )[0]
 
   // Set the organization id in local storage
   setItemFromLS(ORGANIZATION_LS_KEY_ID, organization?.id)
