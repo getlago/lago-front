@@ -147,36 +147,41 @@ const SideNav = () => {
                   <UserEmail variant="captionHl" noWrap>
                     {currentUser?.email}
                   </UserEmail>
-                  {currentUser?.organizations && (
+                  {!!currentUser?.organizations?.length && (
                     <OrganizationList>
-                      {currentUser?.organizations?.map(({ id, name, logoUrl }) => (
-                        <Button
-                          key={id}
-                          align="left"
-                          variant={id === organization?.id ? 'secondary' : 'quaternary'}
-                          onClick={async () => {
-                            await switchCurrentOrganization(client, id)
-                            navigate(BILLABLE_METRICS_ROUTE)
-                            closePopper()
-                          }}
-                        >
-                          {logoUrl ? (
-                            <OrganizationAvatar size="small" variant="connector">
-                              <img src={logoUrl as string} alt={`${name}'s logo`} />
-                            </OrganizationAvatar>
-                          ) : (
-                            <OrganizationAvatar
-                              variant="company"
-                              identifier={name || ''}
-                              size="small"
-                              initials={(name ?? 'Lago')[0]}
-                            />
-                          )}
-                          <Typography noWrap color="inherit">
-                            {name}
-                          </Typography>
-                        </Button>
-                      ))}
+                      {Object.values(currentUser?.organizations)
+                        ?.sort(
+                          (a, b) =>
+                            a.name.toLowerCase()?.localeCompare(b.name.toLowerCase() ?? '') ?? 0,
+                        )
+                        ?.map(({ id, name, logoUrl }) => (
+                          <Button
+                            key={id}
+                            align="left"
+                            variant={id === organization?.id ? 'secondary' : 'quaternary'}
+                            onClick={async () => {
+                              await switchCurrentOrganization(client, id)
+                              navigate(HOME_ROUTE)
+                              closePopper()
+                            }}
+                          >
+                            {logoUrl ? (
+                              <OrganizationAvatar size="small" variant="connector">
+                                <img src={logoUrl as string} alt={`${name}'s logo`} />
+                              </OrganizationAvatar>
+                            ) : (
+                              <OrganizationAvatar
+                                variant="company"
+                                identifier={name || ''}
+                                size="small"
+                                initials={(name ?? 'Lago')[0]}
+                              />
+                            )}
+                            <Typography noWrap color="inherit">
+                              {name}
+                            </Typography>
+                          </Button>
+                        ))}
                     </OrganizationList>
                   )}
                   <Logout>
