@@ -56,6 +56,9 @@ module.exports = {
   "project_659e67cc6afb842e8db57be5": {
     "base": require('./-ready-for-dev---invoices---display-unit-price-to-item-in-invoices__base.json')
   },
+  "project_65a6b4dfc20f99078eb6e8fe": {
+    "base": require('./-ready-for-dev---invoices---edit-a-draft-invoice__base.json')
+  },
   "project_65269b3f720470569cb17228": {
     "base": require('./-ready-for-dev---invoices---void-invoices__base.json')
   },

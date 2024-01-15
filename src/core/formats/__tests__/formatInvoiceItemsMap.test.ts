@@ -2,6 +2,8 @@ import { InvoiceSubscription } from '~/generated/graphql'
 
 import {
   chargeZeroAmount,
+  chargeZeroAmountDraftInvoice,
+  chargeZeroAmountDraftInvoiceResult,
   noFees,
   noFeesResult,
   oneSubscription,
@@ -76,6 +78,13 @@ describe('formatInvoiceItemsMap', () => {
       const result = groupAndFormatFees(chargeZeroAmount as unknown as InvoiceSubscription[])
 
       expect(result).toEqual(noFeesResult)
+    })
+    it('should return all values if invoice has draft status', () => {
+      const result = groupAndFormatFees(
+        chargeZeroAmountDraftInvoice as unknown as InvoiceSubscription[],
+      )
+
+      expect(result).toEqual(chargeZeroAmountDraftInvoiceResult)
     })
     it('should return the correct values if there are 1 subscription', () => {
       const result = groupAndFormatFees(oneSubscription as unknown as InvoiceSubscription[])

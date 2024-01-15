@@ -6,10 +6,12 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 type InvoiceDetailsTableHeaderProps = {
   canHaveUnitPrice: boolean
   displayName: string
+  isDraftInvoice: boolean
+  hideVat?: boolean
 }
 
 export const InvoiceDetailsTableHeader = memo(
-  ({ canHaveUnitPrice, displayName }: InvoiceDetailsTableHeaderProps) => {
+  ({ canHaveUnitPrice, displayName, isDraftInvoice, hideVat }: InvoiceDetailsTableHeaderProps) => {
     const { translate } = useInternationalization()
 
     return (
@@ -32,16 +34,19 @@ export const InvoiceDetailsTableHeader = memo(
               </Typography>
             </th>
           )}
-          <th>
-            <Typography variant="captionHl" color="grey600">
-              {translate('text_636bedf292786b19d3398f06')}
-            </Typography>
-          </th>
+          {!hideVat && (
+            <th>
+              <Typography variant="captionHl" color="grey600">
+                {translate('text_636bedf292786b19d3398f06')}
+              </Typography>
+            </th>
+          )}
           <th>
             <Typography variant="captionHl" color="grey600">
               {translate('text_634d631acf4dce7b0127a3a6')}
             </Typography>
           </th>
+          {isDraftInvoice && <th>{/* Action column */}</th>}
         </tr>
       </thead>
     )
