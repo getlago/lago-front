@@ -4,7 +4,6 @@ describe('Create taxes', () => {
   it('remove me when other tests are uncommented', () => {
     expect(true).to.equal(true)
   })
-  TODO: uncomment when clickhouse migration is dones
   it('should create taxes', () => {
     cy.visit('/settings/taxes')
     cy.url().should('include', '/settings/taxes')
@@ -30,7 +29,6 @@ describe('Create taxes', () => {
     cy.get(`[data-test="${TAX_TWENTY_CODE}"]`).should('exist')
   })
 
-  TODO: uncomment
   it('sould assign tax to organization', () => {
     cy.visit('/settings/invoice')
     cy.url().should('include', '/settings/invoice')
