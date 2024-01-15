@@ -35,10 +35,12 @@ gql`
 type InvoiceDetailsTableBodyLinePercentageProps = {
   currency: CurrencyEnum
   fee: TExtendedRemainingFee | undefined
+  isDraftInvoice: boolean
+  hideVat?: boolean
 }
 
 export const InvoiceDetailsTableBodyLinePercentage = memo(
-  ({ currency, fee }: InvoiceDetailsTableBodyLinePercentageProps) => {
+  ({ currency, fee, isDraftInvoice, hideVat }: InvoiceDetailsTableBodyLinePercentageProps) => {
     const { translate } = useInternationalization()
     const {
       freeEvents,
@@ -79,24 +81,26 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
                 })}
               </Typography>
             </td>
-            <td>
-              <Typography variant="body" color="grey600">
-                {fee?.appliedTaxes?.length
-                  ? fee?.appliedTaxes.map((appliedTaxes) => (
-                      <Typography
-                        key={`fee-${fee?.id}-applied-taxe-${appliedTaxes.id}`}
-                        variant="body"
-                        color="grey600"
-                      >
-                        {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
-                          maximumFractionDigits: 2,
-                          style: 'percent',
-                        })}
-                      </Typography>
-                    ))
-                  : '0%'}
-              </Typography>
-            </td>
+            {!hideVat && (
+              <td>
+                <Typography variant="body" color="grey600">
+                  {fee?.appliedTaxes?.length
+                    ? fee?.appliedTaxes.map((appliedTaxes) => (
+                        <Typography
+                          key={`fee-${fee?.id}-applied-taxe-${appliedTaxes.id}`}
+                          variant="body"
+                          color="grey600"
+                        >
+                          {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
+                            maximumFractionDigits: 2,
+                            style: 'percent',
+                          })}
+                        </Typography>
+                      ))
+                    : '0%'}
+                </Typography>
+              </td>
+            )}
             <td>
               <Typography variant="body" color="grey600">
                 {intlFormatNumber(0, {
@@ -105,6 +109,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
                 })}
               </Typography>
             </td>
+            {isDraftInvoice && <td>{/* Action column */}</td>}
           </tr>
         )}
 
@@ -127,55 +132,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
               })}
             </Typography>
           </td>
-          <td>
-            <Typography variant="body" color="grey600">
-              {fee?.appliedTaxes?.length
-                ? fee?.appliedTaxes.map((appliedTaxes) => (
-                    <Typography
-                      key={`fee-${fee?.id}-applied-taxe-${appliedTaxes.id}`}
-                      variant="body"
-                      color="grey600"
-                    >
-                      {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
-                        maximumFractionDigits: 2,
-                        style: 'percent',
-                      })}
-                    </Typography>
-                  ))
-                : '0%'}
-            </Typography>
-          </td>
-          <td>
-            <Typography variant="body" color="grey600">
-              {intlFormatNumber(deserializeAmount(Number(perUnitTotalAmount || 0), currency), {
-                currencyDisplay: 'symbol',
-                currency,
-              })}
-            </Typography>
-          </td>
-        </tr>
-
-        {Number(fixedFeeUnitAmount || 0) > 0 && (
-          <tr className="details-line">
-            <td>
-              <Typography variant="body" color="grey600">
-                {translate('text_659e67cd63512ef53284308f')}
-                {freeEvents}
-              </Typography>
-            </td>
-            <td>
-              <Typography variant="body" color="grey600">
-                {paidEvents || 1}
-              </Typography>
-            </td>
-            <td>
-              <Typography variant="body" color="grey600">
-                {intlFormatNumber(Number(fixedFeeUnitAmount || 0), {
-                  currencyDisplay: 'symbol',
-                  currency,
-                })}
-              </Typography>
-            </td>
+          {!hideVat && (
             <td>
               <Typography variant="body" color="grey600">
                 {fee?.appliedTaxes?.length
@@ -194,6 +151,30 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
                   : '0%'}
               </Typography>
             </td>
+          )}
+          <td>
+            <Typography variant="body" color="grey600">
+              {intlFormatNumber(deserializeAmount(Number(perUnitTotalAmount || 0), currency), {
+                currencyDisplay: 'symbol',
+                currency,
+              })}
+            </Typography>
+          </td>
+          {isDraftInvoice && <td>{/* Action column */}</td>}
+        </tr>
+
+        {Number(fixedFeeUnitAmount || 0) > 0 && (
+          <tr className="details-line">
+            <td>
+              <Typography variant="body" color="grey600">
+                {translate('text_659e67cd63512ef53284308f')}
+              </Typography>
+            </td>
+            <td>
+              <Typography variant="body" color="grey600">
+                {paidEvents || 1}
+              </Typography>
+            </td>
             <td>
               <Typography variant="body" color="grey600">
                 {intlFormatNumber(Number(fixedFeeUnitAmount || 0), {
@@ -202,6 +183,35 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
                 })}
               </Typography>
             </td>
+            {!hideVat && (
+              <td>
+                <Typography variant="body" color="grey600">
+                  {fee?.appliedTaxes?.length
+                    ? fee?.appliedTaxes.map((appliedTaxes) => (
+                        <Typography
+                          key={`fee-${fee?.id}-applied-taxe-${appliedTaxes.id}`}
+                          variant="body"
+                          color="grey600"
+                        >
+                          {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
+                            maximumFractionDigits: 2,
+                            style: 'percent',
+                          })}
+                        </Typography>
+                      ))
+                    : '0%'}
+                </Typography>
+              </td>
+            )}
+            <td>
+              <Typography variant="body" color="grey600">
+                {intlFormatNumber(Number(fixedFeeUnitAmount || 0), {
+                  currencyDisplay: 'symbol',
+                  currency,
+                })}
+              </Typography>
+            </td>
+            {isDraftInvoice && <td>{/* Action column */}</td>}
           </tr>
         )}
 
@@ -225,24 +235,26 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
                 })}
               </Typography>
             </td>
-            <td>
-              <Typography variant="body" color="grey600">
-                {fee?.appliedTaxes?.length
-                  ? fee?.appliedTaxes.map((appliedTaxes) => (
-                      <Typography
-                        key={`fee-${fee?.id}-applied-taxe-${appliedTaxes.id}`}
-                        variant="body"
-                        color="grey600"
-                      >
-                        {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
-                          maximumFractionDigits: 2,
-                          style: 'percent',
-                        })}
-                      </Typography>
-                    ))
-                  : '0%'}
-              </Typography>
-            </td>
+            {!hideVat && (
+              <td>
+                <Typography variant="body" color="grey600">
+                  {fee?.appliedTaxes?.length
+                    ? fee?.appliedTaxes.map((appliedTaxes) => (
+                        <Typography
+                          key={`fee-${fee?.id}-applied-taxe-${appliedTaxes.id}`}
+                          variant="body"
+                          color="grey600"
+                        >
+                          {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
+                            maximumFractionDigits: 2,
+                            style: 'percent',
+                          })}
+                        </Typography>
+                      ))
+                    : '0%'}
+                </Typography>
+              </td>
+            )}
             <td>
               <Typography variant="body" color="grey600">
                 {intlFormatNumber(Number(minMaxAdjustmentTotalAmount || 0), {
@@ -251,6 +263,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
                 })}
               </Typography>
             </td>
+            {isDraftInvoice && <td>{/* Action column */}</td>}
           </tr>
         )}
       </>

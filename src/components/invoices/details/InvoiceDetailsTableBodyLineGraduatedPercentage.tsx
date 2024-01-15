@@ -31,10 +31,17 @@ gql`
 type InvoiceDetailsTableBodyLineGraduatedPercentageProps = {
   currency: CurrencyEnum
   fee: TExtendedRemainingFee | undefined
+  isDraftInvoice: boolean
+  hideVat?: boolean
 }
 
 export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
-  ({ currency, fee }: InvoiceDetailsTableBodyLineGraduatedPercentageProps) => {
+  ({
+    currency,
+    fee,
+    isDraftInvoice,
+    hideVat,
+  }: InvoiceDetailsTableBodyLineGraduatedPercentageProps) => {
     const { translate } = useInternationalization()
 
     return (
@@ -65,14 +72,16 @@ export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
                 {Number(graduatedPercentageRange.units)}
               </Typography>
             </td>
-            <td>
-              <Typography variant="body" color="grey600">
-                {intlFormatNumber(Number(graduatedPercentageRange?.rate || 0) / 100 || 0, {
-                  maximumFractionDigits: 2,
-                  style: 'percent',
-                })}
-              </Typography>
-            </td>
+            {!hideVat && (
+              <td>
+                <Typography variant="body" color="grey600">
+                  {intlFormatNumber(Number(graduatedPercentageRange?.rate || 0) / 100 || 0, {
+                    maximumFractionDigits: 2,
+                    style: 'percent',
+                  })}
+                </Typography>
+              </td>
+            )}
             <td>
               <Typography variant="body" color="grey600">
                 {fee?.appliedTaxes?.length
@@ -99,6 +108,7 @@ export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
                 })}
               </Typography>
             </td>
+            {isDraftInvoice && <td>{/* Action column */}</td>}
           </tr>
         ))}
 
@@ -140,24 +150,26 @@ export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
                     })}
                   </Typography>
                 </td>
-                <td>
-                  <Typography variant="body" color="grey600">
-                    {fee?.appliedTaxes?.length
-                      ? fee?.appliedTaxes.map((appliedTaxes) => (
-                          <Typography
-                            key={`fee-${fee?.id}-applied-taxe-${appliedTaxes.id}`}
-                            variant="body"
-                            color="grey600"
-                          >
-                            {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
-                              maximumFractionDigits: 2,
-                              style: 'percent',
-                            })}
-                          </Typography>
-                        ))
-                      : '0%'}
-                  </Typography>
-                </td>
+                {!hideVat && (
+                  <td>
+                    <Typography variant="body" color="grey600">
+                      {fee?.appliedTaxes?.length
+                        ? fee?.appliedTaxes.map((appliedTaxes) => (
+                            <Typography
+                              key={`fee-${fee?.id}-applied-taxe-${appliedTaxes.id}`}
+                              variant="body"
+                              color="grey600"
+                            >
+                              {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
+                                maximumFractionDigits: 2,
+                                style: 'percent',
+                              })}
+                            </Typography>
+                          ))
+                        : '0%'}
+                    </Typography>
+                  </td>
+                )}
                 <td>
                   <Typography variant="body" color="grey600">
                     {intlFormatNumber(Number(graduatedPercentageRange.flatUnitAmount || 0), {
@@ -166,6 +178,7 @@ export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
                     })}
                   </Typography>
                 </td>
+                {isDraftInvoice && <td>{/* Action column */}</td>}
               </tr>
             )
           })}

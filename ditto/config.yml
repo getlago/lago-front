@@ -325,7 +325,11 @@ sources:
       fileName: ⚙️ [WIP] - Integration - Lago EU tax integration
     - name: 👍 [Ready for dev] - Invoices - Display unit price to item in invoices
       id: 659e67cc6afb842e8db57be5
+      fileName: 👍 [Ready for dev] - Invoices - Display unit price to item in invoices
     - name: 👍 [Ready for dev] - Settings - Several PSP Accounts
       id: 6584550ac28443047853c17f
+      fileName: 👍 [Ready for dev] - Settings - Several PSP Accounts
+    - name: 👍 [Ready for dev] - Invoices - Edit a draft invoice
+      id: 65a6b4dfc20f99078eb6e8fe
 format: flat
 variants: true

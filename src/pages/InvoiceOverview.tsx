@@ -6,6 +6,11 @@ import styled from 'styled-components'
 import { Alert, Button, Skeleton } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import {
+  DeleteAdjustedFeeDialog,
+  DeleteAdjustedFeeDialogRef,
+} from '~/components/invoices/details/DeleteAdjustedFeeDialog'
+import { EditFeeDrawer, EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
+import {
   InvoiceDetailsTable,
   InvoiceWrapper,
 } from '~/components/invoices/details/InvoiceDetailsTable'
@@ -65,7 +70,9 @@ const InvoiceOverview = memo(
     const { translate } = useInternationalization()
     const { invoiceId } = useParams()
     const customer = invoice?.customer
+    const deleteAdjustedFeeDialogRef = useRef<DeleteAdjustedFeeDialogRef>(null)
     const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
+    const editFeeDrawerRef = useRef<EditFeeDrawerRef>(null)
     const formatedCreditNotes = invoice?.creditNotes
       ?.reduce<{ creditNote: CreditNote; items: CreditNoteItem[][][] }[]>((acc, cur) => {
         const newItems = formatCreditNotesItems(cur.items as CreditNoteItem[])
@@ -145,7 +152,7 @@ const InvoiceOverview = memo(
                   </SkeletonLine>
                 ))}
               </LoadingInfosWrapper>
-              <LoadingInvoiceWrapper $canHaveUnitPrice={true}>
+              <LoadingInvoiceWrapper $isDraftInvoice={false} $canHaveUnitPrice={true}>
                 <table>
                   <tbody>
                     {[1, 2, 3, 4, 5].map((k) => (
@@ -200,7 +207,12 @@ const InvoiceOverview = memo(
                 </DraftAlertWrapper>
               )}
               <InvoiceCustomerInfos invoice={invoice} />
-              <InvoiceDetailsTable customer={customer as Customer} invoice={invoice as Invoice} />
+              <InvoiceDetailsTable
+                customer={customer as Customer}
+                invoice={invoice as Invoice}
+                editFeeDrawerRef={editFeeDrawerRef}
+                deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
+              />
               {!!formatedCreditNotes?.length &&
                 invoice?.status !== InvoiceStatusTypeEnum.Draft &&
                 !loadingRefreshInvoice && (
@@ -217,7 +229,9 @@ const InvoiceOverview = memo(
             </>
           )}
         </>
+        <DeleteAdjustedFeeDialog ref={deleteAdjustedFeeDialogRef} />
         <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
+        <EditFeeDrawer ref={editFeeDrawerRef} />
       </>
     )
   },

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 
-import { Fee, FeeTypesEnum, InvoiceSubscription } from '~/generated/graphql'
+import { Fee, FeeTypesEnum, InvoiceStatusTypeEnum, InvoiceSubscription } from '~/generated/graphql'
 
 gql`
   fragment InvoiceSubscriptionFormating on InvoiceSubscription {
@@ -42,6 +42,10 @@ gql`
         name
         invoiceDisplayName
       }
+    }
+    invoice {
+      id
+      status
     }
   }
 `
@@ -133,9 +137,10 @@ export const groupAndFormatFees = (
 
         // Prevent zero amount fees from being displayed
         if (
-          (currentFee.feeType === FeeTypesEnum.Subscription &&
+          invoiceSub?.invoice?.status !== InvoiceStatusTypeEnum.Draft &&
+          ((currentFee.feeType === FeeTypesEnum.Subscription &&
             Number(currentFee.amountCents) === 0) ||
-          (currentFee.units === 0 && Number(currentFee.amountCents) === 0)
+            currentFee.units === 0)
         )
           continue
 
@@ -213,7 +218,9 @@ const _newDeepFormatFees = (feesToFormat: TExtendedRemainingFee[]): TExtendedRem
         ...fee,
         metadata: {
           isTrueUpFee: true,
-          displayName: fee.groupName || fee.invoiceName || fee.charge?.billableMetric?.name || '',
+          displayName: `${
+            fee.groupName || fee.invoiceName || fee.charge?.billableMetric?.name || ''
+          } - True-up`,
         },
       })
     } else {
