@@ -133,21 +133,26 @@ const TabsBlock = styled.div<{
       }
     }
 
+    /* Negative margin bellow allows to show the focus ring aroung buttons */
     ${({ $align }) =>
       $align === NavigationTabAlignEnum.left
         ? css`
-            padding: ${theme.spacing(4)} ${theme.spacing(12)};
+            padding: ${theme.spacing(4)} ${theme.spacing(13)};
+            margin: 0 -${theme.spacing(1)};
 
             ${theme.breakpoints.down('sm')} {
-              padding: ${theme.spacing(4)};
+              padding: ${theme.spacing(4)} ${theme.spacing(5)};
+              margin: 0 -${theme.spacing(1)};
             }
           `
         : $align === NavigationTabAlignEnum.superLeft
           ? css`
-              padding: ${theme.spacing(4)} 0;
+              padding: ${theme.spacing(4)} ${theme.spacing(1)};
+              margin: 0 -${theme.spacing(1)};
 
               ${theme.breakpoints.down('sm')} {
-                padding: ${theme.spacing(4)};
+                padding: ${theme.spacing(4)} ${theme.spacing(1)};
+                margin: 0 -${theme.spacing(1)};
               }
             `
           : css`
@@ -155,6 +160,11 @@ const TabsBlock = styled.div<{
                 flex: 1;
               }
             `}
+
+    /* Prevent buttons to goes on multiple line */
+    button div .MuiTypography-root {
+      white-space: nowrap;
+    }
   }
 
   &.navigation-tab--vertical {
