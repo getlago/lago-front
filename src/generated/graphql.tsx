@@ -1814,6 +1814,7 @@ export type FeeInput = {
 export enum FeeTypesEnum {
   AddOn = 'add_on',
   Charge = 'charge',
+  Commitment = 'commitment',
   Credit = 'credit',
   Subscription = 'subscription'
 }
