@@ -194,6 +194,10 @@ export const PlanSettingsSection = memo(
           formikProps={formikProps}
           options={[
             {
+              label: 'Daily',
+              value: PlanInterval.Daily,
+            },
+            {
               label: translate('text_62b32ec6b0434070791c2d4c'),
               value: PlanInterval.Weekly,
             },

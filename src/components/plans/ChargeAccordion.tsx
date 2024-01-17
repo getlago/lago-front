@@ -133,6 +133,8 @@ export const mapChargeIntervalCopy = (interval: string, forceMonthlyCharge: bool
     return 'text_64d6357b00dea100ad1cb9e9'
   } else if (interval === PlanInterval.Weekly) {
     return 'text_62b32ec6b0434070791c2d4c'
+  } else if (interval === PlanInterval.Daily) {
+    return 'Daily'
   }
 
   return ''

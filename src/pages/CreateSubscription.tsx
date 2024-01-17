@@ -604,30 +604,32 @@ const CreateSubscription = () => {
 
                   {formType !== FORM_TYPE_ENUM.upgradeDowngrade && (
                     <>
-                      <ButtonSelectorField
-                        name="billingTime"
-                        disabled={formType !== FORM_TYPE_ENUM.creation}
-                        label={translate('text_62ea7cd44cd4b14bb9ac1db7')}
-                        formikProps={subscriptionFormikProps}
-                        helperText={billingTimeHelper}
-                        options={[
-                          {
-                            label:
-                              selectedPlan?.interval === PlanInterval.Yearly
-                                ? translate('text_62ebd597d5d5130a03ced107')
-                                : selectedPlan?.interval === PlanInterval.Weekly
-                                  ? translate('text_62ebd597d5d5130a03ced101')
-                                  : selectedPlan?.interval === PlanInterval.Quarterly
-                                    ? translate('text_64d6357b00dea100ad1cba27')
-                                    : translate('text_62ea7cd44cd4b14bb9ac1db9'),
-                            value: BillingTimeEnum.Calendar,
-                          },
-                          {
-                            label: translate('text_62ea7cd44cd4b14bb9ac1dbb'),
-                            value: BillingTimeEnum.Anniversary,
-                          },
-                        ]}
-                      />
+                      {selectedPlan?.interval === PlanInterval.Daily ? null : (
+                        <ButtonSelectorField
+                          name="billingTime"
+                          disabled={formType !== FORM_TYPE_ENUM.creation}
+                          label={translate('text_62ea7cd44cd4b14bb9ac1db7')}
+                          formikProps={subscriptionFormikProps}
+                          helperText={billingTimeHelper}
+                          options={[
+                            {
+                              label:
+                                selectedPlan?.interval === PlanInterval.Yearly
+                                  ? translate('text_62ebd597d5d5130a03ced107')
+                                  : selectedPlan?.interval === PlanInterval.Weekly
+                                    ? translate('text_62ebd597d5d5130a03ced101')
+                                    : selectedPlan?.interval === PlanInterval.Quarterly
+                                      ? translate('text_64d6357b00dea100ad1cba27')
+                                      : translate('text_62ea7cd44cd4b14bb9ac1db9'),
+                              value: BillingTimeEnum.Calendar,
+                            },
+                            {
+                              label: translate('text_62ea7cd44cd4b14bb9ac1dbb'),
+                              value: BillingTimeEnum.Anniversary,
+                            },
+                          ]}
+                        />
+                      )}
 
                       <div>
                         <InlineFields>
