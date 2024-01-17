@@ -462,6 +462,9 @@ const HeaderInlineBreadcrumbBlock = styled.div`
 
   /* Prevent long name to not overflow in header */
   overflow: hidden;
+  /* As overflow is hidden, prevent focus ring to be cropped */
+  padding: 4px;
+  margin: -4px;
 `
 
 const HeaderInlineActionsBlock = styled.div`
