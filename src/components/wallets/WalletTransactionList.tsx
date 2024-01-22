@@ -2,17 +2,14 @@ import { gql } from '@apollo/client'
 import { forwardRef, MutableRefObject, useEffect } from 'react'
 import styled from 'styled-components'
 
-import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
+import { Button, Skeleton, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { TimezoneDate } from '~/components/TimezoneDate'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   TimezoneEnum,
   useGetWalletTransactionsLazyQuery,
   WalletInfosForTransactionsFragment,
   WalletStatusEnum,
-  WalletTransactionStatusEnum,
-  WalletTransactionTransactionTypeEnum,
+  WalletTransactionForTransactionListItemFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
@@ -20,8 +17,17 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme } from '~/styles'
 
 import { TopupWalletDialogRef } from './TopupWalletDialog'
+import { WalletTransactionListItem } from './WalletTransactionListItem'
 
 gql`
+  fragment WalletInfosForTransactions on Wallet {
+    id
+    currency
+    status
+    ongoingUsageBalanceCents
+    creditsOngoingUsageBalance
+  }
+
   query getWalletTransactions($walletId: ID!, $page: Int, $limit: Int) {
     walletTransactions(walletId: $walletId, page: $page, limit: $limit) {
       metadata {
@@ -31,31 +37,22 @@ gql`
       }
       collection {
         id
-        status
-        transactionType
-        amount
-        creditAmount
-        settledAt
-        createdAt
+        ...WalletTransactionForTransactionListItem
       }
     }
   }
 
-  fragment WalletInfosForTransactions on Wallet {
-    id
-    currency
-    status
-  }
+  ${WalletTransactionForTransactionListItemFragmentDoc}
 `
 
 interface WalletTransactionListProps {
+  customerTimezone?: TimezoneEnum
   isOpen: boolean
   wallet: WalletInfosForTransactionsFragment
-  customerTimezone?: TimezoneEnum
 }
 
 export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTransactionListProps>(
-  ({ isOpen, wallet, customerTimezone }: WalletTransactionListProps, ref) => {
+  ({ customerTimezone, isOpen, wallet }: WalletTransactionListProps, ref) => {
     const { translate } = useInternationalization()
     const [getWalletTransactions, { data, error, fetchMore, loading, refetch }] =
       useGetWalletTransactionsLazyQuery({
@@ -133,68 +130,12 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
           ) : (
             <>
               {list?.map((transaction, i) => {
-                const { amount, createdAt, creditAmount, settledAt, status, transactionType } =
-                  transaction
-                const isPending = status === WalletTransactionStatusEnum.Pending
-                const isInbound = transactionType === WalletTransactionTransactionTypeEnum.Inbound
-                const iconName = isPending ? 'sync' : isInbound ? 'plus' : 'minus'
-
                 return (
-                  <ListItemWrapper key={`wallet-transaction-${i}`}>
-                    <ListLeftWrapper>
-                      <ItemIcon size="big" variant="connector">
-                        <Icon name={iconName} color="dark" />
-                      </ItemIcon>
-                      <ColumnWrapper>
-                        <Typography variant="bodyHl" color={isPending ? 'grey600' : 'grey700'}>
-                          {isInbound
-                            ? translate(
-                                'text_62da6ec24a8e24e44f81289a',
-                                undefined,
-                                Number(creditAmount) || 0,
-                              )
-                            : translate(
-                                'text_62da6ec24a8e24e44f812892',
-                                undefined,
-                                Number(creditAmount) || 0,
-                              )}
-                        </Typography>
-                        <DateBlock variant="caption" color="grey600">
-                          <TimezoneDate
-                            mainTypographyProps={{ variant: 'caption', color: 'grey600' }}
-                            date={isPending ? createdAt : settledAt}
-                            customerTimezone={customerTimezone}
-                          />
-                          {isPending && ` • ${translate('text_62da6db136909f52c2704c30')}`}
-                        </DateBlock>
-                      </ColumnWrapper>
-                    </ListLeftWrapper>
-                    <ListRightWrapper>
-                      <Typography
-                        variant="body"
-                        color={isPending ? 'grey600' : isInbound ? 'success600' : 'grey700'}
-                      >
-                        {isInbound ? '+ ' : '- '}
-                        {translate(
-                          'text_62da6ec24a8e24e44f812896',
-                          {
-                            amount: intlFormatNumber(Number(creditAmount) || 0, {
-                              maximumFractionDigits: 15,
-                              style: 'decimal',
-                            }),
-                          },
-                          Number(creditAmount) || 0,
-                        )}
-                      </Typography>
-                      <Typography variant="caption" color="grey600">
-                        {intlFormatNumber(Number(amount) || 0, {
-                          currencyDisplay: 'symbol',
-                          maximumFractionDigits: 15,
-                          currency: wallet?.currency,
-                        })}
-                      </Typography>
-                    </ListRightWrapper>
-                  </ListItemWrapper>
+                  <WalletTransactionListItem
+                    key={`wallet-transaction-${i}`}
+                    transaction={transaction}
+                    customerTimezone={customerTimezone}
+                  />
                 )
               })}
               {currentPage < totalPages && (
@@ -225,13 +166,11 @@ const TransactionListHeader = styled.div`
   display: flex;
   padding: 10px ${theme.spacing(4)};
   justify-content: space-between;
-  box-shadow: ${theme.shadows[5]}, ${theme.shadows[7]};
+  box-shadow: ${theme.shadows[7]};
 `
 
 const TransactionListWrapper = styled.div`
-  > *:not(:last-child) {
-    box-shadow: ${theme.shadows[7]};
-  }
+  box-shadow: ${theme.shadows[7]};
 `
 
 const GenericState = styled(GenericPlaceholder)`
@@ -240,50 +179,9 @@ const GenericState = styled(GenericPlaceholder)`
   text-align: center;
 `
 
-const ListItemWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: ${theme.spacing(3)} ${theme.spacing(4)};
-`
-
-const ListLeftWrapper = styled.div`
-  display: flex;
-  align-items: center;
-
-  &:last-child {
-    align-items: flex-end;
-  }
-`
-
-const ItemIcon = styled(Avatar)`
-  margin-right: ${theme.spacing(3)};
-`
-
-const ListRightWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-end;
-`
-
-const ColumnWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-`
-
 const Loadmore = styled.div`
   margin: ${theme.spacing(1)} 0;
   text-align: center;
-`
-
-const DateBlock = styled(Typography)`
-  display: flex;
-  align-items: baseline;
-
-  > * {
-    margin-right: ${theme.spacing(1)};
-  }
 `
 
 const Loader = styled.div`

@@ -170,6 +170,9 @@ module.exports = {
   "project_6328e70891e49d4d9732180d": {
     "base": require('./-wip---customers---overwrite-subscription-per-customer__base.json')
   },
+  "project_65ae73e967bfa7ba6e9fdf21": {
+    "base": require('./-wip---customers---real-time-prepaid-credits__base.json')
+  },
   "project_62ea7cd19883fb6718fa823c": {
     "base": require('./-wip---customers---subscription-on-anniversary-date__base.json')
   },
