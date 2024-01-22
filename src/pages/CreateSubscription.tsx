@@ -332,6 +332,10 @@ const CreateSubscription = () => {
         }
         return translate('text_64d63ec2f6bd3f41a6e353b4')
 
+      // NOTE: anniversary and calendar are the same for daily interval.
+      case PlanInterval.Daily:
+        return 'The subscription will be billed at the beginning of each day.'
+
       case PlanInterval.Weekly:
       default:
         return billingTime === BillingTimeEnum.Calendar
@@ -619,13 +623,21 @@ const CreateSubscription = () => {
                                   ? translate('text_62ebd597d5d5130a03ced101')
                                   : selectedPlan?.interval === PlanInterval.Quarterly
                                     ? translate('text_64d6357b00dea100ad1cba27')
-                                    : translate('text_62ea7cd44cd4b14bb9ac1db9'),
+                                    : selectedPlan?.interval === PlanInterval.Daily
+                                      ? 'Beginning of day'
+                                      : translate('text_62ea7cd44cd4b14bb9ac1db9'),
                             value: BillingTimeEnum.Calendar,
                           },
-                          {
-                            label: translate('text_62ea7cd44cd4b14bb9ac1dbb'),
-                            value: BillingTimeEnum.Anniversary,
-                          },
+                          ...(selectedPlan?.interval === PlanInterval.Daily
+                            ? // NOTE: for daily interval, it doesn't matter calendar or anniversary.
+                              // It should be billed at the beginning of each day by default.
+                              []
+                            : [
+                                {
+                                  label: translate('text_62ea7cd44cd4b14bb9ac1dbb'),
+                                  value: BillingTimeEnum.Anniversary,
+                                },
+                              ]),
                         ]}
                       />
 
