@@ -27,6 +27,8 @@ import {
 import { TopupWalletDialog, TopupWalletDialogRef } from './TopupWalletDialog'
 import { WalletAccordion, WalletAccordionSkeleton } from './WalletAccordion'
 
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '../PremiumWarningDialog'
+
 gql`
   fragment CustomerWallet on Wallet {
     ...WalletForTopup
@@ -61,6 +63,7 @@ interface CustommerWalletListProps {
 export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerWalletListProps) => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
+  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const terminateCustomerWalletDialogRef = useRef<TerminateCustomerWalletDialogRef>(null)
   const topupWalletDialogRef = useRef<TopupWalletDialogRef>(null)
   const { data, error, loading, fetchMore } = useGetCustomerWalletListQuery({
@@ -84,117 +87,122 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
   }
 
   return (
-    <SideSection $empty={!!hasNoWallet}>
-      <SectionHeader variant="subhead" $hideBottomShadow={!!loading || !hasNoWallet}>
-        {translate('text_62d175066d2dbf1d50bc9384')}
-        {!activeWallet ? (
-          <Button
-            variant="quaternary"
-            onClick={() =>
-              navigate(
-                generatePath(CREATE_WALLET_ROUTE, {
-                  customerId: customerId as string,
-                }),
-              )
-            }
-          >
-            {translate('text_62d175066d2dbf1d50bc9382')}
-          </Button>
-        ) : (
-          <Popper
-            PopperProps={{ placement: 'bottom-end' }}
-            opener={
-              <Button variant="quaternary" endIcon="chevron-down">
-                {translate('text_62e161ceb87c201025388aa2')}
-              </Button>
-            }
-          >
-            {({ closePopper }) => (
-              <MenuPopper>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    topupWalletDialogRef?.current?.openDialog()
-                    closePopper()
-                  }}
-                >
-                  {translate('text_62e161ceb87c201025388ada')}
+    <>
+      <SideSection $empty={!!hasNoWallet}>
+        <SectionHeader variant="subhead" $hideBottomShadow={!!loading || !hasNoWallet}>
+          {translate('text_62d175066d2dbf1d50bc9384')}
+          {!activeWallet ? (
+            <Button
+              variant="quaternary"
+              onClick={() =>
+                navigate(
+                  generatePath(CREATE_WALLET_ROUTE, {
+                    customerId: customerId as string,
+                  }),
+                )
+              }
+            >
+              {translate('text_62d175066d2dbf1d50bc9382')}
+            </Button>
+          ) : (
+            <Popper
+              PopperProps={{ placement: 'bottom-end' }}
+              opener={
+                <Button variant="quaternary" endIcon="chevron-down">
+                  {translate('text_62e161ceb87c201025388aa2')}
                 </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    navigate(
-                      generatePath(EDIT_WALLET_ROUTE, {
-                        customerId: customerId as string,
-                        walletId: activeWallet.id as string,
-                      }),
-                    )
-                    closePopper()
-                  }}
-                >
-                  {translate('text_6560809d38fb9de88d8a5495')}
-                </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    terminateCustomerWalletDialogRef?.current?.openDialog()
-                    closePopper()
-                  }}
-                >
-                  {translate('text_62e161ceb87c201025388ade')}
-                </Button>
-              </MenuPopper>
-            )}
-          </Popper>
-        )}
-      </SectionHeader>
+              }
+            >
+              {({ closePopper }) => (
+                <MenuPopper>
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    onClick={() => {
+                      topupWalletDialogRef?.current?.openDialog()
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_62e161ceb87c201025388ada')}
+                  </Button>
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    onClick={() => {
+                      navigate(
+                        generatePath(EDIT_WALLET_ROUTE, {
+                          customerId: customerId as string,
+                          walletId: activeWallet.id as string,
+                        }),
+                      )
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_6560809d38fb9de88d8a5495')}
+                  </Button>
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    onClick={() => {
+                      terminateCustomerWalletDialogRef?.current?.openDialog()
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_62e161ceb87c201025388ade')}
+                  </Button>
+                </MenuPopper>
+              )}
+            </Popper>
+          )}
+        </SectionHeader>
 
-      {!!loading ? (
-        <WalletList>
-          {[1, 2, 3].map((i) => (
-            <WalletAccordionSkeleton key={`customer-wallet-skeleton-${i}`} />
-          ))}
-        </WalletList>
-      ) : !loading && !!hasNoWallet ? (
-        <Typography>{translate('text_62d175066d2dbf1d50bc9386')}</Typography>
-      ) : (
-        <InfiniteScroll
-          onBottom={() => {
-            const { currentPage = 0, totalPages = 0 } = data?.wallets?.metadata || {}
-
-            currentPage < totalPages &&
-              !loading &&
-              fetchMore({
-                variables: { page: currentPage + 1 },
-              })
-          }}
-        >
+        {!!loading ? (
           <WalletList>
-            {list.map((wallet) => (
-              <WalletAccordion
-                key={`wallet-${wallet.id}`}
-                wallet={wallet}
-                ref={topupWalletDialogRef}
-                customerTimezone={customerTimezone}
-              />
+            {[1, 2, 3].map((i) => (
+              <WalletAccordionSkeleton key={`customer-wallet-skeleton-${i}`} />
             ))}
           </WalletList>
-        </InfiniteScroll>
-      )}
+        ) : !loading && !!hasNoWallet ? (
+          <Typography>{translate('text_62d175066d2dbf1d50bc9386')}</Typography>
+        ) : (
+          <InfiniteScroll
+            onBottom={() => {
+              const { currentPage = 0, totalPages = 0 } = data?.wallets?.metadata || {}
 
-      {activeWallet && (
-        <>
-          <TopupWalletDialog ref={topupWalletDialogRef} wallet={activeWallet} />
-          <TerminateCustomerWalletDialog
-            ref={terminateCustomerWalletDialogRef}
-            walletId={activeWallet.id}
-          />
-        </>
-      )}
-    </SideSection>
+              currentPage < totalPages &&
+                !loading &&
+                fetchMore({
+                  variables: { page: currentPage + 1 },
+                })
+            }}
+          >
+            <WalletList>
+              {list.map((wallet) => (
+                <WalletAccordion
+                  key={`wallet-${wallet.id}`}
+                  premiumWarningDialogRef={premiumWarningDialogRef}
+                  wallet={wallet}
+                  ref={topupWalletDialogRef}
+                  customerTimezone={customerTimezone}
+                />
+              ))}
+            </WalletList>
+          </InfiniteScroll>
+        )}
+
+        {activeWallet && (
+          <>
+            <TopupWalletDialog ref={topupWalletDialogRef} wallet={activeWallet} />
+            <TerminateCustomerWalletDialog
+              ref={terminateCustomerWalletDialogRef}
+              walletId={activeWallet.id}
+            />
+          </>
+        )}
+      </SideSection>
+
+      <PremiumWarningDialog ref={premiumWarningDialogRef} />
+    </>
   )
 }
 
