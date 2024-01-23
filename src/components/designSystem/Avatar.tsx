@@ -101,7 +101,7 @@ type AvatarProps = AvatarGenericProps | AvatarConnectorProps
 
 export const Avatar = ({
   variant,
-  size = 'medium',
+  size = 'big',
   identifier,
   initials,
   children,

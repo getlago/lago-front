@@ -98,7 +98,7 @@ export const UsageItem = ({
               icon={isOpen ? 'chevron-down' : 'chevron-right'}
             />
           </Tooltip>
-          <StyledAvatar size='big' variant="connector">
+          <StyledAvatar size="big" variant="connector">
             <Icon name="pulse" color="dark" />
           </StyledAvatar>
           <Title>
