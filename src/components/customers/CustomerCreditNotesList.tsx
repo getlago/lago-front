@@ -70,7 +70,7 @@ export const CustomerCreditNotesList = ({
       </SectionHeader>
       <TotalCreditAmountWrapper>
         <TotalCreditAmountLeftWrapper>
-          <Avatar variant="connector">
+          <Avatar size="big" variant="connector">
             <Icon name="wallet" color="dark" />
           </Avatar>
           <div>

@@ -69,7 +69,7 @@ export const PlanItem = memo(({ deleteDialogRef, navigationProps, plan }: PlanIt
         {...navigationProps}
       >
         <PlanNameSection>
-          <ListAvatar variant="connector">
+          <ListAvatar size="big" variant="connector">
             <Icon name="board" color="dark" />
           </ListAvatar>
           <NameBlock>
@@ -155,7 +155,7 @@ export const PlanItem = memo(({ deleteDialogRef, navigationProps, plan }: PlanIt
 export const PlanItemSkeleton = () => {
   return (
     <BaseListItem>
-      <Skeleton variant="connectorAvatar" size="medium" marginRight={theme.spacing(3)} />
+      <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
       <Skeleton variant="text" height={12} width={240} marginRight="auto" />
       <Skeleton variant="text" height={12} width={240} />
     </BaseListItem>

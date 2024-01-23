@@ -64,7 +64,7 @@ export const BillableMetricItem = memo(
           {...navigationProps}
         >
           <BillableMetricName>
-            <Avatar variant="connector">
+            <Avatar size="big" variant="connector">
               <Icon name="pulse" color="dark" />
             </Avatar>
             <NameBlock>
@@ -130,7 +130,7 @@ export const BillableMetricItem = memo(
 export const BillableMetricItemSkeleton = () => {
   return (
     <BaseListItem>
-      <Skeleton variant="connectorAvatar" size="medium" marginRight={theme.spacing(3)} />
+      <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
       <Skeleton variant="text" height={12} width={240} marginRight="auto" />
       <Skeleton variant="text" height={12} width={240} />
     </BaseListItem>

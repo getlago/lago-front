@@ -37,7 +37,11 @@ export const WebhookLogItem = ({
     <ItemContainer>
       <Item tabIndex={0} onClick={onClick} {...navigationProps} $active={selected}>
         <NameSection>
-          <ListAvatar variant="connector" $isFailed={status === WebhookStatusEnum.Failed}>
+          <ListAvatar
+            size="big"
+            variant="connector"
+            $isFailed={status === WebhookStatusEnum.Failed}
+          >
             <Icon
               name={hasError ? 'close-circle-unfilled' : 'checkmark'}
               color={hasError ? 'error' : 'dark'}
@@ -61,7 +65,7 @@ export const WebhookLogItem = ({
 export const WebhookLogItemSkeleton = () => {
   return (
     <SkeletonItem>
-      <Skeleton variant="text" height={12} width={68} marginRight="12px" />
+      <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
       <Skeleton variant="text" height={12} width={264} marginRight="auto" />
       <Skeleton variant="text" height={12} width={80} />
     </SkeletonItem>

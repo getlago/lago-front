@@ -96,7 +96,7 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
         summary={
           <SummaryContainer>
             <SummaryLeft>
-              <Avatar variant="connector">
+              <Avatar size="big" variant="connector">
                 <Icon name="wallet" color="dark" />
               </Avatar>
               <SummaryInfos>
@@ -266,7 +266,7 @@ export const WalletAccordionSkeleton = () => {
     <SkeletonContainer>
       <SummaryLeft>
         <Icon name="chevron-right" color="disabled" />
-        <Skeleton variant="connectorAvatar" size="medium" />
+        <Skeleton variant="connectorAvatar" size="big" />
         <SummaryInfos $isLoading>
           <Skeleton variant="text" height={12} width={240} marginBottom={theme.spacing(3)} />
           <Skeleton variant="text" height={12} width={120} />

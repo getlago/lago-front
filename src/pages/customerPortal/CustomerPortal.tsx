@@ -32,7 +32,7 @@ const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
       <PageHeader>
         {loading ? (
           <InlineItems>
-            <Skeleton variant="connectorAvatar" size="medium" marginRight={theme.spacing(3)} />
+            <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
             <Skeleton variant="text" height={12} width={120} />
           </InlineItems>
         ) : (
@@ -96,8 +96,8 @@ const PageHeader = styled.section`
 `
 
 const OrgaLogoContainer = styled.div`
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   margin-right: ${theme.spacing(3)};
   border-radius: 8px;
 

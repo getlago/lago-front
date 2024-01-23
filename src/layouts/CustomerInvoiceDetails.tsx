@@ -484,7 +484,7 @@ const CustomerInvoiceDetails = () => {
             </MainInfos>
           ) : (
             <MainInfos>
-              <ConnectorAvatar variant="connector">
+              <ConnectorAvatar size="big" variant="connector">
                 <Icon name="document" color="dark" size="large" />
               </ConnectorAvatar>
               <div>

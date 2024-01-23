@@ -29,7 +29,7 @@ export const EmailSettingItem = ({
   return (
     <Main>
       <Container to={to} tabIndex={0}>
-        <Avatar variant="connector">
+        <Avatar size="big" variant="connector">
           <Icon name="mail" color="dark" />
         </Avatar>
         <TitleContainer>
@@ -65,7 +65,7 @@ export const EmailSettingItem = ({
 export const EmailSettingItemSkeleton = () => {
   return (
     <ContainerSkeleton>
-      <Skeleton variant="connectorAvatar" size="medium" marginRight={theme.spacing(3)} />
+      <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
       <Skeleton variant="text" width={240} />
     </ContainerSkeleton>
   )

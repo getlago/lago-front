@@ -81,7 +81,7 @@ export const SubscriptionLine = ({
         data-test={subscriptionName || plan.name}
       >
         <CellBig>
-          <Avatar variant="connector">
+          <Avatar size="big" variant="connector">
             <Icon name="clock" color="dark" />
           </Avatar>
           <NameBlock>

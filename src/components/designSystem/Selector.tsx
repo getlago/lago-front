@@ -55,7 +55,7 @@ export const Selector = ({
     >
       <MainIcon>
         {typeof icon === 'string' ? (
-          <Avatar variant="connector">
+          <Avatar size="big" variant="connector">
             <Icon color="dark" name={icon as IconName} />
           </Avatar>
         ) : (
@@ -88,7 +88,7 @@ export const Selector = ({
 export const SelectorSkeleton = ({ fullWidth = false }: { fullWidth?: boolean } = {}) => (
   <Container $fullWidth={fullWidth}>
     <MainIcon>
-      <Skeleton variant="connectorAvatar" size="medium" />
+      <Skeleton variant="connectorAvatar" size="big" />
     </MainIcon>
     <Infos>
       <Skeleton variant="text" width={160} height={12} />
