@@ -345,7 +345,7 @@ const CreateInvoice = () => {
                   <Skeleton
                     className="rounded-conector-skeleton"
                     variant="connectorAvatar"
-                    size="medium"
+                    size="big"
                   />
                 </InvoiceHeader>
                 <div>
@@ -380,7 +380,7 @@ const CreateInvoice = () => {
                     {translate('text_6453819268763979024acff5')}
                   </Typography>
                   {!!organization?.logoUrl && (
-                    <Avatar size="medium" variant="connector">
+                    <Avatar size="big" variant="connector">
                       <img src={organization?.logoUrl} alt="company-logo" />
                     </Avatar>
                   )}

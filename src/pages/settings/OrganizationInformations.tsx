@@ -141,7 +141,7 @@ const OrganizationInformations = () => {
 
         {!!loading ? (
           <div>
-            <Skeleton variant="connectorAvatar" size="medium" marginBottom={theme.spacing(6)} />
+            <Skeleton variant="connectorAvatar" size="big" marginBottom={theme.spacing(6)} />
             {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((skeletonLine) => (
               <SkeletonLine key={`skeleton-${skeletonLine}`}>
                 <Skeleton variant="text" width={80} height={12} />
@@ -152,12 +152,12 @@ const OrganizationInformations = () => {
         ) : (
           <Grid>
             {logoUrl ? (
-              <CompanyAvatar size="medium" variant="connector">
+              <CompanyAvatar size="big" variant="connector">
                 <img src={logoUrl} alt={`${name}'s logo`} />
               </CompanyAvatar>
             ) : (
               <CompanyAvatar
-                size="medium"
+                size="big"
                 variant="company"
                 identifier={name || ''}
                 initials={(name || '').split(' ').reduce((acc, n) => (acc = acc + n[0]), '')}

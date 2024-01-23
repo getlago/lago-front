@@ -62,7 +62,7 @@ export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItem
         {...navigationProps}
       >
         <AddOnNameSection>
-          <ListAvatar variant="connector">
+          <ListAvatar size="big" variant="connector">
             <Icon name="puzzle" color="dark" />
           </ListAvatar>
           <NameBlock>
@@ -139,7 +139,7 @@ export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItem
 export const AddOnItemSkeleton = () => {
   return (
     <BaseListItem>
-      <Skeleton variant="connectorAvatar" size="medium" marginRight={theme.spacing(3)} />
+      <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
       <Skeleton variant="text" height={12} width={240} marginRight="auto" />
       <Skeleton variant="text" height={12} width={160} />
     </BaseListItem>

@@ -98,7 +98,7 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
           ) : !!loading ? (
             [1, 2, 3].map((i) => (
               <Loader key={`wallet-transaction-skeleton-${i}`}>
-                <Skeleton variant="connectorAvatar" size="medium" marginRight={theme.spacing(3)} />
+                <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
                 <LeftLoader>
                   <Skeleton
                     variant="text"
@@ -142,7 +142,7 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
                 return (
                   <ListItemWrapper key={`wallet-transaction-${i}`}>
                     <ListLeftWrapper>
-                      <ItemIcon variant="connector">
+                      <ItemIcon size="big" variant="connector">
                         <Icon name={iconName} color="dark" />
                       </ItemIcon>
                       <ColumnWrapper>

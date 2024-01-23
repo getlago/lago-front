@@ -110,7 +110,7 @@ const Integrations = () => {
             title={translate('text_645d071272418a14c1c76a6d')}
             subtitle={translate('text_634ea0ecc6147de10ddb6631')}
             icon={
-              <Avatar variant="connector">
+              <Avatar size="big" variant="connector">
                 <Adyen />
               </Avatar>
             }
@@ -135,7 +135,11 @@ const Integrations = () => {
           <StyledSelector
             title={translate('text_639c334c3fa0e9c6ca3512b2')}
             subtitle={translate('text_639c334c3fa0e9c6ca3512b4')}
-            icon={<Avatar variant="connector">{<Airbyte />}</Avatar>}
+            icon={
+              <Avatar size="big" variant="connector">
+                {<Airbyte />}
+              </Avatar>
+            }
             onClick={() => {
               window.open(DOCUMENTATION_AIRBYTE, '_blank')
             }}
@@ -144,7 +148,11 @@ const Integrations = () => {
           <StyledSelector
             title={translate('text_63e26d8308d03687188221a5')}
             subtitle={translate('text_63e26d8308d03687188221a6')}
-            icon={<Avatar variant="connector">{<Oso />}</Avatar>}
+            icon={
+              <Avatar size="big" variant="connector">
+                {<Oso />}
+              </Avatar>
+            }
             onClick={() => {
               window.open(DOCUMENTATION_OSO, '_blank')
             }}
@@ -154,7 +162,7 @@ const Integrations = () => {
             title={translate('text_634ea0ecc6147de10ddb6625')}
             subtitle={translate('text_634ea0ecc6147de10ddb6631')}
             icon={
-              <Avatar variant="connector">
+              <Avatar size="big" variant="connector">
                 <GoCardless />
               </Avatar>
             }
@@ -175,7 +183,11 @@ const Integrations = () => {
           <StyledSelector
             title={translate('text_641b41f3cec373009a265e9e')}
             subtitle={translate('text_641b41fa604ef10070cab5ea')}
-            icon={<Avatar variant="connector">{<HightTouch />}</Avatar>}
+            icon={
+              <Avatar size="big" variant="connector">
+                {<HightTouch />}
+              </Avatar>
+            }
             onClick={() => {
               window.open(DOCUMENTATION_HIGHTTOUCH, '_blank')
             }}
@@ -185,7 +197,11 @@ const Integrations = () => {
             fullWidth
             title={translate('text_657078c28394d6b1ae1b9713')}
             subtitle={translate('text_657078c28394d6b1ae1b971f')}
-            icon={<Avatar variant="connector">{<LagoTaxManagement />}</Avatar>}
+            icon={
+              <Avatar size="big" variant="connector">
+                {<LagoTaxManagement />}
+              </Avatar>
+            }
             endIcon={
               hasTaxManagement ? (
                 <Chip label={translate('text_634ea0ecc6147de10ddb6646')} />
@@ -202,7 +218,11 @@ const Integrations = () => {
           <StyledSelector
             title={translate('text_641b42035d62fd004e07cdde')}
             subtitle={translate('text_641b420ccd75240062f2386e')}
-            icon={<Avatar variant="connector">{<Segment />}</Avatar>}
+            icon={
+              <Avatar size="big" variant="connector">
+                {<Segment />}
+              </Avatar>
+            }
             onClick={() => {
               window.open(DOCUMENTATION_SEGMENT, '_blank')
             }}
@@ -212,7 +232,7 @@ const Integrations = () => {
             title={translate('text_62b1edddbf5f461ab971277d')}
             subtitle={translate('text_62b1edddbf5f461ab9712795')}
             icon={
-              <Avatar variant="connector">
+              <Avatar size="big" variant="connector">
                 <Stripe />
               </Avatar>
             }

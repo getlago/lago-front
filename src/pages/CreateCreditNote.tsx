@@ -288,7 +288,7 @@ const CreateCreditNote = () => {
                   <Subtitle>{translate('text_636bedf292786b19d3398ec6')}</Subtitle>
                 </div>
                 <StyledCard>
-                  <Avatar variant="connector">
+                  <Avatar size="big" variant="connector">
                     <Icon name="document" />
                   </Avatar>
 

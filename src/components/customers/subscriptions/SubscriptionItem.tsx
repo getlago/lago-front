@@ -132,7 +132,7 @@ SubscriptionItem.displayName = 'SubscriptionItem'
 export const SubscriptionItemSkeleton = () => {
   return (
     <SkeletonItem>
-      <Skeleton variant="connectorAvatar" size="medium" marginRight="12px" />
+      <Skeleton variant="connectorAvatar" size="big" marginRight="12px" />
       <div>
         <Skeleton variant="text" width={240} height={12} marginBottom="12px" />
         <Skeleton variant="text" width={120} height={12} />

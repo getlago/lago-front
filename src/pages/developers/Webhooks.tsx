@@ -85,6 +85,7 @@ const Webhooks = () => {
         </EmptyText>
       ) : loading ? (
         <LoadingBlock>
+          <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
           <Skeleton variant="text" width={160} height={12} />
         </LoadingBlock>
       ) : (
@@ -96,7 +97,7 @@ const Webhooks = () => {
               <ItemContainer key={`webhook-item-${id}`}>
                 <WebhookItem tabIndex={0} to={generatePath(WEBHOOK_LOGS_ROUTE, { webhookId: id })}>
                   <LeftBlock>
-                    <Avatar variant="connector">
+                    <Avatar size="big" variant="connector">
                       <Icon color="dark" name="globe" />
                     </Avatar>
                     <LeftBlockColumn>
@@ -202,8 +203,10 @@ const WebhookItem = styled(Link)`
 `
 
 const LoadingBlock = styled.div`
+  display: flex;
+  align-items: center;
   box-shadow: ${theme.shadows[7]};
-  height: ${theme.spacing(12)};
+  height: ${NAV_HEIGHT}px;
 `
 
 const LeftBlock = styled.div`

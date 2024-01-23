@@ -58,6 +58,7 @@ export const CustomerItem = memo(({ rowId, customer, editDialogRef }: CustomerIt
         <CustomerNameSection>
           <ListAvatar
             variant="user"
+            size="big"
             identifier={name as string}
             initials={!name ? '-' : name.split(' ').reduce((acc, n) => (acc = acc + n[0]), '')}
           />
@@ -129,7 +130,7 @@ CustomerItem.displayName = 'CustomerItem'
 export const CustomerItemSkeleton = () => {
   return (
     <BaseListItem>
-      <Skeleton variant="connectorAvatar" size="medium" marginRight={theme.spacing(3)} />
+      <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
       <Skeleton variant="text" height={12} width={240} marginRight="auto" />
       <Skeleton variant="text" height={12} width={240} />
     </BaseListItem>

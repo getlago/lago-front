@@ -37,7 +37,7 @@ export const InviteItem = forwardRef<RevokeInviteDialogRef, InviteItemProps>(
     return (
       <ItemContainer>
         <LeftBlock>
-          <Avatar variant="user" identifier={email.charAt(0)} size="medium" />
+          <Avatar variant="user" identifier={email.charAt(0)} size="big" />
           <Typography variant="body" color="grey700">
             {email}
           </Typography>
@@ -86,7 +86,7 @@ InviteItem.displayName = 'InviteItem'
 export const InviteItemSkeleton = () => {
   return (
     <ItemContainer>
-      <Skeleton variant="userAvatar" size="medium" marginRight={theme.spacing(6)} />
+      <Skeleton variant="userAvatar" size="big" marginRight={theme.spacing(6)} />
       <Skeleton variant="text" height={12} width={240} />
     </ItemContainer>
   )
