@@ -55,7 +55,7 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
   })
-  const subscriptions = subscriptionResult?.subscriptions.collection
+  const subscriptions = subscriptionResult?.subscriptions?.collection
   const displayLoadingState = areSubscriptionsLoading && !subscriptions?.length
   const displayEmptyState = !areSubscriptionsLoading && !subscriptions?.length
 
