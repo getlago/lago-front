@@ -162,7 +162,7 @@ export const InvoiceDetailsTableBodyLine = memo(
             <>
               <td>
                 <Typography variant="body" color="grey700">
-                  {fee?.units || 1}
+                  {fee?.units || 0}
                 </Typography>
               </td>
               {canHaveUnitPrice && (

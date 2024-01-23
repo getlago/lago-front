@@ -45,13 +45,13 @@ export const InvoiceDetailsTableBodyLinePackage = memo(
             <td>
               <Typography variant="body" color="grey600">
                 {translate('text_659e67cd63512ef53284303c', {
-                  freeUnits: Number(amountDetails?.freeUnits || 1),
+                  freeUnits: Number(amountDetails?.freeUnits || 0),
                 })}
               </Typography>
             </td>
             <td>
               <Typography variant="body" color="grey600">
-                {Number(amountDetails?.freeUnits || 1)}
+                {Number(amountDetails?.freeUnits || 0)}
               </Typography>
             </td>
             <td>
@@ -102,7 +102,7 @@ export const InvoiceDetailsTableBodyLinePackage = memo(
           </td>
           <td>
             <Typography variant="body" color="grey600">
-              {Number(amountDetails?.paidUnits || 1)}
+              {Number(amountDetails?.paidUnits || 0)}
             </Typography>
           </td>
           <td>
@@ -115,7 +115,7 @@ export const InvoiceDetailsTableBodyLinePackage = memo(
                     currency,
                   },
                 ),
-                perPackageSize: Number(amountDetails?.perPackageSize || 1),
+                perPackageSize: Number(amountDetails?.perPackageSize || 0),
               })}
             </Typography>
           </td>

@@ -45,7 +45,7 @@ export const InvoiceDetailsTableBodyLineVolume = memo(
           </td>
           <td>
             <Typography variant="body" color="grey600">
-              {Number(fee?.units || 1)}
+              {Number(fee?.units || 0)}
             </Typography>
           </td>
           <td>

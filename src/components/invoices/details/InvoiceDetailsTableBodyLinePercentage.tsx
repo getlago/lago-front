@@ -70,7 +70,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
             </td>
             <td>
               <Typography variant="body" color="grey600">
-                {Number(freeUnits || 1)}
+                {Number(freeUnits || 0)}
               </Typography>
             </td>
             <td>
@@ -121,7 +121,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
           </td>
           <td>
             <Typography variant="body" color="grey600">
-              {Number(paidUnits || 1)}
+              {Number(paidUnits || 0)}
             </Typography>
           </td>
           <td>
@@ -172,7 +172,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
             </td>
             <td>
               <Typography variant="body" color="grey600">
-                {paidEvents || 1}
+                {paidEvents || 0}
               </Typography>
             </td>
             <td>
