@@ -4,7 +4,6 @@ import { memo } from 'react'
 import { Typography } from '~/components/designSystem'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -126,10 +125,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
           </td>
           <td>
             <Typography variant="body" color="grey600">
-              {intlFormatNumber(Number(rate || 0) / 100 || 0, {
-                maximumFractionDigits: 2,
-                style: 'percent',
-              })}
+              {rate}%
             </Typography>
           </td>
           {!hideVat && (
@@ -154,7 +150,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
           )}
           <td>
             <Typography variant="body" color="grey600">
-              {intlFormatNumber(deserializeAmount(Number(perUnitTotalAmount || 0), currency), {
+              {intlFormatNumber(Number(perUnitTotalAmount || 0), {
                 currencyDisplay: 'symbol',
                 currency,
               })}
