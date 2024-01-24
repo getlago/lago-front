@@ -647,6 +647,9 @@ const DesignSystem = () => {
                   <Button variant="primary" size="medium">
                     Medium
                   </Button>
+                  <Button variant="primary" size="small">
+                    Small
+                  </Button>
                   <Button variant="primary" icon="coupon" size="large" />
                   <Button variant="primary" icon="download" size="medium" />
                   <Button variant="primary" icon="trash" size="small" />
@@ -681,6 +684,15 @@ const DesignSystem = () => {
                 <GroupTitle variant="subhead">Secondary</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Button variant="secondary">Default</Button>
+                  <Button variant="secondary" size="large">
+                    Large
+                  </Button>
+                  <Button variant="secondary" size="medium">
+                    Medium
+                  </Button>
+                  <Button variant="secondary" size="small">
+                    Small
+                  </Button>
                   <Button variant="secondary" disabled>
                     Disabled
                   </Button>
@@ -692,6 +704,15 @@ const DesignSystem = () => {
                 <GroupTitle variant="subhead">Tertiary</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Button variant="tertiary">Default</Button>
+                  <Button variant="tertiary" size="large">
+                    Large
+                  </Button>
+                  <Button variant="tertiary" size="medium">
+                    Medium
+                  </Button>
+                  <Button variant="tertiary" size="small">
+                    Small
+                  </Button>
                   <Button variant="tertiary" disabled>
                     Disabled
                   </Button>
@@ -703,6 +724,18 @@ const DesignSystem = () => {
                 <GroupTitle variant="subhead">Quaternary</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Button variant="quaternary">Default</Button>
+                  <Button variant="quaternary" size="large">
+                    Large
+                  </Button>
+                  <Button variant="quaternary" size="medium">
+                    Medium
+                  </Button>
+                  <Button variant="quaternary" size="small">
+                    small
+                  </Button>
+                  <Button variant="quaternary" startIcon="plus" size="small">
+                    Add
+                  </Button>
                   <Button variant="quaternary" disabled>
                     Disabled
                   </Button>
