@@ -1040,10 +1040,13 @@ export const oneSubscription = [
 export const oneSubscriptionResult = {
   metadata: {
     hasAnyFeeParsed: true,
+    hasAnyPositiveFeeParsed: true,
   },
   subscriptions: {
     '59514df0-1abe-47dd-be36-445c9279240e': {
+      feesInArrearsZero: [],
       feesInAdvance: [],
+      feesInAdvanceZero: [],
       feesInArrears: [
         {
           amountCents: '2903',
@@ -2345,10 +2348,12 @@ export const twoSubscriptions = [
 export const twoSubscriptionsResult = {
   metadata: {
     hasAnyFeeParsed: true,
+    hasAnyPositiveFeeParsed: true,
   },
   subscriptions: {
     '59514df0-1abe-47dd-be36-445c9279240e': {
       feesInAdvance: [],
+      feesInArrearsZero: [],
       feesInArrears: [
         {
           amountCents: '206',
@@ -2436,6 +2441,7 @@ export const twoSubscriptionsResult = {
           units: 6,
         },
       ],
+      feesInAdvanceZero: [],
       metadata: {
         chargesFromDatetime: '2024-01-01T00:00:00Z',
         chargesToDatetime: '2024-01-09T13:01:38Z',
@@ -2449,6 +2455,7 @@ export const twoSubscriptionsResult = {
     },
     '59514df0-1abe-47dd-be36-445c9279240e2': {
       feesInAdvance: [],
+      feesInAdvanceZero: [],
       feesInArrears: [
         {
           amountCents: '206',
@@ -2536,6 +2543,7 @@ export const twoSubscriptionsResult = {
           units: 6,
         },
       ],
+      feesInArrearsZero: [],
       metadata: {
         chargesFromDatetime: '2024-01-01T00:00:00Z',
         chargesToDatetime: '2024-01-09T13:01:38Z',
@@ -2575,11 +2583,13 @@ export const noFees = [
 ]
 
 export const noFeesResult = {
-  metadata: { hasAnyFeeParsed: false },
+  metadata: { hasAnyFeeParsed: false, hasAnyPositiveFeeParsed: false },
   subscriptions: {
     '59514df0-1abe-47dd-be36-445c9279240e': {
-      feesInAdvance: [],
       feesInArrears: [],
+      feesInArrearsZero: [],
+      feesInAdvance: [],
+      feesInAdvanceZero: [],
       metadata: {
         chargesFromDatetime: '2024-01-01T00:00:00Z',
         chargesToDatetime: '2024-01-09T13:01:38Z',
@@ -2668,6 +2678,86 @@ export const subZeroAmount = [
     ],
   },
 ]
+
+export const subZeroAmountResult = {
+  metadata: {
+    hasAnyFeeParsed: true,
+    hasAnyPositiveFeeParsed: true,
+  },
+  subscriptions: {
+    '59514df0-1abe-47dd-be36-445c9279240e': {
+      feesInAdvance: [],
+      feesInAdvanceZero: [],
+      feesInArrears: [
+        {
+          amountCents: '0',
+          amountDetails: {
+            fixedFeeTotalAmount: null,
+            fixedFeeUnitAmount: null,
+            flatUnitAmount: null,
+            freeEvents: null,
+            freeUnits: null,
+            graduatedPercentageRanges: null,
+            graduatedRanges: null,
+            minMaxAdjustmentTotalAmount: null,
+            paidEvents: null,
+            paidUnits: null,
+            perPackageSize: null,
+            perPackageUnitAmount: null,
+            perUnitAmount: null,
+            perUnitTotalAmount: null,
+            rate: null,
+            units: null,
+          },
+          appliedTaxes: [
+            {
+              id: '19f72015-a550-41cf-8839-126538807aef',
+              taxRate: 20,
+            },
+          ],
+          charge: null,
+          description: null,
+          feeType: 'subscription',
+          group: null,
+          groupName: null,
+          id: '069a3be4-73bf-4d18-bfce-d6c74185d491',
+          invoiceDisplayName: null,
+          invoiceName: 'sub fee',
+          itemName: 'maxi plan',
+          metadata: {
+            displayName: 'Monthly subscription fee - maxi plan',
+            isSubscriptionFee: true,
+          },
+          preciseUnitAmount: 0,
+          subscription: {
+            id: '59514df0-1abe-47dd-be36-445c9279240e',
+            name: '',
+            plan: {
+              id: 'da8abf9d-022f-482c-a949-466c0131e080',
+              interval: 'monthly',
+              invoiceDisplayName: 'sub fee',
+              name: 'maxi plan',
+            },
+          },
+          trueUpFee: null,
+          trueUpParentFee: null,
+          units: 1,
+        },
+      ],
+      feesInArrearsZero: [],
+      metadata: {
+        chargesFromDatetime: '2024-01-01T00:00:00Z',
+        chargesToDatetime: '2024-01-09T13:01:38Z',
+        differentBoundariesForSubscriptionAndCharges: false,
+        fromDatetime: '2024-01-01T00:00:00Z',
+        inAdvanceChargesFromDatetime: '2024-01-01T00:00:00+00:00',
+        inAdvanceChargesToDatetime: '2024-01-09T00:00:00+00:00',
+        subscriptionDisplayName: 'maxi plan',
+        toDatetime: '2024-01-09T13:01:38Z',
+      },
+    },
+  },
+}
 
 export const chargeZeroAmount = [
   {
@@ -2876,11 +2966,13 @@ export const chargeZeroAmountDraftInvoice = [
 ]
 
 export const chargeZeroAmountDraftInvoiceResult = {
-  metadata: { hasAnyFeeParsed: true },
+  metadata: { hasAnyFeeParsed: true, hasAnyPositiveFeeParsed: false },
   subscriptions: {
     '59514df0-1abe-47dd-be36-445c9279240e': {
       feesInAdvance: [],
-      feesInArrears: [
+      feesInAdvanceZero: [],
+      feesInArrears: [],
+      feesInArrearsZero: [
         {
           amountCents: '0',
           amountDetails: {
@@ -5666,6 +5758,7 @@ export const unorderedSubscriptionWithFees = [
 export const orderedSubscriptionWithFees = {
   metadata: {
     hasAnyFeeParsed: true,
+    hasAnyPositiveFeeParsed: true,
   },
   subscriptions: {
     '0b9e37a0-9589-49d0-9da1-e39887d89ac2': {
@@ -5860,6 +5953,7 @@ export const orderedSubscriptionWithFees = {
           units: 1,
         },
       ],
+      feesInAdvanceZero: [],
       feesInArrears: [
         {
           amountCents: '1100000',
@@ -6203,6 +6297,7 @@ export const orderedSubscriptionWithFees = {
           units: 1,
         },
       ],
+      feesInArrearsZero: [],
       metadata: {
         chargesFromDatetime: '2024-02-01T00:00:00Z',
         chargesToDatetime: '2024-02-29T23:59:59Z',
@@ -6406,6 +6501,7 @@ export const orderedSubscriptionWithFees = {
           units: 1,
         },
       ],
+      feesInAdvanceZero: [],
       feesInArrears: [
         {
           amountCents: '1100000',
@@ -6749,6 +6845,7 @@ export const orderedSubscriptionWithFees = {
           units: 1,
         },
       ],
+      feesInArrearsZero: [],
       metadata: {
         chargesFromDatetime: '2024-02-11T00:00:00Z',
         chargesToDatetime: '2024-03-10T23:59:59Z',

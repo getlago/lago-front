@@ -1,7 +1,9 @@
 import { gql } from '@apollo/client'
-import React, { memo, RefObject } from 'react'
+import clsns from 'classnames'
+import React, { memo, RefObject, useState } from 'react'
 import styled, { css } from 'styled-components'
 
+import { Button } from '~/components/designSystem'
 import { groupAndFormatFees, TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { formatDateToTZ } from '~/core/timezone'
 import {
@@ -143,6 +145,11 @@ export const InvoiceDetailsTable = memo(
     invoice,
   }: InvoiceDetailsTableProps) => {
     const { translate } = useInternationalization()
+    // We can only have 2 subscription max, with 2 potential zero fee arrays
+    const [feeZeroIsOpenMatrice, setFeeZeroIsOpenMatrice] = useState([
+      [false, false],
+      [false, false],
+    ])
     const currency = invoice?.currency || CurrencyEnum.Usd
     const isDraftInvoice = invoice?.status === InvoiceStatusTypeEnum.Draft
     const canHaveUnitPrice = invoice.versionNumber >= 4 || isDraftInvoice
@@ -196,7 +203,11 @@ export const InvoiceDetailsTable = memo(
     /*********************
      * No fee placeholder
      *********************/
-    if (!newFormattedInvoiceItemsMap?.metadata?.hasAnyFeeParsed) {
+    if (
+      (invoice.status === InvoiceStatusTypeEnum.Draft &&
+        !newFormattedInvoiceItemsMap?.metadata?.hasAnyFeeParsed) ||
+      !newFormattedInvoiceItemsMap?.metadata?.hasAnyPositiveFeeParsed
+    ) {
       return (
         <>
           {Object.entries(newFormattedInvoiceItemsMap.subscriptions).map(
@@ -205,18 +216,18 @@ export const InvoiceDetailsTable = memo(
                 <InvoiceWrapper
                   key={`subscription-placeholder-for-${subscriptionId}`}
                   $canHaveUnitPrice={canHaveUnitPrice}
-                  $isDraftInvoice={isDraftInvoice}
+                  $isDraftInvoice={false}
                 >
                   <table>
                     <InvoiceDetailsTableHeader
                       canHaveUnitPrice={canHaveUnitPrice}
                       displayName={subscription?.metadata?.subscriptionDisplayName}
-                      isDraftInvoice={isDraftInvoice}
+                      isDraftInvoice={false}
                     />
                     <tbody>
                       <InvoiceDetailsTablePeriodLine
                         canHaveUnitPrice={canHaveUnitPrice}
-                        isDraftInvoice={isDraftInvoice}
+                        isDraftInvoice={false}
                         period={translate('text_6499a4e4db5730004703f36b', {
                           from: formatDateToTZ(
                             subscription?.metadata?.fromDatetime,
@@ -238,7 +249,7 @@ export const InvoiceDetailsTable = memo(
                         editFeeDrawerRef={editFeeDrawerRef}
                         deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                         fee={undefined}
-                        isDraftInvoice={isDraftInvoice}
+                        isDraftInvoice={false}
                       />
                     </tbody>
 
@@ -259,7 +270,7 @@ export const InvoiceDetailsTable = memo(
       <InvoiceWrapper $isDraftInvoice={isDraftInvoice} $canHaveUnitPrice={canHaveUnitPrice}>
         <MultipleSubscriptionWrapper>
           {Object.entries(newFormattedInvoiceItemsMap.subscriptions).map(
-            ([subscriptionId, subscription]) => {
+            ([subscriptionId, subscription], subscriptionIndex) => {
               return (
                 <table key={`subscription-${subscriptionId}`}>
                   <InvoiceDetailsTableHeader
@@ -269,7 +280,8 @@ export const InvoiceDetailsTable = memo(
                   />
                   <tbody>
                     {/* Arrears */}
-                    {subscription.feesInArrears.length > 0 && (
+                    {(subscription.feesInArrears.length > 0 ||
+                      subscription.feesInArrearsZero.length > 0) && (
                       <>
                         <InvoiceDetailsTablePeriodLine
                           canHaveUnitPrice={canHaveUnitPrice}
@@ -291,6 +303,7 @@ export const InvoiceDetailsTable = memo(
                             ),
                           })}
                         />
+
                         {subscription.feesInArrears.map((feeInArrear) => {
                           return (
                             <InvoiceDetailsTableBodyLine
@@ -305,10 +318,79 @@ export const InvoiceDetailsTable = memo(
                             />
                           )
                         })}
+                        {/* Should be only displayed for draft invoices */}
+                        {subscription.feesInArrearsZero.length > 0 && (
+                          <>
+                            <tr className="collapse">
+                              <td colSpan={6}>
+                                <div className="collapse-header">
+                                  <Button
+                                    variant="quaternary"
+                                    size="small"
+                                    startIcon={
+                                      !!feeZeroIsOpenMatrice[subscriptionIndex][0]
+                                        ? 'eye-hidden'
+                                        : 'eye'
+                                    }
+                                    onClick={() =>
+                                      setFeeZeroIsOpenMatrice((prev) => {
+                                        const newState = [...prev]
+
+                                        newState[subscriptionIndex][0] = !prev[subscriptionIndex][0]
+                                        return newState
+                                      })
+                                    }
+                                  >
+                                    {translate(
+                                      !!feeZeroIsOpenMatrice[subscriptionIndex][0]
+                                        ? 'text_65b116a266d90732cac8b3bc'
+                                        : 'text_65b116a266d90732cac8b39b',
+                                      {
+                                        count: subscription.feesInArrearsZero.length,
+                                      },
+                                      subscription.feesInArrearsZero.length,
+                                    )}
+                                  </Button>
+                                </div>
+                                <div
+                                  className={clsns('collapsed-table-wrapper', {
+                                    open: !!feeZeroIsOpenMatrice[subscriptionIndex][0],
+                                  })}
+                                >
+                                  <table className="inner-table">
+                                    {/* This header is hidden in css. Only present to give the body the correct shape */}
+                                    <InvoiceDetailsTableHeader
+                                      canHaveUnitPrice={canHaveUnitPrice}
+                                      displayName={subscription?.metadata?.subscriptionDisplayName}
+                                      isDraftInvoice={isDraftInvoice}
+                                    />
+                                    <tbody>
+                                      {subscription.feesInArrearsZero.map((feeInArrearZero) => {
+                                        return (
+                                          <InvoiceDetailsTableBodyLine
+                                            key={`fee-in-arrears-zero-${feeInArrearZero.id}`}
+                                            canHaveUnitPrice={canHaveUnitPrice}
+                                            currency={currency}
+                                            displayName={feeInArrearZero?.metadata?.displayName}
+                                            editFeeDrawerRef={editFeeDrawerRef}
+                                            deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
+                                            fee={feeInArrearZero}
+                                            isDraftInvoice={isDraftInvoice}
+                                          />
+                                        )
+                                      })}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </td>
+                            </tr>
+                          </>
+                        )}
                       </>
                     )}
                     {/* Advance */}
-                    {subscription.feesInAdvance.length > 0 && (
+                    {(subscription.feesInAdvance.length > 0 ||
+                      subscription.feesInAdvanceZero.length > 0) && (
                       <>
                         <InvoiceDetailsTablePeriodLine
                           canHaveUnitPrice={canHaveUnitPrice}
@@ -346,6 +428,74 @@ export const InvoiceDetailsTable = memo(
                             />
                           )
                         })}
+                        {/* Should be only displayed for draft invoices */}
+                        {subscription.feesInAdvanceZero.length > 0 && (
+                          <>
+                            <tr className="collapse">
+                              <td colSpan={6}>
+                                <div className="collapse-header">
+                                  <Button
+                                    variant="quaternary"
+                                    size="small"
+                                    startIcon={
+                                      !!feeZeroIsOpenMatrice[subscriptionIndex][1]
+                                        ? 'eye-hidden'
+                                        : 'eye'
+                                    }
+                                    onClick={() =>
+                                      setFeeZeroIsOpenMatrice((prev) => {
+                                        const newState = [...prev]
+
+                                        newState[subscriptionIndex][1] = !prev[subscriptionIndex][1]
+                                        return newState
+                                      })
+                                    }
+                                  >
+                                    {translate(
+                                      !!feeZeroIsOpenMatrice[subscriptionIndex][1]
+                                        ? 'text_65b116a266d90732cac8b3bc'
+                                        : 'text_65b116a266d90732cac8b39b',
+                                      {
+                                        count: subscription.feesInAdvanceZero.length,
+                                      },
+                                      subscription.feesInAdvanceZero.length,
+                                    )}
+                                  </Button>
+                                </div>
+                                <div
+                                  className={clsns('collapsed-table-wrapper', {
+                                    open: !!feeZeroIsOpenMatrice[subscriptionIndex][1],
+                                  })}
+                                >
+                                  <table className="inner-table">
+                                    {/* This header is hidden in css. Only present to give the body the correct shape */}
+                                    <InvoiceDetailsTableHeader
+                                      canHaveUnitPrice={canHaveUnitPrice}
+                                      displayName={subscription?.metadata?.subscriptionDisplayName}
+                                      isDraftInvoice={isDraftInvoice}
+                                    />
+                                    <tbody>
+                                      {subscription.feesInAdvanceZero.map((feeInAdvanceZero) => {
+                                        return (
+                                          <InvoiceDetailsTableBodyLine
+                                            key={`fee-in-advance-zero-${feeInAdvanceZero.id}`}
+                                            canHaveUnitPrice={canHaveUnitPrice}
+                                            currency={currency}
+                                            displayName={feeInAdvanceZero?.metadata?.displayName}
+                                            editFeeDrawerRef={editFeeDrawerRef}
+                                            deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
+                                            fee={feeInAdvanceZero}
+                                            isDraftInvoice={isDraftInvoice}
+                                          />
+                                        )
+                                      })}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </td>
+                            </tr>
+                          </>
+                        )}
                       </>
                     )}
                   </tbody>
@@ -536,6 +686,38 @@ export const InvoiceWrapper = styled.section<{
           }
         }
       `}
+
+    /* Collapsable table */
+    tr.collapse {
+      > td {
+        padding: 0 !important;
+      }
+
+      .collapse-header {
+        display: block;
+        width: 100%;
+        padding: ${theme.spacing(3)} 0;
+        box-shadow: ${theme.shadows[7]};
+      }
+
+      .collapsed-table-wrapper {
+        overflow: hidden;
+        transition: max-height 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+        max-height: 0px;
+
+        &.open {
+          /* Allows to animate height, keep it big */
+          max-height: 9999999999999999999999999999px;
+        }
+
+        .inner-table {
+          thead {
+            /* hide header */
+            visibility: collapse;
+          }
+        }
+      }
+    }
   }
 `
 
