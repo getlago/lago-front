@@ -10,6 +10,7 @@ import {
   oneSubscriptionResult,
   orderedSubscriptionWithFees,
   subZeroAmount,
+  subZeroAmountResult,
   twoSubscriptions,
   twoSubscriptionsResult,
   unorderedSubscriptionWithFees,
@@ -61,7 +62,7 @@ describe('formatInvoiceItemsMap', () => {
 
       expect(result).toEqual({
         subscriptions: {},
-        metadata: { hasAnyFeeParsed: false },
+        metadata: { hasAnyFeeParsed: false, hasAnyPositiveFeeParsed: false },
       })
     })
     it('should return default values if there are no fees', () => {
@@ -72,7 +73,7 @@ describe('formatInvoiceItemsMap', () => {
     it('should return default values if there are only sub fee with 0 amountCents', () => {
       const result = groupAndFormatFees(subZeroAmount as unknown as InvoiceSubscription[])
 
-      expect(result).toEqual(noFeesResult)
+      expect(result).toEqual(subZeroAmountResult)
     })
     it('should return default values if there are only sub fee with 0 amountCents and 0 units', () => {
       const result = groupAndFormatFees(chargeZeroAmount as unknown as InvoiceSubscription[])

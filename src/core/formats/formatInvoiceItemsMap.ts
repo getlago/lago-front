@@ -61,7 +61,9 @@ export type TExtendedRemainingFee = Fee & {
 type TSubscriptionDataForDisplay = {
   [invoiceSubscriptionId: string]: {
     feesInArrears: TExtendedRemainingFee[]
+    feesInArrearsZero: TExtendedRemainingFee[]
     feesInAdvance: TExtendedRemainingFee[]
+    feesInAdvanceZero: TExtendedRemainingFee[]
     metadata: {
       differentBoundariesForSubscriptionAndCharges: boolean
       subscriptionDisplayName: string
@@ -78,6 +80,7 @@ type TFormatedInvoiceSubscriptionDataForDisplay = {
   subscriptions: TSubscriptionDataForDisplay
   metadata: {
     hasAnyFeeParsed: boolean
+    hasAnyPositiveFeeParsed: boolean
   }
 }
 
@@ -98,8 +101,10 @@ export const groupAndFormatFees = (
   invoiceSubscription: InvoiceSubscription[] | null | undefined,
 ): TFormatedInvoiceSubscriptionDataForDisplay => {
   let hasAnyFeeParsed = false
+  let hasAnyPositiveFeeParsed = false
 
-  if (!invoiceSubscription?.length) return { subscriptions: {}, metadata: { hasAnyFeeParsed } }
+  if (!invoiceSubscription?.length)
+    return { subscriptions: {}, metadata: { hasAnyFeeParsed, hasAnyPositiveFeeParsed } }
 
   const feesGroupedBySubscription = invoiceSubscription?.reduce<TSubscriptionDataForDisplay>(
     (acc, invoiceSub) => {
@@ -114,7 +119,9 @@ export const groupAndFormatFees = (
       if (!acc[subscriptionId]) {
         acc[subscriptionId] = {
           feesInArrears: [],
+          feesInArrearsZero: [],
           feesInAdvance: [],
+          feesInAdvanceZero: [],
           metadata: {
             differentBoundariesForSubscriptionAndCharges,
             subscriptionDisplayName:
@@ -135,25 +142,31 @@ export const groupAndFormatFees = (
       for (let i = 0; i < invoiceSub?.fees?.length; i++) {
         const currentFee = invoiceSub?.fees[i] as TExtendedRemainingFee
 
-        // Prevent zero amount fees from being displayed
-        if (
-          invoiceSub?.invoice?.status !== InvoiceStatusTypeEnum.Draft &&
-          ((currentFee.feeType === FeeTypesEnum.Subscription &&
-            Number(currentFee.amountCents) === 0) ||
-            currentFee.units === 0)
-        )
-          continue
+        const isZeroFee = currentFee.units === 0
 
-        // Flag that at least one fee has been parsed
-        !hasAnyFeeParsed && (hasAnyFeeParsed = true)
-        const isSubscriptionFeeInAdvance =
-          currentFee.feeType === FeeTypesEnum.Subscription &&
-          differentBoundariesForSubscriptionAndCharges
+        const isFeeInAdvance =
+          currentFee.charge?.payInAdvance ||
+          (currentFee.feeType === FeeTypesEnum.Subscription &&
+            differentBoundariesForSubscriptionAndCharges)
 
-        if (currentFee?.charge?.payInAdvance || isSubscriptionFeeInAdvance) {
-          acc[subscriptionId]?.feesInAdvance?.push(currentFee)
-        } else {
-          acc[subscriptionId]?.feesInArrears?.push(currentFee)
+        // Populate zero fees array for draft invoice
+        if (invoiceSub?.invoice?.status === InvoiceStatusTypeEnum.Draft && isZeroFee) {
+          if (isFeeInAdvance) {
+            acc[subscriptionId]?.feesInAdvanceZero?.push(currentFee)
+          } else {
+            acc[subscriptionId]?.feesInArrearsZero?.push(currentFee)
+          }
+
+          !hasAnyFeeParsed && (hasAnyFeeParsed = true)
+        } else if (!isZeroFee) {
+          if (isFeeInAdvance) {
+            acc[subscriptionId]?.feesInAdvance?.push(currentFee)
+          } else {
+            acc[subscriptionId]?.feesInArrears?.push(currentFee)
+          }
+
+          !hasAnyFeeParsed && (hasAnyFeeParsed = true)
+          !hasAnyPositiveFeeParsed && (hasAnyPositiveFeeParsed = true)
         }
       }
 
@@ -171,9 +184,19 @@ export const groupAndFormatFees = (
         subscription.feesInArrears,
       )
     }
+    if (subscription?.feesInArrearsZero?.length) {
+      feesGroupedBySubscription[subscriptionId].feesInArrearsZero = _newDeepFormatFees(
+        subscription.feesInArrearsZero,
+      )
+    }
     if (subscription?.feesInAdvance?.length) {
       feesGroupedBySubscription[subscriptionId].feesInAdvance = _newDeepFormatFees(
         subscription.feesInAdvance,
+      )
+    }
+    if (subscription?.feesInAdvanceZero?.length) {
+      feesGroupedBySubscription[subscriptionId].feesInAdvanceZero = _newDeepFormatFees(
+        subscription.feesInAdvanceZero,
       )
     }
   })
@@ -182,6 +205,7 @@ export const groupAndFormatFees = (
     subscriptions: feesGroupedBySubscription,
     metadata: {
       hasAnyFeeParsed,
+      hasAnyPositiveFeeParsed,
     },
   }
 }
