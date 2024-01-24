@@ -17,8 +17,7 @@ enum ButtonVariantEnum {
   'quaternary-light' = 'quaternary-light',
 }
 
-type ButtonSize = 'medium' | 'large'
-type ButtonIconSize = 'small' | 'medium' | 'large'
+type ButtonSize = 'small' | 'medium' | 'large'
 export type ButtonVariant = keyof typeof ButtonVariantEnum
 type MuiVariant = 'text' | 'outlined' | 'contained'
 type ButtonAlign = 'center' | 'left' | 'space-between'
@@ -47,7 +46,7 @@ interface SimpleButtonProps
 }
 interface ButtonIconProps
   extends Omit<SimpleButtonProps, 'icon' | 'size' | 'endIcon' | 'startIcon' | 'children'> {
-  size?: ButtonIconSize
+  size?: ButtonSize
   icon: IconName // If used, the button will only display an icon (no matter if there's a children)
   endIcon?: never
   startIcon?: never
@@ -144,7 +143,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <StyledButton
         className={clsns(className, {
           'button-danger': danger,
-          'button-icon-only': icon,
+          'button-icon-only': icon && !children,
           'button-quaternary-light': variant === 'quaternary-light',
           'button-quaternary-dark': variant === 'quaternary-dark',
         })}

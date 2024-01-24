@@ -304,12 +304,27 @@ export const theme = createTheme({
             transform: 'scale(0.99)',
           },
         },
+        endIcon: {
+          marginLeft: '8px',
+          marginRight: 0,
+        },
+        startIcon: {
+          marginLeft: 0,
+          marginRight: '8px',
+        },
         sizeSmall: {
+          height: '32px',
+          padding: '4px',
+          borderRadius: '8px',
           '&.button-icon-only': {
             width: '24px',
             height: '24px',
-            padding: '4px',
-            borderRadius: '8px',
+          },
+          '.MuiButton-endIcon': {
+            marginLeft: '4px',
+          },
+          '.MuiButton-startIcon': {
+            marginRight: '4px',
           },
         },
         sizeLarge: {
@@ -325,14 +340,6 @@ export const theme = createTheme({
           '&:active': {
             transform: 'scale(0.999)',
           },
-        },
-        endIcon: {
-          marginLeft: '8px',
-          marginRight: 0,
-        },
-        startIcon: {
-          marginLeft: 0,
-          marginRight: '8px',
         },
         text: {
           padding: '6px 12px',
