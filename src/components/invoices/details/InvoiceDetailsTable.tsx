@@ -183,7 +183,7 @@ export const InvoiceDetailsTable = memo(
                 />
               ))}
             </tbody>
-            <InvoiceDetailsTableFooter invoice={invoice} />
+            <InvoiceDetailsTableFooter invoice={invoice} canHaveUnitPrice={canHaveUnitPrice} />
           </table>
         </InvoiceWrapper>
       )
@@ -242,7 +242,10 @@ export const InvoiceDetailsTable = memo(
                       />
                     </tbody>
 
-                    <InvoiceDetailsTableFooter invoice={invoice} />
+                    <InvoiceDetailsTableFooter
+                      invoice={invoice}
+                      canHaveUnitPrice={canHaveUnitPrice}
+                    />
                   </table>
                 </InvoiceWrapper>
               )
@@ -356,7 +359,7 @@ export const InvoiceDetailsTable = memo(
 
           {/* Footer */}
           <table>
-            <InvoiceDetailsTableFooter invoice={invoice} />
+            <InvoiceDetailsTableFooter invoice={invoice} canHaveUnitPrice={canHaveUnitPrice} />
           </table>
         </MultipleSubscriptionWrapper>
       </InvoiceWrapper>
