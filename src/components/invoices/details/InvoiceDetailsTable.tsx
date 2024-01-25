@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
-import clsns from 'classnames'
-import React, { memo, RefObject, useState } from 'react'
+import { Collapse } from '@mui/material'
+import { memo, RefObject, useState } from 'react'
 import styled, { css } from 'styled-components'
 
 import { Button } from '~/components/designSystem'
@@ -355,10 +355,9 @@ export const InvoiceDetailsTable = memo(
                                     )}
                                   </Button>
                                 </div>
-                                <div
-                                  className={clsns('collapsed-table-wrapper', {
-                                    open: !!feeZeroIsOpenMatrice[subscriptionIndex][0],
-                                  })}
+                                <Collapse
+                                  in={!!feeZeroIsOpenMatrice[subscriptionIndex][0]}
+                                  easing="cubic-bezier(0.4, 0, 0.2, 1)"
                                 >
                                   <table className="inner-table">
                                     {/* This header is hidden in css. Only present to give the body the correct shape */}
@@ -384,7 +383,7 @@ export const InvoiceDetailsTable = memo(
                                       })}
                                     </tbody>
                                   </table>
-                                </div>
+                                </Collapse>
                               </td>
                             </tr>
                           </>
@@ -465,10 +464,9 @@ export const InvoiceDetailsTable = memo(
                                     )}
                                   </Button>
                                 </div>
-                                <div
-                                  className={clsns('collapsed-table-wrapper', {
-                                    open: !!feeZeroIsOpenMatrice[subscriptionIndex][1],
-                                  })}
+                                <Collapse
+                                  in={!!feeZeroIsOpenMatrice[subscriptionIndex][1]}
+                                  easing="cubic-bezier(0.4, 0, 0.2, 1)"
                                 >
                                   <table className="inner-table">
                                     {/* This header is hidden in css. Only present to give the body the correct shape */}
@@ -494,7 +492,7 @@ export const InvoiceDetailsTable = memo(
                                       })}
                                     </tbody>
                                   </table>
-                                </div>
+                                </Collapse>
                               </td>
                             </tr>
                           </>
@@ -696,29 +694,18 @@ export const InvoiceWrapper = styled.section<{
         padding: 0 !important;
       }
 
+      .inner-table {
+        thead {
+          /* hide header */
+          visibility: collapse;
+        }
+      }
+
       .collapse-header {
         display: block;
         width: 100%;
         padding: ${theme.spacing(3)} 0;
         box-shadow: ${theme.shadows[7]};
-      }
-
-      .collapsed-table-wrapper {
-        overflow: hidden;
-        transition: max-height 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-        max-height: 0px;
-
-        &.open {
-          /* Allows to animate height, keep it big */
-          max-height: 9999999999999999999999999999px;
-        }
-
-        .inner-table {
-          thead {
-            /* hide header */
-            visibility: collapse;
-          }
-        }
       }
     }
   }
