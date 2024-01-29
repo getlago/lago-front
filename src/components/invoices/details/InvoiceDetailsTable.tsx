@@ -206,7 +206,8 @@ export const InvoiceDetailsTable = memo(
     if (
       (invoice.status === InvoiceStatusTypeEnum.Draft &&
         !newFormattedInvoiceItemsMap?.metadata?.hasAnyFeeParsed) ||
-      !newFormattedInvoiceItemsMap?.metadata?.hasAnyPositiveFeeParsed
+      (invoice.status !== InvoiceStatusTypeEnum.Draft &&
+        !newFormattedInvoiceItemsMap?.metadata?.hasAnyPositiveFeeParsed)
     ) {
       return (
         <>
