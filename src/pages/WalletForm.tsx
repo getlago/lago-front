@@ -266,22 +266,30 @@ const WalletForm = () => {
         .of(
           object().shape({
             ruleType: string().required(''),
-            interval: string().test({
-              test: function (interval) {
-                const { ruleType } = this?.parent
+            interval: string()
+              .test({
+                test: function (interval) {
+                  const { ruleType } = this?.parent
 
-                if (ruleType !== RecurringTransactionRuleTypeEnum.Interval) return true
-                return !!interval
-              },
-            }),
-            thresholdCredits: string().test({
-              test: function (thresholdCredits) {
-                const { ruleType } = this?.parent
+                  if (!!ruleType && ruleType !== RecurringTransactionRuleTypeEnum.Interval) {
+                    return true
+                  }
+                  return !!interval
+                },
+              })
+              .nullable(),
+            thresholdCredits: string()
+              .test({
+                test: function (thresholdCredits) {
+                  const { ruleType } = this?.parent
 
-                if (ruleType !== RecurringTransactionRuleTypeEnum.Threshold) return true
-                return !!thresholdCredits
-              },
-            }),
+                  if (!!ruleType && ruleType !== RecurringTransactionRuleTypeEnum.Threshold) {
+                    return true
+                  }
+                  return !!thresholdCredits
+                },
+              })
+              .nullable(),
             paidCredits: string().test({
               test: function (paidCredits) {
                 if (formType === FORM_TYPE_ENUM.creation) return true
