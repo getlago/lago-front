@@ -94,6 +94,7 @@ gql`
           feeType
           itemName
           groupName
+          groupedBy
           invoiceName
           appliedTaxes {
             id
@@ -548,6 +549,12 @@ const CreditNoteDetails = () => {
 
                           return charge.map((item, k) => {
                             const isTrueUp = !!item?.fee?.trueUpParentFee?.id
+                            const groupingChain =
+                              Object.values(item?.fee?.groupedBy || {}).length > 0
+                                ? Object.values(item?.fee?.groupedBy)
+                                    .map((group) => (!!group ? ` • ${group}` : ''))
+                                    .join('')
+                                : ''
 
                             return (
                               <React.Fragment key={`groupSubscriptionItem-${i}-list-item-${k}`}>
@@ -562,7 +569,7 @@ const CreditNoteDetails = () => {
                                                 item.fee?.invoiceName ||
                                                 item?.fee?.charge?.billableMetric.name ||
                                                 invoiceDisplayName
-                                              }${
+                                              }${groupingChain}${
                                                 item?.fee?.trueUpParentFee?.id
                                                   ? ` - ${translate(
                                                       'text_64463aaa34904c00a23be4f7',
@@ -577,7 +584,7 @@ const CreditNoteDetails = () => {
                                               ? `${
                                                   item.fee.invoiceName ||
                                                   item.fee.charge?.billableMetric?.name
-                                                }${
+                                                }${groupingChain}${
                                                   item.fee.groupName
                                                     ? ` • ${item.fee.groupName}`
                                                     : item.fee.group?.key
@@ -589,7 +596,7 @@ const CreditNoteDetails = () => {
                                               : `${
                                                   item.fee.invoiceName ||
                                                   item.fee.charge?.billableMetric?.name
-                                                }${
+                                                }${groupingChain}${
                                                   item.fee.groupName
                                                     ? ` • ${item.fee.groupName}`
                                                     : item.fee.group?.value

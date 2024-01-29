@@ -41,6 +41,7 @@ gql`
           units
           feeType
           groupName
+          groupedBy
           itemName
           invoiceName
           appliedTaxes {
@@ -156,6 +157,13 @@ export const InvoiceCreditNotesTable = memo(
                               key={`formatedCreditNote-${i}-subscriptionItem-${j}-charge-${k}`}
                             >
                               {charge.map((item, l) => {
+                                const groupingChain =
+                                  Object.values(item?.fee?.groupedBy || {}).length > 0
+                                    ? Object.values(item?.fee?.groupedBy)
+                                        .map((group) => (!!group ? ` • ${group}` : ''))
+                                        .join('')
+                                    : ''
+
                                 return (
                                   <React.Fragment
                                     key={`formatedCreditNote-${i}-subscriptionItem-${j}-charge-${k}-item-${l}`}
@@ -174,7 +182,7 @@ export const InvoiceCreditNotesTable = memo(
                                                     item.fee?.invoiceName ||
                                                     item.fee.charge?.billableMetric.name ||
                                                     creditNoteDisplayName
-                                                  }${
+                                                  }${groupingChain}${
                                                     item?.fee?.trueUpParentFee?.id
                                                       ? ` - ${translate(
                                                           'text_64463aaa34904c00a23be4f7',
@@ -189,7 +197,7 @@ export const InvoiceCreditNotesTable = memo(
                                                   ? `${
                                                       item.fee.invoiceName ||
                                                       item.fee.charge?.billableMetric?.name
-                                                    }${
+                                                    }${groupingChain}${
                                                       item.fee.groupName
                                                         ? ` • ${item.fee.groupName}`
                                                         : item.fee.group?.key
@@ -201,7 +209,7 @@ export const InvoiceCreditNotesTable = memo(
                                                   : `${
                                                       item.fee.invoiceName ||
                                                       item.fee.charge?.billableMetric?.name
-                                                    }${
+                                                    }${groupingChain}${
                                                       item.fee.groupName
                                                         ? ` • ${item.fee.groupName}`
                                                         : item.fee.group?.value

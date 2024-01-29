@@ -52,7 +52,7 @@ export const CreditNoteFormItem = ({
           </Typography>
         }
       />
-      <Tooltip
+      <StyledTooltip
         placement="top-end"
         title={
           error === CreditNoteFeeErrorEnum?.minZero
@@ -88,7 +88,7 @@ export const CreditNoteFormItem = ({
           }
           formikProps={formikProps}
         />
-      </Tooltip>
+      </StyledTooltip>
     </FeeLine>
   )
 }
@@ -103,7 +103,13 @@ const StyledAmountField = styled(AmountInputField)`
 const FeeLine = styled.div`
   display: flex;
   align-items: center;
+  padding: 10px 0;
+  box-sizing: border-box;
   box-shadow: ${theme.shadows[7]};
-  height: 68px;
+  min-height: 68px;
   justify-content: space-between;
+  gap: ${theme.spacing(8)};
+`
+const StyledTooltip = styled(Tooltip)`
+  flex-shrink: 0;
 `

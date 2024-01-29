@@ -17,6 +17,7 @@ gql`
       invoiceDisplayName
       groupName
       units
+      groupedBy
       charge {
         id
         payInAdvance
@@ -217,6 +218,13 @@ const _newDeepFormatFees = (feesToFormat: TExtendedRemainingFee[]): TExtendedRem
   for (let i = 0; i < feesToFormat.length; i++) {
     const fee = feesToFormat[i]
 
+    const groupingChain =
+      Object.values(fee?.groupedBy || {}).length > 0
+        ? Object.values(fee?.groupedBy)
+            .map((group) => (!!group ? ` • ${group}` : ''))
+            .join('')
+        : ''
+
     if (fee.feeType === FeeTypesEnum.Subscription) {
       feesData.push({
         ...fee,
@@ -230,10 +238,10 @@ const _newDeepFormatFees = (feesToFormat: TExtendedRemainingFee[]): TExtendedRem
         ...fee,
         metadata: {
           isGroupChildFee: true,
-          displayName: `${`${fee.invoiceName || fee.charge?.billableMetric?.name} • `}${
+          displayName: `${fee.invoiceName || fee.charge?.billableMetric?.name}${groupingChain}${
             fee.groupName
-              ? fee.groupName
-              : `${!!fee.group?.key ? `${fee.group?.key} • ` : ''}${fee.group.value}`
+              ? ` • ${fee.groupName}`
+              : ` • ${!!fee.group?.key ? `${fee.group?.key} • ` : ''}${fee.group?.value}`
           }`,
         },
       })
@@ -252,21 +260,25 @@ const _newDeepFormatFees = (feesToFormat: TExtendedRemainingFee[]): TExtendedRem
         ...fee,
         metadata: {
           isNormalFee: true,
-          displayName:
-            fee.invoiceDisplayName || fee.invoiceName || fee.charge?.billableMetric?.name || '',
+          displayName: `${
+            fee.invoiceDisplayName || fee.invoiceName || fee.charge?.billableMetric?.name || ''
+          }${groupingChain}`,
         },
       })
     }
   }
 
   return feesData.sort((a, b) => {
+    const aDisplayName = a?.metadata?.displayName.toLowerCase().replace('•', '').replace('-', '')
+    const bDisplayName = b?.metadata?.displayName.toLowerCase().replace('•', '').replace('-', '')
+
     if (!!a?.metadata?.isSubscriptionFee && !b?.metadata?.isSubscriptionFee) {
       return -1
     } else if (!a?.metadata?.isSubscriptionFee && !!b?.metadata?.isSubscriptionFee) {
       return 1
-    } else if (a?.metadata?.displayName.toLowerCase() < b?.metadata?.displayName.toLowerCase()) {
+    } else if (aDisplayName < bDisplayName) {
       return -1
-    } else if (a?.metadata?.displayName.toLowerCase() > b?.metadata?.displayName.toLowerCase()) {
+    } else if (aDisplayName > bDisplayName) {
       return 1
     }
     return 0
