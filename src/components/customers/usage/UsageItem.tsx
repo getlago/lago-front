@@ -224,7 +224,6 @@ export const UsageItem = ({
                       )
                     })
                   : data?.customerUsage?.chargesUsage?.map((usage, i) => {
-                      // TODO: Make this condition also check if one of the group usage as units
                       const hasAnyGroupedUsageGroups = usage.groupedUsage.some(
                         (groupedUsage) => !!groupedUsage?.groups?.length,
                       )
