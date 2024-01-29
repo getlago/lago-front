@@ -45,6 +45,18 @@ gql`
           code
           name
         }
+        groups {
+          id
+        }
+        groupedUsage {
+          amountCents
+          groupedBy
+          eventsCount
+          units
+          groups {
+            id
+          }
+        }
       }
       ...CustomerUsageForUsageDetails
     }
@@ -212,6 +224,14 @@ export const UsageItem = ({
                       )
                     })
                   : data?.customerUsage?.chargesUsage?.map((usage, i) => {
+                      // TODO: Make this condition also check if one of the group usage as units
+                      const hasAnyGroupedUsageGroups = usage.groupedUsage.some(
+                        (groupedUsage) => !!groupedUsage?.groups?.length,
+                      )
+                      const hasAnyGroupedUsageUnits = usage.groupedUsage.some(
+                        (groupedUsage) => groupedUsage?.units > 0,
+                      )
+
                       const { billableMetric, charge, units, amountCents } = usage
 
                       return (
@@ -225,7 +245,9 @@ export const UsageItem = ({
                                 {billableMetric?.code}
                               </UsageSubtitle>
                             </div>
-                            {!!usage.groups?.length && (
+                            {(!!usage.groups?.length ||
+                              hasAnyGroupedUsageGroups ||
+                              hasAnyGroupedUsageUnits) && (
                               <Tooltip
                                 title={translate('text_633dae57ca9a923dd53c2135')}
                                 placement="top-end"

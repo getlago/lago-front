@@ -7,11 +7,27 @@ import { Button, Drawer, DrawerRef, Typography } from '~/components/designSystem
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
-import { ChargeUsage, CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
+import {
+  ChargeUsage,
+  ChargeUsageForFormatCustomerUsageFragmentDoc,
+  CurrencyEnum,
+  TimezoneEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NAV_HEIGHT, theme } from '~/styles'
 
+import { formatGroupedUsage } from './formatCustomerUsage'
+
 gql`
+  fragment GroupForUsageDetails on GroupUsage {
+    id
+    amountCents
+    key
+    units
+    value
+    invoiceDisplayName
+  }
+
   fragment CustomerUsageForUsageDetails on CustomerUsage {
     fromDatetime
     toDatetime
@@ -25,14 +41,23 @@ gql`
       }
       groups {
         id
-        amountCents
-        key
-        units
-        value
-        invoiceDisplayName
+        ...GroupForUsageDetails
       }
+      groupedUsage {
+        amountCents
+        groupedBy
+        eventsCount
+        units
+        groups {
+          id
+          ...GroupForUsageDetails
+        }
+      }
+      ...ChargeUsageForFormatCustomerUsage
     }
   }
+
+  ${ChargeUsageForFormatCustomerUsageFragmentDoc}
 `
 
 export interface CustomerUsageDetailDrawerRef {
@@ -58,7 +83,11 @@ export const CustomerUsageDetailDrawer = forwardRef<
     const { translate } = useInternationalization()
     const drawerRef = useRef<DrawerRef>(null)
     const [usage, setUsage] = useState<ChargeUsage>()
+
     const displayName = usage?.charge.invoiceDisplayName || usage?.billableMetric.name
+    const hasAnyGroupInGroupUsage = usage?.groupedUsage?.some((u) => (u?.groups || [])?.length > 0)
+    const hasAnyUnitsInGroupUsage = usage?.groupedUsage?.some((u) => u?.units > 0)
+    const groupedUsages = formatGroupedUsage(usage)
 
     useImperativeHandle(ref, () => ({
       openDrawer: (data) => {
@@ -90,39 +119,104 @@ export const CustomerUsageDetailDrawer = forwardRef<
                 })}
               </Typography>
             </Title>
-            <Groups>
-              {Object.entries(_groupBy(usage?.groups, 'key')).map(([key, values], i) => (
-                <React.Fragment key={`usage-group-${i}`}>
-                  {key !== 'null' && (
-                    <GroupTitle variant="bodyHl" color="grey600">
-                      {key}
-                    </GroupTitle>
-                  )}
-                  <ItemsWrapper>
-                    {values.map((value, j) => (
-                      <GroupItem key={`usage-group-${i}-value-${j}`} className="item">
-                        <div>
-                          <Typography variant="bodyHl" color="grey700">
-                            {value.invoiceDisplayName || value.value}
-                          </Typography>
-                          <Typography variant="body" color="grey600">
-                            {translate('text_633dae57ca9a923dd53c20a3', {
-                              totalUnits: value.units,
-                            })}
-                          </Typography>
-                        </div>
-                        <Typography variant="body" color="grey700" noWrap>
-                          {intlFormatNumber(deserializeAmount(value.amountCents, currency) || 0, {
-                            currencyDisplay: 'symbol',
-                            currency,
+            {hasAnyGroupInGroupUsage ? (
+              <ItemsWrapper>
+                {groupedUsages?.map((groupedUsage, groupedUsageIndex) => {
+                  return (
+                    <GroupItem key={`grouped-usage-${groupedUsageIndex}`} className="item">
+                      <div>
+                        <Typography variant="bodyHl" color="grey700">
+                          {groupedUsage.displayName}
+                        </Typography>
+                        <Typography variant="body" color="grey600">
+                          {translate('text_633dae57ca9a923dd53c20a3', {
+                            totalUnits: groupedUsage.units,
                           })}
                         </Typography>
-                      </GroupItem>
-                    ))}
-                  </ItemsWrapper>
-                </React.Fragment>
-              ))}
-            </Groups>
+                      </div>
+                      <Typography variant="body" color="grey700" noWrap>
+                        {intlFormatNumber(
+                          deserializeAmount(groupedUsage.amountCents, currency) || 0,
+                          {
+                            currencyDisplay: 'symbol',
+                            currency,
+                          },
+                        )}
+                      </Typography>
+                    </GroupItem>
+                  )
+                })}
+              </ItemsWrapper>
+            ) : hasAnyUnitsInGroupUsage ? (
+              <ItemsWrapper>
+                {usage?.groupedUsage.map((groupedUsage, groupedUsageIndex) => {
+                  const composableGroupName = [] as string[]
+
+                  Object.values(groupedUsage?.groupedBy).forEach(
+                    (groupValue) => !!groupValue && composableGroupName.push(groupValue as string),
+                  )
+                  composableGroupName.filter((i) => !!i).join(' • ')
+
+                  return (
+                    <GroupItem key={`grouped-usage-${groupedUsageIndex}`} className="item">
+                      <div>
+                        <Typography variant="bodyHl" color="grey700">
+                          {!!composableGroupName.length ? composableGroupName : displayName}
+                        </Typography>
+                        <Typography variant="body" color="grey600">
+                          {translate('text_633dae57ca9a923dd53c20a3', {
+                            totalUnits: groupedUsage.units,
+                          })}
+                        </Typography>
+                      </div>
+                      <Typography variant="body" color="grey700" noWrap>
+                        {intlFormatNumber(
+                          deserializeAmount(groupedUsage.amountCents, currency) || 0,
+                          {
+                            currencyDisplay: 'symbol',
+                            currency,
+                          },
+                        )}
+                      </Typography>
+                    </GroupItem>
+                  )
+                })}
+              </ItemsWrapper>
+            ) : (
+              <Groups>
+                {Object.entries(_groupBy(usage?.groups, 'key')).map(([key, values], i) => (
+                  <React.Fragment key={`usage-group-${i}`}>
+                    {key !== 'null' && (
+                      <GroupTitle variant="bodyHl" color="grey600">
+                        {key}
+                      </GroupTitle>
+                    )}
+                    <ItemsWrapper>
+                      {values.map((value, j) => (
+                        <GroupItem key={`usage-group-${i}-value-${j}`} className="item">
+                          <div>
+                            <Typography variant="bodyHl" color="grey700">
+                              {value.invoiceDisplayName || value.value}
+                            </Typography>
+                            <Typography variant="body" color="grey600">
+                              {translate('text_633dae57ca9a923dd53c20a3', {
+                                totalUnits: value.units,
+                              })}
+                            </Typography>
+                          </div>
+                          <Typography variant="body" color="grey700" noWrap>
+                            {intlFormatNumber(deserializeAmount(value.amountCents, currency) || 0, {
+                              currencyDisplay: 'symbol',
+                              currency,
+                            })}
+                          </Typography>
+                        </GroupItem>
+                      ))}
+                    </ItemsWrapper>
+                  </React.Fragment>
+                ))}
+              </Groups>
+            )}
           </Content>
           <SubmitButton>
             <Button fullWidth size="large" onClick={() => drawerRef.current?.closeDrawer()}>

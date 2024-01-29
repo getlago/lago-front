@@ -77,6 +77,7 @@ export const fullSubscriptionInvoiceMockAndExpect = () => ({
               appliedTaxes: [],
               invoiceName: 'Invoice custom name',
               groupName: 'group 1 custom name',
+              groupedBy: {},
               creditableAmountCents: '100',
               trueUpFee: null,
               charge: null,
@@ -90,6 +91,7 @@ export const fullSubscriptionInvoiceMockAndExpect = () => ({
               appliedTaxes: [],
               invoiceName: 'Invoice custom name',
               groupName: 'group 1 custom name',
+              groupedBy: {},
               creditableAmountCents: '2699900',
               trueUpFee: null,
               charge: {
@@ -263,6 +265,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               creditableAmountCents: '167',
               invoiceName: 'Invoice custom name',
               groupName: null,
+              groupedBy: {},
               trueUpFee: null,
               charge: null,
               group: null,
@@ -276,6 +279,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               creditableAmountCents: '3000',
               invoiceName: 'Invoice custom name',
               groupName: null,
+              groupedBy: {},
               trueUpFee: {
                 id: 'af3ca6df-02ba-4442-a455-c7eb6b0edc6b',
                 __typename: 'Fee',
@@ -290,6 +294,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
                 __typename: 'Charge',
               },
               group: {
+                id: 'group-id-1',
                 key: 'AWS',
                 value: 'europe',
                 __typename: 'Group',
@@ -304,6 +309,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               creditableAmountCents: '2000',
               invoiceName: 'Invoice custom name',
               groupName: null,
+              groupedBy: {},
               trueUpFee: null,
               charge: {
                 id: '5ff24500-2c67-4872-9808-746c59e94d38',
@@ -315,6 +321,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
                 __typename: 'Charge',
               },
               group: {
+                id: 'group-id-1',
                 key: 'AWS',
                 value: 'usa',
                 __typename: 'Group',
@@ -329,6 +336,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               creditableAmountCents: '1000',
               invoiceName: 'Invoice custom name',
               groupName: null,
+              groupedBy: {},
               trueUpFee: null,
               charge: {
                 id: '5ff24500-2c67-4872-9808-746c59e94d38',
@@ -340,6 +348,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
                 __typename: 'Charge',
               },
               group: {
+                id: 'group-id-2',
                 key: 'Google',
                 value: 'usa',
                 __typename: 'Group',
@@ -354,6 +363,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               creditableAmountCents: '10666',
               invoiceName: 'Invoice custom name',
               groupName: null,
+              groupedBy: {},
               trueUpFee: null,
               charge: {
                 id: '5ff24500-2c67-4872-9808-746c59e94d38',
@@ -375,6 +385,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               creditableAmountCents: '3000',
               invoiceName: 'Invoice custom name',
               groupName: null,
+              groupedBy: {},
               trueUpFee: null,
               charge: {
                 id: '594fe1d1-69f1-4b47-8cae-9c76fd409f76',
@@ -386,6 +397,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
                 __typename: 'Charge',
               },
               group: {
+                id: 'group-id-3',
                 key: null,
                 value: 'france',
                 __typename: 'Group',
@@ -400,6 +412,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               creditableAmountCents: '3000',
               invoiceName: 'Invoice custom name',
               groupName: null,
+              groupedBy: {},
               trueUpFee: null,
               charge: {
                 id: '594fe1d1-69f1-4b47-8cae-9c76fd409f76',
@@ -411,6 +424,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
                 __typename: 'Charge',
               },
               group: {
+                id: 'group-id-4',
                 key: null,
                 value: 'italy',
                 __typename: 'Group',
@@ -425,6 +439,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               creditableAmountCents: '40000',
               invoiceName: 'Invoice custom name',
               groupName: null,
+              groupedBy: {},
               trueUpFee: null,
               charge: {
                 id: '2030bb05-e627-40a5-b420-538fb6fbecab',
@@ -446,6 +461,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               creditableAmountCents: '0',
               invoiceName: 'Invoice custom name',
               groupName: null,
+              groupedBy: {},
               trueUpFee: null,
               charge: {
                 id: '2030bb05-e627-40a5-b420-538fb6fbecac',
@@ -542,7 +558,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               checked: true,
               id: 'df9b74ff-b050-44a5-aad4-3ec87999f3c6',
               maxAmount: '2000',
-              name: 'AWS • usa',
+              name: 'AWS • europe',
               value: 20,
             },
             'e94a7773-7641-4d81-a869-bb5c021c2817': {
