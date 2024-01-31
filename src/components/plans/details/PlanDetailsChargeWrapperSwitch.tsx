@@ -1,5 +1,7 @@
+import { useId } from 'react'
 import styled from 'styled-components'
 
+import { Chip } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   ChargeModelEnum,
@@ -23,7 +25,9 @@ const PlanDetailsChargeWrapperSwitch = ({
   chargeModel: ChargeModelEnum
   values?: Maybe<Properties> | Maybe<GroupProperties['values']>
 }) => {
+  const componentId = useId()
   const { translate } = useInternationalization()
+  const groupedBy = Object.values(values?.groupedBy || {}).filter((value) => value)
 
   return (
     <div>
@@ -41,6 +45,18 @@ const PlanDetailsChargeWrapperSwitch = ({
               ],
             ]}
           />
+          {groupedBy.length > 0 && (
+            <DetailsInfoItem
+              label={translate('text_65ba6d45e780c1ff8acb20ce')}
+              value={
+                <GroupChipWrapper>
+                  {groupedBy.map((group, groupIndex) => (
+                    <Chip key={`${componentId}-${groupIndex}`} label={group} />
+                  ))}
+                </GroupChipWrapper>
+              }
+            />
+          )}
         </ChargeContentWrapper>
       )}
       {chargeModel === ChargeModelEnum.Package && (
@@ -213,4 +229,11 @@ const ChargeContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${theme.spacing(4)};
+`
+
+const GroupChipWrapper = styled.div`
+  margin-top: ${theme.spacing(1)};
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${theme.spacing(2)};
 `

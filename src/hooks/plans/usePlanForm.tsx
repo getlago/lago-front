@@ -51,6 +51,7 @@ gql`
     updatePlan(input: $input) {
       ...PlanItem
       ...DeletePlanDialog
+      ...EditPlan
     }
   }
 
@@ -138,7 +139,7 @@ export const usePlanForm: ({
           : plan?.trialPeriod,
       billChargesMonthly: plan?.billChargesMonthly || undefined,
       charges: plan?.charges
-        ? plan?.charges.map(
+        ? (plan?.charges.map(
             ({
               taxes,
               properties,
@@ -169,7 +170,7 @@ export const usePlanForm: ({
                 : [],
               ...charge,
             }),
-          )
+          ) as LocalChargeInput[])
         : ([] as LocalChargeInput[]),
     },
     validationSchema: object().shape({

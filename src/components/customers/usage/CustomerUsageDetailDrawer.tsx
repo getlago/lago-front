@@ -11,6 +11,7 @@ import {
   ChargeUsage,
   ChargeUsageForFormatCustomerUsageFragmentDoc,
   CurrencyEnum,
+  GroupForUsageDetailsFragmentDoc,
   TimezoneEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -58,6 +59,7 @@ gql`
   }
 
   ${ChargeUsageForFormatCustomerUsageFragmentDoc}
+  ${GroupForUsageDetailsFragmentDoc}
 `
 
 export interface CustomerUsageDetailDrawerRef {

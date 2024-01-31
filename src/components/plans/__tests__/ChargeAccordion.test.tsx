@@ -7,24 +7,18 @@ import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisp
 import { MUI_BUTTON_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { chargeSchema } from '~/formValidation/chargeSchema'
-import {
-  AggregationTypeEnum,
-  ChargeModelEnum,
-  CurrencyEnum,
-  GroupProperties,
-} from '~/generated/graphql'
-import { Properties } from '~/generated/graphql'
+import { AggregationTypeEnum, ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { ChargeAccordion } from '../ChargeAccordion'
-import { PlanFormInput } from '../types'
+import { LocalChargeInput, PlanFormInput } from '../types'
 
 type PrepareProps = {
-  properties?: Properties
-  groupProperties?: GroupProperties[]
+  properties?: LocalChargeInput['properties']
+  groupProperties?: LocalChargeInput['groupProperties'][]
 }
 
-async function prepare({ properties, groupProperties = [] }: PrepareProps = {}) {
+async function prepare({ properties, groupProperties }: PrepareProps = {}) {
   const ChargeAccordionMock = () => {
     const formikProps = useFormik<Pick<PlanFormInput, 'charges'>>({
       initialValues: {
@@ -36,7 +30,7 @@ async function prepare({ properties, groupProperties = [] }: PrepareProps = {}) 
               code: 'bm1',
               aggregationType: AggregationTypeEnum.CountAgg,
               recurring: false,
-              flatGroups: !!groupProperties.length
+              flatGroups: !!groupProperties?.length
                 ? [
                     {
                       id: '4567',
@@ -50,7 +44,8 @@ async function prepare({ properties, groupProperties = [] }: PrepareProps = {}) 
                 : undefined,
             },
             chargeModel: ChargeModelEnum.Standard,
-            groupProperties,
+            // @ts-ignore
+            groupProperties: groupProperties as LocalChargeInput['groupProperties'][],
             properties,
           },
         ],
@@ -95,7 +90,7 @@ describe('ChargeAccordion', () => {
     })
 
     it('renders a charge with property but no groupProperties', async () => {
-      await prepare({ properties: getPropertyShape({}) })
+      await prepare({ properties: getPropertyShape({}) as LocalChargeInput['properties'] })
 
       expect(screen.queryByTestId('charge-accordion-0')).toBeInTheDocument()
       expect(screen.queryByTestId('charge-model-wrapper')).toBeInTheDocument()
@@ -106,7 +101,11 @@ describe('ChargeAccordion', () => {
     })
 
     it('renders a charge with group property but no properties', async () => {
-      await prepare({ groupProperties: [{ groupId: '4567', values: getPropertyShape({}) }] })
+      await prepare({
+        groupProperties: [
+          { groupId: '4567', values: getPropertyShape({}) },
+        ] as LocalChargeInput['groupProperties'][],
+      })
 
       expect(screen.queryByTestId('charge-accordion-0')).toBeInTheDocument()
       expect(screen.queryByTestId('charge-model-wrapper')).toBeInTheDocument()
@@ -118,8 +117,10 @@ describe('ChargeAccordion', () => {
 
     it('renders a charge with property and groupProperties', async () => {
       await prepare({
-        properties: getPropertyShape({}),
-        groupProperties: [{ groupId: '4567', values: getPropertyShape({}) }],
+        properties: getPropertyShape({}) as LocalChargeInput['properties'],
+        groupProperties: [
+          { groupId: '4567', values: getPropertyShape({}) },
+        ] as LocalChargeInput['groupProperties'][],
       })
 
       expect(screen.queryByTestId('charge-accordion-0')).toBeInTheDocument()
@@ -132,8 +133,10 @@ describe('ChargeAccordion', () => {
 
     it('hides all sub components if the accordion is closed', async () => {
       await prepare({
-        properties: getPropertyShape({}),
-        groupProperties: [{ groupId: '4567', values: getPropertyShape({}) }],
+        properties: getPropertyShape({}) as LocalChargeInput['properties'],
+        groupProperties: [
+          { groupId: '4567', values: getPropertyShape({}) },
+        ] as LocalChargeInput['groupProperties'][],
       })
 
       await waitFor(() =>
@@ -154,8 +157,10 @@ describe('ChargeAccordion', () => {
 
     it('adds all groups when button is pressed', async () => {
       await prepare({
-        properties: getPropertyShape({}),
-        groupProperties: [{ groupId: '4567', values: getPropertyShape({}) }],
+        properties: getPropertyShape({}) as LocalChargeInput['properties'],
+        groupProperties: [
+          { groupId: '4567', values: getPropertyShape({}) },
+        ] as LocalChargeInput['groupProperties'][],
       })
 
       expect(screen.queryByTestId('charge-accordion-0')).toBeInTheDocument()

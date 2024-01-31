@@ -417,6 +417,7 @@ describe('serializePlanInput()', () => {
               freeUnitsPerEvents: 0,
               freeUnitsPerTotalAggregation: '1',
               graduatedRanges: undefined,
+              groupedBy: undefined,
               graduatedPercentageRanges: undefined,
               packageSize: undefined,
               perTransactionMinAmount: undefined,

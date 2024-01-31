@@ -73,7 +73,7 @@ gql`
 `
 
 interface ChargesSectionProps {
-  alreadyExistingCharges?: PlanFormInput['charges'] | null
+  alreadyExistingCharges?: LocalChargeInput[] | null
   editInvoiceDisplayNameRef: RefObject<EditInvoiceDisplayNameRef>
   canBeEdited?: boolean
   isInitiallyOpen?: boolean

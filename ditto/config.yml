@@ -334,5 +334,7 @@ sources:
       fileName: 👍 [Ready for dev] - Invoices - Edit a draft invoice
     - name: ⚙️ [WIP] - Customers - Real time prepaid credits
       id: 65ae73e967bfa7ba6e9fdf21
+    - name: 👍 [Ready for dev] - Plans - Group by fees on invoices
+      id: 65ba6d43a5aaf708ee0c758e
 format: flat
 variants: true

@@ -54,6 +54,7 @@ const prepare = async ({
                   : undefined,
             },
             properties: propertyType === 'properties' ? { graduatedRanges } : undefined,
+            // @ts-ignore
             groupProperties:
               propertyType === 'groupProperties'
                 ? [{ groupId: '1', values: { graduatedRanges: [...graduatedRanges] } }]

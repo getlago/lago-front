@@ -51,6 +51,7 @@ const prepare = async ({
                   : undefined,
             },
             properties: propertyType === 'properties' ? { graduatedRanges } : undefined,
+            // @ts-ignore
             groupProperties:
               propertyType === 'groupProperties'
                 ? [{ groupId: '1', values: { graduatedRanges: [...graduatedRanges] } }]
@@ -379,27 +380,21 @@ describe('useGraduatedRange()', () => {
         ])
       })
 
-      // it('should delete last row and add new one correctly from default state', async () => {
-      //   const { result } = await prepare({})
-      //   console.log('1', result.current.tableDatas)
+      it('should delete last row and add new one correctly from default state', async () => {
+        const { result } = await prepare({})
 
-      //   await act(async () => await result.current.deleteRange(1))
-      //   console.log('2', result.current.tableDatas)
-      //   expect(result.current.tableDatas).toStrictEqual([
-      //     { ...DEFAULT_GRADUATED_CHARGES[0], toValue: null, disabledDelete: true },
-      //   ])
-      //   console.log('3', result.current.tableDatas)
+        await act(async () => await result.current.deleteRange(1))
+        expect(result.current.tableDatas).toStrictEqual([
+          { ...DEFAULT_GRADUATED_CHARGES[0], toValue: null, disabledDelete: true },
+        ])
 
-      //   await act(async () => await result.current.addRange())
-      //   console.log('4', result.current.tableDatas)
-      //   console.log('...DEFAULT_GRADUATED_CHARGES', DEFAULT_GRADUATED_CHARGES)
+        await act(async () => await result.current.addRange())
 
-      //   expect(result.current.tableDatas).toStrictEqual([
-      //     { ...DEFAULT_GRADUATED_CHARGES[0], disabledDelete: true },
-      //     { ...DEFAULT_GRADUATED_CHARGES[1], disabledDelete: false },
-      //   ])
-      //   console.log('5', result.current.tableDatas)
-      // })
+        expect(result.current.tableDatas).toStrictEqual([
+          { ...DEFAULT_GRADUATED_CHARGES[0], disabledDelete: true },
+          { ...DEFAULT_GRADUATED_CHARGES[1], disabledDelete: false },
+        ])
+      })
     })
   })
 

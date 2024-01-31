@@ -33,6 +33,7 @@ import {
   PackageChargeFragmentDoc,
   PercentageChargeFragmentDoc,
   PlanInterval,
+  StandardChargeFragmentDoc,
   TaxForPlanChargeAccordionFragment,
   useGetTaxesForChargesLazyQuery,
   VolumeRangesFragmentDoc,
@@ -97,6 +98,7 @@ gql`
     ...GraduatedPercentageCharge
     ...VolumeRanges
     ...PackageCharge
+    ...StandardCharge
     ...PercentageCharge
     ...ChargeForChargeOptionsAccordion
   }
@@ -118,6 +120,7 @@ gql`
   ${GraduatedPercentageChargeFragmentDoc}
   ${VolumeRangesFragmentDoc}
   ${PackageChargeFragmentDoc}
+  ${StandardChargeFragmentDoc}
   ${PercentageChargeFragmentDoc}
   ${ChargeForChargeOptionsAccordionFragmentDoc}
 `
@@ -609,8 +612,8 @@ export const ChargeAccordion = memo(
                   index={index}
                   propertyCursor="properties"
                   premiumWarningDialogRef={premiumWarningDialogRef}
-                  valuePointer={localCharge.properties}
-                  handleUpdate={handleUpdate}
+                  valuePointer={localCharge?.properties}
+                  initialValuePointer={initialLocalCharge?.properties}
                 />
               </ConditionalWrapper>
             )}
@@ -721,9 +724,12 @@ export const ChargeAccordion = memo(
                     premiumWarningDialogRef={premiumWarningDialogRef}
                     valuePointer={
                       localCharge?.groupProperties &&
-                      localCharge?.groupProperties[groupPropertyIndex].values
+                      localCharge?.groupProperties[groupPropertyIndex]?.values
                     }
-                    handleUpdate={handleUpdate}
+                    initialValuePointer={
+                      initialLocalCharge?.groupProperties &&
+                      initialLocalCharge?.groupProperties[groupPropertyIndex]?.values
+                    }
                   />
                 </Accordion>
               )
