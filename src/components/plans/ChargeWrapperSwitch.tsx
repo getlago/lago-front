@@ -1,72 +1,54 @@
-import { InputAdornment } from '@mui/material'
 import { FormikProps } from 'formik'
 import { memo, RefObject } from 'react'
 import styled from 'styled-components'
 
-import { AmountInput } from '~/components/form'
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
-import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import {
-  ChargeModelEnum,
-  CurrencyEnum,
-  InputMaybe,
-  PropertiesInput,
-  TaxForPlanChargeAccordionFragment,
-} from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { ChargeModelEnum, CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
 
 import { GraduatedPercentageChargeTable } from './GraduatedPercentageChargeTable'
+import { StandardCharge } from './StandardCharge'
 import { PlanFormInput } from './types'
 import { VolumeChargeTable } from './VolumeChargeTable'
 
 import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 interface ChargeWrapperSwitchProps {
-  propertyCursor: string
-  index: number
-  valuePointer: InputMaybe<PropertiesInput> | undefined
   currency: CurrencyEnum
-  disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
+  index: number
+  initialValuePointer: InputMaybe<PropertiesInput> | undefined
+  propertyCursor: string
+  valuePointer: InputMaybe<PropertiesInput> | undefined
+  disabled?: boolean
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
-  handleUpdate: (
-    name: string,
-    value: string | boolean | TaxForPlanChargeAccordionFragment[],
-  ) => void
 }
 
 export const ChargeWrapperSwitch = memo(
   ({
-    propertyCursor,
-    valuePointer,
-    index,
     currency,
     disabled,
-    premiumWarningDialogRef,
-    handleUpdate,
     formikProps,
+    index,
+    initialValuePointer,
+    premiumWarningDialogRef,
+    propertyCursor,
+    valuePointer,
   }: ChargeWrapperSwitchProps) => {
-    const { translate } = useInternationalization()
     const localCharge = formikProps.values.charges[index]
 
     return (
       <MargedWrapper>
         {localCharge.chargeModel === ChargeModelEnum.Standard && (
-          <AmountInput
-            name={`${propertyCursor}.amount`}
+          <StandardCharge
+            chargeIndex={index}
             currency={currency}
-            beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
             disabled={disabled}
-            label={translate('text_624453d52e945301380e49b6')}
-            value={valuePointer?.amount || ''}
-            onChange={(value) => handleUpdate(`${propertyCursor}.amount`, value)}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
-              ),
-            }}
+            formikProps={formikProps}
+            propertyCursor={propertyCursor}
+            valuePointer={valuePointer}
+            initialValuePointer={initialValuePointer}
           />
         )}
         {localCharge.chargeModel === ChargeModelEnum.Package && (

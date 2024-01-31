@@ -1,6 +1,8 @@
 import styled from 'styled-components'
 
 import { Accordion, Typography } from '~/components/designSystem'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   Charge,
   ChargeModelEnum,
@@ -77,6 +79,7 @@ const PlanDetailsChargesSection = ({
               }
             >
               <ChargeSectionWrapper>
+                {/* Charge main infos */}
                 <PaddedChargeModelWrapper>
                   <DetailsInfoGrid>
                     <DetailsInfoItem
@@ -95,11 +98,66 @@ const PlanDetailsChargesSection = ({
                     />
                   </DetailsInfoGrid>
                 </PaddedChargeModelWrapper>
-                <PlanDetailsChargesSectionAccordion
-                  currency={currency}
-                  charge={charge as Charge}
-                  planTaxes={plan?.taxes}
-                />
+                {/* Propertiers accordion */}
+                <PlanDetailsChargesSectionAccordion currency={currency} charge={charge as Charge} />
+                {/* Options */}
+                <PaddedOptionsWrapper>
+                  <DetailsInfoGrid>
+                    <DetailsInfoItem
+                      label={translate('text_65201b8216455901fe273dd9')}
+                      value={
+                        charge?.payInAdvance
+                          ? translate('text_646e2d0cc536351b62ba6faa')
+                          : translate('text_646e2d0cc536351b62ba6f8c')
+                      }
+                    />
+                    <DetailsInfoItem
+                      label={translate('text_65201b8216455901fe273ddb')}
+                      value={intlFormatNumber(deserializeAmount(charge.minAmountCents, currency), {
+                        currencyDisplay: 'symbol',
+                        currency,
+                        maximumFractionDigits: 15,
+                      })}
+                    />
+                    <DetailsInfoItem
+                      label={translate('text_65201b8216455901fe273df0')}
+                      value={
+                        charge.prorated
+                          ? translate('text_65251f46339c650084ce0d57')
+                          : translate('text_65251f4cd55aeb004e5aa5ef')
+                      }
+                    />
+                    <DetailsInfoItem
+                      label={translate('text_646e2d0cc536351b62ba6f16')}
+                      value={
+                        charge.invoiceable
+                          ? translate('text_65251f46339c650084ce0d57')
+                          : translate('text_65251f4cd55aeb004e5aa5ef')
+                      }
+                    />
+                    <DetailsInfoItem
+                      label={translate('text_645bb193927b375079d28a8f')}
+                      value={
+                        !!charge?.taxes?.length || !!plan?.taxes?.length
+                          ? (charge.taxes?.length ? charge.taxes : plan?.taxes)?.map(
+                              (tax, taxIndex) => (
+                                <div
+                                  key={`plan-details-charge-${i}-section-accordion-tax-${taxIndex}`}
+                                >
+                                  {tax.name} (
+                                  {intlFormatNumber(Number(tax.rate) / 100 || 0, {
+                                    maximumFractionDigits: 2,
+                                    style: 'percent',
+                                  })}
+                                  )
+                                </div>
+                              ),
+                            )
+                          : '-'
+                      }
+                    />
+                  </DetailsInfoGrid>
+                </PaddedOptionsWrapper>
               </ChargeSectionWrapper>
             </Accordion>
           ))}
@@ -131,6 +189,7 @@ const PlanDetailsChargesSection = ({
               }
             >
               <ChargeSectionWrapper>
+                {/* Charge main infos */}
                 <PaddedChargeModelWrapper>
                   <DetailsInfoGrid>
                     <DetailsInfoItem
@@ -149,11 +208,66 @@ const PlanDetailsChargesSection = ({
                     />
                   </DetailsInfoGrid>
                 </PaddedChargeModelWrapper>
-                <PlanDetailsChargesSectionAccordion
-                  currency={currency}
-                  charge={charge as Charge}
-                  planTaxes={plan?.taxes}
-                />
+                {/* Propertiers accordion */}
+                <PlanDetailsChargesSectionAccordion currency={currency} charge={charge as Charge} />
+                {/* Options */}
+                <PaddedOptionsWrapper>
+                  <DetailsInfoGrid>
+                    <DetailsInfoItem
+                      label={translate('text_65201b8216455901fe273dd9')}
+                      value={
+                        charge?.payInAdvance
+                          ? translate('text_646e2d0cc536351b62ba6faa')
+                          : translate('text_646e2d0cc536351b62ba6f8c')
+                      }
+                    />
+                    <DetailsInfoItem
+                      label={translate('text_65201b8216455901fe273ddb')}
+                      value={intlFormatNumber(deserializeAmount(charge.minAmountCents, currency), {
+                        currencyDisplay: 'symbol',
+                        currency,
+                        maximumFractionDigits: 15,
+                      })}
+                    />
+                    <DetailsInfoItem
+                      label={translate('text_65201b8216455901fe273df0')}
+                      value={
+                        charge.prorated
+                          ? translate('text_65251f46339c650084ce0d57')
+                          : translate('text_65251f4cd55aeb004e5aa5ef')
+                      }
+                    />
+                    <DetailsInfoItem
+                      label={translate('text_646e2d0cc536351b62ba6f16')}
+                      value={
+                        charge.invoiceable
+                          ? translate('text_65251f46339c650084ce0d57')
+                          : translate('text_65251f4cd55aeb004e5aa5ef')
+                      }
+                    />
+                    <DetailsInfoItem
+                      label={translate('text_645bb193927b375079d28a8f')}
+                      value={
+                        !!charge?.taxes?.length || !!plan?.taxes?.length
+                          ? (charge.taxes?.length ? charge.taxes : plan?.taxes)?.map(
+                              (tax, taxIndex) => (
+                                <div
+                                  key={`plan-details-charge-${i}-section-accordion-tax-${taxIndex}`}
+                                >
+                                  {tax.name} (
+                                  {intlFormatNumber(Number(tax.rate) / 100 || 0, {
+                                    maximumFractionDigits: 2,
+                                    style: 'percent',
+                                  })}
+                                  )
+                                </div>
+                              ),
+                            )
+                          : '-'
+                      }
+                    />
+                  </DetailsInfoGrid>
+                </PaddedOptionsWrapper>
               </ChargeSectionWrapper>
             </Accordion>
           ))}
@@ -184,4 +298,9 @@ const PaddedChargeModelWrapper = styled.div`
 const ChargeSummaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
+`
+
+const PaddedOptionsWrapper = styled.div`
+  padding: 0 ${theme.spacing(4)} ${theme.spacing(4)};
+  box-sizing: border-box;
 `

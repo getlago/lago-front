@@ -14,6 +14,10 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
 
   return {
     ...properties,
+    ...([ChargeModelEnum.Standard].includes(chargeModel)
+      ? // @ts-ignore EDIT: groupedBy is a string at this stage. need to send string[] to BE
+        { groupedBy: !!properties?.groupedBy ? properties?.groupedBy.split(',') : undefined }
+      : {}),
     ...([ChargeModelEnum.Package, ChargeModelEnum.Standard].includes(chargeModel)
       ? { amount: !!properties?.amount ? String(properties?.amount) : undefined }
       : {}),

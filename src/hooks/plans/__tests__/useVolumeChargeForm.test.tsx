@@ -51,6 +51,7 @@ const prepare = async ({
                   : undefined,
             },
             properties: propertyType === 'properties' ? { volumeRanges } : undefined,
+            // @ts-ignore
             groupProperties:
               propertyType === 'groupProperties'
                 ? [{ groupId: '1', values: { volumeRanges: [...volumeRanges] } }]
