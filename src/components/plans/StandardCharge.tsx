@@ -53,7 +53,9 @@ export const StandardCharge = memo(
   }: PackageChargeProps) => {
     const { translate } = useInternationalization()
 
-    const [shouldDisplayGroupedBy, setShouldDisplayGroupedBy] = useState<boolean>(false)
+    const [shouldDisplayGroupedBy, setShouldDisplayGroupedBy] = useState<boolean>(
+      !!initialValuePointer?.groupedBy,
+    )
     const handleUpdate = useCallback(
       (name: string, value: string) => {
         formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
@@ -64,7 +66,7 @@ export const StandardCharge = memo(
 
     useEffect(() => {
       setShouldDisplayGroupedBy(!!initialValuePointer?.groupedBy)
-    }, [formikProps.initialValues.description, initialValuePointer?.groupedBy])
+    }, [initialValuePointer?.groupedBy])
 
     return (
       <Container>
@@ -82,7 +84,7 @@ export const StandardCharge = memo(
             ),
           }}
         />
-        {shouldDisplayGroupedBy ? (
+        {shouldDisplayGroupedBy || !!valuePointer?.groupedBy ? (
           <InlineFields>
             {/* TODO: make it a single line textarea */}
             <StyledTextInput
