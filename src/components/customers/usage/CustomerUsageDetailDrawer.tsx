@@ -157,13 +157,14 @@ export const CustomerUsageDetailDrawer = forwardRef<
                   Object.values(groupedUsage?.groupedBy).forEach(
                     (groupValue) => !!groupValue && composableGroupName.push(groupValue as string),
                   )
-                  composableGroupName.filter((i) => !!i).join(' • ')
 
                   return (
                     <GroupItem key={`grouped-usage-${groupedUsageIndex}`} className="item">
                       <div>
                         <Typography variant="bodyHl" color="grey700">
-                          {!!composableGroupName.length ? composableGroupName : displayName}
+                          {!!composableGroupName?.filter((i) => !!i).length
+                            ? composableGroupName.filter((i) => !!i).join(' • ')
+                            : displayName}
                         </Typography>
                         <Typography variant="body" color="grey600">
                           {translate('text_633dae57ca9a923dd53c20a3', {
