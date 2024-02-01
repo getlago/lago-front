@@ -146,7 +146,35 @@ export const InvoiceDetailsTable = memo(
   }: InvoiceDetailsTableProps) => {
     const { translate } = useInternationalization()
     // We can only have 2 subscription max, with 2 potential zero fee arrays
+    // NOTE: This is ugly, will fis that before tomorrow
     const [feeZeroIsOpenMatrice, setFeeZeroIsOpenMatrice] = useState([
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
+      [false, false],
       [false, false],
       [false, false],
     ])
