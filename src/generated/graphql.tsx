@@ -256,7 +256,7 @@ export type ChargeUsage = {
   billableMetric: BillableMetric;
   charge: Charge;
   eventsCount: Scalars['Int']['output'];
-  groupedBy?: Maybe<Array<Scalars['String']['output']>>;
+  groupedUsage: Array<GroupedChargeUsage>;
   groups?: Maybe<Array<GroupUsage>>;
   units: Scalars['Float']['output'];
 };
@@ -1746,7 +1746,7 @@ export type Fee = InvoiceItem & {
   feeType: FeeTypesEnum;
   group?: Maybe<Group>;
   groupName?: Maybe<Scalars['String']['output']>;
-  groupedBy: Array<Scalars['String']['output']>;
+  groupedBy: Scalars['JSON']['output'];
   id: Scalars['ID']['output'];
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
   invoiceName?: Maybe<Scalars['String']['output']>;
@@ -1959,6 +1959,15 @@ export type GroupUsage = {
   key?: Maybe<Scalars['String']['output']>;
   units: Scalars['Float']['output'];
   value: Scalars['String']['output'];
+};
+
+export type GroupedChargeUsage = {
+  __typename?: 'GroupedChargeUsage';
+  amountCents: Scalars['BigInt']['output'];
+  eventsCount: Scalars['Int']['output'];
+  groupedBy?: Maybe<Scalars['JSON']['output']>;
+  groups?: Maybe<Array<GroupUsage>>;
+  units: Scalars['Float']['output'];
 };
 
 /** Billable metric filters input arguments */
