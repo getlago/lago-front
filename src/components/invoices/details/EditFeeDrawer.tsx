@@ -79,7 +79,8 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
         test: function (value) {
           if (
             arguments[1].from[0]?.value?.adjustmentType === AdjustedFeeTypeEnum.AdjustedAmount &&
-            !value
+            !value &&
+            Number(value) !== 0
           ) {
             return false
           }
@@ -89,7 +90,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
       }),
       units: number().test({
         test: function (value) {
-          if (!!arguments[1].from[0]?.value?.adjustmentType && !value) {
+          if (!!arguments[1].from[0]?.value?.adjustmentType && !value && Number(value) !== 0) {
             return false
           }
 
