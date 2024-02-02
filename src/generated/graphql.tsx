@@ -4611,6 +4611,10 @@ export type FeeForInvoiceDetailsTableBodyLineVolumeFragment = { __typename?: 'Fe
 
 export type InvoiceForDetailsTableFooterFragment = { __typename?: 'Invoice', couponsAmountCents: any, creditNotesAmountCents: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, totalAmountCents: any, currency?: CurrencyEnum | null, invoiceType: InvoiceTypeEnum, status: InvoiceStatusTypeEnum, prepaidCreditAmountCents: any, versionNumber: number, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxRate: number, taxName: string }> | null };
 
+export type FeeForInvoiceFeeAdvanceDetailsTableFragment = { __typename?: 'Fee', id: string, units: number, preciseUnitAmount: number, amountCents: any, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, currency: CurrencyEnum, charge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, minAmountCents: any, payInAdvance: boolean, prorated: boolean } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, freeUnits?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, fixedFeeUnitAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', flatUnitAmount?: string | null, fromValue?: number | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, toValue?: number | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', flatUnitAmount?: string | null, fromValue?: number | null, perUnitTotalAmount?: string | null, rate?: string | null, toValue?: number | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null };
+
+export type FeeForInvoiceFeeArrearsDetailsTableFragment = { __typename?: 'Fee', id: string, units: number, preciseUnitAmount: number, amountCents: any, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, currency: CurrencyEnum, charge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, minAmountCents: any, payInAdvance: boolean, prorated: boolean } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, freeUnits?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, fixedFeeUnitAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', flatUnitAmount?: string | null, fromValue?: number | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, toValue?: number | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', flatUnitAmount?: string | null, fromValue?: number | null, perUnitTotalAmount?: string | null, rate?: string | null, toValue?: number | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null };
+
 export type TaxForPlanChargeAccordionFragment = { __typename?: 'Tax', id: string, code: string, name: string, rate: number };
 
 export type ChargeAccordionFragment = { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, prorated: boolean, invoiceDisplayName?: string | null, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, groupedBy?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, invoiceDisplayName?: string | null, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, groupedBy?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null };
@@ -6941,6 +6945,26 @@ ${FeeForInvoiceDetailsTableBodyLinePackageFragmentDoc}
 ${FeeForInvoiceDetailsTableBodyLinePercentageFragmentDoc}
 ${FeeForEditfeeDrawerFragmentDoc}
 ${FeeForDeleteAdjustmentFeeDialogFragmentDoc}`;
+export const FeeForInvoiceFeeArrearsDetailsTableFragmentDoc = gql`
+    fragment FeeForInvoiceFeeArrearsDetailsTable on Fee {
+  id
+  ...FeeForInvoiceDetailsTableBodyLine
+  ...FeeForDeleteAdjustmentFeeDialog
+  ...FeeForEditfeeDrawer
+}
+    ${FeeForInvoiceDetailsTableBodyLineFragmentDoc}
+${FeeForDeleteAdjustmentFeeDialogFragmentDoc}
+${FeeForEditfeeDrawerFragmentDoc}`;
+export const FeeForInvoiceFeeAdvanceDetailsTableFragmentDoc = gql`
+    fragment FeeForInvoiceFeeAdvanceDetailsTable on Fee {
+  id
+  ...FeeForInvoiceDetailsTableBodyLine
+  ...FeeForDeleteAdjustmentFeeDialog
+  ...FeeForEditfeeDrawer
+}
+    ${FeeForInvoiceDetailsTableBodyLineFragmentDoc}
+${FeeForDeleteAdjustmentFeeDialogFragmentDoc}
+${FeeForEditfeeDrawerFragmentDoc}`;
 export const FeeForInvoiceDetailsTableFragmentDoc = gql`
     fragment FeeForInvoiceDetailsTable on Fee {
   id
@@ -6979,8 +7003,12 @@ export const FeeForInvoiceDetailsTableFragmentDoc = gql`
     value
   }
   ...FeeForInvoiceDetailsTableBodyLine
+  ...FeeForInvoiceFeeArrearsDetailsTable
+  ...FeeForInvoiceFeeAdvanceDetailsTable
 }
-    ${FeeForInvoiceDetailsTableBodyLineFragmentDoc}`;
+    ${FeeForInvoiceDetailsTableBodyLineFragmentDoc}
+${FeeForInvoiceFeeArrearsDetailsTableFragmentDoc}
+${FeeForInvoiceFeeAdvanceDetailsTableFragmentDoc}`;
 export const InvoiceSubscriptionFormatingFragmentDoc = gql`
     fragment InvoiceSubscriptionFormating on InvoiceSubscription {
   fromDatetime
