@@ -624,6 +624,7 @@ const Charges = styled.div`
 
 const InlineButtons = styled.div`
   display: flex;
+  flex-wrap: wrap;
 `
 
 const RecurringSectionTitleWrapper = styled.div<{ $hasAnyAboveSection: boolean }>`
