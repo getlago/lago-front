@@ -36,6 +36,22 @@ export const theme = createTheme({
     borderRadius: 12, // Default is 4 but can be 12px
   },
   components: {
+    MuiButtonBase: {
+      defaultProps: {
+        disableRipple: true,
+        disableTouchRipple: true,
+      },
+      styleOverrides: {
+        root: {
+          /* reset default button shape in datepicker */
+          '&.MuiPickersArrowSwitcher-button': {
+            width: '40px',
+            height: '40px',
+            borderRadius: '8px',
+          },
+        },
+      },
+    },
     MuiLink: {
       defaultProps: {
         color: 'primary',

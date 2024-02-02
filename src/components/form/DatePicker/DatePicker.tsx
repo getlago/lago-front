@@ -1,15 +1,14 @@
 import { gql } from '@apollo/client'
-import { InputAdornment, PopperProps as MuiPopperProps } from '@mui/material'
+import { PopperProps as MuiPopperProps } from '@mui/material'
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon'
 import { DatePicker as MuiDatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import _omit from 'lodash/omit'
 import { DateTime, Settings } from 'luxon'
 import { useEffect, useState } from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
-import { Button, Tooltip } from '~/components/designSystem'
-import { TextInput, TextInputProps } from '~/components/form'
+import { Button, Icon, Tooltip } from '~/components/designSystem'
+import { TextInputProps } from '~/components/form'
 import { getTimezoneConfig } from '~/core/timezone'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -36,15 +35,12 @@ export interface DatePickerProps
   error?: string
   helperText?: string
   defaultZone?: string // Overrides the default timezone of the date picker
+  disabled?: boolean
   disableFuture?: boolean
   disablePast?: boolean
   placement?: MuiPopperProps['placement']
   onError?: (err: keyof typeof DATE_PICKER_ERROR_ENUM | undefined) => void
   onChange: (value?: string | null) => void
-}
-
-type OveridableComponentProps = {
-  onClick: React.MouseEventHandler<HTMLButtonElement> | undefined
 }
 
 export const DatePicker = ({
@@ -59,9 +55,11 @@ export const DatePicker = ({
   placement = 'bottom-end',
   onError,
   onChange,
+  helperText,
   ...props
 }: DatePickerProps) => {
   const { organization } = useOrganizationInfos()
+
   const [localDate, setLocalDate] = useState<DateTime | null>(
     /**
      * Date will be passed to the parent as ISO
@@ -91,48 +89,11 @@ export const DatePicker = ({
     <LocalizationProvider dateAdapter={AdapterLuxon}>
       <Container className={className}>
         <MuiDatePicker
-          inputFormat="MM/dd/yyyy"
+          format="MM/dd/yyyy"
           disableFuture={disableFuture}
           disabled={disabled}
           disablePast={disablePast}
           value={localDate}
-          PopperProps={{
-            disablePortal: true,
-            placement,
-            style: { paddingBottom: theme.spacing(4) },
-            modifiers: [
-              {
-                name: 'flip',
-                enabled: placement === 'auto',
-              },
-              {
-                name: 'offset',
-                enabled: true,
-                options: {
-                  // @ts-ignore
-                  offset: ({ reference }) => {
-                    // Re-calculate picker position if placed on the left.
-                    // Removes the input width and twice the picker icon "box" (24*2)
-                    if (placement.includes('left')) {
-                      return [0, -(reference.width - 48)]
-                    }
-
-                    return [0, 8]
-                  },
-                },
-              },
-            ],
-          }}
-          PaperProps={{
-            style: {
-              border: `1px solid ${theme.palette.grey[200]}`,
-              boxShadow: '0px 6px 8px 0px #19212E1F',
-              width: '352px',
-              padding: `${theme.spacing(6)} 0 ${theme.spacing(6)} 0`,
-              boxSizing: 'border-box',
-              height: '408px',
-            },
-          }}
           onChange={(date) => {
             setLocalDate(!date ? date : (date as unknown as DateTime).toUTC())
 
@@ -146,79 +107,94 @@ export const DatePicker = ({
               onError && onError(DATE_PICKER_ERROR_ENUM.invalid)
             }
           }}
-          renderInput={({ inputRef, inputProps, InputProps }) => {
-            return (
-              <TextInput
-                {...props}
-                error={isInvalid ? 'text_62cd78ea9bff25e3391b2459' : error}
-                ref={inputRef}
-                placeholder={placeholder || translate('text_62cd78ea9bff25e3391b243d')}
-                inputProps={_omit(inputProps, 'placeholder', 'error')}
+          slots={{
+            day: (dayProps) => (
+              <DayButton
+                $isToday={dayProps.today}
+                variant={dayProps.selected ? 'primary' : 'quaternary'}
                 disabled={disabled}
-                InputProps={{
-                  endAdornment: (
-                    <PickerInputAdornment position="end">
-                      {!!props?.inputProps?.cleanable && !!localDate && !disabled && (
-                        <Button
-                          className="button-clear-date"
-                          disabled={disabled}
-                          size="small"
-                          icon="close-circle-filled"
-                          variant="quaternary"
-                          onClick={() => onChange && onChange(undefined)}
-                        />
-                      )}
-                      <Tooltip
-                        title={translate('text_62cd78ea9bff25e3391b2437')}
-                        placement="top-end"
-                        disableHoverListener={disabled}
-                      >
-                        <Button
-                          disabled={disabled}
-                          icon="calendar"
-                          size="small"
-                          variant="quaternary"
-                          // @ts-ignore
-                          onClick={InputProps?.endAdornment?.props?.children?.props?.onClick}
-                        />
-                      </Tooltip>
-                    </PickerInputAdornment>
-                  ),
-                }}
+                onClick={() => dayProps.onDaySelect(dayProps.day)}
+              >
+                {dayProps.day.day}
+              </DayButton>
+            ),
+            switchViewButton: () => (
+              <Button variant="quaternary" disabled={disabled} icon="chevron-down" size="small" />
+            ),
+            leftArrowIcon: () => <Icon name="chevron-left" />,
+            rightArrowIcon: () => <Icon name="chevron-right" />,
+            clearButton: () => (
+              <Button
+                className="button-clear-date"
+                disabled={disabled}
+                icon="close-circle-filled"
+                size="small"
+                variant="quaternary"
               />
-            )
-          }}
-          components={{
-            SwitchViewButton: ({ onClick }: OveridableComponentProps) => {
-              return (
+            ),
+            openPickerButton: (pickerProps) => (
+              <Tooltip
+                className="open-picker-tooltip"
+                disableHoverListener={disabled}
+                placement="top-end"
+                title={translate('text_62cd78ea9bff25e3391b2437')}
+              >
                 <Button
-                  variant="quaternary"
+                  disabled={disabled}
+                  icon="calendar"
+                  onClick={pickerProps.onClick}
                   size="small"
-                  onClick={onClick}
-                  disabled={disabled}
-                  icon="chevron-down"
-                />
-              )
-            },
-            LeftArrowButton: ({ onClick }: OveridableComponentProps) => {
-              return (
-                <Button
                   variant="quaternary"
-                  onClick={onClick}
-                  disabled={disabled}
-                  icon="chevron-left"
                 />
-              )
+              </Tooltip>
+            ),
+          }}
+          slotProps={{
+            popper: {
+              placement,
+              modifiers: [
+                {
+                  name: 'flip',
+                  enabled: placement === 'auto',
+                },
+                {
+                  name: 'offset',
+                  enabled: true,
+                  options: {
+                    // @ts-ignore
+                    offset: ({ reference }) => {
+                      // Re-calculate picker position if placed on the left.
+                      // Removes the input width and twice the picker icon "box" (24*2)
+                      if (placement.includes('left')) {
+                        return [0, -(reference.width - 48)]
+                      }
+
+                      return [0, 8]
+                    },
+                  },
+                },
+              ],
             },
-            RightArrowButton: ({ onClick }: OveridableComponentProps) => {
-              return (
-                <Button
-                  variant="quaternary"
-                  onClick={onClick}
-                  disabled={disabled}
-                  icon="chevron-right"
-                />
-              )
+            textField: {
+              placeholder: placeholder || translate('text_62cd78ea9bff25e3391b243d'),
+              error: !!error || isInvalid,
+              helperText: !!error || isInvalid ? error : helperText,
+            },
+            openPickerButton: {
+              style: {
+                padding: 0,
+                marginRight: 0,
+                height: 'fit-content',
+              },
+            },
+            desktopPaper: {
+              style: {
+                border: `1px solid ${theme.palette.grey[200]}`,
+                boxShadow: '0px 6px 8px 0px #19212E1F',
+                width: '352px',
+                padding: `${theme.spacing(6)} 0`,
+                boxSizing: 'border-box',
+              },
             },
           }}
         />
@@ -230,7 +206,11 @@ export const DatePicker = ({
 const Container = styled.div`
   position: relative;
 
-  .MuiCalendarPicker-root {
+  .open-picker-tooltip {
+    font-size: 0;
+  }
+
+  .MuiDateCalendar-root {
     width: 100%;
 
     // prettier-ignore
@@ -276,7 +256,7 @@ const Container = styled.div`
     }
   }
 
-  .MuiCalendarPicker-viewTransitionContainer {
+  .MuiDateCalendar-viewTransitionContainer {
     > div > div {
       gap: 4px;
     }
@@ -291,7 +271,7 @@ const Container = styled.div`
     }
   }
 
-  .MuiCalendarPicker-viewTransitionContainer {
+  .MuiDateCalendar-viewTransitionContainer {
     min-height: 304px;
 
     > *:first-child {
@@ -299,14 +279,14 @@ const Container = styled.div`
     }
   }
 
-  .MuiCalendarPicker-root,
+  .MuiDateCalendar-root,
   .PrivatePickersSlideTransition-root,
   .MuiPaper-root > div > div:first-child {
     overflow-x: visible;
   }
 
   .MuiPaper-root > *:first-child {
-    margin: 0 18px; // TODO
+    margin: 0 18px;
 
     > *:first-child {
       width: inherit;
@@ -314,7 +294,7 @@ const Container = styled.div`
     }
   }
 
-  .MuiYearPicker-root {
+  .MuiYearCalendar-root {
     margin: 0;
   }
 
@@ -413,7 +393,18 @@ const Container = styled.div`
   }
 `
 
-const PickerInputAdornment = styled(InputAdornment)`
-  height: 24px;
-  align-items: flex-end;
+const DayButton = styled(Button)<{ $isToday?: boolean }>`
+  height: 40px;
+  width: 40px;
+
+  ${({ $isToday }) =>
+    $isToday &&
+    css`
+      border: 1px solid ${theme.palette.grey[500]};
+    `}
 `
+
+// TODO
+// - Input don't take style from parent
+// - Hide other months days
+// - remove big gap at the bottom of the picker / check size
