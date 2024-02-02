@@ -1034,7 +1034,7 @@
   "text_65ae73ebe3a66bec2b91d741": "Invoiced balance as of {{date}}",
   "text_65ae73ebe3a66bec2b91d747": "Balance",
   "text_65ae73ebe3a66bec2b91d75f": "Ongoing balance",
-  "text_65ae73ebe3a66bec2b91d749": "Invoiced balance updates every 5 minutes to include ongoing usage and pending credits purchases.",
+  "text_65ae73ebe3a66bec2b91d749": "Ongoing balance updates every 5 minutes to include ongoing usage and pending credits purchases.",
   "text_65ae9a58ed65be00a35a0d72": "Current usage (incl. taxes)",
   "text_65ae73ece3a66bec2b91d7d7": "Total invoiced:",
   "text_6328e70de459381ed4ba50d6": "The subscription upgrade will take effect immediately for your customer\nHowever, the downgrade will be effective after {{subscriptionEndDate}}",
