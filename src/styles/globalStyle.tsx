@@ -57,6 +57,11 @@ export const inputGlobalStyles = (
       'span.line-break-anywhere': {
         'line-break': 'anywhere',
       },
+      // Date picker does not expose this class name, so we have to use a global selector
+      '.MuiPickersArrowSwitcher-spacer': {
+        // Make space between month switcher's arrows larger
+        width: '24px !important',
+      },
     }}
   />
 )

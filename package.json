@@ -96,11 +96,10 @@
   },
   "dependencies": {
     "@apollo/client": "3.8.1",
-    "@date-io/luxon": "2.17.0",
     "@mui/material": "5.14.18",
     "@mui/styled-engine": "5.14.18",
     "@mui/styled-engine-sc": "5.14.12",
-    "@mui/x-date-pickers": "5.0.20",
+    "@mui/x-date-pickers": "6.20.0",
     "@sentry/react": "7.108.0",
     "@sentry/tracing": "7.108.0",
     "apollo-link-timeout": "4.0.0",
