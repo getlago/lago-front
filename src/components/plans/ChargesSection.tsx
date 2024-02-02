@@ -103,7 +103,7 @@ export const ChargesSection = memo(
     const newChargeId = useRef<string | null>(null)
     const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
     const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
-    const alreadyUsedBmsIds = useRef<Map<String, number>>(new Map())
+    const [alreadyUsedBmsIds, setAlreadyUsedBmsIds] = useState<Map<String, number>>(new Map())
     const hasAnyMeteredCharge = useMemo(
       () => formikProps.values.charges.some((c) => !c.billableMetric.recurring),
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -209,7 +209,7 @@ export const ChargesSection = memo(
         }
       }
 
-      alreadyUsedBmsIds.current = BmIdsMap
+      setAlreadyUsedBmsIds(BmIdsMap)
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formikProps.values.charges.length])
 
@@ -312,7 +312,7 @@ export const ChargesSection = memo(
                   (chargeFetched) => chargeFetched?.id === charge.id,
                 )
                 const shouldDisplayAlreadyUsedChargeAlert =
-                  (alreadyUsedBmsIds.current.get(charge.billableMetric.id) || 0) > 1
+                  (alreadyUsedBmsIds.get(charge.billableMetric.id) || 0) > 1
 
                 return (
                   <ChargeAccordion
@@ -451,7 +451,7 @@ export const ChargesSection = memo(
                   (chargeFetched) => chargeFetched?.id === charge.id,
                 )
                 const shouldDisplayAlreadyUsedChargeAlert =
-                  (alreadyUsedBmsIds.current.get(charge.billableMetric.id) || 0) > 1
+                  (alreadyUsedBmsIds.get(charge.billableMetric.id) || 0) > 1
 
                 return (
                   <ChargeAccordion
