@@ -36,6 +36,90 @@ export const theme = createTheme({
     borderRadius: 12, // Default is 4 but can be 12px
   },
   components: {
+    MuiButtonBase: {
+      defaultProps: {
+        disableRipple: true,
+        disableTouchRipple: true,
+      },
+      styleOverrides: {
+        root: {
+          /* reset default button shape in datepicker */
+          '&.MuiPickersArrowSwitcher-button': {
+            width: '40px',
+            height: '40px',
+            borderRadius: '8px',
+          },
+        },
+      },
+    },
+    MuiPopper: {
+      styleOverrides: {
+        root: {
+          '.MuiDateCalendar-viewTransitionContainer': {
+            'min-height': '304px',
+
+            '> *:first-child': {
+              overflow: 'hidden',
+            },
+          },
+          '.MuiDateCalendar-root,.PrivatePickersSlideTransition-root,.MuiPaper-root > div > div:first-child':
+            {
+              'overflow-x': 'visible',
+            },
+          '.MuiPickersCalendarHeader-root': {
+            margin: '6px 0 16px 0',
+            padding: '0 6px 0',
+            'min-height': 'unset',
+            'max-height': 'fit-content',
+          },
+          '.MuiPickersCalendarHeader-label': {
+            color: palette.grey[700],
+            'font-size': '16px',
+            'line-height': '28px',
+            'font-weight': 400,
+          },
+          '.custom-date-picker-header': {
+            marginTop: '6px',
+            marginBottom: '16px',
+            padding: '0px 6px 0px',
+          },
+
+          '.custom-date-picker-day': {
+            'border-radius': '12px',
+            color: palette.grey[600],
+            height: '40px',
+            width: '40px',
+            margin: '0px',
+            'font-size': '16px',
+            'line-height': '28px',
+            'font-weight': 400,
+
+            '&:focus': {
+              backgroundColor: 'white',
+              'box-shadow': 'rgb(179, 212, 255) 0px 0px 0px 4px',
+
+              '&.Mui-selected': {
+                backgroundColor: `${palette.primary[600]} !important`,
+              },
+            },
+          },
+          '.MuiDayCalendar-header': {
+            justifyContent: 'space-between',
+          },
+          '.MuiDayCalendar-monthContainer': {
+            padding: '4px',
+          },
+          '.MuiDayCalendar-slideTransition': {
+            'min-height': '248px',
+          },
+          '.MuiDayCalendar-weekContainer': {
+            justifyContent: 'space-between',
+            padding: 0,
+            margin: 0,
+          },
+        },
+      },
+    },
     MuiChip: {
       styleOverrides: {
         root: {
