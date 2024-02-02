@@ -59,7 +59,7 @@ export type TExtendedRemainingFee = Fee & {
     isNormalFee?: boolean
   }
 }
-type TSubscriptionDataForDisplay = {
+export type TSubscriptionDataForDisplay = {
   [invoiceSubscriptionId: string]: {
     feesInArrears: TExtendedRemainingFee[]
     feesInArrearsZero: TExtendedRemainingFee[]
