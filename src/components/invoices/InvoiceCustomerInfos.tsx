@@ -138,7 +138,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
               {translate('text_634687079be251fdb43833e3')}
             </Typography>
             <Typography variant="body" color="grey700">
-              {customer?.email}
+              {customer?.email.split(',').join(', ')}
             </Typography>
           </InfoLine>
         )}
