@@ -23,7 +23,7 @@ jobs:
           DITTO_API_KEY: ${{ secrets.DITTO_API_KEY }}
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v6
         with: 
           token: ${{ secrets.GH_TOKEN }}
           title: "chore(copy): Get last translations version"
