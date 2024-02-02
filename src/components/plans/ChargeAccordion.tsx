@@ -1180,7 +1180,6 @@ const AllChargesWrapper = styled.div<{ $hasGroupDisplay?: boolean; $hasChargesTo
   gap: ${theme.spacing(4)};
   margin-top: ${({ $hasChargesToDisplay, $hasGroupDisplay }) =>
     $hasChargesToDisplay && $hasGroupDisplay ? theme.spacing(6) : 0};
-  margin-bottom: ${theme.spacing(6)};
   padding: ${({ $hasGroupDisplay }) => ($hasGroupDisplay ? `0 ${theme.spacing(4)}` : 0)};
 `
 
@@ -1189,7 +1188,7 @@ const ChargeAddActionsWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 0 ${theme.spacing(4)};
-  margin-bottom: ${theme.spacing(4)};
+  margin: ${theme.spacing(4)} 0;
 `
 
 const ChargeAddActionsWrapperLeft = styled.div`
