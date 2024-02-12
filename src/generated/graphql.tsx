@@ -1276,6 +1276,8 @@ export enum CurrencyEnum {
   Kmf = 'KMF',
   /** South Korean Won */
   Krw = 'KRW',
+  /** Kuwaiti Dinar */
+  Kwd = 'KWD',
   /** Cayman Islands Dollar */
   Kyd = 'KYD',
   /** Kazakhstani Tenge */
