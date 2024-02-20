@@ -145,6 +145,7 @@ describe('serializePlanInput()', () => {
                 },
               ],
               graduatedPercentageRanges: undefined,
+              groupedBy: undefined,
               packageSize: undefined,
               perTransactionMinAmount: undefined,
               perTransactionMaxAmount: undefined,
@@ -224,6 +225,7 @@ describe('serializePlanInput()', () => {
                 },
               ],
               graduatedRanges: undefined,
+              groupedBy: undefined,
               packageSize: undefined,
               perTransactionMinAmount: undefined,
               perTransactionMaxAmount: undefined,
@@ -288,6 +290,7 @@ describe('serializePlanInput()', () => {
               freeUnitsPerTotalAggregation: '1',
               graduatedRanges: undefined,
               graduatedPercentageRanges: undefined,
+              groupedBy: undefined,
               packageSize: 12,
               perTransactionMinAmount: undefined,
               perTransactionMaxAmount: undefined,
@@ -352,6 +355,7 @@ describe('serializePlanInput()', () => {
               freeUnitsPerEvents: undefined,
               freeUnitsPerTotalAggregation: '1',
               graduatedRanges: undefined,
+              groupedBy: undefined,
               graduatedPercentageRanges: undefined,
               packageSize: undefined,
               perTransactionMinAmount: '1',
@@ -436,6 +440,67 @@ describe('serializePlanInput()', () => {
         taxCodes: [],
       })
     })
+
+    it('formats correctly the groupedBy', () => {
+      const plan = serializePlanInput({
+        amountCents: '1',
+        amountCurrency: CurrencyEnum.Eur,
+        billChargesMonthly: true,
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.Standard,
+            billableMetric: {
+              id: '1234',
+              name: 'simpleBM',
+              code: 'simple-bm',
+              recurring: false,
+              aggregationType: AggregationTypeEnum.CountAgg,
+            },
+            // @ts-ignore
+            properties: { groupedBy: 'one,two' },
+            taxCodes: [],
+          },
+        ],
+        code: 'my-plan',
+        interval: PlanInterval.Monthly,
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+      })
+
+      expect(plan).toStrictEqual({
+        amountCents: 100,
+        amountCurrency: 'EUR',
+        billChargesMonthly: true,
+        charges: [
+          {
+            billableMetricId: '1234',
+            chargeModel: 'standard',
+            minAmountCents: 0,
+            groupProperties: [],
+            properties: {
+              amount: undefined,
+              freeUnits: undefined,
+              graduatedRanges: undefined,
+              groupedBy: ['one', 'two'],
+              graduatedPercentageRanges: undefined,
+              packageSize: undefined,
+              perTransactionMinAmount: undefined,
+              perTransactionMaxAmount: undefined,
+              volumeRanges: undefined,
+            },
+            taxCodes: [],
+          },
+        ],
+        code: 'my-plan',
+        interval: 'monthly',
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+      })
+    })
   })
 
   describe('a plan with volume charge', () => {
@@ -484,6 +549,7 @@ describe('serializePlanInput()', () => {
               freeUnitsPerTotalAggregation: '1',
               graduatedRanges: undefined,
               graduatedPercentageRanges: undefined,
+              groupedBy: undefined,
               packageSize: undefined,
               perTransactionMinAmount: undefined,
               perTransactionMaxAmount: undefined,
