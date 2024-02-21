@@ -92,6 +92,9 @@ module.exports = {
   "project_65018c8af04a866c7bcc6cb8": {
     "base": require('./-ready-for-dev---plans---invoice-display-names__base.json')
   },
+  "project_65d601bee599243feb44af59": {
+    "base": require('./-ready-for-dev---plans---invoice-minimum-spending__base.json')
+  },
   "project_64e7b269852fc4ff0e0ec11c": {
     "base": require('./-ready-for-dev---plans---min--max-per-transaction__base.json')
   },

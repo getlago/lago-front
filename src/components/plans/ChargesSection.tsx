@@ -31,7 +31,7 @@ import {
 import { LocalChargeInput, PlanFormInput } from './types'
 
 import { EditInvoiceDisplayNameRef } from '../invoices/EditInvoiceDisplayName'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '../PremiumWarningDialog'
+import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 const RESULT_LIMIT = 50
 
@@ -75,6 +75,7 @@ gql`
 interface ChargesSectionProps {
   alreadyExistingCharges?: LocalChargeInput[] | null
   editInvoiceDisplayNameRef: RefObject<EditInvoiceDisplayNameRef>
+  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
   canBeEdited?: boolean
   isInitiallyOpen?: boolean
   isInSubscriptionForm?: boolean
@@ -94,6 +95,7 @@ export const ChargesSection = memo(
     isInSubscriptionForm,
     formikProps,
     isEdition,
+    premiumWarningDialogRef,
     subscriptionFormType,
   }: ChargesSectionProps) => {
     const { translate } = useInternationalization()
@@ -101,7 +103,6 @@ export const ChargesSection = memo(
     const [showAddMeteredCharge, setShowAddMeteredCharge] = useState(false)
     const [showAddRecurringCharge, setShowAddRecurringCharge] = useState(false)
     const newChargeId = useRef<string | null>(null)
-    const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
     const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
     const [alreadyUsedBmsIds, setAlreadyUsedBmsIds] = useState<Map<String, number>>(new Map())
     const hasAnyMeteredCharge = useMemo(
@@ -564,7 +565,6 @@ export const ChargesSection = memo(
         </Card>
 
         <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} formikProps={formikProps} />
-        <PremiumWarningDialog ref={premiumWarningDialogRef} />
       </>
     )
   },

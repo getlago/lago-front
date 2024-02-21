@@ -88,12 +88,31 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
 }
 
 export const serializePlanInput = (values: PlanFormInput) => {
-  const { amountCents, trialPeriod, charges, taxes: planTaxes, ...otherValues } = values
+  const {
+    amountCents,
+    trialPeriod,
+    charges,
+    taxes: planTaxes,
+    minimumCommitment,
+    ...otherValues
+  } = values
 
   return {
     amountCents: Number(serializeAmount(amountCents, values.amountCurrency)),
     trialPeriod: Number(trialPeriod || 0),
     taxCodes: planTaxes?.map(({ code }) => code) || [],
+    minimumCommitment:
+      !!minimumCommitment && !!Object.keys(minimumCommitment).length
+        ? {
+            ...minimumCommitment,
+            amountCents: Number(
+              serializeAmount(minimumCommitment.amountCents, values.amountCurrency),
+            ),
+            taxCodes: minimumCommitment.taxes?.map(({ code }) => code) || [],
+            // Reset tax array used for display purpose
+            taxes: undefined,
+          }
+        : {},
     charges: charges.map(
       ({
         billableMetric,

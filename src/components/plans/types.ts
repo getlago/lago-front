@@ -1,12 +1,18 @@
 import {
   BillableMetricForPlanFragment,
   ChargeInput,
+  CommitmentInput,
   CreatePlanInput,
   GroupPropertiesInput,
   PropertiesInput,
+  TaxForPlanAndChargesInPlanFormFragment,
   TaxForPlanChargeAccordionFragment,
   TaxForPlanSettingsSectionFragment,
 } from '~/generated/graphql'
+
+type LocalCommitmentInput = Omit<CommitmentInput, 'taxCodes'> & {
+  taxes?: TaxForPlanAndChargesInPlanFormFragment[] | null
+}
 
 export type LocalPropertiesInput = Omit<PropertiesInput, 'groupedBy'> & {
   // NOTE: this is used for display purpose but will be replaced by string[] on save
@@ -29,4 +35,5 @@ export interface PlanFormInput extends Omit<CreatePlanInput, 'clientMutationId' 
   charges: LocalChargeInput[]
   // NOTE: this is used for display purpose but will be replaced by taxCodes[] on save
   taxes?: TaxForPlanSettingsSectionFragment[]
+  minimumCommitment?: LocalCommitmentInput
 }
