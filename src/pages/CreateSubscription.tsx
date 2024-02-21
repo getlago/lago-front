@@ -32,6 +32,7 @@ import {
   EditInvoiceDisplayNameRef,
 } from '~/components/invoices/EditInvoiceDisplayName'
 import { ChargesSection } from '~/components/plans/ChargesSection'
+import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { LocalChargeInput } from '~/components/plans/types'
@@ -721,6 +722,12 @@ const CreateSubscription = () => {
                     formikProps={planFormikProps}
                     premiumWarningDialogRef={premiumWarningDialogRef}
                     alreadyExistingCharges={plan?.charges as LocalChargeInput[]}
+                    editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                  />
+
+                  <CommitmentsSection
+                    formikProps={planFormikProps}
+                    premiumWarningDialogRef={premiumWarningDialogRef}
                     editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
                   />
                 </PlanFormConditionalWrapper>
