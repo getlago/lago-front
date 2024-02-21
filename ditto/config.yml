@@ -340,5 +340,7 @@ sources:
       fileName: 👍 [Ready for dev] - Plans - Group by fees on invoices
     - name: 👍 [Ready for dev] - Settings / Customers - Lago x Stripe ACH & BACS
       id: 65e1f9032a71b571c754c489
+    - name: 👍 [Ready for dev] - Plans - Invoice minimum spending
+      id: 65d601bee599243feb44af59
 format: flat
 variants: true
