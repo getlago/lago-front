@@ -14,6 +14,7 @@ import { theme } from '~/styles'
 import { DetailsInfoGrid, DetailsInfoItem, DetailsSectionTitle } from '~/styles/detailsPage'
 
 import PlanDetailsChargesSection from './PlanDetailsChargesSection'
+import PlanDetailsCommitmentsSection from './PlanDetailsCommitmentsSection'
 import PlanDetailsFixedFeeAccordion from './PlanDetailsFixedFeeAccordion'
 
 gql`
@@ -80,12 +81,23 @@ const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
       </section>
       {!!plan?.charges?.length && (
         <section>
-          <ChargeDetailsSectionTitle variant="subhead" noWrap>
+          <DetailsSectionTitle variant="subhead" noWrap>
             {translate('text_6435888d7cc86500646d8977')}
-          </ChargeDetailsSectionTitle>
+          </DetailsSectionTitle>
           <PlanDetailsChargesSection
             plan={plan}
-            currency={plan.amountCurrency || CurrencyEnum.Usd}
+            currency={plan?.amountCurrency || CurrencyEnum.Usd}
+          />
+        </section>
+      )}
+      {!isNaN(Number(plan?.minimumCommitment?.amountCents)) && (
+        <section>
+          <DetailsSectionTitle variant="subhead" noWrap>
+            {translate('text_65d601bffb11e0f9d1d9f567')}
+          </DetailsSectionTitle>
+          <PlanDetailsCommitmentsSection
+            plan={plan}
+            currency={plan?.amountCurrency || CurrencyEnum.Usd}
           />
         </section>
       )}
@@ -105,8 +117,4 @@ const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${theme.spacing(4)};
-`
-
-const ChargeDetailsSectionTitle = styled(DetailsSectionTitle)`
-  margin-bottom: ${theme.spacing(6)};
 `
