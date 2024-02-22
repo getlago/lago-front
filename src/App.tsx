@@ -1,4 +1,5 @@
 import { ApolloClient, ApolloProvider, NormalizedCacheObject } from '@apollo/client'
+import { loadDevMessages, loadErrorMessages } from '@apollo/client/dev'
 import { ThemeProvider } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { BrowserRouter } from 'react-router-dom'
@@ -8,15 +9,18 @@ import { ToastContainer } from '~/components/designSystem/Toasts'
 import { ErrorBoundary } from '~/components/ErrorBoundary'
 import { RouteWrapper } from '~/components/RouteWrapper'
 import { UserIdentifier } from '~/components/UserIdentifier'
-import { initializeApolloClient, initializeTranslations } from '~/core/apolloClient'
+import { envGlobalVar, initializeApolloClient, initializeTranslations } from '~/core/apolloClient'
 import { initializeYup } from '~/formValidation/initializeYup'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
 import { theme } from '~/styles'
 import { inputGlobalStyles } from '~/styles/globalStyle'
 
+import { AppEnvEnum } from './core/constants/globalTypes'
+
 const App = () => {
   const [client, setClient] = useState<ApolloClient<NormalizedCacheObject> | null>(null)
   const debugInfoDialogRef = useRef<DebugInfoDialogRef>(null)
+  const { appEnv } = envGlobalVar()
 
   useShortcuts([
     {
@@ -36,6 +40,12 @@ const App = () => {
     initializeTranslations()
     initializeYup()
   }, [])
+
+  // Adds explicit apollo messages only in a dev environment
+  if (appEnv === AppEnvEnum.development) {
+    loadDevMessages()
+    loadErrorMessages()
+  }
 
   if (!client) return null
 
