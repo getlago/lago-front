@@ -309,12 +309,12 @@ const CreateAddOn = () => {
                           <Chip
                             key={id}
                             label={`${name} (${rate}%)`}
-                            variant="secondary"
+                            type="secondary"
                             size="medium"
-                            closeIcon="trash"
+                            deleteIcon="trash"
                             icon="percentage"
-                            onCloseLabel={translate('text_63aa085d28b8510cd46443ff')}
-                            onClose={() => {
+                            deleteIconLabel={translate('text_63aa085d28b8510cd46443ff')}
+                            onDelete={() => {
                               const newTaxedArray =
                                 formikProps?.values?.taxes?.filter((tax) => tax.id !== id) || []
 

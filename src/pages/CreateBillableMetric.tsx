@@ -11,7 +11,6 @@ import {
   EditBillableMetricGroupDialogRef,
 } from '~/components/billableMetrics/EditBillableMetricGroupDialog'
 import { Accordion, Alert, Button, Skeleton, Typography } from '~/components/designSystem'
-import { BetaChip } from '~/components/designSystem/BetaChip'
 import { ButtonSelector, ComboBoxField, JsonEditorField, TextInputField } from '~/components/form'
 import { WarningDialog, WarningDialogMode, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
@@ -262,8 +261,6 @@ const CreateBillableMetric = () => {
                         <Typography variant="captionHl" color="textSecondary">
                           {translate('text_623b42ff8ee4e000ba87d0ce')}
                         </Typography>
-                        {formikProps.values.aggregationType ===
-                          AggregationTypeEnum.WeightedSumAgg && <BetaChip size="xsmall" />}
                       </InlineComboboxLabel>
                     }
                     infoText={translate('text_624d9adba93343010cd14c56')}
@@ -306,7 +303,6 @@ const CreateBillableMetric = () => {
                             <Typography variant="body" color="grey700">
                               {translate('text_650062226a33c46e82050486')}
                             </Typography>
-                            <BetaChip size="xsmall" />
                           </InlineComboboxLabel>
                         ),
 

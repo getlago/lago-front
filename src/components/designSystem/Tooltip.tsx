@@ -1,13 +1,12 @@
 import { Tooltip as MuiTooltip, TooltipProps as MuiTooltipProps } from '@mui/material'
-import { forwardRef, useState } from 'react'
+import { forwardRef, ReactNode, useState } from 'react'
 
 interface TooltipProps
   extends Pick<
     MuiTooltipProps,
     'placement' | 'title' | 'onClose' | 'disableHoverListener' | 'PopperProps'
   > {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  children: React.ReactElement<any, any>
+  children?: ReactNode
   className?: string
   maxWidth?: string
 }

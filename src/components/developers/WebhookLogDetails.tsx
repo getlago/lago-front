@@ -83,8 +83,8 @@ export const WebhookLogDetails = ({ log }: WebhookLogDetailsProps) => {
         {hasError && (
           <WideLine>
             <Chip
+              error
               icon="close-circle-unfilled"
-              type="error"
               label={translate('text_63e27c56dfe64b846474efa6')}
             />
           </WideLine>

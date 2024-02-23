@@ -36,6 +36,64 @@ export const theme = createTheme({
     borderRadius: 12, // Default is 4 but can be 12px
   },
   components: {
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          height: 'fit-content',
+          width: 'fit-content',
+          borderRadius: '8px',
+          minHeight: '32px',
+          padding: '0px 8px',
+          fontSize: '14px',
+          lineHeight: '20px',
+          fontWeight: 500,
+          outline: `1px solid ${palette.grey[300]}`,
+          outlineOffset: '-1px',
+          '&.chip-size--small': {
+            minHeight: '20px',
+            padding: '0px 4px',
+          },
+          '&.chip-size--big': {
+            minHeight: '40px',
+            padding: '0px 12px',
+          },
+          '&.chip--error': {
+            backgroundColor: palette.error[100],
+            outline: `1px solid ${palette.error[300]}`,
+            color: palette.error[600],
+            path: {
+              fill: palette.error[600],
+            },
+          },
+        },
+        filled: {
+          backgroundColor: palette.grey[100],
+        },
+        outlined: {
+          backgroundColor: palette.common.white,
+        },
+        label: {
+          padding: '0px',
+          margin: '0px',
+        },
+        icon: {
+          width: '12px',
+          height: '12px',
+          padding: '0px',
+          margin: '0px',
+          marginRight: '4px',
+          color: palette.grey[600],
+        },
+        deleteIcon: {
+          width: '20px',
+          height: '20px',
+          margin: '6px 0 6px 8px',
+        },
+      },
+    },
     MuiLink: {
       defaultProps: {
         color: 'primary',
