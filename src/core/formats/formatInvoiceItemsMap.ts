@@ -57,6 +57,7 @@ export type TExtendedRemainingFee = Fee & {
     isGroupChildFee?: boolean
     isTrueUpFee?: boolean
     isNormalFee?: boolean
+    isCommitmentFee?: boolean
   }
 }
 export type TSubscriptionDataForDisplay = {
@@ -233,6 +234,14 @@ const _newDeepFormatFees = (feesToFormat: TExtendedRemainingFee[]): TExtendedRem
           displayName: getSubscriptionFeeDisplayName(fee),
         },
       })
+    } else if (fee.feeType === FeeTypesEnum.Commitment) {
+      feesData.push({
+        ...fee,
+        metadata: {
+          isCommitmentFee: true,
+          displayName: fee.invoiceDisplayName || 'Minimum commitment - True up',
+        },
+      })
     } else if (!!fee.group?.id) {
       feesData.push({
         ...fee,
@@ -276,6 +285,10 @@ const _newDeepFormatFees = (feesToFormat: TExtendedRemainingFee[]): TExtendedRem
       return -1
     } else if (!a?.metadata?.isSubscriptionFee && !!b?.metadata?.isSubscriptionFee) {
       return 1
+    } else if (!!a?.metadata?.isCommitmentFee && !b?.metadata?.isCommitmentFee) {
+      return 1
+    } else if (!a?.metadata?.isCommitmentFee && !!b?.metadata?.isCommitmentFee) {
+      return -1
     } else if (aDisplayName < bDisplayName) {
       return -1
     } else if (aDisplayName > bDisplayName) {
