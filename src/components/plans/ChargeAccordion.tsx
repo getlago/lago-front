@@ -947,12 +947,12 @@ export const ChargeAccordion = memo(
                     <Chip
                       key={localTaxId}
                       label={`${name} (${rate}%)`}
-                      variant="secondary"
+                      type="secondary"
                       size="medium"
-                      closeIcon="trash"
+                      deleteIcon="trash"
                       icon="percentage"
-                      onCloseLabel={translate('text_63aa085d28b8510cd46443ff')}
-                      onClose={() => {
+                      deleteIconLabel={translate('text_63aa085d28b8510cd46443ff')}
+                      onDelete={() => {
                         const newTaxedArray =
                           localCharge.taxes?.filter((tax) => tax.id !== localTaxId) || []
 
@@ -1119,6 +1119,7 @@ const InvoiceableSwitchWrapper = styled.div`
 `
 const InlineButtonsWrapper = styled.div`
   display: flex;
+  flex-wrap: wrap;
 `
 
 const TaxLabel = styled(Typography)`

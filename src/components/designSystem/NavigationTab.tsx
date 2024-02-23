@@ -4,10 +4,11 @@ import { ReactNode } from 'react'
 import { matchPath, useLocation } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NAV_HEIGHT, theme } from '~/styles'
 
-import { BetaChip } from './BetaChip'
 import { ButtonLink, ButtonLinkTabProps } from './ButtonLink'
+import { Chip } from './Chip'
 import { Icon } from './Icon'
 import { Typography } from './Typography'
 
@@ -53,6 +54,7 @@ export const NavigationTab = ({
   children,
   onClick,
 }: NavigationTabsProps) => {
+  const { translate } = useInternationalization()
   const { pathname } = useLocation()
   const activeTab = tabs.find(
     (tab) => tab.link === pathname || !!tab.match?.find((path) => !!matchPath(path, pathname)),
@@ -88,7 +90,9 @@ export const NavigationTab = ({
                     <Typography variant="body" color="inherit">
                       {title}
                     </Typography>
-                    {!!beta && <BetaChip size="xsmall" />}
+                    {!!beta && (
+                      <Chip beta size="small" label={translate('text_65d8d71a640c5400917f8a13')} />
+                    )}
                   </InlineNavLinkWrapper>
                   {!!external && <Icon name="outside" />}
                 </Stack>

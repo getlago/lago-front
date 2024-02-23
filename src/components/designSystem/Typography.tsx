@@ -35,18 +35,18 @@ enum ColorTypeEnum {
   textSecondary = 'text.secondary', // This is to maintain the existing code
 }
 
-type Color = keyof typeof ColorTypeEnum
+export type TypographyColor = keyof typeof ColorTypeEnum
 export interface TypographyProps
   extends Pick<MuiTypographyProps, 'variant' | 'children' | 'noWrap' | 'align'> {
   className?: string
   component?: ElementType
-  color?: Color
+  color?: TypographyColor
   html?: string
   forceBreak?: boolean
   blur?: boolean
 }
 
-const mapColor = (variant: TypographyProps['variant'], color?: Color): ColorTypeEnum => {
+const mapColor = (variant: TypographyProps['variant'], color?: TypographyColor): ColorTypeEnum => {
   if (color) return ColorTypeEnum[color]
 
   switch (variant) {

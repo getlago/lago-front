@@ -233,16 +233,16 @@ export const PlanSettingsSection = memo(
                 <Chip
                   key={id}
                   label={`${name} (${rate}%)`}
-                  variant="secondary"
+                  type="secondary"
                   size="medium"
-                  closeIcon="trash"
+                  deleteIcon="trash"
                   icon="percentage"
-                  onCloseLabel={
+                  deleteIconLabel={
                     subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
                       ? undefined
                       : translate('text_63aa085d28b8510cd46443ff')
                   }
-                  onClose={() => {
+                  onDelete={() => {
                     const newTaxedArray = plan.taxes?.filter((tax) => tax.id !== id) || []
 
                     formikProps.setFieldValue('taxes', newTaxedArray)

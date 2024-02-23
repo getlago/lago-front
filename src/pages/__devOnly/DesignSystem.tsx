@@ -27,7 +27,6 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
-import { BetaChip } from '~/components/designSystem/BetaChip'
 import {
   ButtonSelectorField,
   Checkbox,
@@ -228,66 +227,73 @@ const DesignSystem = () => {
                   </Tooltip>
                 </Block>
 
-                <GroupTitle variant="headline">Chips</GroupTitle>
+                <GroupTitle variant="headline">New Chips</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
-                  <Chip label="I'm a primary 🍟" />
+                  <Chip label="Small" size="small" />
+                  <Chip label="Default" />
+                  <Chip label="Big" size="big" />
                   <Chip label="I have an icon" icon="scissor" />
                   <Chip
-                    label="I have an icon"
-                    icon="scissor"
-                    onClose={() => {
+                    label="I have an icon and delete"
+                    icon="percentage"
+                    onDelete={() => {
                       // eslint-disable-next-line no-console
                       console.log('Chip clicked')
                     }}
                   />
                   <Chip
+                    label="Tooltip on icon"
+                    icon="scissor"
+                    deleteIconLabel="Delete"
+                    onDelete={() => {
+                      // eslint-disable-next-line no-console
+                      console.log('Chip clicked')
+                    }}
+                  />
+                  <Chip
+                    error
                     label="I have an error"
                     icon="scissor"
-                    type="error"
-                    onClose={() => {
+                    onDelete={() => {
                       // eslint-disable-next-line no-console
                       console.log('Chip clicked')
                     }}
                   />
+                  <Chip type="secondary" label="Small" size="small" />
+                  <Chip type="secondary" label="Default" />
+                  <Chip type="secondary" label="Big" size="big" />
                   <Chip
-                    label="Secondary"
+                    type="secondary"
+                    label="I have an icon and delete"
                     icon="percentage"
-                    variant="secondary"
-                    closeIcon="trash"
-                    onClose={() => {
+                    onDelete={() => {
                       // eslint-disable-next-line no-console
                       console.log('Chip clicked')
                     }}
                   />
                   <Chip
-                    label="Secondary medium"
-                    icon="percentage"
-                    variant="secondary"
-                    size="medium"
-                    closeIcon="trash"
-                    onClose={() => {
+                    type="secondary"
+                    label="Tooltip on icon"
+                    icon="scissor"
+                    deleteIconLabel="Delete"
+                    onDelete={() => {
                       // eslint-disable-next-line no-console
                       console.log('Chip clicked')
                     }}
                   />
                   <Chip
-                    label="Secondary medium with error"
-                    type="error"
-                    icon="lock"
-                    variant="secondary"
-                    size="medium"
-                    closeIcon="trash"
-                    onClose={() => {
+                    error
+                    type="secondary"
+                    label="I have an error"
+                    icon="scissor"
+                    onDelete={() => {
                       // eslint-disable-next-line no-console
                       console.log('Chip clicked')
                     }}
                   />
-                </Block>
-
-                <GroupTitle variant="headline">Beta Chip</GroupTitle>
-                <Block $marginBottom={theme.spacing(6)}>
-                  <BetaChip />
-                  <BetaChip size="xsmall" />
+                  <Chip beta label="Small beta" size="small" />
+                  <Chip beta label="Beta" />
+                  <Chip beta label="Beta big" size="big" />
                 </Block>
 
                 <GroupTitle variant="headline">Alert</GroupTitle>
