@@ -1,4 +1,5 @@
 import { Stack } from '@mui/material'
+import React from 'react'
 
 import { Accordion, Typography } from '~/components/designSystem'
 import { getIntervalTranslationKey } from '~/core/constants/form'
@@ -73,16 +74,18 @@ const PlanDetailsCommitmentsSection = ({
               value={
                 !!plan?.minimumCommitment?.taxes?.length
                   ? plan?.minimumCommitment?.taxes?.map((tax, i) => (
-                      <div key={`plan-details-fixed-fee-taxe-${i}`}>
-                        <Typography variant="body" color="grey700">
-                          {tax.name} (
-                          {intlFormatNumber(Number(tax.rate) / 100 || 0, {
-                            maximumFractionDigits: 2,
-                            style: 'percent',
-                          })}
-                          )
-                        </Typography>
-                      </div>
+                      <Typography
+                        key={`plan-details-fixed-fee-taxe-${i}`}
+                        variant="body"
+                        color="grey700"
+                      >
+                        {tax.name} (
+                        {intlFormatNumber(Number(tax.rate) / 100 || 0, {
+                          maximumFractionDigits: 2,
+                          style: 'percent',
+                        })}
+                        )
+                      </Typography>
                     ))
                   : '-'
               }

@@ -209,7 +209,7 @@ export const InvoiceDetailsTableBodyLine = memo(
 
           {isDraftInvoice && (
             <td>
-              {!isTrueUpFee && (
+              {!isTrueUpFee && !fee?.metadata?.isCommitmentFee && (
                 <Popper
                   PopperProps={{ placement: 'bottom-end' }}
                   opener={({ isOpen }) => (

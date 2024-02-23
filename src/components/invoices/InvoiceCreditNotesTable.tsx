@@ -178,17 +178,20 @@ export const InvoiceCreditNotesTable = memo(
                                                     name:
                                                       item.fee.invoiceName || item?.fee?.itemName,
                                                   })
-                                                : `${
-                                                    item.fee?.invoiceName ||
-                                                    item.fee.charge?.billableMetric.name ||
-                                                    creditNoteDisplayName
-                                                  }${groupingChain}${
-                                                    item?.fee?.trueUpParentFee?.id
-                                                      ? ` - ${translate(
-                                                          'text_64463aaa34904c00a23be4f7',
-                                                        )}`
-                                                      : ''
-                                                  }`}
+                                                : item?.fee?.feeType === FeeTypesEnum.Commitment
+                                                  ? item.fee.invoiceName ||
+                                                    'Minimum commitment - True up'
+                                                  : `${
+                                                      item.fee?.invoiceName ||
+                                                      item.fee.charge?.billableMetric.name ||
+                                                      creditNoteDisplayName
+                                                    }${groupingChain}${
+                                                      item?.fee?.trueUpParentFee?.id
+                                                        ? ` - ${translate(
+                                                            'text_64463aaa34904c00a23be4f7',
+                                                          )}`
+                                                        : ''
+                                                    }`}
                                             </>
                                           ) : (
                                             <>
