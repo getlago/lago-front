@@ -140,9 +140,6 @@ export const FixedFeeSection = memo(
               name="amountCents"
               currency={formikProps.values.amountCurrency}
               beforeChangeFormatter={['positiveNumber']}
-              disabled={
-                subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
-              }
               label={translate('text_624453d52e945301380e49b6')}
               formikProps={formikProps}
               InputProps={{
