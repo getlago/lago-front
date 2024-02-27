@@ -750,11 +750,6 @@ const StyledButtonGroup = styled(ButtonGroup)`
   && {
     margin-left: auto;
     align-items: initial;
-
-    ${theme.breakpoints.down('md')} {
-      margin-left: 0;
-      flex-direction: column-reverse;
-    }
   }
 `
 
