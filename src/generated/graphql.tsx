@@ -1264,6 +1264,8 @@ export enum CurrencyEnum {
   Isk = 'ISK',
   /** Jamaican Dollar */
   Jmd = 'JMD',
+  /** Jordanian Dinar */
+  Jod = 'JOD',
   /** Japanese Yen */
   Jpy = 'JPY',
   /** Kenyan Shilling */
