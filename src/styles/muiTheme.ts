@@ -192,7 +192,7 @@ export const theme = createTheme({
           ...typographyBody,
           height: '48px',
           boxSizing: 'border-box',
-          padding: '10px 16px',
+          padding: '10px 16px !important',
           color: palette.grey[700],
           borderRadius: '12px',
           '&::placeholder': {
@@ -295,14 +295,16 @@ export const theme = createTheme({
     MuiAutocomplete: {
       styleOverrides: {
         paper: {
-          padding: 8,
-          // 5 items of an height of 56px (see ComboBox.tsx) with paddings
-          maxHeight: 5 * 56 + 4 * 4,
+          padding: '8px important',
+          maxHeight: 320,
           overflow: 'auto',
           scrollBehavior: 'smooth',
         },
         loading: { padding: 0 },
         listbox: {
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '4px',
           padding: 0,
         },
         root: {
@@ -316,6 +318,14 @@ export const theme = createTheme({
               },
             },
           },
+        },
+        popupIndicator: {
+          backgroundColor: 'transparent',
+          cursor: 'pointer',
+        },
+        clearIndicator: {
+          backgroundColor: 'transparent',
+          cursor: 'pointer',
         },
         option: {
           paddingLeft: 0,
