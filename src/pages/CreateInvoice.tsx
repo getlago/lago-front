@@ -618,7 +618,6 @@ const CreateInvoice = () => {
                                       color="grey700"
                                     >
                                       {intlFormatNumber(tax.rate / 100 || 0, {
-                                        maximumFractionDigits: 2,
                                         style: 'percent',
                                       })}
                                     </Typography>
@@ -631,7 +630,6 @@ const CreateInvoice = () => {
                                 : intlFormatNumber((fee.units || 0) * (fee.unitAmountCents || 0), {
                                     style: 'currency',
                                     currency,
-                                    maximumFractionDigits: 2,
                                   })}
                             </Typography>
                             <Popper
@@ -791,7 +789,6 @@ const CreateInvoice = () => {
                           ? '-'
                           : intlFormatNumber(subTotal, {
                               currency,
-                              maximumFractionDigits: 2,
                             })}
                       </Typography>
                     </InvoiceFooterLine>
@@ -822,7 +819,6 @@ const CreateInvoice = () => {
                                       ? '-'
                                       : intlFormatNumber(taxToDisplay.amount, {
                                           currency,
-                                          maximumFractionDigits: 2,
                                         })}
                                   </Typography>
                                 </InvoiceFooterLine>
@@ -865,7 +861,6 @@ const CreateInvoice = () => {
                           ? '-'
                           : intlFormatNumber(total, {
                               currency,
-                              maximumFractionDigits: 2,
                             })}
                       </Typography>
                     </InvoiceFooterLine>
@@ -882,7 +877,6 @@ const CreateInvoice = () => {
                           ? '-'
                           : intlFormatNumber(total, {
                               currency,
-                              maximumFractionDigits: 2,
                             })}
                       </Typography>
                     </InvoiceFooterLine>
