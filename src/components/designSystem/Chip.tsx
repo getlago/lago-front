@@ -25,7 +25,8 @@ type ChipProps = Omit<ChipOwnProps, 'color' | 'variant' | 'size' | 'deleteIcon' 
   icon?: IconName
   size?: ChipSize
   type?: ChipType
-  onDelete?: () => void
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onDelete?: React.EventHandler<any>
 }
 
 export const Chip = ({
