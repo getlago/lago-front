@@ -41,44 +41,40 @@ export const Accordion = ({
   const { translate } = useInternationalization()
 
   return (
-    <Container id={id} {...props}>
-      <StyledAccordion
-        expanded={isOpen}
-        onChange={(_, expanded) => setIsOpen(expanded)}
-        TransitionProps={{ unmountOnExit: true, ...transitionProps }}
-        square
-      >
-        <Summary $size={size}>
-          <Tooltip
-            placement="top-start"
-            title={translate(
-              isOpen ? 'text_624aa732d6af4e0103d40e61' : 'text_624aa79870f60300a3c4d074',
-            )}
-          >
-            <Button
-              tabIndex={-1}
-              data-test="open-charge"
-              variant="quaternary"
-              size="small"
-              icon={isOpen ? 'chevron-down' : 'chevron-right'}
-            />
-          </Tooltip>
-          {summary}
-        </Summary>
-        <Details $size={size} $noContentMargin={noContentMargin}>
-          {typeof children === 'function' ? children({ isOpen }) : children}
-        </Details>
-      </StyledAccordion>
-    </Container>
+    <StyledAccordion
+      square
+      id={id}
+      expanded={isOpen}
+      onChange={(_, expanded) => setIsOpen(expanded)}
+      TransitionProps={{ unmountOnExit: true, ...transitionProps }}
+      {...props}
+    >
+      <Summary $size={size}>
+        <Tooltip
+          placement="top-start"
+          title={translate(
+            isOpen ? 'text_624aa732d6af4e0103d40e61' : 'text_624aa79870f60300a3c4d074',
+          )}
+        >
+          <Button
+            tabIndex={-1}
+            data-test="open-charge"
+            variant="quaternary"
+            size="small"
+            icon={isOpen ? 'chevron-down' : 'chevron-right'}
+          />
+        </Tooltip>
+        {summary}
+      </Summary>
+      <Details $size={size} $noContentMargin={noContentMargin}>
+        {typeof children === 'function' ? children({ isOpen }) : children}
+      </Details>
+    </StyledAccordion>
   )
 }
 
-const Container = styled.div`
-  border: 1px solid ${theme.palette.grey[400]};
-  border-radius: 12px;
-`
-
 const StyledAccordion = styled(MuiAccordion)`
+  border: 1px solid ${theme.palette.grey[400]};
   border-radius: 12px;
   overflow: hidden;
 
@@ -91,9 +87,6 @@ const StyledAccordion = styled(MuiAccordion)`
 
     &:before {
       height: 0;
-    }
-    &.Mui-expanded {
-      margin: 0;
     }
   }
 
