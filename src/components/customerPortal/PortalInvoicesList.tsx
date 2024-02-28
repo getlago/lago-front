@@ -57,7 +57,7 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
       nextFetchPolicy: 'network-only',
       variables: {
         limit: 20,
-        status: [InvoiceStatusTypeEnum.Finalized, InvoiceStatusTypeEnum.Draft],
+        status: [InvoiceStatusTypeEnum.Finalized],
       },
     })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getInvoices, loading)
