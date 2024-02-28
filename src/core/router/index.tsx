@@ -50,6 +50,7 @@ export const routes: CustomRouteObject[] = [
     path: ERROR_404_ROUTE,
     element: <Error404 />,
   },
+  ...settingRoutes,
   {
     element: <SideNavLayout />,
     private: true,
@@ -63,7 +64,6 @@ export const routes: CustomRouteObject[] = [
       ...developperRoutes,
       ...objectListRoutes,
       ...objectDetailsRoutes,
-      ...settingRoutes,
       ...([AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv)
         ? [
             {
