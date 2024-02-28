@@ -12,6 +12,7 @@ import { TaxItemFragmentDoc, useGetTaxesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { NAV_HEIGHT, theme } from '~/styles'
+import { SettingsHeaderNameWrapper, SettingsPageContentWrapper } from '~/styles/settingsPage'
 
 gql`
   query getTaxes($limit: Int, $page: Int) {
@@ -55,7 +56,13 @@ const TaxesSettings = () => {
 
   return (
     <>
-      <Page>
+      <SettingsHeaderNameWrapper>
+        <Typography variant="bodyHl" color="grey700">
+          {translate('text_645bb193927b375079d28a8f')}
+        </Typography>
+      </SettingsHeaderNameWrapper>
+
+      <SettingsPageContentWrapper>
         <Title variant="headline">{translate('text_645bb193927b375079d28ab5')}</Title>
         <Subtitle>{translate('text_645bb193927b375079d28b7e')}</Subtitle>
 
@@ -112,17 +119,12 @@ const TaxesSettings = () => {
             </InfiniteScroll>
           )}
         </InfoBlock>
-      </Page>
+      </SettingsPageContentWrapper>
 
       <DeleteTaxDialog ref={deleteDialogRef} />
     </>
   )
 }
-
-const Page = styled.div`
-  max-width: ${theme.spacing(168)};
-  padding: ${theme.spacing(8)} ${theme.spacing(12)};
-`
 
 const Title = styled(Typography)`
   margin-bottom: ${theme.spacing(2)};

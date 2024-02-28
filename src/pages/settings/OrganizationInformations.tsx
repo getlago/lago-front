@@ -25,6 +25,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { NAV_HEIGHT, theme } from '~/styles'
+import { SettingsHeaderNameWrapper, SettingsPageContentWrapper } from '~/styles/settingsPage'
 
 gql`
   fragment OrganizationInformations on Organization {
@@ -91,11 +92,17 @@ const OrganizationInformations = () => {
     )
   }
   return (
-    <Page>
-      <Title variant="headline">{translate('text_62ab2d0396dd6b0361614d2c')}</Title>
-      <Subtitle>{translate('text_6380d7e60f081e5b777c4b22')}</Subtitle>
+    <>
+      <SettingsHeaderNameWrapper>
+        <Typography variant="bodyHl" color="grey700">
+          {translate('text_62ab2d0396dd6b0361614d2c')}
+        </Typography>
+      </SettingsHeaderNameWrapper>
 
-      <>
+      <SettingsPageContentWrapper>
+        <Title variant="headline">{translate('text_62ab2d0396dd6b0361614d2c')}</Title>
+        <Subtitle>{translate('text_6380d7e60f081e5b777c4b22')}</Subtitle>
+
         <Head>
           <Typography variant="subhead">{translate('text_638906e7b4f1a919cb61d0f4')}</Typography>
           <Button
@@ -221,21 +228,17 @@ const OrganizationInformations = () => {
             </SimpleCell>
           </Grid>
         )}
-      </>
-      <EditOrganizationInformationsDialog
-        ref={editInfosDialogRef}
-        organization={data?.organization as EditOrganizationInformationsDialogFragment}
-      />
-      <EditOrganizationTimezoneDialog ref={editTimezoneDialogRef} timezone={timezone} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
-    </Page>
+
+        <EditOrganizationInformationsDialog
+          ref={editInfosDialogRef}
+          organization={data?.organization as EditOrganizationInformationsDialogFragment}
+        />
+        <EditOrganizationTimezoneDialog ref={editTimezoneDialogRef} timezone={timezone} />
+        <PremiumWarningDialog ref={premiumWarningDialogRef} />
+      </SettingsPageContentWrapper>
+    </>
   )
 }
-
-const Page = styled.div`
-  max-width: ${theme.spacing(168)};
-  padding: ${theme.spacing(8)} ${theme.spacing(12)};
-`
 
 const Title = styled(Typography)`
   margin-bottom: ${theme.spacing(2)};
