@@ -1,4 +1,4 @@
-import { Stack } from '@mui/material'
+import { ClickAwayListener, Stack } from '@mui/material'
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import styled from 'styled-components'
@@ -65,31 +65,37 @@ const Settings = () => {
         icon="burger"
         variant="quaternary"
       />
-      <NavWrapper $open={open}>
-        <Stack spacing={2} direction="row" alignItems="center">
-          <Button
-            variant="quaternary"
-            startIcon="arrow-left"
-            onClick={() =>
-              goBack(HOME_ROUTE, {
-                exclude: [SETTINGS_ROUTE, ...tabsOptions.map((tab) => tab.link)],
-              })
-            }
-          >
-            <Typography variant="body" color="textSecondary" noWrap>
-              {translate('text_65df4fc6314ffd006ce0a537')}
-            </Typography>
-          </Button>
-        </Stack>
+      <ClickAwayListener
+        onClickAway={() => {
+          if (open) setOpen(false)
+        }}
+      >
+        <NavWrapper $open={open}>
+          <Stack spacing={2} direction="row" alignItems="center">
+            <Button
+              variant="quaternary"
+              startIcon="arrow-left"
+              onClick={() =>
+                goBack(HOME_ROUTE, {
+                  exclude: [SETTINGS_ROUTE, ...tabsOptions.map((tab) => tab.link)],
+                })
+              }
+            >
+              <Typography variant="body" color="textSecondary" noWrap>
+                {translate('text_65df4fc6314ffd006ce0a537')}
+              </Typography>
+            </Button>
+          </Stack>
 
-        <NavigationTab
-          onClick={() => {
-            setOpen(false)
-          }}
-          tabs={tabsOptions}
-          orientation="vertical"
-        />
-      </NavWrapper>
+          <NavigationTab
+            onClick={() => {
+              setOpen(false)
+            }}
+            tabs={tabsOptions}
+            orientation="vertical"
+          />
+        </NavWrapper>
+      </ClickAwayListener>
       <SettingsPageWrapper>
         <Outlet />
       </SettingsPageWrapper>
