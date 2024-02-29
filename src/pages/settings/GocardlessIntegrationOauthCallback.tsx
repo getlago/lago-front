@@ -153,6 +153,10 @@ const MainInfos = styled.div`
   display: flex;
   align-items: center;
   padding: ${theme.spacing(8)} ${theme.spacing(12)};
+
+  ${theme.breakpoints.down('md')} {
+    padding: ${theme.spacing(8)} ${theme.spacing(4)};
+  }
 `
 
 const StyledAvatar = styled(Avatar)`

@@ -482,6 +482,10 @@ const Title = styled.div`
     flex: 1;
     justify-content: center;
   }
+
+  ${theme.breakpoints.down('md')} {
+    padding: ${theme.spacing(8)} ${theme.spacing(4)};
+  }
 `
 
 const PreviewHeader = styled(Typography)`
