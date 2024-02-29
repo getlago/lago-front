@@ -259,14 +259,22 @@ const MainInfos = styled.div`
   display: flex;
   align-items: center;
   padding: ${theme.spacing(8)} ${theme.spacing(12)};
+
+  ${theme.breakpoints.down('md')} {
+    padding: ${theme.spacing(8)} ${theme.spacing(4)};
+  }
 `
 
 const ContentWrapper = styled.div`
   max-width: ${theme.spacing(168)};
-  margin: 0 ${theme.spacing(12)} ${theme.spacing(12)};
+  padding: 0 ${theme.spacing(12)} ${theme.spacing(12)};
   display: flex;
   flex-direction: column;
   gap: ${theme.spacing(8)};
+
+  ${theme.breakpoints.down('md')} {
+    padding: 0 ${theme.spacing(4)};
+  }
 `
 
 const Title = styled(Typography)`
