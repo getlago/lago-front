@@ -11,6 +11,7 @@ import {
   INVOICE_SETTINGS_ROUTE,
   MEMBERS_ROUTE,
   ORGANIZATION_INFORMATIONS_ROUTE,
+  settingRoutes,
   SETTINGS_ROUTE,
   TAXES_SETTINGS_ROUTE,
 } from '~/core/router'
@@ -55,6 +56,20 @@ const Settings = () => {
     },
   ]
 
+  const routesToExcludeFromBackRedirection = settingRoutes[0].children?.reduce<string[]>(
+    (acc, cur) => {
+      if (!cur.path) return acc
+
+      if (Array.isArray(cur.path)) {
+        acc.push(...cur.path)
+      } else {
+        acc.push(cur.path)
+      }
+      return acc
+    },
+    [],
+  )
+
   return (
     <SettingsLayoutWrapper>
       <BurgerButton
@@ -77,7 +92,7 @@ const Settings = () => {
               startIcon="arrow-left"
               onClick={() =>
                 goBack(HOME_ROUTE, {
-                  exclude: [SETTINGS_ROUTE, ...tabsOptions.map((tab) => tab.link)],
+                  exclude: routesToExcludeFromBackRedirection,
                 })
               }
             >
