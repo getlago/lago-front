@@ -265,6 +265,9 @@ export const theme = createTheme({
           '&.MuiPaper-root': {
             borderRadius: '12px',
           },
+          '&.Mui-expanded': {
+            margin: '0',
+          },
           '&.MuiPaper-elevation1': {
             boxShadow: 'none',
           },
