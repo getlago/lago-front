@@ -11,14 +11,14 @@ type determineGroupDiffLevelReturnType =
   | undefined
 type oneDimensionGroupType = {
   key: string
-  values: string[]
+  values?: string[]
 }
 type twoDimensionGroupType = {
   key: string
   values: {
     name: string
     key: string
-    values: string[]
+    values?: string[]
   }[]
 }
 type groupType = oneDimensionGroupType | twoDimensionGroupType | {}
@@ -35,19 +35,22 @@ export const isValidJSON = (string: string) => {
 
 const isContainingObjectValues = (object: twoDimensionGroupType): boolean => {
   if (!object) return false
-  return object.values?.every((value) => typeof value === 'object')
+  return object?.values?.every((value) => typeof value === 'object')
 }
 
 const isContainingStringValues = (object: oneDimensionGroupType): boolean => {
   if (!object) return false
-  return object.values?.every((value) => typeof value === 'string')
+  return object?.values?.every((value) => typeof value === 'string') || false
 }
 
 export const isOneDimension = (object: oneDimensionGroupType): boolean => {
   if (!object) return false
 
   return (
-    !!object.key && !!object.values && !!object.values.length && !!isContainingStringValues(object)
+    !!object?.key &&
+    !!object?.values &&
+    !!object?.values.length &&
+    !!isContainingStringValues(object)
   )
 }
 
@@ -55,7 +58,10 @@ export const isTwoDimension = (object: twoDimensionGroupType): boolean => {
   if (!object) return false
 
   return (
-    !!object.key && !!object.values && !!object.values.length && !!isContainingObjectValues(object)
+    !!object.key &&
+    !!object?.values &&
+    !!object?.values.length &&
+    !!isContainingObjectValues(object)
   )
 }
 
@@ -124,10 +130,10 @@ export const determineGroupDiffLevel: (
       .map((value) => value.name)
       .sort()
     const parsedGroup1ValuesValues = (parsedGroup1 as twoDimensionGroupType).values
-      .map((value) => value.values.sort())
+      .map((value) => value?.values?.sort())
       .sort()
     const parsedGroup2ValuesValues = (parsedGroup2 as twoDimensionGroupType).values
-      .map((value) => value.values.sort())
+      .map((value) => value?.values?.sort())
       .sort()
 
     if (
@@ -138,8 +144,8 @@ export const determineGroupDiffLevel: (
     )
       return GroupLevelEnum.AddOrRemove
   } else if (areGroupsOneDimension(parsedGroup1, parsedGroup2)) {
-    const parsedGroup1Values = (parsedGroup1 as oneDimensionGroupType).values.sort()
-    const parsedGroup2Values = (parsedGroup2 as oneDimensionGroupType).values.sort()
+    const parsedGroup1Values = (parsedGroup1 as oneDimensionGroupType)?.values?.sort()
+    const parsedGroup2Values = (parsedGroup2 as oneDimensionGroupType)?.values?.sort()
 
     if (
       parsedGroup1.key !== parsedGroup2.key ||
