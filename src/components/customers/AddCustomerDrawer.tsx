@@ -1,3 +1,4 @@
+import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import { FieldWithPossiblyUndefined } from 'lodash'
 import _get from 'lodash/get'
@@ -479,82 +480,176 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                 )}
 
                 {formikProps.values.paymentProvider === ProviderTypeEnum.Stripe && (
-                  <StripePaymentMethodWrapper>
-                    <Typography variant="captionHl" color="grey700">
-                      {translate('text_64aeb7b998c4322918c84204')}
-                    </Typography>
-                    <Typography variant="caption">
-                      {translate('text_64aeb7b998c4322918c84210')}
-                    </Typography>
-                    <Checkbox
-                      name="providerCustomer.providerPaymentMethods.card"
-                      value={
-                        !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                          ProviderPaymentMethodsEnum.Card,
-                        )
-                      }
-                      label={translate('text_64aeb7b998c4322918c84208')}
-                      disabled={
-                        formikProps.values.providerCustomer?.providerPaymentMethods?.length === 1 &&
-                        formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                          ProviderPaymentMethodsEnum.Card,
-                        )
-                      }
-                      onChange={(e, checked) => {
-                        const newValue = [
-                          ...(formikProps.values.providerCustomer?.providerPaymentMethods || []),
-                        ]
-
-                        if (checked) {
-                          newValue.push(ProviderPaymentMethodsEnum.Card)
-                        } else {
-                          newValue.splice(newValue.indexOf(ProviderPaymentMethodsEnum.Card), 1)
+                  <Stack spacing={6}>
+                    <Stack>
+                      <Typography variant="bodyHl" color="grey700">
+                        {translate('text_64aeb7b998c4322918c84204')}
+                      </Typography>
+                      <Typography variant="caption">
+                        {translate('text_64aeb7b998c4322918c84210')}
+                      </Typography>
+                    </Stack>
+                    <Stack spacing={1}>
+                      <Typography variant="captionHl" color="grey700">
+                        {translate('text_65e1f90471bc198c0c934d82')}
+                      </Typography>
+                      <Checkbox
+                        name="providerCustomer.providerPaymentMethods.card"
+                        value={
+                          !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
+                            ProviderPaymentMethodsEnum.Card,
+                          )
                         }
-
-                        formikProps.setFieldValue(
-                          'providerCustomer.providerPaymentMethods',
-                          newValue,
-                        )
-                      }}
-                    />
-                    <Checkbox
-                      name="providerCustomer.providerPaymentMethods.sepa_debit"
-                      value={
-                        !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                          ProviderPaymentMethodsEnum.SepaDebit,
-                        )
-                      }
-                      label={translate('text_64aeb7b998c4322918c8420c')}
-                      sublabel={
-                        formikProps.values.currency !== CurrencyEnum.Eur &&
-                        translate('text_64b04d6b13f1cc00ab4bf6bf')
-                      }
-                      disabled={
-                        formikProps.values.providerCustomer?.providerPaymentMethods?.length === 1 &&
-                        formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                          ProviderPaymentMethodsEnum.SepaDebit,
-                        )
-                      }
-                      onChange={(e, checked) => {
-                        const newValue = [
-                          ...(formikProps.values.providerCustomer?.providerPaymentMethods || []),
-                        ]
-
-                        if (checked) {
-                          newValue.push(ProviderPaymentMethodsEnum.SepaDebit)
-                        } else {
-                          newValue.splice(newValue.indexOf(ProviderPaymentMethodsEnum.SepaDebit), 1)
+                        label={translate('text_64aeb7b998c4322918c84208')}
+                        sublabel={translate('text_65e1f90471bc198c0c934d86')}
+                        disabled={
+                          formikProps.values.providerCustomer?.providerPaymentMethods?.length ===
+                            1 &&
+                          formikProps.values.providerCustomer?.providerPaymentMethods.includes(
+                            ProviderPaymentMethodsEnum.Card,
+                          )
                         }
+                        onChange={(e, checked) => {
+                          const newValue = [
+                            ...(formikProps.values.providerCustomer?.providerPaymentMethods || []),
+                          ]
 
-                        formikProps.setFieldValue(
-                          'providerCustomer.providerPaymentMethods',
-                          newValue,
-                        )
-                      }}
-                    />
+                          if (checked) {
+                            newValue.push(ProviderPaymentMethodsEnum.Card)
+                          } else {
+                            newValue.splice(newValue.indexOf(ProviderPaymentMethodsEnum.Card), 1)
+                          }
+
+                          formikProps.setFieldValue(
+                            'providerCustomer.providerPaymentMethods',
+                            newValue,
+                          )
+                        }}
+                      />
+                    </Stack>
+                    <Stack spacing={1}>
+                      <Typography variant="captionHl" color="grey700">
+                        {translate('text_65e1f90471bc198c0c934d88')}
+                      </Typography>
+
+                      <SepaGridWrapper>
+                        <Checkbox
+                          name="providerCustomer.providerPaymentMethods.sepa_debit"
+                          value={
+                            !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
+                              ProviderPaymentMethodsEnum.SepaDebit,
+                            )
+                          }
+                          label={translate('text_64aeb7b998c4322918c8420c')}
+                          sublabel={translate('text_65e1f90471bc198c0c934d8c')}
+                          disabled={
+                            formikProps.values.providerCustomer?.providerPaymentMethods?.length ===
+                              1 &&
+                            formikProps.values.providerCustomer?.providerPaymentMethods.includes(
+                              ProviderPaymentMethodsEnum.SepaDebit,
+                            )
+                          }
+                          onChange={(e, checked) => {
+                            const newValue = [
+                              ...(formikProps.values.providerCustomer?.providerPaymentMethods ||
+                                []),
+                            ]
+
+                            if (checked) {
+                              newValue.push(ProviderPaymentMethodsEnum.SepaDebit)
+                            } else {
+                              newValue.splice(
+                                newValue.indexOf(ProviderPaymentMethodsEnum.SepaDebit),
+                                1,
+                              )
+                            }
+
+                            formikProps.setFieldValue(
+                              'providerCustomer.providerPaymentMethods',
+                              newValue,
+                            )
+                          }}
+                        />
+
+                        <Checkbox
+                          name="providerCustomer.providerPaymentMethods.us_bank_account"
+                          value={
+                            !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
+                              ProviderPaymentMethodsEnum.UsBankAccount,
+                            )
+                          }
+                          label={translate('text_65e1f90471bc198c0c934d8e')}
+                          sublabel={translate('text_65e1f90471bc198c0c934d90')}
+                          disabled={
+                            formikProps.values.providerCustomer?.providerPaymentMethods?.length ===
+                              1 &&
+                            formikProps.values.providerCustomer?.providerPaymentMethods.includes(
+                              ProviderPaymentMethodsEnum.UsBankAccount,
+                            )
+                          }
+                          onChange={(e, checked) => {
+                            const newValue = [
+                              ...(formikProps.values.providerCustomer?.providerPaymentMethods ||
+                                []),
+                            ]
+
+                            if (checked) {
+                              newValue.push(ProviderPaymentMethodsEnum.UsBankAccount)
+                            } else {
+                              newValue.splice(
+                                newValue.indexOf(ProviderPaymentMethodsEnum.UsBankAccount),
+                                1,
+                              )
+                            }
+
+                            formikProps.setFieldValue(
+                              'providerCustomer.providerPaymentMethods',
+                              newValue,
+                            )
+                          }}
+                        />
+                        <Checkbox
+                          name="providerCustomer.providerPaymentMethods.bacs_debit"
+                          value={
+                            !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
+                              ProviderPaymentMethodsEnum.BacsDebit,
+                            )
+                          }
+                          label={translate('text_65e1f90471bc198c0c934d92')}
+                          sublabel={translate('text_65e1f90471bc198c0c934d94')}
+                          disabled={
+                            formikProps.values.providerCustomer?.providerPaymentMethods?.length ===
+                              1 &&
+                            formikProps.values.providerCustomer?.providerPaymentMethods.includes(
+                              ProviderPaymentMethodsEnum.BacsDebit,
+                            )
+                          }
+                          onChange={(e, checked) => {
+                            const newValue = [
+                              ...(formikProps.values.providerCustomer?.providerPaymentMethods ||
+                                []),
+                            ]
+
+                            if (checked) {
+                              newValue.push(ProviderPaymentMethodsEnum.BacsDebit)
+                            } else {
+                              newValue.splice(
+                                newValue.indexOf(ProviderPaymentMethodsEnum.BacsDebit),
+                                1,
+                              )
+                            }
+
+                            formikProps.setFieldValue(
+                              'providerCustomer.providerPaymentMethods',
+                              newValue,
+                            )
+                          }}
+                        />
+                      </SepaGridWrapper>
+                    </Stack>
 
                     <Alert type="info">{translate('text_64aeb7b998c4322918c84214')}</Alert>
-                  </StripePaymentMethodWrapper>
+                  </Stack>
                 )}
               </>
             )}
@@ -753,22 +848,15 @@ const MetadataGrid = styled.div<{ $isHeader?: boolean }>`
     `};
 `
 
+const SepaGridWrapper = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: ${theme.spacing(4)};
+`
+
 const StyledTooltip = styled(Tooltip)`
   display: flex;
   align-items: center;
-`
-
-const StripePaymentMethodWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(1)};
-  }
-
-  > *:last-child {
-    margin-top: ${theme.spacing(6)};
-  }
 `
 
 const Item = styled.div`

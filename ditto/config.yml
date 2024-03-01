@@ -334,7 +334,11 @@ sources:
       fileName: 👍 [Ready for dev] - Invoices - Edit a draft invoice
     - name: ⚙️ [WIP] - Customers - Real time prepaid credits
       id: 65ae73e967bfa7ba6e9fdf21
+      fileName: ⚙️ [WIP] - Customers - Real time prepaid credits
     - name: 👍 [Ready for dev] - Plans - Group by fees on invoices
       id: 65ba6d43a5aaf708ee0c758e
+      fileName: 👍 [Ready for dev] - Plans - Group by fees on invoices
+    - name: 👍 [Ready for dev] - Settings / Customers - Lago x Stripe ACH & BACS
+      id: 65e1f9032a71b571c754c489
 format: flat
 variants: true
