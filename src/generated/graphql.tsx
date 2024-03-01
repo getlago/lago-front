@@ -269,6 +269,30 @@ export type CollectionMetadata = {
   totalPages: Scalars['Int']['output'];
 };
 
+export type Commitment = {
+  __typename?: 'Commitment';
+  amountCents: Scalars['BigInt']['output'];
+  commitmentType: CommitmentTypeEnum;
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  id: Scalars['ID']['output'];
+  invoiceDisplayName?: Maybe<Scalars['String']['output']>;
+  plan: Plan;
+  taxes?: Maybe<Array<Tax>>;
+  updatedAt: Scalars['ISO8601DateTime']['output'];
+};
+
+export type CommitmentInput = {
+  amountCents?: InputMaybe<Scalars['BigInt']['input']>;
+  commitmentType?: InputMaybe<CommitmentTypeEnum>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
+  taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export enum CommitmentTypeEnum {
+  MinimumCommitment = 'minimum_commitment'
+}
+
 export enum CountryCode {
   /** Andorra */
   Ad = 'AD',
@@ -1006,6 +1030,7 @@ export type CreatePlanInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   interval: PlanInterval;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
+  minimumCommitment?: InputMaybe<CommitmentInput>;
   name: Scalars['String']['input'];
   payInAdvance: Scalars['Boolean']['input'];
   taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -2769,6 +2794,7 @@ export type Plan = {
   id: Scalars['ID']['output'];
   interval: PlanInterval;
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
+  minimumCommitment?: Maybe<Commitment>;
   name: Scalars['String']['output'];
   organization?: Maybe<Organization>;
   parent?: Maybe<Plan>;
@@ -2798,6 +2824,7 @@ export type PlanOverridesInput = {
   charges?: InputMaybe<Array<ChargeOverridesInput>>;
   description?: InputMaybe<Scalars['String']['input']>;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
+  minimumCommitment?: InputMaybe<CommitmentInput>;
   name?: InputMaybe<Scalars['String']['input']>;
   taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
   trialPeriod?: InputMaybe<Scalars['Float']['input']>;
@@ -2851,8 +2878,10 @@ export type ProviderCustomerInput = {
 };
 
 export enum ProviderPaymentMethodsEnum {
+  BacsDebit = 'bacs_debit',
   Card = 'card',
-  SepaDebit = 'sepa_debit'
+  SepaDebit = 'sepa_debit',
+  UsBankAccount = 'us_bank_account'
 }
 
 export enum ProviderTypeEnum {
@@ -3321,6 +3350,15 @@ export type RevokeMembershipInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
+};
+
+/** Safe Organization Type */
+export type SafeOrganization = {
+  __typename?: 'SafeOrganization';
+  id: Scalars['ID']['output'];
+  logoUrl?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  timezone?: Maybe<TimezoneEnum>;
 };
 
 export enum StatusTypeEnum {
@@ -3897,6 +3935,7 @@ export type UpdatePlanInput = {
   id: Scalars['String']['input'];
   interval: PlanInterval;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
+  minimumCommitment?: InputMaybe<CommitmentInput>;
   name: Scalars['String']['input'];
   payInAdvance: Scalars['Boolean']['input'];
   taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -3938,7 +3977,7 @@ export type User = {
   createdAt: Scalars['ISO8601DateTime']['output'];
   email?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
-  organizations?: Maybe<Array<Organization>>;
+  organizations?: Maybe<Array<SafeOrganization>>;
   premium: Scalars['Boolean']['output'];
   updatedAt: Scalars['ISO8601DateTime']['output'];
 };
@@ -4112,7 +4151,7 @@ export enum WeightedIntervalEnum {
 export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> | null }, organization?: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum } | null };
+export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, organizations?: Array<{ __typename?: 'SafeOrganization', id: string, name: string, logoUrl?: string | null }> | null }, organization?: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum } | null };
 
 export type AddOnItemFragment = { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customersCount: number, createdAt: any };
 
@@ -5028,7 +5067,7 @@ export type GetWalletTransactionsQuery = { __typename?: 'Query', walletTransacti
 
 export type WalletTransactionForTransactionListItemFragment = { __typename?: 'WalletTransaction', id: string, status: WalletTransactionStatusEnum, transactionType: WalletTransactionTransactionTypeEnum, amount: string, creditAmount: string, settledAt?: any | null, createdAt: any, wallet?: { __typename?: 'Wallet', id: string, currency: CurrencyEnum } | null };
 
-export type CurrentUserFragment = { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> | null };
+export type CurrentUserFragment = { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'SafeOrganization', id: string, name: string, timezone?: TimezoneEnum | null }> | null };
 
 export type InvoiceSubscriptionFormatingFragment = { __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, groupName?: string | null, units: number, groupedBy: any, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval } } | null }> | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } }, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } };
 
@@ -5202,12 +5241,12 @@ export type UpdateTaxMutationVariables = Exact<{
 
 export type UpdateTaxMutation = { __typename?: 'Mutation', updateTax?: { __typename?: 'Tax', id: string, code: string, description?: string | null, name: string, rate: number, customersCount: number } | null };
 
-export type CurrentUserInfosFragment = { __typename?: 'User', id: string, email?: string | null, premium: boolean, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> | null };
+export type CurrentUserInfosFragment = { __typename?: 'User', id: string, email?: string | null, premium: boolean, organizations?: Array<{ __typename?: 'SafeOrganization', id: string, name: string, logoUrl?: string | null }> | null };
 
 export type GetCurrentUserInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCurrentUserInfosQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, email?: string | null, premium: boolean, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> | null } };
+export type GetCurrentUserInfosQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, email?: string | null, premium: boolean, organizations?: Array<{ __typename?: 'SafeOrganization', id: string, name: string, logoUrl?: string | null }> | null } };
 
 export type GetEmailSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -5414,7 +5453,7 @@ export type AcceptInviteMutationVariables = Exact<{
 }>;
 
 
-export type AcceptInviteMutation = { __typename?: 'Mutation', acceptInvite?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> | null } } | null };
+export type AcceptInviteMutation = { __typename?: 'Mutation', acceptInvite?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'SafeOrganization', id: string, name: string, timezone?: TimezoneEnum | null }> | null } } | null };
 
 export type GetInvoiceCreditNotesQueryVariables = Exact<{
   invoiceId: Scalars['ID']['input'];
@@ -5510,7 +5549,7 @@ export type LoginUserMutationVariables = Exact<{
 }>;
 
 
-export type LoginUserMutation = { __typename?: 'Mutation', loginUser?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> | null } } | null };
+export type LoginUserMutation = { __typename?: 'Mutation', loginUser?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'SafeOrganization', id: string, name: string, timezone?: TimezoneEnum | null }> | null } } | null };
 
 export type GetPortalLocaleQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -5529,14 +5568,14 @@ export type ResetPasswordMutationVariables = Exact<{
 }>;
 
 
-export type ResetPasswordMutation = { __typename?: 'Mutation', resetPassword?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> | null } } | null };
+export type ResetPasswordMutation = { __typename?: 'Mutation', resetPassword?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'SafeOrganization', id: string, name: string, timezone?: TimezoneEnum | null }> | null } } | null };
 
 export type SignupMutationVariables = Exact<{
   input: RegisterUserInput;
 }>;
 
 
-export type SignupMutation = { __typename?: 'Mutation', registerUser?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> | null } } | null };
+export type SignupMutation = { __typename?: 'Mutation', registerUser?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, organizations?: Array<{ __typename?: 'SafeOrganization', id: string, name: string, timezone?: TimezoneEnum | null }> | null } } | null };
 
 export type GetPortalOrgaInfosQueryVariables = Exact<{ [key: string]: never; }>;
 

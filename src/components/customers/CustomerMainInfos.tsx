@@ -15,6 +15,13 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
 
+const PaymentProviderMethodTranslationsLookup = {
+  [ProviderPaymentMethodsEnum.BacsDebit]: 'text_65e1f90471bc198c0c934d92',
+  [ProviderPaymentMethodsEnum.Card]: 'text_64aeb7b998c4322918c84208',
+  [ProviderPaymentMethodsEnum.SepaDebit]: 'text_64aeb7b998c4322918c8420c',
+  [ProviderPaymentMethodsEnum.UsBankAccount]: 'text_65e1f90471bc198c0c934d8e',
+}
+
 gql`
   fragment CustomerMainInfos on Customer {
     id
@@ -252,13 +259,11 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
         !!providerCustomer?.providerPaymentMethods?.length && (
           <div>
             <Typography variant="caption">{translate('text_64aeb7b998c4322918c84237')}</Typography>
-            <Typography color="textSecondary">
-              {providerCustomer?.providerPaymentMethods?.length === 2
-                ? translate('text_64aeb7b998c4322918c8423b')
-                : providerCustomer?.providerPaymentMethods[0] === ProviderPaymentMethodsEnum?.Card
-                  ? translate('text_64aeb7b998c4322918c84208')
-                  : translate('text_64aeb7b998c4322918c8420c')}
-            </Typography>
+            {providerCustomer?.providerPaymentMethods?.map((method) => (
+              <Typography key={`customer-payment-method-${method}`} color="textSecondary">
+                {translate(PaymentProviderMethodTranslationsLookup[method])}
+              </Typography>
+            ))}
           </div>
         )}
       {!!metadata?.length &&

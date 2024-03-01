@@ -116,6 +116,9 @@ module.exports = {
   "project_6584550ac28443047853c17f": {
     "base": require('./-ready-for-dev---settings---several-psp-accounts__base.json')
   },
+  "project_65e1f9032a71b571c754c489": {
+    "base": require('./-ready-for-dev---settings--customers---lago-x-stripe-ach--bacs__base.json')
+  },
   "project_64aeb7b7d5628db33254c4bb": {
     "base": require('./-ready-for-dev---settings--customers---lago-x-stripe-sdd__base.json')
   },
