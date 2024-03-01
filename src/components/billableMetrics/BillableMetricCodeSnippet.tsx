@@ -48,7 +48,6 @@ const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
     "event": {
       "transaction_id": "__UNIQUE_ID__", 
       "external_subscription_id": "__EXTERNAL_SUBSCRIPTION_ID__",
-      "external_customer_id": "__EXTERNAL_CUSTOMER_ID__", 
       "code": "${code}",
       "recurring": ${recurring},
       "timestamp": $(date +%s), 
@@ -74,7 +73,6 @@ ${groupDimensionMessage}
     "event": {
       "transaction_id": "__UNIQUE_ID__", 
       "external_subscription_id": "__EXTERNAL_SUBSCRIPTION_ID__",
-      "external_customer_id": "__EXTERNAL_CUSTOMER_ID__", 
       "code": "${code}",
       "timestamp": $(date +%s)${
         groupDimension > 0
@@ -99,7 +97,6 @@ ${groupDimensionMessage}
     "event": {
       "transaction_id": "__UNIQUE_ID__", 
       "external_subscription_id": "__EXTERNAL_SUBSCRIPTION_ID__",
-      "external_customer_id": "__EXTERNAL_CUSTOMER_ID__", 
       "code": "${code}", 
       "timestamp": $(date +%s), 
       "properties":  { 
@@ -125,7 +122,6 @@ ${groupDimensionMessage}
     "event": { 
       "transaction_id": "__UNIQUE_ID__", 
       "external_subscription_id": "__EXTERNAL_SUBSCRIPTION_ID__",
-      "external_customer_id": "__EXTERNAL_CUSTOMER_ID__", 
       "code": "${code}",
       "timestamp": $(date +%s), 
       "properties":  { 
@@ -151,7 +147,6 @@ ${groupDimensionMessage}
     "event": { 
       "transaction_id": "__UNIQUE_ID__", 
       "external_subscription_id": "__EXTERNAL_SUBSCRIPTION_ID__",
-      "external_customer_id": "__EXTERNAL_CUSTOMER_ID__", 
       "code": "${code}",
       "timestamp": $(date +%s), 
       "properties":  { 
