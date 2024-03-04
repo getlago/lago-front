@@ -23,6 +23,7 @@ const chargeModelLookupTranslation = {
   [ChargeModelEnum.Percentage]: 'text_65201b8216455901fe273df8',
   [ChargeModelEnum.Standard]: 'text_65201b8216455901fe273dd6',
   [ChargeModelEnum.Volume]: 'text_65201b8216455901fe273e4f',
+  [ChargeModelEnum.Timebased]: 'Time-based',
 }
 
 const PlanDetailsChargesSection = ({
