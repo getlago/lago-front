@@ -206,10 +206,7 @@ const PlanDetailsChargeWrapperSwitch = ({
       {chargeModel === ChargeModelEnum.Timebased && (
         <ChargeContentWrapper>
           <PlanDetailsChargeTableDisplay
-            header={[
-              translate('text_624453d52e945301380e49b6'),
-              'Per minutes',
-            ]}
+            header={[translate('text_624453d52e945301380e49b6'), 'Per minutes']}
             body={[
               [
                 intlFormatNumber(Number(values?.amount) || 0, {
