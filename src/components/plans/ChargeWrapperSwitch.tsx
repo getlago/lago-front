@@ -7,6 +7,7 @@ import { AmountInput } from '~/components/form'
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
+import { TimebasedCharge } from '~/components/plans/TimebasedCharge'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import {
   ChargeModelEnum,
@@ -112,6 +113,16 @@ export const ChargeWrapperSwitch = memo(
         )}
         {localCharge.chargeModel === ChargeModelEnum.Volume && (
           <VolumeChargeTable
+            chargeIndex={index}
+            currency={currency}
+            disabled={disabled}
+            formikProps={formikProps}
+            propertyCursor={propertyCursor}
+            valuePointer={valuePointer}
+          />
+        )}
+        {localCharge.chargeModel === ChargeModelEnum.Timebased && (
+          <TimebasedCharge
             chargeIndex={index}
             currency={currency}
             disabled={disabled}

@@ -36,6 +36,7 @@ import {
   TaxForPlanChargeAccordionFragment,
   useGetTaxesForChargesLazyQuery,
   VolumeRangesFragmentDoc,
+  TimebasedChargeFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -99,6 +100,7 @@ gql`
     ...PackageCharge
     ...PercentageCharge
     ...ChargeForChargeOptionsAccordion
+    ...TimebasedCharge
   }
 
   query getTaxesForCharges($limit: Int, $page: Int) {
@@ -120,6 +122,7 @@ gql`
   ${PackageChargeFragmentDoc}
   ${PercentageChargeFragmentDoc}
   ${ChargeForChargeOptionsAccordionFragmentDoc}
+  ${TimebasedChargeFragmentDoc}
 `
 
 export const mapChargeIntervalCopy = (interval: string, forceMonthlyCharge: boolean): string => {
@@ -523,6 +526,10 @@ export const ChargeAccordion = memo(
                   label: translate('text_6304e74aab6dbc18d615f386'),
                   value: ChargeModelEnum.Volume,
                 },
+                {
+                  label: 'Time-based',
+                  value: ChargeModelEnum.Timebased,
+                },
               ]}
               value={localCharge.chargeModel}
               helperText={translate(
@@ -536,7 +543,9 @@ export const ChargeAccordion = memo(
                         ? 'text_6282085b4f283b010265586c'
                         : localCharge.chargeModel === ChargeModelEnum.Volume
                           ? 'text_6304e74aab6dbc18d615f38a'
-                          : 'text_624d9adba93343010cd14ca7',
+                          : localCharge.chargeModel === ChargeModelEnum.Timebased
+                            ? ''
+                            : 'text_624d9adba93343010cd14ca7',
               )}
               onChange={(value) => handleUpdate('chargeModel', value)}
             />

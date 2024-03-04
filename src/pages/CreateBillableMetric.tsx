@@ -70,7 +70,7 @@ const CreateBillableMetric = () => {
       aggregationType: string().required(''),
       fieldName: string().when('aggregationType', {
         is: (aggregationType: AggregationTypeEnum) =>
-          !!aggregationType && aggregationType !== AggregationTypeEnum.CountAgg,
+          !!aggregationType &&  ![AggregationTypeEnum.CountAgg, AggregationTypeEnum.UsageTimeAgg].includes(aggregationType),
         then: (schema) => schema.required(''),
       }),
       recurring: bool().required(''),
@@ -313,6 +313,18 @@ const CreateBillableMetric = () => {
                         label: translate('text_650062226a33c46e82050486'),
                         value: AggregationTypeEnum.WeightedSumAgg,
                       },
+                      {
+                        labelNode: (
+                          <InlineComboboxLabel>
+                            <Typography variant="body" color="grey700">
+                              Usage time
+                            </Typography>
+                          </InlineComboboxLabel>
+                        ),
+
+                        label: 'Usage time',
+                        value: AggregationTypeEnum.UsageTimeAgg,
+                      },
                     ]}
                     helperText={
                       formikProps.values?.aggregationType === AggregationTypeEnum.CountAgg
@@ -333,7 +345,7 @@ const CreateBillableMetric = () => {
                   />
 
                   {!!formikProps.values?.aggregationType &&
-                    formikProps.values?.aggregationType !== AggregationTypeEnum.CountAgg && (
+                    ![AggregationTypeEnum.CountAgg, AggregationTypeEnum.UsageTimeAgg].includes(formikProps.values?.aggregationType) && (
                       <TextInputField
                         name="fieldName"
                         disabled={isEdition && !canBeEdited}
