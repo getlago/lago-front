@@ -26,8 +26,10 @@ interface BasicMultipleComboBoxProps
   disabled?: boolean
   freeSolo?: boolean
   value?: MultipleComboBoxData[]
-  data: BasicMultipleComboBoxData[]
+  data?: BasicMultipleComboBoxData[]
   sortValues?: boolean
+  forcePopupIcon?: boolean
+  hideTags?: boolean
   emptyText?: string
   virtualized?: boolean
   limitTags?: number
