@@ -70,7 +70,10 @@ const CreateBillableMetric = () => {
       aggregationType: string().required(''),
       fieldName: string().when('aggregationType', {
         is: (aggregationType: AggregationTypeEnum) =>
-          !!aggregationType &&  ![AggregationTypeEnum.CountAgg, AggregationTypeEnum.UsageTimeAgg].includes(aggregationType),
+          !!aggregationType &&
+          ![AggregationTypeEnum.CountAgg, AggregationTypeEnum.UsageTimeAgg].includes(
+            aggregationType,
+          ),
         then: (schema) => schema.required(''),
       }),
       recurring: bool().required(''),
@@ -345,7 +348,9 @@ const CreateBillableMetric = () => {
                   />
 
                   {!!formikProps.values?.aggregationType &&
-                    ![AggregationTypeEnum.CountAgg, AggregationTypeEnum.UsageTimeAgg].includes(formikProps.values?.aggregationType) && (
+                    ![AggregationTypeEnum.CountAgg, AggregationTypeEnum.UsageTimeAgg].includes(
+                      formikProps.values?.aggregationType,
+                    ) && (
                       <TextInputField
                         name="fieldName"
                         disabled={isEdition && !canBeEdited}
