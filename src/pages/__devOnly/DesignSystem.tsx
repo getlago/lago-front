@@ -1,4 +1,4 @@
-import { InputAdornment } from '@mui/material'
+import { InputAdornment, Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
@@ -39,7 +39,7 @@ import {
   TextInputField,
 } from '~/components/form'
 import { AmountInputField } from '~/components/form/AmountInput'
-import { MultipleComboBoxField } from '~/components/form/MultipleComboBox'
+import { MultipleComboBox, MultipleComboBoxField } from '~/components/form/MultipleComboBox'
 import { addToast, TToast } from '~/core/apolloClient'
 import { ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -102,6 +102,7 @@ const DesignSystem = () => {
       inputNumber: undefined,
       switch: true,
       combobox: undefined,
+      multipleCombobox: [],
       radio: false,
       buttonSelector: undefined,
       buttonSelector2: 'time',
@@ -1113,6 +1114,42 @@ const DesignSystem = () => {
                       label="Multiple Free Solo"
                       placeholder="Placeholder"
                       formikProps={formikProps}
+                    />
+                    <MultipleComboBoxField
+                      freeSolo
+                      name="multipleCombobox"
+                      label="Multiple Free Solo No Data"
+                      placeholder="Placeholder"
+                      formikProps={formikProps}
+                    />
+                    <Stack gap={1} direction="row" flexWrap="wrap">
+                      {formikProps.values.multipleCombobox.map(
+                        (value: { value: string }, index) => (
+                          <Chip
+                            key={index}
+                            label={value.value}
+                            onDelete={() => {
+                              const newValues = formikProps.values.multipleCombobox.filter(
+                                (v) => v !== value,
+                              )
+
+                              formikProps.setFieldValue('multipleCombobox', newValues)
+                            }}
+                          />
+                        ),
+                      )}
+                    </Stack>
+                    <MultipleComboBox
+                      freeSolo
+                      hideTags
+                      disableClearable
+                      data={[]}
+                      onChange={(newValue) =>
+                        formikProps.setFieldValue('multipleCombobox', newValue)
+                      }
+                      value={formikProps.values.multipleCombobox}
+                      label="Multiple Free Solo No Data No Tags"
+                      placeholder="Placeholder"
                     />
                   </Block>
 

@@ -31,6 +31,8 @@ export const MultipleComboBox = ({
   freeSolo,
   emptyText,
   disableClearable = false,
+  forcePopupIcon = false,
+  hideTags = false,
   renderGroupHeader,
   virtualized = true,
   limitTags,
@@ -55,13 +57,12 @@ export const MultipleComboBox = ({
     <Container>
       <Autocomplete
         multiple
-        forcePopupIcon
+        forcePopupIcon={forcePopupIcon}
         disableCloseOnSelect
         disableClearable={disableClearable}
         disabled={disabled}
         limitTags={limitTags || DEFAULT_LIMIT_TAGS}
         options={data}
-        sx={{ width: '100%' }}
         renderInput={(params) => (
           <TextInput
             {...params}
@@ -76,22 +77,26 @@ export const MultipleComboBox = ({
         )}
         onChange={(_, newValue) => {
           if (freeSolo) {
-            // On free solo mode, turn typed values into objects
-            onChange(
-              newValue.map((val) => {
-                if (typeof val === 'string') {
-                  val = { value: val }
-                }
-                return val
-              }),
-            )
+            // On free solo mode, turn string typed values into objects
+            const formated = newValue.map((val) => {
+              if (typeof val === 'string') {
+                val = { value: val }
+              }
+              return val
+            })
+
+            onChange(formated)
           } else {
             onChange(newValue)
           }
         }}
-        value={value || []}
-        renderTags={(tagValues, getTagProps) =>
-          tagValues.map((option, index) => {
+        value={value || undefined}
+        renderTags={(tagValues, getTagProps) => {
+          if (hideTags) {
+            return null
+          }
+
+          return tagValues.map((option, index) => {
             const tagOptions = getTagProps({ index })
 
             return (
@@ -105,7 +110,7 @@ export const MultipleComboBox = ({
               />
             )
           })
-        }
+        }}
         clearIcon={<Icon name="close-circle-filled" />}
         popupIcon={<Icon name="chevron-up-down" />}
         noOptionsText={emptyText ?? translate('text_623b3acb8ee4e000ba87d082')}
@@ -138,8 +143,9 @@ export const MultipleComboBox = ({
 
           if (inputValue !== '' && !isExisting && freeSolo) {
             filtered.push({
+              customValue: true,
               value: inputValue,
-              label: `Add "${inputValue}"`,
+              label: `TODO: Click or press enter to create "${inputValue}"`,
             })
           }
 
