@@ -1,7 +1,8 @@
 import { gql } from '@apollo/client'
+import { Stack } from '@mui/material'
 import styled from 'styled-components'
 
-import { Button, Skeleton, Typography } from '~/components/designSystem'
+import { Avatar, Button, Skeleton, Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
@@ -12,6 +13,9 @@ import {
   useIntegrationsListForCustomerMainInfosQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import Adyen from '~/public/images/adyen.svg'
+import Gocardless from '~/public/images/gocardless.svg'
+import Stripe from '~/public/images/stripe.svg'
 import { theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
 
@@ -228,25 +232,21 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
           {country && <Typography color="textSecondary">{CountryCodes[country]}</Typography>}
         </div>
       )}
-      {!!paymentProvider && (
+      {!!paymentProvider && !!linkedProvider?.name && (
         <div>
-          <Typography variant="caption">{translate('text_62b5c912506c4905fa755248')}</Typography>
-          <Typography color="textSecondary">
-            {paymentProvider === ProviderTypeEnum?.Stripe
-              ? translate('text_62b5c912506c4905fa75524a')
-              : paymentProvider === ProviderTypeEnum?.Gocardless
-                ? translate('text_634ea0ecc6147de10ddb6648')
-                : paymentProvider === ProviderTypeEnum?.Adyen
-                  ? translate('text_645d071272418a14c1c76a6d')
-                  : ''}
-          </Typography>
-        </div>
-      )}
-      {!!linkedProvider && (
-        <div>
-          <Typography variant="caption">{translate('text_65940198687ce7b05cd62b61')}</Typography>
-          <Typography color="grey700">{linkedProvider?.name}</Typography>
-          <Typography color="grey600">{linkedProvider?.code}</Typography>
+          <Typography variant="caption">{translate('text_62b1edddbf5f461ab9712795')}</Typography>
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Avatar variant="connector" size="small">
+              {paymentProvider === ProviderTypeEnum?.Stripe ? (
+                <Stripe />
+              ) : paymentProvider === ProviderTypeEnum?.Gocardless ? (
+                <Gocardless />
+              ) : paymentProvider === ProviderTypeEnum?.Adyen ? (
+                <Adyen />
+              ) : null}
+            </Avatar>
+            <Typography color="grey700">{linkedProvider?.name}</Typography>
+          </Stack>
         </div>
       )}
       {!!providerCustomer && !!providerCustomer?.providerCustomerId && (
