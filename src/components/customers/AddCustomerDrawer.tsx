@@ -415,6 +415,9 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
           }
         >
           <AccordionContentWrapper>
+            <Typography variant="bodyHl" color="grey700">
+              {translate('text_65e1f90471bc198c0c934d6c')}
+            </Typography>
             <ComboBoxField
               data={providerData}
               name="paymentProvider"
