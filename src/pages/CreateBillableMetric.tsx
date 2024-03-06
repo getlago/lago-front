@@ -11,7 +11,7 @@ import {
   EditBillableMetricGroupDialogRef,
 } from '~/components/billableMetrics/EditBillableMetricGroupDialog'
 import { Accordion, Alert, Button, Skeleton, Typography } from '~/components/designSystem'
-import { ButtonSelector, ComboBoxField, JsonEditorField, TextInputField } from '~/components/form'
+import { ButtonSelector, ComboBoxField, TextInputField } from '~/components/form'
 import { WarningDialog, WarningDialogMode, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { BILLABLE_METRICS_ROUTE } from '~/core/router'
@@ -352,20 +352,7 @@ const CreateBillableMetric = () => {
                     </Typography>
                   }
                 >
-                  <JsonEditorField
-                    name="group"
-                    label={translate('text_633d410368cc8282af232131')}
-                    helperText={
-                      <Typography
-                        variant="caption"
-                        color="grey600"
-                        html={translate('text_633d410368cc8282af232143')}
-                      />
-                    }
-                    placeholder={translate('text_633d410368cc8282af23213d')}
-                    customInvalidError={translate('text_633b622c201ca8b521bcad59')}
-                    formikProps={formikProps}
-                  />
+                  {/* JSON EDITOR WAS HERE */}
 
                   {errorCode === FORM_ERRORS_ENUM.invalidGroupValue && (
                     <GroupAlert type="danger">

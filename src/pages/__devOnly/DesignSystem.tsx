@@ -33,7 +33,6 @@ import {
   CheckboxField,
   ComboBoxField,
   DatePickerField,
-  JsonEditorField,
   RadioField,
   SwitchField,
   TextInputField,
@@ -860,29 +859,6 @@ const DesignSystem = () => {
                       value={formikProps.values.checkboxCond2}
                       label="Label"
                       sublabel="Sublabel"
-                    />
-                  </Block>
-
-                  <GroupTitle variant="subhead">Code Editor</GroupTitle>
-                  <Block $marginBottom={theme.spacing(6)}>
-                    <JsonEditorField
-                      label="Default"
-                      name="json"
-                      formikProps={formikProps}
-                      infoText="Testing testing"
-                      helperText="Helper text"
-                      placeholder="Type or paste your JSON snippet, consult the doc to see examples"
-                      customInvalidError="text_633b622c201ca8b521bcad59"
-                    />
-                    <JsonEditorField
-                      label="Disabled"
-                      name="json"
-                      formikProps={formikProps}
-                      disabled
-                      infoText="Testing testing"
-                      helperText="Helper text"
-                      placeholder="Type or paste your JSON snippet, consult the doc to see examples"
-                      customInvalidError="text_633b622c201ca8b521bcad59"
                     />
                   </Block>
 
