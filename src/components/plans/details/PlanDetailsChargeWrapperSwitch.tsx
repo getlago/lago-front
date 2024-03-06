@@ -18,10 +18,12 @@ const PlanDetailsChargeWrapperSwitch = ({
   currency,
   chargeModel,
   values,
+  isGroupPrice,
 }: {
   currency: CurrencyEnum
   chargeModel: ChargeModelEnum
   values?: Maybe<Properties> | Maybe<GroupProperties['values']>
+  isGroupPrice?: boolean
 }) => {
   const { translate } = useInternationalization()
 
@@ -200,6 +202,33 @@ const PlanDetailsChargeWrapperSwitch = ({
                 ]
               })
             })()}
+          />
+        </ChargeContentWrapper>
+      )}
+      {chargeModel === ChargeModelEnum.PackageGroup && !isGroupPrice && (
+        <ChargeContentWrapper>
+          <PlanDetailsChargeTableDisplay
+            header={[
+              translate('text_65201b8216455901fe273de7'),
+              translate('text_65201b8216455901fe273de8'),
+            ]}
+            body={[[values?.packageSize, values?.freeUnits ?? 0]]}
+          />
+        </ChargeContentWrapper>
+      )}
+      {chargeModel === ChargeModelEnum.PackageGroup && isGroupPrice && (
+        <ChargeContentWrapper>
+          <PlanDetailsChargeTableDisplay
+            header={[translate('text_624453d52e945301380e49b6')]}
+            body={[
+              [
+                intlFormatNumber(Number(values?.amount) || 0, {
+                  currency: currency,
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 15,
+                }),
+              ],
+            ]}
           />
         </ChargeContentWrapper>
       )}

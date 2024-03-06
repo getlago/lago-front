@@ -87,6 +87,19 @@ gql`
       }
       ...ChargeAccordion
       chargeModel
+      chargeGroup {
+        id
+        invoiceDisplayName
+        minAmountCents
+        payInAdvance
+        invoiceable
+        usageChargeGroups {
+          id
+          properties {
+            amount
+          }
+        }
+      }
     }
 
     ...PlanForChargeAccordion
