@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
-import { FormikProps } from 'formik'
+import { FormikErrors, FormikProps } from 'formik'
 import _get from 'lodash/get'
 import { memo, RefObject, useCallback } from 'react'
 import styled from 'styled-components'
@@ -9,47 +9,39 @@ import { Alert, Button, Popper, Tooltip, Typography } from '~/components/designS
 import { AmountInput, TextInput } from '~/components/form'
 import { MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
+import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { MenuPopper, theme } from '~/styles'
 
-import { PlanFormInput } from './types'
+import {
+  LocalChargeFilterInput,
+  LocalChargeInput,
+  LocalPropertiesInput,
+  PlanFormInput,
+} from './types'
 
 import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 gql`
-  fragment PercentageCharge on Charge {
-    id
-    properties {
-      fixedAmount
-      freeUnitsPerEvents
-      freeUnitsPerTotalAggregation
-      rate
-      perTransactionMinAmount
-      perTransactionMaxAmount
-    }
-    groupProperties {
-      groupId
-      values {
-        fixedAmount
-        freeUnitsPerEvents
-        freeUnitsPerTotalAggregation
-        rate
-        perTransactionMinAmount
-        perTransactionMaxAmount
-      }
-    }
+  fragment PercentageCharge on Properties {
+    fixedAmount
+    freeUnitsPerEvents
+    freeUnitsPerTotalAggregation
+    rate
+    perTransactionMinAmount
+    perTransactionMaxAmount
   }
 `
 
 interface ChargePercentageProps {
   disabled?: boolean
   chargeIndex: number
+  filterIndex?: number
   currency: CurrencyEnum
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
-  valuePointer: InputMaybe<PropertiesInput> | undefined
+  valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
 }
 
@@ -58,6 +50,7 @@ export const ChargePercentage = memo(
     currency,
     disabled,
     chargeIndex,
+    filterIndex,
     formikProps,
     propertyCursor,
     valuePointer,
@@ -65,7 +58,7 @@ export const ChargePercentage = memo(
   }: ChargePercentageProps) => {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
-    const chargeErrors = formikProps?.errors?.charges
+    const chargeErrors = formikProps?.errors?.charges as FormikErrors<LocalChargeInput>[]
     const showFixedAmount = valuePointer?.fixedAmount !== undefined
     const showFreeUnitsPerEvents = valuePointer?.freeUnitsPerEvents !== undefined
     const showFreeUnitsPerTotalAggregation =
@@ -79,16 +72,15 @@ export const ChargePercentage = memo(
         maximumFractionDigits: 15,
       }),
     })
+
     const hasMinAmountError =
-      chargeErrors &&
-      chargeErrors[chargeIndex] &&
-      // @ts-ignore
-      (chargeErrors[chargeIndex]?.properties?.perTransactionMinAmount ||
-        // @ts-ignore
-        chargeErrors[chargeIndex]?.groupProperties?.find(
-          // @ts-ignore
-          (e) => e?.values?.perTransactionMinAmount,
-        )) === MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR
+      typeof filterIndex === 'number'
+        ? // @ts-ignore
+          chargeErrors?.[chargeIndex]?.filters?.[filterIndex]?.properties
+            ?.perTransactionMinAmount === MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR
+        : // @ts-ignore
+          chargeErrors?.[chargeIndex]?.properties?.perTransactionMinAmount ===
+          MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR
 
     const handleUpdate = useCallback(
       (name: string, value: string | number) => {

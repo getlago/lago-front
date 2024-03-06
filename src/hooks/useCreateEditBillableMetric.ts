@@ -30,7 +30,6 @@ gql`
   mutation createBillableMetric($input: CreateBillableMetricInput!) {
     createBillableMetric(input: $input) {
       id
-      group
     }
   }
 
@@ -97,8 +96,6 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
   const errorCode = useMemo(() => {
     if (hasDefinedGQLError('ValueAlreadyExist', createError || updateError)) {
       return FORM_ERRORS_ENUM.existingCode
-    } else if (hasDefinedGQLError('ValueIsInvalid', createError || updateError)) {
-      return FORM_ERRORS_ENUM.invalidGroupValue
     }
 
     return undefined
@@ -111,7 +108,6 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
         values.aggregationType === AggregationTypeEnum.WeightedSumAgg
           ? WeightedIntervalEnum.Seconds
           : null,
-      group: JSON.parse(values.group || '{}'),
     }
   }
 

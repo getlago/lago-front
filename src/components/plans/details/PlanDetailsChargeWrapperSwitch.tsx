@@ -3,13 +3,7 @@ import styled from 'styled-components'
 
 import { Chip } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import {
-  ChargeModelEnum,
-  CurrencyEnum,
-  GroupProperties,
-  Maybe,
-  Properties,
-} from '~/generated/graphql'
+import { ChargeModelEnum, CurrencyEnum, Maybe, Properties } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
@@ -23,7 +17,7 @@ const PlanDetailsChargeWrapperSwitch = ({
 }: {
   currency: CurrencyEnum
   chargeModel: ChargeModelEnum
-  values?: Maybe<Properties> | Maybe<GroupProperties['values']>
+  values?: Maybe<Properties>
 }) => {
   const componentId = useId()
   const { translate } = useInternationalization()

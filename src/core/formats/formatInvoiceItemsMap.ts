@@ -1,6 +1,15 @@
 import { gql } from '@apollo/client'
 
-import { Fee, FeeTypesEnum, InvoiceStatusTypeEnum, InvoiceSubscription } from '~/generated/graphql'
+import {
+  ChargeFilter,
+  ChargeFilterUsage,
+  Fee,
+  FeeTypesEnum,
+  InvoiceStatusTypeEnum,
+  InvoiceSubscription,
+} from '~/generated/graphql'
+
+import { ALL_FILTER_VALUES } from '../constants/form'
 
 gql`
   fragment InvoiceSubscriptionFormating on InvoiceSubscription {
@@ -15,7 +24,6 @@ gql`
       amountCents
       invoiceName
       invoiceDisplayName
-      groupName
       units
       groupedBy
       charge {
@@ -26,6 +34,10 @@ gql`
           id
           name
         }
+      }
+      chargeFilter {
+        invoiceDisplayName
+        values
       }
       subscription {
         id
@@ -54,7 +66,7 @@ export type TExtendedRemainingFee = Fee & {
   metadata: {
     displayName: string
     isSubscriptionFee?: boolean
-    isGroupChildFee?: boolean
+    isFilterChildFee?: boolean
     isTrueUpFee?: boolean
     isNormalFee?: boolean
     isCommitmentFee?: boolean
@@ -84,6 +96,44 @@ type TFormatedInvoiceSubscriptionDataForDisplay = {
     hasAnyFeeParsed: boolean
     hasAnyPositiveFeeParsed: boolean
   }
+}
+
+export const composeChargeFilterDisplayName = (
+  chargeFilter?: Omit<ChargeFilter, 'properties'> | ChargeFilterUsage | null,
+): string => {
+  if (!chargeFilter) return ''
+  if (chargeFilter.invoiceDisplayName) return chargeFilter.invoiceDisplayName
+
+  return Object.entries(chargeFilter.values)
+    .map((value) => {
+      const [k, v] = value as [string, string[]]
+
+      if (v.includes(ALL_FILTER_VALUES)) {
+        return `${k}`
+      }
+
+      return v.join(' • ')
+    })
+    .join(' • ')
+}
+
+export const composeGroupedByDisplayName = (
+  groupedBy?: Record<string, string | null> | null,
+): string => {
+  if (!groupedBy || !Object.keys(groupedBy).length) return ''
+
+  return Object.values(groupedBy || {})
+    .filter((v) => !!v)
+    .map((g) => `${g}`)
+    .join(' • ')
+}
+
+export const composeMultipleValuesWithSepator = (
+  values?: Array<string | undefined | null>,
+): string => {
+  if (!values?.length) return ''
+
+  return values.filter((v) => !!v).join(' • ')
 }
 
 export const getSubscriptionFeeDisplayName = (fee: TExtendedRemainingFee) => {
@@ -219,13 +269,6 @@ const _newDeepFormatFees = (feesToFormat: TExtendedRemainingFee[]): TExtendedRem
   for (let i = 0; i < feesToFormat.length; i++) {
     const fee = feesToFormat[i]
 
-    const groupingChain =
-      Object.values(fee?.groupedBy || {}).length > 0
-        ? Object.values(fee?.groupedBy)
-            .map((group) => (!!group ? ` • ${group}` : ''))
-            .join('')
-        : ''
-
     if (fee.feeType === FeeTypesEnum.Subscription) {
       feesData.push({
         ...fee,
@@ -242,26 +285,31 @@ const _newDeepFormatFees = (feesToFormat: TExtendedRemainingFee[]): TExtendedRem
           displayName: fee.invoiceDisplayName || 'Minimum commitment - True up',
         },
       })
-    } else if (!!fee.group?.id) {
-      feesData.push({
-        ...fee,
-        metadata: {
-          isGroupChildFee: true,
-          displayName: `${fee.invoiceName || fee.charge?.billableMetric?.name}${groupingChain}${
-            fee.groupName
-              ? ` • ${fee.groupName}`
-              : ` • ${!!fee.group?.key ? `${fee.group?.key} • ` : ''}${fee.group?.value}`
-          }`,
-        },
-      })
     } else if (!!fee?.trueUpParentFee?.id) {
       feesData.push({
         ...fee,
         metadata: {
           isTrueUpFee: true,
-          displayName: `${
-            fee.groupName || fee.invoiceName || fee.charge?.billableMetric?.name || ''
-          } - True-up`,
+          displayName:
+            composeMultipleValuesWithSepator([
+              fee.invoiceName || fee.charge?.billableMetric?.name,
+              composeGroupedByDisplayName(fee.groupedBy),
+              composeChargeFilterDisplayName(fee.chargeFilter),
+            ]) + ' - True-up',
+        },
+      })
+    } else if (!!fee.chargeFilter) {
+      feesData.push({
+        ...fee,
+        metadata: {
+          isFilterChildFee: true,
+          displayName:
+            fee.invoiceDisplayName ||
+            composeMultipleValuesWithSepator([
+              fee.invoiceName || fee.charge?.billableMetric?.name,
+              composeGroupedByDisplayName(fee.groupedBy),
+              composeChargeFilterDisplayName(fee.chargeFilter),
+            ]),
         },
       })
     } else {
@@ -269,9 +317,12 @@ const _newDeepFormatFees = (feesToFormat: TExtendedRemainingFee[]): TExtendedRem
         ...fee,
         metadata: {
           isNormalFee: true,
-          displayName: `${
-            fee.invoiceDisplayName || fee.invoiceName || fee.charge?.billableMetric?.name || ''
-          }${groupingChain}`,
+          displayName:
+            fee.invoiceDisplayName ||
+            composeMultipleValuesWithSepator([
+              fee.invoiceName || fee.charge?.billableMetric?.name,
+              composeGroupedByDisplayName(fee.groupedBy),
+            ]),
         },
       })
     }

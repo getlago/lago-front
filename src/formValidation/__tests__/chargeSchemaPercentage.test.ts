@@ -1,3 +1,4 @@
+import { transformFilterObjectToString } from '~/components/plans/utils'
 import { ChargeModelEnum } from '~/generated/graphql'
 
 import { chargeSchema } from '../chargeSchema'
@@ -231,18 +232,23 @@ describe('chargeSchema Percentage', () => {
     })
   })
 
-  describe('groupProperties', () => {
+  describe('filters', () => {
     describe('invalid', () => {
       it('has empty string rate', () => {
         const values = [
           {
             chargeModel: ChargeModelEnum.Percentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   rate: '',
                 },
               },
@@ -259,11 +265,16 @@ describe('chargeSchema Percentage', () => {
           {
             chargeModel: ChargeModelEnum.Percentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   rate: 'a',
                 },
               },
@@ -280,11 +291,16 @@ describe('chargeSchema Percentage', () => {
           {
             chargeModel: ChargeModelEnum.Percentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   rate: '1',
                   fixedAmount: 'a',
                 },
@@ -302,11 +318,16 @@ describe('chargeSchema Percentage', () => {
           {
             chargeModel: ChargeModelEnum.Percentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   rate: '1',
                   freeUnitsPerEvents: 'a',
                 },
@@ -323,11 +344,16 @@ describe('chargeSchema Percentage', () => {
           {
             chargeModel: ChargeModelEnum.Percentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   rate: '1',
                   freeUnitsPerTotalAggregation: 'a',
                 },
@@ -344,11 +370,16 @@ describe('chargeSchema Percentage', () => {
           {
             chargeModel: ChargeModelEnum.Percentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   rate: '1',
                   perTransactionMinAmount: 'a',
                 },
@@ -365,11 +396,16 @@ describe('chargeSchema Percentage', () => {
           {
             chargeModel: ChargeModelEnum.Percentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   rate: '1',
                   perTransactionMaxAmount: 'a',
                 },
@@ -387,11 +423,16 @@ describe('chargeSchema Percentage', () => {
           {
             chargeModel: ChargeModelEnum.Percentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   rate: '1',
                   perTransactionMinAmount: '10',
                   perTransactionMaxAmount: '1',
@@ -410,11 +451,16 @@ describe('chargeSchema Percentage', () => {
           {
             chargeModel: ChargeModelEnum.Percentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   rate: '1',
                   perTransactionMinAmount: 10,
                   perTransactionMaxAmount: 1,
@@ -433,11 +479,16 @@ describe('chargeSchema Percentage', () => {
           {
             chargeModel: ChargeModelEnum.Percentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   rate: '1',
                   perTransactionMinAmount: '10',
                   perTransactionMaxAmount: 1,
@@ -457,11 +508,16 @@ describe('chargeSchema Percentage', () => {
           {
             chargeModel: ChargeModelEnum.Percentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   rate: '1',
                 },
               },
@@ -477,11 +533,16 @@ describe('chargeSchema Percentage', () => {
           {
             chargeModel: ChargeModelEnum.Percentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   rate: 1,
                 },
               },
@@ -498,11 +559,16 @@ describe('chargeSchema Percentage', () => {
           {
             chargeModel: ChargeModelEnum.Percentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   rate: '1',
                   perTransactionMinAmount: '1',
                   perTransactionMaxAmount: '10',
@@ -521,11 +587,16 @@ describe('chargeSchema Percentage', () => {
           {
             chargeModel: ChargeModelEnum.Percentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   rate: '1',
                   perTransactionMinAmount: 1,
                   perTransactionMaxAmount: 10,
@@ -544,11 +615,16 @@ describe('chargeSchema Percentage', () => {
           {
             chargeModel: ChargeModelEnum.Percentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   rate: '1',
                   perTransactionMinAmount: 1,
                   perTransactionMaxAmount: '10',

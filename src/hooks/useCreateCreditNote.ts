@@ -5,6 +5,11 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { CreditNoteForm, FeesPerInvoice, FromFee } from '~/components/creditNote/types'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import {
+  composeChargeFilterDisplayName,
+  composeGroupedByDisplayName,
+  composeMultipleValuesWithSepator,
+} from '~/core/formats/formatInvoiceItemsMap'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
 import { serializeCreditNoteInput } from '~/core/serializers'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -29,7 +34,6 @@ gql`
     feeType
     invoiceName
     invoiceDisplayName
-    groupName
     groupedBy
     appliedTaxes {
       id
@@ -50,10 +54,10 @@ gql`
         name
       }
     }
-    group {
+    chargeFilter {
       id
-      key
-      value
+      invoiceDisplayName
+      values
     }
   }
 
@@ -122,18 +126,6 @@ type UseCreateCreditNoteReturn = {
   onCreate: (
     value: CreditNoteForm,
   ) => Promise<{ data?: { createCreditNote?: { id?: string } }; errors?: ApolloError }>
-}
-
-const getFeeGroupedByDisplayName = (fee: InvoiceFeeFragment) => {
-  if (Object.values(fee?.groupedBy || {}).length === 0) return ''
-
-  const composableGroupName = [] as string[]
-
-  Object.values(fee?.groupedBy).forEach(
-    (groupValue) => !!groupValue && composableGroupName.push(groupValue as string),
-  )
-
-  return `${composableGroupName.filter((i) => !!i).join(' • ')}`
 }
 
 export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
@@ -257,7 +249,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
           // either charge alone, group charge or true up fee
           if (fee?.feeType === FeeTypesEnum.Subscription) {
             return undefined
-          } else if (!!fee?.charge?.id && fee?.group?.value) {
+          } else if (!!fee?.chargeFilter?.id) {
             return fee?.charge?.id
           }
 
@@ -276,12 +268,11 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
             const fee = groupedFees[groupKey][0]
 
             if (fee?.creditableAmountCents > 0) {
-              let composableName = [
+              let composableName = composeMultipleValuesWithSepator([
                 fee?.invoiceName || subscriptionName,
-                getFeeGroupedByDisplayName(fee),
-              ]
-                .filter((i) => !!i)
-                .join(' • ')
+                composeChargeFilterDisplayName(fee?.chargeFilter),
+                composeGroupedByDisplayName(fee.groupedBy),
+              ])
 
               return {
                 [`0_${fee?.id}`]: {
@@ -311,11 +302,14 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
             firstFee?.creditableAmountCents > 0
           ) {
             let composableName =
-              firstFee.feeType === FeeTypesEnum.Commitment
-                ? firstFee.invoiceDisplayName || 'Minimum commitment - True up'
-                : [firstFee?.invoiceName || subscriptionName, getFeeGroupedByDisplayName(firstFee)]
-                    .filter((i) => !!i)
-                    .join(' • ')
+              firstFee.invoiceDisplayName ||
+              (firstFee.feeType === FeeTypesEnum.Commitment
+                ? 'Minimum commitment - True up'
+                : composeMultipleValuesWithSepator([
+                    firstFee?.invoiceName || subscriptionName,
+                    composeChargeFilterDisplayName(firstFee?.chargeFilter),
+                    composeGroupedByDisplayName(firstFee.groupedBy),
+                  ]))
 
             return {
               ...groupApp,
@@ -340,23 +334,19 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
               return accFee
             }
 
-            const feeGroupedByString = getFeeGroupedByDisplayName(feeGrouped)
-
-            const composableGroupName = !!feeGrouped?.groupName
-              ? [feeGrouped?.groupName]
-              : feeGrouped?.group?.key
-                ? [feeGrouped?.group?.key, feeGrouped?.group?.value]
-                : [feeGrouped?.group?.value as string]
-
-            const composableName = [feeGroupedByString, ...composableGroupName]
-              .filter((i) => !!i)
-              .join(' • ')
+            const composableName =
+              feeGrouped.invoiceDisplayName ||
+              composeMultipleValuesWithSepator([
+                composeChargeFilterDisplayName(feeGrouped?.chargeFilter),
+                composeGroupedByDisplayName(feeGrouped.groupedBy),
+              ])
 
             return {
               ...accFee,
               [feeGrouped?.id]: {
                 id: feeGrouped?.id,
                 checked: true,
+                isTrueUpFee: trueUpFeeIds?.includes(feeGrouped?.id),
                 value: deserializeAmount(
                   feeGrouped?.creditableAmountCents,
                   feeGrouped.amountCurrency,

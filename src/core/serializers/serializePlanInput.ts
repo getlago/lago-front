@@ -1,5 +1,5 @@
-import { PlanFormInput } from '~/components/plans/types'
-import { ChargeModelEnum, Properties } from '~/generated/graphql'
+import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
+import { ChargeFilterInput, ChargeModelEnum, Properties } from '~/generated/graphql'
 
 import { serializeAmount } from './serializeAmount'
 
@@ -9,9 +9,37 @@ const serializeScientificNotation = (value: string): string => {
   return Number(value).toLocaleString('en-US', { maximumFractionDigits: 15, useGrouping: false })
 }
 
-const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnum) => {
-  if (!properties) return
+const serializeFilters = (
+  filters: LocalChargeFilterInput[] | null | undefined,
+  chargeModel: ChargeModelEnum,
+): ChargeFilterInput[] | undefined => {
+  if (!filters?.length) return undefined
 
+  return filters.map(({ values, properties, invoiceDisplayName, ...filterProps }) => {
+    const allValuesAsJson = values.map((value) => JSON.parse(value))
+    const groupedBy = allValuesAsJson.reduce(
+      (acc, cur) => {
+        const [key, value] = Object.entries(cur)[0]
+
+        if (!acc[key]) {
+          acc[key] = []
+        }
+        acc[key].push(value as string)
+        return acc
+      },
+      {} as Record<string, string[]>,
+    )
+
+    return {
+      ...filterProps,
+      invoiceDisplayName: invoiceDisplayName || null,
+      properties: serializeProperties(properties as Properties, chargeModel),
+      values: groupedBy,
+    }
+  })
+}
+
+const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnum) => {
   return {
     ...properties,
     ...([ChargeModelEnum.Standard].includes(chargeModel)
@@ -118,9 +146,9 @@ export const serializePlanInput = (values: PlanFormInput) => {
         billableMetric,
         chargeModel,
         properties,
-        groupProperties,
         minAmountCents,
         taxes: chargeTaxes,
+        filters,
         ...charge
       }) => {
         return {
@@ -128,20 +156,12 @@ export const serializePlanInput = (values: PlanFormInput) => {
           billableMetricId: billableMetric.id,
           minAmountCents: Number(serializeAmount(minAmountCents, values.amountCurrency) || 0),
           taxCodes: chargeTaxes?.map(({ code }) => code) || [],
+          filters: serializeFilters(filters, chargeModel),
           properties: properties
             ? {
                 ...serializeProperties(properties as Properties, chargeModel),
               }
             : undefined,
-          groupProperties: groupProperties?.length
-            ? groupProperties?.map((property) => ({
-                groupId: property.groupId,
-                invoiceDisplayName: property.invoiceDisplayName || undefined,
-                values: {
-                  ...serializeProperties(property.values, chargeModel),
-                },
-              }))
-            : [],
           ...charge,
         }
       },

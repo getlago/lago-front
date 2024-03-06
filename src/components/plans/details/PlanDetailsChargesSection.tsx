@@ -18,7 +18,7 @@ import PlanDetailsChargesSectionAccordion from './PlanDetailsChargesSectionAccor
 
 import { mapChargeIntervalCopy } from '../ChargeAccordion'
 
-const chargeModelLookupTranslation = {
+const chargeModelLookupTranslation: Record<string, string> = {
   [ChargeModelEnum.Graduated]: 'text_65201b8216455901fe273e11',
   [ChargeModelEnum.GraduatedPercentage]: 'text_65201b8216455901fe273e32',
   [ChargeModelEnum.Package]: 'text_65201b8216455901fe273de5',

@@ -1,9 +1,13 @@
 import { FormikProps } from 'formik'
 import { useEffect, useMemo } from 'react'
 
-import { PlanFormInput } from '~/components/plans/types'
+import {
+  LocalChargeFilterInput,
+  LocalPropertiesInput,
+  PlanFormInput,
+} from '~/components/plans/types'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
-import { InputMaybe, PropertiesInput, VolumeRangeInput } from '~/generated/graphql'
+import { VolumeRangeInput } from '~/generated/graphql'
 
 export const DEFAULT_VOLUME_CHARGES = [
   {
@@ -39,7 +43,7 @@ type UseVolumeChargeForm = ({
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
-  valuePointer: InputMaybe<PropertiesInput> | undefined
+  valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }) => {
   handleUpdate: (rangeIndex: number, fieldName: string, value?: number | string) => void
   addRange: () => void

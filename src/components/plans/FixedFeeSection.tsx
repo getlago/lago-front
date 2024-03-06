@@ -270,6 +270,9 @@ const BoxHeaderGroupLeft = styled.div`
   display: flex;
   align-items: center;
   gap: ${theme.spacing(3)};
+  /* Padding added to prevent overflow hidden to crop the focus ring */
+  box-sizing: border-box;
+  padding: ${theme.spacing(1)} ${theme.spacing(1)} ${theme.spacing(1)} 0;
 `
 
 const BoxHeaderGroupRight = styled.div`

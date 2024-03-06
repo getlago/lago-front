@@ -1,3 +1,4 @@
+import { transformFilterObjectToString } from '~/components/plans/utils'
 import { ChargeModelEnum } from '~/generated/graphql'
 
 import { chargeSchema } from '../chargeSchema'
@@ -63,18 +64,23 @@ describe('chargeSchema Standard', () => {
     })
   })
 
-  describe('groupProperties', () => {
+  describe('filters', () => {
     describe('invalid', () => {
       it('has empty string amount', () => {
         const values = [
           {
             chargeModel: ChargeModelEnum.Standard,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   amount: '',
                 },
               },
@@ -91,11 +97,16 @@ describe('chargeSchema Standard', () => {
           {
             chargeModel: ChargeModelEnum.Standard,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   amount: 'a',
                 },
               },
@@ -113,11 +124,16 @@ describe('chargeSchema Standard', () => {
           {
             chargeModel: ChargeModelEnum.Standard,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   amount: '1',
                 },
               },
@@ -133,11 +149,16 @@ describe('chargeSchema Standard', () => {
           {
             chargeModel: ChargeModelEnum.Standard,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   amount: 1,
                 },
               },

@@ -8,34 +8,20 @@ import { Alert, Button, Table, Tooltip, Typography } from '~/components/designSy
 import { AmountInput, TextInput } from '~/components/form'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
+import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useGraduatedChargeForm } from '~/hooks/plans/useGraduatedChargeForm'
 import { theme } from '~/styles'
 
-import { PlanFormInput } from './types'
+import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
 
 gql`
-  fragment GraduatedCharge on Charge {
-    id
-    properties {
-      graduatedRanges {
-        flatAmount
-        fromValue
-        perUnitAmount
-        toValue
-      }
-    }
-    groupProperties {
-      groupId
-      values {
-        graduatedRanges {
-          flatAmount
-          fromValue
-          perUnitAmount
-          toValue
-        }
-      }
+  fragment GraduatedCharge on Properties {
+    graduatedRanges {
+      flatAmount
+      fromValue
+      perUnitAmount
+      toValue
     }
   }
 `
@@ -46,7 +32,7 @@ interface GraduatedChargeTableProps {
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
-  valuePointer: InputMaybe<PropertiesInput> | undefined
+  valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
 export const GraduatedChargeTable = memo(

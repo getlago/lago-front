@@ -35,7 +35,6 @@ gql`
     amountCents
     description
     feeType
-    groupName
     invoiceDisplayName
     invoiceName
     itemName
@@ -61,10 +60,9 @@ gql`
         aggregationType
       }
     }
-    group {
-      id
-      key
-      value
+    chargeFilter {
+      invoiceDisplayName
+      values
     }
 
     ...FeeForInvoiceDetailsTableBodyLine

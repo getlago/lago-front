@@ -21,7 +21,7 @@ export const SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME = 'searchRecurringChargeInp
 export const SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME = 'searchTaxForPlanInput'
 export const SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME = 'searchTaxForChargeInput'
 export const SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME = 'searchTaxForMinCommitmentInput'
-export const SEARCH_CHARGE_GROUP_INPUT_CLASSNAME = 'searchChargeGroupInputClassname'
+export const SEARCH_FILTER_FOR_CHARGE_CLASSNAME = 'searchFilterForChargeInput'
 export const ONE_TIER_EXAMPLE_UNITS = 10
 // AddOns
 export const SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME = 'searchTaxForAddOnInput'
@@ -31,12 +31,16 @@ export const ADD_ITEM_FOR_INVOICE_INPUT_NAME = 'addItemInput'
 // Customer
 export const SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME = 'searchTaxForCustomerInput'
 
+/**** DATA ****/
+// Plan form types
 export const FORM_TYPE_ENUM = {
   creation: 'creation',
   edition: 'edition',
   duplicate: 'duplicate',
   upgradeDowngrade: 'upgradeDowngrade',
 } as const
+// Filters
+export const ALL_FILTER_VALUES = '__ALL_FILTER_VALUES__'
 
 /**** Translations ****/
 export const getIntervalTranslationKey = {
