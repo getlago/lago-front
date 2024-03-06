@@ -25,6 +25,7 @@ interface BasicMultipleComboBoxProps
   extends Omit<MultipleComboBoxInputProps, 'params' | 'searchQuery'> {
   disabled?: boolean
   freeSolo?: boolean
+  showOptionsOnlyWhenTyping?: boolean
   value?: MultipleComboBoxData[]
   data?: BasicMultipleComboBoxData[]
   sortValues?: boolean
@@ -41,7 +42,7 @@ interface BasicMultipleComboBoxProps
     offset?: string
   }
   renderGroupHeader?: never
-  onChange: (value: (string | BasicMultipleComboBoxData | MultipleComboBoxDataGrouped)[]) => void
+  onChange: (value: (BasicMultipleComboBoxData | MultipleComboBoxDataGrouped)[]) => void
 }
 
 interface GroupedMultipleComboBoxProps
@@ -64,6 +65,7 @@ export type MultipleComboBoxInputProps = Pick<
   | 'startAdornmentValue'
 > & {
   disableClearable?: boolean
+  disableCloseOnSelect?: boolean
   hasValueSelected?: boolean
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: Omit<AutocompleteRenderInputParams, 'inputProps'> & { inputProps: any }

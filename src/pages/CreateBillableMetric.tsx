@@ -1,21 +1,31 @@
 import { gql } from '@apollo/client'
+import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
-import { useCallback, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { bool, object, string } from 'yup'
+import { array, bool, object, string } from 'yup'
 
 import { BillableMetricCodeSnippet } from '~/components/billableMetrics/BillableMetricCodeSnippet'
 import {
-  EditBillableMetricGroupDialog,
-  EditBillableMetricGroupDialogRef,
-} from '~/components/billableMetrics/EditBillableMetricGroupDialog'
-import { Accordion, Alert, Button, Skeleton, Typography } from '~/components/designSystem'
-import { ButtonSelector, ComboBoxField, JsonEditorField, TextInputField } from '~/components/form'
-import { WarningDialog, WarningDialogMode, WarningDialogRef } from '~/components/WarningDialog'
+  Accordion,
+  Alert,
+  Button,
+  Chip,
+  Skeleton,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
+import {
+  BasicMultipleComboBoxData,
+  ButtonSelector,
+  ComboBoxField,
+  MultipleComboBox,
+  TextInputField,
+} from '~/components/form'
+import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { BILLABLE_METRICS_ROUTE } from '~/core/router'
-import { determineGroupDiffLevel, GroupLevelEnum } from '~/core/utils/BMGroupUtils'
 import { AggregationTypeEnum, CreateBillableMetricInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditBillableMetric } from '~/hooks/useCreateEditBillableMetric'
@@ -31,37 +41,43 @@ import {
   Title,
 } from '~/styles/mainObjectsForm'
 
+const NOT_UNIQUE_KEY_ERROR = 'key_not_unique'
+
 gql`
   fragment EditBillableMetric on BillableMetric {
     id
     name
     code
     description
-    group
     aggregationType
     fieldName
     subscriptionsCount
     plansCount
     recurring
+    filters {
+      key
+      values
+    }
   }
 `
 
 const CreateBillableMetric = () => {
   const { translate } = useInternationalization()
+  let navigate = useNavigate()
   const { isEdition, loading, billableMetric, errorCode, onSave } = useCreateEditBillableMetric()
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
-  const warningGroupEditDialogRef = useRef<EditBillableMetricGroupDialogRef>(null)
-  let navigate = useNavigate()
+  const canBeEdited = !billableMetric?.subscriptionsCount && !billableMetric?.plansCount
+
   const formikProps = useFormik<CreateBillableMetricInput>({
     initialValues: {
       name: billableMetric?.name || '',
       code: billableMetric?.code || '',
       description: billableMetric?.description || '',
-      group: JSON.stringify(billableMetric?.group || undefined, null, 2),
       // @ts-ignore
       aggregationType: billableMetric?.aggregationType || '',
       fieldName: billableMetric?.fieldName || undefined,
       recurring: billableMetric?.recurring || false,
+      filters: billableMetric?.filters || [],
     },
     validationSchema: object().shape({
       name: string().required(''),
@@ -73,12 +89,55 @@ const CreateBillableMetric = () => {
         then: (schema) => schema.required(''),
       }),
       recurring: bool().required(''),
+      filters: array()
+        .of(
+          object().test({
+            test: function (
+              value: { key?: string; values?: string[] },
+              { createError, from, path },
+            ) {
+              // Order of validations is important here
+
+              // Check key presence
+              if (!value.key) {
+                return false
+              }
+
+              // Check key uniqueness
+              if (value && from && from[1] && !!from[1].value?.filters?.length) {
+                const allKeys = from[1].value.filters.map((filter: { key?: string }) => filter?.key)
+
+                if (allKeys.filter((key: string) => key === value.key).length > 1) {
+                  return createError({
+                    path,
+                    message: NOT_UNIQUE_KEY_ERROR,
+                  })
+                }
+              }
+
+              // Check value presence
+              if (!value.values?.length) {
+                return false
+              }
+
+              return true
+            },
+          }),
+        )
+        .nullable(),
     }),
     enableReinitialize: true,
     validateOnMount: true,
     onSubmit: onSave,
   })
-  const canBeEdited = !billableMetric?.subscriptionsCount && !billableMetric?.plansCount
+
+  const [shouldDisplayDescription, setShouldDisplayDescription] = useState<boolean>(
+    !!formikProps.initialValues.description,
+  )
+
+  useEffect(() => {
+    setShouldDisplayDescription(!!formikProps.initialValues.description)
+  }, [formikProps.initialValues.description])
 
   useEffect(() => {
     if (
@@ -102,23 +161,19 @@ const CreateBillableMetric = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorCode])
 
-  const handleUpdate = useCallback(
-    (name: string, value: unknown) => {
-      // Reset aggregationType if the recurring changes and is not compatible
-      if (
-        name === 'recurring' &&
-        (formikProps.values.aggregationType === AggregationTypeEnum.CountAgg ||
-          formikProps.values.aggregationType === AggregationTypeEnum.LatestAgg ||
-          formikProps.values.aggregationType === AggregationTypeEnum.MaxAgg)
-      ) {
-        formikProps.setFieldValue('aggregationType', '')
-      }
+  const handleUpdate = (name: string, value: unknown) => {
+    // Reset aggregationType if the recurring changes and is not compatible
+    if (
+      name === 'recurring' &&
+      (formikProps.values.aggregationType === AggregationTypeEnum.CountAgg ||
+        formikProps.values.aggregationType === AggregationTypeEnum.LatestAgg ||
+        formikProps.values.aggregationType === AggregationTypeEnum.MaxAgg)
+    ) {
+      formikProps.setFieldValue('aggregationType', '')
+    }
 
-      formikProps.setFieldValue(name, value)
-    },
-
-    [formikProps],
-  )
+    formikProps.setFieldValue(name, value)
+  }
 
   return (
     <div>
@@ -214,168 +269,370 @@ const CreateBillableMetric = () => {
                       infoText={translate('text_624d9adba93343010cd14c52')}
                     />
                   </Line>
-                  <TextInputField
-                    name="description"
-                    label={translate('text_623b42ff8ee4e000ba87d0c8')}
-                    placeholder={translate('text_623b42ff8ee4e000ba87d0ca')}
-                    rows="3"
-                    multiline
-                    formikProps={formikProps}
-                  />
-                </Card>
-                <Card>
-                  <Typography variant="subhead">
-                    {translate('text_623b42ff8ee4e000ba87d0cc')}
-                  </Typography>
-
-                  <ButtonSelector
-                    disabled={isEdition && !canBeEdited}
-                    label={translate('text_64d2709dc5b465004fbd3537')}
-                    helperText={translate(
-                      formikProps.values.recurring
-                        ? 'text_64d27292062d9600b089aacb'
-                        : 'text_64d272b4df12dc008076e232',
-                    )}
-                    options={[
-                      {
-                        label: translate('text_6310755befed49627644222b'),
-                        value: false,
-                      },
-                      {
-                        label: translate('text_64d27259d9a4cd00c1659a7e'),
-                        value: true,
-                      },
-                    ]}
-                    value={!!formikProps.values.recurring}
-                    onChange={(value) => handleUpdate('recurring', value)}
-                    data-test="recurring-switch"
-                  />
-
-                  <ComboBoxField
-                    sortValues={false}
-                    formikProps={formikProps}
-                    name="aggregationType"
-                    disabled={isEdition && !canBeEdited}
-                    label={
-                      <InlineComboboxLabel>
-                        <Typography variant="captionHl" color="textSecondary">
-                          {translate('text_623b42ff8ee4e000ba87d0ce')}
-                        </Typography>
-                      </InlineComboboxLabel>
-                    }
-                    infoText={translate('text_624d9adba93343010cd14c56')}
-                    placeholder={translate('text_623b42ff8ee4e000ba87d0d0')}
-                    virtualized={false}
-                    data={[
-                      ...(!formikProps.values?.recurring
-                        ? [
-                            {
-                              label: translate('text_623c4a8c599213014cacc9de'),
-                              value: AggregationTypeEnum.CountAgg,
-                            },
-                          ]
-                        : []),
-
-                      {
-                        label: translate('text_62694d9181be8d00a33f20f0'),
-                        value: AggregationTypeEnum.UniqueCountAgg,
-                      },
-                      ...(!formikProps.values?.recurring
-                        ? [
-                            {
-                              label: translate('text_64f8823d75521b6faaee8549'),
-                              value: AggregationTypeEnum.LatestAgg,
-                            },
-                            {
-                              label: translate('text_62694d9181be8d00a33f20f8'),
-                              value: AggregationTypeEnum.MaxAgg,
-                            },
-                          ]
-                        : []),
-
-                      {
-                        label: translate('text_62694d9181be8d00a33f2100'),
-                        value: AggregationTypeEnum.SumAgg,
-                      },
-                      {
-                        labelNode: (
-                          <InlineComboboxLabel>
-                            <Typography variant="body" color="grey700">
-                              {translate('text_650062226a33c46e82050486')}
-                            </Typography>
-                          </InlineComboboxLabel>
-                        ),
-
-                        label: translate('text_650062226a33c46e82050486'),
-                        value: AggregationTypeEnum.WeightedSumAgg,
-                      },
-                    ]}
-                    helperText={
-                      formikProps.values?.aggregationType === AggregationTypeEnum.CountAgg
-                        ? translate('text_6241cc759211e600ea57f4f1')
-                        : formikProps.values?.aggregationType === AggregationTypeEnum.UniqueCountAgg
-                          ? translate('text_62694d9181be8d00a33f20f6')
-                          : formikProps.values?.aggregationType === AggregationTypeEnum.LatestAgg
-                            ? translate('text_64f8823d75521b6faaee854b')
-                            : formikProps.values?.aggregationType === AggregationTypeEnum.MaxAgg
-                              ? translate('text_62694d9181be8d00a33f20f2')
-                              : formikProps.values?.aggregationType === AggregationTypeEnum.SumAgg
-                                ? translate('text_62694d9181be8d00a33f20ec')
-                                : formikProps.values?.aggregationType ===
-                                    AggregationTypeEnum.WeightedSumAgg
-                                  ? translate('text_650062226a33c46e82050488')
-                                  : undefined
-                    }
-                  />
-
-                  {!!formikProps.values?.aggregationType &&
-                    formikProps.values?.aggregationType !== AggregationTypeEnum.CountAgg && (
+                  {shouldDisplayDescription ? (
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      spacing={2}
+                      sx={{
+                        '> *:first-child': {
+                          flex: 1,
+                        },
+                        '> *:last-child': {
+                          marginTop: theme.spacing(6),
+                        },
+                      }}
+                    >
                       <TextInputField
-                        name="fieldName"
-                        disabled={isEdition && !canBeEdited}
-                        label={translate('text_62694d9181be8d00a33f20fe')}
-                        placeholder={translate('text_62694d9181be8d00a33f2105')}
+                        name="description"
+                        label={translate('text_623b42ff8ee4e000ba87d0c8')}
+                        placeholder={translate('text_623b42ff8ee4e000ba87d0ca')}
+                        rows="3"
+                        multiline
                         formikProps={formikProps}
                       />
-                    )}
 
-                  {formikProps.values?.aggregationType === AggregationTypeEnum.WeightedSumAgg && (
-                    <Alert type="info">{translate('text_650062226a33c46e8205048e')}</Alert>
+                      <Tooltip
+                        placement="top-end"
+                        title={translate('text_63aa085d28b8510cd46443ff')}
+                      >
+                        <Button
+                          icon="trash"
+                          variant="quaternary"
+                          onClick={() => {
+                            formikProps.setFieldValue('description', '')
+                            setShouldDisplayDescription(false)
+                          }}
+                        />
+                      </Tooltip>
+                    </Stack>
+                  ) : (
+                    <Button
+                      startIcon="plus"
+                      variant="quaternary"
+                      onClick={() => setShouldDisplayDescription(true)}
+                      data-test="show-description"
+                    >
+                      {translate('text_642d5eb2783a2ad10d670324')}
+                    </Button>
                   )}
                 </Card>
+                <Card>
+                  <Stack spacing={12}>
+                    <Stack spacing={6}>
+                      <Typography variant="subhead">
+                        {translate('text_623b42ff8ee4e000ba87d0cc')}
+                      </Typography>
 
-                <Accordion
-                  size="large"
-                  summary={
-                    <Typography variant="subhead" color="grey700">
-                      {translate('text_633d410368cc8282af23212b')}
-                    </Typography>
-                  }
-                >
-                  <JsonEditorField
-                    name="group"
-                    label={translate('text_633d410368cc8282af232131')}
-                    helperText={
-                      <Typography
-                        variant="caption"
-                        color="grey600"
-                        html={translate('text_633d410368cc8282af232143')}
-                      />
-                    }
-                    placeholder={translate('text_633d410368cc8282af23213d')}
-                    customInvalidError={translate('text_633b622c201ca8b521bcad59')}
-                    formikProps={formikProps}
-                  />
+                      <div>
+                        <Typography variant="bodyHl" color="grey700">
+                          {translate('text_65e9c6d183491188fbbcf05c')}
+                        </Typography>
+                        <Typography variant="caption" color="grey600">
+                          {translate('text_65e9c6d183491188fbbcf05e')}
+                        </Typography>
+                      </div>
 
-                  {errorCode === FORM_ERRORS_ENUM.invalidGroupValue && (
-                    <GroupAlert type="danger">
-                      <Typography
-                        color="inherit"
-                        html={translate('text_633d410368cc8282af23214e')}
+                      <ButtonSelector
+                        disabled={isEdition && !canBeEdited}
+                        label={translate('text_64d2709dc5b465004fbd3537')}
+                        helperText={translate(
+                          formikProps.values.recurring
+                            ? 'text_64d27292062d9600b089aacb'
+                            : 'text_64d272b4df12dc008076e232',
+                        )}
+                        options={[
+                          {
+                            label: translate('text_6310755befed49627644222b'),
+                            value: false,
+                          },
+                          {
+                            label: translate('text_64d27259d9a4cd00c1659a7e'),
+                            value: true,
+                          },
+                        ]}
+                        value={!!formikProps.values.recurring}
+                        onChange={(value) => handleUpdate('recurring', value)}
+                        data-test="recurring-switch"
                       />
-                    </GroupAlert>
-                  )}
-                </Accordion>
+
+                      <ComboBoxField
+                        sortValues={false}
+                        formikProps={formikProps}
+                        name="aggregationType"
+                        disabled={isEdition && !canBeEdited}
+                        label={
+                          <InlineComboboxLabel>
+                            <Typography variant="captionHl" color="textSecondary">
+                              {translate('text_623b42ff8ee4e000ba87d0ce')}
+                            </Typography>
+                          </InlineComboboxLabel>
+                        }
+                        infoText={translate('text_624d9adba93343010cd14c56')}
+                        placeholder={translate('text_623b42ff8ee4e000ba87d0d0')}
+                        virtualized={false}
+                        data={[
+                          ...(!formikProps.values?.recurring
+                            ? [
+                                {
+                                  label: translate('text_623c4a8c599213014cacc9de'),
+                                  value: AggregationTypeEnum.CountAgg,
+                                },
+                              ]
+                            : []),
+
+                          {
+                            label: translate('text_62694d9181be8d00a33f20f0'),
+                            value: AggregationTypeEnum.UniqueCountAgg,
+                          },
+                          ...(!formikProps.values?.recurring
+                            ? [
+                                {
+                                  label: translate('text_64f8823d75521b6faaee8549'),
+                                  value: AggregationTypeEnum.LatestAgg,
+                                },
+                                {
+                                  label: translate('text_62694d9181be8d00a33f20f8'),
+                                  value: AggregationTypeEnum.MaxAgg,
+                                },
+                              ]
+                            : []),
+
+                          {
+                            label: translate('text_62694d9181be8d00a33f2100'),
+                            value: AggregationTypeEnum.SumAgg,
+                          },
+                          {
+                            labelNode: (
+                              <InlineComboboxLabel>
+                                <Typography variant="body" color="grey700">
+                                  {translate('text_650062226a33c46e82050486')}
+                                </Typography>
+                              </InlineComboboxLabel>
+                            ),
+
+                            label: translate('text_650062226a33c46e82050486'),
+                            value: AggregationTypeEnum.WeightedSumAgg,
+                          },
+                        ]}
+                        helperText={
+                          formikProps.values?.aggregationType === AggregationTypeEnum.CountAgg
+                            ? translate('text_6241cc759211e600ea57f4f1')
+                            : formikProps.values?.aggregationType ===
+                                AggregationTypeEnum.UniqueCountAgg
+                              ? translate('text_62694d9181be8d00a33f20f6')
+                              : formikProps.values?.aggregationType ===
+                                  AggregationTypeEnum.LatestAgg
+                                ? translate('text_64f8823d75521b6faaee854b')
+                                : formikProps.values?.aggregationType === AggregationTypeEnum.MaxAgg
+                                  ? translate('text_62694d9181be8d00a33f20f2')
+                                  : formikProps.values?.aggregationType ===
+                                      AggregationTypeEnum.SumAgg
+                                    ? translate('text_62694d9181be8d00a33f20ec')
+                                    : formikProps.values?.aggregationType ===
+                                        AggregationTypeEnum.WeightedSumAgg
+                                      ? translate('text_650062226a33c46e82050488')
+                                      : undefined
+                        }
+                      />
+
+                      {!!formikProps.values?.aggregationType &&
+                        formikProps.values?.aggregationType !== AggregationTypeEnum.CountAgg && (
+                          <TextInputField
+                            name="fieldName"
+                            disabled={isEdition && !canBeEdited}
+                            label={translate('text_62694d9181be8d00a33f20fe')}
+                            placeholder={translate('text_62694d9181be8d00a33f2105')}
+                            formikProps={formikProps}
+                          />
+                        )}
+
+                      {formikProps.values?.aggregationType ===
+                        AggregationTypeEnum.WeightedSumAgg && (
+                        <Alert type="info">{translate('text_650062226a33c46e8205048e')}</Alert>
+                      )}
+                    </Stack>
+
+                    <Stack spacing={6}>
+                      <div>
+                        <Typography variant="bodyHl" color="grey700">
+                          {translate('text_65e9c6d183491188fbbcf06c')}
+                        </Typography>
+                        <Typography variant="caption" color="grey600">
+                          {translate('text_65e9c6d183491188fbbcf06e')}
+                        </Typography>
+                      </div>
+
+                      {formikProps.values.filters?.map((filter, filterIndex) => {
+                        return (
+                          <div key={`filter-${filterIndex}`}>
+                            {/* NOTE: Div above is used to prevent Accordion margin reset when expended. Caused because of the Stack container */}
+                            <Accordion
+                              initiallyOpen={!isEdition || (!filter.key && !filter.values.length)}
+                              summary={
+                                <Stack
+                                  direction="row"
+                                  alignItems="center"
+                                  spacing={3}
+                                  sx={{
+                                    flex: 1,
+
+                                    '> *:first-child': {
+                                      flex: 1,
+                                    },
+                                  }}
+                                >
+                                  <div>
+                                    <Typography variant="bodyHl" color="grey700">
+                                      {filter.key || translate('text_65e9c6d183491188fbbcf070')}
+                                    </Typography>
+                                    <Typography variant="caption" color="grey600">
+                                      {translate(
+                                        'text_65e9c6d183491188fbbcf072',
+                                        {
+                                          count: filter.values.length || 0,
+                                        },
+                                        filter.values.length || 0,
+                                      )}
+                                    </Typography>
+                                  </div>
+
+                                  <Tooltip
+                                    placement="top-end"
+                                    title={translate('text_63aa085d28b8510cd46443ff')}
+                                  >
+                                    <Button
+                                      icon="trash"
+                                      variant="quaternary"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+
+                                        const newFilters = [...(formikProps.values.filters || [])]
+
+                                        newFilters.splice(filterIndex, 1)
+                                        formikProps.setFieldValue('filters', newFilters)
+                                      }}
+                                    />
+                                  </Tooltip>
+                                </Stack>
+                              }
+                            >
+                              <Stack spacing={6}>
+                                <TextInputField
+                                  id={`filter-key-input-${filterIndex}`}
+                                  name={`filters[${filterIndex}].key`}
+                                  label={translate('text_63fcc3218d35b9377840f5a3')}
+                                  placeholder={translate('text_65e9c6d183491188fbbcf076')}
+                                  formikProps={formikProps}
+                                  error={
+                                    formikProps.errors.filters?.[filterIndex] ===
+                                    NOT_UNIQUE_KEY_ERROR
+                                      ? translate('text_65eadc457f316200770db19c')
+                                      : undefined
+                                  }
+                                />
+
+                                {!!filter.values?.length && (
+                                  <Stack gap={1}>
+                                    <Typography variant="captionHl" color="grey700">
+                                      {translate('text_65e9c6d183491188fbbcf078')}
+                                    </Typography>
+                                    <Stack direction="row" gap={2} flexWrap="wrap">
+                                      {filter.values?.map((value, valueIndex) => {
+                                        return (
+                                          <Chip
+                                            key={`filter-${filterIndex}-value-${valueIndex}`}
+                                            label={value}
+                                            deleteIconLabel={translate(
+                                              'text_6261640f28a49700f1290df5',
+                                            )}
+                                            onDelete={() => {
+                                              const newValues = [
+                                                ...(formikProps.values.filters?.[filterIndex]
+                                                  ?.values || []),
+                                              ]
+
+                                              newValues.splice(valueIndex, 1)
+
+                                              formikProps.setFieldValue(
+                                                `filters[${filterIndex}].values`,
+                                                newValues,
+                                              )
+                                            }}
+                                          />
+                                        )
+                                      })}
+                                    </Stack>
+                                  </Stack>
+                                )}
+
+                                <MultipleComboBox
+                                  freeSolo
+                                  hideTags
+                                  disableClearable
+                                  showOptionsOnlyWhenTyping
+                                  data={[]}
+                                  label={
+                                    !formikProps.values.filters?.[filterIndex]?.values?.length &&
+                                    translate('text_65e9c6d183491188fbbcf078')
+                                  }
+                                  value={
+                                    formikProps.values.filters?.[filterIndex]?.values?.map(
+                                      (value) => {
+                                        return {
+                                          value,
+                                        }
+                                      },
+                                    ) || []
+                                  }
+                                  onChange={(values) => {
+                                    formikProps.setFieldValue(
+                                      `filters[${filterIndex}].values`,
+                                      values.map((value) => {
+                                        return (value as BasicMultipleComboBoxData).value
+                                      }),
+                                    )
+                                  }}
+                                  placeholder={translate('text_65e9c6d183491188fbbcf07a')}
+                                />
+                              </Stack>
+                            </Accordion>
+                          </div>
+                        )
+                      })}
+
+                      {/* NOTE: Div used to prevent button's full width. Caused because of the Stack container */}
+                      <div>
+                        <Button
+                          variant="quaternary"
+                          startIcon="plus"
+                          onClick={() => {
+                            formikProps.setFieldValue('filters', [
+                              ...(formikProps.values.filters || []),
+                              {
+                                key: '',
+                                values: [],
+                              },
+                            ])
+
+                            // Focus on the key input of last filter element
+                            setTimeout(() => {
+                              const filterKeyInputs = document.getElementById(
+                                `filter-key-input-${formikProps.values.filters?.length}`,
+                              )
+
+                              if (filterKeyInputs) {
+                                filterKeyInputs.focus()
+                              }
+                            }, 0)
+                          }}
+                        >
+                          {translate('text_65e9c6d183491188fbbcf07c')}
+                        </Button>
+                      </div>
+                    </Stack>
+                  </Stack>
+                </Card>
 
                 <ButtonContainer>
                   <Button
@@ -383,41 +640,7 @@ const CreateBillableMetric = () => {
                     fullWidth
                     data-test="submit"
                     size="large"
-                    onClick={async () => {
-                      if (
-                        (!!billableMetric?.group || !!formikProps.values.group) &&
-                        (!!billableMetric?.subscriptionsCount || !!billableMetric?.plansCount) &&
-                        isEdition
-                      ) {
-                        const groupChangeLevel = determineGroupDiffLevel(
-                          billableMetric?.group,
-                          formikProps?.values?.group,
-                        )
-
-                        if (groupChangeLevel === GroupLevelEnum.StructuralChange) {
-                          warningGroupEditDialogRef.current?.openDialog({
-                            mode: WarningDialogMode.danger,
-                            plansCount: billableMetric?.plansCount,
-                            subscriptionsCount: billableMetric?.subscriptionsCount,
-                            onContinue: async () => {
-                              await formikProps.submitForm()
-                            },
-                          })
-                          return
-                        } else if (groupChangeLevel === GroupLevelEnum.AddOrRemove) {
-                          warningGroupEditDialogRef.current?.openDialog({
-                            mode: WarningDialogMode.info,
-                            plansCount: billableMetric?.plansCount,
-                            subscriptionsCount: billableMetric?.subscriptionsCount,
-                            onContinue: async () => {
-                              await formikProps.submitForm()
-                            },
-                          })
-                          return
-                        }
-                      }
-                      await formikProps.submitForm()
-                    }}
+                    onClick={formikProps.submitForm}
                   >
                     {translate(
                       isEdition ? 'text_62582fb4675ece01137a7e6c' : 'text_623b42ff8ee4e000ba87d0d4',
@@ -446,14 +669,9 @@ const CreateBillableMetric = () => {
         )}
         onContinue={() => navigate(BILLABLE_METRICS_ROUTE)}
       />
-      <EditBillableMetricGroupDialog ref={warningGroupEditDialogRef} />
     </div>
   )
 }
-
-const GroupAlert = styled(Alert)`
-  margin-top: ${theme.spacing(6)};
-`
 
 const InlineComboboxLabel = styled.div`
   display: flex;

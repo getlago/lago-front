@@ -8,30 +8,19 @@ import styled from 'styled-components'
 import { Alert, Typography } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
+import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
-import { PlanFormInput } from './types'
+import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
 
 import { AmountInput } from '../form/AmountInput/AmountInput'
 
 gql`
-  fragment PackageCharge on Charge {
-    id
-    properties {
-      amount
-      packageSize
-      freeUnits
-    }
-    groupProperties {
-      groupId
-      values {
-        amount
-        packageSize
-        freeUnits
-      }
-    }
+  fragment PackageCharge on Properties {
+    amount
+    packageSize
+    freeUnits
   }
 `
 
@@ -41,7 +30,7 @@ interface PackageChargeProps {
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
-  valuePointer: InputMaybe<PropertiesInput> | undefined
+  valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
 export const PackageCharge = memo(

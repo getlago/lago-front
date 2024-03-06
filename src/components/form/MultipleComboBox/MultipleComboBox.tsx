@@ -1,6 +1,6 @@
 import { Autocomplete, createFilterOptions } from '@mui/material'
 import _sortBy from 'lodash/sortBy'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import styled from 'styled-components'
 
 import { Chip, Icon } from '~/components/designSystem'
@@ -9,7 +9,12 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MultipleComboBoxItem } from './MultipleComboBoxItem'
 import { MultipleComboBoxList } from './MultipleComboBoxList'
 import { MultipleComboBoxPopperFactory } from './MultipleComboBoxPopperFactory'
-import { MultipleComboBoxData, MultipleComboBoxProps } from './types'
+import {
+  BasicMultipleComboBoxData,
+  MultipleComboBoxData,
+  MultipleComboBoxDataGrouped,
+  MultipleComboBoxProps,
+} from './types'
 
 import { TextInput } from '../TextInput'
 
@@ -31,6 +36,8 @@ export const MultipleComboBox = ({
   freeSolo,
   emptyText,
   disableClearable = false,
+  showOptionsOnlyWhenTyping = false,
+  disableCloseOnSelect = false,
   forcePopupIcon = false,
   hideTags = false,
   renderGroupHeader,
@@ -39,6 +46,7 @@ export const MultipleComboBox = ({
   onChange,
 }: MultipleComboBoxProps) => {
   const { translate } = useInternationalization()
+  const [open, setOpen] = useState(false)
 
   // By default, we want to sort `options` alphabetically (by value)
   const data = useMemo(() => {
@@ -57,8 +65,21 @@ export const MultipleComboBox = ({
     <Container>
       <Autocomplete
         multiple
+        open={showOptionsOnlyWhenTyping ? open : undefined}
+        onInputChange={
+          showOptionsOnlyWhenTyping
+            ? (_, typedValue) => {
+                if (typedValue.length === 0) {
+                  if (open) setOpen(false)
+                } else {
+                  if (!open) setOpen(true)
+                }
+              }
+            : undefined
+        }
+        onClose={() => setOpen(false)}
         forcePopupIcon={forcePopupIcon}
-        disableCloseOnSelect
+        disableCloseOnSelect={disableCloseOnSelect}
         disableClearable={disableClearable}
         disabled={disabled}
         limitTags={limitTags || DEFAULT_LIMIT_TAGS}
@@ -76,19 +97,30 @@ export const MultipleComboBox = ({
           />
         )}
         onChange={(_, newValue) => {
-          if (freeSolo) {
-            // On free solo mode, turn string typed values into objects
-            const formated = newValue.map((val) => {
-              if (typeof val === 'string') {
-                val = { value: val }
-              }
-              return val
-            })
+          // Format all values to have the correct format
+          let formatedValues = newValue.map((val) => {
+            if (typeof val === 'string') {
+              return { value: val }
+            }
+            return val
+          }) as (BasicMultipleComboBoxData | MultipleComboBoxDataGrouped)[]
 
-            onChange(formated)
-          } else {
-            onChange(newValue)
+          // If more than one value, remove last element if value already exists
+          if (formatedValues.length > 1) {
+            const lastElementValue = formatedValues[formatedValues.length - 1].value
+
+            for (let i = 0; i < formatedValues.length - 1; i++) {
+              const currentValue = formatedValues[i].value
+              const isNotLastElement = i !== formatedValues.length - 1
+
+              if (isNotLastElement && currentValue === lastElementValue) {
+                formatedValues.length = formatedValues.length - 1
+                break
+              }
+            }
           }
+
+          onChange(formatedValues)
         }}
         value={value || undefined}
         renderTags={(tagValues, getTagProps) => {
@@ -116,9 +148,13 @@ export const MultipleComboBox = ({
         noOptionsText={emptyText ?? translate('text_623b3acb8ee4e000ba87d082')}
         clearOnBlur
         freeSolo={freeSolo}
-        isOptionEqualToValue={(option, val) => {
-          return option?.value === val.value
-        }}
+        isOptionEqualToValue={
+          !data.length && freeSolo
+            ? undefined
+            : (option, val) => {
+                return option?.value === val.value
+              }
+        }
         renderOption={(props, option, state) => {
           return (
             <MultipleComboBoxItem
@@ -145,7 +181,7 @@ export const MultipleComboBox = ({
             filtered.push({
               customValue: true,
               value: inputValue,
-              label: `TODO: Click or press enter to create "${inputValue}"`,
+              label: translate('text_65ef30711cfd3e0083135de8', { value: inputValue }),
             })
           }
 

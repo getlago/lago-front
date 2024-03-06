@@ -1,3 +1,4 @@
+import { transformFilterObjectToString } from '~/components/plans/utils'
 import { ChargeModelEnum } from '~/generated/graphql'
 
 import { chargeSchema } from '../chargeSchema'
@@ -191,18 +192,23 @@ describe('chargeSchema Graduated', () => {
     })
   })
 
-  describe('groupProperties', () => {
+  describe('filters', () => {
     describe('invalid', () => {
       it('has undefined graduatedRange', () => {
         const values = [
           {
             chargeModel: ChargeModelEnum.Graduated,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   graduatedRange: undefined,
                 },
               },
@@ -218,11 +224,16 @@ describe('chargeSchema Graduated', () => {
           {
             chargeModel: ChargeModelEnum.Graduated,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   graduatedRange: [],
                 },
               },
@@ -238,12 +249,17 @@ describe('chargeSchema Graduated', () => {
           {
             chargeModel: ChargeModelEnum.Graduated,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
             values: {
-              groupProperties: [
+              filters: [
                 {
-                  values: {
+                  invoiceDisplayName: undefined,
+                  values: [
+                    transformFilterObjectToString('key'),
+                    transformFilterObjectToString('key', 'value'),
+                  ],
+                  properties: {
                     graduatedRange: [
                       {
                         fromValue: '0',
@@ -267,12 +283,17 @@ describe('chargeSchema Graduated', () => {
           {
             chargeModel: ChargeModelEnum.Graduated,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
             values: {
-              groupProperties: [
+              filters: [
                 {
-                  values: {
+                  invoiceDisplayName: undefined,
+                  values: [
+                    transformFilterObjectToString('key'),
+                    transformFilterObjectToString('key', 'value'),
+                  ],
+                  properties: {
                     graduatedRange: [
                       {
                         fromValue: '0',
@@ -297,12 +318,17 @@ describe('chargeSchema Graduated', () => {
           {
             chargeModel: ChargeModelEnum.Graduated,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
             values: {
-              groupProperties: [
+              filters: [
                 {
-                  values: {
+                  invoiceDisplayName: undefined,
+                  values: [
+                    transformFilterObjectToString('key'),
+                    transformFilterObjectToString('key', 'value'),
+                  ],
+                  properties: {
                     graduatedRange: [
                       {
                         fromValue: '0',
@@ -327,12 +353,17 @@ describe('chargeSchema Graduated', () => {
           {
             chargeModel: ChargeModelEnum.Graduated,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
             values: {
-              groupProperties: [
+              filters: [
                 {
-                  values: {
+                  invoiceDisplayName: undefined,
+                  values: [
+                    transformFilterObjectToString('key'),
+                    transformFilterObjectToString('key', 'value'),
+                  ],
+                  properties: {
                     graduatedRange: [
                       {
                         fromValue: '100',
@@ -356,12 +387,17 @@ describe('chargeSchema Graduated', () => {
           {
             chargeModel: ChargeModelEnum.Graduated,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
             values: {
-              groupProperties: [
+              filters: [
                 {
-                  values: {
+                  invoiceDisplayName: undefined,
+                  values: [
+                    transformFilterObjectToString('key'),
+                    transformFilterObjectToString('key', 'value'),
+                  ],
+                  properties: {
                     graduatedRange: [
                       {
                         fromValue: '1',
@@ -392,12 +428,17 @@ describe('chargeSchema Graduated', () => {
           {
             chargeModel: ChargeModelEnum.Graduated,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
             values: {
-              groupProperties: [
+              filters: [
                 {
-                  values: {
+                  invoiceDisplayName: undefined,
+                  values: [
+                    transformFilterObjectToString('key'),
+                    transformFilterObjectToString('key', 'value'),
+                  ],
+                  properties: {
                     graduatedRange: [
                       {
                         fromValue: '100',
@@ -423,12 +464,17 @@ describe('chargeSchema Graduated', () => {
           {
             chargeModel: ChargeModelEnum.Graduated,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
             values: {
-              groupProperties: [
+              filters: [
                 {
-                  values: {
+                  invoiceDisplayName: undefined,
+                  values: [
+                    transformFilterObjectToString('key'),
+                    transformFilterObjectToString('key', 'value'),
+                  ],
+                  properties: {
                     graduatedRange: [
                       {
                         fromValue: '1',

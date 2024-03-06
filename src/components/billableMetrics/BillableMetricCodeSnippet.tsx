@@ -1,11 +1,5 @@
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { envGlobalVar } from '~/core/apolloClient'
-import {
-  isGroupValid,
-  isOneDimension,
-  isTwoDimension,
-  isValidJSON,
-} from '~/core/utils/BMGroupUtils'
 import { AggregationTypeEnum, CreateBillableMetricInput } from '~/generated/graphql'
 
 const { apiUrl } = envGlobalVar()
@@ -13,159 +7,63 @@ const { apiUrl } = envGlobalVar()
 const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
   if (!billableMetric) return '# Fill the form to generate the code snippet'
 
-  const { aggregationType, code, fieldName, group, recurring } = billableMetric
+  const { aggregationType, code, description, fieldName, filters, name, recurring } = billableMetric
 
-  const hasGroup = isGroupValid(JSON.stringify(group))
-  const parsedGroup =
-    !!hasGroup &&
-    (typeof group === 'string' && isValidJSON(group)
-      ? JSON.parse(group)
-      : JSON.parse(JSON.stringify(group)))
-  const groupDimension =
-    hasGroup && isTwoDimension(parsedGroup) ? 2 : isOneDimension(parsedGroup) ? 1 : 0
-  const groupDimensionMessage = `${
-    groupDimension > 0
-      ? `# Also please adapt __KEY__ ${groupDimension === 1 ? 'and' : ','} __GROUP_VALUE__ ${
-          groupDimension === 2 ? ',__GROUP_KEY__ and__GROUP_VALUE__ ' : ''
-        }depending on your group(s) data`
-      : ''
-  }`
+  // if (!name || !code || !aggregationType) {
+  //   return '# Fill the form to generate the code snippet'
+  // }
 
-  const propertiesForGroup = `"__KEY__": "__GROUP_VALUE__"${
-    groupDimension === 2
-      ? `,
-        "__GROUP_KEY__": "__GROUP_VALUE__"
-  `
-      : ''
-  }`
-
-  switch (aggregationType) {
-    case AggregationTypeEnum.WeightedSumAgg:
-      return `curl --location --request POST "${apiUrl}/api/v1/events" \\
-  --header "Authorization: Bearer __YOUR_API_KEY__" \\
-  --header 'Content-Type: application/json' \\
-  --data-raw '{
-    "event": {
-      "transaction_id": "__UNIQUE_ID__", 
-      "external_subscription_id": "__EXTERNAL_SUBSCRIPTION_ID__",
-      "code": "${code}",
-      "recurring": ${recurring},
-      "timestamp": $(date +%s), 
-      "properties":  { 
-        "${fieldName}": 12${
-          groupDimension > 0
-            ? `,
-        ${propertiesForGroup}`
-            : ''
-        }
-      }
-    }
-  }'
-  
-# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__, __EXTERNAL_SUBSCRIPTION_ID__ and __EXTERNAL_CUSTOMER_ID__
-${groupDimensionMessage}
-`
-    case AggregationTypeEnum.CountAgg:
-      return `curl --location --request POST "${apiUrl}/api/v1/events" \\
-  --header "Authorization: Bearer __YOUR_API_KEY__" \\
-  --header 'Content-Type: application/json' \\
-  --data-raw '{
-    "event": {
-      "transaction_id": "__UNIQUE_ID__", 
-      "external_subscription_id": "__EXTERNAL_SUBSCRIPTION_ID__",
-      "code": "${code}",
-      "timestamp": $(date +%s)${
-        groupDimension > 0
-          ? `,
-      "properties": {
-        ${propertiesForGroup}
-      }`
+  // "filters": ${JSON.stringify(filters, null, 2)},`
+  const properties =
+    !!fieldName || !!filters?.length
+      ? `
+      "properties": {${
+        aggregationType !== AggregationTypeEnum.CountAgg
+          ? `
+        "${!!fieldName ? fieldName : '__PROPERTY_TO_AGGREGATE__'}": ${
+          !!fieldName
+            ? `"__${fieldName.toUpperCase()}_VALUE__"`
+            : '"__DEFINE_A_PROPERTY_TO_AGGREGATE__"'
+        },`
+          : ''
+      }${
+        (filters || [])?.length > 0
+          ? `
+        "filters": {
+          ${filters?.map(
+            (filter) =>
+              `"${filter.key || '__DEFINE_A_KEY__'}": ["${
+                filter.values.length ? filter.values.join('","') : '__DEFINE_VALUES__'
+              }"],`,
+          ).join(`
+          `)}
+        },`
           : ''
       }
-    }
-  }'
-  
-# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__, __EXTERNAL_SUBSCRIPTION_ID__ and __EXTERNAL_CUSTOMER_ID__
-${groupDimensionMessage}
-`
+      }`
+      : ''
 
-    case AggregationTypeEnum.UniqueCountAgg:
-      return `curl --location --request POST "$LAGO_URL/api/v1/events" \\
-  --header "Authorization: Bearer $__YOUR_API_KEY__" \\
+  return `curl --location --request POST "${apiUrl}/api/v1/events" \\
+  --header "Authorization: Bearer __YOUR_API_KEY__" \\
   --header 'Content-Type: application/json' \\
   --data-raw '{
     "event": {
       "transaction_id": "__UNIQUE_ID__", 
       "external_subscription_id": "__EXTERNAL_SUBSCRIPTION_ID__",
-      "code": "${code}", 
-      "timestamp": $(date +%s), 
-      "properties":  { 
-        "${fieldName}": "data"${
-          groupDimension > 0
-            ? `,
-        ${propertiesForGroup}`
-            : ''
-        }
+      "name": "${name || '__DEFINE_A_NAME__'}",
+      "code": "${code || '__DEFINE_A_CODE__'}",${
+        !!description
+          ? `
+      "description": "${description}",`
+          : ''
       }
+      "aggregation_type": "${aggregationType || '__DEFINE_AN_AGGREGATION_TYPE__'}",
+      "recurring": ${recurring},
+      "timestamp": $(date +%s),${properties}
     }
-  }'
+}'
 
-# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__, __EXTERNAL_SUBSCRIPTION_ID__ and __EXTERNAL_CUSTOMER_ID__
-${groupDimensionMessage}
-`
-    case AggregationTypeEnum.SumAgg:
-    case AggregationTypeEnum.MaxAgg:
-      return `curl --location --request POST "${apiUrl}/api/v1/events" \\
-  --header "Authorization: Bearer $__YOUR_API_KEY__" \\
-  --header 'Content-Type: application/json' \\
-  --data-raw '{
-    "event": { 
-      "transaction_id": "__UNIQUE_ID__", 
-      "external_subscription_id": "__EXTERNAL_SUBSCRIPTION_ID__",
-      "code": "${code}",
-      "timestamp": $(date +%s), 
-      "properties":  { 
-        "${fieldName}": 12${
-          groupDimension > 0
-            ? `,
-        ${propertiesForGroup}`
-            : ''
-        }
-      }
-    }
-  }'
-
-# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__, __EXTERNAL_SUBSCRIPTION_ID__ and __EXTERNAL_CUSTOMER_ID__
-${groupDimensionMessage}
-`
-
-    case AggregationTypeEnum.LatestAgg:
-      return `curl --location --request POST "${apiUrl}/api/v1/events" \\
-  --header "Authorization: Bearer $__YOUR_API_KEY__" \\
-  --header 'Content-Type: application/json' \\
-  --data-raw '{
-    "event": { 
-      "transaction_id": "__UNIQUE_ID__", 
-      "external_subscription_id": "__EXTERNAL_SUBSCRIPTION_ID__",
-      "code": "${code}",
-      "timestamp": $(date +%s), 
-      "properties":  { 
-        "${fieldName}": 12${
-          groupDimension > 0
-            ? `,
-        ${propertiesForGroup}`
-            : ''
-        }
-      }
-    }
-  }'
-
-# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__, __EXTERNAL_SUBSCRIPTION_ID__ and __EXTERNAL_CUSTOMER_ID__
-${groupDimensionMessage}
-`
-    default:
-      return '# Fill the form to generate the code snippet'
-  }
+# To use the snippet, don’t forget to edit your __YOUR_API_KEY__, __UNIQUE_ID__ and __EXTERNAL_SUBSCRIPTION_ID__`
 }
 
 interface BillableMetricCodeSnippetProps {

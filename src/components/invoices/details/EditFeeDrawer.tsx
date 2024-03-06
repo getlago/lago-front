@@ -105,6 +105,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
       await createFee({
         variables: {
           input: {
+            ...values,
             feeId: fee?.id as string,
             units: !!adjustmentType ? Number(units || 0) : undefined,
             unitAmountCents:
@@ -112,7 +113,6 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                 ? Number(serializeAmount(unitAmountCents, currency) || 0)
                 : undefined,
             invoiceDisplayName: values.invoiceDisplayName || undefined,
-            ...values,
           },
         },
       })

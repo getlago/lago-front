@@ -8,7 +8,7 @@ import { theme } from '~/styles'
 
 import { MultipleComboBoxData } from './types'
 
-import { Radio } from '../Radio'
+import { Checkbox } from '../Checkbox'
 
 export const ITEM_HEIGHT = 56
 
@@ -60,11 +60,10 @@ export const MultipleComboBoxItem = ({
               </Typography>
             </>
           ) : (
-            <Radio
+            <Checkbox
               disabled={disabled}
               name={value}
-              value={value}
-              checked={!!selected}
+              value={!!selected}
               label={labelNode || label || value}
             />
           )}

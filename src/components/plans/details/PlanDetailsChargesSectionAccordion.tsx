@@ -2,6 +2,7 @@ import styled from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Accordion, Typography } from '~/components/designSystem'
+import { composeChargeFilterDisplayName } from '~/core/formats/formatInvoiceItemsMap'
 import { Charge, CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
@@ -28,7 +29,7 @@ const PlanDetailsChargesSectionAccordion = ({
       <PaddedChargesWrapper>
         {/* Default properties */}
         <ConditionalWrapper
-          condition={!!charge.billableMetric.flatGroups?.length}
+          condition={!!charge?.billableMetric?.filters?.length}
           invalidWrapper={(children) => <div>{children}</div>}
           validWrapper={(children) => (
             <Accordion
@@ -49,34 +50,24 @@ const PlanDetailsChargesSectionAccordion = ({
           />
         </ConditionalWrapper>
 
-        {/* Group properties */}
-        {!!charge?.groupProperties?.length &&
-          charge?.groupProperties?.map((group, i) => {
-            const associatedFlagGroup = charge?.billableMetric?.flatGroups?.find(
-              (flatGroup) => flatGroup.id === group.groupId,
-            )
-
-            const groupKey = associatedFlagGroup?.key
-            const groupName = associatedFlagGroup?.value
+        {/* filter details */}
+        {!!charge?.filters?.length &&
+          charge?.filters?.map((filter, i) => {
+            const accordionMappedDisplayValues = composeChargeFilterDisplayName(filter)
 
             return (
               <Accordion
                 key={`plan-details-charges-section-accordion-${i}`}
                 summary={
                   <Typography variant="bodyHl" color="grey700">
-                    {group.invoiceDisplayName || (
-                      <>
-                        <span>{groupKey && `${groupKey} • `}</span>
-                        <span>{groupName}</span>
-                      </>
-                    )}
+                    {filter.invoiceDisplayName || accordionMappedDisplayValues}
                   </Typography>
                 }
               >
                 <PlanDetailsChargeWrapperSwitch
                   currency={currency}
                   chargeModel={charge.chargeModel}
-                  values={group.values}
+                  values={filter.properties}
                 />
               </Accordion>
             )

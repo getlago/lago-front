@@ -40,16 +40,16 @@ gql`
     billChargesMonthly
   }
 
-  fragment billableMetricForChargeSection on BillableMetric {
+  fragment BillableMetricForChargeSection on BillableMetric {
     id
     name
     code
     aggregationType
     recurring
-    flatGroups {
+    filters {
       id
       key
-      value
+      values
     }
   }
 
@@ -57,7 +57,7 @@ gql`
     billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm, recurring: false) {
       collection {
         id
-        ...billableMetricForChargeSection
+        ...BillableMetricForChargeSection
       }
     }
   }
@@ -66,7 +66,7 @@ gql`
     billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm, recurring: true) {
       collection {
         id
-        ...billableMetricForChargeSection
+        ...BillableMetricForChargeSection
       }
     }
   }
@@ -362,7 +362,7 @@ export const ChargesSection = memo(
                     invoiceable: true,
                     billableMetric: localBillableMetrics,
                     properties: getPropertyShape({}),
-                    groupProperties: localBillableMetrics?.flatGroups?.length ? [] : undefined,
+                    filters: !!localBillableMetrics?.filters?.length ? [] : undefined,
                     chargeModel: ChargeModelEnum.Standard,
                     amountCents: undefined,
                   } as LocalChargeInput)
@@ -499,7 +499,7 @@ export const ChargesSection = memo(
                       invoiceable: true,
                       billableMetric: localBillableMetrics,
                       properties: getPropertyShape({}),
-                      groupProperties: localBillableMetrics?.flatGroups?.length ? [] : undefined,
+                      filters: !!localBillableMetrics?.filters?.length ? [] : undefined,
                       chargeModel: ChargeModelEnum.Standard,
                       amountCents: undefined,
                     },
@@ -576,11 +576,7 @@ export const ChargesSection = memo(
       oldProps.isInSubscriptionForm === newProps.isInSubscriptionForm &&
       oldProps.isEdition === newProps.isEdition &&
       oldProps.subscriptionFormType === newProps.subscriptionFormType &&
-      oldProps.formikProps.values.taxes === newProps.formikProps.values.taxes &&
-      oldProps.formikProps.values.interval === newProps.formikProps.values.interval &&
-      oldProps.formikProps.values.billChargesMonthly ===
-        newProps.formikProps.values.billChargesMonthly &&
-      oldProps.formikProps.values.charges === newProps.formikProps.values.charges &&
+      oldProps.formikProps.values === newProps.formikProps.values &&
       // Used in sub components
       oldProps.formikProps.errors === newProps.formikProps.errors &&
       oldProps.formikProps.initialValues === newProps.formikProps.initialValues

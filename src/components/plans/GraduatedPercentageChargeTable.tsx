@@ -7,34 +7,20 @@ import styled from 'styled-components'
 import { Alert, Button, Icon, Table, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
+import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useGraduatedPercentageChargeForm } from '~/hooks/plans/useGraduatedPercentageChargeForm'
 import { theme } from '~/styles'
 
-import { PlanFormInput } from './types'
+import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
 
 gql`
-  fragment GraduatedPercentageCharge on Charge {
-    id
-    properties {
-      graduatedPercentageRanges {
-        flatAmount
-        fromValue
-        rate
-        toValue
-      }
-    }
-    groupProperties {
-      groupId
-      values {
-        graduatedPercentageRanges {
-          flatAmount
-          fromValue
-          rate
-          toValue
-        }
-      }
+  fragment GraduatedPercentageCharge on Properties {
+    graduatedPercentageRanges {
+      flatAmount
+      fromValue
+      rate
+      toValue
     }
   }
 `
@@ -45,7 +31,7 @@ interface GraduatedPercentageChargeTableProps {
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
-  valuePointer: InputMaybe<PropertiesInput> | undefined
+  valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
 export const GraduatedPercentageChargeTable = memo(

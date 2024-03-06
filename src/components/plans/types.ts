@@ -1,9 +1,9 @@
 import {
   BillableMetricForPlanFragment,
+  ChargeFilterInput,
   ChargeInput,
   CommitmentInput,
   CreatePlanInput,
-  GroupPropertiesInput,
   PropertiesInput,
   TaxForPlanAndChargesInPlanFormFragment,
   TaxForPlanChargeAccordionFragment,
@@ -19,19 +19,21 @@ export type LocalPropertiesInput = Omit<PropertiesInput, 'groupedBy'> & {
   groupedBy?: string | null
 }
 
-export type LocalChargeInput = Omit<ChargeInput, 'billableMetricId'> & {
+export type LocalChargeFilterInput = Omit<ChargeFilterInput, 'properties' | 'values'> & {
+  properties: LocalPropertiesInput
+  values: string[] // This value should be defined using transformFilterObjectToString method
+}
+
+export type LocalChargeInput = Omit<ChargeInput, 'billableMetricId' | 'filters'> & {
   billableMetric: BillableMetricForPlanFragment
   id?: string
   properties?: LocalPropertiesInput
-  groupProperties?: Omit<GroupPropertiesInput, 'values'> &
-    {
-      values: LocalPropertiesInput
-    }[]
+  filters?: LocalChargeFilterInput[]
   // NOTE: this is used for display purpose but will be replaced by taxCodes[] on save
   taxes?: TaxForPlanChargeAccordionFragment[] | null
 }
 
-export interface PlanFormInput extends Omit<CreatePlanInput, 'clientMutationId' | 'charges'> {
+export type PlanFormInput = Omit<CreatePlanInput, 'clientMutationId' | 'charges'> & {
   charges: LocalChargeInput[]
   // NOTE: this is used for display purpose but will be replaced by taxCodes[] on save
   taxes?: TaxForPlanSettingsSectionFragment[]

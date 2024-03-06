@@ -1,7 +1,8 @@
 import { array, number, object, string } from 'yup'
 
+import { LocalChargeFilterInput } from '~/components/plans/types'
 import { MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR } from '~/core/constants/form'
-import { BillableMetric, ChargeModelEnum, GroupProperties, Properties } from '~/generated/graphql'
+import { BillableMetric, ChargeModelEnum, Properties } from '~/generated/graphql'
 
 const standardShape = {
   amount: number().typeError('text_624ea7c29103fd010732ab7d').required(''),
@@ -170,22 +171,24 @@ export const chargeSchema = array().of(
             then: (schema) => schema.shape(volumeShape),
           }),
       })
-      .when(['groupProperties'], {
-        is: (groupProperties: GroupProperties[]) => !groupProperties?.length,
+      .when(['filters'], {
+        is: (filter: LocalChargeFilterInput[]) => !filter?.length,
         then: (schema) => schema.required(),
         otherwise: (schema) => schema.optional(),
       }),
-    groupProperties: array()
+    filters: array()
       .when(['chargeModel', 'billableMetric'], {
         is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
           !!chargeModel &&
           chargeModel === ChargeModelEnum.Standard &&
           !!billableMetric &&
-          !!billableMetric.flatGroups?.length,
+          !!billableMetric.filters?.length,
         then: (schema) =>
           schema.of(
             object().shape({
-              values: object().shape(standardShape),
+              invoiceDisplayName: string().nullable(),
+              properties: object().shape(standardShape),
+              values: array().min(1).required(''),
             }),
           ),
       })
@@ -194,11 +197,13 @@ export const chargeSchema = array().of(
           !!chargeModel &&
           chargeModel === ChargeModelEnum.Package &&
           !!billableMetric &&
-          !!billableMetric.flatGroups?.length,
+          !!billableMetric.filters?.length,
         then: (schema) =>
           schema.of(
             object().shape({
-              values: object().shape(packageShape),
+              invoiceDisplayName: string().nullable(),
+              properties: object().shape(packageShape),
+              values: array().min(1).required(''),
             }),
           ),
       })
@@ -207,11 +212,13 @@ export const chargeSchema = array().of(
           !!chargeModel &&
           chargeModel === ChargeModelEnum.Percentage &&
           !!billableMetric &&
-          !!billableMetric.flatGroups?.length,
+          !!billableMetric.filters?.length,
         then: (schema) =>
           schema.of(
             object().shape({
-              values: object().shape(percentageShape),
+              invoiceDisplayName: string().nullable(),
+              properties: object().shape(percentageShape),
+              values: array().min(1).required(''),
             }),
           ),
       })
@@ -220,11 +227,13 @@ export const chargeSchema = array().of(
           !!chargeModel &&
           chargeModel === ChargeModelEnum.Graduated &&
           !!billableMetric &&
-          !!billableMetric.flatGroups?.length,
+          !!billableMetric.filters?.length,
         then: (schema) =>
           schema.of(
             object().shape({
-              values: object().shape(graduatedShape),
+              invoiceDisplayName: string().nullable(),
+              properties: object().shape(graduatedShape),
+              values: array().min(1).required(''),
             }),
           ),
       })
@@ -233,11 +242,13 @@ export const chargeSchema = array().of(
           !!chargeModel &&
           chargeModel === ChargeModelEnum.GraduatedPercentage &&
           !!billableMetric &&
-          !!billableMetric.flatGroups?.length,
+          !!billableMetric.filters?.length,
         then: (schema) =>
           schema.of(
             object().shape({
-              values: object().shape(graduatedPercentageShape),
+              invoiceDisplayName: string().nullable(),
+              properties: object().shape(graduatedPercentageShape),
+              values: array().min(1).required(''),
             }),
           ),
       })
@@ -246,11 +257,13 @@ export const chargeSchema = array().of(
           !!chargeModel &&
           chargeModel === ChargeModelEnum.Volume &&
           !!billableMetric &&
-          !!billableMetric.flatGroups?.length,
+          !!billableMetric.filters?.length,
         then: (schema) =>
           schema.of(
             object().shape({
-              values: object().shape(volumeShape),
+              invoiceDisplayName: string().nullable(),
+              properties: object().shape(volumeShape),
+              values: array().min(1).required(''),
             }),
           ),
       }),

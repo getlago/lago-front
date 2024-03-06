@@ -1,3 +1,4 @@
+import { ALL_FILTER_VALUES } from '~/core/constants/form'
 import { InvoiceSubscription } from '~/generated/graphql'
 
 import {
@@ -17,6 +18,9 @@ import {
 } from './fixture'
 
 import {
+  composeChargeFilterDisplayName,
+  composeGroupedByDisplayName,
+  composeMultipleValuesWithSepator,
   getSubscriptionFeeDisplayName,
   groupAndFormatFees,
   TExtendedRemainingFee,
@@ -103,6 +107,96 @@ describe('formatInvoiceItemsMap', () => {
       )
 
       expect(result).toEqual(orderedSubscriptionWithFees)
+    })
+  })
+
+  describe('composeChargeFilterDisplayName', () => {
+    it('should return empty string if there are no values', () => {
+      const result = composeChargeFilterDisplayName()
+
+      expect(result).toEqual('')
+    })
+
+    it('should return empty string if value passed is null', () => {
+      const result = composeChargeFilterDisplayName(null)
+
+      expect(result).toEqual('')
+    })
+
+    it('should return data correctly formated', () => {
+      const result = composeChargeFilterDisplayName({
+        id: 'id',
+        invoiceDisplayName: null,
+        values: {
+          key1: ['value1', 'value2'],
+          key2: [ALL_FILTER_VALUES],
+        },
+      })
+
+      expect(result).toEqual('value1 • value2 • key2')
+    })
+
+    it('should return invoiceDisplayName is present', () => {
+      const result = composeChargeFilterDisplayName({
+        id: 'id',
+        invoiceDisplayName: 'This is my custom display name',
+        values: {
+          key1: ['value1', 'value2'],
+          key2: [ALL_FILTER_VALUES],
+        },
+      })
+
+      expect(result).toEqual('This is my custom display name')
+    })
+  })
+
+  describe('composeGroupedByDisplayName', () => {
+    it('should return empty string if there are no values', () => {
+      const result = composeGroupedByDisplayName()
+
+      expect(result).toEqual('')
+    })
+
+    it('should return empty string if value passed is null', () => {
+      const result = composeGroupedByDisplayName(null)
+
+      expect(result).toEqual('')
+    })
+
+    it('should return data correctly formated', () => {
+      const result = composeGroupedByDisplayName({
+        toto: 'value1',
+        tata: 'value2',
+      })
+
+      expect(result).toEqual('value1 • value2')
+    })
+  })
+
+  describe('composeMultipleValuesWithSepator', () => {
+    it('should return empty string if there are no values', () => {
+      const result = composeMultipleValuesWithSepator()
+
+      expect(result).toEqual('')
+    })
+
+    it('should return empty string if value passed is an empty array', () => {
+      const result = composeMultipleValuesWithSepator([])
+
+      expect(result).toEqual('')
+    })
+
+    it('should return data correctly formated', () => {
+      const result = composeMultipleValuesWithSepator([
+        'value1',
+        'value2',
+        'key2',
+        null,
+        undefined,
+        composeMultipleValuesWithSepator(['toto', null, undefined, 'tata']),
+      ])
+
+      expect(result).toEqual('value1 • value2 • key2 • toto • tata')
     })
   })
 })

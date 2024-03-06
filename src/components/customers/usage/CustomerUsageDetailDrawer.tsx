@@ -1,23 +1,24 @@
 import { gql } from '@apollo/client'
-import _groupBy from 'lodash/groupBy'
-import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import { Button, Drawer, DrawerRef, Typography } from '~/components/designSystem'
+import {
+  composeChargeFilterDisplayName,
+  composeGroupedByDisplayName,
+  composeMultipleValuesWithSepator,
+} from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import {
   ChargeUsage,
-  ChargeUsageForFormatCustomerUsageFragmentDoc,
   CurrencyEnum,
   GroupForUsageDetailsFragmentDoc,
   TimezoneEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NAV_HEIGHT, theme } from '~/styles'
-
-import { formatGroupedUsage } from './formatCustomerUsage'
 
 gql`
   fragment GroupForUsageDetails on GroupUsage {
@@ -40,25 +41,29 @@ gql`
       billableMetric {
         name
       }
-      groups {
+      filters {
         id
-        ...GroupForUsageDetails
+        amountCents
+        units
+        values
+        invoiceDisplayName
       }
       groupedUsage {
         amountCents
         groupedBy
         eventsCount
         units
-        groups {
+        filters {
           id
-          ...GroupForUsageDetails
+          amountCents
+          units
+          values
+          invoiceDisplayName
         }
       }
-      ...ChargeUsageForFormatCustomerUsage
     }
   }
 
-  ${ChargeUsageForFormatCustomerUsageFragmentDoc}
   ${GroupForUsageDetailsFragmentDoc}
 `
 
@@ -87,9 +92,10 @@ export const CustomerUsageDetailDrawer = forwardRef<
     const [usage, setUsage] = useState<ChargeUsage>()
 
     const displayName = usage?.charge.invoiceDisplayName || usage?.billableMetric.name
-    const hasAnyGroupInGroupUsage = usage?.groupedUsage?.some((u) => (u?.groups || [])?.length > 0)
+    const hasAnyFilterInGroupUsage = usage?.groupedUsage?.some(
+      (u) => (u?.filters || [])?.length > 0,
+    )
     const hasAnyUnitsInGroupUsage = usage?.groupedUsage?.some((u) => u?.units > 0)
-    const groupedUsages = formatGroupedUsage(usage)
 
     useImperativeHandle(ref, () => ({
       openDrawer: (data) => {
@@ -121,50 +127,72 @@ export const CustomerUsageDetailDrawer = forwardRef<
                 })}
               </Typography>
             </Title>
-            {hasAnyGroupInGroupUsage ? (
+            {hasAnyFilterInGroupUsage ? (
               <ItemsWrapper>
-                {groupedUsages?.map((groupedUsage, groupedUsageIndex) => {
-                  return (
-                    <GroupItem key={`grouped-usage-${groupedUsageIndex}`} className="item">
-                      <div>
-                        <Typography variant="bodyHl" color="grey700">
-                          {groupedUsage.displayName}
-                        </Typography>
-                        <Typography variant="body" color="grey600">
-                          {translate('text_633dae57ca9a923dd53c20a3', {
-                            totalUnits: groupedUsage.units,
-                          })}
-                        </Typography>
-                      </div>
-                      <Typography variant="body" color="grey700" noWrap>
-                        {intlFormatNumber(
-                          deserializeAmount(groupedUsage.amountCents, currency) || 0,
-                          {
-                            currencyDisplay: 'symbol',
-                            currency,
-                          },
-                        )}
-                      </Typography>
-                    </GroupItem>
-                  )
-                })}
+                {usage?.groupedUsage
+                  ?.sort((a, b) => {
+                    if (a.filters?.some((f) => !f.id)) return -1
+                    if (b.filters?.some((f) => !!f.id)) return 1
+                    return 0
+                  })
+                  ?.map((groupedUsage, groupedUsageIndex) => {
+                    const currentGroupedByDisplayName = composeGroupedByDisplayName(
+                      groupedUsage?.groupedBy,
+                    )
+
+                    return (
+                      <>
+                        {groupedUsage.filters?.map((filter, filterIndex) => {
+                          const mappedFilterDisplayName = composeMultipleValuesWithSepator([
+                            currentGroupedByDisplayName,
+                            !!filter.id
+                              ? composeChargeFilterDisplayName(filter)
+                              : translate('text_64e620bca31226337ffc62ad'),
+                          ])
+
+                          return (
+                            <GroupItem
+                              key={`grouped-usage-${groupedUsageIndex}-${filterIndex}`}
+                              className="item"
+                            >
+                              <div>
+                                <Typography variant="bodyHl" color="grey700">
+                                  {mappedFilterDisplayName}
+                                </Typography>
+                                <Typography variant="body" color="grey600">
+                                  {translate('text_633dae57ca9a923dd53c20a3', {
+                                    totalUnits: filter.units,
+                                  })}
+                                </Typography>
+                              </div>
+                              <Typography variant="body" color="grey700" noWrap>
+                                {intlFormatNumber(
+                                  deserializeAmount(filter.amountCents, currency) || 0,
+                                  {
+                                    currencyDisplay: 'symbol',
+                                    currency,
+                                  },
+                                )}
+                              </Typography>
+                            </GroupItem>
+                          )
+                        })}
+                      </>
+                    )
+                  })}
               </ItemsWrapper>
             ) : hasAnyUnitsInGroupUsage ? (
               <ItemsWrapper>
                 {usage?.groupedUsage.map((groupedUsage, groupedUsageIndex) => {
-                  const composableGroupName = [] as string[]
-
-                  Object.values(groupedUsage?.groupedBy).forEach(
-                    (groupValue) => !!groupValue && composableGroupName.push(groupValue as string),
+                  const currentGroupedByDisplayName = composeGroupedByDisplayName(
+                    groupedUsage?.groupedBy,
                   )
 
                   return (
                     <GroupItem key={`grouped-usage-${groupedUsageIndex}`} className="item">
                       <div>
                         <Typography variant="bodyHl" color="grey700">
-                          {!!composableGroupName?.filter((i) => !!i).length
-                            ? composableGroupName.filter((i) => !!i).join(' • ')
-                            : displayName}
+                          {currentGroupedByDisplayName || displayName}
                         </Typography>
                         <Typography variant="body" color="grey600">
                           {translate('text_633dae57ca9a923dd53c20a3', {
@@ -186,39 +214,34 @@ export const CustomerUsageDetailDrawer = forwardRef<
                 })}
               </ItemsWrapper>
             ) : (
-              <Groups>
-                {Object.entries(_groupBy(usage?.groups, 'key')).map(([key, values], i) => (
-                  <React.Fragment key={`usage-group-${i}`}>
-                    {key !== 'null' && (
-                      <GroupTitle variant="bodyHl" color="grey600">
-                        {key}
-                      </GroupTitle>
-                    )}
-                    <ItemsWrapper>
-                      {values.map((value, j) => (
-                        <GroupItem key={`usage-group-${i}-value-${j}`} className="item">
-                          <div>
-                            <Typography variant="bodyHl" color="grey700">
-                              {value.invoiceDisplayName || value.value}
-                            </Typography>
-                            <Typography variant="body" color="grey600">
-                              {translate('text_633dae57ca9a923dd53c20a3', {
-                                totalUnits: value.units,
-                              })}
-                            </Typography>
-                          </div>
-                          <Typography variant="body" color="grey700" noWrap>
-                            {intlFormatNumber(deserializeAmount(value.amountCents, currency) || 0, {
-                              currencyDisplay: 'symbol',
-                              currency,
-                            })}
-                          </Typography>
-                        </GroupItem>
-                      ))}
-                    </ItemsWrapper>
-                  </React.Fragment>
-                ))}
-              </Groups>
+              <ItemsWrapper>
+                {usage?.filters?.map((filter, i) => {
+                  const mappedFilterDisplayName = !!filter.id
+                    ? composeChargeFilterDisplayName(filter)
+                    : translate('text_64e620bca31226337ffc62ad')
+
+                  return (
+                    <GroupItem key={`usage-group-${i}`} className="item">
+                      <div>
+                        <Typography variant="bodyHl" color="grey700">
+                          {filter.invoiceDisplayName || mappedFilterDisplayName || displayName}
+                        </Typography>
+                        <Typography variant="body" color="grey600">
+                          {translate('text_633dae57ca9a923dd53c20a3', {
+                            totalUnits: filter.units,
+                          })}
+                        </Typography>
+                      </div>
+                      <Typography variant="body" color="grey700" noWrap>
+                        {intlFormatNumber(deserializeAmount(filter.amountCents, currency) || 0, {
+                          currencyDisplay: 'symbol',
+                          currency,
+                        })}
+                      </Typography>
+                    </GroupItem>
+                  )
+                })}
+              </ItemsWrapper>
             )}
           </Content>
           <SubmitButton>
@@ -244,17 +267,6 @@ const Title = styled.div`
   padding: 0 ${theme.spacing(8)};
 `
 
-const Groups = styled.div`
-  &:not(:last-child) {
-    margin-bottom: ${theme.spacing(8)};
-  }
-`
-
-const GroupTitle = styled(Typography)`
-  margin-bottom: ${theme.spacing(3)};
-  padding: 0 ${theme.spacing(4)};
-`
-
 const ItemsWrapper = styled.div`
   border-radius: 12px 12px;
   border: 1px solid ${theme.palette.grey[300]};
@@ -273,8 +285,13 @@ const GroupItem = styled.div`
   box-sizing: border-box;
   justify-content: space-between;
   align-items: center;
-  height: ${NAV_HEIGHT}px;
+  min-height: ${NAV_HEIGHT}px;
   padding: ${theme.spacing(3)} ${theme.spacing(4)};
+  gap: ${theme.spacing(2)};
+
+  > *:last-child {
+    flex-shrink: 0;
+  }
 `
 
 const SubmitButton = styled.div`

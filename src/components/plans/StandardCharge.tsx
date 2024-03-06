@@ -6,28 +6,19 @@ import styled from 'styled-components'
 
 import { TextInput } from '~/components/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
+import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
-import { PlanFormInput } from './types'
+import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
 
 import { Button, Tooltip } from '../designSystem'
 import { AmountInput } from '../form/AmountInput/AmountInput'
 
 gql`
-  fragment StandardCharge on Charge {
-    id
-    properties {
-      amount
-      groupedBy
-    }
-    groupProperties {
-      values {
-        amount
-        groupedBy
-      }
-    }
+  fragment StandardCharge on Properties {
+    amount
+    groupedBy
   }
 `
 
@@ -35,9 +26,9 @@ interface PackageChargeProps {
   chargeIndex: number
   currency: CurrencyEnum
   formikProps: FormikProps<PlanFormInput>
-  initialValuePointer: InputMaybe<PropertiesInput> | undefined
+  initialValuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
   propertyCursor: string
-  valuePointer: InputMaybe<PropertiesInput> | undefined
+  valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
   disabled?: boolean
 }
 

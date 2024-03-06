@@ -1,3 +1,5 @@
+import { transformFilterObjectToString } from '~/components/plans/utils'
+import { ALL_FILTER_VALUES } from '~/core/constants/form'
 import {
   AggregationTypeEnum,
   ChargeModelEnum,
@@ -126,7 +128,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             minAmountCents: 10003,
             chargeModel: 'graduated',
-            groupProperties: [],
+            filters: undefined,
             properties: {
               amount: '1',
               fixedAmount: '2',
@@ -205,7 +207,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             minAmountCents: 10003,
             chargeModel: 'graduated_percentage',
-            groupProperties: [],
+            filters: undefined,
             properties: {
               amount: '1',
               fixedAmount: '2',
@@ -283,7 +285,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             chargeModel: 'package',
-            groupProperties: [],
+            filters: undefined,
             minAmountCents: 0,
             properties: {
               amount: '1',
@@ -351,7 +353,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             chargeModel: 'percentage',
             minAmountCents: 0,
-            groupProperties: [],
+            filters: undefined,
             properties: {
               amount: undefined,
               fixedAmount: '2',
@@ -418,7 +420,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             chargeModel: 'standard',
             minAmountCents: 0,
-            groupProperties: [],
+            filters: undefined,
             properties: {
               amount: '1',
               fixedAmount: '2',
@@ -484,7 +486,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             chargeModel: 'standard',
             minAmountCents: 0,
-            groupProperties: [],
+            filters: undefined,
             properties: {
               amount: undefined,
               freeUnits: undefined,
@@ -496,6 +498,132 @@ describe('serializePlanInput()', () => {
               perTransactionMaxAmount: undefined,
               volumeRanges: undefined,
             },
+            taxCodes: [],
+          },
+        ],
+        code: 'my-plan',
+        interval: 'monthly',
+        minimumCommitment: {},
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+      })
+    })
+
+    it('formates correctly the filters', () => {
+      const plan = serializePlanInput({
+        amountCents: '1',
+        amountCurrency: CurrencyEnum.Eur,
+        billChargesMonthly: true,
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.Standard,
+            billableMetric: {
+              id: '1234',
+              name: 'simpleBM',
+              code: 'simple-bm',
+              recurring: false,
+              aggregationType: AggregationTypeEnum.CountAgg,
+              filters: [
+                {
+                  id: '11234',
+                  key: 'key1',
+                  values: ['value1'],
+                },
+                {
+                  id: '21234',
+                  key: 'key2',
+                  values: ['value2'],
+                },
+              ],
+            },
+            properties: {},
+            filters: [
+              {
+                properties: {},
+                values: [
+                  transformFilterObjectToString('parent_key'),
+                  transformFilterObjectToString('key1', 'value1'),
+                ],
+              },
+              {
+                properties: {},
+                values: [
+                  transformFilterObjectToString('parent_key'),
+                  transformFilterObjectToString('key2', 'value2'),
+                ],
+              },
+            ],
+            taxCodes: [],
+          },
+        ],
+        code: 'my-plan',
+        interval: PlanInterval.Monthly,
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+      })
+
+      expect(plan).toStrictEqual({
+        amountCents: 100,
+        amountCurrency: 'EUR',
+        billChargesMonthly: true,
+        charges: [
+          {
+            billableMetricId: '1234',
+            chargeModel: 'standard',
+            minAmountCents: 0,
+            properties: {
+              amount: undefined,
+              freeUnits: undefined,
+              graduatedRanges: undefined,
+              groupedBy: undefined,
+              graduatedPercentageRanges: undefined,
+              packageSize: undefined,
+              perTransactionMinAmount: undefined,
+              perTransactionMaxAmount: undefined,
+              volumeRanges: undefined,
+            },
+            filters: [
+              {
+                invoiceDisplayName: null,
+                properties: {
+                  amount: undefined,
+                  freeUnits: undefined,
+                  graduatedPercentageRanges: undefined,
+                  graduatedRanges: undefined,
+                  groupedBy: undefined,
+                  packageSize: undefined,
+                  perTransactionMaxAmount: undefined,
+                  perTransactionMinAmount: undefined,
+                  volumeRanges: undefined,
+                },
+                values: {
+                  key1: ['value1'],
+                  parent_key: [ALL_FILTER_VALUES],
+                },
+              },
+              {
+                invoiceDisplayName: null,
+                properties: {
+                  amount: undefined,
+                  freeUnits: undefined,
+                  graduatedPercentageRanges: undefined,
+                  graduatedRanges: undefined,
+                  groupedBy: undefined,
+                  packageSize: undefined,
+                  perTransactionMaxAmount: undefined,
+                  perTransactionMinAmount: undefined,
+                  volumeRanges: undefined,
+                },
+                values: {
+                  key2: ['value2'],
+                  parent_key: [ALL_FILTER_VALUES],
+                },
+              },
+            ],
             taxCodes: [],
           },
         ],
@@ -547,7 +675,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             chargeModel: 'volume',
             minAmountCents: 0,
-            groupProperties: [],
+            filters: undefined,
             properties: {
               amount: '1',
               fixedAmount: '2',

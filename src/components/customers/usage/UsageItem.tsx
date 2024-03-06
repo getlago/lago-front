@@ -45,7 +45,7 @@ gql`
           code
           name
         }
-        groups {
+        filters {
           id
         }
         groupedUsage {
@@ -53,7 +53,7 @@ gql`
           groupedBy
           eventsCount
           units
-          groups {
+          filters {
             id
           }
         }
@@ -92,7 +92,7 @@ export const UsageItem = ({
       <StyledAccordion
         expanded={isOpen}
         onChange={(_, expanded) => {
-          fetchUsage()
+          expanded && fetchUsage()
           setIsOpen(expanded)
         }}
         square
@@ -158,7 +158,7 @@ export const UsageItem = ({
                   <UsageHeader $hasCharge>
                     <MainInfos>
                       <Block>
-                        <Skeleton variant="text" height={12} width={144} marginBottom="12px" />
+                        <Skeleton variant="text" height={12} width={144} />
                         <Skeleton variant="text" height={12} width={88} />
                       </Block>
                     </MainInfos>
@@ -218,14 +218,14 @@ export const UsageItem = ({
                           <Skeleton variant="text" height={12} width={80} marginBottom="44px" />
                           <Line>
                             <Skeleton variant="text" height={12} width={80} marginRight="16px" />
-                            <Skeleton variant="text" height={12} width={120} />
+                            <Skeleton variant="text" height={12} width={60} />
                           </Line>
                         </ItemContainer>
                       )
                     })
                   : data?.customerUsage?.chargesUsage?.map((usage, i) => {
-                      const hasAnyGroupedUsageGroups = usage.groupedUsage.some(
-                        (groupedUsage) => !!groupedUsage?.groups?.length,
+                      const hasAnyGroupedUsageFilters = usage.groupedUsage.some(
+                        (groupedUsage) => !!groupedUsage?.filters?.length,
                       )
                       const hasAnyGroupedUsageUnits = usage.groupedUsage.some(
                         (groupedUsage) => groupedUsage?.units > 0,
@@ -236,16 +236,16 @@ export const UsageItem = ({
                       return (
                         <ItemContainer key={`customer-usage-${i}`}>
                           <BillableMetricHeaderLine>
-                            <div>
-                              <Typography variant="bodyHl" color="textSecondary">
+                            <ItemNameWrapper>
+                              <Typography variant="bodyHl" color="textSecondary" noWrap>
                                 {charge.invoiceDisplayName || billableMetric?.name}
                               </Typography>
                               <UsageSubtitle variant="caption">
                                 {billableMetric?.code}
                               </UsageSubtitle>
-                            </div>
-                            {(!!usage.groups?.length ||
-                              hasAnyGroupedUsageGroups ||
+                            </ItemNameWrapper>
+                            {(!!usage.filters?.length ||
+                              hasAnyGroupedUsageFilters ||
                               hasAnyGroupedUsageUnits) && (
                               <Tooltip
                                 title={translate('text_633dae57ca9a923dd53c2135')}
@@ -490,4 +490,9 @@ const DateLine = styled(Typography)`
   > *:not(:last-child) {
     margin-right: ${theme.spacing(1)};
   }
+`
+
+const ItemNameWrapper = styled.div`
+  /* Allow item title to elypsis */
+  overflow: hidden;
 `
