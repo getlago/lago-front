@@ -2,6 +2,7 @@ import styled from 'styled-components'
 
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
+  ChargeGroupsProperties,
   ChargeModelEnum,
   CurrencyEnum,
   GroupProperties,
@@ -18,12 +19,12 @@ const PlanDetailsChargeWrapperSwitch = ({
   currency,
   chargeModel,
   values,
-  isGroupPrice,
+  groupValues,
 }: {
   currency: CurrencyEnum
   chargeModel: ChargeModelEnum
   values?: Maybe<Properties> | Maybe<GroupProperties['values']>
-  isGroupPrice?: boolean
+  groupValues?: Maybe<ChargeGroupsProperties>
 }) => {
   const { translate } = useInternationalization()
 
@@ -205,7 +206,7 @@ const PlanDetailsChargeWrapperSwitch = ({
           />
         </ChargeContentWrapper>
       )}
-      {chargeModel === ChargeModelEnum.PackageGroup && !isGroupPrice && (
+      {chargeModel === ChargeModelEnum.PackageGroup && !groupValues && (
         <ChargeContentWrapper>
           <PlanDetailsChargeTableDisplay
             header={[
@@ -216,13 +217,13 @@ const PlanDetailsChargeWrapperSwitch = ({
           />
         </ChargeContentWrapper>
       )}
-      {chargeModel === ChargeModelEnum.PackageGroup && isGroupPrice && (
+      {chargeModel === ChargeModelEnum.PackageGroup && groupValues && (
         <ChargeContentWrapper>
           <PlanDetailsChargeTableDisplay
             header={[translate('text_624453d52e945301380e49b6')]}
             body={[
               [
-                intlFormatNumber(Number(values?.amount) || 0, {
+                intlFormatNumber(Number(groupValues?.amount) || 0, {
                   currency: currency,
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 15,

@@ -93,11 +93,8 @@ gql`
         minAmountCents
         payInAdvance
         invoiceable
-        usageChargeGroups {
-          id
-          properties {
-            amount
-          }
+        properties {
+          amount
         }
       }
     }

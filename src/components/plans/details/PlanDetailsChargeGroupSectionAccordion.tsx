@@ -30,8 +30,7 @@ const PlanDetailsChargeGroupSectionAccordion = ({
         <PlanDetailsChargeWrapperSwitch
           currency={currency}
           chargeModel={ChargeModelEnum.PackageGroup}
-          values={chargeGroup.usageChargeGroups?.[0]?.properties ?? []}
-          isGroupPrice={true}
+          groupValues={chargeGroup.properties}
         />
       </PaddedChargesWrapper>
 
