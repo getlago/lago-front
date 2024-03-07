@@ -33,12 +33,13 @@ import {
   CheckboxField,
   ComboBoxField,
   DatePickerField,
+  MultipleComboBox,
+  MultipleComboBoxField,
   RadioField,
   SwitchField,
   TextInputField,
 } from '~/components/form'
 import { AmountInputField } from '~/components/form/AmountInput'
-import { MultipleComboBox, MultipleComboBoxField } from '~/components/form/MultipleComboBox'
 import { addToast, TToast } from '~/core/apolloClient'
 import { ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -1081,6 +1082,17 @@ const DesignSystem = () => {
                       formikProps={formikProps}
                     />
                     <MultipleComboBoxField
+                      disableCloseOnSelect
+                      name="multipleCombobox"
+                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
+                        value: `${letter}-${i}`,
+                        group: Math.round(i / 5) + '',
+                      }))}
+                      label="Multiple disableCloseOnSelect"
+                      placeholder="Placeholder"
+                      formikProps={formikProps}
+                    />
+                    <MultipleComboBoxField
                       freeSolo
                       name="multipleCombobox"
                       data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
@@ -1093,38 +1105,42 @@ const DesignSystem = () => {
                     />
                     <MultipleComboBoxField
                       freeSolo
+                      showOptionsOnlyWhenTyping
                       name="multipleCombobox"
-                      label="Multiple Free Solo No Data"
+                      label="Multiple No Data freeSolo showOptionsOnlyWhenTyping"
                       placeholder="Placeholder"
                       formikProps={formikProps}
                     />
-                    <Stack gap={1} direction="row" flexWrap="wrap">
-                      {formikProps.values.multipleCombobox.map(
-                        (value: { value: string }, index) => (
-                          <Chip
-                            key={index}
-                            label={value.value}
-                            onDelete={() => {
-                              const newValues = formikProps.values.multipleCombobox.filter(
-                                (v) => v !== value,
-                              )
+                    {formikProps.values.multipleCombobox.length > 0 && (
+                      <Stack gap={1} direction="row" flexWrap="wrap">
+                        {formikProps.values.multipleCombobox.map(
+                          (value: { value: string }, index) => (
+                            <Chip
+                              key={index}
+                              label={value.value}
+                              onDelete={() => {
+                                const newValues = formikProps.values.multipleCombobox.filter(
+                                  (v) => v !== value,
+                                )
 
-                              formikProps.setFieldValue('multipleCombobox', newValues)
-                            }}
-                          />
-                        ),
-                      )}
-                    </Stack>
+                                formikProps.setFieldValue('multipleCombobox', newValues)
+                              }}
+                            />
+                          ),
+                        )}
+                      </Stack>
+                    )}
                     <MultipleComboBox
                       freeSolo
                       hideTags
                       disableClearable
+                      showOptionsOnlyWhenTyping
                       data={[]}
                       onChange={(newValue) =>
                         formikProps.setFieldValue('multipleCombobox', newValue)
                       }
                       value={formikProps.values.multipleCombobox}
-                      label="Multiple Free Solo No Data No Tags"
+                      label="Multiple No Data freeSolo hideTags disableClearable allowSameValue showOptionsOnlyWhenTyping"
                       placeholder="Placeholder"
                     />
                   </Block>

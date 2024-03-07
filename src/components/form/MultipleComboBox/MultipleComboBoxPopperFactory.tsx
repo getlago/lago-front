@@ -67,7 +67,12 @@ const StyledPopper = styled(Popper)<{
     max-width: ${({ $minWidth }) => ($minWidth ? `${$minWidth}px` : 'initial')};
   }
 
-  .MuiAutocomplete-option {
-    margin: 0;
+  .MuiAutocomplete-paper {
+    border: 1px solid ${theme.palette.grey[200]};
+    padding: ${theme.spacing(2)} 0;
+  }
+
+  > *.multipleComboBox-popper--grouped .MuiAutocomplete-paper {
+    padding: ${theme.spacing(2)} 0;
   }
 `

@@ -20,6 +20,9 @@ module.exports = {
   "project_6500621fbbf7ebe75d11e890": {
     "base": require('./-ready-for-dev---billable-metrics---weighted-sum__base.json')
   },
+  "project_65e9c6d1606b4d714c94f643": {
+    "base": require('./-ready-for-dev---bmplansinvoices---add-filters-to-billable-metrics__base.json')
+  },
   "project_637b4d9f764dcb190431ad4d": {
     "base": require('./-ready-for-dev---coupons---apply-several-coupons-to-customer__base.json')
   },
