@@ -2,7 +2,7 @@ import styled from 'styled-components'
 
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
-  ChargeGroupsProperties,
+  ChargeGroupProperties,
   ChargeModelEnum,
   CurrencyEnum,
   GroupProperties,
@@ -24,7 +24,7 @@ const PlanDetailsChargeWrapperSwitch = ({
   currency: CurrencyEnum
   chargeModel: ChargeModelEnum
   values?: Maybe<Properties> | Maybe<GroupProperties['values']>
-  groupValues?: Maybe<ChargeGroupsProperties>
+  groupValues?: Maybe<ChargeGroupProperties>
 }) => {
   const { translate } = useInternationalization()
 
