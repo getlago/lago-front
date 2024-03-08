@@ -19,6 +19,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { GraduatedPercentageChargeTable } from './GraduatedPercentageChargeTable'
+import { PackageGroupChildCharge } from './PackageGroupChildCharge'
 import { PlanFormInput } from './types'
 import { VolumeChargeTable } from './VolumeChargeTable'
 
@@ -113,6 +114,16 @@ export const ChargeWrapperSwitch = memo(
         )}
         {localCharge.chargeModel === ChargeModelEnum.Volume && (
           <VolumeChargeTable
+            chargeIndex={index}
+            currency={currency}
+            disabled={disabled}
+            formikProps={formikProps}
+            propertyCursor={propertyCursor}
+            valuePointer={valuePointer}
+          />
+        )}
+        {localCharge.chargeModel === ChargeModelEnum.PackageGroup && (
+          <PackageGroupChildCharge
             chargeIndex={index}
             currency={currency}
             disabled={disabled}

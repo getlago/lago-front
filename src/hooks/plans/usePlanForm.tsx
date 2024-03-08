@@ -4,7 +4,7 @@ import { useEffect, useMemo } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { number, object, string } from 'yup'
 
-import { LocalChargeInput, PlanFormInput } from '~/components/plans/types'
+import { LocalChargeGroupInput, LocalChargeInput, PlanFormInput } from '~/components/plans/types'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   PLAN_FORM_TYPE,
@@ -14,6 +14,7 @@ import {
 import { FORM_ERRORS_ENUM, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { ERROR_404_ROUTE, PLAN_DETAILS_ROUTE } from '~/core/router'
 import { serializePlanInput } from '~/core/serializers'
+import getChargeGroupPropertyShape from '~/core/serializers/getChargeGroupPropertyShape'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { chargeSchema } from '~/formValidation/chargeSchema'
@@ -171,6 +172,21 @@ export const usePlanForm: ({
             }),
           )
         : ([] as LocalChargeInput[]),
+      chargeGroups: plan?.chargeGroups
+        ? plan?.chargeGroups.map(
+            ({ properties, minAmountCents, invoiceDisplayName, payInAdvance, ...group }) => ({
+              invoiceDisplayName: invoiceDisplayName || '',
+              minAmountCents: isNaN(minAmountCents)
+                ? undefined
+                : String(
+                    deserializeAmount(minAmountCents || 0, plan.amountCurrency || CurrencyEnum.Usd),
+                  ),
+              payInAdvance: payInAdvance || false,
+              properties: properties ? getChargeGroupPropertyShape(properties) : undefined,
+              ...group,
+            }),
+          )
+        : ([] as LocalChargeGroupInput[]),
     },
     validationSchema: object().shape({
       name: string().required(''),

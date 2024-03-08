@@ -9,9 +9,11 @@ import { Item } from '~/components/form/ComboBox/ComboBoxItem'
 import {
   FORM_TYPE_ENUM,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
+  SEARCH_GROUP_CHARGE_INPUT_CLASSNAME,
   SEARCH_METERED_CHARGE_INPUT_CLASSNAME,
   SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME,
 } from '~/core/constants/form'
+import getChargeGroupPropertyShape from '~/core/serializers/getChargeGroupPropertyShape'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import {
   ChargeModelEnum,
@@ -24,11 +26,12 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MenuPopper, theme } from '~/styles'
 
 import { ChargeAccordion } from './ChargeAccordion'
+import { ChargeGroupAccordion } from './ChargeGroupAccordion'
 import {
   RemoveChargeWarningDialog,
   RemoveChargeWarningDialogRef,
 } from './RemoveChargeWarningDialog'
-import { LocalChargeInput, PlanFormInput } from './types'
+import { LocalChargeGroupInput, LocalChargeInput, PlanFormInput } from './types'
 
 import { EditInvoiceDisplayNameRef } from '../invoices/EditInvoiceDisplayName'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '../PremiumWarningDialog'
@@ -84,6 +87,7 @@ interface ChargesSectionProps {
 }
 
 const getNewChargeId = (id: string, index: number) => `plan-charge-${id}-${index}`
+const getNewChargeGroupId = (id: string, index: number) => `plan-charge-group-${id}-${index}`
 
 export const ChargesSection = memo(
   ({
@@ -97,15 +101,25 @@ export const ChargesSection = memo(
     subscriptionFormType,
   }: ChargesSectionProps) => {
     const { translate } = useInternationalization()
-    const hasAnyCharge = !!formikProps.values.charges.length
+    // NOTE: child charge in group charge is not included in the count
+    const hasAnyCharge = useMemo(
+      () => formikProps.values.charges.some((c) => !c.chargeGroupId),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [formikProps.values.charges.length],
+    )
     const [showAddMeteredCharge, setShowAddMeteredCharge] = useState(false)
     const [showAddRecurringCharge, setShowAddRecurringCharge] = useState(false)
+    const [showAddGroupCharge, setShowAddGroupCharge] = useState(false)
     const newChargeId = useRef<string | null>(null)
+    const newChargeGroupId = useRef<string | null>(null)
     const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
     const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
     const alreadyUsedBmsIds = useRef<Map<String, number>>(new Map())
     const hasAnyMeteredCharge = useMemo(
-      () => formikProps.values.charges.some((c) => !c.billableMetric.recurring),
+      () =>
+        formikProps.values.charges.some((c) => {
+          return !c.billableMetric.recurring && !c.chargeGroupId
+        }),
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [formikProps.values.charges.length],
     )
@@ -113,6 +127,10 @@ export const ChargesSection = memo(
       () => formikProps.values.charges.some((c) => !!c.billableMetric.recurring),
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [formikProps.values.charges.length],
+    )
+    const hasAnyGroupCharge = useMemo(
+      () => formikProps.values.chargeGroups.length > 0,
+      [formikProps.values.chargeGroups.length],
     )
     const [
       getMeteredBillableMetrics,
@@ -196,6 +214,18 @@ export const ChargesSection = memo(
     }, [newChargeId])
 
     useEffect(() => {
+      // When adding a new charge group, scroll to the new charge group element
+      if (!!newChargeGroupId.current) {
+        const element = document.getElementById(newChargeGroupId.current)
+        const rootElement = document.getElementById('root')
+
+        if (!element || !rootElement) return
+
+        rootElement.scrollTo({ top: element.offsetTop - 72 - 16 })
+      }
+    }, [newChargeGroupId])
+
+    useEffect(() => {
       const BmIdsMap = new Map()
 
       for (let i = 0; i < formikProps.values.charges.length; i++) {
@@ -273,6 +303,29 @@ export const ChargesSection = memo(
                     >
                       {translate('text_64d27120a3d1e300b35d0fcc')}
                     </Button>
+                    <Button
+                      variant="quaternary"
+                      data-test="add-group-charge"
+                      onClick={async () => {
+                        if (!showAddGroupCharge) setShowAddGroupCharge(true)
+
+                        setTimeout(() => {
+                          // By default, group charge includes metered billable metrics
+                          const element = document.querySelector(
+                            `.${SEARCH_GROUP_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+                          ) as HTMLElement
+
+                          if (!element) return
+
+                          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                          element.click()
+
+                          closePopper()
+                        }, 0)
+                      }}
+                    >
+                      Add a group charge
+                    </Button>
                   </MenuPopper>
                 )}
               </Popper>
@@ -304,8 +357,8 @@ export const ChargesSection = memo(
           {hasAnyMeteredCharge && (
             <Charges>
               {formikProps.values.charges.map((charge, i) => {
-                // Prevent displaying recurring charges
-                if (charge.billableMetric.recurring) return
+                // Prevent displaying recurring & group charges
+                if (charge.billableMetric.recurring || !!charge.chargeGroupId) return
 
                 const id = getNewChargeId(charge.billableMetric.id, i)
                 const isNew = !alreadyExistingCharges?.find(
@@ -561,6 +614,134 @@ export const ChargesSection = memo(
               )}
             </InlineButtons>
           )}
+
+          {/* GROUP CHARGE */}
+          {(hasAnyGroupCharge || showAddGroupCharge) && (
+            <div>
+              <Typography variant="bodyHl" color="grey700">
+                {translate('Group Charges')}
+              </Typography>
+              <Typography variant="caption" color="grey600">
+                {translate('Charges are grouped together and billed as a single line item.')}
+              </Typography>
+            </div>
+          )}
+
+          {hasAnyGroupCharge && (
+            <Charges>
+              {formikProps.values.chargeGroups.map((chargeGroup, i) => {
+                const id = chargeGroup.id || getNewChargeGroupId('', i)
+
+                return (
+                  <ChargeGroupAccordion
+                    idProps={id}
+                    key={id}
+                    isInitiallyOpen={true}
+                    isInSubscriptionForm={isInSubscriptionForm}
+                    subscriptionFormType={subscriptionFormType}
+                    removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+                    premiumWarningDialogRef={premiumWarningDialogRef}
+                    editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                    isUsedInSubscription={!canBeEdited}
+                    currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
+                    index={i}
+                    disabled={isEdition && !canBeEdited}
+                    formikProps={formikProps}
+                  />
+                )
+              })}
+            </Charges>
+          )}
+          {!!showAddGroupCharge && (
+            <AddChargeInlineWrapper>
+              {/* TODO: Need to implement multi select box */}
+              <ComboBox
+                className={SEARCH_GROUP_CHARGE_INPUT_CLASSNAME}
+                data={meteredBillableMetrics}
+                searchQuery={getMeteredBillableMetrics}
+                loading={meteredBillableMetricsLoading}
+                placeholder={translate('text_6435888d7cc86500646d8981')}
+                emptyText={translate('text_6246b6bc6b25f500b779aa7a')}
+                onChange={(newCharge) => {
+                  // Group charge
+                  const previousChargeGroups = [...formikProps.values.chargeGroups]
+                  const newGroupId = getNewChargeGroupId(newCharge, previousChargeGroups.length)
+                  const lastGroupIndex = previousChargeGroups.length - 1
+                  const newChargeGroupIndex = lastGroupIndex < 0 ? 0 : lastGroupIndex + 1
+
+                  previousChargeGroups.splice(newChargeGroupIndex, 0, {
+                    id: newGroupId,
+                    payInAdvance: true,
+                    invoiceable: true,
+                    properties: getChargeGroupPropertyShape({}),
+                    amountCents: undefined,
+                  } as LocalChargeGroupInput)
+
+                  formikProps.setFieldValue('chargeGroups', previousChargeGroups)
+                  newChargeGroupId.current = newGroupId
+
+                  // Child charges
+                  const previousCharges = [...formikProps.values.charges]
+                  const newId = getNewChargeId(newCharge, previousCharges.length)
+                  const localBillableMetrics =
+                    meteredBillableMetricsData?.billableMetrics?.collection.find(
+                      (bm) => bm.id === newCharge,
+                    )
+                  const lastMeteredIndex = previousCharges.findLastIndex(
+                    (c) => c.billableMetric.recurring === false,
+                  )
+                  const newChargeIndex = lastMeteredIndex < 0 ? 0 : lastMeteredIndex + 1
+
+                  previousCharges.splice(newChargeIndex, 0, {
+                    payInAdvance: true,
+                    invoiceable: true,
+                    billableMetric: localBillableMetrics,
+                    properties: getPropertyShape({}),
+                    groupProperties: localBillableMetrics?.flatGroups?.length ? [] : undefined,
+                    chargeModel: ChargeModelEnum.PackageGroup,
+                    amountCents: undefined,
+                    chargeGroupId: newGroupId,
+                  } as LocalChargeInput)
+
+                  formikProps.setFieldValue('charges', previousCharges)
+
+                  setShowAddGroupCharge(false)
+                  newChargeId.current = newId
+                }}
+              />
+              <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
+                <Button
+                  icon="trash"
+                  variant="quaternary"
+                  onClick={() => {
+                    setShowAddGroupCharge(false)
+                  }}
+                />
+              </Tooltip>
+            </AddChargeInlineWrapper>
+          )}
+
+          {hasAnyGroupCharge && !isInSubscriptionForm && (
+            <InlineButtons>
+              <Button
+                startIcon="plus"
+                variant="quaternary"
+                data-test="add-group-charge"
+                onClick={() => {
+                  setShowAddGroupCharge(true)
+                  setTimeout(() => {
+                    ;(
+                      document.querySelector(
+                        `.${SEARCH_GROUP_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+                      ) as HTMLElement
+                    )?.click()
+                  }, 0)
+                }}
+              >
+                {translate('Add a group charge')}
+              </Button>
+            </InlineButtons>
+          )}
         </Card>
 
         <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} formikProps={formikProps} />
@@ -581,6 +762,7 @@ export const ChargesSection = memo(
       oldProps.formikProps.values.billChargesMonthly ===
         newProps.formikProps.values.billChargesMonthly &&
       oldProps.formikProps.values.charges === newProps.formikProps.values.charges &&
+      oldProps.formikProps.values.chargeGroups === newProps.formikProps.values.chargeGroups &&
       // Used in sub components
       oldProps.formikProps.errors === newProps.formikProps.errors &&
       oldProps.formikProps.initialValues === newProps.formikProps.initialValues

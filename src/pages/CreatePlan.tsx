@@ -87,6 +87,7 @@ gql`
       }
       ...ChargeAccordion
       chargeModel
+      # TODO: Check to remove this
       chargeGroup {
         id
         invoiceDisplayName
@@ -96,6 +97,16 @@ gql`
         properties {
           amount
         }
+      }
+    }
+    chargeGroups {
+      id
+      invoiceDisplayName
+      minAmountCents
+      payInAdvance
+      invoiceable
+      properties {
+        amount
       }
     }
 

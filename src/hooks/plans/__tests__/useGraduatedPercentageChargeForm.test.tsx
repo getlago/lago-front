@@ -60,6 +60,7 @@ const prepare = async ({
                 : undefined,
           },
         ],
+        chargeGroups: [],
       },
       onSubmit: () => {},
     })
