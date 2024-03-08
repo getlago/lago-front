@@ -329,6 +329,17 @@ const SideNav = () => {
                 ]}
                 orientation="vertical"
               />
+
+              <AnnouncementAction
+                onClick={() => {
+                  window.open('https://www.getlago.com/blog/lago-raises-22-millions', '_blank')
+                }}
+              >
+                <Icon name="heart" />
+                <Typography variant="captionHl" color="grey700">
+                  Lago v1 is live!
+                </Typography>
+              </AnnouncementAction>
             </BottomButtons>
           </Nav>
         </Drawer>
@@ -426,6 +437,7 @@ const BottomButtons = styled.div`
   box-sizing: border-box;
   flex-direction: column;
   display: flex;
+  gap: ${theme.spacing(1)};
 
   > * {
     text-align: left;
@@ -506,6 +518,26 @@ const ExternalLink = styled.a`
 
   &:visited {
     color: ${theme.palette.primary[600]};
+  }
+`
+
+const AnnouncementAction = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  background-color: ${theme.palette.grey[100]};
+  padding: 10px 12px;
+  box-sizing: border-box;
+  outline: 1px solid ${theme.palette.grey[200]};
+  outline-offset: -1px;
+  gap: ${theme.spacing(2)};
+  cursor: pointer;
+
+  svg {
+    path {
+      fill: ${theme.palette.error[300]};
+    }
   }
 `
 
