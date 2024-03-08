@@ -8,7 +8,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
 
-import PlanDetailsChargeChildrenGroupSectionAccordion from './PlanDetailsChargeChildrenGroupSectionAccordion'
+import PlanDetailsChargeGroupChildSectionAccordion from './PlanDetailsChargeGroupChildSectionAccordion'
 import PlanDetailsChargeWrapperSwitch from './PlanDetailsChargeWrapperSwitch'
 
 type PlanDetailsChargeGroupSectionAccordionProps = {
@@ -51,7 +51,7 @@ const PlanDetailsChargeGroupSectionAccordion = ({
             }
           >
             <ChargeSectionWrapper>
-              <PlanDetailsChargeChildrenGroupSectionAccordion
+              <PlanDetailsChargeGroupChildSectionAccordion
                 currency={currency}
                 charge={charge as Charge}
               />

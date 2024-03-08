@@ -12,15 +12,15 @@ interface ChargeWithIndex extends Charge {
   [index: number]: unknown
 }
 
-type PlanDetailsChargeChildrenGroupSectionAccordionProps = {
+type PlanDetailsChargeGroupChildSectionAccordionProps = {
   charge: ChargeWithIndex
   currency: CurrencyEnum
 }
 
-const PlanDetailsChargeChildrenGroupSectionAccordion = ({
+const PlanDetailsChargeGroupChildSectionAccordion = ({
   charge,
   currency,
-}: PlanDetailsChargeChildrenGroupSectionAccordionProps) => {
+}: PlanDetailsChargeGroupChildSectionAccordionProps) => {
   const { translate } = useInternationalization()
 
   return (
@@ -88,7 +88,7 @@ const PlanDetailsChargeChildrenGroupSectionAccordion = ({
   )
 }
 
-export default PlanDetailsChargeChildrenGroupSectionAccordion
+export default PlanDetailsChargeGroupChildSectionAccordion
 
 const Container = styled.section`
   display: flex;
