@@ -280,7 +280,10 @@ export const ChargeGroupAccordion = memo(
               <SummaryLeft>
                 <Typography variant="bodyHl" color="textSecondary" noWrap>
                   {localChargeGroup?.invoiceDisplayName ||
-                    'Group ' + localChargeGroup?.id?.slice(19, 36)}
+                    'Group of ' +
+                      (formikProps.values.charges.find(
+                        (c) => c.chargeGroupId === localChargeGroup.id,
+                      )?.billableMetric.name || 'charges')}
                 </Typography>
                 <Tooltip title={translate('text_65018c8e5c6b626f030bcf8d')} placement="top-end">
                   <Button
@@ -565,7 +568,7 @@ export const ChargeGroupAccordion = memo(
           )}
 
           <InlineButtonsWrapper>
-            {!localCharge.payInAdvance && !showSpendingMinimum && (
+            {!localChargeGroup.payInAdvance && !showSpendingMinimum && (
               <Button
                 variant="quaternary"
                 startIcon="plus"

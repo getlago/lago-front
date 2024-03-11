@@ -692,6 +692,8 @@ export const ChargesSection = memo(
                   )
                   const newChargeIndex = lastMeteredIndex < 0 ? 0 : lastMeteredIndex + 1
 
+                  // NOTE: newGroupId is only used to link charge with charge_group.
+                  //       It will not be used to create objects in database.
                   previousCharges.splice(newChargeIndex, 0, {
                     payInAdvance: true,
                     invoiceable: true,
