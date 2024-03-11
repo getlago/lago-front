@@ -125,7 +125,6 @@ export const ChargeWrapperSwitch = memo(
         {localCharge.chargeModel === ChargeModelEnum.PackageGroup && (
           <PackageGroupChildCharge
             chargeIndex={index}
-            currency={currency}
             disabled={disabled}
             formikProps={formikProps}
             propertyCursor={propertyCursor}
@@ -140,6 +139,7 @@ export const ChargeWrapperSwitch = memo(
             formikProps={formikProps}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
+            isGroupCharge={!!localCharge.chargeGroupId}
           />
         )}
       </MargedWrapper>

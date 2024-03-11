@@ -33,6 +33,7 @@ interface TimebasedChargeProps {
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
   valuePointer: InputMaybe<PropertiesInput> | undefined
+  isGroupCharge?: boolean
 }
 
 export const TimebasedCharge = memo(
@@ -43,6 +44,7 @@ export const TimebasedCharge = memo(
     formikProps,
     propertyCursor,
     valuePointer,
+    isGroupCharge,
   }: TimebasedChargeProps) => {
     const { translate } = useInternationalization()
     const handleUpdate = useCallback(
@@ -55,20 +57,22 @@ export const TimebasedCharge = memo(
 
     return (
       <Container>
-        <AmountInput
-          name={`${propertyCursor}.amount`}
-          currency={currency}
-          beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
-          disabled={disabled}
-          label={translate('text_6282085b4f283b0102655870')}
-          value={valuePointer?.amount || ''}
-          onChange={(value) => handleUpdate(`${propertyCursor}.amount`, value)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
-            ),
-          }}
-        />
+        {!isGroupCharge && (
+          <AmountInput
+            name={`${propertyCursor}.amount`}
+            currency={currency}
+            beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
+            disabled={disabled}
+            label={translate('text_6282085b4f283b0102655870')}
+            value={valuePointer?.amount || ''}
+            onChange={(value) => handleUpdate(`${propertyCursor}.amount`, value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
+              ),
+            }}
+          />
+        )}
         <TextInput
           name={`${propertyCursor}.blockTimeInMinutes`}
           beforeChangeFormatter={['positiveNumber', 'int']}

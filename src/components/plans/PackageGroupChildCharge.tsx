@@ -7,14 +7,11 @@ import styled from 'styled-components'
 
 import { Typography } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
-import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
+import { InputMaybe, PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
 import { PlanFormInput } from './types'
-
-import { AmountInput } from '../form/AmountInput/AmountInput'
 
 gql`
   fragment PackageGroupChildCharge on Charge {
@@ -37,7 +34,6 @@ gql`
 
 interface PackageGroupChildChargeProps {
   chargeIndex: number
-  currency: CurrencyEnum
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
@@ -47,7 +43,6 @@ interface PackageGroupChildChargeProps {
 export const PackageGroupChildCharge = memo(
   ({
     chargeIndex,
-    currency,
     disabled,
     formikProps,
     propertyCursor,
@@ -64,20 +59,6 @@ export const PackageGroupChildCharge = memo(
 
     return (
       <Container>
-        <AmountInput
-          name={`${propertyCursor}.amount`}
-          currency={currency}
-          beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
-          disabled={disabled}
-          label={translate('text_6282085b4f283b0102655870')}
-          value={valuePointer?.amount || ''}
-          onChange={(value) => handleUpdate(`${propertyCursor}.amount`, value)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
-            ),
-          }}
-        />
         <TextInput
           name={`${propertyCursor}.packageSize`}
           beforeChangeFormatter={['positiveNumber', 'int']}
