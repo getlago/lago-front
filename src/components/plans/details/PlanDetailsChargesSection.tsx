@@ -40,8 +40,8 @@ const PlanDetailsChargesSection = ({
   const { meteredCharges, recurringCharges, groupChargeMaps } =
     plan?.charges?.reduce(
       (acc, charge) => {
-        if (charge.chargeModel === ChargeModelEnum.PackageGroup) {
-          const groupId = charge.chargeGroup?.id ?? 'default'
+        if (!!charge.chargeGroup) {
+          const groupId = charge.chargeGroup.id
 
           acc.groupChargeMaps.set(groupId, [...(acc.groupChargeMaps.get(groupId) || []), charge])
         } else if (!charge.billableMetric.recurring) {
@@ -178,14 +178,15 @@ const PlanDetailsChargesSection = ({
               {translate('Charges are grouped together and billed as a single line item.')}
             </Typography>
           </div>
-          {Array.from(groupChargeMaps).map(([groupId, chargesArray], groupIndex) => (
+          {Array.from(groupChargeMaps).map(([, chargesArray], groupIndex) => (
             <Accordion
               noContentMargin
               key={`plan-details_charges-section_group-charge-${groupIndex}`}
               summary={
                 <Typography variant="bodyHl" color="grey700">
                   <ChargeSummaryWrapper>
-                    {chargesArray?.[0]?.chargeGroup?.invoiceDisplayName ?? 'Group ' + groupId}
+                    {chargesArray?.[0]?.chargeGroup?.invoiceDisplayName ??
+                      'Group of ' + chargesArray?.[0].billableMetric.name}
                   </ChargeSummaryWrapper>
                 </Typography>
               }

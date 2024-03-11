@@ -47,6 +47,7 @@ const PlanDetailsChargeGroupChildSectionAccordion = ({
               currency={currency}
               chargeModel={charge.chargeModel}
               values={charge.properties}
+              isChildGroup={true}
             />
           </PlanDetailsChargeSwitchWrapper>
         </ConditionalWrapper>

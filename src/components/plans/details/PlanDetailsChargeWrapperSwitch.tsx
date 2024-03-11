@@ -20,11 +20,13 @@ const PlanDetailsChargeWrapperSwitch = ({
   chargeModel,
   values,
   groupValues,
+  isChildGroup,
 }: {
   currency: CurrencyEnum
   chargeModel: ChargeModelEnum
   values?: Maybe<Properties> | Maybe<GroupProperties['values']>
   groupValues?: Maybe<ChargeGroupProperties>
+  isChildGroup?: boolean
 }) => {
   const { translate } = useInternationalization()
 
@@ -206,7 +208,8 @@ const PlanDetailsChargeWrapperSwitch = ({
           />
         </ChargeContentWrapper>
       )}
-      {chargeModel === ChargeModelEnum.PackageGroup && !groupValues && (
+      {/* Child group charge */}
+      {chargeModel === ChargeModelEnum.PackageGroup && !!isChildGroup && (
         <ChargeContentWrapper>
           <PlanDetailsChargeTableDisplay
             header={[
@@ -217,7 +220,8 @@ const PlanDetailsChargeWrapperSwitch = ({
           />
         </ChargeContentWrapper>
       )}
-      {chargeModel === ChargeModelEnum.PackageGroup && groupValues && (
+      {/* Parent group charge */}
+      {chargeModel === ChargeModelEnum.PackageGroup && !!groupValues && (
         <ChargeContentWrapper>
           <PlanDetailsChargeTableDisplay
             header={[translate('text_624453d52e945301380e49b6')]}
@@ -233,7 +237,7 @@ const PlanDetailsChargeWrapperSwitch = ({
           />
         </ChargeContentWrapper>
       )}
-      {chargeModel === ChargeModelEnum.Timebased && (
+      {chargeModel === ChargeModelEnum.Timebased && !isChildGroup && (
         <ChargeContentWrapper>
           <PlanDetailsChargeTableDisplay
             header={[translate('text_624453d52e945301380e49b6'), 'Per minutes']}
@@ -247,6 +251,15 @@ const PlanDetailsChargeWrapperSwitch = ({
                 values?.blockTimeInMinutes,
               ],
             ]}
+          />
+        </ChargeContentWrapper>
+      )}
+      {/* Timebased charge inside of a group charge */}
+      {chargeModel === ChargeModelEnum.Timebased && !!isChildGroup && (
+        <ChargeContentWrapper>
+          <PlanDetailsChargeTableDisplay
+            header={['Per minutes']}
+            body={[[values?.blockTimeInMinutes]]}
           />
         </ChargeContentWrapper>
       )}
