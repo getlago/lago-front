@@ -273,7 +273,6 @@ export const ChargeGroupChildAccordion = memo(
                       e.stopPropagation()
                       e.preventDefault()
 
-                      // TODO: This is not working
                       const deleteCharge = () => {
                         const charges = [...formikProps.values.charges]
 

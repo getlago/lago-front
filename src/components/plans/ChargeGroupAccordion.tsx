@@ -348,12 +348,15 @@ export const ChargeGroupAccordion = memo(
                       e.stopPropagation()
                       e.preventDefault()
 
-                      // TODO: This is not working
                       const deleteChargeGroup = () => {
                         const chargeGroups = [...formikProps.values.chargeGroups]
+                        const removedChargeGroup = chargeGroups.splice(index, 1)[0]
+                        const updatedCharges = formikProps.values.charges.filter(
+                          (charge) => charge.chargeGroupId !== removedChargeGroup.id,
+                        )
 
-                        chargeGroups.splice(index, 1)
                         formikProps.setFieldValue('chargeGroups', chargeGroups)
+                        formikProps.setFieldValue('charges', updatedCharges)
                       }
 
                       if (actionType !== 'duplicate' && isUsedInSubscription) {
