@@ -13,11 +13,10 @@ import {
 } from '~/core/constants/form'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import {
-  AggregationTypeEnum,
   ChargeForChargeGroupOptionsAccordionFragmentDoc,
   ChargeModelEnum,
   CurrencyEnum,
-  PackageGroupChargeFragmentDoc,
+  PackageGroupChildChargeFragmentDoc,
   PlanInterval,
   TimebasedChargeFragmentDoc,
 } from '~/generated/graphql'
@@ -45,7 +44,8 @@ gql`
     prorated
     invoiceDisplayName
     properties {
-      amount
+      packageSize
+      freeUnits
     }
     groupProperties {
       groupId
@@ -69,12 +69,12 @@ gql`
       ...TaxForPlanChargeAccordion
     }
     ...ChargeForChargeGroupOptionsAccordion
-    ...PackageGroupCharge
+    ...PackageGroupChildCharge
     ...TimebasedCharge
   }
 
   ${ChargeForChargeGroupOptionsAccordionFragmentDoc}
-  ${PackageGroupChargeFragmentDoc}
+  ${PackageGroupChildChargeFragmentDoc}
   ${TimebasedChargeFragmentDoc}
 `
 
@@ -157,38 +157,12 @@ export const ChargeGroupChildAccordion = memo(
             premiumWarningDialogRef?.current?.openDialog()
             return
           }
-
-          // Reset pay in advance when switching charge model
-          if (
-            (value === ChargeModelEnum.Graduated && localCharge.payInAdvance) ||
-            value === ChargeModelEnum.Volume ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.LatestAgg ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.WeightedSumAgg
-          ) {
-            formikProps.setFieldValue(`charges.${index}.payInAdvance`, false)
-          }
-
-          // Reset prorated when switching charge model
-          if (
-            (localCharge.billableMetric.recurring && value === ChargeModelEnum.Graduated) ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.WeightedSumAgg ||
-            value === ChargeModelEnum.GraduatedPercentage ||
-            value === ChargeModelEnum.Package ||
-            value === ChargeModelEnum.Percentage
-          ) {
-            formikProps.setFieldValue(`charges.${index}.prorated`, false)
-          }
         }
 
         if (name === 'payInAdvance') {
           if (value === true) {
             // Pay in advance
             formikProps.setFieldValue(`charges.${index}.minAmountCents`, undefined)
-
-            if (localCharge.chargeModel === ChargeModelEnum.Graduated) {
-              formikProps.setFieldValue(`charges.${index}.prorated`, false)
-            }
           } else {
             // Pay in arrears
             formikProps.setFieldValue(`charges.${index}.invoiceable`, true)
@@ -198,16 +172,7 @@ export const ChargeGroupChildAccordion = memo(
         formikProps.setFieldValue(`charges.${index}.${name}`, value)
       },
 
-      [
-        formikProps,
-        index,
-        isPremium,
-        localCharge.billableMetric.aggregationType,
-        localCharge.billableMetric.recurring,
-        localCharge.payInAdvance,
-        localCharge.chargeModel,
-        premiumWarningDialogRef,
-      ],
+      [formikProps, index, isPremium, premiumWarningDialogRef],
     )
 
     return (

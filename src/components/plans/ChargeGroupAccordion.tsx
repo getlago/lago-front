@@ -12,10 +12,10 @@ import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_GROUP_CHARGE_INPUT_CLASSNAME,
 } from '~/core/constants/form'
-import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import {
-  AggregationTypeEnum,
+  ChargeGroupChildAccordionFragmentDoc,
   ChargeModelEnum,
   CurrencyEnum,
   PlanInterval,
@@ -51,6 +51,8 @@ gql`
       ...ChargeGroupChildAccordion
     }
   }
+
+  ${ChargeGroupChildAccordionFragmentDoc}
 `
 
 export const mapChargeIntervalCopy = (interval: string, forceMonthlyCharge: boolean): string => {
@@ -144,28 +146,25 @@ export const ChargeGroupAccordion = memo(
       })
     }, [meteredBillableMetricsData])
 
-    const { groupId, localChargeGroup, localCharge, initialLocalCharge, hasErrorInCharges } =
-      useMemo(() => {
-        return {
-          groupId: idProps,
-          localChargeGroup: formikProps.values.chargeGroups[index],
-          localCharge: formikProps.values.charges[index],
-          initialLocalCharge: formikProps.initialValues.charges[index],
-          hasDefaultPropertiesErrors:
-            typeof chargeErrors === 'object' &&
-            typeof chargeErrors[index] === 'object' &&
-            // @ts-ignore
-            typeof chargeErrors[index].properties === 'object',
-          hasErrorInCharges: Boolean(chargeErrors && chargeErrors[index]),
-        }
-      }, [
-        chargeErrors,
-        formikProps.initialValues.charges,
-        formikProps.values.chargeGroups,
-        formikProps.values.charges,
-        idProps,
-        index,
-      ])
+    const { groupId, localChargeGroup, initialLocalCharge, hasErrorInCharges } = useMemo(() => {
+      return {
+        groupId: idProps,
+        localChargeGroup: formikProps.values.chargeGroups[index],
+        initialLocalCharge: formikProps.initialValues.charges[index],
+        hasDefaultPropertiesErrors:
+          typeof chargeErrors === 'object' &&
+          typeof chargeErrors[index] === 'object' &&
+          // @ts-ignore
+          typeof chargeErrors[index].properties === 'object',
+        hasErrorInCharges: Boolean(chargeErrors && chargeErrors[index]),
+      }
+    }, [
+      chargeErrors,
+      formikProps.initialValues.charges,
+      formikProps.values.chargeGroups,
+      idProps,
+      index,
+    ])
 
     const [showSpendingMinimum, setShowSpendingMinimum] = useState(
       !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0,
@@ -187,38 +186,12 @@ export const ChargeGroupAccordion = memo(
             premiumWarningDialogRef?.current?.openDialog()
             return
           }
-
-          // Reset pay in advance when switching charge model
-          if (
-            (value === ChargeModelEnum.Graduated && localCharge.payInAdvance) ||
-            value === ChargeModelEnum.Volume ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.LatestAgg ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.WeightedSumAgg
-          ) {
-            formikProps.setFieldValue(`charges.${index}.payInAdvance`, false)
-          }
-
-          // Reset prorated when switching charge model
-          if (
-            (localCharge.billableMetric.recurring && value === ChargeModelEnum.Graduated) ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.WeightedSumAgg ||
-            value === ChargeModelEnum.GraduatedPercentage ||
-            value === ChargeModelEnum.Package ||
-            value === ChargeModelEnum.Percentage
-          ) {
-            formikProps.setFieldValue(`charges.${index}.prorated`, false)
-          }
         }
 
         if (name === 'payInAdvance') {
           if (value === true) {
             // Pay in advance
             formikProps.setFieldValue(`charges.${index}.minAmountCents`, undefined)
-
-            if (localCharge.chargeModel === ChargeModelEnum.Graduated) {
-              formikProps.setFieldValue(`charges.${index}.prorated`, false)
-            }
           } else {
             // Pay in arrears
             formikProps.setFieldValue(`charges.${index}.invoiceable`, true)
@@ -228,44 +201,17 @@ export const ChargeGroupAccordion = memo(
         formikProps.setFieldValue(`charges.${index}.${name}`, value)
       },
 
-      [
-        formikProps,
-        index,
-        isPremium,
-        localCharge.billableMetric.aggregationType,
-        localCharge.billableMetric.recurring,
-        localCharge.payInAdvance,
-        localCharge.chargeModel,
-        premiumWarningDialogRef,
-      ],
+      [formikProps, index, isPremium, premiumWarningDialogRef],
     )
 
-    const taxValueForBadgeDisplay = useMemo((): string | undefined => {
-      if (!localCharge?.taxes?.length && !formikProps?.values?.taxes?.length) return
-
-      if (localCharge.taxes?.length)
-        return String(localCharge.taxes.reduce((acc, cur) => acc + cur.rate, 0))
-
-      return String(formikProps?.values?.taxes?.reduce((acc, cur) => acc + cur.rate, 0))
-    }, [formikProps?.values?.taxes, localCharge.taxes])
-
     const chargePayInAdvanceSwitchHelperText = useMemo(() => {
-      if (localCharge.chargeModel === ChargeModelEnum.Volume) {
-        return translate('text_646e2d0cc536351b62ba6fc0')
-      } else if (localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg) {
-        return translate('text_646e2d0cc536351b62ba6f48')
-      } else if (localCharge.payInAdvance) {
+      if (localChargeGroup.payInAdvance) {
         return translate('text_646e2d0cc536351b62ba6f12')
       }
 
       // Charge paid in arrears
       return translate('text_646e2d0cc536351b62ba6f53')
-    }, [
-      localCharge.chargeModel,
-      localCharge.payInAdvance,
-      localCharge.billableMetric.aggregationType,
-      translate,
-    ])
+    }, [localChargeGroup.payInAdvance, translate])
 
     return (
       <Accordion
@@ -322,14 +268,6 @@ export const ChargeGroupAccordion = memo(
                 />
               </Tooltip>
 
-              {!!taxValueForBadgeDisplay && (
-                <Chip
-                  label={intlFormatNumber(Number(taxValueForBadgeDisplay) / 100 || 0, {
-                    minimumFractionDigits: 2,
-                    style: 'percent',
-                  })}
-                />
-              )}
               <Chip
                 label={translate(
                   mapChargeIntervalCopy(

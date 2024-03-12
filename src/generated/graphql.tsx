@@ -4552,9 +4552,9 @@ export type GetTaxesForChargesQueryVariables = Exact<{
 
 export type GetTaxesForChargesQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> } };
 
-export type ChargeGroupAccordionFragment = { __typename?: 'ChargeGroup', id: string, invoiceDisplayName?: string | null, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, properties: { __typename?: 'ChargeGroupProperties', amount?: string | null }, charges?: Array<{ __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, prorated: boolean, invoiceDisplayName?: string | null, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, blockTimeInMinutes?: any | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, invoiceDisplayName?: string | null, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null } }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> | null };
+export type ChargeGroupAccordionFragment = { __typename?: 'ChargeGroup', id: string, invoiceDisplayName?: string | null, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, properties: { __typename?: 'ChargeGroupProperties', amount?: string | null }, charges?: Array<{ __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, prorated: boolean, invoiceDisplayName?: string | null, properties?: { __typename?: 'Properties', packageSize?: any | null, freeUnits?: any | null, amount?: string | null, blockTimeInMinutes?: any | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, invoiceDisplayName?: string | null, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null } }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> | null };
 
-export type ChargeGroupChildAccordionFragment = { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, prorated: boolean, invoiceDisplayName?: string | null, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, blockTimeInMinutes?: any | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, invoiceDisplayName?: string | null, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null } }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null };
+export type ChargeGroupChildAccordionFragment = { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, prorated: boolean, invoiceDisplayName?: string | null, properties?: { __typename?: 'Properties', packageSize?: any | null, freeUnits?: any | null, amount?: string | null, blockTimeInMinutes?: any | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, invoiceDisplayName?: string | null, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null } }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null };
 
 export type ChargeForChargeGroupOptionsAccordionFragment = { __typename?: 'Charge', id: string, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean };
 
@@ -6010,8 +6010,8 @@ export const ChargeForChargeGroupOptionsAccordionFragmentDoc = gql`
   payInAdvance
 }
     `;
-export const PackageGroupChargeFragmentDoc = gql`
-    fragment PackageGroupCharge on Charge {
+export const PackageGroupChildChargeFragmentDoc = gql`
+    fragment PackageGroupChildCharge on Charge {
   id
   properties {
     amount
@@ -6047,7 +6047,8 @@ export const ChargeGroupChildAccordionFragmentDoc = gql`
   prorated
   invoiceDisplayName
   properties {
-    amount
+    packageSize
+    freeUnits
   }
   groupProperties {
     groupId
@@ -6071,12 +6072,12 @@ export const ChargeGroupChildAccordionFragmentDoc = gql`
     ...TaxForPlanChargeAccordion
   }
   ...ChargeForChargeGroupOptionsAccordion
-  ...PackageGroupCharge
+  ...PackageGroupChildCharge
   ...TimebasedCharge
 }
     ${TaxForPlanChargeAccordionFragmentDoc}
 ${ChargeForChargeGroupOptionsAccordionFragmentDoc}
-${PackageGroupChargeFragmentDoc}
+${PackageGroupChildChargeFragmentDoc}
 ${TimebasedChargeFragmentDoc}`;
 export const ChargeGroupAccordionFragmentDoc = gql`
     fragment ChargeGroupAccordion on ChargeGroup {
@@ -6107,8 +6108,8 @@ export const BillableMetricForChargeSectionFragmentDoc = gql`
   }
 }
     `;
-export const PackageGroupChildChargeFragmentDoc = gql`
-    fragment PackageGroupChildCharge on Charge {
+export const PackageGroupChargeFragmentDoc = gql`
+    fragment PackageGroupCharge on Charge {
   id
   properties {
     amount
