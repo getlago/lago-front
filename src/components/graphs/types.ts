@@ -8,4 +8,5 @@ export type TGraphProps = {
   demoMode?: boolean
   className?: string
   blur?: boolean
+  forceLoading?: boolean
 }

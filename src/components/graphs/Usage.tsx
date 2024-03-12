@@ -174,6 +174,7 @@ const Usage = ({
   currency = CurrencyEnum.Usd,
   className,
   blur = false,
+  forceLoading,
 }: TGraphProps) => {
   const { translate } = useInternationalization()
   const [hoveredBarId, setHoveredBarId] = useState<string | undefined>(undefined)
@@ -183,6 +184,7 @@ const Usage = ({
     },
     skip: demoMode || blur || !currency,
   })
+  const isLoading = forceLoading || loading
 
   const {
     totalAmount,
@@ -224,12 +226,12 @@ const Usage = ({
               toDate: dateTo,
             })}
             blur={blur}
-            loading={loading}
+            loading={isLoading}
           />
 
           <GraphContainer $blur={blur}>
             <GraphWrapper>
-              {!!loading ? (
+              {!!isLoading ? (
                 <>
                   <Skeleton variant="text" width="100%" height={12} />
 

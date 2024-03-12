@@ -251,6 +251,7 @@ const Invoices = ({
   period,
   className,
   blur = false,
+  forceLoading,
 }: TGraphProps) => {
   const { translate } = useInternationalization()
   const [hoveredBarId, setHoveredBarId] = useState<string | undefined>(undefined)
@@ -260,6 +261,7 @@ const Invoices = ({
     },
     skip: demoMode || blur || !currency,
   })
+  const isLoading = forceLoading || loading
 
   const { barGraphData, dateFrom, dateTo, lineData, totalAmount } = useMemo(() => {
     return getAllDataForInvoicesDisplay({
@@ -292,12 +294,12 @@ const Invoices = ({
               toDate: dateTo,
             })}
             blur={blur}
-            loading={loading}
+            loading={isLoading}
           />
 
           <GraphContainer $blur={blur}>
             <GraphWrapper>
-              {!!loading ? (
+              {!!isLoading ? (
                 <>
                   <Skeleton variant="text" width="100%" height={12} />
 
