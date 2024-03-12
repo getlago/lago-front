@@ -24,13 +24,14 @@ gql`
 
 type UseCurrentUser = () => {
   isPremium: boolean
+  loading: boolean
   currentUser?: CurrentUserInfosFragment
 }
 
 export const useCurrentUser: UseCurrentUser = () => {
   const { isAuthenticated } = useIsAuthenticated()
 
-  const { data } = useGetCurrentUserInfosQuery({
+  const { data, loading } = useGetCurrentUserInfosQuery({
     canonizeResults: true,
     fetchPolicy: 'cache-first',
     skip: !isAuthenticated,
@@ -39,5 +40,6 @@ export const useCurrentUser: UseCurrentUser = () => {
   return {
     currentUser: data?.currentUser,
     isPremium: data?.currentUser.premium || false,
+    loading: loading,
   }
 }

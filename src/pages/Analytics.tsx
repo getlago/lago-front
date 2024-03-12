@@ -20,7 +20,7 @@ import { MenuPopper, PageHeader, theme } from '~/styles'
 
 const Analytics = () => {
   const { translate } = useInternationalization()
-  const { isPremium, currentUser } = useCurrentUser()
+  const { isPremium, currentUser, loading: currentUserDataLoading } = useCurrentUser()
   const { organization, loading: currentOrganizationDataLoading } = useOrganizationInfos()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
@@ -166,10 +166,11 @@ const Analytics = () => {
       <ContentWrapper>
         <Gross className="analytics-graph" currency={selectedCurrency} period={periodScope} />
         <Mrr
-          demoMode={!isPremium || !currentUser}
-          className="analytics-graph"
           blur={!isPremium || !currentUser}
+          className="analytics-graph"
           currency={selectedCurrency}
+          demoMode={!isPremium || !currentUser}
+          forceLoading={currentUserDataLoading || currentOrganizationDataLoading}
           period={periodScope}
         />
         <Usage
@@ -177,6 +178,7 @@ const Analytics = () => {
           className="analytics-graph"
           blur={!isPremium || !currentUser}
           currency={selectedCurrency}
+          forceLoading={currentUserDataLoading || currentOrganizationDataLoading}
           period={periodScope}
         />
         <Invoices
@@ -184,6 +186,7 @@ const Analytics = () => {
           className="analytics-graph"
           blur={!isPremium || !currentUser}
           currency={selectedCurrency}
+          forceLoading={currentUserDataLoading || currentOrganizationDataLoading}
           period={periodScope}
         />
       </ContentWrapper>

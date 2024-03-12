@@ -44,6 +44,7 @@ export function getAllDataForMrrDisplay({
   currency: CurrencyEnum
   demoMode: boolean
   blur: boolean
+  forceLoading?: boolean
   period: TPeriodScopeTranslationLookupValue
 }) {
   const formatedData = formatDataForAreaChart(
@@ -78,12 +79,14 @@ const Mrr = ({
   currency = CurrencyEnum.Usd,
   demoMode = false,
   period,
+  forceLoading,
 }: TGraphProps) => {
   const { translate } = useInternationalization()
   const { data, loading, error } = useGetMrrQuery({
     variables: { currency: currency },
     skip: demoMode || blur || !currency,
   })
+  const isLoading = loading || forceLoading
 
   const { dataForAreaChart, lastMonthMrr, dateFrom, dateTo, hasOnlyZeroValues } = useMemo(() => {
     return getAllDataForMrrDisplay({
@@ -115,11 +118,11 @@ const Mrr = ({
               fromDate: dateFrom,
               toDate: dateTo,
             })}
-            loading={loading}
+            loading={isLoading}
             blur={blur}
           />
           <AreaChart
-            loading={loading}
+            loading={isLoading}
             blur={blur}
             data={dataForAreaChart}
             hasOnlyZeroValues={hasOnlyZeroValues}
