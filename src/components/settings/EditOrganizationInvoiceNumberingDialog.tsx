@@ -166,10 +166,6 @@ export const EditOrganizationInvoiceNumberingDialog = forwardRef<
             </Typography>
             <TextInput disabled label={translate('text_6566f920a1d6c35693d6cce8')} value={'001'} />
           </InlineInputsWrapper>
-
-          {formikProps.values.documentNumbering === DocumentNumberingEnum.PerOrganization && (
-            <Alert type="info">{translate('text_6566f920a1d6c35693d6cd9c')}</Alert>
-          )}
         </Content>
       </Dialog>
     )

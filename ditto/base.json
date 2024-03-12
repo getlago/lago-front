@@ -1423,7 +1423,6 @@
   "text_6566f920a1d6c35693d6ccd8": "Dynamic sequence",
   "text_6566f920a1d6c35693d6cce0": "cust. sequential ID",
   "text_6566f920a1d6c35693d6cce8": "Invoice nb",
-  "text_6566f920a1d6c35693d6cd9c": "When scoped across your organization, the invoice number will reset at the end of each month.",
   "text_6566f920a1d6c35693d6cdca": "(sequentially for each customer)",
   "text_6566f920a1d6c35693d6cdd2": "The invoice number increases uniquely for every individual customer rather than being a global sequence applied at the organizational level.",
   "text_6566f920a1d6c35693d6ce0f": "Invoice numbering successfully edited",
