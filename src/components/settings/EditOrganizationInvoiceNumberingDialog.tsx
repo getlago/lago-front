@@ -4,7 +4,7 @@ import { forwardRef } from 'react'
 import styled from 'styled-components'
 import { object, string } from 'yup'
 
-import { Alert, Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import { Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { RadioField, TextInput, TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import {
