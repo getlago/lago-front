@@ -82,7 +82,7 @@ const PlanDetails = () => {
               }
             }}
           />
-          {isPlanLoading ? (
+          {isPlanLoading && !plan ? (
             <PlanTitleLoadingWrapper>
               <Skeleton variant="text" width={200} height={12} />
             </PlanTitleLoadingWrapper>
@@ -149,12 +149,21 @@ const PlanDetails = () => {
           <Icon name="board" color="dark" size="large" />
         </Avatar>
         <PlanBlockInfos>
-          <Typography variant="headline" color="grey700" noWrap>
-            {translate('text_65281f686a80b400c8e2f6ad', { planName: plan?.name })}
-          </Typography>
-          <Typography variant="body" color="grey600" noWrap>
-            {plan?.code}
-          </Typography>
+          {isPlanLoading && !plan ? (
+            <PlanTitleLoadingWrapper>
+              <Skeleton variant="text" width={200} height={12} marginBottom={20} />
+              <Skeleton variant="text" width={200} height={12} />
+            </PlanTitleLoadingWrapper>
+          ) : (
+            <>
+              <Typography variant="headline" color="grey700" noWrap>
+                {translate('text_65281f686a80b400c8e2f6ad', { planName: plan?.name })}
+              </Typography>
+              <Typography variant="body" color="grey600" noWrap>
+                {plan?.code}
+              </Typography>
+            </>
+          )}
         </PlanBlockInfos>
       </PlanBlockWrapper>
       <NavigationTab
