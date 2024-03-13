@@ -147,6 +147,7 @@ export const usePlanForm: ({
               minAmountCents,
               payInAdvance,
               invoiceDisplayName,
+              chargeGroup,
               ...charge
             }) => ({
               // Used to not enable submit button on invoiceDisplayName reset
@@ -168,12 +169,13 @@ export const usePlanForm: ({
                     }
                   })
                 : [],
+              chargeGroup: chargeGroup || undefined,
               ...charge,
             }),
           )
         : ([] as LocalChargeInput[]),
       chargeGroups: plan?.chargeGroups
-        ? plan?.chargeGroups.map(
+        ? plan.chargeGroups.map(
             ({ properties, minAmountCents, invoiceDisplayName, payInAdvance, ...group }) => ({
               invoiceDisplayName: invoiceDisplayName || '',
               minAmountCents: isNaN(minAmountCents)

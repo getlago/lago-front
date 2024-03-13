@@ -1,6 +1,7 @@
 import {
   BillableMetricForPlanFragment,
   ChargeGroupInput,
+  ChargeGroupForPlanFragment,
   ChargeInput,
   CreatePlanInput,
   TaxForPlanChargeAccordionFragment,
@@ -9,6 +10,7 @@ import {
 
 export type LocalChargeInput = Omit<ChargeInput, 'billableMetricId'> & {
   billableMetric: BillableMetricForPlanFragment
+  chargeGroup?: ChargeGroupForPlanFragment | null
   id?: string
   // NOTE: this is used for display purpose but will be replaced by taxCodes[] on save
   taxes?: TaxForPlanChargeAccordionFragment[] | null

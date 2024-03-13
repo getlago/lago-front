@@ -57,6 +57,17 @@ gql`
     }
   }
 
+  fragment chargeGroupForPlan on ChargeGroup {
+    id
+    invoiceDisplayName
+    minAmountCents
+    payInAdvance
+    invoiceable
+    properties {
+      amount
+    }
+  }
+
   fragment EditPlan on Plan {
     id
     name
@@ -87,16 +98,8 @@ gql`
       }
       ...ChargeAccordion
       chargeModel
-      # TODO: Check to remove this
       chargeGroup {
-        id
-        invoiceDisplayName
-        minAmountCents
-        payInAdvance
-        invoiceable
-        properties {
-          amount
-        }
+        ...chargeGroupForPlan
       }
     }
     chargeGroups {

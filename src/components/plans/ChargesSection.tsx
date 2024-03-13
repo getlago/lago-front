@@ -103,7 +103,7 @@ export const ChargesSection = memo(
     const { translate } = useInternationalization()
     // NOTE: child charge in group charge is not included in the count
     const hasAnyCharge = useMemo(
-      () => formikProps.values.charges.some((c) => !c.chargeGroupId),
+      () => formikProps.values.charges.some((c) => !c.chargeGroupId && !c.chargeGroup),
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [formikProps.values.charges.length],
     )
@@ -118,7 +118,7 @@ export const ChargesSection = memo(
     const hasAnyMeteredCharge = useMemo(
       () =>
         formikProps.values.charges.some((c) => {
-          return !c.billableMetric.recurring && !c.chargeGroupId
+          return !c.billableMetric.recurring && !c.chargeGroupId && !c.chargeGroup
         }),
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [formikProps.values.charges.length],
@@ -358,7 +358,12 @@ export const ChargesSection = memo(
             <Charges>
               {formikProps.values.charges.map((charge, i) => {
                 // Prevent displaying recurring & group charges
-                if (charge.billableMetric.recurring || !!charge.chargeGroupId) return
+                if (
+                  charge.billableMetric.recurring ||
+                  !!charge.chargeGroupId ||
+                  !!charge.chargeGroup
+                )
+                  return
 
                 const id = getNewChargeId(charge.billableMetric.id, i)
                 const isNew = !alreadyExistingCharges?.find(

@@ -329,8 +329,10 @@ export const ChargeGroupAccordion = memo(
         <PaddedChargesWrapper>
           <Charges>
             {formikProps.values.charges.map((charge, i) => {
+              const chargeGroupId = charge.chargeGroupId || charge.chargeGroup?.id
+
               // Prevent displaying charges from different charge groups
-              if (!charge.chargeGroupId || charge.chargeGroupId !== groupId) return
+              if (!chargeGroupId || chargeGroupId !== groupId) return
 
               const chargeId = getNewChargeId(charge.billableMetric.id, i)
 
