@@ -49,6 +49,11 @@ gql`
         id
         name
         code
+        parent {
+          id
+          name
+          code
+        }
       }
       customer {
         id
@@ -79,10 +84,10 @@ const SubscriptionDetails = () => {
             onClick={() => {
               if (!!customerId) {
                 navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId }))
-              } else if (!!planId) {
+              } else if (!!planId && !isSubscriptionLoading && subscription) {
                 navigate(
                   generatePath(PLAN_DETAILS_ROUTE, {
-                    planId: planId,
+                    planId: subscription?.plan?.parent?.id || planId,
                     tab: PlanDetailsTabsOptionsEnum.subscriptions,
                   }),
                 )
@@ -95,7 +100,9 @@ const SubscriptionDetails = () => {
             </TitleSkeletonWrapper>
           ) : (
             <Typography variant="bodyHl" color="textSecondary" noWrap>
-              {translate('text_6529666e71f6ce006d2bf011', { planName: subscription?.plan.name })}
+              {translate('text_6529666e71f6ce006d2bf011', {
+                planName: subscription?.plan?.parent?.name || subscription?.plan.name,
+              })}
             </Typography>
           )}
         </HeaderInlineBreadcrumbBlock>

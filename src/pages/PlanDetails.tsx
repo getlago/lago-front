@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -43,6 +43,9 @@ gql`
       id
       name
       code
+      parent {
+        id
+      }
       ...DeletePlanDialog
     }
   }
@@ -60,6 +63,14 @@ const PlanDetails = () => {
     skip: !planId,
   })
   const plan = planResult?.plan
+
+  useEffect(() => {
+    // WARNING: This page should not be used to show overriden plan's details
+    // If a parent plan is detected, redirect to the plans list
+    if (!!plan?.parent?.id) {
+      navigate(PLANS_ROUTE, { replace: true })
+    }
+  }, [navigate, plan?.parent?.id])
 
   return (
     <>
