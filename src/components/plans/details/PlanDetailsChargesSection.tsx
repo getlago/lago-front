@@ -185,7 +185,7 @@ const PlanDetailsChargesSection = ({
               summary={
                 <Typography variant="bodyHl" color="grey700">
                   <ChargeSummaryWrapper>
-                    {chargesArray?.[0]?.chargeGroup?.invoiceDisplayName ??
+                    {chargesArray?.[0]?.chargeGroup?.invoiceDisplayName ||
                       'Group of ' + chargesArray?.[0].billableMetric.name}
                   </ChargeSummaryWrapper>
                 </Typography>

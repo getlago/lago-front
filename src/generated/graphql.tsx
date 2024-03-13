@@ -3848,6 +3848,7 @@ export type UpdatePlanInput = {
   amountCents: Scalars['BigInt']['input'];
   amountCurrency: CurrencyEnum;
   billChargesMonthly?: InputMaybe<Scalars['Boolean']['input']>;
+  chargeGroups?: InputMaybe<Array<ChargeGroupInput>>;
   charges: Array<ChargeInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;

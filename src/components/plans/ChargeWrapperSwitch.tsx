@@ -139,7 +139,7 @@ export const ChargeWrapperSwitch = memo(
             formikProps={formikProps}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
-            isGroupCharge={!!localCharge.chargeGroupId}
+            isGroupCharge={!!localCharge.chargeGroupId || !!localCharge.chargeGroup}
           />
         )}
       </MargedWrapper>

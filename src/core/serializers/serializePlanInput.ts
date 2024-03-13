@@ -98,6 +98,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
         groupProperties,
         minAmountCents,
         taxes: chargeTaxes,
+        chargeGroup,
         ...charge
       }) => {
         return {
@@ -119,6 +120,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
                 },
               }))
             : [],
+          chargeGroupId: chargeGroup?.id,
           ...charge,
         }
       },
