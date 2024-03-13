@@ -4,7 +4,7 @@ import { forwardRef } from 'react'
 import styled from 'styled-components'
 import { object, string } from 'yup'
 
-import { Alert, Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import { Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { RadioField, TextInput, TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import {
@@ -166,10 +166,6 @@ export const EditOrganizationInvoiceNumberingDialog = forwardRef<
             </Typography>
             <TextInput disabled label={translate('text_6566f920a1d6c35693d6cce8')} value={'001'} />
           </InlineInputsWrapper>
-
-          {formikProps.values.documentNumbering === DocumentNumberingEnum.PerOrganization && (
-            <Alert type="info">{translate('text_6566f920a1d6c35693d6cd9c')}</Alert>
-          )}
         </Content>
       </Dialog>
     )
