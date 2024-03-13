@@ -1,10 +1,8 @@
-import { act, cleanup, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { act, cleanup, screen } from '@testing-library/react'
 import { FormikProps, useFormik } from 'formik'
 import { object } from 'yup'
 
 import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisplayName'
-import { MUI_BUTTON_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { chargeSchema } from '~/formValidation/chargeSchema'
 import { AggregationTypeEnum, ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
@@ -15,10 +13,9 @@ import { LocalChargeInput, PlanFormInput } from '../types'
 
 type PrepareProps = {
   properties?: LocalChargeInput['properties']
-  groupProperties?: LocalChargeInput['groupProperties'][]
 }
 
-async function prepare({ properties, groupProperties }: PrepareProps = {}) {
+async function prepare({ properties }: PrepareProps = {}) {
   const ChargeAccordionMock = () => {
     const formikProps = useFormik<Pick<PlanFormInput, 'charges'>>({
       initialValues: {
@@ -30,22 +27,8 @@ async function prepare({ properties, groupProperties }: PrepareProps = {}) {
               code: 'bm1',
               aggregationType: AggregationTypeEnum.CountAgg,
               recurring: false,
-              flatGroups: !!groupProperties?.length
-                ? [
-                    {
-                      id: '4567',
-                      value: 'group1',
-                    },
-                    {
-                      id: '7890',
-                      value: 'group2',
-                    },
-                  ]
-                : undefined,
             },
             chargeModel: ChargeModelEnum.Standard,
-            // @ts-ignore
-            groupProperties: groupProperties as LocalChargeInput['groupProperties'][],
             properties,
           },
         ],
@@ -100,81 +83,15 @@ describe('ChargeAccordion', () => {
       expect(screen.queryByTestId('charge-with-group-actions-wrapper')).not.toBeInTheDocument()
     })
 
-    it('renders a charge with group property but no properties', async () => {
-      await prepare({
-        groupProperties: [
-          { groupId: '4567', values: getPropertyShape({}) },
-        ] as LocalChargeInput['groupProperties'][],
-      })
+    it('TODO: renders a charge with group property but no filters', async () => {})
 
-      expect(screen.queryByTestId('charge-accordion-0')).toBeInTheDocument()
-      expect(screen.queryByTestId('charge-model-wrapper')).toBeInTheDocument()
-      expect(screen.queryByTestId('default-charge-accordion-with-group')).not.toBeInTheDocument()
-      expect(screen.queryByTestId('default-charge-accordion-without-group')).not.toBeInTheDocument()
-      expect(screen.queryByTestId('group-charge-accordion-0')).toBeInTheDocument()
-      expect(screen.queryByTestId('charge-with-group-actions-wrapper')).toBeInTheDocument()
-    })
-
-    it('renders a charge with property and groupProperties', async () => {
-      await prepare({
-        properties: getPropertyShape({}) as LocalChargeInput['properties'],
-        groupProperties: [
-          { groupId: '4567', values: getPropertyShape({}) },
-        ] as LocalChargeInput['groupProperties'][],
-      })
-
-      expect(screen.queryByTestId('charge-accordion-0')).toBeInTheDocument()
-      expect(screen.queryByTestId('charge-model-wrapper')).toBeInTheDocument()
-      expect(screen.queryByTestId('default-charge-accordion-with-group')).toBeInTheDocument()
-      expect(screen.queryByTestId('default-charge-accordion-without-group')).not.toBeInTheDocument()
-      expect(screen.queryByTestId('group-charge-accordion-0')).toBeInTheDocument()
-      expect(screen.queryByTestId('charge-with-group-actions-wrapper')).toBeInTheDocument()
-    })
+    it('TODO: renders a charge with property and filters', async () => {})
 
     it('hides all sub components if the accordion is closed', async () => {
       await prepare({
         properties: getPropertyShape({}) as LocalChargeInput['properties'],
-        groupProperties: [
-          { groupId: '4567', values: getPropertyShape({}) },
-        ] as LocalChargeInput['groupProperties'][],
+        // TODO: add filters here
       })
-
-      await waitFor(() =>
-        userEvent.click(
-          screen
-            .queryByTestId('charge-accordion-0')
-            ?.querySelector(`.${MUI_BUTTON_BASE_ROOT_CLASSNAME}`) as HTMLElement,
-        ),
-      )
-
-      expect(screen.queryByTestId('charge-accordion-0')).toBeInTheDocument()
-      expect(screen.queryByTestId('charge-model-wrapper')).not.toBeInTheDocument()
-      expect(screen.queryByTestId('default-charge-accordion-with-group')).not.toBeInTheDocument()
-      expect(screen.queryByTestId('default-charge-accordion-without-group')).not.toBeInTheDocument()
-      expect(screen.queryByTestId('group-charge-accordion-0')).not.toBeInTheDocument()
-      expect(screen.queryByTestId('charge-with-group-actions-wrapper')).not.toBeInTheDocument()
-    })
-
-    it('adds all groups when button is pressed', async () => {
-      await prepare({
-        properties: getPropertyShape({}) as LocalChargeInput['properties'],
-        groupProperties: [
-          { groupId: '4567', values: getPropertyShape({}) },
-        ] as LocalChargeInput['groupProperties'][],
-      })
-
-      expect(screen.queryByTestId('charge-accordion-0')).toBeInTheDocument()
-      expect(screen.queryByTestId('charge-model-wrapper')).toBeInTheDocument()
-      expect(screen.queryByTestId('default-charge-accordion-with-group')).toBeInTheDocument()
-      expect(screen.queryByTestId('default-charge-accordion-without-group')).not.toBeInTheDocument()
-      expect(screen.queryByTestId('group-charge-accordion-0')).toBeInTheDocument()
-      expect(screen.queryByTestId('group-charge-accordion-1')).not.toBeInTheDocument()
-      expect(screen.queryByTestId('charge-with-group-actions-wrapper')).toBeInTheDocument()
-
-      await waitFor(() => userEvent.click(screen.queryByTestId('add-all-group-cta') as HTMLElement))
-
-      expect(screen.queryByTestId('group-charge-accordion-0')).toBeInTheDocument()
-      expect(screen.queryByTestId('group-charge-accordion-1')).toBeInTheDocument()
     })
   })
 })

@@ -17,14 +17,13 @@ type PrepareType = {
   disabled?: boolean
   graduatedRanges?: GraduatedRangeInput[]
   groupPropertyIndex?: number
-  propertyType?: 'properties' | 'groupProperties'
+  propertyType?: 'properties' | 'TODO: filters'
 }
 
 const prepare = async ({
   chargeIndex = 0,
   disabled = false,
   graduatedRanges = [],
-  groupPropertyIndex = 0,
   propertyType = 'properties',
 }: PrepareType) => {
   const { result } = renderHook(() => {
@@ -45,30 +44,24 @@ const prepare = async ({
               aggregationType: AggregationTypeEnum.CountAgg,
               recurring: false,
               code: 'graduated',
-              flatGroups:
-                propertyType === 'groupProperties'
-                  ? [{ id: '1', key: null, value: 'France' }]
-                  : undefined,
             },
             properties: propertyType === 'properties' ? { graduatedRanges } : undefined,
-            // @ts-ignore
-            groupProperties:
-              propertyType === 'groupProperties'
-                ? [{ groupId: '1', values: { graduatedRanges: [...graduatedRanges] } }]
-                : undefined,
           },
         ],
       },
       onSubmit: () => {},
     })
     const localCharge = formikProps.values.charges[chargeIndex]
-    const propertyCursor = localCharge?.billableMetric?.flatGroups?.length
-      ? `groupProperties.${groupPropertyIndex}.values`
-      : 'properties'
-    const valuePointer =
-      localCharge?.billableMetric?.flatGroups?.length && localCharge?.groupProperties
-        ? localCharge?.groupProperties[groupPropertyIndex].values
-        : localCharge?.properties
+    // TODO: those 2 values need to be updated considering filters
+    // const propertyCursor = localCharge?.billableMetric?.flatGroups?.length
+    //   ? `groupProperties.${groupPropertyIndex}.values`
+    //   : 'properties'
+    // const valuePointer =
+    //   localCharge?.billableMetric?.flatGroups?.length && localCharge?.groupProperties
+    //     ? localCharge?.groupProperties[groupPropertyIndex].values
+    //     : localCharge?.properties
+    const propertyCursor = 'properties'
+    const valuePointer = localCharge?.properties
 
     return useGraduatedChargeForm({
       formikProps,

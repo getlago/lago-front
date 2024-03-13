@@ -26,17 +26,6 @@ gql`
         toValue
       }
     }
-    groupProperties {
-      groupId
-      values {
-        graduatedRanges {
-          flatAmount
-          fromValue
-          perUnitAmount
-          toValue
-        }
-      }
-    }
   }
 `
 

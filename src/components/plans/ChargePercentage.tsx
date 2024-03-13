@@ -29,17 +29,6 @@ gql`
       perTransactionMinAmount
       perTransactionMaxAmount
     }
-    groupProperties {
-      groupId
-      values {
-        fixedAmount
-        freeUnitsPerEvents
-        freeUnitsPerTotalAggregation
-        rate
-        perTransactionMinAmount
-        perTransactionMaxAmount
-      }
-    }
   }
 `
 

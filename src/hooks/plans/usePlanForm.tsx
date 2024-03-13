@@ -154,7 +154,6 @@ export const usePlanForm: ({
             ({
               taxes,
               properties,
-              groupProperties,
               minAmountCents,
               payInAdvance,
               invoiceDisplayName,
@@ -170,15 +169,6 @@ export const usePlanForm: ({
                   ),
               payInAdvance: payInAdvance || false,
               properties: properties ? getPropertyShape(properties) : undefined,
-              groupProperties: groupProperties?.length
-                ? groupProperties?.map((prop) => {
-                    return {
-                      groupId: prop.groupId,
-                      invoiceDisplayName: prop.invoiceDisplayName || '',
-                      values: getPropertyShape(prop.values),
-                    }
-                  })
-                : [],
               ...charge,
             }),
           ) as LocalChargeInput[])

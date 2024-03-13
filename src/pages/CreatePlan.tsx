@@ -53,11 +53,6 @@ gql`
     code
     aggregationType
     recurring
-    flatGroups {
-      id
-      key
-      value
-    }
   }
 
   fragment EditPlan on Plan {

@@ -16,14 +16,13 @@ type PrepareType = {
   chargeIndex?: number
   disabled?: boolean
   groupPropertyIndex?: number
-  propertyType?: 'properties' | 'groupProperties'
+  propertyType?: 'properties' | 'TODO: filters'
   volumeRanges?: VolumeRangeInput[]
 }
 
 const prepare = async ({
   chargeIndex = 0,
   disabled = false,
-  groupPropertyIndex = 0,
   propertyType = 'properties',
   volumeRanges = [],
 }: PrepareType) => {
@@ -45,30 +44,24 @@ const prepare = async ({
               name: 'volume',
               code: 'volume',
               recurring: false,
-              flatGroups:
-                propertyType === 'groupProperties'
-                  ? [{ id: '1', key: null, value: 'France' }]
-                  : undefined,
             },
             properties: propertyType === 'properties' ? { volumeRanges } : undefined,
-            // @ts-ignore
-            groupProperties:
-              propertyType === 'groupProperties'
-                ? [{ groupId: '1', values: { volumeRanges: [...volumeRanges] } }]
-                : undefined,
           },
         ],
       },
       onSubmit: () => {},
     })
     const localCharge = formikProps.values.charges[chargeIndex]
-    const propertyCursor = localCharge?.billableMetric?.flatGroups?.length
-      ? `groupProperties.${groupPropertyIndex}.values`
-      : 'properties'
-    const valuePointer =
-      localCharge?.billableMetric?.flatGroups?.length && localCharge?.groupProperties
-        ? localCharge?.groupProperties[groupPropertyIndex].values
-        : localCharge?.properties
+    // TODO: those 2 values need to be updated considering filters
+    // const propertyCursor = localCharge?.billableMetric?.flatGroups?.length
+    //   ? `groupProperties.${groupPropertyIndex}.values`
+    //   : 'properties'
+    // const valuePointer =
+    //   localCharge?.billableMetric?.flatGroups?.length && localCharge?.groupProperties
+    //     ? localCharge?.groupProperties[groupPropertyIndex].values
+    //     : localCharge?.properties
+    const propertyCursor = 'properties'
+    const valuePointer = localCharge?.properties
 
     return useVolumeChargeForm({
       formikProps,
@@ -360,12 +353,12 @@ describe('useVolumeChargeForm()', () => {
     })
   })
 
-  describe('with groupProperties', () => {
+  describe('with filters', () => {
     describe('tableDatas', () => {
       it('returns default datas if no charges defined', async () => {
         const { result } = await prepare({
           volumeRanges: [],
-          propertyType: 'groupProperties',
+          propertyType: 'TODO: filters',
         })
 
         expect(result.current.tableDatas).toStrictEqual([
@@ -396,7 +389,7 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'groupProperties',
+          propertyType: 'TODO: filters',
           volumeRanges,
         })
 
@@ -430,7 +423,7 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'groupProperties',
+          propertyType: 'TODO: filters',
           volumeRanges,
           disabled: true,
         })
@@ -466,7 +459,7 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'groupProperties',
+          propertyType: 'TODO: filters',
           volumeRanges,
         })
 
@@ -502,7 +495,7 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'groupProperties',
+          propertyType: 'TODO: filters',
           volumeRanges,
         })
 
@@ -560,7 +553,7 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'groupProperties',
+          propertyType: 'TODO: filters',
           volumeRanges,
         })
 
@@ -619,7 +612,7 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'groupProperties',
+          propertyType: 'TODO: filters',
           volumeRanges,
         })
 

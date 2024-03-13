@@ -22,12 +22,6 @@ gql`
       amount
       groupedBy
     }
-    groupProperties {
-      values {
-        amount
-        groupedBy
-      }
-    }
   }
 `
 

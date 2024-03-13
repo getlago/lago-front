@@ -3,7 +3,6 @@ import {
   ChargeInput,
   CommitmentInput,
   CreatePlanInput,
-  GroupPropertiesInput,
   PropertiesInput,
   TaxForPlanAndChargesInPlanFormFragment,
   TaxForPlanChargeAccordionFragment,
@@ -23,10 +22,6 @@ export type LocalChargeInput = Omit<ChargeInput, 'billableMetricId'> & {
   billableMetric: BillableMetricForPlanFragment
   id?: string
   properties?: LocalPropertiesInput
-  groupProperties?: Omit<GroupPropertiesInput, 'values'> &
-    {
-      values: LocalPropertiesInput
-    }[]
   // NOTE: this is used for display purpose but will be replaced by taxCodes[] on save
   taxes?: TaxForPlanChargeAccordionFragment[] | null
 }

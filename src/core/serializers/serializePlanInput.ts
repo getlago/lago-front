@@ -118,7 +118,6 @@ export const serializePlanInput = (values: PlanFormInput) => {
         billableMetric,
         chargeModel,
         properties,
-        groupProperties,
         minAmountCents,
         taxes: chargeTaxes,
         ...charge
@@ -133,15 +132,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
                 ...serializeProperties(properties as Properties, chargeModel),
               }
             : undefined,
-          groupProperties: groupProperties?.length
-            ? groupProperties?.map((property) => ({
-                groupId: property.groupId,
-                invoiceDisplayName: property.invoiceDisplayName || undefined,
-                values: {
-                  ...serializeProperties(property.values, chargeModel),
-                },
-              }))
-            : [],
+          // TODO: maybe filters needs to be here
           ...charge,
         }
       },

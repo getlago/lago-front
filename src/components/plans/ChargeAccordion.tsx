@@ -18,11 +18,9 @@ import { useDuplicatePlanVar } from '~/core/apolloClient'
 import {
   FORM_TYPE_ENUM,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
-  SEARCH_CHARGE_GROUP_INPUT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME,
 } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import getPropertyShape from '~/core/serializers/getPropertyShape'
 import {
   AggregationTypeEnum,
   ChargeForChargeOptionsAccordionFragmentDoc,
@@ -52,8 +50,6 @@ import { Item } from '../form/ComboBox/ComboBoxItem'
 import { EditInvoiceDisplayNameRef } from '../invoices/EditInvoiceDisplayName'
 import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
-const DEFAULT_GROUP_VALUE = 'DEFAULT'
-
 gql`
   fragment TaxForPlanChargeAccordion on Tax {
     id
@@ -73,23 +69,11 @@ gql`
     properties {
       amount
     }
-    groupProperties {
-      groupId
-      invoiceDisplayName
-      values {
-        amount
-      }
-    }
     billableMetric {
       id
       name
       aggregationType
       recurring
-      flatGroups {
-        id
-        key
-        value
-      }
     }
     taxes {
       ...TaxForPlanChargeAccordion
@@ -192,13 +176,9 @@ export const ChargeAccordion = memo(
         }
       }, [chargeErrors, formikProps.initialValues.charges, formikProps.values.charges, index])
 
-    const localChargeExistingGroupPropertiesIds =
-      localCharge?.groupProperties?.map((g) => g.groupId) || []
-
     const [showSpendingMinimum, setShowSpendingMinimum] = useState(
       !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0,
     )
-    const [showAddGroup, setShowAddGroup] = useState(false)
     const [shouldDisplayTaxesInput, setShouldDisplayTaxesInput] = useState<boolean>(false)
     const [getTaxes, { data: taxesData, loading: taxesLoading }] = useGetTaxesForChargesLazyQuery({
       variables: { limit: 500 },
@@ -544,15 +524,22 @@ export const ChargeAccordion = memo(
           </ChargeModelWrapper>
 
           <AllChargesWrapper
-            $hasGroupDisplay={!!localCharge.billableMetric.flatGroups?.length}
+            $hasGroupDisplay={
+              true
+              /* TODO: update with filter presence */
+            }
             $hasChargesToDisplay={
-              !!localCharge?.properties || !!localCharge?.groupProperties?.length
+              !!localCharge?.properties || true
+              /* TODO: update with filter presence */
             }
           >
             {/* Simple charge or default property for groups */}
             {!!localCharge.properties && (
               <ConditionalWrapper
-                condition={!!localCharge.billableMetric.flatGroups?.length}
+                condition={
+                  /* TODO: update with filter presence */
+                  true
+                }
                 invalidWrapper={(children) => (
                   <div data-test="default-charge-accordion-without-group">{children}</div>
                 )}
@@ -618,231 +605,10 @@ export const ChargeAccordion = memo(
               </ConditionalWrapper>
             )}
 
-            {/* Group properties  */}
-            {localCharge?.groupProperties?.map((group, groupPropertyIndex) => {
-              const associatedFlagGroup = localCharge?.billableMetric?.flatGroups?.find(
-                (flatGroup) => flatGroup.id === group.groupId,
-              )
-
-              const groupKey = associatedFlagGroup?.key
-              const groupName = associatedFlagGroup?.value
-              const hasErrorInGroup =
-                typeof chargeErrors === 'object' &&
-                typeof chargeErrors[index] === 'object' &&
-                // @ts-ignore
-                typeof chargeErrors[index].groupProperties === 'object' &&
-                // @ts-ignore
-                typeof chargeErrors[index].groupProperties[groupPropertyIndex] === 'object' &&
-                // @ts-ignore
-                !!chargeErrors[index].groupProperties[groupPropertyIndex].values
-
-              return (
-                <Accordion
-                  key={`charge-${group.groupId}-group-${group.groupId}`}
-                  noContentMargin
-                  summary={
-                    <Summary>
-                      <SummaryLeft>
-                        <Typography variant="bodyHl" color="grey700">
-                          {localCharge?.groupProperties?.[groupPropertyIndex]
-                            .invoiceDisplayName || (
-                            <>
-                              <span>{groupKey && `${groupKey} • `}</span>
-                              <span>{groupName}</span>
-                            </>
-                          )}
-                        </Typography>
-                        <Tooltip
-                          title={translate('text_65018c8e5c6b626f030bcf8d')}
-                          placement="top-end"
-                        >
-                          <Button
-                            icon="pen"
-                            variant="quaternary"
-                            size="small"
-                            onClick={(e) => {
-                              e.stopPropagation()
-
-                              editInvoiceDisplayNameRef.current?.openDialog({
-                                invoiceDisplayName:
-                                  localCharge?.groupProperties?.[groupPropertyIndex]
-                                    .invoiceDisplayName,
-                                callback: (invoiceDisplayName: string) => {
-                                  formikProps.setFieldValue(
-                                    `charges.${index}.groupProperties.${groupPropertyIndex}.invoiceDisplayName`,
-                                    invoiceDisplayName,
-                                  )
-                                },
-                              })
-                            }}
-                          />
-                        </Tooltip>
-                      </SummaryLeft>
-
-                      <ChargeGroupAccodionSummaryRight>
-                        <Tooltip
-                          placement="top-end"
-                          title={
-                            hasErrorInGroup
-                              ? translate('text_635b975ecea4296eb76924b7')
-                              : translate('text_635b975ecea4296eb76924b1')
-                          }
-                        >
-                          <ValidationIcon
-                            name="validate-filled"
-                            color={hasErrorInGroup ? 'disabled' : 'success'}
-                          />
-                        </Tooltip>
-                        <Tooltip
-                          placement="top-end"
-                          title={translate('text_63aa085d28b8510cd46443ff')}
-                        >
-                          <Button
-                            size="small"
-                            icon="trash"
-                            variant="quaternary"
-                            onClick={() => {
-                              const existingGroupProperties = [
-                                ...(localCharge.groupProperties || []),
-                              ]
-
-                              existingGroupProperties.splice(groupPropertyIndex, 1)
-                              handleUpdate('groupProperties', existingGroupProperties)
-                            }}
-                          />
-                        </Tooltip>
-                      </ChargeGroupAccodionSummaryRight>
-                    </Summary>
-                  }
-                  data-test={`group-charge-accordion-${groupPropertyIndex}`}
-                >
-                  <ChargeWrapperSwitch
-                    currency={currency}
-                    formikProps={formikProps}
-                    index={index}
-                    propertyCursor={`groupProperties.${groupPropertyIndex}.values`}
-                    premiumWarningDialogRef={premiumWarningDialogRef}
-                    valuePointer={
-                      localCharge?.groupProperties &&
-                      localCharge?.groupProperties[groupPropertyIndex]?.values
-                    }
-                    initialValuePointer={
-                      initialLocalCharge?.groupProperties &&
-                      initialLocalCharge?.groupProperties[groupPropertyIndex]?.values
-                    }
-                  />
-                </Accordion>
-              )
-            })}
+            {/* TODO: display filters  */}
           </AllChargesWrapper>
 
-          {/* If the charge can have groups */}
-          {!!localCharge.billableMetric.flatGroups?.length && (
-            <>
-              {!!showAddGroup ? (
-                <InlineGroupInputWrapper>
-                  <ComboBox
-                    sortValues={false}
-                    className={SEARCH_CHARGE_GROUP_INPUT_CLASSNAME}
-                    data={[
-                      {
-                        label: translate('text_64e620bca31226337ffc62ad'),
-                        value: DEFAULT_GROUP_VALUE,
-                        disabled: !!localCharge?.properties,
-                      },
-                      ...localCharge.billableMetric.flatGroups?.map((group) => ({
-                        label: `${group.key ? `${group.key} • ` : ''}${group.value}`,
-                        value: group.id,
-                        disabled: localChargeExistingGroupPropertiesIds.includes(group.id),
-                      })),
-                    ]}
-                    placeholder={translate('text_64e6211f8fcca2366dc69005')}
-                    onChange={(newGroupId) => {
-                      if (newGroupId === DEFAULT_GROUP_VALUE) {
-                        handleUpdate('properties', getPropertyShape({}))
-                      } else {
-                        const newGroupProperties = [
-                          ...(localCharge.groupProperties || []),
-                          {
-                            groupId: newGroupId,
-                            value: getPropertyShape({}),
-                          },
-                        ]
-
-                        handleUpdate('groupProperties', newGroupProperties)
-                      }
-                      setShowAddGroup(false)
-                    }}
-                  />
-
-                  <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
-                    <Button
-                      icon="trash"
-                      variant="quaternary"
-                      onClick={() => {
-                        setShowAddGroup(false)
-                      }}
-                    />
-                  </Tooltip>
-                </InlineGroupInputWrapper>
-              ) : (
-                <ChargeAddActionsWrapper data-test="charge-with-group-actions-wrapper">
-                  <ChargeAddActionsWrapperLeft>
-                    <Button
-                      startIcon="plus"
-                      variant="quaternary"
-                      disabled={
-                        (localCharge.groupProperties?.length || 0) ===
-                          (localCharge.billableMetric.flatGroups?.length || 0) &&
-                        !!localCharge.properties
-                      }
-                      onClick={() => {
-                        setShowAddGroup(true)
-                        setTimeout(() => {
-                          ;(
-                            document.querySelector(
-                              `.${SEARCH_CHARGE_GROUP_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                            ) as HTMLElement
-                          )?.click()
-                        }, 0)
-                      }}
-                      data-test="add-new-group"
-                    >
-                      {translate('text_64e620bca31226337ffc62b7')}
-                    </Button>
-                    <Button
-                      startIcon="plus"
-                      variant="quaternary"
-                      disabled={
-                        (localCharge.groupProperties?.length || 0) ===
-                        (localCharge.billableMetric.flatGroups?.length || 0)
-                      }
-                      onClick={() => {
-                        const newGroupProperties = [
-                          ...(localCharge.groupProperties || []),
-                          ...(localCharge.billableMetric.flatGroups
-                            ?.filter((g) => !localChargeExistingGroupPropertiesIds.includes(g.id))
-                            .map((group) => ({
-                              groupId: group.id,
-                              values: getPropertyShape({}),
-                            })) || []),
-                        ]
-
-                        handleUpdate('groupProperties', newGroupProperties)
-                      }}
-                      data-test="add-all-group-cta"
-                    >
-                      {translate('text_64e620bca31226337ffc62b9')}
-                    </Button>
-                  </ChargeAddActionsWrapperLeft>
-                  {translate('text_64e620bca31226337ffc62bb', {
-                    count: localCharge.groupProperties?.length || 0,
-                    total: localCharge.billableMetric.flatGroups?.length || 0,
-                  })}
-                </ChargeAddActionsWrapper>
-              )}
-            </>
-          )}
+          {/* TODO: Add filters button */}
 
           {/* Charge options */}
           <ChargeOptionsAccordion charge={localCharge} currency={currency}>
@@ -1136,17 +902,6 @@ const InlineTaxInputWrapper = styled.div`
   }
 `
 
-const InlineGroupInputWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-  padding: ${theme.spacing(6)} ${theme.spacing(4)} ${theme.spacing(4)};
-
-  > *:first-child {
-    flex: 1;
-  }
-`
-
 const InlineTaxesWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -1182,26 +937,6 @@ const AllChargesWrapper = styled.div<{ $hasGroupDisplay?: boolean; $hasChargesTo
   margin-top: ${({ $hasChargesToDisplay, $hasGroupDisplay }) =>
     $hasChargesToDisplay && $hasGroupDisplay ? theme.spacing(6) : 0};
   padding: ${({ $hasGroupDisplay }) => ($hasGroupDisplay ? `0 ${theme.spacing(4)}` : 0)};
-`
-
-const ChargeAddActionsWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 ${theme.spacing(4)};
-  margin: ${theme.spacing(4)} 0;
-`
-
-const ChargeAddActionsWrapperLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-`
-
-const ChargeGroupAccodionSummaryRight = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
 `
 
 const ChargeSummaryLeftWrapper = styled.div`

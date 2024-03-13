@@ -24,14 +24,6 @@ gql`
       packageSize
       freeUnits
     }
-    groupProperties {
-      groupId
-      values {
-        amount
-        packageSize
-        freeUnits
-      }
-    }
   }
 `
 

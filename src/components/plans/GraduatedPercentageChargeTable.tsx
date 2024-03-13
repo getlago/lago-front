@@ -25,17 +25,6 @@ gql`
         toValue
       }
     }
-    groupProperties {
-      groupId
-      values {
-        graduatedPercentageRanges {
-          flatAmount
-          fromValue
-          rate
-          toValue
-        }
-      }
-    }
   }
 `
 

@@ -24,17 +24,6 @@ gql`
         toValue
       }
     }
-    groupProperties {
-      groupId
-      values {
-        volumeRanges {
-          flatAmount
-          fromValue
-          perUnitAmount
-          toValue
-        }
-      }
-    }
   }
 `
 

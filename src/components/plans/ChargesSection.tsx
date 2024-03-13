@@ -46,11 +46,6 @@ gql`
     code
     aggregationType
     recurring
-    flatGroups {
-      id
-      key
-      value
-    }
   }
 
   query getMeteredBillableMetrics($page: Int, $limit: Int, $searchTerm: String) {
@@ -362,7 +357,7 @@ export const ChargesSection = memo(
                     invoiceable: true,
                     billableMetric: localBillableMetrics,
                     properties: getPropertyShape({}),
-                    groupProperties: localBillableMetrics?.flatGroups?.length ? [] : undefined,
+                    // TODO: may need to add filters here
                     chargeModel: ChargeModelEnum.Standard,
                     amountCents: undefined,
                   } as LocalChargeInput)
@@ -499,7 +494,7 @@ export const ChargesSection = memo(
                       invoiceable: true,
                       billableMetric: localBillableMetrics,
                       properties: getPropertyShape({}),
-                      groupProperties: localBillableMetrics?.flatGroups?.length ? [] : undefined,
+                      // TODO: may need to add filters here
                       chargeModel: ChargeModelEnum.Standard,
                       amountCents: undefined,
                     },
