@@ -17,6 +17,7 @@ const getPropertyShape = (properties: PropertiesInput | undefined) => {
     graduatedPercentageRanges: properties?.graduatedPercentageRanges || undefined,
     volumeRanges: properties?.volumeRanges || undefined,
     rate: properties?.rate || undefined,
+    blockTimeInMinutes: properties?.blockTimeInMinutes || undefined,
   }
 }
 
