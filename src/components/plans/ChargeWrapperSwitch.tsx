@@ -19,6 +19,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { GraduatedPercentageChargeTable } from './GraduatedPercentageChargeTable'
+import { PackageGroupChildCharge } from './PackageGroupChildCharge'
 import { PlanFormInput } from './types'
 import { VolumeChargeTable } from './VolumeChargeTable'
 
@@ -121,6 +122,15 @@ export const ChargeWrapperSwitch = memo(
             valuePointer={valuePointer}
           />
         )}
+        {localCharge.chargeModel === ChargeModelEnum.PackageGroup && (
+          <PackageGroupChildCharge
+            chargeIndex={index}
+            disabled={disabled}
+            formikProps={formikProps}
+            propertyCursor={propertyCursor}
+            valuePointer={valuePointer}
+          />
+        )}
         {localCharge.chargeModel === ChargeModelEnum.Timebased && (
           <TimebasedCharge
             chargeIndex={index}
@@ -129,6 +139,7 @@ export const ChargeWrapperSwitch = memo(
             formikProps={formikProps}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
+            isGroupCharge={!!localCharge.chargeGroupId || !!localCharge.chargeGroup}
           />
         )}
       </MargedWrapper>

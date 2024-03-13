@@ -191,6 +191,7 @@ export enum BillingTimeEnum {
 export type Charge = {
   __typename?: 'Charge';
   billableMetric: BillableMetric;
+  chargeGroup?: Maybe<ChargeGroup>;
   chargeModel: ChargeModelEnum;
   createdAt: Scalars['ISO8601DateTime']['output'];
   deletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -206,8 +207,44 @@ export type Charge = {
   updatedAt: Scalars['ISO8601DateTime']['output'];
 };
 
+export type ChargeGroup = {
+  __typename?: 'ChargeGroup';
+  charges?: Maybe<Array<Charge>>;
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  deletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  invoiceDisplayName?: Maybe<Scalars['String']['output']>;
+  invoiceable: Scalars['Boolean']['output'];
+  minAmountCents: Scalars['BigInt']['output'];
+  payInAdvance: Scalars['Boolean']['output'];
+  properties: ChargeGroupProperties;
+  updatedAt: Scalars['ISO8601DateTime']['output'];
+  usageChargeGroups?: Maybe<Array<UsageChargeGroup>>;
+};
+
+export type ChargeGroupInput = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
+  invoiceable?: InputMaybe<Scalars['Boolean']['input']>;
+  minAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
+  payInAdvance?: InputMaybe<Scalars['Boolean']['input']>;
+  properties?: InputMaybe<ChargeGroupPropertiesInput>;
+};
+
+export type ChargeGroupProperties = {
+  __typename?: 'ChargeGroupProperties';
+  amount?: Maybe<Scalars['String']['output']>;
+  freeUnits?: Maybe<Scalars['BigInt']['output']>;
+};
+
+export type ChargeGroupPropertiesInput = {
+  amount?: InputMaybe<Scalars['String']['input']>;
+  freeUnits?: InputMaybe<Scalars['BigInt']['input']>;
+};
+
 export type ChargeInput = {
   billableMetricId: Scalars['ID']['input'];
+  chargeGroupId?: InputMaybe<Scalars['ID']['input']>;
   chargeModel: ChargeModelEnum;
   groupProperties?: InputMaybe<Array<GroupPropertiesInput>>;
   id?: InputMaybe<Scalars['ID']['input']>;
@@ -224,6 +261,7 @@ export enum ChargeModelEnum {
   Graduated = 'graduated',
   GraduatedPercentage = 'graduated_percentage',
   Package = 'package',
+  PackageGroup = 'package_group',
   Percentage = 'percentage',
   Standard = 'standard',
   Timebased = 'timebased',
@@ -986,6 +1024,7 @@ export type CreatePlanInput = {
   amountCents: Scalars['BigInt']['input'];
   amountCurrency: CurrencyEnum;
   billChargesMonthly?: InputMaybe<Scalars['Boolean']['input']>;
+  chargeGroups?: InputMaybe<Array<ChargeGroupInput>>;
   charges: Array<ChargeInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
@@ -2690,6 +2729,9 @@ export type Plan = {
   amountCents: Scalars['BigInt']['output'];
   amountCurrency: CurrencyEnum;
   billChargesMonthly?: Maybe<Scalars['Boolean']['output']>;
+  chargeGroups?: Maybe<Array<ChargeGroup>>;
+  /** Number of charge groups attached to a plan */
+  chargeGroupsCount: Scalars['Int']['output'];
   charges?: Maybe<Array<Charge>>;
   /** Number of charges attached to a plan */
   chargesCount: Scalars['Int']['output'];
@@ -3806,6 +3848,7 @@ export type UpdatePlanInput = {
   amountCents: Scalars['BigInt']['input'];
   amountCurrency: CurrencyEnum;
   billChargesMonthly?: InputMaybe<Scalars['Boolean']['input']>;
+  chargeGroups?: InputMaybe<Array<ChargeGroupInput>>;
   charges: Array<ChargeInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
@@ -3845,6 +3888,18 @@ export type UpdateSubscriptionInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   planOverrides?: InputMaybe<PlanOverridesInput>;
   subscriptionAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+};
+
+export type UsageChargeGroup = {
+  __typename?: 'UsageChargeGroup';
+  availableGroupUsage?: Maybe<Scalars['JSON']['output']>;
+  chargeGroup: ChargeGroup;
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  currentPackageCount: Scalars['BigInt']['output'];
+  deletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  subscription: Subscription;
+  updatedAt: Scalars['ISO8601DateTime']['output'];
 };
 
 export type User = {
@@ -4498,6 +4553,12 @@ export type GetTaxesForChargesQueryVariables = Exact<{
 
 export type GetTaxesForChargesQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> } };
 
+export type ChargeGroupAccordionFragment = { __typename?: 'ChargeGroup', id: string, invoiceDisplayName?: string | null, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, properties: { __typename?: 'ChargeGroupProperties', amount?: string | null }, charges?: Array<{ __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, prorated: boolean, invoiceDisplayName?: string | null, properties?: { __typename?: 'Properties', packageSize?: any | null, freeUnits?: any | null, amount?: string | null, blockTimeInMinutes?: any | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, invoiceDisplayName?: string | null, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null } }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> | null };
+
+export type ChargeGroupChildAccordionFragment = { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, prorated: boolean, invoiceDisplayName?: string | null, properties?: { __typename?: 'Properties', packageSize?: any | null, freeUnits?: any | null, amount?: string | null, blockTimeInMinutes?: any | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, invoiceDisplayName?: string | null, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null } }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null };
+
+export type ChargeForChargeGroupOptionsAccordionFragment = { __typename?: 'Charge', id: string, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean };
+
 export type ChargeForChargeOptionsAccordionFragment = { __typename?: 'Charge', id: string, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean };
 
 export type PercentageChargeFragment = { __typename?: 'Charge', id: string, properties?: { __typename?: 'Properties', fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null } }> | null };
@@ -4541,6 +4602,10 @@ export type GraduatedPercentageChargeFragment = { __typename?: 'Charge', id: str
 
 export type PackageChargeFragment = { __typename?: 'Charge', id: string, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null } }> | null };
 
+export type PackageGroupChargeFragment = { __typename?: 'Charge', id: string, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null } }> | null };
+
+export type PackageGroupChildChargeFragment = { __typename?: 'Charge', id: string, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null } }> | null };
+
 export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, activeSubscriptionsCount: number, createdAt: any, draftInvoicesCount: number };
 
 export type TaxForPlanSettingsSectionFragment = { __typename?: 'Tax', id: string, code: string, name: string, rate: number };
@@ -4564,7 +4629,7 @@ export type GetPlanForDetailsOverviewSectionQueryVariables = Exact<{
 }>;
 
 
-export type GetPlanForDetailsOverviewSectionQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, invoiceDisplayName?: string | null, amountCents: any, amountCurrency: CurrencyEnum, trialPeriod?: number | null, subscriptionsCount: number, billChargesMonthly?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, charges?: Array<{ __typename?: 'Charge', id: string, minAmountCents: any, payInAdvance: boolean, chargeModel: ChargeModelEnum, invoiceable: boolean, prorated: boolean, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, blockTimeInMinutes?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, invoiceDisplayName?: string | null, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null }> | null } | null };
+export type GetPlanForDetailsOverviewSectionQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, invoiceDisplayName?: string | null, amountCents: any, amountCurrency: CurrencyEnum, trialPeriod?: number | null, subscriptionsCount: number, billChargesMonthly?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, charges?: Array<{ __typename?: 'Charge', id: string, minAmountCents: any, payInAdvance: boolean, chargeModel: ChargeModelEnum, invoiceable: boolean, prorated: boolean, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, chargeGroup?: { __typename?: 'ChargeGroup', id: string, invoiceDisplayName?: string | null, minAmountCents: any, payInAdvance: boolean, invoiceable: boolean, properties: { __typename?: 'ChargeGroupProperties', amount?: string | null } } | null, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, blockTimeInMinutes?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, invoiceDisplayName?: string | null, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null }> | null, chargeGroups?: Array<{ __typename?: 'ChargeGroup', id: string, invoiceDisplayName?: string | null, minAmountCents: any, payInAdvance: boolean, invoiceable: boolean, properties: { __typename?: 'ChargeGroupProperties', amount?: string | null } }> | null } | null };
 
 export type GetSubscribtionsForPlanDetailsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -4876,7 +4941,7 @@ export type GetSinglePlanQueryVariables = Exact<{
 }>;
 
 
-export type GetSinglePlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, invoiceDisplayName?: string | null, amountCents: any, amountCurrency: CurrencyEnum, trialPeriod?: number | null, subscriptionsCount: number, billChargesMonthly?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, charges?: Array<{ __typename?: 'Charge', id: string, minAmountCents: any, payInAdvance: boolean, chargeModel: ChargeModelEnum, invoiceable: boolean, prorated: boolean, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, blockTimeInMinutes?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, invoiceDisplayName?: string | null, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null }> | null } | null };
+export type GetSinglePlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, invoiceDisplayName?: string | null, amountCents: any, amountCurrency: CurrencyEnum, trialPeriod?: number | null, subscriptionsCount: number, billChargesMonthly?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, charges?: Array<{ __typename?: 'Charge', id: string, minAmountCents: any, payInAdvance: boolean, chargeModel: ChargeModelEnum, invoiceable: boolean, prorated: boolean, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, chargeGroup?: { __typename?: 'ChargeGroup', id: string, invoiceDisplayName?: string | null, minAmountCents: any, payInAdvance: boolean, invoiceable: boolean, properties: { __typename?: 'ChargeGroupProperties', amount?: string | null } } | null, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, blockTimeInMinutes?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, invoiceDisplayName?: string | null, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null }> | null, chargeGroups?: Array<{ __typename?: 'ChargeGroup', id: string, invoiceDisplayName?: string | null, minAmountCents: any, payInAdvance: boolean, invoiceable: boolean, properties: { __typename?: 'ChargeGroupProperties', amount?: string | null } }> | null } | null };
 
 export type CreatePlanMutationVariables = Exact<{
   input: CreatePlanInput;
@@ -5142,7 +5207,9 @@ export type TaxForPlanAndChargesInPlanFormFragment = { __typename?: 'Tax', id: s
 
 export type BillableMetricForPlanFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null };
 
-export type EditPlanFragment = { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, invoiceDisplayName?: string | null, amountCents: any, amountCurrency: CurrencyEnum, trialPeriod?: number | null, subscriptionsCount: number, billChargesMonthly?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, charges?: Array<{ __typename?: 'Charge', id: string, minAmountCents: any, payInAdvance: boolean, chargeModel: ChargeModelEnum, invoiceable: boolean, prorated: boolean, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, blockTimeInMinutes?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, invoiceDisplayName?: string | null, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null }> | null };
+export type ChargeGroupForPlanFragment = { __typename?: 'ChargeGroup', id: string, invoiceDisplayName?: string | null, minAmountCents: any, payInAdvance: boolean, invoiceable: boolean, properties: { __typename?: 'ChargeGroupProperties', amount?: string | null } };
+
+export type EditPlanFragment = { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, invoiceDisplayName?: string | null, amountCents: any, amountCurrency: CurrencyEnum, trialPeriod?: number | null, subscriptionsCount: number, billChargesMonthly?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, charges?: Array<{ __typename?: 'Charge', id: string, minAmountCents: any, payInAdvance: boolean, chargeModel: ChargeModelEnum, invoiceable: boolean, prorated: boolean, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, flatGroups?: Array<{ __typename?: 'Group', id: string, key?: string | null, value: string }> | null }, chargeGroup?: { __typename?: 'ChargeGroup', id: string, invoiceDisplayName?: string | null, minAmountCents: any, payInAdvance: boolean, invoiceable: boolean, properties: { __typename?: 'ChargeGroupProperties', amount?: string | null } } | null, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, blockTimeInMinutes?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, groupProperties?: Array<{ __typename?: 'GroupProperties', groupId: string, invoiceDisplayName?: string | null, values: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null }> | null, chargeGroups?: Array<{ __typename?: 'ChargeGroup', id: string, invoiceDisplayName?: string | null, minAmountCents: any, payInAdvance: boolean, invoiceable: boolean, properties: { __typename?: 'ChargeGroupProperties', amount?: string | null } }> | null };
 
 export type AddSubscriptionPlanFragment = { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval };
 
@@ -5930,6 +5997,106 @@ export const InvoiceForVoidInvoiceDialogFragmentDoc = gql`
   number
 }
     `;
+export const TaxForPlanChargeAccordionFragmentDoc = gql`
+    fragment TaxForPlanChargeAccordion on Tax {
+  id
+  code
+  name
+  rate
+}
+    `;
+export const ChargeForChargeGroupOptionsAccordionFragmentDoc = gql`
+    fragment ChargeForChargeGroupOptionsAccordion on Charge {
+  id
+  invoiceable
+  minAmountCents
+  payInAdvance
+}
+    `;
+export const PackageGroupChildChargeFragmentDoc = gql`
+    fragment PackageGroupChildCharge on Charge {
+  id
+  properties {
+    amount
+    packageSize
+    freeUnits
+  }
+  groupProperties {
+    groupId
+    values {
+      amount
+      packageSize
+      freeUnits
+    }
+  }
+}
+    `;
+export const TimebasedChargeFragmentDoc = gql`
+    fragment TimebasedCharge on Charge {
+  id
+  properties {
+    amount
+    blockTimeInMinutes
+  }
+}
+    `;
+export const ChargeGroupChildAccordionFragmentDoc = gql`
+    fragment ChargeGroupChildAccordion on Charge {
+  id
+  chargeModel
+  invoiceable
+  minAmountCents
+  payInAdvance
+  prorated
+  invoiceDisplayName
+  properties {
+    packageSize
+    freeUnits
+  }
+  groupProperties {
+    groupId
+    invoiceDisplayName
+    values {
+      amount
+    }
+  }
+  billableMetric {
+    id
+    name
+    aggregationType
+    recurring
+    flatGroups {
+      id
+      key
+      value
+    }
+  }
+  taxes {
+    ...TaxForPlanChargeAccordion
+  }
+  ...ChargeForChargeGroupOptionsAccordion
+  ...PackageGroupChildCharge
+  ...TimebasedCharge
+}
+    ${TaxForPlanChargeAccordionFragmentDoc}
+${ChargeForChargeGroupOptionsAccordionFragmentDoc}
+${PackageGroupChildChargeFragmentDoc}
+${TimebasedChargeFragmentDoc}`;
+export const ChargeGroupAccordionFragmentDoc = gql`
+    fragment ChargeGroupAccordion on ChargeGroup {
+  id
+  invoiceDisplayName
+  invoiceable
+  minAmountCents
+  payInAdvance
+  properties {
+    amount
+  }
+  charges {
+    ...ChargeGroupChildAccordion
+  }
+}
+    ${ChargeGroupChildAccordionFragmentDoc}`;
 export const BillableMetricForChargeSectionFragmentDoc = gql`
     fragment billableMetricForChargeSection on BillableMetric {
   id
@@ -5941,6 +6108,24 @@ export const BillableMetricForChargeSectionFragmentDoc = gql`
     id
     key
     value
+  }
+}
+    `;
+export const PackageGroupChargeFragmentDoc = gql`
+    fragment PackageGroupCharge on Charge {
+  id
+  properties {
+    amount
+    packageSize
+    freeUnits
+  }
+  groupProperties {
+    groupId
+    values {
+      amount
+      packageSize
+      freeUnits
+    }
   }
 }
     `;
@@ -6826,14 +7011,6 @@ export const BillableMetricForPlanFragmentDoc = gql`
   }
 }
     `;
-export const TaxForPlanChargeAccordionFragmentDoc = gql`
-    fragment TaxForPlanChargeAccordion on Tax {
-  id
-  code
-  name
-  rate
-}
-    `;
 export const GraduatedChargeFragmentDoc = gql`
     fragment GraduatedCharge on Charge {
   id
@@ -6955,15 +7132,6 @@ export const ChargeForChargeOptionsAccordionFragmentDoc = gql`
   payInAdvance
 }
     `;
-export const TimebasedChargeFragmentDoc = gql`
-    fragment TimebasedCharge on Charge {
-  id
-  properties {
-    amount
-    blockTimeInMinutes
-  }
-}
-    `;
 export const ChargeAccordionFragmentDoc = gql`
     fragment ChargeAccordion on Charge {
   id
@@ -7013,6 +7181,18 @@ ${PackageChargeFragmentDoc}
 ${PercentageChargeFragmentDoc}
 ${ChargeForChargeOptionsAccordionFragmentDoc}
 ${TimebasedChargeFragmentDoc}`;
+export const ChargeGroupForPlanFragmentDoc = gql`
+    fragment chargeGroupForPlan on ChargeGroup {
+  id
+  invoiceDisplayName
+  minAmountCents
+  payInAdvance
+  invoiceable
+  properties {
+    amount
+  }
+}
+    `;
 export const PlanForChargeAccordionFragmentDoc = gql`
     fragment PlanForChargeAccordion on Plan {
   billChargesMonthly
@@ -7079,6 +7259,19 @@ export const EditPlanFragmentDoc = gql`
     }
     ...ChargeAccordion
     chargeModel
+    chargeGroup {
+      ...chargeGroupForPlan
+    }
+  }
+  chargeGroups {
+    id
+    invoiceDisplayName
+    minAmountCents
+    payInAdvance
+    invoiceable
+    properties {
+      amount
+    }
   }
   ...PlanForChargeAccordion
   ...PlanForSettingsSection
@@ -7087,6 +7280,7 @@ export const EditPlanFragmentDoc = gql`
     ${TaxForPlanAndChargesInPlanFormFragmentDoc}
 ${BillableMetricForPlanFragmentDoc}
 ${ChargeAccordionFragmentDoc}
+${ChargeGroupForPlanFragmentDoc}
 ${PlanForChargeAccordionFragmentDoc}
 ${PlanForSettingsSectionFragmentDoc}
 ${PlanForFixedFeeSectionFragmentDoc}`;

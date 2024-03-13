@@ -60,7 +60,7 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
             : undefined,
         }
       : { volumeRanges: undefined }),
-    ...(chargeModel === ChargeModelEnum.Package
+    ...(chargeModel === ChargeModelEnum.Package || chargeModel === ChargeModelEnum.PackageGroup
       ? { freeUnits: properties?.freeUnits || 0 }
       : { packageSize: undefined, freeUnits: undefined }),
     ...(chargeModel === ChargeModelEnum.Percentage
@@ -98,6 +98,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
         groupProperties,
         minAmountCents,
         taxes: chargeTaxes,
+        chargeGroup,
         ...charge
       }) => {
         return {
@@ -119,6 +120,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
                 },
               }))
             : [],
+          chargeGroupId: chargeGroup?.id,
           ...charge,
         }
       },

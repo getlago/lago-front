@@ -57,6 +57,17 @@ gql`
     }
   }
 
+  fragment chargeGroupForPlan on ChargeGroup {
+    id
+    invoiceDisplayName
+    minAmountCents
+    payInAdvance
+    invoiceable
+    properties {
+      amount
+    }
+  }
+
   fragment EditPlan on Plan {
     id
     name
@@ -87,6 +98,19 @@ gql`
       }
       ...ChargeAccordion
       chargeModel
+      chargeGroup {
+        ...chargeGroupForPlan
+      }
+    }
+    chargeGroups {
+      id
+      invoiceDisplayName
+      minAmountCents
+      payInAdvance
+      invoiceable
+      properties {
+        amount
+      }
     }
 
     ...PlanForChargeAccordion

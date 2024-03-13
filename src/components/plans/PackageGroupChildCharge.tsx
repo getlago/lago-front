@@ -7,45 +7,47 @@ import styled from 'styled-components'
 
 import { Typography } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
-import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum, InputMaybe, PropertiesInput } from '~/generated/graphql'
+import { InputMaybe, PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
 import { PlanFormInput } from './types'
 
-import { AmountInput } from '../form/AmountInput/AmountInput'
-
 gql`
-  fragment TimebasedCharge on Charge {
+  fragment PackageGroupChildCharge on Charge {
     id
     properties {
       amount
-      blockTimeInMinutes
+      packageSize
+      freeUnits
+    }
+    groupProperties {
+      groupId
+      values {
+        amount
+        packageSize
+        freeUnits
+      }
     }
   }
 `
 
-interface TimebasedChargeProps {
+interface PackageGroupChildChargeProps {
   chargeIndex: number
-  currency: CurrencyEnum
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
   valuePointer: InputMaybe<PropertiesInput> | undefined
-  isGroupCharge?: boolean
 }
 
-export const TimebasedCharge = memo(
+export const PackageGroupChildCharge = memo(
   ({
     chargeIndex,
-    currency,
     disabled,
     formikProps,
     propertyCursor,
     valuePointer,
-    isGroupCharge,
-  }: TimebasedChargeProps) => {
+  }: PackageGroupChildChargeProps) => {
     const { translate } = useInternationalization()
     const handleUpdate = useCallback(
       (name: string, value: string) => {
@@ -57,29 +59,13 @@ export const TimebasedCharge = memo(
 
     return (
       <Container>
-        {!isGroupCharge && (
-          <AmountInput
-            name={`${propertyCursor}.amount`}
-            currency={currency}
-            beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
-            disabled={disabled}
-            label={translate('text_6282085b4f283b0102655870')}
-            value={valuePointer?.amount || ''}
-            onChange={(value) => handleUpdate(`${propertyCursor}.amount`, value)}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
-              ),
-            }}
-          />
-        )}
         <TextInput
-          name={`${propertyCursor}.blockTimeInMinutes`}
+          name={`${propertyCursor}.packageSize`}
           beforeChangeFormatter={['positiveNumber', 'int']}
-          error={_get(formikProps.errors, `charges.${chargeIndex}.properties.blockTimeInMinutes`)}
+          error={_get(formikProps.errors, `charges.${chargeIndex}.properties.packageSize`)}
           disabled={disabled}
-          value={valuePointer?.blockTimeInMinutes as number | undefined}
-          onChange={(value) => handleUpdate(`${propertyCursor}.blockTimeInMinutes`, value)}
+          value={valuePointer?.packageSize as number | undefined}
+          onChange={(value) => handleUpdate(`${propertyCursor}.packageSize`, value)}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -88,7 +74,27 @@ export const TimebasedCharge = memo(
                 </Typography>
               </InputAdornment>
             ),
-            endAdornment: <InputAdornment position="end">minutes</InputAdornment>,
+            endAdornment: (
+              <InputAdornment position="end">
+                {translate('text_6282085b4f283b0102655884')}
+              </InputAdornment>
+            ),
+          }}
+        />
+        <TextInput
+          name={`${propertyCursor}.freeUnits`}
+          label={translate('text_6282085b4f283b010265588c')}
+          placeholder={translate('text_62824f0e5d93bc008d268d00')}
+          beforeChangeFormatter={['positiveNumber', 'int']}
+          disabled={disabled}
+          value={valuePointer?.freeUnits as number | undefined}
+          onChange={(value) => handleUpdate(`${propertyCursor}.freeUnits`, value)}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                {translate('text_6282085b4f283b0102655894')}
+              </InputAdornment>
+            ),
           }}
         />
       </Container>
@@ -96,7 +102,7 @@ export const TimebasedCharge = memo(
   },
 )
 
-TimebasedCharge.displayName = 'TimebasedCharge'
+PackageGroupChildCharge.displayName = 'PackageGroupChildCharge'
 
 const Container = styled.div`
   > *:not(:last-child) {
