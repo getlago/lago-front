@@ -84,6 +84,8 @@ export type AddPinetPaymentProviderInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   createCustomers?: InputMaybe<Scalars['Boolean']['input']>;
+  keyId: Scalars['String']['input'];
+  privateKey: Scalars['String']['input'];
   secretKey?: InputMaybe<Scalars['String']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
 };
@@ -3848,7 +3850,6 @@ export type UpdatePlanInput = {
   amountCents: Scalars['BigInt']['input'];
   amountCurrency: CurrencyEnum;
   billChargesMonthly?: InputMaybe<Scalars['Boolean']['input']>;
-  chargeGroups?: InputMaybe<Array<ChargeGroupInput>>;
   charges: Array<ChargeInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;

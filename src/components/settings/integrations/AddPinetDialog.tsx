@@ -1,13 +1,19 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useState } from 'react'
+import { useFormik } from 'formik'
+import { forwardRef } from 'react'
 import { useNavigate } from 'react-router'
 import styled from 'styled-components'
+import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
-import { TextInput } from '~/components/form'
+import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { PINET_INTEGRATION_ROUTE } from '~/core/router'
-import { PinetIntegrationFragmentDoc, useAddPinetApiKeyMutation } from '~/generated/graphql'
+import {
+  AddPinetPaymentProviderInput,
+  PinetIntegrationFragmentDoc,
+  useAddPinetApiKeyMutation,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
@@ -31,15 +37,34 @@ interface AddPinetDialog {
 export const AddPinetDialog = forwardRef<AddPinetDialogRef, AddPinetDialog>(
   ({ isEdition }: AddPinetDialog, ref) => {
     const { translate } = useInternationalization()
-    const [pinetApiKey, setPinetApiKey] = useState<string>('')
+
     const navigate = useNavigate()
+    const formikProps = useFormik<AddPinetPaymentProviderInput>({
+      initialValues: {
+        keyId: '',
+        privateKey: '',
+      },
+      validationSchema: object().shape({
+        keyId: string().required(''),
+        privateKey: string().required(''),
+      }),
+      onSubmit: async (values) => {
+        await addApiKey({
+          variables: {
+            input: values,
+          },
+          refetchQueries: ['PinetIntegrationsSetting'],
+        })
+      },
+      validateOnMount: true,
+      enableReinitialize: true,
+    })
     const [addApiKey] = useAddPinetApiKeyMutation({
       onCompleted({ addPinetPaymentProvider }) {
         if (addPinetPaymentProvider?.id) {
           if (!isEdition) {
             navigate(PINET_INTEGRATION_ROUTE)
           }
-          setPinetApiKey('')
           addToast({
             message: translate(
               isEdition
@@ -55,14 +80,14 @@ export const AddPinetDialog = forwardRef<AddPinetDialogRef, AddPinetDialog>(
     return (
       <Dialog
         ref={ref}
-        title={translate(isEdition ? 'Edit Pinet API secret key' : 'Connect to PINET')}
+        title={translate(isEdition ? 'Edit Pinet API certificate' : 'Connect to PINET')}
         description={translate(
           isEdition
-            ? 'By editing the API secret key, upcoming data will not be synchronised to the connected PINET account.'
-            : 'To connect to PINET, please enter the API key generated from your PINET account.',
+            ? 'By editing the API certificate, upcoming data will not be synchronised to the connected PINET account.'
+            : 'To connect to PINET, please enter the API certificate from your PINET account.',
         )}
         onClose={() => {
-          setPinetApiKey('')
+          formikProps.resetForm()
         }}
         actions={({ closeDialog }) => (
           <>
@@ -71,35 +96,32 @@ export const AddPinetDialog = forwardRef<AddPinetDialogRef, AddPinetDialog>(
             </Button>
             <Button
               variant="primary"
-              disabled={!pinetApiKey}
+              disabled={!formikProps.isValid}
               onClick={async () => {
-                await addApiKey({
-                  variables: {
-                    input: {
-                      secretKey: pinetApiKey,
-                      createCustomers: false,
-                    },
-                  },
-                })
-
-                if (isEdition) {
-                  closeDialog()
-                }
+                await formikProps.submitForm()
+                closeDialog()
               }}
             >
-              {translate(isEdition ? 'text_62b1edddbf5f461ab9712769' : 'Connect to PINET')}
+              {translate(isEdition ? 'Edit API certificate' : 'Connect to PINET')}
             </Button>
           </>
         )}
       >
         <Content>
-          <TextInput
-            label={translate('text_62b1edddbf5f461ab9712748')}
-            placeholder={translate(
-              isEdition ? 'text_62b1edddbf5f461ab9712754' : 'text_62b1edddbf5f461ab9712756',
-            )}
-            value={pinetApiKey}
-            onChange={setPinetApiKey}
+          <TextInputField
+            name="keyId"
+            label="Key ID"
+            placeholder="Type a Key ID"
+            formikProps={formikProps}
+          />
+
+          <TextArea
+            name="privateKey"
+            label="Private Key"
+            multiline
+            rows="3"
+            placeholder="Type a Private Key"
+            formikProps={formikProps}
           />
         </Content>
       </Dialog>
@@ -108,7 +130,20 @@ export const AddPinetDialog = forwardRef<AddPinetDialogRef, AddPinetDialog>(
 )
 
 const Content = styled.div`
+  width: 100%;
   margin-bottom: ${theme.spacing(8)};
+  > *:not(:last-child) {
+    margin-bottom: ${theme.spacing(6)};
+  }
+`
+
+const TextArea = styled(TextInputField)`
+  textarea:first-child {
+    white-space: pre;
+    overflow-y: auto;
+    padding: ${theme.spacing(2)};
+    scrollbar-width: thin;
+  }
 `
 
 AddPinetDialog.displayName = 'AddPinetDialog'
