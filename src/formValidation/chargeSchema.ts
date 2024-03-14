@@ -1,7 +1,8 @@
 import { array, number, object, string } from 'yup'
 
+import { LocalChargeFilterInput } from '~/components/plans/types'
 import { MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR } from '~/core/constants/form'
-import { ChargeModelEnum, Properties } from '~/generated/graphql'
+import { BillableMetric, ChargeModelEnum, Properties } from '~/generated/graphql'
 
 const standardShape = {
   amount: number().typeError('text_624ea7c29103fd010732ab7d').required(''),
@@ -169,6 +170,102 @@ export const chargeSchema = array().of(
             is: (values: Properties) => !!values,
             then: (schema) => schema.shape(volumeShape),
           }),
+      })
+      .when(['filters'], {
+        is: (filter: LocalChargeFilterInput[]) => !filter?.length,
+        then: (schema) => schema.required(),
+        otherwise: (schema) => schema.optional(),
+      }),
+    filters: array()
+      .when(['chargeModel', 'billableMetric'], {
+        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
+          !!chargeModel &&
+          chargeModel === ChargeModelEnum.Standard &&
+          !!billableMetric &&
+          !!billableMetric.filters?.length,
+        then: (schema) =>
+          schema.of(
+            object().shape({
+              invoiceDisplayName: string().nullable(),
+              properties: object().shape(standardShape),
+              values: array().min(1).required(''),
+            }),
+          ),
+      })
+      .when(['chargeModel', 'billableMetric'], {
+        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
+          !!chargeModel &&
+          chargeModel === ChargeModelEnum.Package &&
+          !!billableMetric &&
+          !!billableMetric.filters?.length,
+        then: (schema) =>
+          schema.of(
+            object().shape({
+              invoiceDisplayName: string().nullable(),
+              properties: object().shape(packageShape),
+              values: array().min(1).required(''),
+            }),
+          ),
+      })
+      .when(['chargeModel', 'billableMetric'], {
+        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
+          !!chargeModel &&
+          chargeModel === ChargeModelEnum.Percentage &&
+          !!billableMetric &&
+          !!billableMetric.filters?.length,
+        then: (schema) =>
+          schema.of(
+            object().shape({
+              invoiceDisplayName: string().nullable(),
+              properties: object().shape(percentageShape),
+              values: array().min(1).required(''),
+            }),
+          ),
+      })
+      .when(['chargeModel', 'billableMetric'], {
+        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
+          !!chargeModel &&
+          chargeModel === ChargeModelEnum.Graduated &&
+          !!billableMetric &&
+          !!billableMetric.filters?.length,
+        then: (schema) =>
+          schema.of(
+            object().shape({
+              invoiceDisplayName: string().nullable(),
+              properties: object().shape(graduatedShape),
+              values: array().min(1).required(''),
+            }),
+          ),
+      })
+      .when(['chargeModel', 'billableMetric'], {
+        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
+          !!chargeModel &&
+          chargeModel === ChargeModelEnum.GraduatedPercentage &&
+          !!billableMetric &&
+          !!billableMetric.filters?.length,
+        then: (schema) =>
+          schema.of(
+            object().shape({
+              invoiceDisplayName: string().nullable(),
+              properties: object().shape(graduatedPercentageShape),
+              values: array().min(1).required(''),
+            }),
+          ),
+      })
+      .when(['chargeModel', 'billableMetric'], {
+        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
+          !!chargeModel &&
+          chargeModel === ChargeModelEnum.Volume &&
+          !!billableMetric &&
+          !!billableMetric.filters?.length,
+        then: (schema) =>
+          schema.of(
+            object().shape({
+              invoiceDisplayName: string().nullable(),
+              properties: object().shape(volumeShape),
+              values: array().min(1).required(''),
+            }),
+          ),
       }),
   }),
 )

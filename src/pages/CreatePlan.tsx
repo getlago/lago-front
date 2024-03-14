@@ -47,12 +47,17 @@ gql`
     rate
   }
 
-  fragment billableMetricForPlan on BillableMetric {
+  fragment BillableMetricForPlan on BillableMetric {
     id
     name
     code
     aggregationType
     recurring
+    filters {
+      id
+      key
+      values
+    }
   }
 
   fragment EditPlan on Plan {
@@ -90,7 +95,7 @@ gql`
       billableMetric {
         id
         code
-        ...billableMetricForPlan
+        ...BillableMetricForPlan
       }
       ...ChargeAccordion
       chargeModel

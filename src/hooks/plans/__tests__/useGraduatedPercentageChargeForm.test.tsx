@@ -2,6 +2,7 @@ import { act, renderHook } from '@testing-library/react'
 import { useFormik } from 'formik'
 
 import { PlanFormInput } from '~/components/plans/types'
+import { transformFilterObjectToString } from '~/components/plans/utils'
 import {
   AggregationTypeEnum,
   ChargeModelEnum,
@@ -17,17 +18,19 @@ import {
 
 type PrepareType = {
   chargeIndex?: number
+  filterIndex?: number
   disabled?: boolean
   graduatedRanges?: GraduatedRangeInput[]
-  propertyType?: 'properties' | 'TODO: filter'
 }
 
 const prepare = async ({
   chargeIndex = 0,
+  filterIndex,
   disabled = false,
   graduatedRanges = [],
-  propertyType = 'properties',
 }: PrepareType) => {
+  const propertyType = typeof filterIndex === 'number' ? 'filters' : 'properties'
+
   const { result } = renderHook(() => {
     const formikProps = useFormik<PlanFormInput>({
       initialValues: {
@@ -46,24 +49,37 @@ const prepare = async ({
               aggregationType: AggregationTypeEnum.CountAgg,
               recurring: false,
               code: 'graduated',
+              filters:
+                propertyType === 'filters'
+                  ? [{ key: 'key', values: ['value1'], id: '1' }]
+                  : undefined,
             },
             properties: propertyType === 'properties' ? { graduatedRanges } : undefined,
+            filters:
+              propertyType === 'filters'
+                ? [
+                    {
+                      invoiceDisplayName: undefined,
+                      values: [
+                        transformFilterObjectToString('parent_key'),
+                        transformFilterObjectToString('key', 'value'),
+                      ],
+                      properties: { graduatedRanges },
+                    },
+                  ]
+                : undefined,
           },
         ],
       },
       onSubmit: () => {},
     })
-    // TODO: those 2 values need to be updated considering filters
-    // const propertyCursor = localCharge?.billableMetric?.flatGroups?.length
-    //   ? `groupProperties.${groupPropertyIndex}.values`
-    //   : 'properties'
-    // const valuePointer =
-    //   localCharge?.billableMetric?.flatGroups?.length && localCharge?.groupProperties
-    //     ? localCharge?.groupProperties[groupPropertyIndex].values
-    //     : localCharge?.properties
     const localCharge = formikProps.values.charges[chargeIndex]
-    const propertyCursor = 'properties'
-    const valuePointer = localCharge?.properties
+    const propertyCursor =
+      propertyType === 'filters' ? `filters.${filterIndex}.properties` : 'properties'
+    const valuePointer =
+      propertyType === 'filters'
+        ? localCharge?.filters?.[filterIndex || 0].properties
+        : localCharge?.properties
 
     return useGraduatedPercentageChargeForm({
       formikProps,
@@ -123,7 +139,7 @@ describe('useGraduatedRange()', () => {
             fromValue: '2',
             toValue: '3',
             flatAmount: undefined,
-            rate: '',
+            rate: undefined,
             disabledDelete: false,
           },
           {
@@ -306,28 +322,28 @@ describe('useGraduatedRange()', () => {
         ])
       })
 
-      // it('should delete last row and add new one correctly from default state', async () => {
-      //   const { result } = await prepare({})
+      it('should delete last row and add new one correctly from default state', async () => {
+        const { result } = await prepare({})
 
-      //   await act(async () => await result.current.deleteRange(1))
-      //   expect(result.current.tableDatas).toStrictEqual([
-      //     { ...DEFAULT_GRADUATED_PERCENTAGE_CHARGES[0], toValue: null, disabledDelete: true },
-      //   ])
+        await act(async () => await result.current.deleteRange(1))
+        expect(result.current.tableDatas).toStrictEqual([
+          { ...DEFAULT_GRADUATED_PERCENTAGE_CHARGES[0], toValue: null, disabledDelete: true },
+        ])
 
-      //   await act(async () => await result.current.addRange())
+        await act(async () => await result.current.addRange())
 
-      //   expect(result.current.tableDatas).toStrictEqual([
-      //     { ...DEFAULT_GRADUATED_PERCENTAGE_CHARGES[0], disabledDelete: true },
-      //     { ...DEFAULT_GRADUATED_PERCENTAGE_CHARGES[1], disabledDelete: false },
-      //   ])
-      // })
+        expect(result.current.tableDatas).toStrictEqual([
+          { ...DEFAULT_GRADUATED_PERCENTAGE_CHARGES[0], disabledDelete: true },
+          { ...DEFAULT_GRADUATED_PERCENTAGE_CHARGES[1], disabledDelete: false },
+        ])
+      })
     })
   })
 
-  describe('with groupProperties', () => {
+  describe('with filters', () => {
     describe('tableDatas', () => {
       it('returns default datas if no charges defined', async () => {
-        const { result } = await prepare({})
+        const { result } = await prepare({ filterIndex: 0 })
 
         expect(result.current.tableDatas).toStrictEqual([
           { ...DEFAULT_GRADUATED_PERCENTAGE_CHARGES[0], disabledDelete: true },
@@ -349,7 +365,7 @@ describe('useGraduatedRange()', () => {
       })
 
       it('should add empty line with good calculation', async () => {
-        const { result } = await prepare({})
+        const { result } = await prepare({ filterIndex: 0 })
 
         await act(async () => await result.current.addRange())
 
@@ -365,7 +381,7 @@ describe('useGraduatedRange()', () => {
             fromValue: '2',
             toValue: '3',
             flatAmount: undefined,
-            rate: '',
+            rate: undefined,
             disabledDelete: false,
           },
           {
@@ -396,7 +412,7 @@ describe('useGraduatedRange()', () => {
       })
 
       it('should handle update of row data and calculation', async () => {
-        const { result } = await prepare({})
+        const { result } = await prepare({ filterIndex: 0 })
 
         await act(async () => await result.current.handleUpdate(0, 'flatAmount', '4'))
 
@@ -468,7 +484,7 @@ describe('useGraduatedRange()', () => {
       })
 
       it('should handle update of "toValue" correctly', async () => {
-        const { result } = await prepare({})
+        const { result } = await prepare({ filterIndex: 0 })
 
         await act(async () => await result.current.handleUpdate(0, 'toValue', 4))
 
@@ -523,7 +539,7 @@ describe('useGraduatedRange()', () => {
       })
 
       it('should delete correcly a range', async () => {
-        const { result } = await prepare({})
+        const { result } = await prepare({ filterIndex: 0 })
 
         await act(async () => await result.current.addRange())
         expect(result.current.tableDatas.length).toBe(3)

@@ -2,6 +2,7 @@ import { act, renderHook } from '@testing-library/react'
 import { useFormik } from 'formik'
 
 import { PlanFormInput } from '~/components/plans/types'
+import { transformFilterObjectToString } from '~/components/plans/utils'
 import {
   AggregationTypeEnum,
   ChargeModelEnum,
@@ -14,18 +15,19 @@ import { DEFAULT_VOLUME_CHARGES, useVolumeChargeForm } from '../useVolumeChargeF
 
 type PrepareType = {
   chargeIndex?: number
+  filterIndex?: number
   disabled?: boolean
-  groupPropertyIndex?: number
-  propertyType?: 'properties' | 'TODO: filters'
   volumeRanges?: VolumeRangeInput[]
 }
 
 const prepare = async ({
   chargeIndex = 0,
+  filterIndex,
   disabled = false,
-  propertyType = 'properties',
   volumeRanges = [],
 }: PrepareType) => {
+  const propertyType = typeof filterIndex === 'number' ? 'filters' : 'properties'
+
   const { result } = renderHook(() => {
     const formikProps = useFormik<PlanFormInput>({
       initialValues: {
@@ -44,24 +46,37 @@ const prepare = async ({
               name: 'volume',
               code: 'volume',
               recurring: false,
+              filters:
+                propertyType === 'filters'
+                  ? [{ key: 'key', values: ['value1'], id: '1' }]
+                  : undefined,
             },
             properties: propertyType === 'properties' ? { volumeRanges } : undefined,
+            filters:
+              propertyType === 'filters'
+                ? [
+                    {
+                      invoiceDisplayName: undefined,
+                      values: [
+                        transformFilterObjectToString('parent_key'),
+                        transformFilterObjectToString('key', 'value'),
+                      ],
+                      properties: { volumeRanges },
+                    },
+                  ]
+                : undefined,
           },
         ],
       },
       onSubmit: () => {},
     })
     const localCharge = formikProps.values.charges[chargeIndex]
-    // TODO: those 2 values need to be updated considering filters
-    // const propertyCursor = localCharge?.billableMetric?.flatGroups?.length
-    //   ? `groupProperties.${groupPropertyIndex}.values`
-    //   : 'properties'
-    // const valuePointer =
-    //   localCharge?.billableMetric?.flatGroups?.length && localCharge?.groupProperties
-    //     ? localCharge?.groupProperties[groupPropertyIndex].values
-    //     : localCharge?.properties
-    const propertyCursor = 'properties'
-    const valuePointer = localCharge?.properties
+    const propertyCursor =
+      propertyType === 'filters' ? `filters.${filterIndex}.properties` : 'properties'
+    const valuePointer =
+      propertyType === 'filters'
+        ? localCharge?.filters?.[filterIndex || 0].properties
+        : localCharge?.properties
 
     return useVolumeChargeForm({
       formikProps,
@@ -83,7 +98,7 @@ describe('useVolumeChargeForm()', () => {
   describe('with properties', () => {
     describe('tableDatas', () => {
       it('returns default datas if no charges defined', async () => {
-        const { result } = await prepare({ volumeRanges: [], propertyType: 'properties' })
+        const { result } = await prepare({ volumeRanges: [] })
 
         expect(result.current.tableDatas).toStrictEqual([
           { ...DEFAULT_VOLUME_CHARGES[0], disabledDelete: true },
@@ -113,7 +128,6 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'properties',
           volumeRanges,
         })
 
@@ -147,7 +161,6 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'properties',
           volumeRanges,
           disabled: true,
         })
@@ -183,7 +196,6 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'properties',
           volumeRanges,
         })
 
@@ -219,7 +231,6 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'properties',
           volumeRanges,
         })
 
@@ -277,7 +288,6 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'properties',
           volumeRanges,
         })
 
@@ -336,7 +346,6 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'properties',
           volumeRanges,
         })
 
@@ -358,7 +367,7 @@ describe('useVolumeChargeForm()', () => {
       it('returns default datas if no charges defined', async () => {
         const { result } = await prepare({
           volumeRanges: [],
-          propertyType: 'TODO: filters',
+          filterIndex: 0,
         })
 
         expect(result.current.tableDatas).toStrictEqual([
@@ -389,7 +398,7 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'TODO: filters',
+          filterIndex: 0,
           volumeRanges,
         })
 
@@ -423,7 +432,7 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'TODO: filters',
+          filterIndex: 0,
           volumeRanges,
           disabled: true,
         })
@@ -459,7 +468,7 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'TODO: filters',
+          filterIndex: 0,
           volumeRanges,
         })
 
@@ -495,7 +504,7 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'TODO: filters',
+          filterIndex: 0,
           volumeRanges,
         })
 
@@ -553,7 +562,7 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'TODO: filters',
+          filterIndex: 0,
           volumeRanges,
         })
 
@@ -612,7 +621,7 @@ describe('useVolumeChargeForm()', () => {
           },
         ]
         const { result } = await prepare({
-          propertyType: 'TODO: filters',
+          filterIndex: 0,
           volumeRanges,
         })
 

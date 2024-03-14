@@ -5,6 +5,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { number, object, string } from 'yup'
 
 import { LocalChargeInput, PlanFormInput } from '~/components/plans/types'
+import { transformFilterObjectToString } from '~/components/plans/utils'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   PLAN_FORM_TYPE,
@@ -157,6 +158,7 @@ export const usePlanForm: ({
               minAmountCents,
               payInAdvance,
               invoiceDisplayName,
+              filters,
               ...charge
             }) => ({
               // Used to not enable submit button on invoiceDisplayName reset
@@ -169,6 +171,24 @@ export const usePlanForm: ({
                   ),
               payInAdvance: payInAdvance || false,
               properties: properties ? getPropertyShape(properties) : undefined,
+              filters: (filters || []).map((filter) => {
+                const values = Object.entries(filter.values || {}).reduce<string[]>(
+                  (acc, [key, objectValues]) => {
+                    ;(objectValues as string[]).map((v) => {
+                      acc.push(transformFilterObjectToString(key, v))
+                    })
+
+                    return acc
+                  },
+                  [],
+                )
+
+                return {
+                  ...filter,
+                  properties: getPropertyShape(filter.properties),
+                  values,
+                }
+              }),
               ...charge,
             }),
           ) as LocalChargeInput[])

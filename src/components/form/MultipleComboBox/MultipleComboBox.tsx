@@ -105,10 +105,10 @@ export const MultipleComboBox = ({
             return val
           }) as (BasicMultipleComboBoxData | MultipleComboBoxDataGrouped)[]
 
-          const lastElementValue = formatedValues[formatedValues.length - 1].value
-
           // If more than one value, remove last element if value already exists
           if (formatedValues.length > 1) {
+            const lastElementValue = formatedValues[formatedValues.length - 1].value
+
             for (let i = 0; i < formatedValues.length - 1; i++) {
               const currentValue = formatedValues[i].value
               const isNotLastElement = i !== formatedValues.length - 1

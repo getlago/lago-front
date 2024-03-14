@@ -28,10 +28,7 @@ const PlanDetailsChargesSectionAccordion = ({
       <PaddedChargesWrapper>
         {/* Default properties */}
         <ConditionalWrapper
-          condition={
-            true
-            // TODO: missing condition on filters presence
-          }
+          condition={!!charge?.billableMetric?.filters?.length}
           invalidWrapper={(children) => <div>{children}</div>}
           validWrapper={(children) => (
             <Accordion
@@ -52,7 +49,38 @@ const PlanDetailsChargesSectionAccordion = ({
           />
         </ConditionalWrapper>
 
-        {/* TODO: filter details */}
+        {/* filter details */}
+        {!!charge?.filters?.length &&
+          charge?.filters?.map((filter, i) => {
+            const accordionMappedDisplayValues: string = Object.entries(filter.values)
+              .map((value) => {
+                const [k, v] = value as [string, string[]]
+
+                if (v.includes('__ALL_FILTER_VALUES__')) {
+                  return `${k}`
+                }
+
+                return v.join(' • ')
+              })
+              .join(' • ')
+
+            return (
+              <Accordion
+                key={`plan-details-charges-section-accordion-${i}`}
+                summary={
+                  <Typography variant="bodyHl" color="grey700">
+                    {filter.invoiceDisplayName || accordionMappedDisplayValues}
+                  </Typography>
+                }
+              >
+                <PlanDetailsChargeWrapperSwitch
+                  currency={currency}
+                  chargeModel={charge.chargeModel}
+                  values={filter.properties}
+                />
+              </Accordion>
+            )
+          })}
       </PaddedChargesWrapper>
     </Container>
   )

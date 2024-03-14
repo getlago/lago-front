@@ -19,6 +19,7 @@ type AccordionSize = keyof typeof AccordionSizeEnum
 
 interface AccordionProps {
   id?: string
+  className?: string
   summary: ReactNode
   children: ReactNode | ((args: { isOpen: boolean }) => ReactNode)
   initiallyOpen?: boolean
@@ -29,6 +30,7 @@ interface AccordionProps {
 
 export const Accordion = ({
   id,
+  className,
   summary,
   children,
   initiallyOpen = false,
@@ -43,6 +45,7 @@ export const Accordion = ({
   return (
     <StyledAccordion
       square
+      className={className}
       id={id}
       expanded={isOpen}
       onChange={(_, expanded) => setIsOpen(expanded)}

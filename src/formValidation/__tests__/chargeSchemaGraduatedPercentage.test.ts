@@ -1,3 +1,4 @@
+import { transformFilterObjectToString } from '~/components/plans/utils'
 import { ChargeModelEnum } from '~/generated/graphql'
 
 import { chargeSchema } from '../chargeSchema'
@@ -159,18 +160,23 @@ describe('chargeSchema GraduatedPercentage', () => {
     })
   })
 
-  describe('groupProperties', () => {
+  describe('filters', () => {
     describe('invalid', () => {
       it('has undefined graduatedPercentageRange', () => {
         const values = [
           {
             chargeModel: ChargeModelEnum.GraduatedPercentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   graduatedPercentageRange: undefined,
                 },
               },
@@ -186,11 +192,16 @@ describe('chargeSchema GraduatedPercentage', () => {
           {
             chargeModel: ChargeModelEnum.GraduatedPercentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   graduatedPercentageRange: [],
                 },
               },
@@ -206,11 +217,16 @@ describe('chargeSchema GraduatedPercentage', () => {
           {
             chargeModel: ChargeModelEnum.GraduatedPercentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   graduatedPercentageRange: [
                     {
                       fromValue: '0',
@@ -233,11 +249,16 @@ describe('chargeSchema GraduatedPercentage', () => {
           {
             chargeModel: ChargeModelEnum.GraduatedPercentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   graduatedPercentageRange: [
                     {
                       fromValue: '0',
@@ -260,11 +281,16 @@ describe('chargeSchema GraduatedPercentage', () => {
           {
             chargeModel: ChargeModelEnum.GraduatedPercentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   graduatedPercentageRange: [
                     {
                       fromValue: '0',
@@ -287,11 +313,16 @@ describe('chargeSchema GraduatedPercentage', () => {
           {
             chargeModel: ChargeModelEnum.GraduatedPercentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   graduatedPercentageRange: [
                     {
                       fromValue: '100',
@@ -314,11 +345,16 @@ describe('chargeSchema GraduatedPercentage', () => {
           {
             chargeModel: ChargeModelEnum.GraduatedPercentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   graduatedPercentageRange: [
                     {
                       fromValue: '100',
@@ -342,11 +378,16 @@ describe('chargeSchema GraduatedPercentage', () => {
           {
             chargeModel: ChargeModelEnum.GraduatedPercentage,
             billableMetric: {
-              flatGroups: [{}],
+              filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            groupProperties: [
+            filters: [
               {
-                values: {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
                   graduatedPercentageRange: [
                     {
                       fromValue: '1',

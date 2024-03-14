@@ -42,7 +42,7 @@ interface BasicMultipleComboBoxProps
     offset?: string
   }
   renderGroupHeader?: never
-  onChange: (value: (string | BasicMultipleComboBoxData | MultipleComboBoxDataGrouped)[]) => void
+  onChange: (value: (BasicMultipleComboBoxData | MultipleComboBoxDataGrouped)[]) => void
 }
 
 interface GroupedMultipleComboBoxProps
