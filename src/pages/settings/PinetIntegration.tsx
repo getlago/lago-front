@@ -34,8 +34,8 @@ import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener, theme } from '~/style
 gql`
   fragment PinetIntegration on PinetProvider {
     id
-    secretKey
-    createCustomers
+    keyId
+    privateKey
     successRedirectUrl
   }
 
@@ -175,7 +175,7 @@ const PinetIntegration = () => {
                       {'Key ID'}
                     </Typography>
 
-                  <ApiKey color="textSecondary">{pinetPaymentProvider?.secretKey}</ApiKey>
+                  <ApiKey color="textSecondary">{pinetPaymentProvider?.keyId}</ApiKey>
                   </div>
                 </ApiKeyItem>
                 <ApiKeyItem>
@@ -187,7 +187,7 @@ const PinetIntegration = () => {
                       Private Key
                     </Typography>
                     <Typography variant="body" color="grey700">
-                      {pinetPaymentProvider?.secretKey}
+                      {pinetPaymentProvider?.privateKey}
                     </Typography>
                   </div>
                 </ApiKeyItem>
