@@ -175,7 +175,7 @@ const PinetIntegration = () => {
                       {'Key ID'}
                     </Typography>
 
-                  <ApiKey color="textSecondary">{pinetPaymentProvider?.keyId}</ApiKey>
+                    <ApiKey color="textSecondary">{pinetPaymentProvider?.keyId}</ApiKey>
                   </div>
                 </ApiKeyItem>
                 <ApiKeyItem>
