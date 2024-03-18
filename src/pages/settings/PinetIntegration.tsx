@@ -374,15 +374,6 @@ const ApiKey = styled(Typography)`
   margin-right: auto;
 `
 
-// const Title = styled.div`
-//   position: relative;
-//   height: ${NAV_HEIGHT}px;
-//   width: 100%;
-//   display: flex;
-//   align-items: center;
-//   justify-content: space-between;
-// `
-
 const LocalPopper = styled(Popper)`
   position: relative;
   height: 100%;
