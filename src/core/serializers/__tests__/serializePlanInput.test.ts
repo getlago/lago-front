@@ -70,7 +70,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        chargeGroups: []
+        chargeGroups: [],
       })
 
       expect(plan).toStrictEqual({
@@ -115,7 +115,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        chargeGroups: []
+        chargeGroups: [],
       })
 
       expect(plan).toStrictEqual({
@@ -193,7 +193,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        chargeGroups: []
+        chargeGroups: [],
       })
 
       expect(plan).toStrictEqual({
@@ -271,7 +271,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        chargeGroups: []
+        chargeGroups: [],
       })
 
       expect(plan).toStrictEqual({
@@ -337,7 +337,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        chargeGroups: []
+        chargeGroups: [],
       })
 
       expect(plan).toStrictEqual({
@@ -403,7 +403,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        chargeGroups: []
+        chargeGroups: [],
       })
 
       expect(plan).toStrictEqual({
@@ -469,7 +469,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        chargeGroups: []
+        chargeGroups: [],
       })
 
       expect(plan).toStrictEqual({

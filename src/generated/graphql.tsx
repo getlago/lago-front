@@ -84,6 +84,8 @@ export type AddPinetPaymentProviderInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   createCustomers?: InputMaybe<Scalars['Boolean']['input']>;
+  keyId: Scalars['String']['input'];
+  privateKey: Scalars['String']['input'];
   secretKey?: InputMaybe<Scalars['String']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
 };
@@ -2719,7 +2721,8 @@ export type PinetProvider = {
   __typename?: 'PinetProvider';
   createCustomers: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
-  secretKey: Scalars['String']['output'];
+  keyId: Scalars['String']['output'];
+  privateKey: Scalars['String']['output'];
   successRedirectUrl?: Maybe<Scalars['String']['output']>;
 };
 
@@ -3848,7 +3851,6 @@ export type UpdatePlanInput = {
   amountCents: Scalars['BigInt']['input'];
   amountCurrency: CurrencyEnum;
   billChargesMonthly?: InputMaybe<Scalars['Boolean']['input']>;
-  chargeGroups?: InputMaybe<Array<ChargeGroupInput>>;
   charges: Array<ChargeInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
@@ -4805,7 +4807,7 @@ export type AddPinetApiKeyMutationVariables = Exact<{
 }>;
 
 
-export type AddPinetApiKeyMutation = { __typename?: 'Mutation', addPinetPaymentProvider?: { __typename?: 'PinetProvider', id: string, secretKey: string, createCustomers: boolean, successRedirectUrl?: string | null } | null };
+export type AddPinetApiKeyMutation = { __typename?: 'Mutation', addPinetPaymentProvider?: { __typename?: 'PinetProvider', id: string, keyId: string, privateKey: string, successRedirectUrl?: string | null } | null };
 
 export type AddStripeApiKeyMutationVariables = Exact<{
   input: AddStripePaymentProviderInput;
@@ -5541,19 +5543,19 @@ export type GetOrganizationInformationsQueryVariables = Exact<{ [key: string]: n
 
 export type GetOrganizationInformationsQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, timezone?: TimezoneEnum | null } | null };
 
-export type PinetIntegrationFragment = { __typename?: 'PinetProvider', id: string, secretKey: string, createCustomers: boolean, successRedirectUrl?: string | null };
+export type PinetIntegrationFragment = { __typename?: 'PinetProvider', id: string, keyId: string, privateKey: string, successRedirectUrl?: string | null };
 
 export type PinetIntegrationsSettingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PinetIntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, pinetPaymentProvider?: { __typename?: 'PinetProvider', id: string, secretKey: string, createCustomers: boolean, successRedirectUrl?: string | null } | null } | null };
+export type PinetIntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, pinetPaymentProvider?: { __typename?: 'PinetProvider', id: string, keyId: string, privateKey: string, successRedirectUrl?: string | null } | null } | null };
 
 export type UpdatePinetIntegrationMutationVariables = Exact<{
   input: AddPinetPaymentProviderInput;
 }>;
 
 
-export type UpdatePinetIntegrationMutation = { __typename?: 'Mutation', addPinetPaymentProvider?: { __typename?: 'PinetProvider', id: string, secretKey: string, createCustomers: boolean, successRedirectUrl?: string | null } | null };
+export type UpdatePinetIntegrationMutation = { __typename?: 'Mutation', addPinetPaymentProvider?: { __typename?: 'PinetProvider', id: string, keyId: string, privateKey: string, successRedirectUrl?: string | null } | null };
 
 export type StripeIntegrationFragment = { __typename?: 'StripeProvider', id: string, secretKey: string, createCustomers: boolean, successRedirectUrl?: string | null };
 
@@ -7452,8 +7454,8 @@ export const OrganizationInformationsFragmentDoc = gql`
 export const PinetIntegrationFragmentDoc = gql`
     fragment PinetIntegration on PinetProvider {
   id
-  secretKey
-  createCustomers
+  keyId
+  privateKey
   successRedirectUrl
 }
     `;

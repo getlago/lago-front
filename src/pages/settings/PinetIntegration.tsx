@@ -34,8 +34,8 @@ import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener, theme } from '~/style
 gql`
   fragment PinetIntegration on PinetProvider {
     id
-    secretKey
-    createCustomers
+    keyId
+    privateKey
     successRedirectUrl
   }
 
@@ -108,63 +108,101 @@ const PinetIntegration = () => {
 
       <ContentWrapper>
         <section>
-          <Title variant="subhead">{translate('text_62b1edddbf5f461ab971273f')}</Title>
-          <ApiKeyItem>
+          <Title>
+            <Typography variant="subhead">{translate('text_645d071272418a14c1c76a9a')}</Typography>
+            <LocalPopper
+              PopperProps={{ placement: 'bottom-end' }}
+              opener={({ isOpen }) => (
+                <PopperOpener>
+                  <Tooltip
+                    placement="top-end"
+                    disableHoverListener={isOpen}
+                    title={translate('text_629728388c4d2300e2d3810d')}
+                  >
+                    <Button icon="dots-horizontal" variant="quaternary" />
+                  </Tooltip>
+                </PopperOpener>
+              )}
+            >
+              {({ closePopper }) => (
+                <MenuPopper>
+                  <Button
+                    startIcon="pen"
+                    variant="quaternary"
+                    fullWidth
+                    align="left"
+                    onClick={() => {
+                      addDialogRef.current?.openDialog()
+                    }}
+                  >
+                    {translate('text_62b1edddbf5f461ab9712787')}
+                  </Button>
+                  <Button
+                    startIcon="trash"
+                    variant="quaternary"
+                    align="left"
+                    fullWidth
+                    onClick={() => {
+                      deleteDialogRef.current?.openDialog()
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_62b1edddbf5f461ab971279f')}
+                  </Button>
+                </MenuPopper>
+              )}
+            </LocalPopper>
+          </Title>
+          {/* <Title variant="subhead">{translate('text_62b1edddbf5f461ab971273f')}</Title> */}
+          <>
             {loading ? (
               <>
-                <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-                <Skeleton variant="text" width={240} height={12} />
+                {[1, 2].map((i) => (
+                  <ApiKeyItem key={`item-skeleton-item-${i}`}>
+                    <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
+                    <Skeleton variant="text" width={240} height={12} />
+                  </ApiKeyItem>
+                ))}
               </>
             ) : (
               <>
-                <Avatar variant="connector" size="big">
-                  <Icon color="dark" name="key" />
-                </Avatar>
-                <ApiKey color="textSecondary">{pinetPaymentProvider?.secretKey}</ApiKey>
-                <Popper
-                  PopperProps={{ placement: 'bottom-end' }}
-                  opener={<Button icon="dots-horizontal" variant="quaternary" />}
-                >
-                  {({ closePopper }) => (
-                    <MenuPopper>
-                      <Button
-                        startIcon="pen"
-                        variant="quaternary"
-                        fullWidth
-                        align="left"
-                        onClick={() => {
-                          addDialogRef.current?.openDialog()
-                        }}
-                      >
-                        {translate('text_62b1edddbf5f461ab9712787')}
-                      </Button>
-                      <Button
-                        startIcon="trash"
-                        variant="quaternary"
-                        align="left"
-                        fullWidth
-                        onClick={() => {
-                          deleteDialogRef.current?.openDialog()
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_62b1edddbf5f461ab971279f')}
-                      </Button>
-                    </MenuPopper>
-                  )}
-                </Popper>
+                <ApiKeyItem>
+                  <Avatar variant="connector" size="big">
+                    <Icon color="dark" name="key" />
+                  </Avatar>
+                  <div>
+                    <Typography variant="caption" color="grey600">
+                      {'Key ID'}
+                    </Typography>
+
+                    <ApiKey color="textSecondary">{pinetPaymentProvider?.keyId}</ApiKey>
+                  </div>
+                </ApiKeyItem>
+                <ApiKeyItem>
+                  <Avatar variant="connector" size="big">
+                    <Icon name="bank" color="dark" />
+                  </Avatar>
+                  <div>
+                    <Typography variant="caption" color="grey600">
+                      Private Key
+                    </Typography>
+                    <Typography variant="body" color="grey700">
+                      {pinetPaymentProvider?.privateKey}
+                    </Typography>
+                  </div>
+                </ApiKeyItem>
               </>
             )}
-          </ApiKeyItem>
+          </>
           <Typography variant="caption" color="grey600">
             {
-              'This API secret key is used to connect PINET to Lago, edit it to make a new connection'
+              'This API certificate is used to connect PINET to Lago, edit it to make a new connection'
             }
           </Typography>
         </section>
 
         <section>
-          <InlineTitle>
+          <Title>
             <Typography variant="subhead">{translate('text_65367cb78324b77fcb6af21c')}</Typography>
             <Button
               variant="quaternary"
@@ -179,7 +217,7 @@ const PinetIntegration = () => {
             >
               {translate('text_65367cb78324b77fcb6af20e')}
             </Button>
-          </InlineTitle>
+          </Title>
 
           {loading ? (
             <ApiKeyItem>
@@ -303,6 +341,7 @@ const Title = styled(Typography)`
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 `
 
 const ApiKeyItem = styled.div`
@@ -333,15 +372,6 @@ const Line = styled.div`
 
 const ApiKey = styled(Typography)`
   margin-right: auto;
-`
-
-const InlineTitle = styled.div`
-  position: relative;
-  height: ${NAV_HEIGHT}px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 `
 
 const LocalPopper = styled(Popper)`
