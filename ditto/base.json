@@ -1494,7 +1494,6 @@
   "text_65d601bffb11e0f9d1d9f565": "Add a min. commitment",
   "text_65d601bffb11e0f9d1d9f567": "Commitments",
   "text_65d601bffb11e0f9d1d9f569": "Minimum commitments",
-  "text_65d601bffb11e0f9d1d9f56b": "A fee will be issued if the total invoiced fees for a {{interval}} fall below the minimum commitment, in order to meet the required minimum.",
   "text_65d601bffb11e0f9d1d9f571": "Spending minimum",
   "text_65d620fda73c6f007f6f238b": "A fee will be issued if the total invoiced fees for a week falls below the minimum commitment, in order to meet the required minimum.",
   "text_65d620fda73c6f007f6f238c": "A fee will be issued if the total invoiced fees for a month falls below the minimum commitment, in order to meet the required minimum.",

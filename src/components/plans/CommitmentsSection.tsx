@@ -20,6 +20,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { NAV_HEIGHT, theme } from '~/styles'
 
 import { mapChargeIntervalCopy } from './ChargeAccordion'
+import { intervalDescriptionLookupTranslation } from './details/PlanDetailsCommitmentsSection'
 import { PlanFormInput } from './types'
 
 import { AmountInputField, ComboBox } from '../form'
@@ -148,7 +149,7 @@ export const CommitmentsSection = ({
               {translate('text_65d601bffb11e0f9d1d9f569')}
             </Typography>
             <Typography variant="caption" color="grey600">
-              {translate('text_65d601bffb11e0f9d1d9f56b')}
+              {translate(intervalDescriptionLookupTranslation[formikProps.values.interval])}
             </Typography>
           </div>
 
