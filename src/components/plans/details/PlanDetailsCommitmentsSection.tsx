@@ -11,7 +11,7 @@ import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
 
 import PlanDetailsChargeTableDisplay from './PlanDetailsChargeTableDisplay'
 
-const intervalDescriptionLookupTranslation = {
+export const intervalDescriptionLookupTranslation = {
   [PlanInterval.Monthly]: 'text_65d620fda73c6f007f6f238c',
   [PlanInterval.Quarterly]: 'text_65d620fda73c6f007f6f238d',
   [PlanInterval.Weekly]: 'text_65d620fda73c6f007f6f238b',
