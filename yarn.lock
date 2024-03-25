@@ -1219,10 +1219,10 @@
   resolved "https://registry.npmjs.org/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@dittowords/cli@4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@dittowords/cli/-/cli-4.0.0.tgz#daafc4704b246b67942b9ffbccad08435b558627"
-  integrity sha512-gTU45TE2Ma8SufzbDVx8DljQpaXCQDqu1dLNU5/mI9gyCLLT/h5TFN8qyOBRBaMkUuSJ5JUKqrc01WdAXBE68A==
+"@dittowords/cli@4.4.1":
+  version "4.4.1"
+  resolved "https://registry.yarnpkg.com/@dittowords/cli/-/cli-4.4.1.tgz#844dad98945b8df2a886aabb97aeba62df6e0812"
+  integrity sha512-iLepWk3l5mZG8bRufbcy1p2Y56qCZDkMBxfD0DCqVmEatv9Dl/OzMdMlvy4r3Fo1Pz+WMwqiZ6lLGBUsk4gOVg==
   dependencies:
     "@babel/core" "^7.11.4"
     "@babel/parser" "^7.21.4"
@@ -1230,17 +1230,16 @@
     "@babel/types" "^7.21.4"
     "@sentry/node" "^7.64.0"
     "@types/babel-traverse" "^6.25.7"
-    "@types/fs-extra" "^11.0.1"
-    axios "^0.27.2"
+    axios "^1.6.0"
     boxen "^5.1.2"
     chalk "^4.1.0"
     commander "^6.1.0"
     enquirer "^2.3.6"
     faker "^5.1.0"
     form-data "^4.0.0"
-    fs-extra "^11.1.1"
     glob "^9.3.4"
     js-yaml "^4.1.0"
+    memfs "^4.7.7"
     ora "^5.0.0"
     v8-compile-cache "^2.1.1"
 
@@ -2959,14 +2958,6 @@
   resolved "https://registry.npmjs.org/@types/extract-files/-/extract-files-8.1.1.tgz"
   integrity sha512-dMJJqBqyhsfJKuK7p7HyyNmki7qj1AlwhUKWx6KrU7i1K2T2SPsUsSUTWFmr/sEM1q8rfR8j5IyUmYrDbrhfjQ==
 
-"@types/fs-extra@^11.0.1":
-  version "11.0.1"
-  resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-11.0.1.tgz#f542ec47810532a8a252127e6e105f487e0a6ea5"
-  integrity sha512-MxObHvNl4A69ofaTRU8DFqvgzzv8s9yRtaPPm5gud9HDNvpB3GPQFvNuTWAI59B9huVGV5jXYJwbCsmBsOGYWA==
-  dependencies:
-    "@types/jsonfile" "*"
-    "@types/node" "*"
-
 "@types/glob@5 - 7":
   version "7.2.0"
   resolved "https://registry.npmjs.org/@types/glob/-/glob-7.2.0.tgz"
@@ -3067,13 +3058,6 @@
   version "0.0.29"
   resolved "https://registry.npmjs.org/@types/json5/-/json5-0.0.29.tgz"
   integrity sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==
-
-"@types/jsonfile@*":
-  version "6.1.1"
-  resolved "https://registry.yarnpkg.com/@types/jsonfile/-/jsonfile-6.1.1.tgz#ac84e9aefa74a2425a0fb3012bdea44f58970f1b"
-  integrity sha512-GSgiRCVeapDN+3pqA35IkQwasaCh/0YFH5dEF6S88iDvEn901DjOeH3/QPY+XYP1DFzDZPvIvfeEgk+7br5png==
-  dependencies:
-    "@types/node" "*"
 
 "@types/jsonwebtoken@^9.0.2":
   version "9.0.6"
@@ -4040,13 +4024,14 @@ axe-core@=4.7.0:
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.7.0.tgz#34ba5a48a8b564f67e103f0aa5768d76e15bbbbf"
   integrity sha512-M0JtH+hlOL5pLQwHOLNYZaXuhqmvS8oExsqB1SBYgA4Dk7u/xx+YdGHXaK5pyUfed5mYXdlYiphWq3G8cRi5JQ==
 
-axios@^0.27.2:
-  version "0.27.2"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.27.2.tgz#207658cc8621606e586c85db4b41a750e756d972"
-  integrity sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==
+axios@^1.6.0:
+  version "1.6.8"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.6.8.tgz#66d294951f5d988a00e87a0ffb955316a619ea66"
+  integrity sha512-v/ZHtJDU39mDpyBoFVkETcd/uNdxrWRrg3bKpOKzXFA6Bvqopts6ALSMU3y6ijYxbw2B+wPrIv46egTzJXCLGQ==
   dependencies:
-    follow-redirects "^1.14.9"
+    follow-redirects "^1.15.6"
     form-data "^4.0.0"
+    proxy-from-env "^1.1.0"
 
 axobject-query@^3.2.1:
   version "3.2.1"
@@ -6322,10 +6307,10 @@ flatted@^3.1.0:
   resolved "https://registry.npmjs.org/flatted/-/flatted-3.2.5.tgz"
   integrity sha512-WIWGi2L3DyTUvUrwRKgGi9TwxQMUEqPOPQBVi71R96jZXJdFskXEmf54BoZaS1kknGODoIGASGEzBUYdyMCBJg==
 
-follow-redirects@^1.0.0, follow-redirects@^1.14.9:
-  version "1.15.1"
-  resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.15.1.tgz"
-  integrity sha512-yLAMQs+k0b2m7cVxpS1VKJVvoz7SS9Td1zss3XRwXj+ZDH00RJgnuLx7E44wx02kQLrdM3aOOy+FpzS7+8OizA==
+follow-redirects@^1.0.0, follow-redirects@^1.15.6:
+  version "1.15.6"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.6.tgz#7f815c0cda4249c74ff09e95ef97c23b5fd0399b"
+  integrity sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==
 
 for-each@^0.3.3:
   version "0.3.3"
@@ -6411,15 +6396,6 @@ fs-extra@^10.0.0:
   version "10.1.0"
   resolved "https://registry.npmjs.org/fs-extra/-/fs-extra-10.1.0.tgz"
   integrity sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==
-  dependencies:
-    graceful-fs "^4.2.0"
-    jsonfile "^6.0.1"
-    universalify "^2.0.0"
-
-fs-extra@^11.1.1:
-  version "11.1.1"
-  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-11.1.1.tgz#da69f7c39f3b002378b0954bb6ae7efdc0876e2d"
-  integrity sha512-MGIE4HOvQCeUCzmlHs0vXpih4ysz4wg9qiSAu6cd42lVwPbTM1TjV7RusoyQqMmk/95gdQZX72u+YW+c3eEpFQ==
   dependencies:
     graceful-fs "^4.2.0"
     jsonfile "^6.0.1"
@@ -8399,7 +8375,7 @@ memfs@^3.4.1:
   dependencies:
     fs-monkey "^1.0.3"
 
-memfs@^4.6.0:
+memfs@^4.6.0, memfs@^4.7.7:
   version "4.8.0"
   resolved "https://registry.yarnpkg.com/memfs/-/memfs-4.8.0.tgz#0ea1ecb137219883c2e7c5139f4fa109935f7e39"
   integrity sha512-fcs7trFxZlOMadmTw5nyfOwS3il9pr3y+6xzLfXNwmuR/D0i4wz6rJURxArAbcJDGalbpbMvQ/IFI0NojRZgRg==
@@ -9231,6 +9207,11 @@ proxy-from-env@1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/proxy-from-env/-/proxy-from-env-1.0.0.tgz"
   integrity sha512-F2JHgJQ1iqwnHDcQjVBsq3n/uoaFL+iPW/eAeL7kVxy/2RrWaN4WroKjjvbsoRtv0ftelNyC01bjRhn/bhcf4A==
+
+proxy-from-env@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/proxy-from-env/-/proxy-from-env-1.1.0.tgz#e102f16ca355424865755d2c9e8ea4f24d58c3e2"
+  integrity sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==
 
 psl@^1.1.33:
   version "1.9.0"
