@@ -22,6 +22,11 @@ import {
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { addToast } from '~/core/apolloClient'
 import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
+import {
+  composeChargeFilterDisplayName,
+  composeGroupedByDisplayName,
+  composeMultipleValuesWithSepator,
+} from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   CUSTOMER_DETAILS_ROUTE,
@@ -93,7 +98,6 @@ gql`
           units
           feeType
           itemName
-          groupName
           groupedBy
           invoiceName
           appliedTaxes {
@@ -123,10 +127,9 @@ gql`
               invoiceDisplayName
             }
           }
-          group {
-            id
-            key
-            value
+          chargeFilter {
+            invoiceDisplayName
+            values
           }
         }
       }
@@ -541,79 +544,28 @@ const CreditNoteDetails = () => {
                       </thead>
                       <tbody>
                         {groupSubscriptionItem.map((charge, j) => {
-                          const groupDimension = charge[0].fee.group
-                            ? charge[0].fee.group.key
-                              ? 2
-                              : 1
-                            : 0
-
                           return charge.map((item, k) => {
-                            const isTrueUp = !!item?.fee?.trueUpParentFee?.id
-                            const groupingChain =
-                              Object.values(item?.fee?.groupedBy || {}).length > 0
-                                ? Object.values(item?.fee?.groupedBy)
-                                    .map((group) => (!!group ? ` • ${group}` : ''))
-                                    .join('')
-                                : ''
-
                             return (
                               <React.Fragment key={`groupSubscriptionItem-${i}-list-item-${k}`}>
                                 <tr key={`groupSubscriptionItem-${i}-charge-${j}-item-${k}`}>
                                   <td>
                                     <Typography variant="bodyHl" color="grey700">
-                                      {groupDimension === 0 || !!isTrueUp ? (
-                                        <>
-                                          {item?.fee?.feeType === FeeTypesEnum.AddOn
-                                            ? item.fee.invoiceName || item?.fee?.itemName
-                                            : item?.fee?.feeType === FeeTypesEnum.Commitment
-                                              ? item.fee.invoiceName ||
-                                                'Minimum commitment - True up'
-                                              : `${
-                                                  item.fee?.invoiceName ||
-                                                  item?.fee?.charge?.billableMetric.name ||
-                                                  invoiceDisplayName
-                                                }${groupingChain}${
-                                                  item?.fee?.trueUpParentFee?.id
-                                                    ? ` - ${translate(
-                                                        'text_64463aaa34904c00a23be4f7',
-                                                      )}`
-                                                    : ''
-                                                }`}
-                                        </>
-                                      ) : (
-                                        <>
-                                          <span>
-                                            {groupDimension === 2
-                                              ? `${
-                                                  item.fee.invoiceName ||
-                                                  item.fee.charge?.billableMetric?.name
-                                                }${groupingChain}${
-                                                  item.fee.groupName
-                                                    ? ` • ${item.fee.groupName}`
-                                                    : item.fee.group?.key
-                                                      ? `${` • ${item.fee.group?.key} • `}${
-                                                          item.fee.group.value
-                                                        }`
-                                                      : ''
-                                                }`
-                                              : `${
-                                                  item.fee.invoiceName ||
-                                                  item.fee.charge?.billableMetric?.name
-                                                }${groupingChain}${
-                                                  item.fee.groupName
-                                                    ? ` • ${item.fee.groupName}`
-                                                    : item.fee.group?.value
-                                                      ? ` • ${item.fee.group?.value}`
-                                                      : ''
-                                                }`}
-                                          </span>
-                                          <span>
-                                            {item?.fee?.trueUpParentFee?.id
-                                              ? ` - ${translate('text_64463aaa34904c00a23be4f7')}`
-                                              : ''}
-                                          </span>
-                                        </>
-                                      )}
+                                      {item?.fee?.feeType === FeeTypesEnum.AddOn
+                                        ? translate('text_6388baa2e514213fed583611', {
+                                            name: item.fee.invoiceName || item?.fee?.itemName,
+                                          })
+                                        : item?.fee?.feeType === FeeTypesEnum.Commitment
+                                          ? item.fee.invoiceName || 'Minimum commitment - True up'
+                                          : composeMultipleValuesWithSepator([
+                                              item.fee?.invoiceName ||
+                                                item?.fee?.charge?.billableMetric.name ||
+                                                invoiceDisplayName,
+                                              composeGroupedByDisplayName(item?.fee?.groupedBy),
+                                              composeChargeFilterDisplayName(item.fee.chargeFilter),
+                                              item?.fee?.trueUpParentFee?.id
+                                                ? ` - ${translate('text_64463aaa34904c00a23be4f7')}`
+                                                : '',
+                                            ])}
                                     </Typography>
                                   </td>
                                   <td>

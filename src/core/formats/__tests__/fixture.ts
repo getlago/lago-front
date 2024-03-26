@@ -1419,7 +1419,7 @@ export const oneSubscriptionResult = {
           itemName: 'Count BM - One dimension',
           metadata: {
             displayName: 'metered arrears package 1 dim • france',
-            isGroupChildFee: true,
+            isFilterChildFee: true,
           },
           preciseUnitAmount: 0.333333333333333,
           subscription: {
@@ -1490,7 +1490,7 @@ export const oneSubscriptionResult = {
           itemName: 'Count BM - One dimension',
           metadata: {
             displayName: 'metered arrears package 1 dim • IT',
-            isGroupChildFee: true,
+            isFilterChildFee: true,
           },
           preciseUnitAmount: 1,
           subscription: {
@@ -1560,7 +1560,7 @@ export const oneSubscriptionResult = {
           itemName: 'Count BM - Two dimensions',
           metadata: {
             displayName: 'metered arrears percentage 2 dim • AWS • europe',
-            isGroupChildFee: true,
+            isFilterChildFee: true,
           },
           preciseUnitAmount: 1.008333333333333,
           subscription: {
@@ -1630,7 +1630,7 @@ export const oneSubscriptionResult = {
           itemName: 'Count BM - Two dimensions',
           metadata: {
             displayName: 'metered arrears percentage 2 dim • AWS • usa',
-            isGroupChildFee: true,
+            isFilterChildFee: true,
           },
           preciseUnitAmount: 0.02,
           subscription: {
@@ -1700,7 +1700,7 @@ export const oneSubscriptionResult = {
           itemName: 'Count BM - Two dimensions',
           metadata: {
             displayName: 'metered arrears percentage 2 dim • GOOOOOOOO USA!',
-            isGroupChildFee: true,
+            isFilterChildFee: true,
           },
           preciseUnitAmount: 0.015,
           subscription: {

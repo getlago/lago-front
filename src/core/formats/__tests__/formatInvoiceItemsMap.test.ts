@@ -127,7 +127,6 @@ describe('formatInvoiceItemsMap', () => {
       const result = composeChargeFilterDisplayName({
         id: 'id',
         invoiceDisplayName: null,
-        properties: {},
         values: {
           key1: ['value1', 'value2'],
           key2: [ALL_FILTER_VALUES],
@@ -141,7 +140,6 @@ describe('formatInvoiceItemsMap', () => {
       const result = composeChargeFilterDisplayName({
         id: 'id',
         invoiceDisplayName: 'This is my custom display name',
-        properties: {},
         values: {
           key1: ['value1', 'value2'],
           key2: [ALL_FILTER_VALUES],

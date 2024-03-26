@@ -66,7 +66,7 @@ export type TExtendedRemainingFee = Fee & {
   metadata: {
     displayName: string
     isSubscriptionFee?: boolean
-    isGroupChildFee?: boolean
+    isFilterChildFee?: boolean
     isTrueUpFee?: boolean
     isNormalFee?: boolean
     isCommitmentFee?: boolean
@@ -99,7 +99,7 @@ type TFormatedInvoiceSubscriptionDataForDisplay = {
 }
 
 export const composeChargeFilterDisplayName = (
-  chargeFilter?: ChargeFilter | ChargeFilterUsage | null,
+  chargeFilter?: Omit<ChargeFilter, 'properties'> | ChargeFilterUsage | null,
 ): string => {
   if (!chargeFilter) return ''
   if (chargeFilter.invoiceDisplayName) return chargeFilter.invoiceDisplayName
@@ -302,12 +302,14 @@ const _newDeepFormatFees = (feesToFormat: TExtendedRemainingFee[]): TExtendedRem
       feesData.push({
         ...fee,
         metadata: {
-          isGroupChildFee: true,
-          displayName: composeMultipleValuesWithSepator([
-            fee.invoiceName || fee.charge?.billableMetric?.name,
-            composeGroupedByDisplayName(fee.groupedBy),
-            composeChargeFilterDisplayName(fee.chargeFilter),
-          ]),
+          isFilterChildFee: true,
+          displayName:
+            fee.invoiceDisplayName ||
+            composeMultipleValuesWithSepator([
+              fee.invoiceName || fee.charge?.billableMetric?.name,
+              composeGroupedByDisplayName(fee.groupedBy),
+              composeChargeFilterDisplayName(fee.chargeFilter),
+            ]),
         },
       })
     } else {
@@ -315,10 +317,12 @@ const _newDeepFormatFees = (feesToFormat: TExtendedRemainingFee[]): TExtendedRem
         ...fee,
         metadata: {
           isNormalFee: true,
-          displayName: composeMultipleValuesWithSepator([
-            fee.invoiceDisplayName || fee.invoiceName || fee.charge?.billableMetric?.name,
-            composeGroupedByDisplayName(fee.groupedBy),
-          ]),
+          displayName:
+            fee.invoiceDisplayName ||
+            composeMultipleValuesWithSepator([
+              fee.invoiceName || fee.charge?.billableMetric?.name,
+              composeGroupedByDisplayName(fee.groupedBy),
+            ]),
         },
       })
     }
