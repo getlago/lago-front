@@ -121,7 +121,7 @@
     "recharts": "^2.9.0",
     "sanitize-html": "2.12.1",
     "styled-components": "5.3.11",
-    "yarn": "1.22.19",
+    "yarn": "1.22.22",
     "yup": "1.2.0"
   },
   "resolutions": {
