@@ -16,6 +16,7 @@ import {
 import { AmountInput, ButtonSelector, ComboBox, Switch } from '~/components/form'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
 import {
+  ALL_FILTER_VALUES,
   FORM_TYPE_ENUM,
   MUI_BUTTON_BASE_ROOT_CLASSNAME,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
@@ -631,7 +632,7 @@ export const ChargeAccordion = memo(
                       .map((value: string) => {
                         const [k, v] = Object.entries(JSON.parse(value))[0]
 
-                        if (v === '__ALL_FILTER_VALUES__') {
+                        if (v === ALL_FILTER_VALUES) {
                           return `${k}`
                         }
 
@@ -1056,11 +1057,18 @@ const SummaryLeft = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  /* Padding added to prevent overflow hidden to crop the focus ring */
+  box-sizing: border-box;
+  padding: ${theme.spacing(1)};
 `
 
 const SummaryRight = styled.div`
   display: flex;
   align-items: center;
+  /* Padding added to prevent overflow hidden to crop the focus ring */
+  box-sizing: border-box;
+  padding: ${theme.spacing(1)};
+
   > *:not(:last-child) {
     margin-right: ${theme.spacing(3)};
   }
@@ -1169,12 +1177,19 @@ const BoxHeaderGroupLeft = styled.div`
   display: flex;
   align-items: center;
   gap: ${theme.spacing(3)};
+  /* Padding added to prevent overflow hidden to crop the focus ring */
+  box-sizing: border-box;
+  padding: ${theme.spacing(1)};
 `
 
 const BoxHeaderGroupRight = styled.div`
   display: flex;
   align-items: center;
   gap: ${theme.spacing(3)};
+
+  /* Padding added to prevent overflow hidden to crop the focus ring */
+  box-sizing: border-box;
+  padding: ${theme.spacing(1)};
 `
 
 const ChargeWithFiltersWrapper = styled.div`

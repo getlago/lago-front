@@ -2,6 +2,7 @@ import styled from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Accordion, Typography } from '~/components/designSystem'
+import { composeChargeFilterDisplayName } from '~/core/formats/formatInvoiceItemsMap'
 import { Charge, CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
@@ -52,17 +53,7 @@ const PlanDetailsChargesSectionAccordion = ({
         {/* filter details */}
         {!!charge?.filters?.length &&
           charge?.filters?.map((filter, i) => {
-            const accordionMappedDisplayValues: string = Object.entries(filter.values)
-              .map((value) => {
-                const [k, v] = value as [string, string[]]
-
-                if (v.includes('__ALL_FILTER_VALUES__')) {
-                  return `${k}`
-                }
-
-                return v.join(' • ')
-              })
-              .join(' • ')
+            const accordionMappedDisplayValues = composeChargeFilterDisplayName(filter)
 
             return (
               <Accordion

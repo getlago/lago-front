@@ -31,12 +31,16 @@ export const ADD_ITEM_FOR_INVOICE_INPUT_NAME = 'addItemInput'
 // Customer
 export const SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME = 'searchTaxForCustomerInput'
 
+/**** DATA ****/
+// Plan form types
 export const FORM_TYPE_ENUM = {
   creation: 'creation',
   edition: 'edition',
   duplicate: 'duplicate',
   upgradeDowngrade: 'upgradeDowngrade',
 } as const
+// Filters
+export const ALL_FILTER_VALUES = '__ALL_FILTER_VALUES__'
 
 /**** Translations ****/
 export const getIntervalTranslationKey = {

@@ -17,7 +17,6 @@ const PlanDetailsChargeWrapperSwitch = ({
 }: {
   currency: CurrencyEnum
   chargeModel: ChargeModelEnum
-  // TODO: type might change
   values?: Maybe<Properties>
 }) => {
   const componentId = useId()

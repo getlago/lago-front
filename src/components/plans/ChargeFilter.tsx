@@ -3,6 +3,7 @@ import { memo, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
 import {
+  ALL_FILTER_VALUES,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_FILTER_FOR_CHARGE_CLASSNAME,
 } from '~/core/constants/form'
@@ -104,7 +105,7 @@ export const ChargeFilter = memo(
                 {filter?.values.map((value, valueIndex) => {
                   const formatedValue = Object.entries(JSON.parse(value as string))[0]
                   const valueToDisplay = `${formatedValue[0]}${
-                    !!formatedValue[1] && formatedValue[1] !== '__ALL_FILTER_VALUES__'
+                    !!formatedValue[1] && formatedValue[1] !== ALL_FILTER_VALUES
                       ? `: ${formatedValue[1]}`
                       : ''
                   }`

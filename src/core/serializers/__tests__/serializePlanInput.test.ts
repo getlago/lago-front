@@ -1,4 +1,5 @@
 import { transformFilterObjectToString } from '~/components/plans/utils'
+import { ALL_FILTER_VALUES } from '~/core/constants/form'
 import {
   AggregationTypeEnum,
   ChargeModelEnum,
@@ -600,7 +601,7 @@ describe('serializePlanInput()', () => {
                 },
                 values: {
                   key1: ['value1'],
-                  parent_key: ['__ALL_FILTER_VALUES__'],
+                  parent_key: [ALL_FILTER_VALUES],
                 },
               },
               {
@@ -617,7 +618,7 @@ describe('serializePlanInput()', () => {
                 },
                 values: {
                   key2: ['value2'],
-                  parent_key: ['__ALL_FILTER_VALUES__'],
+                  parent_key: [ALL_FILTER_VALUES],
                 },
               },
             ],

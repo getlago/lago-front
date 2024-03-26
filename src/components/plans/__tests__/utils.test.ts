@@ -1,3 +1,5 @@
+import { ALL_FILTER_VALUES } from '~/core/constants/form'
+
 import { transformFilterObjectToString } from '../utils'
 
 describe('utils', () => {
@@ -8,7 +10,7 @@ describe('utils', () => {
       }
       const result = transformFilterObjectToString(filter.key)
 
-      expect(result).toBe(`{ "${filter.key}": "__ALL_FILTER_VALUES__" }`)
+      expect(result).toBe(`{ "${filter.key}": "${ALL_FILTER_VALUES}" }`)
     })
 
     it('should return a string with the filter object keys and value', () => {
