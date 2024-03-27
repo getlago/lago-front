@@ -53,7 +53,7 @@ export const initializeApolloClient = async () => {
 
   const links = [
     initialLink.concat(timeoutLink),
-    onError(({ graphQLErrors, networkError, operation, forward }) => {
+    onError(({ graphQLErrors, networkError, operation }) => {
       const { silentError = false, silentErrorCodes = [] } = operation.getContext()
 
       if (graphQLErrors) {
@@ -97,7 +97,6 @@ export const initializeApolloClient = async () => {
         // eslint-disable-next-line no-console
         console.warn(`[Network error]: ${JSON.stringify(networkError)}`)
       }
-      return forward(operation)
     }),
     // afterwareLink.concat(
     createUploadLink({

@@ -751,6 +751,13 @@ const DesignSystem = () => {
                     Danger
                   </Button>
                 </Block>
+
+                <GroupTitle variant="subhead">Google connect</GroupTitle>
+                <Block $marginBottom={theme.spacing(6)}>
+                  <Button fullWidth startIcon="google" size="large" variant="tertiary">
+                    Log In with Google
+                  </Button>
+                </Block>
               </Container>
             ),
           },

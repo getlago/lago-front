@@ -88,6 +88,7 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
         variables: {
           input: {
             ...values,
+            email: values.email.trim(),
           },
         },
       })
