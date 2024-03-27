@@ -19,6 +19,9 @@ const Invitation = lazyLoad(() => import(/* webpackChunkName: 'invitation' */ '~
 const InvitationInit = lazyLoad(
   () => import(/* webpackChunkName: 'invitation-init' */ '~/pages/InvitationInit'),
 )
+const GoogleAuthCallback = lazyLoad(
+  () => import(/* webpackChunkName: 'invitation-init' */ '~/pages/auth/GoogleAuthCallback'),
+)
 
 // ----------- Routes -----------
 export const LOGIN_ROUTE = '/login'
@@ -27,6 +30,7 @@ export const RESET_PASSWORD_ROUTE = '/reset-password/:token'
 export const SIGN_UP_ROUTE = '/sign-up'
 export const INVITATION_ROUTE = '/invitation/:token'
 export const INVITATION_ROUTE_FORM = '/invitation/:token/form'
+export const GOOGLE_AUTH_CALLBACK = '/auth/google/callback'
 
 export const authRoutes: CustomRouteObject[] = [
   ...(!disableSignUp
@@ -46,6 +50,11 @@ export const authRoutes: CustomRouteObject[] = [
   {
     path: FORGOT_PASSWORD_ROUTE,
     element: <ForgotPassword />,
+    onlyPublic: true,
+  },
+  {
+    path: GOOGLE_AUTH_CALLBACK,
+    element: <GoogleAuthCallback />,
     onlyPublic: true,
   },
   {
