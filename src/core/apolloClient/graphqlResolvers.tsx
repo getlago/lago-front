@@ -15,7 +15,9 @@ export const typeDefs = gql`
     not_organization_member
 
     # Validation errors
+    invite_email_mistmatch
     user_already_exists
+    user_does_not_exist
     coupon_is_not_reusable
     currencies_does_not_match
     invite_not_found
@@ -31,6 +33,11 @@ export const typeDefs = gql`
 
     # Object not found
     plan_not_found
+
+    # SSO errors
+    invalid_google_code
+    invalid_google_token
+    google_auth_missing_setup
   }
 `
 

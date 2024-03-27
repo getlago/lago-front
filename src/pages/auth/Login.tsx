@@ -1,9 +1,11 @@
 import { gql } from '@apollo/client'
+import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import { generatePath, Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { object, string } from 'yup'
 
+import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
 import { Alert, Button, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { envGlobalVar, hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
@@ -12,7 +14,7 @@ import { CurrentUserFragmentDoc, LagoApiError, useLoginUserMutation } from '~/ge
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
 import { theme } from '~/styles'
-import { Card, Page, StyledLogo, Subtitle, Title } from '~/styles/auth'
+import { Card, Page, StyledLogo } from '~/styles/auth'
 
 const { disableSignUp } = envGlobalVar()
 
@@ -32,7 +34,7 @@ gql`
 
 const Login = () => {
   const { translate } = useInternationalization()
-  const [login, { error: loginError }] = useLoginUserMutation({
+  const [loginUser, { error: loginError }] = useLoginUserMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted(res) {
       if (!!res?.loginUser) {
@@ -41,6 +43,7 @@ const Login = () => {
     },
     fetchPolicy: 'network-only',
   })
+
   const formikProps = useFormik({
     initialValues: {
       email: '',
@@ -55,7 +58,7 @@ const Login = () => {
     validateOnChange: false,
     validateOnBlur: false,
     onSubmit: async (values) => {
-      await login({
+      await loginUser({
         variables: {
           input: {
             email: values.email,
@@ -77,54 +80,71 @@ const Login = () => {
     <Page>
       <Card>
         <StyledLogo height={24} />
-        <Title variant="headline">{translate('text_620bc4d4269a55014d493f08')}</Title>
-        <Subtitle>{translate('text_620bc4d4269a55014d493f81')}</Subtitle>
 
-        {hasDefinedGQLError('IncorrectLoginOrPassword', loginError) && (
-          <ErrorAlert data-test="error-alert" type="danger">
-            {translate('text_620bc4d4269a55014d493fb7')}
-          </ErrorAlert>
-        )}
+        <Stack spacing={8}>
+          <Stack spacing={3}>
+            <Typography variant="headline">{translate('text_620bc4d4269a55014d493f08')}</Typography>
+            <Typography>{translate('text_620bc4d4269a55014d493f81')}</Typography>
+          </Stack>
 
-        <form>
-          <EmailInput
-            name="email"
-            beforeChangeFormatter={['lowercase']}
-            formikProps={formikProps}
-            label={translate('text_62a99ba2af7535cefacab4aa')}
-            placeholder={translate('text_62a99ba2af7535cefacab4bf')}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
+          {hasDefinedGQLError('IncorrectLoginOrPassword', loginError) && (
+            <Alert data-test="error-alert" type="danger">
+              {translate('text_620bc4d4269a55014d493fb7')}
+            </Alert>
+          )}
+
+          <GoogleAuthButton
+            mode="login"
+            label={translate('text_660bf95c75dd928ced0ecb31')}
+            hideAlert={!!loginError}
           />
 
-          <PasswordInputWrapper>
-            <PasswordInput
-              name="password"
+          <OrSeparator>
+            <Typography variant="captionHl" color="grey500">
+              {translate('text_6303351deffd2a0d70498675').toUpperCase()}
+            </Typography>
+          </OrSeparator>
+
+          <InputWrapper>
+            <TextInputField
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
+              name="email"
+              beforeChangeFormatter={['lowercase']}
               formikProps={formikProps}
-              password
-              label={translate('text_620bc4d4269a55014d493f32')}
-              placeholder={translate('text_620bc4d4269a55014d493f5b')}
+              label={translate('text_62ab2d0396dd6b0361614d60')}
+              placeholder={translate('text_62a99ba2af7535cefacab4bf')}
             />
-            <PasswordForgottenLinkTypo variant="caption">
-              <Link to={generatePath(FORGOT_PASSWORD_ROUTE)}>
-                {translate('text_642707b0da1753a9bb6672b5')}
-              </Link>
-            </PasswordForgottenLinkTypo>
-          </PasswordInputWrapper>
 
-          <SubmitButton data-test="submit" fullWidth size="large" onClick={formikProps.submitForm}>
+            <PasswordInputWrapper>
+              <TextInputField
+                name="password"
+                formikProps={formikProps}
+                password
+                label={translate('text_620bc4d4269a55014d493f32')}
+                placeholder={translate('text_620bc4d4269a55014d493f5b')}
+              />
+              <PasswordForgottenLinkTypo variant="caption">
+                <Link to={generatePath(FORGOT_PASSWORD_ROUTE)}>
+                  {translate('text_642707b0da1753a9bb6672b5')}
+                </Link>
+              </PasswordForgottenLinkTypo>
+            </PasswordInputWrapper>
+          </InputWrapper>
+
+          <Button data-test="submit" fullWidth size="large" onClick={formikProps.submitForm}>
             {translate('text_620bc4d4269a55014d493f6d')}
-          </SubmitButton>
-        </form>
+          </Button>
 
-        {!disableSignUp && (
-          <UsefullLink
-            variant="caption"
-            html={translate('text_62c84d0029355c83db4dd186', {
-              linkSignUp: SIGN_UP_ROUTE,
-            })}
-          />
-        )}
+          {!disableSignUp && (
+            <UsefullLink
+              variant="caption"
+              html={translate('text_62c84d0029355c83db4dd186', {
+                linkSignUp: SIGN_UP_ROUTE,
+              })}
+            />
+          )}
+        </Stack>
       </Card>
     </Page>
   )
@@ -132,10 +152,24 @@ const Login = () => {
 
 export default Login
 
-const EmailInput = styled(TextInputField)`
-  && {
-    margin-bottom: ${theme.spacing(4)};
+const OrSeparator = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${theme.spacing(4)};
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 2px solid ${theme.palette.grey[300]};
   }
+`
+
+const InputWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing(4)};
 `
 
 const PasswordInputWrapper = styled.div`
@@ -147,25 +181,8 @@ const PasswordForgottenLinkTypo = styled(Typography)`
   right: 0;
 `
 
-const PasswordInput = styled(TextInputField)`
-  && {
-    margin-bottom: ${theme.spacing(8)};
-  }
-`
-
-const SubmitButton = styled(Button)`
-  && {
-    margin-bottom: ${theme.spacing(4)};
-  }
-`
-
 const UsefullLink = styled(Typography)`
-  && {
-    margin: auto;
-    text-align: center;
-  }
-`
-
-const ErrorAlert = styled(Alert)`
-  margin-bottom: ${theme.spacing(8)};
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 `

@@ -154,7 +154,7 @@ export const theme = createTheme({
           },
           '& .MuiInputBase-inputAdornedEnd': {
             paddingRight: '0px',
-            borderRadius: '12px 0 0 12px',
+            borderRadius: '12px 0 0 12px !important',
           },
           '.MuiInputAdornment-positionEnd': {
             marginRight: '16px',

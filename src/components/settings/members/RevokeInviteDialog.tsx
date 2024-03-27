@@ -32,16 +32,7 @@ export const RevokeInviteDialog = forwardRef<RevokeInviteDialogRef>((_, ref) => 
         })
       }
     },
-    update(cache, { data }) {
-      if (!data?.revokeInvite) return
-
-      const cacheId = cache.identify({
-        id: data?.revokeInvite.id,
-        __typename: 'Invite',
-      })
-
-      cache.evict({ id: cacheId })
-    },
+    refetchQueries: ['getInvites'],
   })
 
   const [inviteInfos, setInviteInfos] = useState<

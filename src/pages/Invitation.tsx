@@ -1,19 +1,23 @@
 import { gql } from '@apollo/client'
+import { Stack } from '@mui/material'
 import _findKey from 'lodash/findKey'
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { object, string } from 'yup'
 
+import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
 import { Alert, Button, Skeleton, Typography } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
 import { hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
+import { DOCUMENTATION_ENV_VARS } from '~/core/constants/externalUrls'
 import { LOGIN_ROUTE } from '~/core/router'
 import {
   CurrentUserFragmentDoc,
   LagoApiError,
   useAcceptInviteMutation,
   useGetinviteQuery,
+  useGoogleAcceptInviteMutation,
 } from '~/generated/graphql'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -35,6 +39,16 @@ gql`
 
   mutation acceptInvite($input: AcceptInviteInput!) {
     acceptInvite(input: $input) {
+      token
+      user {
+        id
+        ...CurrentUser
+      }
+    }
+  }
+
+  mutation googleAcceptInvite($input: GoogleAcceptInviteInput!) {
+    googleAcceptInvite(input: $input) {
       token
       user {
         id
@@ -68,6 +82,8 @@ const Invitation = () => {
   const { isAuthenticated } = useIsAuthenticated()
   const { translate } = useInternationalization()
   const { token } = useParams()
+  let [searchParams] = useSearchParams()
+  const googleCode = searchParams.get('code') || ''
   const { data, error, loading } = useGetinviteQuery({
     context: { silentErrorCodes: [LagoApiError.InviteNotFound] },
     variables: { token: token || '' },
@@ -75,10 +91,18 @@ const Invitation = () => {
   })
   const email = data?.invite?.email
   const [acceptInvite, { error: acceptInviteError }] = useAcceptInviteMutation({
-    context: { silentErrorCodes: [LagoApiError.UserAlreadyExists] },
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted(res) {
       if (!!res?.acceptInvite) {
         onLogIn(res?.acceptInvite.token, res?.acceptInvite?.user)
+      }
+    },
+  })
+  const [googleAcceptInvite, { error: googleAcceptInviteError }] = useGoogleAcceptInviteMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    onCompleted(res) {
+      if (!!res?.googleAcceptInvite) {
+        onLogIn(res?.googleAcceptInvite.token, res?.googleAcceptInvite?.user)
       }
     },
   })
@@ -125,6 +149,44 @@ const Invitation = () => {
       })
   }, [formFields, validationSchema])
 
+  useEffect(() => {
+    if (!!googleCode && !!token) {
+      googleAcceptInvite({
+        variables: {
+          input: {
+            code: googleCode,
+            inviteToken: token || '',
+          },
+        },
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [googleCode, token])
+
+  const errorTranslation: string | undefined = useMemo(() => {
+    if (!acceptInviteError && !googleAcceptInviteError) return
+
+    // If any error occur, we need to remove the code from the URL
+    history.replaceState({}, '', window.location.pathname)
+
+    if (
+      hasDefinedGQLError('InvalidGoogleCode', googleAcceptInviteError) ||
+      hasDefinedGQLError('InvalidGoogleToken', googleAcceptInviteError)
+    ) {
+      return translate('text_660bf95c75dd928ced0ecb25', {
+        href: DOCUMENTATION_ENV_VARS,
+      })
+    }
+
+    if (hasDefinedGQLError('InviteEmailMistmatch', googleAcceptInviteError)) {
+      return translate('text_660bf95c75dd928ced0ecb2b')
+    }
+
+    return
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [acceptInviteError, googleAcceptInviteError])
+
   useShortcuts([
     {
       keys: ['Enter'],
@@ -149,24 +211,36 @@ const Invitation = () => {
             <Skeleton variant="text" width={304} height={12} />
           </>
         ) : (
-          <>
-            <Title variant="headline">
-              {translate('text_63246f875e2228ab7b63dcd0', {
-                orgnisationName: data?.invite?.organization.name,
-              })}
-            </Title>
-            <Subtitle>{translate('text_63246f875e2228ab7b63dcd4')}</Subtitle>
+          <Stack spacing={8}>
+            <Stack spacing={3}>
+              <Typography variant="headline">
+                {translate('text_63246f875e2228ab7b63dcd0', {
+                  orgnisationName: data?.invite?.organization.name,
+                })}
+              </Typography>
+              <Typography>{translate('text_63246f875e2228ab7b63dcd4')}</Typography>
+            </Stack>
 
-            {hasDefinedGQLError('UserAlreadyExists', acceptInviteError) && (
-              <ErrorAlert type="danger" data-test="error-alert">
-                <Typography
-                  color="inherit"
-                  html={translate('text_622f7a3dc32ce100c46a5131', { link: LOGIN_ROUTE })}
-                />
-              </ErrorAlert>
+            {!!errorTranslation && (
+              <Alert type="danger" data-test="error-alert">
+                <Typography color="inherit" html={errorTranslation} />
+              </Alert>
             )}
-            <form>
-              <Input
+
+            <GoogleAuthButton
+              mode="invite"
+              invitationToken={token || ''}
+              label={translate('text_660bf95c75dd928ced0ecb37')}
+            />
+
+            <OrSeparator>
+              <Typography variant="captionHl" color="grey500">
+                {translate('text_6303351deffd2a0d70498675').toUpperCase()}
+              </Typography>
+            </OrSeparator>
+
+            <InputWrapper>
+              <TextInput
                 disabled
                 name="email"
                 beforeChangeFormatter={['lowercase']}
@@ -174,7 +248,7 @@ const Invitation = () => {
                 value={email}
               />
 
-              <PasswordBlock>
+              <div>
                 <TextInput
                   name="password"
                   value={formFields.password}
@@ -183,16 +257,16 @@ const Invitation = () => {
                   label={translate('text_63246f875e2228ab7b63dce9')}
                   placeholder={translate('text_63246f875e2228ab7b63dcf0')}
                 />
-                <PasswordValidation
-                  data-test={
-                    !!formFields.password
-                      ? 'password-validation--visible'
-                      : 'password-validation--hidden'
-                  }
-                  $visible={!!formFields.password}
-                >
-                  {errors.some((err) => PASSWORD_VALIDATION.includes(err)) ? (
-                    PASSWORD_VALIDATION.map((err) => {
+                {errors.some((err) => PASSWORD_VALIDATION.includes(err)) ? (
+                  <PasswordValidation
+                    data-test={
+                      !!formFields.password
+                        ? 'password-validation--visible'
+                        : 'password-validation--hidden'
+                    }
+                    $visible={!!formFields.password}
+                  >
+                    {PASSWORD_VALIDATION.map((err) => {
                       const isErrored = errors.includes(err)
 
                       return (
@@ -220,44 +294,48 @@ const Invitation = () => {
                           </Typography>
                         </ValidationLine>
                       )
-                    })
-                  ) : (
-                    <StyledAlert type="success" data-test="success">
-                      {translate('text_63246f875e2228ab7b63dd02')}
-                    </StyledAlert>
-                  )}
-                </PasswordValidation>
-              </PasswordBlock>
+                    })}
+                  </PasswordValidation>
+                ) : (
+                  <ValidPasswordAlert type="success" data-test="success">
+                    {translate('text_63246f875e2228ab7b63dd02')}
+                  </ValidPasswordAlert>
+                )}
+              </div>
+            </InputWrapper>
 
-              <SubmitButton
-                data-test="submit-button"
-                disabled={errors.length > 0}
-                fullWidth
-                size="large"
-                onClick={onInvitation}
-              >
-                {translate('text_63246f875e2228ab7b63dd1c')}
-              </SubmitButton>
-            </form>
+            <Button
+              data-test="submit-button"
+              disabled={errors.length > 0}
+              fullWidth
+              size="large"
+              onClick={onInvitation}
+            >
+              {translate('text_63246f875e2228ab7b63dd1c')}
+            </Button>
             <Typography
               variant="caption"
               html={translate('text_63246f875e2228ab7b63dd1f', { link: LOGIN_ROUTE })}
             />
-          </>
+          </Stack>
         )}
       </Card>
     </Page>
   )
 }
 
-const Input = styled(TextInput)`
-  && {
-    margin-bottom: ${theme.spacing(4)};
-  }
-`
+const OrSeparator = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${theme.spacing(4)};
 
-const PasswordBlock = styled.div`
-  margin-bottom: ${theme.spacing(8)};
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 2px solid ${theme.palette.grey[300]};
+  }
 `
 
 const PasswordValidation = styled.div<{ $visible: boolean }>`
@@ -267,12 +345,11 @@ const PasswordValidation = styled.div<{ $visible: boolean }>`
   overflow: hidden;
   display: flex;
   flex-wrap: wrap;
-  margin-bottom: ${({ $visible }) => ($visible ? theme.spacing(3) : 0)};
 `
 
-const StyledAlert = styled(Alert)`
+const ValidPasswordAlert = styled(Alert)`
   flex: 1;
-  margin-bottom: ${theme.spacing(3)};
+  margin-top: ${theme.spacing(3)};
 `
 
 const ValidationLine = styled.div`
@@ -287,14 +364,10 @@ const ValidationLine = styled.div`
   }
 `
 
-const SubmitButton = styled(Button)`
-  && {
-    margin-bottom: ${theme.spacing(8)};
-  }
-`
-
-const ErrorAlert = styled(Alert)`
-  margin-bottom: ${theme.spacing(8)};
+const InputWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing(4)};
 `
 
 export default Invitation

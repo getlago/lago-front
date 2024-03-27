@@ -51,6 +51,7 @@ const ready_for_dev___invoices___edit_a_draft_invoice = require('./ready-for-dev
 const ready_for_dev___invoices___void_invoices = require('./ready-for-dev---invoices---void-invoices__base.json');
 const ready_for_dev___invoices__invoice_list = require('./ready-for-dev---invoices--invoice-list__base.json');
 const ready_for_dev___login___reset_password = require('./ready-for-dev---login---reset-password__base.json');
+const ready_for_dev___onboarding___createconnect_lago_orga_via_sso = require('./ready-for-dev---onboarding---createconnect-lago-orga-via-sso__base.json');
 const ready_for_dev___onboarding___invite_member_to_organisation = require('./ready-for-dev---onboarding---invite-member-to-organisation__base.json');
 const ready_for_dev___plan___quarterly_plan_interval = require('./ready-for-dev---plan---quarterly-plan-interval__base.json');
 const ready_for_dev___plans___add_tax_to_plans = require('./ready-for-dev---plans---add-tax-to-plans__base.json');
@@ -271,6 +272,9 @@ module.exports = {
   },
   "project_642707b04540bee48d54de86": {
     "base": {...ready_for_dev___login___reset_password}
+  },
+  "project_660bf95b851f012f6f11ecd0": {
+    "base": {...ready_for_dev___onboarding___createconnect_lago_orga_via_sso}
   },
   "project_63208b60a9b2a4c6186bbd26": {
     "base": {...ready_for_dev___onboarding___invite_member_to_organisation}
