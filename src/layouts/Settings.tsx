@@ -5,6 +5,7 @@ import styled from 'styled-components'
 
 import { Button, NavigationTab, Typography } from '~/components/designSystem'
 import {
+  CREATE_TAX_ROUTE,
   EMAILS_SETTINGS_ROUTE,
   HOME_ROUTE,
   INTEGRATIONS_ROUTE,
@@ -14,6 +15,7 @@ import {
   settingRoutes,
   SETTINGS_ROUTE,
   TAXES_SETTINGS_ROUTE,
+  UPDATE_TAX_ROUTE,
 } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
@@ -67,7 +69,7 @@ const Settings = () => {
       }
       return acc
     },
-    [],
+    [CREATE_TAX_ROUTE, UPDATE_TAX_ROUTE],
   )
 
   return (
