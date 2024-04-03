@@ -42,7 +42,7 @@ export const FinalizeInvoiceDialog = forwardRef<FinalizeInvoiceDialogRef>((_, re
   const [invoice, setInvoice] = useState<InvoiceForFinalizeInvoiceFragment>()
   const [finalizeInvoice] = useFinalizeInvoiceMutation({
     variables: { input: { id: invoice?.id || '' } },
-    refetchQueries: ['getCustomerInvoices'],
+    refetchQueries: ['getCustomerInvoices', 'getInvoiceDetails'],
     onCompleted({ finalizeInvoice: finalizeInvoiceRes }) {
       if (finalizeInvoiceRes?.id) {
         addToast({

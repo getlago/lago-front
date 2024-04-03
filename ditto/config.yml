@@ -346,5 +346,7 @@ sources:
       fileName: 👍 [Ready for dev] - Plans - Invoice minimum spending
     - name: 👍 [Ready for dev] - Onboarding - Create/Connect Lago orga via SSO
       id: 660bf95b851f012f6f11ecd0
+    - name: ⚙️ [WIP] - Invoices - Dispute payment intent
+      id: 66141e2ffa16c75cb553dbc1
 format: flat
 variants: true

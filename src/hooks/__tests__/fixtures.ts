@@ -10,6 +10,7 @@ export const fourOFourInvoiceMock = () => ({
       id: INVOICE_FIXTURE_ID,
       refundableAmountCents: '0',
       creditableAmountCents: '0',
+      paymentDisputeLostAt: null,
       invoiceType: InvoiceTypeEnum.Subscription,
       fees: [],
       invoiceSubscriptions: [],
@@ -32,6 +33,7 @@ export const fullSubscriptionInvoiceMockAndExpect = () => ({
       refundableAmountCents: '0',
       creditableAmountCents: '2700000',
       invoiceType: InvoiceTypeEnum.Subscription,
+      paymentDisputeLostAt: null,
       fees: [
         {
           id: 'fee-1-id',
@@ -134,6 +136,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
       refundableAmountCents: '0',
       creditableAmountCents: '62833',
       invoiceType: InvoiceTypeEnum.Subscription,
+      paymentDisputeLostAt: null,
       fees: [
         {
           id: 'b7e53061-73b5-46bf-8f1a-2f49d50c672c',
@@ -607,6 +610,7 @@ export const fullOneOffInvoiceMockAndExpect = () => ({
       refundableAmountCents: '0',
       creditableAmountCents: '2700000',
       invoiceType: InvoiceTypeEnum.OneOff,
+      paymentDisputeLostAt: null,
       fees: [
         {
           id: 'fee-1-id',

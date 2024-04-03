@@ -37,6 +37,7 @@ gql`
     feesAmountCents
     currency
     versionNumber
+    paymentDisputeLostAt
     fees {
       id
       appliedTaxes {
@@ -94,7 +95,9 @@ export const CreditNoteFormCalculation = ({
   setPayBackValidation,
 }: CreditNoteFormCalculationProps) => {
   const { translate } = useInternationalization()
-  const canOnlyCredit = invoice?.paymentStatus !== InvoicePaymentStatusTypeEnum.Succeeded
+  const canOnlyCredit =
+    invoice?.paymentStatus !== InvoicePaymentStatusTypeEnum.Succeeded ||
+    !!invoice.paymentDisputeLostAt
   const currency = invoice?.currency || CurrencyEnum.Usd
   const currencyPrecision = getCurrencyPrecision(currency)
   const isLegacyInvoice = (invoice?.versionNumber || 0) < 3
