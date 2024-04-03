@@ -45,6 +45,7 @@ gql`
     totalAmountCents
     currency
     voidable
+    paymentDisputeLostAt
     customer {
       id
       name
@@ -186,10 +187,14 @@ export const InvoiceListItem = ({
     <Container {...props}>
       <Item className={className} to={to} tabIndex={0} {...navigationProps} $context={context}>
         <GridItem $context={context}>
-          <Status
-            type={statusConfig?.type as StatusEnum}
-            label={translate(statusConfig?.label || '')}
-          />
+          {!!invoice.paymentDisputeLostAt ? (
+            <Status type="disputeLost" label={translate('text_66141e30699a0631f0b2ed32')} />
+          ) : (
+            <Status
+              type={statusConfig?.type as StatusEnum}
+              label={translate(statusConfig?.label || '')}
+            />
+          )}
           <Typography variant="captionCode" color="grey700" noWrap>
             {number}
           </Typography>
@@ -251,6 +256,7 @@ export const InvoiceListItem = ({
                 <Button
                   startIcon="push"
                   variant="quaternary"
+                  disabled={!!invoice.paymentDisputeLostAt}
                   align="left"
                   onClick={async () => {
                     const { errors } = await retryCollect({

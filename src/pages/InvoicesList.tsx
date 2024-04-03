@@ -51,6 +51,7 @@ gql`
     $status: InvoiceStatusTypeEnum
     $paymentStatus: [InvoicePaymentStatusTypeEnum!]
     $searchTerm: String
+    $paymentDisputeLost: Boolean
   ) {
     invoices(
       limit: $limit
@@ -58,6 +59,7 @@ gql`
       status: $status
       paymentStatus: $paymentStatus
       searchTerm: $searchTerm
+      paymentDisputeLost: $paymentDisputeLost
     ) {
       metadata {
         currentPage
@@ -88,6 +90,7 @@ enum InvoiceListTabEnum {
   'pendingFailed' = 'pendingFailed',
   'succeeded' = 'succeeded',
   'voided' = 'voided',
+  'disputed' = 'disputed',
 }
 
 // Needed to be able to pass both ids to the keyboard navigation function
@@ -116,6 +119,9 @@ const InvoicesList = () => {
       ...(tab === InvoiceListTabEnum.succeeded && {
         paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
         status: InvoiceStatusTypeEnum.Finalized,
+      }),
+      ...(tab === InvoiceListTabEnum.disputed && {
+        paymentDisputeLost: true,
       }),
     },
   })
@@ -210,6 +216,10 @@ const InvoicesList = () => {
             title: translate('text_6376641a2a9c70fff5bddcd5'),
             link: generatePath(INVOICES_TAB_ROUTE, { tab: InvoiceListTabEnum.voided }),
           },
+          {
+            title: translate('text_66141e30699a0631f0b2ec9c'),
+            link: generatePath(INVOICES_TAB_ROUTE, { tab: InvoiceListTabEnum.disputed }),
+          },
         ]}
       />
       <ScrollContainer ref={listContainerElementRef}>
@@ -288,7 +298,9 @@ const InvoicesList = () => {
                           ? 'text_63b578e959c1366df5d1456e'
                           : tab === InvoiceListTabEnum.voided
                             ? 'text_65269cd46e7ec037a6823fd6'
-                            : 'text_63b578e959c1366df5d14569',
+                            : tab === InvoiceListTabEnum.disputed
+                              ? 'text_66141e30699a0631f0b2ec7f'
+                              : 'text_63b578e959c1366df5d14569',
                   )}
                   subtitle={
                     tab === InvoiceListTabEnum.succeeded ? (
@@ -303,6 +315,8 @@ const InvoicesList = () => {
                       translate('text_63b578e959c1366df5d14570')
                     ) : tab === InvoiceListTabEnum.voided ? (
                       translate('text_65269cd46e7ec037a6823fda')
+                    ) : tab === InvoiceListTabEnum.disputed ? (
+                      translate('text_66141e30699a0631f0b2ec87')
                     ) : (
                       translate('text_63b578e959c1366df5d1456d')
                     )

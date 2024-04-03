@@ -49,6 +49,7 @@ gql`
     creditableAmountCents
     refundableAmountCents
     subTotalIncludingTaxesAmountCents
+    paymentDisputeLostAt
     ...InvoiceForCreditNoteFormCalculation
   }
 
@@ -288,8 +289,11 @@ const CreateCreditNote = () => {
                       })}
                     </Typography>
                   </div>
-
-                  <Status type={statusMap.type} label={translate(statusMap.label)} />
+                  {!!invoice?.paymentDisputeLostAt ? (
+                    <Status type="disputeLost" label={translate('text_66141e30699a0631f0b2ec9c')} />
+                  ) : (
+                    <Status type={statusMap.type} label={translate(statusMap.label)} />
+                  )}
                 </StyledCard>
 
                 <Card>

@@ -19,6 +19,10 @@ import {
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
 import {
+  DisputeInvoiceDialog,
+  DisputeInvoiceDialogRef,
+} from '~/components/invoices/DisputeInvoiceDialog'
+import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
 } from '~/components/invoices/EditInvoicePaymentStatusDialog'
@@ -82,6 +86,7 @@ gql`
     refundableAmountCents
     creditableAmountCents
     voidable
+    paymentDisputeLostAt
     customer {
       ...CustomerMetadatasForInvoiceOverview
     }
@@ -163,6 +168,7 @@ const CustomerInvoiceDetails = () => {
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
+  const disputeInvoiceDialogRef = useRef<DisputeInvoiceDialogRef>(null)
   const [refreshInvoice, { loading: loadingRefreshInvoice }] = useRefreshInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
   })
@@ -436,12 +442,29 @@ const CustomerInvoiceDetails = () => {
                     </>
                   )}
                 {status === InvoiceStatusTypeEnum.Finalized &&
+                  !data?.invoice?.paymentDisputeLostAt && (
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        disputeInvoiceDialogRef.current?.openDialog({ id: data?.invoice?.id || '' })
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_66141e30699a0631f0b2ec71')}
+                    </Button>
+                  )}
+                {status === InvoiceStatusTypeEnum.Finalized &&
                   [
                     InvoicePaymentStatusTypeEnum.Pending,
                     InvoicePaymentStatusTypeEnum.Failed,
                   ].includes(paymentStatus) && (
                     <Tooltip
-                      title={translate('text_65269c2e471133226211fdd0')}
+                      title={translate(
+                        !!data?.invoice?.paymentDisputeLostAt
+                          ? 'text_66178d027e220e00dff9f67d'
+                          : 'text_65269c2e471133226211fdd0',
+                      )}
                       placement="bottom-end"
                       disableHoverListener={voidable}
                     >
@@ -494,6 +517,8 @@ const CustomerInvoiceDetails = () => {
                   </Typography>
                   {status === InvoiceStatusTypeEnum.Draft ? (
                     <Chip label={translate('text_63a41a8eabb9ae67047c1bfe')} />
+                  ) : !!data?.invoice?.paymentDisputeLostAt ? (
+                    <Status type="disputeLost" label={translate('text_66141e30699a0631f0b2ec9c')} />
                   ) : (
                     <Status type={formattedStatus.type} label={translate(formattedStatus.label)} />
                   )}
@@ -527,6 +552,7 @@ const CustomerInvoiceDetails = () => {
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
+      <DisputeInvoiceDialog ref={disputeInvoiceDialogRef} />
       {!!data?.invoice && (
         <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoice={data.invoice} />
       )}

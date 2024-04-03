@@ -13,6 +13,7 @@ export enum StatusEnum {
   draft = 'draft',
   failed = 'failed',
   error = 'error',
+  disputeLost = 'disputeLost',
   voided = 'voided',
 }
 
@@ -51,6 +52,10 @@ const STATUS_CONFIG: {
     label: 'text_624efab67eb2570101d11826',
     color: theme.palette.error[600],
   },
+  [StatusEnum.disputeLost]: {
+    label: 'text_66141e30699a0631f0b2ec9c',
+    color: theme.palette.error[600],
+  },
   [StatusEnum.voided]: {
     label: 'text_6376641a2a9c70fff5bddcd5',
     color: 'input',
@@ -83,6 +88,17 @@ export const Status = ({ type, className, label, hideLabel = false }: StatusProp
           <Icon name={config.icon as IconName} size="small" color={config.color as IconColor} />
           {!hideLabel && (
             <Typography color="grey500">{label ?? translate(config.label)}</Typography>
+          )}
+        </Container>
+      )
+    case StatusEnum.disputeLost:
+      return (
+        <Container data-test={type} className={className}>
+          <svg height={STATUS_SIZE} width={STATUS_SIZE}>
+            <circle cx="6" cy="6" r="6" fill={config.color} />
+          </svg>
+          {!hideLabel && (
+            <Typography color="textSecondary">{label ?? translate(config.label)}</Typography>
           )}
         </Container>
       )

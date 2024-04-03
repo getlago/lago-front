@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { DateTime } from 'luxon'
 import { memo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 import styled from 'styled-components'
@@ -24,6 +25,7 @@ gql`
     paymentDueDate
     status
     paymentStatus
+    paymentDisputeLostAt
     customer {
       id
       name
@@ -255,6 +257,21 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
             )}
           </Typography>
         </InfoLine>
+        {!!invoice?.paymentDisputeLostAt && (
+          <InfoLine>
+            <Typography variant="caption" color="grey600" noWrap>
+              {translate('text_66141e30699a0631f0b2ed32')}
+            </Typography>
+            <Typography variant="body" color="grey700">
+              <Status
+                type="disputeLost"
+                label={translate('text_66141e30699a0631f0b2ed2c', {
+                  date: DateTime.fromISO(invoice?.paymentDisputeLostAt).toFormat('LLL. dd, yyyy'),
+                })}
+              />
+            </Typography>
+          </InfoLine>
+        )}
       </div>
     </Wrapper>
   )
