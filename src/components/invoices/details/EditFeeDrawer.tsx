@@ -282,7 +282,13 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                 )}
               </InlineElements>
 
-              <Alert type="info">{translate('text_65a6b4e2cb38d9b70ec53d93')}</Alert>
+              <Alert type="info">
+                {translate(
+                  formikProps.values.adjustmentType === AdjustedFeeTypeEnum.AdjustedAmount
+                    ? 'text_65a6b4e2cb38d9b70ec53d93'
+                    : 'text_6613b48da4efd500cacc44d3',
+                )}
+              </Alert>
             </>
           )}
         </Card>

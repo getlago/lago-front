@@ -1049,6 +1049,7 @@
   "text_65a94d976d7a9700716590d9": "Search or select an adjustment",
   "text_65b116a266d90732cac8b39b": "Display {{count}} fee at 0 units|Display {{count}} fees at 0 units",
   "text_65b116a266d90732cac8b3bc": "Hide {{count}} fee at 0 units|Hide {{count}} fees at 0 units",
+  "text_6613b48da4efd500cacc44d3": "Modifying the unit quantity of the fee will replace the existing fee, Lago will automatically adjust the corresponding unit price for the fee",
   "text_659e67cd63512ef53284305a": "Minimum spend of {{amount}} prorated on days of usage",
   "text_659e67cd63512ef532843070": "Fee per unit for the first {{toValue}}",
   "text_659e67cd63512ef5328430af": "Fee per unit for the next {{fromValue}} to {{toValue}}",
