@@ -46,10 +46,25 @@ gql`
       minAmountCents
       payInAdvance
       prorated
+      billableMetric {
+        id
+        recurring
+      }
     }
     appliedTaxes {
       id
       taxRate
+    }
+    amountDetails {
+      freeUnits # for package charge model
+      fixedFeeUnitAmount # for percentage charge model
+      flatUnitAmount # for volume charge model
+      graduatedRanges {
+        toValue
+      }
+      graduatedPercentageRanges {
+        toValue
+      }
     }
 
     ...FeeForInvoiceDetailsTableBodyLineGraduated
@@ -81,6 +96,59 @@ type InvoiceDetailsTableBodyLineProps = {
   deleteAdjustedFeeDialogRef?: RefObject<DeleteAdjustedFeeDialogRef>
 }
 
+export const calculateIfDetailsShouldBeDisplayed = (
+  fee: TExtendedRemainingFee | undefined,
+  isTrueUpFee: boolean,
+  canHaveUnitPrice: boolean,
+): boolean => {
+  const isValidGraduatedToHaveDetails =
+    fee?.charge?.chargeModel === ChargeModelEnum.Graduated && !fee.charge.prorated
+  const isValidChargeModelToHaveDetails =
+    isValidGraduatedToHaveDetails ||
+    fee?.charge?.chargeModel === ChargeModelEnum.Volume ||
+    fee?.charge?.chargeModel === ChargeModelEnum.Package ||
+    fee?.charge?.chargeModel === ChargeModelEnum.Percentage ||
+    fee?.charge?.chargeModel === ChargeModelEnum.GraduatedPercentage
+
+  const isInArrears = !fee?.charge?.payInAdvance
+  const isValidAdvanceRecurringVolume =
+    fee?.charge?.chargeModel === ChargeModelEnum.Volume && !!fee?.amountDetails?.flatUnitAmount
+  const isValidAdvanceRecurringPackage =
+    fee?.charge?.chargeModel === ChargeModelEnum.Package && !!fee?.amountDetails?.freeUnits
+  const isValidAdvanceRecurringPercentage =
+    fee?.charge?.chargeModel === ChargeModelEnum.Percentage &&
+    !!fee?.amountDetails?.fixedFeeUnitAmount
+  const isValidAdvanceGraduated =
+    fee?.charge?.chargeModel === ChargeModelEnum.Graduated &&
+    !!fee?.amountDetails?.graduatedRanges?.[0].toValue
+  const isValidAdvanceGraduatedPercentage =
+    fee?.charge?.chargeModel === ChargeModelEnum.GraduatedPercentage &&
+    !!fee?.amountDetails?.graduatedPercentageRanges?.[0].toValue
+  // Only recurring fee in advance that are full can have details
+  const isAdvanceRecurring =
+    !!fee?.charge?.payInAdvance &&
+    !!fee?.charge?.billableMetric?.recurring &&
+    (isValidAdvanceRecurringVolume ||
+      isValidAdvanceRecurringPackage ||
+      isValidAdvanceRecurringPercentage ||
+      isValidAdvanceGraduated ||
+      isValidAdvanceGraduatedPercentage)
+
+  const shouldDisplayFeeDetail =
+    !!fee &&
+    !isTrueUpFee &&
+    fee.adjustedFeeType !== AdjustedFeeTypeEnum.AdjustedAmount &&
+    !fee?.metadata?.isSubscriptionFee &&
+    (isInArrears || isAdvanceRecurring) &&
+    fee?.charge?.chargeModel !== ChargeModelEnum.Standard &&
+    fee.feeType !== FeeTypesEnum.AddOn &&
+    fee.feeType !== FeeTypesEnum.Credit &&
+    isValidChargeModelToHaveDetails &&
+    canHaveUnitPrice
+
+  return shouldDisplayFeeDetail
+}
+
 export const InvoiceDetailsTableBodyLine = memo(
   ({
     canHaveUnitPrice,
@@ -94,7 +162,7 @@ export const InvoiceDetailsTableBodyLine = memo(
   }: InvoiceDetailsTableBodyLineProps) => {
     const { translate } = useInternationalization()
     const chargeModel = fee?.charge?.chargeModel
-    const isTrueUpFee = fee?.metadata?.isTrueUpFee && !!fee?.charge?.minAmountCents
+    const isTrueUpFee = !!fee?.metadata?.isTrueUpFee && !!fee?.charge?.minAmountCents
     const isAdjustedFee = !!fee?.adjustedFee
     const subLabel = !canHaveUnitPrice
       ? undefined
@@ -117,25 +185,12 @@ export const InvoiceDetailsTableBodyLine = memo(
                   ),
                 })
               : undefined
-    const isValidGraduatedToHaveDetails =
-      fee?.charge?.chargeModel === ChargeModelEnum.Graduated && !fee.charge.prorated
-    const isValidChargeModelToHaveDetails =
-      isValidGraduatedToHaveDetails ||
-      fee?.charge?.chargeModel === ChargeModelEnum.Volume ||
-      fee?.charge?.chargeModel === ChargeModelEnum.Package ||
-      fee?.charge?.chargeModel === ChargeModelEnum.Percentage ||
-      fee?.charge?.chargeModel === ChargeModelEnum.GraduatedPercentage
-    const shouldDisplayFeeDetail =
-      !!fee &&
-      !isTrueUpFee &&
-      fee.adjustedFeeType !== AdjustedFeeTypeEnum.AdjustedAmount &&
-      !fee?.metadata?.isSubscriptionFee &&
-      !fee.charge?.payInAdvance &&
-      chargeModel !== ChargeModelEnum.Standard &&
-      fee.feeType !== FeeTypesEnum.AddOn &&
-      fee.feeType !== FeeTypesEnum.Credit &&
-      isValidChargeModelToHaveDetails &&
-      canHaveUnitPrice
+
+    const shouldDisplayFeeDetail = calculateIfDetailsShouldBeDisplayed(
+      fee,
+      isTrueUpFee,
+      canHaveUnitPrice,
+    )
 
     return (
       <>
