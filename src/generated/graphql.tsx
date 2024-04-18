@@ -5830,6 +5830,22 @@ export type UpdateOrgaForLagoTaxManagementMutationVariables = Exact<{
 
 export type UpdateOrgaForLagoTaxManagementMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string } | null };
 
+export type NetsuiteForCreateDialogDialogFragment = { __typename?: 'NetsuiteIntegration', id: string, accountId?: string | null, clientId?: string | null, clientSecret?: string | null, code: string, name: string, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, syncSalesOrders?: boolean | null };
+
+export type CreateNetsuiteIntegrationMutationVariables = Exact<{
+  input: CreateNetsuiteIntegrationInput;
+}>;
+
+
+export type CreateNetsuiteIntegrationMutation = { __typename?: 'Mutation', createNetsuiteIntegration?: { __typename?: 'NetsuiteIntegration', id: string, accountId?: string | null, clientId?: string | null, clientSecret?: string | null, code: string, name: string, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, syncSalesOrders?: boolean | null } | null };
+
+export type UpdateNetsuiteIntegrationMutationVariables = Exact<{
+  input: UpdateNetsuiteIntegrationInput;
+}>;
+
+
+export type UpdateNetsuiteIntegrationMutation = { __typename?: 'Mutation', updateNetsuiteIntegration?: { __typename?: 'NetsuiteIntegration', id: string, accountId?: string | null, clientId?: string | null, clientSecret?: string | null, code: string, name: string, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, syncSalesOrders?: boolean | null } | null };
+
 export type AddStripeProviderDialogFragment = { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: string | null };
 
 export type GetProviderByCodeForStripeQueryVariables = Exact<{
@@ -5871,6 +5887,15 @@ export type DeleteGocardlessMutationVariables = Exact<{
 
 export type DeleteGocardlessMutation = { __typename?: 'Mutation', destroyPaymentProvider?: { __typename?: 'DestroyPaymentProviderPayload', id?: string | null } | null };
 
+export type DeleteNetsuiteIntegrationDialogFragment = { __typename?: 'NetsuiteIntegration', id: string, name: string };
+
+export type DestroyNangoIntegrationMutationVariables = Exact<{
+  input: DestroyIntegrationInput;
+}>;
+
+
+export type DestroyNangoIntegrationMutation = { __typename?: 'Mutation', destroyIntegration?: { __typename?: 'DestroyIntegrationPayload', id?: string | null } | null };
+
 export type DeleteStripeIntegrationDialogFragment = { __typename?: 'StripeProvider', id: string, name: string };
 
 export type DeleteStripeMutationVariables = Exact<{
@@ -5879,6 +5904,18 @@ export type DeleteStripeMutationVariables = Exact<{
 
 
 export type DeleteStripeMutation = { __typename?: 'Mutation', destroyPaymentProvider?: { __typename?: 'DestroyPaymentProviderPayload', id?: string | null } | null };
+
+export type NetsuiteIntegrationItemsFragment = { __typename?: 'NetsuiteIntegration', id: string };
+
+export type NetsuiteIntegrationSettingsFragment = { __typename?: 'NetsuiteIntegration', id: string, accountId?: string | null, clientId?: string | null, clientSecret?: string | null, code: string, hasMappingsConfigured?: boolean | null, name: string, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, syncSalesOrders?: boolean | null };
+
+export type GetNetsuiteIntegrationsSettingsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetNetsuiteIntegrationsSettingsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'NetsuiteIntegration', id: string, accountId?: string | null, clientId?: string | null, clientSecret?: string | null, code: string, hasMappingsConfigured?: boolean | null, name: string, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, syncSalesOrders?: boolean | null } | { __typename?: 'OktaIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'NetsuiteIntegration', id: string } | { __typename?: 'OktaIntegration' }> } | null };
 
 export type CreateInviteMutationVariables = Exact<{
   input: CreateInviteInput;
@@ -6686,7 +6723,7 @@ export type IntegrationsSettingQueryVariables = Exact<{
 }>;
 
 
-export type IntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, euTaxManagement: boolean, country?: CountryCode | null } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'StripeProvider', id: string }> } | null };
+export type IntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, euTaxManagement: boolean, country?: CountryCode | null, premiumIntegrations: Array<IntegrationTypeEnum> } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'StripeProvider', id: string }> } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'NetsuiteIntegration', id: string } | { __typename?: 'OktaIntegration' }> } | null };
 
 export type GetOrganizationSettingsQueryVariables = Exact<{
   appliedToOrganization?: InputMaybe<Scalars['Boolean']['input']>;
@@ -6727,6 +6764,26 @@ export type GetMembersQueryVariables = Exact<{
 
 
 export type GetMembersQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', metadata: { __typename?: 'Metadata', currentPage: number, totalPages: number, totalCount: number, adminCount: number }, collection: Array<{ __typename?: 'Membership', id: string, role: MembershipRole, user: { __typename?: 'User', id: string, email?: string | null }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> } };
+
+export type NetsuiteIntegrationDetailsFragment = { __typename?: 'NetsuiteIntegration', id: string, name: string, accountId?: string | null, clientId?: string | null, clientSecret?: string | null, code: string, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, syncSalesOrders?: boolean | null };
+
+export type GetNetsuiteIntegrationsDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetNetsuiteIntegrationsDetailsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'NetsuiteIntegration', id: string, name: string, accountId?: string | null, clientId?: string | null, clientSecret?: string | null, code: string, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, syncSalesOrders?: boolean | null } | { __typename?: 'OktaIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'NetsuiteIntegration', id: string } | { __typename?: 'OktaIntegration' }> } | null };
+
+export type NetsuiteIntegrationsFragment = { __typename?: 'NetsuiteIntegration', id: string, name: string, code: string };
+
+export type GetNetsuiteIntegrationsListQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<IntegrationTypeEnum>;
+}>;
+
+
+export type GetNetsuiteIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'NetsuiteIntegration', id: string, name: string, code: string, accountId?: string | null, clientId?: string | null, clientSecret?: string | null, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, syncSalesOrders?: boolean | null } | { __typename?: 'OktaIntegration' }> } | null };
 
 export type OrganizationInformationsFragment = { __typename?: 'CurrentOrganization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, timezone?: TimezoneEnum | null };
 
@@ -7421,6 +7478,27 @@ export const DeleteStripeIntegrationDialogFragmentDoc = gql`
     fragment DeleteStripeIntegrationDialog on StripeProvider {
   id
   name
+}
+    `;
+export const NetsuiteIntegrationItemsFragmentDoc = gql`
+    fragment NetsuiteIntegrationItems on NetsuiteIntegration {
+  id
+}
+    `;
+export const NetsuiteIntegrationSettingsFragmentDoc = gql`
+    fragment NetsuiteIntegrationSettings on NetsuiteIntegration {
+  id
+  accountId
+  clientId
+  clientSecret
+  code
+  hasMappingsConfigured
+  name
+  scriptEndpointUrl
+  syncCreditNotes
+  syncInvoices
+  syncPayments
+  syncSalesOrders
 }
     `;
 export const InviteForEditRoleForDialogFragmentDoc = gql`
@@ -8874,6 +8952,43 @@ export const GocardlessIntegrationOauthCallbackFragmentDoc = gql`
     `;
 export const GocardlessIntegrationsFragmentDoc = gql`
     fragment GocardlessIntegrations on GocardlessProvider {
+  id
+  name
+  code
+}
+    `;
+export const DeleteNetsuiteIntegrationDialogFragmentDoc = gql`
+    fragment DeleteNetsuiteIntegrationDialog on NetsuiteIntegration {
+  id
+  name
+}
+    `;
+export const NetsuiteForCreateDialogDialogFragmentDoc = gql`
+    fragment NetsuiteForCreateDialogDialog on NetsuiteIntegration {
+  id
+  accountId
+  clientId
+  clientSecret
+  code
+  name
+  scriptEndpointUrl
+  syncCreditNotes
+  syncInvoices
+  syncPayments
+  syncSalesOrders
+}
+    `;
+export const NetsuiteIntegrationDetailsFragmentDoc = gql`
+    fragment NetsuiteIntegrationDetails on NetsuiteIntegration {
+  id
+  name
+  ...DeleteNetsuiteIntegrationDialog
+  ...NetsuiteForCreateDialogDialog
+}
+    ${DeleteNetsuiteIntegrationDialogFragmentDoc}
+${NetsuiteForCreateDialogDialogFragmentDoc}`;
+export const NetsuiteIntegrationsFragmentDoc = gql`
+    fragment NetsuiteIntegrations on NetsuiteIntegration {
   id
   name
   code
@@ -12389,6 +12504,72 @@ export function useUpdateOrgaForLagoTaxManagementMutation(baseOptions?: Apollo.M
 export type UpdateOrgaForLagoTaxManagementMutationHookResult = ReturnType<typeof useUpdateOrgaForLagoTaxManagementMutation>;
 export type UpdateOrgaForLagoTaxManagementMutationResult = Apollo.MutationResult<UpdateOrgaForLagoTaxManagementMutation>;
 export type UpdateOrgaForLagoTaxManagementMutationOptions = Apollo.BaseMutationOptions<UpdateOrgaForLagoTaxManagementMutation, UpdateOrgaForLagoTaxManagementMutationVariables>;
+export const CreateNetsuiteIntegrationDocument = gql`
+    mutation createNetsuiteIntegration($input: CreateNetsuiteIntegrationInput!) {
+  createNetsuiteIntegration(input: $input) {
+    ...NetsuiteForCreateDialogDialog
+  }
+}
+    ${NetsuiteForCreateDialogDialogFragmentDoc}`;
+export type CreateNetsuiteIntegrationMutationFn = Apollo.MutationFunction<CreateNetsuiteIntegrationMutation, CreateNetsuiteIntegrationMutationVariables>;
+
+/**
+ * __useCreateNetsuiteIntegrationMutation__
+ *
+ * To run a mutation, you first call `useCreateNetsuiteIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateNetsuiteIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createNetsuiteIntegrationMutation, { data, loading, error }] = useCreateNetsuiteIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateNetsuiteIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<CreateNetsuiteIntegrationMutation, CreateNetsuiteIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateNetsuiteIntegrationMutation, CreateNetsuiteIntegrationMutationVariables>(CreateNetsuiteIntegrationDocument, options);
+      }
+export type CreateNetsuiteIntegrationMutationHookResult = ReturnType<typeof useCreateNetsuiteIntegrationMutation>;
+export type CreateNetsuiteIntegrationMutationResult = Apollo.MutationResult<CreateNetsuiteIntegrationMutation>;
+export type CreateNetsuiteIntegrationMutationOptions = Apollo.BaseMutationOptions<CreateNetsuiteIntegrationMutation, CreateNetsuiteIntegrationMutationVariables>;
+export const UpdateNetsuiteIntegrationDocument = gql`
+    mutation updateNetsuiteIntegration($input: UpdateNetsuiteIntegrationInput!) {
+  updateNetsuiteIntegration(input: $input) {
+    ...NetsuiteForCreateDialogDialog
+  }
+}
+    ${NetsuiteForCreateDialogDialogFragmentDoc}`;
+export type UpdateNetsuiteIntegrationMutationFn = Apollo.MutationFunction<UpdateNetsuiteIntegrationMutation, UpdateNetsuiteIntegrationMutationVariables>;
+
+/**
+ * __useUpdateNetsuiteIntegrationMutation__
+ *
+ * To run a mutation, you first call `useUpdateNetsuiteIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateNetsuiteIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateNetsuiteIntegrationMutation, { data, loading, error }] = useUpdateNetsuiteIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateNetsuiteIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<UpdateNetsuiteIntegrationMutation, UpdateNetsuiteIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateNetsuiteIntegrationMutation, UpdateNetsuiteIntegrationMutationVariables>(UpdateNetsuiteIntegrationDocument, options);
+      }
+export type UpdateNetsuiteIntegrationMutationHookResult = ReturnType<typeof useUpdateNetsuiteIntegrationMutation>;
+export type UpdateNetsuiteIntegrationMutationResult = Apollo.MutationResult<UpdateNetsuiteIntegrationMutation>;
+export type UpdateNetsuiteIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateNetsuiteIntegrationMutation, UpdateNetsuiteIntegrationMutationVariables>;
 export const GetProviderByCodeForStripeDocument = gql`
     query getProviderByCodeForStripe($code: String) {
   paymentProvider(code: $code) {
@@ -12575,6 +12756,39 @@ export function useDeleteGocardlessMutation(baseOptions?: Apollo.MutationHookOpt
 export type DeleteGocardlessMutationHookResult = ReturnType<typeof useDeleteGocardlessMutation>;
 export type DeleteGocardlessMutationResult = Apollo.MutationResult<DeleteGocardlessMutation>;
 export type DeleteGocardlessMutationOptions = Apollo.BaseMutationOptions<DeleteGocardlessMutation, DeleteGocardlessMutationVariables>;
+export const DestroyNangoIntegrationDocument = gql`
+    mutation destroyNangoIntegration($input: DestroyIntegrationInput!) {
+  destroyIntegration(input: $input) {
+    id
+  }
+}
+    `;
+export type DestroyNangoIntegrationMutationFn = Apollo.MutationFunction<DestroyNangoIntegrationMutation, DestroyNangoIntegrationMutationVariables>;
+
+/**
+ * __useDestroyNangoIntegrationMutation__
+ *
+ * To run a mutation, you first call `useDestroyNangoIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDestroyNangoIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [destroyNangoIntegrationMutation, { data, loading, error }] = useDestroyNangoIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDestroyNangoIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<DestroyNangoIntegrationMutation, DestroyNangoIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DestroyNangoIntegrationMutation, DestroyNangoIntegrationMutationVariables>(DestroyNangoIntegrationDocument, options);
+      }
+export type DestroyNangoIntegrationMutationHookResult = ReturnType<typeof useDestroyNangoIntegrationMutation>;
+export type DestroyNangoIntegrationMutationResult = Apollo.MutationResult<DestroyNangoIntegrationMutation>;
+export type DestroyNangoIntegrationMutationOptions = Apollo.BaseMutationOptions<DestroyNangoIntegrationMutation, DestroyNangoIntegrationMutationVariables>;
 export const DeleteStripeDocument = gql`
     mutation deleteStripe($input: DestroyPaymentProviderInput!) {
   destroyPaymentProvider(input: $input) {
@@ -12608,6 +12822,61 @@ export function useDeleteStripeMutation(baseOptions?: Apollo.MutationHookOptions
 export type DeleteStripeMutationHookResult = ReturnType<typeof useDeleteStripeMutation>;
 export type DeleteStripeMutationResult = Apollo.MutationResult<DeleteStripeMutation>;
 export type DeleteStripeMutationOptions = Apollo.BaseMutationOptions<DeleteStripeMutation, DeleteStripeMutationVariables>;
+export const GetNetsuiteIntegrationsSettingsDocument = gql`
+    query getNetsuiteIntegrationsSettings($id: ID!, $limit: Int) {
+  integration(id: $id) {
+    ... on NetsuiteIntegration {
+      id
+      ...NetsuiteIntegrationSettings
+      ...DeleteNetsuiteIntegrationDialog
+      ...NetsuiteForCreateDialogDialog
+    }
+  }
+  integrations(limit: $limit) {
+    collection {
+      ... on NetsuiteIntegration {
+        id
+      }
+    }
+  }
+}
+    ${NetsuiteIntegrationSettingsFragmentDoc}
+${DeleteNetsuiteIntegrationDialogFragmentDoc}
+${NetsuiteForCreateDialogDialogFragmentDoc}`;
+
+/**
+ * __useGetNetsuiteIntegrationsSettingsQuery__
+ *
+ * To run a query within a React component, call `useGetNetsuiteIntegrationsSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNetsuiteIntegrationsSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNetsuiteIntegrationsSettingsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetNetsuiteIntegrationsSettingsQuery(baseOptions: Apollo.QueryHookOptions<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>(GetNetsuiteIntegrationsSettingsDocument, options);
+      }
+export function useGetNetsuiteIntegrationsSettingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>(GetNetsuiteIntegrationsSettingsDocument, options);
+        }
+export function useGetNetsuiteIntegrationsSettingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>(GetNetsuiteIntegrationsSettingsDocument, options);
+        }
+export type GetNetsuiteIntegrationsSettingsQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsSettingsQuery>;
+export type GetNetsuiteIntegrationsSettingsLazyQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsSettingsLazyQuery>;
+export type GetNetsuiteIntegrationsSettingsSuspenseQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsSettingsSuspenseQuery>;
+export type GetNetsuiteIntegrationsSettingsQueryResult = Apollo.QueryResult<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>;
 export const CreateInviteDocument = gql`
     mutation createInvite($input: CreateInviteInput!) {
   createInvite(input: $input) {
@@ -16758,6 +17027,7 @@ export const IntegrationsSettingDocument = gql`
     id
     euTaxManagement
     country
+    premiumIntegrations
   }
   paymentProviders(limit: $limit) {
     collection {
@@ -16768,6 +17038,13 @@ export const IntegrationsSettingDocument = gql`
         id
       }
       ... on AdyenProvider {
+        id
+      }
+    }
+  }
+  integrations(limit: $limit) {
+    collection {
+      ... on NetsuiteIntegration {
         id
       }
     }
@@ -17090,6 +17367,107 @@ export type GetMembersQueryHookResult = ReturnType<typeof useGetMembersQuery>;
 export type GetMembersLazyQueryHookResult = ReturnType<typeof useGetMembersLazyQuery>;
 export type GetMembersSuspenseQueryHookResult = ReturnType<typeof useGetMembersSuspenseQuery>;
 export type GetMembersQueryResult = Apollo.QueryResult<GetMembersQuery, GetMembersQueryVariables>;
+export const GetNetsuiteIntegrationsDetailsDocument = gql`
+    query getNetsuiteIntegrationsDetails($id: ID!, $limit: Int) {
+  integration(id: $id) {
+    ... on NetsuiteIntegration {
+      id
+      ...NetsuiteIntegrationDetails
+    }
+  }
+  integrations(limit: $limit) {
+    collection {
+      ... on NetsuiteIntegration {
+        id
+      }
+    }
+  }
+}
+    ${NetsuiteIntegrationDetailsFragmentDoc}`;
+
+/**
+ * __useGetNetsuiteIntegrationsDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetNetsuiteIntegrationsDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNetsuiteIntegrationsDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNetsuiteIntegrationsDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetNetsuiteIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>(GetNetsuiteIntegrationsDetailsDocument, options);
+      }
+export function useGetNetsuiteIntegrationsDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>(GetNetsuiteIntegrationsDetailsDocument, options);
+        }
+export function useGetNetsuiteIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>(GetNetsuiteIntegrationsDetailsDocument, options);
+        }
+export type GetNetsuiteIntegrationsDetailsQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsDetailsQuery>;
+export type GetNetsuiteIntegrationsDetailsLazyQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsDetailsLazyQuery>;
+export type GetNetsuiteIntegrationsDetailsSuspenseQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsDetailsSuspenseQuery>;
+export type GetNetsuiteIntegrationsDetailsQueryResult = Apollo.QueryResult<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>;
+export const GetNetsuiteIntegrationsListDocument = gql`
+    query getNetsuiteIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
+  integrations(limit: $limit, type: $type) {
+    collection {
+      ... on NetsuiteIntegration {
+        id
+        ...NetsuiteIntegrations
+        ...NetsuiteForCreateDialogDialog
+        ...DeleteNetsuiteIntegrationDialog
+      }
+    }
+  }
+}
+    ${NetsuiteIntegrationsFragmentDoc}
+${NetsuiteForCreateDialogDialogFragmentDoc}
+${DeleteNetsuiteIntegrationDialogFragmentDoc}`;
+
+/**
+ * __useGetNetsuiteIntegrationsListQuery__
+ *
+ * To run a query within a React component, call `useGetNetsuiteIntegrationsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNetsuiteIntegrationsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNetsuiteIntegrationsListQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useGetNetsuiteIntegrationsListQuery(baseOptions?: Apollo.QueryHookOptions<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>(GetNetsuiteIntegrationsListDocument, options);
+      }
+export function useGetNetsuiteIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>(GetNetsuiteIntegrationsListDocument, options);
+        }
+export function useGetNetsuiteIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>(GetNetsuiteIntegrationsListDocument, options);
+        }
+export type GetNetsuiteIntegrationsListQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsListQuery>;
+export type GetNetsuiteIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsListLazyQuery>;
+export type GetNetsuiteIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsListSuspenseQuery>;
+export type GetNetsuiteIntegrationsListQueryResult = Apollo.QueryResult<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>;
 export const GetOrganizationInformationsDocument = gql`
     query getOrganizationInformations {
   organization {

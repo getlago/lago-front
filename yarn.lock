@@ -2267,6 +2267,11 @@
     prop-types "^15.8.1"
     react-transition-group "^4.4.5"
 
+"@nangohq/frontend@^0.39.18":
+  version "0.39.18"
+  resolved "https://registry.yarnpkg.com/@nangohq/frontend/-/frontend-0.39.18.tgz#2800c97ab6434a9ca4719b27b918388114192b95"
+  integrity sha512-pqpLUkzC6zCwc9hNtXTE2IgSP+biuR7U2ySPtK+k67E4kuJQdY4ifqRhw/IlpyHvstZ9MJPVsq8namZNkNE85g==
+
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz"

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router'
 import styled from 'styled-components'
 
 import { Avatar, Chip, Selector, SelectorSkeleton, Typography } from '~/components/designSystem'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   AddAdyenDialog,
   AddAdyenDialogRef,
@@ -17,6 +18,10 @@ import {
   AddLagoTaxManagementDialogRef,
 } from '~/components/settings/integrations/AddLagoTaxManagementDialog'
 import {
+  AddNetsuiteDialog,
+  AddNetsuiteDialogRef,
+} from '~/components/settings/integrations/AddNetsuiteDialog'
+import {
   AddStripeDialog,
   AddStripeDialogRef,
 } from '~/components/settings/integrations/AddStripeDialog'
@@ -29,16 +34,18 @@ import {
 import {
   ADYEN_INTEGRATION_ROUTE,
   GOCARDLESS_INTEGRATION_ROUTE,
+  NETSUITE_INTEGRATION_ROUTE,
   STRIPE_INTEGRATION_ROUTE,
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
 } from '~/core/router'
-import { useIntegrationsSettingQuery } from '~/generated/graphql'
+import { IntegrationTypeEnum, useIntegrationsSettingQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
 import Airbyte from '~/public/images/airbyte.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import HightTouch from '~/public/images/hightouch.svg'
 import LagoTaxManagement from '~/public/images/lago-tax-management.svg'
+import Netsuite from '~/public/images/netsuite.svg'
 import Oso from '~/public/images/oso.svg'
 import Segment from '~/public/images/segment.svg'
 import Stripe from '~/public/images/stripe.svg'
@@ -51,6 +58,7 @@ gql`
       id
       euTaxManagement
       country
+      premiumIntegrations
     }
 
     paymentProviders(limit: $limit) {
@@ -68,16 +76,26 @@ gql`
         }
       }
     }
+
+    integrations(limit: $limit) {
+      collection {
+        ... on NetsuiteIntegration {
+          id
+        }
+      }
+    }
   }
 `
 
 const Integrations = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
+  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
   const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
   const addGocardlessnDialogRef = useRef<AddGocardlessDialogRef>(null)
   const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
+  const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
   const { data, loading } = useIntegrationsSettingQuery({
     variables: { limit: 1000 },
   })
@@ -93,6 +111,12 @@ const Integrations = () => {
     (provider) => provider?.__typename === 'GocardlessProvider',
   )
   const hasTaxManagement = !!organization?.euTaxManagement
+  const hasAccessToNetsuitePremiumIntegration = !!organization?.premiumIntegrations?.includes(
+    IntegrationTypeEnum.Netsuite,
+  )
+  const hasNetsuiteIntegration = data?.integrations?.collection?.some(
+    (integration) => integration?.__typename === 'NetsuiteIntegration',
+  )
 
   return (
     <>
@@ -224,6 +248,37 @@ const Integrations = () => {
               }}
             />
             <StyledSelector
+              fullWidth
+              title={translate('text_661ff6e56ef7e1b7c542b239')}
+              subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
+              endIcon={
+                !hasAccessToNetsuitePremiumIntegration ? (
+                  'sparkles'
+                ) : hasNetsuiteIntegration ? (
+                  <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+                ) : undefined
+              }
+              icon={
+                <Avatar size="big" variant="connector">
+                  {<Netsuite />}
+                </Avatar>
+              }
+              onClick={() => {
+                if (!hasAccessToNetsuitePremiumIntegration) {
+                  premiumWarningDialogRef.current?.openDialog({
+                    title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                    description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                    mailtoSubject: translate('text_661ff6e56ef7e1b7c542b220'),
+                    mailtoBody: translate('text_661ff6e56ef7e1b7c542b238'),
+                  })
+                } else if (hasNetsuiteIntegration) {
+                  navigate(NETSUITE_INTEGRATION_ROUTE)
+                } else {
+                  addNetsuiteDialogRef.current?.openDialog()
+                }
+              }}
+            />
+            <StyledSelector
               title={translate('text_641b42035d62fd004e07cdde')}
               subtitle={translate('text_641b420ccd75240062f2386e')}
               icon={
@@ -263,15 +318,17 @@ const Integrations = () => {
             />
           </>
         )}
-
-        <AddAdyenDialog ref={addAdyenDialogRef} />
-        <AddStripeDialog ref={addStripeDialogRef} />
-        <AddGocardlessDialog ref={addGocardlessnDialogRef} />
-        <AddLagoTaxManagementDialog
-          country={organization?.country}
-          ref={addLagoTaxManagementDialog}
-        />
       </SettingsPageContentWrapper>
+
+      <AddAdyenDialog ref={addAdyenDialogRef} />
+      <AddStripeDialog ref={addStripeDialogRef} />
+      <AddGocardlessDialog ref={addGocardlessnDialogRef} />
+      <AddLagoTaxManagementDialog
+        country={organization?.country}
+        ref={addLagoTaxManagementDialog}
+      />
+      <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
+      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }
