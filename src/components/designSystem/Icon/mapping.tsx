@@ -59,6 +59,7 @@ import InfoCircle from '~/public/icons/info-circle.svg'
 import Key from '~/public/icons/key.svg'
 import KeyboardEnter from '~/public/icons/keyboard-enter.svg'
 import Laptop from '~/public/icons/laptop.svg'
+import Link from '~/public/icons/link.svg'
 import Lock from '~/public/icons/lock.svg'
 import Logout from '~/public/icons/log-out.svg'
 import MagnifyingGlass from '~/public/icons/magnifying-glass.svg'
@@ -87,6 +88,7 @@ import ResizeExpand from '~/public/icons/resize-expand.svg'
 import ResizeReduce from '~/public/icons/resize-reduce.svg'
 import Rocket from '~/public/icons/rocket.svg'
 import Rotate from '~/public/icons/rotate.svg'
+import Schema from '~/public/icons/schema.svg'
 import Scissor from '~/public/icons/scissor.svg'
 import Settings from '~/public/icons/settings.svg'
 import Share from '~/public/icons/share.svg'
@@ -175,6 +177,7 @@ export const ALL_ICONS = {
   'magnifying-glass': MagnifyingGlass,
   key: Key,
   laptop: Laptop,
+  link: Link,
   lock: Lock,
   logout: Logout,
   mail: Mail,
@@ -203,6 +206,7 @@ export const ALL_ICONS = {
   rocket: Rocket,
   rotate: Rotate,
   scissor: Scissor,
+  schema: Schema,
   settings: Settings,
   share: Share,
   smartphone: Smartphone,
