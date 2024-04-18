@@ -7,37 +7,26 @@ const { apiUrl } = envGlobalVar()
 const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
   if (!billableMetric) return '# Fill the form to generate the code snippet'
 
-  const { aggregationType, code, description, fieldName, filters, name, recurring } = billableMetric
+  const { aggregationType, code, fieldName, filters, recurring } = billableMetric
+  const firstFilter = filters?.[0]
+  const canDisplayFilterProperty = !!firstFilter && !!firstFilter?.key && !!firstFilter?.values?.[0]
 
-  // if (!name || !code || !aggregationType) {
-  //   return '# Fill the form to generate the code snippet'
-  // }
-
-  // "filters": ${JSON.stringify(filters, null, 2)},`
   const properties =
     !!fieldName || !!filters?.length
       ? `
       "properties": {${
-        aggregationType !== AggregationTypeEnum.CountAgg
+        !!aggregationType && aggregationType !== AggregationTypeEnum.CountAgg
           ? `
-        "${!!fieldName ? fieldName : '__PROPERTY_TO_AGGREGATE__'}": ${
-          !!fieldName
-            ? `"__${fieldName.toUpperCase()}_VALUE__"`
-            : '"__DEFINE_A_PROPERTY_TO_AGGREGATE__"'
-        },`
+          "${!!fieldName ? fieldName : '__PROPERTY_TO_AGGREGATE__'}": ${
+            !!fieldName
+              ? `"__${fieldName.toUpperCase()}_VALUE__"`
+              : '"__DEFINE_A_PROPERTY_TO_AGGREGATE__"'
+          },`
           : ''
       }${
-        (filters || [])?.length > 0
+        !!canDisplayFilterProperty
           ? `
-        "filters": {
-          ${filters?.map(
-            (filter) =>
-              `"${filter.key || '__DEFINE_A_KEY__'}": ["${
-                filter.values.length ? filter.values.join('","') : '__DEFINE_VALUES__'
-              }"],`,
-          ).join(`
-          `)}
-        },`
+          "${firstFilter?.key}": "${firstFilter?.values?.[0] || '__DEFINE_A_VALUE__'}",`
           : ''
       }
       }`
@@ -48,18 +37,10 @@ const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
   --header 'Content-Type: application/json' \\
   --data-raw '{
     "event": {
-      "transaction_id": "__UNIQUE_ID__", 
+      "transaction_id": "__UNIQUE_ID__",
       "external_subscription_id": "__EXTERNAL_SUBSCRIPTION_ID__",
-      "name": "${name || '__DEFINE_A_NAME__'}",
-      "code": "${code || '__DEFINE_A_CODE__'}",${
-        !!description
-          ? `
-      "description": "${description}",`
-          : ''
-      }
-      "aggregation_type": "${aggregationType || '__DEFINE_AN_AGGREGATION_TYPE__'}",
-      "recurring": ${recurring},
-      "timestamp": $(date +%s),${properties}
+      "code": "${code || '__DEFINE_A_CODE__'}",
+      "recurring": ${recurring},${properties}
     }
 }'
 
