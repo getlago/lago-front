@@ -247,11 +247,11 @@ const InvoiceSettings = () => {
             variant="quaternary"
             endIcon={isPremium ? undefined : 'sparkles'}
             disabled={loading}
-            onClick={
+            onClick={() => {
               isPremium
-                ? editGracePeriodDialogRef?.current?.openDialog
-                : premiumWarningDialogRef.current?.openDialog
-            }
+                ? editGracePeriodDialogRef?.current?.openDialog()
+                : premiumWarningDialogRef.current?.openDialog()
+            }}
           >
             {translate('text_637f819eff19cd55a56d55e4')}
           </Button>

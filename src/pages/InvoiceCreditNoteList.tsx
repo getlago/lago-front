@@ -86,7 +86,7 @@ const InvoiceCreditNoteList = () => {
                   ) : (
                     <Button
                       variant="quaternary"
-                      onClick={premiumWarningDialogRef.current?.openDialog}
+                      onClick={() => premiumWarningDialogRef.current?.openDialog()}
                       endIcon="sparkles"
                     >
                       {translate('text_636bdef6565341dcb9cfb127')}

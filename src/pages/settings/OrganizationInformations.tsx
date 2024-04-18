@@ -109,11 +109,11 @@ const OrganizationInformations = () => {
             variant="quaternary"
             disabled={!!loading}
             endIcon={isPremium ? undefined : 'sparkles'}
-            onClick={
+            onClick={() => {
               isPremium
-                ? editTimezoneDialogRef?.current?.openDialog
-                : premiumWarningDialogRef.current?.openDialog
-            }
+                ? editTimezoneDialogRef?.current?.openDialog()
+                : premiumWarningDialogRef.current?.openDialog()
+            }}
           >
             {translate('text_638906e7b4f1a919cb61d0f2')}
           </Button>
