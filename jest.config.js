@@ -60,6 +60,7 @@ module.exports = {
     IS_REACT_ACT_ENVIRONMENT: true,
     LAGO_OAUTH_PROXY_URL: 'https://proxy.lago.dev',
     LAGO_DISABLE_SIGNUP: 'false',
+    NANGO_PUBLIC_KEY: '',
     SENTRY_DSN: 'https://sentry.io/',
   },
 }
