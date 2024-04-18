@@ -604,5 +604,6 @@ const OrText = styled(Typography)`
 
 const LineButton = styled.div`
   display: flex;
+  flex-wrap: wrap;
   gap: ${theme.spacing(3)};
 `
