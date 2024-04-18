@@ -357,11 +357,11 @@ export const InvoiceWrapper = styled.section<{
         $isDraftInvoice
           ? css`
               &:nth-child(1) {
-                width: 50%;
+                width: 45%;
                 text-align: left;
               }
               &:nth-child(2) {
-                width: 10%;
+                width: 15%;
               }
               &:nth-child(3) {
                 width: 15%;
@@ -381,11 +381,11 @@ export const InvoiceWrapper = styled.section<{
           : $canHaveUnitPrice
             ? css`
                 &:nth-child(1) {
-                  width: 50%;
+                  width: 45%;
                   text-align: left;
                 }
                 &:nth-child(2) {
-                  width: 10%;
+                  width: 15%;
                 }
                 &:nth-child(3) {
                   width: 15%;
