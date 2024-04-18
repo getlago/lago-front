@@ -7,7 +7,7 @@ const { apiUrl } = envGlobalVar()
 const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
   if (!billableMetric) return '# Fill the form to generate the code snippet'
 
-  const { aggregationType, code, fieldName, filters, recurring } = billableMetric
+  const { aggregationType, code, fieldName, filters } = billableMetric
   const firstFilter = filters?.[0]
   const canDisplayFilterProperty = !!firstFilter && !!firstFilter?.key && !!firstFilter?.values?.[0]
 
@@ -39,8 +39,7 @@ const getSnippets = (billableMetric?: CreateBillableMetricInput) => {
     "event": {
       "transaction_id": "__UNIQUE_ID__",
       "external_subscription_id": "__EXTERNAL_SUBSCRIPTION_ID__",
-      "code": "${code || '__DEFINE_A_CODE__'}",
-      "recurring": ${recurring},${properties}
+      "code": "${code || '__DEFINE_A_CODE__'}",${properties}
     }
 }'
 
