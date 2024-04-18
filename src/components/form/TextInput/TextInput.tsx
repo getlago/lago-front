@@ -20,6 +20,8 @@ export enum ValueFormatter {
   code = 'code', // Replace all the spaces by "_"
   chargeDecimal = 'chargeDecimal', // Truncate charge numbers to 15 decimals
   lowercase = 'lowercase',
+  trim = 'trim',
+  dashSeparator = 'dashSeparator',
 }
 
 export type ValueFormatterType = keyof typeof ValueFormatter
@@ -98,11 +100,19 @@ export const formatValue = (
   }
 
   if (formatterFunctions.includes(ValueFormatter.code)) {
-    formattedValue = String(value).replace(/\s/g, '_')
+    formattedValue = String(formattedValue).replace(/\s/g, '_')
   }
 
   if (formatterFunctions.includes(ValueFormatter.lowercase)) {
-    formattedValue = String(value).toLowerCase()
+    formattedValue = String(formattedValue).toLowerCase()
+  }
+
+  if (formatterFunctions.includes(ValueFormatter.trim)) {
+    formattedValue = String(formattedValue).trim()
+  }
+
+  if (formatterFunctions.includes(ValueFormatter.dashSeparator)) {
+    formattedValue = String(formattedValue).replace(/ /g, '-').replace(/_/g, '-')
   }
 
   return !formattedValue && formattedValue !== 0 ? '' : formattedValue
@@ -133,10 +143,6 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
     const { translate } = useInternationalization()
     const [localValue, setLocalValue] = useState<string | number>('')
     const [isVisible, setIsVisible] = useState(!password)
-    const joinedBeforeChangeFormatter =
-      typeof beforeChangeFormatter === 'string'
-        ? beforeChangeFormatter
-        : (beforeChangeFormatter || ['']).join('')
 
     const udpateValue = (
       newValue: string | number,
@@ -159,13 +165,6 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
         setLocalValue('')
       }
     }, [value])
-
-    useEffect(() => {
-      if (!joinedBeforeChangeFormatter) return
-
-      udpateValue(value, null)
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [joinedBeforeChangeFormatter])
 
     const handleChange = useCallback(
       (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
