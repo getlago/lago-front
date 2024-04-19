@@ -149,15 +149,10 @@ export const CreditNoteFormCalculation = ({
       maxRefundableAmountCents: estimationData?.creditNoteEstimate.maxRefundableAmountCents || 0,
       totalTaxIncluded: isError
         ? 0
-        : canOnlyCredit
-          ? deserializeAmount(
-              estimationData?.creditNoteEstimate.maxCreditableAmountCents || 0,
-              currency,
-            )
-          : deserializeAmount(
-              estimationData?.creditNoteEstimate.maxRefundableAmountCents || 0,
-              currency,
-            ),
+        : deserializeAmount(
+            estimationData?.creditNoteEstimate?.subTotalExcludingTaxesAmountCents || 0,
+            currency,
+          ) + deserializeAmount(estimationData?.creditNoteEstimate.taxesAmountCents || 0, currency),
       proRatedCouponAmount: isError
         ? 0
         : deserializeAmount(
