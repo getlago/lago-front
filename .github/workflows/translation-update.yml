@@ -24,8 +24,8 @@ jobs:
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
-        with: 
-          token: ${{ secrets.GH_TOKEN }}
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           title: "chore(copy): Get last translations version"
           commit-message: "chore(copy): Get last translations version"
           branch: translation-update
