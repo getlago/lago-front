@@ -5,7 +5,7 @@
 #     types: [opened, reopened, review_requested, ready_for_review, synchronize]
 
 # jobs:
-#   cypress-run: 
+#   cypress-run:
 #     if: github.event.pull_request.draft == false
 #     name: Run Test E2E
 #     runs-on: ubuntu-latest
@@ -19,8 +19,8 @@
 #           repository: getlago/lago-api
 #           ref: ${{ github.event.inputs.api_branch }}
 #           path: api
-#           token: ${{ secrets.GH_TOKEN }}
-      
+#           token: ${{ secrets.GITHUB_TOKEN }}
+
 #       - name: Build Front local image
 #         run: |
 #           docker build -t getlago/front:ci ./
@@ -43,8 +43,8 @@
 
 #       - name: Cypress run
 #         uses: cypress-io/github-action@v6
-#         env: 
-#           CYPRESS_GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+#         env:
+#           CYPRESS_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 #         with:
 #           browser: chrome
 #           record: false
