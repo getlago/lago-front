@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { RefObject } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
@@ -15,7 +15,7 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { UPDATE_ADD_ON_ROUTE } from '~/core/router'
+import { ADD_ONS_ROUTE, UPDATE_ADD_ON_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { AddOnItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -52,6 +52,7 @@ export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItem
 
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const navigate = useNavigate()
 
   return (
     <ItemContainer>
@@ -123,7 +124,12 @@ export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItem
               align="left"
               fullWidth
               onClick={() => {
-                deleteDialogRef.current?.openDialog(addOn)
+                deleteDialogRef.current?.openDialog({
+                  addOn,
+                  callback: () => {
+                    navigate(ADD_ONS_ROUTE)
+                  },
+                })
                 closePopper()
               }}
             >
