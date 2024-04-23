@@ -3,7 +3,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, EditPlanFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { DetailsAccordionWrapper, DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
+import { DetailsAccordionWrapper, DetailsInfoGrid } from '~/styles/detailsPage'
 
 import PlanDetailsChargeTableDisplay from './PlanDetailsChargeTableDisplay'
 
@@ -30,23 +30,21 @@ const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null
             ],
           ]}
         />
-        <DetailsInfoGrid>
-          <DetailsInfoItem
-            label={translate('text_65201b8216455901fe273dd9')}
-            value={
-              plan?.payInAdvance
+        <DetailsInfoGrid
+          grid={[
+            {
+              label: translate('text_65201b8216455901fe273dd9'),
+              value: plan?.payInAdvance
                 ? translate('text_646e2d0cc536351b62ba6faa')
-                : translate('text_646e2d0cc536351b62ba6f8c')
-            }
-          />
-          <DetailsInfoItem
-            label={translate('text_65201b8216455901fe273dcd')}
-            value={plan?.trialPeriod}
-          />
-          <DetailsInfoItem
-            label={translate('text_645bb193927b375079d28a8f')}
-            value={
-              !!plan?.taxes?.length
+                : translate('text_646e2d0cc536351b62ba6f8c'),
+            },
+            {
+              label: translate('text_65201b8216455901fe273dcd'),
+              value: plan?.trialPeriod,
+            },
+            {
+              label: translate('text_645bb193927b375079d28a8f'),
+              value: !!plan?.taxes?.length
                 ? plan?.taxes?.map((tax, i) => (
                     <div key={`plan-details-fixed-fee-taxe-${i}`}>
                       <Typography variant="body" color="grey700">
@@ -59,10 +57,10 @@ const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null
                       </Typography>
                     </div>
                   ))
-                : '-'
-            }
-          />
-        </DetailsInfoGrid>
+                : '-',
+            },
+          ]}
+        />
       </DetailsAccordionWrapper>
     </Accordion>
   )

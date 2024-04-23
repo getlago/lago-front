@@ -12,7 +12,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
-import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
+import { DetailsInfoGrid } from '~/styles/detailsPage'
 
 import PlanDetailsChargesSectionAccordion from './PlanDetailsChargesSectionAccordion'
 
@@ -81,82 +81,83 @@ const PlanDetailsChargesSection = ({
               <ChargeSectionWrapper>
                 {/* Charge main infos */}
                 <PaddedChargeModelWrapper>
-                  <DetailsInfoGrid>
-                    <DetailsInfoItem
-                      label={translate('text_65201b8216455901fe273dd5')}
-                      value={translate(chargeModelLookupTranslation[charge.chargeModel])}
-                    />
-                    <DetailsInfoItem
-                      label={translate('text_65201b8216455901fe273dc1')}
-                      value={translate(
-                        mapChargeIntervalCopy(
-                          plan?.interval as PlanInterval,
-                          (plan?.interval === PlanInterval.Yearly && !!plan?.billChargesMonthly) ||
-                            false,
+                  <DetailsInfoGrid
+                    grid={[
+                      {
+                        label: translate('text_65201b8216455901fe273dd5'),
+                        value: translate(chargeModelLookupTranslation[charge.chargeModel]),
+                      },
+                      {
+                        label: translate('text_65201b8216455901fe273dc1'),
+                        value: translate(
+                          mapChargeIntervalCopy(
+                            plan?.interval as PlanInterval,
+                            (plan?.interval === PlanInterval.Yearly &&
+                              !!plan?.billChargesMonthly) ||
+                              false,
+                          ),
                         ),
-                      )}
-                    />
-                  </DetailsInfoGrid>
+                      },
+                    ]}
+                  />
                 </PaddedChargeModelWrapper>
                 {/* Propertiers accordion */}
                 <PlanDetailsChargesSectionAccordion currency={currency} charge={charge as Charge} />
                 {/* Options */}
                 <PaddedOptionsWrapper>
-                  <DetailsInfoGrid>
-                    <DetailsInfoItem
-                      label={translate('text_65201b8216455901fe273dd9')}
-                      value={
-                        charge?.payInAdvance
+                  <DetailsInfoGrid
+                    grid={[
+                      {
+                        label: translate('text_65201b8216455901fe273dd9'),
+                        value: charge?.payInAdvance
                           ? translate('text_646e2d0cc536351b62ba6faa')
-                          : translate('text_646e2d0cc536351b62ba6f8c')
-                      }
-                    />
-                    <DetailsInfoItem
-                      label={translate('text_65201b8216455901fe273ddb')}
-                      value={intlFormatNumber(deserializeAmount(charge.minAmountCents, currency), {
-                        currencyDisplay: 'symbol',
-                        currency,
-                        maximumFractionDigits: 15,
-                      })}
-                    />
-                    <DetailsInfoItem
-                      label={translate('text_65201b8216455901fe273df0')}
-                      value={
-                        charge.prorated
+                          : translate('text_646e2d0cc536351b62ba6f8c'),
+                      },
+                      {
+                        label: translate('text_65201b8216455901fe273ddb'),
+                        value: intlFormatNumber(
+                          deserializeAmount(charge.minAmountCents, currency),
+                          {
+                            currencyDisplay: 'symbol',
+                            currency,
+                            maximumFractionDigits: 15,
+                          },
+                        ),
+                      },
+                      {
+                        label: translate('text_65201b8216455901fe273df0'),
+                        value: charge.prorated
                           ? translate('text_65251f46339c650084ce0d57')
-                          : translate('text_65251f4cd55aeb004e5aa5ef')
-                      }
-                    />
-                    <DetailsInfoItem
-                      label={translate('text_646e2d0cc536351b62ba6f16')}
-                      value={
-                        charge.invoiceable
+                          : translate('text_65251f4cd55aeb004e5aa5ef'),
+                      },
+                      {
+                        label: translate('text_646e2d0cc536351b62ba6f16'),
+                        value: charge.invoiceable
                           ? translate('text_65251f46339c650084ce0d57')
-                          : translate('text_65251f4cd55aeb004e5aa5ef')
-                      }
-                    />
-                    <DetailsInfoItem
-                      label={translate('text_645bb193927b375079d28a8f')}
-                      value={
-                        !!charge?.taxes?.length || !!plan?.taxes?.length
-                          ? (charge.taxes?.length ? charge.taxes : plan?.taxes)?.map(
-                              (tax, taxIndex) => (
-                                <div
-                                  key={`plan-details-charge-${i}-section-accordion-tax-${taxIndex}`}
-                                >
-                                  {tax.name} (
-                                  {intlFormatNumber(Number(tax.rate) / 100 || 0, {
-                                    maximumFractionDigits: 2,
-                                    style: 'percent',
-                                  })}
-                                  )
-                                </div>
-                              ),
-                            )
-                          : '-'
-                      }
-                    />
-                  </DetailsInfoGrid>
+                          : translate('text_65251f4cd55aeb004e5aa5ef'),
+                      },
+                      {
+                        label: translate('text_645bb193927b375079d28a8f'),
+                        value:
+                          !!charge?.taxes?.length || !!plan?.taxes?.length
+                            ? (charge.taxes?.length ? charge.taxes : plan?.taxes)?.map(
+                                (tax, taxIndex) => (
+                                  <div
+                                    key={`plan-details-charge-${i}-section-accordion-tax-${taxIndex}`}
+                                  >
+                                    {tax.name} (
+                                    {intlFormatNumber(Number(tax.rate) / 100 || 0, {
+                                      maximumFractionDigits: 2,
+                                      style: 'percent',
+                                    })}
+                                    )
+                                  </div>
+                                ),
+                              )
+                            : '-',
+                      },
+                    ]}
+                  />
                 </PaddedOptionsWrapper>
               </ChargeSectionWrapper>
             </Accordion>
@@ -191,82 +192,83 @@ const PlanDetailsChargesSection = ({
               <ChargeSectionWrapper>
                 {/* Charge main infos */}
                 <PaddedChargeModelWrapper>
-                  <DetailsInfoGrid>
-                    <DetailsInfoItem
-                      label={translate('text_65201b8216455901fe273dd5')}
-                      value={translate(chargeModelLookupTranslation[charge.chargeModel])}
-                    />
-                    <DetailsInfoItem
-                      label={translate('text_65201b8216455901fe273dc1')}
-                      value={translate(
-                        mapChargeIntervalCopy(
-                          plan?.interval as PlanInterval,
-                          (plan?.interval === PlanInterval.Yearly && !!plan?.billChargesMonthly) ||
-                            false,
+                  <DetailsInfoGrid
+                    grid={[
+                      {
+                        label: translate('text_65201b8216455901fe273dd5'),
+                        value: translate(chargeModelLookupTranslation[charge.chargeModel]),
+                      },
+                      {
+                        label: translate('text_65201b8216455901fe273dc1'),
+                        value: translate(
+                          mapChargeIntervalCopy(
+                            plan?.interval as PlanInterval,
+                            (plan?.interval === PlanInterval.Yearly &&
+                              !!plan?.billChargesMonthly) ||
+                              false,
+                          ),
                         ),
-                      )}
-                    />
-                  </DetailsInfoGrid>
+                      },
+                    ]}
+                  />
                 </PaddedChargeModelWrapper>
                 {/* Propertiers accordion */}
                 <PlanDetailsChargesSectionAccordion currency={currency} charge={charge as Charge} />
                 {/* Options */}
                 <PaddedOptionsWrapper>
-                  <DetailsInfoGrid>
-                    <DetailsInfoItem
-                      label={translate('text_65201b8216455901fe273dd9')}
-                      value={
-                        charge?.payInAdvance
+                  <DetailsInfoGrid
+                    grid={[
+                      {
+                        label: translate('text_65201b8216455901fe273dd9'),
+                        value: charge?.payInAdvance
                           ? translate('text_646e2d0cc536351b62ba6faa')
-                          : translate('text_646e2d0cc536351b62ba6f8c')
-                      }
-                    />
-                    <DetailsInfoItem
-                      label={translate('text_65201b8216455901fe273ddb')}
-                      value={intlFormatNumber(deserializeAmount(charge.minAmountCents, currency), {
-                        currencyDisplay: 'symbol',
-                        currency,
-                        maximumFractionDigits: 15,
-                      })}
-                    />
-                    <DetailsInfoItem
-                      label={translate('text_65201b8216455901fe273df0')}
-                      value={
-                        charge.prorated
+                          : translate('text_646e2d0cc536351b62ba6f8c'),
+                      },
+                      {
+                        label: translate('text_65201b8216455901fe273ddb'),
+                        value: intlFormatNumber(
+                          deserializeAmount(charge.minAmountCents, currency),
+                          {
+                            currencyDisplay: 'symbol',
+                            currency,
+                            maximumFractionDigits: 15,
+                          },
+                        ),
+                      },
+                      {
+                        label: translate('text_65201b8216455901fe273df0'),
+                        value: charge.prorated
                           ? translate('text_65251f46339c650084ce0d57')
-                          : translate('text_65251f4cd55aeb004e5aa5ef')
-                      }
-                    />
-                    <DetailsInfoItem
-                      label={translate('text_646e2d0cc536351b62ba6f16')}
-                      value={
-                        charge.invoiceable
+                          : translate('text_65251f4cd55aeb004e5aa5ef'),
+                      },
+                      {
+                        label: translate('text_646e2d0cc536351b62ba6f16'),
+                        value: charge.invoiceable
                           ? translate('text_65251f46339c650084ce0d57')
-                          : translate('text_65251f4cd55aeb004e5aa5ef')
-                      }
-                    />
-                    <DetailsInfoItem
-                      label={translate('text_645bb193927b375079d28a8f')}
-                      value={
-                        !!charge?.taxes?.length || !!plan?.taxes?.length
-                          ? (charge.taxes?.length ? charge.taxes : plan?.taxes)?.map(
-                              (tax, taxIndex) => (
-                                <div
-                                  key={`plan-details-charge-${i}-section-accordion-tax-${taxIndex}`}
-                                >
-                                  {tax.name} (
-                                  {intlFormatNumber(Number(tax.rate) / 100 || 0, {
-                                    maximumFractionDigits: 2,
-                                    style: 'percent',
-                                  })}
-                                  )
-                                </div>
-                              ),
-                            )
-                          : '-'
-                      }
-                    />
-                  </DetailsInfoGrid>
+                          : translate('text_65251f4cd55aeb004e5aa5ef'),
+                      },
+                      {
+                        label: translate('text_645bb193927b375079d28a8f'),
+                        value:
+                          !!charge?.taxes?.length || !!plan?.taxes?.length
+                            ? (charge.taxes?.length ? charge.taxes : plan?.taxes)?.map(
+                                (tax, taxIndex) => (
+                                  <div
+                                    key={`plan-details-charge-${i}-section-accordion-tax-${taxIndex}`}
+                                  >
+                                    {tax.name} (
+                                    {intlFormatNumber(Number(tax.rate) / 100 || 0, {
+                                      maximumFractionDigits: 2,
+                                      style: 'percent',
+                                    })}
+                                    )
+                                  </div>
+                                ),
+                              )
+                            : '-',
+                      },
+                    ]}
+                  />
                 </PaddedOptionsWrapper>
               </ChargeSectionWrapper>
             </Accordion>

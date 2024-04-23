@@ -165,22 +165,24 @@ const PlanDetailsChargeWrapperSwitch = ({
             ]}
           />
 
-          <DetailsInfoGrid>
-            <DetailsInfoItem
-              label={translate('text_65201b8216455901fe273e01')}
-              value={intlFormatNumber(Number(values?.perTransactionMinAmount || 0), {
-                currency: currency,
-                minimumFractionDigits: 2,
-              })}
-            />
-            <DetailsInfoItem
-              label={translate('text_65201b8216455901fe273e03')}
-              value={intlFormatNumber(Number(values?.perTransactionMaxAmount || 0), {
-                currency: currency,
-                minimumFractionDigits: 2,
-              })}
-            />
-          </DetailsInfoGrid>
+          <DetailsInfoGrid
+            grid={[
+              {
+                label: translate('text_65201b8216455901fe273e01'),
+                value: intlFormatNumber(Number(values?.perTransactionMinAmount || 0), {
+                  currency: currency,
+                  minimumFractionDigits: 2,
+                }),
+              },
+              {
+                label: translate('text_65201b8216455901fe273e03'),
+                value: intlFormatNumber(Number(values?.perTransactionMaxAmount || 0), {
+                  currency: currency,
+                  minimumFractionDigits: 2,
+                }),
+              },
+            ]}
+          />
         </ChargeContentWrapper>
       )}
       {chargeModel === ChargeModelEnum.Volume && !!values?.volumeRanges?.length && (
