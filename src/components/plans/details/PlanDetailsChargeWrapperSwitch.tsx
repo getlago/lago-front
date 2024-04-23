@@ -8,7 +8,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
 
-import PlanDetailsChargeTableDisplay from './PlanDetailsChargeTableDisplay'
+import DetailsTableDisplay from '../../details/DetailsTableDisplay'
 
 const PlanDetailsChargeWrapperSwitch = ({
   currency,
@@ -27,7 +27,7 @@ const PlanDetailsChargeWrapperSwitch = ({
     <div>
       {chargeModel === ChargeModelEnum.Standard && (
         <ChargeContentWrapper>
-          <PlanDetailsChargeTableDisplay
+          <DetailsTableDisplay
             header={[translate('text_624453d52e945301380e49b6')]}
             body={[
               [
@@ -55,7 +55,7 @@ const PlanDetailsChargeWrapperSwitch = ({
       )}
       {chargeModel === ChargeModelEnum.Package && (
         <ChargeContentWrapper>
-          <PlanDetailsChargeTableDisplay
+          <DetailsTableDisplay
             header={[
               translate('text_624453d52e945301380e49b6'),
               translate('text_65201b8216455901fe273de7'),
@@ -77,7 +77,7 @@ const PlanDetailsChargeWrapperSwitch = ({
       )}
       {chargeModel === ChargeModelEnum.Graduated && !!values?.graduatedRanges?.length && (
         <ChargeContentWrapper>
-          <PlanDetailsChargeTableDisplay
+          <DetailsTableDisplay
             header={[
               translate('text_62793bbb599f1c01522e91ab'),
               translate('text_62793bbb599f1c01522e91b1'),
@@ -108,7 +108,7 @@ const PlanDetailsChargeWrapperSwitch = ({
       {chargeModel === ChargeModelEnum.GraduatedPercentage &&
         !!values?.graduatedPercentageRanges?.length && (
           <ChargeContentWrapper>
-            <PlanDetailsChargeTableDisplay
+            <DetailsTableDisplay
               header={[
                 translate('text_62793bbb599f1c01522e91ab'),
                 translate('text_62793bbb599f1c01522e91b1'),
@@ -138,7 +138,7 @@ const PlanDetailsChargeWrapperSwitch = ({
         )}
       {chargeModel === ChargeModelEnum.Percentage && (
         <ChargeContentWrapper>
-          <PlanDetailsChargeTableDisplay
+          <DetailsTableDisplay
             header={[
               translate('text_64de472463e2da6b31737de0'),
               translate('text_62ff5d01a306e274d4ffcc1e'),
@@ -187,7 +187,7 @@ const PlanDetailsChargeWrapperSwitch = ({
       )}
       {chargeModel === ChargeModelEnum.Volume && !!values?.volumeRanges?.length && (
         <ChargeContentWrapper>
-          <PlanDetailsChargeTableDisplay
+          <DetailsTableDisplay
             header={[
               translate('text_62793bbb599f1c01522e91ab'),
               translate('text_62793bbb599f1c01522e91b1'),

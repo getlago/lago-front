@@ -5,7 +5,7 @@ import { CurrencyEnum, EditPlanFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DetailsAccordionWrapper, DetailsInfoGrid } from '~/styles/detailsPage'
 
-import PlanDetailsChargeTableDisplay from './PlanDetailsChargeTableDisplay'
+import DetailsTableDisplay from '../../details/DetailsTableDisplay'
 
 const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null }) => {
   const { translate } = useInternationalization()
@@ -19,7 +19,7 @@ const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null
       }
     >
       <DetailsAccordionWrapper>
-        <PlanDetailsChargeTableDisplay
+        <DetailsTableDisplay
           header={[translate('text_624453d52e945301380e49b6')]}
           body={[
             [

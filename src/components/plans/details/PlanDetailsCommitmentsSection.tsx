@@ -8,7 +8,7 @@ import { CurrencyEnum, EditPlanFragment, PlanInterval } from '~/generated/graphq
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DetailsInfoGrid } from '~/styles/detailsPage'
 
-import PlanDetailsChargeTableDisplay from './PlanDetailsChargeTableDisplay'
+import DetailsTableDisplay from '../../details/DetailsTableDisplay'
 
 export const intervalDescriptionLookupTranslation = {
   [PlanInterval.Monthly]: 'text_65d620fda73c6f007f6f238c',
@@ -46,7 +46,7 @@ const PlanDetailsCommitmentsSection = ({
         }
       >
         <Stack direction="column" spacing={4}>
-          <PlanDetailsChargeTableDisplay
+          <DetailsTableDisplay
             header={[translate('text_65d601bffb11e0f9d1d9f571')]}
             body={[
               [

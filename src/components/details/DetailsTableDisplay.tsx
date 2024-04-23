@@ -3,18 +3,18 @@ import styled from 'styled-components'
 
 import { HEADER_TABLE_HEIGHT, theme } from '~/styles'
 
-type ChargeTableDisplayData = {
+type DetailsTableDisplayData = {
   header: Array<string>
   body: Array<Array<string | number>>
 }
 
-const PlanDetailsChargeTableDisplay = (data: ChargeTableDisplayData) => {
+const DetailsTableDisplay = (data: DetailsTableDisplayData) => {
   return (
-    <Table $dataLength={data.header.length || 1}>
+    <StyledTable $dataLength={data.header.length || 1}>
       <thead>
         <tr>
           {data.header.map((header, index) => (
-            <th key={`plan-details-charge-table-display-header-${index}`}>
+            <th key={`details-table-display-header-${index}`}>
               <Typography variant="captionHl">{header}</Typography>
             </th>
           ))}
@@ -22,20 +22,20 @@ const PlanDetailsChargeTableDisplay = (data: ChargeTableDisplayData) => {
       </thead>
       <tbody>
         {data.body.map((values, i) => (
-          <tr key={`plan-details-charge-table-display-body-tr-${i}`}>
+          <tr key={`details-table-display-body-tr-${i}`}>
             {values.map((value, j) => (
-              <td key={`plan-details-charge-table-display-tr-${i}-td-${j}`}>
+              <td key={`details-table-display-tr-${i}-td-${j}`}>
                 <Typography variant="body">{value}</Typography>
               </td>
             ))}
           </tr>
         ))}
       </tbody>
-    </Table>
+    </StyledTable>
   )
 }
 
-const Table = styled.table<{ $dataLength: number }>`
+const StyledTable = styled.table<{ $dataLength: number }>`
   width: 100%;
   border-spacing: 0;
   table-layout: ${({ $dataLength }) => ($dataLength > 3 ? 'auto' : 'fixed')};
@@ -76,4 +76,4 @@ const Table = styled.table<{ $dataLength: number }>`
   }
 `
 
-export default PlanDetailsChargeTableDisplay
+export default DetailsTableDisplay
