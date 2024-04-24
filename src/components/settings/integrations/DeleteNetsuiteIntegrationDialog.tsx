@@ -56,6 +56,7 @@ export const DeleteNetsuiteIntegrationDialog = forwardRef<DeleteNetsuiteIntegrat
       update(cache) {
         cache.evict({ id: `NetsuiteProvider:${netsuiteProvider?.id}` })
       },
+      refetchQueries: ['getNetsuiteIntegrationsList'],
     })
 
     useImperativeHandle(ref, () => ({

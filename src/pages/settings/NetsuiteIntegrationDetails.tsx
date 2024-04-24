@@ -25,7 +25,7 @@ import {
   DeleteNetsuiteIntegrationDialog,
   DeleteNetsuiteIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteNetsuiteIntegrationDialog'
-import NetsuiteIntegrationItems from '~/components/settings/integrations/NetsuiteIntegrationItems'
+import NetsuiteIntegrationItemsList from '~/components/settings/integrations/NetsuiteIntegrationItemsList'
 import NetsuiteIntegrationSettings from '~/components/settings/integrations/NetsuiteIntegrationSettings'
 import {
   INTEGRATIONS_ROUTE,
@@ -36,6 +36,7 @@ import {
   DeleteNetsuiteIntegrationDialogFragmentDoc,
   NetsuiteForCreateDialogDialogFragmentDoc,
   NetsuiteIntegrationDetailsFragment,
+  NetsuiteIntegrationItemsFragmentDoc,
   useGetNetsuiteIntegrationsDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -55,6 +56,7 @@ gql`
     name
     ...DeleteNetsuiteIntegrationDialog
     ...NetsuiteForCreateDialogDialog
+    ...NetsuiteIntegrationItems
   }
 
   query getNetsuiteIntegrationsDetails($id: ID!, $limit: Int) {
@@ -76,6 +78,7 @@ gql`
 
   ${DeleteNetsuiteIntegrationDialogFragmentDoc}
   ${NetsuiteForCreateDialogDialogFragmentDoc}
+  ${NetsuiteIntegrationItemsFragmentDoc}
 `
 
 const NetsuiteIntegrationDetails = () => {
@@ -204,7 +207,7 @@ const NetsuiteIntegrationDetails = () => {
               integrationId,
               tab: NetsuiteIntegrationDetailsTabs.Items,
             }),
-            component: <NetsuiteIntegrationItems />,
+            component: <NetsuiteIntegrationItemsList integrationId={netsuiteIntegration?.id} />,
           },
         ]}
       />
