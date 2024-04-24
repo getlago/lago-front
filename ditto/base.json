@@ -758,6 +758,8 @@
   "text_65940198687ce7b05cd62b63": "Please connect an Adyen account in the Settings -> Integration section",
   "text_65940198687ce7b05cd62b64": "Please connect a Stripe account in the Settings -> Integration section",
   "text_65940198687ce7b05cd62b65": "Please connect a Gocardless account in the Settings -> Integration section",
+  "text_6627e7b9732dbfb6c472e027": "Add-on details",
+  "text_6627e7b9732dbfb6c472e02d": "Add-on code",
   "text_64c7a89b6c67eb6c98898167": "Net payment term",
   "text_64c7a89b6c67eb6c98898182": "Period within which a customer is expected to pay for an invoice after it has been issued.\nNeed more flexibility? Set a payment term at the customer level to override the one above.",
   "text_64c7a89b6c67eb6c988980eb": "The duration within which a customer is expected to remit payment after the invoice is issued. Note that it may impact all invoices already in draft.",
