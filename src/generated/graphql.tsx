@@ -5697,6 +5697,13 @@ export type SideNavInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type SideNavInfosQuery = { __typename?: 'Query', currentVersion: { __typename?: 'CurrentVersion', githubUrl: string, number: string } };
 
+export type GetAddOnForDetailsQueryVariables = Exact<{
+  addOn: Scalars['ID']['input'];
+}>;
+
+
+export type GetAddOnForDetailsQuery = { __typename?: 'Query', addOn?: { __typename?: 'AddOn', id: string, name: string, amountCents: any, amountCurrency: CurrencyEnum, code: string, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null } | null };
+
 export type AddOnsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -13179,6 +13186,56 @@ export type SideNavInfosQueryHookResult = ReturnType<typeof useSideNavInfosQuery
 export type SideNavInfosLazyQueryHookResult = ReturnType<typeof useSideNavInfosLazyQuery>;
 export type SideNavInfosSuspenseQueryHookResult = ReturnType<typeof useSideNavInfosSuspenseQuery>;
 export type SideNavInfosQueryResult = Apollo.QueryResult<SideNavInfosQuery, SideNavInfosQueryVariables>;
+export const GetAddOnForDetailsDocument = gql`
+    query getAddOnForDetails($addOn: ID!) {
+  addOn(id: $addOn) {
+    id
+    name
+    amountCents
+    amountCurrency
+    code
+    taxes {
+      id
+      code
+      name
+      rate
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetAddOnForDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetAddOnForDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAddOnForDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAddOnForDetailsQuery({
+ *   variables: {
+ *      addOn: // value for 'addOn'
+ *   },
+ * });
+ */
+export function useGetAddOnForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>(GetAddOnForDetailsDocument, options);
+      }
+export function useGetAddOnForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>(GetAddOnForDetailsDocument, options);
+        }
+export function useGetAddOnForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>(GetAddOnForDetailsDocument, options);
+        }
+export type GetAddOnForDetailsQueryHookResult = ReturnType<typeof useGetAddOnForDetailsQuery>;
+export type GetAddOnForDetailsLazyQueryHookResult = ReturnType<typeof useGetAddOnForDetailsLazyQuery>;
+export type GetAddOnForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetAddOnForDetailsSuspenseQuery>;
+export type GetAddOnForDetailsQueryResult = Apollo.QueryResult<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>;
 export const AddOnsDocument = gql`
     query addOns($page: Int, $limit: Int, $searchTerm: String) {
   addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {

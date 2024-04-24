@@ -48,6 +48,9 @@ const SubscriptionDetails = lazyLoad(
 const PlanDetails = lazyLoad(
   () => import(/* webpackChunkName: 'plan-details' */ '~/pages/PlanDetails'),
 )
+const AddOnDetails = lazyLoad(
+  () => import(/* webpackChunkName: 'add-on-details' */ '~/pages/AddOnDetails'),
+)
 
 // ----------- Routes -----------
 // Lists
@@ -91,6 +94,7 @@ export const PLAN_SUBSCRIPTION_DETAILS_ROUTE = '/plan/:planId/subscription/:subs
 export const PLAN_DETAILS_ROUTE = '/plan/:planId/:tab'
 export const CUSTOMER_SUBSCRIPTION_PLAN_DETAILS =
   '/customer/:customerId/subscription/:subscriptionId/plan/:planId/:tab'
+export const ADD_ON_DETAILS_ROUTE = '/add-on/:addOnId'
 
 export const objectListRoutes: CustomRouteObject[] = [
   {
@@ -173,5 +177,10 @@ export const objectDetailsRoutes: CustomRouteObject[] = [
     path: [PLAN_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS],
     private: true,
     element: <PlanDetails />,
+  },
+  {
+    path: [ADD_ON_DETAILS_ROUTE],
+    private: true,
+    element: <AddOnDetails />,
   },
 ]
