@@ -11,25 +11,11 @@ import {
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
-import {
-  ChargeUsage,
-  CurrencyEnum,
-  GroupForUsageDetailsFragmentDoc,
-  TimezoneEnum,
-} from '~/generated/graphql'
+import { ChargeUsage, CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NAV_HEIGHT, theme } from '~/styles'
 
 gql`
-  fragment GroupForUsageDetails on GroupUsage {
-    id
-    amountCents
-    key
-    units
-    value
-    invoiceDisplayName
-  }
-
   fragment CustomerUsageForUsageDetails on CustomerUsage {
     fromDatetime
     toDatetime
@@ -63,8 +49,6 @@ gql`
       }
     }
   }
-
-  ${GroupForUsageDetailsFragmentDoc}
 `
 
 export interface CustomerUsageDetailDrawerRef {
