@@ -17,7 +17,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
 gql`
-  fragment EditOrganizationDefaultCurrencyForDialog on Organization {
+  fragment EditOrganizationDefaultCurrencyForDialog on CurrentOrganization {
     id
     defaultCurrency
   }

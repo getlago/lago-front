@@ -21,7 +21,7 @@ const DynamicPrefixTranslationLoohup = {
 }
 
 gql`
-  fragment EditOrganizationInvoiceNumberingDialog on Organization {
+  fragment EditOrganizationInvoiceNumberingDialog on CurrentOrganization {
     id
     documentNumbering
     documentNumberPrefix

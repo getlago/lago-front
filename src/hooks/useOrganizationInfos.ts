@@ -10,7 +10,7 @@ import {
 } from '~/generated/graphql'
 
 gql`
-  fragment MainOrganizationInfos on Organization {
+  fragment MainOrganizationInfos on CurrentOrganization {
     id
     name
     logoUrl

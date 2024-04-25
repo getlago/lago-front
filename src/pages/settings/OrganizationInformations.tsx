@@ -28,7 +28,7 @@ import { NAV_HEIGHT, theme } from '~/styles'
 import { SettingsHeaderNameWrapper, SettingsPageContentWrapper } from '~/styles/settingsPage'
 
 gql`
-  fragment OrganizationInformations on Organization {
+  fragment OrganizationInformations on CurrentOrganization {
     id
     logoUrl
     name

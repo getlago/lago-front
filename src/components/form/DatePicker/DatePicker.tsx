@@ -16,7 +16,7 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { theme } from '~/styles'
 
 gql`
-  fragment OrganizationForDatePicker on Organization {
+  fragment OrganizationForDatePicker on CurrentOrganization {
     id
     timezone
   }
