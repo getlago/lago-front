@@ -46,24 +46,26 @@ const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
           {translate('text_642d5eb2783a2ad10d67031a')}
         </DetailsSectionTitle>
         <ContentWrapper>
-          <DetailsInfoGrid>
-            <DetailsInfoItem
-              label={translate('text_62442e40cea25600b0b6d852')}
-              value={plan?.name}
-            />
-            <DetailsInfoItem
-              label={translate('text_642d5eb2783a2ad10d670320')}
-              value={plan?.code}
-            />
-            <DetailsInfoItem
-              label={translate('text_65201b8216455901fe273dc1')}
-              value={translate(getIntervalTranslationKey[plan?.interval as PlanInterval])}
-            />
-            <DetailsInfoItem
-              label={translate('text_632b4acf0c41206cbcb8c324')}
-              value={plan?.amountCurrency}
-            />
-          </DetailsInfoGrid>
+          <DetailsInfoGrid
+            grid={[
+              {
+                label: translate('text_62442e40cea25600b0b6d852'),
+                value: plan?.name,
+              },
+              {
+                label: translate('text_642d5eb2783a2ad10d670320'),
+                value: plan?.code,
+              },
+              {
+                label: translate('text_65201b8216455901fe273dc1'),
+                value: translate(getIntervalTranslationKey[plan?.interval as PlanInterval]),
+              },
+              {
+                label: translate('text_632b4acf0c41206cbcb8c324'),
+                value: plan?.amountCurrency,
+              },
+            ]}
+          />
 
           {!!plan?.description && (
             <DetailsInfoItem

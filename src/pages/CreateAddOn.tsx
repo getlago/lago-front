@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { number, object, string } from 'yup'
 
@@ -16,7 +16,7 @@ import {
   SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME,
 } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { ADD_ONS_ROUTE } from '~/core/router'
+import { ADD_ON_DETAILS_ROUTE, ADD_ONS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
@@ -26,8 +26,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { PageHeader } from '~/styles'
-import { Card, theme } from '~/styles'
+import { Card, PageHeader, theme } from '~/styles'
 import {
   ButtonContainer,
   Content,
@@ -65,6 +64,7 @@ const CreateAddOn = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
   const { organization } = useOrganizationInfos()
+  const { addOnId } = useParams()
   const { isEdition, loading, addOn, errorCode, onSave } = useCreateEditAddOn()
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const [getTaxes, { data: taxesData, loading: taxesLoading }] = useGetTaxesForAddOnFormLazyQuery({
@@ -159,7 +159,11 @@ const CreateAddOn = () => {
           variant="quaternary"
           icon="close"
           onClick={() =>
-            formikProps.dirty ? warningDialogRef.current?.openDialog() : navigate(ADD_ONS_ROUTE)
+            formikProps.dirty
+              ? warningDialogRef.current?.openDialog()
+              : isEdition && addOnId
+                ? navigate(generatePath(ADD_ON_DETAILS_ROUTE, { addOnId }))
+                : navigate(ADD_ONS_ROUTE)
           }
         />
       </PageHeader>

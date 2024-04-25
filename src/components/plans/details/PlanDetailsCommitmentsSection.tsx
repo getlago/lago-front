@@ -1,5 +1,4 @@
 import { Stack } from '@mui/material'
-import React from 'react'
 
 import { Accordion, Typography } from '~/components/designSystem'
 import { getIntervalTranslationKey } from '~/core/constants/form'
@@ -7,9 +6,9 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, EditPlanFragment, PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
+import { DetailsInfoGrid } from '~/styles/detailsPage'
 
-import PlanDetailsChargeTableDisplay from './PlanDetailsChargeTableDisplay'
+import DetailsTableDisplay from '../../details/DetailsTableDisplay'
 
 export const intervalDescriptionLookupTranslation = {
   [PlanInterval.Monthly]: 'text_65d620fda73c6f007f6f238c',
@@ -47,7 +46,7 @@ const PlanDetailsCommitmentsSection = ({
         }
       >
         <Stack direction="column" spacing={4}>
-          <PlanDetailsChargeTableDisplay
+          <DetailsTableDisplay
             header={[translate('text_65d601bffb11e0f9d1d9f571')]}
             body={[
               [
@@ -64,15 +63,15 @@ const PlanDetailsCommitmentsSection = ({
             ]}
           />
 
-          <DetailsInfoGrid>
-            <DetailsInfoItem
-              label={translate('text_65201b8216455901fe273dc1')}
-              value={translate(getIntervalTranslationKey[plan?.interval as PlanInterval])}
-            />
-            <DetailsInfoItem
-              label={translate('text_645bb193927b375079d28a8f')}
-              value={
-                !!plan?.minimumCommitment?.taxes?.length
+          <DetailsInfoGrid
+            grid={[
+              {
+                label: translate('text_65201b8216455901fe273dc1'),
+                value: translate(getIntervalTranslationKey[plan?.interval as PlanInterval]),
+              },
+              {
+                label: translate('text_645bb193927b375079d28a8f'),
+                value: !!plan?.minimumCommitment?.taxes?.length
                   ? plan?.minimumCommitment?.taxes?.map((tax, i) => (
                       <Typography
                         key={`plan-details-fixed-fee-taxe-${i}`}
@@ -87,10 +86,10 @@ const PlanDetailsCommitmentsSection = ({
                         )
                       </Typography>
                     ))
-                  : '-'
-              }
-            />
-          </DetailsInfoGrid>
+                  : '-',
+              },
+            ]}
+          />
         </Stack>
       </Accordion>
     </Stack>

@@ -69,54 +69,50 @@ const SubscriptionInformations = ({
           label={translate('text_65201c5a175a4b0238abf298')}
           value={subscription?.externalId}
         />
-        <DetailsInfoGrid>
-          <DetailsInfoItem
-            label={translate('text_65201c5a175a4b0238abf29a')}
-            value={
-              <Link
-                to={generatePath(CUSTOMER_DETAILS_ROUTE, {
-                  customerId: subscription?.customer?.id as string,
-                })}
-              >
-                {subscription?.customer?.name}
-              </Link>
-            }
-          />
-          <DetailsInfoItem
-            label={translate('text_62d7f6178ec94cd09370e5fb')}
-            value={
-              <Status
-                type={
-                  subscription?.status === StatusTypeEnum.Pending
-                    ? StatusEnum.paused
-                    : StatusEnum.running
-                }
-                label={
-                  subscription?.status === StatusTypeEnum.Pending
-                    ? translate('text_624efab67eb2570101d117f6')
-                    : translate('text_624efab67eb2570101d1180e')
-                }
-              />
-            }
-          />
-          <DetailsInfoItem
-            label={translate('text_65201c5a175a4b0238abf29e')}
-            value={DateTime.fromISO(subscription?.subscriptionAt).toFormat('LLL. dd, yyyy')}
-          />
-
-          <DetailsInfoItem
-            label={translate('text_65201c5a175a4b0238abf2a0')}
-            value={
-              !!subscription?.endingAt
+        <DetailsInfoGrid
+          grid={[
+            {
+              label: translate('text_65201c5a175a4b0238abf29a'),
+              value: (
+                <Link
+                  to={generatePath(CUSTOMER_DETAILS_ROUTE, {
+                    customerId: subscription?.customer?.id as string,
+                  })}
+                >
+                  {subscription?.customer?.name}
+                </Link>
+              ),
+            },
+            {
+              label: translate('text_62d7f6178ec94cd09370e5fb'),
+              value: (
+                <Status
+                  type={
+                    subscription?.status === StatusTypeEnum.Pending
+                      ? StatusEnum.paused
+                      : StatusEnum.running
+                  }
+                  label={
+                    subscription?.status === StatusTypeEnum.Pending
+                      ? translate('text_624efab67eb2570101d117f6')
+                      : translate('text_624efab67eb2570101d1180e')
+                  }
+                />
+              ),
+            },
+            {
+              label: translate('text_65201c5a175a4b0238abf29e'),
+              value: DateTime.fromISO(subscription?.subscriptionAt).toFormat('LLL. dd, yyyy'),
+            },
+            {
+              label: translate('text_65201c5a175a4b0238abf2a0'),
+              value: !!subscription?.endingAt
                 ? DateTime.fromISO(subscription?.endingAt).toFormat('LLL. dd, yyyy')
-                : '-'
-            }
-          />
-
-          {!!subscription?.plan?.parent?.id && (
-            <DetailsInfoItem
-              label={translate('text_65201c5a175a4b0238abf2a2')}
-              value={
+                : '-',
+            },
+            !!subscription?.plan?.parent?.id && {
+              label: translate('text_65201c5a175a4b0238abf2a2'),
+              value: (
                 <Link
                   to={generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
                     customerId: subscription?.customer?.id as string,
@@ -127,10 +123,10 @@ const SubscriptionInformations = ({
                 >
                   {subscription?.plan?.parent?.name}
                 </Link>
-              }
-            />
-          )}
-        </DetailsInfoGrid>
+              ),
+            },
+          ]}
+        />
       </ContentWrapper>
     </section>
   )

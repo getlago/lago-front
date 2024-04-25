@@ -20,15 +20,23 @@ gql`
   }
 `
 
+interface DeleteAddOnDialogProps {
+  addOn: DeleteAddOnFragment
+  callback?: () => void
+}
+
 export interface DeleteAddOnDialogRef {
-  openDialog: (addOn: DeleteAddOnFragment) => unknown
+  openDialog: ({ addOn, callback }: DeleteAddOnDialogProps) => unknown
   closeDialog: () => unknown
 }
 
 export const DeleteAddOnDialog = forwardRef<DeleteAddOnDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)
-  const [addOn, setAddOn] = useState<DeleteAddOnFragment | undefined>(undefined)
+  const [localData, setLocalData] = useState<DeleteAddOnDialogProps | undefined>(undefined)
+
+  const { id = '', name = '' } = localData?.addOn || {}
+
   const [deleteAddOn] = useDeleteAddOnMutation({
     onCompleted(data) {
       if (data && data.destroyAddOn) {
@@ -36,6 +44,8 @@ export const DeleteAddOnDialog = forwardRef<DeleteAddOnDialogRef>((_, ref) => {
           message: translate('text_629728388c4d2300e2d3815f'),
           severity: 'success',
         })
+
+        localData?.callback && localData.callback()
       }
     },
     update(cache, { data }) {
@@ -51,7 +61,7 @@ export const DeleteAddOnDialog = forwardRef<DeleteAddOnDialogRef>((_, ref) => {
 
   useImperativeHandle(ref, () => ({
     openDialog: (data) => {
-      setAddOn(data)
+      setLocalData(data)
       dialogRef.current?.openDialog()
     },
     closeDialog: () => {
@@ -63,12 +73,12 @@ export const DeleteAddOnDialog = forwardRef<DeleteAddOnDialogRef>((_, ref) => {
     <WarningDialog
       ref={dialogRef}
       title={translate('text_629728388c4d2300e2d380ad', {
-        addOnName: addOn?.name,
+        addOnName: name,
       })}
       description={<Typography html={translate('text_629728388c4d2300e2d380c5')} />}
       onContinue={async () =>
         await deleteAddOn({
-          variables: { input: { id: addOn?.id || '' } },
+          variables: { input: { id: id || '' } },
         })
       }
       continueText={translate('text_629728388c4d2300e2d380f5')}

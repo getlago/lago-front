@@ -68,6 +68,7 @@ const ready_for_dev___settings___add_redirect_url_to_psp = require('./ready-for-
 const ready_for_dev___settings___customers___lago_gocardless_connection = require('./ready-for-dev---settings---customers---lago-gocardless-connection__base.json');
 const ready_for_dev___settings___define_invoice_number = require('./ready-for-dev---settings---define-invoice-number__base.json');
 const ready_for_dev___settings___net_payment_term = require('./ready-for-dev---settings---net-payment-term__base.json');
+const ready_for_dev___settings___role_base_access_control = require('./ready-for-dev---settings---role-base-access-control__base.json');
 const ready_for_dev___settings___several_psp_accounts = require('./ready-for-dev---settings---several-psp-accounts__base.json');
 const ready_for_dev___settings_customers___lago_x_data_warehouse_connection = require('./ready-for-dev---settings-customers---lago-x-data-warehouse-connection__base.json');
 const ready_for_dev___settings_customers___lago_x_osso_connection = require('./ready-for-dev---settings-customers---lago-x-osso-connection__base.json');
@@ -102,6 +103,7 @@ const wip___customers___real_time_prepaid_credits = require('./wip---customers--
 const wip___customers___subscription_on_anniversary_date = require('./wip---customers---subscription-on-anniversary-date__base.json');
 const wip___general___fe_environment_infos = require('./wip---general---fe-environment-infos__base.json');
 const wip___integration___lago_eu_tax_integration = require('./wip---integration---lago-eu-tax-integration__base.json');
+const wip___invoices___dispute_payment_intent = require('./wip---invoices---dispute-payment-intent__base.json');
 const wip___plan___charges_paid_in_advance = require('./wip---plan---charges-paid-in-advance__base.json');
 const wip___settings___create_tax_rate_object_apply_on_org_cus = require('./wip---settings---create-tax-rate-object-apply-on-org-cus__base.json');
 const wip___settings___define_preferred_doc_language_generation = require('./wip---settings---define-preferred-doc-language-generation__base.json');
@@ -324,6 +326,9 @@ module.exports = {
   "project_64c7a896197f1907cbc6371c": {
     "base": {...ready_for_dev___settings___net_payment_term}
   },
+  "project_6627e7b722eb1147b8c7eccc": {
+    "base": {...ready_for_dev___settings___role_base_access_control}
+  },
   "project_6584550ac28443047853c17f": {
     "base": {...ready_for_dev___settings___several_psp_accounts}
   },
@@ -413,6 +418,9 @@ module.exports = {
   },
   "project_657078becf8335e0955b5bf4": {
     "base": {...wip___integration___lago_eu_tax_integration}
+  },
+  "project_66141e2ffa16c75cb553dbc1": {
+    "base": {...wip___invoices___dispute_payment_intent}
   },
   "project_646e2d05cf47b79ad4b5ccf5": {
     "base": {...wip___plan___charges_paid_in_advance}
