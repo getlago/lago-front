@@ -14,7 +14,7 @@ import { theme } from '~/styles'
 const MAX_CHAR_LIMIT = 600
 
 gql`
-  fragment EditOrganizationInvoiceTemplateDialog on Organization {
+  fragment EditOrganizationInvoiceTemplateDialog on CurrentOrganization {
     billingConfiguration {
       id
       invoiceFooter

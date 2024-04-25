@@ -26,7 +26,7 @@ gql`
     netPaymentTerm
   }
 
-  fragment EditOrganizationNetPaymentTermForDialog on Organization {
+  fragment EditOrganizationNetPaymentTermForDialog on CurrentOrganization {
     id
     netPaymentTerm
   }
@@ -48,7 +48,7 @@ gql`
 
 enum NetPaymentTermModelTypesEnum {
   'Customer' = 'Customer',
-  'Organization' = 'Organization',
+  'CurrentOrganization' = 'CurrentOrganization',
 }
 
 export interface EditNetPaymentTermDialogRef {
@@ -151,7 +151,7 @@ export const EditNetPaymentTermDialog = forwardRef<
             },
           },
         })
-      } else if (model.__typename === NetPaymentTermModelTypesEnum.Organization) {
+      } else if (model.__typename === NetPaymentTermModelTypesEnum.CurrentOrganization) {
         await updateOrganization({
           variables: {
             input: localInput,

@@ -19,7 +19,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
 gql`
-  fragment EditOrganizationInformationsDialog on Organization {
+  fragment EditOrganizationInformationsDialog on CurrentOrganization {
     id
     logoUrl
     name
