@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { AddOnFormInput } from '~/components/addOns/types'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
-import { ADD_ONS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
+import { ADD_ON_DETAILS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   AddOnItemFragmentDoc,
@@ -96,7 +96,7 @@ export const useCreateEditAddOn: () => UseCreateEditAddOnReturn = () => {
           severity: 'success',
           translateKey: 'text_633336532bdf72cb62dc0692',
         })
-        navigate(ADD_ONS_ROUTE)
+        navigate(generatePath(ADD_ON_DETAILS_ROUTE, { addOnId: createAddOn.id }))
       }
     },
   })
@@ -108,7 +108,7 @@ export const useCreateEditAddOn: () => UseCreateEditAddOnReturn = () => {
           severity: 'success',
           translateKey: 'text_629728388c4d2300e2d3818a',
         })
-        navigate(ADD_ONS_ROUTE)
+        navigate(generatePath(ADD_ON_DETAILS_ROUTE, { addOnId: updateAddOn.id }))
       }
     },
   })
