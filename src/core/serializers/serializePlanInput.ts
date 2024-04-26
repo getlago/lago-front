@@ -10,10 +10,10 @@ const serializeScientificNotation = (value: string): string => {
 }
 
 const serializeFilters = (
-  filters: LocalChargeFilterInput[] | null | undefined,
+  filters: LocalChargeFilterInput[] | undefined,
   chargeModel: ChargeModelEnum,
 ): ChargeFilterInput[] | undefined => {
-  if (!filters?.length) return undefined
+  if (!filters?.length) return []
 
   return filters.map(({ values, properties, invoiceDisplayName, ...filterProps }) => {
     const allValuesAsJson = values.map((value) => JSON.parse(value))
