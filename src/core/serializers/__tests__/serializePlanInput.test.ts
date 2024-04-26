@@ -128,7 +128,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             minAmountCents: 10003,
             chargeModel: 'graduated',
-            filters: undefined,
+            filters: [],
             properties: {
               amount: '1',
               fixedAmount: '2',
@@ -207,7 +207,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             minAmountCents: 10003,
             chargeModel: 'graduated_percentage',
-            filters: undefined,
+            filters: [],
             properties: {
               amount: '1',
               fixedAmount: '2',
@@ -285,7 +285,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             chargeModel: 'package',
-            filters: undefined,
+            filters: [],
             minAmountCents: 0,
             properties: {
               amount: '1',
@@ -353,7 +353,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             chargeModel: 'percentage',
             minAmountCents: 0,
-            filters: undefined,
+            filters: [],
             properties: {
               amount: undefined,
               fixedAmount: '2',
@@ -420,7 +420,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             chargeModel: 'standard',
             minAmountCents: 0,
-            filters: undefined,
+            filters: [],
             properties: {
               amount: '1',
               fixedAmount: '2',
@@ -486,7 +486,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             chargeModel: 'standard',
             minAmountCents: 0,
-            filters: undefined,
+            filters: [],
             properties: {
               amount: undefined,
               freeUnits: undefined,
@@ -675,7 +675,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             chargeModel: 'volume',
             minAmountCents: 0,
-            filters: undefined,
+            filters: [],
             properties: {
               amount: '1',
               fixedAmount: '2',
