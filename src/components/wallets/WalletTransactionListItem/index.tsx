@@ -6,6 +6,7 @@ import {
   TimezoneEnum,
   WalletTransactionForTransactionListItemFragment,
   WalletTransactionStatusEnum,
+  WalletTransactionTransactionStatusEnum,
   WalletTransactionTransactionTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -15,6 +16,7 @@ gql`
   fragment WalletTransactionForTransactionListItem on WalletTransaction {
     id
     status
+    transactionStatus
     transactionType
     amount
     creditAmount
@@ -27,10 +29,17 @@ gql`
   }
 `
 
-interface WalletTransactionListItemProps {
+type LocalWalletTransaction = Omit<
+  WalletTransactionForTransactionListItemFragment,
+  'transactionStatus'
+> & {
+  transactionStatus: WalletTransactionTransactionStatusEnum | undefined
+}
+
+export type WalletTransactionListItemProps = {
   customerTimezone: TimezoneEnum | undefined
   isRealTimeTransaction?: boolean
-  transaction: WalletTransactionForTransactionListItemFragment
+  transaction: LocalWalletTransaction
 }
 
 export const WalletTransactionListItem = ({
@@ -42,7 +51,8 @@ export const WalletTransactionListItem = ({
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const blurValue = !isPremium && isRealTimeTransaction
-  const { amount, createdAt, creditAmount, settledAt, status, transactionType } = transaction
+  const { amount, createdAt, creditAmount, settledAt, status, transactionType, transactionStatus } =
+    transaction
   const isPending = status === WalletTransactionStatusEnum.Pending
   const isInbound = transactionType === WalletTransactionTransactionTypeEnum.Inbound
 
@@ -89,7 +99,11 @@ export const WalletTransactionListItem = ({
         iconName="plus"
         timezone={customerTimezone}
         labelColor="grey700"
-        label={translate('text_62da6ec24a8e24e44f81289a', undefined, Number(creditAmount) || 0)}
+        label={
+          transactionStatus === WalletTransactionTransactionStatusEnum.Offered
+            ? translate('Credits offered')
+            : translate('text_62da6ec24a8e24e44f81289a', undefined, Number(creditAmount) || 0)
+        }
         date={isPending ? createdAt : settledAt}
         creditsColor="success600"
         credits={`${Number(creditAmount) === 0 ? '' : '+ '} ${transactionAmountTranslationKey}`}
@@ -103,7 +117,9 @@ export const WalletTransactionListItem = ({
       <ListItem
         {...props}
         isPending={isPending}
-        iconName="minus"
+        iconName={
+          transactionStatus === WalletTransactionTransactionStatusEnum.Voided ? 'stop' : 'minus'
+        }
         timezone={customerTimezone}
         labelColor="grey700"
         label={translate('text_62da6ec24a8e24e44f812892', undefined, Number(creditAmount) || 0)}

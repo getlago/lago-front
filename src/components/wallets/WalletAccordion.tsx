@@ -316,6 +316,7 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                   wallet,
                   status: WalletTransactionStatusEnum.Settled,
                   transactionType: WalletTransactionTransactionTypeEnum.Outbound,
+                  transactionStatus: undefined,
                 }}
                 customerTimezone={customerTimezone}
               />
