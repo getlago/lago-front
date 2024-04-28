@@ -5,6 +5,7 @@ import {
   ReactElement,
   ReactNode,
   useImperativeHandle,
+  useRef,
   useState,
 } from 'react'
 import styled from 'styled-components'
@@ -12,11 +13,17 @@ import styled from 'styled-components'
 import { Button, Typography } from '~/components/designSystem'
 import { NAV_HEIGHT, theme } from '~/styles'
 
+import {
+  PreventClosingDrawerDialog,
+  PreventClosingDrawerDialogRef,
+} from './PreventClosingDrawerDialog'
+
 interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
   className?: string
   title: string | ReactNode
   opener?: ReactElement
   forceOpen?: boolean
+  showCloseWarningDialog?: boolean
   fullContentHeight?: boolean
   children: (({ closeDrawer }: { closeDrawer: () => void }) => ReactNode) | ReactNode
   onOpen?: () => void
@@ -32,6 +39,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
   (
     {
       forceOpen = false,
+      showCloseWarningDialog = false,
       children,
       opener,
       anchor = 'right',
@@ -42,6 +50,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
     }: DrawerProps,
     ref,
   ) => {
+    const preventClosingDrawerDialogRef = useRef<PreventClosingDrawerDialogRef>(null)
     const [isOpen, setIsOpen] = useState(forceOpen)
 
     useImperativeHandle(ref, () => ({
@@ -60,8 +69,20 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           anchor={anchor}
           elevation={4}
           onClose={() => {
-            onClose && onClose()
-            setIsOpen(false)
+            const closeAction = () => {
+              onClose && onClose()
+              setIsOpen(false)
+            }
+
+            if (showCloseWarningDialog) {
+              preventClosingDrawerDialogRef.current?.openDialog({
+                onContinue: () => {
+                  closeAction()
+                },
+              })
+            } else {
+              closeAction()
+            }
           }}
           transitionDuration={250}
           PaperProps={{ className: 'drawerPaper' }}
@@ -89,6 +110,8 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
               : children}
           </Content>
         </StyledDrawer>
+
+        <PreventClosingDrawerDialog ref={preventClosingDrawerDialogRef} />
       </>
     )
   },
