@@ -51,16 +51,25 @@ export const ListItem: FC<ListItemProps> = ({
                 date={date}
                 customerTimezone={timezone}
               />
-              {isPending && ` • ${translate('text_62da6db136909f52c2704c30')}`}
+              {isPending && (
+                <span data-test="caption-pending">{` • ${translate(
+                  'text_62da6db136909f52c2704c30',
+                )}`}</span>
+              )}
             </DateBlock>
           )}
         </ColumnWrapper>
       </ListLeftWrapper>
       <ListRightWrapper>
-        <Typography variant="body" color={isPending ? 'grey600' : creditsColor} blur={isBlurry}>
+        <Typography
+          variant="body"
+          color={isPending ? 'grey600' : creditsColor}
+          blur={isBlurry}
+          data-test="credits"
+        >
           {credits}
         </Typography>
-        <Typography variant="caption" color="grey600" blur={isBlurry}>
+        <Typography variant="caption" color="grey600" blur={isBlurry} data-test="amount">
           {amount}
         </Typography>
       </ListRightWrapper>

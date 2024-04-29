@@ -75,6 +75,8 @@ export const WalletTransactionListItem = ({
     Number(creditAmount) || 0,
   )
 
+  console.log(creditAmount)
+
   if (isRealTimeTransaction) {
     return (
       <ListItem
