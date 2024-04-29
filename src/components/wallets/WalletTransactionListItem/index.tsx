@@ -101,7 +101,7 @@ export const WalletTransactionListItem = ({
         labelColor="grey700"
         label={
           transactionStatus === WalletTransactionTransactionStatusEnum.Granted
-            ? translate('Credits offered')
+            ? translate('text_662fc05d2cfe3a0596b29db0', undefined, Number(creditAmount) || 0)
             : translate('text_62da6ec24a8e24e44f81289a', undefined, Number(creditAmount) || 0)
         }
         date={isPending ? createdAt : settledAt}
@@ -122,7 +122,11 @@ export const WalletTransactionListItem = ({
         }
         timezone={customerTimezone}
         labelColor="grey700"
-        label={translate('text_62da6ec24a8e24e44f812892', undefined, Number(creditAmount) || 0)}
+        label={
+          transactionStatus === WalletTransactionTransactionStatusEnum.Voided
+            ? translate('text_662fc05d2cfe3a0596b29d98', undefined, Number(creditAmount) || 0)
+            : translate('text_62da6ec24a8e24e44f812892', undefined, Number(creditAmount) || 0)
+        }
         date={isPending ? createdAt : settledAt}
         creditsColor="grey700"
         credits={`${Number(creditAmount) === 0 ? '' : '- '} ${transactionAmountTranslationKey}`}

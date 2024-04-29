@@ -49,7 +49,7 @@ export const VoidWalletDialog = forwardRef<DialogRef, VoidWalletDialogProps>(
         if (res?.createCustomerWalletTransaction) {
           addToast({
             severity: 'success',
-            translateKey: 'text_62e79671d23ae6ff149dea26',
+            translateKey: 'text_662fde6f41f3c001313057b8',
           })
         }
       },
@@ -64,9 +64,7 @@ export const VoidWalletDialog = forwardRef<DialogRef, VoidWalletDialogProps>(
           .required('')
           .max(
             wallet.creditsOngoingBalance,
-            translate(
-              `Credits to void should be lower than ${wallet.creditsOngoingBalance} credits.`,
-            ),
+            translate('text_662fc2730f9a31fe564e9dbf', { balance: wallet.creditsOngoingBalance }),
           ),
       }),
       enableReinitialize: true,
@@ -80,6 +78,8 @@ export const VoidWalletDialog = forwardRef<DialogRef, VoidWalletDialogProps>(
               voidedCredits: String(voidCredits),
             },
           },
+          refetchQueries: ['getCustomerWalletList', 'getWalletTransactions'],
+          notifyOnNetworkStatusChange: true,
         })
       },
     })
@@ -87,10 +87,8 @@ export const VoidWalletDialog = forwardRef<DialogRef, VoidWalletDialogProps>(
     return (
       <Dialog
         ref={ref}
-        title={translate('Void credits')}
-        description={translate(
-          'Define number of credits to void. This action will impact instantly the wallet balance.',
-        )}
+        title={translate('text_63720bd734e1344aea75b7e9')}
+        description={translate('text_662fc2730f9a31fe564e9dad')}
         onClose={() => formikProps.resetForm()}
         actions={({ closeDialog }) => (
           <>
@@ -105,7 +103,7 @@ export const VoidWalletDialog = forwardRef<DialogRef, VoidWalletDialogProps>(
               }}
               danger={formikProps.isValid && formikProps.dirty}
             >
-              {translate('Void credits')}
+              {translate('text_63720bd734e1344aea75b7e9')}
             </Button>
           </>
         )}
@@ -117,14 +115,14 @@ export const VoidWalletDialog = forwardRef<DialogRef, VoidWalletDialogProps>(
             name="voidCredits"
             currency={wallet.currency}
             beforeChangeFormatter={['positiveNumber']}
-            label={translate('Credits to void')}
+            label={translate('text_662fc2730f9a31fe564e9db1')}
             formikProps={formikProps}
             error={Boolean(formikProps.errors.voidCredits)}
             helperText={
               formikProps.errors.voidCredits
                 ? formikProps.errors.voidCredits
-                : translate(
-                    `You will void ${intlFormatNumber(
+                : translate('text_662fc2730f9a31fe564e9dbd', {
+                    credits: intlFormatNumber(
                       !isNaN(Number(formikProps.values.voidCredits))
                         ? Number(formikProps.values.voidCredits) * Number(wallet.rateAmount)
                         : 0,
@@ -132,11 +130,15 @@ export const VoidWalletDialog = forwardRef<DialogRef, VoidWalletDialogProps>(
                         currencyDisplay: 'symbol',
                         currency: wallet.currency,
                       },
-                    )}`,
-                  )
+                    ),
+                  })
             }
             InputProps={{
-              endAdornment: <InputAdornment position="end">{translate('credits')}</InputAdornment>,
+              endAdornment: (
+                <InputAdornment position="end">
+                  {translate('text_62e79671d23ae6ff149de94c')}
+                </InputAdornment>
+              ),
             }}
           />
         </Wrapper>

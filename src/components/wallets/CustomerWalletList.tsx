@@ -150,7 +150,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
                       closePopper()
                     }}
                   >
-                    {translate('Void credits')}
+                    {translate('text_63720bd734e1344aea75b7e9')}
                   </Button>
                   <Button
                     variant="quaternary"
