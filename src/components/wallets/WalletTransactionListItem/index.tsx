@@ -75,8 +75,6 @@ export const WalletTransactionListItem = ({
     Number(creditAmount) || 0,
   )
 
-  console.log(creditAmount)
-
   if (isRealTimeTransaction) {
     return (
       <ListItem
@@ -102,7 +100,7 @@ export const WalletTransactionListItem = ({
         timezone={customerTimezone}
         labelColor="grey700"
         label={
-          transactionStatus === WalletTransactionTransactionStatusEnum.Offered
+          transactionStatus === WalletTransactionTransactionStatusEnum.Granted
             ? translate('Credits offered')
             : translate('text_62da6ec24a8e24e44f81289a', undefined, Number(creditAmount) || 0)
         }
