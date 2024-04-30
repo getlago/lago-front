@@ -139,7 +139,7 @@ describe('WalletTransactionListItem', () => {
     })
 
     expect(screen.getByTitle('stop/medium')).toBeInTheDocument()
-    expect(screen.getByText('Credits invoiced')).toBeInTheDocument()
+    expect(screen.getByText('Credits voided')).toBeInTheDocument()
   })
 
   it('should render real time transaction', async () => {
