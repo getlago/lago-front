@@ -48,6 +48,7 @@ module.exports = {
 
   moduleNameMapper: {
     '^~/(.*)$': '<rootDir>/src/$1',
+    'ace-builds': '<rootDir>/node_modules/ace-builds',
   },
 
   // Module file extensions for importing
