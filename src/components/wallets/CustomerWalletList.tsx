@@ -145,6 +145,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
                   <Button
                     variant="quaternary"
                     align="left"
+                    disabled={activeWallet.creditsBalance <= 0}
                     onClick={() => {
                       voidWalletDialogRef.current?.openDialog()
                       closePopper()

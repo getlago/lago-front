@@ -30,7 +30,7 @@ gql`
     id
     currency
     rateAmount
-    creditsOngoingBalance
+    creditsBalance
   }
 `
 
@@ -63,8 +63,8 @@ export const VoidWalletDialog = forwardRef<DialogRef, VoidWalletDialogProps>(
         voidCredits: number()
           .required('')
           .max(
-            wallet.creditsOngoingBalance,
-            translate('text_662fc2730f9a31fe564e9dbf', { balance: wallet.creditsOngoingBalance }),
+            wallet.creditsBalance,
+            translate('text_662fc2730f9a31fe564e9dbf', { balance: wallet.creditsBalance }),
           ),
       }),
       enableReinitialize: true,

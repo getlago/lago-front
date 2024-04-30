@@ -5707,7 +5707,7 @@ export type CreateCustomerWalletTransactionMutation = { __typename?: 'Mutation',
 
 export type WalletForTopupFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number };
 
-export type WalletForVoidTransactionFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, creditsOngoingBalance: number };
+export type WalletForVoidTransactionFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, creditsBalance: number };
 
 export type WalletAccordionFragment = { __typename?: 'Wallet', id: string, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number };
 
@@ -7182,7 +7182,7 @@ export const WalletForVoidTransactionFragmentDoc = gql`
   id
   currency
   rateAmount
-  creditsOngoingBalance
+  creditsBalance
 }
     `;
 export const WalletTransactionForTransactionListItemFragmentDoc = gql`
