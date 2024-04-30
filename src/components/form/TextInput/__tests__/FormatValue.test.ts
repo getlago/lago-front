@@ -123,11 +123,25 @@ describe('Text input formatValue', () => {
     expect(number).toBe('938884')
   })
 
+  it('should return a trimmed string for "trim" formatter', () => {
+    const trimmed = formatValue('  va  lue  ', 'trim')
+
+    expect(trimmed).toBe('va  lue')
+  })
+
+  it('should return a dashed string for "dashSeparator" formatter', () => {
+    const trimmed = formatValue(' v alue_-01', 'dashSeparator')
+
+    expect(trimmed).toBe('-v-alue--01')
+  })
+
   it('should return the right value for combined formatters', () => {
     const decimalPositive = formatValue(-13.459484, ['decimal', 'positiveNumber'])
     const intPositive = formatValue(-11.459484, ['int', 'positiveNumber'])
+    const specificCode = formatValue(' CUS_1234 ', ['lowercase', 'trim', 'dashSeparator'])
 
     expect(decimalPositive).toBe('13.45')
     expect(intPositive).toBe(11)
+    expect(specificCode).toBe('cus-1234')
   })
 })
