@@ -388,7 +388,7 @@ const CustomerInvoiceDetails = () => {
                         ) : (
                           <Button
                             variant="quaternary"
-                            onClick={premiumWarningDialogRef.current?.openDialog}
+                            onClick={() => premiumWarningDialogRef.current?.openDialog()}
                             endIcon="sparkles"
                           >
                             {translate('text_6386589e4e82fa85eadcaa7a')}
