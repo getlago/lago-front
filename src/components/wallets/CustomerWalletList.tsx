@@ -25,6 +25,7 @@ import {
   TerminateCustomerWalletDialogRef,
 } from './TerminateCustomerWalletDialog'
 import { TopupWalletDialog, TopupWalletDialogRef } from './TopupWalletDialog'
+import { VoidWalletDialog, VoidWalletDialogRef } from './VoidWalletDialog'
 import { WalletAccordion, WalletAccordionSkeleton } from './WalletAccordion'
 
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '../PremiumWarningDialog'
@@ -66,6 +67,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const terminateCustomerWalletDialogRef = useRef<TerminateCustomerWalletDialogRef>(null)
   const topupWalletDialogRef = useRef<TopupWalletDialogRef>(null)
+  const voidWalletDialogRef = useRef<VoidWalletDialogRef>(null)
   const { data, error, loading, fetchMore } = useGetCustomerWalletListQuery({
     variables: { customerId, page: 0, limit: 20 },
   })
@@ -138,7 +140,18 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
                       closePopper()
                     }}
                   >
-                    {translate('text_6560809d38fb9de88d8a5495')}
+                    {translate('text_62e161ceb87c201025388aa2')}
+                  </Button>
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    disabled={activeWallet.creditsBalance <= 0}
+                    onClick={() => {
+                      voidWalletDialogRef.current?.openDialog()
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_63720bd734e1344aea75b7e9')}
                   </Button>
                   <Button
                     variant="quaternary"
@@ -197,6 +210,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
               ref={terminateCustomerWalletDialogRef}
               walletId={activeWallet.id}
             />
+            <VoidWalletDialog ref={voidWalletDialogRef} wallet={activeWallet} />
           </>
         )}
       </SideSection>

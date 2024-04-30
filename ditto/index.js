@@ -74,6 +74,7 @@ const ready_for_dev___settings_customers___lago_x_data_warehouse_connection = re
 const ready_for_dev___settings_customers___lago_x_osso_connection = require('./ready-for-dev---settings-customers---lago-x-osso-connection__base.json');
 const ready_for_dev___settings_customers___lago_x_stripe_ach_bacs = require('./ready-for-dev---settings-customers---lago-x-stripe-ach-bacs__base.json');
 const ready_for_dev___settings_customers___lago_x_stripe_sdd = require('./ready-for-dev---settings-customers---lago-x-stripe-sdd__base.json');
+const ready_for_dev___wallets___real_time_prepaid_credit_improvements = require('./ready-for-dev---wallets---real-time-prepaid-credit-improvements__base.json');
 const ready_for_dev___wallets___setup_recurring_prepaid_credit_top_up = require('./ready-for-dev---wallets---setup-recurring-prepaid-credit-top-up__base.json');
 const ready_for_dev___webhook___select_webhooks_signature = require('./ready-for-dev---webhook---select-webhooks-signature__base.json');
 const setting___set_tax_rates_in_application = require('./setting---set-tax-rates-in-application__base.json');
@@ -343,6 +344,9 @@ module.exports = {
   },
   "project_64aeb7b7d5628db33254c4bb": {
     "base": {...ready_for_dev___settings_customers___lago_x_stripe_sdd}
+  },
+  "project_662fc05b0ba27f9b870e1321": {
+    "base": {...ready_for_dev___wallets___real_time_prepaid_credit_improvements}
   },
   "project_65608097887826ae4c08828a": {
     "base": {...ready_for_dev___wallets___setup_recurring_prepaid_credit_top_up}
