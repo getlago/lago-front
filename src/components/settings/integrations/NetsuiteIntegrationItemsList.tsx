@@ -7,13 +7,13 @@ import styled from 'styled-components'
 import { Button, Popper, Typography } from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
 import {
+  MappableTypeEnum,
   NetsuiteIntegrationItemsListAddonsFragmentDoc,
   NetsuiteIntegrationItemsListBillableMetricsFragmentDoc,
   NetsuiteIntegrationItemsListDefaultFragmentDoc,
-  NetsuiteMappableTypeEnum,
   useGetAddOnsForNetsuiteItemsListLazyQuery,
   useGetBillableMetricsForNetsuiteItemsListLazyQuery,
-  useGetNetsuiteCollectionMappingsLazyQuery,
+  useGetIntegrationCollectionMappingsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
@@ -26,14 +26,14 @@ import { NetsuiteMapItemDialog, NetsuiteMapItemDialogRef } from './NetsuiteMapIt
 
 const SelectedItemTypeEnum = {
   Default: 'Default',
-  [NetsuiteMappableTypeEnum.AddOn]: 'AddOn',
-  [NetsuiteMappableTypeEnum.BillableMetric]: 'BillableMetric',
+  [MappableTypeEnum.AddOn]: 'AddOn',
+  [MappableTypeEnum.BillableMetric]: 'BillableMetric',
 } as const
 
 const SelectedItemTypeEnumTranslation = {
   Default: 'text_65281f686a80b400c8e2f6d1',
-  [NetsuiteMappableTypeEnum.AddOn]: 'text_629728388c4d2300e2d3801a',
-  [NetsuiteMappableTypeEnum.BillableMetric]: 'text_623b497ad05b960101be3438',
+  [MappableTypeEnum.AddOn]: 'text_629728388c4d2300e2d3801a',
+  [MappableTypeEnum.BillableMetric]: 'text_623b497ad05b960101be3438',
 } as const
 
 gql`
@@ -41,8 +41,8 @@ gql`
     id # integrationId received in props
   }
 
-  query getNetsuiteCollectionMappings($integrationId: ID!) {
-    netsuiteCollectionMappings(integrationId: $integrationId) {
+  query getIntegrationCollectionMappings($integrationId: ID!) {
+    integrationCollectionMappings(integrationId: $integrationId) {
       collection {
         id
         ...NetsuiteIntegrationItemsListDefault
@@ -113,7 +113,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
       loading: collectionMappingLoading,
       error: collectionMappingError,
     },
-  ] = useGetNetsuiteCollectionMappingsLazyQuery({
+  ] = useGetIntegrationCollectionMappingsLazyQuery({
     notifyOnNetworkStatusChange: true,
     variables: {
       integrationId,
@@ -164,9 +164,9 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
   useEffect(() => {
     if (selectedItemType === SelectedItemTypeEnum.Default) {
       getDefaultItems()
-    } else if (selectedItemType === NetsuiteMappableTypeEnum.AddOn) {
+    } else if (selectedItemType === MappableTypeEnum.AddOn) {
       getAddonList()
-    } else if (selectedItemType === NetsuiteMappableTypeEnum.BillableMetric) {
+    } else if (selectedItemType === MappableTypeEnum.BillableMetric) {
       getBillableMetricsList()
     }
   }, [selectedItemType, getAddonList, getDefaultItems, getBillableMetricsList])
@@ -204,7 +204,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
                   align="left"
                   fullWidth
                   onClick={() => {
-                    setSelectedItemType(NetsuiteMappableTypeEnum.AddOn)
+                    setSelectedItemType(MappableTypeEnum.AddOn)
                     closePopper()
                   }}
                 >
@@ -215,7 +215,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
                   align="left"
                   fullWidth
                   onClick={() => {
-                    setSelectedItemType(NetsuiteMappableTypeEnum.BillableMetric)
+                    setSelectedItemType(MappableTypeEnum.BillableMetric)
                     closePopper()
                   }}
                 >
@@ -226,12 +226,12 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           </Popper>
         </Stack>
 
-        {selectedItemType === NetsuiteMappableTypeEnum.AddOn ? (
+        {selectedItemType === MappableTypeEnum.AddOn ? (
           <SearchInput
             onChange={debouncedSearchAddons}
             placeholder={translate('text_63bee4e10e2d53912bfe4db8')}
           />
-        ) : selectedItemType === NetsuiteMappableTypeEnum.BillableMetric ? (
+        ) : selectedItemType === MappableTypeEnum.BillableMetric ? (
           <SearchInput
             onChange={debouncedSearchBillableMetrics}
             placeholder={translate('text_63ba9ee977a67c9693f50aea')}
@@ -241,13 +241,13 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
 
       {selectedItemType === SelectedItemTypeEnum.Default ? (
         <NetsuiteIntegrationItemsListDefault
-          defaultItems={collectionMappingData?.netsuiteCollectionMappings?.collection}
+          defaultItems={collectionMappingData?.integrationCollectionMappings?.collection}
           integrationId={integrationId}
           isLoading={collectionMappingLoading}
           hasError={!!collectionMappingError}
           netsuiteMapItemDialogRef={netsuiteMapItemDialogRef}
         />
-      ) : selectedItemType === NetsuiteMappableTypeEnum.AddOn ? (
+      ) : selectedItemType === MappableTypeEnum.AddOn ? (
         <NetsuiteIntegrationItemsListAddons
           data={addonData}
           fetchMoreAddons={fetchMoreAddons}
@@ -257,7 +257,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           netsuiteMapItemDialogRef={netsuiteMapItemDialogRef}
           searchTerm={addonVariables?.searchTerm}
         />
-      ) : selectedItemType === NetsuiteMappableTypeEnum.BillableMetric ? (
+      ) : selectedItemType === MappableTypeEnum.BillableMetric ? (
         <NetsuiteIntegrationItemsListBillableMetrics
           data={billableMetricsData}
           fetchMoreBillableMetrics={fetchMoreBillableMetrics}

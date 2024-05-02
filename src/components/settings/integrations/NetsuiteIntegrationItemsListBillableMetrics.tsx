@@ -9,7 +9,7 @@ import { CREATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import {
   GetBillableMetricsForNetsuiteItemsListQuery,
   InputMaybe,
-  NetsuiteMappableTypeEnum,
+  MappableTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
@@ -29,6 +29,7 @@ gql`
       externalId
       externalAccountCode
       externalName
+      mappableType
     }
   }
 `
@@ -124,6 +125,10 @@ const NetsuiteIntegrationItemsListBillableMetrics = ({
           <>
             {!!billableMetrics.length &&
               billableMetrics.map((billableMetric) => {
+                const billableMetricMapping = billableMetric.integrationMappings?.find(
+                  (mapping) => mapping.mappableType === MappableTypeEnum.BillableMetric,
+                )
+
                 return (
                   <NetsuiteIntegrationItemLine
                     key={`billableMetric-item-${billableMetric.id}`}
@@ -134,18 +139,16 @@ const NetsuiteIntegrationItemsListBillableMetrics = ({
                     onMappingClick={() => {
                       netsuiteMapItemDialogRef.current?.openDialog({
                         integrationId,
-                        type: NetsuiteMappableTypeEnum.BillableMetric,
-                        itemId: billableMetric?.netsuiteMapping?.id,
-                        itemExternalId: billableMetric?.netsuiteMapping?.externalId,
-                        itemExternalCode:
-                          billableMetric?.netsuiteMapping?.externalAccountCode || undefined,
-                        itemExternalName:
-                          billableMetric?.netsuiteMapping?.externalName || undefined,
+                        type: MappableTypeEnum.BillableMetric,
+                        itemId: billableMetricMapping?.id,
+                        itemExternalId: billableMetricMapping?.externalId,
+                        itemExternalCode: billableMetricMapping?.externalAccountCode || undefined,
+                        itemExternalName: billableMetricMapping?.externalName || undefined,
                         lagoMappableId: billableMetric.id,
                       })
                     }}
                     mappingInfos={
-                      !!billableMetric?.netsuiteMapping?.id
+                      !!billableMetricMapping?.id
                         ? {
                             id: billableMetricMapping.externalId,
                             name: billableMetricMapping.externalName || '',

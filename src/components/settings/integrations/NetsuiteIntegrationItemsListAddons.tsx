@@ -9,7 +9,7 @@ import { CREATE_ADD_ON_ROUTE } from '~/core/router'
 import {
   GetAddOnsForNetsuiteItemsListQuery,
   InputMaybe,
-  NetsuiteMappableTypeEnum,
+  MappableTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
@@ -29,6 +29,7 @@ gql`
       externalId
       externalAccountCode
       externalName
+      mappableType
     }
   }
 `
@@ -124,6 +125,10 @@ const NetsuiteIntegrationItemsListAddons = ({
           <>
             {!!addons.length &&
               addons.map((addOn) => {
+                const addonMapping = addOn?.integrationMappings?.find(
+                  (i) => i.mappableType === MappableTypeEnum.AddOn,
+                )
+
                 return (
                   <NetsuiteIntegrationItemLine
                     key={`addon-item-${addOn.id}`}
@@ -134,16 +139,16 @@ const NetsuiteIntegrationItemsListAddons = ({
                     onMappingClick={() => {
                       netsuiteMapItemDialogRef.current?.openDialog({
                         integrationId,
-                        type: NetsuiteMappableTypeEnum.AddOn,
-                        itemId: addOn?.netsuiteMapping?.id,
-                        itemExternalId: addOn?.netsuiteMapping?.externalId,
-                        itemExternalCode: addOn?.netsuiteMapping?.externalAccountCode || undefined,
-                        itemExternalName: addOn?.netsuiteMapping?.externalName || undefined,
+                        type: MappableTypeEnum.AddOn,
+                        itemId: addonMapping?.id,
+                        itemExternalId: addonMapping?.externalId,
+                        itemExternalCode: addonMapping?.externalAccountCode || undefined,
+                        itemExternalName: addonMapping?.externalName || undefined,
                         lagoMappableId: addOn.id,
                       })
                     }}
                     mappingInfos={
-                      !!addOn?.netsuiteMapping?.id
+                      !!addonMapping?.id
                         ? {
                             id: addonMapping.externalId,
                             name: addonMapping.externalName || '',

@@ -3,10 +3,7 @@ import { Stack } from '@mui/material'
 import { RefObject, useMemo } from 'react'
 
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import {
-  NetsuiteIntegrationItemsListDefaultFragment,
-  NetsuiteMappingTypeEnum,
-} from '~/generated/graphql'
+import { MappingTypeEnum, NetsuiteIntegrationItemsListDefaultFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
@@ -15,7 +12,7 @@ import NetsuiteIntegrationItemLine from './NetsuiteIntegrationItemLine'
 import { NetsuiteMapItemDialogRef } from './NetsuiteMapItemDialog'
 
 gql`
-  fragment NetsuiteIntegrationItemsListDefault on NetsuiteCollectionMapping {
+  fragment NetsuiteIntegrationItemsListDefault on CollectionMapping {
     id
     mappingType
     externalId
@@ -95,7 +92,7 @@ const NetsuiteIntegrationItemsListDefault = ({
         onMappingClick={() => {
           netsuiteMapItemDialogRef.current?.openDialog({
             integrationId,
-            type: NetsuiteMappingTypeEnum.FallbackItem,
+            type: MappingTypeEnum.FallbackItem,
             itemId: fallbackItem?.id,
             itemExternalId: fallbackItem?.externalId,
             itemExternalCode: fallbackItem?.externalAccountCode || undefined,
@@ -120,7 +117,7 @@ const NetsuiteIntegrationItemsListDefault = ({
         onMappingClick={() => {
           netsuiteMapItemDialogRef.current?.openDialog({
             integrationId,
-            type: NetsuiteMappingTypeEnum.Coupon,
+            type: MappingTypeEnum.Coupon,
             itemId: coupon?.id,
             itemExternalId: coupon?.externalId,
             itemExternalCode: coupon?.externalAccountCode || undefined,
@@ -170,7 +167,7 @@ const NetsuiteIntegrationItemsListDefault = ({
         onMappingClick={() => {
           netsuiteMapItemDialogRef.current?.openDialog({
             integrationId,
-            type: NetsuiteMappingTypeEnum.SubscriptionFee,
+            type: MappingTypeEnum.SubscriptionFee,
             itemId: subscriptionFee?.id,
             itemExternalId: subscriptionFee?.externalId,
             itemExternalCode: subscriptionFee?.externalAccountCode || undefined,
@@ -194,7 +191,7 @@ const NetsuiteIntegrationItemsListDefault = ({
         onMappingClick={() => {
           netsuiteMapItemDialogRef.current?.openDialog({
             integrationId,
-            type: NetsuiteMappingTypeEnum.MinimumCommitment,
+            type: MappingTypeEnum.MinimumCommitment,
             itemId: minimumCommitment?.id,
             itemExternalId: minimumCommitment?.externalId,
             itemExternalCode: minimumCommitment?.externalAccountCode || undefined,
@@ -219,7 +216,7 @@ const NetsuiteIntegrationItemsListDefault = ({
         onMappingClick={() => {
           netsuiteMapItemDialogRef.current?.openDialog({
             integrationId,
-            type: NetsuiteMappingTypeEnum.Tax,
+            type: MappingTypeEnum.Tax,
             itemId: tax?.id,
             itemExternalId: tax?.externalId,
             itemExternalCode: tax?.externalAccountCode || undefined,
@@ -244,7 +241,7 @@ const NetsuiteIntegrationItemsListDefault = ({
         onMappingClick={() => {
           netsuiteMapItemDialogRef.current?.openDialog({
             integrationId,
-            type: NetsuiteMappingTypeEnum.PrepaidCredit,
+            type: MappingTypeEnum.PrepaidCredit,
             itemId: prepaidCredit?.id,
             itemExternalId: prepaidCredit?.externalId,
             itemExternalCode: prepaidCredit?.externalAccountCode || undefined,

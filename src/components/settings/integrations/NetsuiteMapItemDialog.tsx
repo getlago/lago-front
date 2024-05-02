@@ -11,17 +11,17 @@ import { WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   IntegrationItemTypeEnum,
-  NetsuiteMappableTypeEnum,
-  NetsuiteMappingTypeEnum,
-  useCreateNetsuiteIntegrationCollectionMappingMutation,
-  useCreateNetsuiteIntegrationMappingMutation,
-  useDeleteNetsuiteIntegrationCollectionMappingMutation,
+  MappableTypeEnum,
+  MappingTypeEnum,
+  useCreateIntegrationCollectionMappingMutation,
+  useCreateIntegrationMappingMutation,
+  useDeleteIntegrationCollectionMappingMutation,
   useDeleteNetsuiteIntegrationMappingMutation,
   useGetIntegrationItemsLazyQuery,
   useTriggerIntegrationItemsRefetchMutation,
   useTriggerIntegrationTaxItemsRefetchMutation,
-  useUpdateNetsuiteIntegrationCollectionMappingMutation,
-  useUpdateNetsuiteIntegrationMappingMutation,
+  useUpdateIntegrationCollectionMappingMutation,
+  useUpdateIntegrationMappingMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
@@ -55,14 +55,14 @@ gql`
     itemType
   }
 
-  fragment NetsuiteMapItemDialogCollectionMappingItem on NetsuiteCollectionMapping {
+  fragment NetsuiteMapItemDialogCollectionMappingItem on CollectionMapping {
     id
     externalId
     externalName
     externalAccountCode
   }
 
-  fragment NetsuiteMapItemDialogCollectionItem on NetsuiteMapping {
+  fragment NetsuiteMapItemDialogCollectionItem on Mapping {
     id
     externalId
     externalName
@@ -112,41 +112,35 @@ gql`
   }
 
   # Mapping Creation
-  mutation createNetsuiteIntegrationCollectionMapping(
-    $input: CreateNetsuiteIntegrationCollectionMappingInput!
-  ) {
-    createNetsuiteIntegrationCollectionMapping(input: $input) {
+  mutation createIntegrationCollectionMapping($input: CreateIntegrationCollectionMappingInput!) {
+    createIntegrationCollectionMapping(input: $input) {
       id
       ...NetsuiteMapItemDialogCollectionMappingItem
     }
   }
 
-  mutation createNetsuiteIntegrationMapping($input: CreateNetsuiteIntegrationMappingInput!) {
-    createNetsuiteIntegrationMapping(input: $input) {
+  mutation createIntegrationMapping($input: CreateIntegrationMappingInput!) {
+    createIntegrationMapping(input: $input) {
       id
       ...NetsuiteMapItemDialogCollectionItem
     }
   }
 
   # Mapping edition
-  mutation updateNetsuiteIntegrationCollectionMapping(
-    $input: UpdateNetsuiteIntegrationCollectionMappingInput!
-  ) {
-    updateNetsuiteIntegrationCollectionMapping(input: $input) {
+  mutation updateIntegrationCollectionMapping($input: UpdateIntegrationCollectionMappingInput!) {
+    updateIntegrationCollectionMapping(input: $input) {
       id
     }
   }
 
-  mutation updateNetsuiteIntegrationMapping($input: UpdateNetsuiteIntegrationMappingInput!) {
-    updateNetsuiteIntegrationMapping(input: $input) {
+  mutation updateIntegrationMapping($input: UpdateIntegrationMappingInput!) {
+    updateIntegrationMapping(input: $input) {
       id
     }
   }
 
   # Mapping deletion
-  mutation deleteNetsuiteIntegrationCollectionMapping(
-    $input: DestroyIntegrationCollectionMappingInput!
-  ) {
+  mutation deleteIntegrationCollectionMapping($input: DestroyIntegrationCollectionMappingInput!) {
     destroyIntegrationCollectionMapping(input: $input) {
       id
     }
@@ -160,7 +154,7 @@ gql`
 `
 
 type TNetsuiteMapItemDialogProps = {
-  type: NetsuiteMappingTypeEnum | NetsuiteMappableTypeEnum
+  type: MappingTypeEnum | MappableTypeEnum
   integrationId: string
   itemId?: string
   itemExternalId?: string
@@ -178,16 +172,16 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
   const { translate } = useInternationalization()
   const dialogRef = useRef<WarningDialogRef>(null)
   const [localData, setLocalData] = useState<TNetsuiteMapItemDialogProps | undefined>(undefined)
-  const isTaxContext = localData?.type === NetsuiteMappingTypeEnum.Tax
-  const isCollectionContext = !Object.values(NetsuiteMappableTypeEnum).includes(
-    localData?.type as NetsuiteMappableTypeEnum,
+  const isTaxContext = localData?.type === MappingTypeEnum.Tax
+  const isCollectionContext = !Object.values(MappableTypeEnum).includes(
+    localData?.type as MappableTypeEnum,
   )
   const refetchQueries =
-    localData?.type === NetsuiteMappableTypeEnum.AddOn
+    localData?.type === MappableTypeEnum.AddOn
       ? ['getAddOnsForNetsuiteItemsList']
-      : localData?.type === NetsuiteMappableTypeEnum.BillableMetric
+      : localData?.type === MappableTypeEnum.BillableMetric
         ? ['getBillableMetricsForNetsuiteItemsList']
-        : ['getNetsuiteCollectionMappings']
+        : ['getIntegrationCollectionMappings']
 
   // Item fetch
   const [getIntegrationItems, { loading: initialItemFetchLoading, data: initialItemFetchData }] =
@@ -196,7 +190,7 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
         limit: 50,
         integrationId: localData?.integrationId as string,
         itemType:
-          localData?.type === NetsuiteMappingTypeEnum.Tax
+          localData?.type === MappingTypeEnum.Tax
             ? IntegrationItemTypeEnum.Tax
             : IntegrationItemTypeEnum.Standard,
       },
@@ -214,9 +208,9 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
     })
 
   // Mapping Creation
-  const [createCollectionMapping] = useCreateNetsuiteIntegrationCollectionMappingMutation({
+  const [createCollectionMapping] = useCreateIntegrationCollectionMappingMutation({
     onCompleted(data) {
-      if (data && data.createNetsuiteIntegrationCollectionMapping?.id) {
+      if (data && data.createIntegrationCollectionMapping?.id) {
         addToast({
           message: translate('text_6630e5923500e7015f190643'),
           severity: 'success',
@@ -225,9 +219,9 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
     },
     refetchQueries,
   })
-  const [createMapping] = useCreateNetsuiteIntegrationMappingMutation({
+  const [createMapping] = useCreateIntegrationMappingMutation({
     onCompleted(data) {
-      if (data && data.createNetsuiteIntegrationMapping?.id) {
+      if (data && data.createIntegrationMapping?.id) {
         addToast({
           message: translate('text_6630e5923500e7015f190643'),
           severity: 'success',
@@ -238,9 +232,9 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
   })
 
   // Mapping edition
-  const [updateCollectionMapping] = useUpdateNetsuiteIntegrationCollectionMappingMutation({
+  const [updateCollectionMapping] = useUpdateIntegrationCollectionMappingMutation({
     onCompleted(data) {
-      if (data && data.updateNetsuiteIntegrationCollectionMapping?.id) {
+      if (data && data.updateIntegrationCollectionMapping?.id) {
         addToast({
           message: translate('text_6630e5923500e7015f190641'),
           severity: 'success',
@@ -249,9 +243,9 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
     },
     refetchQueries,
   })
-  const [updateMapping] = useUpdateNetsuiteIntegrationMappingMutation({
+  const [updateMapping] = useUpdateIntegrationMappingMutation({
     onCompleted(data) {
-      if (data && data.updateNetsuiteIntegrationMapping?.id) {
+      if (data && data.updateIntegrationMapping?.id) {
         addToast({
           message: translate('text_6630e5923500e7015f190641'),
           severity: 'success',
@@ -262,7 +256,7 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
   })
 
   // Mapping deletion
-  const [deleteCollectionMapping] = useDeleteNetsuiteIntegrationCollectionMappingMutation({
+  const [deleteCollectionMapping] = useDeleteIntegrationCollectionMappingMutation({
     onCompleted(data) {
       if (data && data.destroyIntegrationCollectionMapping?.id) {
         addToast({
@@ -348,7 +342,7 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
                 externalAccountCode,
                 externalName,
                 integrationId: localData?.integrationId as string,
-                mappingType: localData?.type as NetsuiteMappingTypeEnum,
+                mappingType: localData?.type as MappingTypeEnum,
                 ...values,
               },
             },
@@ -361,7 +355,7 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
                 externalAccountCode,
                 externalName,
                 integrationId: localData?.integrationId as string,
-                mappableType: localData?.type as NetsuiteMappableTypeEnum,
+                mappableType: localData?.type as MappableTypeEnum,
                 mappableId: localData?.lagoMappableId as string,
                 ...values,
               },
@@ -386,7 +380,7 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
                 externalAccountCode,
                 externalName,
                 integrationId: localData?.integrationId as string,
-                mappingType: localData?.type as unknown as NetsuiteMappingTypeEnum,
+                mappingType: localData?.type as unknown as MappingTypeEnum,
                 ...values,
               },
             },
@@ -400,7 +394,7 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
                 externalAccountCode,
                 externalName,
                 integrationId: localData?.integrationId as string,
-                mappableType: localData?.type as unknown as NetsuiteMappableTypeEnum,
+                mappableType: localData?.type as unknown as MappableTypeEnum,
                 mappableId: localData?.lagoMappableId as string,
                 ...values,
               },
@@ -453,7 +447,7 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
 
   const [title, description] = useMemo(() => {
     switch (localData?.type) {
-      case NetsuiteMappingTypeEnum.Coupon:
+      case MappingTypeEnum.Coupon:
         return [
           translate('text_6630e57386f8a700a3318cc8'),
           translate('text_6630e57386f8a700a3318cc9'),
@@ -468,34 +462,34 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
           translate('text_6630e51df0a194013daea61f'),
           translate('text_6630e51df0a194013daea620'),
         ]
-      case NetsuiteMappingTypeEnum.MinimumCommitment:
+      case MappingTypeEnum.MinimumCommitment:
         return [
           translate('text_6630e5923500e7015f1905d8'),
           translate('text_6630e5923500e7015f1905dc'),
         ]
-      case NetsuiteMappingTypeEnum.PrepaidCredit:
+      case MappingTypeEnum.PrepaidCredit:
         return [
           translate('text_6630e5923500e7015f19061e'),
           translate('text_6630e5923500e7015f190624'),
         ]
-      case NetsuiteMappingTypeEnum.Tax:
+      case MappingTypeEnum.Tax:
         return [
           translate('text_6630e560a830417bd3b119fb'),
           translate('text_6630e560a830417bd3b119fc'),
         ]
-      case NetsuiteMappingTypeEnum.SubscriptionFee:
+      case MappingTypeEnum.SubscriptionFee:
         return [
           translate('text_6630e5923500e7015f1905dd'),
           translate('text_6630e5923500e7015f1905e7'),
         ]
-      case NetsuiteMappableTypeEnum.AddOn:
+      case MappableTypeEnum.AddOn:
         return [
           translate('text_6630e5923500e7015f1905b9', {
             addOnName: localData?.itemExternalName,
           }),
           translate('text_6630e5923500e7015f1905bd'),
         ]
-      case NetsuiteMappableTypeEnum.BillableMetric:
+      case MappableTypeEnum.BillableMetric:
         return [
           translate('text_6630e5923500e7015f1905bf', {
             billableMetricName: localData?.itemExternalName,
@@ -596,7 +590,6 @@ const Container = styled.div`
 
 const InlineElements = styled.div`
   display: flex;
-  align-items: center;
   gap: ${theme.spacing(3)};
 
   > *:first-child {
@@ -604,6 +597,6 @@ const InlineElements = styled.div`
   }
 
   > *:last-child {
-    margin-top: ${theme.spacing(6)};
+    margin-top: ${theme.spacing(7)};
   }
 `
