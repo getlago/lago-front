@@ -48,6 +48,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
       rate,
       perUnitTotalAmount,
       fixedFeeUnitAmount,
+      fixedFeeTotalAmount,
       paidEvents,
       minMaxAdjustmentTotalAmount,
     } = fee?.amountDetails || {}
@@ -159,7 +160,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
           {isDraftInvoice && <td>{/* Action column */}</td>}
         </tr>
 
-        {Number(fixedFeeUnitAmount || 0) > 0 && (
+        {(Number(fixedFeeUnitAmount || 0) > 0 || Number(fixedFeeTotalAmount || 0) > 0) && (
           <tr className="details-line">
             <td>
               <Typography variant="body" color="grey600">
@@ -201,7 +202,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
             )}
             <td>
               <Typography variant="body" color="grey600">
-                {intlFormatNumber(Number(fixedFeeUnitAmount || 0), {
+                {intlFormatNumber(Number(fixedFeeTotalAmount || 0), {
                   currencyDisplay: 'symbol',
                   currency,
                 })}
