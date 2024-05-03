@@ -203,7 +203,7 @@ export const InvoiceListItem = ({
               {customer?.name || '-'}
             </CustomerName>
           )}
-          <Typography color="grey700" align="right">
+          <Typography color="grey700" align="right" noWrap>
             {intlFormatNumber(deserializeAmount(totalAmountCents, currency || CurrencyEnum.Usd), {
               currency: currency || CurrencyEnum.Usd,
             })}
@@ -363,8 +363,8 @@ export const InvoiceListItemSkeleton = ({ className, context }: InvoiceListItemS
 export const InvoiceListItemGridTemplate = (context: InvoiceListContext) => css`
   display: grid;
   grid-template-columns: ${context === InvoiceListItemContextEnum.organization
-    ? '112px 160px 1fr 160px 112px 40px'
-    : '112px 1fr 160px 112px 40px'};
+    ? '112px 160px 1fr minmax(160px, 1fr) 112px 40px'
+    : '112px 1fr minmax(160px, 1fr) 112px 40px'};
   gap: ${theme.spacing(3)};
 
   ${theme.breakpoints.down('md')} {
