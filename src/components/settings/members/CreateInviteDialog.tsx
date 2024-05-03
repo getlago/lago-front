@@ -17,6 +17,7 @@ import {
   GetInvitesQuery,
   InviteItemFragmentDoc,
   LagoApiError,
+  MembershipRole,
   useCreateInviteMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -77,6 +78,7 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
   const formikProps = useFormik<CreateInviteInput>({
     initialValues: {
       email: '',
+      role: MembershipRole.Admin,
     },
     validationSchema: object().shape({
       email: string().email('text_620bc4d4269a55014d493fc3').required(''),
