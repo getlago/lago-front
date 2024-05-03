@@ -237,7 +237,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                   label={translate('text_65771fa3f4ab9a00720726ce')}
                   name="units"
                   error={undefined}
-                  beforeChangeFormatter={['positiveNumber', 'int']}
+                  beforeChangeFormatter={['positiveNumber', 'decimal']}
                   placeholder={translate('text_62a0b7107afa2700a65ef700')}
                   formikProps={formikProps}
                 />
