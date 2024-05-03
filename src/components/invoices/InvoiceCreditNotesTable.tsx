@@ -445,6 +445,8 @@ const Wrapper = styled.section`
       &:nth-child(3) {
         width: 15%;
         box-shadow: ${theme.shadows[7]};
+        /* Allow huge amount to be displayed on 2 lines */
+        line-break: anywhere;
       }
     }
   }
