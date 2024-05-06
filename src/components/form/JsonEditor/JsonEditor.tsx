@@ -6,7 +6,7 @@ import 'ace-builds/src-noconflict/theme-github'
 import 'ace-builds/webpack-resolver'
 // @ts-ignore
 import jsonWorkerUrl from 'file-loader!ace-builds/src-noconflict/worker-json'
-import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import AceEditor from 'react-ace'
 import styled, { css } from 'styled-components'
 
@@ -30,7 +30,7 @@ export interface JsonEditorProps {
   customInvalidError?: string
   disabled?: boolean
   minEditableLines?: number
-  isFullHeight?: boolean
+  height?: string
   onBlur?: (props: unknown) => void
   onChange?: (value: string) => void
   onError?: (err: keyof typeof JSON_EDITOR_ERROR_ENUM) => void
@@ -47,6 +47,7 @@ export const JsonEditor = ({
   error,
   customInvalidError,
   disabled,
+  height,
   onChange,
   onError,
   onBlur,
@@ -55,9 +56,20 @@ export const JsonEditor = ({
   const { translate } = useInternationalization()
   const editorRef = useRef<AceEditor | null>(null)
   const [jsonQuery, setJsonQuery] = useState<string | undefined>()
+  const [totalRows, setTotalRows] = useState<number>()
   const [maxVisibleLines, setMaxVisibleLines] = useState<number>()
   const [showOverlay, setShowOverlay] = useState(false)
   const [isHover, setHover] = useState(false)
+
+  const checkOverlay = useCallback(
+    (length: number) => {
+      if (maxVisibleLines && length >= maxVisibleLines) {
+        editorRef.current?.editor.scrollPageUp()
+        setShowOverlay(true)
+      }
+    },
+    [maxVisibleLines],
+  )
 
   useEffect(() => {
     if (typeof value === 'object') {
@@ -70,15 +82,25 @@ export const JsonEditor = ({
   }, [value])
 
   useLayoutEffect(() => {
-    if (editorRef.current?.editor.renderer) {
-      setMaxVisibleLines(
-        Math.floor(
-          editorRef.current?.editor.renderer.container.clientHeight /
-            editorRef.current?.editor.renderer.lineHeight,
-        ),
-      )
+    const renderer = editorRef.current?.editor.renderer
+
+    if (renderer) {
+      setMaxVisibleLines(Math.floor(renderer.container.clientHeight / renderer.lineHeight))
     }
   }, [editorRef.current?.editor.renderer])
+
+  useEffect(() => {
+    if (jsonQuery && !totalRows) {
+      const length = editorRef.current?.editor.session.getLength()
+
+      if (length) {
+        setTotalRows(length)
+        checkOverlay(length)
+      }
+    }
+    // Should be called at initial render only after json query is set
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jsonQuery])
 
   return (
     <Container>
@@ -97,11 +119,10 @@ export const JsonEditor = ({
 
       <ClickAwayListener
         onClickAway={() => {
-          const totalRows = editorRef.current?.editor.session.getLength()
+          const length = editorRef.current?.editor.session.getLength()
 
-          if (maxVisibleLines && totalRows && totalRows > maxVisibleLines) {
-            setShowOverlay(true)
-            setHover(true)
+          if (length) {
+            checkOverlay(length)
           }
         }}
       >
@@ -109,13 +130,16 @@ export const JsonEditor = ({
           aria-label={name}
           $hasErrorOrHelper={!!helperText || !!error}
           $hasError={!!error}
+          $height={height}
           onMouseEnter={() => {
-            if (isHover) return
-            setHover(true)
+            if (!isHover) {
+              setHover(true)
+            }
           }}
           onMouseLeave={() => {
-            if (!isHover) return
-            setHover(false)
+            if (isHover) {
+              setHover(false)
+            }
           }}
         >
           {/* This is the overlay that will be shown when the JSON editor is collapsed */}
@@ -209,14 +233,18 @@ const Label = styled.div<{ $withInfo?: boolean }>`
     `}
 `
 
-const EditorContainer = styled.div<{ $hasErrorOrHelper?: boolean; $hasError?: boolean }>`
+const EditorContainer = styled.div<{
+  $hasErrorOrHelper?: boolean
+  $hasError?: boolean
+  $height?: string
+}>`
   border: 1px solid
     ${({ $hasError }) => ($hasError ? theme.palette.error[600] : theme.palette.grey[500])};
   border-radius: 12px;
   position: relative;
   overflow: hidden;
   margin-bottom: ${({ $hasErrorOrHelper }) => ($hasErrorOrHelper ? theme.spacing(1) : '0px')};
-  height: 100%;
+  height: ${({ $height }) => ($height ? $height : '100%')};
   box-sizing: border-box;
 `
 
