@@ -85,7 +85,8 @@ const CreateBillableMetric = () => {
       aggregationType: string().required(''),
       fieldName: string().when('aggregationType', {
         is: (aggregationType: AggregationTypeEnum) =>
-          !!aggregationType && aggregationType !== AggregationTypeEnum.CountAgg,
+          !!aggregationType &&
+          ![AggregationTypeEnum.CountAgg, AggregationTypeEnum.CustomAgg].includes(aggregationType),
         then: (schema) => schema.required(''),
       }),
       recurring: bool().required(''),
@@ -360,7 +361,10 @@ const CreateBillableMetric = () => {
                         sortValues={false}
                         formikProps={formikProps}
                         name="aggregationType"
-                        disabled={isEdition && !canBeEdited}
+                        disabled={
+                          (isEdition && !canBeEdited) ||
+                          formikProps.values.aggregationType === AggregationTypeEnum.CustomAgg
+                        }
                         label={
                           <InlineComboboxLabel>
                             <Typography variant="captionHl" color="textSecondary">
@@ -414,6 +418,16 @@ const CreateBillableMetric = () => {
                             label: translate('text_650062226a33c46e82050486'),
                             value: AggregationTypeEnum.WeightedSumAgg,
                           },
+
+                          ...(isEdition &&
+                          formikProps.values?.aggregationType === AggregationTypeEnum.CustomAgg
+                            ? [
+                                {
+                                  label: translate('Custom aggregation'),
+                                  value: AggregationTypeEnum.CustomAgg,
+                                },
+                              ]
+                            : []),
                         ]}
                         helperText={
                           formikProps.values?.aggregationType === AggregationTypeEnum.CountAgg
@@ -432,12 +446,19 @@ const CreateBillableMetric = () => {
                                     : formikProps.values?.aggregationType ===
                                         AggregationTypeEnum.WeightedSumAgg
                                       ? translate('text_650062226a33c46e82050488')
-                                      : undefined
+                                      : formikProps.values?.aggregationType ===
+                                          AggregationTypeEnum.CustomAgg
+                                        ? translate(
+                                            'The Lago team has built this custom aggregation for you; please contact them to modify it.',
+                                          )
+                                        : undefined
                         }
                       />
 
                       {!!formikProps.values?.aggregationType &&
-                        formikProps.values?.aggregationType !== AggregationTypeEnum.CountAgg && (
+                        ![AggregationTypeEnum.CountAgg, AggregationTypeEnum.CustomAgg].includes(
+                          formikProps.values?.aggregationType,
+                        ) && (
                           <TextInputField
                             name="fieldName"
                             disabled={isEdition && !canBeEdited}
