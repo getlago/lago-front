@@ -102,12 +102,12 @@ const SubscriptionInformations = ({
             },
             {
               label: translate('text_65201c5a175a4b0238abf29e'),
-              value: DateTime.fromISO(subscription?.subscriptionAt).toFormat('LLL. dd, yyyy'),
+              value: DateTime.fromISO(subscription?.subscriptionAt).toFormat('LLL dd, yyyy'),
             },
             {
               label: translate('text_65201c5a175a4b0238abf2a0'),
               value: !!subscription?.endingAt
-                ? DateTime.fromISO(subscription?.endingAt).toFormat('LLL. dd, yyyy')
+                ? DateTime.fromISO(subscription?.endingAt).toFormat('LLL dd, yyyy')
                 : '-',
             },
             !!subscription?.plan?.parent?.id && {

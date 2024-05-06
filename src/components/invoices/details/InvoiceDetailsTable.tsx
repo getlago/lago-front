@@ -232,12 +232,12 @@ export const InvoiceDetailsTable = memo(
                           from: formatDateToTZ(
                             subscription?.metadata?.fromDatetime,
                             customer?.applicableTimezone,
-                            'LLL. dd, yyyy',
+                            'LLL dd, yyyy',
                           ),
                           to: formatDateToTZ(
                             subscription?.metadata?.toDatetime,
                             customer?.applicableTimezone,
-                            'LLL. dd, yyyy',
+                            'LLL dd, yyyy',
                           ),
                         })}
                       />

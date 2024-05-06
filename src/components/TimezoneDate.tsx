@@ -23,7 +23,7 @@ interface TimezoneDateProps {
 }
 
 export const TimezoneDate = ({
-  mainDateFormat = 'LLL. dd, yyyy',
+  mainDateFormat = 'LLL dd, yyyy',
   date,
   mainTimezone = MainTimezoneEnum.organization,
   customerTimezone,

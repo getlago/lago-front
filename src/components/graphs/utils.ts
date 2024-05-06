@@ -6,7 +6,7 @@ import { CurrencyEnum } from '~/generated/graphql'
 
 import { AreaChartDataType } from '../designSystem/graphs/types'
 
-export const GRAPH_YEAR_MONTH_DATE_FORMAT = 'LLL. yyyy'
+export const GRAPH_YEAR_MONTH_DATE_FORMAT = 'LLL yyyy'
 
 export type TAreaChartDataResult = {
   amountCents: string | number

@@ -15,5 +15,5 @@ export const formatDateToTZ = (
 ) => {
   return DateTime.fromISO(date, {
     zone: getTimezoneConfig(timezone).name,
-  }).toFormat(format || 'LLL. dd, yyyy')
+  }).toFormat(format || 'LLL dd, yyyy')
 }

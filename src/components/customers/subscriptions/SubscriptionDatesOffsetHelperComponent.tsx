@@ -30,7 +30,7 @@ export const SubscriptionDatesOffsetHelperComponent = ({
 
     const date = DateTime.fromISO(subscriptionAt)
       .setZone(customerTimezoneConfig?.name || orgaTimezoneConfig.name)
-      .toFormat('LLL. dd, yyyy')
+      .toFormat('LLL dd, yyyy')
     const time = `${DateTime.fromISO(subscriptionAt)
       .setZone(customerTimezoneConfig?.name || orgaTimezoneConfig.name)
       .setLocale('en')
@@ -59,7 +59,7 @@ export const SubscriptionDatesOffsetHelperComponent = ({
 
     const date = DateTime.fromISO(endingAt)
       .setZone(customerTimezoneConfig?.name || orgaTimezoneConfig.name)
-      .toFormat('LLL. dd, yyyy')
+      .toFormat('LLL dd, yyyy')
     const time = `${DateTime.fromISO(endingAt)
       .setZone(customerTimezoneConfig?.name || orgaTimezoneConfig.name)
       .setLocale('en')

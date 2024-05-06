@@ -94,7 +94,7 @@ export const WebhookLogDetails = ({ log }: WebhookLogDetailsProps) => {
           {translate('text_63e27c56dfe64b846474ef6c')}
         </PropertyLabel>
         <PropertyValue color="grey700">
-          {formatTimeOrgaTZ(updatedAt, 'LLL. dd, yyyy HH:mm:ss')}
+          {formatTimeOrgaTZ(updatedAt, 'LLL dd, yyyy HH:mm:ss')}
         </PropertyValue>
 
         <PropertyLabel variant="caption">

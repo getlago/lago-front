@@ -80,11 +80,11 @@ export const PlanSubscriptionListItem = ({
             : translate('text_65281f686a80b400c8e2f6d1')}
         </Typography>
         <Typography variant="body" color="grey700">
-          {DateTime.fromISO(subscriptionItem?.subscriptionAt).toFormat('LLL. dd, yyyy')}
+          {DateTime.fromISO(subscriptionItem?.subscriptionAt).toFormat('LLL dd, yyyy')}
         </Typography>
         <Typography variant="body" color="grey700">
           {!!subscriptionItem?.endingAt
-            ? DateTime.fromISO(subscriptionItem?.endingAt).toFormat('LLL. dd, yyyy')
+            ? DateTime.fromISO(subscriptionItem?.endingAt).toFormat('LLL dd, yyyy')
             : '-'}
         </Typography>
       </GridItem>

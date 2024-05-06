@@ -142,7 +142,7 @@ const CreateCoupon = () => {
             .min(
               DateTime.now().plus({ days: -1 }),
               translate('text_632d68358f1fedc68eed3ef2', {
-                date: DateTime.now().plus({ days: -1 }).toFormat('LLL. dd, yyyy').toLocaleString(),
+                date: DateTime.now().plus({ days: -1 }).toFormat('LLL dd, yyyy').toLocaleString(),
               }),
             )
             .required(''),

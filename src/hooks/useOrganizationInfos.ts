@@ -51,6 +51,6 @@ export const useOrganizationInfos: UseOrganizationInfos = () => {
     timezone: orgaTimezone || TimezoneEnum.TzUtc,
     timezoneConfig,
     formatTimeOrgaTZ: (date, format) =>
-      formatDateToTZ(date, orgaTimezone, format || 'LLL. dd, yyyy'),
+      formatDateToTZ(date, orgaTimezone, format || 'LLL dd, yyyy'),
   }
 }

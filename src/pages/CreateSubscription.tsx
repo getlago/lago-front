@@ -319,7 +319,7 @@ const CreateSubscription = () => {
           ? translate('text_62ea7cd44cd4b14bb9ac1d92')
           : formattedCurrentDate === february29
             ? translate('text_62ea7cd44cd4b14bb9ac1d9a')
-            : translate('text_62ea7cd44cd4b14bb9ac1d96', { date: currentDate.toFormat('LLL. dd') })
+            : translate('text_62ea7cd44cd4b14bb9ac1d96', { date: currentDate.toFormat('LLL dd') })
 
       case PlanInterval.Quarterly:
         if (billingTime === BillingTimeEnum.Calendar)

@@ -70,7 +70,7 @@ export const InvoiceFeeAdvanceDetailsTable = memo(
                     : subscription?.metadata?.inAdvanceChargesFromDatetime ||
                         subscription?.metadata?.chargesFromDatetime,
                   customer?.applicableTimezone,
-                  'LLL. dd, yyyy',
+                  'LLL dd, yyyy',
                 ),
                 to: formatDateToTZ(
                   subscription?.metadata?.differentBoundariesForSubscriptionAndCharges
@@ -78,7 +78,7 @@ export const InvoiceFeeAdvanceDetailsTable = memo(
                     : subscription?.metadata?.inAdvanceChargesToDatetime ||
                         subscription?.metadata?.chargesToDatetime,
                   customer?.applicableTimezone,
-                  'LLL. dd, yyyy',
+                  'LLL dd, yyyy',
                 ),
               })}
             />

@@ -79,7 +79,7 @@ export const DebuggerEventDetails = ({ event }: DebuggerEventDetailsProps) => {
             date={timestamp}
             customerTimezone={customerTimezone}
             mainTimezone="utc0"
-            mainDateFormat="LLL. dd, yyyy HH:mm:ss 'UTC'"
+            mainDateFormat="LLL dd, yyyy HH:mm:ss 'UTC'"
           />
         </PropertyValue>
 

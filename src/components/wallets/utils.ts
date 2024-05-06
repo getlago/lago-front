@@ -88,11 +88,11 @@ export const getWordingForWalletCreationAlert = ({
 
       if (isDayPotentiallyNotReachableOnAllPeriods && isFebruary) {
         text += translate('text_6560809d38fb9de88d8a542a', {
-          dateOfTheMonth: nextRecurringTopUpDate.toFormat('LLL. dd'),
+          dateOfTheMonth: nextRecurringTopUpDate.toFormat('LLL dd'),
         })
       } else {
         text += translate('text_6560809c38fb9de88d8a5414', {
-          dateOfTheMonth: nextRecurringTopUpDate.toFormat('LLL. dd'),
+          dateOfTheMonth: nextRecurringTopUpDate.toFormat('LLL dd'),
         })
       }
     }
@@ -125,28 +125,28 @@ export const getWordingForWalletEditionAlert = ({
     const dateRefForDisplay = DateTime.fromISO(gmtDateRef).setZone(customerZone).startOf('day')
 
     if (rulesValues?.interval === RecurringTransactionIntervalEnum.Weekly) {
-      const nextRecurringTopUpDate = dateRefForDisplay.plus({ days: 7 }).toFormat('LLL. dd, yyyy')
+      const nextRecurringTopUpDate = dateRefForDisplay.plus({ days: 7 }).toFormat('LLL dd, yyyy')
 
       return translate('text_6560809c38fb9de88d8a5370', {
         totalCreditCount,
         nextRecurringTopUpDate,
       })
     } else if (rulesValues?.interval === RecurringTransactionIntervalEnum.Monthly) {
-      const nextRecurringTopUpDate = dateRefForDisplay.plus({ months: 1 }).toFormat('LLL. dd, yyyy')
+      const nextRecurringTopUpDate = dateRefForDisplay.plus({ months: 1 }).toFormat('LLL dd, yyyy')
 
       return translate('text_6560809c38fb9de88d8a5360', {
         totalCreditCount,
         nextRecurringTopUpDate,
       })
     } else if (rulesValues?.interval === RecurringTransactionIntervalEnum.Quarterly) {
-      const nextRecurringTopUpDate = dateRefForDisplay.plus({ months: 3 }).toFormat('LLL. dd, yyyy')
+      const nextRecurringTopUpDate = dateRefForDisplay.plus({ months: 3 }).toFormat('LLL dd, yyyy')
 
       return translate('text_6560809c38fb9de88d8a535e', {
         totalCreditCount,
         nextRecurringTopUpDate,
       })
     } else if (rulesValues?.interval === RecurringTransactionIntervalEnum.Yearly) {
-      const nextRecurringTopUpDate = dateRefForDisplay.plus({ years: 1 }).toFormat('LLL. dd, yyyy')
+      const nextRecurringTopUpDate = dateRefForDisplay.plus({ years: 1 }).toFormat('LLL dd, yyyy')
 
       return translate('text_6560809c38fb9de88d8a5408', {
         totalCreditCount,

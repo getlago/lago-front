@@ -72,14 +72,14 @@ export const InvoiceFeeArrearsDetailsTable = memo(
                     ? subscription?.metadata?.chargesFromDatetime
                     : subscription?.metadata?.fromDatetime,
                   customer?.applicableTimezone,
-                  'LLL. dd, yyyy',
+                  'LLL dd, yyyy',
                 ),
                 to: formatDateToTZ(
                   subscription?.metadata?.differentBoundariesForSubscriptionAndCharges
                     ? subscription?.metadata?.chargesToDatetime
                     : subscription?.metadata?.toDatetime,
                   customer?.applicableTimezone,
-                  'LLL. dd, yyyy',
+                  'LLL dd, yyyy',
                 ),
               })}
             />

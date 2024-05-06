@@ -536,7 +536,7 @@ const WalletForm = () => {
                       error={
                         formikProps.errors.expirationAt === dateErrorCodes.shouldBeInFuture
                           ? translate('text_630ccd87b251590eaa5f9831', {
-                              date: DateTime.now().toFormat('LLL. dd, yyyy'),
+                              date: DateTime.now().toFormat('LLL dd, yyyy'),
                             })
                           : undefined
                       }
