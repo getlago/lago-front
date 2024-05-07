@@ -19,6 +19,7 @@ const getPropertyShape = (properties: Properties | undefined): LocalPropertiesIn
     graduatedPercentageRanges: properties?.graduatedPercentageRanges || undefined,
     volumeRanges: properties?.volumeRanges || undefined,
     rate: properties?.rate || undefined,
+    customProperties: properties?.customProperties || undefined,
   }
 }
 

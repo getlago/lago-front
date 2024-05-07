@@ -29,6 +29,7 @@ import {
   ChargeForChargeOptionsAccordionFragmentDoc,
   ChargeModelEnum,
   CurrencyEnum,
+  CustomChargeFragmentDoc,
   GraduatedChargeFragmentDoc,
   GraduatedPercentageChargeFragmentDoc,
   PackageChargeFragmentDoc,
@@ -80,6 +81,7 @@ gql`
       ...PackageCharge
       ...StandardCharge
       ...PercentageCharge
+      ...CustomCharge
     }
     filters {
       invoiceDisplayName
@@ -91,6 +93,7 @@ gql`
         ...PackageCharge
         ...StandardCharge
         ...PercentageCharge
+        ...CustomCharge
       }
     }
     billableMetric {
@@ -128,6 +131,7 @@ gql`
   ${PackageChargeFragmentDoc}
   ${StandardChargeFragmentDoc}
   ${PercentageChargeFragmentDoc}
+  ${CustomChargeFragmentDoc}
   ${ChargeForChargeOptionsAccordionFragmentDoc}
 `
 
@@ -526,6 +530,14 @@ export const ChargeAccordion = memo(
                   label: translate('text_6304e74aab6dbc18d615f386'),
                   value: ChargeModelEnum.Volume,
                 },
+                ...(localCharge.billableMetric.aggregationType === AggregationTypeEnum.CustomAgg
+                  ? [
+                      {
+                        label: translate('Custom pricing'),
+                        value: ChargeModelEnum.Custom,
+                      },
+                    ]
+                  : []),
               ]}
               value={localCharge.chargeModel}
               helperText={translate(
@@ -539,7 +551,9 @@ export const ChargeAccordion = memo(
                         ? 'text_6282085b4f283b010265586c'
                         : localCharge.chargeModel === ChargeModelEnum.Volume
                           ? 'text_6304e74aab6dbc18d615f38a'
-                          : 'text_624d9adba93343010cd14ca7',
+                          : localCharge.chargeModel === ChargeModelEnum.Custom
+                            ? 'Define your custom pricing using a JSON file. For support, reach out to the Lago team.'
+                            : 'text_624d9adba93343010cd14ca7',
               )}
               onChange={(value) => handleUpdate('chargeModel', value)}
             />

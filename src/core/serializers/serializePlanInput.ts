@@ -112,6 +112,9 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
             : undefined,
         }
       : { perTransactionMinAmount: undefined, perTransactionMaxAmount: undefined }),
+    ...(chargeModel === ChargeModelEnum.Custom
+      ? { customProperties: properties?.customProperties }
+      : { customProperties: undefined }),
   }
 }
 
