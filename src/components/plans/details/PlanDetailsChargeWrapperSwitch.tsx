@@ -2,6 +2,7 @@ import { useId } from 'react'
 import styled from 'styled-components'
 
 import { Chip } from '~/components/designSystem'
+import { JsonEditor } from '~/components/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ChargeModelEnum, CurrencyEnum, Maybe, Properties } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -213,6 +214,12 @@ const PlanDetailsChargeWrapperSwitch = ({
               })
             })()}
           />
+        </ChargeContentWrapper>
+      )}
+      {chargeModel === ChargeModelEnum.Custom && (
+        <ChargeContentWrapper>
+          {/* TODO: To confirm with product */}
+          <JsonEditor label={translate('Custom price')} value={values?.customProperties} disabled />
         </ChargeContentWrapper>
       )}
     </div>
