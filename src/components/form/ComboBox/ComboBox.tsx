@@ -36,6 +36,7 @@ export const ComboBox = ({
   renderGroupHeader,
   virtualized = true,
   renderGroupInputStartAdornment,
+  onOpen,
   onChange,
 }: ComboBoxProps) => {
   const { translate } = useInternationalization()
@@ -90,6 +91,10 @@ export const ComboBox = ({
     <Autocomplete
       options={data}
       disabled={disabled}
+      onOpen={() => {
+        if (isLoading) return
+        onOpen?.()
+      }}
       renderInput={(params) => {
         return (
           <ComboBoxInput

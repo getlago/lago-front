@@ -48,6 +48,7 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params' | 'search
   }
   renderGroupHeader?: never
   onChange: (value: string) => unknown
+  onOpen?: () => void
   searchQuery?: LazyQueryExecFunction<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     any,
