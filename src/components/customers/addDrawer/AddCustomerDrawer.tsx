@@ -55,7 +55,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { Card, DrawerContent, DrawerSubmitButton, DrawerTitle, theme } from '~/styles'
 
-import { ITEM_HEIGHT } from '../form/ComboBox/ComboBoxItem'
+import { ITEM_HEIGHT } from '../../form/ComboBox/ComboBoxItem'
 
 const MAX_METADATA_COUNT = 5
 
