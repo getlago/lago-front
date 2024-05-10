@@ -114,6 +114,7 @@
     "luxon": "3.4.2",
     "prismjs": "1.29.0",
     "react": "18.2.0",
+    "react-ace": "^11.0.1",
     "react-dom": "18.2.0",
     "react-router-dom": "6.15.0",
     "react-window": "1.8.9",

@@ -33,6 +33,7 @@ import {
   CheckboxField,
   ComboBoxField,
   DatePickerField,
+  JsonEditorField,
   MultipleComboBox,
   MultipleComboBoxField,
   RadioField,
@@ -108,7 +109,29 @@ const DesignSystem = () => {
       buttonSelector2: 'time',
       checkboxCond1: true,
       checkboxCond2: true,
-      json: undefined,
+      json: {
+        age: '41 years old',
+        home: {
+          country: 'United States',
+          address: '317 example street',
+        },
+        friends: [],
+      },
+      jsonLong: {
+        age: '41 years old',
+        home: {
+          country: 'United States',
+          address: '317 example street',
+        },
+        friends: [
+          'Lucille, Ellissa',
+          'Korry, Shawn',
+          'Auguste, Gina',
+          'Guinna, Aime',
+          'Faustine, Rozalie',
+        ],
+      },
+      jsonEmpty: undefined,
     },
     validationSchema: object().shape({
       checkbox: boolean().required(),
@@ -1275,6 +1298,26 @@ const DesignSystem = () => {
                       name="input"
                       formikProps={formikProps}
                       helperText="I'm here to help"
+                    />
+                  </Block>
+
+                  <GroupTitle variant="subhead">JSON Editor</GroupTitle>
+                  <Block $marginBottom={theme.spacing(6)}>
+                    <JsonEditorField
+                      name="json"
+                      label="With small editor and overlay"
+                      formikProps={formikProps}
+                      onExpand={(deleteOverlay) => {
+                        deleteOverlay()
+                      }}
+                      helperText="Until you can't see the last line in the editor, you will see the expand overlay"
+                    />
+
+                    <JsonEditorField
+                      name="jsonLong"
+                      label="With height"
+                      formikProps={formikProps}
+                      height="300px"
                     />
                   </Block>
 
