@@ -29,8 +29,8 @@ export interface JsonEditorProps {
   helperText?: string | ReactNode
   customInvalidError?: string
   disabled?: boolean
-  minEditableLines?: number
   height?: string
+  hideLabel?: boolean
   onBlur?: (props: unknown) => void
   onChange?: (value: string) => void
   onError?: (err: keyof typeof JSON_EDITOR_ERROR_ENUM) => void
@@ -48,6 +48,7 @@ export const JsonEditor = ({
   customInvalidError,
   disabled,
   height,
+  hideLabel,
   onChange,
   onError,
   onBlur,
@@ -66,6 +67,9 @@ export const JsonEditor = ({
       if (maxVisibleLines && length >= maxVisibleLines) {
         editorRef.current?.editor.scrollPageUp()
         setShowOverlay(true)
+      } else {
+        setShowOverlay(false)
+        setHover(false)
       }
     },
     [maxVisibleLines],
@@ -104,7 +108,7 @@ export const JsonEditor = ({
 
   return (
     <Container>
-      {
+      {!hideLabel && (
         <Label $withInfo={!!infoText}>
           <Typography variant="captionHl" color="textSecondary">
             {label}
@@ -115,7 +119,7 @@ export const JsonEditor = ({
             </Tooltip>
           )}
         </Label>
-      }
+      )}
 
       <ClickAwayListener
         onClickAway={() => {
@@ -148,7 +152,7 @@ export const JsonEditor = ({
               <Overlay>
                 <Fade in={isHover}>
                   <Button onClick={() => onExpand(() => setShowOverlay(false))}>
-                    <Chip icon="plus" label="Click to expand" />
+                    <Chip icon="plus" label={translate('Click to expand')} />
                   </Button>
                 </Fade>
               </Overlay>
@@ -196,7 +200,7 @@ export const JsonEditor = ({
       </ClickAwayListener>
 
       {(helperText || error) && (
-        <Typography variant="caption" color={error ? 'danger600' : 'textPrimary'}>
+        <Helper variant="caption" color={error ? 'danger600' : 'textPrimary'}>
           {!!error
             ? translate(
                 error === JSON_EDITOR_ERROR_ENUM.invalid && customInvalidError
@@ -204,7 +208,7 @@ export const JsonEditor = ({
                   : 'text_6638a3538de76801ac2f451b',
               )
             : helperText}
-        </Typography>
+        </Helper>
       )}
     </Container>
   )
@@ -212,13 +216,20 @@ export const JsonEditor = ({
 
 const Container = styled.div`
   width: 100%;
-  height: 100%;
+  height: calc(100% - 32px - 20px);
+  display: grid;
+  grid-auto-rows: auto 1fr auto;
+  grid-template-areas:
+    'label'
+    'editor'
+    'helper';
 `
 
 const Label = styled.div<{ $withInfo?: boolean }>`
   display: flex;
   align-items: center;
   margin-bottom: ${theme.spacing(1)};
+  grid-area: label;
 
   ${({ $withInfo }) =>
     $withInfo &&
@@ -246,6 +257,7 @@ const EditorContainer = styled.div<{
   margin-bottom: ${({ $hasErrorOrHelper }) => ($hasErrorOrHelper ? theme.spacing(1) : '0px')};
   height: ${({ $height }) => ($height ? $height : '100%')};
   box-sizing: border-box;
+  grid-area: editor;
 `
 
 const LineNumbersBackground = styled.div`
@@ -420,4 +432,8 @@ const Editor = styled(AceEditor)`
       }
     }
   }
+`
+
+const Helper = styled(Typography)`
+  grid-area: helper;
 `

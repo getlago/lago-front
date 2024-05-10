@@ -1,10 +1,14 @@
 import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
 import _get from 'lodash/get'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useRef } from 'react'
 import styled from 'styled-components'
 
 import { JsonEditor } from '~/components/form'
+import {
+  EditCustomChargeDrawer,
+  EditCustomChargeDrawerRef,
+} from '~/components/plans/EditCustomChargeDrawer'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
@@ -27,13 +31,14 @@ interface PackageChargeProps {
 export const CustomCharge = memo(
   ({ chargeIndex, disabled, formikProps, propertyCursor, valuePointer }: PackageChargeProps) => {
     const { translate } = useInternationalization()
+    const drawerRef = useRef<EditCustomChargeDrawerRef>(null)
 
     const propertyInput: keyof LocalPropertiesInput = 'customProperties'
     const inputId = `charges.${chargeIndex}.${propertyCursor}.${propertyInput}`
 
     const handleUpdate = useCallback(
-      (name: string, value: string) => {
-        formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
+      (value: string) => {
+        formikProps.setFieldValue(inputId, value)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [chargeIndex],
@@ -46,11 +51,17 @@ export const CustomCharge = memo(
             name={`${propertyCursor}.${propertyInput}`}
             label={translate('Custom price')}
             value={valuePointer?.customProperties}
-            onChange={(value) => handleUpdate(`${propertyCursor}.${propertyInput}`, value)}
+            onChange={(value) => handleUpdate(value)}
             disabled={disabled}
             error={_get(formikProps.errors, inputId)}
+            onExpand={() =>
+              drawerRef.current?.openDrawer({
+                customProperties: _get(formikProps.values, inputId),
+              })
+            }
           />
         </Container>
+        <EditCustomChargeDrawer ref={drawerRef} onSubmit={(value) => handleUpdate(value)} />
       </>
     )
   },

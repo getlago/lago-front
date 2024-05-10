@@ -113,7 +113,7 @@ const volumeShape = {
     .required(''),
 }
 
-const customShape = {
+export const customShape = {
   customProperties: object().json().required(''),
 }
 
