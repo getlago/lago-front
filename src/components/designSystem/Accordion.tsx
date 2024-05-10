@@ -26,6 +26,7 @@ interface AccordionProps {
   size?: AccordionSize
   noContentMargin?: boolean
   transitionProps?: TransitionProps
+  onOpen?: () => void
 }
 
 export const Accordion = ({
@@ -37,6 +38,7 @@ export const Accordion = ({
   size = AccordionSizeEnum.medium,
   noContentMargin = false,
   transitionProps = {},
+  onOpen,
   ...props
 }: AccordionProps) => {
   const [isOpen, setIsOpen] = useState(initiallyOpen)
@@ -48,7 +50,11 @@ export const Accordion = ({
       className={className}
       id={id}
       expanded={isOpen}
-      onChange={(_, expanded) => setIsOpen(expanded)}
+      onChange={(_, expanded) => {
+        setIsOpen(expanded)
+
+        if (expanded && !!onOpen) onOpen()
+      }}
       TransitionProps={{ unmountOnExit: true, ...transitionProps }}
       {...props}
     >
