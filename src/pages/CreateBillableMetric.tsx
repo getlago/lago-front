@@ -423,7 +423,7 @@ const CreateBillableMetric = () => {
                           formikProps.values?.aggregationType === AggregationTypeEnum.CustomAgg
                             ? [
                                 {
-                                  label: translate('Custom aggregation'),
+                                  label: translate('text_663dea5702b60301d8d06504'),
                                   value: AggregationTypeEnum.CustomAgg,
                                 },
                               ]
@@ -448,9 +448,7 @@ const CreateBillableMetric = () => {
                                       ? translate('text_650062226a33c46e82050488')
                                       : formikProps.values?.aggregationType ===
                                           AggregationTypeEnum.CustomAgg
-                                        ? translate(
-                                            'The Lago team has built this custom aggregation for you; please contact them to modify it.',
-                                          )
+                                        ? translate('text_663dea5702b60301d8d0650c')
                                         : undefined
                         }
                       />

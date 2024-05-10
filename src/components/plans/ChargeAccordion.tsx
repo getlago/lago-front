@@ -533,7 +533,7 @@ export const ChargeAccordion = memo(
                 ...(localCharge.billableMetric.aggregationType === AggregationTypeEnum.CustomAgg
                   ? [
                       {
-                        label: translate('Custom pricing'),
+                        label: translate('text_663dea5702b60301d8d064fa'),
                         value: ChargeModelEnum.Custom,
                       },
                     ]
@@ -552,7 +552,7 @@ export const ChargeAccordion = memo(
                         : localCharge.chargeModel === ChargeModelEnum.Volume
                           ? 'text_6304e74aab6dbc18d615f38a'
                           : localCharge.chargeModel === ChargeModelEnum.Custom
-                            ? 'Define your custom pricing using a JSON file. For support, reach out to the Lago team.'
+                            ? 'text_663dea5702b60301d8d064fe'
                             : 'text_624d9adba93343010cd14ca7',
               )}
               onChange={(value) => handleUpdate('chargeModel', value)}

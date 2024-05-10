@@ -34,6 +34,7 @@ const ready_for_dev___all___custom_timezones = require('./ready-for-dev---all---
 const ready_for_dev___all___license_key = require('./ready-for-dev---all---license-key__base.json');
 const ready_for_dev___all___replace_success_screen_by_success_toast = require('./ready-for-dev---all---replace-success-screen-by-success-toast__base.json');
 const ready_for_dev___b = require('./ready-for-dev---b.metrics---add-last-aggregation-type__base.json');
+const ready_for_dev___b1 = require('./ready-for-dev---b.metrics-plans---custom-aggregation-price__base.json');
 const ready_for_dev___billable_metrics___weighted_sum = require('./ready-for-dev---billable-metrics---weighted-sum__base.json');
 const ready_for_dev___coupons___apply_several_coupons_to_customer = require('./ready-for-dev---coupons---apply-several-coupons-to-customer__base.json');
 const ready_for_dev___coupons___coupon_amount_based_on_total_excluding_tax = require('./ready-for-dev---coupons---coupon-amount-based-on-total-excluding-tax__base.json');
@@ -224,6 +225,9 @@ module.exports = {
   },
   "project_64f8823bc0558274c87c6e0e": {
     "base": {...ready_for_dev___b}
+  },
+  "project_663dea541d89e5df98fbc05b": {
+    "base": {...ready_for_dev___b1}
   },
   "project_6500621fbbf7ebe75d11e890": {
     "base": {...ready_for_dev___billable_metrics___weighted_sum}

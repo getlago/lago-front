@@ -218,8 +218,12 @@ const PlanDetailsChargeWrapperSwitch = ({
       )}
       {chargeModel === ChargeModelEnum.Custom && (
         <ChargeContentWrapper>
-          {/* TODO: To confirm with product */}
-          <JsonEditor label={translate('Custom price')} value={values?.customProperties} disabled />
+          {/* TODO(@keellyp): To confirm with product */}
+          <JsonEditor
+            label={translate('text_663dea5702b60301d8d06502')}
+            value={values?.customProperties}
+            disabled
+          />
         </ChargeContentWrapper>
       )}
     </div>

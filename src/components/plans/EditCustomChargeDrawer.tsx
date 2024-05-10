@@ -57,7 +57,7 @@ export const EditCustomChargeDrawer = forwardRef<
     <Drawer
       ref={drawerRef}
       fullContentHeight
-      title={translate('Edit custom price')}
+      title={translate('text_663dea5702b60301d8d0646e')}
       onClose={() => {
         formikProps.resetForm()
         drawerRef.current?.closeDrawer()
@@ -65,19 +65,15 @@ export const EditCustomChargeDrawer = forwardRef<
     >
       <DrawerContent style={{ height: '100%', display: 'grid', gridTemplateRows: 'auto 1fr auto' }}>
         <DrawerTitle>
-          <Typography variant="headline">{translate('Edit custom price')}</Typography>
-          <Typography>
-            {translate(
-              'Define your custom pricing using a JSON file. For support, reach out to the Lago team.',
-            )}
-          </Typography>
+          <Typography variant="headline">{translate('text_663dea5702b60301d8d0646e')}</Typography>
+          <Typography>{translate('text_663dea5702b60301d8d064fe')}</Typography>
         </DrawerTitle>
 
         <Card>
-          <Typography variant="subhead">{translate('Custom price')}</Typography>
+          <Typography variant="subhead">{translate('text_663dea5702b60301d8d06502')}</Typography>
           <JsonEditor
             hideLabel
-            label={translate('Custom price')}
+            label={translate('text_663dea5702b60301d8d06502')}
             value={localData}
             onChange={(value) => {
               formikProps.setFieldValue('customProperties', value)
@@ -96,7 +92,7 @@ export const EditCustomChargeDrawer = forwardRef<
             loading={formikProps.isSubmitting}
             onClick={formikProps.submitForm}
           >
-            {translate('Save custom pricing')}
+            {translate('text_663dea5702b60301d8d06490')}
           </Button>
         </DrawerSubmitButton>
       </DrawerContent>

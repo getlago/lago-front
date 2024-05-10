@@ -49,7 +49,7 @@ export const CustomCharge = memo(
         <Container>
           <JsonEditor
             name={`${propertyCursor}.${propertyInput}`}
-            label={translate('Custom price')}
+            label={translate('text_663dea5702b60301d8d06502')}
             value={valuePointer?.customProperties}
             onChange={(value) => handleUpdate(value)}
             disabled={disabled}

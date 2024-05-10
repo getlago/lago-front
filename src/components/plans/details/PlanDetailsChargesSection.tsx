@@ -25,8 +25,8 @@ const chargeModelLookupTranslation: Record<string, string> = {
   [ChargeModelEnum.Percentage]: 'text_65201b8216455901fe273df8',
   [ChargeModelEnum.Standard]: 'text_65201b8216455901fe273dd6',
   [ChargeModelEnum.Volume]: 'text_65201b8216455901fe273e4f',
-  // TODO: To confirm with product
-  [ChargeModelEnum.Custom]: 'Custom',
+  // TODO(@keellyp): To confirm with product
+  [ChargeModelEnum.Custom]: 'text_663dea5702b60301d8d06502',
 }
 
 const PlanDetailsChargesSection = ({

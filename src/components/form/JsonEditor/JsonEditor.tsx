@@ -152,7 +152,7 @@ export const JsonEditor = ({
               <Overlay>
                 <Fade in={isHover}>
                   <Button onClick={() => onExpand(() => setShowOverlay(false))}>
-                    <Chip icon="plus" label={translate('Click to expand')} />
+                    <Chip icon="plus" label={translate('text_663dea5702b60301d8d0650a')} />
                   </Button>
                 </Fade>
               </Overlay>
