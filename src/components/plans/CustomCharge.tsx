@@ -51,7 +51,6 @@ export const CustomCharge = memo(
             name={`${propertyCursor}.${propertyInput}`}
             label={translate('text_663dea5702b60301d8d06502')}
             value={valuePointer?.customProperties}
-            onChange={(value) => handleUpdate(value)}
             disabled={disabled}
             error={_get(formikProps.errors, inputId)}
             onExpand={() =>

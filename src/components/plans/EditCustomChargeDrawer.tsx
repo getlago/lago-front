@@ -60,6 +60,7 @@ export const EditCustomChargeDrawer = forwardRef<
       title={translate('text_663dea5702b60301d8d0646e')}
       onClose={() => {
         formikProps.resetForm()
+        formikProps.validateForm()
         drawerRef.current?.closeDrawer()
       }}
     >
@@ -88,9 +89,12 @@ export const EditCustomChargeDrawer = forwardRef<
           <Button
             fullWidth
             size="large"
-            disabled={!formikProps.isValid || !formikProps.isValid}
+            disabled={!formikProps.isValid || !formikProps.dirty}
             loading={formikProps.isSubmitting}
-            onClick={formikProps.submitForm}
+            onClick={async () => {
+              await formikProps.submitForm()
+              drawerRef.current?.closeDrawer()
+            }}
           >
             {translate('text_663dea5702b60301d8d06490')}
           </Button>

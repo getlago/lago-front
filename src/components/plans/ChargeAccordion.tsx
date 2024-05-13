@@ -538,7 +538,9 @@ export const ChargeAccordion = memo(
                       },
                     ]
                   : []),
-              ]}
+              ]
+                // Sort the combobox values by label
+                .sort((a, b) => translate(a.label).localeCompare(translate(b.label)))}
               value={localCharge.chargeModel}
               helperText={translate(
                 localCharge.chargeModel === ChargeModelEnum.Percentage

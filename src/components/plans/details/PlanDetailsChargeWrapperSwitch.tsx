@@ -2,13 +2,13 @@ import { useId } from 'react'
 import styled from 'styled-components'
 
 import { Chip } from '~/components/designSystem'
-import { JsonEditor } from '~/components/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ChargeModelEnum, CurrencyEnum, Maybe, Properties } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
 
+import DetailsJSONDisplay from '../../details/DetailsJSONDisplay'
 import DetailsTableDisplay from '../../details/DetailsTableDisplay'
 
 const PlanDetailsChargeWrapperSwitch = ({
@@ -218,11 +218,9 @@ const PlanDetailsChargeWrapperSwitch = ({
       )}
       {chargeModel === ChargeModelEnum.Custom && (
         <ChargeContentWrapper>
-          {/* TODO(@keellyp): To confirm with product */}
-          <JsonEditor
-            label={translate('text_663dea5702b60301d8d06502')}
+          <DetailsJSONDisplay
+            header={translate('text_663dea5702b60301d8d06502')}
             value={values?.customProperties}
-            disabled
           />
         </ChargeContentWrapper>
       )}

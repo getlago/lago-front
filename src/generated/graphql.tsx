@@ -1006,7 +1006,6 @@ export type CreateCustomerInput = {
   email?: InputMaybe<Scalars['String']['input']>;
   externalId: Scalars['String']['input'];
   externalSalesforceId?: InputMaybe<Scalars['String']['input']>;
-  integrationCustomer?: InputMaybe<IntegrationCustomerInput>;
   invoiceGracePeriod?: InputMaybe<Scalars['Int']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
   legalNumber?: InputMaybe<Scalars['String']['input']>;
@@ -1014,6 +1013,7 @@ export type CreateCustomerInput = {
   metadata?: InputMaybe<Array<CustomerMetadataInput>>;
   name: Scalars['String']['input'];
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
+  netsuiteCustomer?: InputMaybe<IntegrationCustomerInput>;
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
@@ -2229,8 +2229,8 @@ export type IntegrationCollection = {
 
 export type IntegrationCustomerInput = {
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
-  integration?: InputMaybe<IntegrationTypeEnum>;
   integrationCode?: InputMaybe<Scalars['String']['input']>;
+  integrationType?: InputMaybe<IntegrationTypeEnum>;
   subsidiaryId?: InputMaybe<Scalars['String']['input']>;
   syncWithProvider?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -3156,6 +3156,8 @@ export type NetsuiteCustomer = {
   __typename?: 'NetsuiteCustomer';
   externalCustomerId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  integrationCode?: Maybe<Scalars['String']['output']>;
+  integrationType?: Maybe<IntegrationTypeEnum>;
   subsidiaryId?: Maybe<Scalars['String']['output']>;
   syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
 };
@@ -4456,7 +4458,6 @@ export type UpdateCustomerInput = {
   externalId: Scalars['String']['input'];
   externalSalesforceId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
-  integrationCustomer?: InputMaybe<IntegrationCustomerInput>;
   invoiceGracePeriod?: InputMaybe<Scalars['Int']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
   legalNumber?: InputMaybe<Scalars['String']['input']>;
@@ -4464,6 +4465,7 @@ export type UpdateCustomerInput = {
   metadata?: InputMaybe<Array<CustomerMetadataInput>>;
   name: Scalars['String']['input'];
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
+  netsuiteCustomer?: InputMaybe<IntegrationCustomerInput>;
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
