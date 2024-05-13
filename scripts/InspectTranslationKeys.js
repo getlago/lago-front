@@ -9,7 +9,7 @@ const { GettextExtractor, JsExtractors } = require('gettext-extractor')
 const SRC_DIR = './src/'
 const TRANSLATION_FILES_PATH = './ditto/base.json' // './ditto/**.json' for when we'll support several languages
 
-async function extract() {
+async function extract(replaceMode) {
   // Extract all the translation keys by parsing the 'translate' function
   const extracts = new GettextExtractor()
     .createJsParser([
@@ -44,9 +44,8 @@ async function extract() {
   translationFiles.forEach((file) => {
     // Get all translation keys from the ditto file
     const dittoTranslations = JSON.parse(fs.readFileSync(file), 'utf-8')
-    const dittoKeys = Object.keys(dittoTranslations)
-      // Ignore timzeone keys as they're used in the config without calling translate
-      .filter((key) => key.split('_')[0] !== 'TZ')
+    // Ignore timzeone keys as they're used in the config without calling translate
+    const dittoKeys = Object.keys(dittoTranslations).filter((key) => key.split('_')[0] !== 'TZ')
     const keysNotInDitto = _.uniq(_.difference(foundKeys, dittoKeys))
     const dittoKeysNotUsed = _.uniq(_.difference(dittoKeys, foundKeys))
 
@@ -70,6 +69,21 @@ async function extract() {
             '\u001b[0m',
         )
         console.info(dittoKeysNotUsed.join('\n'))
+
+        if (replaceMode) {
+          dittoKeysNotUsed.forEach((key) => {
+            const translation = dittoTranslations[key]
+
+            files.forEach((filePath) => {
+              let fileContent = fs.readFileSync(filePath, 'utf-8')
+
+              fileContent = fileContent.replace(`TODO: ${translation}`, `${key}`)
+              fs.writeFileSync(filePath, fileContent, 'utf-8')
+            })
+          })
+
+          console.info('\u001b[' + 32 + 'm' + '✔ Replacements done' + '\u001b[0m')
+        }
       }
 
       throw Error
@@ -84,7 +98,9 @@ async function extract() {
  */
 async function main() {
   try {
-    await extract()
+    const replaceMode = process.argv.includes('--replace')
+
+    await extract(replaceMode)
   } catch (e) {
     console.info('\u001b[' + 31 + 'm' + '\nTranslation check failed' + '\u001b[0m', e)
     process.exit(1)
