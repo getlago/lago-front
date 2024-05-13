@@ -27,6 +27,7 @@ import {
   ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION,
   MUI_BUTTON_BASE_ROOT_CLASSNAME,
 } from '~/core/constants/form'
+import { INTEGRATIONS_ROUTE } from '~/core/router'
 import {
   CreateCustomerInput,
   CurrencyEnum,
@@ -36,7 +37,6 @@ import {
   UpdateCustomerInput,
   useIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery,
   usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery,
-  useSubsidiariesListForCustomerCreateEditExternalAppsAccordionLazyQuery,
   useSubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -153,11 +153,6 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
       skip: !selectedNetsuiteIntegration?.id,
     })
 
-  const isEditingAlreadyCreatedNetsuiteConnection =
-    isEdition &&
-    formikProps.initialValues.integrationCustomer?.integrationCode ===
-      selectedNetsuiteIntegration?.code
-
   const isSyncWithProviderDisabled = !!formikProps.values.providerCustomer?.syncWithProvider
 
   const connectedProvidersData: ComboboxDataGrouped[] | [] = useMemo(() => {
@@ -239,24 +234,21 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
       summary={
         <InlineSummaryForExternalApps>
           <LocalPSPIcons />
-          <Typography variant="subhead">{translate('TODO: Connect to external apps')}</Typography>
+          <Typography variant="subhead">{translate('text_66423cad72bbad009f2f5689')}</Typography>
         </InlineSummaryForExternalApps>
       }
     >
       <Stack gap={6}>
         <div>
           <Typography variant="bodyHl" color="grey700">
-            {translate('TODO: Link this customer to external connections')}
+            {translate('text_66423dbab233e60111c49461')}
           </Typography>
           <Typography
             variant="caption"
             color="grey600"
-            html={translate(
-              "Choose an integration already connected with Lago. If you haven't connected yet, feel free to do so in the Integrations section.",
-              {
-                href: 'TODO: Link to integrations page',
-              },
-            )}
+            html={translate('text_66423dbab233e60111c49462', {
+              href: INTEGRATIONS_ROUTE,
+            })}
           />
         </div>
 
@@ -285,7 +277,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                   <Stack>
                     <Typography variant="bodyHl" color="grey700">
                       {!selectedPaymentProvider
-                        ? translate('TODO: Select a connection')
+                        ? translate('text_66423cad72bbad009f2f5691')
                         : selectedPaymentProvider.name}
                     </Typography>
                     {!!selectedPaymentProvider?.code && (
@@ -324,6 +316,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                   data={connectedProvidersData}
                   label={translate('text_65940198687ce7b05cd62b61')}
                   placeholder={translate('text_65940198687ce7b05cd62b62')}
+                  emptyText={translate('text_6645daa0468420011304aded')}
                   PopperProps={{ displayInDialog: true }}
                   value={formikProps.values.paymentProviderCode as string}
                   onChange={(value) => {
@@ -571,7 +564,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                   <Stack>
                     <Typography variant="bodyHl" color="grey700">
                       {!selectedNetsuiteIntegration
-                        ? translate('TODO: Select a connection')
+                        ? translate('text_66423cad72bbad009f2f5691')
                         : selectedNetsuiteIntegration.name}
                     </Typography>
                     {!!selectedNetsuiteIntegration?.code && (
@@ -590,92 +583,74 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               </Stack>
             }
           >
-            <div>
-              <Stack gap={6} padding={4}>
-                <Typography variant="bodyHl" color="grey700">
-                  {translate('text_65e1f90471bc198c0c934d6c')}
-                </Typography>
+            <Stack gap={6} padding={4}>
+              <Typography variant="bodyHl" color="grey700">
+                {translate('text_65e1f90471bc198c0c934d6c')}
+              </Typography>
 
-                {/* Select Integration account */}
-                <ComboBox
-                  onOpen={getIntegrationsData}
-                  data={connectedIntegrationsData}
-                  label={translate('TODO: Payment provider connected account')}
-                  placeholder={translate('TODO: Search and select a connected account')}
-                  PopperProps={{ displayInDialog: true }}
-                  value={formikProps.values.integrationCustomer?.integrationCode as string}
-                  onChange={(value) => {
-                    // TODO: set formik (maybe it needs more info)
-                    formikProps.setFieldValue('integrationCustomer', {
-                      integrationCode: value,
-                      integrationType: IntegrationTypeEnum.Netsuite,
-                      syncWithProvider: false,
-                    })
-                  }}
-                />
+              {/* Select Integration account */}
+              <ComboBox
+                onOpen={getIntegrationsData}
+                data={connectedIntegrationsData}
+                label={translate('text_66423cad72bbad009f2f5695')}
+                placeholder={translate('text_66423cad72bbad009f2f5697')}
+                emptyText={translate('text_6645daa0468420011304aded')}
+                PopperProps={{ displayInDialog: true }}
+                value={formikProps.values.integrationCustomer?.integrationCode as string}
+                onChange={(value) => {
+                  formikProps.setFieldValue('integrationCustomer', {
+                    integrationCode: value,
+                    integrationType: IntegrationTypeEnum.Netsuite,
+                    syncWithProvider: false,
+                  })
+                }}
+              />
 
-                {!!formikProps.values.integrationCustomer && (
-                  <>
-                    <TextInputField
-                      name="integrationCustomer?.externalCustomerId"
-                      disabled={
-                        isEditingAlreadyCreatedNetsuiteConnection ||
-                        !!formikProps.values.integrationCustomer?.syncWithProvider
+              {!!formikProps.values.integrationCustomer && (
+                <>
+                  <TextInputField
+                    name="integrationCustomer.externalCustomerId"
+                    disabled={!!formikProps.values.integrationCustomer?.syncWithProvider}
+                    label={translate('text_66423cad72bbad009f2f569a')}
+                    placeholder={translate('text_66423cad72bbad009f2f569c')}
+                    formikProps={formikProps}
+                  />
+
+                  <Checkbox
+                    name="integrationCustomer.syncWithProvider"
+                    value={!!formikProps.values.integrationCustomer?.syncWithProvider}
+                    label={translate('text_66423cad72bbad009f2f569e', {
+                      connectionName: selectedNetsuiteIntegration?.name,
+                    })}
+                    onChange={(_, checked) => {
+                      formikProps.setFieldValue('integrationCustomer.syncWithProvider', checked)
+
+                      if (!isEdition && checked) {
+                        formikProps.setFieldValue('integrationCustomer.externalCustomerId', null)
+                        formikProps.setFieldValue('integrationCustomer.subsidiaryId', null)
                       }
-                      label={translate('TODO: NetSuite customer ID')}
-                      placeholder={translate('TODO: Type a NetSuite customer ID')}
-                      formikProps={formikProps}
-                    />
+                    }}
+                  />
 
-                    <Checkbox
-                      name="integrationCustomer.syncWithProvider"
-                      value={!!formikProps.values.integrationCustomer?.syncWithProvider}
-                      disabled={
-                        isEditingAlreadyCreatedNetsuiteConnection ||
-                        !!formikProps.values.integrationCustomer?.externalCustomerId
-                      }
-                      label={translate(
-                        'TODO: Create automatically this customer in {{connectionName}}',
-                        {
-                          connectionName: selectedNetsuiteIntegration?.name,
-                        },
+                  {!!formikProps.values.integrationCustomer?.syncWithProvider && (
+                    <>
+                      <ComboBoxField
+                        name="integrationCustomer.subsidiaryId"
+                        data={connectedIntegrationSubscidiaries}
+                        label={translate('text_66423cad72bbad009f2f56a0')}
+                        placeholder={translate('text_66423cad72bbad009f2f56a2')}
+                        PopperProps={{ displayInDialog: true }}
+                        formikProps={formikProps}
+                      />
+
+                      {isEdition && (
+                        <Alert type="info">{translate('text_66423cad72bbad009f2f56a4')}</Alert>
                       )}
-                      onChange={(_, checked) => {
-                        formikProps.setFieldValue('integrationCustomer.syncWithProvider', checked)
-
-                        if (!isEdition && checked) {
-                          formikProps.setFieldValue('integrationCustomer.externalCustomerId', null)
-                          formikProps.setFieldValue('integrationCustomer.subsidiaryId', null)
-                        }
-                      }}
-                    />
-
-                    {!!formikProps.values.integrationCustomer?.syncWithProvider && (
-                      <>
-                        <ComboBoxField
-                          name="integrationCustomer.subsidiaryId"
-                          data={connectedIntegrationSubscidiaries}
-                          label={translate('TODO: Subsidiary')}
-                          placeholder={translate(
-                            'TODO: Select and search a subsidiary name or external ID',
-                          )}
-                          PopperProps={{ displayInDialog: true }}
-                          formikProps={formikProps}
-                        />
-
-                        {isEdition && (
-                          <Alert type="info">
-                            {translate(
-                              'TODO: This customer will be created to NetSuite after editing in Lago',
-                            )}
-                          </Alert>
-                        )}
-                      </>
-                    )}
-                  </>
-                )}
-              </Stack>
-            </div>
+                    </>
+                  )}
+                </>
+              )}
+            </Stack>
           </Accordion>
         )}
 
@@ -714,7 +689,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                   closePopper()
                 }}
               >
-                {translate('TODO: Payment provider connection')}
+                {translate('text_66423dbab233e60111c49464')}
               </Button>
               <Button
                 variant="quaternary"
@@ -738,7 +713,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                 }}
                 data-test="add-free-units-total-amount"
               >
-                {translate('TODO: Accounting connection')}
+                {translate('text_66423cad72bbad009f2f568f')}
               </Button>
             </MenuPopper>
           )}

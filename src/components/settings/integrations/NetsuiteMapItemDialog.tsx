@@ -418,7 +418,7 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
       const { externalId, externalName, externalAccountCode, itemType } = item
 
       return {
-        label: `${externalId} - ${externalName}`,
+        label: `${externalId} - ${externalName} (${externalAccountCode})`,
         labelNode: (
           <Item>
             <Typography variant="body" color="grey700" noWrap>
@@ -428,9 +428,7 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
               <>
                 &nbsp;
                 <Typography variant="body" color="grey600" noWrap>
-                  {translate('text_6630e52a04d25adb0300f034', {
-                    accountCode: externalAccountCode,
-                  })}
+                  ({externalAccountCode})
                 </Typography>
               </>
             )}
@@ -443,7 +441,7 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
         }),
       }
     })
-  }, [initialItemFetchData?.integrationItems?.collection, translate])
+  }, [initialItemFetchData?.integrationItems?.collection])
 
   const [title, description] = useMemo(() => {
     switch (localData?.type) {
