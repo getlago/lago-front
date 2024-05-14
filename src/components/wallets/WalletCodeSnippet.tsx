@@ -1,7 +1,7 @@
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { envGlobalVar } from '~/core/apolloClient'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
-import { RecurringTransactionRuleTypeEnum } from '~/generated/graphql'
+import { RecurringTransactionTriggerEnum } from '~/generated/graphql'
 import { TWalletDataForm } from '~/pages/WalletForm'
 
 const { apiUrl } = envGlobalVar()
@@ -55,19 +55,17 @@ curl --location --request ${isEdition ? 'PUT' : 'POST'} "${apiUrl}/api/v1/wallet
             "lago_id": "${recurringTransactionRules[0].lagoId}",`
               : ''
           }
-            "rule_type": "${
-              wallet.recurringTransactionRules?.[0].ruleType || '__MUST_BE_DEFINED__'
-            }"${
-              wallet.recurringTransactionRules?.[0].ruleType ===
-              RecurringTransactionRuleTypeEnum.Interval
+            "trigger": "${wallet.recurringTransactionRules?.[0].trigger || '__MUST_BE_DEFINED__'}"${
+              wallet.recurringTransactionRules?.[0].trigger ===
+              RecurringTransactionTriggerEnum.Interval
                 ? `,
             "interval": "${
               wallet.recurringTransactionRules?.[0].interval || '__MUST_BE_DEFINED__'
             }"`
                 : ''
             }${
-              wallet.recurringTransactionRules?.[0].ruleType ===
-              RecurringTransactionRuleTypeEnum.Threshold
+              wallet.recurringTransactionRules?.[0].trigger ===
+              RecurringTransactionTriggerEnum.Threshold
                 ? `,
             "threshold_credits": "${
               wallet.recurringTransactionRules?.[0].thresholdCredits || '__MUST_BE_DEFINED__'

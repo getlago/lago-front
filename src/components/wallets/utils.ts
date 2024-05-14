@@ -6,7 +6,7 @@ import {
   CreateRecurringTransactionRuleInput,
   CurrencyEnum,
   RecurringTransactionIntervalEnum,
-  RecurringTransactionRuleTypeEnum,
+  RecurringTransactionTriggerEnum,
   TimezoneEnum,
   UpdateRecurringTransactionRuleInput,
 } from '~/generated/graphql'
@@ -36,7 +36,7 @@ export const getWordingForWalletCreationAlert = ({
     }) + '\n'
 
   if (
-    rulesValues?.ruleType === RecurringTransactionRuleTypeEnum.Threshold &&
+    rulesValues?.trigger === RecurringTransactionTriggerEnum.Threshold &&
     !!rulesValues?.thresholdCredits
   ) {
     text += translate('text_6560809c38fb9de88d8a5386', {
@@ -45,7 +45,7 @@ export const getWordingForWalletCreationAlert = ({
         currency,
       }),
     })
-  } else if (rulesValues?.ruleType === RecurringTransactionRuleTypeEnum.Interval) {
+  } else if (rulesValues?.trigger === RecurringTransactionTriggerEnum.Interval) {
     const GMT = getTimezoneConfig(TimezoneEnum.TzUtc).name
     const gmtDateRef = DateTime.now().setZone(GMT).toISO() || ''
     const customerZone = getTimezoneConfig(customerTimezone).name
@@ -110,7 +110,7 @@ export const getWordingForWalletEditionAlert = ({
   const totalCreditCount =
     Number(rulesValues?.paidCredits || 0) + Number(rulesValues?.grantedCredits || 0)
 
-  if (rulesValues?.ruleType === RecurringTransactionRuleTypeEnum.Threshold) {
+  if (rulesValues?.trigger === RecurringTransactionTriggerEnum.Threshold) {
     return translate('text_6560809c38fb9de88d8a5406', {
       totalCreditCount,
       thresholdCredits: intlFormatNumber(Number(rulesValues?.thresholdCredits), {
@@ -118,7 +118,7 @@ export const getWordingForWalletEditionAlert = ({
         currency,
       }),
     })
-  } else if (rulesValues?.ruleType === RecurringTransactionRuleTypeEnum.Interval) {
+  } else if (rulesValues?.trigger === RecurringTransactionTriggerEnum.Interval) {
     const GMT = getTimezoneConfig(TimezoneEnum.TzUtc).name
     const gmtDateRef = DateTime.now().setZone(GMT).toISO() || ''
     const customerZone = getTimezoneConfig(customerTimezone).name

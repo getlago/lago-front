@@ -34,7 +34,7 @@ import {
   GetWalletInfosForWalletFormQuery,
   LagoApiError,
   RecurringTransactionIntervalEnum,
-  RecurringTransactionRuleTypeEnum,
+  RecurringTransactionTriggerEnum,
   UpdateCustomerWalletInput,
   UpdateRecurringTransactionRuleInput,
   useCreateCustomerWalletMutation,
@@ -59,7 +59,7 @@ const DEFAULT_RULES = {
   interval: undefined,
   lagoId: undefined,
   paidCredits: undefined,
-  ruleType: RecurringTransactionRuleTypeEnum.Threshold,
+  trigger: RecurringTransactionTriggerEnum.Threshold,
   thresholdCredits: undefined,
 }
 
@@ -71,7 +71,7 @@ gql`
     rateAmount
     recurringTransactionRules {
       lagoId
-      ruleType
+      trigger
       interval
       thresholdCredits
       paidCredits
@@ -116,7 +116,7 @@ gql`
 function hasWalletRecurringTopUpEnabled(
   wallet: GetWalletInfosForWalletFormQuery['wallet'],
 ): boolean {
-  return !!wallet?.recurringTransactionRules?.[0]?.ruleType
+  return !!wallet?.recurringTransactionRules?.[0]?.trigger
 }
 
 const WalletForm = () => {
@@ -265,13 +265,13 @@ const WalletForm = () => {
       recurringTransactionRules: array()
         .of(
           object().shape({
-            ruleType: string().required(''),
+            trigger: string().required(''),
             interval: string()
               .test({
                 test: function (interval) {
-                  const { ruleType } = this?.parent
+                  const { trigger } = this?.parent
 
-                  if (!!ruleType && ruleType !== RecurringTransactionRuleTypeEnum.Interval) {
+                  if (!!trigger && trigger !== RecurringTransactionTriggerEnum.Interval) {
                     return true
                   }
                   return !!interval
@@ -281,9 +281,9 @@ const WalletForm = () => {
             thresholdCredits: string()
               .test({
                 test: function (thresholdCredits) {
-                  const { ruleType } = this?.parent
+                  const { trigger } = this?.parent
 
-                  if (!!ruleType && ruleType !== RecurringTransactionRuleTypeEnum.Threshold) {
+                  if (!!trigger && trigger !== RecurringTransactionTriggerEnum.Threshold) {
                     return true
                   }
                   return !!thresholdCredits
@@ -327,7 +327,7 @@ const WalletForm = () => {
             const {
               lagoId,
               interval,
-              ruleType,
+              trigger,
               thresholdCredits,
               paidCredits: rulePaidCredit,
               grantedCredits: ruleGrantedCredit,
@@ -335,19 +335,19 @@ const WalletForm = () => {
 
             if (formType === FORM_TYPE_ENUM.creation) {
               return {
-                ruleType: ruleType as RecurringTransactionRuleTypeEnum,
-                interval: ruleType === RecurringTransactionRuleTypeEnum.Interval ? interval : null,
+                trigger: trigger as RecurringTransactionTriggerEnum,
+                interval: trigger === RecurringTransactionTriggerEnum.Interval ? interval : null,
                 thresholdCredits:
-                  ruleType === RecurringTransactionRuleTypeEnum.Threshold ? thresholdCredits : null,
+                  trigger === RecurringTransactionTriggerEnum.Threshold ? thresholdCredits : null,
               }
             }
 
             return {
               lagoId,
-              ruleType: ruleType as RecurringTransactionRuleTypeEnum,
-              interval: ruleType === RecurringTransactionRuleTypeEnum.Interval ? interval : null,
+              trigger: trigger as RecurringTransactionTriggerEnum,
+              interval: trigger === RecurringTransactionTriggerEnum.Interval ? interval : null,
               thresholdCredits:
-                ruleType === RecurringTransactionRuleTypeEnum.Threshold ? thresholdCredits : null,
+                trigger === RecurringTransactionTriggerEnum.Threshold ? thresholdCredits : null,
               paidCredits: rulePaidCredit === '' ? '0' : String(rulePaidCredit),
               grantedCredits: ruleGrantedCredit === '' ? '0' : String(ruleGrantedCredit),
             }
@@ -394,9 +394,9 @@ const WalletForm = () => {
 
   const canDisplayEditionAlert =
     (!!recurringTransactionRules?.paidCredits || !!recurringTransactionRules?.grantedCredits) &&
-    ((recurringTransactionRules?.ruleType === RecurringTransactionRuleTypeEnum.Interval &&
+    ((recurringTransactionRules?.trigger === RecurringTransactionTriggerEnum.Interval &&
       !!recurringTransactionRules?.interval) ||
-      recurringTransactionRules?.ruleType === RecurringTransactionRuleTypeEnum.Threshold)
+      recurringTransactionRules?.trigger === RecurringTransactionTriggerEnum.Threshold)
 
   return (
     <>
@@ -720,22 +720,22 @@ const WalletForm = () => {
                     <ComboBoxField
                       disableClearable
                       label={translate('text_6560809c38fb9de88d8a52fb')}
-                      name="recurringTransactionRules.0.ruleType"
+                      name="recurringTransactionRules.0.trigger"
                       data={[
                         {
                           label: translate('text_65201b8216455901fe273dc1'),
-                          value: RecurringTransactionRuleTypeEnum.Interval,
+                          value: RecurringTransactionTriggerEnum.Interval,
                         },
                         {
                           label: translate('text_6560809c38fb9de88d8a5315'),
-                          value: RecurringTransactionRuleTypeEnum.Threshold,
+                          value: RecurringTransactionTriggerEnum.Threshold,
                         },
                       ]}
                       formikProps={formikProps}
                     />
 
-                    {recurringTransactionRules?.ruleType ===
-                      RecurringTransactionRuleTypeEnum.Interval && (
+                    {recurringTransactionRules?.trigger ===
+                      RecurringTransactionTriggerEnum.Interval && (
                       <ComboBoxField
                         disableClearable
                         sortValues={false}
@@ -763,8 +763,8 @@ const WalletForm = () => {
                         formikProps={formikProps}
                       />
                     )}
-                    {recurringTransactionRules?.ruleType ===
-                      RecurringTransactionRuleTypeEnum.Threshold && (
+                    {recurringTransactionRules?.trigger ===
+                      RecurringTransactionTriggerEnum.Threshold && (
                       <AmountInputField
                         name="recurringTransactionRules.0.thresholdCredits"
                         currency={formikProps.values.currency}
