@@ -1013,6 +1013,7 @@ export type CreateCustomerInput = {
   metadata?: InputMaybe<Array<CustomerMetadataInput>>;
   name: Scalars['String']['input'];
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
+  netsuiteCustomer?: InputMaybe<IntegrationCustomerInput>;
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
@@ -1570,7 +1571,7 @@ export type CurrentOrganization = {
   addressLine1?: Maybe<Scalars['String']['output']>;
   addressLine2?: Maybe<Scalars['String']['output']>;
   adyenPaymentProviders?: Maybe<Array<AdyenProvider>>;
-  apiKey: Scalars['String']['output'];
+  apiKey?: Maybe<Scalars['String']['output']>;
   billingConfiguration?: Maybe<OrganizationBillingConfiguration>;
   city?: Maybe<Scalars['String']['output']>;
   country?: Maybe<CountryCode>;
@@ -2224,6 +2225,14 @@ export type IntegrationCollection = {
   __typename?: 'IntegrationCollection';
   collection: Array<Integration>;
   metadata: CollectionMetadata;
+};
+
+export type IntegrationCustomerInput = {
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  integrationCode?: InputMaybe<Scalars['String']['input']>;
+  integrationType?: InputMaybe<IntegrationTypeEnum>;
+  subsidiaryId?: InputMaybe<Scalars['String']['input']>;
+  syncWithProvider?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type IntegrationItem = {
@@ -3147,6 +3156,8 @@ export type NetsuiteCustomer = {
   __typename?: 'NetsuiteCustomer';
   externalCustomerId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  integrationCode?: Maybe<Scalars['String']['output']>;
+  integrationType?: Maybe<IntegrationTypeEnum>;
   subsidiaryId?: Maybe<Scalars['String']['output']>;
   syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
 };
@@ -4454,6 +4465,7 @@ export type UpdateCustomerInput = {
   metadata?: InputMaybe<Array<CustomerMetadataInput>>;
   name: Scalars['String']['input'];
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
+  netsuiteCustomer?: InputMaybe<IntegrationCustomerInput>;
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
@@ -6302,7 +6314,7 @@ export type GetPortalOrgaInfosQuery = { __typename?: 'Query', customerPortalOrga
 export type GetOrganizationApiKeyQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetOrganizationApiKeyQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, apiKey: string } | null };
+export type GetOrganizationApiKeyQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, apiKey?: string | null } | null };
 
 export type EventListFragment = { __typename?: 'Event', id: string, code: string, externalCustomerId?: string | null, transactionId?: string | null, timestamp?: any | null, receivedAt: any, payload: any, billableMetricName?: string | null, matchBillableMetric: boolean, matchCustomField: boolean, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
 
