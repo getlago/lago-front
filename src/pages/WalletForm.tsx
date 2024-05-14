@@ -768,7 +768,6 @@ const WalletForm = () => {
                       <AmountInputField
                         name="recurringTransactionRules.0.thresholdCredits"
                         currency={formikProps.values.currency}
-                        beforeChangeFormatter={['positiveNumber']}
                         label={translate('text_6560809c38fb9de88d8a5315')}
                         formikProps={formikProps}
                         silentError={true}
