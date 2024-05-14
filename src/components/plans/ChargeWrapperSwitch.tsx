@@ -3,6 +3,7 @@ import { memo, RefObject } from 'react'
 import styled from 'styled-components'
 
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
+import { CustomCharge } from '~/components/plans/CustomCharge'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
 import { ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
@@ -100,6 +101,15 @@ export const ChargeWrapperSwitch = memo(
             chargeIndex={chargeIndex}
             currency={currency}
             disabled={disabled}
+            formikProps={formikProps}
+            propertyCursor={propertyCursor}
+            valuePointer={valuePointer}
+          />
+        )}
+        {localCharge.chargeModel === ChargeModelEnum.Custom && (
+          <CustomCharge
+            disabled={disabled}
+            chargeIndex={chargeIndex}
             formikProps={formikProps}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}

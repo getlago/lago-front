@@ -17,6 +17,7 @@ interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
   title: string | ReactNode
   opener?: ReactElement
   forceOpen?: boolean
+  fullContentHeight?: boolean
   children: (({ closeDrawer }: { closeDrawer: () => void }) => ReactNode) | ReactNode
   onOpen?: () => void
   onClose?: () => void
@@ -29,7 +30,16 @@ export interface DrawerRef {
 
 export const Drawer = forwardRef<DrawerRef, DrawerProps>(
   (
-    { forceOpen = false, children, opener, anchor = 'right', title, onOpen, onClose }: DrawerProps,
+    {
+      forceOpen = false,
+      children,
+      opener,
+      anchor = 'right',
+      title,
+      fullContentHeight,
+      onOpen,
+      onClose,
+    }: DrawerProps,
     ref,
   ) => {
     const [isOpen, setIsOpen] = useState(forceOpen)
@@ -73,7 +83,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
               }}
             />
           </Header>
-          <Content>
+          <Content $fullContentHeight={fullContentHeight}>
             {typeof children === 'function'
               ? children({ closeDrawer: () => setIsOpen(false) })
               : children}
@@ -119,7 +129,8 @@ const Header = styled.div`
   }
 `
 
-const Content = styled.div`
+const Content = styled.div<{ $fullContentHeight?: boolean }>`
+  height: ${({ $fullContentHeight }) => ($fullContentHeight ? '100%' : ' ')};
   padding: ${theme.spacing(12)} ${theme.spacing(12)} ${theme.spacing(20)};
 
   ${theme.breakpoints.down('md')} {

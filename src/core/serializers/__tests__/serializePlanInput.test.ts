@@ -56,6 +56,14 @@ const fullProperty = {
       flatAmount: '1',
     },
   ],
+  customProperties: JSON.stringify({
+    ranges: [
+      { from: 0, to: 100, thirdPart: '0.13', firstPart: '0.12' },
+      { from: 101, to: 2000, thirdPart: '0.10', firstPart: '0.09' },
+      { from: 2001, to: 5000, thirdPart: '0.08', firstPart: '0.07' },
+      { from: 5001, to: null, thirdPart: '0.06', firstPart: '0.05' },
+    ],
+  }),
 }
 
 describe('serializePlanInput()', () => {
@@ -154,6 +162,7 @@ describe('serializePlanInput()', () => {
               perTransactionMaxAmount: undefined,
               rate: '5',
               volumeRanges: undefined,
+              customProperties: undefined,
             },
             taxCodes: [],
           },
@@ -235,6 +244,7 @@ describe('serializePlanInput()', () => {
               perTransactionMaxAmount: undefined,
               rate: '5',
               volumeRanges: undefined,
+              customProperties: undefined,
             },
             taxCodes: [],
           },
@@ -301,6 +311,7 @@ describe('serializePlanInput()', () => {
               perTransactionMaxAmount: undefined,
               rate: '5',
               volumeRanges: undefined,
+              customProperties: undefined,
             },
             taxCodes: [],
           },
@@ -368,6 +379,7 @@ describe('serializePlanInput()', () => {
               perTransactionMaxAmount: undefined,
               rate: '5',
               volumeRanges: undefined,
+              customProperties: undefined,
             },
             taxCodes: [],
           },
@@ -435,6 +447,7 @@ describe('serializePlanInput()', () => {
               perTransactionMaxAmount: undefined,
               rate: '5',
               volumeRanges: undefined,
+              customProperties: undefined,
             },
             taxCodes: [],
           },
@@ -497,6 +510,7 @@ describe('serializePlanInput()', () => {
               perTransactionMinAmount: undefined,
               perTransactionMaxAmount: undefined,
               volumeRanges: undefined,
+              customProperties: undefined,
             },
             taxCodes: [],
           },
@@ -585,6 +599,7 @@ describe('serializePlanInput()', () => {
               perTransactionMinAmount: undefined,
               perTransactionMaxAmount: undefined,
               volumeRanges: undefined,
+              customProperties: undefined,
             },
             filters: [
               {
@@ -599,6 +614,7 @@ describe('serializePlanInput()', () => {
                   perTransactionMaxAmount: undefined,
                   perTransactionMinAmount: undefined,
                   volumeRanges: undefined,
+                  customProperties: undefined,
                 },
                 values: {
                   key1: ['value1'],
@@ -617,6 +633,7 @@ describe('serializePlanInput()', () => {
                   perTransactionMaxAmount: undefined,
                   perTransactionMinAmount: undefined,
                   volumeRanges: undefined,
+                  customProperties: undefined,
                 },
                 values: {
                   key2: ['value2'],
@@ -701,6 +718,82 @@ describe('serializePlanInput()', () => {
                   perUnitAmount: '1',
                 },
               ],
+              customProperties: undefined,
+            },
+            taxCodes: [],
+          },
+        ],
+        code: 'my-plan',
+        interval: 'monthly',
+        minimumCommitment: {},
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+      })
+    })
+  })
+
+  describe('a plan with custom charge', () => {
+    it('returns plan correctly serialized', () => {
+      const plan = serializePlanInput({
+        amountCents: '1',
+        amountCurrency: CurrencyEnum.Eur,
+        billChargesMonthly: true,
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.Custom,
+            billableMetric: {
+              id: '1234',
+              name: 'simpleBM',
+              code: 'simple-bm',
+              recurring: false,
+              aggregationType: AggregationTypeEnum.CustomAgg,
+            },
+            properties: fullProperty,
+            taxCodes: [],
+          },
+        ],
+        code: 'my-plan',
+        interval: PlanInterval.Monthly,
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+      })
+
+      expect(plan).toStrictEqual({
+        amountCents: 100,
+        amountCurrency: 'EUR',
+        billChargesMonthly: true,
+        charges: [
+          {
+            billableMetricId: '1234',
+            chargeModel: 'custom',
+            minAmountCents: 0,
+            filters: [],
+            properties: {
+              amount: '1',
+              fixedAmount: '2',
+              freeUnits: undefined,
+              freeUnitsPerEvents: 0,
+              freeUnitsPerTotalAggregation: '1',
+              graduatedRanges: undefined,
+              graduatedPercentageRanges: undefined,
+              groupedBy: undefined,
+              packageSize: undefined,
+              perTransactionMinAmount: undefined,
+              perTransactionMaxAmount: undefined,
+              rate: '5',
+              volumeRanges: undefined,
+              customProperties: {
+                ranges: [
+                  { from: 0, to: 100, thirdPart: '0.13', firstPart: '0.12' },
+                  { from: 101, to: 2000, thirdPart: '0.10', firstPart: '0.09' },
+                  { from: 2001, to: 5000, thirdPart: '0.08', firstPart: '0.07' },
+                  { from: 5001, to: null, thirdPart: '0.06', firstPart: '0.05' },
+                ],
+              },
             },
             taxCodes: [],
           },

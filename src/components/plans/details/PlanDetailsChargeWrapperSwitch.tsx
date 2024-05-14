@@ -8,6 +8,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
 
+import DetailsJSONDisplay from '../../details/DetailsJSONDisplay'
 import DetailsTableDisplay from '../../details/DetailsTableDisplay'
 
 const PlanDetailsChargeWrapperSwitch = ({
@@ -212,6 +213,14 @@ const PlanDetailsChargeWrapperSwitch = ({
                 ]
               })
             })()}
+          />
+        </ChargeContentWrapper>
+      )}
+      {chargeModel === ChargeModelEnum.Custom && (
+        <ChargeContentWrapper>
+          <DetailsJSONDisplay
+            header={translate('text_663dea5702b60301d8d06502')}
+            value={values?.customProperties}
           />
         </ChargeContentWrapper>
       )}

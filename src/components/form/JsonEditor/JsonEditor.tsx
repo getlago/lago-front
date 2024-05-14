@@ -1,4 +1,4 @@
-import { ClickAwayListener, Fade } from '@mui/material'
+import { Fade } from '@mui/material'
 import ace from 'ace-builds/src-noconflict/ace'
 import 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/src-noconflict/mode-json'
@@ -6,7 +6,7 @@ import 'ace-builds/src-noconflict/theme-github'
 import 'ace-builds/webpack-resolver'
 // @ts-ignore
 import jsonWorkerUrl from 'file-loader!ace-builds/src-noconflict/worker-json'
-import { ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { ReactNode, useEffect, useRef, useState } from 'react'
 import AceEditor from 'react-ace'
 import styled, { css } from 'styled-components'
 
@@ -29,8 +29,9 @@ export interface JsonEditorProps {
   helperText?: string | ReactNode
   customInvalidError?: string
   disabled?: boolean
-  minEditableLines?: number
+  readOnly?: boolean
   height?: string
+  hideLabel?: boolean
   onBlur?: (props: unknown) => void
   onChange?: (value: string) => void
   onError?: (err: keyof typeof JSON_EDITOR_ERROR_ENUM) => void
@@ -47,7 +48,9 @@ export const JsonEditor = ({
   error,
   customInvalidError,
   disabled,
+  readOnly,
   height,
+  hideLabel,
   onChange,
   onError,
   onBlur,
@@ -56,20 +59,8 @@ export const JsonEditor = ({
   const { translate } = useInternationalization()
   const editorRef = useRef<AceEditor | null>(null)
   const [jsonQuery, setJsonQuery] = useState<string | undefined>()
-  const [totalRows, setTotalRows] = useState<number>()
-  const [maxVisibleLines, setMaxVisibleLines] = useState<number>()
-  const [showOverlay, setShowOverlay] = useState(false)
+  const [showOverlay, setShowOverlay] = useState(true)
   const [isHover, setHover] = useState(false)
-
-  const checkOverlay = useCallback(
-    (length: number) => {
-      if (maxVisibleLines && length >= maxVisibleLines) {
-        editorRef.current?.editor.scrollPageUp()
-        setShowOverlay(true)
-      }
-    },
-    [maxVisibleLines],
-  )
 
   useEffect(() => {
     if (typeof value === 'object') {
@@ -81,30 +72,9 @@ export const JsonEditor = ({
     }
   }, [value])
 
-  useLayoutEffect(() => {
-    const renderer = editorRef.current?.editor.renderer
-
-    if (renderer) {
-      setMaxVisibleLines(Math.floor(renderer.container.clientHeight / renderer.lineHeight))
-    }
-  }, [editorRef.current?.editor.renderer])
-
-  useEffect(() => {
-    if (jsonQuery && !totalRows) {
-      const length = editorRef.current?.editor.session.getLength()
-
-      if (length) {
-        setTotalRows(length)
-        checkOverlay(length)
-      }
-    }
-    // Should be called at initial render only after json query is set
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [jsonQuery])
-
   return (
     <Container>
-      {
+      {!hideLabel && (
         <Label $withInfo={!!infoText}>
           <Typography variant="captionHl" color="textSecondary">
             {label}
@@ -115,88 +85,81 @@ export const JsonEditor = ({
             </Tooltip>
           )}
         </Label>
-      }
+      )}
 
-      <ClickAwayListener
-        onClickAway={() => {
-          const length = editorRef.current?.editor.session.getLength()
-
-          if (length) {
-            checkOverlay(length)
+      <EditorContainer
+        aria-label={name}
+        $hasErrorOrHelper={!!helperText || !!error}
+        $hasError={!!error}
+        $height={height}
+        $readOnly={readOnly}
+        onMouseEnter={() => {
+          if (!isHover) {
+            setHover(true)
+          }
+        }}
+        onMouseLeave={() => {
+          if (isHover) {
+            setHover(false)
           }
         }}
       >
-        <EditorContainer
-          aria-label={name}
-          $hasErrorOrHelper={!!helperText || !!error}
-          $hasError={!!error}
-          $height={height}
-          onMouseEnter={() => {
-            if (!isHover) {
-              setHover(true)
-            }
-          }}
-          onMouseLeave={() => {
-            if (isHover) {
-              setHover(false)
-            }
-          }}
-        >
-          {/* This is the overlay that will be shown when the JSON editor is collapsed */}
-          {onExpand && (
-            <Fade in={showOverlay}>
-              <Overlay>
-                <Fade in={isHover}>
-                  <Button onClick={() => onExpand(() => setShowOverlay(false))}>
-                    <Chip icon="plus" label="Click to expand" />
-                  </Button>
-                </Fade>
-              </Overlay>
-            </Fade>
-          )}
+        {onExpand && (
+          <Fade in={showOverlay}>
+            <Overlay>
+              <Fade in={isHover}>
+                <Button onClick={() => onExpand(() => setShowOverlay(false))}>
+                  <Chip icon="plus" label={translate('text_663dea5702b60301d8d0650a')} />
+                </Button>
+              </Fade>
+            </Overlay>
+          </Fade>
+        )}
 
-          <LineNumbersBackground />
-          <Editor
-            ref={editorRef}
-            className={disabled ? 'json-editor--disabled' : undefined}
-            value={jsonQuery}
-            onLoad={(editor) => {
-              editor.renderer.setPadding(4)
-              editor.renderer.setScrollMargin(10, 10, 0, 0)
-            }}
-            mode="json"
-            onChange={(code) => {
-              setJsonQuery(code)
-              onChange && onChange(code)
-            }}
-            onBlur={(event) => {
-              if (!jsonQuery) return true
-              try {
-                JSON.parse(jsonQuery)
-              } catch (e) {
-                onError && onError(JSON_EDITOR_ERROR_ENUM.invalid)
-              }
-              onBlur && onBlur(event)
-            }}
-            fontSize={14}
-            width="100%"
-            height="100%"
-            placeholder={placeholder}
-            setOptions={{
-              useWorker: true,
-              enableBasicAutocompletion: false,
-              enableLiveAutocompletion: false,
-              showLineNumbers: true,
-              tabSize: 2,
-              showPrintMargin: false,
-              readOnly: disabled,
-            }}
-          />
-        </EditorContainer>
-      </ClickAwayListener>
+        <LineNumbersBackground />
+        <Editor
+          ref={editorRef}
+          className={
+            disabled ? 'json-editor--disabled' : readOnly ? 'json-editor--readonly' : undefined
+          }
+          value={jsonQuery}
+          onLoad={(editor) => {
+            editor.renderer.setPadding(4)
+            editor.renderer.setScrollMargin(10, 10, 0, 0)
+          }}
+          mode="json"
+          onChange={(code) => {
+            setJsonQuery(code)
+            onChange && onChange(code)
+          }}
+          onBlur={(event) => {
+            if (!jsonQuery) return true
+            try {
+              JSON.parse(jsonQuery)
+            } catch (e) {
+              onError && onError(JSON_EDITOR_ERROR_ENUM.invalid)
+            }
+            setShowOverlay(true)
+            onBlur && onBlur(event)
+          }}
+          fontSize={14}
+          width="100%"
+          height="100%"
+          placeholder={placeholder}
+          setOptions={{
+            useWorker: true,
+            enableBasicAutocompletion: false,
+            enableLiveAutocompletion: false,
+            showLineNumbers: true,
+            tabSize: 2,
+            showPrintMargin: false,
+            readOnly: readOnly,
+          }}
+        />
+      </EditorContainer>
 
       {(helperText || error) && (
-        <Typography variant="caption" color={error ? 'danger600' : 'textPrimary'}>
+        <Helper variant="caption" color={error ? 'danger600' : 'textPrimary'}>
           {!!error
             ? translate(
                 error === JSON_EDITOR_ERROR_ENUM.invalid && customInvalidError
@@ -204,7 +167,7 @@ export const JsonEditor = ({
                   : 'text_6638a3538de76801ac2f451b',
               )
             : helperText}
-        </Typography>
+        </Helper>
       )}
     </Container>
   )
@@ -212,13 +175,20 @@ export const JsonEditor = ({
 
 const Container = styled.div`
   width: 100%;
-  height: 100%;
+  height: calc(100% - 32px - 20px);
+  display: grid;
+  grid-auto-rows: auto 1fr auto;
+  grid-template-areas:
+    'label'
+    'editor'
+    'helper';
 `
 
 const Label = styled.div<{ $withInfo?: boolean }>`
   display: flex;
   align-items: center;
   margin-bottom: ${theme.spacing(1)};
+  grid-area: label;
 
   ${({ $withInfo }) =>
     $withInfo &&
@@ -237,15 +207,19 @@ const EditorContainer = styled.div<{
   $hasErrorOrHelper?: boolean
   $hasError?: boolean
   $height?: string
+  $readOnly?: boolean
 }>`
-  border: 1px solid
-    ${({ $hasError }) => ($hasError ? theme.palette.error[600] : theme.palette.grey[500])};
-  border-radius: 12px;
+  border: ${({ $readOnly, $hasError }) =>
+    $readOnly
+      ? undefined
+      : `1px solid ${$hasError ? theme.palette.error[600] : theme.palette.grey[500]}`};
+  border-radius: ${({ $readOnly }) => ($readOnly ? undefined : '12px')};
   position: relative;
   overflow: hidden;
   margin-bottom: ${({ $hasErrorOrHelper }) => ($hasErrorOrHelper ? theme.spacing(1) : '0px')};
   height: ${({ $height }) => ($height ? $height : '100%')};
   box-sizing: border-box;
+  grid-area: editor;
 `
 
 const LineNumbersBackground = styled.div`
@@ -419,5 +393,16 @@ const Editor = styled(AceEditor)`
         background-color: ${theme.palette.grey[200]};
       }
     }
+
+    &.json-editor--readonly {
+      .ace_cursor,
+      .ace_active-line {
+        display: none !important;
+      }
+    }
   }
+`
+
+const Helper = styled(Typography)`
+  grid-area: helper;
 `

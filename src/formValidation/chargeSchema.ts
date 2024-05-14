@@ -113,6 +113,10 @@ const volumeShape = {
     .required(''),
 }
 
+export const customShape = {
+  customProperties: object().json().required(''),
+}
+
 export const chargeSchema = array().of(
   object().shape({
     chargeModel: string().required(''),
@@ -170,6 +174,11 @@ export const chargeSchema = array().of(
             is: (values: Properties) => !!values,
             then: (schema) => schema.shape(volumeShape),
           }),
+      })
+      .when('chargeModel', {
+        is: (chargeModel: ChargeModelEnum) =>
+          !!chargeModel && chargeModel === ChargeModelEnum.Custom,
+        then: (schema) => schema.shape(customShape),
       })
       .when(['filters'], {
         is: (filter: LocalChargeFilterInput[]) => !filter?.length,
