@@ -99,7 +99,6 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
       email: string().email('text_620bc4d4269a55014d493fc3'),
       externalId: string().required(''),
       metadata: metadataSchema(),
-      // TODO: might need to be updated
       providerCustomer: object().test({
         test: function (value, { from }) {
           // Value can be undefined if no paymentProvider is selected
