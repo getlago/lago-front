@@ -44,7 +44,7 @@ async function extract(replaceMode) {
   translationFiles.forEach((file) => {
     // Get all translation keys from the ditto file
     const dittoTranslations = JSON.parse(fs.readFileSync(file), 'utf-8')
-    // Ignore timzeone keys as they're used in the config without calling translate
+    // Ignore timezone keys as they're used in the config without calling translate
     const dittoKeys = Object.keys(dittoTranslations).filter((key) => key.split('_')[0] !== 'TZ')
     const keysNotInDitto = _.uniq(_.difference(foundKeys, dittoKeys))
     const dittoKeysNotUsed = _.uniq(_.difference(dittoKeys, foundKeys))
