@@ -786,14 +786,8 @@ describe('serializePlanInput()', () => {
               perTransactionMaxAmount: undefined,
               rate: '5',
               volumeRanges: undefined,
-              customProperties: {
-                ranges: [
-                  { from: 0, to: 100, thirdPart: '0.13', firstPart: '0.12' },
-                  { from: 101, to: 2000, thirdPart: '0.10', firstPart: '0.09' },
-                  { from: 2001, to: 5000, thirdPart: '0.08', firstPart: '0.07' },
-                  { from: 5001, to: null, thirdPart: '0.06', firstPart: '0.05' },
-                ],
-              },
+              customProperties:
+                '{"ranges":[{"from":0,"to":100,"thirdPart":"0.13","firstPart":"0.12"},{"from":101,"to":2000,"thirdPart":"0.10","firstPart":"0.09"},{"from":2001,"to":5000,"thirdPart":"0.08","firstPart":"0.07"},{"from":5001,"to":null,"thirdPart":"0.06","firstPart":"0.05"}]}',
             },
             taxCodes: [],
           },
