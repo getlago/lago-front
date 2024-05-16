@@ -5553,6 +5553,31 @@ export type UpdateOrganizationTimezoneMutationVariables = Exact<{
 
 export type UpdateOrganizationTimezoneMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, timezone?: TimezoneEnum | null } | null };
 
+export type DeleteOktaIntegrationDialogFragment = { __typename?: 'OktaIntegration', id: string, name: string };
+
+export type DestroyIntegrationMutationVariables = Exact<{
+  input: DestroyIntegrationInput;
+}>;
+
+
+export type DestroyIntegrationMutation = { __typename?: 'Mutation', destroyIntegration?: { __typename?: 'DestroyIntegrationPayload', id?: string | null } | null };
+
+export type AddOktaIntegrationDialogFragment = { __typename?: 'OktaIntegration', id: string, domain: string, clientId?: string | null, clientSecret?: string | null, organizationName: string, name: string };
+
+export type CreateOktaIntegrationMutationVariables = Exact<{
+  input: CreateOktaIntegrationInput;
+}>;
+
+
+export type CreateOktaIntegrationMutation = { __typename?: 'Mutation', createOktaIntegration?: { __typename?: 'OktaIntegration', id: string } | null };
+
+export type UpdateOktaIntegrationMutationVariables = Exact<{
+  input: UpdateOktaIntegrationInput;
+}>;
+
+
+export type UpdateOktaIntegrationMutation = { __typename?: 'Mutation', updateOktaIntegration?: { __typename?: 'OktaIntegration', id: string } | null };
+
 export type UpdateOrganizationLogoMutationVariables = Exact<{
   input: UpdateOrganizationInput;
 }>;
@@ -6388,6 +6413,20 @@ export type GetAdyenIntegrationsListQueryVariables = Exact<{
 
 export type GetAdyenIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string, name: string, code: string, apiKey?: string | null, hmacKey?: string | null, livePrefix?: string | null, merchantAccount: string } | { __typename?: 'GocardlessProvider' } | { __typename?: 'StripeProvider' }> } | null };
 
+export type GetAuthIntegrationsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAuthIntegrationsQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration', id: string, domain: string, clientId?: string | null, clientSecret?: string | null, organizationName: string, name: string }> } | null };
+
+export type OktaIntegrationDetailsFragment = { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: string | null, code: string, organizationName: string, domain: string, name: string };
+
+export type GetOktaIntegrationQueryVariables = Exact<{
+  id?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type GetOktaIntegrationQuery = { __typename?: 'Query', integration?: { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: string | null, code: string, organizationName: string, domain: string, name: string } | null };
+
 export type GocardlessIntegrationDetailsFragment = { __typename?: 'GocardlessProvider', id: string, code: string, name: string, successRedirectUrl?: string | null, webhookSecret?: string | null };
 
 export type GetGocardlessIntegrationsDetailsQueryVariables = Exact<{
@@ -7045,6 +7084,22 @@ export const EditOrganizationInvoiceTemplateDialogFragmentDoc = gql`
   }
 }
     `;
+export const DeleteOktaIntegrationDialogFragmentDoc = gql`
+    fragment DeleteOktaIntegrationDialog on OktaIntegration {
+  id
+  name
+}
+    `;
+export const AddOktaIntegrationDialogFragmentDoc = gql`
+    fragment AddOktaIntegrationDialog on OktaIntegration {
+  id
+  domain
+  clientId
+  clientSecret
+  organizationName
+  ...DeleteOktaIntegrationDialog
+}
+    ${DeleteOktaIntegrationDialogFragmentDoc}`;
 export const AddAdyenProviderDialogFragmentDoc = gql`
     fragment AddAdyenProviderDialog on AdyenProvider {
   id
@@ -8499,6 +8554,17 @@ export const AdyenIntegrationsFragmentDoc = gql`
   id
   name
   code
+}
+    `;
+export const OktaIntegrationDetailsFragmentDoc = gql`
+    fragment OktaIntegrationDetails on OktaIntegration {
+  id
+  clientId
+  clientSecret
+  code
+  organizationName
+  domain
+  name
 }
     `;
 export const GocardlessIntegrationDetailsFragmentDoc = gql`
@@ -11528,6 +11594,105 @@ export function useUpdateOrganizationTimezoneMutation(baseOptions?: Apollo.Mutat
 export type UpdateOrganizationTimezoneMutationHookResult = ReturnType<typeof useUpdateOrganizationTimezoneMutation>;
 export type UpdateOrganizationTimezoneMutationResult = Apollo.MutationResult<UpdateOrganizationTimezoneMutation>;
 export type UpdateOrganizationTimezoneMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationTimezoneMutation, UpdateOrganizationTimezoneMutationVariables>;
+export const DestroyIntegrationDocument = gql`
+    mutation DestroyIntegration($input: DestroyIntegrationInput!) {
+  destroyIntegration(input: $input) {
+    id
+  }
+}
+    `;
+export type DestroyIntegrationMutationFn = Apollo.MutationFunction<DestroyIntegrationMutation, DestroyIntegrationMutationVariables>;
+
+/**
+ * __useDestroyIntegrationMutation__
+ *
+ * To run a mutation, you first call `useDestroyIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDestroyIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [destroyIntegrationMutation, { data, loading, error }] = useDestroyIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDestroyIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<DestroyIntegrationMutation, DestroyIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DestroyIntegrationMutation, DestroyIntegrationMutationVariables>(DestroyIntegrationDocument, options);
+      }
+export type DestroyIntegrationMutationHookResult = ReturnType<typeof useDestroyIntegrationMutation>;
+export type DestroyIntegrationMutationResult = Apollo.MutationResult<DestroyIntegrationMutation>;
+export type DestroyIntegrationMutationOptions = Apollo.BaseMutationOptions<DestroyIntegrationMutation, DestroyIntegrationMutationVariables>;
+export const CreateOktaIntegrationDocument = gql`
+    mutation createOktaIntegration($input: CreateOktaIntegrationInput!) {
+  createOktaIntegration(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateOktaIntegrationMutationFn = Apollo.MutationFunction<CreateOktaIntegrationMutation, CreateOktaIntegrationMutationVariables>;
+
+/**
+ * __useCreateOktaIntegrationMutation__
+ *
+ * To run a mutation, you first call `useCreateOktaIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateOktaIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createOktaIntegrationMutation, { data, loading, error }] = useCreateOktaIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateOktaIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<CreateOktaIntegrationMutation, CreateOktaIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateOktaIntegrationMutation, CreateOktaIntegrationMutationVariables>(CreateOktaIntegrationDocument, options);
+      }
+export type CreateOktaIntegrationMutationHookResult = ReturnType<typeof useCreateOktaIntegrationMutation>;
+export type CreateOktaIntegrationMutationResult = Apollo.MutationResult<CreateOktaIntegrationMutation>;
+export type CreateOktaIntegrationMutationOptions = Apollo.BaseMutationOptions<CreateOktaIntegrationMutation, CreateOktaIntegrationMutationVariables>;
+export const UpdateOktaIntegrationDocument = gql`
+    mutation updateOktaIntegration($input: UpdateOktaIntegrationInput!) {
+  updateOktaIntegration(input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateOktaIntegrationMutationFn = Apollo.MutationFunction<UpdateOktaIntegrationMutation, UpdateOktaIntegrationMutationVariables>;
+
+/**
+ * __useUpdateOktaIntegrationMutation__
+ *
+ * To run a mutation, you first call `useUpdateOktaIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOktaIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOktaIntegrationMutation, { data, loading, error }] = useUpdateOktaIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOktaIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOktaIntegrationMutation, UpdateOktaIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateOktaIntegrationMutation, UpdateOktaIntegrationMutationVariables>(UpdateOktaIntegrationDocument, options);
+      }
+export type UpdateOktaIntegrationMutationHookResult = ReturnType<typeof useUpdateOktaIntegrationMutation>;
+export type UpdateOktaIntegrationMutationResult = Apollo.MutationResult<UpdateOktaIntegrationMutation>;
+export type UpdateOktaIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateOktaIntegrationMutation, UpdateOktaIntegrationMutationVariables>;
 export const UpdateOrganizationLogoDocument = gql`
     mutation updateOrganizationLogo($input: UpdateOrganizationInput!) {
   updateOrganization(input: $input) {
@@ -15798,6 +15963,98 @@ export type GetAdyenIntegrationsListQueryHookResult = ReturnType<typeof useGetAd
 export type GetAdyenIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsListLazyQuery>;
 export type GetAdyenIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsListSuspenseQuery>;
 export type GetAdyenIntegrationsListQueryResult = Apollo.QueryResult<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>;
+export const GetAuthIntegrationsDocument = gql`
+    query GetAuthIntegrations {
+  integrations {
+    collection {
+      ... on OktaIntegration {
+        id
+        ...AddOktaIntegrationDialog
+        ...DeleteOktaIntegrationDialog
+      }
+    }
+  }
+}
+    ${AddOktaIntegrationDialogFragmentDoc}
+${DeleteOktaIntegrationDialogFragmentDoc}`;
+
+/**
+ * __useGetAuthIntegrationsQuery__
+ *
+ * To run a query within a React component, call `useGetAuthIntegrationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAuthIntegrationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAuthIntegrationsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAuthIntegrationsQuery(baseOptions?: Apollo.QueryHookOptions<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>(GetAuthIntegrationsDocument, options);
+      }
+export function useGetAuthIntegrationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>(GetAuthIntegrationsDocument, options);
+        }
+export function useGetAuthIntegrationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>(GetAuthIntegrationsDocument, options);
+        }
+export type GetAuthIntegrationsQueryHookResult = ReturnType<typeof useGetAuthIntegrationsQuery>;
+export type GetAuthIntegrationsLazyQueryHookResult = ReturnType<typeof useGetAuthIntegrationsLazyQuery>;
+export type GetAuthIntegrationsSuspenseQueryHookResult = ReturnType<typeof useGetAuthIntegrationsSuspenseQuery>;
+export type GetAuthIntegrationsQueryResult = Apollo.QueryResult<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>;
+export const GetOktaIntegrationDocument = gql`
+    query GetOktaIntegration($id: ID) {
+  integration(id: $id) {
+    ... on OktaIntegration {
+      ...OktaIntegrationDetails
+      ...AddOktaIntegrationDialog
+      ...DeleteOktaIntegrationDialog
+    }
+  }
+}
+    ${OktaIntegrationDetailsFragmentDoc}
+${AddOktaIntegrationDialogFragmentDoc}
+${DeleteOktaIntegrationDialogFragmentDoc}`;
+
+/**
+ * __useGetOktaIntegrationQuery__
+ *
+ * To run a query within a React component, call `useGetOktaIntegrationQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOktaIntegrationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOktaIntegrationQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetOktaIntegrationQuery(baseOptions?: Apollo.QueryHookOptions<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>(GetOktaIntegrationDocument, options);
+      }
+export function useGetOktaIntegrationLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>(GetOktaIntegrationDocument, options);
+        }
+export function useGetOktaIntegrationSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>(GetOktaIntegrationDocument, options);
+        }
+export type GetOktaIntegrationQueryHookResult = ReturnType<typeof useGetOktaIntegrationQuery>;
+export type GetOktaIntegrationLazyQueryHookResult = ReturnType<typeof useGetOktaIntegrationLazyQuery>;
+export type GetOktaIntegrationSuspenseQueryHookResult = ReturnType<typeof useGetOktaIntegrationSuspenseQuery>;
+export type GetOktaIntegrationQueryResult = Apollo.QueryResult<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>;
 export const GetGocardlessIntegrationsDetailsDocument = gql`
     query getGocardlessIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
   paymentProvider(id: $id) {

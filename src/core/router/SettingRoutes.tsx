@@ -21,6 +21,18 @@ const Members = lazyLoad(() => import(/* webpackChunkName: 'members' */ '~/pages
 const Integrations = lazyLoad(
   () => import(/* webpackChunkName: 'integrations' */ '~/pages/settings/Integrations'),
 )
+const Authentication = lazyLoad(
+  () =>
+    import(
+      /* webpackChunkName: 'authentication' */ '~/pages/settings/Authentication/Authentication'
+    ),
+)
+const OktaAuthenticationDetails = lazyLoad(
+  () =>
+    import(
+      /* webpackChunkName: 'okta-authentication-details' */ '~/pages/settings/Authentication/OktaAuthenticationDetails'
+    ),
+)
 const AdyenIntegrations = lazyLoad(
   () => import(/* webpackChunkName: 'adyen-integrations' */ '~/pages/settings/AdyenIntegrations'),
 )
@@ -77,6 +89,8 @@ export const INVOICE_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/invoice`
 export const TAXES_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/taxes`
 export const ORGANIZATION_INFORMATIONS_ROUTE = `${SETTINGS_ROUTE}/organization-informations`
 export const INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
+export const AUTHENTICATION_ROUTE = `${SETTINGS_ROUTE}/authentication`
+export const OKTA_AUTHENTICATION_ROUTE = `${AUTHENTICATION_ROUTE}/okta/:integrationId`
 export const ADYEN_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/adyen`
 export const ADYEN_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/adyen/:integrationId`
 export const STRIPE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/stripe`
@@ -123,6 +137,16 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <Integrations />,
         permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: AUTHENTICATION_ROUTE,
+        private: true,
+        element: <Authentication />,
+      },
+      {
+        path: OKTA_AUTHENTICATION_ROUTE,
+        private: true,
+        element: <OktaAuthenticationDetails />,
       },
       {
         path: MEMBERS_ROUTE,
