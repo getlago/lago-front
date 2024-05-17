@@ -1,7 +1,11 @@
 import { gql } from '@apollo/client'
 
 import { getItemFromLS, ORGANIZATION_LS_KEY_ID } from '~/core/apolloClient'
-import { CurrentUserInfosFragment, useGetCurrentUserInfosQuery } from '~/generated/graphql'
+import {
+  CurrentUserInfosFragment,
+  MembershipPermissionsFragmentDoc,
+  useGetCurrentUserInfosQuery,
+} from '~/generated/graphql'
 
 import { useIsAuthenticated } from './auth/useIsAuthenticated'
 
@@ -11,6 +15,8 @@ gql`
     email
     premium
     memberships {
+      id
+      ...MembershipPermissions
       organization {
         id
         name
@@ -18,11 +24,14 @@ gql`
       }
     }
   }
+
   query getCurrentUserInfos {
     currentUser {
       ...CurrentUserInfos
     }
   }
+
+  ${MembershipPermissionsFragmentDoc}
 `
 
 type UseCurrentUser = () => {

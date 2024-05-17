@@ -1,7 +1,9 @@
 import { Location, matchPath, useNavigate } from 'react-router-dom'
 
 import { addLocationToHistory, authTokenVar, locationHistoryVar } from '~/core/apolloClient'
-import { CustomRouteObject, HOME_ROUTE, LOGIN_ROUTE } from '~/core/router'
+import { CustomRouteObject, FORBIDDEN_ROUTE, HOME_ROUTE, LOGIN_ROUTE } from '~/core/router'
+
+import { usePermissions } from '../usePermissions'
 
 type GoBack = (
   fallback: string,
@@ -49,6 +51,7 @@ const getPreviousLocation = ({
 
 export const useLocationHistory: UseLocationHistoryReturn = () => {
   const navigate = useNavigate()
+  const { hasPermissions } = usePermissions()
   const goBack: GoBack = (fallback, options) => {
     const { previous, remaingHistory } = getPreviousLocation(options || {})
 
@@ -74,6 +77,16 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
          */
         navigate(LOGIN_ROUTE)
         addLocationToHistory(location)
+      } else if (
+        isAuthenticated &&
+        routeConfig.permissions?.length &&
+        !hasPermissions(routeConfig.permissions)
+      ) {
+        /**
+         * In case of navigation to a private route while authenticated but without permission
+         * Redirect to forbidden page
+         */
+        navigate(FORBIDDEN_ROUTE)
       } else if (!routeConfig?.children && !routeConfig.onlyPublic) {
         // In the invitation for page, once users are logged in, we redirect them to the home page
         if (routeConfig.invitation && isAuthenticated) navigate(HOME_ROUTE)
