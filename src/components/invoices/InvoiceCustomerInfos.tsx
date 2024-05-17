@@ -284,7 +284,10 @@ const Wrapper = styled.section`
   box-shadow: ${theme.shadows[7]};
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: ${theme.spacing(8)};
+
+  > div:not(:last-child) {
+    padding-right: ${theme.spacing(8)};
+  }
 
   ${theme.breakpoints.down('md')} {
     grid-template-columns: 1fr;
