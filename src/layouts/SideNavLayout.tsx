@@ -90,6 +90,7 @@ const SideNav = () => {
   const contentRef = useRef<HTMLDivElement>(null)
   const { organization } = useOrganizationInfos()
   const { currentUser } = useCurrentUser()
+  const organizationList = currentUser?.memberships.map((membership) => membership.organization)
 
   useEffect(() => {
     // Avoid weird scroll behaviour on navigation
@@ -147,10 +148,10 @@ const SideNav = () => {
                   <UserEmail variant="captionHl" noWrap>
                     {currentUser?.email}
                   </UserEmail>
-                  {!!currentUser?.organizations?.length && (
+                  {!!organizationList?.length && (
                     <OrganizationList>
-                      {Object.values(currentUser?.organizations)
-                        ?.sort(
+                      {organizationList
+                        .sort(
                           (a, b) =>
                             a.name.toLowerCase()?.localeCompare(b.name.toLowerCase() ?? '') ?? 0,
                         )
@@ -165,9 +166,9 @@ const SideNav = () => {
                               closePopper()
                             }}
                           >
-                            {logoUrl ? (
+                            {!!logoUrl ? (
                               <OrganizationAvatar size="small" variant="connector">
-                                <img src={logoUrl as string} alt={`${name}'s logo`} />
+                                <img src={logoUrl} alt={`${name}'s logo`} />
                               </OrganizationAvatar>
                             ) : (
                               <OrganizationAvatar

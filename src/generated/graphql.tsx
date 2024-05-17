@@ -1006,6 +1006,7 @@ export type CreateCustomerInput = {
   email?: InputMaybe<Scalars['String']['input']>;
   externalId: Scalars['String']['input'];
   externalSalesforceId?: InputMaybe<Scalars['String']['input']>;
+  integrationCustomer?: InputMaybe<IntegrationCustomerInput>;
   invoiceGracePeriod?: InputMaybe<Scalars['Int']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
   legalNumber?: InputMaybe<Scalars['String']['input']>;
@@ -1013,7 +1014,6 @@ export type CreateCustomerInput = {
   metadata?: InputMaybe<Array<CustomerMetadataInput>>;
   name: Scalars['String']['input'];
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
-  netsuiteCustomer?: InputMaybe<IntegrationCustomerInput>;
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
@@ -2229,6 +2229,7 @@ export type IntegrationCollection = {
 
 export type IntegrationCustomerInput = {
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
   integrationCode?: InputMaybe<Scalars['String']['input']>;
   integrationType?: InputMaybe<IntegrationTypeEnum>;
   subsidiaryId?: InputMaybe<Scalars['String']['input']>;
@@ -2505,6 +2506,7 @@ export type MappingCollection = {
 
 export enum MappingTypeEnum {
   Coupon = 'coupon',
+  CreditNote = 'credit_note',
   FallbackItem = 'fallback_item',
   MinimumCommitment = 'minimum_commitment',
   PrepaidCredit = 'prepaid_credit',
@@ -4458,6 +4460,7 @@ export type UpdateCustomerInput = {
   externalId: Scalars['String']['input'];
   externalSalesforceId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
+  integrationCustomer?: InputMaybe<IntegrationCustomerInput>;
   invoiceGracePeriod?: InputMaybe<Scalars['Int']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
   legalNumber?: InputMaybe<Scalars['String']['input']>;
@@ -4465,7 +4468,6 @@ export type UpdateCustomerInput = {
   metadata?: InputMaybe<Array<CustomerMetadataInput>>;
   name: Scalars['String']['input'];
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
-  netsuiteCustomer?: InputMaybe<IntegrationCustomerInput>;
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
@@ -4833,7 +4835,7 @@ export enum WeightedIntervalEnum {
 export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, organizations: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> }, organization?: { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum } | null };
+export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null } }> }, organization?: { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum } | null };
 
 export type AddOnItemFragment = { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customersCount: number, createdAt: any };
 
@@ -5943,12 +5945,12 @@ export type UpdateTaxMutationVariables = Exact<{
 
 export type UpdateTaxMutation = { __typename?: 'Mutation', updateTax?: { __typename?: 'Tax', id: string, code: string, description?: string | null, name: string, rate: number, customersCount: number } | null };
 
-export type CurrentUserInfosFragment = { __typename?: 'User', id: string, email?: string | null, premium: boolean, organizations: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> };
+export type CurrentUserInfosFragment = { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null } }> };
 
 export type GetCurrentUserInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCurrentUserInfosQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, email?: string | null, premium: boolean, organizations: Array<{ __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }> } };
+export type GetCurrentUserInfosQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null } }> } };
 
 export type GetEmailSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -7455,10 +7457,12 @@ export const CurrentUserInfosFragmentDoc = gql`
   id
   email
   premium
-  organizations {
-    id
-    name
-    logoUrl
+  memberships {
+    organization {
+      id
+      name
+      logoUrl
+    }
   }
 }
     `;
