@@ -225,7 +225,7 @@ const SideNav = () => {
                     title: translate('text_6553885df387fd0097fd7384'),
                     icon: 'chart-bar',
                     link: ANALYTIC_ROUTE,
-                    match: [ANALYTIC_ROUTE, HOME_ROUTE],
+                    match: [ANALYTIC_ROUTE],
                   },
                   {
                     title: translate('text_623b497ad05b960101be3448'),
