@@ -2072,5 +2072,7 @@
   "text_65771fa3f4ab9a00720726ce": "Units",
   "text_65d8d71a640c5400917f8a13": "Beta",
   "text_65df4fc6314ffd006ce0a537": "Back",
-  "text_6638a3538de76801ac2f451b": "Invalid JSON"
+  "text_6638a3538de76801ac2f451b": "Invalid JSON",
+  "text_66474faf77c70900619567c7": "Forbidden access",
+  "text_66474fb55f1b6901c7ac7683": "It seems you don’t have the permission to access this page. If you think this is an error contact an admin of your organization."
 }

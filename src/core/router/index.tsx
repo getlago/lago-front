@@ -26,6 +26,7 @@ const SideNavLayout = lazyLoad(
 
 // ----------- Pages -----------
 const Error404 = lazyLoad(() => import(/* webpackChunkName: 'error-404' */ '~/pages/Error404'))
+const Forbidden = lazyLoad(() => import(/* webpackChunkName: 'forbidden' */ '~/pages/Forbidden'))
 const Analytic = lazyLoad(() => import(/* webpackChunkName: 'analytics' */ '~/pages/Analytics'))
 
 // Route Available only on dev mode
@@ -34,6 +35,7 @@ const DesignSystem = lazyLoad(
 )
 
 export const HOME_ROUTE = '/'
+export const FORBIDDEN_ROUTE = '/forbidden'
 export const ANALYTIC_ROUTE = '/analytics'
 export const ERROR_404_ROUTE = '/404'
 
@@ -49,6 +51,10 @@ export const routes: CustomRouteObject[] = [
   {
     path: ERROR_404_ROUTE,
     element: <Error404 />,
+  },
+  {
+    path: FORBIDDEN_ROUTE,
+    element: <Forbidden />,
   },
   ...settingRoutes,
   {
