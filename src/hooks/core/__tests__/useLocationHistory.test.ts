@@ -46,6 +46,12 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }))
 
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: () => true,
+  }),
+}))
+
 describe('useLocationHistory()', () => {
   beforeEach(() => {
     mockNavigate.mockClear()
