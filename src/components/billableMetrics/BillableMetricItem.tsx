@@ -21,6 +21,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 import {
   BaseListItem,
   ItemContainer,
@@ -55,6 +56,7 @@ export const BillableMetricItem = memo(
     const { id: billableMetricId, name, code, createdAt } = billableMetric
     const { translate } = useInternationalization()
     const { formatTimeOrgaTZ } = useOrganizationInfos()
+    const { hasPermissions } = usePermissions()
 
     return (
       <ItemContainer>
@@ -108,17 +110,19 @@ export const BillableMetricItem = memo(
               >
                 {translate('text_6256de3bba111e00b3bfa531')}
               </ButtonLink>
-              <Button
-                startIcon="trash"
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  deleteDialogRef.current?.openDialog(billableMetric)
-                  closePopper()
-                }}
-              >
-                {translate('text_6256de3bba111e00b3bfa533')}
-              </Button>
+              {hasPermissions(['billableMetricsDelete']) && (
+                <Button
+                  startIcon="trash"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    deleteDialogRef.current?.openDialog(billableMetric)
+                    closePopper()
+                  }}
+                >
+                  {translate('text_6256de3bba111e00b3bfa533')}
+                </Button>
+              )}
             </MenuPopper>
           )}
         </Popper>
