@@ -71,6 +71,7 @@ export const routes: CustomRouteObject[] = [
         path: [ANALYTIC_ROUTE],
         private: true,
         element: <Analytic />,
+        permissions: ['analyticsView'],
       },
       ...customerRoutes,
       ...developperRoutes,

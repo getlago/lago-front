@@ -56,6 +56,7 @@ import { useSideNavInfosQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 import { theme } from '~/styles'
 import { MenuPopper } from '~/styles/designSystem'
 
@@ -80,16 +81,17 @@ interface TabProps {
 }
 
 const SideNav = () => {
-  const client = useApolloClient()
-  const navigate = useNavigate()
-  const { translate } = useInternationalization()
-  const [open, setOpen] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
+  const client = useApolloClient()
+  const [open, setOpen] = useState(false)
+  const { currentUser } = useCurrentUser()
+  const { hasPermissions } = usePermissions()
+  const { organization } = useOrganizationInfos()
+  const { translate } = useInternationalization()
   const { data, loading, error } = useSideNavInfosQuery()
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
   const contentRef = useRef<HTMLDivElement>(null)
-  const { organization } = useOrganizationInfos()
-  const { currentUser } = useCurrentUser()
   const organizationList = currentUser?.memberships.map((membership) => membership.organization)
 
   useEffect(() => {
@@ -221,12 +223,17 @@ const SideNav = () => {
               <NavigationTab
                 onClick={() => setOpen(false)}
                 tabs={[
-                  {
-                    title: translate('text_6553885df387fd0097fd7384'),
-                    icon: 'chart-bar',
-                    link: ANALYTIC_ROUTE,
-                    match: [ANALYTIC_ROUTE],
-                  },
+                  ...(hasPermissions(['analyticsView'])
+                    ? [
+                        {
+                          title: translate('text_6553885df387fd0097fd7384'),
+                          icon: 'chart-bar',
+                          link: ANALYTIC_ROUTE,
+                          match: [ANALYTIC_ROUTE],
+                        } as TabProps,
+                      ]
+                    : []),
+
                   {
                     title: translate('text_623b497ad05b960101be3448'),
                     icon: 'pulse',
