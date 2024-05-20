@@ -101,6 +101,7 @@ export const objectListRoutes: CustomRouteObject[] = [
     path: [BILLABLE_METRICS_ROUTE],
     private: true,
     element: <BillableMetricsList />,
+    permissions: ['billableMetricsView'],
   },
   {
     path: PLANS_ROUTE,
@@ -139,6 +140,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     path: [CREATE_BILLABLE_METRIC_ROUTE, UPDATE_BILLABLE_METRIC_ROUTE],
     private: true,
     element: <CreateBillableMetric />,
+    permissions: ['billableMetricsCreate', 'billableMetricsUpdate'],
   },
   {
     path: [CREATE_PLAN_ROUTE, UPDATE_PLAN_ROUTE],

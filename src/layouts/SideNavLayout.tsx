@@ -234,12 +234,17 @@ const SideNav = () => {
                       ]
                     : []),
 
-                  {
-                    title: translate('text_623b497ad05b960101be3448'),
-                    icon: 'pulse',
-                    link: BILLABLE_METRICS_ROUTE,
-                    match: [BILLABLE_METRICS_ROUTE],
-                  },
+                  ...(hasPermissions(['billableMetricsView'])
+                    ? [
+                        {
+                          title: translate('text_623b497ad05b960101be3448'),
+                          icon: 'pulse',
+                          link: BILLABLE_METRICS_ROUTE,
+                          match: [BILLABLE_METRICS_ROUTE],
+                        } as TabProps,
+                      ]
+                    : []),
+
                   {
                     title: translate('text_62442e40cea25600b0b6d85a'),
                     icon: 'board',
