@@ -3,6 +3,7 @@ import { Location, matchPath, useNavigate } from 'react-router-dom'
 import { addLocationToHistory, authTokenVar, locationHistoryVar } from '~/core/apolloClient'
 import { CustomRouteObject, FORBIDDEN_ROUTE, HOME_ROUTE, LOGIN_ROUTE } from '~/core/router'
 
+import { useCurrentUser } from '../useCurrentUser'
 import { usePermissions } from '../usePermissions'
 
 type GoBack = (
@@ -51,6 +52,7 @@ const getPreviousLocation = ({
 
 export const useLocationHistory: UseLocationHistoryReturn = () => {
   const navigate = useNavigate()
+  const { currentMembership } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const goBack: GoBack = (fallback, options) => {
     const { previous, remaingHistory } = getPreviousLocation(options || {})
@@ -80,6 +82,7 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
       } else if (
         isAuthenticated &&
         routeConfig.permissions?.length &&
+        !!currentMembership &&
         !hasPermissions(routeConfig.permissions)
       ) {
         /**
