@@ -84,11 +84,13 @@ type TUsePermissionsProps = () => {
 export const usePermissions: TUsePermissionsProps = () => {
   const { currentMembership } = useCurrentUser()
 
-  const hasPermissions = (permissionsToCheck?: Array<keyof TMembershipPermissions>): boolean => {
-    const allPermissions = currentMembership?.permissions as TMembershipPermissions
+  const hasPermissions = (permissionsToCheck: Array<keyof TMembershipPermissions>): boolean => {
+    if (!currentMembership) return false
+
+    const allPermissions = currentMembership.permissions as TMembershipPermissions
 
     const permissionsFound =
-      permissionsToCheck?.map((permission) => allPermissions[permission]) || []
+      permissionsToCheck.map((permission) => allPermissions[permission]) || []
 
     return permissionsFound.every((permission) => !!permission && permission === true)
   }

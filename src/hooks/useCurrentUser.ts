@@ -47,7 +47,7 @@ export const useCurrentUser: UseCurrentUser = () => {
 
   const { data, loading } = useGetCurrentUserInfosQuery({
     canonizeResults: true,
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'network-only', // Requires to be network only - properly handles membership role guard on app boot
     skip: !isAuthenticated,
   })
 
