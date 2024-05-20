@@ -3,7 +3,7 @@ import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Typography } from '~/components/designSystem'
+import { Avatar, Chip, Selector, SelectorSkeleton, Typography } from '~/components/designSystem'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { AddOktaDialog, AddOktaDialogRef } from '~/components/settings/authentication/AddOktaDialog'
 import {
@@ -19,10 +19,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import {
-  OktaListItem,
-  SkeletonOktaListItem,
-} from '~/pages/settings/Authentication/components/OktaListItem'
+import Okta from '~/public/images/okta.svg'
 import { theme } from '~/styles'
 import { SettingsHeaderNameWrapper, SettingsPageContentWrapper } from '~/styles/settingsPage'
 
@@ -52,11 +49,13 @@ const Authentication = () => {
   const addOktaDialogRef = useRef<AddOktaDialogRef>(null)
   const deleteOktaDialogRef = useRef<DeleteOktaIntegrationDialogRef>(null)
 
-  const { data, loading, refetch } = useGetAuthIntegrationsQuery()
+  const { data, loading } = useGetAuthIntegrationsQuery({ variables: { limit: 10 } })
 
   const oktaIntegration = data?.integrations?.collection.find(
     (integration) => integration.__typename === 'OktaIntegration',
   ) as OktaIntegration | undefined
+
+  const shouldSeeOktaIntegration = isPremium
 
   return (
     <>
@@ -75,41 +74,47 @@ const Authentication = () => {
         {loading ? (
           <LoadingContainer>
             {[0].map((i) => (
-              <SkeletonOktaListItem key={`skeleton-${i}`} />
+              <SelectorSkeleton fullWidth key={`skeleton-${i}`} />
             ))}
           </LoadingContainer>
         ) : (
-          <>
-            <OktaListItem
-              integrationId={oktaIntegration?.id}
-              onConfigure={() =>
-                isPremium
-                  ? addOktaDialogRef.current?.openDialog({
-                      integration: oktaIntegration,
-                      callback: refetch,
-                      deleteModalRef: deleteOktaDialogRef,
-                      deleteDialogCallback: refetch,
-                    })
-                  : premiumWarningDialogRef.current?.openDialog()
+          <Selector
+            title={translate('text_664c732c264d7eed1c74fda2')}
+            subtitle={translate('text_664c732c264d7eed1c74fda8')}
+            icon={
+              <Avatar size="big" variant="connector">
+                <Okta />
+              </Avatar>
+            }
+            endIcon={
+              shouldSeeOktaIntegration ? (
+                oktaIntegration?.id ? (
+                  <Chip label={translate('text_634ea0ecc6147de10ddb662d')} />
+                ) : undefined
+              ) : (
+                'sparkles'
+              )
+            }
+            onClick={() => {
+              if (!shouldSeeOktaIntegration) {
+                return premiumWarningDialogRef.current?.openDialog()
               }
-              onGoDetails={
-                oktaIntegration
-                  ? () =>
-                      navigate(
-                        generatePath(OKTA_AUTHENTICATION_ROUTE, {
-                          integrationId: oktaIntegration.id,
-                        }),
-                      )
-                  : undefined
+
+              if (oktaIntegration?.id) {
+                return navigate(
+                  generatePath(OKTA_AUTHENTICATION_ROUTE, {
+                    integrationId: oktaIntegration.id,
+                  }),
+                )
               }
-              onDelete={() =>
-                deleteOktaDialogRef.current?.openDialog({
-                  integration: oktaIntegration,
-                  callback: refetch,
-                })
-              }
-            />
-          </>
+
+              return addOktaDialogRef.current?.openDialog({
+                integration: oktaIntegration,
+                callback: (id) =>
+                  navigate(generatePath(OKTA_AUTHENTICATION_ROUTE, { integrationId: id })),
+              })
+            }}
+          />
         )}
 
         <PremiumWarningDialog ref={premiumWarningDialogRef} />

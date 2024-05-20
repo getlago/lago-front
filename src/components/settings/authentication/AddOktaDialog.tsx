@@ -5,7 +5,10 @@ import styled from 'styled-components'
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { DeleteOktaIntegrationDialogRef } from '~/components/settings/authentication/DeleteOktaIntegrationDialog'
-import { useOktaIntegration } from '~/components/settings/authentication/useOktaIntegration'
+import {
+  useOktaIntegration,
+  UseOktaIntegrationProps,
+} from '~/components/settings/authentication/useOktaIntegration'
 import { AddOktaIntegrationDialogFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
@@ -14,7 +17,7 @@ type AddOktaDialogProps = Partial<{
   integration: AddOktaIntegrationDialogFragment
   deleteModalRef: RefObject<DeleteOktaIntegrationDialogRef>
   deleteDialogCallback: Function
-  callback?: Function
+  callback?: UseOktaIntegrationProps['onSubmit']
 }>
 
 export interface AddOktaDialogRef {
@@ -33,8 +36,8 @@ export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
 
   const { formikProps } = useOktaIntegration({
     initialValues: integration,
-    onSubmit: (res) => {
-      localData?.callback?.(res)
+    onSubmit: (id) => {
+      localData?.callback?.(id)
       dialogRef.current?.closeDialog()
     },
   })

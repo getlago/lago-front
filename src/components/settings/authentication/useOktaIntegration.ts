@@ -49,9 +49,9 @@ const oktaIntegrationSchema = object().shape({
   organizationName: string().required(''),
 })
 
-interface UseOktaIntegrationProps {
+export interface UseOktaIntegrationProps {
   initialValues?: AddOktaIntegrationDialogFragment
-  onSubmit?: (response: unknown) => void
+  onSubmit?: (id: string) => void
 }
 
 export const useOktaIntegration = ({ initialValues, onSubmit }: UseOktaIntegrationProps) => {
@@ -60,7 +60,9 @@ export const useOktaIntegration = ({ initialValues, onSubmit }: UseOktaIntegrati
 
   const [createIntegration] = useCreateOktaIntegrationMutation({
     onCompleted: (res) => {
-      onSubmit?.(res.createOktaIntegration)
+      if (!res.createOktaIntegration) return
+
+      onSubmit?.(res.createOktaIntegration?.id)
       addToast({
         severity: 'success',
         message: translate('TODO: Okta integration successfully connected'),
@@ -70,7 +72,9 @@ export const useOktaIntegration = ({ initialValues, onSubmit }: UseOktaIntegrati
 
   const [updateIntegration] = useUpdateOktaIntegrationMutation({
     onCompleted: (res) => {
-      onSubmit?.(res.updateOktaIntegration)
+      if (!res.updateOktaIntegration) return
+
+      onSubmit?.(res.updateOktaIntegration?.id)
       addToast({
         severity: 'success',
         message: translate('TODO: Okta integration successfully edited'),

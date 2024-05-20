@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
-import { generatePath, Link } from 'react-router-dom'
+import { generatePath, Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { object, string } from 'yup'
 
@@ -9,7 +9,7 @@ import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
 import { Alert, Button, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { envGlobalVar, hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
-import { FORGOT_PASSWORD_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
+import { FORGOT_PASSWORD_ROUTE, LOGIN_OKTA, SIGN_UP_ROUTE } from '~/core/router'
 import { CurrentUserFragmentDoc, LagoApiError, useLoginUserMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
@@ -34,6 +34,8 @@ gql`
 
 const Login = () => {
   const { translate } = useInternationalization()
+  const navigate = useNavigate()
+
   const [loginUser, { error: loginError }] = useLoginUserMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted(res) {
@@ -93,11 +95,22 @@ const Login = () => {
             </Alert>
           )}
 
-          <GoogleAuthButton
-            mode="login"
-            label={translate('text_660bf95c75dd928ced0ecb31')}
-            hideAlert={!!loginError}
-          />
+          <Stack spacing={4}>
+            <GoogleAuthButton
+              mode="login"
+              label={translate('text_660bf95c75dd928ced0ecb31')}
+              hideAlert={!!loginError}
+            />
+            <Button
+              fullWidth
+              startIcon="okta"
+              size="large"
+              variant="tertiary"
+              onClick={() => navigate(LOGIN_OKTA)}
+            >
+              {translate('TODO: Log In with Okta')}
+            </Button>
+          </Stack>
 
           <OrSeparator>
             <Typography variant="captionHl" color="grey500">

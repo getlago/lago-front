@@ -38,6 +38,8 @@ export const typeDefs = gql`
     invalid_google_code
     invalid_google_token
     google_auth_missing_setup
+    domain_not_configured
+    okta_userinfo_error
   }
 `
 

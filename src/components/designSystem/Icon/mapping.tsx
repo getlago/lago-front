@@ -67,6 +67,7 @@ import Mail from '~/public/icons/mail.svg'
 import Map from '~/public/icons/map.svg'
 import Micro from '~/public/icons/micro.svg'
 import Minus from '~/public/icons/minus.svg'
+import Okta from '~/public/icons/okta.svg'
 import Outside from '~/public/icons/outside.svg'
 import Paperclip from '~/public/icons/paperclip.svg'
 import PauseCircleFilled from '~/public/icons/pause-circle-filled.svg'
@@ -184,6 +185,7 @@ export const ALL_ICONS = {
   map: Map,
   micro: Micro,
   minus: Minus,
+  okta: Okta,
   outside: Outside,
   paperclip: Paperclip,
   'pause-circle-filled': PauseCircleFilled,

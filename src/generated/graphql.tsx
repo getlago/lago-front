@@ -1100,7 +1100,7 @@ export type CreateNetsuiteIntegrationInput = {
   code: Scalars['String']['input'];
   connectionId: Scalars['String']['input'];
   name: Scalars['String']['input'];
-  scriptEndpointUrl: Scalars['String']['input'];
+  scriptEndpointUrl?: InputMaybe<Scalars['String']['input']>;
   syncCreditNotes?: InputMaybe<Scalars['Boolean']['input']>;
   syncInvoices?: InputMaybe<Scalars['Boolean']['input']>;
   syncPayments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2430,6 +2430,7 @@ export enum LagoApiError {
   CouponIsNotReusable = 'coupon_is_not_reusable',
   CurrenciesDoesNotMatch = 'currencies_does_not_match',
   DoesNotMatchItemAmounts = 'does_not_match_item_amounts',
+  DomainNotConfigured = 'domain_not_configured',
   EmailAlreadyUsed = 'email_already_used',
   ExpiredJwtToken = 'expired_jwt_token',
   Forbidden = 'forbidden',
@@ -2443,6 +2444,7 @@ export enum LagoApiError {
   InviteNotFound = 'invite_not_found',
   NotFound = 'not_found',
   NotOrganizationMember = 'not_organization_member',
+  OktaUserinfoError = 'okta_userinfo_error',
   PaymentProcessorIsCurrentlyHandlingPayment = 'payment_processor_is_currently_handling_payment',
   PlanNotFound = 'plan_not_found',
   PlanOverlapping = 'plan_overlapping',
@@ -2522,7 +2524,7 @@ export type Membership = {
   organization: Organization;
   permissions: Permissions;
   revokedAt: Scalars['ISO8601DateTime']['output'];
-  role: MembershipRole;
+  role?: Maybe<MembershipRole>;
   status: MembershipStatus;
   updatedAt: Scalars['ISO8601DateTime']['output'];
   user: User;
@@ -3175,7 +3177,7 @@ export type NetsuiteIntegration = {
   hasMappingsConfigured?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
-  scriptEndpointUrl: Scalars['String']['output'];
+  scriptEndpointUrl?: Maybe<Scalars['String']['output']>;
   syncCreditNotes?: Maybe<Scalars['Boolean']['output']>;
   syncInvoices?: Maybe<Scalars['Boolean']['output']>;
   syncPayments?: Maybe<Scalars['Boolean']['output']>;
@@ -6311,6 +6313,20 @@ export type LoginUserMutationVariables = Exact<{
 
 
 export type LoginUserMutation = { __typename?: 'Mutation', loginUser?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
+
+export type FetchOktaAuthorizeUrlMutationVariables = Exact<{
+  input: OktaAuthorizeInput;
+}>;
+
+
+export type FetchOktaAuthorizeUrlMutation = { __typename?: 'Mutation', oktaAuthorize?: { __typename?: 'Authorize', url: string } | null };
+
+export type OktaLoginUserMutationVariables = Exact<{
+  input: OktaLoginInput;
+}>;
+
+
+export type OktaLoginUserMutation = { __typename?: 'Mutation', oktaLogin?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
 
 export type GetPortalLocaleQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -15380,6 +15396,76 @@ export function useLoginUserMutation(baseOptions?: Apollo.MutationHookOptions<Lo
 export type LoginUserMutationHookResult = ReturnType<typeof useLoginUserMutation>;
 export type LoginUserMutationResult = Apollo.MutationResult<LoginUserMutation>;
 export type LoginUserMutationOptions = Apollo.BaseMutationOptions<LoginUserMutation, LoginUserMutationVariables>;
+export const FetchOktaAuthorizeUrlDocument = gql`
+    mutation fetchOktaAuthorizeUrl($input: OktaAuthorizeInput!) {
+  oktaAuthorize(input: $input) {
+    url
+  }
+}
+    `;
+export type FetchOktaAuthorizeUrlMutationFn = Apollo.MutationFunction<FetchOktaAuthorizeUrlMutation, FetchOktaAuthorizeUrlMutationVariables>;
+
+/**
+ * __useFetchOktaAuthorizeUrlMutation__
+ *
+ * To run a mutation, you first call `useFetchOktaAuthorizeUrlMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useFetchOktaAuthorizeUrlMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [fetchOktaAuthorizeUrlMutation, { data, loading, error }] = useFetchOktaAuthorizeUrlMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useFetchOktaAuthorizeUrlMutation(baseOptions?: Apollo.MutationHookOptions<FetchOktaAuthorizeUrlMutation, FetchOktaAuthorizeUrlMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<FetchOktaAuthorizeUrlMutation, FetchOktaAuthorizeUrlMutationVariables>(FetchOktaAuthorizeUrlDocument, options);
+      }
+export type FetchOktaAuthorizeUrlMutationHookResult = ReturnType<typeof useFetchOktaAuthorizeUrlMutation>;
+export type FetchOktaAuthorizeUrlMutationResult = Apollo.MutationResult<FetchOktaAuthorizeUrlMutation>;
+export type FetchOktaAuthorizeUrlMutationOptions = Apollo.BaseMutationOptions<FetchOktaAuthorizeUrlMutation, FetchOktaAuthorizeUrlMutationVariables>;
+export const OktaLoginUserDocument = gql`
+    mutation oktaLoginUser($input: OktaLoginInput!) {
+  oktaLogin(input: $input) {
+    user {
+      id
+      ...CurrentUser
+    }
+    token
+  }
+}
+    ${CurrentUserFragmentDoc}`;
+export type OktaLoginUserMutationFn = Apollo.MutationFunction<OktaLoginUserMutation, OktaLoginUserMutationVariables>;
+
+/**
+ * __useOktaLoginUserMutation__
+ *
+ * To run a mutation, you first call `useOktaLoginUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useOktaLoginUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [oktaLoginUserMutation, { data, loading, error }] = useOktaLoginUserMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useOktaLoginUserMutation(baseOptions?: Apollo.MutationHookOptions<OktaLoginUserMutation, OktaLoginUserMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<OktaLoginUserMutation, OktaLoginUserMutationVariables>(OktaLoginUserDocument, options);
+      }
+export type OktaLoginUserMutationHookResult = ReturnType<typeof useOktaLoginUserMutation>;
+export type OktaLoginUserMutationResult = Apollo.MutationResult<OktaLoginUserMutation>;
+export type OktaLoginUserMutationOptions = Apollo.BaseMutationOptions<OktaLoginUserMutation, OktaLoginUserMutationVariables>;
 export const GetPortalLocaleDocument = gql`
     query getPortalLocale {
   customerPortalOrganization {
