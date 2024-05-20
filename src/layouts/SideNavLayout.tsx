@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useApolloClient } from '@apollo/client'
-import { ClickAwayListener } from '@mui/material'
+import { ClickAwayListener, Stack } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { Location, useLocation } from 'react-router-dom'
@@ -85,7 +85,7 @@ const SideNav = () => {
   const navigate = useNavigate()
   const client = useApolloClient()
   const [open, setOpen] = useState(false)
-  const { currentUser } = useCurrentUser()
+  const { currentUser, loading: currentUserLoading } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const { organization } = useOrganizationInfos()
   const { translate } = useInternationalization()
@@ -221,6 +221,23 @@ const SideNav = () => {
           <Nav className="nav">
             <TabsButtons>
               <NavigationTab
+                loading={currentUserLoading}
+                loadingComponent={
+                  <Stack flex={1} gap={4}>
+                    {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+                      <Stack
+                        key={`skeleton-upper-nav-${i}`}
+                        flex={1}
+                        gap={3}
+                        direction={'row'}
+                        paddingTop={3}
+                      >
+                        <Skeleton variant="circular" width={16} height={16} />
+                        <Skeleton variant="text" height={16} width={120} />
+                      </Stack>
+                    ))}
+                  </Stack>
+                }
                 onClick={() => setOpen(false)}
                 tabs={[
                   ...(hasPermissions(['analyticsView'])
@@ -287,6 +304,23 @@ const SideNav = () => {
             </TabsButtons>
             <BottomButtons>
               <NavigationTab
+                loading={currentUserLoading}
+                loadingComponent={
+                  <Stack flex={1} gap={4}>
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Stack
+                        key={`skeleton-lower-nav-${i}`}
+                        flex={1}
+                        gap={3}
+                        direction={'row'}
+                        paddingTop={3}
+                      >
+                        <Skeleton variant="circular" width={16} height={16} />
+                        <Skeleton variant="text" height={16} width={120} />
+                      </Stack>
+                    ))}
+                  </Stack>
+                }
                 onClick={() => setOpen(false)}
                 tabs={[
                   ...([AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv)
