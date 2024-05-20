@@ -13,6 +13,7 @@ import { PlanItemFragmentDoc, usePlansLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { usePermissions } from '~/hooks/usePermissions'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { ListContainer, ListHeader, PageHeader, theme } from '~/styles'
@@ -38,6 +39,7 @@ gql`
 const PlansList = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
+  const { hasPermissions } = usePermissions()
   const deleteDialogRef = useRef<DeletePlanDialogRef>(null)
   const [getPlans, { data, error, loading, fetchMore, variables }] = usePlansLazyQuery({
     variables: { limit: 20 },
@@ -58,6 +60,7 @@ const PlansList = () => {
       ),
   })
   let index = -1
+  const shouldShowItemActions = hasPermissions(['plansCreate', 'plansUpdate', 'plansDelete'])
 
   return (
     <div role="grid" tabIndex={-1} onKeyDown={onKeyDown}>
@@ -70,14 +73,16 @@ const PlansList = () => {
             onChange={debouncedSearch}
             placeholder={translate('text_63bee1cc88d85f04deb0d63c')}
           />
-          <ButtonLink type="button" to={CREATE_PLAN_ROUTE} data-test="create-plan">
-            {translate('text_62442e40cea25600b0b6d84c')}
-          </ButtonLink>
+          {hasPermissions(['plansCreate']) && (
+            <ButtonLink type="button" to={CREATE_PLAN_ROUTE} data-test="create-plan">
+              {translate('text_62442e40cea25600b0b6d84c')}
+            </ButtonLink>
+          )}
         </HeaderRigthBlock>
       </Header>
 
       <ListContainer>
-        <ListHead $withActions>
+        <ListHead $withActions={shouldShowItemActions}>
           <PlanNameSection>
             <Typography color="disabled" variant="bodyHl">
               {translate('text_62442e40cea25600b0b6d852')}
@@ -162,6 +167,7 @@ const PlansList = () => {
                       key={plan.id}
                       plan={plan}
                       deleteDialogRef={deleteDialogRef}
+                      shouldShowItemActions={shouldShowItemActions}
                       navigationProps={{
                         id: `plan-item-${index}`,
                         'data-id': plan.id,

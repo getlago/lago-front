@@ -107,6 +107,7 @@ export const objectListRoutes: CustomRouteObject[] = [
     path: PLANS_ROUTE,
     private: true,
     element: <PlansList />,
+    permissions: ['plansView'],
   },
   {
     path: COUPONS_ROUTE,
@@ -146,6 +147,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     path: [CREATE_PLAN_ROUTE, UPDATE_PLAN_ROUTE],
     private: true,
     element: <CreatePlan />,
+    permissions: ['plansCreate', 'plansUpdate'],
   },
   {
     path: [CREATE_TAX_ROUTE, UPDATE_TAX_ROUTE],
