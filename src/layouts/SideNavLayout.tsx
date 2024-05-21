@@ -20,6 +20,7 @@ import { envGlobalVar, logOut, switchCurrentOrganization } from '~/core/apolloCl
 import { DOCUMENTATION_URL, FEATURE_REQUESTS_URL } from '~/core/constants/externalUrls'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import {
+  ADD_ON_DETAILS_ROUTE,
   ADD_ONS_ROUTE,
   ANALYTIC_ROUTE,
   API_KEYS_ROUTE,
@@ -274,6 +275,7 @@ const SideNav = () => {
                     title: translate('text_629728388c4d2300e2d3801a'),
                     icon: 'puzzle',
                     link: ADD_ONS_ROUTE,
+                    match: [ADD_ONS_ROUTE, ADD_ON_DETAILS_ROUTE],
                   },
                   {
                     title: translate('text_62865498824cc10126ab2940'),

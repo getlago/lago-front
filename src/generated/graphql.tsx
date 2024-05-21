@@ -6032,7 +6032,7 @@ export type GetCouponForDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetCouponForDetailsQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, code?: string | null, expirationAt?: any | null, name: string, frequency: CouponFrequency, reusable: boolean, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null } | null };
+export type GetCouponForDetailsQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, code?: string | null, expirationAt?: any | null, name: string, frequency: CouponFrequency, reusable: boolean, couponType: CouponTypeEnum, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null } | null };
 
 export type CouponsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -13748,6 +13748,7 @@ export const GetCouponForDetailsDocument = gql`
     name
     frequency
     reusable
+    couponType
     billableMetrics {
       id
       name

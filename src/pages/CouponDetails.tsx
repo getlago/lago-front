@@ -8,11 +8,21 @@ import { DeleteCouponDialog, DeleteCouponDialogRef } from '~/components/coupons/
 import { Button, Icon, Popper, Skeleton, Typography } from '~/components/designSystem'
 import { DetailsHeader, DetailsHeaderSkeleton } from '~/components/details/DetailsHeader'
 import DetailsTableDisplay from '~/components/details/DetailsTableDisplay'
+import {
+  getCouponFrequencyTranslationKey,
+  getCouponTypeTranslationKey,
+} from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { COUPONS_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { CurrencyEnum, useGetCouponForDetailsQuery } from '~/generated/graphql'
+import {
+  CouponFrequency,
+  CouponTypeEnum,
+  CurrencyEnum,
+  useGetCouponForDetailsQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader, theme } from '~/styles'
 import { DetailsInfoGrid, DetailsInfoItem, DetailsSectionTitle } from '~/styles/detailsPage'
@@ -28,6 +38,7 @@ gql`
       name
       frequency
       reusable
+      couponType
       billableMetrics {
         id
         name
@@ -44,6 +55,7 @@ const CouponDetails = () => {
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const { translate } = useInternationalization()
+  const { formatTimeOrgaTZ } = useOrganizationInfos()
   const { couponId } = useParams()
 
   const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
@@ -147,16 +159,16 @@ const CouponDetails = () => {
       <Container>
         <section>
           <DetailsSectionTitle variant="subhead" noWrap>
-            {translate('TODO: Coupon details')}
+            {translate('text_664cb90097bfa800e6efa3e4')}
           </DetailsSectionTitle>
           <DetailsInfoGrid
             grid={[
               {
-                label: translate('TODO: Coupon name'),
+                label: translate('text_62865498824cc10126ab2960'),
                 value: coupon?.name,
               },
               {
-                label: translate('TODO: Coupon code'),
+                label: translate('text_664cb90097bfa800e6efa3e7'),
                 value: coupon?.code,
               },
               {
@@ -169,7 +181,7 @@ const CouponDetails = () => {
 
         <section>
           <DetailsSectionTitle variant="subhead" noWrap>
-            {translate('TODO: Coupon settings')}
+            {translate('text_62876e85e32e0300e1803137')}
           </DetailsSectionTitle>
           <DetailsCard>
             <DetailsSectionWrapperWithBorder>
@@ -183,12 +195,16 @@ const CouponDetails = () => {
               <DetailsInfoGrid
                 grid={[
                   {
-                    label: translate('TODO: Type'),
-                    value: translate('TODO: Fixed amount discount'),
+                    label: translate('text_6560809c38fb9de88d8a52fb'),
+                    value: translate(
+                      getCouponTypeTranslationKey[coupon?.couponType as CouponTypeEnum],
+                    ),
                   },
                   {
-                    label: translate('TODO: Frequency'),
-                    value: translate('TODO: Recurring'),
+                    label: translate('text_632d68358f1fedc68eed3e9d'),
+                    value: translate(
+                      getCouponFrequencyTranslationKey[coupon?.frequency as CouponFrequency],
+                    ),
                   },
                 ]}
               />
@@ -202,7 +218,7 @@ const CouponDetails = () => {
           !!coupon?.plans?.length) && (
           <section>
             <DetailsSectionTitle variant="subhead" noWrap>
-              {translate('TODO: Limitations')}
+              {translate('text_63c83d58e697e8e9236da806')}
             </DetailsSectionTitle>
             <DetailsCard>
               <DetailsSectionWrapper>
@@ -212,9 +228,7 @@ const CouponDetails = () => {
                       <Stack key="" direction="row" gap={2} alignItems="center">
                         <Icon name="validate-filled" size="small" />
                         <Typography variant="captionHl">
-                          {translate(
-                            'TODO: The coupon can be applied several times to the same customer',
-                          )}
+                          {translate('text_638f48274d41e3f1d01fc16a')}
                         </Typography>
                       </Stack>,
                     ]}
@@ -231,16 +245,17 @@ const CouponDetails = () => {
                       >
                         <Icon name="validate-filled" size="small" />
                         <Typography variant="captionHl">
-                          {translate(
-                            'TODO: Limit the date by which customers can redeem this coupon',
-                          )}
+                          {translate('text_632d68358f1fedc68eed3eb7')}
                         </Typography>
                       </Stack>,
                     ]}
                     body={[
                       [
                         <Stack key="limitation-date-body-1" padding="16px 0">
-                          <DetailsInfoItem label={translate('TODO: Date')} value={'TODO: date'} />
+                          <DetailsInfoItem
+                            label={translate('text_664cb90097bfa800e6efa3f5')}
+                            value={formatTimeOrgaTZ(coupon.expirationAt)}
+                          />
                         </Stack>,
                       ],
                     ]}
@@ -257,16 +272,31 @@ const CouponDetails = () => {
                       >
                         <Icon name="validate-filled" size="small" />
                         <Typography variant="captionHl">
-                          {translate(
-                            'TODO: Limit the coupon to specific plans or billable metrics',
-                          )}
+                          {translate('text_64352657267c3d916f9627a4')}
                         </Typography>
                       </Stack>,
                     ]}
                     body={[
                       [
                         <Stack key="limitation-plan-or-bm-body-1" padding="16px 0">
-                          <DetailsInfoItem label={translate('TODO: Date')} value={'TODO: date'} />
+                          {(!!coupon.billableMetrics?.length
+                            ? coupon.billableMetrics
+                            : !!coupon?.plans?.length
+                              ? coupon?.plans
+                              : []
+                          )?.map((element, elementIndex) => (
+                            <Stack
+                              key={`limitation-plan-or-bm-item-${elementIndex}`}
+                              direction="row"
+                              alignItems="center"
+                              gap={2}
+                            >
+                              <Icon name={coupon?.plans?.length ? 'board' : 'pulse'} color="dark" />
+                              <Typography variant="body" color="grey700">
+                                {element.name}
+                              </Typography>
+                            </Stack>
+                          ))}
                         </Stack>,
                       ],
                     ]}
