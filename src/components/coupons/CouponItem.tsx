@@ -54,8 +54,9 @@ gql`
 interface CouponItemProps {
   coupon: CouponItemFragment
   deleteDialogRef: RefObject<DeleteCouponDialogRef>
-  navigationProps?: ListKeyNavigationItemProps
   terminateDialogRef: RefObject<TerminateCouponDialogRef>
+  shouldShowItemActions: boolean
+  navigationProps?: ListKeyNavigationItemProps
 }
 
 const mapStatus = (type?: CouponStatusEnum | undefined) => {
@@ -77,6 +78,7 @@ export const CouponItem = ({
   coupon,
   deleteDialogRef,
   navigationProps,
+  shouldShowItemActions,
   terminateDialogRef,
 }: CouponItemProps) => {
   const { id: couponId, name, customersCount, status, appliedCouponsCount, expirationAt } = coupon
@@ -110,7 +112,7 @@ export const CouponItem = ({
             <CouponCaption coupon={coupon} variant="caption" />
           </NameBlock>
         </CouponNameSection>
-        <CouponInfosSection>
+        <CouponInfosSection $shouldShowItemActions={shouldShowItemActions}>
           <SmallCell>{customersCount}</SmallCell>
           <MediumCell>
             {!expirationAt
@@ -121,85 +123,88 @@ export const CouponItem = ({
             {<Status type={formattedStatus.type} label={translate(formattedStatus.label)} />}
           </MediumCell>
         </CouponInfosSection>
-        <ButtonMock />
+        {shouldShowItemActions && <ButtonMock />}
       </ConditionalWrapper>
-      <Popper
-        PopperProps={{ placement: 'bottom-end' }}
-        opener={({ isOpen }) => (
-          // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-          <PopperOpener>
-            <Tooltip
-              placement="top-end"
-              disableHoverListener={isOpen}
-              title={translate('text_62876a50ea3bba00b56d2c76')}
-            >
-              <Button icon="dots-horizontal" variant="quaternary" />
-            </Tooltip>
-          </PopperOpener>
-        )}
-      >
-        {({ closePopper }) => (
-          <MenuPopper>
-            <Tooltip
-              disableHoverListener={status !== CouponStatusEnum.Terminated}
-              title={translate('text_62878d88ea3bba00b56d3412')}
-              placement="bottom-end"
-            >
-              <ButtonLink
-                type="button"
-                buttonProps={{
-                  startIcon: 'pen',
-                  variant: 'quaternary',
-                  align: 'left',
-                  fullWidth: true,
-                }}
-                disabled={status === CouponStatusEnum.Terminated}
-                to={generatePath(UPDATE_COUPON_ROUTE, { couponId })}
+
+      {shouldShowItemActions && (
+        <Popper
+          PopperProps={{ placement: 'bottom-end' }}
+          opener={({ isOpen }) => (
+            // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+            <PopperOpener>
+              <Tooltip
+                placement="top-end"
+                disableHoverListener={isOpen}
+                title={translate('text_62876a50ea3bba00b56d2c76')}
               >
-                {translate('text_62876a50ea3bba00b56d2cb6')}
-              </ButtonLink>
-            </Tooltip>
-            <Tooltip
-              disableHoverListener={status !== CouponStatusEnum.Terminated}
-              title={translate('text_62878d88ea3bba00b56d33cf')}
-              placement="bottom-end"
-            >
-              <Button
-                startIcon="switch"
-                variant="quaternary"
-                disabled={status === CouponStatusEnum.Terminated}
-                fullWidth
-                align="left"
-                onClick={() => {
-                  terminateDialogRef.current?.openDialog(coupon)
-                  closePopper()
-                }}
+                <Button icon="dots-horizontal" variant="quaternary" />
+              </Tooltip>
+            </PopperOpener>
+          )}
+        >
+          {({ closePopper }) => (
+            <MenuPopper>
+              <Tooltip
+                disableHoverListener={status !== CouponStatusEnum.Terminated}
+                title={translate('text_62878d88ea3bba00b56d3412')}
+                placement="bottom-end"
               >
-                {translate('text_62876a50ea3bba00b56d2cbc')}
-              </Button>
-            </Tooltip>
-            <Tooltip
-              disableHoverListener={!appliedCouponsCount}
-              title={translate('text_62876a50ea3bba00b56d2cee')}
-              placement="bottom-end"
-            >
-              <Button
-                startIcon="trash"
-                variant="quaternary"
-                disabled={!!appliedCouponsCount}
-                align="left"
-                fullWidth
-                onClick={() => {
-                  deleteDialogRef.current?.openDialog(coupon)
-                  closePopper()
-                }}
+                <ButtonLink
+                  type="button"
+                  buttonProps={{
+                    startIcon: 'pen',
+                    variant: 'quaternary',
+                    align: 'left',
+                    fullWidth: true,
+                  }}
+                  disabled={status === CouponStatusEnum.Terminated}
+                  to={generatePath(UPDATE_COUPON_ROUTE, { couponId })}
+                >
+                  {translate('text_62876a50ea3bba00b56d2cb6')}
+                </ButtonLink>
+              </Tooltip>
+              <Tooltip
+                disableHoverListener={status !== CouponStatusEnum.Terminated}
+                title={translate('text_62878d88ea3bba00b56d33cf')}
+                placement="bottom-end"
               >
-                {translate('text_62876a50ea3bba00b56d2cc2')}
-              </Button>
-            </Tooltip>
-          </MenuPopper>
-        )}
-      </Popper>
+                <Button
+                  startIcon="switch"
+                  variant="quaternary"
+                  disabled={status === CouponStatusEnum.Terminated}
+                  fullWidth
+                  align="left"
+                  onClick={() => {
+                    terminateDialogRef.current?.openDialog(coupon)
+                    closePopper()
+                  }}
+                >
+                  {translate('text_62876a50ea3bba00b56d2cbc')}
+                </Button>
+              </Tooltip>
+              <Tooltip
+                disableHoverListener={!appliedCouponsCount}
+                title={translate('text_62876a50ea3bba00b56d2cee')}
+                placement="bottom-end"
+              >
+                <Button
+                  startIcon="trash"
+                  variant="quaternary"
+                  disabled={!!appliedCouponsCount}
+                  align="left"
+                  fullWidth
+                  onClick={() => {
+                    deleteDialogRef.current?.openDialog(coupon)
+                    closePopper()
+                  }}
+                >
+                  {translate('text_62876a50ea3bba00b56d2cc2')}
+                </Button>
+              </Tooltip>
+            </MenuPopper>
+          )}
+        </Popper>
+      )}
     </ItemContainer>
   )
 }
@@ -229,9 +234,10 @@ const NameBlock = styled.div`
   min-width: 0;
 `
 
-const CouponInfosSection = styled.div`
+const CouponInfosSection = styled.div<{ $shouldShowItemActions: boolean }>`
   display: flex;
-  margin-right: ${theme.spacing(6)};
+
+  margin-right: ${({ $shouldShowItemActions }) => ($shouldShowItemActions ? theme.spacing(6) : 0)};
 
   > *:not(:last-child) {
     margin-right: ${theme.spacing(6)};
