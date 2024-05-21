@@ -20,15 +20,21 @@ gql`
   }
 `
 
+type DeleteCouponDialogProps = {
+  coupon: DeleteCouponFragment
+  callback?: () => void
+}
+
 export interface DeleteCouponDialogRef {
-  openDialog: (coupon: DeleteCouponFragment) => unknown
+  openDialog: ({ coupon, callback }: DeleteCouponDialogProps) => unknown
   closeDialog: () => unknown
 }
 
 export const DeleteCouponDialog = forwardRef<DeleteCouponDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)
-  const [coupon, setCoupon] = useState<DeleteCouponFragment | undefined>(undefined)
+  const [localData, setLocalData] = useState<DeleteCouponDialogProps | undefined>(undefined)
+  const coupon = localData?.coupon
 
   const [deleteCoupon] = useDeleteCouponMutation({
     onCompleted(data) {
@@ -37,6 +43,8 @@ export const DeleteCouponDialog = forwardRef<DeleteCouponDialogRef>((_, ref) => 
           message: translate('text_628b432fd8f2bc0105b9746f'),
           severity: 'success',
         })
+
+        localData?.callback && localData.callback()
       }
     },
     update(cache, { data }) {
@@ -52,7 +60,7 @@ export const DeleteCouponDialog = forwardRef<DeleteCouponDialogRef>((_, ref) => 
 
   useImperativeHandle(ref, () => ({
     openDialog: (data) => {
-      setCoupon(data)
+      setLocalData(data)
       dialogRef.current?.openDialog()
     },
     closeDialog: () => dialogRef.current?.closeDialog(),

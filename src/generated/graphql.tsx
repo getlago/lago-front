@@ -1100,7 +1100,7 @@ export type CreateNetsuiteIntegrationInput = {
   code: Scalars['String']['input'];
   connectionId: Scalars['String']['input'];
   name: Scalars['String']['input'];
-  scriptEndpointUrl?: InputMaybe<Scalars['String']['input']>;
+  scriptEndpointUrl: Scalars['String']['input'];
   syncCreditNotes?: InputMaybe<Scalars['Boolean']['input']>;
   syncInvoices?: InputMaybe<Scalars['Boolean']['input']>;
   syncPayments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2219,7 +2219,7 @@ export type GroupedChargeUsage = {
   units: Scalars['Float']['output'];
 };
 
-export type Integration = NetsuiteIntegration;
+export type Integration = NetsuiteIntegration | OktaIntegration;
 
 export type IntegrationCollection = {
   __typename?: 'IntegrationCollection';
@@ -2258,7 +2258,8 @@ export enum IntegrationItemTypeEnum {
 }
 
 export enum IntegrationTypeEnum {
-  Netsuite = 'netsuite'
+  Netsuite = 'netsuite',
+  Okta = 'okta'
 }
 
 export type Invite = {
@@ -2521,7 +2522,7 @@ export type Membership = {
   organization: Organization;
   permissions: Permissions;
   revokedAt: Scalars['ISO8601DateTime']['output'];
-  role?: Maybe<MembershipRole>;
+  role: MembershipRole;
   status: MembershipStatus;
   updatedAt: Scalars['ISO8601DateTime']['output'];
   user: User;
@@ -3174,7 +3175,7 @@ export type NetsuiteIntegration = {
   hasMappingsConfigured?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
-  scriptEndpointUrl?: Maybe<Scalars['String']['output']>;
+  scriptEndpointUrl: Scalars['String']['output'];
   syncCreditNotes?: Maybe<Scalars['Boolean']['output']>;
   syncInvoices?: Maybe<Scalars['Boolean']['output']>;
   syncPayments?: Maybe<Scalars['Boolean']['output']>;
@@ -6025,6 +6026,13 @@ export type BillableMetricsQueryVariables = Exact<{
 
 
 export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number }> } };
+
+export type GetCouponForDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetCouponForDetailsQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, code?: string | null, expirationAt?: any | null, name: string, frequency: CouponFrequency, reusable: boolean, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null } | null };
 
 export type CouponsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -13729,6 +13737,61 @@ export type BillableMetricsQueryHookResult = ReturnType<typeof useBillableMetric
 export type BillableMetricsLazyQueryHookResult = ReturnType<typeof useBillableMetricsLazyQuery>;
 export type BillableMetricsSuspenseQueryHookResult = ReturnType<typeof useBillableMetricsSuspenseQuery>;
 export type BillableMetricsQueryResult = Apollo.QueryResult<BillableMetricsQuery, BillableMetricsQueryVariables>;
+export const GetCouponForDetailsDocument = gql`
+    query getCouponForDetails($id: ID!) {
+  coupon(id: $id) {
+    id
+    amountCents
+    amountCurrency
+    code
+    expirationAt
+    name
+    frequency
+    reusable
+    billableMetrics {
+      id
+      name
+    }
+    plans {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCouponForDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetCouponForDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCouponForDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCouponForDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetCouponForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>(GetCouponForDetailsDocument, options);
+      }
+export function useGetCouponForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>(GetCouponForDetailsDocument, options);
+        }
+export function useGetCouponForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>(GetCouponForDetailsDocument, options);
+        }
+export type GetCouponForDetailsQueryHookResult = ReturnType<typeof useGetCouponForDetailsQuery>;
+export type GetCouponForDetailsLazyQueryHookResult = ReturnType<typeof useGetCouponForDetailsLazyQuery>;
+export type GetCouponForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetCouponForDetailsSuspenseQuery>;
+export type GetCouponForDetailsQueryResult = Apollo.QueryResult<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>;
 export const CouponsDocument = gql`
     query coupons($page: Int, $limit: Int, $searchTerm: String) {
   coupons(page: $page, limit: $limit, searchTerm: $searchTerm) {

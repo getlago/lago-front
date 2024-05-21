@@ -3,7 +3,7 @@ import { useFormik } from 'formik'
 import isEqual from 'lodash/isEqual'
 import { DateTime } from 'luxon'
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { date, number, object, string } from 'yup'
 
@@ -33,7 +33,7 @@ import {
 } from '~/components/form'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
-import { COUPONS_ROUTE } from '~/core/router'
+import { COUPON_DETAILS_ROUTE, COUPONS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   BillableMetricsForCouponsFragment,
@@ -173,6 +173,18 @@ const CreateCoupon = () => {
     ])
   }
 
+  const couponCloseRedirection = () => {
+    if (coupon?.id) {
+      navigate(
+        generatePath(COUPON_DETAILS_ROUTE, {
+          couponId: coupon.id,
+        }),
+      )
+    } else {
+      navigate(COUPONS_ROUTE)
+    }
+  }
+
   useEffect(() => {
     setShouldDisplayDescription(!!formikProps.initialValues.description)
   }, [formikProps.initialValues.description])
@@ -216,7 +228,7 @@ const CreateCoupon = () => {
           variant="quaternary"
           icon="close"
           onClick={() =>
-            formikProps.dirty ? warningDialogRef.current?.openDialog() : navigate(COUPONS_ROUTE)
+            formikProps.dirty ? warningDialogRef.current?.openDialog() : couponCloseRedirection()
           }
         />
       </PageHeader>
@@ -664,7 +676,7 @@ const CreateCoupon = () => {
         continueText={translate(
           isEdition ? 'text_6287a9bdac160c00b2e0fbfd' : 'text_62876e85e32e0300e180310b',
         )}
-        onContinue={() => navigate(COUPONS_ROUTE)}
+        onContinue={() => couponCloseRedirection()}
       />
 
       <AddPlanToCouponDialog

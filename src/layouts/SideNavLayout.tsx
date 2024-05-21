@@ -24,6 +24,7 @@ import {
   ANALYTIC_ROUTE,
   API_KEYS_ROUTE,
   BILLABLE_METRICS_ROUTE,
+  COUPON_DETAILS_ROUTE,
   COUPONS_ROUTE,
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
@@ -278,6 +279,7 @@ const SideNav = () => {
                     title: translate('text_62865498824cc10126ab2940'),
                     icon: 'coupon',
                     link: COUPONS_ROUTE,
+                    match: [COUPONS_ROUTE, COUPON_DETAILS_ROUTE],
                   },
                   {
                     title: translate('text_624efab67eb2570101d117a5'),

@@ -19,7 +19,7 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
-import { UPDATE_COUPON_ROUTE } from '~/core/router'
+import { COUPON_DETAILS_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
 import { CouponItemFragment, CouponStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
@@ -94,7 +94,7 @@ export const CouponItem = ({
         invalidWrapper={(children) => (
           <ListItemLink
             tabIndex={0}
-            to={generatePath(UPDATE_COUPON_ROUTE, { couponId })}
+            to={generatePath(COUPON_DETAILS_ROUTE, { couponId })}
             {...navigationProps}
           >
             {children}
@@ -194,7 +194,7 @@ export const CouponItem = ({
                   align="left"
                   fullWidth
                   onClick={() => {
-                    deleteDialogRef.current?.openDialog(coupon)
+                    deleteDialogRef.current?.openDialog({ coupon })
                     closePopper()
                   }}
                 >
