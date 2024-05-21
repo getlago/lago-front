@@ -83,7 +83,7 @@ export const PlanItem = memo(
               </Typography>
             </NameBlock>
           </PlanNameSection>
-          <PlanInfosSection>
+          <PlanInfosSection $shouldShowItemActions={shouldShowItemActions}>
             <MediumCell>{activeSubscriptionsCount}</MediumCell>
             <SmallCell>{chargesCount}</SmallCell>
             <MediumCell>{formatTimeOrgaTZ(createdAt)}</MediumCell>
@@ -186,9 +186,9 @@ const PlanNameSection = styled.div`
   min-width: 0;
 `
 
-const PlanInfosSection = styled.div`
+const PlanInfosSection = styled.div<{ $shouldShowItemActions?: boolean }>`
   display: flex;
-  margin-right: ${theme.spacing(6)};
+  margin-right: ${({ $shouldShowItemActions }) => ($shouldShowItemActions ? theme.spacing(6) : 0)};
 
   > *:not(:last-child) {
     margin-right: ${theme.spacing(6)};

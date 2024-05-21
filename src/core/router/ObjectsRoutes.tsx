@@ -118,6 +118,7 @@ export const objectListRoutes: CustomRouteObject[] = [
     path: ADD_ONS_ROUTE,
     private: true,
     element: <AddOnsList />,
+    permissions: ['addonsView'],
   },
   {
     path: [INVOICES_ROUTE, INVOICES_TAB_ROUTE],
@@ -131,6 +132,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     path: [CREATE_ADD_ON_ROUTE, UPDATE_ADD_ON_ROUTE],
     private: true,
     element: <CreateAddOn />,
+    permissions: ['addonsCreate', 'addonsUpdate'],
   },
   {
     path: [CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE],

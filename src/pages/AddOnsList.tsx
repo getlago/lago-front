@@ -13,6 +13,7 @@ import { AddOnItemFragmentDoc, useAddOnsLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { usePermissions } from '~/hooks/usePermissions'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { ListContainer, ListHeader, PageHeader, theme } from '~/styles'
@@ -37,6 +38,7 @@ gql`
 const AddOnsList = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
+  const { hasPermissions } = usePermissions()
   const deleteDialogRef = useRef<DeleteAddOnDialogRef>(null)
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `add-on-item-${i}`,
@@ -51,6 +53,7 @@ const AddOnsList = () => {
   const { debouncedSearch, isLoading } = useDebouncedSearch(getAddOns, loading)
   const list = data?.addOns?.collection || []
   let index = -1
+  const shouldShowItemActions = hasPermissions(['addonsCreate', 'addonsUpdate', 'addonsDelete'])
 
   return (
     <div role="grid" tabIndex={-1} onKeyDown={onKeyDown}>
@@ -63,14 +66,16 @@ const AddOnsList = () => {
             onChange={debouncedSearch}
             placeholder={translate('text_63bee4e10e2d53912bfe4db8')}
           />
-          <ButtonLink type="button" to={CREATE_ADD_ON_ROUTE} data-test="create-addon-cta">
-            {translate('text_629728388c4d2300e2d38085')}
-          </ButtonLink>
+          {hasPermissions(['addonsCreate']) && (
+            <ButtonLink type="button" to={CREATE_ADD_ON_ROUTE} data-test="create-addon-cta">
+              {translate('text_629728388c4d2300e2d38085')}
+            </ButtonLink>
+          )}
         </HeaderRigthBlock>
       </Header>
 
       <ListContainer>
-        <ListHead $withActions>
+        <ListHead $withActions={shouldShowItemActions}>
           <NameSection>
             <Typography color="disabled" variant="bodyHl">
               {translate('text_629728388c4d2300e2d380bd')}
@@ -151,6 +156,7 @@ const AddOnsList = () => {
                       key={addOn.id}
                       addOn={addOn}
                       deleteDialogRef={deleteDialogRef}
+                      shouldShowItemActions={shouldShowItemActions}
                       navigationProps={{
                         id: `add-on-item-${index}`,
                         'data-id': addOn.id,

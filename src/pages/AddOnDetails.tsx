@@ -12,6 +12,7 @@ import { ADD_ONS_ROUTE, UPDATE_ADD_ON_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, useGetAddOnForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader, theme } from '~/styles'
 import { DetailsInfoGrid, DetailsSectionTitle } from '~/styles/detailsPage'
 
@@ -35,6 +36,7 @@ gql`
 
 const AddOnDetails = () => {
   const navigate = useNavigate()
+  const { hasPermissions } = usePermissions()
   const { translate } = useInternationalization()
   const { addOnId } = useParams()
 
@@ -58,6 +60,8 @@ const AddOnDetails = () => {
     },
   )
 
+  const shouldShowActions = hasPermissions(['addonsCreate', 'addonsUpdate', 'addonsDelete'])
+
   return (
     <>
       <PageHeader $withSide>
@@ -80,44 +84,47 @@ const AddOnDetails = () => {
           )}
           <Typography variant="bodyHl" color="textSecondary" noWrap></Typography>
         </HeaderInlineBreadcrumbBlock>
-        <Popper
-          PopperProps={{ placement: 'bottom-end' }}
-          opener={
-            <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
-          }
-        >
-          {({ closePopper }) => (
-            <MenuPopper>
-              <Button
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  navigate(generatePath(UPDATE_ADD_ON_ROUTE, { addOnId: addOnId as string }))
-                  closePopper()
-                }}
-              >
-                {translate('text_625fd39a15394c0117e7d792')}
-              </Button>
-              {addOn && (
+
+        {shouldShowActions && (
+          <Popper
+            PopperProps={{ placement: 'bottom-end' }}
+            opener={
+              <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
+            }
+          >
+            {({ closePopper }) => (
+              <MenuPopper>
                 <Button
                   variant="quaternary"
                   align="left"
                   onClick={() => {
-                    deleteDialogRef.current?.openDialog({
-                      addOn,
-                      callback: () => {
-                        navigate(ADD_ONS_ROUTE)
-                      },
-                    })
+                    navigate(generatePath(UPDATE_ADD_ON_ROUTE, { addOnId: addOnId as string }))
                     closePopper()
                   }}
                 >
-                  {translate('text_629728388c4d2300e2d38182')}
+                  {translate('text_625fd39a15394c0117e7d792')}
                 </Button>
-              )}
-            </MenuPopper>
-          )}
-        </Popper>
+                {addOn && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    onClick={() => {
+                      deleteDialogRef.current?.openDialog({
+                        addOn,
+                        callback: () => {
+                          navigate(ADD_ONS_ROUTE)
+                        },
+                      })
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_629728388c4d2300e2d38182')}
+                  </Button>
+                )}
+              </MenuPopper>
+            )}
+          </Popper>
+        )}
       </PageHeader>
 
       {isAddOnLoading ? (

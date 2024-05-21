@@ -44,10 +44,16 @@ gql`
 interface AddOnItemProps {
   addOn: AddOnItemFragment
   deleteDialogRef: RefObject<DeleteAddOnDialogRef>
+  shouldShowItemActions: boolean
   navigationProps?: ListKeyNavigationItemProps
 }
 
-export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItemProps) => {
+export const AddOnItem = ({
+  addOn,
+  deleteDialogRef,
+  navigationProps,
+  shouldShowItemActions,
+}: AddOnItemProps) => {
   const { id: addOnId, name, amountCurrency, amountCents, customersCount, createdAt } = addOn
 
   const { translate } = useInternationalization()
@@ -83,61 +89,64 @@ export const AddOnItem = ({ addOn, deleteDialogRef, navigationProps }: AddOnItem
             </Typography>
           </NameBlock>
         </AddOnNameSection>
-        <CouponInfosSection>
+        <CouponInfosSection $shouldShowItemActions={shouldShowItemActions}>
           <SmallCell>{customersCount}</SmallCell>
           <MediumCell>{formatTimeOrgaTZ(createdAt)}</MediumCell>
         </CouponInfosSection>
-        <ButtonMock />
+        {shouldShowItemActions && <ButtonMock />}
       </ListItemLink>
-      <Popper
-        PopperProps={{ placement: 'bottom-end' }}
-        opener={({ isOpen }) => (
-          // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-          <PopperOpener>
-            <Tooltip
-              placement="top-end"
-              disableHoverListener={isOpen}
-              title={translate('text_629728388c4d2300e2d3810d')}
-            >
-              <Button icon="dots-horizontal" variant="quaternary" />
-            </Tooltip>
-          </PopperOpener>
-        )}
-      >
-        {({ closePopper }) => (
-          <MenuPopper>
-            <ButtonLink
-              to={generatePath(UPDATE_ADD_ON_ROUTE, { addOnId })}
-              type="button"
-              buttonProps={{
-                variant: 'quaternary',
-                startIcon: 'pen',
-                align: 'left',
-                fullWidth: true,
-              }}
-            >
-              {translate('text_629728388c4d2300e2d3816a')}
-            </ButtonLink>
-            <Button
-              startIcon="trash"
-              variant="quaternary"
-              align="left"
-              fullWidth
-              onClick={() => {
-                deleteDialogRef.current?.openDialog({
-                  addOn,
-                  callback: () => {
-                    navigate(ADD_ONS_ROUTE)
-                  },
-                })
-                closePopper()
-              }}
-            >
-              {translate('text_629728388c4d2300e2d38182')}
-            </Button>
-          </MenuPopper>
-        )}
-      </Popper>
+
+      {shouldShowItemActions && (
+        <Popper
+          PopperProps={{ placement: 'bottom-end' }}
+          opener={({ isOpen }) => (
+            // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+            <PopperOpener>
+              <Tooltip
+                placement="top-end"
+                disableHoverListener={isOpen}
+                title={translate('text_629728388c4d2300e2d3810d')}
+              >
+                <Button icon="dots-horizontal" variant="quaternary" />
+              </Tooltip>
+            </PopperOpener>
+          )}
+        >
+          {({ closePopper }) => (
+            <MenuPopper>
+              <ButtonLink
+                to={generatePath(UPDATE_ADD_ON_ROUTE, { addOnId })}
+                type="button"
+                buttonProps={{
+                  variant: 'quaternary',
+                  startIcon: 'pen',
+                  align: 'left',
+                  fullWidth: true,
+                }}
+              >
+                {translate('text_629728388c4d2300e2d3816a')}
+              </ButtonLink>
+              <Button
+                startIcon="trash"
+                variant="quaternary"
+                align="left"
+                fullWidth
+                onClick={() => {
+                  deleteDialogRef.current?.openDialog({
+                    addOn,
+                    callback: () => {
+                      navigate(ADD_ONS_ROUTE)
+                    },
+                  })
+                  closePopper()
+                }}
+              >
+                {translate('text_629728388c4d2300e2d38182')}
+              </Button>
+            </MenuPopper>
+          )}
+        </Popper>
+      )}
     </ItemContainer>
   )
 }
@@ -167,9 +176,9 @@ const NameBlock = styled.div`
   min-width: 0;
 `
 
-const CouponInfosSection = styled.div`
+const CouponInfosSection = styled.div<{ $shouldShowItemActions: boolean }>`
   display: flex;
-  margin-right: ${theme.spacing(6)};
+  margin-right: ${({ $shouldShowItemActions }) => ($shouldShowItemActions ? theme.spacing(6) : 0)};
 
   > *:not(:last-child) {
     margin-right: ${theme.spacing(6)};
