@@ -1,41 +1,52 @@
 import { Typography } from '@mui/material'
+import { ReactNode } from 'react'
 import styled from 'styled-components'
 
 import { HEADER_TABLE_HEIGHT, theme } from '~/styles'
 
 type DetailsTableDisplayData = {
-  header: Array<string>
-  body: Array<Array<string | number>>
+  header: Array<string | ReactNode>
+  body?: Array<Array<string | number | ReactNode>>
 }
 
 const DetailsTableDisplay = (data: DetailsTableDisplayData) => {
   return (
-    <StyledTable $dataLength={data.header.length || 1}>
+    <StyledTable $dataLength={data.header.length || 1} $hasBodyData={!!data.body?.length}>
       <thead>
         <tr>
           {data.header.map((header, index) => (
             <th key={`details-table-display-header-${index}`}>
-              <Typography variant="captionHl">{header}</Typography>
+              {typeof header === 'object' ? (
+                header
+              ) : (
+                <Typography variant="captionHl">{header}</Typography>
+              )}
             </th>
           ))}
         </tr>
       </thead>
-      <tbody>
-        {data.body.map((values, i) => (
-          <tr key={`details-table-display-body-tr-${i}`}>
-            {values.map((value, j) => (
-              <td key={`details-table-display-tr-${i}-td-${j}`}>
-                <Typography variant="body">{value}</Typography>
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
+      {!!data.body?.length && (
+        <tbody>
+          {data.body.map((values, i) => (
+            <tr key={`details-table-display-body-tr-${i}`}>
+              {values.map((value, j) => (
+                <td key={`details-table-display-tr-${i}-td-${j}`}>
+                  {typeof value === 'object' ? (
+                    value
+                  ) : (
+                    <Typography variant="body">{value}</Typography>
+                  )}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      )}
     </StyledTable>
   )
 }
 
-const StyledTable = styled.table<{ $dataLength: number }>`
+const StyledTable = styled.table<{ $dataLength: number; $hasBodyData: boolean }>`
   width: 100%;
   border-spacing: 0;
   table-layout: ${({ $dataLength }) => ($dataLength > 3 ? 'auto' : 'fixed')};
@@ -54,7 +65,7 @@ const StyledTable = styled.table<{ $dataLength: number }>`
     vertical-align: middle;
     padding: 0 ${theme.spacing(4)};
     box-sizing: border-box;
-    box-shadow: ${theme.shadows[7]};
+    box-shadow: ${({ $hasBodyData }) => ($hasBodyData ? theme.shadows[7] : 'none')};
     background-color: ${theme.palette.grey[100]};
   }
 
