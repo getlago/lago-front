@@ -62,7 +62,7 @@ export const NavigationTab = ({
 
   return (
     <Container $vertical={orientation === NavigationTabOrientationEnum.vertical}>
-      {tabs.length > 1 && (
+      {!loading && tabs.length > 1 && (
         <TabsBlock className={`navigation-tab--${orientation}`} $align={align}>
           {tabs.map((tab, i) => {
             const { link, hidden, title, beta, external, ...props } = tab

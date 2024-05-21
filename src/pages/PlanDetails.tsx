@@ -30,6 +30,7 @@ import {
   useGetPlanForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader, theme } from '~/styles'
 
 export enum PlanDetailsTabsOptionsEnum {
@@ -55,6 +56,7 @@ gql`
 
 const PlanDetails = () => {
   const navigate = useNavigate()
+  const { hasPermissions } = usePermissions()
   const { customerId, planId, subscriptionId } = useParams()
   const { translate } = useInternationalization()
   const deletePlanDialogRef = useRef<DeletePlanDialogRef>(null)
@@ -63,6 +65,7 @@ const PlanDetails = () => {
     skip: !planId,
   })
   const plan = planResult?.plan
+  const shouldShowActions = hasPermissions(['plansCreate', 'plansUpdate', 'plansDelete'])
 
   useEffect(() => {
     // WARNING: This page should not be used to show overriden plan's details
@@ -104,56 +107,58 @@ const PlanDetails = () => {
           )}
           <Typography variant="bodyHl" color="textSecondary" noWrap></Typography>
         </HeaderInlineBreadcrumbBlock>
-        <Popper
-          PopperProps={{ placement: 'bottom-end' }}
-          opener={
-            <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
-          }
-        >
-          {({ closePopper }) => (
-            <MenuPopper>
-              <Button
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  navigate(generatePath(UPDATE_PLAN_ROUTE, { planId: plan?.id as string }))
-                  closePopper()
-                }}
-              >
-                {translate('text_65281f686a80b400c8e2f6b3')}
-              </Button>
-              <Button
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  updateDuplicatePlanVar({
-                    type: 'duplicate',
-                    parentId: plan?.id,
-                  })
-                  navigate(CREATE_PLAN_ROUTE)
-                  closePopper()
-                }}
-              >
-                {translate('text_65281f686a80b400c8e2f6b6')}
-              </Button>
-              <Button
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  deletePlanDialogRef.current?.openDialog({
-                    plan: plan as DeletePlanDialogFragment,
-                    callback: () => {
-                      navigate(PLANS_ROUTE)
-                    },
-                  })
-                  closePopper()
-                }}
-              >
-                {translate('text_625fd165963a7b00c8f597b5')}
-              </Button>
-            </MenuPopper>
-          )}
-        </Popper>
+        {shouldShowActions && (
+          <Popper
+            PopperProps={{ placement: 'bottom-end' }}
+            opener={
+              <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
+            }
+          >
+            {({ closePopper }) => (
+              <MenuPopper>
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    navigate(generatePath(UPDATE_PLAN_ROUTE, { planId: plan?.id as string }))
+                    closePopper()
+                  }}
+                >
+                  {translate('text_65281f686a80b400c8e2f6b3')}
+                </Button>
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    updateDuplicatePlanVar({
+                      type: 'duplicate',
+                      parentId: plan?.id,
+                    })
+                    navigate(CREATE_PLAN_ROUTE)
+                    closePopper()
+                  }}
+                >
+                  {translate('text_65281f686a80b400c8e2f6b6')}
+                </Button>
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    deletePlanDialogRef.current?.openDialog({
+                      plan: plan as DeletePlanDialogFragment,
+                      callback: () => {
+                        navigate(PLANS_ROUTE)
+                      },
+                    })
+                    closePopper()
+                  }}
+                >
+                  {translate('text_625fd165963a7b00c8f597b5')}
+                </Button>
+              </MenuPopper>
+            )}
+          </Popper>
+        )}
       </PageHeader>
       <PlanBlockWrapper>
         <Avatar variant="connector" size="large">
