@@ -1,4 +1,4 @@
-/* eslint no-console: ["error", { allow: ["info", "warn"] }] */
+/* eslint no-console: ["error", { allow: ["info"] }] */
 const fs = require('fs')
 const path = require('path')
 
@@ -81,8 +81,8 @@ async function extract(replaceMode) {
               let fileContent = fs.readFileSync(filePath, 'utf-8')
 
               // Perform a global replace for all occurrences of the translation string
-              const regex = new RegExp(`TODO: ${translation}`, 'g')
-              const replacedContent = fileContent.replace(regex, key)
+              const regex = new RegExp(`'TODO: ${translation}'`, 'gi')
+              const replacedContent = fileContent.replace(regex, `'${key}'`)
 
               // Check if replacement occurred in this file
               if (replacedContent !== fileContent) {
