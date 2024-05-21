@@ -14,6 +14,7 @@ import {
   useRemoveCouponMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
 
@@ -58,6 +59,7 @@ gql`
 
 export const CustomerCoupons = memo(() => {
   const { customerId } = useParams()
+  const { hasPermissions } = usePermissions()
   const removeDialogRef = useRef<WarningDialogRef>(null)
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
   const deleteCouponId = useRef<string | null>(null)
@@ -114,16 +116,21 @@ export const CustomerCoupons = memo(() => {
                   variant="caption"
                 />
               </NameBlock>
-              <DeleteTooltip placement="top-end" title={translate('text_628b8c693e464200e00e4a10')}>
-                <Button
-                  variant="quaternary"
-                  icon="trash"
-                  onClick={() => {
-                    deleteCouponId.current = appliedCoupon.id
-                    removeDialogRef?.current?.openDialog()
-                  }}
-                />
-              </DeleteTooltip>
+              {hasPermissions(['couponsDetach']) && (
+                <DeleteTooltip
+                  placement="top-end"
+                  title={translate('text_628b8c693e464200e00e4a10')}
+                >
+                  <Button
+                    variant="quaternary"
+                    icon="trash"
+                    onClick={() => {
+                      deleteCouponId.current = appliedCoupon.id
+                      removeDialogRef?.current?.openDialog()
+                    }}
+                  />
+                </DeleteTooltip>
+              )}
             </CouponNameSection>
           ))}
         </Container>

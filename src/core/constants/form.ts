@@ -1,4 +1,4 @@
-import { PlanInterval } from '~/generated/graphql'
+import { CouponFrequency, CouponTypeEnum, PlanInterval } from '~/generated/graphql'
 
 /**** Errors ****/
 export enum FORM_ERRORS_ENUM {
@@ -48,4 +48,15 @@ export const getIntervalTranslationKey = {
   [PlanInterval.Quarterly]: 'text_64d6357b00dea100ad1cb9e9',
   [PlanInterval.Weekly]: 'text_62b32ec6b0434070791c2d4c',
   [PlanInterval.Yearly]: 'text_624453d52e945301380e49ac',
+}
+
+export const getCouponTypeTranslationKey = {
+  [CouponTypeEnum.FixedAmount]: 'text_632d68358f1fedc68eed3e60',
+  [CouponTypeEnum.Percentage]: 'text_632d68358f1fedc68eed3e66',
+}
+
+export const getCouponFrequencyTranslationKey = {
+  [CouponFrequency.Once]: 'text_632d68358f1fedc68eed3ea3',
+  [CouponFrequency.Recurring]: 'text_632d68358f1fedc68eed3e64',
+  [CouponFrequency.Forever]: 'text_63c83a3476e46bc6ab9d85d6',
 }

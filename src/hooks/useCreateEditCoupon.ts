@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
-import { COUPONS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
+import { COUPON_DETAILS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   BillableMetricsForCouponsFragment,
@@ -115,9 +115,7 @@ const formatCouponInput = (
     percentageRate:
       values.couponType === CouponTypeEnum.Percentage ? Number(percentageRate) : undefined,
     expirationAt:
-      values.expiration === CouponExpiration.NoExpiration && expirationAt
-        ? undefined
-        : expirationAt,
+      values.expiration === CouponExpiration.NoExpiration && expirationAt ? null : expirationAt,
     frequencyDuration:
       values.frequency === CouponFrequency.Recurring ? frequencyDuration : undefined,
     appliesTo: {
@@ -160,7 +158,7 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
           severity: 'success',
           translateKey: 'text_633336532bdf72cb62dc0690',
         })
-        navigate(COUPONS_ROUTE)
+        navigate(generatePath(COUPON_DETAILS_ROUTE, { couponId: createCoupon.id }))
       }
     },
   })
@@ -172,7 +170,7 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
           severity: 'success',
           translateKey: 'text_6287a9bdac160c00b2e0fc81',
         })
-        navigate(COUPONS_ROUTE)
+        navigate(generatePath(COUPON_DETAILS_ROUTE, { couponId: updateCoupon.id }))
       }
     },
   })

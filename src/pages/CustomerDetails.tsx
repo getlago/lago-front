@@ -47,6 +47,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
@@ -98,6 +99,7 @@ const CustomerDetails = () => {
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
+  const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
   const { customerId, tab } = useParams()
   const { data, loading, error } = useGetCustomerQuery({
@@ -205,17 +207,19 @@ const CustomerDetails = () => {
                 >
                   {translate('text_6453819268763979024ad083')}
                 </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    addCouponDialogRef.current?.openDialog()
-                    closePopper()
-                  }}
-                  data-test="apply-coupon-action"
-                >
-                  {translate('text_628b8dc14c71840130f8d8a1')}
-                </Button>
+                {hasPermissions(['couponsAttach']) && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    onClick={() => {
+                      addCouponDialogRef.current?.openDialog()
+                      closePopper()
+                    }}
+                    data-test="apply-coupon-action"
+                  >
+                    {translate('text_628b8dc14c71840130f8d8a1')}
+                  </Button>
+                )}
                 <Button
                   variant="quaternary"
                   align="left"
