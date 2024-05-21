@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
 import { useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Icon } from '~/components/designSystem'
 import { hasDefinedGQLError, LagoGQLError, onLogIn } from '~/core/apolloClient'
-import { LOGIN_OKTA, LOGIN_ROUTE } from '~/core/router'
+import { INVITATION_ROUTE_FORM, LOGIN_OKTA, LOGIN_ROUTE } from '~/core/router'
 import { CurrentUserFragmentDoc, LagoApiError, useOktaLoginUserMutation } from '~/generated/graphql'
 
 gql`
@@ -30,13 +30,27 @@ const OktaAuthCallback = () => {
   })
 
   const [searchParams] = useSearchParams()
-  const code = searchParams.get('code')
-  const state = searchParams.get('state')
+  const code = searchParams.get('code') || ''
+  const state = JSON.parse(searchParams.get('state') || '{}')
+
+  const oktaState = state.state || ''
+  const invitationToken = state.invitationToken || undefined
+
+  if (!code) {
+    navigate(LOGIN_ROUTE)
+  }
 
   useEffect(() => {
     const oktaCallback = async () => {
-      if (code && state) {
-        const res = await oktaLoginUser({ variables: { input: { code, state } } })
+      if (invitationToken) {
+        navigate({
+          pathname: generatePath(INVITATION_ROUTE_FORM, {
+            token: invitationToken as string,
+          }),
+          search: `?oktaCode=${code}&oktaState=${oktaState}`,
+        })
+      } else {
+        const res = await oktaLoginUser({ variables: { input: { code, state: oktaState } } })
 
         if (res.errors) {
           if (hasDefinedGQLError('OktaUserinfoError', res.errors)) {
@@ -55,8 +69,6 @@ const OktaAuthCallback = () => {
         } else if (!!res.data?.oktaLogin) {
           onLogIn(res.data?.oktaLogin?.token, res.data?.oktaLogin?.user)
         }
-      } else {
-        navigate(LOGIN_ROUTE)
       }
     }
 

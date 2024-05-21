@@ -6210,6 +6210,13 @@ export type GoogleAcceptInviteMutationVariables = Exact<{
 
 export type GoogleAcceptInviteMutation = { __typename?: 'Mutation', googleAcceptInvite?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
 
+export type OktaAcceptInviteMutationVariables = Exact<{
+  input: OktaAcceptInviteInput;
+}>;
+
+
+export type OktaAcceptInviteMutation = { __typename?: 'Mutation', oktaAcceptInvite?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
+
 export type GetInvoiceCreditNotesQueryVariables = Exact<{
   invoiceId: Scalars['ID']['input'];
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -14839,6 +14846,43 @@ export function useGoogleAcceptInviteMutation(baseOptions?: Apollo.MutationHookO
 export type GoogleAcceptInviteMutationHookResult = ReturnType<typeof useGoogleAcceptInviteMutation>;
 export type GoogleAcceptInviteMutationResult = Apollo.MutationResult<GoogleAcceptInviteMutation>;
 export type GoogleAcceptInviteMutationOptions = Apollo.BaseMutationOptions<GoogleAcceptInviteMutation, GoogleAcceptInviteMutationVariables>;
+export const OktaAcceptInviteDocument = gql`
+    mutation oktaAcceptInvite($input: OktaAcceptInviteInput!) {
+  oktaAcceptInvite(input: $input) {
+    token
+    user {
+      id
+      ...CurrentUser
+    }
+  }
+}
+    ${CurrentUserFragmentDoc}`;
+export type OktaAcceptInviteMutationFn = Apollo.MutationFunction<OktaAcceptInviteMutation, OktaAcceptInviteMutationVariables>;
+
+/**
+ * __useOktaAcceptInviteMutation__
+ *
+ * To run a mutation, you first call `useOktaAcceptInviteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useOktaAcceptInviteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [oktaAcceptInviteMutation, { data, loading, error }] = useOktaAcceptInviteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useOktaAcceptInviteMutation(baseOptions?: Apollo.MutationHookOptions<OktaAcceptInviteMutation, OktaAcceptInviteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<OktaAcceptInviteMutation, OktaAcceptInviteMutationVariables>(OktaAcceptInviteDocument, options);
+      }
+export type OktaAcceptInviteMutationHookResult = ReturnType<typeof useOktaAcceptInviteMutation>;
+export type OktaAcceptInviteMutationResult = Apollo.MutationResult<OktaAcceptInviteMutation>;
+export type OktaAcceptInviteMutationOptions = Apollo.BaseMutationOptions<OktaAcceptInviteMutation, OktaAcceptInviteMutationVariables>;
 export const GetInvoiceCreditNotesDocument = gql`
     query getInvoiceCreditNotes($invoiceId: ID!, $page: Int, $limit: Int) {
   invoiceCreditNotes(invoiceId: $invoiceId, page: $page, limit: $limit) {

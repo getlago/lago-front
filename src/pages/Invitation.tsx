@@ -12,12 +12,15 @@ import { TextInput } from '~/components/form'
 import { hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
 import { DOCUMENTATION_ENV_VARS } from '~/core/constants/externalUrls'
 import { LOGIN_ROUTE } from '~/core/router'
+import { addValuesToUrlState } from '~/core/utils/urlUtils'
 import {
   CurrentUserFragmentDoc,
   LagoApiError,
   useAcceptInviteMutation,
+  useFetchOktaAuthorizeUrlMutation,
   useGetinviteQuery,
   useGoogleAcceptInviteMutation,
+  useOktaAcceptInviteMutation,
 } from '~/generated/graphql'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -57,6 +60,22 @@ gql`
     }
   }
 
+  mutation fetchOktaAuthorizeUrl($input: OktaAuthorizeInput!) {
+    oktaAuthorize(input: $input) {
+      url
+    }
+  }
+
+  mutation oktaAcceptInvite($input: OktaAcceptInviteInput!) {
+    oktaAcceptInvite(input: $input) {
+      token
+      user {
+        id
+        ...CurrentUser
+      }
+    }
+  }
+
   ${CurrentUserFragmentDoc}
 `
 
@@ -84,20 +103,26 @@ const Invitation = () => {
   const { token } = useParams()
   let [searchParams] = useSearchParams()
   const googleCode = searchParams.get('code') || ''
+  const oktaCode = searchParams.get('oktaCode') || ''
+  const oktaState = searchParams.get('oktaState') || ''
+
   const { data, error, loading } = useGetinviteQuery({
     context: { silentErrorCodes: [LagoApiError.InviteNotFound] },
     variables: { token: token || '' },
     skip: !token || isAuthenticated, // We need to skip when authenticated to prevent an error flash on the form after submit
   })
   const email = data?.invite?.email
-  const [acceptInvite, { error: acceptInviteError }] = useAcceptInviteMutation({
-    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    onCompleted(res) {
-      if (!!res?.acceptInvite) {
-        onLogIn(res?.acceptInvite.token, res?.acceptInvite?.user)
-      }
-    },
-  })
+
+  const [acceptInvite, { error: acceptInviteError, loading: acceptInviteLoading }] =
+    useAcceptInviteMutation({
+      context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+      onCompleted(res) {
+        if (!!res?.acceptInvite) {
+          onLogIn(res?.acceptInvite.token, res?.acceptInvite?.user)
+        }
+      },
+    })
+
   const [googleAcceptInvite, { error: googleAcceptInviteError }] = useGoogleAcceptInviteMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted(res) {
@@ -106,6 +131,25 @@ const Invitation = () => {
       }
     },
   })
+
+  const [
+    fetchOktaAuthorizeUrl,
+    { error: oktaAuthorizeUrlError, loading: oktaAuthorizeUrlLoading },
+  ] = useFetchOktaAuthorizeUrlMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    fetchPolicy: 'network-only',
+  })
+
+  const [oktaAcceptInvite, { error: oktaAcceptInviteError, loading: oktaAcceptInviteLoading }] =
+    useOktaAcceptInviteMutation({
+      context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+      onCompleted(res) {
+        if (!!res?.oktaAcceptInvite) {
+          onLogIn(res?.oktaAcceptInvite.token, res?.oktaAcceptInvite?.user)
+        }
+      },
+    })
+
   const [formFields, setFormFields] = useState<Fields>({
     password: '',
   })
@@ -136,6 +180,26 @@ const Invitation = () => {
     })
   }
 
+  const onOktaLogin = async () => {
+    const { data: oktaAuthorizeData } = await fetchOktaAuthorizeUrl({
+      variables: {
+        input: {
+          email: email || '',
+        },
+      },
+    })
+
+    if (oktaAuthorizeData?.oktaAuthorize?.url) {
+      window.location.href = addValuesToUrlState({
+        url: oktaAuthorizeData.oktaAuthorize.url,
+        values: {
+          invitationToken: token || '',
+        },
+        stateType: 'string',
+      })
+    }
+  }
+
   useEffect(() => {
     validationSchema
       .validate(formFields, { abortEarly: false })
@@ -163,8 +227,29 @@ const Invitation = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [googleCode, token])
 
+  useEffect(() => {
+    if (!!oktaCode && !!oktaState && !!token) {
+      oktaAcceptInvite({
+        variables: {
+          input: {
+            code: oktaCode,
+            state: oktaState,
+            inviteToken: token || '',
+          },
+        },
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [oktaCode, oktaState, token])
+
   const errorTranslation: string | undefined = useMemo(() => {
-    if (!acceptInviteError && !googleAcceptInviteError) return
+    if (
+      !acceptInviteError &&
+      !googleAcceptInviteError &&
+      !oktaAcceptInviteError &&
+      !oktaAuthorizeUrlError
+    )
+      return
 
     // If any error occur, we need to remove the code from the URL
     history.replaceState({}, '', window.location.pathname)
@@ -182,10 +267,20 @@ const Invitation = () => {
       return translate('text_660bf95c75dd928ced0ecb2b')
     }
 
+    if (hasDefinedGQLError('DomainNotConfigured', oktaAuthorizeUrlError)) {
+      return translate(
+        'TODO: Oops! Looks like your Okta provider was not assigned for this domain, please contact an admin.',
+      )
+    }
+
+    if (hasDefinedGQLError('OktaUserinfoError', oktaAcceptInviteError)) {
+      return translate('text_664c98989d08a3f733357f73')
+    }
+
     return
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [acceptInviteError, googleAcceptInviteError])
+  }, [acceptInviteError, googleAcceptInviteError, oktaAcceptInviteError, oktaAuthorizeUrlError])
 
   useShortcuts([
     {
@@ -227,11 +322,24 @@ const Invitation = () => {
               </Alert>
             )}
 
-            <GoogleAuthButton
-              mode="invite"
-              invitationToken={token || ''}
-              label={translate('text_660bf95c75dd928ced0ecb37')}
-            />
+            <Stack spacing={4}>
+              <GoogleAuthButton
+                mode="invite"
+                invitationToken={token || ''}
+                label={translate('text_660bf95c75dd928ced0ecb37')}
+              />
+
+              <Button
+                fullWidth
+                startIcon="okta"
+                size="large"
+                variant="tertiary"
+                onClick={() => onOktaLogin()}
+                loading={oktaAuthorizeUrlLoading || oktaAcceptInviteLoading || acceptInviteLoading}
+              >
+                {translate('TODO: Join with Okta')}
+              </Button>
+            </Stack>
 
             <OrSeparator>
               <Typography variant="captionHl" color="grey500">
