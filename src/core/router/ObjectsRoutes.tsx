@@ -113,6 +113,7 @@ export const objectListRoutes: CustomRouteObject[] = [
     path: COUPONS_ROUTE,
     private: true,
     element: <CouponsList />,
+    permissions: ['couponsView'],
   },
   {
     path: ADD_ONS_ROUTE,
@@ -136,6 +137,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     path: [CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE],
     private: true,
     element: <CreateCoupon />,
+    permissions: ['couponsCreate', 'couponsUpdate'],
   },
   {
     path: [CREATE_BILLABLE_METRIC_ROUTE, UPDATE_BILLABLE_METRIC_ROUTE],

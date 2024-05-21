@@ -21,6 +21,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { usePermissions } from '~/hooks/usePermissions'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { ListContainer, ListHeader, PageHeader, theme } from '~/styles'
@@ -46,6 +47,7 @@ gql`
 const CouponsList = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
+  const { hasPermissions } = usePermissions()
   const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
   const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
   const { onKeyDown } = useListKeysNavigation({
@@ -61,6 +63,7 @@ const CouponsList = () => {
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCoupons, loading)
   const list = data?.coupons?.collection || []
   let index = -1
+  const shouldShowItemActions = hasPermissions(['couponsCreate', 'couponsUpdate', 'couponsDelete'])
 
   return (
     <div role="grid" tabIndex={-1} onKeyDown={onKeyDown}>
@@ -80,7 +83,7 @@ const CouponsList = () => {
       </Header>
 
       <ListContainer>
-        <ListHead $withActions>
+        <ListHead $withActions={shouldShowItemActions}>
           <CouponSection>
             <Typography color="disabled" variant="bodyHl">
               {translate('text_62865498824cc10126ab2960')}
@@ -164,6 +167,7 @@ const CouponsList = () => {
                       key={coupon.id}
                       coupon={coupon}
                       deleteDialogRef={deleteDialogRef}
+                      shouldShowItemActions={shouldShowItemActions}
                       terminateDialogRef={terminateDialogRef}
                       navigationProps={{
                         id: `coupon-item-${index}`,
