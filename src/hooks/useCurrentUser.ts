@@ -53,7 +53,7 @@ export const useCurrentUser: UseCurrentUser = () => {
 
   return {
     currentUser: data?.currentUser,
-    currentMembership: data?.currentUser.memberships.find(
+    currentMembership: data?.currentUser?.memberships?.find(
       (membership) => membership.organization.id === currentOrganizationId,
     ),
     isPremium: data?.currentUser.premium || false,
