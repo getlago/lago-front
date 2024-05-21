@@ -1,9 +1,26 @@
-export const addValuesToUrlState = (url: string, values: Record<string, string>) => {
+export const addValuesToUrlState = ({
+  url,
+  values,
+  stateType,
+}: {
+  url: string
+  values: Record<string, string>
+  stateType: 'string' | 'object'
+}) => {
   let urlObj = new URL(url)
   let urlSearchParams = urlObj.searchParams
-  let state = JSON.parse(urlSearchParams.get('state') || ('{}' as string))
 
-  state = { ...state, ...values }
+  const oldState = urlSearchParams.get('state') || ('{}' as string)
+
+  let state = {}
+
+  if (stateType === 'string') {
+    state = { state: oldState, ...values }
+  } else if (stateType === 'object') {
+    const parsedState = JSON.parse(oldState)
+
+    state = { ...parsedState, ...values }
+  }
 
   urlSearchParams.set('state', decodeURI(JSON.stringify(state)))
   urlObj.search = urlSearchParams.toString()

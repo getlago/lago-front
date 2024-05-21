@@ -103,9 +103,13 @@ const GoogleAuthButton = ({
           }
 
           if (data?.googleAuthUrl?.url) {
-            window.location.href = addValuesToUrlState(data.googleAuthUrl.url, {
-              mode,
-              ...(!!invitationToken && { invitationToken }),
+            window.location.href = addValuesToUrlState({
+              url: data.googleAuthUrl.url,
+              stateType: 'object',
+              values: {
+                mode,
+                ...(!!invitationToken && { invitationToken }),
+              },
             })
           }
         }}
