@@ -80,6 +80,7 @@ const OktaAuthenticationDetails = () => {
   }
 
   if (!integration) {
+    navigate(AUTHENTICATION_ROUTE)
     return null
   }
 
@@ -96,7 +97,7 @@ const OktaAuthenticationDetails = () => {
             <Skeleton variant="text" height={12} width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
-              {integration.name}
+              {translate('text_664c732c264d7eed1c74fda2')}
             </Typography>
           )}
         </HeaderBlock>
@@ -122,7 +123,7 @@ const OktaAuthenticationDetails = () => {
                   })
                 }}
               >
-                {translate('TODO: Edit connection')}
+                {translate('text_664c732c264d7eed1c74fdaa')}
               </Button>
               <Button
                 variant="quaternary"
@@ -136,7 +137,7 @@ const OktaAuthenticationDetails = () => {
                   })
                 }}
               >
-                {translate('TODO: Delete connection')}
+                {translate('text_664c732c264d7eed1c74fdb0')}
               </Button>
             </MenuPopper>
           )}
@@ -159,10 +160,12 @@ const OktaAuthenticationDetails = () => {
             </StyledAvatar>
             <div>
               <Line>
-                <Typography variant="headline">{integration.name}</Typography>
+                <Typography variant="headline">
+                  {translate('text_664c732c264d7eed1c74fda2')}
+                </Typography>
                 <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
               </Line>
-              <Typography>{translate('TODO: Identity provider')}</Typography>
+              <Typography>{translate('text_664c732c264d7eed1c74fdbd')}</Typography>
             </div>
           </>
         )}
@@ -171,7 +174,7 @@ const OktaAuthenticationDetails = () => {
       <Settings>
         <section>
           <InlineTitle>
-            <Typography variant="subhead">{translate('TODO: Connection details')}</Typography>
+            <Typography variant="subhead">{translate('text_664c732c264d7eed1c74fdc5')}</Typography>
             <Button
               variant="quaternary"
               disabled={loading}
@@ -195,22 +198,22 @@ const OktaAuthenticationDetails = () => {
               <>
                 <PropertyListItem
                   icon="globe"
-                  label={translate('TODO: Domain name')}
+                  label={translate('text_664c732c264d7eed1c74fd94')}
                   value={integration.domain}
                 />
                 <PropertyListItem
                   icon="key"
-                  label={translate('TODO: Okta public key')}
+                  label={translate('text_664c732c264d7eed1c74fda6')}
                   value={integration.clientId || 'N/A'}
                 />
                 <PropertyListItem
                   icon="key"
-                  label={translate('TODO: Okta private key')}
+                  label={translate('text_664c732c264d7eed1c74fdb2')}
                   value={integration.clientSecret || 'N/A'}
                 />
                 <PropertyListItem
                   icon="text"
-                  label={translate('TODO: Okta organization name')}
+                  label={translate('text_664c732c264d7eed1c74fdbb')}
                   value={integration.organizationName}
                 />
               </>

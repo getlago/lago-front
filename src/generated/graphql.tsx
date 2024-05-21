@@ -6210,6 +6210,13 @@ export type GoogleAcceptInviteMutationVariables = Exact<{
 
 export type GoogleAcceptInviteMutation = { __typename?: 'Mutation', googleAcceptInvite?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
 
+export type FetchOktaAuthorizeUrlMutationVariables = Exact<{
+  input: OktaAuthorizeInput;
+}>;
+
+
+export type FetchOktaAuthorizeUrlMutation = { __typename?: 'Mutation', oktaAuthorize?: { __typename?: 'Authorize', url: string } | null };
+
 export type OktaAcceptInviteMutationVariables = Exact<{
   input: OktaAcceptInviteInput;
 }>;
@@ -6320,13 +6327,6 @@ export type LoginUserMutationVariables = Exact<{
 
 
 export type LoginUserMutation = { __typename?: 'Mutation', loginUser?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
-
-export type FetchOktaAuthorizeUrlMutationVariables = Exact<{
-  input: OktaAuthorizeInput;
-}>;
-
-
-export type FetchOktaAuthorizeUrlMutation = { __typename?: 'Mutation', oktaAuthorize?: { __typename?: 'Authorize', url: string } | null };
 
 export type OktaLoginUserMutationVariables = Exact<{
   input: OktaLoginInput;
@@ -14846,6 +14846,39 @@ export function useGoogleAcceptInviteMutation(baseOptions?: Apollo.MutationHookO
 export type GoogleAcceptInviteMutationHookResult = ReturnType<typeof useGoogleAcceptInviteMutation>;
 export type GoogleAcceptInviteMutationResult = Apollo.MutationResult<GoogleAcceptInviteMutation>;
 export type GoogleAcceptInviteMutationOptions = Apollo.BaseMutationOptions<GoogleAcceptInviteMutation, GoogleAcceptInviteMutationVariables>;
+export const FetchOktaAuthorizeUrlDocument = gql`
+    mutation fetchOktaAuthorizeUrl($input: OktaAuthorizeInput!) {
+  oktaAuthorize(input: $input) {
+    url
+  }
+}
+    `;
+export type FetchOktaAuthorizeUrlMutationFn = Apollo.MutationFunction<FetchOktaAuthorizeUrlMutation, FetchOktaAuthorizeUrlMutationVariables>;
+
+/**
+ * __useFetchOktaAuthorizeUrlMutation__
+ *
+ * To run a mutation, you first call `useFetchOktaAuthorizeUrlMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useFetchOktaAuthorizeUrlMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [fetchOktaAuthorizeUrlMutation, { data, loading, error }] = useFetchOktaAuthorizeUrlMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useFetchOktaAuthorizeUrlMutation(baseOptions?: Apollo.MutationHookOptions<FetchOktaAuthorizeUrlMutation, FetchOktaAuthorizeUrlMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<FetchOktaAuthorizeUrlMutation, FetchOktaAuthorizeUrlMutationVariables>(FetchOktaAuthorizeUrlDocument, options);
+      }
+export type FetchOktaAuthorizeUrlMutationHookResult = ReturnType<typeof useFetchOktaAuthorizeUrlMutation>;
+export type FetchOktaAuthorizeUrlMutationResult = Apollo.MutationResult<FetchOktaAuthorizeUrlMutation>;
+export type FetchOktaAuthorizeUrlMutationOptions = Apollo.BaseMutationOptions<FetchOktaAuthorizeUrlMutation, FetchOktaAuthorizeUrlMutationVariables>;
 export const OktaAcceptInviteDocument = gql`
     mutation oktaAcceptInvite($input: OktaAcceptInviteInput!) {
   oktaAcceptInvite(input: $input) {
@@ -15440,39 +15473,6 @@ export function useLoginUserMutation(baseOptions?: Apollo.MutationHookOptions<Lo
 export type LoginUserMutationHookResult = ReturnType<typeof useLoginUserMutation>;
 export type LoginUserMutationResult = Apollo.MutationResult<LoginUserMutation>;
 export type LoginUserMutationOptions = Apollo.BaseMutationOptions<LoginUserMutation, LoginUserMutationVariables>;
-export const FetchOktaAuthorizeUrlDocument = gql`
-    mutation fetchOktaAuthorizeUrl($input: OktaAuthorizeInput!) {
-  oktaAuthorize(input: $input) {
-    url
-  }
-}
-    `;
-export type FetchOktaAuthorizeUrlMutationFn = Apollo.MutationFunction<FetchOktaAuthorizeUrlMutation, FetchOktaAuthorizeUrlMutationVariables>;
-
-/**
- * __useFetchOktaAuthorizeUrlMutation__
- *
- * To run a mutation, you first call `useFetchOktaAuthorizeUrlMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useFetchOktaAuthorizeUrlMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [fetchOktaAuthorizeUrlMutation, { data, loading, error }] = useFetchOktaAuthorizeUrlMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useFetchOktaAuthorizeUrlMutation(baseOptions?: Apollo.MutationHookOptions<FetchOktaAuthorizeUrlMutation, FetchOktaAuthorizeUrlMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<FetchOktaAuthorizeUrlMutation, FetchOktaAuthorizeUrlMutationVariables>(FetchOktaAuthorizeUrlDocument, options);
-      }
-export type FetchOktaAuthorizeUrlMutationHookResult = ReturnType<typeof useFetchOktaAuthorizeUrlMutation>;
-export type FetchOktaAuthorizeUrlMutationResult = Apollo.MutationResult<FetchOktaAuthorizeUrlMutation>;
-export type FetchOktaAuthorizeUrlMutationOptions = Apollo.BaseMutationOptions<FetchOktaAuthorizeUrlMutation, FetchOktaAuthorizeUrlMutationVariables>;
 export const OktaLoginUserDocument = gql`
     mutation oktaLoginUser($input: OktaLoginInput!) {
   oktaLogin(input: $input) {

@@ -19,9 +19,9 @@ import { Card, Page, StyledLogo } from '~/styles/auth'
 const getErrorKey = (code: LagoApiError): string => {
   switch (code) {
     case LagoApiError.OktaUserinfoError:
-      return 'TODO: There was an error while fetching user info from Okta. Please try again.'
+      return 'text_664c98989d08a3f733357f73'
     case LagoApiError.DomainNotConfigured:
-      return 'TODO: Okta provider was not assigned for this domain, please contact an admin.'
+      return 'text_664c90c9b2b6c2012aa50bd6'
     default:
       return 'text_62b31e1f6a5b8b1b745ece48'
   }
@@ -116,8 +116,8 @@ const LoginOkta = () => {
 
         <Stack spacing={8}>
           <Stack spacing={3}>
-            <Typography variant="headline">{translate('TODO: Log In with Okta')}</Typography>
-            <Typography>{translate('TODO: Please log in with your enterprise account')}</Typography>
+            <Typography variant="headline">{translate('text_664c90c9b2b6c2012aa50bce')}</Typography>
+            <Typography>{translate('text_664c90c9b2b6c2012aa50bd0')}</Typography>
           </Stack>
 
           {/* This error is displayed in the input */}
@@ -156,8 +156,8 @@ const LoginOkta = () => {
 
           <UsefulLink
             variant="caption"
-            html={translate('TODO: Log In with another method? Log In', {
-              linkSignUp: LOGIN_ROUTE,
+            html={translate('text_664c90c9b2b6c2012aa50bda', {
+              linkLogin: LOGIN_ROUTE,
             })}
           />
         </Stack>

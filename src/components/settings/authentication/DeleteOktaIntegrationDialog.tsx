@@ -47,7 +47,9 @@ export const DeleteOktaIntegrationDialog = forwardRef<DeleteOktaIntegrationDialo
         localData?.callback?.()
 
         addToast({
-          message: translate('TODO: Okta integration successfully deleted'),
+          message: translate('text_664c732c264d7eed1c74fdb4', {
+            integration: translate('text_664c732c264d7eed1c74fda2'),
+          }),
           severity: 'success',
         })
       }
@@ -68,10 +70,8 @@ export const DeleteOktaIntegrationDialog = forwardRef<DeleteOktaIntegrationDialo
   return (
     <WarningDialog
       ref={dialogRef}
-      title={translate('TODO: Delete connection to Okta')}
-      description={translate(
-        'TODO: By deleting the connection, it will not be used anymore and you’ll be not able to access to your Lago organization via Okta SSO. Are you sure?',
-      )}
+      title={translate('text_664c900d2d312a01546bd84b')}
+      description={translate('text_664c900d2d312a01546bd84c')}
       onContinue={async () =>
         await deleteIntegration({
           variables: {

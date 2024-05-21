@@ -61,15 +61,13 @@ const Authentication = () => {
     <>
       <SettingsHeaderNameWrapper>
         <Typography variant="bodyHl" color="grey700">
-          {translate('TODO: Authentication')}
+          {translate('text_664c732c264d7eed1c74fd96')}
         </Typography>
       </SettingsHeaderNameWrapper>
 
       <SettingsPageContentWrapper>
-        <Title variant="headline">{translate('TODO: Authentication')}</Title>
-        <Subtitle>
-          {translate('TODO: Manage how to authenticate to your Lago organization.')}
-        </Subtitle>
+        <Title variant="headline">{translate('text_664c732c264d7eed1c74fd96')}</Title>
+        <Subtitle>{translate('text_664c732c264d7eed1c74fd9c')}</Subtitle>
 
         {loading ? (
           <LoadingContainer>

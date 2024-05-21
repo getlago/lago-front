@@ -108,7 +108,7 @@ const Login = () => {
               variant="tertiary"
               onClick={() => navigate(LOGIN_OKTA)}
             >
-              {translate('TODO: Log In with Okta')}
+              {translate('text_664c90c9b2b6c2012aa50bce')}
             </Button>
           </Stack>
 

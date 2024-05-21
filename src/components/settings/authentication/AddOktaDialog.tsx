@@ -50,17 +50,15 @@ export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
     closeDialog: () => dialogRef.current?.closeDialog(),
   }))
 
-  console.log(localData?.deleteDialogCallback)
-
   return (
     <>
       <Dialog
         ref={dialogRef}
-        title={translate(isEdition ? 'TODO: Edit Okta connection' : 'TODO: Connect Lago and Okta')}
+        title={translate(
+          isEdition ? 'text_664c8fa719b5e7ad81c86018' : 'text_664c732c264d7eed1c74fd88',
+        )}
         description={translate(
-          isEdition
-            ? 'TODO: To edit Okta connection, please edit the following information'
-            : 'TODO: To connect to Okta, please enter the following information',
+          isEdition ? 'text_664c8fa719b5e7ad81c86019' : 'text_664c732c264d7eed1c74fd8e',
         )}
         onClose={formikProps.resetForm}
         actions={({ closeDialog }) => (
@@ -96,7 +94,9 @@ export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
                 disabled={!formikProps.isValid || !formikProps.dirty}
                 onClick={formikProps.submitForm}
               >
-                {translate(isEdition ? 'TODO: Edit connection' : 'TODO: Connect to Okta')}
+                {translate(
+                  isEdition ? 'text_664c732c264d7eed1c74fdaa' : 'text_664c732c264d7eed1c74fdcb',
+                )}
               </Button>
             </Stack>
           </Stack>
@@ -108,30 +108,32 @@ export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
             autoFocus
             formikProps={formikProps}
             name="domain"
-            label={translate('TODO: Domain name')}
-            placeholder={translate('TODO: Type your domain name')}
-            helperText={translate('TODO: e.g. acme.com')}
+            label={translate('text_664c732c264d7eed1c74fd94')}
+            placeholder={translate('text_664c732c264d7eed1c74fd9a')}
+            helperText={translate('text_664c732c264d7eed1c74fda0')}
           />
           <TextInputField
             formikProps={formikProps}
             name="clientId"
-            label={translate('TODO: Okta public key')}
-            placeholder={translate('TODO: Type your Okta public key')}
+            label={translate('text_664c732c264d7eed1c74fda6')}
+            placeholder={translate('text_664c732c264d7eed1c74fdac')}
           />
           <TextInputField
             formikProps={formikProps}
             name="clientSecret"
-            label={translate('TODO: Okta private key')}
-            placeholder={translate('TODO: Type your Okta private key')}
+            label={translate('text_664c732c264d7eed1c74fdb2')}
+            placeholder={translate('text_664c732c264d7eed1c74fdb7')}
           />
           <TextInputField
             formikProps={formikProps}
             name="organizationName"
-            label={translate('TODO: Okta organization name')}
-            placeholder={translate('TODO: Type your organization name')}
+            label={translate('text_664c732c264d7eed1c74fdbb')}
+            placeholder={translate('text_664c732c264d7eed1c74fdbf')}
             InputProps={{
               endAdornment: (
-                <InputAdornment position="end">{translate('TODO: .okta.com')}</InputAdornment>
+                <InputAdornment position="end">
+                  {translate('text_664c732c264d7eed1c74fdc3')}
+                </InputAdornment>
               ),
             }}
           />

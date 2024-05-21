@@ -268,9 +268,7 @@ const Invitation = () => {
     }
 
     if (hasDefinedGQLError('DomainNotConfigured', oktaAuthorizeUrlError)) {
-      return translate(
-        'TODO: Oops! Looks like your Okta provider was not assigned for this domain, please contact an admin.',
-      )
+      return translate('text_664c90c9b2b6c2012aa50bd1')
     }
 
     if (hasDefinedGQLError('OktaUserinfoError', oktaAcceptInviteError)) {
@@ -309,7 +307,7 @@ const Invitation = () => {
           <Stack spacing={8}>
             <Stack spacing={3}>
               <Typography variant="headline">
-                {translate('text_63246f875e2228ab7b63dcd0', {
+                {translate('text_664c90c9b2b6c2012aa50bcd', {
                   orgnisationName: data?.invite?.organization.name,
                 })}
               </Typography>
@@ -326,7 +324,7 @@ const Invitation = () => {
               <GoogleAuthButton
                 mode="invite"
                 invitationToken={token || ''}
-                label={translate('text_660bf95c75dd928ced0ecb37')}
+                label={translate('text_664c90c9b2b6c2012aa50bd3')}
               />
 
               <Button
@@ -337,7 +335,7 @@ const Invitation = () => {
                 onClick={() => onOktaLogin()}
                 loading={oktaAuthorizeUrlLoading || oktaAcceptInviteLoading || acceptInviteLoading}
               >
-                {translate('TODO: Join with Okta')}
+                {translate('text_664c90c9b2b6c2012aa50bd5')}
               </Button>
             </Stack>
 

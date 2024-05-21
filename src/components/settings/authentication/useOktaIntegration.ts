@@ -41,9 +41,7 @@ gql`
 `
 
 const oktaIntegrationSchema = object().shape({
-  domain: string()
-    .matches(DOMAIN_REGEX, 'TODO: Please fill this input with a domain format to move forward')
-    .required(''),
+  domain: string().matches(DOMAIN_REGEX, 'text_664c732c264d7eed1c74fe03').required(''),
   clientId: string().required(''),
   clientSecret: string().required(''),
   organizationName: string().required(''),
@@ -65,7 +63,9 @@ export const useOktaIntegration = ({ initialValues, onSubmit }: UseOktaIntegrati
       onSubmit?.(res.createOktaIntegration?.id)
       addToast({
         severity: 'success',
-        message: translate('TODO: Okta integration successfully connected'),
+        message: translate('text_664c732c264d7eed1c74fde6', {
+          integration: translate('text_664c732c264d7eed1c74fda2'),
+        }),
       })
     },
   })
@@ -77,7 +77,9 @@ export const useOktaIntegration = ({ initialValues, onSubmit }: UseOktaIntegrati
       onSubmit?.(res.updateOktaIntegration?.id)
       addToast({
         severity: 'success',
-        message: translate('TODO: Okta integration successfully edited'),
+        message: translate('text_664c732c264d7eed1c74fde8', {
+          integration: translate('text_664c732c264d7eed1c74fda2'),
+        }),
       })
     },
   })
