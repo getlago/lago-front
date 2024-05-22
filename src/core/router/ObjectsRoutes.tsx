@@ -129,6 +129,7 @@ export const objectListRoutes: CustomRouteObject[] = [
     path: [INVOICES_ROUTE, INVOICES_TAB_ROUTE],
     private: true,
     element: <InvoicesList />,
+    permissions: ['invoicesView'],
   },
 ]
 
@@ -161,21 +162,25 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     path: [CREATE_TAX_ROUTE, UPDATE_TAX_ROUTE],
     private: true,
     element: <CreateTax />,
+    permissions: ['organizationTaxesUpdate'],
   },
   {
     path: [CREATE_INVOICE_ROUTE],
     private: true,
     element: <CreateInvoice />,
+    permissions: ['invoicesCreate'],
   },
   {
     path: [CREATE_SUBSCRIPTION, UPDATE_SUBSCRIPTION, UPGRADE_DOWNGRADE_SUBSCRIPTION],
     private: true,
     element: <CreateSubscription />,
+    permissions: ['subscriptionsCreate', 'subscriptionsUpdate'],
   },
   {
     path: [CREATE_WALLET_ROUTE, EDIT_WALLET_ROUTE],
     private: true,
     element: <WalletForm />,
+    permissions: ['walletsCreate', 'walletsUpdate'],
   },
 ]
 
@@ -184,20 +189,24 @@ export const objectDetailsRoutes: CustomRouteObject[] = [
     path: [CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, PLAN_SUBSCRIPTION_DETAILS_ROUTE],
     private: true,
     element: <SubscriptionDetails />,
+    permissions: ['subscriptionsView'],
   },
   {
     path: [PLAN_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS],
     private: true,
     element: <PlanDetails />,
+    permissions: ['plansView'],
   },
   {
     path: [ADD_ON_DETAILS_ROUTE],
     private: true,
     element: <AddOnDetails />,
+    permissions: ['addonsView'],
   },
   {
     path: [COUPON_DETAILS_ROUTE],
     private: true,
     element: <CouponDetails />,
+    permissions: ['couponsView'],
   },
 ]

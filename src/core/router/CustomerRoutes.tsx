@@ -44,26 +44,31 @@ export const customerRoutes: CustomRouteObject[] = [
     path: CUSTOMERS_LIST_ROUTE,
     private: true,
     element: <CustomersList />,
+    permissions: ['customersView'],
   },
   {
     path: [CUSTOMER_DETAILS_ROUTE, CUSTOMER_DETAILS_TAB_ROUTE],
     private: true,
     element: <CustomerDetails />,
+    permissions: ['customersView'],
   },
   {
     path: CUSTOMER_DRAFT_INVOICES_LIST_ROUTE,
     private: true,
     element: <CustomerDraftInvoicesList />,
+    permissions: ['invoicesView'],
   },
   {
     path: CUSTOMER_INVOICE_DETAILS_ROUTE,
     private: true,
     element: <CustomerInvoiceDetails />,
+    permissions: ['invoicesView'],
   },
   {
     path: [CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE],
     private: true,
     element: <CreditNoteDetails />,
+    permissions: ['creditNotesView'],
   },
 ]
 
@@ -72,5 +77,6 @@ export const customerObjectCreationRoutes: CustomRouteObject[] = [
     path: CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
     private: true,
     element: <CreateCreditNote />,
+    permissions: ['creditNotesCreate'],
   },
 ]

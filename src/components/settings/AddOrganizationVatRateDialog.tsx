@@ -13,6 +13,7 @@ import {
   useGetTaxRatesForEditOrgaLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import { theme } from '~/styles'
 
 import { Item } from '../form/ComboBox/ComboBoxItem'
@@ -49,6 +50,7 @@ export const AddOrganizationVatRateDialog = forwardRef<
   AddOrganizationVatRateDialogProps
 >(({ appliedTaxRatesTaxesIds }: AddOrganizationVatRateDialogProps, ref) => {
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
   const [getTaxRates, { loading, data }] = useGetTaxRatesForEditOrgaLazyQuery({
     variables: { limit: 20 },
   })
@@ -137,10 +139,14 @@ export const AddOrganizationVatRateDialog = forwardRef<
         <ComboBox
           allowAddValue
           name="selectTax"
-          addValueProps={{
-            label: translate('text_64639c4d172d7a006ef30516'),
-            redirectionUrl: CREATE_TAX_ROUTE,
-          }}
+          addValueProps={
+            hasPermissions(['organizationTaxesUpdate'])
+              ? {
+                  label: translate('text_64639c4d172d7a006ef30516'),
+                  redirectionUrl: CREATE_TAX_ROUTE,
+                }
+              : undefined
+          }
           data={comboboxTaxRatesData}
           label={translate('text_64639c4d172d7a006ef30514')}
           loading={loading}

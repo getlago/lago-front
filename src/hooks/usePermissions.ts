@@ -24,7 +24,6 @@ gql`
       couponsUpdate
       couponsView
       creditNotesCreate
-      creditNotesUpdate
       creditNotesView
       creditNotesVoid
       customerSettingsUpdateGracePeriod

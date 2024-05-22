@@ -138,6 +138,13 @@ const CustomerDetails = () => {
     applicableTimezone,
   } = data?.customer || {}
   const safeTimezone = applicableTimezone
+  const hasAnyActionsPermission =
+    hasPermissions(['subscriptionsCreate']) ||
+    hasPermissions(['invoicesCreate']) ||
+    hasPermissions(['couponsAttach']) ||
+    hasPermissions(['walletsCreate']) ||
+    hasPermissions(['customersUpdate']) ||
+    hasPermissions(['customersDelete'])
 
   return (
     <div>
@@ -169,97 +176,113 @@ const CustomerDetails = () => {
             {translate('text_641b1b19d6e64300632ca60c')}
           </GoToPortalButton>
 
-          <Popper
-            PopperProps={{ placement: 'bottom-end' }}
-            opener={
-              <Button endIcon="chevron-down" data-test="customer-actions">
-                {translate('text_626162c62f790600f850b6fe')}
-              </Button>
-            }
-          >
-            {({ closePopper }) => (
-              <MenuPopper>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    navigate(
-                      generatePath(CREATE_SUBSCRIPTION, {
-                        customerId: customerId as string,
-                      }),
-                    )
-                    closePopper()
-                  }}
-                >
-                  {translate('text_626162c62f790600f850b70c')}
+          {hasAnyActionsPermission && (
+            <Popper
+              PopperProps={{ placement: 'bottom-end' }}
+              opener={
+                <Button endIcon="chevron-down" data-test="customer-actions">
+                  {translate('text_626162c62f790600f850b6fe')}
                 </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    navigate(
-                      generatePath(CREATE_INVOICE_ROUTE, { customerId: customerId as string }),
-                    )
+              }
+            >
+              {({ closePopper }) => (
+                <MenuPopper>
+                  {hasPermissions(['subscriptionsCreate']) && (
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        navigate(
+                          generatePath(CREATE_SUBSCRIPTION, {
+                            customerId: customerId as string,
+                          }),
+                        )
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_626162c62f790600f850b70c')}
+                    </Button>
+                  )}
 
-                    closePopper()
-                  }}
-                  data-test="create-invoice-action"
-                >
-                  {translate('text_6453819268763979024ad083')}
-                </Button>
-                {hasPermissions(['couponsAttach']) && (
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    onClick={() => {
-                      addCouponDialogRef.current?.openDialog()
-                      closePopper()
-                    }}
-                    data-test="apply-coupon-action"
-                  >
-                    {translate('text_628b8dc14c71840130f8d8a1')}
-                  </Button>
-                )}
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  disabled={!!hasActiveWallet}
-                  onClick={() => {
-                    navigate(
-                      generatePath(CREATE_WALLET_ROUTE, {
-                        customerId: customerId as string,
-                      }),
-                    )
-                    closePopper()
-                  }}
-                >
-                  {translate('text_62d175066d2dbf1d50bc93a5')}
-                </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    editDialogRef.current?.openDrawer(data?.customer)
-                    closePopper()
-                  }}
-                >
-                  {translate('text_626162c62f790600f850b718')}
-                </Button>
+                  {hasPermissions(['invoicesCreate']) && (
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        navigate(
+                          generatePath(CREATE_INVOICE_ROUTE, { customerId: customerId as string }),
+                        )
 
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  fullWidth
-                  onClick={() => {
-                    deleteDialogRef.current?.openDialog()
-                    closePopper()
-                  }}
-                >
-                  {translate('text_626162c62f790600f850b726')}
-                </Button>
-              </MenuPopper>
-            )}
-          </Popper>
+                        closePopper()
+                      }}
+                      data-test="create-invoice-action"
+                    >
+                      {translate('text_6453819268763979024ad083')}
+                    </Button>
+                  )}
+
+                  {hasPermissions(['couponsAttach']) && (
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        addCouponDialogRef.current?.openDialog()
+                        closePopper()
+                      }}
+                      data-test="apply-coupon-action"
+                    >
+                      {translate('text_628b8dc14c71840130f8d8a1')}
+                    </Button>
+                  )}
+
+                  {hasPermissions(['walletsCreate']) && (
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      disabled={!!hasActiveWallet}
+                      onClick={() => {
+                        navigate(
+                          generatePath(CREATE_WALLET_ROUTE, {
+                            customerId: customerId as string,
+                          }),
+                        )
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_62d175066d2dbf1d50bc93a5')}
+                    </Button>
+                  )}
+
+                  {hasPermissions(['customersUpdate']) && (
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        editDialogRef.current?.openDrawer(data?.customer)
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_626162c62f790600f850b718')}
+                    </Button>
+                  )}
+
+                  {hasPermissions(['customersDelete']) && (
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      fullWidth
+                      onClick={() => {
+                        deleteDialogRef.current?.openDialog()
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_626162c62f790600f850b726')}
+                    </Button>
+                  )}
+                </MenuPopper>
+              )}
+            </Popper>
+          )}
         </HeaderInlineActionsBlock>
       </PageHeader>
       {(error || !data?.customer) && !loading ? (
@@ -419,6 +442,7 @@ const CustomerDetails = () => {
                           <CustomerSettings customerId={customerId as string} />
                         </SideBlock>
                       ),
+                      hidden: !hasPermissions(['customerSettingsView']),
                     },
                   ]}
                   loadingComponent={

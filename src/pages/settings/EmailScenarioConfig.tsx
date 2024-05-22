@@ -25,6 +25,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useEmailConfig } from '~/hooks/useEmailConfig'
+import { usePermissions } from '~/hooks/usePermissions'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 import { MenuPopper, NAV_HEIGHT, PageHeader, theme } from '~/styles'
 
@@ -97,6 +98,7 @@ const EmailScenarioConfig = () => {
   const { goBack } = useLocationHistory()
   const translationsKey = mapTranslationsKey(type)
   const { isPremium } = useCurrentUser()
+  const { hasPermissions } = usePermissions()
   const { loading, emailSettings, logoUrl, name, updateEmailSettings } = useEmailConfig()
   const { translateWithContextualLocal } = useContextualLocale(invoiceLanguage)
 
@@ -117,24 +119,27 @@ const EmailScenarioConfig = () => {
             {translate(translationsKey.header)}
           </Typography>
         </HeaderLeft>
-        <HeaderRight>
-          <Typography variant="caption">{translate('text_6408b5ae7f629d008bc8af7c')}</Typography>
-          <Switch
-            name={`switch-config-${type}`}
-            checked={emailSettings.includes(type as EmailSettingsEnum)}
-            onChange={async (value, e) => {
-              e.preventDefault()
-              e.stopPropagation()
 
-              if (isPremium) {
-                await updateEmailSettings(type as EmailSettingsEnum, value)
-              } else {
-                premiumWarningDialogRef.current?.openDialog()
-              }
-            }}
-          />
-          {!isPremium && <Icon name="sparkles" />}
-        </HeaderRight>
+        {hasPermissions(['organizationEmailsUpdate']) && (
+          <HeaderRight>
+            <Typography variant="caption">{translate('text_6408b5ae7f629d008bc8af7c')}</Typography>
+            <Switch
+              name={`switch-config-${type}`}
+              checked={emailSettings.includes(type as EmailSettingsEnum)}
+              onChange={async (value, e) => {
+                e.preventDefault()
+                e.stopPropagation()
+
+                if (isPremium) {
+                  await updateEmailSettings(type as EmailSettingsEnum, value)
+                } else {
+                  premiumWarningDialogRef.current?.openDialog()
+                }
+              }}
+            />
+            {!isPremium && <Icon name="sparkles" />}
+          </HeaderRight>
+        )}
       </PageHeader>
       <Title>
         {loading ? (

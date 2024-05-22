@@ -15,6 +15,7 @@ import {
   useGetTaxRatesForEditCustomerLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import { theme } from '~/styles'
 
 import { Item } from '../form/ComboBox/ComboBoxItem'
@@ -69,6 +70,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
     ref,
   ) => {
     const { translate } = useInternationalization()
+    const { hasPermissions } = usePermissions()
     const [localTax, setLocalTax] = useState<string>('')
     const [getTaxRates, { loading, data }] = useGetTaxRatesForEditCustomerLazyQuery({
       variables: { limit: 20 },
@@ -137,7 +139,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
                     input: {
                       id: customer.id,
                       taxCodes: [...(customer?.taxes?.map((t) => t.code) || []), localTax],
-                      // TODO: API should not require those fields on customer update
+                      // NOTE: API should not require those fields on customer update
                       // To be tackled as improvement
                       externalId: customer.externalId,
                       name: customer.name || '',
@@ -159,10 +161,14 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
           <ComboBox
             allowAddValue
             className={SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME}
-            addValueProps={{
-              label: translate('text_64639c4d172d7a006ef30516'),
-              redirectionUrl: CREATE_TAX_ROUTE,
-            }}
+            addValueProps={
+              hasPermissions(['organizationTaxesUpdate'])
+                ? {
+                    label: translate('text_64639c4d172d7a006ef30516'),
+                    redirectionUrl: CREATE_TAX_ROUTE,
+                  }
+                : undefined
+            }
             data={comboboxTaxRatesData}
             label={translate('text_64639c4d172d7a006ef30514')}
             loading={loading}

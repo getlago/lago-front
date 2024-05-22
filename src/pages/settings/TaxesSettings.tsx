@@ -10,6 +10,7 @@ import { TaxItem, TaxItemSkeleton } from '~/components/taxes/TaxItem'
 import { CREATE_TAX_ROUTE } from '~/core/router'
 import { TaxItemFragmentDoc, useGetTaxesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { NAV_HEIGHT, theme } from '~/styles'
 import { SettingsHeaderNameWrapper, SettingsPageContentWrapper } from '~/styles/settingsPage'
@@ -33,6 +34,7 @@ gql`
 
 const TaxesSettings = () => {
   const navigate = useNavigate()
+  const { hasPermissions } = usePermissions()
   const { translate } = useInternationalization()
   const deleteDialogRef = useRef<DeleteTaxDialogRef>(null)
   const { data, error, loading, fetchMore } = useGetTaxesQuery({
@@ -70,16 +72,19 @@ const TaxesSettings = () => {
           <Typography variant="subhead" color="grey700">
             {translate('text_645bb193927b375079d28ae8')}
           </Typography>
-          <Button
-            variant="quaternary"
-            disabled={loading}
-            onClick={() => {
-              navigate(CREATE_TAX_ROUTE)
-            }}
-            data-test="create-tax-button"
-          >
-            {translate('text_645bb193927b375079d28ad2')}
-          </Button>
+
+          {hasPermissions(['organizationTaxesUpdate']) && (
+            <Button
+              variant="quaternary"
+              disabled={loading}
+              onClick={() => {
+                navigate(CREATE_TAX_ROUTE)
+              }}
+              data-test="create-tax-button"
+            >
+              {translate('text_645bb193927b375079d28ad2')}
+            </Button>
+          )}
         </InlineSectionTitle>
 
         <InfoBlock $hasData={!!collection?.length}>
