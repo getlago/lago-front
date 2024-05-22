@@ -23,6 +23,21 @@ if (appEnv === AppEnvEnum.development) {
     setFeatureFlags: setFeatureFlags,
     listFeatureFlags: listFeatureFlags,
   }
+
+  const style = 'background: #eee; color: #fe3d3d'
+  const logs = [
+    'List available flags: %c window.Lago.listFeatureFlags() ',
+    "Set single flag: %c window.Lago.setFeatureFlags('ftr_xxx_enabled') ",
+    "Set multiple flags: %c window.Lago.setFeatureFlags(['ftr_xxx_enabled', 'ftr_yyy_enabled']) ",
+    "Set all flags: %c window.Lago.setFeatureFlags('all') ",
+    'Get enable flags: %c window.Lago.getEnableFeatureFlags() ',
+  ]
+
+  /* eslint-disable no-console */
+  console.groupCollapsed('%c window.Lago is available', style)
+  logs.forEach((log) => console.info(log, style))
+  console.groupEnd()
+  /* eslint-enable no-console */
 }
 
 const container = document.getElementById('root')
