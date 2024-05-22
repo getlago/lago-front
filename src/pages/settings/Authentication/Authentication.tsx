@@ -14,6 +14,7 @@ import { OKTA_AUTHENTICATION_ROUTE } from '~/core/router'
 import {
   AddOktaIntegrationDialogFragmentDoc,
   DeleteOktaIntegrationDialogFragmentDoc,
+  IntegrationTypeEnum,
   OktaIntegration,
   useGetAuthIntegrationsQuery,
 } from '~/generated/graphql'
@@ -24,8 +25,13 @@ import { theme } from '~/styles'
 import { SettingsHeaderNameWrapper, SettingsPageContentWrapper } from '~/styles/settingsPage'
 
 gql`
-  query GetAuthIntegrations {
-    integrations {
+  query GetAuthIntegrations($limit: Int!) {
+    organization {
+      id
+      premiumIntegrations
+    }
+
+    integrations(limit: $limit) {
       collection {
         ... on OktaIntegration {
           id
@@ -51,11 +57,15 @@ const Authentication = () => {
 
   const { data, loading } = useGetAuthIntegrationsQuery({ variables: { limit: 10 } })
 
+  const hasAccessTOktaPremiumIntegration = data?.organization?.premiumIntegrations?.includes(
+    IntegrationTypeEnum.Okta,
+  )
+
   const oktaIntegration = data?.integrations?.collection.find(
     (integration) => integration.__typename === 'OktaIntegration',
   ) as OktaIntegration | undefined
 
-  const shouldSeeOktaIntegration = isPremium
+  const shouldSeeOktaIntegration = hasAccessTOktaPremiumIntegration && isPremium
 
   return (
     <>

@@ -6436,10 +6436,12 @@ export type GetAdyenIntegrationsListQueryVariables = Exact<{
 
 export type GetAdyenIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string, name: string, code: string, apiKey?: string | null, hmacKey?: string | null, livePrefix?: string | null, merchantAccount: string } | { __typename?: 'GocardlessProvider' } | { __typename?: 'StripeProvider' }> } | null };
 
-export type GetAuthIntegrationsQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetAuthIntegrationsQueryVariables = Exact<{
+  limit: Scalars['Int']['input'];
+}>;
 
 
-export type GetAuthIntegrationsQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration', id: string, domain: string, clientId?: string | null, clientSecret?: string | null, organizationName: string, name: string }> } | null };
+export type GetAuthIntegrationsQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, premiumIntegrations: Array<IntegrationTypeEnum> } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration', id: string, domain: string, clientId?: string | null, clientSecret?: string | null, organizationName: string, name: string }> } | null };
 
 export type OktaIntegrationDetailsFragment = { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: string | null, code: string, organizationName: string, domain: string, name: string };
 
@@ -16094,8 +16096,12 @@ export type GetAdyenIntegrationsListLazyQueryHookResult = ReturnType<typeof useG
 export type GetAdyenIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsListSuspenseQuery>;
 export type GetAdyenIntegrationsListQueryResult = Apollo.QueryResult<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>;
 export const GetAuthIntegrationsDocument = gql`
-    query GetAuthIntegrations {
-  integrations {
+    query GetAuthIntegrations($limit: Int!) {
+  organization {
+    id
+    premiumIntegrations
+  }
+  integrations(limit: $limit) {
     collection {
       ... on OktaIntegration {
         id
@@ -16120,10 +16126,11 @@ ${DeleteOktaIntegrationDialogFragmentDoc}`;
  * @example
  * const { data, loading, error } = useGetAuthIntegrationsQuery({
  *   variables: {
+ *      limit: // value for 'limit'
  *   },
  * });
  */
-export function useGetAuthIntegrationsQuery(baseOptions?: Apollo.QueryHookOptions<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>) {
+export function useGetAuthIntegrationsQuery(baseOptions: Apollo.QueryHookOptions<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>(GetAuthIntegrationsDocument, options);
       }
