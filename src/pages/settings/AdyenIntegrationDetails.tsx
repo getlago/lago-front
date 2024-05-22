@@ -36,6 +36,7 @@ import {
   useGetAdyenIntegrationsDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import Adyen from '~/public/images/adyen.svg'
 import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener, theme } from '~/styles'
 
@@ -85,6 +86,7 @@ const AdyenIntegrationDetails = () => {
   const deleteDialogRef = useRef<DeleteAdyenIntegrationDialogRef>(null)
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
   const { data, loading } = useGetAdyenIntegrationsDetailsQuery({
     variables: {
       id: integrationId as string,
@@ -101,6 +103,8 @@ const AdyenIntegrationDetails = () => {
       navigate(INTEGRATIONS_ROUTE)
     }
   }
+  const canEditIntegration = hasPermissions(['organizationIntegrationsUpdate'])
+  const canDeleteIntegration = hasPermissions(['organizationIntegrationsDelete'])
 
   return (
     <>
@@ -119,46 +123,52 @@ const AdyenIntegrationDetails = () => {
             </Typography>
           )}
         </HeaderBlock>
-        <Popper
-          PopperProps={{ placement: 'bottom-end' }}
-          opener={
-            <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
-          }
-        >
-          {({ closePopper }) => (
-            <MenuPopper>
-              <Button
-                variant="quaternary"
-                fullWidth
-                align="left"
-                onClick={() => {
-                  addAdyenDialogRef.current?.openDialog({
-                    provider: adyenPaymentProvider,
-                    deleteModalRef: deleteDialogRef,
-                    deleteDialogCallback,
-                  })
-                  closePopper()
-                }}
-              >
-                {translate('text_65845f35d7d69c3ab4793dac')}
-              </Button>
-              <Button
-                variant="quaternary"
-                align="left"
-                fullWidth
-                onClick={() => {
-                  deleteDialogRef.current?.openDialog({
-                    provider: adyenPaymentProvider,
-                    callback: deleteDialogCallback,
-                  })
-                  closePopper()
-                }}
-              >
-                {translate('text_65845f35d7d69c3ab4793dad')}
-              </Button>
-            </MenuPopper>
-          )}
-        </Popper>
+        {(canEditIntegration || canDeleteIntegration) && (
+          <Popper
+            PopperProps={{ placement: 'bottom-end' }}
+            opener={
+              <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
+            }
+          >
+            {({ closePopper }) => (
+              <MenuPopper>
+                {canEditIntegration && (
+                  <Button
+                    fullWidth
+                    variant="quaternary"
+                    align="left"
+                    onClick={() => {
+                      addAdyenDialogRef.current?.openDialog({
+                        provider: adyenPaymentProvider,
+                        deleteModalRef: deleteDialogRef,
+                        deleteDialogCallback,
+                      })
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_65845f35d7d69c3ab4793dac')}
+                  </Button>
+                )}
+                {canDeleteIntegration && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    fullWidth
+                    onClick={() => {
+                      deleteDialogRef.current?.openDialog({
+                        provider: adyenPaymentProvider,
+                        callback: deleteDialogCallback,
+                      })
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_65845f35d7d69c3ab4793dad')}
+                  </Button>
+                )}
+              </MenuPopper>
+            )}
+          </Popper>
+        )}
       </PageHeader>
 
       <MainInfos>
@@ -193,19 +203,22 @@ const AdyenIntegrationDetails = () => {
         <section>
           <InlineTitle>
             <Typography variant="subhead">{translate('text_645d071272418a14c1c76a9a')}</Typography>
-            <Button
-              variant="quaternary"
-              disabled={loading}
-              onClick={() => {
-                addAdyenDialogRef.current?.openDialog({
-                  provider: adyenPaymentProvider,
-                  deleteModalRef: deleteDialogRef,
-                  deleteDialogCallback,
-                })
-              }}
-            >
-              {translate('text_62b1edddbf5f461ab9712787')}
-            </Button>
+
+            {canEditIntegration && (
+              <Button
+                variant="quaternary"
+                disabled={loading}
+                onClick={() => {
+                  addAdyenDialogRef.current?.openDialog({
+                    provider: adyenPaymentProvider,
+                    deleteModalRef: deleteDialogRef,
+                    deleteDialogCallback,
+                  })
+                }}
+              >
+                {translate('text_62b1edddbf5f461ab9712787')}
+              </Button>
+            )}
           </InlineTitle>
 
           <>
@@ -310,19 +323,21 @@ const AdyenIntegrationDetails = () => {
         <section>
           <InlineTitle>
             <Typography variant="subhead">{translate('text_65367cb78324b77fcb6af21c')}</Typography>
-            <Button
-              variant="quaternary"
-              disabled={!!adyenPaymentProvider?.successRedirectUrl}
-              onClick={() => {
-                successRedirectUrlDialogRef.current?.openDialog({
-                  mode: 'Add',
-                  type: 'Adyen',
-                  provider: adyenPaymentProvider,
-                })
-              }}
-            >
-              {translate('text_65367cb78324b77fcb6af20e')}
-            </Button>
+            {canEditIntegration && (
+              <Button
+                variant="quaternary"
+                disabled={!!adyenPaymentProvider?.successRedirectUrl}
+                onClick={() => {
+                  successRedirectUrlDialogRef.current?.openDialog({
+                    mode: 'Add',
+                    type: 'Adyen',
+                    provider: adyenPaymentProvider,
+                  })
+                }}
+              >
+                {translate('text_65367cb78324b77fcb6af20e')}
+              </Button>
+            )}
           </InlineTitle>
 
           {loading ? (
@@ -353,57 +368,64 @@ const AdyenIntegrationDetails = () => {
                       </Typography>
                     </div>
                   </SuccessPaumentRedirectUrlItemLeft>
-                  <LocalPopper
-                    PopperProps={{ placement: 'bottom-end' }}
-                    opener={({ isOpen }) => (
-                      <PopperOpener>
-                        <Tooltip
-                          placement="top-end"
-                          disableHoverListener={isOpen}
-                          title={translate('text_629728388c4d2300e2d3810d')}
-                        >
-                          <Button icon="dots-horizontal" variant="quaternary" />
-                        </Tooltip>
-                      </PopperOpener>
-                    )}
-                  >
-                    {({ closePopper }) => (
-                      <MenuPopper>
-                        <Button
-                          startIcon="pen"
-                          variant="quaternary"
-                          fullWidth
-                          align="left"
-                          onClick={() => {
-                            successRedirectUrlDialogRef.current?.openDialog({
-                              mode: 'Edit',
-                              type: 'Adyen',
-                              provider: adyenPaymentProvider,
-                            })
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_65367cb78324b77fcb6af24d')}
-                        </Button>
-                        <Button
-                          startIcon="trash"
-                          variant="quaternary"
-                          align="left"
-                          fullWidth
-                          onClick={() => {
-                            successRedirectUrlDialogRef.current?.openDialog({
-                              mode: 'Delete',
-                              type: 'Adyen',
-                              provider: adyenPaymentProvider,
-                            })
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_65367cb78324b77fcb6af243')}
-                        </Button>
-                      </MenuPopper>
-                    )}
-                  </LocalPopper>
+                  {(canEditIntegration || canDeleteIntegration) && (
+                    <LocalPopper
+                      PopperProps={{ placement: 'bottom-end' }}
+                      opener={({ isOpen }) => (
+                        <PopperOpener>
+                          <Tooltip
+                            placement="top-end"
+                            disableHoverListener={isOpen}
+                            title={translate('text_629728388c4d2300e2d3810d')}
+                          >
+                            <Button icon="dots-horizontal" variant="quaternary" />
+                          </Tooltip>
+                        </PopperOpener>
+                      )}
+                    >
+                      {({ closePopper }) => (
+                        <MenuPopper>
+                          {canEditIntegration && (
+                            <Button
+                              startIcon="pen"
+                              variant="quaternary"
+                              fullWidth
+                              align="left"
+                              onClick={() => {
+                                successRedirectUrlDialogRef.current?.openDialog({
+                                  mode: 'Edit',
+                                  type: 'Adyen',
+                                  provider: adyenPaymentProvider,
+                                })
+                                closePopper()
+                              }}
+                            >
+                              {translate('text_65367cb78324b77fcb6af24d')}
+                            </Button>
+                          )}
+
+                          {canDeleteIntegration && (
+                            <Button
+                              startIcon="trash"
+                              variant="quaternary"
+                              align="left"
+                              fullWidth
+                              onClick={() => {
+                                successRedirectUrlDialogRef.current?.openDialog({
+                                  mode: 'Delete',
+                                  type: 'Adyen',
+                                  provider: adyenPaymentProvider,
+                                })
+                                closePopper()
+                              }}
+                            >
+                              {translate('text_65367cb78324b77fcb6af243')}
+                            </Button>
+                          )}
+                        </MenuPopper>
+                      )}
+                    </LocalPopper>
+                  )}
                 </SuccessPaumentRedirectUrlItem>
               )}
             </>

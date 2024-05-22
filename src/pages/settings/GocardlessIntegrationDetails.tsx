@@ -39,6 +39,7 @@ import {
   useGetGocardlessIntegrationsDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import GoCardless from '~/public/images/gocardless-large.svg'
 import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener, theme } from '~/styles'
 
@@ -80,6 +81,7 @@ const GocardlessIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId } = useParams()
   const { lagoOauthProxyUrl } = envGlobalVar()
+  const { hasPermissions } = usePermissions()
   const addDialogRef = useRef<AddGocardlessDialogRef>(null)
   const deleteDialogRef = useRef<DeleteGocardlessIntegrationDialogRef>(null)
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
@@ -102,6 +104,9 @@ const GocardlessIntegrationDetails = () => {
     }
   }
 
+  const canEditIntegration = hasPermissions(['organizationIntegrationsUpdate'])
+  const canDeleteIntegration = hasPermissions(['organizationIntegrationsDelete'])
+
   return (
     <div>
       <PageHeader $withSide>
@@ -119,59 +124,68 @@ const GocardlessIntegrationDetails = () => {
             </Typography>
           )}
         </HeaderBlock>
-        <Popper
-          PopperProps={{ placement: 'bottom-end' }}
-          opener={
-            <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
-          }
-        >
-          {({ closePopper }) => (
-            <MenuPopper>
-              <Button
-                variant="quaternary"
-                fullWidth
-                align="left"
-                onClick={() => {
-                  addDialogRef.current?.openDialog({
-                    provider: gocardlessPaymentProvider,
-                    deleteModalRef: deleteDialogRef,
-                    deleteDialogCallback,
-                  })
-                  closePopper()
-                }}
-              >
-                {translate('text_65845f35d7d69c3ab4793dac')}
-              </Button>
-              <Button
-                variant="quaternary"
-                fullWidth
-                align="left"
-                onClick={() => {
-                  window.open(
-                    `${lagoOauthProxyUrl}/gocardless/auth?lago_name=${gocardlessPaymentProvider.name}&lago_code=${gocardlessPaymentProvider.code}`,
-                  )
-                  closePopper()
-                }}
-              >
-                {translate('text_658567dffff71e31ea5f0d33')}
-              </Button>
-              <Button
-                variant="quaternary"
-                align="left"
-                fullWidth
-                onClick={() => {
-                  deleteDialogRef.current?.openDialog({
-                    provider: gocardlessPaymentProvider,
-                    callback: deleteDialogCallback,
-                  })
-                  closePopper()
-                }}
-              >
-                {translate('text_65845f35d7d69c3ab4793dad')}
-              </Button>
-            </MenuPopper>
-          )}
-        </Popper>
+        {(canEditIntegration || canDeleteIntegration) && (
+          <Popper
+            PopperProps={{ placement: 'bottom-end' }}
+            opener={
+              <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
+            }
+          >
+            {({ closePopper }) => (
+              <MenuPopper>
+                {canEditIntegration && (
+                  <>
+                    <Button
+                      variant="quaternary"
+                      fullWidth
+                      align="left"
+                      onClick={() => {
+                        addDialogRef.current?.openDialog({
+                          provider: gocardlessPaymentProvider,
+                          deleteModalRef: deleteDialogRef,
+                          deleteDialogCallback,
+                        })
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_65845f35d7d69c3ab4793dac')}
+                    </Button>
+                    <Button
+                      variant="quaternary"
+                      fullWidth
+                      align="left"
+                      onClick={() => {
+                        window.open(
+                          `${lagoOauthProxyUrl}/gocardless/auth?lago_name=${gocardlessPaymentProvider.name}&lago_code=${gocardlessPaymentProvider.code}`,
+                        )
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_658567dffff71e31ea5f0d33')}
+                    </Button>
+                  </>
+                )}
+
+                {canDeleteIntegration && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    fullWidth
+                    onClick={() => {
+                      deleteDialogRef.current?.openDialog({
+                        provider: gocardlessPaymentProvider,
+                        callback: deleteDialogCallback,
+                      })
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_65845f35d7d69c3ab4793dad')}
+                  </Button>
+                )}
+              </MenuPopper>
+            )}
+          </Popper>
+        )}
       </PageHeader>
       <MainInfos>
         {loading ? (
@@ -207,19 +221,22 @@ const GocardlessIntegrationDetails = () => {
         <section>
           <InlineTitle>
             <Title variant="subhead">{translate('text_637f813d31381b1ed90ab315')}</Title>
-            <Button
-              variant="quaternary"
-              align="left"
-              onClick={() => {
-                addDialogRef.current?.openDialog({
-                  provider: gocardlessPaymentProvider,
-                  deleteModalRef: deleteDialogRef,
-                  deleteDialogCallback,
-                })
-              }}
-            >
-              {translate('text_62b1edddbf5f461ab9712787')}
-            </Button>
+
+            {canEditIntegration && (
+              <Button
+                variant="quaternary"
+                align="left"
+                onClick={() => {
+                  addDialogRef.current?.openDialog({
+                    provider: gocardlessPaymentProvider,
+                    deleteModalRef: deleteDialogRef,
+                    deleteDialogCallback,
+                  })
+                }}
+              >
+                {translate('text_62b1edddbf5f461ab9712787')}
+              </Button>
+            )}
           </InlineTitle>
           {loading ? (
             <>
@@ -303,19 +320,22 @@ const GocardlessIntegrationDetails = () => {
         <section>
           <InlineTitle>
             <Typography variant="subhead">{translate('text_65367cb78324b77fcb6af21c')}</Typography>
-            <Button
-              variant="quaternary"
-              disabled={!!gocardlessPaymentProvider?.successRedirectUrl}
-              onClick={() => {
-                successRedirectUrlDialogRef.current?.openDialog({
-                  mode: 'Add',
-                  type: 'GoCardless',
-                  provider: gocardlessPaymentProvider,
-                })
-              }}
-            >
-              {translate('text_65367cb78324b77fcb6af20e')}
-            </Button>
+
+            {canEditIntegration && (
+              <Button
+                variant="quaternary"
+                disabled={!!gocardlessPaymentProvider?.successRedirectUrl}
+                onClick={() => {
+                  successRedirectUrlDialogRef.current?.openDialog({
+                    mode: 'Add',
+                    type: 'GoCardless',
+                    provider: gocardlessPaymentProvider,
+                  })
+                }}
+              >
+                {translate('text_65367cb78324b77fcb6af20e')}
+              </Button>
+            )}
           </InlineTitle>
 
           {loading ? (
@@ -346,57 +366,64 @@ const GocardlessIntegrationDetails = () => {
                       </Typography>
                     </div>
                   </SuccessPaumentRedirectUrlItemLeft>
-                  <LocalPopper
-                    PopperProps={{ placement: 'bottom-end' }}
-                    opener={({ isOpen }) => (
-                      <PopperOpener>
-                        <Tooltip
-                          placement="top-end"
-                          disableHoverListener={isOpen}
-                          title={translate('text_629728388c4d2300e2d3810d')}
-                        >
-                          <Button icon="dots-horizontal" variant="quaternary" />
-                        </Tooltip>
-                      </PopperOpener>
-                    )}
-                  >
-                    {({ closePopper }) => (
-                      <MenuPopper>
-                        <Button
-                          startIcon="pen"
-                          variant="quaternary"
-                          fullWidth
-                          align="left"
-                          onClick={() => {
-                            successRedirectUrlDialogRef.current?.openDialog({
-                              mode: 'Edit',
-                              type: 'GoCardless',
-                              provider: gocardlessPaymentProvider,
-                            })
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_65367cb78324b77fcb6af24d')}
-                        </Button>
-                        <Button
-                          startIcon="trash"
-                          variant="quaternary"
-                          align="left"
-                          fullWidth
-                          onClick={() => {
-                            successRedirectUrlDialogRef.current?.openDialog({
-                              mode: 'Delete',
-                              type: 'GoCardless',
-                              provider: gocardlessPaymentProvider,
-                            })
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_65367cb78324b77fcb6af243')}
-                        </Button>
-                      </MenuPopper>
-                    )}
-                  </LocalPopper>
+                  {(canEditIntegration || canDeleteIntegration) && (
+                    <LocalPopper
+                      PopperProps={{ placement: 'bottom-end' }}
+                      opener={({ isOpen }) => (
+                        <PopperOpener>
+                          <Tooltip
+                            placement="top-end"
+                            disableHoverListener={isOpen}
+                            title={translate('text_629728388c4d2300e2d3810d')}
+                          >
+                            <Button icon="dots-horizontal" variant="quaternary" />
+                          </Tooltip>
+                        </PopperOpener>
+                      )}
+                    >
+                      {({ closePopper }) => (
+                        <MenuPopper>
+                          {canEditIntegration && (
+                            <Button
+                              startIcon="pen"
+                              variant="quaternary"
+                              fullWidth
+                              align="left"
+                              onClick={() => {
+                                successRedirectUrlDialogRef.current?.openDialog({
+                                  mode: 'Edit',
+                                  type: 'GoCardless',
+                                  provider: gocardlessPaymentProvider,
+                                })
+                                closePopper()
+                              }}
+                            >
+                              {translate('text_65367cb78324b77fcb6af24d')}
+                            </Button>
+                          )}
+
+                          {canDeleteIntegration && (
+                            <Button
+                              startIcon="trash"
+                              variant="quaternary"
+                              align="left"
+                              fullWidth
+                              onClick={() => {
+                                successRedirectUrlDialogRef.current?.openDialog({
+                                  mode: 'Delete',
+                                  type: 'GoCardless',
+                                  provider: gocardlessPaymentProvider,
+                                })
+                                closePopper()
+                              }}
+                            >
+                              {translate('text_65367cb78324b77fcb6af243')}
+                            </Button>
+                          )}
+                        </MenuPopper>
+                      )}
+                    </LocalPopper>
+                  )}
                 </SuccessPaumentRedirectUrlItem>
               )}
             </>

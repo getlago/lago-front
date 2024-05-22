@@ -37,6 +37,7 @@ import {
   useGetGocardlessIntegrationsListQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import Gocardless from '~/public/images/gocardless.svg'
 import {
   ItemContainer,
@@ -75,6 +76,7 @@ gql`
 
 const GocardlessIntegrations = () => {
   const navigate = useNavigate()
+  const { hasPermissions } = usePermissions()
   const addGocardlessDialogRef = useRef<AddGocardlessDialogRef>(null)
   const deleteDialogRef = useRef<DeleteGocardlessIntegrationDialogRef>(null)
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
@@ -85,6 +87,10 @@ const GocardlessIntegrations = () => {
   const connections = data?.paymentProviders?.collection as GocardlessProvider[] | undefined
   const deleteDialogCallback =
     connections && connections.length === 1 ? () => navigate(INTEGRATIONS_ROUTE) : undefined
+
+  const canCreateIntegration = hasPermissions(['organizationIntegrationsCreate'])
+  const canEditIntegration = hasPermissions(['organizationIntegrationsUpdate'])
+  const canDeleteIntegration = hasPermissions(['organizationIntegrationsDelete'])
 
   return (
     <>
@@ -103,14 +109,17 @@ const GocardlessIntegrations = () => {
             </Typography>
           )}
         </HeaderBlock>
-        <Button
-          variant="primary"
-          onClick={() => {
-            addGocardlessDialogRef.current?.openDialog()
-          }}
-        >
-          {translate('text_65846763e6140b469140e235')}
-        </Button>
+
+        {canCreateIntegration && (
+          <Button
+            variant="primary"
+            onClick={() => {
+              addGocardlessDialogRef.current?.openDialog()
+            }}
+          >
+            {translate('text_65846763e6140b469140e235')}
+          </Button>
+        )}
       </PageHeader>
       <MainInfos>
         {loading ? (
@@ -181,58 +190,65 @@ const GocardlessIntegrations = () => {
                           <ButtonMock />
                         </Stack>
                       </LocalListItemLink>
-                      <Popper
-                        PopperProps={{ placement: 'bottom-end' }}
-                        opener={({ isOpen }) => (
-                          <LocalPopperOpener>
-                            <Tooltip
-                              placement="top-end"
-                              disableHoverListener={isOpen}
-                              title={translate('text_626162c62f790600f850b7b6')}
-                            >
-                              <Button
-                                icon="dots-horizontal"
-                                variant="quaternary"
-                                data-test="plan-item-options"
-                              />
-                            </Tooltip>
-                          </LocalPopperOpener>
-                        )}
-                      >
-                        {({ closePopper }) => (
-                          <MenuPopper>
-                            <Button
-                              startIcon="pen"
-                              variant="quaternary"
-                              align="left"
-                              onClick={() => {
-                                addGocardlessDialogRef.current?.openDialog({
-                                  provider: connection,
-                                  deleteModalRef: deleteDialogRef,
-                                  deleteDialogCallback,
-                                })
-                                closePopper()
-                              }}
-                            >
-                              {translate('text_65845f35d7d69c3ab4793dac')}
-                            </Button>
-                            <Button
-                              startIcon="trash"
-                              variant="quaternary"
-                              align="left"
-                              onClick={() => {
-                                deleteDialogRef.current?.openDialog({
-                                  provider: connection,
-                                  callback: deleteDialogCallback,
-                                })
-                                closePopper()
-                              }}
-                            >
-                              {translate('text_645d071272418a14c1c76a81')}
-                            </Button>
-                          </MenuPopper>
-                        )}
-                      </Popper>
+                      {(canEditIntegration || canDeleteIntegration) && (
+                        <Popper
+                          PopperProps={{ placement: 'bottom-end' }}
+                          opener={({ isOpen }) => (
+                            <LocalPopperOpener>
+                              <Tooltip
+                                placement="top-end"
+                                disableHoverListener={isOpen}
+                                title={translate('text_626162c62f790600f850b7b6')}
+                              >
+                                <Button
+                                  icon="dots-horizontal"
+                                  variant="quaternary"
+                                  data-test="plan-item-options"
+                                />
+                              </Tooltip>
+                            </LocalPopperOpener>
+                          )}
+                        >
+                          {({ closePopper }) => (
+                            <MenuPopper>
+                              {canEditIntegration && (
+                                <Button
+                                  startIcon="pen"
+                                  variant="quaternary"
+                                  align="left"
+                                  onClick={() => {
+                                    addGocardlessDialogRef.current?.openDialog({
+                                      provider: connection,
+                                      deleteModalRef: deleteDialogRef,
+                                      deleteDialogCallback,
+                                    })
+                                    closePopper()
+                                  }}
+                                >
+                                  {translate('text_65845f35d7d69c3ab4793dac')}
+                                </Button>
+                              )}
+
+                              {canDeleteIntegration && (
+                                <Button
+                                  startIcon="trash"
+                                  variant="quaternary"
+                                  align="left"
+                                  onClick={() => {
+                                    deleteDialogRef.current?.openDialog({
+                                      provider: connection,
+                                      callback: deleteDialogCallback,
+                                    })
+                                    closePopper()
+                                  }}
+                                >
+                                  {translate('text_645d071272418a14c1c76a81')}
+                                </Button>
+                              )}
+                            </MenuPopper>
+                          )}
+                        </Popper>
+                      )}
                     </ItemContainer>
                   )
                 })}

@@ -30,6 +30,7 @@ import {
   useRemoveTaxManagementIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import LagoTaxManagement from '~/public/images/lago-tax-management.svg'
 import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, PageHeader, theme } from '~/styles'
 
@@ -66,6 +67,7 @@ gql`
 const LagoTaxManagementIntegration = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
   const deleteConnectionRef = useRef<DialogRef>(null)
 
   const { data: organizationData, loading: organizationLoading } =
@@ -105,13 +107,15 @@ const LagoTaxManagementIntegration = () => {
             </Typography>
           )}
         </HeaderBlock>
-        <Button
-          variant="secondary"
-          disabled={loading}
-          onClick={deleteConnectionRef.current?.openDialog}
-        >
-          {translate('text_657078c28394d6b1ae1b971b')}
-        </Button>
+        {hasPermissions(['organizationIntegrationsDelete']) && (
+          <Button
+            variant="secondary"
+            disabled={loading}
+            onClick={deleteConnectionRef.current?.openDialog}
+          >
+            {translate('text_657078c28394d6b1ae1b971b')}
+          </Button>
+        )}
       </PageHeader>
       <MainInfos>
         {loading ? (
@@ -167,7 +171,7 @@ const LagoTaxManagementIntegration = () => {
               </>
             )}
           </ConnectionDetailsItem>
-          {!loading && (
+          {!loading && hasPermissions(['organizationView']) && (
             <Info
               variant="caption"
               html={translate('text_657078c28394d6b1ae1b9737', {
@@ -180,15 +184,18 @@ const LagoTaxManagementIntegration = () => {
         <section>
           <InlineTitle>
             <Typography variant="subhead">{translate('text_657078c28394d6b1ae1b9743')}</Typography>
-            <Button
-              variant="quaternary"
-              disabled={loading}
-              onClick={() => {
-                navigate(TAXES_SETTINGS_ROUTE)
-              }}
-            >
-              {translate('text_657078c28394d6b1ae1b973d')}
-            </Button>
+
+            {hasPermissions(['organizationTaxesView']) && (
+              <Button
+                variant="quaternary"
+                disabled={loading}
+                onClick={() => {
+                  navigate(TAXES_SETTINGS_ROUTE)
+                }}
+              >
+                {translate('text_657078c28394d6b1ae1b973d')}
+              </Button>
+            )}
           </InlineTitle>
 
           {loading ? (
