@@ -52,7 +52,7 @@ const getPreviousLocation = ({
 
 export const useLocationHistory: UseLocationHistoryReturn = () => {
   const navigate = useNavigate()
-  const { currentMembership } = useCurrentUser()
+  const { loading: isCurrentUserLoading } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const goBack: GoBack = (fallback, options) => {
     const { previous, remaingHistory } = getPreviousLocation(options || {})
@@ -82,7 +82,7 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
       } else if (
         isAuthenticated &&
         routeConfig.permissions?.length &&
-        !!currentMembership &&
+        !isCurrentUserLoading &&
         !hasPermissions(routeConfig.permissions)
       ) {
         /**
