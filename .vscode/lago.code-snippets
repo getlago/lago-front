@@ -51,6 +51,11 @@
     "prefix": "iclsns",
     "body": "import clsns from 'classnames'"
   },
+  "Import permissions hook with method hasPermissions": {
+    "scope": "typescript, typescriptreact",
+    "prefix": "uhp",
+    "body": "const { hasPermissions } = usePermissions()"
+  },
 
   // Linter ignore
   "Ignore exhaustive deps if needed": {
