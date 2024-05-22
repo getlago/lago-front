@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client'
 import App from '~/App'
 import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
+import { getEnableFeatureFlags, listFeatureFlags, setFeatureFlags } from '~/core/utils/featureFlags'
 
 const { appEnv, sentryDsn } = envGlobalVar()
 
@@ -14,6 +15,14 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
     integrations: [new BrowserTracing()],
     environment: appEnv,
   })
+}
+
+if (appEnv === AppEnvEnum.development) {
+  window.Lago = {
+    getEnableFeatureFlags: getEnableFeatureFlags,
+    setFeatureFlags: setFeatureFlags,
+    listFeatureFlags: listFeatureFlags,
+  }
 }
 
 const container = document.getElementById('root')
