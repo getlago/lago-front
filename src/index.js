@@ -7,6 +7,8 @@ import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { getEnableFeatureFlags, listFeatureFlags, setFeatureFlags } from '~/core/utils/featureFlags'
 
+import './main.css'
+
 const { appEnv, sentryDsn } = envGlobalVar()
 
 if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
