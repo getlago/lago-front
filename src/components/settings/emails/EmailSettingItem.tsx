@@ -5,6 +5,7 @@ import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designS
 import { Switch } from '~/components/form'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { usePermissions } from '~/hooks/usePermissions'
 import { INNER_CONTENT_WIDTH, ListItemLink, NAV_HEIGHT, theme } from '~/styles'
 
 interface EmailSettingItemProps {
@@ -25,6 +26,7 @@ export const EmailSettingItem = ({
   const uniqName = useRef<string>(`email-setting-item-${Math.round(Math.random() * 1000)}`)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { isPremium } = useCurrentUser()
+  const { hasPermissions } = usePermissions()
 
   return (
     <Main>
@@ -43,20 +45,22 @@ export const EmailSettingItem = ({
         <SpaceHolder $premium={isPremium} />
         <Button icon="chevron-right" variant="quaternary" />
       </Container>
-      <SwitchBlock>
-        <Switch
-          name={uniqName?.current}
-          checked={active}
-          onChange={(value) => {
-            if (isPremium) {
-              onChangeConfig(value)
-            } else {
-              premiumWarningDialogRef.current?.openDialog()
-            }
-          }}
-        />
-        {!isPremium && <Icon name="sparkles" />}
-      </SwitchBlock>
+      {hasPermissions(['organizationEmailsUpdate']) && (
+        <SwitchBlock>
+          <Switch
+            name={uniqName?.current}
+            checked={active}
+            onChange={(value) => {
+              if (isPremium) {
+                onChangeConfig(value)
+              } else {
+                premiumWarningDialogRef.current?.openDialog()
+              }
+            }}
+          />
+          {!isPremium && <Icon name="sparkles" />}
+        </SwitchBlock>
+      )}
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </Main>
   )

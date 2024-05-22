@@ -13,6 +13,7 @@ import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { AddCustomerDrawerFragmentDoc, CustomerItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 import {
   BaseListItem,
   ItemContainer,
@@ -42,10 +43,12 @@ interface CustomerItemProps {
 }
 
 export const CustomerItem = memo(({ rowId, customer, editDialogRef }: CustomerItemProps) => {
-  const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
-  const { id: customerId, name, externalId, createdAt, activeSubscriptionsCount } = customer
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { hasPermissions } = usePermissions()
+  const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
+  const { id: customerId, name, externalId, createdAt, activeSubscriptionsCount } = customer
+  const canEditAndDeleteCustomer = hasPermissions(['customersUpdate', 'customersDelete'])
 
   return (
     <ItemContainer>
@@ -75,50 +78,56 @@ export const CustomerItem = memo(({ rowId, customer, editDialogRef }: CustomerIt
           <Typography align="right">{activeSubscriptionsCount}</Typography>
           <SmallCell align="right">{formatTimeOrgaTZ(createdAt)}</SmallCell>
         </PlanInfosSection>
-        <ButtonMock />
+        {canEditAndDeleteCustomer && <ButtonMock />}
       </Item>
-      <Popper
-        PopperProps={{ placement: 'bottom-end' }}
-        opener={({ isOpen }) => (
-          // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-          <PopperOpener>
-            <Tooltip
-              placement="top-end"
-              disableHoverListener={isOpen}
-              title={translate('text_626162c62f790600f850b7b6')}
-            >
-              <Button icon="dots-horizontal" variant="quaternary" />
-            </Tooltip>
-          </PopperOpener>
-        )}
-      >
-        {({ closePopper }) => (
-          <MenuPopper>
-            <Button
-              startIcon="pen"
-              variant="quaternary"
-              align="left"
-              onClick={() => {
-                editDialogRef?.current?.openDrawer(customer)
-                closePopper()
-              }}
-            >
-              {translate('text_6261640f28a49700f1290df3')}
-            </Button>
-            <Button
-              startIcon="trash"
-              variant="quaternary"
-              align="left"
-              onClick={() => {
-                deleteDialogRef.current?.openDialog()
-                closePopper()
-              }}
-            >
-              {translate('text_6261640f28a49700f1290df5')}
-            </Button>
-          </MenuPopper>
-        )}
-      </Popper>
+      {canEditAndDeleteCustomer && (
+        <Popper
+          PopperProps={{ placement: 'bottom-end' }}
+          opener={({ isOpen }) => (
+            // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+            <PopperOpener>
+              <Tooltip
+                placement="top-end"
+                disableHoverListener={isOpen}
+                title={translate('text_626162c62f790600f850b7b6')}
+              >
+                <Button icon="dots-horizontal" variant="quaternary" />
+              </Tooltip>
+            </PopperOpener>
+          )}
+        >
+          {({ closePopper }) => (
+            <MenuPopper>
+              {hasPermissions(['customersUpdate']) && (
+                <Button
+                  startIcon="pen"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    editDialogRef?.current?.openDrawer(customer)
+                    closePopper()
+                  }}
+                >
+                  {translate('text_6261640f28a49700f1290df3')}
+                </Button>
+              )}
+              {hasPermissions(['customersDelete']) && (
+                <Button
+                  startIcon="trash"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    deleteDialogRef.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_6261640f28a49700f1290df5')}
+                </Button>
+              )}
+            </MenuPopper>
+          )}
+        </Popper>
+      )}
 
       <DeleteCustomerDialog ref={deleteDialogRef} customer={customer} />
     </ItemContainer>

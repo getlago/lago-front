@@ -11,6 +11,7 @@ import { CustomerItemFragmentDoc, useCustomersLazyQuery } from '~/generated/grap
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { usePermissions } from '~/hooks/usePermissions'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { ListContainer, ListHeader, PageHeader, theme } from '~/styles'
@@ -37,6 +38,7 @@ const CustomersList = () => {
     getElmId: (i) => `customer-item-${i}`,
   })
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
   const [getCustomers, { data, error, loading, fetchMore, variables }] = useCustomersLazyQuery({
     variables: { limit: 20 },
     notifyOnNetworkStatusChange: true,
@@ -58,12 +60,14 @@ const CustomersList = () => {
             onChange={debouncedSearch}
             placeholder={translate('text_63befc65efcd9374da45b801')}
           />
-          <Button
-            data-test="create-customer"
-            onClick={() => addCustomerDrawerRef.current?.openDrawer()}
-          >
-            {translate('text_624efab67eb2570101d117bc')}
-          </Button>
+          {hasPermissions(['customersCreate']) && (
+            <Button
+              data-test="create-customer"
+              onClick={() => addCustomerDrawerRef.current?.openDrawer()}
+            >
+              {translate('text_624efab67eb2570101d117bc')}
+            </Button>
+          )}
         </HeaderRigthBlock>
       </Header>
 
@@ -116,13 +120,19 @@ const CustomersList = () => {
                 subtitle={translate('text_63befc65efcd9374da45b817')}
                 image={<EmptyImage width="136" height="104" />}
               />
-            ) : (
+            ) : hasPermissions(['customersCreate']) ? (
               <GenericPlaceholder
                 title={translate('text_624efab67eb2570101d117a9')}
                 subtitle={translate('text_624efab67eb2570101d117af')}
                 buttonTitle={translate('text_624efab67eb2570101d117b9')}
                 buttonVariant="primary"
                 buttonAction={() => addCustomerDrawerRef.current?.openDrawer()}
+                image={<EmptyImage width="136" height="104" />}
+              />
+            ) : (
+              <GenericPlaceholder
+                title={translate('text_664deb061ac6860101f40d1d')}
+                subtitle={translate('text_624efab67eb2570101d117af')}
                 image={<EmptyImage width="136" height="104" />}
               />
             )}

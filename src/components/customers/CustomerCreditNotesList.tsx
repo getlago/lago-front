@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import styled from 'styled-components'
 
 import CreditNotesList from '~/components/customers/creditNotes/CreditNotesList'
@@ -19,8 +18,6 @@ import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { NAV_HEIGHT, theme } from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
-
-import { VoidCreditNoteDialog, VoidCreditNoteDialogRef } from './creditNotes/VoidCreditNoteDialog'
 
 import { SearchInput } from '../SearchInput'
 
@@ -55,7 +52,6 @@ export const CustomerCreditNotesList = ({
   customerTimezone,
 }: CustomerCreditNotesListProps) => {
   const { translate } = useInternationalization()
-  const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const [getCreditNotes, { data, loading, error, fetchMore, variables }] =
     useGetCustomerCreditNotesLazyQuery({
       variables: { customerId, limit: 20 },
@@ -127,7 +123,6 @@ export const CustomerCreditNotesList = ({
           customerTimezone={customerTimezone}
         />
       )}
-      <VoidCreditNoteDialog ref={voidCreditNoteDialogRef} />
     </SideSection>
   )
 }

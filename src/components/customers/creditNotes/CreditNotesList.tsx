@@ -23,6 +23,7 @@ import {
   useDownloadCreditNoteMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import {
   HEADER_TABLE_HEIGHT,
@@ -81,6 +82,7 @@ const CreditNotesList = memo(
     customerTimezone = TimezoneEnum.TzUtc,
   }: CreditNotesListProps) => {
     const { translate } = useInternationalization()
+    const { hasPermissions } = usePermissions()
     const navigate = useNavigate()
     const { customerId, invoiceId } = useParams()
     const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
@@ -200,7 +202,7 @@ const CreditNotesList = memo(
                           placement="top-end"
                           disableHoverListener={isOpen}
                           title={translate(
-                            creditNote.canBeVoided
+                            creditNote.canBeVoided && hasPermissions(['creditNotesVoid'])
                               ? 'text_63728c6434e1344aea76347d'
                               : 'text_63728c6434e1344aea76347f',
                           )}
@@ -212,19 +214,21 @@ const CreditNotesList = memo(
                   >
                     {({ closePopper }) => (
                       <MenuPopper>
-                        <Button
-                          variant="quaternary"
-                          align="left"
-                          disabled={loadingCreditNoteDownload}
-                          onClick={async () => {
-                            await downloadCreditNote({
-                              variables: { input: { id: creditNote.id } },
-                            })
-                          }}
-                        >
-                          {translate('text_636d12ce54c41fccdf0ef72d')}
-                        </Button>
-                        {creditNote.canBeVoided && (
+                        {hasPermissions(['creditNotesView']) && (
+                          <Button
+                            variant="quaternary"
+                            align="left"
+                            disabled={loadingCreditNoteDownload}
+                            onClick={async () => {
+                              await downloadCreditNote({
+                                variables: { input: { id: creditNote.id } },
+                              })
+                            }}
+                          >
+                            {translate('text_636d12ce54c41fccdf0ef72d')}
+                          </Button>
+                        )}
+                        {creditNote.canBeVoided && hasPermissions(['creditNotesVoid']) && (
                           <Button
                             variant="quaternary"
                             align="left"

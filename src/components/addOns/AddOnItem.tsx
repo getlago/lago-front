@@ -21,6 +21,7 @@ import { AddOnItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 import {
   BaseListItem,
   ItemContainer,
@@ -59,6 +60,7 @@ export const AddOnItem = ({
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
   const navigate = useNavigate()
+  const { hasPermissions } = usePermissions()
 
   return (
     <ItemContainer>
@@ -96,57 +98,62 @@ export const AddOnItem = ({
         {shouldShowItemActions && <ButtonMock />}
       </ListItemLink>
 
-      {shouldShowItemActions && (
-        <Popper
-          PopperProps={{ placement: 'bottom-end' }}
-          opener={({ isOpen }) => (
-            // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-            <PopperOpener>
-              <Tooltip
-                placement="top-end"
-                disableHoverListener={isOpen}
-                title={translate('text_629728388c4d2300e2d3810d')}
-              >
-                <Button icon="dots-horizontal" variant="quaternary" />
-              </Tooltip>
-            </PopperOpener>
-          )}
-        >
-          {({ closePopper }) => (
-            <MenuPopper>
-              <ButtonLink
-                to={generatePath(UPDATE_ADD_ON_ROUTE, { addOnId })}
-                type="button"
-                buttonProps={{
-                  variant: 'quaternary',
-                  startIcon: 'pen',
-                  align: 'left',
-                  fullWidth: true,
-                }}
-              >
-                {translate('text_629728388c4d2300e2d3816a')}
-              </ButtonLink>
-              <Button
-                startIcon="trash"
-                variant="quaternary"
-                align="left"
-                fullWidth
-                onClick={() => {
-                  deleteDialogRef.current?.openDialog({
-                    addOn,
-                    callback: () => {
-                      navigate(ADD_ONS_ROUTE)
-                    },
-                  })
-                  closePopper()
-                }}
-              >
-                {translate('text_629728388c4d2300e2d38182')}
-              </Button>
-            </MenuPopper>
-          )}
-        </Popper>
-      )}
+      {shouldShowItemActions &&
+        (hasPermissions(['addonsUpdate']) || hasPermissions(['addonsDelete'])) && (
+          <Popper
+            PopperProps={{ placement: 'bottom-end' }}
+            opener={({ isOpen }) => (
+              // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+              <PopperOpener>
+                <Tooltip
+                  placement="top-end"
+                  disableHoverListener={isOpen}
+                  title={translate('text_629728388c4d2300e2d3810d')}
+                >
+                  <Button icon="dots-horizontal" variant="quaternary" />
+                </Tooltip>
+              </PopperOpener>
+            )}
+          >
+            {({ closePopper }) => (
+              <MenuPopper>
+                {hasPermissions(['addonsUpdate']) && (
+                  <ButtonLink
+                    to={generatePath(UPDATE_ADD_ON_ROUTE, { addOnId })}
+                    type="button"
+                    buttonProps={{
+                      variant: 'quaternary',
+                      startIcon: 'pen',
+                      align: 'left',
+                      fullWidth: true,
+                    }}
+                  >
+                    {translate('text_629728388c4d2300e2d3816a')}
+                  </ButtonLink>
+                )}
+                {hasPermissions(['addonsDelete']) && (
+                  <Button
+                    startIcon="trash"
+                    variant="quaternary"
+                    align="left"
+                    fullWidth
+                    onClick={() => {
+                      deleteDialogRef.current?.openDialog({
+                        addOn,
+                        callback: () => {
+                          navigate(ADD_ONS_ROUTE)
+                        },
+                      })
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_629728388c4d2300e2d38182')}
+                  </Button>
+                )}
+              </MenuPopper>
+            )}
+          </Popper>
+        )}
     </ItemContainer>
   )
 }

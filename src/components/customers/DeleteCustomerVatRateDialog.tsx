@@ -91,7 +91,7 @@ export const DeleteCustomerVatRateDialog = forwardRef<
               taxCodes:
                 customer?.taxes?.filter((tax) => tax.id !== taxRate?.id).map((tax) => tax.code) ||
                 [],
-              // TODO: API should not require those fields on customer update
+              // NOTE: API should not require those fields on customer update
               // To be tackled as improvement
               externalId: customer?.externalId || '',
               name: customer?.name || '',

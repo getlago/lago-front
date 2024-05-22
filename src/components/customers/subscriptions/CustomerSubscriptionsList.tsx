@@ -11,6 +11,7 @@ import {
   useGetCustomerSubscriptionForListQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import { HEADER_TABLE_HEIGHT, theme } from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
 
@@ -46,6 +47,7 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
   const { customerId } = useParams()
   const navigate = useNavigate()
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
   const { data, loading } = useGetCustomerSubscriptionForListQuery({
     variables: { id: customerId as string },
     skip: !customerId,
@@ -58,19 +60,22 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
     <SideSection $empty={hasNoSubscription}>
       <Header variant="subhead" $loading={loading}>
         {translate('text_6250304370f0f700a8fdc28d')}
-        <Button
-          data-test="add-subscription"
-          variant="quaternary"
-          onClick={() =>
-            navigate(
-              generatePath(CREATE_SUBSCRIPTION, {
-                customerId: customerId as string,
-              }),
-            )
-          }
-        >
-          {translate('text_6250304370f0f700a8fdc28b')}
-        </Button>
+
+        {hasPermissions(['subscriptionsCreate']) && (
+          <Button
+            data-test="add-subscription"
+            variant="quaternary"
+            onClick={() =>
+              navigate(
+                generatePath(CREATE_SUBSCRIPTION, {
+                  customerId: customerId as string,
+                }),
+              )
+            }
+          >
+            {translate('text_6250304370f0f700a8fdc28b')}
+          </Button>
+        )}
       </Header>
       {loading ? (
         <LoadingContent>

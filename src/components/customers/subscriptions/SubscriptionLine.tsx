@@ -23,6 +23,7 @@ import {
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { StatusTypeEnum, SubscriptionLinePlanFragment, TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/pages/SubscriptionDetails'
 import { ItemContainer, ListItemLink, MenuPopper, NAV_HEIGHT, PopperOpener, theme } from '~/styles'
 
@@ -66,6 +67,7 @@ export const SubscriptionLine = ({
   const navigate = useNavigate()
   const { customerId } = useParams()
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
 
   return (
     <ItemContainer>
@@ -113,13 +115,7 @@ export const SubscriptionLine = ({
             <Tooltip
               placement="top-end"
               disableHoverListener={isOpen}
-              title={translate(
-                isDowngrade
-                  ? 'text_64a803f70b9bde00529d2aa5'
-                  : status === StatusTypeEnum.Pending
-                    ? 'text_64a80400248fe50080d66358'
-                    : 'text_62d7f6178ec94cd09370e6cf',
-              )}
+              title={translate('text_646e2d0cc536351b62ba6f01')}
             >
               <Button data-test="menu-subscription" icon="dots-horizontal" variant="quaternary" />
             </Tooltip>
@@ -128,7 +124,7 @@ export const SubscriptionLine = ({
       >
         {({ closePopper }) => (
           <MenuPopper>
-            {!isDowngrade && (
+            {!isDowngrade && hasPermissions(['subscriptionsUpdate']) && (
               <>
                 <Button
                   startIcon="text"
@@ -166,6 +162,7 @@ export const SubscriptionLine = ({
                 </Button>
               </>
             )}
+
             <Button
               startIcon="duplicate"
               variant="quaternary"
@@ -182,24 +179,27 @@ export const SubscriptionLine = ({
             >
               {translate('text_62d7f6178ec94cd09370e65b')}
             </Button>
-            <Button
-              startIcon="trash"
-              variant="quaternary"
-              align="left"
-              data-test="terminate-subscription"
-              onClick={() => {
-                terminateSubscriptionDialogRef?.current?.openDialog({
-                  id: subscriptionId,
-                  name: subscriptionName || plan.name,
-                  status: status as StatusTypeEnum,
-                })
-                closePopper()
-              }}
-            >
-              {status === StatusTypeEnum.Pending
-                ? translate('text_64a6d736c23125004817627f')
-                : translate('text_62d904b97e690a881f2b867c')}
-            </Button>
+
+            {hasPermissions(['subscriptionsDelete']) && (
+              <Button
+                startIcon="trash"
+                variant="quaternary"
+                align="left"
+                data-test="terminate-subscription"
+                onClick={() => {
+                  terminateSubscriptionDialogRef?.current?.openDialog({
+                    id: subscriptionId,
+                    name: subscriptionName || plan.name,
+                    status: status as StatusTypeEnum,
+                  })
+                  closePopper()
+                }}
+              >
+                {status === StatusTypeEnum.Pending
+                  ? translate('text_64a6d736c23125004817627f')
+                  : translate('text_62d904b97e690a881f2b867c')}
+              </Button>
+            )}
           </MenuPopper>
         )}
       </Popper>

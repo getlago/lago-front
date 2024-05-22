@@ -89,7 +89,7 @@ export const EditCustomerDocumentLocaleDialog = forwardRef<
           input: {
             id: customer.id,
             ...values,
-            // TODO: API should not require those fields on customer update
+            // NOTE: API should not require those fields on customer update
             // To be tackled as improvement
             externalId: customer.externalId,
             name: customer.name || '',

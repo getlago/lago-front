@@ -33,21 +33,25 @@ export const developperRoutes: CustomRouteObject[] = [
   {
     private: true,
     element: <Developers />,
+    permissions: ['developersManage'],
     children: [
       {
         path: [API_KEYS_ROUTE, DEVELOPERS_ROUTE],
         private: true,
         element: <ApiKeys />,
+        permissions: ['developersKeysManage'],
       },
       {
         path: WEBHOOK_ROUTE,
         private: true,
         element: <Webhooks />,
+        permissions: ['developersManage'],
       },
       {
         path: DEBUGGER_ROUTE,
         private: true,
         element: <Debugger />,
+        permissions: ['developersManage'],
       },
     ],
   },
@@ -55,5 +59,6 @@ export const developperRoutes: CustomRouteObject[] = [
     private: true,
     path: [WEBHOOK_LOGS_ROUTE, WEBHOOK_LOGS_TAB_ROUTE],
     element: <WebhookLogs />,
+    permissions: ['developersManage'],
   },
 ]

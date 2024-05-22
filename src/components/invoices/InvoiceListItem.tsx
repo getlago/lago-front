@@ -29,6 +29,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
+import { usePermissions } from '~/hooks/usePermissions'
 import { BaseListItem, ListItemLink, MenuPopper, NAV_HEIGHT, theme } from '~/styles'
 
 import { UpdateInvoicePaymentStatusDialogRef } from './EditInvoicePaymentStatusDialog'
@@ -134,6 +135,7 @@ export const InvoiceListItem = ({
   ...props
 }: InvoiceListItemProps) => {
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
   const {
     id,
     status,
@@ -224,7 +226,7 @@ export const InvoiceListItem = ({
       >
         {({ closePopper }) => (
           <MenuPopper>
-            {status !== InvoiceStatusTypeEnum.Draft ? (
+            {status !== InvoiceStatusTypeEnum.Draft && hasPermissions(['invoicesView']) ? (
               <Button
                 startIcon="download"
                 variant="quaternary"
@@ -237,7 +239,7 @@ export const InvoiceListItem = ({
               >
                 {translate('text_62b31e1f6a5b8b1b745ece42')}
               </Button>
-            ) : (
+            ) : hasPermissions(['invoicesUpdate']) ? (
               <Button
                 startIcon="checkmark"
                 variant="quaternary"
@@ -248,11 +250,12 @@ export const InvoiceListItem = ({
               >
                 {translate('text_63a41a8eabb9ae67047c1c08')}
               </Button>
-            )}
+            ) : null}
             {status === InvoiceStatusTypeEnum.Finalized &&
               [InvoicePaymentStatusTypeEnum.Failed, InvoicePaymentStatusTypeEnum.Pending].includes(
                 paymentStatus,
-              ) && (
+              ) &&
+              hasPermissions(['invoicesSend']) && (
                 <Button
                   startIcon="push"
                   variant="quaternary"
@@ -295,23 +298,26 @@ export const InvoiceListItem = ({
             >
               {translate('text_63ac86d897f728a87b2fa031')}
             </Button>
-            {status !== InvoiceStatusTypeEnum.Draft && status !== InvoiceStatusTypeEnum.Voided && (
-              <Button
-                startIcon="coin-dollar"
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
-                  closePopper()
-                }}
-              >
-                {translate('text_63eba8c65a6c8043feee2a01')}
-              </Button>
-            )}
+            {status !== InvoiceStatusTypeEnum.Draft &&
+              status !== InvoiceStatusTypeEnum.Voided &&
+              hasPermissions(['invoicesUpdate']) && (
+                <Button
+                  startIcon="coin-dollar"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
+                    closePopper()
+                  }}
+                >
+                  {translate('text_63eba8c65a6c8043feee2a01')}
+                </Button>
+              )}
             {status === InvoiceStatusTypeEnum.Finalized &&
               [InvoicePaymentStatusTypeEnum.Pending, InvoicePaymentStatusTypeEnum.Failed].includes(
                 paymentStatus,
-              ) && (
+              ) &&
+              hasPermissions(['invoicesVoid']) && (
                 <Tooltip
                   title={translate('text_65269c2e471133226211fdd0')}
                   placement="bottom-end"

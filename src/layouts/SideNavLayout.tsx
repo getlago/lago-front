@@ -242,46 +242,41 @@ const SideNav = () => {
                 }
                 onClick={() => setOpen(false)}
                 tabs={[
-                  ...(hasPermissions(['analyticsView'])
-                    ? [
-                        {
-                          title: translate('text_6553885df387fd0097fd7384'),
-                          icon: 'chart-bar',
-                          link: ANALYTIC_ROUTE,
-                          match: [ANALYTIC_ROUTE],
-                        } as TabProps,
-                      ]
-                    : []),
-
-                  ...(hasPermissions(['billableMetricsView'])
-                    ? [
-                        {
-                          title: translate('text_623b497ad05b960101be3448'),
-                          icon: 'pulse',
-                          link: BILLABLE_METRICS_ROUTE,
-                          match: [BILLABLE_METRICS_ROUTE],
-                        } as TabProps,
-                      ]
-                    : []),
-
+                  {
+                    title: translate('text_6553885df387fd0097fd7384'),
+                    icon: 'chart-bar',
+                    link: ANALYTIC_ROUTE,
+                    match: [ANALYTIC_ROUTE],
+                    hidden: !hasPermissions(['analyticsView']),
+                  },
+                  {
+                    title: translate('text_623b497ad05b960101be3448'),
+                    icon: 'pulse',
+                    link: BILLABLE_METRICS_ROUTE,
+                    match: [BILLABLE_METRICS_ROUTE],
+                    hidden: !hasPermissions(['billableMetricsView']),
+                  },
                   {
                     title: translate('text_62442e40cea25600b0b6d85a'),
                     icon: 'board',
                     link: PLANS_ROUTE,
                     canBeClickedOnActive: true,
                     match: [PLANS_ROUTE, PLAN_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS],
+                    hidden: !hasPermissions(['plansView']),
                   },
                   {
                     title: translate('text_629728388c4d2300e2d3801a'),
                     icon: 'puzzle',
                     link: ADD_ONS_ROUTE,
                     match: [ADD_ONS_ROUTE, ADD_ON_DETAILS_ROUTE],
+                    hidden: !hasPermissions(['addonsView']),
                   },
                   {
                     title: translate('text_62865498824cc10126ab2940'),
                     icon: 'coupon',
                     link: COUPONS_ROUTE,
                     match: [COUPONS_ROUTE, COUPON_DETAILS_ROUTE],
+                    hidden: !hasPermissions(['couponsView']),
                   },
                   {
                     title: translate('text_624efab67eb2570101d117a5'),
@@ -295,12 +290,14 @@ const SideNav = () => {
                       CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
                       PLAN_SUBSCRIPTION_DETAILS_ROUTE,
                     ],
+                    hidden: !hasPermissions(['customersView']),
                   },
                   {
                     title: translate('text_63ac86d797f728a87b2f9f85'),
                     icon: 'document',
                     link: INVOICES_ROUTE,
                     match: [INVOICES_ROUTE, INVOICES_TAB_ROUTE],
+                    hidden: !hasPermissions(['invoicesView']),
                   },
                 ]}
                 orientation="vertical"
@@ -361,6 +358,7 @@ const SideNav = () => {
                       WEBHOOK_LOGS_ROUTE,
                       WEBHOOK_LOGS_TAB_ROUTE,
                     ],
+                    hidden: !hasPermissions(['developersManage']),
                   },
                   {
                     title: translate('text_62728ff857d47b013204c726'),
@@ -376,6 +374,7 @@ const SideNav = () => {
                       ORGANIZATION_INFORMATIONS_ROUTE,
                       TAXES_SETTINGS_ROUTE,
                     ],
+                    hidden: !hasPermissions(['organizationView']),
                   },
                 ]}
                 orientation="vertical"

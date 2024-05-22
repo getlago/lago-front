@@ -59,6 +59,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { NAV_HEIGHT, theme } from '~/styles'
 import { SettingsHeaderNameWrapper, SettingsPageContentWrapper } from '~/styles/settingsPage'
@@ -131,6 +132,7 @@ gql`
 const InvoiceSettings = () => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
+  const { hasPermissions } = usePermissions()
   const editVATDialogRef = useRef<AddOrganizationVatRateDialogRef>(null)
   const deleteVATDialogRef = useRef<DeleteOrganizationVatRateDialogRef>(null)
   const editInvoiceTemplateDialogRef = useRef<EditOrganizationInvoiceTemplateDialogRef>(null)
@@ -146,6 +148,7 @@ const InvoiceSettings = () => {
   const invoiceFooter = organization?.billingConfiguration?.invoiceFooter || ''
   const invoiceGracePeriod = organization?.billingConfiguration?.invoiceGracePeriod || 0
   const documentLocale = organization?.billingConfiguration?.documentLocale || DocumentLocales.en
+  const canEditInvoiceSettings = hasPermissions(['organizationInvoicesUpdate'])
 
   if (!!error && !loading) {
     return (
@@ -179,7 +182,7 @@ const InvoiceSettings = () => {
           </Typography>
           <Button
             variant="quaternary"
-            disabled={loading}
+            disabled={loading || !canEditInvoiceSettings}
             onClick={() => editDefaultCurrencyDialogRef?.current?.openDialog({ organization })}
           >
             {translate('text_637f819eff19cd55a56d55e4')}
@@ -212,7 +215,7 @@ const InvoiceSettings = () => {
           </Typography>
           <Button
             variant="quaternary"
-            disabled={loading}
+            disabled={loading || !canEditInvoiceSettings}
             onClick={editDocumentLanguageDialogRef?.current?.openDialog}
           >
             {translate('text_63e51ef4985f0ebd75c212fc')}
@@ -246,7 +249,7 @@ const InvoiceSettings = () => {
           <Button
             variant="quaternary"
             endIcon={isPremium ? undefined : 'sparkles'}
-            disabled={loading}
+            disabled={loading || !canEditInvoiceSettings}
             onClick={() => {
               isPremium
                 ? editGracePeriodDialogRef?.current?.openDialog()
@@ -285,7 +288,7 @@ const InvoiceSettings = () => {
           </Typography>
           <Button
             variant="quaternary"
-            disabled={loading}
+            disabled={loading || !canEditInvoiceSettings}
             onClick={editInvoiceTemplateDialogRef?.current?.openDialog}
           >
             {translate('text_6380d7e60f081e5b777c4b24')}
@@ -323,7 +326,7 @@ const InvoiceSettings = () => {
           </Typography>
           <Button
             variant="quaternary"
-            disabled={loading}
+            disabled={loading || !canEditInvoiceSettings}
             onClick={editInvoiceNumberingDialogRef?.current?.openDialog}
           >
             {translate('text_6380d7e60f081e5b777c4b24')}
@@ -370,7 +373,7 @@ const InvoiceSettings = () => {
           </Typography>
           <Button
             variant="quaternary"
-            disabled={loading}
+            disabled={loading || !canEditInvoiceSettings}
             onClick={() => editNetPaymentTermDialogRef?.current?.openDialog(organization)}
           >
             {translate('text_637f819eff19cd55a56d55e4')}
@@ -409,7 +412,7 @@ const InvoiceSettings = () => {
           </Typography>
           <Button
             variant="quaternary"
-            disabled={loading}
+            disabled={loading || !canEditInvoiceSettings}
             onClick={editVATDialogRef?.current?.openDialog}
             data-test="add-tax-button"
           >
@@ -459,6 +462,7 @@ const InvoiceSettings = () => {
                             <Button
                               icon="trash"
                               variant="quaternary"
+                              disabled={loading || !hasPermissions(['organizationTaxesUpdate'])}
                               onClick={() => {
                                 deleteVATDialogRef.current?.openDialog(taxRate)
                               }}

@@ -23,6 +23,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { NAV_HEIGHT, theme } from '~/styles'
 import { SettingsHeaderNameWrapper, SettingsPageContentWrapper } from '~/styles/settingsPage'
@@ -58,6 +59,7 @@ gql`
 const OrganizationInformations = () => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
+  const { hasPermissions } = usePermissions()
   const editInfosDialogRef = useRef<EditOrganizationInformationsDialogRef>(null)
   const editTimezoneDialogRef = useRef<EditOrganizationTimezoneDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
@@ -105,18 +107,20 @@ const OrganizationInformations = () => {
 
         <Head>
           <Typography variant="subhead">{translate('text_638906e7b4f1a919cb61d0f4')}</Typography>
-          <Button
-            variant="quaternary"
-            disabled={!!loading}
-            endIcon={isPremium ? undefined : 'sparkles'}
-            onClick={() => {
-              isPremium
-                ? editTimezoneDialogRef?.current?.openDialog()
-                : premiumWarningDialogRef.current?.openDialog()
-            }}
-          >
-            {translate('text_638906e7b4f1a919cb61d0f2')}
-          </Button>
+          {hasPermissions(['organizationUpdate']) && (
+            <Button
+              variant="quaternary"
+              disabled={!!loading}
+              endIcon={isPremium ? undefined : 'sparkles'}
+              onClick={() => {
+                isPremium
+                  ? editTimezoneDialogRef?.current?.openDialog()
+                  : premiumWarningDialogRef.current?.openDialog()
+              }}
+            >
+              {translate('text_638906e7b4f1a919cb61d0f2')}
+            </Button>
+          )}
         </Head>
         {!!loading ? (
           <SkeletonLine>
@@ -137,13 +141,16 @@ const OrganizationInformations = () => {
 
         <Head $withTopSeparator>
           <Typography variant="subhead">{translate('text_62ab2d0396dd6b0361614d44')}</Typography>
-          <Button
-            variant="quaternary"
-            disabled={!!loading}
-            onClick={editInfosDialogRef?.current?.openDialog}
-          >
-            {translate('text_6389099378112a8d8e2b73be')}
-          </Button>
+
+          {hasPermissions(['organizationUpdate']) && (
+            <Button
+              variant="quaternary"
+              disabled={!!loading}
+              onClick={editInfosDialogRef?.current?.openDialog}
+            >
+              {translate('text_6389099378112a8d8e2b73be')}
+            </Button>
+          )}
         </Head>
 
         {!!loading ? (

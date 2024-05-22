@@ -47,6 +47,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { usePermissions } from '~/hooks/usePermissions'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
@@ -187,31 +188,33 @@ const consumedMapStatus = (type?: CreditNoteRefundStatusEnum | null | undefined)
 const CreditNoteDetails = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
+  const { hasPermissions } = usePermissions()
   const { customerId, invoiceId, creditNoteId } = useParams()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
-  const [downloadCreditNote, { loading: loadingInvoiceDownload }] = useDownloadCreditNoteMutation({
-    onCompleted({ downloadCreditNote: downloadCreditNoteData }) {
-      const fileUrl = downloadCreditNoteData?.fileUrl
+  const [downloadCreditNote, { loading: loadingCreditNoteDownload }] =
+    useDownloadCreditNoteMutation({
+      onCompleted({ downloadCreditNote: downloadCreditNoteData }) {
+        const fileUrl = downloadCreditNoteData?.fileUrl
 
-      if (fileUrl) {
-        // We open a window, add url then focus on different lines, in order to prevent browsers to block page opening
-        // It could be seen as unexpected popup as not immediatly done on user action
-        // https://stackoverflow.com/questions/2587677/avoid-browser-popup-blockers
-        const myWindow = window.open('', '_blank')
+        if (fileUrl) {
+          // We open a window, add url then focus on different lines, in order to prevent browsers to block page opening
+          // It could be seen as unexpected popup as not immediatly done on user action
+          // https://stackoverflow.com/questions/2587677/avoid-browser-popup-blockers
+          const myWindow = window.open('', '_blank')
 
-        if (myWindow?.location?.href) {
-          myWindow.location.href = fileUrl
-          return myWindow?.focus()
+          if (myWindow?.location?.href) {
+            myWindow.location.href = fileUrl
+            return myWindow?.focus()
+          }
+
+          myWindow?.close()
+          addToast({
+            severity: 'danger',
+            translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+          })
         }
-
-        myWindow?.close()
-        addToast({
-          severity: 'danger',
-          translateKey: 'text_62b31e1f6a5b8b1b745ece48',
-        })
-      }
-    },
-  })
+      },
+    })
 
   const { data, loading, error } = useGetCreditNoteQuery({
     variables: { id: creditNoteId as string },
@@ -266,20 +269,23 @@ const CreditNoteDetails = () => {
           >
             {({ closePopper }) => (
               <MenuPopper>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  disabled={!!loadingInvoiceDownload}
-                  onClick={async () => {
-                    await downloadCreditNote({
-                      variables: { input: { id: creditNote?.id || '' } },
-                    })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_637655cb50f04bf1c8379cea')}
-                </Button>
-                {creditNote?.canBeVoided && (
+                {hasPermissions(['creditNotesView']) && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    disabled={!!loadingCreditNoteDownload}
+                    onClick={async () => {
+                      await downloadCreditNote({
+                        variables: { input: { id: creditNote?.id || '' } },
+                      })
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_637655cb50f04bf1c8379cea')}
+                  </Button>
+                )}
+
+                {creditNote?.canBeVoided && hasPermissions(['creditNotesVoid']) && (
                   <Button
                     variant="quaternary"
                     align="left"
@@ -379,10 +385,10 @@ const CreditNoteDetails = () => {
           <>
             <SectionHeader variant="subhead">
               {translate('text_637655cb50f04bf1c8379cfa')}
-              {!hasError && !loading && (
+              {!hasError && !loading && hasPermissions(['creditNotesView']) && (
                 <Button
                   variant="quaternary"
-                  disabled={loadingInvoiceDownload}
+                  disabled={loadingCreditNoteDownload}
                   onClick={async () => {
                     await downloadCreditNote({
                       variables: { input: { id: creditNoteId || '' } },
@@ -415,7 +421,9 @@ const CreditNoteDetails = () => {
                           {translate('text_637655cb50f04bf1c8379cfe')}
                         </Typography>
                         <ConditionalWrapper
-                          condition={!!creditNote?.customer.deletedAt}
+                          condition={
+                            !!creditNote?.customer.deletedAt && hasPermissions(['customersView'])
+                          }
                           validWrapper={(children) => <>{children}</>}
                           invalidWrapper={(children) => (
                             <Link

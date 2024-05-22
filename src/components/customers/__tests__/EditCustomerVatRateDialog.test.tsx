@@ -11,6 +11,24 @@ import { render, TestMocksType } from '~/test-utils'
 
 import { EditCustomerVatRateDialog } from '../EditCustomerVatRateDialog'
 
+const membershipWithPermissions = {
+  id: '2',
+  organization: {
+    id: '3',
+    name: 'Organization',
+    logoUrl: 'https://logo.com',
+  },
+  permissions: {
+    organizationTaxesUpdate: true,
+  },
+}
+
+jest.mock('~/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => ({
+    currentMembership: membershipWithPermissions,
+  }),
+}))
+
 async function prepare({
   mocks = [
     {
@@ -54,7 +72,7 @@ describe('EditCustomerVatRateDialog', () => {
     expect(screen.queryByTestId('edit-customer-vat-rate-dialog')).toBeInTheDocument()
   })
 
-  it('should propose to create a new tax if none exists', async () => {
+  it('should propose to create a new tax if none exists and have permissions', async () => {
     await prepare()
 
     await waitFor(() =>

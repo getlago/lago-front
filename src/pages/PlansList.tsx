@@ -133,7 +133,7 @@ const PlansList = () => {
                 subtitle={translate('text_63bee1cc88d85f04deb0d67a')}
                 image={<EmptyImage width="136" height="104" />}
               />
-            ) : (
+            ) : hasPermissions(['plansCreate']) ? (
               <GenericPlaceholder
                 data-test="empty"
                 title={translate('text_624451f920b6a500aab37618')}
@@ -141,6 +141,13 @@ const PlansList = () => {
                 buttonTitle={translate('text_624451f920b6a500aab37620')}
                 buttonVariant="primary"
                 buttonAction={() => navigate(CREATE_PLAN_ROUTE)}
+                image={<EmptyImage width="136" height="104" />}
+              />
+            ) : (
+              <GenericPlaceholder
+                data-test="empty"
+                title={translate('text_664dea0f9995af014cf66c9a')}
+                subtitle={translate('text_624451f920b6a500aab3761c')}
                 image={<EmptyImage width="136" height="104" />}
               />
             )}

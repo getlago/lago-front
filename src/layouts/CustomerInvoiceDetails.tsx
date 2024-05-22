@@ -68,6 +68,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { usePermissions } from '~/hooks/usePermissions'
 import { CustomerDetailsTabsOptions } from '~/pages/CustomerDetails'
 import InvoiceCreditNoteList from '~/pages/InvoiceCreditNoteList'
 import InvoiceOverview from '~/pages/InvoiceOverview'
@@ -163,6 +164,7 @@ const CustomerInvoiceDetails = () => {
   let navigate = useNavigate()
   const { goBack } = useLocationHistory()
   const { isPremium } = useCurrentUser()
+  const { hasPermissions } = usePermissions()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
@@ -324,7 +326,8 @@ const CustomerInvoiceDetails = () => {
           >
             {({ closePopper }) => (
               <MenuPopper>
-                {status === InvoiceStatusTypeEnum.Draft ? (
+                {status === InvoiceStatusTypeEnum.Draft &&
+                hasPermissions(['draftInvoicesUpdate']) ? (
                   <>
                     <Button
                       variant="quaternary"
@@ -365,37 +368,38 @@ const CustomerInvoiceDetails = () => {
                     >
                       {translate('text_634687079be251fdb4383395')}
                     </Button>
-                    {status !== InvoiceStatusTypeEnum.Voided && (
-                      <>
-                        {isPremium ? (
-                          <Button
-                            variant="quaternary"
-                            align="left"
-                            disabled={
-                              creditableAmountCents === '0' && refundableAmountCents === '0'
-                            }
-                            onClick={async () => {
-                              navigate(
-                                generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
-                                  customerId: customerId as string,
-                                  invoiceId: invoiceId as string,
-                                }),
-                              )
-                            }}
-                          >
-                            {translate('text_6386589e4e82fa85eadcaa7a')}
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="quaternary"
-                            onClick={() => premiumWarningDialogRef.current?.openDialog()}
-                            endIcon="sparkles"
-                          >
-                            {translate('text_6386589e4e82fa85eadcaa7a')}
-                          </Button>
-                        )}
-                      </>
-                    )}
+                    {status !== InvoiceStatusTypeEnum.Voided &&
+                      hasPermissions(['creditNotesCreate']) && (
+                        <>
+                          {isPremium ? (
+                            <Button
+                              variant="quaternary"
+                              align="left"
+                              disabled={
+                                creditableAmountCents === '0' && refundableAmountCents === '0'
+                              }
+                              onClick={async () => {
+                                navigate(
+                                  generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+                                    customerId: customerId as string,
+                                    invoiceId: invoiceId as string,
+                                  }),
+                                )
+                              }}
+                            >
+                              {translate('text_6386589e4e82fa85eadcaa7a')}
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="quaternary"
+                              onClick={() => premiumWarningDialogRef.current?.openDialog()}
+                              endIcon="sparkles"
+                            >
+                              {translate('text_6386589e4e82fa85eadcaa7a')}
+                            </Button>
+                          )}
+                        </>
+                      )}
                   </>
                 )}
                 <Button
@@ -414,7 +418,8 @@ const CustomerInvoiceDetails = () => {
                   {translate('text_634687079be251fdb438339b')}
                 </Button>
                 {status !== InvoiceStatusTypeEnum.Draft &&
-                  status !== InvoiceStatusTypeEnum.Voided && (
+                  status !== InvoiceStatusTypeEnum.Voided &&
+                  hasPermissions(['invoicesUpdate']) && (
                     <>
                       <Button
                         variant="quaternary"
@@ -442,7 +447,8 @@ const CustomerInvoiceDetails = () => {
                     </>
                   )}
                 {status === InvoiceStatusTypeEnum.Finalized &&
-                  !data?.invoice?.paymentDisputeLostAt && (
+                  !data?.invoice?.paymentDisputeLostAt &&
+                  hasPermissions(['invoicesUpdate']) && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -458,7 +464,8 @@ const CustomerInvoiceDetails = () => {
                   [
                     InvoicePaymentStatusTypeEnum.Pending,
                     InvoicePaymentStatusTypeEnum.Failed,
-                  ].includes(paymentStatus) && (
+                  ].includes(paymentStatus) &&
+                  hasPermissions(['invoicesVoid']) && (
                     <Tooltip
                       title={translate(
                         !!data?.invoice?.paymentDisputeLostAt

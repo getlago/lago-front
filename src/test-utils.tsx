@@ -27,7 +27,7 @@ export const AllTheProviders = ({
   useParams,
   // Needed when using fragments in queries
   // https://github.com/apollographql/apollo-client/issues/8276#issuecomment-847064393
-  // TODO: AllTheProviders type should force forceTypenames true if mocks includes __typename
+  // NOTE: AllTheProviders type should force forceTypenames true if mocks includes __typename
   forceTypenames = false,
 }: {
   children: React.ReactNode

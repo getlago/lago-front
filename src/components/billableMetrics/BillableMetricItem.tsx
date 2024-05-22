@@ -81,51 +81,56 @@ export const BillableMetricItem = memo(
           <CellSmall align="right">{formatTimeOrgaTZ(createdAt)}</CellSmall>
           <ButtonMock />
         </ListItemLink>
-        <Popper
-          PopperProps={{ placement: 'bottom-end' }}
-          opener={({ isOpen }) => (
-            // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-            <PopperOpener>
-              <Tooltip
-                placement="top-end"
-                disableHoverListener={isOpen}
-                title={translate('text_6256de3bba111e00b3bfa51b')}
-              >
-                <Button icon="dots-horizontal" variant="quaternary" />
-              </Tooltip>
-            </PopperOpener>
-          )}
-        >
-          {({ closePopper }) => (
-            <MenuPopper>
-              <ButtonLink
-                type="button"
-                buttonProps={{
-                  startIcon: 'pen',
-                  variant: 'quaternary',
-                  align: 'left',
-                  fullWidth: true,
-                }}
-                to={generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { billableMetricId })}
-              >
-                {translate('text_6256de3bba111e00b3bfa531')}
-              </ButtonLink>
-              {hasPermissions(['billableMetricsDelete']) && (
-                <Button
-                  startIcon="trash"
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    deleteDialogRef.current?.openDialog(billableMetric)
-                    closePopper()
-                  }}
+        {(hasPermissions(['billableMetricsUpdate']) ||
+          hasPermissions(['billableMetricsDelete'])) && (
+          <Popper
+            PopperProps={{ placement: 'bottom-end' }}
+            opener={({ isOpen }) => (
+              // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+              <PopperOpener>
+                <Tooltip
+                  placement="top-end"
+                  disableHoverListener={isOpen}
+                  title={translate('text_6256de3bba111e00b3bfa51b')}
                 >
-                  {translate('text_6256de3bba111e00b3bfa533')}
-                </Button>
-              )}
-            </MenuPopper>
-          )}
-        </Popper>
+                  <Button icon="dots-horizontal" variant="quaternary" />
+                </Tooltip>
+              </PopperOpener>
+            )}
+          >
+            {({ closePopper }) => (
+              <MenuPopper>
+                {hasPermissions(['billableMetricsUpdate']) && (
+                  <ButtonLink
+                    type="button"
+                    buttonProps={{
+                      startIcon: 'pen',
+                      variant: 'quaternary',
+                      align: 'left',
+                      fullWidth: true,
+                    }}
+                    to={generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { billableMetricId })}
+                  >
+                    {translate('text_6256de3bba111e00b3bfa531')}
+                  </ButtonLink>
+                )}
+                {hasPermissions(['billableMetricsDelete']) && (
+                  <Button
+                    startIcon="trash"
+                    variant="quaternary"
+                    align="left"
+                    onClick={() => {
+                      deleteDialogRef.current?.openDialog(billableMetric)
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_6256de3bba111e00b3bfa533')}
+                  </Button>
+                )}
+              </MenuPopper>
+            )}
+          </Popper>
+        )}
       </ItemContainer>
     )
   },

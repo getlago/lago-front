@@ -19,6 +19,7 @@ import { BillableMetricItemFragmentDoc, useBillableMetricsLazyQuery } from '~/ge
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { usePermissions } from '~/hooks/usePermissions'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { ListContainer, ListHeader, PageHeader, theme } from '~/styles'
@@ -42,6 +43,7 @@ gql`
 const BillableMetricsList = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
+  const { hasPermissions } = usePermissions()
   const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
   const [getBillableMetrics, { data, error, loading, fetchMore, variables }] =
     useBillableMetricsLazyQuery({
@@ -70,9 +72,11 @@ const BillableMetricsList = () => {
             onChange={debouncedSearch}
             placeholder={translate('text_63ba9ee977a67c9693f50aea')}
           />
-          <StyledButton data-test="create-bm" type="button" to={CREATE_BILLABLE_METRIC_ROUTE}>
-            {translate('text_623b497ad05b960101be343a')}
-          </StyledButton>
+          {hasPermissions(['billableMetricsCreate']) && (
+            <StyledButton data-test="create-bm" type="button" to={CREATE_BILLABLE_METRIC_ROUTE}>
+              {translate('text_623b497ad05b960101be343a')}
+            </StyledButton>
+          )}
         </HeaderRigthBlock>
       </Header>
 

@@ -123,13 +123,19 @@ const AddOnsList = () => {
                 subtitle={translate('text_63bee4e10e2d53912bfe4da7')}
                 image={<EmptyImage width="136" height="104" />}
               />
-            ) : (
+            ) : hasPermissions(['addonsCreate']) ? (
               <GenericPlaceholder
                 title={translate('text_629728388c4d2300e2d380c9')}
                 subtitle={translate('text_629728388c4d2300e2d380df')}
                 buttonTitle={translate('text_629728388c4d2300e2d3810f')}
                 buttonVariant="primary"
                 buttonAction={() => navigate(CREATE_ADD_ON_ROUTE)}
+                image={<EmptyImage width="136" height="104" />}
+              />
+            ) : (
+              <GenericPlaceholder
+                title={translate('text_664de6f0ec798e005a110d19')}
+                subtitle={translate('text_629728388c4d2300e2d380df')}
                 image={<EmptyImage width="136" height="104" />}
               />
             )}
