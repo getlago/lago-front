@@ -9,6 +9,7 @@ import { buildNetsuiteUrl } from '~/core/constants/externalUrls'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   CustomerMainInfosFragment,
+  NetsuiteIntegration,
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
   TimezoneEnum,
@@ -130,7 +131,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
 
   const connectedNetsuiteIntegration = integrationsData?.integrations?.collection?.find(
     (integration) => integration?.__typename === 'NetsuiteIntegration',
-  )
+  ) as NetsuiteIntegration
 
   if (loading || !customer)
     return (

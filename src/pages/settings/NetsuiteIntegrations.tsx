@@ -50,6 +50,7 @@ gql`
     id
     name
     code
+    ...NetsuiteForCreateDialogDialog
   }
 
   query getNetsuiteIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {

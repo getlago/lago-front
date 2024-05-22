@@ -99,6 +99,12 @@ gql`
           code
           name
         }
+        # OktaIntegration have to be defined to fix TS linting
+        ... on OktaIntegration {
+          id
+          code
+          name
+        }
       }
     }
   }
