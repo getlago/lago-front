@@ -1,4 +1,4 @@
-import { CouponFrequency, CouponTypeEnum, PlanInterval } from '~/generated/graphql'
+import { CouponFrequency, CouponTypeEnum, MembershipRole, PlanInterval } from '~/generated/graphql'
 
 /**** Errors ****/
 export enum FORM_ERRORS_ENUM {
@@ -59,4 +59,10 @@ export const getCouponFrequencyTranslationKey = {
   [CouponFrequency.Once]: 'text_632d68358f1fedc68eed3ea3',
   [CouponFrequency.Recurring]: 'text_632d68358f1fedc68eed3e64',
   [CouponFrequency.Forever]: 'text_63c83a3476e46bc6ab9d85d6',
+}
+
+export const getRoleTranslationKey = {
+  [MembershipRole.Admin]: 'text_664f035a68227f00e261b7ee',
+  [MembershipRole.Finance]: 'text_664f035a68227f00e261b7f2',
+  [MembershipRole.Manager]: 'text_664f035a68227f00e261b7f0',
 }

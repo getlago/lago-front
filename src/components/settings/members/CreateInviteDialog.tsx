@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import { forwardRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
@@ -9,6 +10,7 @@ import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem
 import { TextInputField } from '~/components/form'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { getRoleTranslationKey } from '~/core/constants/form'
 import { INVITATION_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
@@ -24,6 +26,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme } from '~/styles'
+
+import { RolePickerField } from './RolePickerField'
 
 gql`
   mutation createInvite($input: CreateInviteInput!) {
@@ -160,13 +164,21 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
     >
       <Content>
         {!inviteToken ? (
-          <TextInputField
-            name="email"
-            beforeChangeFormatter={['lowercase']}
-            label={translate('text_63208c701ce25db7814074ab')}
-            placeholder={translate('text_63208c711ce25db7814074c1')}
-            formikProps={formikProps}
-          />
+          <Stack gap={8}>
+            <TextInputField
+              name="email"
+              beforeChangeFormatter={['lowercase']}
+              label={translate('text_63208c701ce25db7814074ab')}
+              placeholder={translate('text_63208c711ce25db7814074c1')}
+              formikProps={formikProps}
+            />
+
+            <RolePickerField
+              title={translate('text_664f03016a8d2500787bb4ab')}
+              onChange={(value) => formikProps.setFieldValue('role', value)}
+              selectedValue={formikProps.values.role}
+            />
+          </Stack>
         ) : !!error ? (
           <GenericPlaceholder
             noMargins
@@ -181,6 +193,14 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
               </Label>
               <Typography variant="body" color="grey700" noWrap>
                 {formikProps.values.email}
+              </Typography>
+            </Line>
+            <Line>
+              <Label variant="caption" color="grey600">
+                {translate('text_664f035a68227f00e261b7ec')}
+              </Label>
+              <Typography variant="body" color="grey700" noWrap>
+                {translate(getRoleTranslationKey[formikProps.values.role])}
               </Typography>
             </Line>
             <Line>

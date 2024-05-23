@@ -5872,11 +5872,29 @@ export type CreateInviteMutationVariables = Exact<{
 }>;
 
 
-export type CreateInviteMutation = { __typename?: 'Mutation', createInvite?: { __typename?: 'Invite', id: string, token: string, email: string, organization: { __typename?: 'Organization', id: string, name: string } } | null };
+export type CreateInviteMutation = { __typename?: 'Mutation', createInvite?: { __typename?: 'Invite', id: string, token: string, email: string, role: MembershipRole, organization: { __typename?: 'Organization', id: string, name: string } } | null };
 
-export type InviteItemFragment = { __typename?: 'Invite', id: string, email: string, token: string, organization: { __typename?: 'Organization', id: string, name: string } };
+export type InviteForEditRoleForDialogFragment = { __typename?: 'Invite', id: string, role: MembershipRole, email: string };
 
-export type MembershipItemFragment = { __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } };
+export type UpdateInviteRoleMutationVariables = Exact<{
+  input: UpdateInviteInput;
+}>;
+
+
+export type UpdateInviteRoleMutation = { __typename?: 'Mutation', updateInvite?: { __typename?: 'Invite', id: string, role: MembershipRole, email: string } | null };
+
+export type MemberForEditRoleForDialogFragment = { __typename?: 'Membership', id: string, role: MembershipRole, user: { __typename?: 'User', id: string, email?: string | null }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } };
+
+export type UpdateMembershipRoleMutationVariables = Exact<{
+  input: UpdateMembershipInput;
+}>;
+
+
+export type UpdateMembershipRoleMutation = { __typename?: 'Mutation', updateMembership?: { __typename?: 'Membership', id: string, role: MembershipRole, user: { __typename?: 'User', id: string, email?: string | null }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } } | null };
+
+export type InviteItemFragment = { __typename?: 'Invite', id: string, email: string, token: string, role: MembershipRole, organization: { __typename?: 'Organization', id: string, name: string } };
+
+export type MembershipItemFragment = { __typename?: 'Membership', id: string, role: MembershipRole, user: { __typename?: 'User', id: string, email?: string | null }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } };
 
 export type RevokeInviteMutationVariables = Exact<{
   input: RevokeInviteInput;
@@ -5891,6 +5909,8 @@ export type RevokeMembershipMutationVariables = Exact<{
 
 
 export type RevokeMembershipMutation = { __typename?: 'Mutation', revokeMembership?: { __typename?: 'Membership', id: string } | null };
+
+export type InviteForRolePickerFieldFragment = { __typename?: 'Invite', id: string, role: MembershipRole };
 
 export type GetSubscriptionForDetailsOverviewQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -6676,7 +6696,7 @@ export type GetInvitesQueryVariables = Exact<{
 }>;
 
 
-export type GetInvitesQuery = { __typename?: 'Query', invites: { __typename?: 'InviteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invite', id: string, email: string, token: string, organization: { __typename?: 'Organization', id: string, name: string } }> } };
+export type GetInvitesQuery = { __typename?: 'Query', invites: { __typename?: 'InviteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invite', id: string, email: string, token: string, role: MembershipRole, organization: { __typename?: 'Organization', id: string, name: string } }> } };
 
 export type GetMembersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -6684,7 +6704,7 @@ export type GetMembersQueryVariables = Exact<{
 }>;
 
 
-export type GetMembersQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', metadata: { __typename?: 'Metadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } }> } };
+export type GetMembersQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', metadata: { __typename?: 'Metadata', currentPage: number, totalPages: number, totalCount: number, adminCount: number }, collection: Array<{ __typename?: 'Membership', id: string, role: MembershipRole, user: { __typename?: 'User', id: string, email?: string | null }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> } };
 
 export type OrganizationInformationsFragment = { __typename?: 'CurrentOrganization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, timezone?: TimezoneEnum | null };
 
@@ -7344,24 +7364,120 @@ export const DeleteStripeIntegrationDialogFragmentDoc = gql`
   name
 }
     `;
+export const InviteForEditRoleForDialogFragmentDoc = gql`
+    fragment InviteForEditRoleForDialog on Invite {
+  id
+  role
+  email
+}
+    `;
 export const InviteItemFragmentDoc = gql`
     fragment InviteItem on Invite {
   id
   email
   token
+  role
   organization {
     id
     name
   }
 }
     `;
-export const MembershipItemFragmentDoc = gql`
-    fragment MembershipItem on Membership {
+export const MembershipPermissionsFragmentDoc = gql`
+    fragment MembershipPermissions on Membership {
   id
+  permissions {
+    addonsCreate
+    addonsDelete
+    addonsUpdate
+    addonsView
+    analyticsView
+    billableMetricsCreate
+    billableMetricsDelete
+    billableMetricsUpdate
+    billableMetricsView
+    couponsAttach
+    couponsCreate
+    couponsDelete
+    couponsDetach
+    couponsUpdate
+    couponsView
+    creditNotesCreate
+    creditNotesView
+    creditNotesVoid
+    customerSettingsUpdateGracePeriod
+    customerSettingsUpdateLang
+    customerSettingsUpdatePaymentTerms
+    customerSettingsUpdateTaxRates
+    customerSettingsView
+    customersCreate
+    customersDelete
+    customersUpdate
+    customersView
+    developersKeysManage
+    developersManage
+    draftInvoicesUpdate
+    invoicesCreate
+    invoicesSend
+    invoicesUpdate
+    invoicesView
+    invoicesVoid
+    organizationEmailsUpdate
+    organizationEmailsView
+    organizationIntegrationsCreate
+    organizationIntegrationsDelete
+    organizationIntegrationsUpdate
+    organizationIntegrationsView
+    organizationInvoicesUpdate
+    organizationInvoicesView
+    organizationMembersCreate
+    organizationMembersDelete
+    organizationMembersUpdate
+    organizationMembersView
+    organizationTaxesUpdate
+    organizationTaxesView
+    organizationUpdate
+    organizationView
+    plansCreate
+    plansDelete
+    plansUpdate
+    plansView
+    subscriptionsCreate
+    subscriptionsUpdate
+    subscriptionsView
+    walletsCreate
+    walletsTerminate
+    walletsTopUp
+    walletsUpdate
+  }
+}
+    `;
+export const MemberForEditRoleForDialogFragmentDoc = gql`
+    fragment MemberForEditRoleForDialog on Membership {
+  id
+  role
   user {
     id
     email
   }
+  ...MembershipPermissions
+}
+    ${MembershipPermissionsFragmentDoc}`;
+export const MembershipItemFragmentDoc = gql`
+    fragment MembershipItem on Membership {
+  id
+  role
+  user {
+    id
+    email
+  }
+  ...MemberForEditRoleForDialog
+}
+    ${MemberForEditRoleForDialogFragmentDoc}`;
+export const InviteForRolePickerFieldFragmentDoc = gql`
+    fragment InviteForRolePickerField on Invite {
+  id
+  role
 }
     `;
 export const SubscriptionForSubscriptionInformationsFragmentDoc = gql`
@@ -7699,75 +7815,6 @@ export const TaxFormQueryShapeFragmentDoc = gql`
   autoGenerated
 }
     ${TaxFormFragmentDoc}`;
-export const MembershipPermissionsFragmentDoc = gql`
-    fragment MembershipPermissions on Membership {
-  id
-  permissions {
-    addonsCreate
-    addonsDelete
-    addonsUpdate
-    addonsView
-    analyticsView
-    billableMetricsCreate
-    billableMetricsDelete
-    billableMetricsUpdate
-    billableMetricsView
-    couponsAttach
-    couponsCreate
-    couponsDelete
-    couponsDetach
-    couponsUpdate
-    couponsView
-    creditNotesCreate
-    creditNotesView
-    creditNotesVoid
-    customerSettingsUpdateGracePeriod
-    customerSettingsUpdateLang
-    customerSettingsUpdatePaymentTerms
-    customerSettingsUpdateTaxRates
-    customerSettingsView
-    customersCreate
-    customersDelete
-    customersUpdate
-    customersView
-    developersKeysManage
-    developersManage
-    draftInvoicesUpdate
-    invoicesCreate
-    invoicesSend
-    invoicesUpdate
-    invoicesView
-    invoicesVoid
-    organizationEmailsUpdate
-    organizationEmailsView
-    organizationIntegrationsCreate
-    organizationIntegrationsDelete
-    organizationIntegrationsUpdate
-    organizationIntegrationsView
-    organizationInvoicesUpdate
-    organizationInvoicesView
-    organizationMembersCreate
-    organizationMembersDelete
-    organizationMembersUpdate
-    organizationMembersView
-    organizationTaxesUpdate
-    organizationTaxesView
-    organizationUpdate
-    organizationView
-    plansCreate
-    plansDelete
-    plansUpdate
-    plansView
-    subscriptionsCreate
-    subscriptionsUpdate
-    subscriptionsView
-    walletsCreate
-    walletsTerminate
-    walletsTopUp
-    walletsUpdate
-  }
-}
-    `;
 export const CurrentUserInfosFragmentDoc = gql`
     fragment CurrentUserInfos on User {
   id
@@ -12500,6 +12547,74 @@ export function useCreateInviteMutation(baseOptions?: Apollo.MutationHookOptions
 export type CreateInviteMutationHookResult = ReturnType<typeof useCreateInviteMutation>;
 export type CreateInviteMutationResult = Apollo.MutationResult<CreateInviteMutation>;
 export type CreateInviteMutationOptions = Apollo.BaseMutationOptions<CreateInviteMutation, CreateInviteMutationVariables>;
+export const UpdateInviteRoleDocument = gql`
+    mutation updateInviteRole($input: UpdateInviteInput!) {
+  updateInvite(input: $input) {
+    id
+    ...InviteForEditRoleForDialog
+  }
+}
+    ${InviteForEditRoleForDialogFragmentDoc}`;
+export type UpdateInviteRoleMutationFn = Apollo.MutationFunction<UpdateInviteRoleMutation, UpdateInviteRoleMutationVariables>;
+
+/**
+ * __useUpdateInviteRoleMutation__
+ *
+ * To run a mutation, you first call `useUpdateInviteRoleMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateInviteRoleMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateInviteRoleMutation, { data, loading, error }] = useUpdateInviteRoleMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateInviteRoleMutation(baseOptions?: Apollo.MutationHookOptions<UpdateInviteRoleMutation, UpdateInviteRoleMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateInviteRoleMutation, UpdateInviteRoleMutationVariables>(UpdateInviteRoleDocument, options);
+      }
+export type UpdateInviteRoleMutationHookResult = ReturnType<typeof useUpdateInviteRoleMutation>;
+export type UpdateInviteRoleMutationResult = Apollo.MutationResult<UpdateInviteRoleMutation>;
+export type UpdateInviteRoleMutationOptions = Apollo.BaseMutationOptions<UpdateInviteRoleMutation, UpdateInviteRoleMutationVariables>;
+export const UpdateMembershipRoleDocument = gql`
+    mutation updateMembershipRole($input: UpdateMembershipInput!) {
+  updateMembership(input: $input) {
+    id
+    ...MemberForEditRoleForDialog
+  }
+}
+    ${MemberForEditRoleForDialogFragmentDoc}`;
+export type UpdateMembershipRoleMutationFn = Apollo.MutationFunction<UpdateMembershipRoleMutation, UpdateMembershipRoleMutationVariables>;
+
+/**
+ * __useUpdateMembershipRoleMutation__
+ *
+ * To run a mutation, you first call `useUpdateMembershipRoleMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMembershipRoleMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateMembershipRoleMutation, { data, loading, error }] = useUpdateMembershipRoleMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateMembershipRoleMutation(baseOptions?: Apollo.MutationHookOptions<UpdateMembershipRoleMutation, UpdateMembershipRoleMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateMembershipRoleMutation, UpdateMembershipRoleMutationVariables>(UpdateMembershipRoleDocument, options);
+      }
+export type UpdateMembershipRoleMutationHookResult = ReturnType<typeof useUpdateMembershipRoleMutation>;
+export type UpdateMembershipRoleMutationResult = Apollo.MutationResult<UpdateMembershipRoleMutation>;
+export type UpdateMembershipRoleMutationOptions = Apollo.BaseMutationOptions<UpdateMembershipRoleMutation, UpdateMembershipRoleMutationVariables>;
 export const RevokeInviteDocument = gql`
     mutation revokeInvite($input: RevokeInviteInput!) {
   revokeInvite(input: $input) {
@@ -16785,6 +16900,7 @@ export const GetMembersDocument = gql`
       currentPage
       totalPages
       totalCount
+      adminCount
     }
     collection {
       ...MembershipItem
