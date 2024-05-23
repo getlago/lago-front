@@ -1,4 +1,7 @@
-interface Window { Cypress: any; }
+interface Window { 
+  Cypress: any;  
+  Lago: any;
+}
 
 declare type AppEnvEnum = import('./src/core/constants/globalTypes').AppEnvEnum
 
