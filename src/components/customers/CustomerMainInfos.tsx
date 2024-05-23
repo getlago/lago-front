@@ -54,6 +54,7 @@ gql`
     timezone
     netsuiteCustomer {
       id
+      integrationId
       externalCustomerId
     }
     paymentProviderCode
@@ -102,6 +103,11 @@ gql`
           name
           accountId
         }
+
+        # Only added to satisfy type check in the code bellow
+        ... on OktaIntegration {
+          id
+        }
       }
     }
   }
@@ -130,7 +136,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
   )
 
   const connectedNetsuiteIntegration = integrationsData?.integrations?.collection?.find(
-    (integration) => integration?.__typename === 'NetsuiteIntegration',
+    (integration) => integration?.id === customer?.netsuiteCustomer?.integrationId,
   ) as NetsuiteIntegration
 
   if (loading || !customer)
@@ -327,9 +333,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                 </Typography>
               </InlineLink>
             </Stack>
-          ) : (
-            <Typography color="danger600">{translate('text_622f7a3dc32ce100c46a5154')}</Typography>
-          )}
+          ) : null}
         </div>
       )}
       {!!metadata?.length &&

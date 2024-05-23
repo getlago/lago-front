@@ -281,16 +281,13 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
 
   const formikProps = useFormik<{ selectedElementValue: string }>({
     initialValues: {
-      selectedElementValue:
-        !!localData?.itemExternalId &&
-        !!localData?.itemExternalName &&
-        !!localData?.itemExternalCode
-          ? stringifyOptionValue({
-              externalId: localData?.itemExternalId || '',
-              externalName: localData?.itemExternalName || '',
-              externalAccountCode: localData?.itemExternalCode || '',
-            })
-          : '',
+      selectedElementValue: localData?.itemExternalId
+        ? stringifyOptionValue({
+            externalId: localData?.itemExternalId || '',
+            externalName: localData?.itemExternalName || '',
+            externalAccountCode: localData?.itemExternalCode || '',
+          })
+        : '',
     },
     validationSchema: object().shape({
       selectedElementValue: string(),
@@ -418,7 +415,9 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
       const { externalId, externalName, externalAccountCode, itemType } = item
 
       return {
-        label: `${externalId} - ${externalName} (${externalAccountCode})`,
+        label: `${externalId} - ${externalName}${
+          itemType === IntegrationItemTypeEnum.Standard ? ` (${externalAccountCode})` : ''
+        }`,
         labelNode: (
           <Item>
             <Typography variant="body" color="grey700" noWrap>
@@ -539,7 +538,6 @@ export const NetsuiteMapItemDialog = forwardRef<NetsuiteMapItemDialogRef>((_, re
       <Container>
         <InlineElements>
           <ComboBox
-            name="selectedBillableMetric"
             value={formikProps.values.selectedElementValue}
             data={comboboxData}
             loading={isLoading}

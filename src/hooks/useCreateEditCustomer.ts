@@ -48,6 +48,10 @@ gql`
       syncWithProvider
       providerPaymentMethods
     }
+    netsuiteCustomer {
+      id
+      integrationId
+    }
     metadata {
       id
       key
