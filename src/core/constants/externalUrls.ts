@@ -12,9 +12,15 @@ export const FEATURE_REQUESTS_URL = 'https://getlago.canny.io/feature-requests'
 export const ADYEN_SUCCESS_LINK_SPEC_URL =
   'https://docs.adyen.com/api-explorer/Checkout/latest/post/payments#request-returnUrl'
 export const ROLE_ACCESS_LEVEL_DOC_URL = 'https://getlago.com/docs/guide/security/rbac'
-export const buildNetsuiteUrl = (
+export const buildNetsuiteCustomerUrl = (
   connectionAccountId?: string | null,
   netsuiteCustomerId?: string | null,
 ) => {
   return `https://${connectionAccountId}.app.netsuite.com/app/common/entity/custjob.nl?id=${netsuiteCustomerId}`
+}
+export const buildNetsuiteInvoiceUrl = (
+  connectionAccountId?: string | null,
+  netsuiteInvoiceId?: string | null,
+) => {
+  return `https://${connectionAccountId}.app.netsuite.com/app/accounting/transactions/custinvc.nl?id=${netsuiteInvoiceId}`
 }

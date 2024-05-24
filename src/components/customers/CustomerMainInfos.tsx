@@ -5,7 +5,7 @@ import styled from 'styled-components'
 
 import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
-import { buildNetsuiteUrl } from '~/core/constants/externalUrls'
+import { buildNetsuiteCustomerUrl } from '~/core/constants/externalUrls'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   CustomerMainInfosFragment,
@@ -323,7 +323,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
               <InlineLink
                 target="_blank"
                 rel="noopener noreferrer"
-                to={buildNetsuiteUrl(
+                to={buildNetsuiteCustomerUrl(
                   connectedNetsuiteIntegration?.accountId,
                   customer?.netsuiteCustomer?.externalCustomerId,
                 )}
