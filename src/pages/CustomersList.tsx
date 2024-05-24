@@ -49,6 +49,12 @@ const CustomersList = () => {
   const list = data?.customers?.collection || []
   let index = -1
 
+  const shouldShowItemActions = hasPermissions([
+    'customersCreate',
+    'customersUpdate',
+    'customersDelete',
+  ])
+
   return (
     <div role="grid" tabIndex={-1} onKeyDown={onKeyDown}>
       <Header $withSide>
@@ -72,7 +78,7 @@ const CustomersList = () => {
       </Header>
 
       <ListContainer>
-        <ListHead $withActions>
+        <ListHead $withActions={shouldShowItemActions}>
           <PlanNameSection>
             <Typography color="disabled" variant="bodyHl">
               {translate('text_624efab67eb2570101d117cc')}
