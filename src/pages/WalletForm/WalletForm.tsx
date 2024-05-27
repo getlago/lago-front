@@ -7,7 +7,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 import { array, object, string } from 'yup'
 
-import { Alert, Button, Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { Alert, Button, Icon, Tooltip, Typography } from '~/components/designSystem'
 import {
   AmountInputField,
   ComboBoxField,
@@ -44,8 +44,9 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { LoadingView } from '~/pages/WalletForm/components/LoadingView'
 import { Card, NAV_HEIGHT, PageHeader, theme } from '~/styles'
-import { ButtonContainer, Side, SkeletonHeader } from '~/styles/mainObjectsForm'
+import { ButtonContainer, Side } from '~/styles/mainObjectsForm'
 
 import { TWalletDataForm } from './types'
 
@@ -420,48 +421,7 @@ const WalletForm = () => {
       <Content>
         <Main>
           {isLoading && !wallet ? (
-            <>
-              <SkeletonHeader>
-                <Skeleton variant="text" width={280} height={12} marginBottom={theme.spacing(5)} />
-                <Skeleton
-                  variant="text"
-                  width="inherit"
-                  height={12}
-                  marginBottom={theme.spacing(4)}
-                />
-                <Skeleton variant="text" width={120} height={12} />
-              </SkeletonHeader>
-
-              {[0, 1, 2].map((skeletonCard) => (
-                <Card key={`skeleton-${skeletonCard}`}>
-                  <Skeleton
-                    variant="text"
-                    width={280}
-                    height={12}
-                    marginBottom={theme.spacing(9)}
-                  />
-                  <Skeleton
-                    variant="text"
-                    width={280}
-                    height={12}
-                    marginBottom={theme.spacing(9)}
-                  />
-                  <Skeleton
-                    variant="text"
-                    width={280}
-                    height={12}
-                    marginBottom={theme.spacing(9)}
-                  />
-                  <Skeleton
-                    variant="text"
-                    width="inherit"
-                    height={12}
-                    marginBottom={theme.spacing(4)}
-                  />
-                  <Skeleton variant="text" width={120} height={12} />
-                </Card>
-              ))}
-            </>
+            <LoadingView cardCount={2} />
           ) : (
             <>
               <div>
