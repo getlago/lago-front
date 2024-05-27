@@ -53,6 +53,7 @@ export const NavigationTab = ({
   orientation = NavigationTabOrientationEnum.horizontal,
   children,
   onClick,
+  ...props
 }: NavigationTabsProps) => {
   const { translate } = useInternationalization()
   const { pathname } = useLocation()
@@ -61,11 +62,11 @@ export const NavigationTab = ({
   )
 
   return (
-    <Container $vertical={orientation === NavigationTabOrientationEnum.vertical}>
+    <Container $vertical={orientation === NavigationTabOrientationEnum.vertical} {...props}>
       {!loading && tabs.length > 1 && (
         <TabsBlock className={`navigation-tab--${orientation}`} $align={align}>
           {tabs.map((tab, i) => {
-            const { link, hidden, title, beta, external, ...props } = tab
+            const { link, hidden, title, beta, external, ...tabProps } = tab
 
             if (hidden) return null
 
@@ -78,7 +79,7 @@ export const NavigationTab = ({
                 type="tab"
                 active={link === activeTab?.link}
                 onClick={!!onClick ? () => onClick(tab) : undefined}
-                {..._omit(props, ['component', 'match'])}
+                {..._omit(tabProps, ['component', 'match'])}
               >
                 <Stack
                   width="100%"

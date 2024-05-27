@@ -1,9 +1,9 @@
-import { gql } from '@apollo/client'
+import { ApolloError, LazyQueryHookOptions } from '@apollo/client'
 import { useEffect, useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
+import { generatePath, useNavigate } from 'react-router-dom'
+import styled, { css } from 'styled-components'
 
-import { Button, InfiniteScroll, NavigationTab, Typography } from '~/components/designSystem'
+import { Button, InfiniteScroll, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import {
   UpdateInvoicePaymentStatusDialog,
@@ -20,123 +20,44 @@ import {
   InvoiceListItemSkeleton,
 } from '~/components/invoices/InvoiceListItem'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
-import { SearchInput } from '~/components/SearchInput'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import {
-  CUSTOMER_INVOICE_DETAILS_ROUTE,
-  INVOICE_SETTINGS_ROUTE,
-  INVOICES_ROUTE,
-  INVOICES_TAB_ROUTE,
-} from '~/core/router'
-import {
-  InvoiceListItemFragmentDoc,
-  InvoicePaymentStatusTypeEnum,
-  InvoiceStatusTypeEnum,
-  LagoApiError,
-  useInvoicesListLazyQuery,
-  useRetryAllInvoicePaymentsMutation,
-} from '~/generated/graphql'
+import { CUSTOMER_INVOICE_DETAILS_ROUTE, INVOICE_SETTINGS_ROUTE } from '~/core/router'
+import { GetInvoicesListQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
-import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
+import { InvoiceListStatusEnum } from '~/pages/InvoicesPage'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { ListContainer, ListHeader, NAV_HEIGHT, PageHeader, theme } from '~/styles'
-
-gql`
-  query invoicesList(
-    $limit: Int
-    $page: Int
-    $status: InvoiceStatusTypeEnum
-    $paymentStatus: [InvoicePaymentStatusTypeEnum!]
-    $searchTerm: String
-    $paymentDisputeLost: Boolean
-  ) {
-    invoices(
-      limit: $limit
-      page: $page
-      status: $status
-      paymentStatus: $paymentStatus
-      searchTerm: $searchTerm
-      paymentDisputeLost: $paymentDisputeLost
-    ) {
-      metadata {
-        currentPage
-        totalPages
-        totalCount
-      }
-      collection {
-        id
-        ...InvoiceListItem
-      }
-    }
-  }
-
-  mutation retryAllInvoicePayments($input: RetryAllInvoicePaymentsInput!) {
-    retryAllInvoicePayments(input: $input) {
-      collection {
-        id
-      }
-    }
-  }
-
-  ${InvoiceListItemFragmentDoc}
-`
-
-enum InvoiceListTabEnum {
-  'all' = 'all',
-  'draft' = 'draft',
-  'pendingFailed' = 'pendingFailed',
-  'succeeded' = 'succeeded',
-  'voided' = 'voided',
-  'disputed' = 'disputed',
-}
+import { ListContainer, ListHeader, NAV_HEIGHT, palette, theme } from '~/styles'
 
 // Needed to be able to pass both ids to the keyboard navigation function
 const ID_SPLIT_KEY = '&-%-&'
 const NAVIGATION_KEY_BASE = 'invoice-item-'
 
-const InvoicesList = () => {
-  const { tab } = useParams<{ tab?: InvoiceListTabEnum }>()
+type TInvoiceListProps = {
+  error: ApolloError | undefined
+  fetchMore: Function
+  invoices: GetInvoicesListQuery['invoices']['collection'] | undefined
+  invoiceType: InvoiceListStatusEnum
+  isLoading: boolean
+  metadata: GetInvoicesListQuery['invoices']['metadata'] | undefined
+  variables: LazyQueryHookOptions['variables'] | undefined
+}
+
+const InvoicesList = ({
+  error,
+  fetchMore,
+  invoices,
+  invoiceType,
+  isLoading,
+  metadata,
+  variables,
+}: TInvoiceListProps) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
-  const [getInvoices, { data, loading, error, fetchMore, variables }] = useInvoicesListLazyQuery({
-    notifyOnNetworkStatusChange: true,
-    fetchPolicy: 'network-only',
-    nextFetchPolicy: 'network-only',
-    variables: {
-      limit: 20,
-      ...(tab === InvoiceListTabEnum.draft && { status: InvoiceStatusTypeEnum.Draft }),
-      ...(tab === InvoiceListTabEnum.voided && { status: InvoiceStatusTypeEnum.Voided }),
-      ...(tab === InvoiceListTabEnum.pendingFailed && {
-        status: InvoiceStatusTypeEnum.Finalized,
-        paymentStatus: [InvoicePaymentStatusTypeEnum.Failed, InvoicePaymentStatusTypeEnum.Pending],
-      }),
-      ...(tab === InvoiceListTabEnum.succeeded && {
-        paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
-        status: InvoiceStatusTypeEnum.Finalized,
-      }),
-      ...(tab === InvoiceListTabEnum.disputed && {
-        paymentDisputeLost: true,
-      }),
-    },
-  })
-  const { debouncedSearch, isLoading } = useDebouncedSearch(getInvoices, loading)
-  const [retryAll] = useRetryAllInvoicePaymentsMutation({
-    context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
-    onCompleted({ retryAllInvoicePayments }) {
-      if (retryAllInvoicePayments) {
-        addToast({
-          severity: 'success',
-          translateKey: 'text_63ac86d897f728a87b2fa0a7',
-        })
-      }
-    },
-  })
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `${NAVIGATION_KEY_BASE}${i}`,
     navigate: (id) => {
@@ -156,73 +77,68 @@ const InvoicesList = () => {
   useEffect(() => {
     // Scroll to top of list when switching tabs
     listContainerElementRef?.current?.scrollTo({ top: 0 })
-  }, [tab])
-  let index = -1
+  }, [invoiceType])
 
   return (
-    <div role="grid" tabIndex={-1} onKeyDown={onKeyDown}>
-      <PageHeader $withSide>
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_63ac86d797f728a87b2f9f85')}
-        </Typography>
-
-        <HeaderRigthBlock>
-          <SearchInput
-            onChange={debouncedSearch}
-            placeholder={translate('text_63c68131568d582a38233e84')}
-          />
-          {tab === InvoiceListTabEnum.pendingFailed && (
-            <Button
-              disabled={!data?.invoices?.metadata?.totalCount}
-              onClick={async () => {
-                const { errors } = await retryAll({ variables: { input: {} } })
-
-                if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
-                  addToast({
-                    severity: 'danger',
-                    translateKey: 'text_63b6d06df1a53b7e2ad973ad',
-                  })
-                }
-              }}
-            >
-              {translate('text_63ac86d797f728a87b2f9fc4')}
-            </Button>
-          )}
-        </HeaderRigthBlock>
-      </PageHeader>
-      <NavigationTab
-        tabs={[
-          {
-            title: translate('text_63ac86d797f728a87b2f9f8b'),
-            link: generatePath(INVOICES_TAB_ROUTE, { tab: InvoiceListTabEnum.all }),
-            match: [
-              INVOICES_ROUTE,
-              generatePath(INVOICES_TAB_ROUTE, { tab: InvoiceListTabEnum.all }),
-            ],
-          },
-          {
-            title: translate('text_63ac86d797f728a87b2f9f91'),
-            link: generatePath(INVOICES_TAB_ROUTE, { tab: InvoiceListTabEnum.draft }),
-          },
-          {
-            title: translate('text_63ac86d797f728a87b2f9f97'),
-            link: generatePath(INVOICES_TAB_ROUTE, { tab: InvoiceListTabEnum.pendingFailed }),
-          },
-          {
-            title: translate('text_63ac86d797f728a87b2f9fa1'),
-            link: generatePath(INVOICES_TAB_ROUTE, { tab: InvoiceListTabEnum.succeeded }),
-          },
-          {
-            title: translate('text_6376641a2a9c70fff5bddcd5'),
-            link: generatePath(INVOICES_TAB_ROUTE, { tab: InvoiceListTabEnum.voided }),
-          },
-          {
-            title: translate('text_66141e30699a0631f0b2ec9c'),
-            link: generatePath(INVOICES_TAB_ROUTE, { tab: InvoiceListTabEnum.disputed }),
-          },
-        ]}
-      />
-      <ScrollContainer ref={listContainerElementRef}>
+    <>
+      <TabSwitchContainer>
+        <InvoiceTypeSwitch
+          variant="tertiary"
+          align="left"
+          $isSelected={invoiceType === InvoiceListStatusEnum.all}
+          onClick={() => navigate({ search: `?invoiceType=${InvoiceListStatusEnum.all}` })}
+        >
+          {translate('text_63ac86d797f728a87b2f9f8b')}
+        </InvoiceTypeSwitch>
+        <InvoiceTypeSwitch
+          variant="tertiary"
+          align="left"
+          $isSelected={invoiceType === InvoiceListStatusEnum.draft}
+          onClick={() => navigate({ search: `?invoiceType=${InvoiceListStatusEnum.draft}` })}
+        >
+          {translate('text_63ac86d797f728a87b2f9f91')}
+        </InvoiceTypeSwitch>
+        <InvoiceTypeSwitch
+          variant="tertiary"
+          align="left"
+          $isSelected={invoiceType === InvoiceListStatusEnum.pendingFailed}
+          onClick={() =>
+            navigate({ search: `?invoiceType=${InvoiceListStatusEnum.pendingFailed}` })
+          }
+        >
+          {translate('text_63ac86d797f728a87b2f9f97')}
+        </InvoiceTypeSwitch>
+        <InvoiceTypeSwitch
+          variant="tertiary"
+          align="left"
+          $isSelected={invoiceType === InvoiceListStatusEnum.succeeded}
+          onClick={() => navigate({ search: `?invoiceType=${InvoiceListStatusEnum.succeeded}` })}
+        >
+          {translate('text_63ac86d797f728a87b2f9fa1')}
+        </InvoiceTypeSwitch>
+        <InvoiceTypeSwitch
+          variant="tertiary"
+          align="left"
+          $isSelected={invoiceType === InvoiceListStatusEnum.voided}
+          onClick={() => navigate({ search: `?invoiceType=${InvoiceListStatusEnum.voided}` })}
+        >
+          {translate('text_6376641a2a9c70fff5bddcd5')}
+        </InvoiceTypeSwitch>
+        <InvoiceTypeSwitch
+          variant="tertiary"
+          align="left"
+          $isSelected={invoiceType === InvoiceListStatusEnum.disputed}
+          onClick={() => navigate({ search: `?invoiceType=${InvoiceListStatusEnum.disputed}` })}
+        >
+          {translate('text_66141e30699a0631f0b2ed32')}
+        </InvoiceTypeSwitch>
+      </TabSwitchContainer>
+      <ScrollContainer
+        ref={listContainerElementRef}
+        role="grid"
+        tabIndex={-1}
+        onKeyDown={onKeyDown}
+      >
         <List>
           <GridLine>
             <Typography variant="bodyHl" color="grey500">
@@ -269,18 +185,18 @@ const InvoicesList = () => {
                 />
               )}
             </>
-          ) : !isLoading && !data?.invoices?.collection?.length ? (
+          ) : !isLoading && !invoices?.length ? (
             <>
               {!!variables?.searchTerm ? (
                 <GenericPlaceholder
                   title={translate(
-                    tab === InvoiceListTabEnum.succeeded
+                    invoiceType === InvoiceListStatusEnum.succeeded
                       ? 'text_63c67d2913c20b8d7d05c44c'
-                      : tab === InvoiceListTabEnum.draft
+                      : invoiceType === InvoiceListStatusEnum.draft
                         ? 'text_63c67d2913c20b8d7d05c442'
-                        : tab === InvoiceListTabEnum.pendingFailed
+                        : invoiceType === InvoiceListStatusEnum.pendingFailed
                           ? 'text_63c67d8796db41749ada51ca'
-                          : tab === InvoiceListTabEnum.voided
+                          : invoiceType === InvoiceListStatusEnum.voided
                             ? 'text_65269cd46e7ec037a6823fd8'
                             : 'text_63c67d2913c20b8d7d05c43e',
                   )}
@@ -290,32 +206,32 @@ const InvoicesList = () => {
               ) : (
                 <GenericPlaceholder
                   title={translate(
-                    tab === InvoiceListTabEnum.succeeded
+                    invoiceType === InvoiceListStatusEnum.succeeded
                       ? 'text_63b578e959c1366df5d14559'
-                      : tab === InvoiceListTabEnum.draft
+                      : invoiceType === InvoiceListStatusEnum.draft
                         ? 'text_63b578e959c1366df5d1455b'
-                        : tab === InvoiceListTabEnum.pendingFailed
+                        : invoiceType === InvoiceListStatusEnum.pendingFailed
                           ? 'text_63b578e959c1366df5d1456e'
-                          : tab === InvoiceListTabEnum.voided
+                          : invoiceType === InvoiceListStatusEnum.voided
                             ? 'text_65269cd46e7ec037a6823fd6'
-                            : tab === InvoiceListTabEnum.disputed
+                            : invoiceType === InvoiceListStatusEnum.disputed
                               ? 'text_66141e30699a0631f0b2ec7f'
                               : 'text_63b578e959c1366df5d14569',
                   )}
                   subtitle={
-                    tab === InvoiceListTabEnum.succeeded ? (
+                    invoiceType === InvoiceListStatusEnum.succeeded ? (
                       translate('text_63b578e959c1366df5d1455f')
-                    ) : tab === InvoiceListTabEnum.draft ? (
+                    ) : invoiceType === InvoiceListStatusEnum.draft ? (
                       <Typography
                         html={translate('text_63b578e959c1366df5d14566', {
                           link: INVOICE_SETTINGS_ROUTE,
                         })}
                       />
-                    ) : tab === InvoiceListTabEnum.pendingFailed ? (
+                    ) : invoiceType === InvoiceListStatusEnum.pendingFailed ? (
                       translate('text_63b578e959c1366df5d14570')
-                    ) : tab === InvoiceListTabEnum.voided ? (
+                    ) : invoiceType === InvoiceListStatusEnum.voided ? (
                       translate('text_65269cd46e7ec037a6823fda')
-                    ) : tab === InvoiceListTabEnum.disputed ? (
+                    ) : invoiceType === InvoiceListStatusEnum.disputed ? (
                       translate('text_66141e30699a0631f0b2ec87')
                     ) : (
                       translate('text_63b578e959c1366df5d1456d')
@@ -328,7 +244,7 @@ const InvoicesList = () => {
           ) : (
             <InfiniteScroll
               onBottom={() => {
-                const { currentPage = 0, totalPages = 0 } = data?.invoices?.metadata || {}
+                const { currentPage = 0, totalPages = 0 } = metadata || {}
 
                 currentPage < totalPages &&
                   !isLoading &&
@@ -337,9 +253,7 @@ const InvoicesList = () => {
                   })
               }}
             >
-              {data?.invoices?.collection.map((invoice) => {
-                index += 1
-
+              {invoices?.map((invoice, index) => {
                 return (
                   <InvoiceListItem
                     key={invoice.id}
@@ -370,25 +284,16 @@ const InvoicesList = () => {
             </InfiniteScroll>
           )}
         </List>
-      </ScrollContainer>
 
-      <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
-      <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
-    </div>
+        <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
+        <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
+        <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
+      </ScrollContainer>
+    </>
   )
 }
 
 export default InvoicesList
-
-const HeaderRigthBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > :first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 const ScrollContainer = styled.div`
   overflow: auto;
@@ -410,5 +315,36 @@ const GridLine = styled(ListHeader)`
 const CustomerName = styled(Typography)`
   ${theme.breakpoints.down('md')} {
     display: none;
+  }
+`
+
+const TabSwitchContainer = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: ${theme.spacing(4)} ${theme.spacing(12)};
+  box-sizing: border-box;
+  gap: ${theme.spacing(3)};
+  box-shadow: ${theme.shadows[7]};
+  overflow-y: scroll;
+
+  ${theme.breakpoints.down('md')} {
+    padding: ${theme.spacing(4)};
+  }
+`
+
+const InvoiceTypeSwitch = styled(Button)<{ $isSelected: boolean }>`
+  flex-grow: 1;
+  height: 44px;
+
+  ${({ $isSelected }) =>
+    $isSelected &&
+    css`
+      color: ${palette.primary.main};
+    `};
+
+  ${theme.breakpoints.down('md')} {
+    width: fit-content;
+    flex-grow: 0;
   }
 `
