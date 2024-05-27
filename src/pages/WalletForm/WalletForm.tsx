@@ -4,18 +4,11 @@ import { useFormik } from 'formik'
 import { DateTime } from 'luxon'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { array, object, string } from 'yup'
 
-import { Alert, Button, Icon, Tooltip, Typography } from '~/components/designSystem'
-import {
-  AmountInputField,
-  ComboBoxField,
-  DatePickerField,
-  Switch,
-  TextInput,
-  TextInputField,
-} from '~/components/form'
+import { Alert, Button, Icon, Typography } from '~/components/designSystem'
+import { AmountInputField, ComboBoxField, Switch } from '~/components/form'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   getWordingForWalletCreationAlert,
@@ -25,7 +18,7 @@ import { WalletCodeSnippet } from '~/components/wallets/WalletCodeSnippet'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
-import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
 import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
@@ -45,6 +38,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { LoadingView } from '~/pages/WalletForm/components/LoadingView'
+import { SettingsCard } from '~/pages/WalletForm/components/SettingsCard'
 import { Card, NAV_HEIGHT, PageHeader, theme } from '~/styles'
 import { ButtonContainer, Side } from '~/styles/mainObjectsForm'
 
@@ -436,93 +430,14 @@ const WalletForm = () => {
                   {translate('text_62d18855b22699e5cf55f873')}
                 </Typography>
               </div>
-              <Card>
-                <Typography variant="subhead">
-                  {translate('text_6560809c38fb9de88d8a5090')}
-                </Typography>
-                <TextInputField
-                  name="name"
-                  label={translate('text_62d18855b22699e5cf55f875')}
-                  placeholder={translate('text_62d18855b22699e5cf55f877')}
-                  formikProps={formikProps}
-                />
-                <Inlineinputs $hasOnlyThreeColumn={!!customerData?.customer?.currency}>
-                  <TextInput
-                    value="1"
-                    label={translate('text_62d18855b22699e5cf55f879')}
-                    disabled={true}
-                  />
-                  <TextInput value="=" disabled={true} />
-                  <AmountInputField
-                    name="rateAmount"
-                    disabled={formType === FORM_TYPE_ENUM.edition}
-                    currency={formikProps.values.currency}
-                    beforeChangeFormatter={['positiveNumber']}
-                    label={translate('text_62d18855b22699e5cf55f87d')}
-                    formikProps={formikProps}
-                    InputProps={{
-                      endAdornment: !!customerData?.customer?.currency && (
-                        <InputAdornment position="end">
-                          {getCurrencySymbol(customerData?.customer?.currency)}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  {!customerData?.customer?.currency && (
-                    <ComboBoxField
-                      disableClearable
-                      name="currency"
-                      data={Object.values(CurrencyEnum).map((currencyType) => ({
-                        value: currencyType,
-                      }))}
-                      formikProps={formikProps}
-                      PopperProps={{ displayInDialog: true }}
-                    />
-                  )}
-                </Inlineinputs>
 
-                {showExpirationDate ? (
-                  <InlineExpirationInput>
-                    <DatePickerField
-                      disablePast
-                      name="expirationAt"
-                      placement="top-end"
-                      label={translate('text_62d18855b22699e5cf55f897')}
-                      placeholder={translate('text_62d18855b22699e5cf55f899')}
-                      formikProps={formikProps}
-                      error={
-                        formikProps.errors.expirationAt === dateErrorCodes.shouldBeInFuture
-                          ? translate('text_630ccd87b251590eaa5f9831', {
-                              date: DateTime.now().toFormat('LLL. dd, yyyy'),
-                            })
-                          : undefined
-                      }
-                    />
-                    <CloseExpirationTooltip
-                      placement="top-end"
-                      title={translate('text_63aa085d28b8510cd46443ff')}
-                    >
-                      <Button
-                        icon="trash"
-                        variant="quaternary"
-                        onClick={() => {
-                          formikProps.setFieldValue('expirationAt', null)
-                          setShowExpirationDate(false)
-                        }}
-                      />
-                    </CloseExpirationTooltip>
-                  </InlineExpirationInput>
-                ) : (
-                  <Button
-                    startIcon="plus"
-                    variant="quaternary"
-                    onClick={() => setShowExpirationDate(true)}
-                    data-test="show-expiration-at"
-                  >
-                    {translate('text_6560809c38fb9de88d8a517e')}
-                  </Button>
-                )}
-              </Card>
+              <SettingsCard
+                formikProps={formikProps}
+                formType={formType}
+                customerData={customerData}
+                showExpirationDate={showExpirationDate}
+                setShowExpirationDate={setShowExpirationDate}
+              />
 
               <Card>
                 <Typography variant="subhead">
@@ -842,33 +757,6 @@ const Main = styled.div`
 
 const Title = styled(Typography)`
   margin-bottom: ${theme.spacing(1)};
-`
-
-const Inlineinputs = styled.div<{ $hasOnlyThreeColumn?: boolean }>`
-  display: grid;
-  grid-template-columns: 48px 48px 1fr 120px;
-  gap: ${theme.spacing(3)};
-  align-items: flex-end;
-
-  ${({ $hasOnlyThreeColumn }) =>
-    $hasOnlyThreeColumn &&
-    css`
-      grid-template-columns: minmax(48px, 120px) 48px minmax(160px, 1fr);
-    `}
-`
-
-const InlineExpirationInput = styled.div`
-  display: flex;
-  gap: ${theme.spacing(4)};
-  align-items: center;
-
-  > *:first-child {
-    flex-grow: 1;
-  }
-`
-
-const CloseExpirationTooltip = styled(Tooltip)`
-  margin-top: ${theme.spacing(6)};
 `
 
 const InlineElements = styled.div`
