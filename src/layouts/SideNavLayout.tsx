@@ -297,7 +297,7 @@ const SideNav = () => {
                     icon: 'document',
                     link: INVOICES_ROUTE,
                     match: [INVOICES_ROUTE, INVOICES_TAB_ROUTE],
-                    hidden: !hasPermissions(['invoicesView']),
+                    hidden: !hasPermissions(['invoicesView', 'creditNotesView']),
                   },
                 ]}
                 orientation="vertical"

@@ -6412,7 +6412,7 @@ export type GetInvoiceCreditNotesQuery = { __typename?: 'Query', invoiceCreditNo
 
 export type InvoiceDetailsForInvoiceOverviewFragment = { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, issuingDate: any, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum } };
 
-export type InvoicesListQueryVariables = Exact<{
+export type GetInvoicesListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   status?: InputMaybe<InvoiceStatusTypeEnum>;
@@ -6422,7 +6422,7 @@ export type InvoicesListQueryVariables = Exact<{
 }>;
 
 
-export type InvoicesListQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, applicableTimezone: TimezoneEnum } }> } };
+export type GetInvoicesListQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, applicableTimezone: TimezoneEnum } }> } };
 
 export type RetryAllInvoicePaymentsMutationVariables = Exact<{
   input: RetryAllInvoicePaymentsInput;
@@ -15240,8 +15240,8 @@ export type GetInvoiceCreditNotesQueryHookResult = ReturnType<typeof useGetInvoi
 export type GetInvoiceCreditNotesLazyQueryHookResult = ReturnType<typeof useGetInvoiceCreditNotesLazyQuery>;
 export type GetInvoiceCreditNotesSuspenseQueryHookResult = ReturnType<typeof useGetInvoiceCreditNotesSuspenseQuery>;
 export type GetInvoiceCreditNotesQueryResult = Apollo.QueryResult<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>;
-export const InvoicesListDocument = gql`
-    query invoicesList($limit: Int, $page: Int, $status: InvoiceStatusTypeEnum, $paymentStatus: [InvoicePaymentStatusTypeEnum!], $searchTerm: String, $paymentDisputeLost: Boolean) {
+export const GetInvoicesListDocument = gql`
+    query getInvoicesList($limit: Int, $page: Int, $status: InvoiceStatusTypeEnum, $paymentStatus: [InvoicePaymentStatusTypeEnum!], $searchTerm: String, $paymentDisputeLost: Boolean) {
   invoices(
     limit: $limit
     page: $page
@@ -15264,16 +15264,16 @@ export const InvoicesListDocument = gql`
     ${InvoiceListItemFragmentDoc}`;
 
 /**
- * __useInvoicesListQuery__
+ * __useGetInvoicesListQuery__
  *
- * To run a query within a React component, call `useInvoicesListQuery` and pass it any options that fit your needs.
- * When your component renders, `useInvoicesListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetInvoicesListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInvoicesListQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useInvoicesListQuery({
+ * const { data, loading, error } = useGetInvoicesListQuery({
  *   variables: {
  *      limit: // value for 'limit'
  *      page: // value for 'page'
@@ -15284,22 +15284,22 @@ export const InvoicesListDocument = gql`
  *   },
  * });
  */
-export function useInvoicesListQuery(baseOptions?: Apollo.QueryHookOptions<InvoicesListQuery, InvoicesListQueryVariables>) {
+export function useGetInvoicesListQuery(baseOptions?: Apollo.QueryHookOptions<GetInvoicesListQuery, GetInvoicesListQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<InvoicesListQuery, InvoicesListQueryVariables>(InvoicesListDocument, options);
+        return Apollo.useQuery<GetInvoicesListQuery, GetInvoicesListQueryVariables>(GetInvoicesListDocument, options);
       }
-export function useInvoicesListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<InvoicesListQuery, InvoicesListQueryVariables>) {
+export function useGetInvoicesListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetInvoicesListQuery, GetInvoicesListQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<InvoicesListQuery, InvoicesListQueryVariables>(InvoicesListDocument, options);
+          return Apollo.useLazyQuery<GetInvoicesListQuery, GetInvoicesListQueryVariables>(GetInvoicesListDocument, options);
         }
-export function useInvoicesListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<InvoicesListQuery, InvoicesListQueryVariables>) {
+export function useGetInvoicesListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoicesListQuery, GetInvoicesListQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<InvoicesListQuery, InvoicesListQueryVariables>(InvoicesListDocument, options);
+          return Apollo.useSuspenseQuery<GetInvoicesListQuery, GetInvoicesListQueryVariables>(GetInvoicesListDocument, options);
         }
-export type InvoicesListQueryHookResult = ReturnType<typeof useInvoicesListQuery>;
-export type InvoicesListLazyQueryHookResult = ReturnType<typeof useInvoicesListLazyQuery>;
-export type InvoicesListSuspenseQueryHookResult = ReturnType<typeof useInvoicesListSuspenseQuery>;
-export type InvoicesListQueryResult = Apollo.QueryResult<InvoicesListQuery, InvoicesListQueryVariables>;
+export type GetInvoicesListQueryHookResult = ReturnType<typeof useGetInvoicesListQuery>;
+export type GetInvoicesListLazyQueryHookResult = ReturnType<typeof useGetInvoicesListLazyQuery>;
+export type GetInvoicesListSuspenseQueryHookResult = ReturnType<typeof useGetInvoicesListSuspenseQuery>;
+export type GetInvoicesListQueryResult = Apollo.QueryResult<GetInvoicesListQuery, GetInvoicesListQueryVariables>;
 export const RetryAllInvoicePaymentsDocument = gql`
     mutation retryAllInvoicePayments($input: RetryAllInvoicePaymentsInput!) {
   retryAllInvoicePayments(input: $input) {
