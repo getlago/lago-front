@@ -29,13 +29,11 @@ import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNu
 import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
 import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
-  CreateCustomerWalletInput,
   CurrencyEnum,
   GetWalletInfosForWalletFormQuery,
   LagoApiError,
   RecurringTransactionIntervalEnum,
   RecurringTransactionTriggerEnum,
-  UpdateCustomerWalletInput,
   UpdateRecurringTransactionRuleInput,
   useCreateCustomerWalletMutation,
   useGetCustomerInfosForWalletFormQuery,
@@ -49,10 +47,9 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { Card, NAV_HEIGHT, PageHeader, theme } from '~/styles'
 import { ButtonContainer, Side, SkeletonHeader } from '~/styles/mainObjectsForm'
 
-import { CustomerDetailsTabsOptions } from './CustomerDetails'
+import { TWalletDataForm } from './types'
 
-export type TWalletDataForm = Omit<CreateCustomerWalletInput, 'customerId'> &
-  Omit<UpdateCustomerWalletInput, 'id'>
+import { CustomerDetailsTabsOptions } from '../CustomerDetails'
 
 const DEFAULT_RULES = {
   grantedCredits: undefined,

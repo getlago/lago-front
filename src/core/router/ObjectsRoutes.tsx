@@ -38,7 +38,7 @@ const CreateSubscription = lazyLoad(
   () => import(/* webpackChunkName: 'create-subscription' */ '~/pages/CreateSubscription'),
 )
 const WalletForm = lazyLoad(
-  () => import(/* webpackChunkName: 'wallet-form' */ '~/pages/WalletForm'),
+  () => import(/* webpackChunkName: 'wallet-form' */ '~/pages/WalletForm/WalletForm'),
 )
 
 // Details
