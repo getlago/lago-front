@@ -57,6 +57,13 @@
     "body": "const { hasPermissions } = usePermissions()"
   },
 
+  // Translations
+  "Add translate with TODO: key": {
+    "scope": "typescript, typescriptreact",
+    "prefix": "trl",
+    "body": "translate('TODO: $1')"
+  },
+
   // Linter ignore
   "Ignore exhaustive deps if needed": {
     "scope": "typescript, typescriptreact",
