@@ -67,7 +67,7 @@ const formatCreditsToCurrency = (rate: string, credits?: string, currency?: Curr
 
 const DEFAULT_RULES: UpdateRecurringTransactionRuleInput = {
   grantedCredits: undefined,
-  interval: undefined,
+  interval: RecurringTransactionIntervalEnum.Weekly,
   lagoId: undefined,
   paidCredits: undefined,
   trigger: RecurringTransactionTriggerEnum.Threshold,
@@ -338,7 +338,7 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                 translate,
                 currency: formikProps.values?.currency,
                 customerTimezone: customerData?.customer?.timezone,
-                rulesValues: recurringTransactionRules,
+                recurringRulesValues: recurringTransactionRules,
                 walletValues: formikProps.values,
               })}
             </Alert>
@@ -352,7 +352,7 @@ export const TopUpCard: FC<TopUpCardProps> = ({
             translate,
             currency: formikProps.values?.currency,
             customerTimezone: customerData?.customer?.timezone,
-            rulesValues: recurringTransactionRules,
+            recurringRulesValues: recurringTransactionRules,
             walletValues: formikProps.values,
           })}
         </Alert>
@@ -363,7 +363,7 @@ export const TopUpCard: FC<TopUpCardProps> = ({
             translate,
             currency: formikProps.values?.currency,
             customerTimezone: customerData?.customer?.timezone,
-            rulesValues: recurringTransactionRules,
+            recurringRulesValues: recurringTransactionRules,
           })}
         </Alert>
       )}

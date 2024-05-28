@@ -2095,5 +2095,18 @@
   "text_66474faf77c70900619567c7": "Forbidden access",
   "text_66474fb55f1b6901c7ac7683": "It seems you don’t have the permission to access this page. If you think this is an error contact an admin of your organization.",
   "text_665deda4babaf700d603ea13": "Leaving without saving",
-  "text_665dedd557dc3c00c62eb83d": "By clicking 'Leave', any unsaved data will be lost. Are you sure you want to continue?"
+  "text_665dedd557dc3c00c62eb83d": "By clicking 'Leave', any unsaved data will be lost. Are you sure you want to continue?",
+
+  "pre_threshold": "Each time your wallet ongoing balance falls to or below {{thresholdCredits}},",
+  "pre_fixed": "A top-up of {{totalCreditCount}} credits is set for {{nextRecurringTopUpDate}}",
+  "pre_target": "A top-up of credits is set to match the target balance on {{nextRecurringTopUpDate}}",
+  "fixed": "a top-up of {{totalCreditCount}} credits will occur.",
+  "target": "a top-up of credits will recur to match the target balance.",
+  "weekly": "and will recur every {{dayOfWeek}}.",
+  "monthly": "and will recur every month.",
+  "monthly_na": "and will recur every month, if applicable; otherwise, it will occur at the end of the month.",
+  "quarter": "and will recur every 15th on a quarterly basis.",
+  "quarter_na": "and will recur every 31st on a quarterly basis if applicable; otherwise, it will occur at the end of the month.",
+  "yearly": "and will recur every year.",
+  "yearly_na": "and will recur every year, if applicable; otherwise, it will occur at the end of {{month}} on a yearly basis."
 }

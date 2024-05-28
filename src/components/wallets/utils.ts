@@ -1,11 +1,13 @@
 import { DateTime } from 'luxon'
 
-import { intlFormatNumber, intlFormatOrdinalNumber } from '~/core/formats/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { getTimezoneConfig } from '~/core/timezone'
+import { Locale } from '~/core/translations'
 import {
   CreateRecurringTransactionRuleInput,
   CurrencyEnum,
   RecurringTransactionIntervalEnum,
+  RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
   TimezoneEnum,
   UpdateRecurringTransactionRuleInput,
@@ -15,137 +17,237 @@ import { TWalletDataForm } from '~/pages/WalletForm'
 
 type TGetWordingForWalletAlert = {
   currency: CurrencyEnum
-  rulesValues?: CreateRecurringTransactionRuleInput[][0] & UpdateRecurringTransactionRuleInput[][0]
+  recurringRulesValues?: CreateRecurringTransactionRuleInput[][0] &
+    UpdateRecurringTransactionRuleInput[][0]
   translate: ReturnType<typeof useInternationalization>['translate']
   customerTimezone?: TimezoneEnum | null
 }
 
-export const getWordingForWalletCreationAlert = ({
-  currency,
-  customerTimezone,
-  rulesValues,
+type GetWordingForWalletCreationAlert = TGetWordingForWalletAlert & {
+  walletValues: TWalletDataForm
+}
+
+export const toNumber = (value: unknown, defaultValue: number = 0) => {
+  const number = Number(value ?? defaultValue)
+
+  return isNaN(number) ? defaultValue : number
+}
+
+export const getDateRef = (
+  timezone?: TGetWordingForWalletAlert['customerTimezone'],
+  locale: Locale = 'en',
+) => {
+  const GMT = getTimezoneConfig(TimezoneEnum.TzUtc).name
+  const gmtDateRef = DateTime.now().setZone(GMT).toISO() || ''
+  const customerZone = getTimezoneConfig(timezone).name
+  const dateRefForDisplay = DateTime.fromISO(gmtDateRef).setZone(customerZone).startOf('day')
+
+  return dateRefForDisplay.setLocale(locale)
+}
+
+export const getNextRecurringDate = ({
+  timezone,
+  interval,
+}: {
+  timezone: TGetWordingForWalletAlert['customerTimezone']
+  interval?: RecurringTransactionIntervalEnum | null
+}) => {
+  let date = null
+
+  switch (interval) {
+    case RecurringTransactionIntervalEnum.Weekly:
+      date = getDateRef(timezone).plus({ days: 7 }).toLocaleString(DateTime.DATE_FULL)
+      break
+    case RecurringTransactionIntervalEnum.Monthly:
+      date = getDateRef(timezone).plus({ months: 1 }).toLocaleString(DateTime.DATE_FULL)
+      break
+    case RecurringTransactionIntervalEnum.Quarterly:
+      date = getDateRef(timezone).plus({ months: 3 }).toLocaleString(DateTime.DATE_FULL)
+      break
+    case RecurringTransactionIntervalEnum.Yearly:
+      date = getDateRef(timezone).plus({ years: 1 }).toLocaleString(DateTime.DATE_FULL)
+      break
+    default:
+      break
+  }
+
+  return date ?? ''
+}
+
+const setStartOfSentence = ({
+  recurringRulesValues,
   walletValues,
   translate,
-}: TGetWordingForWalletAlert & {
-  walletValues: TWalletDataForm
-}): string => {
-  let text =
-    translate('text_6560809c38fb9de88d8a537a', {
-      totalCreditCount:
-        Number(walletValues?.paidCredits || 0) + Number(walletValues?.grantedCredits || 0),
-    }) + '\n'
+  currency,
+  customerTimezone,
+}: GetWordingForWalletCreationAlert) => {
+  let text = ''
 
-  if (
-    rulesValues?.trigger === RecurringTransactionTriggerEnum.Threshold &&
-    !!rulesValues?.thresholdCredits
-  ) {
-    text += translate('text_6560809c38fb9de88d8a5386', {
-      thresholdCredits: intlFormatNumber(Number(rulesValues?.thresholdCredits), {
-        currencyDisplay: 'symbol',
-        currency,
-      }),
+  if (recurringRulesValues?.trigger === RecurringTransactionTriggerEnum.Threshold) {
+    text = translate('pre_threshold', {
+      thresholdCredits: intlFormatNumber(
+        toNumber(recurringRulesValues?.thresholdCredits) * toNumber(walletValues.rateAmount),
+        {
+          currencyDisplay: 'symbol',
+          currency,
+        },
+      ),
     })
-  } else if (rulesValues?.trigger === RecurringTransactionTriggerEnum.Interval) {
-    const GMT = getTimezoneConfig(TimezoneEnum.TzUtc).name
-    const gmtDateRef = DateTime.now().setZone(GMT).toISO() || ''
-    const customerZone = getTimezoneConfig(customerTimezone).name
-    const dateRefForDisplay = DateTime.fromISO(gmtDateRef).setZone(customerZone).startOf('day')
-    const isDayPotentiallyNotReachableOnAllPeriods = dateRefForDisplay.day > 28
+  } else {
+    const totalCreditCount =
+      toNumber(walletValues.recurringTransactionRules?.[0].paidCredits) +
+      toNumber(walletValues.recurringTransactionRules?.[0].grantedCredits)
+    const nextRecurringTopUpDate = getNextRecurringDate({
+      timezone: customerTimezone,
+      interval: walletValues.recurringTransactionRules?.[0].interval,
+    })
 
-    if (rulesValues?.interval === RecurringTransactionIntervalEnum.Weekly) {
-      const daysOfTheWeek = dateRefForDisplay.plus({ days: 7 }).weekdayLong
-
-      text += translate('text_6560809c38fb9de88d8a536c', {
-        daysOfTheWeek,
-      })
-    } else if (rulesValues?.interval === RecurringTransactionIntervalEnum.Monthly) {
-      const nextRecurringTopUpDate = dateRefForDisplay.plus({ months: 1 })
-
-      if (isDayPotentiallyNotReachableOnAllPeriods) {
-        text += translate('text_6560809c38fb9de88d8a53d4', {
-          nextOccurenceDayNumber: intlFormatOrdinalNumber(nextRecurringTopUpDate.day),
-        })
-      } else {
-        text += translate('text_6560809c38fb9de88d8a539b', {
-          nextOccurenceDayNumber: intlFormatOrdinalNumber(nextRecurringTopUpDate.day),
-        })
-      }
-    } else if (rulesValues?.interval === RecurringTransactionIntervalEnum.Quarterly) {
-      const nextRecurringTopUpDate = dateRefForDisplay.plus({ months: 3 })
-
-      if (isDayPotentiallyNotReachableOnAllPeriods) {
-        text += translate('text_6560809c38fb9de88d8a53c4', {
-          dateOfTheMonth: intlFormatOrdinalNumber(nextRecurringTopUpDate.day),
-        })
-      } else {
-        text += translate('text_6560809c38fb9de88d8a5380', {
-          dateOfTheMonth: intlFormatOrdinalNumber(nextRecurringTopUpDate.day),
-        })
-      }
-    } else if (rulesValues?.interval === RecurringTransactionIntervalEnum.Yearly) {
-      const nextRecurringTopUpDate = dateRefForDisplay.plus({ years: 1 })
-      const isFebruary = nextRecurringTopUpDate.month === 2
-
-      if (isDayPotentiallyNotReachableOnAllPeriods && isFebruary) {
-        text += translate('text_6560809d38fb9de88d8a542a', {
-          dateOfTheMonth: nextRecurringTopUpDate.toFormat('LLL. dd'),
-        })
-      } else {
-        text += translate('text_6560809c38fb9de88d8a5414', {
-          dateOfTheMonth: nextRecurringTopUpDate.toFormat('LLL. dd'),
-        })
-      }
+    if (recurringRulesValues?.method === RecurringTransactionMethodEnum.Fixed) {
+      text = translate('pre_fixed', { totalCreditCount, nextRecurringTopUpDate })
+    } else if (recurringRulesValues?.method === RecurringTransactionMethodEnum.Target) {
+      text = translate('pre_target', { totalCreditCount, nextRecurringTopUpDate })
     }
   }
 
   return text
 }
 
+const MINIMUM_DAYS_IN_MONTH = 28
+
+const setEndOfSentence = ({
+  recurringRulesValues,
+  customerTimezone,
+  walletValues,
+  translate,
+}: Pick<
+  GetWordingForWalletCreationAlert,
+  'recurringRulesValues' | 'customerTimezone' | 'walletValues' | 'translate'
+>) => {
+  let text = ''
+
+  if (recurringRulesValues?.trigger === RecurringTransactionTriggerEnum.Interval) {
+    const dateRef = getDateRef(customerTimezone)
+    const isDayPotentiallyNotReachableOnEntirePeriod = dateRef.day > MINIMUM_DAYS_IN_MONTH
+
+    switch (recurringRulesValues?.interval) {
+      case RecurringTransactionIntervalEnum.Weekly:
+        const dayOfWeek = dateRef.weekdayLong
+
+        text = translate('weekly', { dayOfWeek })
+        break
+      case RecurringTransactionIntervalEnum.Monthly:
+        text = isDayPotentiallyNotReachableOnEntirePeriod
+          ? translate('monthly_na')
+          : translate('monthly')
+        break
+      case RecurringTransactionIntervalEnum.Quarterly:
+        text = isDayPotentiallyNotReachableOnEntirePeriod
+          ? translate('quarter_na')
+          : translate('quarter')
+        break
+      case RecurringTransactionIntervalEnum.Yearly:
+        text = isDayPotentiallyNotReachableOnEntirePeriod
+          ? translate('yearly_na')
+          : translate('yearly')
+        break
+      default:
+        break
+    }
+  } else if (recurringRulesValues?.trigger === RecurringTransactionTriggerEnum.Threshold) {
+    if (recurringRulesValues?.method === RecurringTransactionMethodEnum.Fixed) {
+      const totalCreditCount =
+        toNumber(walletValues.recurringTransactionRules?.[0].paidCredits) +
+        toNumber(walletValues.recurringTransactionRules?.[0].grantedCredits)
+
+      text = translate('fixed', { totalCreditCount })
+    } else if (recurringRulesValues?.method === RecurringTransactionMethodEnum.Target) {
+      text = translate('target')
+    }
+  }
+
+  return text
+}
+
+export const getWordingForWalletCreationAlert = ({
+  currency,
+  customerTimezone,
+  recurringRulesValues,
+  walletValues,
+  translate,
+}: GetWordingForWalletCreationAlert): string => {
+  if (!recurringRulesValues) {
+    const text = translate('text_6560809c38fb9de88d8a537a', {
+      totalCreditCount:
+        toNumber(walletValues?.paidCredits) + toNumber(walletValues?.grantedCredits),
+    })
+
+    return text
+  }
+
+  let startSentence = setStartOfSentence({
+    recurringRulesValues,
+    walletValues,
+    currency,
+    customerTimezone,
+    translate,
+  })
+
+  let endSentence = setEndOfSentence({
+    recurringRulesValues,
+    walletValues,
+    customerTimezone,
+    translate,
+  })
+
+  return `${startSentence} ${endSentence}`
+}
+
 export const getWordingForWalletEditionAlert = ({
   currency,
   customerTimezone,
-  rulesValues,
+  recurringRulesValues,
   translate,
 }: TGetWordingForWalletAlert): string => {
   const totalCreditCount =
-    Number(rulesValues?.paidCredits || 0) + Number(rulesValues?.grantedCredits || 0)
+    Number(recurringRulesValues?.paidCredits || 0) +
+    Number(recurringRulesValues?.grantedCredits || 0)
 
-  if (rulesValues?.trigger === RecurringTransactionTriggerEnum.Threshold) {
+  if (recurringRulesValues?.trigger === RecurringTransactionTriggerEnum.Threshold) {
     return translate('text_6560809c38fb9de88d8a5406', {
       totalCreditCount,
-      thresholdCredits: intlFormatNumber(Number(rulesValues?.thresholdCredits), {
+      thresholdCredits: intlFormatNumber(Number(recurringRulesValues?.thresholdCredits), {
         currencyDisplay: 'symbol',
         currency,
       }),
     })
-  } else if (rulesValues?.trigger === RecurringTransactionTriggerEnum.Interval) {
+  } else if (recurringRulesValues?.trigger === RecurringTransactionTriggerEnum.Interval) {
     const GMT = getTimezoneConfig(TimezoneEnum.TzUtc).name
     const gmtDateRef = DateTime.now().setZone(GMT).toISO() || ''
     const customerZone = getTimezoneConfig(customerTimezone).name
     const dateRefForDisplay = DateTime.fromISO(gmtDateRef).setZone(customerZone).startOf('day')
 
-    if (rulesValues?.interval === RecurringTransactionIntervalEnum.Weekly) {
+    if (recurringRulesValues?.interval === RecurringTransactionIntervalEnum.Weekly) {
       const nextRecurringTopUpDate = dateRefForDisplay.plus({ days: 7 }).toFormat('LLL. dd, yyyy')
 
       return translate('text_6560809c38fb9de88d8a5370', {
         totalCreditCount,
         nextRecurringTopUpDate,
       })
-    } else if (rulesValues?.interval === RecurringTransactionIntervalEnum.Monthly) {
+    } else if (recurringRulesValues?.interval === RecurringTransactionIntervalEnum.Monthly) {
       const nextRecurringTopUpDate = dateRefForDisplay.plus({ months: 1 }).toFormat('LLL. dd, yyyy')
 
       return translate('text_6560809c38fb9de88d8a5360', {
         totalCreditCount,
         nextRecurringTopUpDate,
       })
-    } else if (rulesValues?.interval === RecurringTransactionIntervalEnum.Quarterly) {
+    } else if (recurringRulesValues?.interval === RecurringTransactionIntervalEnum.Quarterly) {
       const nextRecurringTopUpDate = dateRefForDisplay.plus({ months: 3 }).toFormat('LLL. dd, yyyy')
 
       return translate('text_6560809c38fb9de88d8a535e', {
         totalCreditCount,
         nextRecurringTopUpDate,
       })
-    } else if (rulesValues?.interval === RecurringTransactionIntervalEnum.Yearly) {
+    } else if (recurringRulesValues?.interval === RecurringTransactionIntervalEnum.Yearly) {
       const nextRecurringTopUpDate = dateRefForDisplay.plus({ years: 1 }).toFormat('LLL. dd, yyyy')
 
       return translate('text_6560809c38fb9de88d8a5408', {
