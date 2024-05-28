@@ -114,6 +114,7 @@ const Settings = () => {
               {
                 title: translate('text_664c732c264d7eed1c74fd96'),
                 link: AUTHENTICATION_ROUTE,
+                hidden: !hasPermissions(['organizationIntegrationsView']),
               },
               {
                 title: translate('text_63208b630aaf8df6bbfb2655'),
