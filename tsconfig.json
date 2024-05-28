@@ -1,5 +1,5 @@
 {
-  "include": ["**/*.tsx", "**/*.ts", "cypress/cypress.config.js"],
+  "include": ["**/*.tsx", "**/*.ts", "cypress/cypress.config.js", "**/*.d.ts"],
   "compilerOptions": {
     "lib": ["es6", "dom", "esnext"],
     "outDir": "./dist",

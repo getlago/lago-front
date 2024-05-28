@@ -12,9 +12,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-const DOMAIN_REGEX: RegExp =
-  /^((?!-))(xn--)?[a-z0-9][a-z0-9-_]{0,61}[a-z0-9]{0,1}\.(xn--)?([a-z0-9\-]{1,61}|[a-z0-9-]{1,30}\.[a-z]{2,})$/
-
 gql`
   fragment AddOktaIntegrationDialog on OktaIntegration {
     id
@@ -41,7 +38,7 @@ gql`
 `
 
 const oktaIntegrationSchema = object().shape({
-  domain: string().matches(DOMAIN_REGEX, 'text_664c732c264d7eed1c74fe03').required(''),
+  domain: string().domain('text_664c732c264d7eed1c74fe03').required(''),
   clientId: string().required(''),
   clientSecret: string().required(''),
   organizationName: string().required(''),
