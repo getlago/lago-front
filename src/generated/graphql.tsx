@@ -1100,7 +1100,7 @@ export type CreateNetsuiteIntegrationInput = {
   code: Scalars['String']['input'];
   connectionId: Scalars['String']['input'];
   name: Scalars['String']['input'];
-  scriptEndpointUrl: Scalars['String']['input'];
+  scriptEndpointUrl?: InputMaybe<Scalars['String']['input']>;
   syncCreditNotes?: InputMaybe<Scalars['Boolean']['input']>;
   syncInvoices?: InputMaybe<Scalars['Boolean']['input']>;
   syncPayments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2430,6 +2430,7 @@ export enum LagoApiError {
   CouponIsNotReusable = 'coupon_is_not_reusable',
   CurrenciesDoesNotMatch = 'currencies_does_not_match',
   DoesNotMatchItemAmounts = 'does_not_match_item_amounts',
+  DomainNotConfigured = 'domain_not_configured',
   EmailAlreadyUsed = 'email_already_used',
   ExpiredJwtToken = 'expired_jwt_token',
   Forbidden = 'forbidden',
@@ -2443,6 +2444,7 @@ export enum LagoApiError {
   InviteNotFound = 'invite_not_found',
   NotFound = 'not_found',
   NotOrganizationMember = 'not_organization_member',
+  OktaUserinfoError = 'okta_userinfo_error',
   PaymentProcessorIsCurrentlyHandlingPayment = 'payment_processor_is_currently_handling_payment',
   PlanNotFound = 'plan_not_found',
   PlanOverlapping = 'plan_overlapping',
@@ -2522,7 +2524,7 @@ export type Membership = {
   organization: Organization;
   permissions: Permissions;
   revokedAt: Scalars['ISO8601DateTime']['output'];
-  role: MembershipRole;
+  role?: Maybe<MembershipRole>;
   status: MembershipStatus;
   updatedAt: Scalars['ISO8601DateTime']['output'];
   user: User;
@@ -3175,7 +3177,7 @@ export type NetsuiteIntegration = {
   hasMappingsConfigured?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
-  scriptEndpointUrl: Scalars['String']['output'];
+  scriptEndpointUrl?: Maybe<Scalars['String']['output']>;
   syncCreditNotes?: Maybe<Scalars['Boolean']['output']>;
   syncInvoices?: Maybe<Scalars['Boolean']['output']>;
   syncPayments?: Maybe<Scalars['Boolean']['output']>;
@@ -4836,7 +4838,7 @@ export enum WeightedIntervalEnum {
 export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', id: string, organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesUpdate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsDelete: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> }, organization?: { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum } | null };
+export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', id: string, organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsDelete: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> }, organization?: { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum } | null };
 
 export type AddOnItemFragment = { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customersCount: number, createdAt: any };
 
@@ -5553,6 +5555,31 @@ export type UpdateOrganizationTimezoneMutationVariables = Exact<{
 
 export type UpdateOrganizationTimezoneMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, timezone?: TimezoneEnum | null } | null };
 
+export type DeleteOktaIntegrationDialogFragment = { __typename?: 'OktaIntegration', id: string, name: string };
+
+export type DestroyIntegrationMutationVariables = Exact<{
+  input: DestroyIntegrationInput;
+}>;
+
+
+export type DestroyIntegrationMutation = { __typename?: 'Mutation', destroyIntegration?: { __typename?: 'DestroyIntegrationPayload', id?: string | null } | null };
+
+export type AddOktaIntegrationDialogFragment = { __typename?: 'OktaIntegration', id: string, domain: string, clientId?: string | null, clientSecret?: string | null, organizationName: string, name: string };
+
+export type CreateOktaIntegrationMutationVariables = Exact<{
+  input: CreateOktaIntegrationInput;
+}>;
+
+
+export type CreateOktaIntegrationMutation = { __typename?: 'Mutation', createOktaIntegration?: { __typename?: 'OktaIntegration', id: string } | null };
+
+export type UpdateOktaIntegrationMutationVariables = Exact<{
+  input: UpdateOktaIntegrationInput;
+}>;
+
+
+export type UpdateOktaIntegrationMutation = { __typename?: 'Mutation', updateOktaIntegration?: { __typename?: 'OktaIntegration', id: string } | null };
+
 export type UpdateOrganizationLogoMutationVariables = Exact<{
   input: UpdateOrganizationInput;
 }>;
@@ -5946,12 +5973,12 @@ export type UpdateTaxMutationVariables = Exact<{
 
 export type UpdateTaxMutation = { __typename?: 'Mutation', updateTax?: { __typename?: 'Tax', id: string, code: string, description?: string | null, name: string, rate: number, customersCount: number } | null };
 
-export type CurrentUserInfosFragment = { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', id: string, organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesUpdate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsDelete: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> };
+export type CurrentUserInfosFragment = { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', id: string, organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsDelete: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> };
 
 export type GetCurrentUserInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCurrentUserInfosQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', id: string, organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesUpdate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsDelete: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> } };
+export type GetCurrentUserInfosQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', id: string, organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsDelete: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> } };
 
 export type GetEmailSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -5972,7 +5999,7 @@ export type GetOrganizationInfosQueryVariables = Exact<{ [key: string]: never; }
 
 export type GetOrganizationInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum } | null };
 
-export type MembershipPermissionsFragment = { __typename?: 'Membership', id: string, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesUpdate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsDelete: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } };
+export type MembershipPermissionsFragment = { __typename?: 'Membership', id: string, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsDelete: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } };
 
 export type AllInvoiceDetailsForCustomerInvoiceDetailsFragment = { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, issuingDate: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, versionNumber: number, paymentDueDate: any, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, name?: string | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, tax: { __typename?: 'Tax', id: string, rate: number } }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxRate: number, taxName: string }> | null };
 
@@ -6183,6 +6210,20 @@ export type GoogleAcceptInviteMutationVariables = Exact<{
 
 export type GoogleAcceptInviteMutation = { __typename?: 'Mutation', googleAcceptInvite?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
 
+export type FetchOktaAuthorizeUrlMutationVariables = Exact<{
+  input: OktaAuthorizeInput;
+}>;
+
+
+export type FetchOktaAuthorizeUrlMutation = { __typename?: 'Mutation', oktaAuthorize?: { __typename?: 'Authorize', url: string } | null };
+
+export type OktaAcceptInviteMutationVariables = Exact<{
+  input: OktaAcceptInviteInput;
+}>;
+
+
+export type OktaAcceptInviteMutation = { __typename?: 'Mutation', oktaAcceptInvite?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
+
 export type GetInvoiceCreditNotesQueryVariables = Exact<{
   invoiceId: Scalars['ID']['input'];
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -6287,6 +6328,13 @@ export type LoginUserMutationVariables = Exact<{
 
 export type LoginUserMutation = { __typename?: 'Mutation', loginUser?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
 
+export type OktaLoginUserMutationVariables = Exact<{
+  input: OktaLoginInput;
+}>;
+
+
+export type OktaLoginUserMutation = { __typename?: 'Mutation', oktaLogin?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
+
 export type GetPortalLocaleQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -6387,6 +6435,22 @@ export type GetAdyenIntegrationsListQueryVariables = Exact<{
 
 
 export type GetAdyenIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string, name: string, code: string, apiKey?: string | null, hmacKey?: string | null, livePrefix?: string | null, merchantAccount: string } | { __typename?: 'GocardlessProvider' } | { __typename?: 'StripeProvider' }> } | null };
+
+export type GetAuthIntegrationsQueryVariables = Exact<{
+  limit: Scalars['Int']['input'];
+}>;
+
+
+export type GetAuthIntegrationsQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, premiumIntegrations: Array<IntegrationTypeEnum> } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration', id: string, domain: string, clientId?: string | null, clientSecret?: string | null, organizationName: string, name: string }> } | null };
+
+export type OktaIntegrationDetailsFragment = { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: string | null, code: string, organizationName: string, domain: string, name: string };
+
+export type GetOktaIntegrationQueryVariables = Exact<{
+  id?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type GetOktaIntegrationQuery = { __typename?: 'Query', integration?: { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: string | null, code: string, organizationName: string, domain: string, name: string } | null };
 
 export type GocardlessIntegrationDetailsFragment = { __typename?: 'GocardlessProvider', id: string, code: string, name: string, successRedirectUrl?: string | null, webhookSecret?: string | null };
 
@@ -7045,6 +7109,22 @@ export const EditOrganizationInvoiceTemplateDialogFragmentDoc = gql`
   }
 }
     `;
+export const DeleteOktaIntegrationDialogFragmentDoc = gql`
+    fragment DeleteOktaIntegrationDialog on OktaIntegration {
+  id
+  name
+}
+    `;
+export const AddOktaIntegrationDialogFragmentDoc = gql`
+    fragment AddOktaIntegrationDialog on OktaIntegration {
+  id
+  domain
+  clientId
+  clientSecret
+  organizationName
+  ...DeleteOktaIntegrationDialog
+}
+    ${DeleteOktaIntegrationDialogFragmentDoc}`;
 export const AddAdyenProviderDialogFragmentDoc = gql`
     fragment AddAdyenProviderDialog on AdyenProvider {
   id
@@ -7482,7 +7562,6 @@ export const MembershipPermissionsFragmentDoc = gql`
     couponsUpdate
     couponsView
     creditNotesCreate
-    creditNotesUpdate
     creditNotesView
     creditNotesVoid
     customerSettingsUpdateGracePeriod
@@ -8499,6 +8578,17 @@ export const AdyenIntegrationsFragmentDoc = gql`
   id
   name
   code
+}
+    `;
+export const OktaIntegrationDetailsFragmentDoc = gql`
+    fragment OktaIntegrationDetails on OktaIntegration {
+  id
+  clientId
+  clientSecret
+  code
+  organizationName
+  domain
+  name
 }
     `;
 export const GocardlessIntegrationDetailsFragmentDoc = gql`
@@ -11528,6 +11618,105 @@ export function useUpdateOrganizationTimezoneMutation(baseOptions?: Apollo.Mutat
 export type UpdateOrganizationTimezoneMutationHookResult = ReturnType<typeof useUpdateOrganizationTimezoneMutation>;
 export type UpdateOrganizationTimezoneMutationResult = Apollo.MutationResult<UpdateOrganizationTimezoneMutation>;
 export type UpdateOrganizationTimezoneMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationTimezoneMutation, UpdateOrganizationTimezoneMutationVariables>;
+export const DestroyIntegrationDocument = gql`
+    mutation DestroyIntegration($input: DestroyIntegrationInput!) {
+  destroyIntegration(input: $input) {
+    id
+  }
+}
+    `;
+export type DestroyIntegrationMutationFn = Apollo.MutationFunction<DestroyIntegrationMutation, DestroyIntegrationMutationVariables>;
+
+/**
+ * __useDestroyIntegrationMutation__
+ *
+ * To run a mutation, you first call `useDestroyIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDestroyIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [destroyIntegrationMutation, { data, loading, error }] = useDestroyIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDestroyIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<DestroyIntegrationMutation, DestroyIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DestroyIntegrationMutation, DestroyIntegrationMutationVariables>(DestroyIntegrationDocument, options);
+      }
+export type DestroyIntegrationMutationHookResult = ReturnType<typeof useDestroyIntegrationMutation>;
+export type DestroyIntegrationMutationResult = Apollo.MutationResult<DestroyIntegrationMutation>;
+export type DestroyIntegrationMutationOptions = Apollo.BaseMutationOptions<DestroyIntegrationMutation, DestroyIntegrationMutationVariables>;
+export const CreateOktaIntegrationDocument = gql`
+    mutation createOktaIntegration($input: CreateOktaIntegrationInput!) {
+  createOktaIntegration(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateOktaIntegrationMutationFn = Apollo.MutationFunction<CreateOktaIntegrationMutation, CreateOktaIntegrationMutationVariables>;
+
+/**
+ * __useCreateOktaIntegrationMutation__
+ *
+ * To run a mutation, you first call `useCreateOktaIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateOktaIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createOktaIntegrationMutation, { data, loading, error }] = useCreateOktaIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateOktaIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<CreateOktaIntegrationMutation, CreateOktaIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateOktaIntegrationMutation, CreateOktaIntegrationMutationVariables>(CreateOktaIntegrationDocument, options);
+      }
+export type CreateOktaIntegrationMutationHookResult = ReturnType<typeof useCreateOktaIntegrationMutation>;
+export type CreateOktaIntegrationMutationResult = Apollo.MutationResult<CreateOktaIntegrationMutation>;
+export type CreateOktaIntegrationMutationOptions = Apollo.BaseMutationOptions<CreateOktaIntegrationMutation, CreateOktaIntegrationMutationVariables>;
+export const UpdateOktaIntegrationDocument = gql`
+    mutation updateOktaIntegration($input: UpdateOktaIntegrationInput!) {
+  updateOktaIntegration(input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateOktaIntegrationMutationFn = Apollo.MutationFunction<UpdateOktaIntegrationMutation, UpdateOktaIntegrationMutationVariables>;
+
+/**
+ * __useUpdateOktaIntegrationMutation__
+ *
+ * To run a mutation, you first call `useUpdateOktaIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOktaIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOktaIntegrationMutation, { data, loading, error }] = useUpdateOktaIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOktaIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOktaIntegrationMutation, UpdateOktaIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateOktaIntegrationMutation, UpdateOktaIntegrationMutationVariables>(UpdateOktaIntegrationDocument, options);
+      }
+export type UpdateOktaIntegrationMutationHookResult = ReturnType<typeof useUpdateOktaIntegrationMutation>;
+export type UpdateOktaIntegrationMutationResult = Apollo.MutationResult<UpdateOktaIntegrationMutation>;
+export type UpdateOktaIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateOktaIntegrationMutation, UpdateOktaIntegrationMutationVariables>;
 export const UpdateOrganizationLogoDocument = gql`
     mutation updateOrganizationLogo($input: UpdateOrganizationInput!) {
   updateOrganization(input: $input) {
@@ -14658,6 +14847,76 @@ export function useGoogleAcceptInviteMutation(baseOptions?: Apollo.MutationHookO
 export type GoogleAcceptInviteMutationHookResult = ReturnType<typeof useGoogleAcceptInviteMutation>;
 export type GoogleAcceptInviteMutationResult = Apollo.MutationResult<GoogleAcceptInviteMutation>;
 export type GoogleAcceptInviteMutationOptions = Apollo.BaseMutationOptions<GoogleAcceptInviteMutation, GoogleAcceptInviteMutationVariables>;
+export const FetchOktaAuthorizeUrlDocument = gql`
+    mutation fetchOktaAuthorizeUrl($input: OktaAuthorizeInput!) {
+  oktaAuthorize(input: $input) {
+    url
+  }
+}
+    `;
+export type FetchOktaAuthorizeUrlMutationFn = Apollo.MutationFunction<FetchOktaAuthorizeUrlMutation, FetchOktaAuthorizeUrlMutationVariables>;
+
+/**
+ * __useFetchOktaAuthorizeUrlMutation__
+ *
+ * To run a mutation, you first call `useFetchOktaAuthorizeUrlMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useFetchOktaAuthorizeUrlMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [fetchOktaAuthorizeUrlMutation, { data, loading, error }] = useFetchOktaAuthorizeUrlMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useFetchOktaAuthorizeUrlMutation(baseOptions?: Apollo.MutationHookOptions<FetchOktaAuthorizeUrlMutation, FetchOktaAuthorizeUrlMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<FetchOktaAuthorizeUrlMutation, FetchOktaAuthorizeUrlMutationVariables>(FetchOktaAuthorizeUrlDocument, options);
+      }
+export type FetchOktaAuthorizeUrlMutationHookResult = ReturnType<typeof useFetchOktaAuthorizeUrlMutation>;
+export type FetchOktaAuthorizeUrlMutationResult = Apollo.MutationResult<FetchOktaAuthorizeUrlMutation>;
+export type FetchOktaAuthorizeUrlMutationOptions = Apollo.BaseMutationOptions<FetchOktaAuthorizeUrlMutation, FetchOktaAuthorizeUrlMutationVariables>;
+export const OktaAcceptInviteDocument = gql`
+    mutation oktaAcceptInvite($input: OktaAcceptInviteInput!) {
+  oktaAcceptInvite(input: $input) {
+    token
+    user {
+      id
+      ...CurrentUser
+    }
+  }
+}
+    ${CurrentUserFragmentDoc}`;
+export type OktaAcceptInviteMutationFn = Apollo.MutationFunction<OktaAcceptInviteMutation, OktaAcceptInviteMutationVariables>;
+
+/**
+ * __useOktaAcceptInviteMutation__
+ *
+ * To run a mutation, you first call `useOktaAcceptInviteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useOktaAcceptInviteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [oktaAcceptInviteMutation, { data, loading, error }] = useOktaAcceptInviteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useOktaAcceptInviteMutation(baseOptions?: Apollo.MutationHookOptions<OktaAcceptInviteMutation, OktaAcceptInviteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<OktaAcceptInviteMutation, OktaAcceptInviteMutationVariables>(OktaAcceptInviteDocument, options);
+      }
+export type OktaAcceptInviteMutationHookResult = ReturnType<typeof useOktaAcceptInviteMutation>;
+export type OktaAcceptInviteMutationResult = Apollo.MutationResult<OktaAcceptInviteMutation>;
+export type OktaAcceptInviteMutationOptions = Apollo.BaseMutationOptions<OktaAcceptInviteMutation, OktaAcceptInviteMutationVariables>;
 export const GetInvoiceCreditNotesDocument = gql`
     query getInvoiceCreditNotes($invoiceId: ID!, $page: Int, $limit: Int) {
   invoiceCreditNotes(invoiceId: $invoiceId, page: $page, limit: $limit) {
@@ -15215,6 +15474,43 @@ export function useLoginUserMutation(baseOptions?: Apollo.MutationHookOptions<Lo
 export type LoginUserMutationHookResult = ReturnType<typeof useLoginUserMutation>;
 export type LoginUserMutationResult = Apollo.MutationResult<LoginUserMutation>;
 export type LoginUserMutationOptions = Apollo.BaseMutationOptions<LoginUserMutation, LoginUserMutationVariables>;
+export const OktaLoginUserDocument = gql`
+    mutation oktaLoginUser($input: OktaLoginInput!) {
+  oktaLogin(input: $input) {
+    user {
+      id
+      ...CurrentUser
+    }
+    token
+  }
+}
+    ${CurrentUserFragmentDoc}`;
+export type OktaLoginUserMutationFn = Apollo.MutationFunction<OktaLoginUserMutation, OktaLoginUserMutationVariables>;
+
+/**
+ * __useOktaLoginUserMutation__
+ *
+ * To run a mutation, you first call `useOktaLoginUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useOktaLoginUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [oktaLoginUserMutation, { data, loading, error }] = useOktaLoginUserMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useOktaLoginUserMutation(baseOptions?: Apollo.MutationHookOptions<OktaLoginUserMutation, OktaLoginUserMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<OktaLoginUserMutation, OktaLoginUserMutationVariables>(OktaLoginUserDocument, options);
+      }
+export type OktaLoginUserMutationHookResult = ReturnType<typeof useOktaLoginUserMutation>;
+export type OktaLoginUserMutationResult = Apollo.MutationResult<OktaLoginUserMutation>;
+export type OktaLoginUserMutationOptions = Apollo.BaseMutationOptions<OktaLoginUserMutation, OktaLoginUserMutationVariables>;
 export const GetPortalLocaleDocument = gql`
     query getPortalLocale {
   customerPortalOrganization {
@@ -15798,6 +16094,103 @@ export type GetAdyenIntegrationsListQueryHookResult = ReturnType<typeof useGetAd
 export type GetAdyenIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsListLazyQuery>;
 export type GetAdyenIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsListSuspenseQuery>;
 export type GetAdyenIntegrationsListQueryResult = Apollo.QueryResult<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>;
+export const GetAuthIntegrationsDocument = gql`
+    query GetAuthIntegrations($limit: Int!) {
+  organization {
+    id
+    premiumIntegrations
+  }
+  integrations(limit: $limit) {
+    collection {
+      ... on OktaIntegration {
+        id
+        ...AddOktaIntegrationDialog
+        ...DeleteOktaIntegrationDialog
+      }
+    }
+  }
+}
+    ${AddOktaIntegrationDialogFragmentDoc}
+${DeleteOktaIntegrationDialogFragmentDoc}`;
+
+/**
+ * __useGetAuthIntegrationsQuery__
+ *
+ * To run a query within a React component, call `useGetAuthIntegrationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAuthIntegrationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAuthIntegrationsQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetAuthIntegrationsQuery(baseOptions: Apollo.QueryHookOptions<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>(GetAuthIntegrationsDocument, options);
+      }
+export function useGetAuthIntegrationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>(GetAuthIntegrationsDocument, options);
+        }
+export function useGetAuthIntegrationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>(GetAuthIntegrationsDocument, options);
+        }
+export type GetAuthIntegrationsQueryHookResult = ReturnType<typeof useGetAuthIntegrationsQuery>;
+export type GetAuthIntegrationsLazyQueryHookResult = ReturnType<typeof useGetAuthIntegrationsLazyQuery>;
+export type GetAuthIntegrationsSuspenseQueryHookResult = ReturnType<typeof useGetAuthIntegrationsSuspenseQuery>;
+export type GetAuthIntegrationsQueryResult = Apollo.QueryResult<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>;
+export const GetOktaIntegrationDocument = gql`
+    query GetOktaIntegration($id: ID) {
+  integration(id: $id) {
+    ... on OktaIntegration {
+      ...OktaIntegrationDetails
+      ...AddOktaIntegrationDialog
+      ...DeleteOktaIntegrationDialog
+    }
+  }
+}
+    ${OktaIntegrationDetailsFragmentDoc}
+${AddOktaIntegrationDialogFragmentDoc}
+${DeleteOktaIntegrationDialogFragmentDoc}`;
+
+/**
+ * __useGetOktaIntegrationQuery__
+ *
+ * To run a query within a React component, call `useGetOktaIntegrationQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOktaIntegrationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOktaIntegrationQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetOktaIntegrationQuery(baseOptions?: Apollo.QueryHookOptions<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>(GetOktaIntegrationDocument, options);
+      }
+export function useGetOktaIntegrationLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>(GetOktaIntegrationDocument, options);
+        }
+export function useGetOktaIntegrationSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>(GetOktaIntegrationDocument, options);
+        }
+export type GetOktaIntegrationQueryHookResult = ReturnType<typeof useGetOktaIntegrationQuery>;
+export type GetOktaIntegrationLazyQueryHookResult = ReturnType<typeof useGetOktaIntegrationLazyQuery>;
+export type GetOktaIntegrationSuspenseQueryHookResult = ReturnType<typeof useGetOktaIntegrationSuspenseQuery>;
+export type GetOktaIntegrationQueryResult = Apollo.QueryResult<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>;
 export const GetGocardlessIntegrationsDetailsDocument = gql`
     query getGocardlessIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
   paymentProvider(id: $id) {

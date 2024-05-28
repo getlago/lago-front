@@ -20,17 +20,25 @@ const InvitationInit = lazyLoad(
   () => import(/* webpackChunkName: 'invitation-init' */ '~/pages/InvitationInit'),
 )
 const GoogleAuthCallback = lazyLoad(
-  () => import(/* webpackChunkName: 'invitation-init' */ '~/pages/auth/GoogleAuthCallback'),
+  () => import(/* webpackChunkName: 'google-auth-callback' */ '~/pages/auth/GoogleAuthCallback'),
+)
+const LoginOkta = lazyLoad(
+  () => import(/* webpackChunkName: 'login-okta' */ '~/pages/auth/LoginOkta'),
+)
+const OktaAuthCallback = lazyLoad(
+  () => import(/* webpackChunkName: 'okta-auth-callback' */ '~/pages/auth/OktaAuthCallback'),
 )
 
 // ----------- Routes -----------
 export const LOGIN_ROUTE = '/login'
+export const LOGIN_OKTA = `${LOGIN_ROUTE}/okta`
 export const FORGOT_PASSWORD_ROUTE = '/forgot-password'
 export const RESET_PASSWORD_ROUTE = '/reset-password/:token'
 export const SIGN_UP_ROUTE = '/sign-up'
 export const INVITATION_ROUTE = '/invitation/:token'
 export const INVITATION_ROUTE_FORM = '/invitation/:token/form'
 export const GOOGLE_AUTH_CALLBACK = '/auth/google/callback'
+export const OKTA_AUTH_CALLBACK = '/auth/okta/callback'
 
 export const authRoutes: CustomRouteObject[] = [
   ...(!disableSignUp
@@ -48,6 +56,11 @@ export const authRoutes: CustomRouteObject[] = [
     onlyPublic: true,
   },
   {
+    path: LOGIN_OKTA,
+    element: <LoginOkta />,
+    onlyPublic: true,
+  },
+  {
     path: FORGOT_PASSWORD_ROUTE,
     element: <ForgotPassword />,
     onlyPublic: true,
@@ -55,6 +68,11 @@ export const authRoutes: CustomRouteObject[] = [
   {
     path: GOOGLE_AUTH_CALLBACK,
     element: <GoogleAuthCallback />,
+    onlyPublic: true,
+  },
+  {
+    path: OKTA_AUTH_CALLBACK,
+    element: <OktaAuthCallback />,
     onlyPublic: true,
   },
   {

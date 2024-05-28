@@ -106,6 +106,7 @@ const wip___customers___subscription_on_anniversary_date = require('./wip---cust
 const wip___general___fe_environment_infos = require('./wip---general---fe-environment-infos__base.json');
 const wip___integration___lago_eu_tax_integration = require('./wip---integration---lago-eu-tax-integration__base.json');
 const wip___invoices___dispute_payment_intent = require('./wip---invoices---dispute-payment-intent__base.json');
+const wip___onboarding___log_in_join_lago_via_okta_sso = require('./wip---onboarding---log-in-join-lago-via-okta-sso__base.json');
 const wip___plan___charges_paid_in_advance = require('./wip---plan---charges-paid-in-advance__base.json');
 const wip___settings___create_tax_rate_object_apply_on_org_cus = require('./wip---settings---create-tax-rate-object-apply-on-org-cus__base.json');
 const wip___settings___define_preferred_doc_language_generation = require('./wip---settings---define-preferred-doc-language-generation__base.json');
@@ -429,6 +430,9 @@ module.exports = {
   },
   "project_66141e2ffa16c75cb553dbc1": {
     "base": {...wip___invoices___dispute_payment_intent}
+  },
+  "project_664c7329c182a2ec5807ffec": {
+    "base": {...wip___onboarding___log_in_join_lago_via_okta_sso}
   },
   "project_646e2d05cf47b79ad4b5ccf5": {
     "base": {...wip___plan___charges_paid_in_advance}

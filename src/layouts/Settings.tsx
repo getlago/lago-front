@@ -5,6 +5,7 @@ import styled from 'styled-components'
 
 import { Button, NavigationTab, Typography } from '~/components/designSystem'
 import {
+  AUTHENTICATION_ROUTE,
   CREATE_TAX_ROUTE,
   EMAILS_SETTINGS_ROUTE,
   HOME_ROUTE,
@@ -108,6 +109,11 @@ const Settings = () => {
               {
                 title: translate('text_62b1edddbf5f461ab9712733'),
                 link: INTEGRATIONS_ROUTE,
+                hidden: !hasPermissions(['organizationIntegrationsView']),
+              },
+              {
+                title: translate('text_664c732c264d7eed1c74fd96'),
+                link: AUTHENTICATION_ROUTE,
                 hidden: !hasPermissions(['organizationIntegrationsView']),
               },
               {
