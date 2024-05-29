@@ -1,10 +1,10 @@
 import { Box, InputAdornment, Stack } from '@mui/material'
 import { FormikProps } from 'formik'
-import { FC, RefObject } from 'react'
+import { FC, RefObject, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
 import { Accordion, Alert, Button, Icon, Typography } from '~/components/designSystem'
-import { AmountInputField, ComboBoxField } from '~/components/form'
+import { AmountInputField, ComboBox, ComboBoxField } from '~/components/form'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   getWordingForWalletCreationAlert,
@@ -66,19 +66,19 @@ const formatCreditsToCurrency = (rate: string, credits?: string, currency?: Curr
 }
 
 const DEFAULT_RULES: UpdateRecurringTransactionRuleInput = {
-  grantedCredits: undefined,
-  interval: RecurringTransactionIntervalEnum.Weekly,
   lagoId: undefined,
-  paidCredits: undefined,
-  trigger: RecurringTransactionTriggerEnum.Threshold,
-  thresholdCredits: undefined,
   method: RecurringTransactionMethodEnum.Fixed,
-  targetOngoingBalance: undefined,
+  trigger: RecurringTransactionTriggerEnum.Threshold,
+  interval: RecurringTransactionIntervalEnum.Weekly,
+  grantedCredits: '',
+  paidCredits: '',
+  thresholdCredits: '',
+  targetOngoingBalance: '',
 }
 
 interface TopUpCardProps {
   formikProps: FormikProps<TWalletDataForm>
-  formType: (typeof FORM_TYPE_ENUM)[keyof typeof FORM_TYPE_ENUM]
+  formType: keyof typeof FORM_TYPE_ENUM
   customerData?: GetCustomerInfosForWalletFormQuery
   isRecurringTopUpEnabled: boolean
   setIsRecurringTopUpEnabled: (value: boolean) => void
@@ -95,6 +95,7 @@ export const TopUpCard: FC<TopUpCardProps> = ({
 }) => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
+  const [accordionIsOpen, setAccordionIsOpen] = useState(false)
 
   const recurringTransactionRules = formikProps.values?.recurringTransactionRules?.[0]
 
@@ -104,23 +105,27 @@ export const TopUpCard: FC<TopUpCardProps> = ({
       !!recurringTransactionRules?.interval) ||
       recurringTransactionRules?.trigger === RecurringTransactionTriggerEnum.Threshold)
 
+  const hasRecurringTransactionRulesErrors = useMemo(() => {
+    return formikProps?.errors?.recurringTransactionRules?.length
+  }, [formikProps?.errors?.recurringTransactionRules])
+
   return (
     <Card>
       <Typography variant="subhead">{translate('TODO: Wallet top-up')}</Typography>
 
-      <Box>
-        <Typography variant="bodyHl" color="grey700">
-          {translate('TODO: Define credits to purchase and to grant upon wallet creation')}
-        </Typography>
-        <Typography variant="caption">
-          {translate(
-            'TODO: Credits for purchases generate an invoice, while credits for grants do not generate invoices',
-          )}
-        </Typography>
-      </Box>
-
       {formType === FORM_TYPE_ENUM.creation && (
         <>
+          <Box>
+            <Typography variant="bodyHl" color="grey700">
+              {translate('TODO: Define credits to purchase and to grant upon wallet creation')}
+            </Typography>
+            <Typography variant="caption">
+              {translate(
+                'TODO: Credits for purchases generate an invoice, while credits for grants do not generate invoices',
+              )}
+            </Typography>
+          </Box>
+
           <AmountInputField
             name="paidCredits"
             currency={formikProps.values.currency}
@@ -177,6 +182,7 @@ export const TopUpCard: FC<TopUpCardProps> = ({
             if (isPremium) {
               formikProps.setFieldValue('recurringTransactionRules.0', DEFAULT_RULES)
               setIsRecurringTopUpEnabled(true)
+              setAccordionIsOpen(true)
             } else {
               premiumWarningDialogRef.current?.openDialog()
             }
@@ -186,20 +192,19 @@ export const TopUpCard: FC<TopUpCardProps> = ({
         </Button>
       ) : (
         <Accordion
-          initiallyOpen
+          initiallyOpen={accordionIsOpen}
           summary={
             <AccordionSummary
               label={translate('TODO: Recurring top-up rule')}
-              isValid={false}
+              isValid={!hasRecurringTransactionRulesErrors}
               onDelete={() => setIsRecurringTopUpEnabled(false)}
             />
           }
         >
           <Stack direction="column" spacing={6}>
-            <ComboBoxField
+            <ComboBox
               name="recurringTransactionRules.0.method"
               disableClearable
-              formikProps={formikProps}
               label={translate('TODO: Top-up method')}
               data={[
                 {
@@ -211,6 +216,28 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                   value: RecurringTransactionMethodEnum.Target,
                 },
               ]}
+              value={formikProps.values.recurringTransactionRules?.[0].method as string}
+              onChange={(value) => {
+                if (value === RecurringTransactionMethodEnum.Target) {
+                  formikProps.setFieldValue(
+                    'recurringTransactionRules.0.targetOngoingBalance',
+                    DEFAULT_RULES.targetOngoingBalance,
+                  )
+                }
+
+                if (value === RecurringTransactionMethodEnum.Fixed) {
+                  formikProps.setFieldValue(
+                    'recurringTransactionRules.0.paidCredits',
+                    DEFAULT_RULES.paidCredits,
+                  )
+                  formikProps.setFieldValue(
+                    'recurringTransactionRules.0.grantedCredits',
+                    DEFAULT_RULES.grantedCredits,
+                  )
+                }
+
+                formikProps.setFieldValue('recurringTransactionRules.0.method', value)
+              }}
             />
 
             {recurringTransactionRules?.method === RecurringTransactionMethodEnum.Fixed && (
@@ -275,7 +302,7 @@ export const TopUpCard: FC<TopUpCardProps> = ({
             )}
 
             <InlineTopUpElements>
-              <ComboBoxField
+              <ComboBox
                 disableClearable
                 label={translate('TODO: Trigger')}
                 name="recurringTransactionRules.0.trigger"
@@ -289,7 +316,24 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                     value: RecurringTransactionTriggerEnum.Threshold,
                   },
                 ]}
-                formikProps={formikProps}
+                value={formikProps.values.recurringTransactionRules?.[0].trigger}
+                onChange={(value) => {
+                  if (value === RecurringTransactionTriggerEnum.Interval) {
+                    formikProps.setFieldValue(
+                      'recurringTransactionRules.0.thresholdCredits',
+                      DEFAULT_RULES.thresholdCredits,
+                    )
+                  }
+
+                  if (value === RecurringTransactionTriggerEnum.Threshold) {
+                    formikProps.setFieldValue(
+                      'recurringTransactionRules.0.interval',
+                      DEFAULT_RULES.interval,
+                    )
+                  }
+
+                  formikProps.setFieldValue('recurringTransactionRules.0.trigger', value)
+                }}
               />
               {recurringTransactionRules?.trigger === RecurringTransactionTriggerEnum.Interval && (
                 <>
