@@ -49,7 +49,7 @@ gql`
       method
       trigger
       interval
-      thresholdCredits
+      targetOngoingBalance
       paidCredits
       grantedCredits
       thresholdCredits

@@ -6,10 +6,7 @@ import styled from 'styled-components'
 import { Accordion, Alert, Button, Icon, Typography } from '~/components/designSystem'
 import { AmountInputField, ComboBox, ComboBoxField } from '~/components/form'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import {
-  getWordingForWalletCreationAlert,
-  getWordingForWalletEditionAlert,
-} from '~/components/wallets/utils'
+import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -197,7 +194,10 @@ export const TopUpCard: FC<TopUpCardProps> = ({
             <AccordionSummary
               label={translate('TODO: Recurring top-up rule')}
               isValid={!hasRecurringTransactionRulesErrors}
-              onDelete={() => setIsRecurringTopUpEnabled(false)}
+              onDelete={() => {
+                setIsRecurringTopUpEnabled(false)
+                formikProps.setFieldValue('recurringTransactionRules.0', undefined)
+              }}
             />
           }
         >
@@ -398,16 +398,6 @@ export const TopUpCard: FC<TopUpCardProps> = ({
             customerTimezone: customerData?.customer?.timezone,
             recurringRulesValues: recurringTransactionRules,
             walletValues: formikProps.values,
-          })}
-        </Alert>
-      )}
-      {isRecurringTopUpEnabled && canDisplayEditionAlert && formType === FORM_TYPE_ENUM.edition && (
-        <Alert type="info">
-          {getWordingForWalletEditionAlert({
-            translate,
-            currency: formikProps.values?.currency,
-            customerTimezone: customerData?.customer?.timezone,
-            recurringRulesValues: recurringTransactionRules,
           })}
         </Alert>
       )}
