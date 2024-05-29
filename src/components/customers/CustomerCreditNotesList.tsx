@@ -23,12 +23,7 @@ import { SearchInput } from '../SearchInput'
 
 gql`
   query getCustomerCreditNotes($customerId: ID!, $page: Int, $limit: Int, $searchTerm: String) {
-    customerCreditNotes(
-      customerId: $customerId
-      page: $page
-      limit: $limit
-      searchTerm: $searchTerm
-    ) {
+    creditNotes(customerId: $customerId, page: $page, limit: $limit, searchTerm: $searchTerm) {
       ...CreditNotesForList
     }
   }
@@ -57,7 +52,7 @@ export const CustomerCreditNotesList = ({
       variables: { customerId, limit: 20 },
     })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCreditNotes, loading)
-  const creditNotes = data?.customerCreditNotes?.collection
+  const creditNotes = data?.creditNotes?.collection
 
   return (
     <SideSection>
@@ -119,7 +114,7 @@ export const CustomerCreditNotesList = ({
           itemClickRedirection={CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE}
           loading={isLoading}
           hasSearchQuery={!!variables?.searchTerm}
-          metadata={data?.customerCreditNotes?.metadata}
+          metadata={data?.creditNotes?.metadata}
           customerTimezone={customerTimezone}
         />
       )}

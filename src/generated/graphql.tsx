@@ -1100,7 +1100,7 @@ export type CreateNetsuiteIntegrationInput = {
   code: Scalars['String']['input'];
   connectionId: Scalars['String']['input'];
   name: Scalars['String']['input'];
-  scriptEndpointUrl?: InputMaybe<Scalars['String']['input']>;
+  scriptEndpointUrl: Scalars['String']['input'];
   syncCreditNotes?: InputMaybe<Scalars['Boolean']['input']>;
   syncInvoices?: InputMaybe<Scalars['Boolean']['input']>;
   syncPayments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2524,7 +2524,7 @@ export type Membership = {
   organization: Organization;
   permissions: Permissions;
   revokedAt: Scalars['ISO8601DateTime']['output'];
-  role?: Maybe<MembershipRole>;
+  role: MembershipRole;
   status: MembershipStatus;
   updatedAt: Scalars['ISO8601DateTime']['output'];
   user: User;
@@ -2533,7 +2533,7 @@ export type Membership = {
 export type MembershipCollection = {
   __typename?: 'MembershipCollection';
   collection: Array<Membership>;
-  metadata: CollectionMetadata;
+  metadata: Metadata;
 };
 
 export enum MembershipRole {
@@ -2546,6 +2546,15 @@ export enum MembershipStatus {
   Active = 'active',
   Revoked = 'revoked'
 }
+
+export type Metadata = {
+  __typename?: 'Metadata';
+  adminCount: Scalars['Int']['output'];
+  currentPage: Scalars['Int']['output'];
+  limitValue: Scalars['Int']['output'];
+  totalCount: Scalars['Int']['output'];
+  totalPages: Scalars['Int']['output'];
+};
 
 export type Mrr = {
   __typename?: 'Mrr';
@@ -3177,7 +3186,7 @@ export type NetsuiteIntegration = {
   hasMappingsConfigured?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
-  scriptEndpointUrl?: Maybe<Scalars['String']['output']>;
+  scriptEndpointUrl: Scalars['String']['output'];
   syncCreditNotes?: Maybe<Scalars['Boolean']['output']>;
   syncInvoices?: Maybe<Scalars['Boolean']['output']>;
   syncPayments?: Maybe<Scalars['Boolean']['output']>;
@@ -3457,14 +3466,14 @@ export type Query = {
   creditNote?: Maybe<CreditNote>;
   /** Fetch amounts for credit note creation */
   creditNoteEstimate: CreditNoteEstimate;
+  /** Query credit notes */
+  creditNotes: CreditNoteCollection;
   /** Retrieves currently connected user */
   currentUser: User;
   /** Retrieve the version of the application */
   currentVersion: CurrentVersion;
   /** Query a single customer of an organization */
   customer?: Maybe<Customer>;
-  /** Query customer's credit note */
-  customerCreditNotes?: Maybe<CreditNoteCollection>;
   /** Query invoices of a customer */
   customerInvoices: InvoiceCollection;
   /** Query invoices of a customer */
@@ -3605,17 +3614,17 @@ export type QueryCreditNoteEstimateArgs = {
 };
 
 
-export type QueryCustomerArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type QueryCustomerCreditNotesArgs = {
-  customerId: Scalars['ID']['input'];
-  ids?: InputMaybe<Array<Scalars['String']['input']>>;
+export type QueryCreditNotesArgs = {
+  customerId?: InputMaybe<Scalars['ID']['input']>;
+  ids?: InputMaybe<Array<Scalars['ID']['input']>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryCustomerArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -4994,7 +5003,7 @@ export type GetCustomerCreditNotesQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerCreditNotesQuery = { __typename?: 'Query', customerCreditNotes?: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'CreditNote', id: string, canBeVoided: boolean, createdAt: any, creditStatus?: CreditNoteCreditStatusEnum | null, currency: CurrencyEnum, number: string, totalAmountCents: any }> } | null };
+export type GetCustomerCreditNotesQuery = { __typename?: 'Query', creditNotes: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'CreditNote', id: string, canBeVoided: boolean, createdAt: any, creditStatus?: CreditNoteCreditStatusEnum | null, currency: CurrencyEnum, number: string, totalAmountCents: any }> } };
 
 export type InvoiceForInvoiceListFragment = { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, name?: string | null } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } };
 
@@ -6527,7 +6536,7 @@ export type GetMembersQueryVariables = Exact<{
 }>;
 
 
-export type GetMembersQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } }> } };
+export type GetMembersQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', metadata: { __typename?: 'Metadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } }> } };
 
 export type OrganizationInformationsFragment = { __typename?: 'CurrentOrganization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, timezone?: TimezoneEnum | null };
 
@@ -9330,7 +9339,7 @@ export type RemoveCouponMutationResult = Apollo.MutationResult<RemoveCouponMutat
 export type RemoveCouponMutationOptions = Apollo.BaseMutationOptions<RemoveCouponMutation, RemoveCouponMutationVariables>;
 export const GetCustomerCreditNotesDocument = gql`
     query getCustomerCreditNotes($customerId: ID!, $page: Int, $limit: Int, $searchTerm: String) {
-  customerCreditNotes(
+  creditNotes(
     customerId: $customerId
     page: $page
     limit: $limit
