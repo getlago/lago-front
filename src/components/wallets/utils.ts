@@ -84,7 +84,7 @@ const setStartOfSentence = ({
   let text = ''
 
   if (recurringRulesValues?.trigger === RecurringTransactionTriggerEnum.Threshold) {
-    text = translate('pre_threshold', {
+    text = translate('text_6657be42151661006d2f3b6d', {
       thresholdCredits: intlFormatNumber(
         toNumber(recurringRulesValues?.thresholdCredits) * toNumber(walletValues.rateAmount),
         {
@@ -103,9 +103,15 @@ const setStartOfSentence = ({
     })
 
     if (recurringRulesValues?.method === RecurringTransactionMethodEnum.Fixed) {
-      text = translate('pre_fixed', { totalCreditCount, nextRecurringTopUpDate })
+      text = translate('text_6657be42151661006d2f3b6f', {
+        totalCreditCount,
+        nextRecurringTopUpDate,
+      })
     } else if (recurringRulesValues?.method === RecurringTransactionMethodEnum.Target) {
-      text = translate('pre_target', { totalCreditCount, nextRecurringTopUpDate })
+      text = translate('text_6657be42151661006d2f3b71', {
+        totalCreditCount,
+        nextRecurringTopUpDate,
+      })
     }
   }
 
@@ -133,22 +139,24 @@ const setEndOfSentence = ({
       case RecurringTransactionIntervalEnum.Weekly:
         const dayOfWeek = dateRef.weekdayLong
 
-        text = translate('weekly', { dayOfWeek })
+        text = translate('text_6657be42151661006d2f3b79', { dayOfWeek })
         break
       case RecurringTransactionIntervalEnum.Monthly:
         text = isDayPotentiallyNotReachableOnEntirePeriod
-          ? translate('monthly_na')
-          : translate('monthly')
+          ? translate('text_6657be42151661006d2f3b7d')
+          : translate('text_6657be42151661006d2f3b7b')
         break
       case RecurringTransactionIntervalEnum.Quarterly:
         text = isDayPotentiallyNotReachableOnEntirePeriod
-          ? translate('quarter_na')
-          : translate('quarter')
+          ? translate('text_6657be42151661006d2f3b81')
+          : translate('text_6657be42151661006d2f3b7f')
         break
       case RecurringTransactionIntervalEnum.Yearly:
+        const month = dateRef.monthLong
+
         text = isDayPotentiallyNotReachableOnEntirePeriod
-          ? translate('yearly_na')
-          : translate('yearly')
+          ? translate('text_6657be42151661006d2f3b85', { month })
+          : translate('text_6657be42151661006d2f3b83')
         break
       default:
         break
@@ -159,9 +167,9 @@ const setEndOfSentence = ({
         toNumber(walletValues.recurringTransactionRules?.[0].paidCredits) +
         toNumber(walletValues.recurringTransactionRules?.[0].grantedCredits)
 
-      text = translate('fixed', { totalCreditCount })
+      text = translate('text_6657be42151661006d2f3b75', { totalCreditCount })
     } else if (recurringRulesValues?.method === RecurringTransactionMethodEnum.Target) {
-      text = translate('target')
+      text = translate('text_6657be42151661006d2f3b77')
     }
   }
 

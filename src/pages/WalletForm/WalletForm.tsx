@@ -268,7 +268,7 @@ const WalletForm = () => {
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate(
             formType === FORM_TYPE_ENUM.edition
-              ? 'text_62e161ceb87c201025388aa2'
+              ? 'text_62d9430e8b9fe36851cddd09'
               : 'text_6560809c38fb9de88d8a505e',
           )}
         </Typography>
@@ -299,7 +299,11 @@ const WalletForm = () => {
                   )}
                 </Title>
                 <Typography variant="body" color="grey600">
-                  {translate('text_62d18855b22699e5cf55f873')}
+                  {translate(
+                    formType === FORM_TYPE_ENUM.edition
+                      ? 'text_6657c2b9cf6b9200aa3d1c89'
+                      : 'text_62d18855b22699e5cf55f873',
+                  )}
                 </Typography>
               </div>
 

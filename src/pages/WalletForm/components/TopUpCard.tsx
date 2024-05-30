@@ -96,11 +96,12 @@ export const TopUpCard: FC<TopUpCardProps> = ({
 
   const recurringTransactionRules = formikProps.values?.recurringTransactionRules?.[0]
 
-  const canDisplayEditionAlert =
-    (!!recurringTransactionRules?.paidCredits || !!recurringTransactionRules?.grantedCredits) &&
+  const canDisplayAccordionAlert =
+    !!recurringTransactionRules?.method &&
     ((recurringTransactionRules?.trigger === RecurringTransactionTriggerEnum.Interval &&
       !!recurringTransactionRules?.interval) ||
-      recurringTransactionRules?.trigger === RecurringTransactionTriggerEnum.Threshold)
+      (recurringTransactionRules?.trigger === RecurringTransactionTriggerEnum.Threshold &&
+        !!recurringTransactionRules?.thresholdCredits))
 
   const hasRecurringTransactionRulesErrors = useMemo(() => {
     return formikProps?.errors?.recurringTransactionRules?.length
@@ -108,19 +109,15 @@ export const TopUpCard: FC<TopUpCardProps> = ({
 
   return (
     <Card>
-      <Typography variant="subhead">{translate('TODO: Wallet top-up')}</Typography>
+      <Typography variant="subhead">{translate('text_6657be42151661006d2f3b89')}</Typography>
 
       {formType === FORM_TYPE_ENUM.creation && (
         <>
           <Box>
             <Typography variant="bodyHl" color="grey700">
-              {translate('TODO: Define credits to purchase and to grant upon wallet creation')}
+              {translate('text_6657be42151661006d2f3b8a')}
             </Typography>
-            <Typography variant="caption">
-              {translate(
-                'TODO: Credits for purchases generate an invoice, while credits for grants do not generate invoices',
-              )}
-            </Typography>
+            <Typography variant="caption">{translate('text_6657be42151661006d2f3b8b')}</Typography>
           </Box>
 
           <AmountInputField
@@ -161,13 +158,9 @@ export const TopUpCard: FC<TopUpCardProps> = ({
 
       <Box>
         <Typography variant="bodyHl" color="grey700">
-          {translate('TODO: Add recurring top-up')}
+          {translate('text_6657be42151661006d2f3b94')}
         </Typography>
-        <Typography variant="caption">
-          {translate(
-            'TODO: Define an automatic top-up based on a set interval or when a predefined threshold is reached',
-          )}
-        </Typography>
+        <Typography variant="caption">{translate('text_6657be42151661006d2f3b95')}</Typography>
       </Box>
 
       {!isRecurringTopUpEnabled ? (
@@ -185,14 +178,14 @@ export const TopUpCard: FC<TopUpCardProps> = ({
             }
           }}
         >
-          {translate('TODO: Add a recurring top-up rule')}
+          {translate('text_6657be42151661006d2f3b96')}
         </Button>
       ) : (
         <Accordion
           initiallyOpen={accordionIsOpen}
           summary={
             <AccordionSummary
-              label={translate('TODO: Recurring top-up rule')}
+              label={translate('text_6657c29c84ad4500ad764ed6')}
               isValid={!hasRecurringTransactionRulesErrors}
               onDelete={() => {
                 setIsRecurringTopUpEnabled(false)
@@ -205,14 +198,16 @@ export const TopUpCard: FC<TopUpCardProps> = ({
             <ComboBox
               name="recurringTransactionRules.0.method"
               disableClearable
-              label={translate('TODO: Top-up method')}
+              sortValues
+              placeholder={translate('text_6657c29c84ad4500ad764ed8')}
+              label={translate('text_6657c29c84ad4500ad764ed7')}
               data={[
                 {
-                  label: translate('TODO: Fixed top-up'),
+                  label: translate('text_6657cdd8cea6bf010e1ce128'),
                   value: RecurringTransactionMethodEnum.Fixed,
                 },
                 {
-                  label: translate('TODO: Dynamic top-up'),
+                  label: translate('text_6657c34670561c0127132da4'),
                   value: RecurringTransactionMethodEnum.Target,
                 },
               ]}
@@ -246,7 +241,7 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                   name="recurringTransactionRules.0.paidCredits"
                   currency={formikProps.values.currency}
                   beforeChangeFormatter={['positiveNumber']}
-                  label={translate('TODO: Credits to purchase')}
+                  label={translate('text_62e79671d23ae6ff149de944')}
                   formikProps={formikProps}
                   silentError={true}
                   helperText={translate('text_62d18855b22699e5cf55f88b', {
@@ -262,7 +257,7 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                   name="recurringTransactionRules.0.grantedCredits"
                   currency={formikProps.values.currency}
                   beforeChangeFormatter={['positiveNumber']}
-                  label={translate('TODO: Free credits to offer')}
+                  label={translate('text_62e79671d23ae6ff149de954')}
                   formikProps={formikProps}
                   silentError={true}
                   helperText={translate('text_62d18855b22699e5cf55f893', {
@@ -282,7 +277,7 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                 name="recurringTransactionRules.0.targetOngoingBalance"
                 currency={formikProps.values.currency}
                 beforeChangeFormatter={['positiveNumber']}
-                label={translate('TODO: Target ongoing balance')}
+                label={translate('text_6657c34670561c0127132da5')}
                 formikProps={formikProps}
                 silentError={true}
                 helperText={translate('text_62d18855b22699e5cf55f88b', {
@@ -304,7 +299,9 @@ export const TopUpCard: FC<TopUpCardProps> = ({
             <InlineTopUpElements>
               <ComboBox
                 disableClearable
-                label={translate('TODO: Trigger')}
+                sortValues
+                placeholder={translate('text_6657c29c84ad4500ad764ee2')}
+                label={translate('text_6657c29c84ad4500ad764ee1')}
                 name="recurringTransactionRules.0.trigger"
                 data={[
                   {
@@ -377,15 +374,17 @@ export const TopUpCard: FC<TopUpCardProps> = ({
               )}
             </InlineTopUpElements>
 
-            <Alert type="info">
-              {getWordingForWalletCreationAlert({
-                translate,
-                currency: formikProps.values?.currency,
-                customerTimezone: customerData?.customer?.timezone,
-                recurringRulesValues: recurringTransactionRules,
-                walletValues: formikProps.values,
-              })}
-            </Alert>
+            {canDisplayAccordionAlert && (
+              <Alert type="info">
+                {getWordingForWalletCreationAlert({
+                  translate,
+                  currency: formikProps.values?.currency,
+                  customerTimezone: customerData?.customer?.timezone,
+                  recurringRulesValues: recurringTransactionRules,
+                  walletValues: formikProps.values,
+                })}
+              </Alert>
+            )}
           </Stack>
         </Accordion>
       )}

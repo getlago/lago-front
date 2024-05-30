@@ -156,7 +156,7 @@ describe('Wallet Utils', () => {
         Settings.now = () => expectedNow.toMillis()
       })
 
-      it('if the method is fixed + weekly interval : "A top-up of {{totalCreditCount}} credits is set for {{nextRecurringTopUpDate}}, and will recur every {{dayOfWeek}} of the week"', () => {
+      it('if the method is fixed + weekly interval : "A top-up of {{totalCreditCount}} credits is set for {{nextRecurringTopUpDate}}, and will recur every {{dayOfWeek}}"', () => {
         const alertContent = getWordingForWalletCreationAlert({
           ...options,
           recurringRulesValues: {
@@ -166,7 +166,9 @@ describe('Wallet Utils', () => {
           },
         })
 
-        expect(alertContent).toBe('pre_fixed weekly')
+        expect(alertContent).toBe(
+          `${'text_6657be42151661006d2f3b6f'} ${'text_6657be42151661006d2f3b79'}`,
+        )
       })
 
       it('if the method is fixed + monthly interval : "A top-up of {{totalCreditCount}} credits is set for {{nextRecurringTopUpDate}} and will recur every month."', () => {
@@ -179,7 +181,9 @@ describe('Wallet Utils', () => {
           },
         })
 
-        expect(alertContent).toBe('pre_fixed monthly')
+        expect(alertContent).toBe(
+          `${'text_6657be42151661006d2f3b6f'} ${'text_6657be42151661006d2f3b7b'}`,
+        )
       })
 
       it('if the method is fixed + quarter interval : "A top-up of {{totalCreditCount}} credits is set for {{nextRecurringTopUpDate}} and will recur every 15th on a quarterly basis."', () => {
@@ -192,7 +196,9 @@ describe('Wallet Utils', () => {
           },
         })
 
-        expect(alertContent).toBe('pre_fixed quarter')
+        expect(alertContent).toBe(
+          `${'text_6657be42151661006d2f3b6f'} ${'text_6657be42151661006d2f3b7f'}`,
+        )
       })
 
       it('if the method is fixed + yearly interval : "A top-up of {{totalCreditCount}} credits is set for {{nextRecurringTopUpDate}} and will recur every year."', () => {
@@ -205,7 +211,9 @@ describe('Wallet Utils', () => {
           },
         })
 
-        expect(alertContent).toBe('pre_fixed yearly')
+        expect(alertContent).toBe(
+          `${'text_6657be42151661006d2f3b6f'} ${'text_6657be42151661006d2f3b83'}`,
+        )
       })
 
       it('if the method is target + weekly interval : "A top-up of credits is set to match the target balance on {{nextRecurringTopUpDate}}, and will recur every {{dayOfWeek}} of the week."', () => {
@@ -218,7 +226,9 @@ describe('Wallet Utils', () => {
           },
         })
 
-        expect(alertContent).toBe('pre_target weekly')
+        expect(alertContent).toBe(
+          `${'text_6657be42151661006d2f3b71'} ${'text_6657be42151661006d2f3b79'}`,
+        )
       })
 
       it('if the method is target + monthly interval : "A top-up of credits is set to match the target balance on {{nextRecurringTopUpDate}} and will recur every month."', () => {
@@ -231,7 +241,9 @@ describe('Wallet Utils', () => {
           },
         })
 
-        expect(alertContent).toBe('pre_target monthly')
+        expect(alertContent).toBe(
+          `${'text_6657be42151661006d2f3b71'} ${'text_6657be42151661006d2f3b7b'}`,
+        )
       })
 
       it('if the method is target + quarter interval : "A top-up of credits is set to match the target balance on  {{nextRecurringTopUpDate}} and will occur every 15th on a quarterly basis."', () => {
@@ -244,7 +256,9 @@ describe('Wallet Utils', () => {
           },
         })
 
-        expect(alertContent).toBe('pre_target quarter')
+        expect(alertContent).toBe(
+          `${'text_6657be42151661006d2f3b71'} ${'text_6657be42151661006d2f3b7f'}`,
+        )
       })
 
       it('if the method is target + yearly interval : "A top-up of credits is set to match the target balance on {{nextRecurringTopUpDate}} and will recur every month."', () => {
@@ -257,7 +271,9 @@ describe('Wallet Utils', () => {
           },
         })
 
-        expect(alertContent).toBe('pre_target yearly')
+        expect(alertContent).toBe(
+          `${'text_6657be42151661006d2f3b71'} ${'text_6657be42151661006d2f3b83'}`,
+        )
       })
     })
 
@@ -278,7 +294,9 @@ describe('Wallet Utils', () => {
           },
         })
 
-        expect(alertContent).toBe('pre_fixed monthly_na')
+        expect(alertContent).toBe(
+          `${'text_6657be42151661006d2f3b6f'} ${'text_6657be42151661006d2f3b7d'}`,
+        )
       })
 
       it('if the method is fixed + quarter interval and next occurrence is unreachable: "A top-up of {{totalCreditCount}} credits is set for {{nextRecurringTopUpDate}} and will recur every 31st on a quarterly basis if applicable; otherwise, it will occur at the end of the month."', () => {
@@ -291,7 +309,9 @@ describe('Wallet Utils', () => {
           },
         })
 
-        expect(alertContent).toBe('pre_fixed quarter_na')
+        expect(alertContent).toBe(
+          `${'text_6657be42151661006d2f3b6f'} ${'text_6657be42151661006d2f3b81'}`,
+        )
       })
 
       it('if the method is fixed + yearly interval and next occurrence is unreachable: "A top-up of {{totalCreditCount}} credits is set for {{nextRecurringTopUpDate}} and will recur every year, if applicable; otherwise, it will occur at the end of {{month}} on a yearly basis."', () => {
@@ -304,7 +324,9 @@ describe('Wallet Utils', () => {
           },
         })
 
-        expect(alertContent).toBe('pre_fixed yearly_na')
+        expect(alertContent).toBe(
+          `${'text_6657be42151661006d2f3b6f'} ${'text_6657be42151661006d2f3b85'}`,
+        )
       })
 
       it('if the method is target + monthly interval and next occurrence is unreachable: "A top-up of credits is set to match the target balance on  {{nextRecurringTopUpDate}} and will recur every month, if applicable; otherwise, it will occur at the end of the month."', () => {
@@ -317,7 +339,9 @@ describe('Wallet Utils', () => {
           },
         })
 
-        expect(alertContent).toBe('pre_target monthly_na')
+        expect(alertContent).toBe(
+          `${'text_6657be42151661006d2f3b71'} ${'text_6657be42151661006d2f3b7d'}`,
+        )
       })
 
       it('if the method is target + quarter interval and next occurrence is unreachable: "A top-up of credits is set to match the target balance on  {{nextRecurringTopUpDate}} and will occur every 31st on a quarterly basis if applicable; otherwise, it will occur at the end of the month."', () => {
@@ -330,7 +354,9 @@ describe('Wallet Utils', () => {
           },
         })
 
-        expect(alertContent).toBe('pre_target quarter_na')
+        expect(alertContent).toBe(
+          `${'text_6657be42151661006d2f3b71'} ${'text_6657be42151661006d2f3b81'}`,
+        )
       })
 
       it('if the method is target + yearly interval and next occurrence is unreachable: "A top-up of credits is set to match the target balance on  {{nextRecurringTopUpDate}} and will recur every year, if applicable; otherwise, it will occur at the end of {{month}} on a yearly basis."', () => {
@@ -343,7 +369,9 @@ describe('Wallet Utils', () => {
           },
         })
 
-        expect(alertContent).toBe('pre_target yearly_na')
+        expect(alertContent).toBe(
+          `${'text_6657be42151661006d2f3b71'} ${'text_6657be42151661006d2f3b85'}`,
+        )
       })
     })
 
@@ -366,7 +394,9 @@ describe('Wallet Utils', () => {
         },
       })
 
-      expect(alertContent).toBe('pre_threshold fixed')
+      expect(alertContent).toBe(
+        `${'text_6657be42151661006d2f3b6d'} ${'text_6657be42151661006d2f3b75'}`,
+      )
     })
 
     it('if the method is target + threshold : "Each time your wallet ongoing balance falls to or below {{thresholdCredits}}, a top-up of credits will occur to match the target balance."', () => {
@@ -378,7 +408,9 @@ describe('Wallet Utils', () => {
         },
       })
 
-      expect(alertContent).toBe('pre_threshold target')
+      expect(alertContent).toBe(
+        `${'text_6657be42151661006d2f3b6d'} ${'text_6657be42151661006d2f3b77'}`,
+      )
     })
   })
 })
