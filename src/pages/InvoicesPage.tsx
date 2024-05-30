@@ -4,6 +4,7 @@ import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Button, NavigationTab, Typography } from '~/components/designSystem'
+import CreditNotesList from '~/components/invoices/CreditNotesList'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
@@ -18,10 +19,13 @@ import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVOICES_ROUTE, INVOICES_TAB_ROUTE } from '~/core/router'
 import {
+  CreditNoteForCreditNoteListFragmentDoc,
+  CreditNoteForCreditNoteListItemFragmentDoc,
   InvoiceListItemFragmentDoc,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   LagoApiError,
+  useGetCreditNotesListLazyQuery,
   useGetInvoicesListLazyQuery,
   useRetryAllInvoicePaymentsMutation,
 } from '~/generated/graphql'
@@ -59,6 +63,21 @@ gql`
     }
   }
 
+  query getCreditNotesList($limit: Int, $page: Int, $searchTerm: String) {
+    creditNotes(limit: $limit, page: $page, searchTerm: $searchTerm) {
+      metadata {
+        currentPage
+        totalPages
+        totalCount
+      }
+      collection {
+        id
+        ...CreditNoteForCreditNoteList
+        ...CreditNoteForCreditNoteListItem
+      }
+    }
+  }
+
   mutation retryAllInvoicePayments($input: RetryAllInvoicePaymentsInput!) {
     retryAllInvoicePayments(input: $input) {
       collection {
@@ -68,6 +87,8 @@ gql`
   }
 
   ${InvoiceListItemFragmentDoc}
+  ${CreditNoteForCreditNoteListFragmentDoc}
+  ${CreditNoteForCreditNoteListItemFragmentDoc}
 `
 
 export enum InvoiceListStatusEnum {
@@ -129,7 +150,30 @@ const InvoicesPage = () => {
       }),
     },
   })
-  const { debouncedSearch, isLoading } = useDebouncedSearch(getInvoices, loadingInvoices)
+
+  const [
+    getCreditNotes,
+    {
+      data: dataCreditNotes,
+      loading: loadingCreditNotes,
+      error: errorCreditNotes,
+      fetchMore: fetchMoreCreditNotes,
+      variables: variableCreditNotes,
+    },
+  ] = useGetCreditNotesListLazyQuery({
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
+    variables: {
+      limit: 20,
+    },
+  })
+
+  const { debouncedSearch: invoiceDebounceSearch, isLoading: invoiceIsLoading } =
+    useDebouncedSearch(getInvoices, loadingInvoices)
+  const { debouncedSearch: creditNoteDebounceSearch, isLoading: creditNoteIsLoading } =
+    useDebouncedSearch(getCreditNotes, loadingCreditNotes)
+
   const [retryAll] = useRetryAllInvoicePaymentsMutation({
     context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
     onCompleted({ retryAllInvoicePayments }) {
@@ -171,10 +215,18 @@ const InvoicesPage = () => {
         </Typography>
 
         <HeaderRigthBlock>
-          <SearchInput
-            onChange={debouncedSearch}
-            placeholder={translate('text_63c68131568d582a38233e84')}
-          />
+          {tab === InvoiceListTabEnum.invoices ? (
+            <SearchInput
+              onChange={invoiceDebounceSearch}
+              placeholder={translate('text_63c68131568d582a38233e84')}
+            />
+          ) : tab === InvoiceListTabEnum.creditNotes ? (
+            <SearchInput
+              onChange={creditNoteDebounceSearch}
+              placeholder={translate('text_63c6edd80c57d0dfaae3898e')}
+            />
+          ) : null}
+
           {invoiceType === InvoiceListStatusEnum.pendingFailed &&
             hasPermissions(['invoicesSend']) && (
               <Button
@@ -195,7 +247,7 @@ const InvoicesPage = () => {
             )}
         </HeaderRigthBlock>
       </PageHeader>
-      <NavigationTab
+      <LocalNavigationTab
         tabs={[
           {
             title: translate('text_63ac86d797f728a87b2f9f85'),
@@ -207,8 +259,8 @@ const InvoicesPage = () => {
               generatePath(INVOICES_TAB_ROUTE, { tab: InvoiceListTabEnum.invoices }),
             ],
             onClick: () => {
-              // reset invoice type url params when switching tabs
-              setSearchParams()
+              // Set default tab search param
+              setSearchParams({ invoiceType: InvoiceListStatusEnum.all })
             },
             component: (
               <InvoicesList
@@ -216,25 +268,34 @@ const InvoicesPage = () => {
                 fetchMore={fetchMoreInvoices}
                 invoices={dataInvoices?.invoices?.collection}
                 invoiceType={invoiceType}
-                isLoading={isLoading}
+                isLoading={invoiceIsLoading}
                 metadata={dataInvoices?.invoices?.metadata}
                 variables={variableInvoices}
               />
             ),
             hidden: !hasPermissions(['invoicesView']),
           },
-          // NOTE: credit notes list will be added in a future release
-          // {
-          //   title: translate('text_636bdef6565341dcb9cfb125'),
-          //   link: generatePath(INVOICES_TAB_ROUTE, {
-          //     tab: InvoiceListTabEnum.creditNotes,
-          //   }),
-          //   onClick: () => {
-          //     // Reset invoice search term when switching tabs
-          //     setSearchParams('')
-          //   },
-          //   hidden: !hasPermissions(['creditNotesView']),
-          // },
+          {
+            title: translate('text_636bdef6565341dcb9cfb125'),
+            link: generatePath(INVOICES_TAB_ROUTE, {
+              tab: InvoiceListTabEnum.creditNotes,
+            }),
+            onClick: () => {
+              // Reset invoice search term when switching tabs
+              setSearchParams()
+            },
+            component: (
+              <CreditNotesList
+                creditNotes={dataCreditNotes?.creditNotes?.collection}
+                error={errorCreditNotes}
+                fetchMore={fetchMoreCreditNotes}
+                isLoading={creditNoteIsLoading}
+                metadata={dataCreditNotes?.creditNotes?.metadata}
+                variables={variableCreditNotes}
+              />
+            ),
+            hidden: !hasPermissions(['creditNotesView']),
+          },
         ]}
       />
 
@@ -253,5 +314,14 @@ const HeaderRigthBlock = styled.div`
 
   > :first-child {
     margin-right: ${theme.spacing(3)};
+  }
+`
+
+const LocalNavigationTab = styled(NavigationTab)`
+  /* Need to override this as the nav tab itself does not changes for md size */
+  .navigation-tab--horizontal {
+    ${theme.breakpoints.down('md')} {
+      padding: ${theme.spacing(4)} ${theme.spacing(5)};
+    }
   }
 `

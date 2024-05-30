@@ -236,6 +236,7 @@ const CreditNoteDetails = () => {
           <Button
             icon="arrow-left"
             variant="quaternary"
+            // Make the back redirection working for the new CN list page redirect CREDIT_NOTE_DETAILS_ROUTE
             onClick={() =>
               goBack(
                 !!invoiceId

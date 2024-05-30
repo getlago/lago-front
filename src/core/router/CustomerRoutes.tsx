@@ -37,6 +37,7 @@ export const CUSTOMER_INVOICE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice
 // Credit note related
 export const CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/credit-notes/:creditNoteId`
 export const CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/credit-notes/:creditNoteId`
+export const CREDIT_NOTE_DETAILS_ROUTE = '/credit-notes/:creditNoteId'
 export const CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/create/credit-notes`
 
 export const customerRoutes: CustomRouteObject[] = [
@@ -59,13 +60,17 @@ export const customerRoutes: CustomRouteObject[] = [
     permissions: ['invoicesView'],
   },
   {
-    path: CUSTOMER_INVOICE_DETAILS_ROUTE,
+    path: [CUSTOMER_INVOICE_DETAILS_ROUTE],
     private: true,
     element: <CustomerInvoiceDetails />,
     permissions: ['invoicesView'],
   },
   {
-    path: [CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE],
+    path: [
+      CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
+      CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
+      CREDIT_NOTE_DETAILS_ROUTE,
+    ],
     private: true,
     element: <CreditNoteDetails />,
     permissions: ['creditNotesView'],
