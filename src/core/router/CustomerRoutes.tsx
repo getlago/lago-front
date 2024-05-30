@@ -59,7 +59,7 @@ export const customerRoutes: CustomRouteObject[] = [
     permissions: ['invoicesView'],
   },
   {
-    path: CUSTOMER_INVOICE_DETAILS_ROUTE,
+    path: [CUSTOMER_INVOICE_DETAILS_ROUTE],
     private: true,
     element: <CustomerInvoiceDetails />,
     permissions: ['invoicesView'],

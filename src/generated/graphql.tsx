@@ -5278,6 +5278,8 @@ export type DownloadCreditNoteMutationVariables = Exact<{
 
 export type DownloadCreditNoteMutation = { __typename?: 'Mutation', downloadCreditNote?: { __typename?: 'CreditNote', id: string, fileUrl?: string | null } | null };
 
+export type CreditNoteForVoidCreditNoteDialogFragment = { __typename?: 'CreditNote', id: string, totalAmountCents: any, currency: CurrencyEnum };
+
 export type VoidCreditNoteMutationVariables = Exact<{
   input: VoidCreditNoteInput;
 }>;
@@ -5399,6 +5401,17 @@ export type UpdateInvoiceMetadataMutationVariables = Exact<{
 
 
 export type UpdateInvoiceMetadataMutation = { __typename?: 'Mutation', updateInvoice?: { __typename?: 'Invoice', id: string, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null } | null };
+
+export type CreditNoteForCreditNoteListItemFragment = { __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null } } | null };
+
+export type DownloadCreditNoteItemMutationVariables = Exact<{
+  input: DownloadCreditNoteInput;
+}>;
+
+
+export type DownloadCreditNoteItemMutation = { __typename?: 'Mutation', downloadCreditNote?: { __typename?: 'CreditNote', id: string, fileUrl?: string | null } | null };
+
+export type CreditNoteForCreditNoteListFragment = { __typename?: 'CreditNote', id: string, invoice?: { __typename?: 'Invoice', id: string, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum } } | null };
 
 export type DisputeInvoiceMutationVariables = Exact<{
   input: LoseInvoiceDisputeInput;
@@ -6424,6 +6437,15 @@ export type GetInvoicesListQueryVariables = Exact<{
 
 export type GetInvoicesListQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, applicableTimezone: TimezoneEnum } }> } };
 
+export type GetCreditNotesListQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetCreditNotesListQuery = { __typename?: 'Query', creditNotes: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, name?: string | null } } | null }> } };
+
 export type RetryAllInvoicePaymentsMutationVariables = Exact<{
   input: RetryAllInvoicePaymentsInput;
 }>;
@@ -7070,6 +7092,13 @@ export const CreditNotesForListFragmentDoc = gql`
   }
 }
     `;
+export const CreditNoteForVoidCreditNoteDialogFragmentDoc = gql`
+    fragment CreditNoteForVoidCreditNoteDialog on CreditNote {
+  id
+  totalAmountCents
+  currency
+}
+    `;
 export const SubscriptionLinePlanFragmentDoc = gql`
     fragment SubscriptionLinePlan on Plan {
   id
@@ -7151,6 +7180,36 @@ export const WebhookForCreateAndEditFragmentDoc = gql`
   id
   webhookUrl
   signatureAlgo
+}
+    `;
+export const CreditNoteForCreditNoteListItemFragmentDoc = gql`
+    fragment CreditNoteForCreditNoteListItem on CreditNote {
+  id
+  number
+  totalAmountCents
+  currency
+  createdAt
+  canBeVoided
+  invoice {
+    id
+    number
+    customer {
+      id
+      name
+    }
+  }
+}
+    `;
+export const CreditNoteForCreditNoteListFragmentDoc = gql`
+    fragment CreditNoteForCreditNoteList on CreditNote {
+  id
+  invoice {
+    id
+    customer {
+      id
+      applicableTimezone
+    }
+  }
 }
     `;
 export const TaxForInvoiceEditTaxDialogFragmentDoc = gql`
@@ -10698,6 +10757,40 @@ export function useUpdateInvoiceMetadataMutation(baseOptions?: Apollo.MutationHo
 export type UpdateInvoiceMetadataMutationHookResult = ReturnType<typeof useUpdateInvoiceMetadataMutation>;
 export type UpdateInvoiceMetadataMutationResult = Apollo.MutationResult<UpdateInvoiceMetadataMutation>;
 export type UpdateInvoiceMetadataMutationOptions = Apollo.BaseMutationOptions<UpdateInvoiceMetadataMutation, UpdateInvoiceMetadataMutationVariables>;
+export const DownloadCreditNoteItemDocument = gql`
+    mutation downloadCreditNoteItem($input: DownloadCreditNoteInput!) {
+  downloadCreditNote(input: $input) {
+    id
+    fileUrl
+  }
+}
+    `;
+export type DownloadCreditNoteItemMutationFn = Apollo.MutationFunction<DownloadCreditNoteItemMutation, DownloadCreditNoteItemMutationVariables>;
+
+/**
+ * __useDownloadCreditNoteItemMutation__
+ *
+ * To run a mutation, you first call `useDownloadCreditNoteItemMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDownloadCreditNoteItemMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [downloadCreditNoteItemMutation, { data, loading, error }] = useDownloadCreditNoteItemMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDownloadCreditNoteItemMutation(baseOptions?: Apollo.MutationHookOptions<DownloadCreditNoteItemMutation, DownloadCreditNoteItemMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DownloadCreditNoteItemMutation, DownloadCreditNoteItemMutationVariables>(DownloadCreditNoteItemDocument, options);
+      }
+export type DownloadCreditNoteItemMutationHookResult = ReturnType<typeof useDownloadCreditNoteItemMutation>;
+export type DownloadCreditNoteItemMutationResult = Apollo.MutationResult<DownloadCreditNoteItemMutation>;
+export type DownloadCreditNoteItemMutationOptions = Apollo.BaseMutationOptions<DownloadCreditNoteItemMutation, DownloadCreditNoteItemMutationVariables>;
 export const DisputeInvoiceDocument = gql`
     mutation disputeInvoice($input: LoseInvoiceDisputeInput!) {
   loseInvoiceDispute(input: $input) {
@@ -15300,6 +15393,58 @@ export type GetInvoicesListQueryHookResult = ReturnType<typeof useGetInvoicesLis
 export type GetInvoicesListLazyQueryHookResult = ReturnType<typeof useGetInvoicesListLazyQuery>;
 export type GetInvoicesListSuspenseQueryHookResult = ReturnType<typeof useGetInvoicesListSuspenseQuery>;
 export type GetInvoicesListQueryResult = Apollo.QueryResult<GetInvoicesListQuery, GetInvoicesListQueryVariables>;
+export const GetCreditNotesListDocument = gql`
+    query getCreditNotesList($limit: Int, $page: Int, $searchTerm: String) {
+  creditNotes(limit: $limit, page: $page, searchTerm: $searchTerm) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      id
+      ...CreditNoteForCreditNoteList
+      ...CreditNoteForCreditNoteListItem
+    }
+  }
+}
+    ${CreditNoteForCreditNoteListFragmentDoc}
+${CreditNoteForCreditNoteListItemFragmentDoc}`;
+
+/**
+ * __useGetCreditNotesListQuery__
+ *
+ * To run a query within a React component, call `useGetCreditNotesListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCreditNotesListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCreditNotesListQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      page: // value for 'page'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetCreditNotesListQuery(baseOptions?: Apollo.QueryHookOptions<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>(GetCreditNotesListDocument, options);
+      }
+export function useGetCreditNotesListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>(GetCreditNotesListDocument, options);
+        }
+export function useGetCreditNotesListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>(GetCreditNotesListDocument, options);
+        }
+export type GetCreditNotesListQueryHookResult = ReturnType<typeof useGetCreditNotesListQuery>;
+export type GetCreditNotesListLazyQueryHookResult = ReturnType<typeof useGetCreditNotesListLazyQuery>;
+export type GetCreditNotesListSuspenseQueryHookResult = ReturnType<typeof useGetCreditNotesListSuspenseQuery>;
+export type GetCreditNotesListQueryResult = Apollo.QueryResult<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>;
 export const RetryAllInvoicePaymentsDocument = gql`
     mutation retryAllInvoicePayments($input: RetryAllInvoicePaymentsInput!) {
   retryAllInvoicePayments(input: $input) {

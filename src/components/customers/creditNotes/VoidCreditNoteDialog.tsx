@@ -10,6 +10,12 @@ import { CurrencyEnum, useVoidCreditNoteMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
+  fragment CreditNoteForVoidCreditNoteDialog on CreditNote {
+    id
+    totalAmountCents
+    currency
+  }
+
   mutation voidCreditNote($input: VoidCreditNoteInput!) {
     voidCreditNote(input: $input) {
       id
