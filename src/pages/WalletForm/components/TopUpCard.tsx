@@ -279,7 +279,7 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                 error={
                   get(formikProps.errors, 'recurringTransactionRules.0.targetOngoingBalance') ===
                   walletFormErrorCodes.targetOngoingBalanceShouldBeGreaterThanThreshold
-                    ? translate('TODO: Target ongoing balance should be higher than threshold')
+                    ? translate('text_66584178ee91f801012606a6')
                     : undefined
                 }
                 helperText={translate('text_62d18855b22699e5cf55f88b', {
@@ -335,7 +335,7 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                 }}
               />
               {recurringTransactionRules?.trigger === RecurringTransactionTriggerEnum.Interval && (
-                <>
+                <Box className="span-2">
                   <ComboBoxField
                     name="recurringTransactionRules.0.interval"
                     disableClearable
@@ -362,10 +362,11 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                       },
                     ]}
                   />
-                </>
+                </Box>
               )}
               {recurringTransactionRules?.trigger === RecurringTransactionTriggerEnum.Threshold && (
                 <AmountInputField
+                  className="span-2"
                   name="recurringTransactionRules.0.thresholdCredits"
                   currency={formikProps.values.currency}
                   label={translate('text_6560809c38fb9de88d8a5315')}
@@ -373,7 +374,7 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                   error={
                     get(formikProps.errors, 'recurringTransactionRules.0.thresholdCredits') ===
                     walletFormErrorCodes.thresholdShouldBeLessThanTargetOngoingBalance
-                      ? translate('TODO: Threshold should be lower than target ongoing balance')
+                      ? translate('text_66584178ee91f801012606ac')
                       : undefined
                   }
                   {...inputAdornment(translate('text_62d18855b22699e5cf55f889'))}
@@ -407,5 +408,9 @@ const InlineTopUpElements = styled.div`
 
   > div {
     flex: 1;
+  }
+
+  > div.span-2 {
+    flex: 2;
   }
 `

@@ -1,7 +1,10 @@
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { envGlobalVar } from '~/core/apolloClient'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
-import { RecurringTransactionTriggerEnum } from '~/generated/graphql'
+import {
+  RecurringTransactionMethodEnum,
+  RecurringTransactionTriggerEnum,
+} from '~/generated/graphql'
 import { TWalletDataForm } from '~/pages/WalletForm'
 
 const { apiUrl } = envGlobalVar()
@@ -30,7 +33,7 @@ curl --location --request ${isEdition ? 'PUT' : 'POST'} "${apiUrl}/api/v1/wallet
     }
         "rate_amount": "${rateAmount}",
         "currency": "${currency}",
-        "external_customer_id": "__EXTERNAL_CUSTOMER_ID__"${
+        "external_customer_id": "__EXTERNAL_CUSTOMER_ID__",${
           wallet.expirationAt
             ? `,
         "expiration_at": "${wallet.expirationAt}",`
@@ -55,6 +58,34 @@ curl --location --request ${isEdition ? 'PUT' : 'POST'} "${apiUrl}/api/v1/wallet
             "lago_id": "${recurringTransactionRules[0].lagoId}",`
               : ''
           }
+            "method": "${wallet.recurringTransactionRules?.[0].method || '__MUST_BE_DEFINED__'}"${
+              wallet.recurringTransactionRules?.[0].method === RecurringTransactionMethodEnum.Fixed
+                ? `
+            "paid_credits": "${
+              wallet.recurringTransactionRules?.[0].paidCredits
+                ? serializeAmount(
+                    wallet.recurringTransactionRules?.[0].paidCredits,
+                    wallet.currency,
+                  )
+                : '0'
+            }",
+            "granted_credits": "${
+              wallet.recurringTransactionRules?.[0].grantedCredits
+                ? serializeAmount(
+                    wallet.recurringTransactionRules?.[0].grantedCredits,
+                    wallet.currency,
+                  )
+                : '0'
+            }",`
+                : ''
+            }${
+              wallet.recurringTransactionRules?.[0].method === RecurringTransactionMethodEnum.Target
+                ? `
+            "target_ongoing_balance": "${
+              wallet.recurringTransactionRules?.[0].targetOngoingBalance || '0'
+            }"`
+                : ''
+            }
             "trigger": "${wallet.recurringTransactionRules?.[0].trigger || '__MUST_BE_DEFINED__'}"${
               wallet.recurringTransactionRules?.[0].trigger ===
               RecurringTransactionTriggerEnum.Interval
@@ -67,28 +98,9 @@ curl --location --request ${isEdition ? 'PUT' : 'POST'} "${apiUrl}/api/v1/wallet
               wallet.recurringTransactionRules?.[0].trigger ===
               RecurringTransactionTriggerEnum.Threshold
                 ? `,
-            "threshold_credits": "${
-              wallet.recurringTransactionRules?.[0].thresholdCredits || '__MUST_BE_DEFINED__'
-            }"`
-                : ''
-            }${
-              wallet.recurringTransactionRules?.[0].paidCredits
-                ? `,
-            "paid_credits": "${serializeAmount(
-              wallet.recurringTransactionRules?.[0].paidCredits,
-              wallet.currency,
-            )}"`
-                : ''
-            }${
-              wallet.recurringTransactionRules?.[0].grantedCredits
-                ? `,
-            "granted_credits": "${serializeAmount(
-              wallet.recurringTransactionRules?.[0].grantedCredits,
-              wallet.currency,
-            )}"`
+            "threshold_credits": "${wallet.recurringTransactionRules?.[0].thresholdCredits || '0'}"`
                 : ''
             }
-          }
         ]`
             : ''
         }
