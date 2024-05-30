@@ -7,6 +7,12 @@ import {
   RecurringTransactionTriggerEnum,
 } from '~/generated/graphql'
 
+export const walletFormErrorCodes = {
+  targetOngoingBalanceShouldBeGreaterThanThreshold:
+    'targetOngoingBalanceShouldBeGreaterThanThreshold',
+  thresholdShouldBeLessThanTargetOngoingBalance: 'thresholdShouldBeLessThanTargetOngoingBalance',
+} as const
+
 export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
   return object().shape({
     name: string(),
@@ -80,11 +86,23 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
             .nullable(),
           thresholdCredits: string()
             .test({
-              test: function (thresholdCredits) {
-                const { trigger } = this?.parent
+              test: function (thresholdCredits, { path }) {
+                const { trigger, targetOngoingBalance, method } = this?.parent
 
                 if (!!trigger && trigger !== RecurringTransactionTriggerEnum.Threshold) {
                   return true
+                }
+
+                if (
+                  !!thresholdCredits &&
+                  method === RecurringTransactionMethodEnum.Target &&
+                  !!targetOngoingBalance &&
+                  Number(targetOngoingBalance) < Number(thresholdCredits)
+                ) {
+                  return this.createError({
+                    path,
+                    message: walletFormErrorCodes.thresholdShouldBeLessThanTargetOngoingBalance,
+                  })
                 }
 
                 return !!thresholdCredits
@@ -114,14 +132,26 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
             },
           }),
           targetOngoingBalance: string().test({
-            test: function (targetOngoingBalance) {
-              const { method } = this?.parent
+            test: function (targetOngoingBalance, { path }) {
+              const { method, thresholdCredits, trigger } = this?.parent
 
               if (!!method && method !== RecurringTransactionMethodEnum.Target) {
                 return true
               }
 
-              return !!targetOngoingBalance
+              if (
+                !!thresholdCredits &&
+                trigger === RecurringTransactionTriggerEnum.Threshold &&
+                !!targetOngoingBalance &&
+                Number(targetOngoingBalance) < Number(thresholdCredits)
+              ) {
+                return this.createError({
+                  path,
+                  message: walletFormErrorCodes.targetOngoingBalanceShouldBeGreaterThanThreshold,
+                })
+              }
+
+              return !isNaN(Number(targetOngoingBalance))
             },
           }),
         }),

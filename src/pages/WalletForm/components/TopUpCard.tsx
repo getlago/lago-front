@@ -1,5 +1,6 @@
 import { Box, InputAdornment, Stack } from '@mui/material'
 import { FormikProps } from 'formik'
+import { get } from 'lodash'
 import { FC, RefObject, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
@@ -19,6 +20,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { walletFormErrorCodes } from '~/pages/WalletForm/form'
 import { Card, theme } from '~/styles'
 
 import { TWalletDataForm } from '../types'
@@ -213,23 +215,18 @@ export const TopUpCard: FC<TopUpCardProps> = ({
               ]}
               value={formikProps.values.recurringTransactionRules?.[0].method as string}
               onChange={(value) => {
-                if (value === RecurringTransactionMethodEnum.Target) {
-                  formikProps.setFieldValue(
-                    'recurringTransactionRules.0.targetOngoingBalance',
-                    DEFAULT_RULES.targetOngoingBalance,
-                  )
-                }
-
-                if (value === RecurringTransactionMethodEnum.Fixed) {
-                  formikProps.setFieldValue(
-                    'recurringTransactionRules.0.paidCredits',
-                    DEFAULT_RULES.paidCredits,
-                  )
-                  formikProps.setFieldValue(
-                    'recurringTransactionRules.0.grantedCredits',
-                    DEFAULT_RULES.grantedCredits,
-                  )
-                }
+                formikProps.setFieldValue(
+                  'recurringTransactionRules.0.paidCredits',
+                  DEFAULT_RULES.paidCredits,
+                )
+                formikProps.setFieldValue(
+                  'recurringTransactionRules.0.grantedCredits',
+                  DEFAULT_RULES.grantedCredits,
+                )
+                formikProps.setFieldValue(
+                  'recurringTransactionRules.0.targetOngoingBalance',
+                  DEFAULT_RULES.targetOngoingBalance,
+                )
 
                 formikProps.setFieldValue('recurringTransactionRules.0.method', value)
               }}
@@ -279,7 +276,12 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                 beforeChangeFormatter={['positiveNumber']}
                 label={translate('text_6657c34670561c0127132da5')}
                 formikProps={formikProps}
-                silentError={true}
+                error={
+                  get(formikProps.errors, 'recurringTransactionRules.0.targetOngoingBalance') ===
+                  walletFormErrorCodes.targetOngoingBalanceShouldBeGreaterThanThreshold
+                    ? translate('TODO: Target ongoing balance should be higher than threshold')
+                    : undefined
+                }
                 helperText={translate('text_62d18855b22699e5cf55f88b', {
                   paidCredits: intlFormatNumber(
                     isNaN(Number(recurringTransactionRules?.paidCredits))
@@ -368,7 +370,12 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                   currency={formikProps.values.currency}
                   label={translate('text_6560809c38fb9de88d8a5315')}
                   formikProps={formikProps}
-                  silentError={true}
+                  error={
+                    get(formikProps.errors, 'recurringTransactionRules.0.thresholdCredits') ===
+                    walletFormErrorCodes.thresholdShouldBeLessThanTargetOngoingBalance
+                      ? translate('TODO: Threshold should be lower than target ongoing balance')
+                      : undefined
+                  }
                   {...inputAdornment(translate('text_62d18855b22699e5cf55f889'))}
                 />
               )}
@@ -387,18 +394,6 @@ export const TopUpCard: FC<TopUpCardProps> = ({
             )}
           </Stack>
         </Accordion>
-      )}
-
-      {formType === FORM_TYPE_ENUM.creation && !isRecurringTopUpEnabled && (
-        <Alert type="info">
-          {getWordingForWalletCreationAlert({
-            translate,
-            currency: formikProps.values?.currency,
-            customerTimezone: customerData?.customer?.timezone,
-            recurringRulesValues: recurringTransactionRules,
-            walletValues: formikProps.values,
-          })}
-        </Alert>
       )}
     </Card>
   )
