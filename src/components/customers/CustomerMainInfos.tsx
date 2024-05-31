@@ -103,11 +103,6 @@ gql`
           name
           accountId
         }
-
-        # Only added to satisfy type check in the code bellow
-        ... on OktaIntegration {
-          id
-        }
       }
     }
   }
@@ -135,7 +130,11 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     (provider) => provider?.code === customer?.paymentProviderCode,
   )
 
-  const connectedNetsuiteIntegration = integrationsData?.integrations?.collection?.find(
+  const allNetsuiteIntegrations = integrationsData?.integrations?.collection.filter(
+    (i) => i.__typename === 'NetsuiteIntegration',
+  ) as NetsuiteIntegration[] | undefined
+
+  const connectedNetsuiteIntegration = allNetsuiteIntegrations?.find(
     (integration) => integration?.id === customer?.netsuiteCustomer?.integrationId,
   ) as NetsuiteIntegration
 

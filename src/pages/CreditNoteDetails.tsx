@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { Stack } from '@mui/material'
 import React, { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 import { Link } from 'react-router-dom'
@@ -21,6 +22,7 @@ import {
 } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { addToast } from '~/core/apolloClient'
+import { buildNetsuiteCreditNoteUrl } from '~/core/constants/externalUrls'
 import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
 import {
   composeChargeFilterDisplayName,
@@ -43,8 +45,11 @@ import {
   CreditNoteRefundStatusEnum,
   CurrencyEnum,
   FeeTypesEnum,
+  NetsuiteIntegration,
   useDownloadCreditNoteMutation,
   useGetCreditNoteQuery,
+  useIntegrationsListForCreditNoteDetailsQuery,
+  useSyncIntegrationCreditNoteMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
@@ -73,11 +78,16 @@ gql`
       refundStatus
       subTotalExcludingTaxesAmountCents
       totalAmountCents
+      integrationSyncable
+      externalIntegrationId
       customer {
         id
         name
         deletedAt
         applicableTimezone
+        netsuiteCustomer {
+          integrationId
+        }
       }
       invoice {
         id
@@ -138,10 +148,29 @@ gql`
     }
   }
 
+  query integrationsListForCreditNoteDetails($limit: Int) {
+    integrations(limit: $limit) {
+      collection {
+        ... on NetsuiteIntegration {
+          __typename
+          id
+          accountId
+          name
+        }
+      }
+    }
+  }
+
   mutation downloadCreditNote($input: DownloadCreditNoteInput!) {
     downloadCreditNote(input: $input) {
       id
       fileUrl
+    }
+  }
+
+  mutation syncIntegrationCreditNote($input: SyncIntegrationCreditNoteInput!) {
+    syncIntegrationCreditNote(input: $input) {
+      creditNoteId
     }
   }
 `
@@ -192,6 +221,20 @@ const CreditNoteDetails = () => {
   const { hasPermissions } = usePermissions()
   const { customerId, invoiceId, creditNoteId } = useParams()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
+
+  const [syncIntegrationCreditNote, { loading: loadingSyncIntegrationCreditNote }] =
+    useSyncIntegrationCreditNoteMutation({
+      variables: { input: { creditNoteId: creditNoteId || '' } },
+      onCompleted({ syncIntegrationCreditNote: syncIntegrationCreditNoteResult }) {
+        if (syncIntegrationCreditNoteResult?.creditNoteId) {
+          addToast({
+            severity: 'success',
+            translateKey: 'text_6655a88569eed300ee8c4d44',
+          })
+        }
+      },
+    })
+
   const [downloadCreditNote, { loading: loadingCreditNoteDownload }] =
     useDownloadCreditNoteMutation({
       onCompleted({ downloadCreditNote: downloadCreditNoteData }) {
@@ -221,6 +264,20 @@ const CreditNoteDetails = () => {
     variables: { id: creditNoteId as string },
     skip: !creditNoteId || !customerId,
   })
+  const { data: integrationsData } = useIntegrationsListForCreditNoteDetailsQuery({
+    variables: { limit: 1000 },
+    skip: !data?.creditNote?.customer?.netsuiteCustomer?.integrationId,
+  })
+
+  const allNetsuiteIntegrations = integrationsData?.integrations?.collection.filter(
+    (i) => i.__typename === 'NetsuiteIntegration',
+  ) as NetsuiteIntegration[] | undefined
+
+  const connectedNetsuiteIntegration = allNetsuiteIntegrations?.find(
+    (integration) =>
+      integration?.id === data?.creditNote?.customer?.netsuiteCustomer?.integrationId,
+  ) as NetsuiteIntegration
+
   const creditNote = data?.creditNote
   const creditedFormattedStatus = creditedMapStatus(creditNote?.creditStatus)
   const consumedFormattedStatus = consumedMapStatus(creditNote?.refundStatus)
@@ -317,6 +374,21 @@ const CreditNoteDetails = () => {
                 >
                   {translate('text_637655cb50f04bf1c8379cee')}
                 </Button>
+
+                {!!data?.creditNote?.integrationSyncable && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    disabled={loadingSyncIntegrationCreditNote}
+                    onClick={async () => {
+                      await syncIntegrationCreditNote()
+
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_665d742ee9853200e3a6be7f')}
+                  </Button>
+                )}
               </MenuPopper>
             )}
           </Popper>
@@ -813,6 +885,34 @@ const CreditNoteDetails = () => {
                 </table>
               )}
             </TableSection>
+
+            {connectedNetsuiteIntegration && creditNote?.externalIntegrationId && (
+              <Stack marginTop={8} gap={6}>
+                <SectionHeader variant="subhead">
+                  {translate('text_6650b36fc702a4014c878996')}
+                </SectionHeader>
+
+                <div>
+                  <InfoLine>
+                    <Typography variant="caption" color="grey600" noWrap>
+                      {translate('text_6650b36fc702a4014c87899a')}
+                    </Typography>
+                    <InlineLink
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      to={buildNetsuiteCreditNoteUrl(
+                        connectedNetsuiteIntegration?.accountId,
+                        creditNote?.externalIntegrationId,
+                      )}
+                    >
+                      <Typography variant="body" color="info600">
+                        {creditNote?.externalIntegrationId} <Icon name="outside" />
+                      </Typography>
+                    </InlineLink>
+                  </InfoLine>
+                </div>
+              </Stack>
+            )}
           </>
         </Content>
       )}
@@ -820,6 +920,8 @@ const CreditNoteDetails = () => {
     </>
   )
 }
+
+export default CreditNoteDetails
 
 const HeaderLeft = styled.div`
   display: flex;
@@ -993,4 +1095,11 @@ const SkeletonLine = styled.div`
   margin-top: ${theme.spacing(7)};
 `
 
-export default CreditNoteDetails
+const InlineLink = styled(Link)`
+  width: fit-content;
+  line-break: anywhere;
+
+  &:hover {
+    text-decoration: none;
+  }
+`

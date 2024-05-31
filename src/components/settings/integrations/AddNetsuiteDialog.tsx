@@ -163,7 +163,7 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
           return handleError(res.errors)
         }
       } else {
-        const connectionId = `${componentId.replace(':', '')}-${Date.now()}`
+        const connectionId = `${componentId.replaceAll(':', '')}-${Date.now()}`
         const nango = new Nango({ publicKey: nangoPublicKey })
 
         try {

@@ -32,6 +32,7 @@ import {
   CreateCustomerInput,
   CurrencyEnum,
   IntegrationTypeEnum,
+  NetsuiteIntegration,
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
   UpdateCustomerInput,
@@ -95,12 +96,7 @@ gql`
     integrations(limit: $limit, page: $page, type: $type) {
       collection {
         ... on NetsuiteIntegration {
-          id
-          code
-          name
-        }
-        # OktaIntegration have to be defined to fix TS linting
-        ... on OktaIntegration {
+          __typename
           id
           code
           name
@@ -149,9 +145,13 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     (p) => p.code === formikProps.values.paymentProviderCode,
   )
 
-  const selectedNetsuiteIntegration = integrationsData?.integrations?.collection.find(
+  const allNetsuiteIntegrations = integrationsData?.integrations?.collection.filter(
+    (i) => i.__typename === 'NetsuiteIntegration',
+  ) as NetsuiteIntegration[] | undefined
+
+  const selectedNetsuiteIntegration = allNetsuiteIntegrations?.find(
     (i) => i.code === formikProps.values.integrationCustomer?.integrationCode,
-  )
+  ) as NetsuiteIntegration
 
   const { data: subsidiariesData } =
     useSubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery({
@@ -183,9 +183,9 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
   }, [providersData?.paymentProviders?.collection])
 
   const connectedIntegrationsData: BasicComboBoxData[] | [] = useMemo(() => {
-    if (!integrationsData?.integrations?.collection.length) return []
+    if (!allNetsuiteIntegrations?.length) return []
 
-    return integrationsData?.integrations?.collection.map((integration) => ({
+    return allNetsuiteIntegrations?.map((integration) => ({
       value: integration.code,
       label: integration.name,
       labelNode: (
@@ -200,7 +200,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
         </Item>
       ),
     }))
-  }, [integrationsData?.integrations?.collection])
+  }, [allNetsuiteIntegrations])
 
   const connectedIntegrationSubscidiaries: BasicComboBoxData[] | [] = useMemo(() => {
     if (!subsidiariesData?.integrationSubsidiaries?.collection.length) return []
@@ -257,7 +257,6 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
             })}
           />
         </div>
-
         {showPaymentProviderSection && (
           <Accordion
             noContentMargin
@@ -597,6 +596,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               {/* Select Integration account */}
               <ComboBox
                 onOpen={getIntegrationsData}
+                disabled={isEdition}
                 data={connectedIntegrationsData}
                 label={translate('text_66423cad72bbad009f2f5695')}
                 placeholder={translate('text_66423cad72bbad009f2f5697')}
@@ -616,7 +616,9 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                 <>
                   <TextInputField
                     name="integrationCustomer.externalCustomerId"
-                    disabled={!!formikProps.values.integrationCustomer?.syncWithProvider}
+                    disabled={
+                      !!formikProps.values.integrationCustomer?.syncWithProvider || isEdition
+                    }
                     label={translate('text_66423cad72bbad009f2f569a')}
                     placeholder={translate('text_66423cad72bbad009f2f569c')}
                     formikProps={formikProps}
@@ -624,6 +626,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
 
                   <Checkbox
                     name="integrationCustomer.syncWithProvider"
+                    disabled={isEdition}
                     value={!!formikProps.values.integrationCustomer?.syncWithProvider}
                     label={translate('text_66423cad72bbad009f2f569e', {
                       connectionName: selectedNetsuiteIntegration?.name,
@@ -643,6 +646,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                       <ComboBoxField
                         name="integrationCustomer.subsidiaryId"
                         data={connectedIntegrationSubscidiaries}
+                        disabled={isEdition}
                         label={translate('text_66423cad72bbad009f2f56a0')}
                         placeholder={translate('text_66423cad72bbad009f2f56a2')}
                         PopperProps={{ displayInDialog: true }}
@@ -659,7 +663,6 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
             </Stack>
           </Accordion>
         )}
-
         <Popper
           PopperProps={{ placement: 'bottom-start' }}
           opener={
@@ -724,7 +727,6 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
             </MenuPopper>
           )}
         </Popper>
-
         {isSyncWithProviderDisabled &&
           (formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless ||
             formikProps.values.paymentProvider === ProviderTypeEnum.Adyen) && (
