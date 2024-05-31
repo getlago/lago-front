@@ -10,7 +10,7 @@ import {
   composeGroupedByDisplayName,
   composeMultipleValuesWithSepator,
 } from '~/core/formats/formatInvoiceItemsMap'
-import { CUSTOMER_INVOICE_DETAILS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
+import { CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
 import { serializeCreditNoteInput } from '~/core/serializers'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
@@ -25,7 +25,6 @@ import {
   useCreateCreditNoteMutation,
   useGetInvoiceCreateCreditNoteQuery,
 } from '~/generated/graphql'
-import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 
 gql`
   fragment InvoiceFee on Fee {
@@ -151,10 +150,10 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
         })
 
         navigate(
-          generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+          generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
             customerId: customerId as string,
             invoiceId: invoiceId as string,
-            tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+            creditNoteId: createCreditNote.id,
           }),
         )
       }

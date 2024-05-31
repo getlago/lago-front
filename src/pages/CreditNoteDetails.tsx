@@ -31,6 +31,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
+  CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -248,6 +249,7 @@ const CreditNoteDetails = () => {
                       customerId: customerId as string,
                       tab: CustomerDetailsTabsOptions.creditNotes,
                     }),
+                { exclude: [CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE] },
               )
             }
           />
