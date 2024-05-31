@@ -1,11 +1,12 @@
 import { Box, InputAdornment, Stack } from '@mui/material'
 import { FormikProps } from 'formik'
 import { get } from 'lodash'
+import { DateTime } from 'luxon'
 import { FC, RefObject, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
 import { Accordion, Alert, Button, Icon, Typography } from '~/components/designSystem'
-import { AmountInputField, ComboBox, ComboBoxField } from '~/components/form'
+import { AmountInputField, ComboBox, ComboBoxField, DatePickerField } from '~/components/form'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -72,7 +73,8 @@ const DEFAULT_RULES: UpdateRecurringTransactionRuleInput = {
   grantedCredits: '',
   paidCredits: '',
   thresholdCredits: '',
-  targetOngoingBalance: '',
+  targetOngoingBalance: null,
+  startedAt: DateTime.now().toISO(),
 }
 
 interface TopUpCardProps {
@@ -189,9 +191,9 @@ export const TopUpCard: FC<TopUpCardProps> = ({
             <AccordionSummary
               label={translate('text_6657c29c84ad4500ad764ed6')}
               isValid={!hasRecurringTransactionRulesErrors}
-              onDelete={() => {
+              onDelete={async () => {
+                formikProps.setFieldValue('recurringTransactionRules', undefined)
                 setIsRecurringTopUpEnabled(false)
-                formikProps.setFieldValue('recurringTransactionRules.0', undefined)
               }}
             />
           }
@@ -282,18 +284,6 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                     ? translate('text_66584178ee91f801012606a6')
                     : undefined
                 }
-                helperText={translate('text_62d18855b22699e5cf55f88b', {
-                  paidCredits: intlFormatNumber(
-                    isNaN(Number(recurringTransactionRules?.paidCredits))
-                      ? 0
-                      : Number(recurringTransactionRules?.paidCredits) *
-                          Number(formikProps.values.rateAmount),
-                    {
-                      currencyDisplay: 'symbol',
-                      currency: formikProps?.values?.currency || CurrencyEnum.Usd,
-                    },
-                  ),
-                })}
                 {...inputAdornment(translate('text_62d18855b22699e5cf55f889'))}
               />
             )}
@@ -335,7 +325,7 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                 }}
               />
               {recurringTransactionRules?.trigger === RecurringTransactionTriggerEnum.Interval && (
-                <Box className="span-2">
+                <>
                   <ComboBoxField
                     name="recurringTransactionRules.0.interval"
                     disableClearable
@@ -362,7 +352,14 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                       },
                     ]}
                   />
-                </Box>
+                  <DatePickerField
+                    name="recurringTransactionRules.0.startedAt"
+                    placement="top-end"
+                    formikProps={formikProps}
+                    label={translate('text_66599bfb69fba1010535c5c2')}
+                    placeholder={translate('text_62d18855b22699e5cf55f899')}
+                  />
+                </>
               )}
               {recurringTransactionRules?.trigger === RecurringTransactionTriggerEnum.Threshold && (
                 <AmountInputField

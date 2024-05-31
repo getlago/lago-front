@@ -15,13 +15,6 @@ import {
 } from '~/generated/graphql'
 import { TWalletDataForm } from '~/pages/WalletForm/types'
 
-const formatOptions: Intl.DateTimeFormatOptions = {
-  weekday: undefined,
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-}
-
 describe('Wallet Utils', () => {
   describe('toNumber', () => {
     it('should return 0 when the value is undefined', () => {
@@ -60,64 +53,94 @@ describe('Wallet Utils', () => {
 
     it('should return the date reference for the customer timezone in French', () => {
       expect(
-        getDateRef(TimezoneEnum.TzEuropeParis, 'fr').set({ year: 2024, month: 5, day: 28 })
-          .weekdayLong,
+        getDateRef(TimezoneEnum.TzEuropeParis, 'fr').set({
+          year: 2024,
+          month: 5,
+          day: 28,
+        }).weekdayLong,
       ).toBe('mardi')
     })
   })
 
   describe('getNextRecurringDate', () => {
-    it('should return the next weekly date', () => {
-      const date = new Date()
+    beforeEach(() => {
+      const expectedNow = DateTime.local(2024, 5, 5)
+
+      Settings.now = () => expectedNow.toMillis()
+    })
+
+    it('Weekly - should return May 12nd when current date is May 5th', () => {
+      expect(
+        getNextRecurringDate({
+          timezone: TimezoneEnum.TzEuropeParis,
+          interval: RecurringTransactionIntervalEnum.Weekly,
+        }),
+      ).toBe('May 12, 2024')
+    })
+
+    it('Weekly - should return June 4th when current date is May 28th', () => {
+      const expectedNow = DateTime.local(2024, 5, 28)
+
+      Settings.now = () => expectedNow.toMillis()
 
       expect(
         getNextRecurringDate({
           timezone: TimezoneEnum.TzEuropeParis,
           interval: RecurringTransactionIntervalEnum.Weekly,
         }),
-      ).toBe(new Date(date.setDate(date.getDate() + 7)).toLocaleDateString('en-US', formatOptions))
+      ).toBe('June 4, 2024')
     })
 
-    it('should return the next monthly date', () => {
-      const date = new Date()
-
+    it('Monthly - should return June 5th when current date is May 5th', () => {
       expect(
         getNextRecurringDate({
           timezone: TimezoneEnum.TzEuropeParis,
           interval: RecurringTransactionIntervalEnum.Monthly,
         }),
-      ).toBe(
-        new Date(date.setMonth(date.getMonth() + 1)).toLocaleDateString('en-US', formatOptions),
-      )
+      ).toBe('June 5, 2024')
     })
 
-    it('should return the next quarterly date', () => {
-      const date = new Date()
+    it('Monthly - should return Feb 29th when current date is January 31st', () => {
+      const expectedNow = DateTime.local(2024, 1, 31)
 
+      Settings.now = () => expectedNow.toMillis()
+      expect(
+        getNextRecurringDate({
+          timezone: TimezoneEnum.TzEuropeParis,
+          interval: RecurringTransactionIntervalEnum.Monthly,
+        }),
+      ).toBe('February 29, 2024')
+    })
+
+    it('Quarterly - should return Aug 5th when current date is May 5th', () => {
       expect(
         getNextRecurringDate({
           timezone: TimezoneEnum.TzEuropeParis,
           interval: RecurringTransactionIntervalEnum.Quarterly,
         }),
-      ).toBe(
-        new Date(date.setMonth(date.getMonth() + 3)).toLocaleDateString('en-US', formatOptions),
-      )
+      ).toBe('August 5, 2024')
     })
 
-    it('should return the next yearly date', () => {
-      const date = new Date()
+    it('Yearly - should return May 5, 2025 when current date is May 5, 2024', () => {
+      expect(
+        getNextRecurringDate({
+          timezone: TimezoneEnum.TzEuropeParis,
+          interval: RecurringTransactionIntervalEnum.Yearly,
+        }),
+      ).toBe('May 5, 2025')
+    })
+
+    it('Yearly - should return Feb 28, 2025 when current date is Feb 29, 2024', () => {
+      const expectedNow = DateTime.local(2024, 2, 29)
+
+      Settings.now = () => expectedNow.toMillis()
 
       expect(
         getNextRecurringDate({
           timezone: TimezoneEnum.TzEuropeParis,
           interval: RecurringTransactionIntervalEnum.Yearly,
         }),
-      ).toBe(
-        new Date(date.setFullYear(date.getFullYear() + 1)).toLocaleDateString(
-          'en-US',
-          formatOptions,
-        ),
-      )
+      ).toBe('February 28, 2025')
     })
   })
 

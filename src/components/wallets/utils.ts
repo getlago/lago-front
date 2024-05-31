@@ -48,30 +48,37 @@ export const getDateRef = (
 export const getNextRecurringDate = ({
   timezone,
   interval,
+  date,
 }: {
   timezone: TGetWordingForWalletAlert['customerTimezone']
   interval?: RecurringTransactionIntervalEnum | null
-}) => {
-  let date = null
+  date?: DateTime
+}): string => {
+  let nextRecurringDate = null
+  const dateRef = getDateRef(timezone).set({
+    day: date?.day,
+    month: date?.month,
+    year: date?.year,
+  })
 
   switch (interval) {
     case RecurringTransactionIntervalEnum.Weekly:
-      date = getDateRef(timezone).plus({ days: 7 }).toLocaleString(DateTime.DATE_FULL)
+      nextRecurringDate = dateRef.plus({ days: 7 })
       break
     case RecurringTransactionIntervalEnum.Monthly:
-      date = getDateRef(timezone).plus({ months: 1 }).toLocaleString(DateTime.DATE_FULL)
+      nextRecurringDate = dateRef.plus({ months: 1 })
       break
     case RecurringTransactionIntervalEnum.Quarterly:
-      date = getDateRef(timezone).plus({ months: 3 }).toLocaleString(DateTime.DATE_FULL)
+      nextRecurringDate = dateRef.plus({ months: 3 })
       break
     case RecurringTransactionIntervalEnum.Yearly:
-      date = getDateRef(timezone).plus({ years: 1 }).toLocaleString(DateTime.DATE_FULL)
+      nextRecurringDate = dateRef.plus({ years: 1 })
       break
     default:
       break
   }
 
-  return date ?? ''
+  return nextRecurringDate?.toLocaleString(DateTime.DATE_FULL) ?? ''
 }
 
 const setStartOfSentence = ({
@@ -94,12 +101,13 @@ const setStartOfSentence = ({
       ),
     })
   } else {
-    const totalCreditCount =
-      toNumber(walletValues.recurringTransactionRules?.[0].paidCredits) +
-      toNumber(walletValues.recurringTransactionRules?.[0].grantedCredits)
+    const rrule = walletValues.recurringTransactionRules?.[0]
+
+    const totalCreditCount = toNumber(rrule?.paidCredits) + toNumber(rrule?.grantedCredits)
     const nextRecurringTopUpDate = getNextRecurringDate({
       timezone: customerTimezone,
-      interval: walletValues.recurringTransactionRules?.[0].interval,
+      interval: rrule?.interval,
+      date: rrule?.startedAt ? DateTime.fromISO(rrule?.startedAt) : undefined,
     })
 
     if (recurringRulesValues?.method === RecurringTransactionMethodEnum.Fixed) {
@@ -132,7 +140,14 @@ const setEndOfSentence = ({
   let text = ''
 
   if (recurringRulesValues?.trigger === RecurringTransactionTriggerEnum.Interval) {
-    const dateRef = getDateRef(customerTimezone)
+    const rrule = walletValues.recurringTransactionRules?.[0]
+    const startedAt = rrule?.startedAt ? DateTime.fromISO(rrule?.startedAt) : undefined
+
+    const dateRef = getDateRef(customerTimezone).set({
+      day: startedAt?.day,
+      month: startedAt?.month,
+      year: startedAt?.year,
+    })
     const isDayPotentiallyNotReachableOnEntirePeriod = dateRef.day > MINIMUM_DAYS_IN_MONTH
 
     switch (recurringRulesValues?.interval) {

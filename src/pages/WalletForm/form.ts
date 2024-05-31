@@ -131,29 +131,55 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
               return !isNaN(Number(grantedCredits)) || !isNaN(Number(rulePaidCredit))
             },
           }),
-          targetOngoingBalance: string().test({
-            test: function (targetOngoingBalance, { path }) {
-              const { method, thresholdCredits, trigger } = this?.parent
+          targetOngoingBalance: string()
+            .nullable()
+            .test({
+              test: function (targetOngoingBalance, { path }) {
+                const { method, thresholdCredits, trigger } = this?.parent
 
-              if (!!method && method !== RecurringTransactionMethodEnum.Target) {
+                if (!!method && method !== RecurringTransactionMethodEnum.Target) {
+                  return true
+                }
+
+                if (!targetOngoingBalance && method === RecurringTransactionMethodEnum.Target) {
+                  return this.createError()
+                }
+
+                if (
+                  !!thresholdCredits &&
+                  trigger === RecurringTransactionTriggerEnum.Threshold &&
+                  !!targetOngoingBalance &&
+                  Number(targetOngoingBalance) < Number(thresholdCredits)
+                ) {
+                  return this.createError({
+                    path,
+                    message: walletFormErrorCodes.targetOngoingBalanceShouldBeGreaterThanThreshold,
+                  })
+                }
+
+                return !isNaN(Number(targetOngoingBalance))
+              },
+            }),
+          startedAt: string()
+            .nullable()
+            .test({
+              test: function (startedAt, { path }) {
+                const { trigger } = this?.parent
+
+                if (!!trigger && trigger !== RecurringTransactionTriggerEnum.Interval) {
+                  return true
+                }
+
+                if (startedAt && !DateTime.fromISO(startedAt).isValid) {
+                  return this.createError({
+                    path,
+                    message: dateErrorCodes.wrongFormat,
+                  })
+                }
+
                 return true
-              }
-
-              if (
-                !!thresholdCredits &&
-                trigger === RecurringTransactionTriggerEnum.Threshold &&
-                !!targetOngoingBalance &&
-                Number(targetOngoingBalance) < Number(thresholdCredits)
-              ) {
-                return this.createError({
-                  path,
-                  message: walletFormErrorCodes.targetOngoingBalanceShouldBeGreaterThanThreshold,
-                })
-              }
-
-              return !isNaN(Number(targetOngoingBalance))
-            },
-          }),
+              },
+            }),
         }),
       )
       .nullable(),

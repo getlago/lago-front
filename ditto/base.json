@@ -757,6 +757,7 @@
   "text_6657cdd8cea6bf010e1ce128": "Fixed top-up",
   "text_66584178ee91f801012606a6": "Target ongoing balance should be higher than threshold",
   "text_66584178ee91f801012606ac": "Threshold should be lower than target ongoing balance",
+  "text_66599bfb69fba1010535c5c2": "Start on",
   "text_64aeb7b998c4322918c84204": "Payment methods",
   "text_64aeb7b998c4322918c84208": "Card",
   "text_64aeb7b998c4322918c8420c": "SEPA Direct Debit",

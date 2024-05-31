@@ -58,7 +58,7 @@ curl --location --request ${isEdition ? 'PUT' : 'POST'} "${apiUrl}/api/v1/wallet
             "lago_id": "${recurringTransactionRules[0].lagoId}",`
               : ''
           }
-            "method": "${wallet.recurringTransactionRules?.[0].method || '__MUST_BE_DEFINED__'}"${
+            "method": "${wallet.recurringTransactionRules?.[0].method || '__MUST_BE_DEFINED__'}",${
               wallet.recurringTransactionRules?.[0].method === RecurringTransactionMethodEnum.Fixed
                 ? `
             "paid_credits": "${
@@ -83,7 +83,7 @@ curl --location --request ${isEdition ? 'PUT' : 'POST'} "${apiUrl}/api/v1/wallet
                 ? `
             "target_ongoing_balance": "${
               wallet.recurringTransactionRules?.[0].targetOngoingBalance || '0'
-            }"`
+            }",`
                 : ''
             }
             "trigger": "${wallet.recurringTransactionRules?.[0].trigger || '__MUST_BE_DEFINED__'}"${
@@ -92,7 +92,7 @@ curl --location --request ${isEdition ? 'PUT' : 'POST'} "${apiUrl}/api/v1/wallet
                 ? `,
             "interval": "${
               wallet.recurringTransactionRules?.[0].interval || '__MUST_BE_DEFINED__'
-            }"`
+            }",`
                 : ''
             }${
               wallet.recurringTransactionRules?.[0].trigger ===
@@ -100,7 +100,15 @@ curl --location --request ${isEdition ? 'PUT' : 'POST'} "${apiUrl}/api/v1/wallet
                 ? `,
             "threshold_credits": "${wallet.recurringTransactionRules?.[0].thresholdCredits || '0'}"`
                 : ''
+            }${
+              wallet.recurringTransactionRules?.[0].trigger ===
+                RecurringTransactionTriggerEnum.Interval &&
+              wallet.recurringTransactionRules?.[0].startedAt
+                ? `
+            "started_at": "${wallet.recurringTransactionRules?.[0].startedAt}"`
+                : ''
             }
+          }
         ]`
             : ''
         }
