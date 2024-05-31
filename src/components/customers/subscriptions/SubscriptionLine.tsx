@@ -180,7 +180,7 @@ export const SubscriptionLine = ({
               {translate('text_62d7f6178ec94cd09370e65b')}
             </Button>
 
-            {hasPermissions(['subscriptionsDelete']) && (
+            {hasPermissions(['subscriptionsUpdate']) && (
               <Button
                 startIcon="trash"
                 variant="quaternary"
