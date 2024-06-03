@@ -455,17 +455,9 @@ const WalletForm = () => {
 
       <WarningDialog
         ref={warningDialogRef}
-        title={translate('text_6560809c38fb9de88d8a50e8')}
-        description={translate(
-          formType === FORM_TYPE_ENUM.edition
-            ? 'text_6560809c38fb9de88d8a5026'
-            : 'text_6560809c38fb9de88d8a5102',
-        )}
-        continueText={translate(
-          formType === FORM_TYPE_ENUM.edition
-            ? 'text_6287a9bdac160c00b2e0fbfd'
-            : 'text_624454dd67656e00c534bc41',
-        )}
+        title={translate('text_665deda4babaf700d603ea13')}
+        description={translate('text_665dedd557dc3c00c62eb83d')}
+        continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={() => navigateToCustomerWalletTab()}
       />
 

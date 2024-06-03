@@ -264,15 +264,9 @@ const CreatePlan = () => {
 
       <WarningDialog
         ref={warningDialogRef}
-        title={translate(
-          isEdition ? 'text_625fd165963a7b00c8f59777' : 'text_624454dd67656e00c534bc35',
-        )}
-        description={translate(
-          isEdition ? 'text_625fd165963a7b00c8f59781' : 'text_624454dd67656e00c534bc3b',
-        )}
-        continueText={translate(
-          isEdition ? 'text_625fd165963a7b00c8f59795' : 'text_624454dd67656e00c534bc41',
-        )}
+        title={translate('text_665deda4babaf700d603ea13')}
+        description={translate('text_665dedd557dc3c00c62eb83d')}
+        continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={() => planCloseRedirection()}
       />
 
