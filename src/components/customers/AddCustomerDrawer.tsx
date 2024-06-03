@@ -214,342 +214,312 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
   }))
 
   return (
-    <Drawer
-      ref={drawerRef}
-      title={translate(
-        isEdition
-          ? 'text_632b4acf0c41206cbcb8c2f6'
-          : customer?.name
-            ? 'text_632b49e2620ea4c6d96c9650'
-            : 'text_632b49e2620ea4c6d96c9652',
-        {
-          customerName: customer?.name || '',
-        },
-      )}
-      onClose={() => {
-        formikProps.resetForm()
-        formikProps.validateForm()
-      }}
-    >
-      <DrawerContent>
-        <DrawerTitle>
-          <Typography variant="headline">
-            {translate(
-              isEdition ? 'text_632b4acf0c41206cbcb8c2f8' : 'text_632b49e2620ea4c6d96c9652',
-            )}
-          </Typography>
-          <Typography>
-            {translate(
-              isEdition ? 'text_632b4acf0c41206cbcb8c2fa' : 'text_632b49e2620ea4c6d96c9654',
-            )}
-          </Typography>
-        </DrawerTitle>
-
-        <Card>
-          <Typography variant="subhead">{translate('text_626c0c09812bbc00e4c59df1')}</Typography>
-          <TextInputField
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus={!isEdition}
-            name="name"
-            label={translate('text_624efab67eb2570101d117be')}
-            placeholder={translate('text_624efab67eb2570101d117c6')}
-            formikProps={formikProps}
-          />
-          <TextInputField
-            name="externalId"
-            disabled={isEdition && !customer?.canEditAttributes}
-            label={translate('text_624efab67eb2570101d117ce')}
-            placeholder={translate('text_624efab67eb2570101d117d6')}
-            helperText={
-              (!isEdition || customer?.canEditAttributes) &&
-              translate('text_624efab67eb2570101d117de')
-            }
-            formikProps={formikProps}
-          />
-
-          <ComboBoxField
-            name="timezone"
-            label={translate('text_6390a4ffef9227ba45daca90')}
-            placeholder={translate('text_6390a4ffef9227ba45daca92')}
-            disabled={!isPremium}
-            helperText={
-              <Typography
-                variant="caption"
-                html={translate('text_6390a4ffef9227ba45daca94', {
-                  timezone: translate('text_638f743fa9a2a9545ee6409a', {
-                    zone: timezoneConfig.name,
-                    offset: timezoneConfig.offset,
-                  }),
-                  link: ORGANIZATION_INFORMATIONS_ROUTE,
-                })}
-              />
-            }
-            formikProps={formikProps}
-            PopperProps={{ displayInDialog: true }}
-            data={Object.values(TimezoneEnum).map((timezoneValue) => ({
-              value: timezoneValue,
-              label: translate('text_638f743fa9a2a9545ee6409a', {
-                zone: translate(timezoneValue),
-                offset: getTimezoneConfig(timezoneValue).offset,
-              }),
-            }))}
-          />
-          <TextInputField
-            name="externalSalesforceId"
-            label={translate('text_651fd3f644384c00999fbd81')}
-            placeholder={translate('text_651fd408a57493006d00504e')}
-            helperText={translate('text_651fd41846f44c0064408b07')}
-            formikProps={formikProps}
-          />
-        </Card>
-        <Accordion
-          size="large"
-          summary={
-            <Typography variant="subhead">{translate('text_632b49e2620ea4c6d96c9662')}</Typography>
-          }
-        >
-          <AccordionContentWrapper $first>
-            <Typography variant="bodyHl" color="textSecondary">
-              {translate('text_626c0c09812bbc00e4c59dff')}
-            </Typography>
-            <ComboBoxField
-              disabled={!!customer && !customer?.canEditAttributes}
-              label={translate('text_632c6e59b73f9a54d4c72247')}
-              placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
-              infoText={translate(
-                !customer?.canEditAttributes && isEdition
-                  ? 'text_632c6e59b73f9a54d4c7223d'
-                  : 'text_632c6e59b73f9a54d4c7223f',
+    <>
+      <Drawer
+        ref={drawerRef}
+        title={translate(
+          isEdition
+            ? 'text_632b4acf0c41206cbcb8c2f6'
+            : customer?.name
+              ? 'text_632b49e2620ea4c6d96c9650'
+              : 'text_632b49e2620ea4c6d96c9652',
+          {
+            customerName: customer?.name || '',
+          },
+        )}
+        showCloseWarningDialog={formikProps.dirty}
+        onClose={() => {
+          formikProps.resetForm()
+          formikProps.validateForm()
+        }}
+      >
+        <DrawerContent>
+          <DrawerTitle>
+            <Typography variant="headline">
+              {translate(
+                isEdition ? 'text_632b4acf0c41206cbcb8c2f8' : 'text_632b49e2620ea4c6d96c9652',
               )}
-              name="currency"
-              data={Object.values(CurrencyEnum).map((currencyType) => ({
-                value: currencyType,
-              }))}
-              disableClearable
-              formikProps={formikProps}
-            />
-            <TextInputField
-              name="legalName"
-              label={translate('text_626c0c09812bbc00e4c59e01')}
-              placeholder={translate('text_626c0c09812bbc00e4c59e03')}
-              formikProps={formikProps}
-            />
-            <TextInputField
-              name="legalNumber"
-              label={translate('text_626c0c09812bbc00e4c59e05')}
-              placeholder={translate('text_626c0c09812bbc00e4c59e07')}
-              formikProps={formikProps}
-            />
-            <TextInputField
-              name="taxIdentificationNumber"
-              label={translate('text_648053ee819b60364c675d05')}
-              placeholder={translate('text_648053ee819b60364c675d0b')}
-              formikProps={formikProps}
-            />
-            <TextInputField
-              name="email"
-              beforeChangeFormatter={['lowercase']}
-              label={translate('text_626c0c09812bbc00e4c59e09')}
-              placeholder={translate('text_626c0c09812bbc00e4c59e0b')}
-              formikProps={formikProps}
-              helperText={translate('text_641394c4c936000079c5639a')}
-            />
-
-            <TextInputField
-              name="url"
-              label={translate('text_641b15b0df87eb00848944ea')}
-              placeholder={translate('text_641b15e7ac746900b68377f9')}
-              formikProps={formikProps}
-            />
-            <TextInputField
-              name="phone"
-              label={translate('text_626c0c09812bbc00e4c59e0d')}
-              placeholder={translate('text_626c0c09812bbc00e4c59e0f')}
-              formikProps={formikProps}
-            />
-          </AccordionContentWrapper>
-          <AccordionContentWrapper>
-            <Typography variant="bodyHl" color="textSecondary">
-              {translate('text_626c0c09812bbc00e4c59e19')}
             </Typography>
-            <TextInputField
-              name="addressLine1"
-              label={translate('text_626c0c09812bbc00e4c59e1b')}
-              placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
-              formikProps={formikProps}
-            />
-            <TextInputField
-              name="addressLine2"
-              placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
-              formikProps={formikProps}
-            />
-            <TextInputField
-              name="zipcode"
-              placeholder={translate('text_626c0c09812bbc00e4c59e21')}
-              formikProps={formikProps}
-            />
-            <TextInputField
-              name="city"
-              placeholder={translate('text_626c0c09812bbc00e4c59e23')}
-              formikProps={formikProps}
-            />
-            <TextInputField
-              name="state"
-              placeholder={translate('text_626c0c09812bbc00e4c59e25')}
-              formikProps={formikProps}
-            />
-            <ComboBoxField
-              data={countryDataForCombobox}
-              name="country"
-              placeholder={translate('text_626c0c09812bbc00e4c59e27')}
-              formikProps={formikProps}
-              PopperProps={{ displayInDialog: true }}
-            />
-          </AccordionContentWrapper>
-        </Accordion>
-
-        <Accordion
-          size="large"
-          summary={
-            <Typography variant="subhead">{translate('text_632b49e2620ea4c6d96c9664')}</Typography>
-          }
-        >
-          <AccordionContentWrapper>
-            <Typography variant="bodyHl" color="grey700">
-              {translate('text_65e1f90471bc198c0c934d6c')}
+            <Typography>
+              {translate(
+                isEdition ? 'text_632b4acf0c41206cbcb8c2fa' : 'text_632b49e2620ea4c6d96c9654',
+              )}
             </Typography>
-            <ComboBoxField
-              data={providerData}
-              name="paymentProvider"
-              label={translate('text_62b328ead9a4caef81cd9c9c')}
-              placeholder={translate('text_62b328ead9a4caef81cd9c9e')}
+          </DrawerTitle>
+
+          <Card>
+            <Typography variant="subhead">{translate('text_626c0c09812bbc00e4c59df1')}</Typography>
+            <TextInputField
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus={!isEdition}
+              name="name"
+              label={translate('text_624efab67eb2570101d117be')}
+              placeholder={translate('text_624efab67eb2570101d117c6')}
               formikProps={formikProps}
+            />
+            <TextInputField
+              name="externalId"
+              disabled={isEdition && !customer?.canEditAttributes}
+              label={translate('text_624efab67eb2570101d117ce')}
+              placeholder={translate('text_624efab67eb2570101d117d6')}
               helperText={
-                !isEdition && (
-                  <HelperText
-                    html={translate('text_635bdbda84c98758f9bba8a0', {
-                      link: INTEGRATIONS_ROUTE,
-                    })}
-                  />
-                )
+                (!isEdition || customer?.canEditAttributes) &&
+                translate('text_624efab67eb2570101d117de')
               }
-              PopperProps={{ displayInDialog: true }}
+              formikProps={formikProps}
             />
-            {!!formikProps.values.paymentProvider && (
-              <>
-                <ComboBoxField
-                  data={connectedProvidersData}
-                  name="paymentProviderCode"
-                  label={translate('text_65940198687ce7b05cd62b61')}
-                  placeholder={translate('text_65940198687ce7b05cd62b62')}
-                  emptyText={translate(
-                    paymentProviderCodeEmptyTextLookup[formikProps.values.paymentProvider],
-                  )}
-                  formikProps={formikProps}
-                  PopperProps={{ displayInDialog: true }}
+
+            <ComboBoxField
+              name="timezone"
+              label={translate('text_6390a4ffef9227ba45daca90')}
+              placeholder={translate('text_6390a4ffef9227ba45daca92')}
+              disabled={!isPremium}
+              helperText={
+                <Typography
+                  variant="caption"
+                  html={translate('text_6390a4ffef9227ba45daca94', {
+                    timezone: translate('text_638f743fa9a2a9545ee6409a', {
+                      zone: timezoneConfig.name,
+                      offset: timezoneConfig.offset,
+                    }),
+                    link: ORGANIZATION_INFORMATIONS_ROUTE,
+                  })}
                 />
-                <TextInputField
-                  name="providerCustomer.providerCustomerId"
-                  disabled={isDisabled}
-                  label={translate('text_62b328ead9a4caef81cd9ca0')}
-                  placeholder={translate('text_62b328ead9a4caef81cd9ca2')}
-                  formikProps={formikProps}
-                />
-                {!isEdition && (
-                  <Checkbox
-                    name="providerCustomer.syncWithProvider"
-                    value={!!formikProps.values.providerCustomer?.syncWithProvider}
-                    label={`${
-                      formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless
-                        ? translate('text_635bdbda84c98758f9bba8aa')
-                        : formikProps.values.paymentProvider === ProviderTypeEnum.Adyen
-                          ? translate('text_645d0728ea0a5a7bbf76d5c7')
-                          : translate('text_635bdbda84c98758f9bba89e')
-                    }${
-                      formikProps.values.paymentProviderCode
-                        ? ` • ${connectedProvidersData.find(
-                            (provider) => provider.value === formikProps.values.paymentProviderCode,
-                          )?.label}`
-                        : ''
-                    }`}
-                    onChange={(e, checked) => {
-                      setIsDisabled(checked)
-                      formikProps.setFieldValue('providerCustomer.syncWithProvider', checked)
-                      if (!isEdition && checked) {
-                        formikProps.setFieldValue('providerCustomer.providerCustomerId', undefined)
-                      }
-                    }}
+              }
+              formikProps={formikProps}
+              PopperProps={{ displayInDialog: true }}
+              data={Object.values(TimezoneEnum).map((timezoneValue) => ({
+                value: timezoneValue,
+                label: translate('text_638f743fa9a2a9545ee6409a', {
+                  zone: translate(timezoneValue),
+                  offset: getTimezoneConfig(timezoneValue).offset,
+                }),
+              }))}
+            />
+            <TextInputField
+              name="externalSalesforceId"
+              label={translate('text_651fd3f644384c00999fbd81')}
+              placeholder={translate('text_651fd408a57493006d00504e')}
+              helperText={translate('text_651fd41846f44c0064408b07')}
+              formikProps={formikProps}
+            />
+          </Card>
+          <Accordion
+            size="large"
+            summary={
+              <Typography variant="subhead">
+                {translate('text_632b49e2620ea4c6d96c9662')}
+              </Typography>
+            }
+          >
+            <AccordionContentWrapper $first>
+              <Typography variant="bodyHl" color="textSecondary">
+                {translate('text_626c0c09812bbc00e4c59dff')}
+              </Typography>
+              <ComboBoxField
+                disabled={!!customer && !customer?.canEditAttributes}
+                label={translate('text_632c6e59b73f9a54d4c72247')}
+                placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
+                infoText={translate(
+                  !customer?.canEditAttributes && isEdition
+                    ? 'text_632c6e59b73f9a54d4c7223d'
+                    : 'text_632c6e59b73f9a54d4c7223f',
+                )}
+                name="currency"
+                data={Object.values(CurrencyEnum).map((currencyType) => ({
+                  value: currencyType,
+                }))}
+                disableClearable
+                formikProps={formikProps}
+              />
+              <TextInputField
+                name="legalName"
+                label={translate('text_626c0c09812bbc00e4c59e01')}
+                placeholder={translate('text_626c0c09812bbc00e4c59e03')}
+                formikProps={formikProps}
+              />
+              <TextInputField
+                name="legalNumber"
+                label={translate('text_626c0c09812bbc00e4c59e05')}
+                placeholder={translate('text_626c0c09812bbc00e4c59e07')}
+                formikProps={formikProps}
+              />
+              <TextInputField
+                name="taxIdentificationNumber"
+                label={translate('text_648053ee819b60364c675d05')}
+                placeholder={translate('text_648053ee819b60364c675d0b')}
+                formikProps={formikProps}
+              />
+              <TextInputField
+                name="email"
+                beforeChangeFormatter={['lowercase']}
+                label={translate('text_626c0c09812bbc00e4c59e09')}
+                placeholder={translate('text_626c0c09812bbc00e4c59e0b')}
+                formikProps={formikProps}
+                helperText={translate('text_641394c4c936000079c5639a')}
+              />
+
+              <TextInputField
+                name="url"
+                label={translate('text_641b15b0df87eb00848944ea')}
+                placeholder={translate('text_641b15e7ac746900b68377f9')}
+                formikProps={formikProps}
+              />
+              <TextInputField
+                name="phone"
+                label={translate('text_626c0c09812bbc00e4c59e0d')}
+                placeholder={translate('text_626c0c09812bbc00e4c59e0f')}
+                formikProps={formikProps}
+              />
+            </AccordionContentWrapper>
+            <AccordionContentWrapper>
+              <Typography variant="bodyHl" color="textSecondary">
+                {translate('text_626c0c09812bbc00e4c59e19')}
+              </Typography>
+              <TextInputField
+                name="addressLine1"
+                label={translate('text_626c0c09812bbc00e4c59e1b')}
+                placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
+                formikProps={formikProps}
+              />
+              <TextInputField
+                name="addressLine2"
+                placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
+                formikProps={formikProps}
+              />
+              <TextInputField
+                name="zipcode"
+                placeholder={translate('text_626c0c09812bbc00e4c59e21')}
+                formikProps={formikProps}
+              />
+              <TextInputField
+                name="city"
+                placeholder={translate('text_626c0c09812bbc00e4c59e23')}
+                formikProps={formikProps}
+              />
+              <TextInputField
+                name="state"
+                placeholder={translate('text_626c0c09812bbc00e4c59e25')}
+                formikProps={formikProps}
+              />
+              <ComboBoxField
+                data={countryDataForCombobox}
+                name="country"
+                placeholder={translate('text_626c0c09812bbc00e4c59e27')}
+                formikProps={formikProps}
+                PopperProps={{ displayInDialog: true }}
+              />
+            </AccordionContentWrapper>
+          </Accordion>
+
+          <Accordion
+            size="large"
+            summary={
+              <Typography variant="subhead">
+                {translate('text_632b49e2620ea4c6d96c9664')}
+              </Typography>
+            }
+          >
+            <AccordionContentWrapper>
+              <Typography variant="bodyHl" color="grey700">
+                {translate('text_65e1f90471bc198c0c934d6c')}
+              </Typography>
+              <ComboBoxField
+                data={providerData}
+                name="paymentProvider"
+                label={translate('text_62b328ead9a4caef81cd9c9c')}
+                placeholder={translate('text_62b328ead9a4caef81cd9c9e')}
+                formikProps={formikProps}
+                helperText={
+                  !isEdition && (
+                    <HelperText
+                      html={translate('text_635bdbda84c98758f9bba8a0', {
+                        link: INTEGRATIONS_ROUTE,
+                      })}
+                    />
+                  )
+                }
+                PopperProps={{ displayInDialog: true }}
+              />
+              {!!formikProps.values.paymentProvider && (
+                <>
+                  <ComboBoxField
+                    data={connectedProvidersData}
+                    name="paymentProviderCode"
+                    label={translate('text_65940198687ce7b05cd62b61')}
+                    placeholder={translate('text_65940198687ce7b05cd62b62')}
+                    emptyText={translate(
+                      paymentProviderCodeEmptyTextLookup[formikProps.values.paymentProvider],
+                    )}
+                    formikProps={formikProps}
+                    PopperProps={{ displayInDialog: true }}
                   />
-                )}
-
-                {formikProps.values.paymentProvider === ProviderTypeEnum.Stripe && (
-                  <Stack spacing={6}>
-                    <Stack>
-                      <Typography variant="bodyHl" color="grey700">
-                        {translate('text_64aeb7b998c4322918c84204')}
-                      </Typography>
-                      <Typography variant="caption">
-                        {translate('text_64aeb7b998c4322918c84210')}
-                      </Typography>
-                    </Stack>
-                    <Stack spacing={1}>
-                      <Typography variant="captionHl" color="grey700">
-                        {translate('text_65e1f90471bc198c0c934d82')}
-                      </Typography>
-                      <Checkbox
-                        name="providerCustomer.providerPaymentMethods.card"
-                        value={
-                          !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                            ProviderPaymentMethodsEnum.Card,
-                          )
-                        }
-                        label={translate('text_64aeb7b998c4322918c84208')}
-                        sublabel={translate('text_65e1f90471bc198c0c934d86')}
-                        disabled={
-                          formikProps.values.providerCustomer?.providerPaymentMethods?.length ===
-                            1 &&
-                          formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                            ProviderPaymentMethodsEnum.Card,
-                          )
-                        }
-                        onChange={(e, checked) => {
-                          const newValue = [
-                            ...(formikProps.values.providerCustomer?.providerPaymentMethods || []),
-                          ]
-
-                          if (checked) {
-                            newValue.push(ProviderPaymentMethodsEnum.Card)
-                          } else {
-                            newValue.splice(newValue.indexOf(ProviderPaymentMethodsEnum.Card), 1)
-                          }
-
+                  <TextInputField
+                    name="providerCustomer.providerCustomerId"
+                    disabled={isDisabled}
+                    label={translate('text_62b328ead9a4caef81cd9ca0')}
+                    placeholder={translate('text_62b328ead9a4caef81cd9ca2')}
+                    formikProps={formikProps}
+                  />
+                  {!isEdition && (
+                    <Checkbox
+                      name="providerCustomer.syncWithProvider"
+                      value={!!formikProps.values.providerCustomer?.syncWithProvider}
+                      label={`${
+                        formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless
+                          ? translate('text_635bdbda84c98758f9bba8aa')
+                          : formikProps.values.paymentProvider === ProviderTypeEnum.Adyen
+                            ? translate('text_645d0728ea0a5a7bbf76d5c7')
+                            : translate('text_635bdbda84c98758f9bba89e')
+                      }${
+                        formikProps.values.paymentProviderCode
+                          ? ` • ${connectedProvidersData.find(
+                              (provider) =>
+                                provider.value === formikProps.values.paymentProviderCode,
+                            )?.label}`
+                          : ''
+                      }`}
+                      onChange={(e, checked) => {
+                        setIsDisabled(checked)
+                        formikProps.setFieldValue('providerCustomer.syncWithProvider', checked)
+                        if (!isEdition && checked) {
                           formikProps.setFieldValue(
-                            'providerCustomer.providerPaymentMethods',
-                            newValue,
+                            'providerCustomer.providerCustomerId',
+                            undefined,
                           )
-                        }}
-                      />
-                    </Stack>
-                    <Stack spacing={1}>
-                      <Typography variant="captionHl" color="grey700">
-                        {translate('text_65e1f90471bc198c0c934d88')}
-                      </Typography>
+                        }
+                      }}
+                    />
+                  )}
 
-                      <SepaGridWrapper>
+                  {formikProps.values.paymentProvider === ProviderTypeEnum.Stripe && (
+                    <Stack spacing={6}>
+                      <Stack>
+                        <Typography variant="bodyHl" color="grey700">
+                          {translate('text_64aeb7b998c4322918c84204')}
+                        </Typography>
+                        <Typography variant="caption">
+                          {translate('text_64aeb7b998c4322918c84210')}
+                        </Typography>
+                      </Stack>
+                      <Stack spacing={1}>
+                        <Typography variant="captionHl" color="grey700">
+                          {translate('text_65e1f90471bc198c0c934d82')}
+                        </Typography>
                         <Checkbox
-                          name="providerCustomer.providerPaymentMethods.sepa_debit"
+                          name="providerCustomer.providerPaymentMethods.card"
                           value={
                             !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                              ProviderPaymentMethodsEnum.SepaDebit,
+                              ProviderPaymentMethodsEnum.Card,
                             )
                           }
-                          label={translate('text_64aeb7b998c4322918c8420c')}
-                          sublabel={translate('text_65e1f90471bc198c0c934d8c')}
+                          label={translate('text_64aeb7b998c4322918c84208')}
+                          sublabel={translate('text_65e1f90471bc198c0c934d86')}
                           disabled={
                             formikProps.values.providerCustomer?.providerPaymentMethods?.length ===
                               1 &&
                             formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                              ProviderPaymentMethodsEnum.SepaDebit,
+                              ProviderPaymentMethodsEnum.Card,
                             )
                           }
                           onChange={(e, checked) => {
@@ -559,12 +529,9 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                             ]
 
                             if (checked) {
-                              newValue.push(ProviderPaymentMethodsEnum.SepaDebit)
+                              newValue.push(ProviderPaymentMethodsEnum.Card)
                             } else {
-                              newValue.splice(
-                                newValue.indexOf(ProviderPaymentMethodsEnum.SepaDebit),
-                                1,
-                              )
+                              newValue.splice(newValue.indexOf(ProviderPaymentMethodsEnum.Card), 1)
                             }
 
                             formikProps.setFieldValue(
@@ -573,252 +540,299 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                             )
                           }}
                         />
+                      </Stack>
+                      <Stack spacing={1}>
+                        <Typography variant="captionHl" color="grey700">
+                          {translate('text_65e1f90471bc198c0c934d88')}
+                        </Typography>
 
-                        <Checkbox
-                          name="providerCustomer.providerPaymentMethods.us_bank_account"
-                          value={
-                            !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                              ProviderPaymentMethodsEnum.UsBankAccount,
-                            )
-                          }
-                          label={translate('text_65e1f90471bc198c0c934d8e')}
-                          sublabel={translate('text_65e1f90471bc198c0c934d90')}
-                          disabled={
-                            formikProps.values.providerCustomer?.providerPaymentMethods?.length ===
-                              1 &&
-                            formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                              ProviderPaymentMethodsEnum.UsBankAccount,
-                            )
-                          }
-                          onChange={(e, checked) => {
-                            const newValue = [
-                              ...(formikProps.values.providerCustomer?.providerPaymentMethods ||
-                                []),
-                            ]
-
-                            if (checked) {
-                              newValue.push(ProviderPaymentMethodsEnum.UsBankAccount)
-                            } else {
-                              newValue.splice(
-                                newValue.indexOf(ProviderPaymentMethodsEnum.UsBankAccount),
-                                1,
+                        <SepaGridWrapper>
+                          <Checkbox
+                            name="providerCustomer.providerPaymentMethods.sepa_debit"
+                            value={
+                              !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
+                                ProviderPaymentMethodsEnum.SepaDebit,
                               )
                             }
-
-                            formikProps.setFieldValue(
-                              'providerCustomer.providerPaymentMethods',
-                              newValue,
-                            )
-                          }}
-                        />
-                        <Checkbox
-                          name="providerCustomer.providerPaymentMethods.bacs_debit"
-                          value={
-                            !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                              ProviderPaymentMethodsEnum.BacsDebit,
-                            )
-                          }
-                          label={translate('text_65e1f90471bc198c0c934d92')}
-                          sublabel={translate('text_65e1f90471bc198c0c934d94')}
-                          disabled={
-                            formikProps.values.providerCustomer?.providerPaymentMethods?.length ===
-                              1 &&
-                            formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                              ProviderPaymentMethodsEnum.BacsDebit,
-                            )
-                          }
-                          onChange={(e, checked) => {
-                            const newValue = [
-                              ...(formikProps.values.providerCustomer?.providerPaymentMethods ||
-                                []),
-                            ]
-
-                            if (checked) {
-                              newValue.push(ProviderPaymentMethodsEnum.BacsDebit)
-                            } else {
-                              newValue.splice(
-                                newValue.indexOf(ProviderPaymentMethodsEnum.BacsDebit),
-                                1,
+                            label={translate('text_64aeb7b998c4322918c8420c')}
+                            sublabel={translate('text_65e1f90471bc198c0c934d8c')}
+                            disabled={
+                              formikProps.values.providerCustomer?.providerPaymentMethods
+                                ?.length === 1 &&
+                              formikProps.values.providerCustomer?.providerPaymentMethods.includes(
+                                ProviderPaymentMethodsEnum.SepaDebit,
                               )
                             }
+                            onChange={(e, checked) => {
+                              const newValue = [
+                                ...(formikProps.values.providerCustomer?.providerPaymentMethods ||
+                                  []),
+                              ]
 
-                            formikProps.setFieldValue(
-                              'providerCustomer.providerPaymentMethods',
-                              newValue,
-                            )
-                          }}
-                        />
-                      </SepaGridWrapper>
-                    </Stack>
+                              if (checked) {
+                                newValue.push(ProviderPaymentMethodsEnum.SepaDebit)
+                              } else {
+                                newValue.splice(
+                                  newValue.indexOf(ProviderPaymentMethodsEnum.SepaDebit),
+                                  1,
+                                )
+                              }
 
-                    <Alert type="info">{translate('text_64aeb7b998c4322918c84214')}</Alert>
-                  </Stack>
-                )}
-              </>
-            )}
-            {isDisabled &&
-              (formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless ||
-                formikProps.values.paymentProvider === ProviderTypeEnum.Adyen) && (
-                <Alert type="info">
-                  {formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless
-                    ? translate('text_635bdbda84c98758f9bba8ae')
-                    : translate('text_645d0728ea0a5a7bbf76d5c9')}
-                </Alert>
-              )}
-          </AccordionContentWrapper>
-        </Accordion>
-
-        <Accordion
-          size="large"
-          summary={
-            <Typography variant="subhead">{translate('text_63fcc3218d35b9377840f59b')}</Typography>
-          }
-        >
-          <AccordionContentWrapper>
-            <Typography variant="body" color="grey600">
-              {translate('text_63fcc3218d35b9377840f59f')}
-            </Typography>
-            {!!formikProps?.values?.metadata?.length && (
-              <div>
-                <MetadataGrid $isHeader>
-                  <Typography variant="captionHl" color="grey700">
-                    {translate('text_63fcc3218d35b9377840f5a3')}
-                  </Typography>
-                  <Typography variant="captionHl" color="grey700">
-                    {translate('text_63fcc3218d35b9377840f5ab')}
-                  </Typography>
-                  <Typography variant="captionHl" color="grey700">
-                    {translate('text_63fcc3218d35b9377840f5b3')}
-                  </Typography>
-                </MetadataGrid>
-                <MetadataGrid>
-                  {formikProps?.values?.metadata?.map((m: LocalCustomerMetadata, i) => {
-                    const metadataItemKeyError: FieldWithPossiblyUndefined<
-                      string | undefined,
-                      `${number}`
-                    > = _get(formikProps.errors, `metadata.${i}.key`)
-                    const metadataItemValueError: FieldWithPossiblyUndefined<
-                      string | undefined,
-                      `${number}`
-                    > = _get(formikProps.errors, `metadata.${i}.value`)
-                    const hasCustomKeyError = Object.keys(MetadataErrorsEnum).includes(
-                      metadataItemKeyError || '',
-                    )
-                    const hasCustomValueError = Object.keys(MetadataErrorsEnum).includes(
-                      metadataItemValueError || '',
-                    )
-
-                    return (
-                      <React.Fragment key={`metadata-item-${m.id || m.localId || i}`}>
-                        <Tooltip
-                          placement="top-end"
-                          title={
-                            metadataItemKeyError === MetadataErrorsEnum.uniqueness
-                              ? translate('text_63fcc3218d35b9377840f5dd')
-                              : metadataItemKeyError === MetadataErrorsEnum.maxLength
-                                ? translate('text_63fcc3218d35b9377840f5d9')
-                                : undefined
-                          }
-                          disableHoverListener={!hasCustomKeyError}
-                        >
-                          <TextInputField
-                            name={`metadata.${i}.key`}
-                            silentError={!hasCustomKeyError}
-                            placeholder={translate('text_63fcc3218d35b9377840f5a7')}
-                            formikProps={formikProps}
-                            displayErrorText={false}
-                          />
-                        </Tooltip>
-                        <Tooltip
-                          placement="top-end"
-                          title={
-                            metadataItemValueError === MetadataErrorsEnum.maxLength
-                              ? translate('text_63fcc3218d35b9377840f5e5', {
-                                  max: METADATA_VALUE_MAX_LENGTH_DEFAULT,
-                                })
-                              : undefined
-                          }
-                          disableHoverListener={!hasCustomValueError}
-                        >
-                          <TextInputField
-                            name={`metadata.${i}.value`}
-                            silentError={!hasCustomValueError}
-                            placeholder={translate('text_63fcc3218d35b9377840f5af')}
-                            formikProps={formikProps}
-                            displayErrorText={false}
-                          />
-                        </Tooltip>
-                        <Switch
-                          name={`metadata.${i}.displayInInvoice`}
-                          checked={
-                            !!formikProps.values.metadata?.length &&
-                            !!formikProps.values.metadata[i].displayInInvoice
-                          }
-                          onChange={(newValue) => {
-                            formikProps.setFieldValue(`metadata.${i}.displayInInvoice`, newValue)
-                          }}
-                        />
-                        <StyledTooltip
-                          placement="top-end"
-                          title={translate('text_63fcc3218d35b9377840f5e1')}
-                        >
-                          <Button
-                            variant="quaternary"
-                            size="small"
-                            icon="trash"
-                            onClick={() => {
-                              formikProps.setFieldValue('metadata', [
-                                ...(formikProps.values.metadata || []).filter((metadata, j) => {
-                                  return j !== i
-                                }),
-                              ])
+                              formikProps.setFieldValue(
+                                'providerCustomer.providerPaymentMethods',
+                                newValue,
+                              )
                             }}
                           />
-                        </StyledTooltip>
-                      </React.Fragment>
-                    )
-                  })}
-                </MetadataGrid>
-              </div>
-            )}
-            <Button
-              startIcon="plus"
-              variant="quaternary"
-              disabled={(formikProps?.values?.metadata?.length || 0) >= MAX_METADATA_COUNT}
-              onClick={() =>
-                formikProps.setFieldValue('metadata', [
-                  ...(formikProps.values.metadata || []),
-                  {
-                    key: '',
-                    value: '',
-                    displayInInvoice: false,
-                    localId: Date.now(),
-                  },
-                ])
-              }
-              data-test="add-fixed-fee"
-            >
-              {translate('text_63fcc3218d35b9377840f5bb')}
-            </Button>
-          </AccordionContentWrapper>
-        </Accordion>
 
-        <DrawerSubmitButton>
-          <Button
+                          <Checkbox
+                            name="providerCustomer.providerPaymentMethods.us_bank_account"
+                            value={
+                              !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
+                                ProviderPaymentMethodsEnum.UsBankAccount,
+                              )
+                            }
+                            label={translate('text_65e1f90471bc198c0c934d8e')}
+                            sublabel={translate('text_65e1f90471bc198c0c934d90')}
+                            disabled={
+                              formikProps.values.providerCustomer?.providerPaymentMethods
+                                ?.length === 1 &&
+                              formikProps.values.providerCustomer?.providerPaymentMethods.includes(
+                                ProviderPaymentMethodsEnum.UsBankAccount,
+                              )
+                            }
+                            onChange={(e, checked) => {
+                              const newValue = [
+                                ...(formikProps.values.providerCustomer?.providerPaymentMethods ||
+                                  []),
+                              ]
+
+                              if (checked) {
+                                newValue.push(ProviderPaymentMethodsEnum.UsBankAccount)
+                              } else {
+                                newValue.splice(
+                                  newValue.indexOf(ProviderPaymentMethodsEnum.UsBankAccount),
+                                  1,
+                                )
+                              }
+
+                              formikProps.setFieldValue(
+                                'providerCustomer.providerPaymentMethods',
+                                newValue,
+                              )
+                            }}
+                          />
+                          <Checkbox
+                            name="providerCustomer.providerPaymentMethods.bacs_debit"
+                            value={
+                              !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
+                                ProviderPaymentMethodsEnum.BacsDebit,
+                              )
+                            }
+                            label={translate('text_65e1f90471bc198c0c934d92')}
+                            sublabel={translate('text_65e1f90471bc198c0c934d94')}
+                            disabled={
+                              formikProps.values.providerCustomer?.providerPaymentMethods
+                                ?.length === 1 &&
+                              formikProps.values.providerCustomer?.providerPaymentMethods.includes(
+                                ProviderPaymentMethodsEnum.BacsDebit,
+                              )
+                            }
+                            onChange={(e, checked) => {
+                              const newValue = [
+                                ...(formikProps.values.providerCustomer?.providerPaymentMethods ||
+                                  []),
+                              ]
+
+                              if (checked) {
+                                newValue.push(ProviderPaymentMethodsEnum.BacsDebit)
+                              } else {
+                                newValue.splice(
+                                  newValue.indexOf(ProviderPaymentMethodsEnum.BacsDebit),
+                                  1,
+                                )
+                              }
+
+                              formikProps.setFieldValue(
+                                'providerCustomer.providerPaymentMethods',
+                                newValue,
+                              )
+                            }}
+                          />
+                        </SepaGridWrapper>
+                      </Stack>
+
+                      <Alert type="info">{translate('text_64aeb7b998c4322918c84214')}</Alert>
+                    </Stack>
+                  )}
+                </>
+              )}
+              {isDisabled &&
+                (formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless ||
+                  formikProps.values.paymentProvider === ProviderTypeEnum.Adyen) && (
+                  <Alert type="info">
+                    {formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless
+                      ? translate('text_635bdbda84c98758f9bba8ae')
+                      : translate('text_645d0728ea0a5a7bbf76d5c9')}
+                  </Alert>
+                )}
+            </AccordionContentWrapper>
+          </Accordion>
+
+          <Accordion
             size="large"
-            disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
-            loading={formikProps.isSubmitting}
-            fullWidth
-            data-test="submit"
-            onClick={formikProps.submitForm}
+            summary={
+              <Typography variant="subhead">
+                {translate('text_63fcc3218d35b9377840f59b')}
+              </Typography>
+            }
           >
-            {translate(
-              isEdition ? 'text_632b4acf0c41206cbcb8c30c' : 'text_632b49e2620ea4c6d96c9666',
-            )}
-          </Button>
-        </DrawerSubmitButton>
-      </DrawerContent>
-    </Drawer>
+            <AccordionContentWrapper>
+              <Typography variant="body" color="grey600">
+                {translate('text_63fcc3218d35b9377840f59f')}
+              </Typography>
+              {!!formikProps?.values?.metadata?.length && (
+                <div>
+                  <MetadataGrid $isHeader>
+                    <Typography variant="captionHl" color="grey700">
+                      {translate('text_63fcc3218d35b9377840f5a3')}
+                    </Typography>
+                    <Typography variant="captionHl" color="grey700">
+                      {translate('text_63fcc3218d35b9377840f5ab')}
+                    </Typography>
+                    <Typography variant="captionHl" color="grey700">
+                      {translate('text_63fcc3218d35b9377840f5b3')}
+                    </Typography>
+                  </MetadataGrid>
+                  <MetadataGrid>
+                    {formikProps?.values?.metadata?.map((m: LocalCustomerMetadata, i) => {
+                      const metadataItemKeyError: FieldWithPossiblyUndefined<
+                        string | undefined,
+                        `${number}`
+                      > = _get(formikProps.errors, `metadata.${i}.key`)
+                      const metadataItemValueError: FieldWithPossiblyUndefined<
+                        string | undefined,
+                        `${number}`
+                      > = _get(formikProps.errors, `metadata.${i}.value`)
+                      const hasCustomKeyError = Object.keys(MetadataErrorsEnum).includes(
+                        metadataItemKeyError || '',
+                      )
+                      const hasCustomValueError = Object.keys(MetadataErrorsEnum).includes(
+                        metadataItemValueError || '',
+                      )
+
+                      return (
+                        <React.Fragment key={`metadata-item-${m.id || m.localId || i}`}>
+                          <Tooltip
+                            placement="top-end"
+                            title={
+                              metadataItemKeyError === MetadataErrorsEnum.uniqueness
+                                ? translate('text_63fcc3218d35b9377840f5dd')
+                                : metadataItemKeyError === MetadataErrorsEnum.maxLength
+                                  ? translate('text_63fcc3218d35b9377840f5d9')
+                                  : undefined
+                            }
+                            disableHoverListener={!hasCustomKeyError}
+                          >
+                            <TextInputField
+                              name={`metadata.${i}.key`}
+                              silentError={!hasCustomKeyError}
+                              placeholder={translate('text_63fcc3218d35b9377840f5a7')}
+                              formikProps={formikProps}
+                              displayErrorText={false}
+                            />
+                          </Tooltip>
+                          <Tooltip
+                            placement="top-end"
+                            title={
+                              metadataItemValueError === MetadataErrorsEnum.maxLength
+                                ? translate('text_63fcc3218d35b9377840f5e5', {
+                                    max: METADATA_VALUE_MAX_LENGTH_DEFAULT,
+                                  })
+                                : undefined
+                            }
+                            disableHoverListener={!hasCustomValueError}
+                          >
+                            <TextInputField
+                              name={`metadata.${i}.value`}
+                              silentError={!hasCustomValueError}
+                              placeholder={translate('text_63fcc3218d35b9377840f5af')}
+                              formikProps={formikProps}
+                              displayErrorText={false}
+                            />
+                          </Tooltip>
+                          <Switch
+                            name={`metadata.${i}.displayInInvoice`}
+                            checked={
+                              !!formikProps.values.metadata?.length &&
+                              !!formikProps.values.metadata[i].displayInInvoice
+                            }
+                            onChange={(newValue) => {
+                              formikProps.setFieldValue(`metadata.${i}.displayInInvoice`, newValue)
+                            }}
+                          />
+                          <StyledTooltip
+                            placement="top-end"
+                            title={translate('text_63fcc3218d35b9377840f5e1')}
+                          >
+                            <Button
+                              variant="quaternary"
+                              size="small"
+                              icon="trash"
+                              onClick={() => {
+                                formikProps.setFieldValue('metadata', [
+                                  ...(formikProps.values.metadata || []).filter((metadata, j) => {
+                                    return j !== i
+                                  }),
+                                ])
+                              }}
+                            />
+                          </StyledTooltip>
+                        </React.Fragment>
+                      )
+                    })}
+                  </MetadataGrid>
+                </div>
+              )}
+              <Button
+                startIcon="plus"
+                variant="quaternary"
+                disabled={(formikProps?.values?.metadata?.length || 0) >= MAX_METADATA_COUNT}
+                onClick={() =>
+                  formikProps.setFieldValue('metadata', [
+                    ...(formikProps.values.metadata || []),
+                    {
+                      key: '',
+                      value: '',
+                      displayInInvoice: false,
+                      localId: Date.now(),
+                    },
+                  ])
+                }
+                data-test="add-fixed-fee"
+              >
+                {translate('text_63fcc3218d35b9377840f5bb')}
+              </Button>
+            </AccordionContentWrapper>
+          </Accordion>
+
+          <DrawerSubmitButton>
+            <Button
+              size="large"
+              disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
+              loading={formikProps.isSubmitting}
+              fullWidth
+              data-test="submit"
+              onClick={formikProps.submitForm}
+            >
+              {translate(
+                isEdition ? 'text_632b4acf0c41206cbcb8c30c' : 'text_632b49e2620ea4c6d96c9666',
+              )}
+            </Button>
+          </DrawerSubmitButton>
+        </DrawerContent>
+      </Drawer>
+    </>
   )
 })
 
