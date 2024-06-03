@@ -30,6 +30,7 @@ import {
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { StatusTypeEnum, useGetSubscriptionForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader, theme } from '~/styles'
 
 import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
@@ -64,6 +65,7 @@ gql`
 
 const SubscriptionDetails = () => {
   const navigate = useNavigate()
+  const { hasPermissions } = usePermissions()
   const { planId, customerId, subscriptionId } = useParams()
   const { translate } = useInternationalization()
   const terminateSubscriptionDialogRef = useRef<TerminateCustomerSubscriptionDialogRef>(null)
@@ -115,36 +117,40 @@ const SubscriptionDetails = () => {
           >
             {({ closePopper }) => (
               <MenuPopper>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    navigate(
-                      generatePath(UPDATE_SUBSCRIPTION, {
-                        customerId: subscription?.customer?.id as string,
-                        subscriptionId: subscriptionId as string,
-                      }),
-                    )
-                    closePopper()
-                  }}
-                >
-                  {translate('text_62d7f6178ec94cd09370e63c')}
-                </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    navigate(
-                      generatePath(UPGRADE_DOWNGRADE_SUBSCRIPTION, {
-                        customerId: subscription?.customer?.id as string,
-                        subscriptionId: subscriptionId as string,
-                      }),
-                    )
-                    closePopper()
-                  }}
-                >
-                  {translate('text_62d7f6178ec94cd09370e64a')}
-                </Button>
+                {hasPermissions(['subscriptionsUpdate']) && (
+                  <>
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        navigate(
+                          generatePath(UPDATE_SUBSCRIPTION, {
+                            customerId: subscription?.customer?.id as string,
+                            subscriptionId: subscriptionId as string,
+                          }),
+                        )
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_62d7f6178ec94cd09370e63c')}
+                    </Button>
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        navigate(
+                          generatePath(UPGRADE_DOWNGRADE_SUBSCRIPTION, {
+                            customerId: subscription?.customer?.id as string,
+                            subscriptionId: subscriptionId as string,
+                          }),
+                        )
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_62d7f6178ec94cd09370e64a')}
+                    </Button>
+                  </>
+                )}
                 <Button
                   variant="quaternary"
                   align="left"
@@ -160,27 +166,29 @@ const SubscriptionDetails = () => {
                 >
                   {translate('text_62d7f6178ec94cd09370e65b')}
                 </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    terminateSubscriptionDialogRef.current?.openDialog({
-                      id: subscription?.id as string,
-                      name: subscription?.name,
-                      status: subscription?.status as StatusTypeEnum,
-                      callback: () => {
-                        navigate(
-                          generatePath(CUSTOMER_DETAILS_ROUTE, {
-                            customerId: subscription?.customer?.id as string,
-                          }),
-                        )
-                      },
-                    })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_62d904b97e690a881f2b867c')}
-                </Button>
+                {hasPermissions(['subscriptionsUpdate']) && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    onClick={() => {
+                      terminateSubscriptionDialogRef.current?.openDialog({
+                        id: subscription?.id as string,
+                        name: subscription?.name,
+                        status: subscription?.status as StatusTypeEnum,
+                        callback: () => {
+                          navigate(
+                            generatePath(CUSTOMER_DETAILS_ROUTE, {
+                              customerId: subscription?.customer?.id as string,
+                            }),
+                          )
+                        },
+                      })
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_62d904b97e690a881f2b867c')}
+                  </Button>
+                )}
               </MenuPopper>
             )}
           </Popper>
