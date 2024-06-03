@@ -64,7 +64,6 @@ gql`
       plansUpdate
       plansView
       subscriptionsCreate
-      subscriptionsDelete
       subscriptionsUpdate
       subscriptionsView
       walletsCreate
