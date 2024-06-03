@@ -1,98 +1,127 @@
-import { SnippetBuilder } from '~/core/utils/snippetBuilder'
-
-const builder = new SnippetBuilder()
+import { snippetBuilder } from '~/core/utils/snippetBuilder'
 
 describe('SnippetBuilder', () => {
-  describe('addProperty', () => {
-    it('should return property when key and value are defined with default options', () => {
-      const result = builder.addProperty('name', 'John Doe')
-
-      expect(result).toBe('"name": "John Doe"')
+  it('should work properly', () => {
+    const result = snippetBuilder({
+      title: 'My title',
+      url: `url`,
+      method: 'POST',
+      headers: [{ Authorization: 'Bearer ' }, { 'Content-Type': 'application/json' }],
+      data: {
+        snippet: {
+          name: 'name',
+          code: 'code',
+          nested: {
+            nestedName: 'nestedName',
+            nestedCode: 'nestedCode',
+          },
+          nestedArray: [
+            {
+              id: '1',
+              name: 'test',
+            },
+          ],
+        },
+      },
+      footerComment: 'To use the snippet, don’t forget to edit your __YOUR_API_KEY__',
     })
 
-    it('should return property when showIfEmpty is true but value is an empty string', () => {
-      const result = builder.addProperty('name', '', { showIfEmpty: true })
+    expect(result).toBe(`# My title
+curl --location --request POST "url" \\
+  --header "Authorization: Bearer " \\
+  --header "Content-Type: application/json" \\
+  --data-raw '{
+    "snippet": {
+      "name": "name",
+      "code": "code",
+      "nested": {
+        "nestedName": "nestedName",
+        "nestedCode": "nestedCode"
+      },
+      "nestedArray": [
+        {
+          "id": "1",
+          "name": "test"
+        }
+      ]
+    }
+  }'
 
-      expect(result).toBe('"name": ""')
-    })
-
-    it('should return property when showIfEmpty is true but value is undefined', () => {
-      const result = builder.addProperty('name', undefined, { showIfEmpty: true })
-
-      expect(result).toBe('"name": ""')
-    })
-
-    it('should return "__empty__" when value is an empty string', () => {
-      const result = builder.addProperty('name', '')
-
-      expect(result).toBe('__empty__')
-    })
-
-    it('should return "__empty__" when value is undefined', () => {
-      const result = builder.addProperty('name', undefined)
-
-      expect(result).toBe('__empty__')
-    })
-
-    it('should return property when key and value are defined with number value', () => {
-      const result = builder.addProperty('rate_amount', 100)
-
-      expect(result).toBe('"rate_amount": 100')
-    })
+# To use the snippet, don’t forget to edit your __YOUR_API_KEY__`)
   })
 
-  describe('build', () => {
-    it('should remove empty lines without changing indentation and add commas', () => {
-      const snippet = `\
-  # Edit a wallet on a customer
-  curl --location --request PUT "/api/v1/wallets/:lago_id" \\
-  --header "Content-Type: application/json" \\
-  --data-raw '{
-    "wallet": {
-      __empty__
-      "id": "b7ab2926-1de8-4428-9bcd-779314ac129b"
-      "name": "John Doe"
-      "rate_amount": "100"
-      __empty__
-      "currency": "USD"
-      "external_customer_id": "__EXTERNAL_CUSTOMER_ID__",
-      "expiration_at": "2022-12-31"
-    }
-  }'
-  `
-      const result = builder.build(snippet)
-
-      expect(result).toBe(`\
-  # Edit a wallet on a customer
-  curl --location --request PUT "/api/v1/wallets/:lago_id" \\
-  --header "Content-Type: application/json" \\
-  --data-raw '{
-    "wallet": {
-      "id": "b7ab2926-1de8-4428-9bcd-779314ac129b",
-      "name": "John Doe",
-      "rate_amount": "100",
-      "currency": "USD",
-      "external_customer_id": "__EXTERNAL_CUSTOMER_ID__",
-      "expiration_at": "2022-12-31"
-    }
-  }'
-  `)
+  it('should work properly with no data', () => {
+    const result = snippetBuilder({
+      title: 'My title',
+      url: `url`,
+      method: 'POST',
+      headers: [{ Authorization: 'Bearer ' }, { 'Content-Type': 'application/json' }],
+      data: {},
     })
+
+    expect(result).toBe(`# My title
+curl --location --request POST "url" \\
+  --header "Authorization: Bearer " \\
+  --header "Content-Type: application/json" \\
+  --data-raw '{}'
+`)
   })
 
-  it('should not add commas when json object only have one item', () => {
-    const snippet = `\
-  # Edit a wallet on a customer
-  curl --location --request PUT "/api/v1/wallets/:lago_id" \\
+  it('should work properly with conditional data and undefined values', () => {
+    const shouldRender: boolean = false
+    const state: string = ''
+
+    const result = snippetBuilder({
+      title: 'My title',
+      url: `url`,
+      method: 'POST',
+      headers: [{ Authorization: 'Bearer ' }, { 'Content-Type': 'application/json' }],
+      data: {
+        snippet: {
+          ...(!!state && { state: 'active' }),
+          ...(!!state && { state: null }),
+          name: undefined,
+          title: 'title',
+          nested: {
+            nestedName: 'nestedName',
+            nestedCode: 'nestedCode',
+          },
+          nestedArray: [
+            {
+              id: '1',
+              name: 'test',
+            },
+          ],
+          ...(shouldRender ? { withFalse: 'true' } : false),
+          ...(shouldRender ? { withEmptyObj: 'true' } : {}),
+          ...(shouldRender ? { withText: 'true' } : ''),
+          ...(shouldRender ? { withUndefined: 'true' } : undefined),
+          ...(shouldRender ? { withNull: 'true' } : null),
+        },
+      },
+      footerComment: 'To use the snippet, don’t forget to edit your __YOUR_API_KEY__',
+    })
+
+    expect(result).toBe(`# My title
+curl --location --request POST "url" \\
+  --header "Authorization: Bearer " \\
   --header "Content-Type: application/json" \\
   --data-raw '{
-    "wallet": {
-      "id": "b7ab2926-1de8-4428-9bcd-779314ac129b"
+    "snippet": {
+      "title": "title",
+      "nested": {
+        "nestedName": "nestedName",
+        "nestedCode": "nestedCode"
+      },
+      "nestedArray": [
+        {
+          "id": "1",
+          "name": "test"
+        }
+      ]
     }
   }'
-  `
-    const result = builder.build(snippet)
 
-    expect(result).toBe(snippet)
+# To use the snippet, don’t forget to edit your __YOUR_API_KEY__`)
   })
 })
