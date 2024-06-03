@@ -1,8 +1,20 @@
 import { addToast } from '~/core/apolloClient'
 
-export const copyToClipboard: (value: string) => void = (value) => {
+const filterComment = (value: string) => {
+  return value
+    .split('\n')
+    .filter((line) => !line.startsWith('#'))
+    .join('\n')
+}
+
+export const copyToClipboard: (value: string, options?: { ignoreComment?: boolean }) => void = (
+  value,
+  ignoreComment,
+) => {
+  const serializedValue = ignoreComment ? filterComment(value) : value
+
   try {
-    navigator.clipboard.writeText(value)
+    navigator.clipboard.writeText(serializedValue)
   } catch (error) {
     addToast({
       severity: 'danger',

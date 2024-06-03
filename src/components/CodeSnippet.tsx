@@ -63,7 +63,7 @@ export const CodeSnippet = memo(
                 variant="secondary"
                 startIcon="duplicate"
                 onClick={() => {
-                  copyToClipboard(code)
+                  copyToClipboard(code, { ignoreComment: true })
 
                   addToast({
                     severity: 'info',
