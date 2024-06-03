@@ -407,7 +407,7 @@ describe('Wallet Utils', () => {
       expect(alertContent).toBe('text_6560809c38fb9de88d8a537a')
     })
 
-    it('if the method is fixed + threshold trigger : "Each time your wallet ongoing balance falls to or below {{thresholdCredits}}, a top-up of {{totalCreditCount}} credits will occur."', () => {
+    it('if the method is fixed + threshold trigger : "Each time your wallet ongoing balance falls to or below {{thresholdCredits}} credits, a top-up of {{totalCreditCount}} credits will occur."', () => {
       const alertContent = getWordingForWalletCreationAlert({
         ...options,
         recurringRulesValues: {
@@ -422,7 +422,7 @@ describe('Wallet Utils', () => {
       )
     })
 
-    it('if the method is target + threshold : "Each time your wallet ongoing balance falls to or below {{thresholdCredits}}, a top-up of credits will occur to match the target balance."', () => {
+    it('if the method is target + threshold : "Each time your wallet ongoing balance falls to or below {{thresholdCredits}} credits, a top-up of credits will occur to match the target balance."', () => {
       const alertContent = getWordingForWalletCreationAlert({
         ...options,
         recurringRulesValues: {

@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon'
 
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { getTimezoneConfig } from '~/core/timezone'
 import { Locale } from '~/core/translations'
 import {
@@ -85,20 +84,13 @@ const setStartOfSentence = ({
   recurringRulesValues,
   walletValues,
   translate,
-  currency,
   customerTimezone,
 }: GetWordingForWalletCreationAlert) => {
   let text = ''
 
   if (recurringRulesValues?.trigger === RecurringTransactionTriggerEnum.Threshold) {
     text = translate('text_6657be42151661006d2f3b6d', {
-      thresholdCredits: intlFormatNumber(
-        toNumber(recurringRulesValues?.thresholdCredits) * toNumber(walletValues.rateAmount),
-        {
-          currencyDisplay: 'symbol',
-          currency,
-        },
-      ),
+      thresholdCredits: recurringRulesValues?.thresholdCredits,
     })
   } else {
     const rrule = walletValues.recurringTransactionRules?.[0]
