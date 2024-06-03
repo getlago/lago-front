@@ -40,7 +40,7 @@ export const PreventClosingDrawerDialog = forwardRef<PreventClosingDrawerDialogR
       onContinue={async () => {
         localData?.onContinue()
       }}
-      continueText={translate('text_62f50d26c989ab03196884ae')}
+      continueText={translate('text_645388d5bdbd7b00abffa033')}
     />
   )
 })

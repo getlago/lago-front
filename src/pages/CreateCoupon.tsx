@@ -667,15 +667,9 @@ const CreateCoupon = () => {
 
       <WarningDialog
         ref={warningDialogRef}
-        title={translate(
-          isEdition ? 'text_6287a9bdac160c00b2e0fbeb' : 'text_62876e85e32e0300e18030f5',
-        )}
-        description={translate(
-          isEdition ? 'text_6287a9bdac160c00b2e0fbf1' : 'text_62876e85e32e0300e18030fc',
-        )}
-        continueText={translate(
-          isEdition ? 'text_6287a9bdac160c00b2e0fbfd' : 'text_62876e85e32e0300e180310b',
-        )}
+        title={translate('text_665deda4babaf700d603ea13')}
+        description={translate('text_665dedd557dc3c00c62eb83d')}
+        continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={() => couponCloseRedirection()}
       />
 

@@ -419,15 +419,9 @@ const CreateAddOn = () => {
 
       <WarningDialog
         ref={warningDialogRef}
-        title={translate(
-          isEdition ? 'text_629728388c4d2300e2d37fe0' : 'text_629728388c4d2300e2d37fda',
-        )}
-        description={translate(
-          isEdition ? 'text_629728388c4d2300e2d37ffa' : 'text_629728388c4d2300e2d37ff4',
-        )}
-        continueText={translate(
-          isEdition ? 'text_629728388c4d2300e2d3802d' : 'text_629728388c4d2300e2d38027',
-        )}
+        title={translate('text_665deda4babaf700d603ea13')}
+        description={translate('text_665dedd557dc3c00c62eb83d')}
+        continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={() => navigate(ADD_ONS_ROUTE)}
       />
     </div>

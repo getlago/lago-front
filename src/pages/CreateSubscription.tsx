@@ -751,7 +751,7 @@ const CreateSubscription = () => {
         ref={warningDialogRef}
         title={translate('text_65118a52df984447c18694ee')}
         description={translate('text_65118a52df984447c18694fe')}
-        continueText={translate('text_624454dd67656e00c534bc41')}
+        continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={() => {
           navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
         }}
