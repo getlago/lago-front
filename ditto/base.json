@@ -1091,7 +1091,7 @@
   "text_63ac8850ff7117ad55777d3b": "Pending",
   "text_63ac8850ff7117ad55777d45": "Failed",
   "text_63ac8850ff7117ad55777d4f": "Succeeded",
-  "text_63b578e959c1366df5d14569": "Assign a plan to a customer to create invoices",
+  "text_63b578e959c1366df5d14569": "There are no invoices",
   "text_63b578e959c1366df5d1456d": "By assigning a plan to a customer, you create a subscription triggering invoices based both on fixed recurring fees and usage-based fees.",
   "text_63b578e959c1366df5d1455b": "There are no draft invoices",
   "text_63b578e959c1366df5d14566": "Draft invoices are created either when your organization or a specific customer benefit from a grace period. A <a href={{link}}>grace period</a> is the number of days available to adjust an invoice before it’s ready for collection.",
