@@ -88,7 +88,9 @@ const InvoicesList = ({
           $isSelected={invoiceType === InvoiceListStatusEnum.all}
           onClick={() => navigate({ search: `?invoiceType=${InvoiceListStatusEnum.all}` })}
         >
-          {translate('text_63ac86d797f728a87b2f9f8b')}
+          <Typography variant="captionHl" color="grey600">
+            {translate('text_63ac86d797f728a87b2f9f8b')}
+          </Typography>
         </InvoiceTypeSwitch>
         <InvoiceTypeSwitch
           variant="tertiary"
@@ -96,7 +98,9 @@ const InvoicesList = ({
           $isSelected={invoiceType === InvoiceListStatusEnum.draft}
           onClick={() => navigate({ search: `?invoiceType=${InvoiceListStatusEnum.draft}` })}
         >
-          {translate('text_63ac86d797f728a87b2f9f91')}
+          <Typography variant="captionHl" color="grey600">
+            {translate('text_63ac86d797f728a87b2f9f91')}
+          </Typography>
         </InvoiceTypeSwitch>
         <InvoiceTypeSwitch
           variant="tertiary"
@@ -106,7 +110,9 @@ const InvoicesList = ({
             navigate({ search: `?invoiceType=${InvoiceListStatusEnum.pendingFailed}` })
           }
         >
-          {translate('text_63ac86d797f728a87b2f9f97')}
+          <Typography variant="captionHl" color="grey600">
+            {translate('text_63ac86d797f728a87b2f9f97')}
+          </Typography>
         </InvoiceTypeSwitch>
         <InvoiceTypeSwitch
           variant="tertiary"
@@ -114,7 +120,9 @@ const InvoicesList = ({
           $isSelected={invoiceType === InvoiceListStatusEnum.succeeded}
           onClick={() => navigate({ search: `?invoiceType=${InvoiceListStatusEnum.succeeded}` })}
         >
-          {translate('text_63ac86d797f728a87b2f9fa1')}
+          <Typography variant="captionHl" color="grey600">
+            {translate('text_63ac86d797f728a87b2f9fa1')}
+          </Typography>
         </InvoiceTypeSwitch>
         <InvoiceTypeSwitch
           variant="tertiary"
@@ -122,7 +130,9 @@ const InvoicesList = ({
           $isSelected={invoiceType === InvoiceListStatusEnum.voided}
           onClick={() => navigate({ search: `?invoiceType=${InvoiceListStatusEnum.voided}` })}
         >
-          {translate('text_6376641a2a9c70fff5bddcd5')}
+          <Typography variant="captionHl" color="grey600">
+            {translate('text_6376641a2a9c70fff5bddcd5')}
+          </Typography>
         </InvoiceTypeSwitch>
         <InvoiceTypeSwitch
           variant="tertiary"
@@ -130,7 +140,9 @@ const InvoicesList = ({
           $isSelected={invoiceType === InvoiceListStatusEnum.disputed}
           onClick={() => navigate({ search: `?invoiceType=${InvoiceListStatusEnum.disputed}` })}
         >
-          {translate('text_66141e30699a0631f0b2ed32')}
+          <Typography variant="captionHl" color="grey600">
+            {translate('text_66141e30699a0631f0b2ed32')}
+          </Typography>
         </InvoiceTypeSwitch>
       </TabSwitchContainer>
       <ScrollContainer
@@ -341,6 +353,10 @@ const InvoiceTypeSwitch = styled(Button)<{ $isSelected: boolean }>`
     $isSelected &&
     css`
       color: ${palette.primary.main};
+
+      > div {
+        color: ${palette.primary.main};
+      }
     `};
 
   ${theme.breakpoints.down('md')} {
