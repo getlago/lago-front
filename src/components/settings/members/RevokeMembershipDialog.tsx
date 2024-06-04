@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { DialogRef, Typography } from '~/components/designSystem'
+import { DialogRef } from '~/components/designSystem'
 import { WarningDialog } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { useRevokeMembershipMutation } from '~/generated/graphql'
@@ -20,7 +20,10 @@ export interface RevokeMembershipDialogRef {
   closeDialog: () => unknown
 }
 
-export const RevokeMembershipDialog = forwardRef<RevokeMembershipDialogRef>((_, ref) => {
+export const RevokeMembershipDialog = forwardRef<
+  RevokeMembershipDialogRef,
+  { adminCount: number | undefined }
+>(({ adminCount }, ref) => {
   const dialogRef = useRef<DialogRef>(null)
   const { translate } = useInternationalization()
   const [revokeMembership] = useRevokeMembershipMutation({
@@ -56,24 +59,39 @@ export const RevokeMembershipDialog = forwardRef<RevokeMembershipDialogRef>((_, 
     closeDialog: () => dialogRef.current?.closeDialog(),
   }))
 
+  const isDeletingLastAdmin = adminCount === 1
+
   return (
     <WarningDialog
       ref={dialogRef}
-      title={translate('text_63208bfc99e69a28211ec794')}
+      mode={isDeletingLastAdmin ? 'info' : 'danger'}
+      title={
+        isDeletingLastAdmin
+          ? translate('text_664f0385f68b4b012708f6cd')
+          : translate('text_63208bfc99e69a28211ec794')
+      }
       description={
-        <Typography>
-          {translate('text_63208bfc99e69a28211ec7a6', {
-            memberEmail: membershipInfos?.email,
-            organizationName: membershipInfos?.organizationName,
-          })}
-        </Typography>
+        isDeletingLastAdmin
+          ? translate('text_664f0385f68b4b012708f6ce')
+          : translate('text_63208bfc99e69a28211ec7a6', {
+              memberEmail: membershipInfos?.email,
+              organizationName: membershipInfos?.organizationName,
+            })
       }
-      onContinue={async () =>
-        await revokeMembership({
-          variables: { input: { id: membershipInfos?.id as string } },
-        })
+      onContinue={async () => {
+        if (isDeletingLastAdmin) {
+          dialogRef.current?.closeDialog()
+        } else {
+          await revokeMembership({
+            variables: { input: { id: membershipInfos?.id as string } },
+          })
+        }
+      }}
+      continueText={
+        isDeletingLastAdmin
+          ? translate('text_664f0385f68b4b012708f6cf')
+          : translate('text_63208bfc99e69a28211ec7b4')
       }
-      continueText={translate('text_63208bfc99e69a28211ec7b4')}
     />
   )
 })

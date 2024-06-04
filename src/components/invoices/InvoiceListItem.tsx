@@ -235,6 +235,8 @@ export const InvoiceListItem = ({
                   await downloadInvoice({
                     variables: { input: { id } },
                   })
+
+                  closePopper()
                 }}
               >
                 {translate('text_62b31e1f6a5b8b1b745ece42')}

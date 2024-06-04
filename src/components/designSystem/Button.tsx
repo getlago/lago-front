@@ -70,6 +70,9 @@ const mapProperties = (variant: ButtonVariant, inheritColor: boolean) => {
       return {
         color: 'inherit' as MuiColor,
         variant: 'outlined' as MuiVariant,
+        sx: {
+          borderColor: 'inherit',
+        },
       }
     case ButtonVariantEnum.quaternary:
     case ButtonVariantEnum['quaternary-light']:

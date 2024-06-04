@@ -406,84 +406,93 @@ const InvoiceSettings = () => {
         </InfoBlock>
 
         {/* Tax */}
-        <InlineSectionTitle>
-          <Typography variant="subhead" color="grey700">
-            {translate('text_637f819eff19cd55a56d55e6')}
-          </Typography>
-          <Button
-            variant="quaternary"
-            disabled={loading || !canEditInvoiceSettings}
-            onClick={editVATDialogRef?.current?.openDialog}
-            data-test="add-tax-button"
-          >
-            {translate('text_645bb193927b375079d28ad2')}
-          </Button>
-        </InlineSectionTitle>
-        <InfoBlock $loading={loading}>
-          {loading ? (
-            <>
-              <Skeleton variant="text" width={320} height={12} />
-              <Skeleton variant="text" width={160} height={12} />
-            </>
-          ) : (
-            <>
-              <Typography variant="body" color="grey700">
-                {!!appliedTaxRates?.length ? (
-                  <>
-                    {appliedTaxRates?.map((taxRate) => (
-                      <TaxRateItem
-                        key={`tax-rate-item-${taxRate.id}`}
-                        data-test={`applied-tax-${taxRate.code}`}
-                      >
-                        <LeftSection>
-                          <Avatar size="big" variant="connector">
-                            <Icon size="medium" name="percentage" color="dark" />
-                          </Avatar>
-                          <div>
-                            <Typography color="textSecondary" variant="bodyHl" noWrap>
-                              {taxRate.name}
-                            </Typography>
-                            <Typography variant="caption" noWrap>
-                              {taxRate.code}
-                            </Typography>
-                          </div>
-                        </LeftSection>
-                        <RightSection>
-                          <Typography variant="body" color="grey700">
-                            {intlFormatNumber((taxRate.rate || 0) / 100, {
-                              minimumFractionDigits: 2,
-                              style: 'percent',
-                            })}
-                          </Typography>
-                          <Tooltip
-                            placement="top-end"
-                            title={translate('text_64639cfe2e46e9007d11b49d')}
-                          >
-                            <Button
-                              icon="trash"
-                              variant="quaternary"
-                              disabled={loading || !hasPermissions(['organizationTaxesUpdate'])}
-                              onClick={() => {
-                                deleteVATDialogRef.current?.openDialog(taxRate)
-                              }}
-                            />
-                          </Tooltip>
-                        </RightSection>
-                      </TaxRateItem>
-                    ))}
-                    <TopMargedTypography variant="caption" color="grey600">
-                      {translate('text_64639bf298650700512731a3')}
-                    </TopMargedTypography>
-                  </>
-                ) : (
-                  <Typography variant="caption" color="grey600" data-test="empty-taxes">
-                    {translate('text_64639bad55d65900f4dd896f')}
-                  </Typography>
-                )}
+        {hasPermissions(['organizationTaxesView']) && (
+          <>
+            <InlineSectionTitle>
+              <Typography variant="subhead" color="grey700">
+                {translate('text_637f819eff19cd55a56d55e6')}
               </Typography>
-            </>
-          )}
-        </InfoBlock>
+
+              {hasPermissions(['organizationTaxesUpdate']) && (
+                <Button
+                  variant="quaternary"
+                  disabled={loading || !canEditInvoiceSettings}
+                  onClick={editVATDialogRef?.current?.openDialog}
+                  data-test="add-tax-button"
+                >
+                  {translate('text_645bb193927b375079d28ad2')}
+                </Button>
+              )}
+            </InlineSectionTitle>
+            <InfoBlock $loading={loading}>
+              {loading ? (
+                <>
+                  <Skeleton variant="text" width={320} height={12} />
+                  <Skeleton variant="text" width={160} height={12} />
+                </>
+              ) : (
+                <>
+                  <Typography variant="body" color="grey700">
+                    {!!appliedTaxRates?.length ? (
+                      <>
+                        {appliedTaxRates?.map((taxRate) => (
+                          <TaxRateItem
+                            key={`tax-rate-item-${taxRate.id}`}
+                            data-test={`applied-tax-${taxRate.code}`}
+                          >
+                            <LeftSection>
+                              <Avatar size="big" variant="connector">
+                                <Icon size="medium" name="percentage" color="dark" />
+                              </Avatar>
+                              <div>
+                                <Typography color="textSecondary" variant="bodyHl" noWrap>
+                                  {taxRate.name}
+                                </Typography>
+                                <Typography variant="caption" noWrap>
+                                  {taxRate.code}
+                                </Typography>
+                              </div>
+                            </LeftSection>
+                            <RightSection>
+                              <Typography variant="body" color="grey700">
+                                {intlFormatNumber((taxRate.rate || 0) / 100, {
+                                  minimumFractionDigits: 2,
+                                  style: 'percent',
+                                })}
+                              </Typography>
+                              {hasPermissions(['organizationTaxesUpdate']) && (
+                                <Tooltip
+                                  placement="top-end"
+                                  title={translate('text_64639cfe2e46e9007d11b49d')}
+                                >
+                                  <Button
+                                    icon="trash"
+                                    variant="quaternary"
+                                    disabled={loading}
+                                    onClick={() => {
+                                      deleteVATDialogRef.current?.openDialog(taxRate)
+                                    }}
+                                  />
+                                </Tooltip>
+                              )}
+                            </RightSection>
+                          </TaxRateItem>
+                        ))}
+                        <TopMargedTypography variant="caption" color="grey600">
+                          {translate('text_64639bf298650700512731a3')}
+                        </TopMargedTypography>
+                      </>
+                    ) : (
+                      <Typography variant="caption" color="grey600" data-test="empty-taxes">
+                        {translate('text_64639bad55d65900f4dd896f')}
+                      </Typography>
+                    )}
+                  </Typography>
+                </>
+              )}
+            </InfoBlock>
+          </>
+        )}
 
         <DeleteOrganizationVatRateDialog ref={deleteVATDialogRef} />
         <AddOrganizationVatRateDialog

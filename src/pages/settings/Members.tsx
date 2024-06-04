@@ -8,6 +8,14 @@ import {
   CreateInviteDialog,
   CreateInviteDialogRef,
 } from '~/components/settings/members/CreateInviteDialog'
+import {
+  EditInviteRoleDialog,
+  EditInviteRoleDialogRef,
+} from '~/components/settings/members/EditInviteRoleDialog'
+import {
+  EditMemberRoleDialog,
+  EditMemberRoleDialogRef,
+} from '~/components/settings/members/EditMemberRoleDialog'
 import { InviteItem, InviteItemSkeleton } from '~/components/settings/members/InviteItem'
 import {
   MembershipItem,
@@ -28,6 +36,7 @@ import {
   useGetMembersQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { NAV_HEIGHT, theme } from '~/styles'
 import { SettingsHeaderNameWrapper, SettingsPageContentWrapper } from '~/styles/settingsPage'
@@ -52,6 +61,7 @@ gql`
         currentPage
         totalPages
         totalCount
+        adminCount
       }
       collection {
         ...MembershipItem
@@ -65,8 +75,11 @@ gql`
 
 const Members = () => {
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
   const revokeInviteDialogRef = useRef<RevokeInviteDialogRef>(null)
   const revokeMembershipDialogRef = useRef<RevokeMembershipDialogRef>(null)
+  const editMemberRoleDiaglogRef = useRef<EditMemberRoleDialogRef>(null)
+  const editInviteRoleDiaglogRef = useRef<EditInviteRoleDialogRef>(null)
   const createInviteDialogRef = useRef<CreateInviteDialogRef>(null)
   const {
     data: invitesData,
@@ -108,7 +121,7 @@ const Members = () => {
                 <Typography variant="subhead">
                   {translate('text_63208b630aaf8df6bbfb265d')}
                 </Typography>
-                {!!hasInvites && (
+                {!!hasInvites && hasPermissions(['organizationMembersCreate']) && (
                   <Button
                     variant="secondary"
                     onClick={() => {
@@ -140,8 +153,9 @@ const Members = () => {
                 {invitesData?.invites.collection.map((invite, i) => (
                   <InviteItem
                     key={`invite-item-${i}`}
-                    ref={revokeInviteDialogRef}
+                    editInviteRoleDiaglogRef={editInviteRoleDiaglogRef}
                     invite={invite}
+                    revokeInviteDialogRef={revokeInviteDialogRef}
                   />
                 ))}
                 {!!invitesLoading && (
@@ -173,25 +187,17 @@ const Members = () => {
         </InvitationsListWrapper>
 
         <Head>
-          {!!membersLoading ? (
-            <TitleSkeleton variant="text" height={12} width={160} />
-          ) : (
-            <>
-              <Typography variant="subhead">
-                {translate('text_63208b630aaf8df6bbfb266f')}
-              </Typography>
-              {!hasInvites && (
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    createInviteDialogRef.current?.openDialog()
-                  }}
-                  data-test="create-invite-button"
-                >
-                  {translate('text_63208b630aaf8df6bbfb265b')}
-                </Button>
-              )}
-            </>
+          <Typography variant="subhead">{translate('text_63208b630aaf8df6bbfb266f')}</Typography>
+          {!membersLoading && !hasInvites && hasPermissions(['organizationMembersCreate']) && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                createInviteDialogRef.current?.openDialog()
+              }}
+              data-test="create-invite-button"
+            >
+              {translate('text_63208b630aaf8df6bbfb265b')}
+            </Button>
           )}
         </Head>
         {!!membersError ? (
@@ -220,8 +226,10 @@ const Members = () => {
               {membersData?.memberships.collection.map((membership, i) => (
                 <MembershipItem
                   key={`membership-item-${i}`}
-                  ref={revokeMembershipDialogRef}
+                  adminCount={membersMetadata?.adminCount}
+                  editMemberRoleDiaglogRef={editMemberRoleDiaglogRef}
                   membership={membership}
+                  revokeMembershipDialogRef={revokeMembershipDialogRef}
                 />
               ))}
 
@@ -237,7 +245,12 @@ const Members = () => {
         )}
 
         {!!hasInvites && <RevokeInviteDialog ref={revokeInviteDialogRef} />}
-        <RevokeMembershipDialog ref={revokeMembershipDialogRef} />
+        <RevokeMembershipDialog
+          ref={revokeMembershipDialogRef}
+          adminCount={membersMetadata?.adminCount}
+        />
+        <EditMemberRoleDialog ref={editMemberRoleDiaglogRef} />
+        <EditInviteRoleDialog ref={editInviteRoleDiaglogRef} />
         <CreateInviteDialog ref={createInviteDialogRef} />
       </SettingsPageContentWrapper>
     </>

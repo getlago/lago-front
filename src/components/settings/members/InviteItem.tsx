@@ -1,16 +1,27 @@
 import { gql } from '@apollo/client'
-import { forwardRef, MutableRefObject } from 'react'
+import { MutableRefObject } from 'react'
 import { generatePath } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Avatar, Button, Chip, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import {
+  Avatar,
+  Button,
+  Chip,
+  Popper,
+  Skeleton,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
+import { getRoleTranslationKey } from '~/core/constants/form'
 import { INVITATION_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { InviteItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
+import { usePermissions } from '~/hooks/usePermissions'
+import { MenuPopper, PopperOpener, theme } from '~/styles'
 
+import { EditInviteRoleDialogRef } from './EditInviteRoleDialog'
 import { RevokeInviteDialogRef } from './RevokeInviteDialog'
 
 gql`
@@ -18,6 +29,7 @@ gql`
     id
     email
     token
+    role
     organization {
       id
       name
@@ -26,60 +38,107 @@ gql`
 `
 
 interface InviteItemProps {
+  editInviteRoleDiaglogRef: MutableRefObject<EditInviteRoleDialogRef | null>
   invite: InviteItemFragment
+  revokeInviteDialogRef: MutableRefObject<RevokeInviteDialogRef | null>
 }
 
-export const InviteItem = forwardRef<RevokeInviteDialogRef, InviteItemProps>(
-  ({ invite }: InviteItemProps, ref) => {
-    const { id, email, token, organization } = invite
-    const { translate } = useInternationalization()
+export const InviteItem = ({
+  editInviteRoleDiaglogRef,
+  invite,
+  revokeInviteDialogRef,
+}: InviteItemProps) => {
+  const { id, email, token, organization, role } = invite
+  const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
 
-    return (
-      <ItemContainer>
-        <LeftBlock>
-          <Avatar variant="user" identifier={email.charAt(0)} size="big" />
-          <Typography variant="body" color="grey700">
-            {email}
-          </Typography>
-        </LeftBlock>
-        <RightBlock>
-          <Chip label={translate('text_63208b630aaf8df6bbfb2665')} />
-          <Tooltip placement="bottom-end" title={translate('text_63208b630aaf8df6bbfb265f')}>
-            <ActionButtonIcon
-              icon="duplicate"
-              variant="quaternary"
-              onClick={() => {
-                copyToClipboard(
-                  `${window.location.origin}${generatePath(INVITATION_ROUTE, {
-                    token,
-                  })}`,
-                )
-                addToast({
-                  severity: 'info',
-                  translateKey: 'text_63208b630aaf8df6bbfb2679',
-                })
-              }}
-              data-test="copy-invite-link"
-            />
-          </Tooltip>
-          <Tooltip placement="bottom-end" title={translate('text_63208b630aaf8df6bbfb2667')}>
-            <ActionButtonIcon
-              icon="trash"
-              variant="quaternary"
-              onClick={() => {
-                ;(ref as MutableRefObject<RevokeInviteDialogRef>)?.current?.openDialog({
-                  id,
-                  email,
-                  organizationName: organization.name,
-                })
-              }}
-            />
-          </Tooltip>
-        </RightBlock>
-      </ItemContainer>
-    )
-  },
-)
+  return (
+    <ItemContainer>
+      <LeftBlock>
+        <Avatar variant="user" identifier={email.charAt(0)} size="big" />
+        <Typography variant="body" color="grey700">
+          {email}
+        </Typography>
+      </LeftBlock>
+      <RightBlock>
+        <Chip label={translate(getRoleTranslationKey[role])} />
+        <LocalPopper
+          PopperProps={{ placement: 'bottom-end' }}
+          opener={({ isOpen }) => (
+            <LocalPopperOpener>
+              <Tooltip
+                placement="top-end"
+                disableHoverListener={isOpen}
+                title={translate('text_646e2d0cc536351b62ba6f01')}
+              >
+                <Button icon="dots-horizontal" variant="quaternary" size="small" />
+              </Tooltip>
+            </LocalPopperOpener>
+          )}
+        >
+          {({ closePopper }) => (
+            <MenuPopper>
+              {hasPermissions(['organizationMembersUpdate']) && (
+                <Button
+                  startIcon="pen"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    editInviteRoleDiaglogRef.current?.openDialog({
+                      invite,
+                    })
+                    closePopper()
+                  }}
+                >
+                  {translate('text_664f035a68227f00e261b7f6')}
+                </Button>
+              )}
+              <Button
+                startIcon="duplicate"
+                variant="quaternary"
+                align="left"
+                onClick={() => {
+                  copyToClipboard(
+                    `${window.location.origin}${generatePath(INVITATION_ROUTE, {
+                      token,
+                    })}`,
+                  )
+                  addToast({
+                    severity: 'info',
+                    translateKey: 'text_63208b630aaf8df6bbfb2679',
+                  })
+
+                  closePopper()
+                }}
+                data-test="copy-invite-link"
+              >
+                {translate('text_63208b630aaf8df6bbfb265f')}
+              </Button>
+              {hasPermissions(['organizationMembersDelete']) && (
+                <Button
+                  startIcon="trash"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    revokeInviteDialogRef?.current?.openDialog({
+                      id,
+                      email,
+                      organizationName: organization.name,
+                    })
+
+                    closePopper()
+                  }}
+                >
+                  {translate('text_63208c701ce25db78140745e')}
+                </Button>
+              )}
+            </MenuPopper>
+          )}
+        </LocalPopper>
+      </RightBlock>
+    </ItemContainer>
+  )
+}
 
 InviteItem.displayName = 'InviteItem'
 
@@ -87,7 +146,7 @@ export const InviteItemSkeleton = () => {
   return (
     <ItemContainer>
       <Skeleton variant="userAvatar" size="big" marginRight={theme.spacing(6)} />
-      <Skeleton variant="text" height={12} width={240} />
+      <Skeleton variant="text" height={12} width={160} />
     </ItemContainer>
   )
 }
@@ -99,6 +158,9 @@ const ItemContainer = styled.div`
   padding: ${theme.spacing(4)};
   border: 1px solid ${theme.palette.grey[400]};
   border-radius: 12px;
+
+  /* Used to place correclty the popper opener */
+  position: relative;
 `
 
 const LeftBlock = styled.div`
@@ -113,22 +175,15 @@ const LeftBlock = styled.div`
 const RightBlock = styled.div`
   display: flex;
   align-items: center;
-
-  > *:nth-child(1) {
-    margin-right: ${theme.spacing(4)};
-  }
-
-  > *:nth-child(2) {
-    margin-right: ${theme.spacing(3)};
-  }
+  gap: ${theme.spacing(3)};
 `
 
-const ActionButtonIcon = styled(Button)`
-  width: 24px !important;
+const LocalPopper = styled(Popper)`
+  width: 24px;
   height: 24px;
-  border-radius: 8px;
+`
 
-  > *:hover {
-    cursor: pointer;
-  }
+const LocalPopperOpener = styled(PopperOpener)`
+  top: ${theme.spacing(6)};
+  right: ${theme.spacing(4)};
 `

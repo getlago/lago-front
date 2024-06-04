@@ -11,3 +11,4 @@ export const DOCUMENTATION_ENV_VARS =
 export const FEATURE_REQUESTS_URL = 'https://getlago.canny.io/feature-requests'
 export const ADYEN_SUCCESS_LINK_SPEC_URL =
   'https://docs.adyen.com/api-explorer/Checkout/latest/post/payments#request-returnUrl'
+export const ROLE_ACCESS_LEVEL_DOC_URL = 'https://getlago.com/docs/guide/security/rbac'

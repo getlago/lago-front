@@ -13,8 +13,8 @@ const CouponsList = lazyLoad(
 const AddOnsList = lazyLoad(
   () => import(/* webpackChunkName: 'add-ons-list' */ '~/pages/AddOnsList'),
 )
-const InvoicesList = lazyLoad(
-  () => import(/* webpackChunkName: 'invoices-list' */ '~/pages/InvoicesList'),
+const InvoicesPage = lazyLoad(
+  () => import(/* webpackChunkName: 'invoices-page' */ '~/pages/InvoicesPage'),
 )
 
 // Creation
@@ -128,8 +128,8 @@ export const objectListRoutes: CustomRouteObject[] = [
   {
     path: [INVOICES_ROUTE, INVOICES_TAB_ROUTE],
     private: true,
-    element: <InvoicesList />,
-    permissions: ['invoicesView'],
+    element: <InvoicesPage />,
+    permissions: ['invoicesView', 'creditNotesView'],
   },
 ]
 
