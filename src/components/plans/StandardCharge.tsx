@@ -12,7 +12,7 @@ import { theme } from '~/styles'
 
 import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
 
-import { Button, Tooltip } from '../designSystem'
+import { Button, Tooltip, Typography } from '../designSystem'
 import { AmountInput } from '../form/AmountInput/AmountInput'
 
 gql`
@@ -75,42 +75,53 @@ export const StandardCharge = memo(
             ),
           }}
         />
-        {shouldDisplayGroupedBy || !!valuePointer?.groupedBy ? (
-          <InlineFields>
-            {/* TODO: make it a single line textarea */}
-            <StyledTextInput
-              // multiline
-              // maxRows={3}
-              name={`${propertyCursor}.groupedBy`}
-              label={translate('text_65ba6d45e780c1ff8acb205f')}
-              placeholder={translate('text_65ba6d45e780c1ff8acb206f')}
-              helperText={translate('text_65ba6d45e780c1ff8acb2073')}
-              disabled={disabled}
-              value={valuePointer?.groupedBy as unknown as string}
-              onChange={(value) => handleUpdate(`${propertyCursor}.groupedBy`, value)}
-            />
-
-            <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
-              <Button
-                icon="trash"
-                variant="quaternary"
-                onClick={() => {
-                  // @ts-ignore NOTE: that should be removed once the new multiple combobox is implemented and used to define the groupedBy
-                  handleUpdate(`${propertyCursor}.groupedBy`, '')
-                  setShouldDisplayGroupedBy(false)
-                }}
+        <Group>
+          <GroupTitle>
+            <Typography variant="captionHl" color="textSecondary">
+              {translate('TODO: Group fee by properties')}
+            </Typography>
+            <Typography variant="caption">
+              {translate(
+                'TODO: Organize fees based on specific properties or attributes, such as user type, location, or usage category, for clearer billing breakdowns.',
+              )}
+            </Typography>
+          </GroupTitle>
+          {shouldDisplayGroupedBy || !!valuePointer?.groupedBy ? (
+            <InlineFields>
+              {/* TODO: make it a single line textarea */}
+              <StyledTextInput
+                // multiline
+                // maxRows={3}
+                name={`${propertyCursor}.groupedBy`}
+                placeholder={translate('text_65ba6d45e780c1ff8acb206f')}
+                helperText={translate('text_65ba6d45e780c1ff8acb2073')}
+                disabled={disabled}
+                value={valuePointer?.groupedBy as unknown as string}
+                onChange={(value) => handleUpdate(`${propertyCursor}.groupedBy`, value)}
               />
-            </Tooltip>
-          </InlineFields>
-        ) : (
-          <Button
-            startIcon="plus"
-            variant="quaternary"
-            onClick={() => setShouldDisplayGroupedBy(true)}
-          >
-            {translate('text_65ba6d45e780c1ff8acb20e0')}
-          </Button>
-        )}
+
+              <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
+                <Button
+                  icon="trash"
+                  variant="quaternary"
+                  onClick={() => {
+                    // @ts-ignore NOTE: that should be removed once the new multiple combobox is implemented and used to define the groupedBy
+                    handleUpdate(`${propertyCursor}.groupedBy`, '')
+                    setShouldDisplayGroupedBy(false)
+                  }}
+                />
+              </Tooltip>
+            </InlineFields>
+          ) : (
+            <Button
+              startIcon="plus"
+              variant="quaternary"
+              onClick={() => setShouldDisplayGroupedBy(true)}
+            >
+              {translate('text_65ba6d45e780c1ff8acb20e0')}
+            </Button>
+          )}
+        </Group>
       </Container>
     )
   },
@@ -126,17 +137,21 @@ const Container = styled.div`
 
 const InlineFields = styled.div`
   display: flex;
-
-  > :first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-
-  > :last-child {
-    margin-top: 28px;
-  }
+  gap: ${theme.spacing(3)};
 `
 
 const StyledTextInput = styled(TextInput)`
   flex: 1;
-  margin-right: ${theme.spacing(3)};
+`
+
+const GroupTitle = styled.div`
+  > div:not(:last-child) {
+    margin-bottom: ${theme.spacing(1)};
+  }
+`
+
+const Group = styled.div`
+  > :not(:last-child) {
+    margin-bottom: ${theme.spacing(4)};
+  }
 `

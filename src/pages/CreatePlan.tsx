@@ -1,6 +1,8 @@
 import { gql } from '@apollo/client'
+import { Stack } from '@mui/material'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
 
 import { Button, Skeleton, Typography } from '~/components/designSystem'
 import {
@@ -27,15 +29,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
 import { Card, PageHeader, theme } from '~/styles'
-import {
-  ButtonContainer,
-  Content,
-  Main,
-  Side,
-  SkeletonHeader,
-  Subtitle,
-  Title,
-} from '~/styles/mainObjectsForm'
+import { Content, Main, Side, SkeletonHeader } from '~/styles/mainObjectsForm'
 
 import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
 
@@ -192,68 +186,84 @@ const CreatePlan = () => {
                 ))}
               </>
             ) : (
-              <>
-                <div>
-                  <Title variant="headline">
-                    {translate(
-                      isEdition ? 'text_625fd165963a7b00c8f59771' : 'text_624453d52e945301380e498a',
-                    )}
-                  </Title>
-                  <Subtitle>
-                    {translate(
-                      type === FORM_TYPE_ENUM.edition
-                        ? 'text_625fd165963a7b00c8f5977b'
-                        : 'text_642d5eb2783a2ad10d670318',
-                    )}
-                  </Subtitle>
-                </div>
+              <Stack width="100%" gap={12}>
+                <SectionWrapper>
+                  <SectionTitle>
+                    <Typography variant="headline">
+                      {translate('text_642d5eb2783a2ad10d67031a')}
+                    </Typography>
+                    <Typography variant="body">
+                      {translate(
+                        'TODO: Define the parameters of the billing plan, such as interval, and currency.',
+                      )}
+                    </Typography>
+                  </SectionTitle>
 
-                <PlanSettingsSection
-                  canBeEdited={canBeEdited}
-                  errorCode={errorCode}
-                  formikProps={formikProps}
-                  isEdition={isEdition}
-                />
+                  <PlanSettingsSection
+                    canBeEdited={canBeEdited}
+                    errorCode={errorCode}
+                    formikProps={formikProps}
+                    isEdition={isEdition}
+                  />
+                </SectionWrapper>
+                <SectionWrapper>
+                  <SectionTitle>
+                    <Typography variant="headline">
+                      {translate('TODO: Pricing settings')}
+                    </Typography>
+                    <Typography variant="body">
+                      {translate('TODO: Customize the pricing structure of your plan.')}
+                    </Typography>
+                  </SectionTitle>
 
-                <FixedFeeSection
-                  isInitiallyOpen={type === FORM_TYPE_ENUM.creation}
-                  canBeEdited={canBeEdited}
-                  formikProps={formikProps}
-                  isEdition={isEdition}
-                  editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
-                />
+                  <Section>
+                    <FixedFeeSection
+                      isInitiallyOpen={type === FORM_TYPE_ENUM.creation}
+                      canBeEdited={canBeEdited}
+                      formikProps={formikProps}
+                      isEdition={isEdition}
+                      editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                    />
 
-                <ChargesSection
-                  canBeEdited={canBeEdited}
-                  isEdition={isEdition}
-                  formikProps={formikProps}
-                  premiumWarningDialogRef={premiumWarningDialogRef}
-                  alreadyExistingCharges={plan?.charges as LocalChargeInput[]}
-                  editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
-                />
+                    <ChargesSection
+                      canBeEdited={canBeEdited}
+                      isEdition={isEdition}
+                      formikProps={formikProps}
+                      premiumWarningDialogRef={premiumWarningDialogRef}
+                      alreadyExistingCharges={plan?.charges as LocalChargeInput[]}
+                      editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                    />
+                  </Section>
+                </SectionWrapper>
 
-                <CommitmentsSection
-                  formikProps={formikProps}
-                  premiumWarningDialogRef={premiumWarningDialogRef}
-                  editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
-                />
+                <SectionWrapper>
+                  <Typography variant="headline">{translate('TODO: Advanced settings')}</Typography>
 
-                <ButtonContainer>
-                  <Button
-                    disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
-                    fullWidth
-                    size="large"
-                    onClick={formikProps.submitForm}
-                    data-test="submit"
-                  >
-                    {translate(
-                      type === FORM_TYPE_ENUM.edition
-                        ? 'text_625fd165963a7b00c8f598aa'
-                        : 'text_62ff5d01a306e274d4ffcc75',
-                    )}
-                  </Button>
-                </ButtonContainer>
-              </>
+                  <CommitmentsSection
+                    formikProps={formikProps}
+                    premiumWarningDialogRef={premiumWarningDialogRef}
+                    editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                  />
+                </SectionWrapper>
+
+                <SectionFooter $isValid={formikProps.isValid}>
+                  <div>
+                    <Button
+                      disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
+                      fullWidth
+                      size="large"
+                      onClick={formikProps.submitForm}
+                      data-test="submit"
+                    >
+                      {translate(
+                        type === FORM_TYPE_ENUM.edition
+                          ? 'text_625fd165963a7b00c8f598aa'
+                          : 'TODO: Create plan',
+                      )}
+                    </Button>
+                  </div>
+                </SectionFooter>
+              </Stack>
             )}
           </div>
         </Main>
@@ -277,3 +287,37 @@ const CreatePlan = () => {
 }
 
 export default CreatePlan
+
+const SectionWrapper = styled.div`
+  > div:not(:last-child) {
+    margin-bottom: ${theme.spacing(6)};
+  }
+`
+
+const SectionTitle = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing(1)};
+`
+
+const Section = styled.section`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing(4)};
+`
+
+const SectionFooter = styled.div<{ $isValid: boolean }>`
+  position: ${({ $isValid }) => ($isValid ? 'sticky' : 'relative')};
+  bottom: ${({ $isValid }) => ($isValid ? '0' : undefined)};
+  background-color: ${({ $isValid }) =>
+    $isValid ? theme.palette.background.paper : 'transparent'};
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: ${theme.spacing(8)};
+  border-top: 1px solid ${theme.palette.grey[200]};
+  margin-left: -${theme.spacing(12)};
+  margin-right: -${theme.spacing(12)};
+  padding: ${theme.spacing(6)};
+`

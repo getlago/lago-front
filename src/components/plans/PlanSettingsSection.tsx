@@ -16,7 +16,6 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PlanInterval, useGetTaxesForPlanLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Card, theme } from '~/styles'
-import { LineSplit } from '~/styles/mainObjectsForm'
 
 import { PlanFormInput } from './types'
 
@@ -76,7 +75,7 @@ export const PlanSettingsSection = memo(
     const [shouldDisplayDescription, setShouldDisplayDescription] = useState<boolean>(
       !!formikProps.initialValues.description,
     )
-    const [shouldDisplayTaxesInput, setShouldDisplayTaxesInput] = useState<boolean>(false)
+    const [shouldDisplayTaxesInput, setShouldDisplayTaxesInput] = useState(false)
     const plan = formikProps.values
     const [getTaxes, { data: taxesData, loading: taxesLoading }] = useGetTaxesForPlanLazyQuery({
       variables: { limit: 20 },
@@ -130,33 +129,21 @@ export const PlanSettingsSection = memo(
 
     return (
       <Card>
-        <SectionTitle variant="subhead">{translate('text_642d5eb2783a2ad10d67031a')}</SectionTitle>
-
         <AdjustableSection $shouldDisplayDescription={shouldDisplayDescription}>
-          <LineSplit>
-            <TextInputField
-              name="name"
-              label={translate('text_642d5eb2783a2ad10d67031c')}
-              placeholder={translate('text_624453d52e945301380e499c')}
-              formikProps={formikProps}
-            />
-            <TextInputField
-              name="code"
-              beforeChangeFormatter="code"
-              disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
-              label={translate('text_642d5eb2783a2ad10d670320')}
-              placeholder={translate('text_624453d52e945301380e499e')}
-              formikProps={formikProps}
-              infoText={translate('text_624d9adba93343010cd14ca1')}
-            />
-          </LineSplit>
+          <TextInputField
+            name="name"
+            label={translate('text_629728388c4d2300e2d38091')}
+            placeholder={translate('text_624453d52e945301380e499c')}
+            formikProps={formikProps}
+          />
+
           {shouldDisplayDescription ? (
             <InlineDescription>
               <TextArea
                 multiline
                 name="description"
-                label={translate('text_642d616c8d9eb000716e2bf1')}
-                placeholder={translate('text_624453d52e945301380e49a2')}
+                label={translate('text_629728388c4d2300e2d380f1')}
+                placeholder={translate('TODO: Explain the goal of this plan')}
                 rows="3"
                 formikProps={formikProps}
               />
@@ -184,13 +171,22 @@ export const PlanSettingsSection = memo(
               {translate('text_642d5eb2783a2ad10d670324')}
             </Button>
           )}
+          <TextInputField
+            name="code"
+            label={translate('text_62876e85e32e0300e1803127')}
+            description={translate('TODO: Unique identifier to identify the plan through API.')}
+            beforeChangeFormatter="code"
+            disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
+            placeholder={translate('text_624453d52e945301380e499e')}
+            formikProps={formikProps}
+          />
         </AdjustableSection>
 
         <ButtonSelectorField
           disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
           name="interval"
-          label={translate('text_642d5eb2783a2ad10d670326')}
-          infoText={translate('text_624d9adba93343010cd14ca3')}
+          label={translate('TODO: Billing period')}
+          description={translate('TODO: Frequency at which the subscription recurs.')}
           formikProps={formikProps}
           options={[
             {
@@ -226,14 +222,13 @@ export const PlanSettingsSection = memo(
         {!!plan?.taxes?.length && (
           <div>
             <TaxLabel variant="captionHl" color="grey700">
-              {translate('text_64be910fba8ef9208686a8e3')}
+              {translate('TODO: Tax rates')}
             </TaxLabel>
             <InlineTaxesWrapper>
               {plan.taxes.map(({ id, name, rate }) => (
                 <Chip
                   key={id}
                   label={`${name} (${rate}%)`}
-                  type="secondary"
                   size="medium"
                   deleteIcon="trash"
                   icon="percentage"
@@ -257,7 +252,7 @@ export const PlanSettingsSection = memo(
           <div>
             {!plan.taxes?.length && (
               <TaxLabel variant="captionHl" color="grey700">
-                {translate('text_64be910fba8ef9208686a8e3')}
+                {translate('TODO: Tax rates')}
               </TaxLabel>
             )}
             <InlineTaxInputWrapper>
@@ -266,7 +261,7 @@ export const PlanSettingsSection = memo(
                 data={taxesDataForCombobox}
                 searchQuery={getTaxes}
                 loading={taxesLoading}
-                placeholder={translate('text_64be910fba8ef9208686a8e7')}
+                placeholder={translate('TODO: Select a tax rate')}
                 emptyText={translate('text_64be91fd0678965126e5657b')}
                 onChange={(newTaxId) => {
                   const previousTaxes = [...(formikProps?.values?.taxes || [])]
@@ -317,16 +312,9 @@ export const PlanSettingsSection = memo(
 
 PlanSettingsSection.displayName = 'PlanSettingsSection'
 
-const SectionTitle = styled(Typography)`
-  > div:first-child {
-    margin-bottom: ${theme.spacing(3)};
-  }
-`
-
 const AdjustableSection = styled.div<{ $shouldDisplayDescription: boolean }>`
   > *:not(:last-child) {
-    margin-bottom: ${({ $shouldDisplayDescription }) =>
-      $shouldDisplayDescription ? theme.spacing(6) : theme.spacing(3)};
+    margin-bottom: ${theme.spacing(8)};
   }
 `
 
