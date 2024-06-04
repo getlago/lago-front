@@ -230,9 +230,7 @@ export const useAddSubscription: UseAddSubscription = ({
                   ...values,
                   id: existingSubscription?.id as string,
                   subscriptionAt: !!existingSubscription?.startedAt
-                    ? DateTime.fromISO(existingSubscription?.startedAt)
-                        .toUTC()
-                        .toISO()
+                    ? DateTime.fromISO(existingSubscription?.startedAt).toUTC().toISO()
                     : subsDate
                       ? DateTime.fromISO(subsDate).toUTC().toISO()
                       : undefined,
