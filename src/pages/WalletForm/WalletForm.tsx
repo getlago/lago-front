@@ -4,20 +4,21 @@ import { DateTime } from 'luxon'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { array, object, string } from 'yup'
 
 import { Button, Typography } from '~/components/designSystem'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { WalletCodeSnippet } from '~/components/wallets/WalletCodeSnippet'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
-import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
+import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
 import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
+  CreateRecurringTransactionRuleInput,
   CurrencyEnum,
   GetWalletInfosForWalletFormQuery,
   LagoApiError,
+  RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
   UpdateRecurringTransactionRuleInput,
   useCreateCustomerWalletMutation,
@@ -28,12 +29,13 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { LoadingView } from '~/pages/WalletForm/components/LoadingView'
-import { SettingsCard } from '~/pages/WalletForm/components/SettingsCard'
-import { TopUpCard } from '~/pages/WalletForm/components/TopUpCard'
 import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
 import { ButtonContainer, Side } from '~/styles/mainObjectsForm'
 
+import { LoadingView } from './components/LoadingView'
+import { SettingsCard } from './components/SettingsCard'
+import { TopUpCard } from './components/TopUpCard'
+import { walletFormSchema } from './form'
 import { TWalletDataForm } from './types'
 
 import { CustomerDetailsTabsOptions } from '../CustomerDetails'
@@ -46,11 +48,14 @@ gql`
     rateAmount
     recurringTransactionRules {
       lagoId
+      method
       trigger
       interval
-      thresholdCredits
+      targetOngoingBalance
       paidCredits
       grantedCredits
+      thresholdCredits
+      startedAt
     }
   }
 
@@ -185,108 +190,7 @@ const WalletForm = () => {
         : `1${currencyPrecision === 3 ? '.000' : currencyPrecision === 4 ? '.0000' : '.00'}`,
       recurringTransactionRules: wallet?.recurringTransactionRules || undefined,
     },
-    validationSchema: object().shape({
-      name: string(),
-      expirationAt: string()
-        .test({
-          test: function (value, { path }) {
-            // Value can be undefined
-            if (!value) {
-              return true
-            }
-
-            // Make sure value has correct format
-            if (!DateTime.fromISO(value).isValid) {
-              return this.createError({
-                path,
-                message: dateErrorCodes.wrongFormat,
-              })
-            }
-
-            const endingAt = DateTime.fromISO(value)
-
-            // Make sure endingAt is in the future
-            if (DateTime.now().diff(endingAt, 'days').days >= 0) {
-              return this.createError({
-                path,
-                message: dateErrorCodes.shouldBeInFuture,
-              })
-            }
-
-            return true
-          },
-        })
-        .nullable(),
-      paidCredits: string().test({
-        test: function (paidCredits) {
-          if (formType === FORM_TYPE_ENUM.edition) return true
-
-          const { grantedCredits } = this?.parent
-
-          return !isNaN(Number(paidCredits)) || !isNaN(Number(grantedCredits))
-        },
-      }),
-      grantedCredits: string().test({
-        test: function (grantedCredits) {
-          if (formType === FORM_TYPE_ENUM.edition) return true
-
-          const { paidCredits } = this?.parent
-
-          return !isNaN(Number(grantedCredits)) || !isNaN(Number(paidCredits))
-        },
-      }),
-      rateAmount: string().required(''),
-
-      recurringTransactionRules: array()
-        .of(
-          object().shape({
-            trigger: string().required(''),
-            interval: string()
-              .test({
-                test: function (interval) {
-                  const { trigger } = this?.parent
-
-                  if (!!trigger && trigger !== RecurringTransactionTriggerEnum.Interval) {
-                    return true
-                  }
-                  return !!interval
-                },
-              })
-              .nullable(),
-            thresholdCredits: string()
-              .test({
-                test: function (thresholdCredits) {
-                  const { trigger } = this?.parent
-
-                  if (!!trigger && trigger !== RecurringTransactionTriggerEnum.Threshold) {
-                    return true
-                  }
-                  return !!thresholdCredits
-                },
-              })
-              .nullable(),
-            paidCredits: string().test({
-              test: function (paidCredits) {
-                if (formType === FORM_TYPE_ENUM.creation) return true
-
-                const { grantedCredits: ruleGrantedCredit } = this?.parent
-
-                return !isNaN(Number(paidCredits)) || !isNaN(Number(ruleGrantedCredit))
-              },
-            }),
-            grantedCredits: string().test({
-              test: function (grantedCredits) {
-                if (formType === FORM_TYPE_ENUM.creation) return true
-
-                const { paidCredits: rulePaidCredit } = this?.parent
-
-                return !isNaN(Number(grantedCredits)) || !isNaN(Number(rulePaidCredit))
-              },
-            }),
-          }),
-        )
-        .nullable(),
-    }),
+    validationSchema: walletFormSchema(formType),
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: async ({
@@ -297,39 +201,47 @@ const WalletForm = () => {
       recurringTransactionRules,
       ...values
     }) => {
-      const recurringTransactionRulesFormatted = !!recurringTransactionRules?.length
-        ? recurringTransactionRules?.map((rule: UpdateRecurringTransactionRuleInput) => {
-            const {
-              lagoId,
-              interval,
-              trigger,
-              thresholdCredits,
-              paidCredits: rulePaidCredit,
-              grantedCredits: ruleGrantedCredit,
-            } = rule
+      const recurringTransactionRulesFormatted =
+        recurringTransactionRules && recurringTransactionRules?.length > 0
+          ? recurringTransactionRules.map(
+              (rule: CreateRecurringTransactionRuleInput | UpdateRecurringTransactionRuleInput) => {
+                const {
+                  interval,
+                  trigger,
+                  thresholdCredits,
+                  method,
+                  targetOngoingBalance,
+                  startedAt,
+                  paidCredits: rulePaidCredit,
+                  grantedCredits: ruleGrantedCredit,
+                } = rule
 
-            if (formType === FORM_TYPE_ENUM.creation) {
-              return {
-                trigger: trigger as RecurringTransactionTriggerEnum,
-                interval: trigger === RecurringTransactionTriggerEnum.Interval ? interval : null,
-                thresholdCredits:
-                  trigger === RecurringTransactionTriggerEnum.Threshold ? thresholdCredits : null,
-              }
-            }
-
-            return {
-              lagoId,
-              trigger: trigger as RecurringTransactionTriggerEnum,
-              interval: trigger === RecurringTransactionTriggerEnum.Interval ? interval : null,
-              thresholdCredits:
-                trigger === RecurringTransactionTriggerEnum.Threshold ? thresholdCredits : null,
-              paidCredits: rulePaidCredit === '' ? '0' : String(rulePaidCredit),
-              grantedCredits: ruleGrantedCredit === '' ? '0' : String(ruleGrantedCredit),
-            }
-          })
-        : formType === FORM_TYPE_ENUM.edition
-          ? []
-          : null
+                return {
+                  lagoId:
+                    'lagoId' in rule && formType === FORM_TYPE_ENUM.edition
+                      ? rule.lagoId
+                      : undefined,
+                  method: method as RecurringTransactionMethodEnum,
+                  trigger: trigger as RecurringTransactionTriggerEnum,
+                  interval: trigger === RecurringTransactionTriggerEnum.Interval ? interval : null,
+                  startedAt:
+                    trigger === RecurringTransactionTriggerEnum.Interval
+                      ? startedAt ?? DateTime.now().toISO()
+                      : null,
+                  thresholdCredits:
+                    trigger === RecurringTransactionTriggerEnum.Threshold ? thresholdCredits : null,
+                  paidCredits: rulePaidCredit === '' ? '0' : String(rulePaidCredit),
+                  grantedCredits: ruleGrantedCredit === '' ? '0' : String(ruleGrantedCredit),
+                  targetOngoingBalance:
+                    method === RecurringTransactionMethodEnum.Target
+                      ? targetOngoingBalance === ''
+                        ? '0'
+                        : String(targetOngoingBalance)
+                      : null,
+                }
+              },
+            )
+          : []
 
       if (formType === FORM_TYPE_ENUM.edition) {
         const { errors } = await updateWallet({
@@ -371,7 +283,7 @@ const WalletForm = () => {
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate(
             formType === FORM_TYPE_ENUM.edition
-              ? 'text_62e161ceb87c201025388aa2'
+              ? 'text_62d9430e8b9fe36851cddd09'
               : 'text_6560809c38fb9de88d8a505e',
           )}
         </Typography>
@@ -402,7 +314,11 @@ const WalletForm = () => {
                   )}
                 </Title>
                 <Typography variant="body" color="grey600">
-                  {translate('text_62d18855b22699e5cf55f873')}
+                  {translate(
+                    formType === FORM_TYPE_ENUM.edition
+                      ? 'text_6657c2b9cf6b9200aa3d1c89'
+                      : 'text_62d18855b22699e5cf55f873',
+                  )}
                 </Typography>
               </div>
 

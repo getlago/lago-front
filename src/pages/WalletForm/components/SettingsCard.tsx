@@ -25,7 +25,7 @@ interface SettingsCardProps {
   customerData?: GetCustomerInfosForWalletFormQuery
   showExpirationDate: boolean
   setShowExpirationDate: (value: boolean) => void
-  formType: (typeof FORM_TYPE_ENUM)[keyof typeof FORM_TYPE_ENUM]
+  formType: keyof typeof FORM_TYPE_ENUM
 }
 
 export const SettingsCard: FC<SettingsCardProps> = ({
