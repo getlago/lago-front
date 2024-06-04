@@ -15,6 +15,7 @@ export const ComboBoxInput = ({
   error,
   helperText,
   label,
+  description,
   name,
   searchQuery,
   placeholder,
@@ -37,6 +38,7 @@ export const ComboBoxInput = ({
       name={name}
       placeholder={placeholder}
       label={label}
+      description={description}
       error={error}
       infoText={infoText}
       autoComplete="off"

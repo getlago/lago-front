@@ -1,8 +1,7 @@
 import styled, { css } from 'styled-components'
 
 import { Icon, Tooltip, Typography } from '~/components/designSystem'
-import { theme } from '~/styles'
-import { ButtonGroup } from '~/styles'
+import { ButtonGroup, theme } from '~/styles'
 
 import { TabButton } from './TabButton'
 
@@ -17,6 +16,7 @@ interface ButtonSelectorOption {
 export interface ButtonSelectorProps {
   className?: string
   label?: string
+  description?: string
   options: ButtonSelectorOption[]
   value?: ValueType
   error?: string
@@ -29,6 +29,7 @@ export interface ButtonSelectorProps {
 export const ButtonSelector = ({
   className,
   label,
+  description,
   options,
   value,
   error,
@@ -51,6 +52,11 @@ export const ButtonSelector = ({
             </Tooltip>
           )}
         </Label>
+      )}
+      {!!description && (
+        <Description>
+          <Typography variant="caption">{description}</Typography>
+        </Description>
       )}
       <ButtonGroup>
         {options.map(({ value: optionValue, label: optionLabel, disabled: optionDisabled }) => {
@@ -105,4 +111,8 @@ const Label = styled.div<{ $withInfo?: boolean }>`
         height: 16px;
       }
     `}
+`
+
+const Description = styled.div`
+  margin-bottom: ${theme.spacing(4)} !important;
 `

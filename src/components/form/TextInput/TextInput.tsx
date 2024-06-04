@@ -33,6 +33,7 @@ export interface TextInputProps
   error?: string | boolean
   name?: string
   label?: string | ReactNode
+  description?: string
   cleanable?: boolean
   password?: boolean
   value?: string | number
@@ -125,6 +126,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
       value = '',
       name,
       label,
+      description,
       helperText,
       infoText,
       maxRows,
@@ -197,6 +199,11 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
               </Label>
             )}
           </InlineLabelContainer>
+        )}
+        {!!description && (
+          <Description>
+            <Typography variant="caption">{description}</Typography>
+          </Description>
         )}
         <MuiTextField
           ref={ref}
@@ -293,4 +300,8 @@ const Label = styled.div<{ $withInfo?: boolean }>`
         height: 16px;
       }
     `}
+`
+
+const Description = styled.div`
+  margin-bottom: ${theme.spacing(4)} !important;
 `

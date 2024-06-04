@@ -898,6 +898,7 @@ const DesignSystem = () => {
                     <ButtonSelectorField
                       name="buttonSelector"
                       label="You'd rather..."
+                      description="Be careful with your choice"
                       infoText="You WILL be judge on the answer"
                       formikProps={formikProps}
                       options={[
@@ -961,6 +962,7 @@ const DesignSystem = () => {
                         group: Math.round(i / 5) + '',
                       }))}
                       label="Grouped by - virtualized"
+                      description="You can type anything to see the magic happen"
                       placeholder="Placeholder"
                       formikProps={formikProps}
                     />
@@ -1229,6 +1231,7 @@ const DesignSystem = () => {
                       formikProps={formikProps}
                       label="Amount"
                       name="amountCents"
+                      description='Amount in "cents" (1€ = 100 cents)'
                     />
                     <ComboBoxField
                       name="amountCurrency"
@@ -1236,6 +1239,7 @@ const DesignSystem = () => {
                         value: currencyType,
                       }))}
                       label="currency"
+                      description="Select your currency"
                       placeholder="Placeholder"
                       isEmptyNull={false}
                       disableClearable
@@ -1299,6 +1303,13 @@ const DesignSystem = () => {
                       formikProps={formikProps}
                       helperText="I'm here to help"
                     />
+                    <TextInputField
+                      label="With description"
+                      placeholder="Type something"
+                      name="input"
+                      formikProps={formikProps}
+                      description="I'm here to help"
+                    />
                   </Block>
 
                   <GroupTitle variant="subhead">JSON Editor</GroupTitle>
@@ -1306,6 +1317,8 @@ const DesignSystem = () => {
                     <JsonEditorField
                       name="json"
                       label="With small editor and overlay"
+                      description='Click on "expand" to remove the overlay'
+                      infoText="Some tips"
                       formikProps={formikProps}
                       onExpand={(deleteOverlay) => {
                         deleteOverlay()
