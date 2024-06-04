@@ -14,4 +14,14 @@ describe('copyToClipboard', () => {
       'the text that needs to be copied',
     )
   })
+
+  it('should filter out comments', () => {
+    const value = `# comment
+    the text that needs to be copied`
+
+    copyToClipboard(value, { ignoreComment: true })
+    expect(window.navigator.clipboard.writeText).toHaveBeenCalledWith(
+      'the text that needs to be copied',
+    )
+  })
 })
