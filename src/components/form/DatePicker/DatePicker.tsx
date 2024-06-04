@@ -5,10 +5,10 @@ import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon'
 import { DatePicker as MuiDatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DateTime, Settings } from 'luxon'
-import { useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import styled from 'styled-components'
 
-import { Button, Icon, Tooltip } from '~/components/designSystem'
+import { Button, Icon, Tooltip, Typography } from '~/components/designSystem'
 import { TextInputProps } from '~/components/form'
 import { getTimezoneConfig } from '~/core/timezone'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -28,12 +28,13 @@ enum DATE_PICKER_ERROR_ENUM {
 export interface DatePickerProps
   extends Omit<
     TextInputProps,
-    'value' | 'onChange' | 'beforeChangeFormatter' | 'password' | 'onError'
+    'label' | 'value' | 'onChange' | 'beforeChangeFormatter' | 'password' | 'onError'
   > {
   className?: string
   value?: string | DateTime | null
   placeholder?: string
   error?: string
+  label?: string | ReactNode
   helperText?: string
   defaultZone?: string // Overrides the default timezone of the date picker
   disabled?: boolean
@@ -48,6 +49,7 @@ export const DatePicker = ({
   className,
   value,
   error,
+  label,
   defaultZone,
   disableFuture,
   disablePast,
@@ -88,6 +90,18 @@ export const DatePicker = ({
   return (
     <LocalizationProvider dateAdapter={AdapterLuxon}>
       <Container className={className}>
+        {!!label && (
+          <>
+            {typeof label === 'string' ? (
+              <Typography variant="captionHl" color="textSecondary">
+                {label}
+              </Typography>
+            ) : (
+              label
+            )}
+          </>
+        )}
+
         <MuiDatePicker
           format="MM/dd/yyyy"
           disableFuture={disableFuture}
@@ -217,6 +231,9 @@ export const DatePicker = ({
 
 const Container = styled.div`
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing(1)};
 `
 
 const SwitchViewButton = styled(Button)`
