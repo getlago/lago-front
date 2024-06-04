@@ -57,8 +57,9 @@ const GoogleAuthCallback = () => {
         if (res.errors) {
           navigate({
             pathname: LOGIN_ROUTE,
-            search: `?lago_error_code=${(res.errors[0].extensions as LagoGQLError['extensions'])
-              ?.details.base[0]}`,
+            search: `?lago_error_code=${
+              (res.errors[0].extensions as LagoGQLError['extensions'])?.details.base[0]
+            }`,
           })
         } else if (!!res.data?.googleLoginUser) {
           onLogIn(res.data?.googleLoginUser?.token, res.data?.googleLoginUser?.user)

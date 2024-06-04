@@ -473,10 +473,12 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                             : translate('text_635bdbda84c98758f9bba89e')
                       }${
                         formikProps.values.paymentProviderCode
-                          ? ` • ${connectedProvidersData.find(
-                              (provider) =>
-                                provider.value === formikProps.values.paymentProviderCode,
-                            )?.label}`
+                          ? ` • ${
+                              connectedProvidersData.find(
+                                (provider) =>
+                                  provider.value === formikProps.values.paymentProviderCode,
+                              )?.label
+                            }`
                           : ''
                       }`}
                       onChange={(e, checked) => {
