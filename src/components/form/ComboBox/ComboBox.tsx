@@ -23,6 +23,7 @@ export const ComboBox = ({
   addValueProps,
   sortValues = true,
   label,
+  description,
   infoText,
   placeholder,
   name,
@@ -105,6 +106,7 @@ export const ComboBox = ({
             searchQuery={debouncedSearch}
             helperText={helperText}
             label={label}
+            description={description}
             infoText={infoText}
             name={name}
             placeholder={placeholder}

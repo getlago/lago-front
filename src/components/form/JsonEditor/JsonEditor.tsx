@@ -21,6 +21,7 @@ enum JSON_EDITOR_ERROR_ENUM {
 }
 export interface JsonEditorProps {
   label: string
+  description?: string
   name?: string
   placeholder?: string
   value?: string | Record<string, unknown>
@@ -43,6 +44,7 @@ export const JsonEditor = ({
   value,
   placeholder,
   label,
+  description,
   infoText,
   helperText,
   error,
@@ -75,14 +77,21 @@ export const JsonEditor = ({
   return (
     <Container>
       {!hideLabel && (
-        <Label $withInfo={!!infoText}>
-          <Typography variant="captionHl" color="textSecondary">
-            {label}
-          </Typography>
-          {!!infoText && (
-            <Tooltip placement="bottom-start" title={infoText}>
-              <Icon name="info-circle" />
-            </Tooltip>
+        <Label>
+          <LabelContainer $withInfo={!!infoText}>
+            <Typography variant="captionHl" color="textSecondary">
+              {label}
+            </Typography>
+            {!!infoText && (
+              <Tooltip placement="bottom-start" title={infoText}>
+                <Icon name="info-circle" />
+              </Tooltip>
+            )}
+          </LabelContainer>
+          {description && (
+            <Description>
+              <Typography variant="caption">{description}</Typography>
+            </Description>
           )}
         </Label>
       )}
@@ -184,11 +193,14 @@ const Container = styled.div`
     'helper';
 `
 
-const Label = styled.div<{ $withInfo?: boolean }>`
+const Label = styled.div`
+  grid-area: label;
+`
+
+const LabelContainer = styled.div<{ $withInfo?: boolean }>`
   display: flex;
   align-items: center;
   margin-bottom: ${theme.spacing(1)};
-  grid-area: label;
 
   ${({ $withInfo }) =>
     $withInfo &&
@@ -405,4 +417,8 @@ const Editor = styled(AceEditor)`
 
 const Helper = styled(Typography)`
   grid-area: helper;
+`
+
+const Description = styled.div`
+  margin-bottom: ${theme.spacing(4)};
 `

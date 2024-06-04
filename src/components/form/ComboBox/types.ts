@@ -1,6 +1,5 @@
 import { LazyQueryExecFunction } from '@apollo/client'
-import { AutocompleteRenderInputParams } from '@mui/material'
-import { PopperProps as MuiPopperProps } from '@mui/material'
+import { AutocompleteRenderInputParams, PopperProps as MuiPopperProps } from '@mui/material'
 import { ReactNode } from 'react'
 
 import { Exact, InputMaybe } from '~/generated/graphql'
@@ -13,6 +12,7 @@ export interface BasicComboBoxData {
   selected?: boolean
   label?: string
   labelNode?: ReactNode
+  description?: string
   disabled?: boolean
   customValue?: boolean
   group?: never
@@ -71,6 +71,7 @@ export type ComboBoxInputProps = Pick<
   TextInputProps,
   | 'error'
   | 'label'
+  | 'description'
   | 'name'
   | 'placeholder'
   | 'helperText'
