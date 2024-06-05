@@ -36,6 +36,7 @@ const ready_for_dev___all___replace_success_screen_by_success_toast = require('.
 const ready_for_dev___b = require('./ready-for-dev---b.metrics---add-last-aggregation-type__base.json');
 const ready_for_dev___b1 = require('./ready-for-dev---b.metrics-plans---custom-aggregation-price__base.json');
 const ready_for_dev___billable_metrics___weighted_sum = require('./ready-for-dev---billable-metrics---weighted-sum__base.json');
+const ready_for_dev___bmplansinvoices___add_filters_to_billable_metrics = require('./ready-for-dev---bmplansinvoices---add-filters-to-billable-metrics__base.json');
 const ready_for_dev___coupons___apply_several_coupons_to_customer = require('./ready-for-dev---coupons---apply-several-coupons-to-customer__base.json');
 const ready_for_dev___coupons___coupon_amount_based_on_total_excluding_tax = require('./ready-for-dev---coupons---coupon-amount-based-on-total-excluding-tax__base.json');
 const ready_for_dev___coupons___create_and_recurring_coupons = require('./ready-for-dev---coupons---create-and-recurring-coupons__base.json');
@@ -104,6 +105,7 @@ const wip___customers___overwrite_subscription_per_customer = require('./wip---c
 const wip___customers___real_time_prepaid_credits = require('./wip---customers---real-time-prepaid-credits__base.json');
 const wip___customers___subscription_on_anniversary_date = require('./wip---customers---subscription-on-anniversary-date__base.json');
 const wip___general___fe_environment_infos = require('./wip---general---fe-environment-infos__base.json');
+const wip___integration___connect_lago_to_netsuite = require('./wip---integration---connect-lago-to-netsuite__base.json');
 const wip___integration___lago_eu_tax_integration = require('./wip---integration---lago-eu-tax-integration__base.json');
 const wip___invoices___dispute_payment_intent = require('./wip---invoices---dispute-payment-intent__base.json');
 const wip___onboarding___log_in_join_lago_via_okta_sso = require('./wip---onboarding---log-in-join-lago-via-okta-sso__base.json');
@@ -232,6 +234,9 @@ module.exports = {
   },
   "project_6500621fbbf7ebe75d11e890": {
     "base": {...ready_for_dev___billable_metrics___weighted_sum}
+  },
+  "project_65e9c6d1606b4d714c94f643": {
+    "base": {...ready_for_dev___bmplansinvoices___add_filters_to_billable_metrics}
   },
   "project_637b4d9f764dcb190431ad4d": {
     "base": {...ready_for_dev___coupons___apply_several_coupons_to_customer}
@@ -424,6 +429,9 @@ module.exports = {
   },
   "project_62f50d2512182c6df6c39e37": {
     "base": {...wip___general___fe_environment_infos}
+  },
+  "project_661ff6e3370d5202df2d8adf": {
+    "base": {...wip___integration___connect_lago_to_netsuite}
   },
   "project_657078becf8335e0955b5bf4": {
     "base": {...wip___integration___lago_eu_tax_integration}

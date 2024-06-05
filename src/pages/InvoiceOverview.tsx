@@ -1,9 +1,11 @@
 import { gql } from '@apollo/client'
+import { Stack } from '@mui/material'
 import { memo, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Alert, Button, Skeleton } from '~/components/designSystem'
+import { Alert, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import {
   DeleteAdjustedFeeDialog,
@@ -21,6 +23,7 @@ import {
 import { InvoiceCreditNotesTable } from '~/components/invoices/InvoiceCreditNotesTable'
 import { InvoiceCustomerInfos } from '~/components/invoices/InvoiceCustomerInfos'
 import { Metadatas } from '~/components/invoices/Metadatas'
+import { buildNetsuiteInvoiceUrl } from '~/core/constants/externalUrls'
 import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
 import { formatDateToTZ } from '~/core/timezone'
 import {
@@ -29,6 +32,7 @@ import {
   Customer,
   Invoice,
   InvoiceStatusTypeEnum,
+  NetsuiteIntegrationInfosForInvoiceOverviewFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -40,10 +44,20 @@ gql`
     id
     status
     issuingDate
+    externalIntegrationId
     customer {
       id
       applicableTimezone
+      netsuiteCustomer {
+        externalCustomerId
+      }
     }
+  }
+
+  fragment NetsuiteIntegrationInfosForInvoiceOverview on NetsuiteIntegration {
+    id
+    accountId
+    name
   }
 `
 
@@ -55,6 +69,7 @@ interface InvoiceOverviewProps {
   loadingInvoiceDownload: boolean
   loadingRefreshInvoice: boolean
   refreshInvoice: Function
+  connectedNetsuiteIntegration: NetsuiteIntegrationInfosForInvoiceOverviewFragment | undefined
 }
 
 const InvoiceOverview = memo(
@@ -66,6 +81,7 @@ const InvoiceOverview = memo(
     loadingInvoiceDownload,
     loadingRefreshInvoice,
     refreshInvoice,
+    connectedNetsuiteIntegration,
   }: InvoiceOverviewProps) => {
     const { translate } = useInternationalization()
     const { invoiceId } = useParams()
@@ -223,6 +239,34 @@ const InvoiceOverview = memo(
                   />
                 )}
 
+              {connectedNetsuiteIntegration && invoice?.externalIntegrationId && (
+                <Stack marginTop={8} gap={6}>
+                  <SectionHeader variant="subhead">
+                    {translate('text_6650b36fc702a4014c878996')}
+                  </SectionHeader>
+
+                  <div>
+                    <InfoLine>
+                      <Typography variant="caption" color="grey600" noWrap>
+                        {translate('text_6650b36fc702a4014c87899a')}
+                      </Typography>
+                      <InlineLink
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        to={buildNetsuiteInvoiceUrl(
+                          connectedNetsuiteIntegration?.accountId,
+                          invoice?.externalIntegrationId,
+                        )}
+                      >
+                        <Typography variant="body" color="info600">
+                          {invoice?.externalIntegrationId} <Icon name="outside" />
+                        </Typography>
+                      </InlineLink>
+                    </InfoLine>
+                  </div>
+                </Stack>
+              )}
+
               {invoice?.status !== InvoiceStatusTypeEnum.Draft && (
                 <Metadatas customer={customer} invoice={invoice} />
               )}
@@ -278,6 +322,32 @@ const LoadingInfosWrapper = styled.div`
 const LoadingInvoiceWrapper = styled(InvoiceWrapper)`
   > table > tbody > tr > td {
     padding: ${theme.spacing(5)} 0;
+  }
+`
+
+const InlineLink = styled(Link)`
+  width: fit-content;
+  line-break: anywhere;
+
+  &:hover {
+    text-decoration: none;
+  }
+`
+
+const InfoLine = styled.div`
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: ${theme.spacing(3)};
+
+  > div:first-child {
+    min-width: 232px;
+    margin-right: ${theme.spacing(3)};
+    line-height: 28px;
+  }
+
+  > div:last-child {
+    width: 100%;
+    line-break: anywhere;
   }
 `
 

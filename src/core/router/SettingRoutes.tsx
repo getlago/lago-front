@@ -36,10 +36,20 @@ const OktaAuthenticationDetails = lazyLoad(
 const AdyenIntegrations = lazyLoad(
   () => import(/* webpackChunkName: 'adyen-integrations' */ '~/pages/settings/AdyenIntegrations'),
 )
+const NetsuiteIntegrations = lazyLoad(
+  () =>
+    import(/* webpackChunkName: 'netsuite-integrations' */ '~/pages/settings/NetsuiteIntegrations'),
+)
 const AdyenIntegrationDetails = lazyLoad(
   () =>
     import(
       /* webpackChunkName: 'adyen-integration-details' */ '~/pages/settings/AdyenIntegrationDetails'
+    ),
+)
+const NetsuiteIntegrationDetails = lazyLoad(
+  () =>
+    import(
+      /* webpackChunkName: 'netsuite-integration-details' */ '~/pages/settings/NetsuiteIntegrationDetails'
     ),
 )
 const StripeIntegrations = lazyLoad(
@@ -93,6 +103,8 @@ export const AUTHENTICATION_ROUTE = `${SETTINGS_ROUTE}/authentication`
 export const OKTA_AUTHENTICATION_ROUTE = `${AUTHENTICATION_ROUTE}/okta/:integrationId`
 export const ADYEN_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/adyen`
 export const ADYEN_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/adyen/:integrationId`
+export const NETSUITE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/netsuite`
+export const NETSUITE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/netsuite/:integrationId/:tab`
 export const STRIPE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/stripe`
 export const STRIPE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/stripe/:integrationId`
 export const GOCARDLESS_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless`
@@ -167,6 +179,16 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <AdyenIntegrations />,
         permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: NETSUITE_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <NetsuiteIntegrationDetails />,
+      },
+      {
+        path: NETSUITE_INTEGRATION_ROUTE,
+        private: true,
+        element: <NetsuiteIntegrations />,
       },
       {
         path: STRIPE_INTEGRATION_ROUTE,

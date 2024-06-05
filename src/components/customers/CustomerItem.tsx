@@ -3,7 +3,7 @@ import { memo, RefObject, useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { AddCustomerDrawerRef } from '~/components/customers/AddCustomerDrawer'
+import { AddCustomerDrawerRef } from '~/components/customers/addDrawer/AddCustomerDrawer'
 import {
   DeleteCustomerDialog,
   DeleteCustomerDialogRef,

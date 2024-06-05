@@ -5,17 +5,15 @@ import { addToast } from '~/core/apolloClient'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import {
   AddCustomerDrawerFragment,
-  AddCustomerDrawerFragmentDoc,
   CreateCustomerInput,
   CreateCustomerMutation,
+  CustomerForExternalAppsAccordionFragmentDoc,
   CustomerItemFragmentDoc,
   LagoApiError,
   ProviderPaymentMethodsEnum,
-  ProviderTypeEnum,
   UpdateCustomerInput,
   UpdateCustomerMutation,
   useCreateCustomerMutation,
-  useIntegrationsListForCustomerCreateEditQuery,
   useUpdateCustomerMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -50,12 +48,18 @@ gql`
       syncWithProvider
       providerPaymentMethods
     }
+    netsuiteCustomer {
+      id
+      integrationId
+    }
     metadata {
       id
       key
       value
       displayInInvoice
     }
+
+    ...CustomerForExternalAppsAccordion
   }
 
   mutation createCustomer($input: CreateCustomerInput!) {
@@ -72,51 +76,11 @@ gql`
     }
   }
 
-  query integrationsListForCustomerCreateEdit($limit: Int) {
-    paymentProviders(limit: $limit) {
-      collection {
-        ... on StripeProvider {
-          __typename
-          id
-          name
-          code
-        }
-
-        ... on GocardlessProvider {
-          __typename
-          id
-          name
-          code
-        }
-
-        ... on AdyenProvider {
-          __typename
-          id
-          name
-          code
-        }
-      }
-    }
-  }
-
   ${CustomerItemFragmentDoc}
+  ${CustomerForExternalAppsAccordionFragmentDoc}
 `
 
-type TPaymentProviderForCustomer = {
-  __typename: string
-  type: ProviderTypeEnum
-  id: string
-  name: string
-  code: string
-}
-
-type TPaymentProviderForCustomerGroupByTypename =
-  | Record<TPaymentProviderForCustomer['type'], TPaymentProviderForCustomer[]>
-  | undefined
-  | null
-
 type UseCreateEditCustomer = (props: { customer?: AddCustomerDrawerFragment | null }) => {
-  paymentProvidersList: TPaymentProviderForCustomerGroupByTypename
   isEdition: boolean
   onSave: (
     values: CreateCustomerInput | UpdateCustomerInput,
@@ -129,22 +93,6 @@ type UseCreateEditCustomer = (props: { customer?: AddCustomerDrawerFragment | nu
 export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const { data: providersData } = useIntegrationsListForCustomerCreateEditQuery({
-    variables: { limit: 100 },
-  })
-  // group payment providers by __typeName
-  const paymentProvidersList = providersData?.paymentProviders?.collection.reduce<
-    Record<TPaymentProviderForCustomer['type'], TPaymentProviderForCustomer[]> | undefined | null
-  >((acc, curr) => {
-    if (!acc) return
-    const type = curr.__typename.toLowerCase().replace('provider', '') as ProviderTypeEnum
-
-    if (!acc[type]) {
-      acc[type] = []
-    }
-    acc[type].push({ ...curr, type })
-    return acc
-  }, {} as TPaymentProviderForCustomerGroupByTypename)
 
   const [create] = useCreateCustomerMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
@@ -168,18 +116,9 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
         })
       }
     },
-    update(cache, { data }) {
-      if (!data?.updateCustomer) return
-
-      cache.writeFragment({
-        data: { ...data?.updateCustomer, __typename: 'CustomerDetails' },
-        fragment: AddCustomerDrawerFragmentDoc,
-      })
-    },
   })
 
   return {
-    paymentProvidersList,
     isEdition: !!customer,
     onSave: !!customer
       ? async ({ providerCustomer, paymentProvider, ...values }) =>

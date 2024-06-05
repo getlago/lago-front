@@ -61,9 +61,13 @@ import {
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   InvoiceTypeEnum,
+  NetsuiteIntegration,
+  NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc,
   useDownloadInvoiceMutation,
   useGetInvoiceDetailsQuery,
+  useIntegrationsListForCustomerInvoiceDetailsQuery,
   useRefreshInvoiceMutation,
+  useSyncIntegrationInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
@@ -88,8 +92,15 @@ gql`
     creditableAmountCents
     voidable
     paymentDisputeLostAt
+    integrationSyncable
+    externalIntegrationId
     customer {
       ...CustomerMetadatasForInvoiceOverview
+      netsuiteCustomer {
+        id
+        integrationId
+        externalCustomerId
+      }
     }
     ...InvoiceDetailsForInvoiceOverview
     ...InvoiceForCreditNotesTable
@@ -108,6 +119,18 @@ gql`
     }
   }
 
+  query integrationsListForCustomerInvoiceDetails($limit: Int) {
+    integrations(limit: $limit) {
+      collection {
+        ... on NetsuiteIntegration {
+          __typename
+          id
+          ...NetsuiteIntegrationInfosForInvoiceOverview
+        }
+      }
+    }
+  }
+
   mutation downloadInvoice($input: DownloadInvoiceInput!) {
     downloadInvoice(input: $input) {
       id
@@ -122,6 +145,12 @@ gql`
     }
   }
 
+  mutation syncIntegrationInvoice($input: SyncIntegrationInvoiceInput!) {
+    syncIntegrationInvoice(input: $input) {
+      invoiceId
+    }
+  }
+
   ${InvoiceForCreditNotesTableFragmentDoc}
   ${InvoiceForDetailsTableFragmentDoc}
   ${InvoiceForInvoiceInfosFragmentDoc}
@@ -132,6 +161,7 @@ gql`
   ${CustomerMetadatasForInvoiceOverviewFragmentDoc}
   ${InvoiceMetadatasForInvoiceOverviewFragmentDoc}
   ${InvoiceMetadatasForMetadataDrawerFragmentDoc}
+  ${NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc}
 `
 
 export enum CustomerInvoiceDetailsTabsOptionsEnum {
@@ -174,6 +204,19 @@ const CustomerInvoiceDetails = () => {
   const [refreshInvoice, { loading: loadingRefreshInvoice }] = useRefreshInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
   })
+  const [syncIntegrationInvoice, { loading: loadingSyncIntegrationInvoice }] =
+    useSyncIntegrationInvoiceMutation({
+      variables: { input: { invoiceId: invoiceId || '' } },
+      onCompleted({ syncIntegrationInvoice: syncIntegrationInvoiceResult }) {
+        if (syncIntegrationInvoiceResult?.invoiceId) {
+          addToast({
+            severity: 'success',
+            translateKey: 'text_6655a88569eed300ee8c4d44',
+          })
+        }
+      },
+    })
+
   const [downloadInvoice, { loading: loadingInvoiceDownload }] = useDownloadInvoiceMutation({
     onCompleted({ downloadInvoice: downloadInvoiceData }) {
       const fileUrl = downloadInvoiceData?.fileUrl
@@ -202,6 +245,19 @@ const CustomerInvoiceDetails = () => {
     variables: { id: invoiceId as string },
     skip: !invoiceId,
   })
+
+  const { data: integrationsData } = useIntegrationsListForCustomerInvoiceDetailsQuery({
+    variables: { limit: 1000 },
+    skip: !data?.invoice?.customer?.netsuiteCustomer?.integrationId,
+  })
+
+  const allNetsuiteIntegrations = integrationsData?.integrations?.collection.filter(
+    (i) => i.__typename === 'NetsuiteIntegration',
+  ) as NetsuiteIntegration[] | undefined
+
+  const connectedNetsuiteIntegration = allNetsuiteIntegrations?.find(
+    (integration) => integration?.id === data?.invoice?.customer?.netsuiteCustomer?.integrationId,
+  ) as NetsuiteIntegration
 
   const {
     invoiceType,
@@ -244,6 +300,7 @@ const CustomerInvoiceDetails = () => {
             loadingInvoiceDownload={loadingInvoiceDownload}
             loadingRefreshInvoice={loadingRefreshInvoice}
             refreshInvoice={refreshInvoice}
+            connectedNetsuiteIntegration={connectedNetsuiteIntegration}
           />
         ),
       },
@@ -281,6 +338,7 @@ const CustomerInvoiceDetails = () => {
     loadingInvoiceDownload,
     loadingRefreshInvoice,
     refreshInvoice,
+    connectedNetsuiteIntegration,
     invoiceType,
     status,
   ])
@@ -446,6 +504,19 @@ const CustomerInvoiceDetails = () => {
                       </Button>
                     </>
                   )}
+                {!!data?.invoice?.integrationSyncable && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    disabled={loadingSyncIntegrationInvoice}
+                    onClick={async () => {
+                      await syncIntegrationInvoice()
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_6650b36fc702a4014c8788fd')}
+                  </Button>
+                )}
                 {status === InvoiceStatusTypeEnum.Finalized &&
                   !data?.invoice?.paymentDisputeLostAt &&
                   hasPermissions(['invoicesUpdate']) && (

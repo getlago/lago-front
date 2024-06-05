@@ -7,7 +7,10 @@ import {
   AddCouponToCustomerDialog,
   AddCouponToCustomerDialogRef,
 } from '~/components/customers/AddCouponToCustomerDialog'
-import { AddCustomerDrawer, AddCustomerDrawerRef } from '~/components/customers/AddCustomerDrawer'
+import {
+  AddCustomerDrawer,
+  AddCustomerDrawerRef,
+} from '~/components/customers/addDrawer/AddCustomerDrawer'
 import { CustomerCoupons } from '~/components/customers/CustomerCoupons'
 import { CustomerCreditNotesList } from '~/components/customers/CustomerCreditNotesList'
 import { CustomerInvoicesTab } from '~/components/customers/CustomerInvoicesTab'

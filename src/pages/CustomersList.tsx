@@ -2,7 +2,10 @@ import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import styled from 'styled-components'
 
-import { AddCustomerDrawer, AddCustomerDrawerRef } from '~/components/customers/AddCustomerDrawer'
+import {
+  AddCustomerDrawer,
+  AddCustomerDrawerRef,
+} from '~/components/customers/addDrawer/AddCustomerDrawer'
 import { CustomerItem, CustomerItemSkeleton } from '~/components/customers/CustomerItem'
 import { Button, InfiniteScroll, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'

@@ -1,20 +1,25 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
+import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Avatar, Button, Skeleton, Typography } from '~/components/designSystem'
+import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
+import { buildNetsuiteCustomerUrl } from '~/core/constants/externalUrls'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   CustomerMainInfosFragment,
+  NetsuiteIntegration,
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
   TimezoneEnum,
   useIntegrationsListForCustomerMainInfosQuery,
+  usePaymentProvidersListForCustomerMainInfosQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
 import Gocardless from '~/public/images/gocardless.svg'
+import Netsuite from '~/public/images/netsuite.svg'
 import Stripe from '~/public/images/stripe.svg'
 import { theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
@@ -47,6 +52,11 @@ gql`
     zipcode
     paymentProvider
     timezone
+    netsuiteCustomer {
+      id
+      integrationId
+      externalCustomerId
+    }
     paymentProviderCode
     providerCustomer {
       id
@@ -60,7 +70,7 @@ gql`
     }
   }
 
-  query integrationsListForCustomerMainInfos($limit: Int) {
+  query paymentProvidersListForCustomerMainInfos($limit: Int) {
     paymentProviders(limit: $limit) {
       collection {
         ... on StripeProvider {
@@ -83,6 +93,19 @@ gql`
       }
     }
   }
+
+  query integrationsListForCustomerMainInfos($limit: Int) {
+    integrations(limit: $limit) {
+      collection {
+        ... on NetsuiteIntegration {
+          __typename
+          id
+          name
+          accountId
+        }
+      }
+    }
+  }
 `
 
 interface CustomerMainInfosProps {
@@ -93,12 +116,27 @@ interface CustomerMainInfosProps {
 
 export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInfosProps) => {
   const { translate } = useInternationalization()
-  const { data } = useIntegrationsListForCustomerMainInfosQuery({
+
+  const { data: paymentProvidersData } = usePaymentProvidersListForCustomerMainInfosQuery({
     variables: { limit: 1000 },
   })
-  const linkedProvider = data?.paymentProviders?.collection?.find(
+  const { data: integrationsData, loading: integrationsLoading } =
+    useIntegrationsListForCustomerMainInfosQuery({
+      variables: { limit: 1000 },
+      skip: !customer?.netsuiteCustomer,
+    })
+
+  const linkedProvider = paymentProvidersData?.paymentProviders?.collection?.find(
     (provider) => provider?.code === customer?.paymentProviderCode,
   )
+
+  const allNetsuiteIntegrations = integrationsData?.integrations?.collection.filter(
+    (i) => i.__typename === 'NetsuiteIntegration',
+  ) as NetsuiteIntegration[] | undefined
+
+  const connectedNetsuiteIntegration = allNetsuiteIntegrations?.find(
+    (integration) => integration?.id === customer?.netsuiteCustomer?.integrationId,
+  ) as NetsuiteIntegration
 
   if (loading || !customer)
     return (
@@ -247,25 +285,56 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             </Avatar>
             <Typography color="grey700">{linkedProvider?.name}</Typography>
           </Stack>
+          {!!providerCustomer && !!providerCustomer?.providerCustomerId && (
+            <Typography color="textSecondary">{providerCustomer?.providerCustomerId}</Typography>
+          )}
+          {paymentProvider === ProviderTypeEnum?.Stripe &&
+            !!providerCustomer?.providerPaymentMethods?.length && (
+              <>
+                {providerCustomer?.providerPaymentMethods?.map((method) => (
+                  <Typography key={`customer-payment-method-${method}`} color="textSecondary">
+                    {translate(PaymentProviderMethodTranslationsLookup[method])}
+                  </Typography>
+                ))}
+              </>
+            )}
         </div>
       )}
-      {!!providerCustomer && !!providerCustomer?.providerCustomerId && (
+
+      {(!!customer?.netsuiteCustomer ||
+        integrationsLoading ||
+        !!connectedNetsuiteIntegration?.id) && (
         <div>
-          <Typography variant="caption">{translate('text_62b5c912506c4905fa75524c')}</Typography>
-          <Typography color="textSecondary">{providerCustomer?.providerCustomerId}</Typography>
+          <Typography variant="caption">{translate('text_66423cad72bbad009f2f568f')}</Typography>
+          {integrationsLoading ? (
+            <Stack flex={1} gap={3} marginTop={1}>
+              <Skeleton variant="text" height={12} width={200} />
+              <Skeleton variant="text" height={12} width={200} />
+            </Stack>
+          ) : !!connectedNetsuiteIntegration && customer?.netsuiteCustomer?.externalCustomerId ? (
+            <Stack>
+              <Stack direction="row" spacing={2} alignItems="center">
+                <Avatar variant="connector" size="small">
+                  <Netsuite />
+                </Avatar>
+                <Typography color="grey700">{connectedNetsuiteIntegration?.name}</Typography>
+              </Stack>
+              <InlineLink
+                target="_blank"
+                rel="noopener noreferrer"
+                to={buildNetsuiteCustomerUrl(
+                  connectedNetsuiteIntegration?.accountId,
+                  customer?.netsuiteCustomer?.externalCustomerId,
+                )}
+              >
+                <Typography color="info600">
+                  {customer?.netsuiteCustomer?.externalCustomerId} <Icon name="outside" />
+                </Typography>
+              </InlineLink>
+            </Stack>
+          ) : null}
         </div>
       )}
-      {paymentProvider === ProviderTypeEnum?.Stripe &&
-        !!providerCustomer?.providerPaymentMethods?.length && (
-          <div>
-            <Typography variant="caption">{translate('text_64aeb7b998c4322918c84237')}</Typography>
-            {providerCustomer?.providerPaymentMethods?.map((method) => (
-              <Typography key={`customer-payment-method-${method}`} color="textSecondary">
-                {translate(PaymentProviderMethodTranslationsLookup[method])}
-              </Typography>
-            ))}
-          </div>
-        )}
       {!!metadata?.length &&
         metadata.map((meta) => (
           <div key={`customer-metadata-${meta.id}`}>
@@ -301,4 +370,13 @@ const DetailsBlock = styled.div`
 
 const MetadataValue = styled(Typography)`
   line-break: anywhere;
+`
+
+const InlineLink = styled(Link)`
+  width: fit-content;
+  line-break: anywhere;
+
+  &:hover {
+    text-decoration: none;
+  }
 `

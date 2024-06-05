@@ -32,6 +32,7 @@ module.exports = () => {
         APP_VERSION: JSON.stringify(version),
         LAGO_OAUTH_PROXY_URL: JSON.stringify(process.env.LAGO_OAUTH_PROXY_URL),
         LAGO_DISABLE_SIGNUP: JSON.stringify(process.env.LAGO_DISABLE_SIGNUP),
+        NANGO_PUBLIC_KEY: JSON.stringify(process.env.NANGO_PUBLIC_KEY),
         SENTRY_DSN: JSON.stringify(process.env.SENTRY_DSN),
       }),
     ],
