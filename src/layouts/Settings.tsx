@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Button, NavigationTab, Typography } from '~/components/designSystem'
+import { Button, Typography, VerticalMenu } from '~/components/designSystem'
 import {
   AUTHENTICATION_ROUTE,
   CREATE_TAX_ROUTE,
@@ -78,7 +78,7 @@ const Settings = () => {
             </Button>
           </Stack>
 
-          <NavigationTab
+          <VerticalMenu
             onClick={() => {
               setOpen(false)
             }}

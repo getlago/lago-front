@@ -12,18 +12,18 @@ import { Chip } from './Chip'
 import { Icon } from './Icon'
 import { Typography } from './Typography'
 
-enum NavigationTabAlignEnum {
+enum VerticalMenuAlignEnum {
   left = 'left',
   center = 'center',
   superLeft = 'superLeft',
 }
 
-enum NavigationTabOrientationEnum {
+enum VerticalMenuOrientationEnum {
   vertical = 'vertical',
   horizontal = 'horizontal',
 }
 
-interface NavigationTabProps extends Omit<ButtonLinkTabProps, 'to' | 'type' | 'children'> {
+interface VerticalMenuProps extends Omit<ButtonLinkTabProps, 'to' | 'type' | 'children'> {
   link: string
   match?: string[]
   hidden?: boolean
@@ -32,29 +32,29 @@ interface NavigationTabProps extends Omit<ButtonLinkTabProps, 'to' | 'type' | 'c
   beta?: boolean
 }
 
-interface NavigationTabsProps {
+interface VerticalMenusProps {
   name?: string
-  tabs: NavigationTabProps[]
-  align?: keyof typeof NavigationTabAlignEnum
+  tabs: VerticalMenuProps[]
+  align?: keyof typeof VerticalMenuAlignEnum
   loading?: boolean
   loadingComponent?: ReactNode
   component?: ReactNode
   children?: ReactNode
-  orientation?: keyof typeof NavigationTabOrientationEnum
-  onClick?: (tab: NavigationTabProps) => void
+  orientation?: keyof typeof VerticalMenuOrientationEnum
+  onClick?: (tab: VerticalMenuProps) => void
 }
 
-export const NavigationTab = ({
+export const VerticalMenu = ({
   name = '',
   tabs,
-  align = NavigationTabAlignEnum.left,
+  align = VerticalMenuAlignEnum.left,
   loading,
   loadingComponent,
-  orientation = NavigationTabOrientationEnum.horizontal,
+  orientation = VerticalMenuOrientationEnum.horizontal,
   children,
   onClick,
   ...props
-}: NavigationTabsProps) => {
+}: VerticalMenusProps) => {
   const { translate } = useInternationalization()
   const { pathname } = useLocation()
   const activeTab = tabs.find(
@@ -62,9 +62,9 @@ export const NavigationTab = ({
   )
 
   return (
-    <Container $vertical={orientation === NavigationTabOrientationEnum.vertical} {...props}>
+    <Container $vertical={orientation === VerticalMenuOrientationEnum.vertical} {...props}>
       {!loading && tabs.length > 1 && (
-        <TabsBlock className={`navigation-tab--${orientation}`} $align={align}>
+        <TabsBlock className={`vertical-menu--${orientation}`} $align={align}>
           {tabs.map((tab, i) => {
             const { link, hidden, title, beta, external, ...tabProps } = tab
 
@@ -118,14 +118,14 @@ export const NavigationTab = ({
 }
 
 const TabsBlock = styled.div<{
-  $align: keyof typeof NavigationTabAlignEnum
+  $align: keyof typeof VerticalMenuAlignEnum
 }>`
   display: flex;
   box-sizing: border-box;
   padding: ${theme.spacing(4)};
   width: 100%;
 
-  &.navigation-tab--horizontal {
+  &.vertical-menu--horizontal {
     overflow: auto;
     box-shadow: ${theme.shadows[7]};
     flex-direction: row;
@@ -139,7 +139,7 @@ const TabsBlock = styled.div<{
     }
 
     ${({ $align }) =>
-      $align === NavigationTabAlignEnum.left
+      $align === VerticalMenuAlignEnum.left
         ? css`
             padding: ${theme.spacing(4)} ${theme.spacing(13)};
 
@@ -147,7 +147,7 @@ const TabsBlock = styled.div<{
               padding: ${theme.spacing(4)} ${theme.spacing(5)};
             }
           `
-        : $align === NavigationTabAlignEnum.superLeft
+        : $align === VerticalMenuAlignEnum.superLeft
           ? css`
               padding: ${theme.spacing(4)} ${theme.spacing(1)};
 
@@ -167,7 +167,7 @@ const TabsBlock = styled.div<{
     }
   }
 
-  &.navigation-tab--vertical {
+  &.vertical-menu--vertical {
     box-shadow: none;
     flex-direction: column;
     padding: 0;

@@ -17,7 +17,6 @@ import {
   Drawer,
   Icon,
   IconName,
-  NavigationTab,
   Popper,
   Selector,
   ShowMoreText,
@@ -26,6 +25,7 @@ import {
   Table,
   Tooltip,
   Typography,
+  VerticalMenu,
 } from '~/components/designSystem'
 import {
   ButtonSelectorField,
@@ -164,7 +164,7 @@ const DesignSystem = () => {
         </Typography>
         <Typography variant="caption">Only visible in dev mode</Typography>
       </PageHeader>
-      <NavigationTab
+      <VerticalMenu
         name="design-system"
         tabs={[
           {
@@ -1397,7 +1397,7 @@ const DesignSystem = () => {
             ),
           },
         ]}
-      ></NavigationTab>
+      ></VerticalMenu>
     </>
   )
 }

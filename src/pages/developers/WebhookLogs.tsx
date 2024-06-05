@@ -6,10 +6,10 @@ import styled, { css } from 'styled-components'
 import {
   Button,
   InfiniteScroll,
-  NavigationTab,
   Skeleton,
   Tooltip,
   Typography,
+  VerticalMenu,
 } from '~/components/designSystem'
 import { WebhookLogDetails } from '~/components/developers/WebhookLogDetails'
 import { WebhookLogItem, WebhookLogItemSkeleton } from '~/components/developers/WebhookLogItem'
@@ -190,7 +190,7 @@ const WebhookLogs = () => {
                 </Tooltip>
               )}
             </HeaderBlock>
-            <NavigationTab
+            <VerticalMenu
               tabs={[
                 {
                   title: translate('text_63e27c56dfe64b846474ef4c'),

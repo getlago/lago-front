@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { NavigationTab, Typography } from '~/components/designSystem'
+import { Typography, VerticalMenu } from '~/components/designSystem'
 import { API_KEYS_ROUTE, DEBUGGER_ROUTE, DEVELOPERS_ROUTE, WEBHOOK_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PageHeader } from '~/styles'
@@ -32,11 +32,11 @@ const Developers = () => {
           {translate('text_6271200984178801ba8bdebe')}
         </Typography>
       </PageHeader>
-      <NavigationTab tabs={tabsOptions}>
+      <VerticalMenu tabs={tabsOptions}>
         <Content>
           <Outlet />
         </Content>
-      </NavigationTab>
+      </VerticalMenu>
     </div>
   )
 }

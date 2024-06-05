@@ -25,10 +25,10 @@ import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
 import {
   Avatar,
   Button,
-  NavigationTab,
   Popper,
   Skeleton,
   Typography,
+  VerticalMenu,
 } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
@@ -339,7 +339,7 @@ const CustomerDetails = () => {
                 onEdit={() => editDialogRef.current?.openDrawer(data?.customer)}
               />
               <div data-test="customer-navigation-wrapper">
-                <NavigationTab
+                <VerticalMenu
                   align="superLeft"
                   tabs={[
                     {

@@ -11,10 +11,10 @@ import {
   Avatar,
   Button,
   Icon,
-  NavigationTab,
   Popper,
   Skeleton,
   Typography,
+  VerticalMenu,
 } from '~/components/designSystem'
 import SkeletonDetailsPage, { LoadingSkeletonWrapper } from '~/components/SkeletonDetailsPage'
 import SubscriptionDetailsOverview from '~/components/subscriptions/SubscriptionDetailsOverview'
@@ -217,7 +217,7 @@ const SubscriptionDetails = () => {
           </TabContentWrapper>
         </ContentContainer>
       ) : (
-        <NavigationTab
+        <VerticalMenu
           align="superLeft"
           tabs={[
             {

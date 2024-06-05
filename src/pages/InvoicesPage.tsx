@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Button, NavigationTab, Typography } from '~/components/designSystem'
+import { Button, Typography, VerticalMenu } from '~/components/designSystem'
 import CreditNotesList from '~/components/invoices/CreditNotesList'
 import {
   UpdateInvoicePaymentStatusDialog,
@@ -247,7 +247,7 @@ const InvoicesPage = () => {
             )}
         </HeaderRigthBlock>
       </PageHeader>
-      <LocalNavigationTab
+      <LocalVerticalMenu
         tabs={[
           {
             title: translate('text_63ac86d797f728a87b2f9f85'),
@@ -317,9 +317,9 @@ const HeaderRigthBlock = styled.div`
   }
 `
 
-const LocalNavigationTab = styled(NavigationTab)`
+const LocalVerticalMenu = styled(VerticalMenu)`
   /* Need to override this as the nav tab itself does not changes for md size */
-  .navigation-tab--horizontal {
+  .vertical-menu--horizontal {
     ${theme.breakpoints.down('md')} {
       padding: ${theme.spacing(4)} ${theme.spacing(5)};
     }
