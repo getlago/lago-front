@@ -300,7 +300,6 @@ const SideNav = () => {
                     hidden: !hasPermissions(['invoicesView', 'creditNotesView']),
                   },
                 ]}
-                orientation="vertical"
               />
             </TabsButtons>
             <BottomButtons>
@@ -377,7 +376,6 @@ const SideNav = () => {
                     hidden: !hasPermissions(['organizationView']),
                   },
                 ]}
-                orientation="vertical"
               />
             </BottomButtons>
           </Nav>

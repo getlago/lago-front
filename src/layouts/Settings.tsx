@@ -122,7 +122,6 @@ const Settings = () => {
                 hidden: !hasPermissions(['organizationMembersView']),
               },
             ]}
-            orientation="vertical"
           />
         </NavWrapper>
       </ClickAwayListener>
