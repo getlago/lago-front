@@ -192,6 +192,8 @@ const NetsuiteIntegrationDetails = () => {
       </MainInfos>
 
       <NavigationTab
+        leftPadding
+        loading={loading}
         tabs={[
           {
             title: translate('text_62728ff857d47b013204c726'),

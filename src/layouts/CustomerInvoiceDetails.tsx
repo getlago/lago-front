@@ -8,13 +8,13 @@ import {
   Button,
   Chip,
   Icon,
+  NavigationTab,
   Popper,
   Skeleton,
   Status,
   StatusEnum,
   Tooltip,
   Typography,
-  VerticalMenu,
 } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
@@ -621,9 +621,8 @@ const CustomerInvoiceDetails = () => {
               </div>
             </MainInfos>
           )}
-          <VerticalMenu tabs={tabsOptions} align="superLeft">
-            <Outlet />
-          </VerticalMenu>
+          <NavigationTab name="Invoice details tab switcher" tabs={tabsOptions} loading={loading} />
+          <Outlet />
         </Content>
       )}
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />

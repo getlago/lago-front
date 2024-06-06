@@ -7,10 +7,10 @@ import {
   Avatar,
   Button,
   Icon,
+  NavigationTab,
   Popper,
   Skeleton,
   Typography,
-  VerticalMenu,
 } from '~/components/designSystem'
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 import PlanDetailsOverview from '~/components/plans/details/PlanDetailsOverview'
@@ -182,7 +182,8 @@ const PlanDetails = () => {
           )}
         </PlanBlockInfos>
       </PlanBlockWrapper>
-      <VerticalMenu
+      <NavigationTab
+        leftPadding
         tabs={[
           {
             title: translate('text_628cf761cbe6820138b8f2e4'),
@@ -190,7 +191,6 @@ const PlanDetails = () => {
               planId: planId as string,
               tab: PlanDetailsTabsOptionsEnum.overview,
             }),
-            routerState: { disableScrollTop: true },
             match: [
               generatePath(PLAN_DETAILS_ROUTE, {
                 planId: planId as string,
@@ -217,7 +217,6 @@ const PlanDetails = () => {
               planId: planId as string,
               tab: PlanDetailsTabsOptionsEnum.subscriptions,
             }),
-            routerState: { disableScrollTop: true },
             match: [
               generatePath(PLAN_DETAILS_ROUTE, {
                 planId: planId as string,

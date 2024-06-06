@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Button, Typography, VerticalMenu } from '~/components/designSystem'
+import { Button, NavigationTab, Typography } from '~/components/designSystem'
 import CreditNotesList from '~/components/invoices/CreditNotesList'
 import {
   UpdateInvoicePaymentStatusDialog,
@@ -247,7 +247,8 @@ const InvoicesPage = () => {
             )}
         </HeaderRigthBlock>
       </PageHeader>
-      <LocalVerticalMenu
+      <NavigationTab
+        leftPadding
         tabs={[
           {
             title: translate('text_63ac86d797f728a87b2f9f85'),
@@ -258,10 +259,6 @@ const InvoicesPage = () => {
               INVOICES_ROUTE,
               generatePath(INVOICES_TAB_ROUTE, { tab: InvoiceListTabEnum.invoices }),
             ],
-            onClick: () => {
-              // Set default tab search param
-              setSearchParams({ invoiceType: InvoiceListStatusEnum.all })
-            },
             component: (
               <InvoicesList
                 error={errorInvoices}
@@ -280,10 +277,6 @@ const InvoicesPage = () => {
             link: generatePath(INVOICES_TAB_ROUTE, {
               tab: InvoiceListTabEnum.creditNotes,
             }),
-            onClick: () => {
-              // Reset invoice search term when switching tabs
-              setSearchParams()
-            },
             component: (
               <CreditNotesList
                 creditNotes={dataCreditNotes?.creditNotes?.collection}
@@ -314,14 +307,5 @@ const HeaderRigthBlock = styled.div`
 
   > :first-child {
     margin-right: ${theme.spacing(3)};
-  }
-`
-
-const LocalVerticalMenu = styled(VerticalMenu)`
-  /* Need to override this as the nav tab itself does not changes for md size */
-  .vertical-menu--horizontal {
-    ${theme.breakpoints.down('md')} {
-      padding: ${theme.spacing(4)} ${theme.spacing(5)};
-    }
   }
 `
