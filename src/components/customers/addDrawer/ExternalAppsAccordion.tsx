@@ -160,6 +160,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     })
 
   const isSyncWithProviderDisabled = !!formikProps.values.providerCustomer?.syncWithProvider
+  const hadInitialIntegrationCustomer = !!formikProps.initialValues.integrationCustomer
 
   const connectedProvidersData: ComboboxDataGrouped[] | [] = useMemo(() => {
     if (!providersData?.paymentProviders?.collection.length) return []
@@ -598,7 +599,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               {/* Select Integration account */}
               <ComboBox
                 onOpen={getIntegrationsData}
-                disabled={isEdition}
+                disabled={hadInitialIntegrationCustomer}
                 data={connectedIntegrationsData}
                 label={translate('text_66423cad72bbad009f2f5695')}
                 placeholder={translate('text_66423cad72bbad009f2f5697')}
@@ -619,7 +620,8 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                   <TextInputField
                     name="integrationCustomer.externalCustomerId"
                     disabled={
-                      !!formikProps.values.integrationCustomer?.syncWithProvider || isEdition
+                      !!formikProps.values.integrationCustomer?.syncWithProvider ||
+                      hadInitialIntegrationCustomer
                     }
                     label={translate('text_66423cad72bbad009f2f569a')}
                     placeholder={translate('text_66423cad72bbad009f2f569c')}
@@ -628,7 +630,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
 
                   <Checkbox
                     name="integrationCustomer.syncWithProvider"
-                    disabled={isEdition}
+                    disabled={hadInitialIntegrationCustomer}
                     value={!!formikProps.values.integrationCustomer?.syncWithProvider}
                     label={translate('text_66423cad72bbad009f2f569e', {
                       connectionName: selectedNetsuiteIntegration?.name,
@@ -648,14 +650,14 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                       <ComboBoxField
                         name="integrationCustomer.subsidiaryId"
                         data={connectedIntegrationSubscidiaries}
-                        disabled={isEdition}
+                        disabled={hadInitialIntegrationCustomer}
                         label={translate('text_66423cad72bbad009f2f56a0')}
                         placeholder={translate('text_66423cad72bbad009f2f56a2')}
                         PopperProps={{ displayInDialog: true }}
                         formikProps={formikProps}
                       />
 
-                      {isEdition && (
+                      {isEdition && !hadInitialIntegrationCustomer && (
                         <Alert type="info">{translate('text_66423cad72bbad009f2f56a4')}</Alert>
                       )}
                     </>
