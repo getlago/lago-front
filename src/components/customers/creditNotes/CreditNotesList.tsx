@@ -144,12 +144,22 @@ const CreditNotesList = memo(
               </SkeletonLine>
             ))}
           </>
-        ) : !loading && hasSearchQuery && !creditNotes?.length ? (
-          <GenericPlaceholder
-            title={translate('text_63c6edd80c57d0dfaae389a4')}
-            subtitle={translate('text_63c6edd80c57d0dfaae389a8')}
-            image={<EmptyImage width="136" height="104" />}
-          />
+        ) : !loading && !creditNotes?.length ? (
+          <>
+            {hasSearchQuery ? (
+              <GenericPlaceholder
+                title={translate('text_63c6edd80c57d0dfaae389a4')}
+                subtitle={translate('text_63c6edd80c57d0dfaae389a8')}
+                image={<EmptyImage width="136" height="104" />}
+              />
+            ) : (
+              <GenericPlaceholder
+                title={translate('text_6663014df0a6be0098264dd9')}
+                subtitle={translate('text_6663014df0a6be0098264dda')}
+                image={<EmptyImage width="136" height="104" />}
+              />
+            )}
+          </>
         ) : (
           <InfiniteScroll
             onBottom={() => {
