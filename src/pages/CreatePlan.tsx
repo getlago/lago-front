@@ -29,7 +29,15 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
 import { Card, PageHeader, theme } from '~/styles'
-import { Content, Main, Side, SkeletonHeader } from '~/styles/mainObjectsForm'
+import {
+  Content,
+  Main,
+  MainMinimumContent,
+  SectionFooter,
+  SectionFooterWrapper,
+  Side,
+  SkeletonHeader,
+} from '~/styles/mainObjectsForm'
 
 import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
 
@@ -148,7 +156,7 @@ const CreatePlan = () => {
 
       <Content>
         <Main>
-          <div>
+          <MainMinimumContent>
             {loading && !plan ? (
               <>
                 <SkeletonHeader>
@@ -233,11 +241,15 @@ const CreatePlan = () => {
                     />
                   </Section>
                 </SectionWrapper>
-
                 <SectionWrapper>
-                  <Typography variant="headline">
-                    {translate('text_6661fc17337de3591e29e44d')}
-                  </Typography>
+                  <SectionTitle>
+                    <Typography variant="headline">
+                      {translate('text_6661fc17337de3591e29e44d')}
+                    </Typography>
+                    <Typography variant="body">
+                      {translate('text_6667029c1051a60107146e35')}
+                    </Typography>
+                  </SectionTitle>
 
                   <CommitmentsSection
                     formikProps={formikProps}
@@ -245,27 +257,28 @@ const CreatePlan = () => {
                     editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
                   />
                 </SectionWrapper>
-
-                <SectionFooter $isValid={formikProps.isValid}>
-                  <div>
-                    <Button
-                      disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
-                      fullWidth
-                      size="large"
-                      onClick={formikProps.submitForm}
-                      data-test="submit"
-                    >
-                      {translate(
-                        type === FORM_TYPE_ENUM.edition
-                          ? 'text_6661fc17337de3591e29e461'
-                          : 'text_6661ffe746c680007e2df0e2',
-                      )}
-                    </Button>
-                  </div>
-                </SectionFooter>
               </Stack>
             )}
-          </div>
+          </MainMinimumContent>
+
+          {(!loading || plan) && (
+            <SectionFooter>
+              <SectionFooterWrapper>
+                <Button
+                  disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
+                  size="large"
+                  onClick={formikProps.submitForm}
+                  data-test="submit"
+                >
+                  {translate(
+                    type === FORM_TYPE_ENUM.edition
+                      ? 'text_6661fc17337de3591e29e461'
+                      : 'text_6661ffe746c680007e2df0e2',
+                  )}
+                </Button>
+              </SectionFooterWrapper>
+            </SectionFooter>
+          )}
         </Main>
         <Side>
           <PlanCodeSnippet loading={loading} plan={formikProps.values} />
@@ -304,20 +317,4 @@ const Section = styled.section`
   display: flex;
   flex-direction: column;
   gap: ${theme.spacing(4)};
-`
-
-const SectionFooter = styled.div<{ $isValid: boolean }>`
-  position: ${({ $isValid }) => ($isValid ? 'sticky' : 'relative')};
-  bottom: ${({ $isValid }) => ($isValid ? '0' : undefined)};
-  background-color: ${({ $isValid }) =>
-    $isValid ? theme.palette.background.paper : 'transparent'};
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  align-items: center;
-  margin-top: ${theme.spacing(8)};
-  border-top: 1px solid ${theme.palette.grey[200]};
-  margin-left: -${theme.spacing(12)};
-  margin-right: -${theme.spacing(12)};
-  padding: ${theme.spacing(6)};
 `
