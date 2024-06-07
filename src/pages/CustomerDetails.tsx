@@ -53,7 +53,6 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
-import { SectionHeader } from '~/styles/customer'
 
 gql`
   fragment CustomerDetails on Customer {
@@ -340,7 +339,6 @@ const CustomerDetails = () => {
               />
               <div data-test="customer-navigation-wrapper">
                 <NavigationTab
-                  align="superLeft"
                   tabs={[
                     {
                       title: translate('text_628cf761cbe6820138b8f2e4'),
@@ -348,7 +346,6 @@ const CustomerDetails = () => {
                         customerId: customerId as string,
                         tab: CustomerDetailsTabsOptions.overview,
                       }),
-                      routerState: { disableScrollTop: true },
                       match: [
                         generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                           customerId: customerId as string,
@@ -371,7 +368,6 @@ const CustomerDetails = () => {
                         customerId: customerId as string,
                         tab: CustomerDetailsTabsOptions.wallet,
                       }),
-                      routerState: { disableScrollTop: true },
                       component: (
                         <SideBlock>
                           <CustomerWalletsList
@@ -387,7 +383,6 @@ const CustomerDetails = () => {
                         customerId: customerId as string,
                         tab: CustomerDetailsTabsOptions.usage,
                       }),
-                      routerState: { disableScrollTop: true },
                       component: (
                         <SideBlock>
                           <CustomerUsage
@@ -403,7 +398,6 @@ const CustomerDetails = () => {
                         customerId: customerId as string,
                         tab: CustomerDetailsTabsOptions.invoices,
                       }),
-                      routerState: { disableScrollTop: true },
                       component: (
                         <SideBlock>
                           <CustomerInvoicesTab
@@ -419,7 +413,6 @@ const CustomerDetails = () => {
                         customerId: customerId as string,
                         tab: CustomerDetailsTabsOptions.creditNotes,
                       }),
-                      routerState: { disableScrollTop: true },
                       hidden: !hasCreditNotes,
                       component: (
                         <SideBlock>
@@ -439,7 +432,6 @@ const CustomerDetails = () => {
                         customerId: customerId as string,
                         tab: CustomerDetailsTabsOptions.settings,
                       }),
-                      routerState: { disableScrollTop: true },
                       component: (
                         <SideBlock>
                           <CustomerSettings customerId={customerId as string} />
@@ -448,14 +440,6 @@ const CustomerDetails = () => {
                       hidden: !hasPermissions(['customerSettingsView']),
                     },
                   ]}
-                  loadingComponent={
-                    <SideLoadingSection>
-                      <SectionHeader variant="subhead">
-                        <Skeleton variant="text" height={12} width={200} />
-                      </SectionHeader>
-                      <Skeleton variant="text" height={12} width={240} />
-                    </SideLoadingSection>
-                  }
                   loading={
                     ![
                       CustomerDetailsTabsOptions.overview,
@@ -558,12 +542,6 @@ const Name = styled(Typography)`
 
 const SideBlock = styled.div`
   > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(8)};
-  }
-`
-
-const SideLoadingSection = styled.div`
-  > *:first-child {
     margin-bottom: ${theme.spacing(8)};
   }
 `

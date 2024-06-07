@@ -165,11 +165,11 @@ const DesignSystem = () => {
         <Typography variant="caption">Only visible in dev mode</Typography>
       </PageHeader>
       <NavigationTab
-        name="design-system"
+        leftPadding
+        name="Design system tab switcher"
         tabs={[
           {
             title: 'Display',
-            icon: 'apps',
             link: DISPLAY_TAB_URL,
             match: [DISPLAY_TAB_URL, ONLY_DEV_DESIGN_SYSTEM_ROUTE],
             component: (
@@ -409,7 +409,6 @@ const DesignSystem = () => {
           },
           {
             title: 'Skeleton',
-            icon: 'processing',
             link: SKELETON_TAB_URL,
             component: (
               <Container>
@@ -432,7 +431,6 @@ const DesignSystem = () => {
           },
           {
             title: 'Table',
-            icon: 'table',
             link: TABLE_TAB_URL,
             component: (
               <Container>
@@ -511,7 +509,6 @@ const DesignSystem = () => {
           },
           {
             title: 'Avatar',
-            icon: 'user',
             link: AVATAR_TAB_URL,
             component: (
               <Container>
@@ -583,7 +580,6 @@ const DesignSystem = () => {
           },
           {
             title: 'Icons',
-            icon: 'star-filled',
             link: ICONS_TAB_URL,
             component: (
               <Container>
@@ -623,7 +619,6 @@ const DesignSystem = () => {
           },
           {
             title: 'Typography',
-            icon: 'pen',
             link: TYPOGRAPHY_TAB_URL,
             component: (
               <Container>
@@ -664,7 +659,6 @@ const DesignSystem = () => {
           },
           {
             title: 'Buttons',
-            icon: 'target',
             link: BUTTON_TAB_URL,
             component: (
               <Container>
@@ -786,7 +780,6 @@ const DesignSystem = () => {
           },
           {
             title: 'Form',
-            icon: 'switch',
             link: FORM_TAB_URL,
             component: (
               <Container>
@@ -1341,7 +1334,6 @@ const DesignSystem = () => {
           },
           {
             title: 'Links',
-            icon: 'outside',
             link: LINK_TAB_URL,
             component: (
               <Container>
@@ -1397,7 +1389,7 @@ const DesignSystem = () => {
             ),
           },
         ]}
-      ></NavigationTab>
+      />
     </>
   )
 }

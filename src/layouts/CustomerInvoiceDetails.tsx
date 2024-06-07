@@ -621,9 +621,8 @@ const CustomerInvoiceDetails = () => {
               </div>
             </MainInfos>
           )}
-          <NavigationTab tabs={tabsOptions} align="superLeft">
-            <Outlet />
-          </NavigationTab>
+          <NavigationTab name="Invoice details tab switcher" tabs={tabsOptions} loading={loading} />
+          <Outlet />
         </Content>
       )}
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />

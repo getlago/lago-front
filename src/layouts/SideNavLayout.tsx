@@ -11,10 +11,10 @@ import {
   Button,
   Icon,
   IconName,
-  NavigationTab,
   Popper,
   Skeleton,
   Typography,
+  VerticalMenu,
 } from '~/components/designSystem'
 import { envGlobalVar, logOut, switchCurrentOrganization } from '~/core/apolloClient'
 import { DOCUMENTATION_URL, FEATURE_REQUESTS_URL } from '~/core/constants/externalUrls'
@@ -222,7 +222,7 @@ const SideNav = () => {
           </Header>
           <Nav className="nav">
             <TabsButtons>
-              <NavigationTab
+              <VerticalMenu
                 loading={currentUserLoading}
                 loadingComponent={
                   <Stack flex={1} gap={4}>
@@ -300,11 +300,10 @@ const SideNav = () => {
                     hidden: !hasPermissions(['invoicesView', 'creditNotesView']),
                   },
                 ]}
-                orientation="vertical"
               />
             </TabsButtons>
             <BottomButtons>
-              <NavigationTab
+              <VerticalMenu
                 loading={currentUserLoading}
                 loadingComponent={
                   <Stack flex={1} gap={4}>
@@ -377,7 +376,6 @@ const SideNav = () => {
                     hidden: !hasPermissions(['organizationView']),
                   },
                 ]}
-                orientation="vertical"
               />
             </BottomButtons>
           </Nav>

@@ -7,23 +7,13 @@ import {
   TerminateCustomerSubscriptionDialog,
   TerminateCustomerSubscriptionDialogRef,
 } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
-import {
-  Avatar,
-  Button,
-  Icon,
-  NavigationTab,
-  Popper,
-  Skeleton,
-  Typography,
-} from '~/components/designSystem'
+import { Avatar, Button, Icon, Popper, Skeleton, Typography } from '~/components/designSystem'
 import SkeletonDetailsPage, { LoadingSkeletonWrapper } from '~/components/SkeletonDetailsPage'
 import SubscriptionDetailsOverview from '~/components/subscriptions/SubscriptionDetailsOverview'
 import { addToast } from '~/core/apolloClient'
 import {
   CUSTOMER_DETAILS_ROUTE,
-  CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   PLAN_DETAILS_ROUTE,
-  PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   UPDATE_SUBSCRIPTION,
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
 } from '~/core/router'
@@ -217,39 +207,11 @@ const SubscriptionDetails = () => {
           </TabContentWrapper>
         </ContentContainer>
       ) : (
-        <NavigationTab
-          align="superLeft"
-          tabs={[
-            {
-              title: translate('text_628cf761cbe6820138b8f2e4'),
-              link: generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                customerId: subscription?.customer?.id as string,
-                subscriptionId: subscriptionId as string,
-                tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-              }),
-              routerState: { disableScrollTop: true },
-              match: [
-                generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                  customerId: subscription?.customer?.id as string,
-                  subscriptionId: subscriptionId as string,
-                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-                }),
-                generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                  planId: planId || '',
-                  subscriptionId: subscriptionId as string,
-                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-                }),
-              ],
-              component: (
-                <ContentContainer>
-                  <TabContentWrapper>
-                    <SubscriptionDetailsOverview />
-                  </TabContentWrapper>
-                </ContentContainer>
-              ),
-            },
-          ]}
-        />
+        <ContentContainer>
+          <TabContentWrapper>
+            <SubscriptionDetailsOverview />
+          </TabContentWrapper>
+        </ContentContainer>
       )}
 
       <TerminateCustomerSubscriptionDialog ref={terminateSubscriptionDialogRef} />

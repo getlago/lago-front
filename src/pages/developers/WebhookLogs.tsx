@@ -1,16 +1,9 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo, useState } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
-import {
-  Button,
-  InfiniteScroll,
-  NavigationTab,
-  Skeleton,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Button, InfiniteScroll, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { WebhookLogDetails } from '~/components/developers/WebhookLogDetails'
 import { WebhookLogItem, WebhookLogItemSkeleton } from '~/components/developers/WebhookLogItem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -83,6 +76,7 @@ const WebhookLogs = () => {
   const { webhookId = '' } = useParams<{ webhookId: string }>()
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
+  const navigate = useNavigate()
   const { data: webhookUrlData, loading: webhookUrlLoading } = useGetWebhookInformationsQuery({
     variables: { id: webhookId },
     skip: !webhookId,
@@ -190,30 +184,47 @@ const WebhookLogs = () => {
                 </Tooltip>
               )}
             </HeaderBlock>
-            <NavigationTab
-              tabs={[
-                {
-                  title: translate('text_63e27c56dfe64b846474ef4c'),
-                  link: generatePath(WEBHOOK_LOGS_ROUTE, {
-                    webhookId,
-                  }),
-                },
-                {
-                  title: translate('text_63e27c56dfe64b846474ef4d'),
-                  link: generatePath(WEBHOOK_LOGS_TAB_ROUTE, {
-                    webhookId,
-                    tab: WebhookStatusEnum.Succeeded,
-                  }),
-                },
-                {
-                  title: translate('text_63e27c56dfe64b846474ef4e'),
-                  link: generatePath(WEBHOOK_LOGS_TAB_ROUTE, {
-                    webhookId,
-                    tab: WebhookStatusEnum.Failed,
-                  }),
-                },
-              ]}
-            />
+            <FilterButtonsWrapper>
+              <Button
+                variant={!statusFilter ? 'secondary' : 'quaternary'}
+                onClick={() => {
+                  navigate(
+                    generatePath(WEBHOOK_LOGS_ROUTE, {
+                      webhookId,
+                    }),
+                  )
+                }}
+              >
+                {translate('text_63e27c56dfe64b846474ef4c')}
+              </Button>
+              <Button
+                variant={statusFilter === WebhookStatusEnum.Succeeded ? 'secondary' : 'quaternary'}
+                onClick={() => {
+                  navigate(
+                    generatePath(WEBHOOK_LOGS_TAB_ROUTE, {
+                      webhookId,
+                      tab: WebhookStatusEnum.Succeeded,
+                    }),
+                  )
+                }}
+              >
+                {translate('text_63e27c56dfe64b846474ef4d')}
+              </Button>
+              <Button
+                variant={statusFilter === WebhookStatusEnum.Failed ? 'secondary' : 'quaternary'}
+                onClick={() => {
+                  navigate(
+                    generatePath(WEBHOOK_LOGS_TAB_ROUTE, {
+                      webhookId,
+                      tab: WebhookStatusEnum.Failed,
+                    }),
+                  )
+                }}
+              >
+                {translate('text_63e27c56dfe64b846474ef4e')}
+              </Button>
+            </FilterButtonsWrapper>
+
             {!loading && !isLoading && !hasLogs ? (
               <StyledGenericPlaceholder
                 title={translate(
@@ -445,4 +456,12 @@ const StyledGenericPlaceholder = styled(GenericPlaceholder)`
 
 const ListContent = styled.div`
   margin-bottom: ${theme.spacing(20)};
+`
+
+const FilterButtonsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing(3)};
+  padding: ${theme.spacing(4)} ${theme.spacing(12)};
+  box-shadow: ${theme.shadows[7]};
 `

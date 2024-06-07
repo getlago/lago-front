@@ -183,6 +183,7 @@ const PlanDetails = () => {
         </PlanBlockInfos>
       </PlanBlockWrapper>
       <NavigationTab
+        leftPadding
         tabs={[
           {
             title: translate('text_628cf761cbe6820138b8f2e4'),
@@ -190,7 +191,6 @@ const PlanDetails = () => {
               planId: planId as string,
               tab: PlanDetailsTabsOptionsEnum.overview,
             }),
-            routerState: { disableScrollTop: true },
             match: [
               generatePath(PLAN_DETAILS_ROUTE, {
                 planId: planId as string,
@@ -217,7 +217,6 @@ const PlanDetails = () => {
               planId: planId as string,
               tab: PlanDetailsTabsOptionsEnum.subscriptions,
             }),
-            routerState: { disableScrollTop: true },
             match: [
               generatePath(PLAN_DETAILS_ROUTE, {
                 planId: planId as string,
