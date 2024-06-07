@@ -942,6 +942,8 @@
   "text_664f3562b7caf600e5246883": "Member role has been edited",
   "text_665edfd17997c0006f09cdb2": "Unlock all roles",
   "text_665edfd17997c0006f09cdb3": "Give specific access to your members",
+  "text_6663014df0a6be0098264dd9": "There are no credit notes",
+  "text_6663014df0a6be0098264dda": "A credit note serves as a document issued by you to a customer, reducing the amount owed by your organization on a specific invoice. Please create an invoice to generate credit notes.",
   "text_64c7a89b6c67eb6c98898167": "Net payment term",
   "text_64c7a89b6c67eb6c98898182": "Period within which a customer is expected to pay for an invoice after it has been issued.\nNeed more flexibility? Set a payment term at the customer level to override the one above.",
   "text_64c7a89b6c67eb6c988980eb": "The duration within which a customer is expected to remit payment after the invoice is issued. Note that it may impact all invoices already in draft.",
