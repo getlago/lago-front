@@ -193,9 +193,7 @@ const CreatePlan = () => {
                       {translate('text_642d5eb2783a2ad10d67031a')}
                     </Typography>
                     <Typography variant="body">
-                      {translate(
-                        'TODO: Define the parameters of the billing plan, such as interval, and currency.',
-                      )}
+                      {translate('text_6661fc17337de3591e29e3c1')}
                     </Typography>
                   </SectionTitle>
 
@@ -209,10 +207,10 @@ const CreatePlan = () => {
                 <SectionWrapper>
                   <SectionTitle>
                     <Typography variant="headline">
-                      {translate('TODO: Pricing settings')}
+                      {translate('text_6661fc17337de3591e29e3e7')}
                     </Typography>
                     <Typography variant="body">
-                      {translate('TODO: Customize the pricing structure of your plan.')}
+                      {translate('text_6661fc17337de3591e29e3e9')}
                     </Typography>
                   </SectionTitle>
 
@@ -237,7 +235,9 @@ const CreatePlan = () => {
                 </SectionWrapper>
 
                 <SectionWrapper>
-                  <Typography variant="headline">{translate('TODO: Advanced settings')}</Typography>
+                  <Typography variant="headline">
+                    {translate('text_6661fc17337de3591e29e44d')}
+                  </Typography>
 
                   <CommitmentsSection
                     formikProps={formikProps}
@@ -257,8 +257,8 @@ const CreatePlan = () => {
                     >
                       {translate(
                         type === FORM_TYPE_ENUM.edition
-                          ? 'text_625fd165963a7b00c8f598aa'
-                          : 'TODO: Create plan',
+                          ? 'text_6661fc17337de3591e29e461'
+                          : 'text_6661ffe746c680007e2df0e2',
                       )}
                     </Button>
                   </div>

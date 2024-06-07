@@ -224,7 +224,7 @@ export const ChargesSection = memo(
                 {translate('text_6435888d7cc86500646d8977')}
               </Typography>
               <Typography variant="caption">
-                {translate('TODO: Fees that vary based on your customers usage.')}
+                {translate('text_6661ffe746c680007e2df0d6')}
               </Typography>
             </Stack>
 
@@ -308,12 +308,10 @@ export const ChargesSection = memo(
           <Group>
             <GroupTitle>
               <Typography variant="bodyHl" color="grey700">
-                {translate('TODO: Metered charge')}
+                {translate('text_6661fc17337de3591e29e40f')}
               </Typography>
               <Typography variant="caption" color="grey600">
-                {translate(
-                  'TODO: Fee that is fully billed and reset at the end of each billing period.',
-                )}
+                {translate('text_6661fc17337de3591e29e411')}
               </Typography>
             </GroupTitle>
 
@@ -427,9 +425,7 @@ export const ChargesSection = memo(
                 {translate('text_64d271e20a9c11005bd6688a')}
               </Typography>
               <Typography variant="caption" color="grey600">
-                {translate(
-                  'TODO: Fee that can be prorated or fully billed and persisted across billing periods.',
-                )}
+                {translate('text_6661fc17337de3591e29e449')}
               </Typography>
             </GroupTitle>
 

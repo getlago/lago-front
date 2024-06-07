@@ -20,7 +20,6 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { NAV_HEIGHT, theme } from '~/styles'
 
 import { mapChargeIntervalCopy } from './ChargeAccordion'
-import { intervalDescriptionLookupTranslation } from './details/PlanDetailsCommitmentsSection'
 import { PlanFormInput } from './types'
 
 import { AmountInputField, ComboBox } from '../form'
@@ -123,7 +122,11 @@ export const CommitmentsSection = ({
           {translate('text_65d601bffb11e0f9d1d9f569')}
         </Typography>
         <Typography variant="caption" color="grey600">
-          {translate(intervalDescriptionLookupTranslation[formikProps.values.interval])}
+          {translate('text_6661fc17337de3591e29e451', {
+            interval: translate(
+              mapChargeIntervalCopy(formikProps.values.interval, false),
+            ).toLocaleLowerCase(),
+          })}
         </Typography>
       </SectionTitle>
 
@@ -322,7 +325,7 @@ export const CommitmentsSection = ({
             }
           }}
         >
-          {translate('TODO: Add a minimum commitment')}
+          {translate('text_6661ffe746c680007e2df0e1')}
         </Button>
       )}
     </Card>

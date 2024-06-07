@@ -78,13 +78,9 @@ export const StandardCharge = memo(
         <Group>
           <GroupTitle>
             <Typography variant="captionHl" color="textSecondary">
-              {translate('TODO: Group fee by properties')}
+              {translate('text_65ba6d45e780c1ff8acb20e0')}
             </Typography>
-            <Typography variant="caption">
-              {translate(
-                'TODO: Organize fees based on specific properties or attributes, such as user type, location, or usage category, for clearer billing breakdowns.',
-              )}
-            </Typography>
+            <Typography variant="caption">{translate('text_6661fc17337de3591e29e425')}</Typography>
           </GroupTitle>
           {shouldDisplayGroupedBy || !!valuePointer?.groupedBy ? (
             <InlineFields>
@@ -118,7 +114,7 @@ export const StandardCharge = memo(
               variant="quaternary"
               onClick={() => setShouldDisplayGroupedBy(true)}
             >
-              {translate('text_65ba6d45e780c1ff8acb20e0')}
+              {translate('text_6661fc17337de3591e29e427')}
             </Button>
           )}
         </Group>

@@ -77,11 +77,11 @@ export const FixedFeeSection = memo(
     return (
       <Card>
         <SectionTitle>
-          <Typography variant="subhead">{translate('TODO: Subscription fee')}</Typography>
+          <Typography variant="subhead">{translate('text_642d5eb2783a2ad10d670336')}</Typography>
           <Typography variant="caption">
-            {translate(
-              'TODO: {{interval}} recurring amount paid by the customer regardless of their usage consumption.',
-            )}
+            {translate('text_6661fc17337de3591e29e3ed', {
+              interval: translate(mapIntervalCopy(formikProps.values.interval)),
+            })}
           </Typography>
         </SectionTitle>
 
@@ -160,18 +160,18 @@ export const FixedFeeSection = memo(
 
             <RadioGroup
               name="payInAdvance"
-              label={translate('TODO: Payment period')}
-              description={translate('TODO: Indicate when the subscription fee is invoiced.')}
+              label={translate('text_6661fc17337de3591e29e3f9')}
+              description={translate('text_6661fc17337de3591e29e3fb')}
               formikProps={formikProps}
               disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
               optionLabelVariant="body"
               options={[
                 {
-                  label: translate('TODO: In arrears - At the end of each billing period'),
+                  label: translate('text_6661fc17337de3591e29e3fd'),
                   value: false,
                 },
                 {
-                  label: translate('TODO: In advance - At the beginning of each billing period'),
+                  label: translate('text_6661fc17337de3591e29e3ff'),
                   value: true,
                 },
               ]}
@@ -183,9 +183,7 @@ export const FixedFeeSection = memo(
                   {translate('text_624453d52e945301380e49c2')}
                 </Typography>
                 <Typography variant="caption">
-                  {translate(
-                    'TODO: Timeframe during which users can access the plan for free before being billed.',
-                  )}
+                  {translate('text_6661fc17337de3591e29e403')}
                 </Typography>
               </GroupTitle>
 

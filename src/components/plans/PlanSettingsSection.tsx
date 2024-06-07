@@ -143,7 +143,7 @@ export const PlanSettingsSection = memo(
                 multiline
                 name="description"
                 label={translate('text_629728388c4d2300e2d380f1')}
-                placeholder={translate('TODO: Explain the goal of this plan')}
+                placeholder={translate('text_6661fc17337de3591e29e3c9')}
                 rows="3"
                 formikProps={formikProps}
               />
@@ -174,7 +174,7 @@ export const PlanSettingsSection = memo(
           <TextInputField
             name="code"
             label={translate('text_62876e85e32e0300e1803127')}
-            description={translate('TODO: Unique identifier to identify the plan through API.')}
+            description={translate('text_6661fc17337de3591e29e3cd')}
             beforeChangeFormatter="code"
             disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
             placeholder={translate('text_624453d52e945301380e499e')}
@@ -185,8 +185,8 @@ export const PlanSettingsSection = memo(
         <ButtonSelectorField
           disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
           name="interval"
-          label={translate('TODO: Billing period')}
-          description={translate('TODO: Frequency at which the subscription recurs.')}
+          label={translate('text_6661fc17337de3591e29e3d1')}
+          description={translate('text_6661fc17337de3591e29e3d3')}
           formikProps={formikProps}
           options={[
             {
@@ -222,7 +222,7 @@ export const PlanSettingsSection = memo(
         {!!plan?.taxes?.length && (
           <div>
             <TaxLabel variant="captionHl" color="grey700">
-              {translate('TODO: Tax rates')}
+              {translate('text_6661fc17337de3591e29e3e1')}
             </TaxLabel>
             <InlineTaxesWrapper>
               {plan.taxes.map(({ id, name, rate }) => (
@@ -252,7 +252,7 @@ export const PlanSettingsSection = memo(
           <div>
             {!plan.taxes?.length && (
               <TaxLabel variant="captionHl" color="grey700">
-                {translate('TODO: Tax rates')}
+                {translate('text_6661fc17337de3591e29e3e1')}
               </TaxLabel>
             )}
             <InlineTaxInputWrapper>
@@ -261,7 +261,7 @@ export const PlanSettingsSection = memo(
                 data={taxesDataForCombobox}
                 searchQuery={getTaxes}
                 loading={taxesLoading}
-                placeholder={translate('TODO: Select a tax rate')}
+                placeholder={translate('text_6661fc17337de3591e29e3e3')}
                 emptyText={translate('text_64be91fd0678965126e5657b')}
                 onChange={(newTaxId) => {
                   const previousTaxes = [...(formikProps?.values?.taxes || [])]

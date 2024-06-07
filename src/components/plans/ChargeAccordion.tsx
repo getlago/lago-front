@@ -458,7 +458,7 @@ export const ChargeAccordion = memo(
               label={
                 <InlineComboboxLabel>
                   <Typography variant="captionHl" color="textSecondary">
-                    {translate('TODO: Charge model')}
+                    {translate('text_65201b8216455901fe273dd5')}
                   </Typography>
                 </InlineComboboxLabel>
               }
@@ -826,18 +826,18 @@ export const ChargeAccordion = memo(
           <ChargeOptionsAccordion charge={localCharge} currency={currency}>
             <RadioGroup
               name={`charges.${index}.payInAdvance`}
-              label={translate('TODO: Payment period')}
-              description={translate('TODO: Indicate when the subscription fee is invoiced.')}
+              label={translate('text_6661fc17337de3591e29e3f9')}
+              description={translate('text_6661fc17337de3591e29e435')}
               formikProps={formikProps}
               disabled={isInSubscriptionForm || disabled}
               optionLabelVariant="body"
               options={[
                 {
-                  label: translate('TODO: In arrears - At the end of each billing period'),
+                  label: translate('text_6661fc17337de3591e29e3fd'),
                   value: false,
                 },
                 {
-                  label: translate('TODO: In advance - At the beginning of each billing period'),
+                  label: translate('text_6661fc17337de3591e29e3ff'),
                   value: true,
                   disabled:
                     localCharge.chargeModel === ChargeModelEnum.Volume ||
@@ -886,9 +886,11 @@ export const ChargeAccordion = memo(
                     {translate('text_643e592657fc1ba5ce110c30')}
                   </Typography>
                   <Typography variant="caption">
-                    {translate(
-                      'TODO: Agreed {{interval}} minimum spending that the customer is required to fulfill.',
-                    )}
+                    {translate('text_6661fc17337de3591e29e451', {
+                      interval: translate(
+                        mapChargeIntervalCopy(formikProps.values.interval, false),
+                      ).toLocaleLowerCase(),
+                    })}
                   </Typography>
                 </GroupTitle>
                 {!showSpendingMinimum ? (
@@ -947,12 +949,10 @@ export const ChargeAccordion = memo(
             <Group>
               <GroupTitle>
                 <Typography variant="captionHl" color="textSecondary">
-                  {translate('TODO: Tax rates')}
+                  {translate('text_6661fc17337de3591e29e3e1')}
                 </Typography>
                 <Typography variant="caption">
-                  {translate(
-                    'TODO: Applicable percentage added to the base price according to regional tax laws.',
-                  )}
+                  {translate('text_6662c316125d2400f7995ff6')}
                 </Typography>
               </GroupTitle>
               {!!localCharge?.taxes?.length && (
