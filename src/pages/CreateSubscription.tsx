@@ -127,9 +127,7 @@ const LoadingSkeleton = () => {
       <SectionWrapper>
         <SectionTitle>
           <Typography variant="headline">{translate('text_642d5eb2783a2ad10d67031a')}</Typography>
-          <Typography variant="body">
-            {translate('TODO: Billing plan’s parameters, such as interval, and currency.')}
-          </Typography>
+          <Typography variant="body">{translate('text_66630368f4333b00795b0e1c')}</Typography>
         </SectionTitle>
         <Card>
           <AccordionSkeleton>
@@ -141,9 +139,7 @@ const LoadingSkeleton = () => {
       <SectionWrapper>
         <SectionTitle>
           <Typography variant="headline">{translate('text_6661fc17337de3591e29e3e7')}</Typography>
-          <Typography variant="body">
-            {translate('TODO: Billing plan’s pricing structure.')}
-          </Typography>
+          <Typography variant="body">{translate('text_66630368f4333b00795b0e2d')}</Typography>
         </SectionTitle>
         <Section>
           <Card>
@@ -742,9 +738,7 @@ const CreateSubscription = () => {
                         {translate('text_642d5eb2783a2ad10d67031a')}
                       </Typography>
                       <Typography variant="body">
-                        {translate(
-                          'TODO: Billing plan’s parameters, such as interval, and currency.',
-                        )}
+                        {translate('text_66630368f4333b00795b0e2d')}
                       </Typography>
                     </SectionTitle>
                     <PlanSettingsSection
@@ -760,7 +754,7 @@ const CreateSubscription = () => {
                         {translate('text_6661fc17337de3591e29e3e7')}
                       </Typography>
                       <Typography variant="body">
-                        {translate('TODO: Billing plan’s pricing structure.')}
+                        {translate('text_66630368f4333b00795b0e2d')}
                       </Typography>
                     </SectionTitle>
 

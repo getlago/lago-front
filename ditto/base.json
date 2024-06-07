@@ -1079,6 +1079,8 @@
   "text_6661ffe746c680007e2df0e1": "Add a minimum commitment",
   "text_6661ffe746c680007e2df0e2": "Create plan",
   "text_6662c316125d2400f7995ff6": "Applicable percentage added to the base price according to regional tax laws.",
+  "text_66630368f4333b00795b0e1c": "Billing plan’s parameters, such as interval, and currency.",
+  "text_66630368f4333b00795b0e2d": "Billing plan’s pricing structure.",
   "text_64e7b273b046851c46d781e5": "Minimum per transaction",
   "text_64e7b273b046851c46d78201": "Minimum amount billed for each unique event ingested",
   "text_64e7b273b046851c46d78205": "Maximum per transaction",
