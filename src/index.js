@@ -17,7 +17,7 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
   })
 }
 
-if (appEnv === AppEnvEnum.development) {
+if (appEnv !== AppEnvEnum.production) {
   window.Lago = {
     getEnableFeatureFlags: getEnableFeatureFlags,
     setFeatureFlags: setFeatureFlags,
