@@ -738,7 +738,7 @@ const CreateSubscription = () => {
                         {translate('text_642d5eb2783a2ad10d67031a')}
                       </Typography>
                       <Typography variant="body">
-                        {translate('text_66630368f4333b00795b0e2d')}
+                        {translate('text_66630368f4333b00795b0e1c')}
                       </Typography>
                     </SectionTitle>
                     <PlanSettingsSection
@@ -777,9 +777,14 @@ const CreateSubscription = () => {
                     </Section>
                   </SectionWrapper>
                   <SectionWrapper>
-                    <Typography variant="headline">
-                      {translate('text_6661fc17337de3591e29e44d')}
-                    </Typography>
+                    <SectionTitle>
+                      <Typography variant="headline">
+                        {translate('text_6661fc17337de3591e29e44d')}
+                      </Typography>
+                      <Typography variant="body">
+                        {translate('text_66676ed0d8c3d481637e99b7')}
+                      </Typography>
+                    </SectionTitle>
                     <CommitmentsSection
                       formikProps={planFormikProps}
                       premiumWarningDialogRef={premiumWarningDialogRef}

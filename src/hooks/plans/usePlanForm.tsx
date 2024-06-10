@@ -229,6 +229,7 @@ export const usePlanForm: ({
     }),
     enableReinitialize: true,
     validateOnMount: true,
+    isInitialValid: false,
     onSubmit: onSave,
   })
 

@@ -132,6 +132,8 @@ export const PlanSettingsSection = memo(
         <AdjustableSection $shouldDisplayDescription={shouldDisplayDescription}>
           <TextInputField
             name="name"
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus={!isInSubscriptionForm}
             label={translate('text_629728388c4d2300e2d38091')}
             placeholder={translate('text_624453d52e945301380e499c')}
             formikProps={formikProps}
