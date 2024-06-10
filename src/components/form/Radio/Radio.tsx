@@ -2,7 +2,7 @@ import clsns from 'classnames'
 import { forwardRef, ReactNode, useId, useRef, useState } from 'react'
 import styled from 'styled-components'
 
-import { Typography } from '~/components/designSystem'
+import { Typography, TypographyProps } from '~/components/designSystem'
 import RadioCheckedIcon from '~/public/icons/forms/radio-checked.svg'
 import RadioIcon from '~/public/icons/forms/radio.svg'
 import { theme } from '~/styles'
@@ -13,12 +13,16 @@ export interface RadioProps {
   checked: boolean
   disabled?: boolean
   label?: string | ReactNode
+  labelVariant?: TypographyProps['variant']
   sublabel?: string | ReactNode
   onChange?: (value: string | number) => void
 }
 
 export const Radio = forwardRef<HTMLDivElement, RadioProps>(
-  ({ name, checked, label, sublabel, disabled, value, onChange }: RadioProps, ref) => {
+  (
+    { name, checked, label, labelVariant, sublabel, disabled, value, onChange }: RadioProps,
+    ref,
+  ) => {
     const componentId = useId()
 
     const inputRef = useRef<HTMLInputElement>(null)
@@ -56,7 +60,7 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
         </RadioContainer>
         <RadioLabelWrapper>
           <Typography
-            variant="bodyHl"
+            variant={labelVariant || 'bodyHl'}
             color={disabled ? 'disabled' : 'textSecondary'}
             component={(labelProps) => <label htmlFor={componentId} {...labelProps} />}
           >

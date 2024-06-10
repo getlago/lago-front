@@ -66,6 +66,7 @@ export const ComboBoxItem = ({
               value={value}
               checked={!!selected}
               label={labelNode || label || value}
+              labelVariant="body"
             />
           )}
         </Item>
