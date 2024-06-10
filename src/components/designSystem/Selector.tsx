@@ -87,12 +87,8 @@ export const Selector = ({
 
 export const SelectorSkeleton = ({ fullWidth = false }: { fullWidth?: boolean } = {}) => (
   <Container $fullWidth={fullWidth}>
-    <MainIcon>
-      <Skeleton variant="connectorAvatar" size="big" />
-    </MainIcon>
-    <Infos>
-      <Skeleton variant="text" width={160} height={12} />
-    </Infos>
+    <Skeleton variant="connectorAvatar" size="big" marginRight={12} />
+    <Skeleton variant="text" width={160} height={12} />
   </Container>
 )
 
