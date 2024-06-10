@@ -61,6 +61,7 @@ export const NavigationTab = ({
   const navigate = useNavigate()
   const nonHiddenTabs = tabs.filter((t) => !t.hidden)
 
+  // Default value is not 0 to prevent useEffect value udpate to flash first component
   const [value, setValue] = useState<number | null>(null)
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -82,7 +83,7 @@ export const NavigationTab = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (nonHiddenTabs.length < 2) return null
+  if (nonHiddenTabs.length < 2 || value === null) return null
 
   return (
     <Box sx={{ width: '100%' }}>
