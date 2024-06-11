@@ -5824,6 +5824,22 @@ export type UpdateAdyenApiKeyMutationVariables = Exact<{
 
 export type UpdateAdyenApiKeyMutation = { __typename?: 'Mutation', updateAdyenPaymentProvider?: { __typename?: 'AdyenProvider', id: string, name: string, code: string, apiKey?: string | null, hmacKey?: string | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null } | null };
 
+export type AddAnrokIntegrationDialogFragment = { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: string };
+
+export type CreateAnrokIntegrationMutationVariables = Exact<{
+  input: CreateAnrokIntegrationInput;
+}>;
+
+
+export type CreateAnrokIntegrationMutation = { __typename?: 'Mutation', createAnrokIntegration?: { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: string } | null };
+
+export type UpdateAnrokIntegrationMutationVariables = Exact<{
+  input: UpdateAnrokIntegrationInput;
+}>;
+
+
+export type UpdateAnrokIntegrationMutation = { __typename?: 'Mutation', updateAnrokIntegration?: { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: string } | null };
+
 export type AdyenForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'AdyenProvider', id: string, successRedirectUrl?: string | null };
 
 export type GocardlessForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'GocardlessProvider', id: string, successRedirectUrl?: string | null };
@@ -5913,6 +5929,99 @@ export type UpdateStripeApiKeyMutationVariables = Exact<{
 
 export type UpdateStripeApiKeyMutation = { __typename?: 'Mutation', updateStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: string | null, successRedirectUrl?: string | null } | null };
 
+export type AnrokIntegrationItemsFragment = { __typename?: 'AnrokIntegration', id: string };
+
+export type GetAnrokIntegrationCollectionMappingsQueryVariables = Exact<{
+  integrationId: Scalars['ID']['input'];
+}>;
+
+
+export type GetAnrokIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null }> } | null };
+
+export type GetAddOnsForAnrokItemsListQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  integrationId: Scalars['ID']['input'];
+}>;
+
+
+export type GetAddOnsForAnrokItemsListQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum }> | null }> } };
+
+export type GetBillableMetricsForAnrokItemsListQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  integrationId: Scalars['ID']['input'];
+}>;
+
+
+export type GetBillableMetricsForAnrokItemsListQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum }> | null }> } };
+
+export type AnrokIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum }> | null };
+
+export type AnrokIntegrationItemsListBillableMetricsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum }> | null };
+
+export type AnrokIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null };
+
+export type AnrokIntegrationMapItemDialogFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
+
+export type AnrokIntegrationMapItemDialogCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+
+export type AnrokIntegrationMapItemDialogCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+
+export type CreateAnrokIntegrationCollectionMappingMutationVariables = Exact<{
+  input: CreateIntegrationCollectionMappingInput;
+}>;
+
+
+export type CreateAnrokIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null } | null };
+
+export type CreateAnrokIntegrationMappingMutationVariables = Exact<{
+  input: CreateIntegrationMappingInput;
+}>;
+
+
+export type CreateAnrokIntegrationMappingMutation = { __typename?: 'Mutation', createIntegrationMapping?: { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null } | null };
+
+export type UpdateAnrokIntegrationCollectionMappingMutationVariables = Exact<{
+  input: UpdateIntegrationCollectionMappingInput;
+}>;
+
+
+export type UpdateAnrokIntegrationCollectionMappingMutation = { __typename?: 'Mutation', updateIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string } | null };
+
+export type UpdateAnrokIntegrationMappingMutationVariables = Exact<{
+  input: UpdateIntegrationMappingInput;
+}>;
+
+
+export type UpdateAnrokIntegrationMappingMutation = { __typename?: 'Mutation', updateIntegrationMapping?: { __typename?: 'Mapping', id: string } | null };
+
+export type DeleteAnrokIntegrationCollectionMappingMutationVariables = Exact<{
+  input: DestroyIntegrationCollectionMappingInput;
+}>;
+
+
+export type DeleteAnrokIntegrationCollectionMappingMutation = { __typename?: 'Mutation', destroyIntegrationCollectionMapping?: { __typename?: 'DestroyIntegrationCollectionMappingPayload', id?: string | null } | null };
+
+export type DeleteAnrokIntegrationMappingMutationVariables = Exact<{
+  input: DestroyIntegrationMappingInput;
+}>;
+
+
+export type DeleteAnrokIntegrationMappingMutation = { __typename?: 'Mutation', destroyIntegrationMapping?: { __typename?: 'DestroyIntegrationMappingPayload', id?: string | null } | null };
+
+export type AnrokIntegrationSettingsFragment = { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: string, hasMappingsConfigured?: boolean | null };
+
+export type GetAnrokIntegrationsSettingsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetAnrokIntegrationsSettingsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: string, hasMappingsConfigured?: boolean | null } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' }> } | null };
+
 export type DeleteAdyenIntegrationDialogFragment = { __typename?: 'AdyenProvider', id: string, name: string };
 
 export type DeleteAdyenIntegrationMutationVariables = Exact<{
@@ -5921,6 +6030,15 @@ export type DeleteAdyenIntegrationMutationVariables = Exact<{
 
 
 export type DeleteAdyenIntegrationMutation = { __typename?: 'Mutation', destroyPaymentProvider?: { __typename?: 'DestroyPaymentProviderPayload', id?: string | null } | null };
+
+export type DeleteAnrokIntegrationDialogFragment = { __typename?: 'AnrokIntegration', id: string, name: string };
+
+export type DestroyNangoIntegrationMutationVariables = Exact<{
+  input: DestroyIntegrationInput;
+}>;
+
+
+export type DestroyNangoIntegrationMutation = { __typename?: 'Mutation', destroyIntegration?: { __typename?: 'DestroyIntegrationPayload', id?: string | null } | null };
 
 export type DeleteGocardlessIntegrationDialogFragment = { __typename?: 'GocardlessProvider', id: string, name: string };
 
@@ -5933,13 +6051,6 @@ export type DeleteGocardlessMutation = { __typename?: 'Mutation', destroyPayment
 
 export type DeleteNetsuiteIntegrationDialogFragment = { __typename?: 'NetsuiteIntegration', id: string, name: string };
 
-export type DestroyNangoIntegrationMutationVariables = Exact<{
-  input: DestroyIntegrationInput;
-}>;
-
-
-export type DestroyNangoIntegrationMutation = { __typename?: 'Mutation', destroyIntegration?: { __typename?: 'DestroyIntegrationPayload', id?: string | null } | null };
-
 export type DeleteStripeIntegrationDialogFragment = { __typename?: 'StripeProvider', id: string, name: string };
 
 export type DeleteStripeMutationVariables = Exact<{
@@ -5951,12 +6062,12 @@ export type DeleteStripeMutation = { __typename?: 'Mutation', destroyPaymentProv
 
 export type NetsuiteIntegrationItemsFragment = { __typename?: 'NetsuiteIntegration', id: string };
 
-export type GetIntegrationCollectionMappingsQueryVariables = Exact<{
+export type GetNetsuiteIntegrationCollectionMappingsQueryVariables = Exact<{
   integrationId: Scalars['ID']['input'];
 }>;
 
 
-export type GetIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null }> } | null };
+export type GetNetsuiteIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null }> } | null };
 
 export type GetAddOnsForNetsuiteItemsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -5984,6 +6095,79 @@ export type NetsuiteIntegrationItemsListBillableMetricsFragment = { __typename?:
 
 export type NetsuiteIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null };
 
+export type NetsuiteIntegrationMapItemDialogFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
+
+export type NetsuiteIntegrationMapItemDialogCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+
+export type NetsuiteIntegrationMapItemDialogCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+
+export type GetNetsuiteIntegrationItemsQueryVariables = Exact<{
+  integrationId: Scalars['ID']['input'];
+  itemType?: InputMaybe<IntegrationItemTypeEnum>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetNetsuiteIntegrationItemsQuery = { __typename?: 'Query', integrationItems: { __typename?: 'IntegrationItemCollection', collection: Array<{ __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+
+export type TriggerNetsuiteIntegrationItemsRefetchMutationVariables = Exact<{
+  input: FetchIntegrationItemsInput;
+}>;
+
+
+export type TriggerNetsuiteIntegrationItemsRefetchMutation = { __typename?: 'Mutation', fetchIntegrationItems: { __typename?: 'IntegrationItemCollection', collection: Array<{ __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum }> } };
+
+export type TriggerNetsuiteIntegrationTaxItemsRefetchMutationVariables = Exact<{
+  input: FetchIntegrationTaxItemsInput;
+}>;
+
+
+export type TriggerNetsuiteIntegrationTaxItemsRefetchMutation = { __typename?: 'Mutation', fetchIntegrationTaxItems: { __typename?: 'IntegrationItemCollection', collection: Array<{ __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum }> } };
+
+export type CreateNetsuiteIntegrationCollectionMappingMutationVariables = Exact<{
+  input: CreateIntegrationCollectionMappingInput;
+}>;
+
+
+export type CreateNetsuiteIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null } | null };
+
+export type CreateNetsuiteIntegrationMappingMutationVariables = Exact<{
+  input: CreateIntegrationMappingInput;
+}>;
+
+
+export type CreateNetsuiteIntegrationMappingMutation = { __typename?: 'Mutation', createIntegrationMapping?: { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null } | null };
+
+export type UpdateNetsuiteIntegrationCollectionMappingMutationVariables = Exact<{
+  input: UpdateIntegrationCollectionMappingInput;
+}>;
+
+
+export type UpdateNetsuiteIntegrationCollectionMappingMutation = { __typename?: 'Mutation', updateIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string } | null };
+
+export type UpdateNetsuiteIntegrationMappingMutationVariables = Exact<{
+  input: UpdateIntegrationMappingInput;
+}>;
+
+
+export type UpdateNetsuiteIntegrationMappingMutation = { __typename?: 'Mutation', updateIntegrationMapping?: { __typename?: 'Mapping', id: string } | null };
+
+export type DeleteNetsuiteIntegrationCollectionMappingMutationVariables = Exact<{
+  input: DestroyIntegrationCollectionMappingInput;
+}>;
+
+
+export type DeleteNetsuiteIntegrationCollectionMappingMutation = { __typename?: 'Mutation', destroyIntegrationCollectionMapping?: { __typename?: 'DestroyIntegrationCollectionMappingPayload', id?: string | null } | null };
+
+export type DeleteNetsuiteIntegrationMappingMutationVariables = Exact<{
+  input: DestroyIntegrationMappingInput;
+}>;
+
+
+export type DeleteNetsuiteIntegrationMappingMutation = { __typename?: 'Mutation', destroyIntegrationMapping?: { __typename?: 'DestroyIntegrationMappingPayload', id?: string | null } | null };
+
 export type NetsuiteIntegrationSettingsFragment = { __typename?: 'NetsuiteIntegration', id: string, accountId?: string | null, clientId?: string | null, clientSecret?: string | null, code: string, hasMappingsConfigured?: boolean | null, name: string, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, syncSalesOrders?: boolean | null };
 
 export type GetNetsuiteIntegrationsSettingsQueryVariables = Exact<{
@@ -5994,79 +6178,6 @@ export type GetNetsuiteIntegrationsSettingsQueryVariables = Exact<{
 
 
 export type GetNetsuiteIntegrationsSettingsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'NetsuiteIntegration', id: string, accountId?: string | null, clientId?: string | null, clientSecret?: string | null, code: string, hasMappingsConfigured?: boolean | null, name: string, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, syncSalesOrders?: boolean | null } | { __typename?: 'OktaIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'NetsuiteIntegration', id: string } | { __typename?: 'OktaIntegration' }> } | null };
-
-export type NetsuiteMapItemDialogItemFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
-
-export type NetsuiteMapItemDialogCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
-
-export type NetsuiteMapItemDialogCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
-
-export type GetIntegrationItemsQueryVariables = Exact<{
-  integrationId: Scalars['ID']['input'];
-  itemType?: InputMaybe<IntegrationItemTypeEnum>;
-  page?: InputMaybe<Scalars['Int']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  searchTerm?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type GetIntegrationItemsQuery = { __typename?: 'Query', integrationItems: { __typename?: 'IntegrationItemCollection', collection: Array<{ __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
-
-export type TriggerIntegrationItemsRefetchMutationVariables = Exact<{
-  input: FetchIntegrationItemsInput;
-}>;
-
-
-export type TriggerIntegrationItemsRefetchMutation = { __typename?: 'Mutation', fetchIntegrationItems: { __typename?: 'IntegrationItemCollection', collection: Array<{ __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum }> } };
-
-export type TriggerIntegrationTaxItemsRefetchMutationVariables = Exact<{
-  input: FetchIntegrationTaxItemsInput;
-}>;
-
-
-export type TriggerIntegrationTaxItemsRefetchMutation = { __typename?: 'Mutation', fetchIntegrationTaxItems: { __typename?: 'IntegrationItemCollection', collection: Array<{ __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum }> } };
-
-export type CreateIntegrationCollectionMappingMutationVariables = Exact<{
-  input: CreateIntegrationCollectionMappingInput;
-}>;
-
-
-export type CreateIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null } | null };
-
-export type CreateIntegrationMappingMutationVariables = Exact<{
-  input: CreateIntegrationMappingInput;
-}>;
-
-
-export type CreateIntegrationMappingMutation = { __typename?: 'Mutation', createIntegrationMapping?: { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null } | null };
-
-export type UpdateIntegrationCollectionMappingMutationVariables = Exact<{
-  input: UpdateIntegrationCollectionMappingInput;
-}>;
-
-
-export type UpdateIntegrationCollectionMappingMutation = { __typename?: 'Mutation', updateIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string } | null };
-
-export type UpdateIntegrationMappingMutationVariables = Exact<{
-  input: UpdateIntegrationMappingInput;
-}>;
-
-
-export type UpdateIntegrationMappingMutation = { __typename?: 'Mutation', updateIntegrationMapping?: { __typename?: 'Mapping', id: string } | null };
-
-export type DeleteIntegrationCollectionMappingMutationVariables = Exact<{
-  input: DestroyIntegrationCollectionMappingInput;
-}>;
-
-
-export type DeleteIntegrationCollectionMappingMutation = { __typename?: 'Mutation', destroyIntegrationCollectionMapping?: { __typename?: 'DestroyIntegrationCollectionMappingPayload', id?: string | null } | null };
-
-export type DeleteNetsuiteIntegrationMappingMutationVariables = Exact<{
-  input: DestroyIntegrationMappingInput;
-}>;
-
-
-export type DeleteNetsuiteIntegrationMappingMutation = { __typename?: 'Mutation', destroyIntegrationMapping?: { __typename?: 'DestroyIntegrationMappingPayload', id?: string | null } | null };
 
 export type CreateInviteMutationVariables = Exact<{
   input: CreateInviteInput;
@@ -6846,6 +6957,27 @@ export type GetAdyenIntegrationsListQueryVariables = Exact<{
 
 export type GetAdyenIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string, name: string, code: string, apiKey?: string | null, hmacKey?: string | null, livePrefix?: string | null, merchantAccount?: string | null } | { __typename?: 'GocardlessProvider' } | { __typename?: 'StripeProvider' }> } | null };
 
+export type AnrokIntegrationDetailsFragment = { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: string };
+
+export type GetAnrokIntegrationsDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  integrationsType: IntegrationTypeEnum;
+}>;
+
+
+export type GetAnrokIntegrationsDetailsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: string } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' }> } | null };
+
+export type AnrokIntegrationsFragment = { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: string };
+
+export type GetAnrokIntegrationsListQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<IntegrationTypeEnum>;
+}>;
+
+
+export type GetAnrokIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: string } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' }> } | null };
+
 export type GetAuthIntegrationsQueryVariables = Exact<{
   limit: Scalars['Int']['input'];
 }>;
@@ -6897,7 +7029,7 @@ export type IntegrationsSettingQueryVariables = Exact<{
 }>;
 
 
-export type IntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, euTaxManagement: boolean, country?: CountryCode | null, premiumIntegrations: Array<IntegrationTypeEnum> } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'StripeProvider', id: string }> } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'NetsuiteIntegration', id: string } | { __typename?: 'OktaIntegration' }> } | null };
+export type IntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, euTaxManagement: boolean, country?: CountryCode | null, premiumIntegrations: Array<IntegrationTypeEnum> } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'StripeProvider', id: string }> } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string } | { __typename?: 'NetsuiteIntegration', id: string } | { __typename?: 'OktaIntegration' }> } | null };
 
 export type GetOrganizationSettingsQueryVariables = Exact<{
   appliedToOrganization?: InputMaybe<Scalars['Boolean']['input']>;
@@ -7654,6 +7786,77 @@ export const AddStripeProviderDialogFragmentDoc = gql`
   secretKey
 }
     `;
+export const AnrokIntegrationItemsListAddonsFragmentDoc = gql`
+    fragment AnrokIntegrationItemsListAddons on AddOn {
+  id
+  name
+  code
+  integrationMappings(integrationId: $integrationId) {
+    id
+    externalId
+    externalAccountCode
+    externalName
+    mappableType
+  }
+}
+    `;
+export const AnrokIntegrationItemsListBillableMetricsFragmentDoc = gql`
+    fragment AnrokIntegrationItemsListBillableMetrics on BillableMetric {
+  id
+  name
+  code
+  integrationMappings(integrationId: $integrationId) {
+    id
+    externalId
+    externalAccountCode
+    externalName
+    mappableType
+  }
+}
+    `;
+export const AnrokIntegrationItemsListDefaultFragmentDoc = gql`
+    fragment AnrokIntegrationItemsListDefault on CollectionMapping {
+  id
+  mappingType
+  externalId
+  externalAccountCode
+  externalName
+}
+    `;
+export const AnrokIntegrationMapItemDialogFragmentDoc = gql`
+    fragment AnrokIntegrationMapItemDialog on IntegrationItem {
+  id
+  externalId
+  externalName
+  externalAccountCode
+  itemType
+}
+    `;
+export const AnrokIntegrationMapItemDialogCollectionMappingItemFragmentDoc = gql`
+    fragment AnrokIntegrationMapItemDialogCollectionMappingItem on CollectionMapping {
+  id
+  externalId
+  externalName
+  externalAccountCode
+}
+    `;
+export const AnrokIntegrationMapItemDialogCollectionItemFragmentDoc = gql`
+    fragment AnrokIntegrationMapItemDialogCollectionItem on Mapping {
+  id
+  externalId
+  externalName
+  externalAccountCode
+}
+    `;
+export const AnrokIntegrationSettingsFragmentDoc = gql`
+    fragment AnrokIntegrationSettings on AnrokIntegration {
+  id
+  name
+  code
+  apiKey
+  hasMappingsConfigured
+}
+    `;
 export const DeleteAdyenIntegrationDialogFragmentDoc = gql`
     fragment DeleteAdyenIntegrationDialog on AdyenProvider {
   id
@@ -7709,6 +7912,31 @@ export const NetsuiteIntegrationItemsListDefaultFragmentDoc = gql`
   externalName
 }
     `;
+export const NetsuiteIntegrationMapItemDialogFragmentDoc = gql`
+    fragment NetsuiteIntegrationMapItemDialog on IntegrationItem {
+  id
+  externalId
+  externalName
+  externalAccountCode
+  itemType
+}
+    `;
+export const NetsuiteIntegrationMapItemDialogCollectionMappingItemFragmentDoc = gql`
+    fragment NetsuiteIntegrationMapItemDialogCollectionMappingItem on CollectionMapping {
+  id
+  externalId
+  externalName
+  externalAccountCode
+}
+    `;
+export const NetsuiteIntegrationMapItemDialogCollectionItemFragmentDoc = gql`
+    fragment NetsuiteIntegrationMapItemDialogCollectionItem on Mapping {
+  id
+  externalId
+  externalName
+  externalAccountCode
+}
+    `;
 export const NetsuiteIntegrationSettingsFragmentDoc = gql`
     fragment NetsuiteIntegrationSettings on NetsuiteIntegration {
   id
@@ -7723,31 +7951,6 @@ export const NetsuiteIntegrationSettingsFragmentDoc = gql`
   syncInvoices
   syncPayments
   syncSalesOrders
-}
-    `;
-export const NetsuiteMapItemDialogItemFragmentDoc = gql`
-    fragment NetsuiteMapItemDialogItem on IntegrationItem {
-  id
-  externalId
-  externalName
-  externalAccountCode
-  itemType
-}
-    `;
-export const NetsuiteMapItemDialogCollectionMappingItemFragmentDoc = gql`
-    fragment NetsuiteMapItemDialogCollectionMappingItem on CollectionMapping {
-  id
-  externalId
-  externalName
-  externalAccountCode
-}
-    `;
-export const NetsuiteMapItemDialogCollectionItemFragmentDoc = gql`
-    fragment NetsuiteMapItemDialogCollectionItem on Mapping {
-  id
-  externalId
-  externalName
-  externalAccountCode
 }
     `;
 export const InviteForEditRoleForDialogFragmentDoc = gql`
@@ -9195,6 +9398,44 @@ export const AdyenIntegrationsFragmentDoc = gql`
   code
 }
     `;
+export const DeleteAnrokIntegrationDialogFragmentDoc = gql`
+    fragment DeleteAnrokIntegrationDialog on AnrokIntegration {
+  id
+  name
+}
+    `;
+export const AddAnrokIntegrationDialogFragmentDoc = gql`
+    fragment AddAnrokIntegrationDialog on AnrokIntegration {
+  id
+  name
+  code
+  apiKey
+}
+    `;
+export const AnrokIntegrationItemsFragmentDoc = gql`
+    fragment AnrokIntegrationItems on AnrokIntegration {
+  id
+}
+    `;
+export const AnrokIntegrationDetailsFragmentDoc = gql`
+    fragment AnrokIntegrationDetails on AnrokIntegration {
+  id
+  name
+  ...DeleteAnrokIntegrationDialog
+  ...AddAnrokIntegrationDialog
+  ...AnrokIntegrationItems
+}
+    ${DeleteAnrokIntegrationDialogFragmentDoc}
+${AddAnrokIntegrationDialogFragmentDoc}
+${AnrokIntegrationItemsFragmentDoc}`;
+export const AnrokIntegrationsFragmentDoc = gql`
+    fragment AnrokIntegrations on AnrokIntegration {
+  id
+  name
+  code
+  ...AddAnrokIntegrationDialog
+}
+    ${AddAnrokIntegrationDialogFragmentDoc}`;
 export const OktaIntegrationDetailsFragmentDoc = gql`
     fragment OktaIntegrationDetails on OktaIntegration {
   id
@@ -12763,6 +13004,78 @@ export function useUpdateAdyenApiKeyMutation(baseOptions?: Apollo.MutationHookOp
 export type UpdateAdyenApiKeyMutationHookResult = ReturnType<typeof useUpdateAdyenApiKeyMutation>;
 export type UpdateAdyenApiKeyMutationResult = Apollo.MutationResult<UpdateAdyenApiKeyMutation>;
 export type UpdateAdyenApiKeyMutationOptions = Apollo.BaseMutationOptions<UpdateAdyenApiKeyMutation, UpdateAdyenApiKeyMutationVariables>;
+export const CreateAnrokIntegrationDocument = gql`
+    mutation createAnrokIntegration($input: CreateAnrokIntegrationInput!) {
+  createAnrokIntegration(input: $input) {
+    id
+    ...AddAnrokIntegrationDialog
+    ...AnrokIntegrationDetails
+  }
+}
+    ${AddAnrokIntegrationDialogFragmentDoc}
+${AnrokIntegrationDetailsFragmentDoc}`;
+export type CreateAnrokIntegrationMutationFn = Apollo.MutationFunction<CreateAnrokIntegrationMutation, CreateAnrokIntegrationMutationVariables>;
+
+/**
+ * __useCreateAnrokIntegrationMutation__
+ *
+ * To run a mutation, you first call `useCreateAnrokIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateAnrokIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createAnrokIntegrationMutation, { data, loading, error }] = useCreateAnrokIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateAnrokIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<CreateAnrokIntegrationMutation, CreateAnrokIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateAnrokIntegrationMutation, CreateAnrokIntegrationMutationVariables>(CreateAnrokIntegrationDocument, options);
+      }
+export type CreateAnrokIntegrationMutationHookResult = ReturnType<typeof useCreateAnrokIntegrationMutation>;
+export type CreateAnrokIntegrationMutationResult = Apollo.MutationResult<CreateAnrokIntegrationMutation>;
+export type CreateAnrokIntegrationMutationOptions = Apollo.BaseMutationOptions<CreateAnrokIntegrationMutation, CreateAnrokIntegrationMutationVariables>;
+export const UpdateAnrokIntegrationDocument = gql`
+    mutation updateAnrokIntegration($input: UpdateAnrokIntegrationInput!) {
+  updateAnrokIntegration(input: $input) {
+    id
+    ...AddAnrokIntegrationDialog
+    ...AnrokIntegrationDetails
+  }
+}
+    ${AddAnrokIntegrationDialogFragmentDoc}
+${AnrokIntegrationDetailsFragmentDoc}`;
+export type UpdateAnrokIntegrationMutationFn = Apollo.MutationFunction<UpdateAnrokIntegrationMutation, UpdateAnrokIntegrationMutationVariables>;
+
+/**
+ * __useUpdateAnrokIntegrationMutation__
+ *
+ * To run a mutation, you first call `useUpdateAnrokIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAnrokIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAnrokIntegrationMutation, { data, loading, error }] = useUpdateAnrokIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateAnrokIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAnrokIntegrationMutation, UpdateAnrokIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAnrokIntegrationMutation, UpdateAnrokIntegrationMutationVariables>(UpdateAnrokIntegrationDocument, options);
+      }
+export type UpdateAnrokIntegrationMutationHookResult = ReturnType<typeof useUpdateAnrokIntegrationMutation>;
+export type UpdateAnrokIntegrationMutationResult = Apollo.MutationResult<UpdateAnrokIntegrationMutation>;
+export type UpdateAnrokIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateAnrokIntegrationMutation, UpdateAnrokIntegrationMutationVariables>;
 export const UpdateAdyenPaymentProviderDocument = gql`
     mutation updateAdyenPaymentProvider($input: UpdateAdyenPaymentProviderInput!) {
   updateAdyenPaymentProvider(input: $input) {
@@ -13168,6 +13481,404 @@ export function useUpdateStripeApiKeyMutation(baseOptions?: Apollo.MutationHookO
 export type UpdateStripeApiKeyMutationHookResult = ReturnType<typeof useUpdateStripeApiKeyMutation>;
 export type UpdateStripeApiKeyMutationResult = Apollo.MutationResult<UpdateStripeApiKeyMutation>;
 export type UpdateStripeApiKeyMutationOptions = Apollo.BaseMutationOptions<UpdateStripeApiKeyMutation, UpdateStripeApiKeyMutationVariables>;
+export const GetAnrokIntegrationCollectionMappingsDocument = gql`
+    query getAnrokIntegrationCollectionMappings($integrationId: ID!) {
+  integrationCollectionMappings(integrationId: $integrationId) {
+    collection {
+      id
+      ...AnrokIntegrationItemsListDefault
+    }
+  }
+}
+    ${AnrokIntegrationItemsListDefaultFragmentDoc}`;
+
+/**
+ * __useGetAnrokIntegrationCollectionMappingsQuery__
+ *
+ * To run a query within a React component, call `useGetAnrokIntegrationCollectionMappingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAnrokIntegrationCollectionMappingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAnrokIntegrationCollectionMappingsQuery({
+ *   variables: {
+ *      integrationId: // value for 'integrationId'
+ *   },
+ * });
+ */
+export function useGetAnrokIntegrationCollectionMappingsQuery(baseOptions: Apollo.QueryHookOptions<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>(GetAnrokIntegrationCollectionMappingsDocument, options);
+      }
+export function useGetAnrokIntegrationCollectionMappingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>(GetAnrokIntegrationCollectionMappingsDocument, options);
+        }
+export function useGetAnrokIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>(GetAnrokIntegrationCollectionMappingsDocument, options);
+        }
+export type GetAnrokIntegrationCollectionMappingsQueryHookResult = ReturnType<typeof useGetAnrokIntegrationCollectionMappingsQuery>;
+export type GetAnrokIntegrationCollectionMappingsLazyQueryHookResult = ReturnType<typeof useGetAnrokIntegrationCollectionMappingsLazyQuery>;
+export type GetAnrokIntegrationCollectionMappingsSuspenseQueryHookResult = ReturnType<typeof useGetAnrokIntegrationCollectionMappingsSuspenseQuery>;
+export type GetAnrokIntegrationCollectionMappingsQueryResult = Apollo.QueryResult<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>;
+export const GetAddOnsForAnrokItemsListDocument = gql`
+    query getAddOnsForAnrokItemsList($page: Int, $limit: Int, $searchTerm: String, $integrationId: ID!) {
+  addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      ...AnrokIntegrationItemsListAddons
+    }
+  }
+}
+    ${AnrokIntegrationItemsListAddonsFragmentDoc}`;
+
+/**
+ * __useGetAddOnsForAnrokItemsListQuery__
+ *
+ * To run a query within a React component, call `useGetAddOnsForAnrokItemsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAddOnsForAnrokItemsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAddOnsForAnrokItemsListQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      integrationId: // value for 'integrationId'
+ *   },
+ * });
+ */
+export function useGetAddOnsForAnrokItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>(GetAddOnsForAnrokItemsListDocument, options);
+      }
+export function useGetAddOnsForAnrokItemsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>(GetAddOnsForAnrokItemsListDocument, options);
+        }
+export function useGetAddOnsForAnrokItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>(GetAddOnsForAnrokItemsListDocument, options);
+        }
+export type GetAddOnsForAnrokItemsListQueryHookResult = ReturnType<typeof useGetAddOnsForAnrokItemsListQuery>;
+export type GetAddOnsForAnrokItemsListLazyQueryHookResult = ReturnType<typeof useGetAddOnsForAnrokItemsListLazyQuery>;
+export type GetAddOnsForAnrokItemsListSuspenseQueryHookResult = ReturnType<typeof useGetAddOnsForAnrokItemsListSuspenseQuery>;
+export type GetAddOnsForAnrokItemsListQueryResult = Apollo.QueryResult<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>;
+export const GetBillableMetricsForAnrokItemsListDocument = gql`
+    query getBillableMetricsForAnrokItemsList($page: Int, $limit: Int, $searchTerm: String, $integrationId: ID!) {
+  billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      ...AnrokIntegrationItemsListBillableMetrics
+    }
+  }
+}
+    ${AnrokIntegrationItemsListBillableMetricsFragmentDoc}`;
+
+/**
+ * __useGetBillableMetricsForAnrokItemsListQuery__
+ *
+ * To run a query within a React component, call `useGetBillableMetricsForAnrokItemsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBillableMetricsForAnrokItemsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBillableMetricsForAnrokItemsListQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      integrationId: // value for 'integrationId'
+ *   },
+ * });
+ */
+export function useGetBillableMetricsForAnrokItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>(GetBillableMetricsForAnrokItemsListDocument, options);
+      }
+export function useGetBillableMetricsForAnrokItemsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>(GetBillableMetricsForAnrokItemsListDocument, options);
+        }
+export function useGetBillableMetricsForAnrokItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>(GetBillableMetricsForAnrokItemsListDocument, options);
+        }
+export type GetBillableMetricsForAnrokItemsListQueryHookResult = ReturnType<typeof useGetBillableMetricsForAnrokItemsListQuery>;
+export type GetBillableMetricsForAnrokItemsListLazyQueryHookResult = ReturnType<typeof useGetBillableMetricsForAnrokItemsListLazyQuery>;
+export type GetBillableMetricsForAnrokItemsListSuspenseQueryHookResult = ReturnType<typeof useGetBillableMetricsForAnrokItemsListSuspenseQuery>;
+export type GetBillableMetricsForAnrokItemsListQueryResult = Apollo.QueryResult<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>;
+export const CreateAnrokIntegrationCollectionMappingDocument = gql`
+    mutation createAnrokIntegrationCollectionMapping($input: CreateIntegrationCollectionMappingInput!) {
+  createIntegrationCollectionMapping(input: $input) {
+    id
+    ...AnrokIntegrationMapItemDialogCollectionMappingItem
+  }
+}
+    ${AnrokIntegrationMapItemDialogCollectionMappingItemFragmentDoc}`;
+export type CreateAnrokIntegrationCollectionMappingMutationFn = Apollo.MutationFunction<CreateAnrokIntegrationCollectionMappingMutation, CreateAnrokIntegrationCollectionMappingMutationVariables>;
+
+/**
+ * __useCreateAnrokIntegrationCollectionMappingMutation__
+ *
+ * To run a mutation, you first call `useCreateAnrokIntegrationCollectionMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateAnrokIntegrationCollectionMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createAnrokIntegrationCollectionMappingMutation, { data, loading, error }] = useCreateAnrokIntegrationCollectionMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateAnrokIntegrationCollectionMappingMutation(baseOptions?: Apollo.MutationHookOptions<CreateAnrokIntegrationCollectionMappingMutation, CreateAnrokIntegrationCollectionMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateAnrokIntegrationCollectionMappingMutation, CreateAnrokIntegrationCollectionMappingMutationVariables>(CreateAnrokIntegrationCollectionMappingDocument, options);
+      }
+export type CreateAnrokIntegrationCollectionMappingMutationHookResult = ReturnType<typeof useCreateAnrokIntegrationCollectionMappingMutation>;
+export type CreateAnrokIntegrationCollectionMappingMutationResult = Apollo.MutationResult<CreateAnrokIntegrationCollectionMappingMutation>;
+export type CreateAnrokIntegrationCollectionMappingMutationOptions = Apollo.BaseMutationOptions<CreateAnrokIntegrationCollectionMappingMutation, CreateAnrokIntegrationCollectionMappingMutationVariables>;
+export const CreateAnrokIntegrationMappingDocument = gql`
+    mutation createAnrokIntegrationMapping($input: CreateIntegrationMappingInput!) {
+  createIntegrationMapping(input: $input) {
+    id
+    ...AnrokIntegrationMapItemDialogCollectionItem
+  }
+}
+    ${AnrokIntegrationMapItemDialogCollectionItemFragmentDoc}`;
+export type CreateAnrokIntegrationMappingMutationFn = Apollo.MutationFunction<CreateAnrokIntegrationMappingMutation, CreateAnrokIntegrationMappingMutationVariables>;
+
+/**
+ * __useCreateAnrokIntegrationMappingMutation__
+ *
+ * To run a mutation, you first call `useCreateAnrokIntegrationMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateAnrokIntegrationMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createAnrokIntegrationMappingMutation, { data, loading, error }] = useCreateAnrokIntegrationMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateAnrokIntegrationMappingMutation(baseOptions?: Apollo.MutationHookOptions<CreateAnrokIntegrationMappingMutation, CreateAnrokIntegrationMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateAnrokIntegrationMappingMutation, CreateAnrokIntegrationMappingMutationVariables>(CreateAnrokIntegrationMappingDocument, options);
+      }
+export type CreateAnrokIntegrationMappingMutationHookResult = ReturnType<typeof useCreateAnrokIntegrationMappingMutation>;
+export type CreateAnrokIntegrationMappingMutationResult = Apollo.MutationResult<CreateAnrokIntegrationMappingMutation>;
+export type CreateAnrokIntegrationMappingMutationOptions = Apollo.BaseMutationOptions<CreateAnrokIntegrationMappingMutation, CreateAnrokIntegrationMappingMutationVariables>;
+export const UpdateAnrokIntegrationCollectionMappingDocument = gql`
+    mutation updateAnrokIntegrationCollectionMapping($input: UpdateIntegrationCollectionMappingInput!) {
+  updateIntegrationCollectionMapping(input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateAnrokIntegrationCollectionMappingMutationFn = Apollo.MutationFunction<UpdateAnrokIntegrationCollectionMappingMutation, UpdateAnrokIntegrationCollectionMappingMutationVariables>;
+
+/**
+ * __useUpdateAnrokIntegrationCollectionMappingMutation__
+ *
+ * To run a mutation, you first call `useUpdateAnrokIntegrationCollectionMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAnrokIntegrationCollectionMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAnrokIntegrationCollectionMappingMutation, { data, loading, error }] = useUpdateAnrokIntegrationCollectionMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateAnrokIntegrationCollectionMappingMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAnrokIntegrationCollectionMappingMutation, UpdateAnrokIntegrationCollectionMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAnrokIntegrationCollectionMappingMutation, UpdateAnrokIntegrationCollectionMappingMutationVariables>(UpdateAnrokIntegrationCollectionMappingDocument, options);
+      }
+export type UpdateAnrokIntegrationCollectionMappingMutationHookResult = ReturnType<typeof useUpdateAnrokIntegrationCollectionMappingMutation>;
+export type UpdateAnrokIntegrationCollectionMappingMutationResult = Apollo.MutationResult<UpdateAnrokIntegrationCollectionMappingMutation>;
+export type UpdateAnrokIntegrationCollectionMappingMutationOptions = Apollo.BaseMutationOptions<UpdateAnrokIntegrationCollectionMappingMutation, UpdateAnrokIntegrationCollectionMappingMutationVariables>;
+export const UpdateAnrokIntegrationMappingDocument = gql`
+    mutation updateAnrokIntegrationMapping($input: UpdateIntegrationMappingInput!) {
+  updateIntegrationMapping(input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateAnrokIntegrationMappingMutationFn = Apollo.MutationFunction<UpdateAnrokIntegrationMappingMutation, UpdateAnrokIntegrationMappingMutationVariables>;
+
+/**
+ * __useUpdateAnrokIntegrationMappingMutation__
+ *
+ * To run a mutation, you first call `useUpdateAnrokIntegrationMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAnrokIntegrationMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAnrokIntegrationMappingMutation, { data, loading, error }] = useUpdateAnrokIntegrationMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateAnrokIntegrationMappingMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAnrokIntegrationMappingMutation, UpdateAnrokIntegrationMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAnrokIntegrationMappingMutation, UpdateAnrokIntegrationMappingMutationVariables>(UpdateAnrokIntegrationMappingDocument, options);
+      }
+export type UpdateAnrokIntegrationMappingMutationHookResult = ReturnType<typeof useUpdateAnrokIntegrationMappingMutation>;
+export type UpdateAnrokIntegrationMappingMutationResult = Apollo.MutationResult<UpdateAnrokIntegrationMappingMutation>;
+export type UpdateAnrokIntegrationMappingMutationOptions = Apollo.BaseMutationOptions<UpdateAnrokIntegrationMappingMutation, UpdateAnrokIntegrationMappingMutationVariables>;
+export const DeleteAnrokIntegrationCollectionMappingDocument = gql`
+    mutation deleteAnrokIntegrationCollectionMapping($input: DestroyIntegrationCollectionMappingInput!) {
+  destroyIntegrationCollectionMapping(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteAnrokIntegrationCollectionMappingMutationFn = Apollo.MutationFunction<DeleteAnrokIntegrationCollectionMappingMutation, DeleteAnrokIntegrationCollectionMappingMutationVariables>;
+
+/**
+ * __useDeleteAnrokIntegrationCollectionMappingMutation__
+ *
+ * To run a mutation, you first call `useDeleteAnrokIntegrationCollectionMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAnrokIntegrationCollectionMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAnrokIntegrationCollectionMappingMutation, { data, loading, error }] = useDeleteAnrokIntegrationCollectionMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteAnrokIntegrationCollectionMappingMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAnrokIntegrationCollectionMappingMutation, DeleteAnrokIntegrationCollectionMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteAnrokIntegrationCollectionMappingMutation, DeleteAnrokIntegrationCollectionMappingMutationVariables>(DeleteAnrokIntegrationCollectionMappingDocument, options);
+      }
+export type DeleteAnrokIntegrationCollectionMappingMutationHookResult = ReturnType<typeof useDeleteAnrokIntegrationCollectionMappingMutation>;
+export type DeleteAnrokIntegrationCollectionMappingMutationResult = Apollo.MutationResult<DeleteAnrokIntegrationCollectionMappingMutation>;
+export type DeleteAnrokIntegrationCollectionMappingMutationOptions = Apollo.BaseMutationOptions<DeleteAnrokIntegrationCollectionMappingMutation, DeleteAnrokIntegrationCollectionMappingMutationVariables>;
+export const DeleteAnrokIntegrationMappingDocument = gql`
+    mutation deleteAnrokIntegrationMapping($input: DestroyIntegrationMappingInput!) {
+  destroyIntegrationMapping(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteAnrokIntegrationMappingMutationFn = Apollo.MutationFunction<DeleteAnrokIntegrationMappingMutation, DeleteAnrokIntegrationMappingMutationVariables>;
+
+/**
+ * __useDeleteAnrokIntegrationMappingMutation__
+ *
+ * To run a mutation, you first call `useDeleteAnrokIntegrationMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAnrokIntegrationMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAnrokIntegrationMappingMutation, { data, loading, error }] = useDeleteAnrokIntegrationMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteAnrokIntegrationMappingMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAnrokIntegrationMappingMutation, DeleteAnrokIntegrationMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteAnrokIntegrationMappingMutation, DeleteAnrokIntegrationMappingMutationVariables>(DeleteAnrokIntegrationMappingDocument, options);
+      }
+export type DeleteAnrokIntegrationMappingMutationHookResult = ReturnType<typeof useDeleteAnrokIntegrationMappingMutation>;
+export type DeleteAnrokIntegrationMappingMutationResult = Apollo.MutationResult<DeleteAnrokIntegrationMappingMutation>;
+export type DeleteAnrokIntegrationMappingMutationOptions = Apollo.BaseMutationOptions<DeleteAnrokIntegrationMappingMutation, DeleteAnrokIntegrationMappingMutationVariables>;
+export const GetAnrokIntegrationsSettingsDocument = gql`
+    query getAnrokIntegrationsSettings($id: ID!, $limit: Int) {
+  integration(id: $id) {
+    ... on AnrokIntegration {
+      id
+      ...AnrokIntegrationSettings
+      ...DeleteAnrokIntegrationDialog
+      ...AddAnrokIntegrationDialog
+    }
+  }
+  integrations(limit: $limit) {
+    collection {
+      ... on AnrokIntegration {
+        id
+      }
+    }
+  }
+}
+    ${AnrokIntegrationSettingsFragmentDoc}
+${DeleteAnrokIntegrationDialogFragmentDoc}
+${AddAnrokIntegrationDialogFragmentDoc}`;
+
+/**
+ * __useGetAnrokIntegrationsSettingsQuery__
+ *
+ * To run a query within a React component, call `useGetAnrokIntegrationsSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAnrokIntegrationsSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAnrokIntegrationsSettingsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetAnrokIntegrationsSettingsQuery(baseOptions: Apollo.QueryHookOptions<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>(GetAnrokIntegrationsSettingsDocument, options);
+      }
+export function useGetAnrokIntegrationsSettingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>(GetAnrokIntegrationsSettingsDocument, options);
+        }
+export function useGetAnrokIntegrationsSettingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>(GetAnrokIntegrationsSettingsDocument, options);
+        }
+export type GetAnrokIntegrationsSettingsQueryHookResult = ReturnType<typeof useGetAnrokIntegrationsSettingsQuery>;
+export type GetAnrokIntegrationsSettingsLazyQueryHookResult = ReturnType<typeof useGetAnrokIntegrationsSettingsLazyQuery>;
+export type GetAnrokIntegrationsSettingsSuspenseQueryHookResult = ReturnType<typeof useGetAnrokIntegrationsSettingsSuspenseQuery>;
+export type GetAnrokIntegrationsSettingsQueryResult = Apollo.QueryResult<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>;
 export const DeleteAdyenIntegrationDocument = gql`
     mutation deleteAdyenIntegration($input: DestroyPaymentProviderInput!) {
   destroyPaymentProvider(input: $input) {
@@ -13201,39 +13912,6 @@ export function useDeleteAdyenIntegrationMutation(baseOptions?: Apollo.MutationH
 export type DeleteAdyenIntegrationMutationHookResult = ReturnType<typeof useDeleteAdyenIntegrationMutation>;
 export type DeleteAdyenIntegrationMutationResult = Apollo.MutationResult<DeleteAdyenIntegrationMutation>;
 export type DeleteAdyenIntegrationMutationOptions = Apollo.BaseMutationOptions<DeleteAdyenIntegrationMutation, DeleteAdyenIntegrationMutationVariables>;
-export const DeleteGocardlessDocument = gql`
-    mutation deleteGocardless($input: DestroyPaymentProviderInput!) {
-  destroyPaymentProvider(input: $input) {
-    id
-  }
-}
-    `;
-export type DeleteGocardlessMutationFn = Apollo.MutationFunction<DeleteGocardlessMutation, DeleteGocardlessMutationVariables>;
-
-/**
- * __useDeleteGocardlessMutation__
- *
- * To run a mutation, you first call `useDeleteGocardlessMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteGocardlessMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteGocardlessMutation, { data, loading, error }] = useDeleteGocardlessMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useDeleteGocardlessMutation(baseOptions?: Apollo.MutationHookOptions<DeleteGocardlessMutation, DeleteGocardlessMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteGocardlessMutation, DeleteGocardlessMutationVariables>(DeleteGocardlessDocument, options);
-      }
-export type DeleteGocardlessMutationHookResult = ReturnType<typeof useDeleteGocardlessMutation>;
-export type DeleteGocardlessMutationResult = Apollo.MutationResult<DeleteGocardlessMutation>;
-export type DeleteGocardlessMutationOptions = Apollo.BaseMutationOptions<DeleteGocardlessMutation, DeleteGocardlessMutationVariables>;
 export const DestroyNangoIntegrationDocument = gql`
     mutation destroyNangoIntegration($input: DestroyIntegrationInput!) {
   destroyIntegration(input: $input) {
@@ -13267,6 +13945,39 @@ export function useDestroyNangoIntegrationMutation(baseOptions?: Apollo.Mutation
 export type DestroyNangoIntegrationMutationHookResult = ReturnType<typeof useDestroyNangoIntegrationMutation>;
 export type DestroyNangoIntegrationMutationResult = Apollo.MutationResult<DestroyNangoIntegrationMutation>;
 export type DestroyNangoIntegrationMutationOptions = Apollo.BaseMutationOptions<DestroyNangoIntegrationMutation, DestroyNangoIntegrationMutationVariables>;
+export const DeleteGocardlessDocument = gql`
+    mutation deleteGocardless($input: DestroyPaymentProviderInput!) {
+  destroyPaymentProvider(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteGocardlessMutationFn = Apollo.MutationFunction<DeleteGocardlessMutation, DeleteGocardlessMutationVariables>;
+
+/**
+ * __useDeleteGocardlessMutation__
+ *
+ * To run a mutation, you first call `useDeleteGocardlessMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteGocardlessMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteGocardlessMutation, { data, loading, error }] = useDeleteGocardlessMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteGocardlessMutation(baseOptions?: Apollo.MutationHookOptions<DeleteGocardlessMutation, DeleteGocardlessMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteGocardlessMutation, DeleteGocardlessMutationVariables>(DeleteGocardlessDocument, options);
+      }
+export type DeleteGocardlessMutationHookResult = ReturnType<typeof useDeleteGocardlessMutation>;
+export type DeleteGocardlessMutationResult = Apollo.MutationResult<DeleteGocardlessMutation>;
+export type DeleteGocardlessMutationOptions = Apollo.BaseMutationOptions<DeleteGocardlessMutation, DeleteGocardlessMutationVariables>;
 export const DeleteStripeDocument = gql`
     mutation deleteStripe($input: DestroyPaymentProviderInput!) {
   destroyPaymentProvider(input: $input) {
@@ -13300,8 +14011,8 @@ export function useDeleteStripeMutation(baseOptions?: Apollo.MutationHookOptions
 export type DeleteStripeMutationHookResult = ReturnType<typeof useDeleteStripeMutation>;
 export type DeleteStripeMutationResult = Apollo.MutationResult<DeleteStripeMutation>;
 export type DeleteStripeMutationOptions = Apollo.BaseMutationOptions<DeleteStripeMutation, DeleteStripeMutationVariables>;
-export const GetIntegrationCollectionMappingsDocument = gql`
-    query getIntegrationCollectionMappings($integrationId: ID!) {
+export const GetNetsuiteIntegrationCollectionMappingsDocument = gql`
+    query getNetsuiteIntegrationCollectionMappings($integrationId: ID!) {
   integrationCollectionMappings(integrationId: $integrationId) {
     collection {
       id
@@ -13312,37 +14023,37 @@ export const GetIntegrationCollectionMappingsDocument = gql`
     ${NetsuiteIntegrationItemsListDefaultFragmentDoc}`;
 
 /**
- * __useGetIntegrationCollectionMappingsQuery__
+ * __useGetNetsuiteIntegrationCollectionMappingsQuery__
  *
- * To run a query within a React component, call `useGetIntegrationCollectionMappingsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetIntegrationCollectionMappingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetNetsuiteIntegrationCollectionMappingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNetsuiteIntegrationCollectionMappingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetIntegrationCollectionMappingsQuery({
+ * const { data, loading, error } = useGetNetsuiteIntegrationCollectionMappingsQuery({
  *   variables: {
  *      integrationId: // value for 'integrationId'
  *   },
  * });
  */
-export function useGetIntegrationCollectionMappingsQuery(baseOptions: Apollo.QueryHookOptions<GetIntegrationCollectionMappingsQuery, GetIntegrationCollectionMappingsQueryVariables>) {
+export function useGetNetsuiteIntegrationCollectionMappingsQuery(baseOptions: Apollo.QueryHookOptions<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetIntegrationCollectionMappingsQuery, GetIntegrationCollectionMappingsQueryVariables>(GetIntegrationCollectionMappingsDocument, options);
+        return Apollo.useQuery<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>(GetNetsuiteIntegrationCollectionMappingsDocument, options);
       }
-export function useGetIntegrationCollectionMappingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetIntegrationCollectionMappingsQuery, GetIntegrationCollectionMappingsQueryVariables>) {
+export function useGetNetsuiteIntegrationCollectionMappingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetIntegrationCollectionMappingsQuery, GetIntegrationCollectionMappingsQueryVariables>(GetIntegrationCollectionMappingsDocument, options);
+          return Apollo.useLazyQuery<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>(GetNetsuiteIntegrationCollectionMappingsDocument, options);
         }
-export function useGetIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetIntegrationCollectionMappingsQuery, GetIntegrationCollectionMappingsQueryVariables>) {
+export function useGetNetsuiteIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetIntegrationCollectionMappingsQuery, GetIntegrationCollectionMappingsQueryVariables>(GetIntegrationCollectionMappingsDocument, options);
+          return Apollo.useSuspenseQuery<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>(GetNetsuiteIntegrationCollectionMappingsDocument, options);
         }
-export type GetIntegrationCollectionMappingsQueryHookResult = ReturnType<typeof useGetIntegrationCollectionMappingsQuery>;
-export type GetIntegrationCollectionMappingsLazyQueryHookResult = ReturnType<typeof useGetIntegrationCollectionMappingsLazyQuery>;
-export type GetIntegrationCollectionMappingsSuspenseQueryHookResult = ReturnType<typeof useGetIntegrationCollectionMappingsSuspenseQuery>;
-export type GetIntegrationCollectionMappingsQueryResult = Apollo.QueryResult<GetIntegrationCollectionMappingsQuery, GetIntegrationCollectionMappingsQueryVariables>;
+export type GetNetsuiteIntegrationCollectionMappingsQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationCollectionMappingsQuery>;
+export type GetNetsuiteIntegrationCollectionMappingsLazyQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationCollectionMappingsLazyQuery>;
+export type GetNetsuiteIntegrationCollectionMappingsSuspenseQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationCollectionMappingsSuspenseQuery>;
+export type GetNetsuiteIntegrationCollectionMappingsQueryResult = Apollo.QueryResult<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>;
 export const GetAddOnsForNetsuiteItemsListDocument = gql`
     query getAddOnsForNetsuiteItemsList($page: Int, $limit: Int, $searchTerm: String, $integrationId: ID!) {
   addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {
@@ -13443,6 +14154,333 @@ export type GetBillableMetricsForNetsuiteItemsListQueryHookResult = ReturnType<t
 export type GetBillableMetricsForNetsuiteItemsListLazyQueryHookResult = ReturnType<typeof useGetBillableMetricsForNetsuiteItemsListLazyQuery>;
 export type GetBillableMetricsForNetsuiteItemsListSuspenseQueryHookResult = ReturnType<typeof useGetBillableMetricsForNetsuiteItemsListSuspenseQuery>;
 export type GetBillableMetricsForNetsuiteItemsListQueryResult = Apollo.QueryResult<GetBillableMetricsForNetsuiteItemsListQuery, GetBillableMetricsForNetsuiteItemsListQueryVariables>;
+export const GetNetsuiteIntegrationItemsDocument = gql`
+    query getNetsuiteIntegrationItems($integrationId: ID!, $itemType: IntegrationItemTypeEnum, $page: Int, $limit: Int, $searchTerm: String) {
+  integrationItems(
+    integrationId: $integrationId
+    itemType: $itemType
+    page: $page
+    limit: $limit
+    searchTerm: $searchTerm
+  ) {
+    collection {
+      ...NetsuiteIntegrationMapItemDialog
+    }
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+    ${NetsuiteIntegrationMapItemDialogFragmentDoc}`;
+
+/**
+ * __useGetNetsuiteIntegrationItemsQuery__
+ *
+ * To run a query within a React component, call `useGetNetsuiteIntegrationItemsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNetsuiteIntegrationItemsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNetsuiteIntegrationItemsQuery({
+ *   variables: {
+ *      integrationId: // value for 'integrationId'
+ *      itemType: // value for 'itemType'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetNetsuiteIntegrationItemsQuery(baseOptions: Apollo.QueryHookOptions<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>(GetNetsuiteIntegrationItemsDocument, options);
+      }
+export function useGetNetsuiteIntegrationItemsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>(GetNetsuiteIntegrationItemsDocument, options);
+        }
+export function useGetNetsuiteIntegrationItemsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>(GetNetsuiteIntegrationItemsDocument, options);
+        }
+export type GetNetsuiteIntegrationItemsQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationItemsQuery>;
+export type GetNetsuiteIntegrationItemsLazyQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationItemsLazyQuery>;
+export type GetNetsuiteIntegrationItemsSuspenseQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationItemsSuspenseQuery>;
+export type GetNetsuiteIntegrationItemsQueryResult = Apollo.QueryResult<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>;
+export const TriggerNetsuiteIntegrationItemsRefetchDocument = gql`
+    mutation triggerNetsuiteIntegrationItemsRefetch($input: FetchIntegrationItemsInput!) {
+  fetchIntegrationItems(input: $input) {
+    collection {
+      ...NetsuiteIntegrationMapItemDialog
+    }
+  }
+}
+    ${NetsuiteIntegrationMapItemDialogFragmentDoc}`;
+export type TriggerNetsuiteIntegrationItemsRefetchMutationFn = Apollo.MutationFunction<TriggerNetsuiteIntegrationItemsRefetchMutation, TriggerNetsuiteIntegrationItemsRefetchMutationVariables>;
+
+/**
+ * __useTriggerNetsuiteIntegrationItemsRefetchMutation__
+ *
+ * To run a mutation, you first call `useTriggerNetsuiteIntegrationItemsRefetchMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTriggerNetsuiteIntegrationItemsRefetchMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [triggerNetsuiteIntegrationItemsRefetchMutation, { data, loading, error }] = useTriggerNetsuiteIntegrationItemsRefetchMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useTriggerNetsuiteIntegrationItemsRefetchMutation(baseOptions?: Apollo.MutationHookOptions<TriggerNetsuiteIntegrationItemsRefetchMutation, TriggerNetsuiteIntegrationItemsRefetchMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<TriggerNetsuiteIntegrationItemsRefetchMutation, TriggerNetsuiteIntegrationItemsRefetchMutationVariables>(TriggerNetsuiteIntegrationItemsRefetchDocument, options);
+      }
+export type TriggerNetsuiteIntegrationItemsRefetchMutationHookResult = ReturnType<typeof useTriggerNetsuiteIntegrationItemsRefetchMutation>;
+export type TriggerNetsuiteIntegrationItemsRefetchMutationResult = Apollo.MutationResult<TriggerNetsuiteIntegrationItemsRefetchMutation>;
+export type TriggerNetsuiteIntegrationItemsRefetchMutationOptions = Apollo.BaseMutationOptions<TriggerNetsuiteIntegrationItemsRefetchMutation, TriggerNetsuiteIntegrationItemsRefetchMutationVariables>;
+export const TriggerNetsuiteIntegrationTaxItemsRefetchDocument = gql`
+    mutation triggerNetsuiteIntegrationTaxItemsRefetch($input: FetchIntegrationTaxItemsInput!) {
+  fetchIntegrationTaxItems(input: $input) {
+    collection {
+      ...NetsuiteIntegrationMapItemDialog
+    }
+  }
+}
+    ${NetsuiteIntegrationMapItemDialogFragmentDoc}`;
+export type TriggerNetsuiteIntegrationTaxItemsRefetchMutationFn = Apollo.MutationFunction<TriggerNetsuiteIntegrationTaxItemsRefetchMutation, TriggerNetsuiteIntegrationTaxItemsRefetchMutationVariables>;
+
+/**
+ * __useTriggerNetsuiteIntegrationTaxItemsRefetchMutation__
+ *
+ * To run a mutation, you first call `useTriggerNetsuiteIntegrationTaxItemsRefetchMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTriggerNetsuiteIntegrationTaxItemsRefetchMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [triggerNetsuiteIntegrationTaxItemsRefetchMutation, { data, loading, error }] = useTriggerNetsuiteIntegrationTaxItemsRefetchMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useTriggerNetsuiteIntegrationTaxItemsRefetchMutation(baseOptions?: Apollo.MutationHookOptions<TriggerNetsuiteIntegrationTaxItemsRefetchMutation, TriggerNetsuiteIntegrationTaxItemsRefetchMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<TriggerNetsuiteIntegrationTaxItemsRefetchMutation, TriggerNetsuiteIntegrationTaxItemsRefetchMutationVariables>(TriggerNetsuiteIntegrationTaxItemsRefetchDocument, options);
+      }
+export type TriggerNetsuiteIntegrationTaxItemsRefetchMutationHookResult = ReturnType<typeof useTriggerNetsuiteIntegrationTaxItemsRefetchMutation>;
+export type TriggerNetsuiteIntegrationTaxItemsRefetchMutationResult = Apollo.MutationResult<TriggerNetsuiteIntegrationTaxItemsRefetchMutation>;
+export type TriggerNetsuiteIntegrationTaxItemsRefetchMutationOptions = Apollo.BaseMutationOptions<TriggerNetsuiteIntegrationTaxItemsRefetchMutation, TriggerNetsuiteIntegrationTaxItemsRefetchMutationVariables>;
+export const CreateNetsuiteIntegrationCollectionMappingDocument = gql`
+    mutation createNetsuiteIntegrationCollectionMapping($input: CreateIntegrationCollectionMappingInput!) {
+  createIntegrationCollectionMapping(input: $input) {
+    id
+    ...NetsuiteIntegrationMapItemDialogCollectionMappingItem
+  }
+}
+    ${NetsuiteIntegrationMapItemDialogCollectionMappingItemFragmentDoc}`;
+export type CreateNetsuiteIntegrationCollectionMappingMutationFn = Apollo.MutationFunction<CreateNetsuiteIntegrationCollectionMappingMutation, CreateNetsuiteIntegrationCollectionMappingMutationVariables>;
+
+/**
+ * __useCreateNetsuiteIntegrationCollectionMappingMutation__
+ *
+ * To run a mutation, you first call `useCreateNetsuiteIntegrationCollectionMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateNetsuiteIntegrationCollectionMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createNetsuiteIntegrationCollectionMappingMutation, { data, loading, error }] = useCreateNetsuiteIntegrationCollectionMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateNetsuiteIntegrationCollectionMappingMutation(baseOptions?: Apollo.MutationHookOptions<CreateNetsuiteIntegrationCollectionMappingMutation, CreateNetsuiteIntegrationCollectionMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateNetsuiteIntegrationCollectionMappingMutation, CreateNetsuiteIntegrationCollectionMappingMutationVariables>(CreateNetsuiteIntegrationCollectionMappingDocument, options);
+      }
+export type CreateNetsuiteIntegrationCollectionMappingMutationHookResult = ReturnType<typeof useCreateNetsuiteIntegrationCollectionMappingMutation>;
+export type CreateNetsuiteIntegrationCollectionMappingMutationResult = Apollo.MutationResult<CreateNetsuiteIntegrationCollectionMappingMutation>;
+export type CreateNetsuiteIntegrationCollectionMappingMutationOptions = Apollo.BaseMutationOptions<CreateNetsuiteIntegrationCollectionMappingMutation, CreateNetsuiteIntegrationCollectionMappingMutationVariables>;
+export const CreateNetsuiteIntegrationMappingDocument = gql`
+    mutation createNetsuiteIntegrationMapping($input: CreateIntegrationMappingInput!) {
+  createIntegrationMapping(input: $input) {
+    id
+    ...NetsuiteIntegrationMapItemDialogCollectionItem
+  }
+}
+    ${NetsuiteIntegrationMapItemDialogCollectionItemFragmentDoc}`;
+export type CreateNetsuiteIntegrationMappingMutationFn = Apollo.MutationFunction<CreateNetsuiteIntegrationMappingMutation, CreateNetsuiteIntegrationMappingMutationVariables>;
+
+/**
+ * __useCreateNetsuiteIntegrationMappingMutation__
+ *
+ * To run a mutation, you first call `useCreateNetsuiteIntegrationMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateNetsuiteIntegrationMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createNetsuiteIntegrationMappingMutation, { data, loading, error }] = useCreateNetsuiteIntegrationMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateNetsuiteIntegrationMappingMutation(baseOptions?: Apollo.MutationHookOptions<CreateNetsuiteIntegrationMappingMutation, CreateNetsuiteIntegrationMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateNetsuiteIntegrationMappingMutation, CreateNetsuiteIntegrationMappingMutationVariables>(CreateNetsuiteIntegrationMappingDocument, options);
+      }
+export type CreateNetsuiteIntegrationMappingMutationHookResult = ReturnType<typeof useCreateNetsuiteIntegrationMappingMutation>;
+export type CreateNetsuiteIntegrationMappingMutationResult = Apollo.MutationResult<CreateNetsuiteIntegrationMappingMutation>;
+export type CreateNetsuiteIntegrationMappingMutationOptions = Apollo.BaseMutationOptions<CreateNetsuiteIntegrationMappingMutation, CreateNetsuiteIntegrationMappingMutationVariables>;
+export const UpdateNetsuiteIntegrationCollectionMappingDocument = gql`
+    mutation updateNetsuiteIntegrationCollectionMapping($input: UpdateIntegrationCollectionMappingInput!) {
+  updateIntegrationCollectionMapping(input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateNetsuiteIntegrationCollectionMappingMutationFn = Apollo.MutationFunction<UpdateNetsuiteIntegrationCollectionMappingMutation, UpdateNetsuiteIntegrationCollectionMappingMutationVariables>;
+
+/**
+ * __useUpdateNetsuiteIntegrationCollectionMappingMutation__
+ *
+ * To run a mutation, you first call `useUpdateNetsuiteIntegrationCollectionMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateNetsuiteIntegrationCollectionMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateNetsuiteIntegrationCollectionMappingMutation, { data, loading, error }] = useUpdateNetsuiteIntegrationCollectionMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateNetsuiteIntegrationCollectionMappingMutation(baseOptions?: Apollo.MutationHookOptions<UpdateNetsuiteIntegrationCollectionMappingMutation, UpdateNetsuiteIntegrationCollectionMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateNetsuiteIntegrationCollectionMappingMutation, UpdateNetsuiteIntegrationCollectionMappingMutationVariables>(UpdateNetsuiteIntegrationCollectionMappingDocument, options);
+      }
+export type UpdateNetsuiteIntegrationCollectionMappingMutationHookResult = ReturnType<typeof useUpdateNetsuiteIntegrationCollectionMappingMutation>;
+export type UpdateNetsuiteIntegrationCollectionMappingMutationResult = Apollo.MutationResult<UpdateNetsuiteIntegrationCollectionMappingMutation>;
+export type UpdateNetsuiteIntegrationCollectionMappingMutationOptions = Apollo.BaseMutationOptions<UpdateNetsuiteIntegrationCollectionMappingMutation, UpdateNetsuiteIntegrationCollectionMappingMutationVariables>;
+export const UpdateNetsuiteIntegrationMappingDocument = gql`
+    mutation updateNetsuiteIntegrationMapping($input: UpdateIntegrationMappingInput!) {
+  updateIntegrationMapping(input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateNetsuiteIntegrationMappingMutationFn = Apollo.MutationFunction<UpdateNetsuiteIntegrationMappingMutation, UpdateNetsuiteIntegrationMappingMutationVariables>;
+
+/**
+ * __useUpdateNetsuiteIntegrationMappingMutation__
+ *
+ * To run a mutation, you first call `useUpdateNetsuiteIntegrationMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateNetsuiteIntegrationMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateNetsuiteIntegrationMappingMutation, { data, loading, error }] = useUpdateNetsuiteIntegrationMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateNetsuiteIntegrationMappingMutation(baseOptions?: Apollo.MutationHookOptions<UpdateNetsuiteIntegrationMappingMutation, UpdateNetsuiteIntegrationMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateNetsuiteIntegrationMappingMutation, UpdateNetsuiteIntegrationMappingMutationVariables>(UpdateNetsuiteIntegrationMappingDocument, options);
+      }
+export type UpdateNetsuiteIntegrationMappingMutationHookResult = ReturnType<typeof useUpdateNetsuiteIntegrationMappingMutation>;
+export type UpdateNetsuiteIntegrationMappingMutationResult = Apollo.MutationResult<UpdateNetsuiteIntegrationMappingMutation>;
+export type UpdateNetsuiteIntegrationMappingMutationOptions = Apollo.BaseMutationOptions<UpdateNetsuiteIntegrationMappingMutation, UpdateNetsuiteIntegrationMappingMutationVariables>;
+export const DeleteNetsuiteIntegrationCollectionMappingDocument = gql`
+    mutation deleteNetsuiteIntegrationCollectionMapping($input: DestroyIntegrationCollectionMappingInput!) {
+  destroyIntegrationCollectionMapping(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteNetsuiteIntegrationCollectionMappingMutationFn = Apollo.MutationFunction<DeleteNetsuiteIntegrationCollectionMappingMutation, DeleteNetsuiteIntegrationCollectionMappingMutationVariables>;
+
+/**
+ * __useDeleteNetsuiteIntegrationCollectionMappingMutation__
+ *
+ * To run a mutation, you first call `useDeleteNetsuiteIntegrationCollectionMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteNetsuiteIntegrationCollectionMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteNetsuiteIntegrationCollectionMappingMutation, { data, loading, error }] = useDeleteNetsuiteIntegrationCollectionMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteNetsuiteIntegrationCollectionMappingMutation(baseOptions?: Apollo.MutationHookOptions<DeleteNetsuiteIntegrationCollectionMappingMutation, DeleteNetsuiteIntegrationCollectionMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteNetsuiteIntegrationCollectionMappingMutation, DeleteNetsuiteIntegrationCollectionMappingMutationVariables>(DeleteNetsuiteIntegrationCollectionMappingDocument, options);
+      }
+export type DeleteNetsuiteIntegrationCollectionMappingMutationHookResult = ReturnType<typeof useDeleteNetsuiteIntegrationCollectionMappingMutation>;
+export type DeleteNetsuiteIntegrationCollectionMappingMutationResult = Apollo.MutationResult<DeleteNetsuiteIntegrationCollectionMappingMutation>;
+export type DeleteNetsuiteIntegrationCollectionMappingMutationOptions = Apollo.BaseMutationOptions<DeleteNetsuiteIntegrationCollectionMappingMutation, DeleteNetsuiteIntegrationCollectionMappingMutationVariables>;
+export const DeleteNetsuiteIntegrationMappingDocument = gql`
+    mutation deleteNetsuiteIntegrationMapping($input: DestroyIntegrationMappingInput!) {
+  destroyIntegrationMapping(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteNetsuiteIntegrationMappingMutationFn = Apollo.MutationFunction<DeleteNetsuiteIntegrationMappingMutation, DeleteNetsuiteIntegrationMappingMutationVariables>;
+
+/**
+ * __useDeleteNetsuiteIntegrationMappingMutation__
+ *
+ * To run a mutation, you first call `useDeleteNetsuiteIntegrationMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteNetsuiteIntegrationMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteNetsuiteIntegrationMappingMutation, { data, loading, error }] = useDeleteNetsuiteIntegrationMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteNetsuiteIntegrationMappingMutation(baseOptions?: Apollo.MutationHookOptions<DeleteNetsuiteIntegrationMappingMutation, DeleteNetsuiteIntegrationMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteNetsuiteIntegrationMappingMutation, DeleteNetsuiteIntegrationMappingMutationVariables>(DeleteNetsuiteIntegrationMappingDocument, options);
+      }
+export type DeleteNetsuiteIntegrationMappingMutationHookResult = ReturnType<typeof useDeleteNetsuiteIntegrationMappingMutation>;
+export type DeleteNetsuiteIntegrationMappingMutationResult = Apollo.MutationResult<DeleteNetsuiteIntegrationMappingMutation>;
+export type DeleteNetsuiteIntegrationMappingMutationOptions = Apollo.BaseMutationOptions<DeleteNetsuiteIntegrationMappingMutation, DeleteNetsuiteIntegrationMappingMutationVariables>;
 export const GetNetsuiteIntegrationsSettingsDocument = gql`
     query getNetsuiteIntegrationsSettings($id: ID!, $limit: Int, $integrationsType: IntegrationTypeEnum!) {
   integration(id: $id) {
@@ -13499,333 +14537,6 @@ export type GetNetsuiteIntegrationsSettingsQueryHookResult = ReturnType<typeof u
 export type GetNetsuiteIntegrationsSettingsLazyQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsSettingsLazyQuery>;
 export type GetNetsuiteIntegrationsSettingsSuspenseQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsSettingsSuspenseQuery>;
 export type GetNetsuiteIntegrationsSettingsQueryResult = Apollo.QueryResult<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>;
-export const GetIntegrationItemsDocument = gql`
-    query getIntegrationItems($integrationId: ID!, $itemType: IntegrationItemTypeEnum, $page: Int, $limit: Int, $searchTerm: String) {
-  integrationItems(
-    integrationId: $integrationId
-    itemType: $itemType
-    page: $page
-    limit: $limit
-    searchTerm: $searchTerm
-  ) {
-    collection {
-      ...NetsuiteMapItemDialogItem
-    }
-    metadata {
-      currentPage
-      totalPages
-      totalCount
-    }
-  }
-}
-    ${NetsuiteMapItemDialogItemFragmentDoc}`;
-
-/**
- * __useGetIntegrationItemsQuery__
- *
- * To run a query within a React component, call `useGetIntegrationItemsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetIntegrationItemsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetIntegrationItemsQuery({
- *   variables: {
- *      integrationId: // value for 'integrationId'
- *      itemType: // value for 'itemType'
- *      page: // value for 'page'
- *      limit: // value for 'limit'
- *      searchTerm: // value for 'searchTerm'
- *   },
- * });
- */
-export function useGetIntegrationItemsQuery(baseOptions: Apollo.QueryHookOptions<GetIntegrationItemsQuery, GetIntegrationItemsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetIntegrationItemsQuery, GetIntegrationItemsQueryVariables>(GetIntegrationItemsDocument, options);
-      }
-export function useGetIntegrationItemsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetIntegrationItemsQuery, GetIntegrationItemsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetIntegrationItemsQuery, GetIntegrationItemsQueryVariables>(GetIntegrationItemsDocument, options);
-        }
-export function useGetIntegrationItemsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetIntegrationItemsQuery, GetIntegrationItemsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetIntegrationItemsQuery, GetIntegrationItemsQueryVariables>(GetIntegrationItemsDocument, options);
-        }
-export type GetIntegrationItemsQueryHookResult = ReturnType<typeof useGetIntegrationItemsQuery>;
-export type GetIntegrationItemsLazyQueryHookResult = ReturnType<typeof useGetIntegrationItemsLazyQuery>;
-export type GetIntegrationItemsSuspenseQueryHookResult = ReturnType<typeof useGetIntegrationItemsSuspenseQuery>;
-export type GetIntegrationItemsQueryResult = Apollo.QueryResult<GetIntegrationItemsQuery, GetIntegrationItemsQueryVariables>;
-export const TriggerIntegrationItemsRefetchDocument = gql`
-    mutation triggerIntegrationItemsRefetch($input: FetchIntegrationItemsInput!) {
-  fetchIntegrationItems(input: $input) {
-    collection {
-      ...NetsuiteMapItemDialogItem
-    }
-  }
-}
-    ${NetsuiteMapItemDialogItemFragmentDoc}`;
-export type TriggerIntegrationItemsRefetchMutationFn = Apollo.MutationFunction<TriggerIntegrationItemsRefetchMutation, TriggerIntegrationItemsRefetchMutationVariables>;
-
-/**
- * __useTriggerIntegrationItemsRefetchMutation__
- *
- * To run a mutation, you first call `useTriggerIntegrationItemsRefetchMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useTriggerIntegrationItemsRefetchMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [triggerIntegrationItemsRefetchMutation, { data, loading, error }] = useTriggerIntegrationItemsRefetchMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useTriggerIntegrationItemsRefetchMutation(baseOptions?: Apollo.MutationHookOptions<TriggerIntegrationItemsRefetchMutation, TriggerIntegrationItemsRefetchMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<TriggerIntegrationItemsRefetchMutation, TriggerIntegrationItemsRefetchMutationVariables>(TriggerIntegrationItemsRefetchDocument, options);
-      }
-export type TriggerIntegrationItemsRefetchMutationHookResult = ReturnType<typeof useTriggerIntegrationItemsRefetchMutation>;
-export type TriggerIntegrationItemsRefetchMutationResult = Apollo.MutationResult<TriggerIntegrationItemsRefetchMutation>;
-export type TriggerIntegrationItemsRefetchMutationOptions = Apollo.BaseMutationOptions<TriggerIntegrationItemsRefetchMutation, TriggerIntegrationItemsRefetchMutationVariables>;
-export const TriggerIntegrationTaxItemsRefetchDocument = gql`
-    mutation triggerIntegrationTaxItemsRefetch($input: FetchIntegrationTaxItemsInput!) {
-  fetchIntegrationTaxItems(input: $input) {
-    collection {
-      ...NetsuiteMapItemDialogItem
-    }
-  }
-}
-    ${NetsuiteMapItemDialogItemFragmentDoc}`;
-export type TriggerIntegrationTaxItemsRefetchMutationFn = Apollo.MutationFunction<TriggerIntegrationTaxItemsRefetchMutation, TriggerIntegrationTaxItemsRefetchMutationVariables>;
-
-/**
- * __useTriggerIntegrationTaxItemsRefetchMutation__
- *
- * To run a mutation, you first call `useTriggerIntegrationTaxItemsRefetchMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useTriggerIntegrationTaxItemsRefetchMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [triggerIntegrationTaxItemsRefetchMutation, { data, loading, error }] = useTriggerIntegrationTaxItemsRefetchMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useTriggerIntegrationTaxItemsRefetchMutation(baseOptions?: Apollo.MutationHookOptions<TriggerIntegrationTaxItemsRefetchMutation, TriggerIntegrationTaxItemsRefetchMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<TriggerIntegrationTaxItemsRefetchMutation, TriggerIntegrationTaxItemsRefetchMutationVariables>(TriggerIntegrationTaxItemsRefetchDocument, options);
-      }
-export type TriggerIntegrationTaxItemsRefetchMutationHookResult = ReturnType<typeof useTriggerIntegrationTaxItemsRefetchMutation>;
-export type TriggerIntegrationTaxItemsRefetchMutationResult = Apollo.MutationResult<TriggerIntegrationTaxItemsRefetchMutation>;
-export type TriggerIntegrationTaxItemsRefetchMutationOptions = Apollo.BaseMutationOptions<TriggerIntegrationTaxItemsRefetchMutation, TriggerIntegrationTaxItemsRefetchMutationVariables>;
-export const CreateIntegrationCollectionMappingDocument = gql`
-    mutation createIntegrationCollectionMapping($input: CreateIntegrationCollectionMappingInput!) {
-  createIntegrationCollectionMapping(input: $input) {
-    id
-    ...NetsuiteMapItemDialogCollectionMappingItem
-  }
-}
-    ${NetsuiteMapItemDialogCollectionMappingItemFragmentDoc}`;
-export type CreateIntegrationCollectionMappingMutationFn = Apollo.MutationFunction<CreateIntegrationCollectionMappingMutation, CreateIntegrationCollectionMappingMutationVariables>;
-
-/**
- * __useCreateIntegrationCollectionMappingMutation__
- *
- * To run a mutation, you first call `useCreateIntegrationCollectionMappingMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateIntegrationCollectionMappingMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createIntegrationCollectionMappingMutation, { data, loading, error }] = useCreateIntegrationCollectionMappingMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateIntegrationCollectionMappingMutation(baseOptions?: Apollo.MutationHookOptions<CreateIntegrationCollectionMappingMutation, CreateIntegrationCollectionMappingMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateIntegrationCollectionMappingMutation, CreateIntegrationCollectionMappingMutationVariables>(CreateIntegrationCollectionMappingDocument, options);
-      }
-export type CreateIntegrationCollectionMappingMutationHookResult = ReturnType<typeof useCreateIntegrationCollectionMappingMutation>;
-export type CreateIntegrationCollectionMappingMutationResult = Apollo.MutationResult<CreateIntegrationCollectionMappingMutation>;
-export type CreateIntegrationCollectionMappingMutationOptions = Apollo.BaseMutationOptions<CreateIntegrationCollectionMappingMutation, CreateIntegrationCollectionMappingMutationVariables>;
-export const CreateIntegrationMappingDocument = gql`
-    mutation createIntegrationMapping($input: CreateIntegrationMappingInput!) {
-  createIntegrationMapping(input: $input) {
-    id
-    ...NetsuiteMapItemDialogCollectionItem
-  }
-}
-    ${NetsuiteMapItemDialogCollectionItemFragmentDoc}`;
-export type CreateIntegrationMappingMutationFn = Apollo.MutationFunction<CreateIntegrationMappingMutation, CreateIntegrationMappingMutationVariables>;
-
-/**
- * __useCreateIntegrationMappingMutation__
- *
- * To run a mutation, you first call `useCreateIntegrationMappingMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateIntegrationMappingMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createIntegrationMappingMutation, { data, loading, error }] = useCreateIntegrationMappingMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateIntegrationMappingMutation(baseOptions?: Apollo.MutationHookOptions<CreateIntegrationMappingMutation, CreateIntegrationMappingMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateIntegrationMappingMutation, CreateIntegrationMappingMutationVariables>(CreateIntegrationMappingDocument, options);
-      }
-export type CreateIntegrationMappingMutationHookResult = ReturnType<typeof useCreateIntegrationMappingMutation>;
-export type CreateIntegrationMappingMutationResult = Apollo.MutationResult<CreateIntegrationMappingMutation>;
-export type CreateIntegrationMappingMutationOptions = Apollo.BaseMutationOptions<CreateIntegrationMappingMutation, CreateIntegrationMappingMutationVariables>;
-export const UpdateIntegrationCollectionMappingDocument = gql`
-    mutation updateIntegrationCollectionMapping($input: UpdateIntegrationCollectionMappingInput!) {
-  updateIntegrationCollectionMapping(input: $input) {
-    id
-  }
-}
-    `;
-export type UpdateIntegrationCollectionMappingMutationFn = Apollo.MutationFunction<UpdateIntegrationCollectionMappingMutation, UpdateIntegrationCollectionMappingMutationVariables>;
-
-/**
- * __useUpdateIntegrationCollectionMappingMutation__
- *
- * To run a mutation, you first call `useUpdateIntegrationCollectionMappingMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateIntegrationCollectionMappingMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateIntegrationCollectionMappingMutation, { data, loading, error }] = useUpdateIntegrationCollectionMappingMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateIntegrationCollectionMappingMutation(baseOptions?: Apollo.MutationHookOptions<UpdateIntegrationCollectionMappingMutation, UpdateIntegrationCollectionMappingMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateIntegrationCollectionMappingMutation, UpdateIntegrationCollectionMappingMutationVariables>(UpdateIntegrationCollectionMappingDocument, options);
-      }
-export type UpdateIntegrationCollectionMappingMutationHookResult = ReturnType<typeof useUpdateIntegrationCollectionMappingMutation>;
-export type UpdateIntegrationCollectionMappingMutationResult = Apollo.MutationResult<UpdateIntegrationCollectionMappingMutation>;
-export type UpdateIntegrationCollectionMappingMutationOptions = Apollo.BaseMutationOptions<UpdateIntegrationCollectionMappingMutation, UpdateIntegrationCollectionMappingMutationVariables>;
-export const UpdateIntegrationMappingDocument = gql`
-    mutation updateIntegrationMapping($input: UpdateIntegrationMappingInput!) {
-  updateIntegrationMapping(input: $input) {
-    id
-  }
-}
-    `;
-export type UpdateIntegrationMappingMutationFn = Apollo.MutationFunction<UpdateIntegrationMappingMutation, UpdateIntegrationMappingMutationVariables>;
-
-/**
- * __useUpdateIntegrationMappingMutation__
- *
- * To run a mutation, you first call `useUpdateIntegrationMappingMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateIntegrationMappingMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateIntegrationMappingMutation, { data, loading, error }] = useUpdateIntegrationMappingMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateIntegrationMappingMutation(baseOptions?: Apollo.MutationHookOptions<UpdateIntegrationMappingMutation, UpdateIntegrationMappingMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateIntegrationMappingMutation, UpdateIntegrationMappingMutationVariables>(UpdateIntegrationMappingDocument, options);
-      }
-export type UpdateIntegrationMappingMutationHookResult = ReturnType<typeof useUpdateIntegrationMappingMutation>;
-export type UpdateIntegrationMappingMutationResult = Apollo.MutationResult<UpdateIntegrationMappingMutation>;
-export type UpdateIntegrationMappingMutationOptions = Apollo.BaseMutationOptions<UpdateIntegrationMappingMutation, UpdateIntegrationMappingMutationVariables>;
-export const DeleteIntegrationCollectionMappingDocument = gql`
-    mutation deleteIntegrationCollectionMapping($input: DestroyIntegrationCollectionMappingInput!) {
-  destroyIntegrationCollectionMapping(input: $input) {
-    id
-  }
-}
-    `;
-export type DeleteIntegrationCollectionMappingMutationFn = Apollo.MutationFunction<DeleteIntegrationCollectionMappingMutation, DeleteIntegrationCollectionMappingMutationVariables>;
-
-/**
- * __useDeleteIntegrationCollectionMappingMutation__
- *
- * To run a mutation, you first call `useDeleteIntegrationCollectionMappingMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteIntegrationCollectionMappingMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteIntegrationCollectionMappingMutation, { data, loading, error }] = useDeleteIntegrationCollectionMappingMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useDeleteIntegrationCollectionMappingMutation(baseOptions?: Apollo.MutationHookOptions<DeleteIntegrationCollectionMappingMutation, DeleteIntegrationCollectionMappingMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteIntegrationCollectionMappingMutation, DeleteIntegrationCollectionMappingMutationVariables>(DeleteIntegrationCollectionMappingDocument, options);
-      }
-export type DeleteIntegrationCollectionMappingMutationHookResult = ReturnType<typeof useDeleteIntegrationCollectionMappingMutation>;
-export type DeleteIntegrationCollectionMappingMutationResult = Apollo.MutationResult<DeleteIntegrationCollectionMappingMutation>;
-export type DeleteIntegrationCollectionMappingMutationOptions = Apollo.BaseMutationOptions<DeleteIntegrationCollectionMappingMutation, DeleteIntegrationCollectionMappingMutationVariables>;
-export const DeleteNetsuiteIntegrationMappingDocument = gql`
-    mutation deleteNetsuiteIntegrationMapping($input: DestroyIntegrationMappingInput!) {
-  destroyIntegrationMapping(input: $input) {
-    id
-  }
-}
-    `;
-export type DeleteNetsuiteIntegrationMappingMutationFn = Apollo.MutationFunction<DeleteNetsuiteIntegrationMappingMutation, DeleteNetsuiteIntegrationMappingMutationVariables>;
-
-/**
- * __useDeleteNetsuiteIntegrationMappingMutation__
- *
- * To run a mutation, you first call `useDeleteNetsuiteIntegrationMappingMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteNetsuiteIntegrationMappingMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteNetsuiteIntegrationMappingMutation, { data, loading, error }] = useDeleteNetsuiteIntegrationMappingMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useDeleteNetsuiteIntegrationMappingMutation(baseOptions?: Apollo.MutationHookOptions<DeleteNetsuiteIntegrationMappingMutation, DeleteNetsuiteIntegrationMappingMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteNetsuiteIntegrationMappingMutation, DeleteNetsuiteIntegrationMappingMutationVariables>(DeleteNetsuiteIntegrationMappingDocument, options);
-      }
-export type DeleteNetsuiteIntegrationMappingMutationHookResult = ReturnType<typeof useDeleteNetsuiteIntegrationMappingMutation>;
-export type DeleteNetsuiteIntegrationMappingMutationResult = Apollo.MutationResult<DeleteNetsuiteIntegrationMappingMutation>;
-export type DeleteNetsuiteIntegrationMappingMutationOptions = Apollo.BaseMutationOptions<DeleteNetsuiteIntegrationMappingMutation, DeleteNetsuiteIntegrationMappingMutationVariables>;
 export const CreateInviteDocument = gql`
     mutation createInvite($input: CreateInviteInput!) {
   createInvite(input: $input) {
@@ -17836,6 +18547,108 @@ export type GetAdyenIntegrationsListQueryHookResult = ReturnType<typeof useGetAd
 export type GetAdyenIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsListLazyQuery>;
 export type GetAdyenIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsListSuspenseQuery>;
 export type GetAdyenIntegrationsListQueryResult = Apollo.QueryResult<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>;
+export const GetAnrokIntegrationsDetailsDocument = gql`
+    query getAnrokIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: IntegrationTypeEnum!) {
+  integration(id: $id) {
+    ... on AnrokIntegration {
+      id
+      ...AnrokIntegrationDetails
+    }
+  }
+  integrations(limit: $limit, type: $integrationsType) {
+    collection {
+      ... on AnrokIntegration {
+        id
+      }
+    }
+  }
+}
+    ${AnrokIntegrationDetailsFragmentDoc}`;
+
+/**
+ * __useGetAnrokIntegrationsDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetAnrokIntegrationsDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAnrokIntegrationsDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAnrokIntegrationsDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      limit: // value for 'limit'
+ *      integrationsType: // value for 'integrationsType'
+ *   },
+ * });
+ */
+export function useGetAnrokIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>(GetAnrokIntegrationsDetailsDocument, options);
+      }
+export function useGetAnrokIntegrationsDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>(GetAnrokIntegrationsDetailsDocument, options);
+        }
+export function useGetAnrokIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>(GetAnrokIntegrationsDetailsDocument, options);
+        }
+export type GetAnrokIntegrationsDetailsQueryHookResult = ReturnType<typeof useGetAnrokIntegrationsDetailsQuery>;
+export type GetAnrokIntegrationsDetailsLazyQueryHookResult = ReturnType<typeof useGetAnrokIntegrationsDetailsLazyQuery>;
+export type GetAnrokIntegrationsDetailsSuspenseQueryHookResult = ReturnType<typeof useGetAnrokIntegrationsDetailsSuspenseQuery>;
+export type GetAnrokIntegrationsDetailsQueryResult = Apollo.QueryResult<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>;
+export const GetAnrokIntegrationsListDocument = gql`
+    query getAnrokIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
+  integrations(limit: $limit, type: $type) {
+    collection {
+      ... on AnrokIntegration {
+        id
+        ...AnrokIntegrations
+        ...AddAnrokIntegrationDialog
+        ...DeleteAnrokIntegrationDialog
+      }
+    }
+  }
+}
+    ${AnrokIntegrationsFragmentDoc}
+${AddAnrokIntegrationDialogFragmentDoc}
+${DeleteAnrokIntegrationDialogFragmentDoc}`;
+
+/**
+ * __useGetAnrokIntegrationsListQuery__
+ *
+ * To run a query within a React component, call `useGetAnrokIntegrationsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAnrokIntegrationsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAnrokIntegrationsListQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useGetAnrokIntegrationsListQuery(baseOptions?: Apollo.QueryHookOptions<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>(GetAnrokIntegrationsListDocument, options);
+      }
+export function useGetAnrokIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>(GetAnrokIntegrationsListDocument, options);
+        }
+export function useGetAnrokIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>(GetAnrokIntegrationsListDocument, options);
+        }
+export type GetAnrokIntegrationsListQueryHookResult = ReturnType<typeof useGetAnrokIntegrationsListQuery>;
+export type GetAnrokIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetAnrokIntegrationsListLazyQuery>;
+export type GetAnrokIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetAnrokIntegrationsListSuspenseQuery>;
+export type GetAnrokIntegrationsListQueryResult = Apollo.QueryResult<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>;
 export const GetAuthIntegrationsDocument = gql`
     query GetAuthIntegrations($limit: Int!) {
   organization {
@@ -18098,6 +18911,9 @@ export const IntegrationsSettingDocument = gql`
   }
   integrations(limit: $limit) {
     collection {
+      ... on AnrokIntegration {
+        id
+      }
       ... on NetsuiteIntegration {
         id
       }

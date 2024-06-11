@@ -1,3 +1,6 @@
+import AnrokIntegrationDetails from '~/pages/settings/AnrokIntegrationDetails'
+import AnrokIntegrations from '~/pages/settings/AnrokIntegrations'
+
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
@@ -101,6 +104,8 @@ export const ORGANIZATION_INFORMATIONS_ROUTE = `${SETTINGS_ROUTE}/organization-i
 export const INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
 export const AUTHENTICATION_ROUTE = `${SETTINGS_ROUTE}/authentication`
 export const OKTA_AUTHENTICATION_ROUTE = `${AUTHENTICATION_ROUTE}/okta/:integrationId`
+export const ANROK_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/anrok`
+export const ANROK_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/anrok/:integrationId/:tab`
 export const ADYEN_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/adyen`
 export const ADYEN_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/adyen/:integrationId`
 export const NETSUITE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/netsuite`
@@ -169,6 +174,18 @@ export const settingRoutes: CustomRouteObject[] = [
         permissions: ['organizationMembersView'],
       },
       {
+        path: ANROK_INTEGRATION_ROUTE,
+        private: true,
+        element: <AnrokIntegrations />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: ANROK_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <AnrokIntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
         path: ADYEN_INTEGRATION_DETAILS_ROUTE,
         private: true,
         element: <AdyenIntegrationDetails />,
@@ -184,11 +201,13 @@ export const settingRoutes: CustomRouteObject[] = [
         path: NETSUITE_INTEGRATION_DETAILS_ROUTE,
         private: true,
         element: <NetsuiteIntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
       },
       {
         path: NETSUITE_INTEGRATION_ROUTE,
         private: true,
         element: <NetsuiteIntegrations />,
+        permissions: ['organizationIntegrationsView'],
       },
       {
         path: STRIPE_INTEGRATION_ROUTE,

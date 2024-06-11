@@ -361,10 +361,14 @@ sources:
       fileName: 👍 [Ready for dev] - B.Metrics | Plans - Custom aggregation | price
     - name: ⚙️ [WIP] - Onboarding - Log In | Join Lago via OKTA SSO
       id: 664c7329c182a2ec5807ffec
+      fileName: ⚙️ [WIP] - Onboarding - Log In | Join Lago via OKTA SSO
     - name: 👍 [Ready for dev] - BM/Plans/Invoices - Add filters to billable metrics
       id: 65e9c6d1606b4d714c94f643
       fileName: 👍 [Ready for dev] - BM/Plans/Invoices - Add filters to billable metrics
     - name: ⚙️ [WIP] - Integration - Connect Lago to NetSuite
       id: 661ff6e3370d5202df2d8adf
+      fileName: ⚙️ [WIP] - Integration - Connect Lago to NetSuite
+    - name: ⚙️ [WIP] - Settings - Connect Lago to Anrok
+      id: 6668821c22128d7c81c3788e
 format: flat
 variants: true

@@ -110,6 +110,7 @@ const wip___integration___lago_eu_tax_integration = require('./wip---integration
 const wip___invoices___dispute_payment_intent = require('./wip---invoices---dispute-payment-intent__base.json');
 const wip___onboarding___log_in_join_lago_via_okta_sso = require('./wip---onboarding---log-in-join-lago-via-okta-sso__base.json');
 const wip___plan___charges_paid_in_advance = require('./wip---plan---charges-paid-in-advance__base.json');
+const wip___settings___connect_lago_to_anrok = require('./wip---settings---connect-lago-to-anrok__base.json');
 const wip___settings___create_tax_rate_object_apply_on_org_cus = require('./wip---settings---create-tax-rate-object-apply-on-org-cus__base.json');
 const wip___settings___define_preferred_doc_language_generation = require('./wip---settings---define-preferred-doc-language-generation__base.json');
 const wip___settings___email_invoices_to_final_customers = require('./wip---settings---email-invoices-to-final-customers__base.json');
@@ -444,6 +445,9 @@ module.exports = {
   },
   "project_646e2d05cf47b79ad4b5ccf5": {
     "base": {...wip___plan___charges_paid_in_advance}
+  },
+  "project_6668821c22128d7c81c3788e": {
+    "base": {...wip___settings___connect_lago_to_anrok}
   },
   "project_645bb18f29c95e96f9cd43e9": {
     "base": {...wip___settings___create_tax_rate_object_apply_on_org_cus}
