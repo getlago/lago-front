@@ -127,6 +127,16 @@ export enum AggregationTypeEnum {
   WeightedSumAgg = 'weighted_sum_agg'
 }
 
+export type AnrokCustomer = {
+  __typename?: 'AnrokCustomer';
+  externalCustomerId?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  integrationCode?: Maybe<Scalars['String']['output']>;
+  integrationId?: Maybe<Scalars['ID']['output']>;
+  integrationType?: Maybe<IntegrationTypeEnum>;
+  syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
+};
+
 export type AnrokIntegration = {
   __typename?: 'AnrokIntegration';
   apiKey: Scalars['String']['output'];
@@ -1094,7 +1104,7 @@ export type CreateIntegrationCollectionMappingInput = {
 export type CreateIntegrationMappingInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  externalAccountCode: Scalars['String']['input'];
+  externalAccountCode?: InputMaybe<Scalars['String']['input']>;
   externalId: Scalars['String']['input'];
   externalName?: InputMaybe<Scalars['String']['input']>;
   integrationId: Scalars['ID']['input'];
@@ -1661,6 +1671,7 @@ export type Customer = {
   activeSubscriptionsCount: Scalars['Int']['output'];
   addressLine1?: Maybe<Scalars['String']['output']>;
   addressLine2?: Maybe<Scalars['String']['output']>;
+  anrokCustomer?: Maybe<AnrokCustomer>;
   applicableTimezone: TimezoneEnum;
   appliedAddOns?: Maybe<Array<AppliedAddOn>>;
   appliedCoupons?: Maybe<Array<AppliedCoupon>>;
@@ -2295,6 +2306,7 @@ export enum IntegrationItemTypeEnum {
 }
 
 export enum IntegrationTypeEnum {
+  Anrok = 'anrok',
   Netsuite = 'netsuite',
   Okta = 'okta'
 }
@@ -2531,7 +2543,7 @@ export enum MappableTypeEnum {
 
 export type Mapping = {
   __typename?: 'Mapping';
-  externalAccountCode: Scalars['String']['output'];
+  externalAccountCode?: Maybe<Scalars['String']['output']>;
   externalId: Scalars['String']['output'];
   externalName?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -5954,7 +5966,7 @@ export type GetAddOnsForNetsuiteItemsListQueryVariables = Exact<{
 }>;
 
 
-export type GetAddOnsForNetsuiteItemsListQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode: string, externalName?: string | null, mappableType: MappableTypeEnum }> | null }> } };
+export type GetAddOnsForNetsuiteItemsListQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum }> | null }> } };
 
 export type GetBillableMetricsForNetsuiteItemsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -5964,11 +5976,11 @@ export type GetBillableMetricsForNetsuiteItemsListQueryVariables = Exact<{
 }>;
 
 
-export type GetBillableMetricsForNetsuiteItemsListQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode: string, externalName?: string | null, mappableType: MappableTypeEnum }> | null }> } };
+export type GetBillableMetricsForNetsuiteItemsListQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum }> | null }> } };
 
-export type NetsuiteIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode: string, externalName?: string | null, mappableType: MappableTypeEnum }> | null };
+export type NetsuiteIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum }> | null };
 
-export type NetsuiteIntegrationItemsListBillableMetricsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode: string, externalName?: string | null, mappableType: MappableTypeEnum }> | null };
+export type NetsuiteIntegrationItemsListBillableMetricsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum }> | null };
 
 export type NetsuiteIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null };
 
@@ -5977,6 +5989,7 @@ export type NetsuiteIntegrationSettingsFragment = { __typename?: 'NetsuiteIntegr
 export type GetNetsuiteIntegrationsSettingsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
+  integrationsType: IntegrationTypeEnum;
 }>;
 
 
@@ -5986,7 +5999,7 @@ export type NetsuiteMapItemDialogItemFragment = { __typename?: 'IntegrationItem'
 
 export type NetsuiteMapItemDialogCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
-export type NetsuiteMapItemDialogCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode: string };
+export type NetsuiteMapItemDialogCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
 export type GetIntegrationItemsQueryVariables = Exact<{
   integrationId: Scalars['ID']['input'];
@@ -6025,7 +6038,7 @@ export type CreateIntegrationMappingMutationVariables = Exact<{
 }>;
 
 
-export type CreateIntegrationMappingMutation = { __typename?: 'Mutation', createIntegrationMapping?: { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode: string } | null };
+export type CreateIntegrationMappingMutation = { __typename?: 'Mutation', createIntegrationMapping?: { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null } | null };
 
 export type UpdateIntegrationCollectionMappingMutationVariables = Exact<{
   input: UpdateIntegrationCollectionMappingInput;
@@ -6931,6 +6944,7 @@ export type NetsuiteIntegrationDetailsFragment = { __typename?: 'NetsuiteIntegra
 export type GetNetsuiteIntegrationsDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
+  integrationsType: IntegrationTypeEnum;
 }>;
 
 
@@ -13430,7 +13444,7 @@ export type GetBillableMetricsForNetsuiteItemsListLazyQueryHookResult = ReturnTy
 export type GetBillableMetricsForNetsuiteItemsListSuspenseQueryHookResult = ReturnType<typeof useGetBillableMetricsForNetsuiteItemsListSuspenseQuery>;
 export type GetBillableMetricsForNetsuiteItemsListQueryResult = Apollo.QueryResult<GetBillableMetricsForNetsuiteItemsListQuery, GetBillableMetricsForNetsuiteItemsListQueryVariables>;
 export const GetNetsuiteIntegrationsSettingsDocument = gql`
-    query getNetsuiteIntegrationsSettings($id: ID!, $limit: Int) {
+    query getNetsuiteIntegrationsSettings($id: ID!, $limit: Int, $integrationsType: IntegrationTypeEnum!) {
   integration(id: $id) {
     ... on NetsuiteIntegration {
       id
@@ -13439,7 +13453,7 @@ export const GetNetsuiteIntegrationsSettingsDocument = gql`
       ...NetsuiteForCreateDialogDialog
     }
   }
-  integrations(limit: $limit) {
+  integrations(limit: $limit, type: $integrationsType) {
     collection {
       ... on NetsuiteIntegration {
         id
@@ -13465,6 +13479,7 @@ ${NetsuiteForCreateDialogDialogFragmentDoc}`;
  *   variables: {
  *      id: // value for 'id'
  *      limit: // value for 'limit'
+ *      integrationsType: // value for 'integrationsType'
  *   },
  * });
  */
@@ -18407,14 +18422,14 @@ export type GetMembersLazyQueryHookResult = ReturnType<typeof useGetMembersLazyQ
 export type GetMembersSuspenseQueryHookResult = ReturnType<typeof useGetMembersSuspenseQuery>;
 export type GetMembersQueryResult = Apollo.QueryResult<GetMembersQuery, GetMembersQueryVariables>;
 export const GetNetsuiteIntegrationsDetailsDocument = gql`
-    query getNetsuiteIntegrationsDetails($id: ID!, $limit: Int) {
+    query getNetsuiteIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: IntegrationTypeEnum!) {
   integration(id: $id) {
     ... on NetsuiteIntegration {
       id
       ...NetsuiteIntegrationDetails
     }
   }
-  integrations(limit: $limit) {
+  integrations(limit: $limit, type: $integrationsType) {
     collection {
       ... on NetsuiteIntegration {
         id
@@ -18438,6 +18453,7 @@ export const GetNetsuiteIntegrationsDetailsDocument = gql`
  *   variables: {
  *      id: // value for 'id'
  *      limit: // value for 'limit'
+ *      integrationsType: // value for 'integrationsType'
  *   },
  * });
  */
