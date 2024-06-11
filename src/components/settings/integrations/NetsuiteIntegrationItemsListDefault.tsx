@@ -7,9 +7,9 @@ import { MappingTypeEnum, NetsuiteIntegrationItemsListDefaultFragment } from '~/
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-import NetsuiteIntegrationItemHeader from './NetsuiteIntegrationItemHeader'
-import NetsuiteIntegrationItemLine from './NetsuiteIntegrationItemLine'
-import { NetsuiteMapItemDialogRef } from './NetsuiteMapItemDialog'
+import IntegrationItemHeader from './IntegrationItemHeader'
+import IntegrationItemLine from './IntegrationItemLine'
+import { NetsuiteIntegrationMapItemDialogRef } from './NetsuiteIntegrationMapItemDialog'
 
 gql`
   fragment NetsuiteIntegrationItemsListDefault on CollectionMapping {
@@ -26,7 +26,7 @@ type NetsuiteIntegrationItemsListDefaultProps = {
   hasError: boolean
   integrationId: string
   isLoading: boolean
-  netsuiteMapItemDialogRef: RefObject<NetsuiteMapItemDialogRef>
+  netsuiteIntegrationMapItemDialogRef: RefObject<NetsuiteIntegrationMapItemDialogRef>
 }
 
 const NetsuiteIntegrationItemsListDefault = ({
@@ -34,7 +34,7 @@ const NetsuiteIntegrationItemsListDefault = ({
   hasError,
   integrationId,
   isLoading,
-  netsuiteMapItemDialogRef,
+  netsuiteIntegrationMapItemDialogRef,
 }: NetsuiteIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
 
@@ -83,14 +83,14 @@ const NetsuiteIntegrationItemsListDefault = ({
 
   return (
     <Stack>
-      <NetsuiteIntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398e96')} />
-      <NetsuiteIntegrationItemLine
+      <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398e96')} />
+      <IntegrationItemLine
         icon="box"
         label={translate('text_6630e3210c13c500cd398e98')}
         description={translate('text_6630e3210c13c500cd398e99')}
         loading={isLoading}
         onMappingClick={() => {
-          netsuiteMapItemDialogRef.current?.openDialog({
+          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
             integrationId,
             type: MappingTypeEnum.FallbackItem,
             itemId: fallbackItem?.id,
@@ -108,14 +108,14 @@ const NetsuiteIntegrationItemsListDefault = ({
             : undefined
         }
       />
-      <NetsuiteIntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398e9b')} />
-      <NetsuiteIntegrationItemLine
+      <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398e9b')} />
+      <IntegrationItemLine
         icon="box"
         label={translate('text_637ccf8133d2c9a7d11ce705')}
         description={translate('text_6630e3210c13c500cd398e9e')}
         loading={isLoading}
         onMappingClick={() => {
-          netsuiteMapItemDialogRef.current?.openDialog({
+          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
             integrationId,
             type: MappingTypeEnum.Coupon,
             itemId: coupon?.id,
@@ -133,14 +133,14 @@ const NetsuiteIntegrationItemsListDefault = ({
             : undefined
         }
       />
-      <NetsuiteIntegrationItemHeader columnName={translate('text_66461ada56a84401188e8c61')} />
-      <NetsuiteIntegrationItemLine
+      <IntegrationItemHeader columnName={translate('text_66461ada56a84401188e8c61')} />
+      <IntegrationItemLine
         icon="box"
         label={translate('text_66461ada56a84401188e8c63')}
         description={translate('text_66461ada56a84401188e8c64')}
         loading={isLoading}
         onMappingClick={() => {
-          netsuiteMapItemDialogRef.current?.openDialog({
+          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
             integrationId,
             type: MappingTypeEnum.CreditNote,
             itemId: creditNote?.id,
@@ -158,14 +158,14 @@ const NetsuiteIntegrationItemsListDefault = ({
             : undefined
         }
       />
-      <NetsuiteIntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398ea0')} />
-      <NetsuiteIntegrationItemLine
+      <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398ea0')} />
+      <IntegrationItemLine
         icon="board"
         label={translate('text_6630e3210c13c500cd398ea2')}
         description={translate('text_6630e3210c13c500cd398ea3')}
         loading={isLoading}
         onMappingClick={() => {
-          netsuiteMapItemDialogRef.current?.openDialog({
+          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
             integrationId,
             type: MappingTypeEnum.SubscriptionFee,
             itemId: subscriptionFee?.id,
@@ -183,13 +183,13 @@ const NetsuiteIntegrationItemsListDefault = ({
             : undefined
         }
       />
-      <NetsuiteIntegrationItemLine
+      <IntegrationItemLine
         icon="board"
         label={translate('text_6630e3210c13c500cd398ea5')}
         description={translate('text_6630e3210c13c500cd398ea3')}
         loading={isLoading}
         onMappingClick={() => {
-          netsuiteMapItemDialogRef.current?.openDialog({
+          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
             integrationId,
             type: MappingTypeEnum.MinimumCommitment,
             itemId: minimumCommitment?.id,
@@ -207,14 +207,14 @@ const NetsuiteIntegrationItemsListDefault = ({
             : undefined
         }
       />
-      <NetsuiteIntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398ea8')} />
-      <NetsuiteIntegrationItemLine
+      <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398ea8')} />
+      <IntegrationItemLine
         icon="box"
         label={translate('text_645bb193927b375079d28a8f')}
         description={translate('text_6630e3210c13c500cd398eab')}
         loading={isLoading}
         onMappingClick={() => {
-          netsuiteMapItemDialogRef.current?.openDialog({
+          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
             integrationId,
             type: MappingTypeEnum.Tax,
             itemId: tax?.id,
@@ -232,14 +232,14 @@ const NetsuiteIntegrationItemsListDefault = ({
             : undefined
         }
       />
-      <NetsuiteIntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398ead')} />
-      <NetsuiteIntegrationItemLine
+      <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398ead')} />
+      <IntegrationItemLine
         icon="coupon"
         label={translate('text_637ccf8133d2c9a7d11ce6e1')}
         description={translate('text_6630e3210c13c500cd398eb0')}
         loading={isLoading}
         onMappingClick={() => {
-          netsuiteMapItemDialogRef.current?.openDialog({
+          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
             integrationId,
             type: MappingTypeEnum.PrepaidCredit,
             itemId: prepaidCredit?.id,

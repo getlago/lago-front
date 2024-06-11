@@ -15,9 +15,9 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-import NetsuiteIntegrationItemHeader from './NetsuiteIntegrationItemHeader'
-import NetsuiteIntegrationItemLine from './NetsuiteIntegrationItemLine'
-import { NetsuiteMapItemDialogRef } from './NetsuiteMapItemDialog'
+import IntegrationItemHeader from './IntegrationItemHeader'
+import IntegrationItemLine from './IntegrationItemLine'
+import { NetsuiteIntegrationMapItemDialogRef } from './NetsuiteIntegrationMapItemDialog'
 
 gql`
   fragment NetsuiteIntegrationItemsListBillableMetrics on BillableMetric {
@@ -41,7 +41,7 @@ type NetsuiteIntegrationItemsListBillableMetricsProps = {
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  netsuiteMapItemDialogRef: RefObject<NetsuiteMapItemDialogRef>
+  netsuiteIntegrationMapItemDialogRef: RefObject<NetsuiteIntegrationMapItemDialogRef>
 }
 
 const NetsuiteIntegrationItemsListBillableMetrics = ({
@@ -50,7 +50,7 @@ const NetsuiteIntegrationItemsListBillableMetrics = ({
   hasError,
   integrationId,
   isLoading,
-  netsuiteMapItemDialogRef,
+  netsuiteIntegrationMapItemDialogRef,
   searchTerm,
 }: NetsuiteIntegrationItemsListBillableMetricsProps) => {
   const navigate = useNavigate()
@@ -59,11 +59,11 @@ const NetsuiteIntegrationItemsListBillableMetrics = ({
 
   return (
     <Stack>
-      <NetsuiteIntegrationItemHeader columnName={translate('text_6630ea71a6c2ef00bc63006e')} />
+      <IntegrationItemHeader columnName={translate('text_6630ea71a6c2ef00bc63006e')} />
       {!!isLoading && !billableMetrics.length && searchTerm ? (
         <>
           {[0, 1, 2].map((i) => (
-            <NetsuiteIntegrationItemLine
+            <IntegrationItemLine
               key={`billable-metric-item-skeleton-${i}`}
               icon="pulse"
               label={''}
@@ -130,14 +130,14 @@ const NetsuiteIntegrationItemsListBillableMetrics = ({
                 )
 
                 return (
-                  <NetsuiteIntegrationItemLine
+                  <IntegrationItemLine
                     key={`billableMetric-item-${billableMetric.id}`}
                     icon="pulse"
                     label={billableMetric.name}
                     description={billableMetric.code}
                     loading={false}
                     onMappingClick={() => {
-                      netsuiteMapItemDialogRef.current?.openDialog({
+                      netsuiteIntegrationMapItemDialogRef.current?.openDialog({
                         integrationId,
                         type: MappableTypeEnum.BillableMetric,
                         itemId: billableMetricMapping?.id,
@@ -160,7 +160,7 @@ const NetsuiteIntegrationItemsListBillableMetrics = ({
               })}
             {isLoading &&
               [0, 1, 2].map((i) => (
-                <NetsuiteIntegrationItemLine
+                <IntegrationItemLine
                   key={`billable-metric-item-skeleton-${i}`}
                   icon="pulse"
                   label={''}

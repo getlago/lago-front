@@ -13,7 +13,7 @@ import {
   NetsuiteIntegrationItemsListDefaultFragmentDoc,
   useGetAddOnsForNetsuiteItemsListLazyQuery,
   useGetBillableMetricsForNetsuiteItemsListLazyQuery,
-  useGetIntegrationCollectionMappingsLazyQuery,
+  useGetNetsuiteIntegrationCollectionMappingsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
@@ -22,7 +22,10 @@ import { MenuPopper, NAV_HEIGHT, theme } from '~/styles'
 import NetsuiteIntegrationItemsListAddons from './NetsuiteIntegrationItemsListAddons'
 import NetsuiteIntegrationItemsListBillableMetrics from './NetsuiteIntegrationItemsListBillableMetrics'
 import NetsuiteIntegrationItemsListDefault from './NetsuiteIntegrationItemsListDefault'
-import { NetsuiteMapItemDialog, NetsuiteMapItemDialogRef } from './NetsuiteMapItemDialog'
+import {
+  NetsuiteIntegrationMapItemDialog,
+  NetsuiteIntegrationMapItemDialogRef,
+} from './NetsuiteIntegrationMapItemDialog'
 
 const SelectedItemTypeEnum = {
   Default: 'Default',
@@ -41,7 +44,7 @@ gql`
     id # integrationId received in props
   }
 
-  query getIntegrationCollectionMappings($integrationId: ID!) {
+  query getNetsuiteIntegrationCollectionMappings($integrationId: ID!) {
     integrationCollectionMappings(integrationId: $integrationId) {
       collection {
         id
@@ -95,7 +98,7 @@ gql`
 
 const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string }) => {
   const { translate } = useInternationalization()
-  const netsuiteMapItemDialogRef = useRef<NetsuiteMapItemDialogRef>(null)
+  const netsuiteIntegrationMapItemDialogRef = useRef<NetsuiteIntegrationMapItemDialogRef>(null)
   let [searchParams, setSearchParams] = useSearchParams({ item_type: SelectedItemTypeEnum.Default })
   const [selectedItemType, setSelectedItemType] = useState<keyof typeof SelectedItemTypeEnum>(
     searchParams.get('item_type') as keyof typeof SelectedItemTypeEnum,
@@ -113,7 +116,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
       loading: collectionMappingLoading,
       error: collectionMappingError,
     },
-  ] = useGetIntegrationCollectionMappingsLazyQuery({
+  ] = useGetNetsuiteIntegrationCollectionMappingsLazyQuery({
     notifyOnNetworkStatusChange: true,
     variables: {
       integrationId,
@@ -245,7 +248,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           integrationId={integrationId}
           isLoading={collectionMappingLoading}
           hasError={!!collectionMappingError}
-          netsuiteMapItemDialogRef={netsuiteMapItemDialogRef}
+          netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
         />
       ) : selectedItemType === MappableTypeEnum.AddOn ? (
         <NetsuiteIntegrationItemsListAddons
@@ -254,7 +257,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           integrationId={integrationId}
           isLoading={isLoaddingAddons}
           hasError={!!addonError}
-          netsuiteMapItemDialogRef={netsuiteMapItemDialogRef}
+          netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
           searchTerm={addonVariables?.searchTerm}
         />
       ) : selectedItemType === MappableTypeEnum.BillableMetric ? (
@@ -264,12 +267,12 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           integrationId={integrationId}
           isLoading={isLoaddingBillableMetrics}
           hasError={!!billableMetricsError}
-          netsuiteMapItemDialogRef={netsuiteMapItemDialogRef}
+          netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
           searchTerm={billableMetricsVariables?.searchTerm}
         />
       ) : null}
 
-      <NetsuiteMapItemDialog ref={netsuiteMapItemDialogRef} />
+      <NetsuiteIntegrationMapItemDialog ref={netsuiteIntegrationMapItemDialogRef} />
     </>
   )
 }

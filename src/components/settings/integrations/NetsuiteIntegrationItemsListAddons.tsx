@@ -15,9 +15,9 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-import NetsuiteIntegrationItemHeader from './NetsuiteIntegrationItemHeader'
-import NetsuiteIntegrationItemLine from './NetsuiteIntegrationItemLine'
-import { NetsuiteMapItemDialogRef } from './NetsuiteMapItemDialog'
+import IntegrationItemHeader from './IntegrationItemHeader'
+import IntegrationItemLine from './IntegrationItemLine'
+import { NetsuiteIntegrationMapItemDialogRef } from './NetsuiteIntegrationMapItemDialog'
 
 gql`
   fragment NetsuiteIntegrationItemsListAddons on AddOn {
@@ -41,7 +41,7 @@ type NetsuiteIntegrationItemsListAddonsProps = {
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  netsuiteMapItemDialogRef: RefObject<NetsuiteMapItemDialogRef>
+  netsuiteIntegrationMapItemDialogRef: RefObject<NetsuiteIntegrationMapItemDialogRef>
 }
 
 const NetsuiteIntegrationItemsListAddons = ({
@@ -50,7 +50,7 @@ const NetsuiteIntegrationItemsListAddons = ({
   hasError,
   integrationId,
   isLoading,
-  netsuiteMapItemDialogRef,
+  netsuiteIntegrationMapItemDialogRef,
   searchTerm,
 }: NetsuiteIntegrationItemsListAddonsProps) => {
   const navigate = useNavigate()
@@ -59,11 +59,11 @@ const NetsuiteIntegrationItemsListAddons = ({
 
   return (
     <Stack>
-      <NetsuiteIntegrationItemHeader columnName={translate('text_6630ea71a6c2ef00bc63006f')} />
+      <IntegrationItemHeader columnName={translate('text_6630ea71a6c2ef00bc63006f')} />
       {!!isLoading && !addons.length && searchTerm ? (
         <>
           {[0, 1, 2].map((i) => (
-            <NetsuiteIntegrationItemLine
+            <IntegrationItemLine
               key={`addon-item-skeleton-${i}`}
               icon="puzzle"
               label={''}
@@ -130,14 +130,14 @@ const NetsuiteIntegrationItemsListAddons = ({
                 )
 
                 return (
-                  <NetsuiteIntegrationItemLine
+                  <IntegrationItemLine
                     key={`addon-item-${addOn.id}`}
                     icon="puzzle"
                     label={addOn.name}
                     description={addOn.code}
                     loading={false}
                     onMappingClick={() => {
-                      netsuiteMapItemDialogRef.current?.openDialog({
+                      netsuiteIntegrationMapItemDialogRef.current?.openDialog({
                         integrationId,
                         type: MappableTypeEnum.AddOn,
                         itemId: addonMapping?.id,
@@ -160,7 +160,7 @@ const NetsuiteIntegrationItemsListAddons = ({
               })}
             {isLoading &&
               [0, 1, 2].map((i) => (
-                <NetsuiteIntegrationItemLine
+                <IntegrationItemLine
                   key={`addon-item-skeleton-${i}`}
                   icon="puzzle"
                   label={''}

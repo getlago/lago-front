@@ -4,11 +4,11 @@ import { Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { HEADER_TABLE_HEIGHT, theme } from '~/styles'
 
-type TNetsuiteIntegrationItemHeaderProps = {
+type TIntegrationItemHeaderProps = {
   columnName: string
 }
 
-const NetsuiteIntegrationItemHeader = ({ columnName }: TNetsuiteIntegrationItemHeaderProps) => {
+const IntegrationItemHeader = ({ columnName }: TIntegrationItemHeaderProps) => {
   const { translate } = useInternationalization()
 
   return (
@@ -23,7 +23,7 @@ const NetsuiteIntegrationItemHeader = ({ columnName }: TNetsuiteIntegrationItemH
   )
 }
 
-export default NetsuiteIntegrationItemHeader
+export default IntegrationItemHeader
 
 const ItemHeader = styled.div`
   height: ${HEADER_TABLE_HEIGHT}px;
