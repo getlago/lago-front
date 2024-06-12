@@ -83,7 +83,8 @@ export const NavigationTab = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (nonHiddenTabs.length < 2 || value === null) return null
+  // Prevent blink on first render
+  if (value === null) return null
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -97,38 +98,40 @@ export const NavigationTab = ({
           value={value}
           $leftPadding={leftPadding}
         >
-          {nonHiddenTabs.map((tab, tabIndex) => {
-            if (loading) {
-              return (
-                <Skeleton
-                  key={`loding-tab-${tabIndex}`}
-                  variant="text"
-                  width={80}
-                  height={12}
-                  marginRight={tabIndex !== nonHiddenTabs.length - 1 ? '16px' : 0}
-                />
-              )
-            }
+          {nonHiddenTabs.length >= 2
+            ? nonHiddenTabs.map((tab, tabIndex) => {
+                if (loading) {
+                  return (
+                    <Skeleton
+                      key={`loding-tab-${tabIndex}`}
+                      variant="text"
+                      width={80}
+                      height={12}
+                      marginRight={tabIndex !== nonHiddenTabs.length - 1 ? '16px' : 0}
+                    />
+                  )
+                }
 
-            return (
-              <Tab
-                key={`tab-${tabIndex}`}
-                disableFocusRipple
-                disableRipple
-                role="tab"
-                className="navigation-tab-item"
-                disabled={loading || tab.disabled}
-                icon={!!tab.icon ? <Icon name={tab.icon} /> : undefined}
-                iconPosition="start"
-                label={<Typography variant="captionHl">{tab.title}</Typography>}
-                value={tabIndex}
-                onClick={() => {
-                  !!tab.link && navigate(tab.link)
-                }}
-                {...a11yProps(tabIndex)}
-              />
-            )
-          })}
+                return (
+                  <Tab
+                    key={`tab-${tabIndex}`}
+                    disableFocusRipple
+                    disableRipple
+                    role="tab"
+                    className="navigation-tab-item"
+                    disabled={loading || tab.disabled}
+                    icon={!!tab.icon ? <Icon name={tab.icon} /> : undefined}
+                    iconPosition="start"
+                    label={<Typography variant="captionHl">{tab.title}</Typography>}
+                    value={tabIndex}
+                    onClick={() => {
+                      !!tab.link && navigate(tab.link)
+                    }}
+                    {...a11yProps(tabIndex)}
+                  />
+                )
+              })
+            : null}
         </LocalTabs>
       </TabsWrapper>
       {value !== null &&

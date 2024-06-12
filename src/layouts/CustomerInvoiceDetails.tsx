@@ -283,7 +283,6 @@ const CustomerInvoiceDetails = () => {
           invoiceId: invoiceId as string,
           tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
         }),
-        routerState: { disableScrollTop: true },
         match: [
           generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
             customerId: customerId as string,
@@ -314,7 +313,6 @@ const CustomerInvoiceDetails = () => {
           invoiceId: invoiceId as string,
           tab: CustomerInvoiceDetailsTabsOptionsEnum.creditNotes,
         }),
-        routerState: { disableScrollTop: true },
         match: [
           generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
             customerId: customerId as string,
