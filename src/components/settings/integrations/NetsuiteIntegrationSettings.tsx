@@ -11,6 +11,7 @@ import {
 } from '~/core/router'
 import {
   DeleteNetsuiteIntegrationDialogFragmentDoc,
+  IntegrationTypeEnum,
   NetsuiteForCreateDialogDialogFragmentDoc,
   NetsuiteIntegrationSettingsFragment,
   useGetNetsuiteIntegrationsSettingsQuery,
@@ -47,7 +48,11 @@ gql`
     syncSalesOrders
   }
 
-  query getNetsuiteIntegrationsSettings($id: ID!, $limit: Int) {
+  query getNetsuiteIntegrationsSettings(
+    $id: ID!
+    $limit: Int
+    $integrationsType: IntegrationTypeEnum!
+  ) {
     integration(id: $id) {
       ... on NetsuiteIntegration {
         id
@@ -57,7 +62,7 @@ gql`
       }
     }
 
-    integrations(limit: $limit) {
+    integrations(limit: $limit, type: $integrationsType) {
       collection {
         ... on NetsuiteIntegration {
           id
@@ -107,12 +112,13 @@ const NetsuiteIntegrationSettings = () => {
     variables: {
       id: integrationId as string,
       limit: PROVIDER_CONNECTION_LIMIT,
+      integrationsType: IntegrationTypeEnum.Netsuite,
     },
     skip: !integrationId,
   })
   const netsuiteIntegration = data?.integration as NetsuiteIntegrationSettingsFragment | undefined
   const deleteDialogCallback = () => {
-    if (data?.integrations?.collection.length === PROVIDER_CONNECTION_LIMIT) {
+    if ((data?.integrations?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
       navigate(NETSUITE_INTEGRATION_ROUTE)
     } else {
       navigate(INTEGRATIONS_ROUTE)

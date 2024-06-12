@@ -95,7 +95,7 @@ const StripeIntegrationDetails = () => {
   })
   const stripePaymentProvider = data?.paymentProvider as StripeIntegrationDetailsFragment
   const deleteDialogCallback = () => {
-    if (data?.paymentProviders?.collection.length === PROVIDER_CONNECTION_LIMIT) {
+    if ((data?.paymentProviders?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
       navigate(STRIPE_INTEGRATION_ROUTE)
     } else {
       navigate(INTEGRATIONS_ROUTE)
