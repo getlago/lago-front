@@ -217,20 +217,24 @@ export const ChargeAccordion = memo(
       )
     }, [initialLocalCharge?.minAmountCents])
 
-    useEffect(() => {
-      const payInAdvance = localCharge.payInAdvance
+    useEffect(
+      () => {
+        const payInAdvance = localCharge.payInAdvance
 
-      if (payInAdvance === true) {
-        formikProps.setFieldValue(`charges.${index}.minAmountCents`, undefined)
+        if (payInAdvance === true) {
+          formikProps.setFieldValue(`charges.${index}.minAmountCents`, undefined)
 
-        if (localCharge.chargeModel === ChargeModelEnum.Graduated) {
-          formikProps.setFieldValue(`charges.${index}.prorated`, false)
+          if (localCharge.chargeModel === ChargeModelEnum.Graduated) {
+            formikProps.setFieldValue(`charges.${index}.prorated`, false)
+          }
+        } else {
+          // Pay in arrears
+          formikProps.setFieldValue(`charges.${index}.invoiceable`, true)
         }
-      } else {
-        // Pay in arrears
-        formikProps.setFieldValue(`charges.${index}.invoiceable`, true)
-      }
-    }, [formikProps, index, localCharge.chargeModel, localCharge.payInAdvance])
+      },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [index, localCharge.chargeModel, localCharge.payInAdvance],
+    )
 
     const handleUpdate = useCallback(
       (name: string, value: unknown) => {
