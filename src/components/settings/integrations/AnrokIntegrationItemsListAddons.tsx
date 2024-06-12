@@ -6,21 +6,17 @@ import { useNavigate } from 'react-router-dom'
 import { InfiniteScroll } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { CREATE_ADD_ON_ROUTE } from '~/core/router'
-import {
-  GetAddOnsForNetsuiteItemsListQuery,
-  InputMaybe,
-  MappableTypeEnum,
-} from '~/generated/graphql'
+import { GetAddOnsForAnrokItemsListQuery, InputMaybe, MappableTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
+import { AnrokIntegrationMapItemDialogRef } from './AnrokIntegrationMapItemDialog'
 import IntegrationItemHeader from './IntegrationItemHeader'
 import IntegrationItemLine from './IntegrationItemLine'
-import { NetsuiteIntegrationMapItemDialogRef } from './NetsuiteIntegrationMapItemDialog'
 
 gql`
-  fragment NetsuiteIntegrationItemsListAddons on AddOn {
+  fragment AnrokIntegrationItemsListAddons on AddOn {
     id
     name
     code
@@ -34,25 +30,25 @@ gql`
   }
 `
 
-type NetsuiteIntegrationItemsListAddonsProps = {
-  data: GetAddOnsForNetsuiteItemsListQuery | undefined
+type AnrokIntegrationItemsListAddonsProps = {
+  data: GetAddOnsForAnrokItemsListQuery | undefined
   fetchMoreAddons: Function
   hasError: boolean
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  netsuiteIntegrationMapItemDialogRef: RefObject<NetsuiteIntegrationMapItemDialogRef>
+  anrokIntegrationMapItemDialogRef: RefObject<AnrokIntegrationMapItemDialogRef>
 }
 
-const NetsuiteIntegrationItemsListAddons = ({
+const AnrokIntegrationItemsListAddons = ({
   data,
   fetchMoreAddons,
   hasError,
   integrationId,
   isLoading,
-  netsuiteIntegrationMapItemDialogRef,
+  anrokIntegrationMapItemDialogRef,
   searchTerm,
-}: NetsuiteIntegrationItemsListAddonsProps) => {
+}: AnrokIntegrationItemsListAddonsProps) => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const addons = data?.addOns?.collection || []
@@ -137,12 +133,11 @@ const NetsuiteIntegrationItemsListAddons = ({
                     description={addOn.code}
                     loading={false}
                     onMappingClick={() => {
-                      netsuiteIntegrationMapItemDialogRef.current?.openDialog({
+                      anrokIntegrationMapItemDialogRef.current?.openDialog({
                         integrationId,
                         type: MappableTypeEnum.AddOn,
                         itemId: addonMapping?.id,
                         itemExternalId: addonMapping?.externalId,
-                        itemExternalCode: addonMapping?.externalAccountCode || undefined,
                         itemExternalName: addonMapping?.externalName || undefined,
                         lagoMappableId: addOn.id,
                       })
@@ -175,4 +170,4 @@ const NetsuiteIntegrationItemsListAddons = ({
   )
 }
 
-export default NetsuiteIntegrationItemsListAddons
+export default AnrokIntegrationItemsListAddons

@@ -7,12 +7,12 @@ import { MappingTypeEnum, NetsuiteIntegrationItemsListDefaultFragment } from '~/
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
+import { AnrokIntegrationMapItemDialogRef } from './AnrokIntegrationMapItemDialog'
 import IntegrationItemHeader from './IntegrationItemHeader'
 import IntegrationItemLine from './IntegrationItemLine'
-import { NetsuiteIntegrationMapItemDialogRef } from './NetsuiteIntegrationMapItemDialog'
 
 gql`
-  fragment NetsuiteIntegrationItemsListDefault on CollectionMapping {
+  fragment AnrokIntegrationItemsListDefault on CollectionMapping {
     id
     mappingType
     externalId
@@ -26,7 +26,7 @@ type NetsuiteIntegrationItemsListDefaultProps = {
   hasError: boolean
   integrationId: string
   isLoading: boolean
-  netsuiteIntegrationMapItemDialogRef: RefObject<NetsuiteIntegrationMapItemDialogRef>
+  anrokIntegrationMapItemDialogRef: RefObject<AnrokIntegrationMapItemDialogRef>
 }
 
 const NetsuiteIntegrationItemsListDefault = ({
@@ -34,26 +34,17 @@ const NetsuiteIntegrationItemsListDefault = ({
   hasError,
   integrationId,
   isLoading,
-  netsuiteIntegrationMapItemDialogRef,
+  anrokIntegrationMapItemDialogRef,
 }: NetsuiteIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
 
-  const {
-    coupon,
-    creditNote,
-    fallbackItem,
-    minimumCommitment,
-    prepaidCredit,
-    subscriptionFee,
-    tax,
-  } = useMemo(() => {
+  const { fallbackItem, minimumCommitment, prepaidCredit, subscriptionFee } = useMemo(() => {
     return {
       fallbackItem: defaultItems?.find(
         (mapping) => mapping.mappingType === MappingTypeEnum.FallbackItem,
       ),
-      coupon: defaultItems?.find((mapping) => mapping.mappingType === MappingTypeEnum.Coupon),
-      creditNote: defaultItems?.find(
-        (mapping) => mapping.mappingType === MappingTypeEnum.CreditNote,
+      subscriptionFee: defaultItems?.find(
+        (mapping) => mapping.mappingType === MappingTypeEnum.SubscriptionFee,
       ),
       minimumCommitment: defaultItems?.find(
         (mapping) => mapping.mappingType === MappingTypeEnum.MinimumCommitment,
@@ -61,10 +52,6 @@ const NetsuiteIntegrationItemsListDefault = ({
       prepaidCredit: defaultItems?.find(
         (mapping) => mapping.mappingType === MappingTypeEnum.PrepaidCredit,
       ),
-      subscriptionFee: defaultItems?.find(
-        (mapping) => mapping.mappingType === MappingTypeEnum.SubscriptionFee,
-      ),
-      tax: defaultItems?.find((mapping) => mapping.mappingType === MappingTypeEnum.Tax),
     }
   }, [defaultItems])
 
@@ -90,12 +77,11 @@ const NetsuiteIntegrationItemsListDefault = ({
         description={translate('text_6630e3210c13c500cd398e99')}
         loading={isLoading}
         onMappingClick={() => {
-          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
+          anrokIntegrationMapItemDialogRef.current?.openDialog({
             integrationId,
             type: MappingTypeEnum.FallbackItem,
             itemId: fallbackItem?.id,
             itemExternalId: fallbackItem?.externalId,
-            itemExternalCode: fallbackItem?.externalAccountCode || undefined,
             itemExternalName: fallbackItem?.externalName || undefined,
           })
         }}
@@ -108,56 +94,6 @@ const NetsuiteIntegrationItemsListDefault = ({
             : undefined
         }
       />
-      <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398e9b')} />
-      <IntegrationItemLine
-        icon="box"
-        label={translate('text_637ccf8133d2c9a7d11ce705')}
-        description={translate('text_6630e3210c13c500cd398e9e')}
-        loading={isLoading}
-        onMappingClick={() => {
-          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
-            integrationId,
-            type: MappingTypeEnum.Coupon,
-            itemId: coupon?.id,
-            itemExternalId: coupon?.externalId,
-            itemExternalCode: coupon?.externalAccountCode || undefined,
-            itemExternalName: coupon?.externalName || undefined,
-          })
-        }}
-        mappingInfos={
-          coupon
-            ? {
-                id: coupon.externalId || '',
-                name: coupon.externalName || '',
-              }
-            : undefined
-        }
-      />
-      <IntegrationItemHeader columnName={translate('text_66461ada56a84401188e8c61')} />
-      <IntegrationItemLine
-        icon="box"
-        label={translate('text_66461ada56a84401188e8c63')}
-        description={translate('text_66461ada56a84401188e8c64')}
-        loading={isLoading}
-        onMappingClick={() => {
-          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
-            integrationId,
-            type: MappingTypeEnum.CreditNote,
-            itemId: creditNote?.id,
-            itemExternalId: creditNote?.externalId,
-            itemExternalCode: creditNote?.externalAccountCode || undefined,
-            itemExternalName: creditNote?.externalName || undefined,
-          })
-        }}
-        mappingInfos={
-          creditNote
-            ? {
-                id: creditNote.externalId || '',
-                name: creditNote.externalName || '',
-              }
-            : undefined
-        }
-      />
       <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398ea0')} />
       <IntegrationItemLine
         icon="board"
@@ -165,12 +101,11 @@ const NetsuiteIntegrationItemsListDefault = ({
         description={translate('text_6630e3210c13c500cd398ea3')}
         loading={isLoading}
         onMappingClick={() => {
-          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
+          anrokIntegrationMapItemDialogRef.current?.openDialog({
             integrationId,
             type: MappingTypeEnum.SubscriptionFee,
             itemId: subscriptionFee?.id,
             itemExternalId: subscriptionFee?.externalId,
-            itemExternalCode: subscriptionFee?.externalAccountCode || undefined,
             itemExternalName: subscriptionFee?.externalName || undefined,
           })
         }}
@@ -189,12 +124,11 @@ const NetsuiteIntegrationItemsListDefault = ({
         description={translate('text_6630e3210c13c500cd398ea3')}
         loading={isLoading}
         onMappingClick={() => {
-          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
+          anrokIntegrationMapItemDialogRef.current?.openDialog({
             integrationId,
             type: MappingTypeEnum.MinimumCommitment,
             itemId: minimumCommitment?.id,
             itemExternalId: minimumCommitment?.externalId,
-            itemExternalCode: minimumCommitment?.externalAccountCode || undefined,
             itemExternalName: minimumCommitment?.externalName || undefined,
           })
         }}
@@ -207,31 +141,6 @@ const NetsuiteIntegrationItemsListDefault = ({
             : undefined
         }
       />
-      <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398ea8')} />
-      <IntegrationItemLine
-        icon="box"
-        label={translate('text_645bb193927b375079d28a8f')}
-        description={translate('text_6630e3210c13c500cd398eab')}
-        loading={isLoading}
-        onMappingClick={() => {
-          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
-            integrationId,
-            type: MappingTypeEnum.Tax,
-            itemId: tax?.id,
-            itemExternalId: tax?.externalId,
-            itemExternalCode: tax?.externalAccountCode || undefined,
-            itemExternalName: tax?.externalName || undefined,
-          })
-        }}
-        mappingInfos={
-          tax
-            ? {
-                id: tax.externalId || '',
-                name: tax.externalName || '',
-              }
-            : undefined
-        }
-      />
       <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398ead')} />
       <IntegrationItemLine
         icon="coupon"
@@ -239,12 +148,11 @@ const NetsuiteIntegrationItemsListDefault = ({
         description={translate('text_6630e3210c13c500cd398eb0')}
         loading={isLoading}
         onMappingClick={() => {
-          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
+          anrokIntegrationMapItemDialogRef.current?.openDialog({
             integrationId,
             type: MappingTypeEnum.PrepaidCredit,
             itemId: prepaidCredit?.id,
             itemExternalId: prepaidCredit?.externalId,
-            itemExternalCode: prepaidCredit?.externalAccountCode || undefined,
             itemExternalName: prepaidCredit?.externalName || undefined,
           })
         }}

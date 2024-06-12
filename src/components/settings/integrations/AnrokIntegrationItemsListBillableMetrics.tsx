@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom'
 
 import { InfiniteScroll } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { CREATE_ADD_ON_ROUTE } from '~/core/router'
+import { CREATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import {
-  GetAddOnsForNetsuiteItemsListQuery,
+  GetBillableMetricsForAnrokItemsListQuery,
   InputMaybe,
   MappableTypeEnum,
 } from '~/generated/graphql'
@@ -15,12 +15,12 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
+import { AnrokIntegrationMapItemDialogRef } from './AnrokIntegrationMapItemDialog'
 import IntegrationItemHeader from './IntegrationItemHeader'
 import IntegrationItemLine from './IntegrationItemLine'
-import { NetsuiteIntegrationMapItemDialogRef } from './NetsuiteIntegrationMapItemDialog'
 
 gql`
-  fragment NetsuiteIntegrationItemsListAddons on AddOn {
+  fragment AnrokIntegrationItemsListBillableMetrics on BillableMetric {
     id
     name
     code
@@ -34,38 +34,38 @@ gql`
   }
 `
 
-type NetsuiteIntegrationItemsListAddonsProps = {
-  data: GetAddOnsForNetsuiteItemsListQuery | undefined
-  fetchMoreAddons: Function
+type AnrokIntegrationItemsListBillableMetricsProps = {
+  data: GetBillableMetricsForAnrokItemsListQuery | undefined
+  fetchMoreBillableMetrics: Function
   hasError: boolean
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  netsuiteIntegrationMapItemDialogRef: RefObject<NetsuiteIntegrationMapItemDialogRef>
+  anrokIntegrationMapItemDialogRef: RefObject<AnrokIntegrationMapItemDialogRef>
 }
 
-const NetsuiteIntegrationItemsListAddons = ({
+const AnrokIntegrationItemsListBillableMetrics = ({
   data,
-  fetchMoreAddons,
+  fetchMoreBillableMetrics,
   hasError,
   integrationId,
   isLoading,
-  netsuiteIntegrationMapItemDialogRef,
+  anrokIntegrationMapItemDialogRef,
   searchTerm,
-}: NetsuiteIntegrationItemsListAddonsProps) => {
+}: AnrokIntegrationItemsListBillableMetricsProps) => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
-  const addons = data?.addOns?.collection || []
+  const billableMetrics = data?.billableMetrics?.collection || []
 
   return (
     <Stack>
-      <IntegrationItemHeader columnName={translate('text_6630ea71a6c2ef00bc63006f')} />
-      {!!isLoading && !addons.length && searchTerm ? (
+      <IntegrationItemHeader columnName={translate('text_6630ea71a6c2ef00bc63006e')} />
+      {!!isLoading && !billableMetrics.length && searchTerm ? (
         <>
           {[0, 1, 2].map((i) => (
             <IntegrationItemLine
-              key={`addon-item-skeleton-${i}`}
-              icon="puzzle"
+              key={`billable-metric-item-skeleton-${i}`}
+              icon="pulse"
               label={''}
               description={''}
               loading={true}
@@ -91,7 +91,7 @@ const NetsuiteIntegrationItemsListAddons = ({
             />
           )}
         </>
-      ) : !isLoading && (!addons || !addons.length) ? (
+      ) : !isLoading && (!billableMetrics || !billableMetrics.length) ? (
         <>
           {!!searchTerm ? (
             <GenericPlaceholder
@@ -105,7 +105,7 @@ const NetsuiteIntegrationItemsListAddons = ({
               subtitle={translate('text_629728388c4d2300e2d380df')}
               buttonTitle={translate('text_629728388c4d2300e2d3810f')}
               buttonVariant="primary"
-              buttonAction={() => navigate(CREATE_ADD_ON_ROUTE)}
+              buttonAction={() => navigate(CREATE_BILLABLE_METRIC_ROUTE)}
               image={<EmptyImage width="136" height="104" />}
             />
           )}
@@ -113,45 +113,44 @@ const NetsuiteIntegrationItemsListAddons = ({
       ) : (
         <InfiniteScroll
           onBottom={() => {
-            const { currentPage = 0, totalPages = 0 } = data?.addOns?.metadata || {}
+            const { currentPage = 0, totalPages = 0 } = data?.billableMetrics?.metadata || {}
 
             currentPage < totalPages &&
               !isLoading &&
-              fetchMoreAddons({
+              fetchMoreBillableMetrics({
                 variables: { page: currentPage + 1 },
               })
           }}
         >
           <>
-            {!!addons.length &&
-              addons.map((addOn) => {
-                const addonMapping = addOn?.integrationMappings?.find(
-                  (i) => i.mappableType === MappableTypeEnum.AddOn,
+            {!!billableMetrics.length &&
+              billableMetrics.map((billableMetric) => {
+                const billableMetricMapping = billableMetric.integrationMappings?.find(
+                  (mapping) => mapping.mappableType === MappableTypeEnum.BillableMetric,
                 )
 
                 return (
                   <IntegrationItemLine
-                    key={`addon-item-${addOn.id}`}
-                    icon="puzzle"
-                    label={addOn.name}
-                    description={addOn.code}
+                    key={`billableMetric-item-${billableMetric.id}`}
+                    icon="pulse"
+                    label={billableMetric.name}
+                    description={billableMetric.code}
                     loading={false}
                     onMappingClick={() => {
-                      netsuiteIntegrationMapItemDialogRef.current?.openDialog({
+                      anrokIntegrationMapItemDialogRef.current?.openDialog({
                         integrationId,
-                        type: MappableTypeEnum.AddOn,
-                        itemId: addonMapping?.id,
-                        itemExternalId: addonMapping?.externalId,
-                        itemExternalCode: addonMapping?.externalAccountCode || undefined,
-                        itemExternalName: addonMapping?.externalName || undefined,
-                        lagoMappableId: addOn.id,
+                        type: MappableTypeEnum.BillableMetric,
+                        itemId: billableMetricMapping?.id,
+                        itemExternalId: billableMetricMapping?.externalId,
+                        itemExternalName: billableMetricMapping?.externalName || undefined,
+                        lagoMappableId: billableMetric.id,
                       })
                     }}
                     mappingInfos={
-                      !!addonMapping?.id
+                      !!billableMetricMapping?.id
                         ? {
-                            id: addonMapping.externalId,
-                            name: addonMapping.externalName || '',
+                            id: billableMetricMapping.externalId,
+                            name: billableMetricMapping.externalName || '',
                           }
                         : undefined
                     }
@@ -161,8 +160,8 @@ const NetsuiteIntegrationItemsListAddons = ({
             {isLoading &&
               [0, 1, 2].map((i) => (
                 <IntegrationItemLine
-                  key={`addon-item-skeleton-${i}`}
-                  icon="puzzle"
+                  key={`billable-metric-item-skeleton-${i}`}
+                  icon="pulse"
                   label={''}
                   description={''}
                   loading={true}
@@ -175,4 +174,4 @@ const NetsuiteIntegrationItemsListAddons = ({
   )
 }
 
-export default NetsuiteIntegrationItemsListAddons
+export default AnrokIntegrationItemsListBillableMetrics

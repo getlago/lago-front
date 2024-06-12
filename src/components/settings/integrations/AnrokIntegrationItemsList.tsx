@@ -7,25 +7,25 @@ import styled from 'styled-components'
 import { Button, Popper, Typography } from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
 import {
+  AnrokIntegrationItemsListAddonsFragmentDoc,
+  AnrokIntegrationItemsListBillableMetricsFragmentDoc,
+  AnrokIntegrationItemsListDefaultFragmentDoc,
   MappableTypeEnum,
-  NetsuiteIntegrationItemsListAddonsFragmentDoc,
-  NetsuiteIntegrationItemsListBillableMetricsFragmentDoc,
-  NetsuiteIntegrationItemsListDefaultFragmentDoc,
-  useGetAddOnsForNetsuiteItemsListLazyQuery,
-  useGetBillableMetricsForNetsuiteItemsListLazyQuery,
-  useGetNetsuiteIntegrationCollectionMappingsLazyQuery,
+  useGetAddOnsForAnrokItemsListLazyQuery,
+  useGetAnrokIntegrationCollectionMappingsLazyQuery,
+  useGetBillableMetricsForAnrokItemsListLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { MenuPopper, NAV_HEIGHT, theme } from '~/styles'
 
-import NetsuiteIntegrationItemsListAddons from './NetsuiteIntegrationItemsListAddons'
-import NetsuiteIntegrationItemsListBillableMetrics from './NetsuiteIntegrationItemsListBillableMetrics'
-import NetsuiteIntegrationItemsListDefault from './NetsuiteIntegrationItemsListDefault'
+import AnrokIntegrationItemsListAddons from './AnrokIntegrationItemsListAddons'
+import AnrokIntegrationItemsListBillableMetrics from './AnrokIntegrationItemsListBillableMetrics'
+import AnrokIntegrationItemsListDefault from './AnrokIntegrationItemsListDefault'
 import {
-  NetsuiteIntegrationMapItemDialog,
-  NetsuiteIntegrationMapItemDialogRef,
-} from './NetsuiteIntegrationMapItemDialog'
+  AnrokIntegrationMapItemDialog,
+  AnrokIntegrationMapItemDialogRef,
+} from './AnrokIntegrationMapItemDialog'
 
 const SelectedItemTypeEnum = {
   Default: 'Default',
@@ -40,20 +40,20 @@ const SelectedItemTypeEnumTranslation = {
 } as const
 
 gql`
-  fragment NetsuiteIntegrationItems on NetsuiteIntegration {
+  fragment AnrokIntegrationItems on AnrokIntegration {
     id # integrationId received in props
   }
 
-  query getNetsuiteIntegrationCollectionMappings($integrationId: ID!) {
+  query getAnrokIntegrationCollectionMappings($integrationId: ID!) {
     integrationCollectionMappings(integrationId: $integrationId) {
       collection {
         id
-        ...NetsuiteIntegrationItemsListDefault
+        ...AnrokIntegrationItemsListDefault
       }
     }
   }
 
-  query getAddOnsForNetsuiteItemsList(
+  query getAddOnsForAnrokItemsList(
     $page: Int
     $limit: Int
     $searchTerm: String
@@ -67,12 +67,12 @@ gql`
       }
       collection {
         id
-        ...NetsuiteIntegrationItemsListAddons
+        ...AnrokIntegrationItemsListAddons
       }
     }
   }
 
-  query getBillableMetricsForNetsuiteItemsList(
+  query getBillableMetricsForAnrokItemsList(
     $page: Int
     $limit: Int
     $searchTerm: String
@@ -86,19 +86,19 @@ gql`
       }
       collection {
         id
-        ...NetsuiteIntegrationItemsListBillableMetrics
+        ...AnrokIntegrationItemsListBillableMetrics
       }
     }
   }
 
-  ${NetsuiteIntegrationItemsListDefaultFragmentDoc}
-  ${NetsuiteIntegrationItemsListAddonsFragmentDoc}
-  ${NetsuiteIntegrationItemsListBillableMetricsFragmentDoc}
+  ${AnrokIntegrationItemsListDefaultFragmentDoc}
+  ${AnrokIntegrationItemsListAddonsFragmentDoc}
+  ${AnrokIntegrationItemsListBillableMetricsFragmentDoc}
 `
 
-const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string }) => {
+const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string }) => {
   const { translate } = useInternationalization()
-  const netsuiteIntegrationMapItemDialogRef = useRef<NetsuiteIntegrationMapItemDialogRef>(null)
+  const anrokIntegrationMapItemDialogRef = useRef<AnrokIntegrationMapItemDialogRef>(null)
   let [searchParams, setSearchParams] = useSearchParams({ item_type: SelectedItemTypeEnum.Default })
   const [selectedItemType, setSelectedItemType] = useState<keyof typeof SelectedItemTypeEnum>(
     searchParams.get('item_type') as keyof typeof SelectedItemTypeEnum,
@@ -116,7 +116,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
       loading: collectionMappingLoading,
       error: collectionMappingError,
     },
-  ] = useGetNetsuiteIntegrationCollectionMappingsLazyQuery({
+  ] = useGetAnrokIntegrationCollectionMappingsLazyQuery({
     notifyOnNetworkStatusChange: true,
     variables: {
       integrationId,
@@ -132,7 +132,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
       variables: addonVariables,
       fetchMore: fetchMoreAddons,
     },
-  ] = useGetAddOnsForNetsuiteItemsListLazyQuery({
+  ] = useGetAddOnsForAnrokItemsListLazyQuery({
     notifyOnNetworkStatusChange: true,
     variables: {
       limit: 20,
@@ -149,7 +149,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
       variables: billableMetricsVariables,
       fetchMore: fetchMoreBillableMetrics,
     },
-  ] = useGetBillableMetricsForNetsuiteItemsListLazyQuery({
+  ] = useGetBillableMetricsForAnrokItemsListLazyQuery({
     notifyOnNetworkStatusChange: true,
     variables: {
       limit: 20,
@@ -243,41 +243,41 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
       </ItemTypeSelectorLine>
 
       {selectedItemType === SelectedItemTypeEnum.Default ? (
-        <NetsuiteIntegrationItemsListDefault
+        <AnrokIntegrationItemsListDefault
           defaultItems={collectionMappingData?.integrationCollectionMappings?.collection}
           integrationId={integrationId}
           isLoading={collectionMappingLoading}
           hasError={!!collectionMappingError}
-          netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
+          anrokIntegrationMapItemDialogRef={anrokIntegrationMapItemDialogRef}
         />
       ) : selectedItemType === MappableTypeEnum.AddOn ? (
-        <NetsuiteIntegrationItemsListAddons
+        <AnrokIntegrationItemsListAddons
           data={addonData}
           fetchMoreAddons={fetchMoreAddons}
           integrationId={integrationId}
           isLoading={isLoaddingAddons}
           hasError={!!addonError}
-          netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
+          anrokIntegrationMapItemDialogRef={anrokIntegrationMapItemDialogRef}
           searchTerm={addonVariables?.searchTerm}
         />
       ) : selectedItemType === MappableTypeEnum.BillableMetric ? (
-        <NetsuiteIntegrationItemsListBillableMetrics
+        <AnrokIntegrationItemsListBillableMetrics
           data={billableMetricsData}
           fetchMoreBillableMetrics={fetchMoreBillableMetrics}
           integrationId={integrationId}
           isLoading={isLoaddingBillableMetrics}
           hasError={!!billableMetricsError}
-          netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
+          anrokIntegrationMapItemDialogRef={anrokIntegrationMapItemDialogRef}
           searchTerm={billableMetricsVariables?.searchTerm}
         />
       ) : null}
 
-      <NetsuiteIntegrationMapItemDialog ref={netsuiteIntegrationMapItemDialogRef} />
+      <AnrokIntegrationMapItemDialog ref={anrokIntegrationMapItemDialogRef} />
     </>
   )
 }
 
-export default NetsuiteIntegrationItemsList
+export default AnrokIntegrationItemsList
 
 const ItemTypeSelectorLine = styled.div`
   height: ${NAV_HEIGHT}px;

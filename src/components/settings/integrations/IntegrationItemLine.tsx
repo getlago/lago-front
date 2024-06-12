@@ -7,7 +7,7 @@ import { NAV_HEIGHT, theme } from '~/styles'
 
 const STATUS_SIZE = 12
 
-type TNetsuiteIntegrationItemLineProps = {
+type TIntegrationItemLineProps = {
   description: string
   icon: IconName
   label: string
@@ -19,14 +19,14 @@ type TNetsuiteIntegrationItemLineProps = {
   onMappingClick?: () => void
 }
 
-const NetsuiteIntegrationItemLine = ({
+const IntegrationItemLine = ({
   description,
   icon,
   label,
   loading,
   mappingInfos,
   onMappingClick,
-}: TNetsuiteIntegrationItemLineProps) => {
+}: TIntegrationItemLineProps) => {
   const { translate } = useInternationalization()
 
   if (loading) {
@@ -82,7 +82,7 @@ const NetsuiteIntegrationItemLine = ({
   )
 }
 
-export default NetsuiteIntegrationItemLine
+export default IntegrationItemLine
 
 const ItemLine = styled.div`
   min-height: ${NAV_HEIGHT}px;
