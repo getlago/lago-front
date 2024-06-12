@@ -340,6 +340,18 @@ export const ChargeAccordion = memo(
       return translate('text_649c54823c90890062476259')
     }, [isProratedOptionDisabled, translate, localCharge.chargeModel])
 
+    const chargePayInAdvanceDescription = useMemo(() => {
+      if (localCharge.chargeModel === ChargeModelEnum.Volume) {
+        return translate('text_6669b493fae79a0095e639bc')
+      } else if (localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg) {
+        return translate('text_6669b493fae79a0095e63986')
+      } else if (localCharge.billableMetric.aggregationType === AggregationTypeEnum.LatestAgg) {
+        return translate('text_6669b493fae79a0095e639a1')
+      }
+
+      return translate('text_6661fc17337de3591e29e435')
+    }, [localCharge.chargeModel, localCharge.billableMetric.aggregationType, translate])
+
     return (
       <Accordion
         noContentMargin
@@ -826,8 +838,8 @@ export const ChargeAccordion = memo(
           <ChargeOptionsAccordion charge={localCharge} currency={currency}>
             <RadioGroupField
               name={`charges.${index}.payInAdvance`}
-              label={translate('text_6661fc17337de3591e29e3f9')}
-              description={translate('text_6661fc17337de3591e29e435')}
+              label={translate('text_6669b493fae79a0095e6396b')}
+              description={chargePayInAdvanceDescription}
               formikProps={formikProps}
               disabled={isInSubscriptionForm || disabled}
               optionLabelVariant="body"
@@ -837,7 +849,7 @@ export const ChargeAccordion = memo(
                   value: false,
                 },
                 {
-                  label: translate('text_6661fc17337de3591e29e3ff'),
+                  label: translate('text_6669b493fae79a0095e63988'),
                   value: true,
                   disabled:
                     localCharge.chargeModel === ChargeModelEnum.Volume ||
