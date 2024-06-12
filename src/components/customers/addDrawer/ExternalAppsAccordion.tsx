@@ -36,7 +36,7 @@ import {
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
   UpdateCustomerInput,
-  useIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery,
+  useAccountingIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery,
   usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery,
   useSubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery,
 } from '~/generated/graphql'
@@ -88,7 +88,7 @@ gql`
     }
   }
 
-  query integrationsListForCustomerEditExternalAppsAccordion(
+  query accountingIntegrationsListForCustomerEditExternalAppsAccordion(
     $limit: Int
     $page: Int
     $type: IntegrationTypeEnum
@@ -131,21 +131,21 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     !!formikProps.values.integrationCustomer,
   )
 
-  const [getProvidersData, { data: providersData }] =
+  const [getPaymentProvidersData, { data: paymentProvidersData }] =
     usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery({
       variables: { limit: 1000 },
     })
 
-  const [getIntegrationsData, { data: integrationsData }] =
-    useIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery({
+  const [getAccountingIntegrationsData, { data: accountingIntegrationsData }] =
+    useAccountingIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery({
       variables: { limit: 1000, type: IntegrationTypeEnum.Netsuite },
     })
 
-  const selectedPaymentProvider = providersData?.paymentProviders?.collection.find(
+  const selectedPaymentProvider = paymentProvidersData?.paymentProviders?.collection.find(
     (p) => p.code === formikProps.values.paymentProviderCode,
   )
 
-  const allNetsuiteIntegrations = integrationsData?.integrations?.collection.filter(
+  const allNetsuiteIntegrations = accountingIntegrationsData?.integrations?.collection.filter(
     (i) => i.__typename === 'NetsuiteIntegration',
   ) as NetsuiteIntegration[] | undefined
 
@@ -162,10 +162,10 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
   const isSyncWithProviderDisabled = !!formikProps.values.providerCustomer?.syncWithProvider
   const hadInitialIntegrationCustomer = !!formikProps.initialValues.integrationCustomer
 
-  const connectedProvidersData: ComboboxDataGrouped[] | [] = useMemo(() => {
-    if (!providersData?.paymentProviders?.collection.length) return []
+  const connectedPaymentProvidersData: ComboboxDataGrouped[] | [] = useMemo(() => {
+    if (!paymentProvidersData?.paymentProviders?.collection.length) return []
 
-    return providersData?.paymentProviders?.collection.map((provider) => ({
+    return paymentProvidersData?.paymentProviders?.collection.map((provider) => ({
       value: provider.code,
       label: provider.name,
       group: provider.__typename.toLocaleLowerCase().replace('provider', ''),
@@ -181,7 +181,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
         </Item>
       ),
     }))
-  }, [providersData?.paymentProviders?.collection])
+  }, [paymentProvidersData?.paymentProviders?.collection])
 
   const connectedIntegrationsData: BasicComboBoxData[] | [] = useMemo(() => {
     if (!allNetsuiteIntegrations?.length) return []
@@ -235,8 +235,8 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     <Accordion
       size="large"
       onOpen={() => {
-        getProvidersData()
-        getIntegrationsData()
+        getPaymentProvidersData()
+        getAccountingIntegrationsData()
       }}
       summary={
         <InlineSummaryForExternalApps>
@@ -318,8 +318,8 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
 
                 {/* Select connected account */}
                 <ComboBox
-                  onOpen={getProvidersData}
-                  data={connectedProvidersData}
+                  onOpen={getPaymentProvidersData}
+                  data={connectedPaymentProvidersData}
                   label={translate('text_65940198687ce7b05cd62b61')}
                   placeholder={translate('text_65940198687ce7b05cd62b62')}
                   emptyText={translate('text_6645daa0468420011304aded')}
@@ -327,7 +327,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                   value={formikProps.values.paymentProviderCode as string}
                   onChange={(value) => {
                     formikProps.setFieldValue('paymentProviderCode', value)
-                    const selectedProvider = connectedProvidersData.find(
+                    const selectedProvider = connectedPaymentProvidersData.find(
                       (provider) => provider.value === value,
                     )?.group
 
@@ -361,7 +361,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                       }${
                         formikProps.values.paymentProviderCode
                           ? ` • ${
-                              connectedProvidersData.find(
+                              connectedPaymentProvidersData.find(
                                 (provider) =>
                                   provider.value === formikProps.values.paymentProviderCode,
                               )?.label
@@ -598,7 +598,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
 
               {/* Select Integration account */}
               <ComboBox
-                onOpen={getIntegrationsData}
+                onOpen={getAccountingIntegrationsData}
                 disabled={hadInitialIntegrationCustomer}
                 data={connectedIntegrationsData}
                 label={translate('text_66423cad72bbad009f2f5695')}
