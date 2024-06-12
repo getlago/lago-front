@@ -19,6 +19,12 @@ import { getItemFromLS, logOut, omitDeep, ORGANIZATION_LS_KEY_ID } from './cache
 import { LagoGQLError } from './errorUtils'
 import { resolvers, typeDefs } from './graphqlResolvers'
 
+const AUTH_ERRORS = [
+  LagoApiError.ExpiredJwtToken,
+  LagoApiError.TokenEncodingError,
+  LagoApiError.Unauthorized,
+]
+
 let globalApolloClient: ApolloClient<NormalizedCacheObject> | null = null
 
 const TIMEOUT = 300000 // 5 minutes timeout
@@ -56,16 +62,13 @@ export const initializeApolloClient = async () => {
     onError(({ graphQLErrors, networkError, operation }) => {
       const { silentError = false, silentErrorCodes = [] } = operation.getContext()
 
+      // Silent auth and permissions related errors by default
+      silentErrorCodes.push(...AUTH_ERRORS, LagoApiError.Forbidden)
+
       if (graphQLErrors) {
         // @ts-expect-error
         graphQLErrors.forEach(({ message, locations, path, extensions }: LagoGQLError) => {
-          const isUnauthorized =
-            extensions &&
-            [
-              LagoApiError.Unauthorized,
-              LagoApiError.ExpiredJwtToken,
-              LagoApiError.TokenEncodingError,
-            ].includes(extensions?.code)
+          const isUnauthorized = extensions && AUTH_ERRORS.includes(extensions?.code)
 
           if (isUnauthorized && globalApolloClient) {
             logOut(globalApolloClient)
