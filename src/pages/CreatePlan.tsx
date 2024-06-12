@@ -28,16 +28,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
-import { Card, PageHeader, theme } from '~/styles'
-import {
-  Content,
-  Main,
-  MainMinimumContent,
-  SectionFooter,
-  SectionFooterWrapper,
-  Side,
-  SkeletonHeader,
-} from '~/styles/mainObjectsForm'
+import { Card, NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { Content, Main, MAIN_PADDING, Side, SkeletonHeader } from '~/styles/mainObjectsForm'
 
 import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
 
@@ -317,4 +309,42 @@ const Section = styled.section`
   display: flex;
   flex-direction: column;
   gap: ${theme.spacing(4)};
+`
+
+const FOOTER_HEIGHT = 80
+const FOOTER_MARGIN = 80
+
+const MainMinimumContent = styled.div`
+  min-height: calc(
+    100vh - ${NAV_HEIGHT}px - ${FOOTER_HEIGHT}px - ${FOOTER_MARGIN}px - ${MAIN_PADDING}
+  );
+`
+
+const SectionFooter = styled.div`
+  height: ${FOOTER_HEIGHT}px;
+  position: sticky;
+  bottom: 0;
+  background-color: ${theme.palette.background.paper};
+  margin-top: ${FOOTER_MARGIN}px;
+  border-top: 1px solid ${theme.palette.grey[200]};
+  max-width: initial !important;
+  // Negative margin to compensate for the padding of the parent
+  margin-left: -${MAIN_PADDING};
+  margin-right: -${MAIN_PADDING};
+  padding: 0 ${MAIN_PADDING};
+
+  ${theme.breakpoints.down('md')} {
+    width: 100%;
+    padding: 0 ${theme.spacing(4)};
+    margin-left: -${theme.spacing(4)};
+    margin-right: -${theme.spacing(4)};
+  }
+`
+
+const SectionFooterWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  max-width: 720px;
 `

@@ -7,7 +7,7 @@ import { Typography } from '~/components/designSystem'
 
 import { NAV_HEIGHT, theme } from './muiTheme'
 
-const MAIN_PADDING = theme.spacing(12)
+export const MAIN_PADDING = theme.spacing(12)
 
 export const Main = styled.div`
   width: 60%;
@@ -100,46 +100,6 @@ export const LineAmount = styled.div`
 
 export const ButtonContainer = styled.div`
   margin: 0 ${theme.spacing(6)} ${theme.spacing(20)} ${theme.spacing(6)};
-`
-
-// ------------------------------------------------------------
-
-const FOOTER_HEIGHT = 80
-const FOOTER_MARGIN = 80
-
-export const MainMinimumContent = styled.div`
-  min-height: calc(
-    100vh - ${NAV_HEIGHT}px - ${FOOTER_HEIGHT}px - ${FOOTER_MARGIN}px - ${MAIN_PADDING}
-  );
-`
-
-export const SectionFooter = styled.div`
-  height: ${FOOTER_HEIGHT}px;
-  position: sticky;
-  bottom: 0;
-  background-color: ${theme.palette.background.paper};
-  margin-top: ${FOOTER_MARGIN}px;
-  border-top: 1px solid ${theme.palette.grey[200]};
-  max-width: initial !important;
-  // Negative margin to compensate for the padding of the parent
-  margin-left: -${MAIN_PADDING};
-  margin-right: -${MAIN_PADDING};
-  padding: 0 ${MAIN_PADDING};
-
-  ${theme.breakpoints.down('md')} {
-    width: 100%;
-    padding: 0 ${theme.spacing(4)};
-    margin-left: -${theme.spacing(4)};
-    margin-right: -${theme.spacing(4)};
-  }
-`
-
-export const SectionFooterWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  height: 100%;
-  max-width: 720px;
 `
 
 // ------------------------------------------------------------

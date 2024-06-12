@@ -212,97 +212,99 @@ export const CommitmentsSection = ({
               formikProps={formikProps}
             />
 
-            <Group>
+            <div>
               <TaxLabel variant="captionHl" color="grey700">
                 {translate('text_64be910fba8ef9208686a8e3')}
               </TaxLabel>
-              {!!formikProps?.values?.minimumCommitment?.taxes?.length && (
-                <InlineTaxesWrapper>
-                  {formikProps?.values?.minimumCommitment?.taxes.map(
-                    ({ id: localTaxId, name, rate }) => (
-                      <Chip
-                        key={localTaxId}
-                        label={`${name} (${rate}%)`}
-                        type="secondary"
-                        size="medium"
-                        deleteIcon="trash"
-                        icon="percentage"
-                        deleteIconLabel={translate('text_63aa085d28b8510cd46443ff')}
-                        onDelete={() => {
-                          const newTaxedArray =
-                            formikProps?.values?.minimumCommitment?.taxes?.filter(
-                              (tax) => tax.id !== localTaxId,
-                            ) || []
+              <Group>
+                {!!formikProps?.values?.minimumCommitment?.taxes?.length && (
+                  <InlineTaxesWrapper>
+                    {formikProps?.values?.minimumCommitment?.taxes.map(
+                      ({ id: localTaxId, name, rate }) => (
+                        <Chip
+                          key={localTaxId}
+                          label={`${name} (${rate}%)`}
+                          type="secondary"
+                          size="medium"
+                          deleteIcon="trash"
+                          icon="percentage"
+                          deleteIconLabel={translate('text_63aa085d28b8510cd46443ff')}
+                          onDelete={() => {
+                            const newTaxedArray =
+                              formikProps?.values?.minimumCommitment?.taxes?.filter(
+                                (tax) => tax.id !== localTaxId,
+                              ) || []
 
-                          formikProps.setFieldValue('minimumCommitment.taxes', newTaxedArray)
-                        }}
-                      />
-                    ),
-                  )}
-                </InlineTaxesWrapper>
-              )}
+                            formikProps.setFieldValue('minimumCommitment.taxes', newTaxedArray)
+                          }}
+                        />
+                      ),
+                    )}
+                  </InlineTaxesWrapper>
+                )}
 
-              {shouldDisplayTaxesInput ? (
-                <InlineTaxInputWrapper>
-                  <ComboBox
-                    className={SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME}
-                    data={taxesDataForCombobox}
-                    searchQuery={getTaxes}
-                    loading={taxesLoading}
-                    placeholder={translate('text_64be910fba8ef9208686a8e7')}
-                    emptyText={translate('text_64be91fd0678965126e5657b')}
-                    onChange={(newTaxId) => {
-                      const previousTaxes = [
-                        ...(formikProps?.values?.minimumCommitment?.taxes || []),
-                      ]
-                      const newTaxObject = taxesData?.taxes?.collection.find(
-                        (t) => t.id === newTaxId,
-                      )
+                {shouldDisplayTaxesInput ? (
+                  <InlineTaxInputWrapper>
+                    <ComboBox
+                      className={SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME}
+                      data={taxesDataForCombobox}
+                      searchQuery={getTaxes}
+                      loading={taxesLoading}
+                      placeholder={translate('text_64be910fba8ef9208686a8e7')}
+                      emptyText={translate('text_64be91fd0678965126e5657b')}
+                      onChange={(newTaxId) => {
+                        const previousTaxes = [
+                          ...(formikProps?.values?.minimumCommitment?.taxes || []),
+                        ]
+                        const newTaxObject = taxesData?.taxes?.collection.find(
+                          (t) => t.id === newTaxId,
+                        )
 
-                      formikProps.setFieldValue('minimumCommitment.taxes', [
-                        ...previousTaxes,
-                        newTaxObject,
-                      ])
-                      setShouldDisplayTaxesInput(false)
-                    }}
-                  />
-
-                  <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
-                    <Button
-                      icon="trash"
-                      variant="quaternary"
-                      onClick={() => {
+                        formikProps.setFieldValue('minimumCommitment.taxes', [
+                          ...previousTaxes,
+                          newTaxObject,
+                        ])
                         setShouldDisplayTaxesInput(false)
                       }}
                     />
-                  </Tooltip>
-                </InlineTaxInputWrapper>
-              ) : (
-                // Wrapping div to avoid the button to be full width, caused by the <Stack> parent
-                <div>
-                  <Button
-                    startIcon="plus"
-                    variant="quaternary"
-                    onClick={() => {
-                      setShouldDisplayTaxesInput(true)
 
-                      setTimeout(() => {
-                        const element = document.querySelector(
-                          `.${SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                        ) as HTMLElement
+                    <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
+                      <Button
+                        icon="trash"
+                        variant="quaternary"
+                        onClick={() => {
+                          setShouldDisplayTaxesInput(false)
+                        }}
+                      />
+                    </Tooltip>
+                  </InlineTaxInputWrapper>
+                ) : (
+                  // Wrapping div to avoid the button to be full width, caused by the <Stack> parent
+                  <div>
+                    <Button
+                      startIcon="plus"
+                      variant="quaternary"
+                      onClick={() => {
+                        setShouldDisplayTaxesInput(true)
 
-                        if (!element) return
+                        setTimeout(() => {
+                          const element = document.querySelector(
+                            `.${SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+                          ) as HTMLElement
 
-                        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                        element.click()
-                      }, 0)
-                    }}
-                  >
-                    {translate('text_64be910fba8ef9208686a8c9')}
-                  </Button>
-                </div>
-              )}
-            </Group>
+                          if (!element) return
+
+                          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                          element.click()
+                        }, 0)
+                      }}
+                    >
+                      {translate('text_64be910fba8ef9208686a8c9')}
+                    </Button>
+                  </div>
+                )}
+              </Group>
+            </div>
           </Stack>
         </Accordion>
       ) : (
@@ -393,7 +395,7 @@ const InlineTaxesWrapper = styled.div`
 `
 
 const TaxLabel = styled(Typography)`
-  margin-bottom: ${theme.spacing(2)} !important;
+  margin-bottom: ${theme.spacing(2)};
 `
 
 const InlineTaxInputWrapper = styled.div`
