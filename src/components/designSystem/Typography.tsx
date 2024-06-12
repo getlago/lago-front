@@ -26,6 +26,7 @@ enum ColorTypeEnum {
   info600 = 'info.600',
   primary600 = 'primary.600',
   danger600 = 'error.600',
+  warning700 = 'warning.700',
   success600 = 'success.600',
   inherit = 'inherit',
   contrast = 'common.white',

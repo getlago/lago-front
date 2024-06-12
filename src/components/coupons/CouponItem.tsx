@@ -15,7 +15,8 @@ import {
   Popper,
   Skeleton,
   Status,
-  StatusEnum,
+  StatusProps,
+  StatusType,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
@@ -59,17 +60,17 @@ interface CouponItemProps {
   navigationProps?: ListKeyNavigationItemProps
 }
 
-const mapStatus = (type?: CouponStatusEnum | undefined) => {
+const mapStatus = (type?: CouponStatusEnum | undefined): StatusProps => {
   switch (type) {
     case CouponStatusEnum.Active:
       return {
-        type: StatusEnum.running,
-        label: 'text_62865498824cc10126ab297c',
+        type: StatusType.success,
+        label: 'active',
       }
     default:
       return {
-        type: StatusEnum.error,
-        label: 'text_62865498824cc10126ab2986',
+        type: StatusType.danger,
+        label: 'terminated',
       }
   }
 }
@@ -119,9 +120,7 @@ export const CouponItem = ({
               ? translate('text_62876a50ea3bba00b56d2c2c')
               : formatTimeOrgaTZ(expirationAt)}
           </MediumCell>
-          <MediumCell>
-            {<Status type={formattedStatus.type} label={translate(formattedStatus.label)} />}
-          </MediumCell>
+          <MediumCell>{<Status {...formattedStatus} />}</MediumCell>
         </CouponInfosSection>
         {shouldShowItemActions && <ButtonMock />}
       </ConditionalWrapper>

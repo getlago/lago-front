@@ -7,7 +7,8 @@ import {
   Button,
   Skeleton,
   Status,
-  StatusEnum,
+  StatusProps,
+  StatusType,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
@@ -53,12 +54,12 @@ interface PortalInvoiceListItemProps {
   documentLocale: LocaleEnum
 }
 
-const mapStatusConfig = (paymentStatus: InvoicePaymentStatusTypeEnum) => {
+const mapStatusConfig = (paymentStatus: InvoicePaymentStatusTypeEnum): StatusProps => {
   if (paymentStatus === InvoicePaymentStatusTypeEnum.Succeeded) {
-    return { label: 'text_6419c64eace749372fc72b54', type: StatusEnum.running }
+    return { label: 'pay', type: StatusType.success }
   }
 
-  return { label: 'text_6419c64eace749372fc72b44', type: StatusEnum.paused }
+  return { label: 'toPay', type: StatusType.default }
 }
 
 export const PortalInvoiceListItem = memo(
@@ -107,10 +108,7 @@ export const PortalInvoiceListItem = memo(
               currency: currency || CurrencyEnum.Usd,
             })}
           </Typography>
-          <Status
-            type={statusConfig?.type as StatusEnum}
-            label={translate(statusConfig?.label || '')}
-          />
+          <Status {...statusConfig} />
           <Tooltip placement="top-end" title={translate('text_6419c64eace749372fc72b62')}>
             <Button
               icon="download"

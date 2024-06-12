@@ -9,7 +9,7 @@ import {
   Icon,
   Popper,
   Status,
-  StatusEnum,
+  StatusType,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
@@ -96,12 +96,15 @@ export const SubscriptionLine = ({
           </NameBlock>
         </CellBig>
         <CellStatus
-          type={status === StatusTypeEnum.Pending ? StatusEnum.paused : StatusEnum.running}
-          label={
-            status === StatusTypeEnum.Pending
-              ? translate('text_624efab67eb2570101d117f6')
-              : translate('text_624efab67eb2570101d1180e')
-          }
+          {...(status === StatusTypeEnum.Pending
+            ? {
+                type: StatusType.default,
+                label: 'pending',
+              }
+            : {
+                type: StatusType.success,
+                label: 'active',
+              })}
         />
         <CellSmall align="right" color="textSecondary">
           <TimezoneDate date={date} customerTimezone={customerTimezone} />

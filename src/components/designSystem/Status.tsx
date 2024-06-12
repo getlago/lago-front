@@ -1,130 +1,159 @@
-import { ReactNode } from 'react'
+import { FC } from 'react'
 import styled from 'styled-components'
 
+import { TranslateData } from '~/core/translations'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
-import { Icon, IconColor, IconName } from './Icon'
-import { Typography } from './Typography'
+import { Typography, TypographyColor } from './Typography'
 
-export enum StatusEnum {
-  running = 'running',
-  paused = 'paused',
-  draft = 'draft',
-  failed = 'failed',
-  error = 'error',
-  disputeLost = 'disputeLost',
-  voided = 'voided',
+export enum StatusType {
+  success = 'success',
+  warning = 'warning',
+  outline = 'outline',
+  default = 'default',
+  danger = 'danger',
+  disabled = 'disabled',
 }
 
-type StatusType = keyof typeof StatusEnum
-interface StatusProps {
-  type: StatusType
-  className?: string
-  label?: string | ReactNode
-  hideLabel?: boolean
+type StatusLabelSuccess = 'succeeded' | 'finalized' | 'active' | 'pay' | 'available' | 'refunded'
+type StatusLabelWarning = 'failed'
+type StatusLabelOutline = 'draft'
+type StatusLabelDefault = 'pending' | 'toPay' | 'n/a'
+type StatusLabelDanger =
+  | 'disputed'
+  | 'disputeLost'
+  | 'disputeLostOn'
+  | 'terminated'
+  | 'consumed'
+  | 'voided'
+type StatusLabelDisabled = 'voided'
+
+export type StatusLabel =
+  | StatusLabelSuccess
+  | StatusLabelWarning
+  | StatusLabelOutline
+  | StatusLabelDefault
+  | StatusLabelDanger
+  | StatusLabelDisabled
+
+const statusLabelMapping: Record<StatusLabel, string> = {
+  succeeded: 'text_63e27c56dfe64b846474ef4d',
+  finalized: 'text_65269c2e471133226211fd74',
+  active: 'text_624efab67eb2570101d1180e',
+  pay: 'text_6419c64eace749372fc72b54',
+  available: 'text_637655cb50f04bf1c8379d0c',
+  refunded: 'text_637656ef3d876b0269edc79d',
+  failed: 'text_637656ef3d876b0269edc7a1',
+  draft: 'text_63ac86d797f728a87b2f9f91',
+  pending: 'text_62da6db136909f52c2704c30',
+  toPay: 'text_6419c64eace749372fc72b44',
+  disputed: 'text_66141e30699a0631f0b2ed32',
+  disputeLostOn: 'text_66141e30699a0631f0b2ed2c',
+  disputeLost: 'text_66141e30699a0631f0b2ec9c',
+  terminated: 'text_624efab67eb2570101d11826',
+  consumed: 'text_6376641a2a9c70fff5bddcd1',
+  voided: 'text_6376641a2a9c70fff5bddcd5',
+  ['n/a']: '-',
 }
 
-const STATUS_CONFIG: {
-  [key in StatusType]: {
-    label: string
-    color: string | IconColor
-    icon?: IconName
+export type StatusProps = {
+  labelVariables?: TranslateData
+} & (
+  | {
+      type: StatusType.success
+      label: StatusLabelSuccess
+    }
+  | {
+      type: StatusType.warning
+      label: StatusLabelWarning
+    }
+  | {
+      type: StatusType.outline
+      label: StatusLabelOutline
+    }
+  | {
+      type: StatusType.default
+      label: StatusLabelDefault
+    }
+  | {
+      type: StatusType.danger
+      label: StatusLabelDanger
+    }
+  | {
+      type: StatusType.disabled
+      label: StatusLabelDanger
+    }
+)
+
+type StatusConfig = Record<
+  StatusType,
+  {
+    color: TypographyColor
+    backgroundColor: string
+    borderColor: string
   }
-} = {
-  [StatusEnum.running]: {
-    label: 'text_624efab67eb2570101d1180e',
-    color: theme.palette.success[600],
+>
+
+const STATUS_CONFIG: StatusConfig = {
+  success: {
+    color: 'success600',
+    backgroundColor: theme.palette.success[100],
+    borderColor: theme.palette.success[200],
   },
-  [StatusEnum.paused]: {
-    label: 'text_624efab67eb2570101d117f6',
-    color: theme.palette.grey[500],
+  default: {
+    color: 'grey700',
+    backgroundColor: theme.palette.grey[100],
+    borderColor: theme.palette.grey[400],
   },
-  [StatusEnum.draft]: {
-    label: 'text_63ac8850ff7117ad55777d3b',
-    color: theme.palette.grey[500],
+  outline: {
+    color: 'grey600',
+    backgroundColor: theme.palette.background.default,
+    borderColor: theme.palette.grey[400],
   },
-  [StatusEnum.failed]: {
-    label: 'text_624efab67eb2570101d11826',
-    color: theme.palette.warning[600],
+  warning: {
+    color: 'warning700',
+    backgroundColor: theme.palette.secondary[100],
+    borderColor: theme.palette.secondary[300],
   },
-  [StatusEnum.error]: {
-    label: 'text_624efab67eb2570101d11826',
-    color: theme.palette.error[600],
+  danger: {
+    color: 'danger600',
+    backgroundColor: theme.palette.error[100],
+    borderColor: theme.palette.error[200],
   },
-  [StatusEnum.disputeLost]: {
-    label: 'text_66141e30699a0631f0b2ec9c',
-    color: theme.palette.error[600],
-  },
-  [StatusEnum.voided]: {
-    label: 'text_6376641a2a9c70fff5bddcd5',
-    color: 'input',
-    icon: 'stop',
+  disabled: {
+    color: 'grey500',
+    backgroundColor: theme.palette.grey[100],
+    borderColor: theme.palette.grey[400],
   },
 }
 
-const STATUS_WIDTH = 84
-const STATUS_SIZE = 12
-
-export const Status = ({ type, className, label, hideLabel = false }: StatusProps) => {
+export const Status: FC<StatusProps> = ({ type, label, labelVariables }) => {
   const { translate } = useInternationalization()
-  const config = STATUS_CONFIG[type]
+  const config = STATUS_CONFIG[type ?? 'default']
+  const statusLabel = statusLabelMapping[label]
 
-  switch (type) {
-    case StatusEnum.draft:
-      return (
-        <Container data-test={type} className={className}>
-          <svg height={STATUS_SIZE} width={STATUS_SIZE}>
-            <circle cx="6" cy="6" r="5" fill="none" stroke={config.color} strokeWidth="2" />
-          </svg>
-          {!hideLabel && (
-            <Typography color="grey500">{label ?? translate(config.label)}</Typography>
-          )}
-        </Container>
-      )
-    case StatusEnum.voided:
-      return (
-        <Container data-test={type} className={className}>
-          <Icon name={config.icon as IconName} size="small" color={config.color as IconColor} />
-          {!hideLabel && (
-            <Typography color="grey500">{label ?? translate(config.label)}</Typography>
-          )}
-        </Container>
-      )
-    case StatusEnum.disputeLost:
-      return (
-        <Container data-test={type} className={className}>
-          <svg height={STATUS_SIZE} width={STATUS_SIZE}>
-            <circle cx="6" cy="6" r="6" fill={config.color} />
-          </svg>
-          {!hideLabel && (
-            <Typography color="textSecondary">{label ?? translate(config.label)}</Typography>
-          )}
-        </Container>
-      )
-    default:
-      return (
-        <Container data-test={type} className={className}>
-          <svg height={STATUS_SIZE} width={STATUS_SIZE}>
-            <circle cx="6" cy="6" r="6" fill={config.color} />
-          </svg>
-          {!hideLabel && (
-            <Typography color={type === 'paused' ? 'grey500' : 'textSecondary'}>
-              {label ?? translate(config.label)}
-            </Typography>
-          )}
-        </Container>
-      )
-  }
+  return (
+    <Container $backgroundColor={config.backgroundColor} $borderColor={config.borderColor}>
+      <Typography variant="captionHl" color={config.color}>
+        {translate(statusLabel, labelVariables ?? {})}
+      </Typography>
+    </Container>
+  )
 }
 
-const Container = styled.div`
+const Container = styled.div<{ $backgroundColor: string; $borderColor: string }>`
+  background-color: ${({ $backgroundColor }) => $backgroundColor};
   display: flex;
-  align-items: baseline;
-  min-width: ${STATUS_WIDTH}px;
-
-  > :first-child {
-    margin-right: ${theme.spacing(2)};
-    min-width: ${STATUS_SIZE}px;
-  }
+  align-items: center;
+  gap: ${theme.spacing(2)};
+  height: fit-content;
+  width: fit-content;
+  border-radius: ${theme.spacing(2)};
+  min-height: ${theme.spacing(8)};
+  padding: 0px ${theme.spacing(2)};
+  outline-offset: -1px;
+  outline-style: solid;
+  outline-width: 1px;
+  outline-color: ${({ $borderColor }) => $borderColor};
 `

@@ -4,7 +4,7 @@ import { memo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Status, StatusEnum, Typography } from '~/components/designSystem'
+import { Status, StatusProps, StatusType, Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { formatDateToTZ } from '~/core/timezone'
@@ -45,34 +45,34 @@ gql`
   }
 `
 
-const mapStatusConfig = (status?: InvoiceStatusTypeEnum) => {
+const mapStatusConfig = (status?: InvoiceStatusTypeEnum): StatusProps => {
   switch (status) {
     case InvoiceStatusTypeEnum.Draft:
-      return { label: 'text_63ac8850ff7117ad55777d31', type: StatusEnum.draft }
+      return { label: 'draft', type: StatusType.outline }
     case InvoiceStatusTypeEnum.Voided:
-      return { label: 'text_6376641a2a9c70fff5bddcd5', type: StatusEnum.voided }
+      return { label: 'voided', type: StatusType.disabled }
     case InvoiceStatusTypeEnum.Finalized:
-      return { label: 'text_65269c2e471133226211fd74', type: StatusEnum.running }
+      return { label: 'finalized', type: StatusType.success }
     default:
       return {
-        label: '-',
-        color: theme.palette.grey[600],
+        label: 'n/a',
+        type: StatusType.default,
       }
   }
 }
 
-const mapPaymentStatusConfig = (status?: InvoicePaymentStatusTypeEnum) => {
+const mapPaymentStatusConfig = (status?: InvoicePaymentStatusTypeEnum): StatusProps => {
   switch (status) {
     case InvoicePaymentStatusTypeEnum.Failed:
-      return { label: 'text_63ac8850ff7117ad55777d45', type: StatusEnum.failed }
+      return { label: 'failed', type: StatusType.warning }
     case InvoicePaymentStatusTypeEnum.Pending:
-      return { label: 'text_63ac8850ff7117ad55777d3b', type: StatusEnum.paused }
+      return { label: 'pending', type: StatusType.default }
     case InvoicePaymentStatusTypeEnum.Succeeded:
-      return { label: 'text_63ac86d797f728a87b2f9fa1', type: StatusEnum.running }
+      return { label: 'succeeded', type: StatusType.success }
     default:
       return {
-        label: '-',
-        color: theme.palette.grey[600],
+        label: 'n/a',
+        type: StatusType.default,
       }
   }
 }
@@ -233,10 +233,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
             {translate('text_65269b6afe1fda4ad9bf672b')}
           </Typography>
           <Typography variant="body" color="grey700">
-            <Status
-              type={statusConfig?.type as StatusEnum}
-              label={translate(statusConfig?.label || '')}
-            />
+            <Status {...statusConfig} />
           </Typography>
         </InfoLine>
         <InfoLine>
@@ -250,10 +247,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
                 -
               </Typography>
             ) : (
-              <Status
-                type={paymentStatusConfig?.type as StatusEnum}
-                label={translate(paymentStatusConfig?.label || '')}
-              />
+              <Status {...paymentStatusConfig} />
             )}
           </Typography>
         </InfoLine>
@@ -264,10 +258,11 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
             </Typography>
             <Typography variant="body" color="grey700">
               <Status
-                type="disputeLost"
-                label={translate('text_66141e30699a0631f0b2ed2c', {
+                type={StatusType.danger}
+                label="disputeLostOn"
+                labelVariables={{
                   date: DateTime.fromISO(invoice?.paymentDisputeLostAt).toFormat('LLL. dd, yyyy'),
-                })}
+                }}
               />
             </Typography>
           </InfoLine>
