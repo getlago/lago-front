@@ -5,7 +5,7 @@ import { memo, RefObject, useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 import { Accordion, Button, Chip, Icon, Tooltip, Typography } from '~/components/designSystem'
-import { AmountInputField, RadioGroup, TextInputField } from '~/components/form'
+import { AmountInputField, RadioGroupField, TextInputField } from '~/components/form'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
@@ -158,7 +158,7 @@ export const FixedFeeSection = memo(
               }}
             />
 
-            <RadioGroup
+            <RadioGroupField
               name="payInAdvance"
               label={translate('text_6661fc17337de3591e29e3f9')}
               description={translate('text_6661fc17337de3591e29e3fb')}

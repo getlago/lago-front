@@ -13,7 +13,7 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
-import { AmountInput, ComboBox, RadioGroup, Switch } from '~/components/form'
+import { AmountInput, ComboBox, RadioGroupField, Switch } from '~/components/form'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
 import {
   ALL_FILTER_VALUES,
@@ -824,7 +824,7 @@ export const ChargeAccordion = memo(
 
           {/* Charge options */}
           <ChargeOptionsAccordion charge={localCharge} currency={currency}>
-            <RadioGroup
+            <RadioGroupField
               name={`charges.${index}.payInAdvance`}
               label={translate('text_6661fc17337de3591e29e3f9')}
               description={translate('text_6661fc17337de3591e29e435')}

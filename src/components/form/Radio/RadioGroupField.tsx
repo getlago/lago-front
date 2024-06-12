@@ -7,15 +7,9 @@ import { Icon, Tooltip, Typography } from '~/components/designSystem'
 import { theme } from '~/styles'
 
 import { RadioProps } from './Radio'
-import { RadioField } from './RadioField'
+import { RadioField, RadioFieldProps } from './RadioField'
 
-interface RadioFieldOption {
-  value: RadioProps['value']
-  label: RadioProps['label']
-  disabled?: RadioProps['disabled']
-}
-
-interface RadioGroupProps {
+interface RadioGroupFieldProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formikProps: FormikProps<any>
   name: string
@@ -23,11 +17,11 @@ interface RadioGroupProps {
   optionLabelVariant?: RadioProps['labelVariant']
   infoText?: string
   description?: string
-  options: RadioFieldOption[]
+  options: Pick<RadioFieldProps, 'value' | 'label' | 'disabled' | 'sublabel'>[]
   disabled?: boolean
 }
 
-export const RadioGroup: FC<RadioGroupProps> = ({
+export const RadioGroupField: FC<RadioGroupFieldProps> = ({
   name,
   formikProps,
   options,
@@ -62,20 +56,23 @@ export const RadioGroup: FC<RadioGroupProps> = ({
       )}
 
       <Stack width="100%" gap={2}>
-        {options.map(({ value: optionValue, label: optionLabel, disabled: optionDisabled }) => {
-          return (
-            <RadioField
-              name={name}
-              formikProps={formikProps}
-              disabled={disabled || optionDisabled}
-              key={`radio-field-${optionValue}`}
-              label={optionLabel ?? optionValue}
-              labelVariant={optionLabelVariant}
-              value={optionValue}
-              data-test={`radio-field-${optionValue}`}
-            />
-          )
-        })}
+        {options.map(
+          ({ value: optionValue, label: optionLabel, disabled: optionDisabled, ...props }) => {
+            return (
+              <RadioField
+                {...props}
+                name={name}
+                formikProps={formikProps}
+                disabled={disabled || optionDisabled}
+                key={`radio-group-field-${optionValue}`}
+                label={optionLabel ?? optionValue}
+                labelVariant={optionLabelVariant}
+                value={optionValue}
+                data-test={`radio-group-field-${optionValue}`}
+              />
+            )
+          },
+        )}
       </Stack>
     </div>
   )
