@@ -2572,6 +2572,7 @@ export type MappingCollection = {
 };
 
 export enum MappingTypeEnum {
+  Account = 'account',
   Coupon = 'coupon',
   CreditNote = 'credit_note',
   FallbackItem = 'fallback_item',
