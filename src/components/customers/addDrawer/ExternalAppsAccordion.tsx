@@ -88,12 +88,8 @@ gql`
     }
   }
 
-  query accountingIntegrationsListForCustomerEditExternalAppsAccordion(
-    $limit: Int
-    $page: Int
-    $type: IntegrationTypeEnum
-  ) {
-    integrations(limit: $limit, page: $page, type: $type) {
+  query accountingIntegrationsListForCustomerEditExternalAppsAccordion($limit: Int, $page: Int) {
+    integrations(limit: $limit, page: $page) {
       collection {
         ... on NetsuiteIntegration {
           __typename
@@ -123,44 +119,56 @@ type TExternalAppsAccordionProps = {
 export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsAccordionProps) => {
   const { translate } = useInternationalization()
 
-  const [showPaymentProviderSection, setShowPaymentProviderSection] = useState<boolean>(
-    !!formikProps.values.paymentProvider,
-  )
-
-  const [showAccountingProviderSection, setShowAccountingProviderSection] = useState<boolean>(
-    !!formikProps.values.integrationCustomer,
-  )
-
   const [getPaymentProvidersData, { data: paymentProvidersData }] =
     usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery({
       variables: { limit: 1000 },
     })
 
-  const [getAccountingIntegrationsData, { data: accountingIntegrationsData }] =
+  const [getAccountingIntegrationsData, { data: allAccountingIntegrationsData }] =
     useAccountingIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery({
-      variables: { limit: 1000, type: IntegrationTypeEnum.Netsuite },
+      variables: { limit: 1000 },
     })
 
   const selectedPaymentProvider = paymentProvidersData?.paymentProviders?.collection.find(
     (p) => p.code === formikProps.values.paymentProviderCode,
   )
 
-  const allNetsuiteIntegrations = accountingIntegrationsData?.integrations?.collection.filter(
+  const allNetsuiteIntegrations = allAccountingIntegrationsData?.integrations?.collection.filter(
     (i) => i.__typename === 'NetsuiteIntegration',
   ) as NetsuiteIntegration[] | undefined
 
-  const selectedNetsuiteIntegration = allNetsuiteIntegrations?.find(
-    (i) => i.code === formikProps.values.integrationCustomer?.integrationCode,
+  const selectedNetsuiteIntegrationIndex =
+    formikProps.values.integrationCustomers?.findIndex(
+      (i) => i.integrationType === IntegrationTypeEnum.Netsuite,
+    ) || 0
+
+  const netsuiteIntegrationpointerInIntegrationCustomer = `integrationCustomers.${selectedNetsuiteIntegrationIndex}`
+
+  const selectedNetsuiteIntegration =
+    formikProps.values.integrationCustomers?.[selectedNetsuiteIntegrationIndex]
+
+  const selectedNetsuiteIntegrationSettings = allNetsuiteIntegrations?.find(
+    (i) => i.code === selectedNetsuiteIntegration?.integrationCode,
   ) as NetsuiteIntegration
 
   const { data: subsidiariesData } =
     useSubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery({
-      variables: { integrationId: selectedNetsuiteIntegration?.id },
-      skip: !selectedNetsuiteIntegration?.id,
+      variables: { integrationId: selectedNetsuiteIntegrationSettings?.id },
+      skip: !selectedNetsuiteIntegrationSettings?.id,
     })
 
   const isSyncWithProviderDisabled = !!formikProps.values.providerCustomer?.syncWithProvider
-  const hadInitialIntegrationCustomer = !!formikProps.initialValues.integrationCustomer
+  const hadInitialIntegrationCustomer = !!formikProps.initialValues.integrationCustomers?.find(
+    (i) => i.integrationType === IntegrationTypeEnum.Netsuite,
+  )
+
+  const [showPaymentProviderSection, setShowPaymentProviderSection] = useState<boolean>(
+    !!formikProps.values.paymentProvider,
+  )
+
+  const [showAccountingProviderSection, setShowAccountingProviderSection] = useState<boolean>(
+    hadInitialIntegrationCustomer,
+  )
 
   const connectedPaymentProvidersData: ComboboxDataGrouped[] | [] = useMemo(() => {
     if (!paymentProvidersData?.paymentProviders?.collection.length) return []
@@ -228,8 +236,8 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
   }, [formikProps.values.paymentProvider])
 
   useEffect(() => {
-    setShowAccountingProviderSection(!!formikProps.values.integrationCustomer)
-  }, [formikProps.values.integrationCustomer])
+    setShowAccountingProviderSection(hadInitialIntegrationCustomer)
+  }, [hadInitialIntegrationCustomer])
 
   return (
     <Accordion
@@ -563,7 +571,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               <Stack gap={3} flex={1} direction="row" alignItems="center">
                 <Stack gap={3} flex={1} direction="row" alignItems="center">
                   <Avatar size="big" variant="connector">
-                    {showAccountingProviderSection && !!formikProps.values.integrationCustomer ? (
+                    {showAccountingProviderSection && !!selectedNetsuiteIntegrationSettings ? (
                       <Netsuite />
                     ) : (
                       <Icon name="plug" color="dark" />
@@ -571,12 +579,14 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                   </Avatar>
                   <Stack>
                     <Typography variant="bodyHl" color="grey700">
-                      {!selectedNetsuiteIntegration
+                      {!selectedNetsuiteIntegrationSettings
                         ? translate('text_66423cad72bbad009f2f5691')
-                        : selectedNetsuiteIntegration.name}
+                        : selectedNetsuiteIntegrationSettings.name}
                     </Typography>
-                    {!!selectedNetsuiteIntegration?.code && (
-                      <Typography variant="caption">{selectedNetsuiteIntegration.code}</Typography>
+                    {!!selectedNetsuiteIntegrationSettings?.code && (
+                      <Typography variant="caption">
+                        {selectedNetsuiteIntegrationSettings.code}
+                      </Typography>
                     )}
                   </Stack>
                 </Stack>
@@ -585,7 +595,12 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                   variant="quaternary"
                   icon="trash"
                   onClick={() => {
-                    formikProps.setFieldValue('integrationCustomer', null)
+                    formikProps.setFieldValue(
+                      'integrationCustomers',
+                      formikProps.values.integrationCustomers?.filter(
+                        (i) => i.integrationType !== IntegrationTypeEnum.Netsuite,
+                      ),
+                    )
                   }}
                 />
               </Stack>
@@ -605,22 +620,36 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                 placeholder={translate('text_66423cad72bbad009f2f5697')}
                 emptyText={translate('text_6645daa0468420011304aded')}
                 PopperProps={{ displayInDialog: true }}
-                value={formikProps.values.integrationCustomer?.integrationCode as string}
+                value={selectedNetsuiteIntegration?.integrationCode as string}
                 onChange={(value) => {
-                  formikProps.setFieldValue('integrationCustomer', {
+                  const newNetsuiteIntegrationObject = {
                     integrationCode: value,
                     integrationType: IntegrationTypeEnum.Netsuite,
                     syncWithProvider: false,
-                  })
+                  }
+
+                  // If no existing netsuite integration, add it
+                  if (!selectedNetsuiteIntegration) {
+                    formikProps.setFieldValue('integrationCustomers', [
+                      ...(formikProps.values.integrationCustomers || []),
+                      newNetsuiteIntegrationObject,
+                    ])
+                  } else {
+                    // If existing netsuite integration, update it
+                    formikProps.setFieldValue(
+                      `${netsuiteIntegrationpointerInIntegrationCustomer}`,
+                      newNetsuiteIntegrationObject,
+                    )
+                  }
                 }}
               />
 
-              {!!formikProps.values.integrationCustomer && (
+              {!!selectedNetsuiteIntegration && (
                 <>
                   <TextInputField
-                    name="integrationCustomer.externalCustomerId"
+                    name={`${netsuiteIntegrationpointerInIntegrationCustomer}.externalCustomerId`}
                     disabled={
-                      !!formikProps.values.integrationCustomer?.syncWithProvider ||
+                      !!selectedNetsuiteIntegration?.syncWithProvider ||
                       hadInitialIntegrationCustomer
                     }
                     label={translate('text_66423cad72bbad009f2f569a')}
@@ -629,26 +658,35 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                   />
 
                   <Checkbox
-                    name="integrationCustomer.syncWithProvider"
+                    name={`${netsuiteIntegrationpointerInIntegrationCustomer}.syncWithProvider`}
                     disabled={hadInitialIntegrationCustomer}
-                    value={!!formikProps.values.integrationCustomer?.syncWithProvider}
+                    value={!!selectedNetsuiteIntegration?.syncWithProvider}
                     label={translate('text_66423cad72bbad009f2f569e', {
-                      connectionName: selectedNetsuiteIntegration?.name,
+                      connectionName: selectedNetsuiteIntegrationSettings?.name,
                     })}
                     onChange={(_, checked) => {
-                      formikProps.setFieldValue('integrationCustomer.syncWithProvider', checked)
+                      formikProps.setFieldValue(
+                        `${netsuiteIntegrationpointerInIntegrationCustomer}.syncWithProvider`,
+                        checked,
+                      )
 
                       if (!isEdition && checked) {
-                        formikProps.setFieldValue('integrationCustomer.externalCustomerId', null)
-                        formikProps.setFieldValue('integrationCustomer.subsidiaryId', null)
+                        formikProps.setFieldValue(
+                          `${netsuiteIntegrationpointerInIntegrationCustomer}.externalCustomerId`,
+                          null,
+                        )
+                        formikProps.setFieldValue(
+                          `${netsuiteIntegrationpointerInIntegrationCustomer}.subsidiaryId`,
+                          null,
+                        )
                       }
                     }}
                   />
 
-                  {!!formikProps.values.integrationCustomer?.syncWithProvider && (
+                  {!!selectedNetsuiteIntegration?.syncWithProvider && (
                     <>
                       <ComboBoxField
-                        name="integrationCustomer.subsidiaryId"
+                        name={`${netsuiteIntegrationpointerInIntegrationCustomer}.subsidiaryId`}
                         data={connectedIntegrationSubscidiaries}
                         disabled={hadInitialIntegrationCustomer}
                         label={translate('text_66423cad72bbad009f2f56a0')}
