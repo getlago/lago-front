@@ -98,9 +98,11 @@ const CouponsList = () => {
             <MediumCell color="disabled" variant="bodyHl">
               {translate('text_62865498824cc10126ab296a')}
             </MediumCell>
-            <MediumCell color="disabled" variant="bodyHl">
-              {translate('text_62865498824cc10126ab296f')}
-            </MediumCell>
+            <StatusCell>
+              <Typography color="disabled" variant="bodyHl">
+                {translate('text_62865498824cc10126ab296f')}
+              </Typography>
+            </StatusCell>
           </CouponInfosSection>
         </ListHead>
         {!!isLoading && variables?.searchTerm ? (
@@ -226,6 +228,10 @@ const MediumCell = styled(Typography)`
 const SmallCell = styled(Typography)`
   text-align: right;
   width: 96px;
+`
+
+const StatusCell = styled.div`
+  width: 104px;
 `
 
 const Header = styled(PageHeader)`

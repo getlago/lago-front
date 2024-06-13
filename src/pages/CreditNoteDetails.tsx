@@ -994,6 +994,7 @@ const InfoSection = styled.section`
 const InfoLine = styled.div`
   display: flex;
   align-items: flex-start;
+  gap: ${theme.spacing(2)};
 
   > div:first-child {
     min-width: 140px;

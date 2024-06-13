@@ -294,6 +294,7 @@ const InfoLine = styled.div`
   display: flex;
   align-items: flex-start;
   margin-bottom: ${theme.spacing(2)};
+  gap: ${theme.spacing(2)};
 
   > div:first-child {
     min-width: 140px;

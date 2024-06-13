@@ -140,9 +140,8 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                 </Typography>
               </SummaryInfos>
             </SummaryLeft>
-            <SummaryRight>
-              <Status {...statusMap} />
-            </SummaryRight>
+
+            <Status {...statusMap} />
           </SummaryContainer>
         }
       >
@@ -392,9 +391,10 @@ const SummaryLeft = styled.div`
     margin-right: ${theme.spacing(3)};
   }
 `
-const SummaryRight = styled.div`
-  min-width: 120px;
-`
+
+// const SummaryRight = styled.div`
+//   min-width: 120px;
+// `
 
 const SummaryInfos = styled.div<{ $isLoading?: boolean }>`
   display: flex;

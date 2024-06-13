@@ -120,7 +120,7 @@ export const CouponItem = ({
               ? translate('text_62876a50ea3bba00b56d2c2c')
               : formatTimeOrgaTZ(expirationAt)}
           </MediumCell>
-          <MediumCell>{<Status {...formattedStatus} />}</MediumCell>
+          <StatusCell>{<Status {...formattedStatus} />}</StatusCell>
         </CouponInfosSection>
         {shouldShowItemActions && <ButtonMock />}
       </ConditionalWrapper>
@@ -212,8 +212,12 @@ export const CouponItemSkeleton = () => {
   return (
     <BaseListItem>
       <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
-      <Skeleton variant="text" height={12} width={240} marginRight="auto" />
-      <Skeleton variant="text" height={12} width={160} />
+      <Skeleton variant="text" height={12} width={240} />
+      <RightSkeletonContainer>
+        <Skeleton variant="text" height={12} width={100} />
+        <Skeleton variant="text" height={12} width={100} />
+        <Skeleton variant="text" height={12} width={100} />
+      </RightSkeletonContainer>
     </BaseListItem>
   )
 }
@@ -251,6 +255,10 @@ const MediumCell = styled(Typography)`
   width: 112px;
 `
 
+const StatusCell = styled.div`
+  width: 104px;
+`
+
 const SmallCell = styled(Typography)`
   text-align: right;
   width: 96px;
@@ -258,4 +266,12 @@ const SmallCell = styled(Typography)`
 
 const ButtonMock = styled.div`
   width: 40px;
+`
+
+const RightSkeletonContainer = styled.div`
+  width: 100%;
+  display: flex;
+  gap: 27px;
+  justify-content: end;
+  margin-right: 70px;
 `

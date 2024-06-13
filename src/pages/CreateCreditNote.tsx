@@ -3,7 +3,7 @@ import { useFormik } from 'formik'
 import _get from 'lodash/get'
 import { useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { array, object, string } from 'yup'
 
 import { CreditNoteCodeSnippet } from '~/components/creditNote/CreditNoteCodeSnippet'
@@ -552,13 +552,9 @@ const StyledCard = styled.div<{ $loading?: boolean }>`
     margin-right: ${theme.spacing(3)};
   }
 
-  ${({ $loading }) =>
-    !$loading &&
-    css`
-      > *:last-child {
-        margin-left: auto;
-      }
-    `}
+  > *:last-child {
+    margin-left: auto;
+  }
 `
 
 const HeaderLine = styled.div`
