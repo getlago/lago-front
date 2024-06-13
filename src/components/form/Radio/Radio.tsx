@@ -1,4 +1,5 @@
 import clsns from 'classnames'
+import { isBoolean } from 'lodash'
 import { forwardRef, ReactNode, useId, useRef, useState } from 'react'
 import styled from 'styled-components'
 
@@ -9,13 +10,13 @@ import { theme } from '~/styles'
 
 export interface RadioProps {
   name?: string
-  value: string | number
+  value: string | number | boolean
   checked: boolean
   disabled?: boolean
   label?: string | ReactNode
   labelVariant?: TypographyProps['variant']
   sublabel?: string | ReactNode
-  onChange?: (value: string | number) => void
+  onChange?: (value: string | number | boolean) => void
 }
 
 export const Radio = forwardRef<HTMLDivElement, RadioProps>(
@@ -46,7 +47,7 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
             ref={inputRef}
             disabled={disabled}
             aria-label={name}
-            value={value}
+            {...(isBoolean(value) ? { checked: value } : { value: value })}
             type="radio"
             onClick={() => onChange && onChange(value)}
             onFocus={() => setFocused(true)}

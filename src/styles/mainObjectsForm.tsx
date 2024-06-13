@@ -7,10 +7,12 @@ import { Typography } from '~/components/designSystem'
 
 import { NAV_HEIGHT, theme } from './muiTheme'
 
+export const MAIN_PADDING = theme.spacing(12)
+
 export const Main = styled.div`
   width: 60%;
   box-sizing: border-box;
-  padding: ${theme.spacing(12)} ${theme.spacing(12)} 0 ${theme.spacing(12)};
+  padding: ${MAIN_PADDING} ${MAIN_PADDING} 0 ${MAIN_PADDING};
 
   > div {
     max-width: 720px;
@@ -22,7 +24,7 @@ export const Main = styled.div`
 
   ${theme.breakpoints.down('md')} {
     width: 100%;
-    padding: ${theme.spacing(12)} ${theme.spacing(4)} 0;
+    padding: ${MAIN_PADDING} ${theme.spacing(4)} 0;
   }
 `
 

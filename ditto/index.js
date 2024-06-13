@@ -64,6 +64,7 @@ const ready_for_dev___plans___group_by_fees_on_invoices = require('./ready-for-d
 const ready_for_dev___plans___invoice_display_names = require('./ready-for-dev---plans---invoice-display-names__base.json');
 const ready_for_dev___plans___invoice_minimum_spending = require('./ready-for-dev---plans---invoice-minimum-spending__base.json');
 const ready_for_dev___plans___min_max_per_transaction = require('./ready-for-dev---plans---min-max-per-transaction__base.json');
+const ready_for_dev___plans___plans_revamp = require('./ready-for-dev---plans---plans-revamp__base.json');
 const ready_for_dev___plans___set_a_default_price_on_charge_with_groups = require('./ready-for-dev---plans---set-a-default-price-on-charge-with-groups__base.json');
 const ready_for_dev___plans___set_a_minimum_spending_on_charges = require('./ready-for-dev---plans---set-a-minimum-spending-on-charges__base.json');
 const ready_for_dev___settings___add_redirect_url_to_psp = require('./ready-for-dev---settings---add-redirect-url-to-psp__base.json');
@@ -319,6 +320,9 @@ module.exports = {
   },
   "project_64e7b269852fc4ff0e0ec11c": {
     "base": {...ready_for_dev___plans___min_max_per_transaction}
+  },
+  "project_6661fc151f2d43289e848df0": {
+    "base": {...ready_for_dev___plans___plans_revamp}
   },
   "project_64e620b7fe9d55a6fe1c6127": {
     "base": {...ready_for_dev___plans___set_a_default_price_on_charge_with_groups}

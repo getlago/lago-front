@@ -1,6 +1,7 @@
 import { Stack } from '@mui/material'
 
 import { Accordion, Typography } from '~/components/designSystem'
+import { mapChargeIntervalCopy } from '~/components/plans/ChargeAccordion'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -9,13 +10,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DetailsInfoGrid } from '~/styles/detailsPage'
 
 import DetailsTableDisplay from '../../details/DetailsTableDisplay'
-
-export const intervalDescriptionLookupTranslation = {
-  [PlanInterval.Monthly]: 'text_65d620fda73c6f007f6f238c',
-  [PlanInterval.Quarterly]: 'text_65d620fda73c6f007f6f238d',
-  [PlanInterval.Weekly]: 'text_65d620fda73c6f007f6f238b',
-  [PlanInterval.Yearly]: 'text_65d620fda73c6f007f6f238e',
-}
 
 const PlanDetailsCommitmentsSection = ({
   currency,
@@ -33,7 +27,11 @@ const PlanDetailsCommitmentsSection = ({
           {translate('text_65d601bffb11e0f9d1d9f569')}
         </Typography>
         <Typography variant="caption" color="grey600">
-          {translate(intervalDescriptionLookupTranslation[plan?.interval as PlanInterval])}
+          {translate('text_6661fc17337de3591e29e451', {
+            interval: translate(
+              mapChargeIntervalCopy(plan?.interval ?? PlanInterval.Monthly, false),
+            ).toLocaleLowerCase(),
+          })}
         </Typography>
       </div>
 

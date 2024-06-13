@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { Stack } from '@mui/material'
 import { FormikProps } from 'formik'
 import { memo, RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
@@ -21,7 +22,7 @@ import {
   useGetRecurringBillableMetricsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { MenuPopper, theme } from '~/styles'
+import { Card, MenuPopper, theme } from '~/styles'
 
 import { ChargeAccordion } from './ChargeAccordion'
 import {
@@ -214,16 +215,33 @@ export const ChargesSection = memo(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formikProps.values.charges.length])
 
+    if (!hasAnyCharge && isInSubscriptionForm) {
+      return null
+    }
+
     return (
       <>
-        <Card>
+        <Card $childSpacing={8}>
           <SectionTitle>
-            <Typography variant="subhead">{translate('text_6435888d7cc86500646d8977')}</Typography>
+            <Stack gap={2}>
+              <Typography variant="subhead">
+                {translate('text_6435888d7cc86500646d8977')}
+              </Typography>
+              <Typography variant="caption">
+                {translate('text_6661ffe746c680007e2df0d6')}
+              </Typography>
+            </Stack>
+
             {!isInSubscriptionForm && (
               <Popper
                 PopperProps={{ placement: 'bottom-end' }}
                 opener={
-                  <Button variant="secondary" endIcon="chevron-down" data-test="add-charge">
+                  <Button
+                    variant="secondary"
+                    startIcon="plus"
+                    endIcon="chevron-down"
+                    data-test="add-charge"
+                  >
                     {translate('text_6435888d7cc86500646d8974')}
                   </Button>
                 }
@@ -291,276 +309,232 @@ export const ChargesSection = memo(
             />
           )}
 
-          {(hasAnyMeteredCharge || showAddMeteredCharge) && (
-            <div>
-              <Typography variant="bodyHl" color="grey700">
-                {translate('text_64d2713ec021c6005ef64e03')}
-              </Typography>
-              <Typography variant="caption" color="grey600">
-                {translate('text_64d2715f868d50004c21fee8')}
-              </Typography>
-            </div>
-          )}
+          {(hasAnyMeteredCharge || !isInSubscriptionForm) && (
+            <Group>
+              <GroupTitle>
+                <Typography variant="bodyHl" color="grey700">
+                  {translate('text_6661fc17337de3591e29e40f')}
+                </Typography>
+                <Typography variant="caption" color="grey600">
+                  {translate('text_6661fc17337de3591e29e411')}
+                </Typography>
+              </GroupTitle>
 
-          {hasAnyMeteredCharge && (
-            <Charges>
-              {formikProps.values.charges.map((charge, i) => {
-                // Prevent displaying recurring charges
-                if (charge.billableMetric.recurring) return
+              {hasAnyMeteredCharge && (
+                <Charges>
+                  {formikProps.values.charges.map((charge, i) => {
+                    // Prevent displaying recurring charges
+                    if (charge.billableMetric.recurring) return
 
-                const id = getNewChargeId(charge.billableMetric.id, i)
-                const isNew = !alreadyExistingCharges?.find(
-                  (chargeFetched) => chargeFetched?.id === charge.id,
-                )
-                const shouldDisplayAlreadyUsedChargeAlert =
-                  (alreadyUsedBmsIds.get(charge.billableMetric.id) || 0) > 1
-
-                return (
-                  <ChargeAccordion
-                    id={id}
-                    key={id}
-                    isInitiallyOpen={isInitiallyOpen}
-                    isInSubscriptionForm={isInSubscriptionForm}
-                    subscriptionFormType={subscriptionFormType}
-                    shouldDisplayAlreadyUsedChargeAlert={shouldDisplayAlreadyUsedChargeAlert}
-                    removeChargeWarningDialogRef={removeChargeWarningDialogRef}
-                    premiumWarningDialogRef={premiumWarningDialogRef}
-                    editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
-                    isUsedInSubscription={!isNew && !canBeEdited}
-                    currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
-                    index={i}
-                    disabled={isEdition && !canBeEdited && !isNew}
-                    formikProps={formikProps}
-                  />
-                )
-              })}
-            </Charges>
-          )}
-          {!!showAddMeteredCharge && (
-            <AddChargeInlineWrapper>
-              <ComboBox
-                className={SEARCH_METERED_CHARGE_INPUT_CLASSNAME}
-                data={meteredBillableMetrics}
-                searchQuery={getMeteredBillableMetrics}
-                loading={meteredBillableMetricsLoading}
-                placeholder={translate('text_6435888d7cc86500646d8981')}
-                emptyText={translate('text_6246b6bc6b25f500b779aa7a')}
-                onChange={(newCharge) => {
-                  const previousCharges = [...formikProps.values.charges]
-                  const newId = getNewChargeId(newCharge, previousCharges.length)
-                  const localBillableMetrics =
-                    meteredBillableMetricsData?.billableMetrics?.collection.find(
-                      (bm) => bm.id === newCharge,
+                    const id = getNewChargeId(charge.billableMetric.id, i)
+                    const isNew = !alreadyExistingCharges?.find(
+                      (chargeFetched) => chargeFetched?.id === charge.id,
                     )
-                  const lastMeteredIndex = previousCharges.findLastIndex(
-                    (c) => c.billableMetric.recurring === false,
-                  )
-                  const newChargeIndex = lastMeteredIndex < 0 ? 0 : lastMeteredIndex + 1
+                    const shouldDisplayAlreadyUsedChargeAlert =
+                      (alreadyUsedBmsIds.get(charge.billableMetric.id) || 0) > 1
 
-                  previousCharges.splice(newChargeIndex, 0, {
-                    payInAdvance: false,
-                    invoiceable: true,
-                    billableMetric: localBillableMetrics,
-                    properties: getPropertyShape({}),
-                    filters: !!localBillableMetrics?.filters?.length ? [] : undefined,
-                    chargeModel: ChargeModelEnum.Standard,
-                    amountCents: undefined,
-                  } as LocalChargeInput)
-
-                  formikProps.setFieldValue('charges', previousCharges)
-                  setShowAddMeteredCharge(false)
-                  newChargeId.current = newId
-                }}
-              />
-              <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
-                <Button
-                  icon="trash"
-                  variant="quaternary"
-                  onClick={() => {
-                    setShowAddMeteredCharge(false)
-                  }}
-                />
-              </Tooltip>
-            </AddChargeInlineWrapper>
-          )}
-
-          {hasAnyCharge && !isInSubscriptionForm && (
-            <InlineButtons>
-              {!showAddMeteredCharge && !!hasAnyMeteredCharge && (
-                <Button
-                  startIcon="plus"
-                  variant="quaternary"
-                  data-test="add-metered-charge"
-                  onClick={() => {
-                    setShowAddMeteredCharge(true)
-                    setTimeout(() => {
-                      ;(
-                        document.querySelector(
-                          `.${SEARCH_METERED_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                        ) as HTMLElement
-                      )?.click()
-                    }, 0)
-                  }}
-                >
-                  {translate('text_64d270faa1b07d0097fa287e')}
-                </Button>
+                    return (
+                      <ChargeAccordion
+                        id={id}
+                        key={id}
+                        isInitiallyOpen={isInitiallyOpen}
+                        isInSubscriptionForm={isInSubscriptionForm}
+                        subscriptionFormType={subscriptionFormType}
+                        shouldDisplayAlreadyUsedChargeAlert={shouldDisplayAlreadyUsedChargeAlert}
+                        removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+                        premiumWarningDialogRef={premiumWarningDialogRef}
+                        editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                        isUsedInSubscription={!isNew && !canBeEdited}
+                        currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
+                        index={i}
+                        disabled={isEdition && !canBeEdited && !isNew}
+                        formikProps={formikProps}
+                      />
+                    )
+                  })}
+                </Charges>
               )}
-              {!showAddRecurringCharge && !hasAnyRecurringCharge && (
-                <Button
-                  startIcon="plus"
-                  variant="quaternary"
-                  data-test="add-recurring-charge"
-                  onClick={() => {
-                    setShowAddRecurringCharge(true)
-                    setTimeout(() => {
-                      ;(
-                        document.querySelector(
-                          `.${SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                        ) as HTMLElement
-                      )?.click()
-                    }, 0)
-                  }}
-                >
-                  {translate('text_64d27120a3d1e300b35d0fcc')}
-                </Button>
+              {showAddMeteredCharge ? (
+                <AddChargeInlineWrapper>
+                  <ComboBox
+                    className={SEARCH_METERED_CHARGE_INPUT_CLASSNAME}
+                    data={meteredBillableMetrics}
+                    searchQuery={getMeteredBillableMetrics}
+                    loading={meteredBillableMetricsLoading}
+                    placeholder={translate('text_6435888d7cc86500646d8981')}
+                    emptyText={translate('text_6246b6bc6b25f500b779aa7a')}
+                    onChange={(newCharge) => {
+                      const previousCharges = [...formikProps.values.charges]
+                      const newId = getNewChargeId(newCharge, previousCharges.length)
+                      const localBillableMetrics =
+                        meteredBillableMetricsData?.billableMetrics?.collection.find(
+                          (bm) => bm.id === newCharge,
+                        )
+                      const lastMeteredIndex = previousCharges.findLastIndex(
+                        (c) => c.billableMetric.recurring === false,
+                      )
+                      const newChargeIndex = lastMeteredIndex < 0 ? 0 : lastMeteredIndex + 1
+
+                      previousCharges.splice(newChargeIndex, 0, {
+                        payInAdvance: false,
+                        invoiceable: true,
+                        billableMetric: localBillableMetrics,
+                        properties: getPropertyShape({}),
+                        filters: !!localBillableMetrics?.filters?.length ? [] : undefined,
+                        chargeModel: ChargeModelEnum.Standard,
+                        amountCents: undefined,
+                      } as LocalChargeInput)
+
+                      formikProps.setFieldValue('charges', previousCharges)
+                      setShowAddMeteredCharge(false)
+                      newChargeId.current = newId
+                    }}
+                  />
+                  <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
+                    <Button
+                      icon="trash"
+                      variant="quaternary"
+                      onClick={() => {
+                        setShowAddMeteredCharge(false)
+                      }}
+                    />
+                  </Tooltip>
+                </AddChargeInlineWrapper>
+              ) : (
+                !isInSubscriptionForm && (
+                  <Button
+                    startIcon="plus"
+                    variant="quaternary"
+                    data-test="add-metered-charge"
+                    onClick={() => {
+                      setShowAddMeteredCharge(true)
+                      setTimeout(() => {
+                        ;(
+                          document.querySelector(
+                            `.${SEARCH_METERED_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+                          ) as HTMLElement
+                        )?.click()
+                      }, 0)
+                    }}
+                  >
+                    {translate('text_64d270faa1b07d0097fa287e')}
+                  </Button>
+                )
               )}
-            </InlineButtons>
+            </Group>
           )}
 
           {/* RECURRING */}
-          {(hasAnyRecurringCharge || showAddRecurringCharge) && (
-            <RecurringSectionTitleWrapper
-              $hasAnyAboveSection={hasAnyMeteredCharge || showAddMeteredCharge}
-            >
-              <Typography variant="bodyHl" color="grey700">
-                {translate('text_64d271e20a9c11005bd6688a')}
-              </Typography>
-              <Typography variant="caption" color="grey600">
-                {translate('text_64d2720f666bf7007e9ca759')}
-              </Typography>
-            </RecurringSectionTitleWrapper>
-          )}
+          {(hasAnyRecurringCharge || !isInSubscriptionForm) && (
+            <Group>
+              <GroupTitle>
+                <Typography variant="bodyHl" color="grey700">
+                  {translate('text_64d271e20a9c11005bd6688a')}
+                </Typography>
+                <Typography variant="caption" color="grey600">
+                  {translate('text_6661fc17337de3591e29e449')}
+                </Typography>
+              </GroupTitle>
 
-          {hasAnyRecurringCharge && (
-            <Charges>
-              {formikProps.values.charges.map((charge, i) => {
-                // Prevent displaying metered charges
-                if (!charge.billableMetric.recurring) return
+              {hasAnyRecurringCharge && (
+                <Charges>
+                  {formikProps.values.charges.map((charge, i) => {
+                    // Prevent displaying metered charges
+                    if (!charge.billableMetric.recurring) return
 
-                const id = getNewChargeId(charge.billableMetric.id, i)
-                const isNew = !alreadyExistingCharges?.find(
-                  (chargeFetched) => chargeFetched?.id === charge.id,
-                )
-                const shouldDisplayAlreadyUsedChargeAlert =
-                  (alreadyUsedBmsIds.get(charge.billableMetric.id) || 0) > 1
-
-                return (
-                  <ChargeAccordion
-                    id={id}
-                    key={id}
-                    isInitiallyOpen={isInitiallyOpen}
-                    isInSubscriptionForm={isInSubscriptionForm}
-                    subscriptionFormType={subscriptionFormType}
-                    shouldDisplayAlreadyUsedChargeAlert={shouldDisplayAlreadyUsedChargeAlert}
-                    removeChargeWarningDialogRef={removeChargeWarningDialogRef}
-                    premiumWarningDialogRef={premiumWarningDialogRef}
-                    editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
-                    isUsedInSubscription={!isNew && !canBeEdited}
-                    currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
-                    index={i}
-                    disabled={isEdition && !canBeEdited && !isNew}
-                    formikProps={formikProps}
-                  />
-                )
-              })}
-            </Charges>
-          )}
-          {!!showAddRecurringCharge && (
-            <AddChargeInlineWrapper>
-              <ComboBox
-                className={SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME}
-                data={recurringBillableMetrics}
-                searchQuery={getRecurringBillableMetrics}
-                loading={recurringBillableMetricsLoading}
-                placeholder={translate('text_6435888d7cc86500646d8981')}
-                emptyText={translate('text_6246b6bc6b25f500b779aa7a')}
-                onChange={(newCharge) => {
-                  const previousCharges = [...formikProps.values.charges]
-                  const newId = getNewChargeId(newCharge, previousCharges.length)
-                  const localBillableMetrics =
-                    recurringBillableMetricsData?.billableMetrics?.collection.find(
-                      (bm) => bm.id === newCharge,
+                    const id = getNewChargeId(charge.billableMetric.id, i)
+                    const isNew = !alreadyExistingCharges?.find(
+                      (chargeFetched) => chargeFetched?.id === charge.id,
                     )
+                    const shouldDisplayAlreadyUsedChargeAlert =
+                      (alreadyUsedBmsIds.get(charge.billableMetric.id) || 0) > 1
 
-                  formikProps.setFieldValue('charges', [
-                    ...previousCharges,
-                    {
-                      payInAdvance: false,
-                      invoiceable: true,
-                      billableMetric: localBillableMetrics,
-                      properties: getPropertyShape({}),
-                      filters: !!localBillableMetrics?.filters?.length ? [] : undefined,
-                      chargeModel: ChargeModelEnum.Standard,
-                      amountCents: undefined,
-                    },
-                  ])
-                  setShowAddRecurringCharge(false)
-                  newChargeId.current = newId
-                }}
-              />
-              <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
-                <Button
-                  icon="trash"
-                  variant="quaternary"
-                  onClick={() => {
-                    setShowAddRecurringCharge(false)
-                  }}
-                />
-              </Tooltip>
-            </AddChargeInlineWrapper>
-          )}
+                    return (
+                      <ChargeAccordion
+                        id={id}
+                        key={id}
+                        isInitiallyOpen={isInitiallyOpen}
+                        isInSubscriptionForm={isInSubscriptionForm}
+                        subscriptionFormType={subscriptionFormType}
+                        shouldDisplayAlreadyUsedChargeAlert={shouldDisplayAlreadyUsedChargeAlert}
+                        removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+                        premiumWarningDialogRef={premiumWarningDialogRef}
+                        editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                        isUsedInSubscription={!isNew && !canBeEdited}
+                        currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
+                        index={i}
+                        disabled={isEdition && !canBeEdited && !isNew}
+                        formikProps={formikProps}
+                      />
+                    )
+                  })}
+                </Charges>
+              )}
+              {showAddRecurringCharge ? (
+                <AddChargeInlineWrapper>
+                  <ComboBox
+                    className={SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME}
+                    data={recurringBillableMetrics}
+                    searchQuery={getRecurringBillableMetrics}
+                    loading={recurringBillableMetricsLoading}
+                    placeholder={translate('text_6435888d7cc86500646d8981')}
+                    emptyText={translate('text_6246b6bc6b25f500b779aa7a')}
+                    onChange={(newCharge) => {
+                      const previousCharges = [...formikProps.values.charges]
+                      const newId = getNewChargeId(newCharge, previousCharges.length)
+                      const localBillableMetrics =
+                        recurringBillableMetricsData?.billableMetrics?.collection.find(
+                          (bm) => bm.id === newCharge,
+                        )
 
-          {hasAnyCharge && !isInSubscriptionForm && (
-            <InlineButtons>
-              {!showAddMeteredCharge && !hasAnyMeteredCharge && (
-                <Button
-                  startIcon="plus"
-                  variant="quaternary"
-                  data-test="add-metered-charge"
-                  onClick={() => {
-                    setShowAddMeteredCharge(true)
-                    setTimeout(() => {
-                      ;(
-                        document.querySelector(
-                          `.${SEARCH_METERED_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                        ) as HTMLElement
-                      )?.click()
-                    }, 0)
-                  }}
-                >
-                  {translate('text_64d270faa1b07d0097fa287e')}
-                </Button>
+                      formikProps.setFieldValue('charges', [
+                        ...previousCharges,
+                        {
+                          payInAdvance: false,
+                          invoiceable: true,
+                          billableMetric: localBillableMetrics,
+                          properties: getPropertyShape({}),
+                          filters: !!localBillableMetrics?.filters?.length ? [] : undefined,
+                          chargeModel: ChargeModelEnum.Standard,
+                          amountCents: undefined,
+                        },
+                      ])
+                      setShowAddRecurringCharge(false)
+                      newChargeId.current = newId
+                    }}
+                  />
+                  <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
+                    <Button
+                      icon="trash"
+                      variant="quaternary"
+                      onClick={() => {
+                        setShowAddRecurringCharge(false)
+                      }}
+                    />
+                  </Tooltip>
+                </AddChargeInlineWrapper>
+              ) : (
+                !isInSubscriptionForm && (
+                  <Button
+                    startIcon="plus"
+                    variant="quaternary"
+                    data-test="add-recurring-charge"
+                    onClick={() => {
+                      setShowAddRecurringCharge(true)
+                      setTimeout(() => {
+                        ;(
+                          document.querySelector(
+                            `.${SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+                          ) as HTMLElement
+                        )?.click()
+                      }, 0)
+                    }}
+                  >
+                    {translate('text_64d27120a3d1e300b35d0fcc')}
+                  </Button>
+                )
               )}
-              {!showAddRecurringCharge && !!hasAnyRecurringCharge && (
-                <Button
-                  startIcon="plus"
-                  variant="quaternary"
-                  data-test="add-recurring-charge"
-                  onClick={() => {
-                    setShowAddRecurringCharge(true)
-                    setTimeout(() => {
-                      ;(
-                        document.querySelector(
-                          `.${SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                        ) as HTMLElement
-                      )?.click()
-                    }, 0)
-                  }}
-                >
-                  {translate('text_64d27120a3d1e300b35d0fcc')}
-                </Button>
-              )}
-            </InlineButtons>
+            </Group>
           )}
         </Card>
 
@@ -590,19 +564,9 @@ const SectionTitle = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: ${theme.spacing(8)};
 `
 
-const Card = styled.div`
-  padding: ${theme.spacing(8)};
-  border: 1px solid ${theme.palette.grey[300]};
-  background-color: ${theme.palette.common.white};
-  border-radius: 12px;
-  box-sizing: border-box;
-
-  > *:not(:first-child) {
-    margin-top: ${theme.spacing(6)};
-  }
-`
 const AddChargeInlineWrapper = styled.div`
   > :first-child {
     flex: 1;
@@ -612,18 +576,21 @@ const AddChargeInlineWrapper = styled.div`
   display: flex;
   align-items: center;
 `
+
 const Charges = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(6)};
   }
 `
 
-const InlineButtons = styled.div`
-  display: flex;
-  flex-wrap: wrap;
+const Group = styled.div`
+  > *:not(:last-child) {
+    margin-bottom: ${theme.spacing(4)};
+  }
 `
 
-const RecurringSectionTitleWrapper = styled.div<{ $hasAnyAboveSection: boolean }>`
-  margin-top: ${({ $hasAnyAboveSection }) =>
-    $hasAnyAboveSection ? `${theme.spacing(12)} !important` : 'initial'};
+const GroupTitle = styled.div`
+  > *:not(:last-child) {
+    margin-bottom: ${theme.spacing(1)};
+  }
 `

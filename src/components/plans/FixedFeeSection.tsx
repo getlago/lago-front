@@ -5,7 +5,7 @@ import { memo, RefObject, useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 import { Accordion, Button, Chip, Icon, Tooltip, Typography } from '~/components/designSystem'
-import { AmountInputField, ButtonSelectorField, TextInputField } from '~/components/form'
+import { AmountInputField, RadioGroupField, TextInputField } from '~/components/form'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
@@ -76,7 +76,14 @@ export const FixedFeeSection = memo(
 
     return (
       <Card>
-        <SectionTitle variant="subhead">{translate('text_642d5eb2783a2ad10d670332')}</SectionTitle>
+        <SectionTitle>
+          <Typography variant="subhead">{translate('text_642d5eb2783a2ad10d670336')}</Typography>
+          <Typography variant="caption">
+            {translate('text_6661fc17337de3591e29e3ed', {
+              interval: translate(mapIntervalCopy(formikProps.values.interval)),
+            })}
+          </Typography>
+        </SectionTitle>
 
         <Accordion
           noContentMargin
@@ -150,80 +157,89 @@ export const FixedFeeSection = memo(
                 ),
               }}
             />
-            <ButtonSelectorField
+
+            <RadioGroupField
               name="payInAdvance"
-              label={translate('text_646e2d0cc536351b62ba6f86')}
+              label={translate('text_6669b493fae79a0095e6396b')}
+              description={translate('text_6661fc17337de3591e29e3fb')}
               formikProps={formikProps}
               disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
-              helperText={
-                formikProps.values.payInAdvance
-                  ? translate('text_646e2d0cc536351b62ba6fc5')
-                  : translate('text_646e2d0cc536351b62ba6fb0')
-              }
+              optionLabelVariant="body"
               options={[
                 {
-                  label: translate('text_646e2d0cc536351b62ba6f8c'),
+                  label: translate('text_6661fc17337de3591e29e3fd'),
                   value: false,
                 },
                 {
-                  label: translate('text_646e2d0cc536351b62ba6faa'),
+                  label: translate('text_6661fc17337de3591e29e3ff'),
                   value: true,
                 },
               ]}
             />
 
-            {shouldDisplayTrialPeriod ? (
-              <InlineTrialPeriod>
-                <InputTrialPeriod
-                  name="trialPeriod"
-                  disabled={
-                    subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
-                  }
-                  label={translate('text_624453d52e945301380e49c2')}
-                  beforeChangeFormatter={['positiveNumber', 'int']}
-                  placeholder={translate('text_624453d52e945301380e49c4')}
-                  formikProps={formikProps}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        {translate('text_624453d52e945301380e49c6')}
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                <CloseTrialPeriodTooltip
-                  placement="top-end"
-                  title={translate('text_63aa085d28b8510cd46443ff')}
-                  disableHoverListener={
-                    subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
-                  }
-                >
-                  <Button
-                    icon="trash"
-                    variant="quaternary"
+            <Group>
+              <GroupTitle>
+                <Typography variant="captionHl" color="textSecondary">
+                  {translate('text_624453d52e945301380e49c2')}
+                </Typography>
+                <Typography variant="caption">
+                  {translate('text_6661fc17337de3591e29e403')}
+                </Typography>
+              </GroupTitle>
+
+              {shouldDisplayTrialPeriod ? (
+                <InlineTrialPeriod>
+                  <InputTrialPeriod
+                    name="trialPeriod"
                     disabled={
                       subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
                     }
-                    onClick={() => {
-                      formikProps.setFieldValue('trialPeriod', null)
-                      setShouldDisplayTrialPeriod(false)
+                    beforeChangeFormatter={['positiveNumber', 'int']}
+                    placeholder={translate('text_624453d52e945301380e49c4')}
+                    formikProps={formikProps}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          {translate('text_624453d52e945301380e49c6')}
+                        </InputAdornment>
+                      ),
                     }}
                   />
-                </CloseTrialPeriodTooltip>
-              </InlineTrialPeriod>
-            ) : (
-              <Button
-                startIcon="plus"
-                disabled={
-                  subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
-                }
-                variant="quaternary"
-                data-test="show-trial-period"
-                onClick={() => setShouldDisplayTrialPeriod(true)}
-              >
-                {translate('text_642d5eb2783a2ad10d670344')}
-              </Button>
-            )}
+                  <CloseTrialPeriodTooltip
+                    placement="top-end"
+                    title={translate('text_63aa085d28b8510cd46443ff')}
+                    disableHoverListener={
+                      subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
+                    }
+                  >
+                    <Button
+                      icon="trash"
+                      variant="quaternary"
+                      disabled={
+                        subscriptionFormType === FORM_TYPE_ENUM.edition ||
+                        (isEdition && !canBeEdited)
+                      }
+                      onClick={() => {
+                        formikProps.setFieldValue('trialPeriod', null)
+                        setShouldDisplayTrialPeriod(false)
+                      }}
+                    />
+                  </CloseTrialPeriodTooltip>
+                </InlineTrialPeriod>
+              ) : (
+                <Button
+                  startIcon="plus"
+                  disabled={
+                    subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
+                  }
+                  variant="quaternary"
+                  data-test="show-trial-period"
+                  onClick={() => setShouldDisplayTrialPeriod(true)}
+                >
+                  {translate('text_642d5eb2783a2ad10d670344')}
+                </Button>
+              )}
+            </Group>
           </BoxContent>
         </Accordion>
       </Card>
@@ -233,24 +249,25 @@ export const FixedFeeSection = memo(
 
 FixedFeeSection.displayName = 'FixedFeeSection'
 
-const SectionTitle = styled(Typography)`
-  > div:first-child {
-    margin-bottom: ${theme.spacing(3)};
+const SectionTitle = styled.div`
+  > div:not(:last-child) {
+    margin-bottom: ${theme.spacing(2)};
   }
 `
 
 const InlineTrialPeriod = styled.div`
   display: flex;
   align-items: center;
+  gap: ${theme.spacing(3)};
 `
 
 const InputTrialPeriod = styled(TextInputField)`
   flex: 1;
-  margin-right: ${theme.spacing(3)};
+  /* margin-right: ${theme.spacing(3)}; */
 `
 
 const CloseTrialPeriodTooltip = styled(Tooltip)`
-  margin-top: ${theme.spacing(6)};
+  /* margin-top: ${theme.spacing(6)}; */
 `
 
 const BoxHeader = styled.div`
@@ -282,7 +299,7 @@ const BoxHeaderGroupRight = styled.div`
 `
 
 const BoxContent = styled.div`
-  padding: ${theme.spacing(4)};
+  padding: ${theme.spacing(6)};
 
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(8)};
@@ -290,4 +307,16 @@ const BoxContent = styled.div`
 `
 const ValidationTooltip = styled(Tooltip)`
   height: 16px;
+`
+
+const Group = styled.div`
+  > div:not(:last-child) {
+    margin-bottom: ${theme.spacing(4)};
+  }
+`
+
+const GroupTitle = styled.div`
+  > div:not(:last-child) {
+    margin-bottom: ${theme.spacing(1)};
+  }
 `

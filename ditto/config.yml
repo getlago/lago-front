@@ -370,5 +370,7 @@ sources:
       fileName: ⚙️ [WIP] - Integration - Connect Lago to NetSuite
     - name: ⚙️ [WIP] - Settings - Connect Lago to Anrok
       id: 6668821c22128d7c81c3788e
+    - name: 👍 [Ready for dev] - Plans - Plans revamp
+      id: 6661fc151f2d43289e848df0
 format: flat
 variants: true

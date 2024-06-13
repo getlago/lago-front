@@ -1,6 +1,8 @@
 import { gql } from '@apollo/client'
+import { Stack } from '@mui/material'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
 
 import { Button, Skeleton, Typography } from '~/components/designSystem'
 import {
@@ -26,16 +28,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
-import { Card, PageHeader, theme } from '~/styles'
-import {
-  ButtonContainer,
-  Content,
-  Main,
-  Side,
-  SkeletonHeader,
-  Subtitle,
-  Title,
-} from '~/styles/mainObjectsForm'
+import { Card, NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { Content, Main, MAIN_PADDING, Side, SkeletonHeader } from '~/styles/mainObjectsForm'
 
 import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
 
@@ -154,7 +148,7 @@ const CreatePlan = () => {
 
       <Content>
         <Main>
-          <div>
+          <MainMinimumContent>
             {loading && !plan ? (
               <>
                 <SkeletonHeader>
@@ -192,70 +186,91 @@ const CreatePlan = () => {
                 ))}
               </>
             ) : (
-              <>
-                <div>
-                  <Title variant="headline">
-                    {translate(
-                      isEdition ? 'text_625fd165963a7b00c8f59771' : 'text_624453d52e945301380e498a',
-                    )}
-                  </Title>
-                  <Subtitle>
-                    {translate(
-                      type === FORM_TYPE_ENUM.edition
-                        ? 'text_625fd165963a7b00c8f5977b'
-                        : 'text_642d5eb2783a2ad10d670318',
-                    )}
-                  </Subtitle>
-                </div>
+              <Stack width="100%" gap={12}>
+                <SectionWrapper>
+                  <SectionTitle>
+                    <Typography variant="headline">
+                      {translate('text_642d5eb2783a2ad10d67031a')}
+                    </Typography>
+                    <Typography variant="body">
+                      {translate('text_6661fc17337de3591e29e3c1')}
+                    </Typography>
+                  </SectionTitle>
 
-                <PlanSettingsSection
-                  canBeEdited={canBeEdited}
-                  errorCode={errorCode}
-                  formikProps={formikProps}
-                  isEdition={isEdition}
-                />
+                  <PlanSettingsSection
+                    canBeEdited={canBeEdited}
+                    errorCode={errorCode}
+                    formikProps={formikProps}
+                    isEdition={isEdition}
+                  />
+                </SectionWrapper>
+                <SectionWrapper>
+                  <SectionTitle>
+                    <Typography variant="headline">
+                      {translate('text_6661fc17337de3591e29e3e7')}
+                    </Typography>
+                    <Typography variant="body">
+                      {translate('text_6661fc17337de3591e29e3e9')}
+                    </Typography>
+                  </SectionTitle>
 
-                <FixedFeeSection
-                  isInitiallyOpen={type === FORM_TYPE_ENUM.creation}
-                  canBeEdited={canBeEdited}
-                  formikProps={formikProps}
-                  isEdition={isEdition}
-                  editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
-                />
+                  <Section>
+                    <FixedFeeSection
+                      isInitiallyOpen={type === FORM_TYPE_ENUM.creation}
+                      canBeEdited={canBeEdited}
+                      formikProps={formikProps}
+                      isEdition={isEdition}
+                      editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                    />
 
-                <ChargesSection
-                  canBeEdited={canBeEdited}
-                  isEdition={isEdition}
-                  formikProps={formikProps}
-                  premiumWarningDialogRef={premiumWarningDialogRef}
-                  alreadyExistingCharges={plan?.charges as LocalChargeInput[]}
-                  editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
-                />
+                    <ChargesSection
+                      canBeEdited={canBeEdited}
+                      isEdition={isEdition}
+                      formikProps={formikProps}
+                      premiumWarningDialogRef={premiumWarningDialogRef}
+                      alreadyExistingCharges={plan?.charges as LocalChargeInput[]}
+                      editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                    />
+                  </Section>
+                </SectionWrapper>
+                <SectionWrapper>
+                  <SectionTitle>
+                    <Typography variant="headline">
+                      {translate('text_6661fc17337de3591e29e44d')}
+                    </Typography>
+                    <Typography variant="body">
+                      {translate('text_6667029c1051a60107146e35')}
+                    </Typography>
+                  </SectionTitle>
 
-                <CommitmentsSection
-                  formikProps={formikProps}
-                  premiumWarningDialogRef={premiumWarningDialogRef}
-                  editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
-                />
-
-                <ButtonContainer>
-                  <Button
-                    disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
-                    fullWidth
-                    size="large"
-                    onClick={formikProps.submitForm}
-                    data-test="submit"
-                  >
-                    {translate(
-                      type === FORM_TYPE_ENUM.edition
-                        ? 'text_625fd165963a7b00c8f598aa'
-                        : 'text_62ff5d01a306e274d4ffcc75',
-                    )}
-                  </Button>
-                </ButtonContainer>
-              </>
+                  <CommitmentsSection
+                    formikProps={formikProps}
+                    premiumWarningDialogRef={premiumWarningDialogRef}
+                    editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                  />
+                </SectionWrapper>
+              </Stack>
             )}
-          </div>
+          </MainMinimumContent>
+
+          {(!loading || plan) && (
+            <SectionFooter>
+              <SectionFooterWrapper>
+                <Button
+                  disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
+                  size="large"
+                  onClick={formikProps.submitForm}
+                  data-test="submit"
+                >
+                  {translate(
+                    type === FORM_TYPE_ENUM.edition
+                      ? 'text_6661fc17337de3591e29e461'
+                      : 'text_6661ffe746c680007e2df0e2',
+                  )}
+                </Button>
+              </SectionFooterWrapper>
+            </SectionFooter>
+          )}
         </Main>
         <Side>
           <PlanCodeSnippet loading={loading} plan={formikProps.values} />
@@ -277,3 +292,59 @@ const CreatePlan = () => {
 }
 
 export default CreatePlan
+
+const SectionWrapper = styled.div`
+  > div:not(:last-child) {
+    margin-bottom: ${theme.spacing(6)};
+  }
+`
+
+const SectionTitle = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing(1)};
+`
+
+const Section = styled.section`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing(4)};
+`
+
+const FOOTER_HEIGHT = 80
+const FOOTER_MARGIN = 80
+
+const MainMinimumContent = styled.div`
+  min-height: calc(
+    100vh - ${NAV_HEIGHT}px - ${FOOTER_HEIGHT}px - ${FOOTER_MARGIN}px - ${MAIN_PADDING}
+  );
+`
+
+const SectionFooter = styled.div`
+  height: ${FOOTER_HEIGHT}px;
+  position: sticky;
+  bottom: 0;
+  background-color: ${theme.palette.background.paper};
+  margin-top: ${FOOTER_MARGIN}px;
+  border-top: 1px solid ${theme.palette.grey[200]};
+  max-width: initial !important;
+  // Negative margin to compensate for the padding of the parent
+  margin-left: -${MAIN_PADDING};
+  margin-right: -${MAIN_PADDING};
+  padding: 0 ${MAIN_PADDING};
+
+  ${theme.breakpoints.down('md')} {
+    width: 100%;
+    padding: 0 ${theme.spacing(4)};
+    margin-left: -${theme.spacing(4)};
+    margin-right: -${theme.spacing(4)};
+  }
+`
+
+const SectionFooterWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  max-width: 720px;
+`

@@ -38,8 +38,7 @@ import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { LocalChargeInput } from '~/components/plans/types'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { dateErrorCodes } from '~/core/constants/form'
-import { FORM_TYPE_ENUM } from '~/core/constants/form'
+import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
@@ -109,6 +108,84 @@ gql`
 
   ${AddSubscriptionPlanFragmentDoc}
 `
+
+const LoadingSkeleton = () => {
+  const { translate } = useInternationalization()
+
+  return (
+    <FormPlanWrapper>
+      <SectionWrapper>
+        <Typography variant="headline">{translate('text_6335e8900c69f8ebdfef5312')}</Typography>
+        <Card>
+          <div>
+            <Skeleton variant="text" height={12} width={160} marginBottom={theme.spacing(3)} />
+            <Skeleton variant="text" height={12} width={384} />
+          </div>
+        </Card>
+      </SectionWrapper>
+
+      <SectionWrapper>
+        <SectionTitle>
+          <Typography variant="headline">{translate('text_642d5eb2783a2ad10d67031a')}</Typography>
+          <Typography variant="body">{translate('text_66630368f4333b00795b0e1c')}</Typography>
+        </SectionTitle>
+        <Card>
+          <AccordionSkeleton>
+            <Icon name="chevron-right" />
+            <Skeleton variant="text" height={12} width={160} />
+          </AccordionSkeleton>
+        </Card>
+      </SectionWrapper>
+      <SectionWrapper>
+        <SectionTitle>
+          <Typography variant="headline">{translate('text_6661fc17337de3591e29e3e7')}</Typography>
+          <Typography variant="body">{translate('text_66630368f4333b00795b0e2d')}</Typography>
+        </SectionTitle>
+        <Section>
+          <Card>
+            <div>
+              <Skeleton variant="text" height={12} width={160} marginBottom={theme.spacing(3)} />
+              <Skeleton variant="text" height={12} width={384} />
+            </div>
+            {Array(3)
+              .fill('')
+              .map((_, skeletonIndex) => (
+                <AccordionSkeleton key={`loading-skeleton-${skeletonIndex}`}>
+                  <Icon name="chevron-right" />
+                  <Skeleton variant="text" height={12} width={160} />
+                </AccordionSkeleton>
+              ))}
+          </Card>
+          <Card>
+            <div>
+              <Skeleton variant="text" height={12} width={160} marginBottom={theme.spacing(3)} />
+              <Skeleton variant="text" height={12} width={384} />
+            </div>
+            {Array(2)
+              .fill('')
+              .map((_, skeletonIndex) => (
+                <AccordionSkeleton key={`loading-skeleton-${skeletonIndex}`}>
+                  <Icon name="chevron-right" />
+                  <Skeleton variant="text" height={12} width={160} />
+                </AccordionSkeleton>
+              ))}
+          </Card>
+        </Section>
+      </SectionWrapper>
+    </FormPlanWrapper>
+  )
+}
+
+const EmptyState = () => {
+  const { translate } = useInternationalization()
+
+  return (
+    <CenteredEmptyState>
+      <ThinkingManeki />
+      <Typography variant="body">{translate('text_65118a52df984447c1869469')}</Typography>
+    </CenteredEmptyState>
+  )
+}
 
 const CreateSubscription = () => {
   let location = useLocation()
@@ -465,213 +542,166 @@ const CreateSubscription = () => {
         {(!isResponsive || (!!isResponsive && !!subscriptionFormikProps?.values?.planId)) && (
           <PlanFormContainer>
             {!!subscriptionLoading && formType === FORM_TYPE_ENUM.edition ? (
-              <FormPlanWrapper>
-                <Card>
-                  <Typography variant="subhead">
-                    {translate('text_6335e8900c69f8ebdfef5312')}
-                  </Typography>
-
-                  <div>
-                    <Skeleton
-                      variant="text"
-                      height={12}
-                      width={160}
-                      marginBottom={theme.spacing(3)}
-                    />
-                    <Skeleton variant="text" height={12} width={384} />
-                  </div>
-                </Card>
-                <Card>
-                  <Typography variant="subhead">
-                    {translate('text_642d5eb2783a2ad10d670332')}
-                  </Typography>
-
-                  <AccordionSkeleton>
-                    <Icon name="chevron-right" />
-                    <Skeleton variant="text" height={12} width={160} />
-                  </AccordionSkeleton>
-                </Card>
-                <Card>
-                  <Typography variant="subhead">
-                    {translate('text_6435888d7cc86500646d8977')}
-                  </Typography>
-                  <div>
-                    <Skeleton
-                      variant="text"
-                      height={12}
-                      width={160}
-                      marginBottom={theme.spacing(3)}
-                    />
-                    <Skeleton variant="text" height={12} width={384} />
-                  </div>
-                  {Array(3)
-                    .fill('')
-                    .map((_, skeletonIndex) => (
-                      <AccordionSkeleton key={`loading-skeleton-${skeletonIndex}`}>
-                        <Icon name="chevron-right" />
-                        <Skeleton variant="text" height={12} width={160} />
-                      </AccordionSkeleton>
-                    ))}
-                </Card>
-              </FormPlanWrapper>
+              <LoadingSkeleton />
             ) : !!subscriptionFormikProps?.values?.planId ? (
               <FormPlanWrapper data-test="create-subscription-form-wrapper">
                 {!subscription?.plan.parent && formType === FORM_TYPE_ENUM.edition && (
                   <Alert type="info">{translate('text_652525609f420d00b83dd602')}</Alert>
                 )}
-                <Card>
-                  <Typography variant="subhead">
+                <SectionWrapper>
+                  <Typography variant="headline">
                     {translate('text_6335e8900c69f8ebdfef5312')}
                   </Typography>
-
-                  {!!shouldDisplaySubscriptionExternalId && (
-                    <InlineFieldWithDelete>
-                      <TextInputField
-                        disabled={formType !== FORM_TYPE_ENUM.creation}
-                        name="externalId"
-                        formikProps={subscriptionFormikProps}
-                        label={translate('text_642a94e522316cd9e1875224')}
-                        placeholder={translate('text_642ac1d1407baafb9e4390ee')}
-                        helperText={translate('text_642ac28c65c2180085afe31a')}
-                      />
-                      <InlineFieldTooltip
-                        disableHoverListener={formType !== FORM_TYPE_ENUM.creation}
-                        placement="top-end"
-                        title={translate('text_63aa085d28b8510cd46443ff')}
-                      >
-                        <Button
-                          icon="trash"
+                  <Card>
+                    {!!shouldDisplaySubscriptionExternalId && (
+                      <InlineFieldWithDelete>
+                        <TextInputField
                           disabled={formType !== FORM_TYPE_ENUM.creation}
-                          variant="quaternary"
-                          onClick={() => {
-                            subscriptionFormikProps.setFieldValue('externalId', '')
-                            setShouldDisplaySubscriptionExternalId(false)
-                          }}
+                          name="externalId"
+                          formikProps={subscriptionFormikProps}
+                          label={translate('text_642a94e522316cd9e1875224')}
+                          placeholder={translate('text_642ac1d1407baafb9e4390ee')}
+                          helperText={translate('text_642ac28c65c2180085afe31a')}
                         />
-                      </InlineFieldTooltip>
-                    </InlineFieldWithDelete>
-                  )}
+                        <InlineFieldTooltip
+                          disableHoverListener={formType !== FORM_TYPE_ENUM.creation}
+                          placement="top-end"
+                          title={translate('text_63aa085d28b8510cd46443ff')}
+                        >
+                          <Button
+                            icon="trash"
+                            disabled={formType !== FORM_TYPE_ENUM.creation}
+                            variant="quaternary"
+                            onClick={() => {
+                              subscriptionFormikProps.setFieldValue('externalId', '')
+                              setShouldDisplaySubscriptionExternalId(false)
+                            }}
+                          />
+                        </InlineFieldTooltip>
+                      </InlineFieldWithDelete>
+                    )}
 
-                  {!!shouldDisplaySubscriptionName && (
-                    <InlineFieldWithDelete>
-                      <TextInputField
-                        name="name"
-                        formikProps={subscriptionFormikProps}
-                        label={translate('text_62d7f6178ec94cd09370e2b9')}
-                        placeholder={translate('text_62d7f6178ec94cd09370e2cb')}
-                        helperText={translate('text_62d7f6178ec94cd09370e2d9')}
-                      />
-                      <InlineFieldTooltip
-                        disableHoverListener={formType !== FORM_TYPE_ENUM.creation}
-                        placement="top-end"
-                        title={translate('text_63aa085d28b8510cd46443ff')}
-                      >
-                        <Button
-                          icon="trash"
-                          variant="quaternary"
-                          onClick={() => {
-                            subscriptionFormikProps.setFieldValue('name', '')
-                            setShouldDisplaySubscriptionName(false)
-                          }}
+                    {!!shouldDisplaySubscriptionName && (
+                      <InlineFieldWithDelete>
+                        <TextInputField
+                          name="name"
+                          formikProps={subscriptionFormikProps}
+                          label={translate('text_62d7f6178ec94cd09370e2b9')}
+                          placeholder={translate('text_62d7f6178ec94cd09370e2cb')}
+                          helperText={translate('text_62d7f6178ec94cd09370e2d9')}
                         />
-                      </InlineFieldTooltip>
-                    </InlineFieldWithDelete>
-                  )}
+                        <InlineFieldTooltip
+                          disableHoverListener={formType !== FORM_TYPE_ENUM.creation}
+                          placement="top-end"
+                          title={translate('text_63aa085d28b8510cd46443ff')}
+                        >
+                          <Button
+                            icon="trash"
+                            variant="quaternary"
+                            onClick={() => {
+                              subscriptionFormikProps.setFieldValue('name', '')
+                              setShouldDisplaySubscriptionName(false)
+                            }}
+                          />
+                        </InlineFieldTooltip>
+                      </InlineFieldWithDelete>
+                    )}
 
-                  {(!shouldDisplaySubscriptionExternalId || !shouldDisplaySubscriptionName) && (
-                    <InlineAddButtonsActions>
-                      {!shouldDisplaySubscriptionExternalId && (
-                        <Button
-                          startIcon="plus"
+                    {(!shouldDisplaySubscriptionExternalId || !shouldDisplaySubscriptionName) && (
+                      <InlineAddButtonsActions>
+                        {!shouldDisplaySubscriptionExternalId && (
+                          <Button
+                            startIcon="plus"
+                            disabled={formType !== FORM_TYPE_ENUM.creation}
+                            variant="quaternary"
+                            onClick={() => setShouldDisplaySubscriptionExternalId(true)}
+                            data-test="show-external-id"
+                          >
+                            {translate('text_65118a52df984447c1869472')}
+                          </Button>
+                        )}
+                        {!shouldDisplaySubscriptionName && (
+                          <Button
+                            startIcon="plus"
+                            variant="quaternary"
+                            onClick={() => setShouldDisplaySubscriptionName(true)}
+                            data-test="show-name"
+                          >
+                            {translate('text_65118a52df984447c186947c')}
+                          </Button>
+                        )}
+                      </InlineAddButtonsActions>
+                    )}
+
+                    {formType !== FORM_TYPE_ENUM.upgradeDowngrade && (
+                      <>
+                        <ButtonSelectorField
+                          name="billingTime"
                           disabled={formType !== FORM_TYPE_ENUM.creation}
-                          variant="quaternary"
-                          onClick={() => setShouldDisplaySubscriptionExternalId(true)}
-                          data-test="show-external-id"
-                        >
-                          {translate('text_65118a52df984447c1869472')}
-                        </Button>
-                      )}
-                      {!shouldDisplaySubscriptionName && (
-                        <Button
-                          startIcon="plus"
-                          variant="quaternary"
-                          onClick={() => setShouldDisplaySubscriptionName(true)}
-                          data-test="show-name"
-                        >
-                          {translate('text_65118a52df984447c186947c')}
-                        </Button>
-                      )}
-                    </InlineAddButtonsActions>
-                  )}
+                          label={translate('text_62ea7cd44cd4b14bb9ac1db7')}
+                          formikProps={subscriptionFormikProps}
+                          helperText={billingTimeHelper}
+                          options={[
+                            {
+                              label:
+                                selectedPlan?.interval === PlanInterval.Yearly
+                                  ? translate('text_62ebd597d5d5130a03ced107')
+                                  : selectedPlan?.interval === PlanInterval.Weekly
+                                    ? translate('text_62ebd597d5d5130a03ced101')
+                                    : selectedPlan?.interval === PlanInterval.Quarterly
+                                      ? translate('text_64d6357b00dea100ad1cba27')
+                                      : translate('text_62ea7cd44cd4b14bb9ac1db9'),
+                              value: BillingTimeEnum.Calendar,
+                            },
+                            {
+                              label: translate('text_62ea7cd44cd4b14bb9ac1dbb'),
+                              value: BillingTimeEnum.Anniversary,
+                            },
+                          ]}
+                        />
 
-                  {formType !== FORM_TYPE_ENUM.upgradeDowngrade && (
-                    <>
-                      <ButtonSelectorField
-                        name="billingTime"
-                        disabled={formType !== FORM_TYPE_ENUM.creation}
-                        label={translate('text_62ea7cd44cd4b14bb9ac1db7')}
-                        formikProps={subscriptionFormikProps}
-                        helperText={billingTimeHelper}
-                        options={[
-                          {
-                            label:
-                              selectedPlan?.interval === PlanInterval.Yearly
-                                ? translate('text_62ebd597d5d5130a03ced107')
-                                : selectedPlan?.interval === PlanInterval.Weekly
-                                  ? translate('text_62ebd597d5d5130a03ced101')
-                                  : selectedPlan?.interval === PlanInterval.Quarterly
-                                    ? translate('text_64d6357b00dea100ad1cba27')
-                                    : translate('text_62ea7cd44cd4b14bb9ac1db9'),
-                            value: BillingTimeEnum.Calendar,
-                          },
-                          {
-                            label: translate('text_62ea7cd44cd4b14bb9ac1dbb'),
-                            value: BillingTimeEnum.Anniversary,
-                          },
-                        ]}
-                      />
-
-                      <div>
-                        <InlineFields>
-                          <DatePickerField
-                            name="subscriptionAt"
-                            disabled={
-                              formType !== FORM_TYPE_ENUM.creation &&
-                              subscription?.status !== StatusTypeEnum.Pending
-                            }
-                            placement="auto"
-                            label={translate('text_64ef55a730b88e3d2117b3c4')}
-                            defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
-                            formikProps={subscriptionFormikProps}
-                          />
-                          <DatePickerField
-                            disablePast
-                            name="endingAt"
-                            placement="auto"
-                            label={translate('text_64ef55a730b88e3d2117b3cc')}
-                            defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
-                            formikProps={subscriptionFormikProps}
-                            error={
-                              subscriptionFormikProps.errors.endingAt ===
-                              dateErrorCodes.shouldBeFutureAndBiggerThanSubscriptionAt
-                                ? translate('text_64ef55a730b88e3d2117b3d4')
-                                : undefined
-                            }
-                            inputProps={{ cleanable: true }}
-                          />
-                        </InlineFields>
-                        {!subscriptionFormikProps.errors.endingAt &&
-                          !subscriptionFormikProps.errors.subscriptionAt && (
-                            <LocalSubscriptionDatesOffsetHelperComponent
-                              customerTimezone={customer?.applicableTimezone}
-                              subscriptionAt={subscriptionFormikProps.values.subscriptionAt}
-                              endingAt={subscriptionFormikProps.values.endingAt}
+                        <div>
+                          <InlineFields>
+                            <DatePickerField
+                              name="subscriptionAt"
+                              disabled={
+                                formType !== FORM_TYPE_ENUM.creation &&
+                                subscription?.status !== StatusTypeEnum.Pending
+                              }
+                              placement="auto"
+                              label={translate('text_64ef55a730b88e3d2117b3c4')}
+                              defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
+                              formikProps={subscriptionFormikProps}
                             />
-                          )}
-                      </div>
-                    </>
-                  )}
-                </Card>
+                            <DatePickerField
+                              disablePast
+                              name="endingAt"
+                              placement="auto"
+                              label={translate('text_64ef55a730b88e3d2117b3cc')}
+                              defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
+                              formikProps={subscriptionFormikProps}
+                              error={
+                                subscriptionFormikProps.errors.endingAt ===
+                                dateErrorCodes.shouldBeFutureAndBiggerThanSubscriptionAt
+                                  ? translate('text_64ef55a730b88e3d2117b3d4')
+                                  : undefined
+                              }
+                              inputProps={{ cleanable: true }}
+                            />
+                          </InlineFields>
+                          {!subscriptionFormikProps.errors.endingAt &&
+                            !subscriptionFormikProps.errors.subscriptionAt && (
+                              <LocalSubscriptionDatesOffsetHelperComponent
+                                customerTimezone={customer?.applicableTimezone}
+                                subscriptionAt={subscriptionFormikProps.values.subscriptionAt}
+                                endingAt={subscriptionFormikProps.values.endingAt}
+                              />
+                            )}
+                        </div>
+                      </>
+                    )}
+                  </Card>
+                </SectionWrapper>
 
                 {!isPremium ? (
                   <FreemiumCard>
@@ -702,41 +732,69 @@ const CreateSubscription = () => {
                 ) : null}
 
                 <PlanFormConditionalWrapper $isPremium={isPremium}>
-                  <PlanSettingsSection
-                    isInSubscriptionForm={isInSubscriptionForm}
-                    subscriptionFormType={formType}
-                    errorCode={planErrorCode}
-                    formikProps={planFormikProps}
-                  />
+                  <SectionWrapper>
+                    <SectionTitle>
+                      <Typography variant="headline">
+                        {translate('text_642d5eb2783a2ad10d67031a')}
+                      </Typography>
+                      <Typography variant="body">
+                        {translate('text_66630368f4333b00795b0e1c')}
+                      </Typography>
+                    </SectionTitle>
+                    <PlanSettingsSection
+                      isInSubscriptionForm={isInSubscriptionForm}
+                      subscriptionFormType={formType}
+                      errorCode={planErrorCode}
+                      formikProps={planFormikProps}
+                    />
+                  </SectionWrapper>
+                  <SectionWrapper>
+                    <SectionTitle>
+                      <Typography variant="headline">
+                        {translate('text_6661fc17337de3591e29e3e7')}
+                      </Typography>
+                      <Typography variant="body">
+                        {translate('text_66630368f4333b00795b0e2d')}
+                      </Typography>
+                    </SectionTitle>
 
-                  <FixedFeeSection
-                    isInSubscriptionForm={isInSubscriptionForm}
-                    subscriptionFormType={formType}
-                    formikProps={planFormikProps}
-                    editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
-                  />
+                    <Section>
+                      <FixedFeeSection
+                        isInSubscriptionForm={isInSubscriptionForm}
+                        subscriptionFormType={formType}
+                        formikProps={planFormikProps}
+                        editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                      />
 
-                  <ChargesSection
-                    isInSubscriptionForm={isInSubscriptionForm}
-                    subscriptionFormType={formType}
-                    formikProps={planFormikProps}
-                    premiumWarningDialogRef={premiumWarningDialogRef}
-                    alreadyExistingCharges={plan?.charges as LocalChargeInput[]}
-                    editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
-                  />
-
-                  <CommitmentsSection
-                    formikProps={planFormikProps}
-                    premiumWarningDialogRef={premiumWarningDialogRef}
-                    editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
-                  />
+                      <ChargesSection
+                        isInSubscriptionForm={isInSubscriptionForm}
+                        subscriptionFormType={formType}
+                        formikProps={planFormikProps}
+                        premiumWarningDialogRef={premiumWarningDialogRef}
+                        alreadyExistingCharges={plan?.charges as LocalChargeInput[]}
+                        editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                      />
+                    </Section>
+                  </SectionWrapper>
+                  <SectionWrapper>
+                    <SectionTitle>
+                      <Typography variant="headline">
+                        {translate('text_6661fc17337de3591e29e44d')}
+                      </Typography>
+                      <Typography variant="body">
+                        {translate('text_66676ed0d8c3d481637e99b7')}
+                      </Typography>
+                    </SectionTitle>
+                    <CommitmentsSection
+                      formikProps={planFormikProps}
+                      premiumWarningDialogRef={premiumWarningDialogRef}
+                      editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                    />
+                  </SectionWrapper>
                 </PlanFormConditionalWrapper>
               </FormPlanWrapper>
             ) : (
-              <CenteredEmptyState>
-                <ThinkingManeki />
-                <Typography variant="body">{translate('text_65118a52df984447c1869469')}</Typography>
-              </CenteredEmptyState>
+              <EmptyState />
             )}
           </PlanFormContainer>
         )}
@@ -819,7 +877,7 @@ const FormPlanWrapper = styled.div`
   max-width: ${theme.spacing(180)};
   display: flex;
   flex-direction: column;
-  gap: ${theme.spacing(8)};
+  gap: ${theme.spacing(12)};
 
   ${theme.breakpoints.down('lg')} {
     max-width: 100%;
@@ -905,7 +963,7 @@ const FreemiumCardLeftTitleContainer = styled.div`
 const PlanFormConditionalWrapper = styled.div<{ $isPremium: boolean }>`
   display: flex;
   flex-direction: column;
-  gap: ${theme.spacing(8)};
+  gap: ${theme.spacing(12)};
 
   ${({ $isPremium }) =>
     !$isPremium &&
@@ -913,6 +971,24 @@ const PlanFormConditionalWrapper = styled.div<{ $isPremium: boolean }>`
       pointer-events: none;
       opacity: 0.4;
     `}
+`
+
+const SectionWrapper = styled.div`
+  > div:not(:last-child) {
+    margin-bottom: ${theme.spacing(8)};
+  }
+`
+
+const SectionTitle = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing(1)};
+`
+
+const Section = styled.section`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing(4)};
 `
 
 const AccordionSkeleton = styled.div`
