@@ -42,6 +42,7 @@ gql`
     $paymentStatus: [InvoicePaymentStatusTypeEnum!]
     $searchTerm: String
     $paymentDisputeLost: Boolean
+    $paymentOverdue: Boolean
   ) {
     invoices(
       limit: $limit
@@ -50,6 +51,7 @@ gql`
       paymentStatus: $paymentStatus
       searchTerm: $searchTerm
       paymentDisputeLost: $paymentDisputeLost
+      paymentOverdue: $paymentOverdue
     ) {
       metadata {
         currentPage
@@ -94,10 +96,11 @@ gql`
 export enum InvoiceListStatusEnum {
   'all' = 'all',
   'draft' = 'draft',
-  'pendingFailed' = 'pendingFailed',
+  'outstanding' = 'outstanding',
   'succeeded' = 'succeeded',
   'voided' = 'voided',
   'disputed' = 'disputed',
+  'overdue' = 'overdue',
 }
 
 enum InvoiceListTabEnum {
@@ -137,7 +140,7 @@ const InvoicesPage = () => {
       limit: 20,
       ...(invoiceType === InvoiceListStatusEnum.draft && { status: InvoiceStatusTypeEnum.Draft }),
       ...(invoiceType === InvoiceListStatusEnum.voided && { status: InvoiceStatusTypeEnum.Voided }),
-      ...(invoiceType === InvoiceListStatusEnum.pendingFailed && {
+      ...(invoiceType === InvoiceListStatusEnum.outstanding && {
         status: InvoiceStatusTypeEnum.Finalized,
         paymentStatus: [InvoicePaymentStatusTypeEnum.Failed, InvoicePaymentStatusTypeEnum.Pending],
       }),
@@ -147,6 +150,9 @@ const InvoicesPage = () => {
       }),
       ...(invoiceType === InvoiceListStatusEnum.disputed && {
         paymentDisputeLost: true,
+      }),
+      ...(invoiceType === InvoiceListStatusEnum.overdue && {
+        paymentOverdue: true,
       }),
     },
   })
@@ -227,7 +233,7 @@ const InvoicesPage = () => {
             />
           ) : null}
 
-          {invoiceType === InvoiceListStatusEnum.pendingFailed &&
+          {invoiceType === InvoiceListStatusEnum.outstanding &&
             hasPermissions(['invoicesSend']) && (
               <Button
                 disabled={!dataInvoices?.invoices?.metadata?.totalCount}

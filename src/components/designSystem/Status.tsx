@@ -27,6 +27,8 @@ type StatusLabelDanger =
   | 'terminated'
   | 'consumed'
   | 'voided'
+  | 'overdue'
+
 type StatusLabelDisabled = 'voided'
 
 export type StatusLabel =
@@ -54,6 +56,7 @@ const statusLabelMapping: Record<StatusLabel, string> = {
   terminated: 'text_624efab67eb2570101d11826',
   consumed: 'text_6376641a2a9c70fff5bddcd1',
   voided: 'text_6376641a2a9c70fff5bddcd5',
+  overdue: 'TODO: Overdue',
   ['n/a']: '-',
 }
 
