@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import React, { useRef } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
-import { Link } from 'react-router-dom'
+import { generatePath, Link, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
@@ -17,7 +16,8 @@ import {
   Popper,
   Skeleton,
   Status,
-  StatusEnum,
+  StatusProps,
+  StatusType,
   Typography,
 } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -175,42 +175,42 @@ gql`
   }
 `
 
-const creditedMapStatus = (type?: CreditNoteCreditStatusEnum | null | undefined) => {
+const creditedMapStatus = (type?: CreditNoteCreditStatusEnum | null | undefined): StatusProps => {
   switch (type) {
     case CreditNoteCreditStatusEnum.Consumed:
       return {
-        type: StatusEnum.error,
-        label: 'text_6376641a2a9c70fff5bddcd1',
+        type: StatusType.danger,
+        label: 'consumed',
       }
     case CreditNoteCreditStatusEnum.Voided:
       return {
-        type: StatusEnum.error,
-        label: 'text_6376641a2a9c70fff5bddcd5',
+        type: StatusType.danger,
+        label: 'voided',
       }
     default:
       return {
-        type: StatusEnum.running,
-        label: 'text_637655cb50f04bf1c8379d0c',
+        type: StatusType.success,
+        label: 'available',
       }
   }
 }
 
-const consumedMapStatus = (type?: CreditNoteRefundStatusEnum | null | undefined) => {
+const consumedMapStatus = (type?: CreditNoteRefundStatusEnum | null | undefined): StatusProps => {
   switch (type) {
     case CreditNoteRefundStatusEnum.Succeeded:
       return {
-        type: StatusEnum.running,
-        label: 'text_637656ef3d876b0269edc79d',
+        type: StatusType.success,
+        label: 'refunded',
       }
     case CreditNoteRefundStatusEnum.Failed:
       return {
-        type: StatusEnum.failed,
-        label: 'text_637656ef3d876b0269edc7a1',
+        type: StatusType.warning,
+        label: 'failed',
       }
     default:
       return {
-        type: StatusEnum.paused,
-        label: 'text_637656ef3d876b0269edc799',
+        type: StatusType.default,
+        label: 'pending',
       }
   }
 }
@@ -424,13 +424,13 @@ const CreditNoteDetails = () => {
                     {creditNote?.number}
                   </Typography>
                   <Status
-                    type={status.type}
-                    label={translate(status.label, {
+                    {...status}
+                    labelVariables={{
                       date: formatDateToTZ(
                         creditNote?.refundedAt,
                         creditNote?.customer.applicableTimezone,
                       ),
-                    })}
+                    }}
                   />
                 </MainInfoLine>
                 <MainInfoLine>
@@ -576,13 +576,13 @@ const CreditNoteDetails = () => {
                     </Typography>
                     <Typography variant="body" color="grey700">
                       <Status
-                        type={status.type}
-                        label={translate(status.label, {
+                        {...status}
+                        labelVariables={{
                           date: formatDateToTZ(
                             creditNote?.refundedAt,
                             creditNote?.customer.applicableTimezone,
                           ),
-                        })}
+                        }}
                       />
                     </Typography>
                   </InfoLine>
@@ -994,6 +994,7 @@ const InfoSection = styled.section`
 const InfoLine = styled.div`
   display: flex;
   align-items: flex-start;
+  gap: ${theme.spacing(2)};
 
   > div:first-child {
     min-width: 140px;

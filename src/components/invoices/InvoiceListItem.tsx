@@ -7,7 +7,8 @@ import {
   Popper,
   Skeleton,
   Status,
-  StatusEnum,
+  StatusProps,
+  StatusType,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
@@ -95,32 +96,34 @@ interface InvoiceListItemProps {
 const mapStatusConfig = (
   status: InvoiceStatusTypeEnum,
   paymentStatus: InvoicePaymentStatusTypeEnum,
-) => {
+): StatusProps => {
   if (status === InvoiceStatusTypeEnum.Draft) {
-    return { label: 'text_63ac8850ff7117ad55777d31', type: StatusEnum.draft }
+    return { label: 'draft', type: StatusType.outline }
   }
 
   if (status === InvoiceStatusTypeEnum.Voided) {
-    return { label: 'text_6376641a2a9c70fff5bddcd5', type: StatusEnum.voided }
+    return { label: 'voided', type: StatusType.disabled }
   }
 
   if (paymentStatus === InvoicePaymentStatusTypeEnum.Succeeded) {
-    return { label: 'text_63ac8850ff7117ad55777d4f', type: StatusEnum.running }
+    return { label: 'succeeded', type: StatusType.success }
   }
 
   if (
     status === InvoiceStatusTypeEnum.Finalized &&
     paymentStatus === InvoicePaymentStatusTypeEnum.Failed
   ) {
-    return { label: 'text_63ac8850ff7117ad55777d45', type: StatusEnum.failed }
+    return { label: 'failed', type: StatusType.warning }
   }
 
   if (
     status === InvoiceStatusTypeEnum.Finalized &&
     paymentStatus === InvoicePaymentStatusTypeEnum.Pending
   ) {
-    return { label: 'text_63ac8850ff7117ad55777d3b', type: StatusEnum.paused }
+    return { label: 'pending', type: StatusType.default }
   }
+
+  return { label: 'n/a', type: StatusType.default }
 }
 
 export const InvoiceListItem = ({
@@ -190,12 +193,9 @@ export const InvoiceListItem = ({
       <Item className={className} to={to} tabIndex={0} {...navigationProps} $context={context}>
         <GridItem $context={context}>
           {!!invoice.paymentDisputeLostAt ? (
-            <Status type="disputeLost" label={translate('text_66141e30699a0631f0b2ed32')} />
+            <Status type={StatusType.danger} label="disputed" />
           ) : (
-            <Status
-              type={statusConfig?.type as StatusEnum}
-              label={translate(statusConfig?.label || '')}
-            />
+            <Status {...statusConfig} />
           )}
           <Typography variant="captionCode" color="grey700" noWrap>
             {number}

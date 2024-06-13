@@ -11,7 +11,8 @@ import {
   Icon,
   Skeleton,
   Status,
-  StatusEnum,
+  StatusProps,
+  StatusType,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
@@ -68,17 +69,17 @@ interface WalletAccordionProps {
   customerTimezone?: TimezoneEnum
 }
 
-const mapStatus = (type?: WalletStatusEnum | undefined) => {
+const mapStatus = (type?: WalletStatusEnum | undefined): StatusProps => {
   switch (type) {
     case WalletStatusEnum.Active:
       return {
-        type: StatusEnum.running,
-        label: 'text_62da6ec24a8e24e44f812874',
+        type: StatusType.success,
+        label: 'active',
       }
     default:
       return {
-        type: StatusEnum.error,
-        label: 'text_62da6ec24a8e24e44f8128b0',
+        type: StatusType.danger,
+        label: 'terminated',
       }
   }
 }
@@ -139,9 +140,8 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                 </Typography>
               </SummaryInfos>
             </SummaryLeft>
-            <SummaryRight>
-              <Status type={statusMap.type} label={translate(statusMap.label)} />
-            </SummaryRight>
+
+            <Status {...statusMap} />
           </SummaryContainer>
         }
       >
@@ -391,9 +391,10 @@ const SummaryLeft = styled.div`
     margin-right: ${theme.spacing(3)};
   }
 `
-const SummaryRight = styled.div`
-  min-width: 120px;
-`
+
+// const SummaryRight = styled.div`
+//   min-width: 120px;
+// `
 
 const SummaryInfos = styled.div<{ $isLoading?: boolean }>`
   display: flex;

@@ -14,7 +14,7 @@ import { PlanDetailsTabsOptionsEnum } from '~/pages/PlanDetails'
 import { theme } from '~/styles'
 import { DetailsInfoGrid, DetailsInfoItem, DetailsSectionTitle } from '~/styles/detailsPage'
 
-import { Alert, Status, StatusEnum } from '../designSystem'
+import { Alert, Status, StatusType } from '../designSystem'
 
 gql`
   fragment SubscriptionForSubscriptionInformations on Subscription {
@@ -87,16 +87,15 @@ const SubscriptionInformations = ({
               label: translate('text_62d7f6178ec94cd09370e5fb'),
               value: (
                 <Status
-                  type={
-                    subscription?.status === StatusTypeEnum.Pending
-                      ? StatusEnum.paused
-                      : StatusEnum.running
-                  }
-                  label={
-                    subscription?.status === StatusTypeEnum.Pending
-                      ? translate('text_624efab67eb2570101d117f6')
-                      : translate('text_624efab67eb2570101d1180e')
-                  }
+                  {...(subscription?.status === StatusTypeEnum.Pending
+                    ? {
+                        type: StatusType.default,
+                        label: 'pending',
+                      }
+                    : {
+                        type: StatusType.success,
+                        label: 'active',
+                      })}
                 />
               ),
             },

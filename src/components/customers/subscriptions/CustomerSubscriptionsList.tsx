@@ -88,15 +88,15 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
       ) : (
         <>
           <ListHeader>
-            <CellBigHeader variant="bodyHl" color="disabled" noWrap>
+            <Typography variant="bodyHl" color="disabled" noWrap>
               {translate('text_6253f11816f710014600b9ed')}
-            </CellBigHeader>
-            <CellStatusHeader variant="bodyHl" color="disabled">
+            </Typography>
+            <Typography variant="bodyHl" color="disabled">
               {translate('text_62d7f6178ec94cd09370e5fb')}
-            </CellStatusHeader>
-            <CellSmall variant="bodyHl" color="disabled" align="right">
+            </Typography>
+            <Typography variant="bodyHl" color="disabled">
               {translate('text_6253f11816f710014600b9f1')}
-            </CellSmall>
+            </Typography>
           </ListHeader>
           <List>
             {subscriptions.map((subscription, i) => {
@@ -129,31 +129,17 @@ const Header = styled(SectionHeader)<{ $loading?: boolean }>`
 
 const ListHeader = styled.div`
   height: ${HEADER_TABLE_HEIGHT}px;
-  display: flex;
+  display: grid;
   align-items: center;
-  padding: 0 ${theme.spacing(18)} 0 ${theme.spacing(4)};
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(6)};
-  }
+  padding: 0 ${theme.spacing(4)};
+  grid-template-columns: 1fr 80px 120px 40px;
+  grid-column-gap: ${theme.spacing(4)};
 `
 
 const List = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(4)};
   }
-`
-
-const CellBigHeader = styled(Typography)`
-  flex: 1;
-`
-
-const CellSmall = styled(Typography)`
-  width: 112px;
-`
-
-const CellStatusHeader = styled(Typography)`
-  width: 88px;
 `
 
 const LoadingContent = styled.div`

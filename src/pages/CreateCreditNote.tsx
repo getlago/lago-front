@@ -3,7 +3,7 @@ import { useFormik } from 'formik'
 import _get from 'lodash/get'
 import { useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { array, object, string } from 'yup'
 
 import { CreditNoteCodeSnippet } from '~/components/creditNote/CreditNoteCodeSnippet'
@@ -17,7 +17,8 @@ import {
   Icon,
   Skeleton,
   Status,
-  StatusEnum,
+  StatusProps,
+  StatusType,
   Typography,
 } from '~/components/designSystem'
 import { Checkbox, ComboBoxField, TextInputField } from '~/components/form'
@@ -70,22 +71,22 @@ const determineCheckboxValue = (
   return additionnalValue
 }
 
-const mapStatus = (type?: InvoicePaymentStatusTypeEnum | undefined) => {
+const mapStatus = (type?: InvoicePaymentStatusTypeEnum | undefined): StatusProps => {
   switch (type) {
     case InvoicePaymentStatusTypeEnum.Succeeded:
       return {
-        type: StatusEnum.running,
-        label: 'text_637d01eb5af40c52246a67aa',
+        type: StatusType.success,
+        label: 'succeeded',
       }
     case InvoicePaymentStatusTypeEnum.Pending:
       return {
-        type: StatusEnum.paused,
-        label: 'text_636bedf292786b19d3398ecc',
+        type: StatusType.default,
+        label: 'pending',
       }
     default:
       return {
-        type: StatusEnum.error,
-        label: 'text_6386477f5cf9042813d9e000',
+        type: StatusType.warning,
+        label: 'failed',
       }
   }
 }
@@ -290,9 +291,9 @@ const CreateCreditNote = () => {
                     </Typography>
                   </div>
                   {!!invoice?.paymentDisputeLostAt ? (
-                    <Status type="disputeLost" label={translate('text_66141e30699a0631f0b2ec9c')} />
+                    <Status type={StatusType.danger} label="disputeLost" />
                   ) : (
-                    <Status type={statusMap.type} label={translate(statusMap.label)} />
+                    <Status {...statusMap} />
                   )}
                 </StyledCard>
 
@@ -551,13 +552,9 @@ const StyledCard = styled.div<{ $loading?: boolean }>`
     margin-right: ${theme.spacing(3)};
   }
 
-  ${({ $loading }) =>
-    !$loading &&
-    css`
-      > *:last-child {
-        margin-left: auto;
-      }
-    `}
+  > *:last-child {
+    margin-left: auto;
+  }
 `
 
 const HeaderLine = styled.div`

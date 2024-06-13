@@ -23,6 +23,7 @@ import {
   ShowMoreText,
   Skeleton,
   Status,
+  StatusType,
   Table,
   Tooltip,
   Typography,
@@ -330,14 +331,64 @@ const DesignSystem = () => {
                 </Block>
 
                 <GroupTitle variant="headline">Status</GroupTitle>
-                <Block $marginBottom={theme.spacing(6)}>
-                  <Status type="running" label="running" />
-                  <Status type="paused" label="paused" />
-                  <Status type="draft" label="draft" />
-                  <Status type="failed" label="failed" />
-                  <Status type="error" label="error" />
-                  <Status type="running" label="I can be labelled with anything" />
-                </Block>
+                <VerticalBlock>
+                  <Block>
+                    <GroupTitle variant="bodyHl" color="textSecondary">
+                      Success
+                    </GroupTitle>
+                    <Status type={StatusType.success} label="succeeded" />
+                    <Status type={StatusType.success} label="finalized" />
+                    <Status type={StatusType.success} label="active" />
+                    <Status type={StatusType.success} label="pay" />
+                    <Status type={StatusType.success} label="available" />
+                    <Status
+                      type={StatusType.success}
+                      label="refunded"
+                      labelVariables={{ date: '2024-04-12' }}
+                    />
+                  </Block>
+                  <Block>
+                    <GroupTitle variant="bodyHl" color="textSecondary">
+                      Warning
+                    </GroupTitle>
+                    <Status type={StatusType.warning} label="failed" />
+                  </Block>
+                  <Block>
+                    <GroupTitle variant="bodyHl" color="textSecondary">
+                      Outline
+                    </GroupTitle>
+                    <Status type={StatusType.outline} label="draft" />
+                  </Block>
+                  <Block>
+                    <GroupTitle variant="bodyHl" color="textSecondary">
+                      Default
+                    </GroupTitle>
+                    <Status type={StatusType.default} label="pending" />
+                    <Status type={StatusType.default} label="toPay" />
+                    <Status type={StatusType.default} label="n/a" />
+                  </Block>
+                  <Block>
+                    <GroupTitle variant="bodyHl" color="textSecondary">
+                      Danger
+                    </GroupTitle>
+                    <Status type={StatusType.danger} label="disputed" />
+                    <Status type={StatusType.danger} label="disputeLost" />
+                    <Status
+                      type={StatusType.danger}
+                      label="disputeLostOn"
+                      labelVariables={{ date: '2024-04-12' }}
+                    />
+                    <Status type={StatusType.danger} label="terminated" />
+                    <Status type={StatusType.danger} label="consumed" />
+                    <Status type={StatusType.danger} label="voided" />
+                  </Block>
+                  <Block>
+                    <GroupTitle variant="bodyHl" color="textSecondary">
+                      Disabled
+                    </GroupTitle>
+                    <Status type={StatusType.disabled} label="voided" />
+                  </Block>
+                </VerticalBlock>
 
                 <GroupTitle variant="headline">Selector</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>

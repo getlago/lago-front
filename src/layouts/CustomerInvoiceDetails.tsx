@@ -12,7 +12,8 @@ import {
   Popper,
   Skeleton,
   Status,
-  StatusEnum,
+  StatusProps,
+  StatusType,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
@@ -172,20 +173,20 @@ export enum CustomerInvoiceDetailsTabsOptionsEnum {
 const mapStatus = (
   status: InvoiceStatusTypeEnum,
   paymentStatus?: InvoicePaymentStatusTypeEnum | undefined,
-) => {
+): StatusProps => {
   if (status === InvoiceStatusTypeEnum.Draft) {
-    return { label: 'text_63ac8850ff7117ad55777d31', type: StatusEnum.draft }
+    return { label: 'draft', type: StatusType.outline }
   } else if (status === InvoiceStatusTypeEnum.Voided) {
-    return { label: 'Voided', type: StatusEnum.voided }
+    return { label: 'voided', type: StatusType.disabled }
   } else if (paymentStatus === InvoicePaymentStatusTypeEnum.Pending) {
-    return { label: 'text_63ac8850ff7117ad55777d3b', type: StatusEnum.paused }
+    return { label: 'pending', type: StatusType.default }
   } else if (paymentStatus === InvoicePaymentStatusTypeEnum.Failed) {
-    return { label: 'text_63ac8850ff7117ad55777d45', type: StatusEnum.failed }
+    return { label: 'failed', type: StatusType.warning }
   } else if (paymentStatus === InvoicePaymentStatusTypeEnum.Succeeded) {
-    return { label: 'text_63ac8850ff7117ad55777d4f', type: StatusEnum.running }
+    return { label: 'succeeded', type: StatusType.success }
   }
 
-  return { label: '-', type: StatusEnum.draft }
+  return { label: 'n/a', type: StatusType.default }
 }
 
 const CustomerInvoiceDetails = () => {
@@ -594,9 +595,9 @@ const CustomerInvoiceDetails = () => {
                   {status === InvoiceStatusTypeEnum.Draft ? (
                     <Chip label={translate('text_63a41a8eabb9ae67047c1bfe')} />
                   ) : !!data?.invoice?.paymentDisputeLostAt ? (
-                    <Status type="disputeLost" label={translate('text_66141e30699a0631f0b2ec9c')} />
+                    <Status type={StatusType.danger} label="disputeLost" />
                   ) : (
-                    <Status type={formattedStatus.type} label={translate(formattedStatus.label)} />
+                    <Status {...formattedStatus} />
                   )}
                 </MainInfoLine>
                 <MainInfoLine>

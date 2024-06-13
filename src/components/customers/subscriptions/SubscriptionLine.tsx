@@ -9,7 +9,7 @@ import {
   Icon,
   Popper,
   Status,
-  StatusEnum,
+  StatusType,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
@@ -95,17 +95,20 @@ export const SubscriptionLine = ({
             </Typography>
           </NameBlock>
         </CellBig>
-        <CellStatus
-          type={status === StatusTypeEnum.Pending ? StatusEnum.paused : StatusEnum.running}
-          label={
-            status === StatusTypeEnum.Pending
-              ? translate('text_624efab67eb2570101d117f6')
-              : translate('text_624efab67eb2570101d1180e')
-          }
+        <Status
+          {...(status === StatusTypeEnum.Pending
+            ? {
+                type: StatusType.default,
+                label: 'pending',
+              }
+            : {
+                type: StatusType.success,
+                label: 'active',
+              })}
         />
-        <CellSmall align="right" color="textSecondary">
+        <Typography color="textSecondary">
           <TimezoneDate date={date} customerTimezone={customerTimezone} />
-        </CellSmall>
+        </Typography>
         <ButtonMock />
       </Item>
       <Popper
@@ -211,8 +214,9 @@ SubscriptionLine.displayName = 'SubscriptionLine'
 
 const Item = styled(ListItemLink)<{ $hasBottomSection?: boolean; $hasAboveSection?: boolean }>`
   height: ${NAV_HEIGHT}px;
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 1fr 80px 120px auto;
+  grid-column-gap: ${theme.spacing(4)};
   padding: 0 ${theme.spacing(4)};
   box-shadow: none;
 
@@ -222,17 +226,11 @@ const Item = styled(ListItemLink)<{ $hasBottomSection?: boolean; $hasAboveSectio
     border-radius: ${({ $hasBottomSection, $hasAboveSection }) =>
       $hasAboveSection ? '0px' : $hasBottomSection ? '12px 12px 0 0' : '12px'};
   }
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(4)};
-  }
 `
 
 const CellBig = styled(Typography)`
-  flex: 1;
   display: flex;
   align-items: center;
-  min-width: 0;
 
   > *:first-child {
     margin-right: ${theme.spacing(3)};
@@ -241,14 +239,6 @@ const CellBig = styled(Typography)`
       display: none;
     }
   }
-`
-
-const CellStatus = styled(Status)`
-  width: 88px;
-`
-
-const CellSmall = styled(Typography)`
-  width: 112px;
 `
 
 const NameBlock = styled.div`
