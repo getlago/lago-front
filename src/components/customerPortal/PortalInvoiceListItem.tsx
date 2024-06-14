@@ -30,6 +30,7 @@ gql`
   fragment PortalInvoiceListItem on Invoice {
     id
     paymentStatus
+    paymentOverdue
     number
     issuingDate
     totalAmountCents
@@ -54,7 +55,17 @@ interface PortalInvoiceListItemProps {
   documentLocale: LocaleEnum
 }
 
-const mapStatusConfig = (paymentStatus: InvoicePaymentStatusTypeEnum): StatusProps => {
+const mapStatusConfig = ({
+  paymentStatus,
+  paymentOverdue,
+}: {
+  paymentStatus: InvoicePaymentStatusTypeEnum
+  paymentOverdue: boolean
+}): StatusProps => {
+  if (paymentOverdue) {
+    return { label: 'overdue', type: StatusType.danger }
+  }
+
   if (paymentStatus === InvoicePaymentStatusTypeEnum.Succeeded) {
     return { label: 'pay', type: StatusType.success }
   }
@@ -64,8 +75,9 @@ const mapStatusConfig = (paymentStatus: InvoicePaymentStatusTypeEnum): StatusPro
 
 export const PortalInvoiceListItem = memo(
   ({ className, invoice, translate, documentLocale }: PortalInvoiceListItemProps) => {
-    const { id, issuingDate, number, paymentStatus, totalAmountCents, currency } = invoice
-    const statusConfig = mapStatusConfig(paymentStatus)
+    const { id, issuingDate, number, paymentStatus, paymentOverdue, totalAmountCents, currency } =
+      invoice
+    const statusConfig = mapStatusConfig({ paymentStatus, paymentOverdue })
 
     const [downloadInvoice] = useDownloadCustomerPortalInvoiceMutation({
       onCompleted(data) {
