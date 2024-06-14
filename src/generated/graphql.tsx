@@ -970,6 +970,7 @@ export type CreateAnrokIntegrationInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code: Scalars['String']['input'];
+  connectionId: Scalars['String']['input'];
   name: Scalars['String']['input'];
 };
 

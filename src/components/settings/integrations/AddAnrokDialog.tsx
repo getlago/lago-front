@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client'
+import { FetchResult, gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
-import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, RefObject, useId, useImperativeHandle, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { generatePath } from 'react-router-dom'
 import styled from 'styled-components'
@@ -9,13 +9,15 @@ import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { ANROK_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   AddAnrokIntegrationDialogFragment,
   AnrokIntegrationDetailsFragmentDoc,
   CreateAnrokIntegrationInput,
+  CreateAnrokIntegrationMutation,
   LagoApiError,
+  UpdateAnrokIntegrationMutation,
   useCreateAnrokIntegrationMutation,
   useUpdateAnrokIntegrationMutation,
 } from '~/generated/graphql'
@@ -64,6 +66,8 @@ export interface AddAnrokDialogRef {
 }
 
 export const AddAnrokDialog = forwardRef<AddAnrokDialogRef>((_, ref) => {
+  const componentId = useId()
+  const { nangoPublicKey } = envGlobalVar()
   const navigate = useNavigate()
   const dialogRef = useRef<DialogRef>(null)
   const { translate } = useInternationalization()
@@ -102,7 +106,7 @@ export const AddAnrokDialog = forwardRef<AddAnrokDialogRef>((_, ref) => {
     },
   })
 
-  const formikProps = useFormik<CreateAnrokIntegrationInput>({
+  const formikProps = useFormik<Omit<CreateAnrokIntegrationInput, 'connectionId'>>({
     initialValues: {
       apiKey: anrokIntegration?.apiKey || '',
       code: anrokIntegration?.code || '',
@@ -127,15 +131,29 @@ export const AddAnrokDialog = forwardRef<AddAnrokDialogRef>((_, ref) => {
           context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
         })
       } else {
-        res = await addAnrok({
-          variables: {
-            input: { apiKey, ...values },
-          },
-          context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-        })
+        const Nango = (await import('@nangohq/frontend')).default
+        const connectionId = `anrok-${componentId.replaceAll(':', '')}-${Date.now()}`
+        const nango = new Nango({ publicKey: nangoPublicKey })
+
+        try {
+          const nangoApiKeyConnection = await nango.auth('anrok', connectionId, {
+            credentials: {
+              apiKey,
+            },
+          })
+
+          res = await addAnrok({
+            variables: {
+              input: { ...values, apiKey, connectionId: nangoApiKeyConnection?.connectionId || '' },
+            },
+            context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+          })
+        } catch (error) {}
       }
 
-      const { errors } = res
+      const { errors } = res as
+        | FetchResult<UpdateAnrokIntegrationMutation>
+        | FetchResult<CreateAnrokIntegrationMutation>
 
       if (!errors) dialogRef.current?.closeDialog()
 
