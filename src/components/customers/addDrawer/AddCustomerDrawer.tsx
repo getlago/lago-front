@@ -3,7 +3,7 @@ import { FieldWithPossiblyUndefined } from 'lodash'
 import _get from 'lodash/get'
 import React, { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
-import { object, string } from 'yup'
+import { array, object, string } from 'yup'
 
 import {
   Accordion,
@@ -28,6 +28,7 @@ import {
   CreateCustomerInput,
   CurrencyEnum,
   CustomerMetadataInput,
+  IntegrationTypeEnum,
   NetsuiteCustomer,
   ProviderPaymentMethodsEnum,
   TimezoneEnum,
@@ -80,7 +81,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
       zipcode: customer?.zipcode ?? undefined,
       timezone: customer?.timezone ?? undefined,
       url: customer?.url ?? undefined,
-      integrationCustomer: customer?.netsuiteCustomer ?? undefined,
+      integrationCustomers: [...(!!customer?.netsuiteCustomer ? [customer?.netsuiteCustomer] : [])],
       paymentProviderCode: customer?.paymentProviderCode ?? undefined,
       providerCustomer: {
         providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? undefined,
@@ -114,43 +115,49 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
           return true
         },
       }),
-      integrationCustomer: object()
-        .test({
-          test: function (value: Omit<NetsuiteCustomer, 'id'>) {
-            if (!!value) {
-              // If code is not selected
-              if (!value.integrationCode) {
-                return false
-              }
+      integrationCustomers: array()
+        .of(
+          object()
+            .test({
+              test: function (value: Omit<NetsuiteCustomer, 'id'>) {
+                if (!!value) {
+                  // If Netsuite integrationCode is not selected
+                  if (
+                    value.integrationType === IntegrationTypeEnum.Netsuite &&
+                    !value.integrationCode
+                  ) {
+                    return false
+                  }
 
-              // If syncWithProvider is true but no subsidiary is selected
-              if (value?.syncWithProvider && !value?.subsidiaryId) {
-                return false
-              }
-              // if syncWithProvider is false, externalCustomerId is required
-              if (!value?.syncWithProvider && !value?.externalCustomerId) {
-                return false
-              }
-            }
+                  // If syncWithProvider is true but no subsidiary is selected
+                  if (value?.syncWithProvider && !value?.subsidiaryId) {
+                    return false
+                  }
+                  // if syncWithProvider is false, externalCustomerId is required
+                  if (!value?.syncWithProvider && !value?.externalCustomerId) {
+                    return false
+                  }
+                }
 
-            return true
-          },
-        })
+                return true
+              },
+            })
+            .nullable(),
+        )
         .nullable(),
     }),
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: async ({ metadata, ...values }, formikBag) => {
+      const initialNetsuiteCustomer = customer?.netsuiteCustomer
+      const valuesDoesNotIncludeNetsuiteIntegration = !values.integrationCustomers?.some(
+        (integrationCustomer) =>
+          integrationCustomer.integrationType === IntegrationTypeEnum.Netsuite,
+      )
+
       // On edition, if we remove the netsuite connection we need to return the data without the externalCustomerId
-      if (
-        isEdition &&
-        !values.integrationCustomer &&
-        !!formikProps.initialValues.integrationCustomer
-      ) {
-        values.integrationCustomer = {
-          ...formikProps.initialValues.integrationCustomer,
-          externalCustomerId: null,
-        }
+      if (isEdition && !!initialNetsuiteCustomer && valuesDoesNotIncludeNetsuiteIntegration) {
+        values.integrationCustomers = [{ ...initialNetsuiteCustomer, externalCustomerId: null }]
       }
       const answer = await onSave({
         ...values,

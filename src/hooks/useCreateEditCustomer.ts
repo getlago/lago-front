@@ -49,6 +49,7 @@ gql`
       providerPaymentMethods
     }
     netsuiteCustomer {
+      __typename
       id
       integrationId
     }
