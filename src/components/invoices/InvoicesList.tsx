@@ -109,7 +109,7 @@ const InvoicesList = ({
           onClick={() => navigate({ search: `?invoiceType=${InvoiceListStatusEnum.outstanding}` })}
         >
           <Typography variant="captionHl" color="grey600">
-            {translate('TODO: Outstanding')}
+            {translate('text_666c5b12fea4aa1e1b26bf52')}
           </Typography>
         </InvoiceTypeSwitch>
         <InvoiceTypeSwitch
@@ -119,7 +119,7 @@ const InvoicesList = ({
           onClick={() => navigate({ search: `?invoiceType=${InvoiceListStatusEnum.overdue}` })}
         >
           <Typography variant="captionHl" color="grey600">
-            {translate('TODO: Overdue')}
+            {translate('text_666c5b12fea4aa1e1b26bf55')}
           </Typography>
         </InvoiceTypeSwitch>
         <InvoiceTypeSwitch
@@ -237,7 +237,7 @@ const InvoicesList = ({
                             : invoiceType === InvoiceListStatusEnum.disputed
                               ? 'text_66141e30699a0631f0b2ec7f'
                               : invoiceType === InvoiceListStatusEnum.overdue
-                                ? 'TODO: There are no overdue invoices.'
+                                ? 'text_666c5b12fea4aa1e1b26bf70'
                                 : 'text_63b578e959c1366df5d14569',
                   )}
                   subtitle={
@@ -256,9 +256,11 @@ const InvoicesList = ({
                     ) : invoiceType === InvoiceListStatusEnum.disputed ? (
                       translate('text_66141e30699a0631f0b2ec87')
                     ) : invoiceType === InvoiceListStatusEnum.overdue ? (
-                      translate(
-                        'TODO: An invoice is overdue when its due date is past, as per your payment terms.',
-                      )
+                      <Typography
+                        html={translate('text_666c5b12fea4aa1e1b26bf73', {
+                          link: INVOICE_SETTINGS_ROUTE,
+                        })}
+                      />
                     ) : (
                       translate('text_63b578e959c1366df5d1456d')
                     )

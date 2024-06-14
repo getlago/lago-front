@@ -370,7 +370,11 @@ sources:
       fileName: ⚙️ [WIP] - Integration - Connect Lago to NetSuite
     - name: ⚙️ [WIP] - Settings - Connect Lago to Anrok
       id: 6668821c22128d7c81c3788e
+      fileName: ⚙️ [WIP] - Settings - Connect Lago to Anrok
     - name: 👍 [Ready for dev] - Plans - Plans revamp
       id: 6661fc151f2d43289e848df0
+      fileName: 👍 [Ready for dev] - Plans - Plans revamp
+    - name: 👍 [Ready for dev] - Customers - Regroup invoices for payment
+      id: 666c5b0dcf7597c54e2140c6
 format: flat
 variants: true

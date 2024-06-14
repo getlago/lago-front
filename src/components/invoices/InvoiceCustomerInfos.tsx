@@ -219,7 +219,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
         {invoice?.paymentDueDate && (
           <InfoLine>
             <Typography variant="caption" color="grey600" noWrap>
-              {translate('TODO: Due date')}
+              {translate('text_666c5d227d073444e90be894')}
             </Typography>
             <Stack alignItems="baseline" flexDirection="row" flexWrap="wrap" columnGap={3}>
               <Typography variant="body" color="grey700">
