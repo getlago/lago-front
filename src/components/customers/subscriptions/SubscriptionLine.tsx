@@ -215,7 +215,7 @@ SubscriptionLine.displayName = 'SubscriptionLine'
 const Item = styled(ListItemLink)<{ $hasBottomSection?: boolean; $hasAboveSection?: boolean }>`
   height: ${NAV_HEIGHT}px;
   display: grid;
-  grid-template-columns: 1fr 80px 120px auto;
+  grid-template-columns: minmax(0, 1fr) 80px 120px auto;
   grid-column-gap: ${theme.spacing(4)};
   padding: 0 ${theme.spacing(4)};
   box-shadow: none;
