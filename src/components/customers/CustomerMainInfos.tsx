@@ -22,7 +22,6 @@ import Gocardless from '~/public/images/gocardless.svg'
 import Netsuite from '~/public/images/netsuite.svg'
 import Stripe from '~/public/images/stripe.svg'
 import { theme } from '~/styles'
-import { SectionHeader } from '~/styles/customer'
 
 const PaymentProviderMethodTranslationsLookup = {
   [ProviderPaymentMethodsEnum.BacsDebit]: 'text_65e1f90471bc198c0c934d92',
@@ -141,7 +140,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
   if (loading || !customer)
     return (
       <LoadingDetails>
-        <SectionHeader variant="subhead">
+        <SectionHeader>
           <Skeleton variant="text" height={12} width={200} />
         </SectionHeader>
         <div>
@@ -180,8 +179,8 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
 
   return (
     <DetailsBlock>
-      <SectionHeader variant="subhead">
-        {translate('text_6250304370f0f700a8fdc27d')}
+      <SectionHeader>
+        <Typography variant="subhead">{translate('text_6250304370f0f700a8fdc27d')}</Typography>
 
         <Button variant="quaternary" onClick={onEdit}>
           {translate('text_626162c62f790600f850b75a')}
@@ -350,7 +349,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
 
 const LoadingDetails = styled.div`
   > *:first-child {
-    margin-bottom: ${theme.spacing(7)};
+    margin-bottom: ${theme.spacing(8)};
   }
 
   > *:not(:first-child) {
@@ -359,12 +358,8 @@ const LoadingDetails = styled.div`
 `
 
 const DetailsBlock = styled.div`
-  > *:first-child {
-    margin-bottom: ${theme.spacing(6)};
-  }
-
   > *:not(:first-child) {
-    margin-bottom: ${theme.spacing(4)};
+    margin-bottom: ${theme.spacing(3)};
   }
 `
 
@@ -379,4 +374,11 @@ const InlineLink = styled(Link)`
   &:hover {
     text-decoration: none;
   }
+`
+
+const SectionHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: ${theme.spacing(4)};
 `
