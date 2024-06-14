@@ -52,7 +52,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { MenuPopper, PageHeader, theme } from '~/styles'
+import { MenuPopper, NAV_HEIGHT, PageHeader, theme } from '~/styles'
 
 gql`
   fragment CustomerDetails on Customer {
@@ -299,6 +299,14 @@ const CustomerDetails = () => {
       ) : (
         <>
           <Content>
+            <CustomerMainInfosContainer>
+              <CustomerMainInfos
+                loading={loading}
+                customer={data?.customer}
+                onEdit={() => editDialogRef.current?.openDrawer(data?.customer)}
+              />
+            </CustomerMainInfosContainer>
+
             {loading ? (
               <MainInfos>
                 <Skeleton variant="userAvatar" size="large" />
@@ -331,125 +339,118 @@ const CustomerDetails = () => {
               </MainInfos>
             )}
 
-            <Infos>
-              <CustomerMainInfos
-                loading={loading}
-                customer={data?.customer}
-                onEdit={() => editDialogRef.current?.openDrawer(data?.customer)}
-              />
-              <div data-test="customer-navigation-wrapper">
-                <NavigationTab
-                  tabs={[
-                    {
-                      title: translate('text_628cf761cbe6820138b8f2e4'),
-                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+            <StyledTabs data-test="customer-navigation-wrapper">
+              <NavigationTab
+                tabs={[
+                  {
+                    title: translate('text_628cf761cbe6820138b8f2e4'),
+                    link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                      customerId: customerId as string,
+                      tab: CustomerDetailsTabsOptions.overview,
+                    }),
+                    match: [
+                      generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                         customerId: customerId as string,
                         tab: CustomerDetailsTabsOptions.overview,
                       }),
-                      match: [
-                        generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                          customerId: customerId as string,
-                          tab: CustomerDetailsTabsOptions.overview,
-                        }),
-                        generatePath(CUSTOMER_DETAILS_ROUTE, {
-                          customerId: customerId as string,
-                        }),
-                      ],
-                      component: (
-                        <SideBlock>
-                          {!loading && <CustomerCoupons />}
-                          <CustomerSubscriptionsList customerTimezone={safeTimezone} />
-                        </SideBlock>
-                      ),
-                    },
-                    {
-                      title: translate('text_62d175066d2dbf1d50bc937c'),
-                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                      generatePath(CUSTOMER_DETAILS_ROUTE, {
                         customerId: customerId as string,
-                        tab: CustomerDetailsTabsOptions.wallet,
                       }),
-                      component: (
-                        <SideBlock>
-                          <CustomerWalletsList
-                            customerId={customerId as string}
-                            customerTimezone={safeTimezone}
-                          />
-                        </SideBlock>
-                      ),
-                    },
-                    {
-                      title: translate('text_6553885df387fd0097fd7384'),
-                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        customerId: customerId as string,
-                        tab: CustomerDetailsTabsOptions.usage,
-                      }),
-                      component: (
-                        <SideBlock>
-                          <CustomerUsage
-                            customerTimezone={safeTimezone}
-                            premiumWarningDialogRef={premiumWarningDialogRef}
-                          />
-                        </SideBlock>
-                      ),
-                    },
-                    {
-                      title: translate('text_628cf761cbe6820138b8f2e6'),
-                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        customerId: customerId as string,
-                        tab: CustomerDetailsTabsOptions.invoices,
-                      }),
-                      component: (
-                        <SideBlock>
-                          <CustomerInvoicesTab
-                            customerId={customerId as string}
-                            customerTimezone={safeTimezone}
-                          />
-                        </SideBlock>
-                      ),
-                    },
-                    {
-                      title: translate('text_63725b30957fd5b26b308dd3'),
-                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        customerId: customerId as string,
-                        tab: CustomerDetailsTabsOptions.creditNotes,
-                      }),
-                      hidden: !hasCreditNotes,
-                      component: (
-                        <SideBlock>
-                          <CustomerCreditNotesList
-                            customerId={customerId as string}
-                            creditNotesCreditsAvailableCount={creditNotesCreditsAvailableCount}
-                            creditNotesBalanceAmountCents={creditNotesBalanceAmountCents}
-                            userCurrency={data?.customer?.currency || undefined}
-                            customerTimezone={safeTimezone}
-                          />
-                        </SideBlock>
-                      ),
-                    },
-                    {
-                      title: translate('text_638dff9779fb99299bee9126'),
-                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        customerId: customerId as string,
-                        tab: CustomerDetailsTabsOptions.settings,
-                      }),
-                      component: (
-                        <SideBlock>
-                          <CustomerSettings customerId={customerId as string} />
-                        </SideBlock>
-                      ),
-                      hidden: !hasPermissions(['customerSettingsView']),
-                    },
-                  ]}
-                  loading={
-                    ![
-                      CustomerDetailsTabsOptions.overview,
-                      CustomerDetailsTabsOptions.usage,
-                    ].includes(tab as CustomerDetailsTabsOptions) && loading
-                  }
-                />
-              </div>
-            </Infos>
+                    ],
+                    component: (
+                      <SideBlock>
+                        {!loading && <CustomerCoupons />}
+                        <CustomerSubscriptionsList customerTimezone={safeTimezone} />
+                      </SideBlock>
+                    ),
+                  },
+                  {
+                    title: translate('text_62d175066d2dbf1d50bc937c'),
+                    link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                      customerId: customerId as string,
+                      tab: CustomerDetailsTabsOptions.wallet,
+                    }),
+                    component: (
+                      <SideBlock>
+                        <CustomerWalletsList
+                          customerId={customerId as string}
+                          customerTimezone={safeTimezone}
+                        />
+                      </SideBlock>
+                    ),
+                  },
+                  {
+                    title: translate('text_6553885df387fd0097fd7384'),
+                    link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                      customerId: customerId as string,
+                      tab: CustomerDetailsTabsOptions.usage,
+                    }),
+                    component: (
+                      <SideBlock>
+                        <CustomerUsage
+                          customerTimezone={safeTimezone}
+                          premiumWarningDialogRef={premiumWarningDialogRef}
+                        />
+                      </SideBlock>
+                    ),
+                  },
+                  {
+                    title: translate('text_628cf761cbe6820138b8f2e6'),
+                    link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                      customerId: customerId as string,
+                      tab: CustomerDetailsTabsOptions.invoices,
+                    }),
+                    component: (
+                      <InvoicesBlock>
+                        <CustomerInvoicesTab
+                          customerId={customerId as string}
+                          customerTimezone={safeTimezone}
+                        />
+                      </InvoicesBlock>
+                    ),
+                  },
+                  {
+                    title: translate('text_63725b30957fd5b26b308dd3'),
+                    link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                      customerId: customerId as string,
+                      tab: CustomerDetailsTabsOptions.creditNotes,
+                    }),
+                    hidden: !hasCreditNotes,
+                    component: (
+                      <SideBlock>
+                        <CustomerCreditNotesList
+                          customerId={customerId as string}
+                          creditNotesCreditsAvailableCount={creditNotesCreditsAvailableCount}
+                          creditNotesBalanceAmountCents={creditNotesBalanceAmountCents}
+                          userCurrency={data?.customer?.currency || undefined}
+                          customerTimezone={safeTimezone}
+                        />
+                      </SideBlock>
+                    ),
+                  },
+                  {
+                    title: translate('text_638dff9779fb99299bee9126'),
+                    link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                      customerId: customerId as string,
+                      tab: CustomerDetailsTabsOptions.settings,
+                    }),
+                    component: (
+                      <SideBlock>
+                        <CustomerSettings customerId={customerId as string} />
+                      </SideBlock>
+                    ),
+                    hidden: !hasPermissions(['customerSettingsView']),
+                  },
+                ]}
+                loading={
+                  ![CustomerDetailsTabsOptions.overview, CustomerDetailsTabsOptions.usage].includes(
+                    tab as CustomerDetailsTabsOptions,
+                  ) && loading
+                }
+              />
+            </StyledTabs>
           </Content>
+
           <AddCustomerDrawer ref={editDialogRef} />
           <DeleteCustomerDialog
             ref={deleteDialogRef}
@@ -494,45 +495,59 @@ const GoToPortalButton = styled(Button)`
 `
 
 const Content = styled.div`
-  padding: ${theme.spacing(8)} ${theme.spacing(12)} ${theme.spacing(20)};
+  display: grid;
+  grid-template-areas:
+    'infos'
+    'content'
+    'details';
+  grid-auto-rows: auto;
+  grid-gap: ${theme.spacing(8)};
+  padding: ${theme.spacing(8)} ${theme.spacing(4)} ${theme.spacing(20)};
+  min-height: calc(100vh - ${NAV_HEIGHT}px);
+  grid-auto-rows: min-content;
+  grid-template-rows: auto 1fr auto;
 
-  ${theme.breakpoints.down('md')} {
-    padding: ${theme.spacing(8)} ${theme.spacing(4)} ${theme.spacing(20)};
+  ${theme.breakpoints.up('md')} {
+    padding: ${theme.spacing(8)} ${theme.spacing(12)} ${theme.spacing(20)};
+  }
+
+  ${theme.breakpoints.up('lg')} {
+    padding: 0 0 0 ${theme.spacing(12)};
+    grid-template-columns: minmax(420px, 1fr) minmax(300px, 368px);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'infos details'
+      'content details';
   }
 `
 
 const MainInfos = styled.div`
+  grid-area: infos;
   display: flex;
   align-items: center;
-  margin-bottom: ${theme.spacing(8)};
 
   > *:first-child {
     margin-right: ${theme.spacing(4)};
   }
+
+  ${theme.breakpoints.up('lg')} {
+    padding-top: ${theme.spacing(8)};
+  }
 `
 
-const Infos = styled.div`
-  display: flex;
+const StyledTabs = styled.div`
+  grid-area: content;
 
-  > *:first-child {
-    display: flex;
-    flex-direction: column;
-    width: 320px;
-    margin-right: ${theme.spacing(8)};
-
-    ${theme.breakpoints.down('lg')} {
-      flex: 1;
-      width: inherit;
-      margin-right: 0;
-    }
+  ${theme.breakpoints.up('lg')} {
   }
-  > *:last-child {
-    flex: 1;
-    min-width: 0;
-  }
+`
 
-  ${theme.breakpoints.down('lg')} {
-    flex-direction: column;
+const CustomerMainInfosContainer = styled.div`
+  grid-area: details;
+
+  ${theme.breakpoints.up('lg')} {
+    box-shadow: ${theme.shadows[8]};
+    padding: ${theme.spacing(6)};
   }
 `
 
@@ -541,6 +556,14 @@ const Name = styled(Typography)`
 `
 
 const SideBlock = styled.div`
+  > *:not(:last-child) {
+    margin-bottom: ${theme.spacing(8)};
+  }
+`
+
+const InvoicesBlock = styled.div`
+  margin-top: ${theme.spacing(8)};
+
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(8)};
   }

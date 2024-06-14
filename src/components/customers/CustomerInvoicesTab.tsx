@@ -14,7 +14,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
-import { NAV_HEIGHT, theme } from '~/styles'
+import { theme } from '~/styles'
 
 import { CustomerInvoicesList } from './CustomerInvoicesList'
 
@@ -104,9 +104,12 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
         <>
           {!!invoicesDraft?.length && (
             <DraftWrapper>
-              <Title variant="subhead" color="grey700">
-                {translate('text_638f4d756d899445f18a49ee')}
-              </Title>
+              <Header>
+                <Typography variant="subhead" color="grey700">
+                  {translate('text_638f4d756d899445f18a49ee')}
+                </Typography>
+              </Header>
+
               <CustomerInvoicesList
                 isLoading={loadingDraft}
                 hasError={!!errorDraft}
@@ -134,15 +137,15 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
             !!invoicesFinalized?.length ||
             !!variablesFinalized?.searchTerm) && (
             <>
-              <HeaderWithSearch>
-                <Title variant="subhead" color="grey700">
+              <Header>
+                <Typography variant="subhead" color="grey700">
                   {translate('text_6250304370f0f700a8fdc291')}
-                </Title>
+                </Typography>
                 <SearchInput
                   onChange={debouncedSearch}
                   placeholder={translate('text_63c6861d9991cdd5a92c1419')}
                 />
-              </HeaderWithSearch>
+              </Header>
               <CustomerInvoicesList
                 isLoading={isLoading}
                 hasError={!!errorFinalized}
@@ -171,10 +174,11 @@ const DraftWrapper = styled.div`
   margin-bottom: ${theme.spacing(12)};
 `
 
-const HeaderWithSearch = styled.div`
+const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: ${theme.spacing(4)};
 `
 
 const EmptyTitle = styled(Typography)`
@@ -183,10 +187,4 @@ const EmptyTitle = styled(Typography)`
 
 const LoadingState = styled.div`
   margin-top: 30px;
-`
-
-const Title = styled(Typography)`
-  height: ${NAV_HEIGHT}px;
-  display: flex;
-  align-items: center;
 `
