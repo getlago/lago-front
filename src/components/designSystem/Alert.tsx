@@ -1,3 +1,4 @@
+import { Stack } from '@mui/material'
 import clsns from 'classnames'
 import { ReactNode } from 'react'
 import styled from 'styled-components'
@@ -54,8 +55,10 @@ export const Alert = ({
       data-test={`alert-type-${type}`}
       {...props}
     >
-      <Icon name={iconConfig.name} color={iconConfig.color} />
-      <Content color="textSecondary">{children}</Content>
+      <Stack direction="row" gap={4} alignItems="center">
+        <Icon name={iconConfig.name} color={iconConfig.color} />
+        <Content color="textSecondary">{children}</Content>
+      </Stack>
       {!!ButtonProps.onClick && !!label && (
         <Button variant="quaternary-dark" size="medium" {...ButtonProps}>
           {label}
@@ -68,8 +71,10 @@ export const Alert = ({
 const Container = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: ${theme.spacing(4)};
   border-radius: 12px;
+  gap: ${theme.spacing(4)};
 
   &.alert-type--${AlertType.info} {
     background-color: ${theme.palette.info[100]};
@@ -85,10 +90,6 @@ const Container = styled.div`
 
   &.alert-type--${AlertType.danger} {
     background-color: ${theme.palette.error[100]};
-  }
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(4)};
   }
 `
 
