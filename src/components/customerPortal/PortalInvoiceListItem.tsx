@@ -120,7 +120,7 @@ export const PortalInvoiceListItem = memo(
               currency: currency || CurrencyEnum.Usd,
             })}
           </Typography>
-          <Status {...statusConfig} />
+          <Status {...statusConfig} locale={documentLocale} />
           <Tooltip placement="top-end" title={translate('text_6419c64eace749372fc72b62')}>
             <Button
               icon="download"

@@ -1,8 +1,8 @@
 import { FC } from 'react'
 import styled from 'styled-components'
 
-import { TranslateData } from '~/core/translations'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { Locale, TranslateData } from '~/core/translations'
+import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { theme } from '~/styles'
 
 import { Typography, TypographyColor } from './Typography'
@@ -43,13 +43,11 @@ const statusLabelMapping: Record<StatusLabel, string> = {
   succeeded: 'text_63e27c56dfe64b846474ef4d',
   finalized: 'text_65269c2e471133226211fd74',
   active: 'text_624efab67eb2570101d1180e',
-  pay: 'text_6419c64eace749372fc72b54',
   available: 'text_637655cb50f04bf1c8379d0c',
   refunded: 'text_637656ef3d876b0269edc79d',
   failed: 'text_637656ef3d876b0269edc7a1',
   draft: 'text_63ac86d797f728a87b2f9f91',
   pending: 'text_62da6db136909f52c2704c30',
-  toPay: 'text_6419c64eace749372fc72b44',
   disputed: 'text_66141e30699a0631f0b2ed32',
   disputeLostOn: 'text_66141e30699a0631f0b2ed2c',
   disputeLost: 'text_66141e30699a0631f0b2ec9c',
@@ -58,10 +56,15 @@ const statusLabelMapping: Record<StatusLabel, string> = {
   voided: 'text_6376641a2a9c70fff5bddcd5',
   overdue: 'text_666c5b12fea4aa1e1b26bf55',
   ['n/a']: '-',
+  // These keys below are displayed in the customer portal
+  // Hence they must be translated in all available languages
+  pay: 'text_6419c64eace749372fc72b54',
+  toPay: 'text_6419c64eace749372fc72b44',
 }
 
 export type StatusProps = {
   labelVariables?: TranslateData
+  locale?: Locale
 } & (
   | {
       type: StatusType.success
@@ -131,8 +134,9 @@ const STATUS_CONFIG: StatusConfig = {
   },
 }
 
-export const Status: FC<StatusProps> = ({ type, label, labelVariables }) => {
-  const { translate } = useInternationalization()
+export const Status: FC<StatusProps> = ({ type, label, labelVariables, locale = 'en' }) => {
+  const { translateWithContextualLocal: translate } = useContextualLocale(locale)
+
   const config = STATUS_CONFIG[type ?? 'default']
   const statusLabel = statusLabelMapping[label]
 
