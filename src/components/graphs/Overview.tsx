@@ -39,18 +39,17 @@ const Overview: FC<TGraphProps> = ({ currency = CurrencyEnum.Usd, period }) => {
 
   // TODO: Replace with real data
   const amount = 29707
+  const invoiceCount = 4
 
   return (
     <GridItem>
       <Stack flexDirection="column" gap={2}>
         <Stack flexDirection="row" justifyContent="space-between" alignItems="center">
           <Stack flexDirection="row" gap={2} alignItems="center">
-            <Typography variant="captionHl">{translate('Overdue invoices')}</Typography>
-            <Tooltip
-              title={translate(
-                'TODO: Total amount associated with overdue invoices, which are pending or failed and past their due dates.',
-              )}
-            >
+            <Typography variant="captionHl">
+              {translate('text_6670a6577ecbf200898af647')}
+            </Typography>
+            <Tooltip title={translate('text_6670a6577ecbf200898af646')}>
               <Icon name="info-circle" />
             </Tooltip>
           </Stack>
@@ -66,7 +65,7 @@ const Overview: FC<TGraphProps> = ({ currency = CurrencyEnum.Usd, period }) => {
             currency,
           })}
           <Typography variant="caption" component="span" sx={{ marginLeft: theme.spacing(1) }}>
-            {translate('totaling on 5 invoices')}
+            {translate('text_6670a6577ecbf200898af64a', { count: invoiceCount }, invoiceCount)}
           </Typography>
         </Typography>
       </Stack>

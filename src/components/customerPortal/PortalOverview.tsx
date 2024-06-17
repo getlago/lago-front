@@ -15,14 +15,15 @@ export const PortalOverview: FC<PortalOverviewProps> = ({ translate }) => {
   const hasOverdueInvoices = true
   const amount = 20797
   const currency = undefined
+  const count = 5
 
   return (
     <section>
       <SectionHeader variant="subhead" $hideBottomShadow>
-        {translate('TODO: Payment overview')}
+        {translate('text_6670a7222702d70114cc7954')}
 
         <Button data-test="add-subscription" variant="quaternary" onClick={() => location.reload()}>
-          {translate('TODO: Refresh')}
+          {translate('text_6670a7222702d70114cc7953')}
         </Button>
       </SectionHeader>
       <Stack gap={4}>
@@ -32,12 +33,16 @@ export const PortalOverview: FC<PortalOverviewProps> = ({ translate }) => {
               <Stack flexDirection="column" gap={1}>
                 <Typography variant="bodyHl" color="textSecondary">
                   {translate(
-                    'TODO: {{overdueInvoiceCount}} invoices totaling {{overdueAmount}} are overdue.',
-                    { overdueInvoiceCount: 5, overdueAmount: 0 },
+                    'text_6670a7222702d70114cc7955',
+                    {
+                      count: count,
+                      amount: intlFormatNumber(amount, { currency: currency || CurrencyEnum.Usd }),
+                    },
+                    count,
                   )}
                 </Typography>
                 <Typography variant="caption">
-                  {translate('TODO: Pay the total amount to settle the overdue balance.')}
+                  {translate('text_6670a7222702d70114cc7956')}
                 </Typography>
               </Stack>
             </Stack>
@@ -45,17 +50,15 @@ export const PortalOverview: FC<PortalOverviewProps> = ({ translate }) => {
         )}
         <Stack flexDirection="row" gap={4}>
           <OverviewCard
-            title={translate('TODO: Total invoiced')}
+            title={translate('text_6670a7222702d70114cc7957')}
             content={intlFormatNumber(amount, { currency: currency || CurrencyEnum.Usd })}
-            caption={translate('TODO: for {{count}} invoices', { count: 5 })}
+            caption={translate('text_6670a7222702d70114cc795c', { count: count }, count)}
           />
           <OverviewCard
-            title={translate('TODO: Total overdue')}
-            tooltipContent={translate(
-              'TODO: Total from past due invoices. This is the amount you owe.',
-            )}
+            title={translate('text_6670a7222702d70114cc795a')}
+            tooltipContent={translate('text_6670a757999f8a007789bb5d')}
             content={intlFormatNumber(amount, { currency: currency || CurrencyEnum.Usd })}
-            caption={translate('TODO: for {{count}} invoices', { count: 5 })}
+            caption={translate('text_6670a7222702d70114cc795c', { count: count }, count)}
             isAccentContent={hasOverdueInvoices}
           />
         </Stack>
