@@ -54,5 +54,13 @@
   "text_6419c64eace749372fc72b54": "Bezahlt",
   "text_6419c64eace749372fc72b62": "PDF herunterladen",
   "text_641c6acee4bc20004e62c534": "Es ist ein Problem aufgetreten, die Url ist ungültig oder abgelaufen.",
-  "text_666c5b12fea4aa1e1b26bf55": "Überfällig"
+  "text_666c5b12fea4aa1e1b26bf55": "Überfällig",
+  "text_6670a7222702d70114cc7953": "Aktualisieren",
+  "text_6670a7222702d70114cc7954": "Abrechnungsübersicht",
+  "text_6670a7222702d70114cc7955": "{{count}} Rechnung in Höhe von {{amount}} ist überfällig.|{{count}} Rechnungen in Höhe von {{amount}} sind überfällig.",
+  "text_6670a7222702d70114cc7956": "Zahlen Sie den Gesamtbetrag, um den überfälligen Saldo zu begleichen.",
+  "text_6670a7222702d70114cc7957": "Gesamtrechnungsbetrag",
+  "text_6670a7222702d70114cc795a": "Gesamtbetrag überfällig",
+  "text_6670a7222702d70114cc795c": "Für {{count}} Rechnung|Für {{count}} Rechnungen",
+  "text_6670a757999f8a007789bb5d": "Summe der überfälligen Rechnungen. Dies ist der Betrag, den Sie schulden."
 }

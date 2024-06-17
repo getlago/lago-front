@@ -18,21 +18,22 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({ customerTimezone, 
   const { translate } = useInternationalization()
 
   // TODO: Replace with real data
-  const hasOverdueInvoices = false
+  const hasOverdueInvoices = true
   const amount = 29707
+  const invoiceCount = 4
 
   return (
     <>
       <section>
         <SectionHeader variant="subhead" $hideBottomShadow>
-          {translate('TODO: Billing overview')}
+          {translate('text_6670a7222702d70114cc7954')}
 
           <Button
             data-test="add-subscription"
             variant="quaternary"
             onClick={() => location.reload()}
           >
-            {translate('TODO: Refresh')}
+            {translate('text_6670a7222702d70114cc7953')}
           </Button>
         </SectionHeader>
         <Stack gap={4}>
@@ -42,12 +43,19 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({ customerTimezone, 
                 <Stack flexDirection="column" gap={1}>
                   <Typography variant="bodyHl" color="textSecondary">
                     {translate(
-                      'TODO: {{overdueInvoiceCount}} invoices totaling {{overdueAmount}} are overdue. ',
-                      { overdueInvoiceCount: 5, overdueAmount: 0 },
+                      'text_6670a7222702d70114cc7955',
+                      {
+                        count: invoiceCount,
+                        amount: intlFormatNumber(0, {
+                          currencyDisplay: 'symbol',
+                          currency: userCurrency,
+                        }),
+                      },
+                      invoiceCount,
                     )}
                   </Typography>
                   <Typography variant="caption">
-                    {translate('TODO: Request payment to settle the overdue amount.')}
+                    {translate('text_6670a2a7ae3562006c4ee3db')}
                   </Typography>
                 </Stack>
               </Stack>
@@ -55,26 +63,30 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({ customerTimezone, 
           )}
           <Stack flexDirection="row" gap={4}>
             <OverviewCard
-              title={translate('TODO: Gross revenue')}
-              tooltipContent={translate(
-                'TODO: Total monthly income, covering all financial aspects including taxes, discounts like credit notes, coupons, and credits, for an accurate financial overview.',
-              )}
+              title={translate('text_6553885df387fd0097fd7385')}
+              tooltipContent={translate('text_65564e8e4af2340050d431bf')}
               content={intlFormatNumber(amount, {
                 currencyDisplay: 'symbol',
                 currency: userCurrency,
               })}
-              caption={translate('TODO: for {{count}} invoices', { count: 5 })}
+              caption={translate(
+                'text_6670a7222702d70114cc795c',
+                { count: invoiceCount },
+                invoiceCount,
+              )}
             />
             <OverviewCard
-              title={translate('TODO: Total overdue')}
-              tooltipContent={translate(
-                'TODO: Total from past due invoices. This is the amount this customer owes you.',
-              )}
+              title={translate('text_6670a7222702d70114cc795a')}
+              tooltipContent={translate('text_6670a2a7ae3562006c4ee3e7')}
               content={intlFormatNumber(amount, {
                 currencyDisplay: 'symbol',
                 currency: userCurrency,
               })}
-              caption={translate('TODO: for {{count}} invoices', { count: 5 })}
+              caption={translate(
+                'text_6670a7222702d70114cc795c',
+                { count: invoiceCount },
+                invoiceCount,
+              )}
               isAccentContent={hasOverdueInvoices}
             />
           </Stack>
