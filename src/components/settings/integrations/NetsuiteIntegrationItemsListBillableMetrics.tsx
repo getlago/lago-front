@@ -95,15 +95,15 @@ const NetsuiteIntegrationItemsListBillableMetrics = ({
         <>
           {!!searchTerm ? (
             <GenericPlaceholder
-              title={translate('text_63bee4e10e2d53912bfe4da5')}
+              title={translate('text_63bab307a61c62af497e05a2')}
               subtitle={translate('text_63bee4e10e2d53912bfe4da7')}
               image={<EmptyImage width="136" height="104" />}
             />
           ) : (
             <GenericPlaceholder
-              title={translate('text_629728388c4d2300e2d380c9')}
-              subtitle={translate('text_629728388c4d2300e2d380df')}
-              buttonTitle={translate('text_629728388c4d2300e2d3810f')}
+              title={translate('text_623b53fea66c76017eaebb70')}
+              subtitle={translate('text_623b53fea66c76017eaebb78')}
+              buttonTitle={translate('text_623b53fea66c76017eaebb7c')}
               buttonVariant="primary"
               buttonAction={() => navigate(CREATE_BILLABLE_METRIC_ROUTE)}
               image={<EmptyImage width="136" height="104" />}
