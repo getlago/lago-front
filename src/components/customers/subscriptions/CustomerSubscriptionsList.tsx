@@ -58,7 +58,7 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
 
   return (
     <SideSection $empty={hasNoSubscription}>
-      <Header variant="subhead" $loading={loading}>
+      <Header variant="subhead" $hideBottomShadow>
         {translate('text_6250304370f0f700a8fdc28d')}
 
         {hasPermissions(['subscriptionsCreate']) && (

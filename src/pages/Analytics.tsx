@@ -10,6 +10,7 @@ import MonthSelectorDropdown, {
   TPeriodScopeTranslationLookupValue,
 } from '~/components/graphs/MonthSelectorDropdown'
 import Mrr from '~/components/graphs/Mrr'
+import Overview from '~/components/graphs/Overview'
 import Usage from '~/components/graphs/Usage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -164,6 +165,7 @@ const Analytics = () => {
       )}
 
       <ContentWrapper>
+        <Overview currency={selectedCurrency} period={periodScope} />
         <Gross className="analytics-graph" currency={selectedCurrency} period={periodScope} />
         <Mrr
           blur={!isPremium || !currentUser}
@@ -219,11 +221,11 @@ const ContentWrapper = styled.div`
     grid-template-columns: 1fr 1fr;
 
     .analytics-graph {
-      &:nth-child(odd) {
+      &:nth-child(even) {
         padding-right: ${theme.spacing(6)};
       }
 
-      &:nth-child(even) {
+      &:nth-child(odd) {
         padding-left: ${theme.spacing(6)};
       }
     }
@@ -238,7 +240,7 @@ const UpgradeBlock = styled.div`
   gap: ${theme.spacing(4)};
   padding: ${theme.spacing(12)};
   box-sizing: border-box;
-  background-color: ${theme.palette.grey[100]};
+  background-color: ${theme.palette.secondary[100]};
 `
 
 const UpgradeBlockLeft = styled.div`
