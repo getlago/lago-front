@@ -229,7 +229,8 @@ export const usePlanForm: ({
     }),
     enableReinitialize: true,
     validateOnMount: true,
-    isInitialValid: false,
+    // In subscription form, the form should be valid by default whereas in create/edit plan form, it should not
+    isInitialValid: !!isUsedInSubscriptionForm,
     onSubmit: onSave,
   })
 
