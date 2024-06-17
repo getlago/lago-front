@@ -38,7 +38,7 @@ const NetsuiteIntegrationItemsListDefault = ({
 }: NetsuiteIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
 
-  const { fallbackItem, minimumCommitment, prepaidCredit, subscriptionFee } = useMemo(() => {
+  const { fallbackItem, minimumCommitment, subscriptionFee } = useMemo(() => {
     return {
       fallbackItem: defaultItems?.find(
         (mapping) => mapping.mappingType === MappingTypeEnum.FallbackItem,
@@ -48,9 +48,6 @@ const NetsuiteIntegrationItemsListDefault = ({
       ),
       minimumCommitment: defaultItems?.find(
         (mapping) => mapping.mappingType === MappingTypeEnum.MinimumCommitment,
-      ),
-      prepaidCredit: defaultItems?.find(
-        (mapping) => mapping.mappingType === MappingTypeEnum.PrepaidCredit,
       ),
     }
   }, [defaultItems])
@@ -137,30 +134,6 @@ const NetsuiteIntegrationItemsListDefault = ({
             ? {
                 id: minimumCommitment.externalId || '',
                 name: minimumCommitment.externalName || '',
-              }
-            : undefined
-        }
-      />
-      <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398ead')} />
-      <IntegrationItemLine
-        icon="coupon"
-        label={translate('text_637ccf8133d2c9a7d11ce6e1')}
-        description={translate('text_6630e3210c13c500cd398eb0')}
-        loading={isLoading}
-        onMappingClick={() => {
-          anrokIntegrationMapItemDialogRef.current?.openDialog({
-            integrationId,
-            type: MappingTypeEnum.PrepaidCredit,
-            itemId: prepaidCredit?.id,
-            itemExternalId: prepaidCredit?.externalId,
-            itemExternalName: prepaidCredit?.externalName || undefined,
-          })
-        }}
-        mappingInfos={
-          prepaidCredit
-            ? {
-                id: prepaidCredit.externalId || '',
-                name: prepaidCredit.externalName || '',
               }
             : undefined
         }
