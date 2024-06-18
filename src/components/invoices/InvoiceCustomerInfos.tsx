@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { Stack } from '@mui/material'
 import { DateTime } from 'luxon'
 import { memo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
@@ -23,6 +24,7 @@ gql`
     number
     issuingDate
     paymentDueDate
+    paymentOverdue
     status
     paymentStatus
     paymentDisputeLostAt
@@ -217,15 +219,18 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
         {invoice?.paymentDueDate && (
           <InfoLine>
             <Typography variant="caption" color="grey600" noWrap>
-              {translate('text_634687079be251fdb4383413')}
+              {translate('text_666c5d227d073444e90be894')}
             </Typography>
-            <Typography variant="body" color="grey700">
-              {formatDateToTZ(
-                invoice?.paymentDueDate,
-                customer?.applicableTimezone,
-                "LLL. dd, yyyy U'T'CZ",
-              )}
-            </Typography>
+            <Stack alignItems="baseline" flexDirection="row" flexWrap="wrap" columnGap={3}>
+              <Typography variant="body" color="grey700">
+                {formatDateToTZ(
+                  invoice?.paymentDueDate,
+                  customer?.applicableTimezone,
+                  "LLL. dd, yyyy U'T'CZ",
+                )}
+              </Typography>
+              {invoice?.paymentOverdue && <Status type={StatusType.danger} label="overdue" />}
+            </Stack>
           </InfoLine>
         )}
         <InfoLine>

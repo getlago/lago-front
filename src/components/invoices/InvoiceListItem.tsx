@@ -42,6 +42,7 @@ gql`
     id
     status
     paymentStatus
+    paymentOverdue
     number
     issuingDate
     totalAmountCents
@@ -93,10 +94,15 @@ interface InvoiceListItemProps {
   voidInvoiceDialogRef: RefObject<VoidInvoiceDialogRef>
 }
 
-const mapStatusConfig = (
-  status: InvoiceStatusTypeEnum,
-  paymentStatus: InvoicePaymentStatusTypeEnum,
-): StatusProps => {
+const mapStatusConfig = ({
+  status,
+  paymentStatus,
+  paymentOverdue,
+}: {
+  status: InvoiceStatusTypeEnum
+  paymentStatus: InvoicePaymentStatusTypeEnum
+  paymentOverdue: boolean
+}): StatusProps => {
   if (status === InvoiceStatusTypeEnum.Draft) {
     return { label: 'draft', type: StatusType.outline }
   }
@@ -107,6 +113,10 @@ const mapStatusConfig = (
 
   if (paymentStatus === InvoicePaymentStatusTypeEnum.Succeeded) {
     return { label: 'succeeded', type: StatusType.success }
+  }
+
+  if (paymentOverdue) {
+    return { label: 'overdue', type: StatusType.danger }
   }
 
   if (
@@ -143,6 +153,7 @@ export const InvoiceListItem = ({
     id,
     status,
     paymentStatus,
+    paymentOverdue,
     number,
     issuingDate,
     customer,
@@ -150,7 +161,7 @@ export const InvoiceListItem = ({
     currency,
     voidable,
   } = invoice
-  const statusConfig = mapStatusConfig(status, paymentStatus)
+  const statusConfig = mapStatusConfig({ status, paymentStatus, paymentOverdue })
 
   const [retryCollect] = useRetryInvoicePaymentMutation({
     context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },

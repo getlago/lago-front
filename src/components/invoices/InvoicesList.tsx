@@ -105,13 +105,21 @@ const InvoicesList = ({
         <InvoiceTypeSwitch
           variant="tertiary"
           align="left"
-          $isSelected={invoiceType === InvoiceListStatusEnum.pendingFailed}
-          onClick={() =>
-            navigate({ search: `?invoiceType=${InvoiceListStatusEnum.pendingFailed}` })
-          }
+          $isSelected={invoiceType === InvoiceListStatusEnum.outstanding}
+          onClick={() => navigate({ search: `?invoiceType=${InvoiceListStatusEnum.outstanding}` })}
         >
           <Typography variant="captionHl" color="grey600">
-            {translate('text_63ac86d797f728a87b2f9f97')}
+            {translate('text_666c5b12fea4aa1e1b26bf52')}
+          </Typography>
+        </InvoiceTypeSwitch>
+        <InvoiceTypeSwitch
+          variant="tertiary"
+          align="left"
+          $isSelected={invoiceType === InvoiceListStatusEnum.overdue}
+          onClick={() => navigate({ search: `?invoiceType=${InvoiceListStatusEnum.overdue}` })}
+        >
+          <Typography variant="captionHl" color="grey600">
+            {translate('text_666c5b12fea4aa1e1b26bf55')}
           </Typography>
         </InvoiceTypeSwitch>
         <InvoiceTypeSwitch
@@ -206,7 +214,7 @@ const InvoicesList = ({
                       ? 'text_63c67d2913c20b8d7d05c44c'
                       : invoiceType === InvoiceListStatusEnum.draft
                         ? 'text_63c67d2913c20b8d7d05c442'
-                        : invoiceType === InvoiceListStatusEnum.pendingFailed
+                        : invoiceType === InvoiceListStatusEnum.outstanding
                           ? 'text_63c67d8796db41749ada51ca'
                           : invoiceType === InvoiceListStatusEnum.voided
                             ? 'text_65269cd46e7ec037a6823fd8'
@@ -222,13 +230,15 @@ const InvoicesList = ({
                       ? 'text_63b578e959c1366df5d14559'
                       : invoiceType === InvoiceListStatusEnum.draft
                         ? 'text_63b578e959c1366df5d1455b'
-                        : invoiceType === InvoiceListStatusEnum.pendingFailed
+                        : invoiceType === InvoiceListStatusEnum.outstanding
                           ? 'text_63b578e959c1366df5d1456e'
                           : invoiceType === InvoiceListStatusEnum.voided
                             ? 'text_65269cd46e7ec037a6823fd6'
                             : invoiceType === InvoiceListStatusEnum.disputed
                               ? 'text_66141e30699a0631f0b2ec7f'
-                              : 'text_63b578e959c1366df5d14569',
+                              : invoiceType === InvoiceListStatusEnum.overdue
+                                ? 'text_666c5b12fea4aa1e1b26bf70'
+                                : 'text_63b578e959c1366df5d14569',
                   )}
                   subtitle={
                     invoiceType === InvoiceListStatusEnum.succeeded ? (
@@ -239,12 +249,18 @@ const InvoicesList = ({
                           link: INVOICE_SETTINGS_ROUTE,
                         })}
                       />
-                    ) : invoiceType === InvoiceListStatusEnum.pendingFailed ? (
+                    ) : invoiceType === InvoiceListStatusEnum.outstanding ? (
                       translate('text_63b578e959c1366df5d14570')
                     ) : invoiceType === InvoiceListStatusEnum.voided ? (
                       translate('text_65269cd46e7ec037a6823fda')
                     ) : invoiceType === InvoiceListStatusEnum.disputed ? (
                       translate('text_66141e30699a0631f0b2ec87')
+                    ) : invoiceType === InvoiceListStatusEnum.overdue ? (
+                      <Typography
+                        html={translate('text_666c5b12fea4aa1e1b26bf73', {
+                          link: INVOICE_SETTINGS_ROUTE,
+                        })}
+                      />
                     ) : (
                       translate('text_63b578e959c1366df5d1456d')
                     )

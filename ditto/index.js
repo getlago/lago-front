@@ -47,6 +47,13 @@ const ready_for_dev___customer_invoice___update_invoice = require('./ready-for-d
 const ready_for_dev___customers___add_subscription_end_date = require('./ready-for-dev---customers---add-subscription-end-date__base.json');
 const ready_for_dev___customers___invoice_detail_page = require('./ready-for-dev---customers---invoice-detail-page__base.json');
 const ready_for_dev___customers___invoice_grace_period = require('./ready-for-dev---customers---invoice-grace-period__base.json');
+const ready_for_dev___customers___regroup_invoices_for_payment = require('./ready-for-dev---customers---regroup-invoices-for-payment__base.json');
+const ready_for_dev___customers___regroup_invoices_for_payment1 = require('./ready-for-dev---customers---regroup-invoices-for-payment__de.json');
+const ready_for_dev___customers___regroup_invoices_for_payment2 = require('./ready-for-dev---customers---regroup-invoices-for-payment__es.json');
+const ready_for_dev___customers___regroup_invoices_for_payment3 = require('./ready-for-dev---customers---regroup-invoices-for-payment__fr.json');
+const ready_for_dev___customers___regroup_invoices_for_payment4 = require('./ready-for-dev---customers---regroup-invoices-for-payment__it.json');
+const ready_for_dev___customers___regroup_invoices_for_payment5 = require('./ready-for-dev---customers---regroup-invoices-for-payment__nb.json');
+const ready_for_dev___customers___regroup_invoices_for_payment6 = require('./ready-for-dev---customers---regroup-invoices-for-payment__sv.json');
 const ready_for_dev___dashboards___add_financial_reporting_to_lago = require('./ready-for-dev---dashboards---add-financial-reporting-to-lago__base.json');
 const ready_for_dev___invoices___display_unit_price_to_item_in_invoices = require('./ready-for-dev---invoices---display-unit-price-to-item-in-invoices__base.json');
 const ready_for_dev___invoices___edit_a_draft_invoice = require('./ready-for-dev---invoices---edit-a-draft-invoice__base.json');
@@ -269,6 +276,15 @@ module.exports = {
   },
   "project_637f813a9ec65c29fc3ceef3": {
     "base": {...ready_for_dev___customers___invoice_grace_period}
+  },
+  "project_666c5b0dcf7597c54e2140c6": {
+    "base": {...ready_for_dev___customers___regroup_invoices_for_payment},
+    "de": {...ready_for_dev___customers___regroup_invoices_for_payment1},
+    "es": {...ready_for_dev___customers___regroup_invoices_for_payment2},
+    "fr": {...ready_for_dev___customers___regroup_invoices_for_payment3},
+    "it": {...ready_for_dev___customers___regroup_invoices_for_payment4},
+    "nb": {...ready_for_dev___customers___regroup_invoices_for_payment5},
+    "sv": {...ready_for_dev___customers___regroup_invoices_for_payment6}
   },
   "project_6543ca0b70910093c87cd539": {
     "base": {...ready_for_dev___dashboards___add_financial_reporting_to_lago}
