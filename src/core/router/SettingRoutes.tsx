@@ -95,6 +95,15 @@ const EmailScenarioConfig = lazyLoad(
   () =>
     import(/* webpackChunkName: 'email-scenario-config' */ '~/pages/settings/EmailScenarioConfig'),
 )
+const XeroIntegrations = lazyLoad(
+  () => import(/* webpackChunkName: 'xero-integration' */ '~/pages/settings/XeroIntegrations'),
+)
+const XeroIntegrationDetails = lazyLoad(
+  () =>
+    import(
+      /* webpackChunkName: 'xero-integration-details' */ '~/pages/settings/XeroIntegrationDetails'
+    ),
+)
 
 // ----------- Routes -----------
 export const SETTINGS_ROUTE = '/settings'
@@ -119,6 +128,8 @@ export const TAX_MANAGEMENT_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/lago-tax-
 export const MEMBERS_ROUTE = `${SETTINGS_ROUTE}/members`
 export const EMAILS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/emails`
 export const EMAILS_SCENARIO_CONFIG_ROUTE = `${SETTINGS_ROUTE}/emails/config/:type`
+export const XERO_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/xero`
+export const XERO_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/xero/:integrationId/:tab`
 
 export const settingRoutes: CustomRouteObject[] = [
   {
@@ -250,6 +261,18 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <EmailScenarioConfig />,
         permissions: ['organizationEmailsUpdate', 'organizationEmailsView'],
+      },
+      {
+        path: XERO_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <XeroIntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: XERO_INTEGRATION_ROUTE,
+        private: true,
+        element: <XeroIntegrations />,
+        permissions: ['organizationIntegrationsView'],
       },
     ],
   },

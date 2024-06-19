@@ -29,6 +29,7 @@ import {
   AddStripeDialog,
   AddStripeDialogRef,
 } from '~/components/settings/integrations/AddStripeDialog'
+import { AddXeroDialog, AddXeroDialogRef } from '~/components/settings/integrations/AddXeroDialog'
 import {
   DOCUMENTATION_AIRBYTE,
   DOCUMENTATION_HIGHTTOUCH,
@@ -42,6 +43,7 @@ import {
   NETSUITE_INTEGRATION_ROUTE,
   STRIPE_INTEGRATION_ROUTE,
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
+  XERO_INTEGRATION_ROUTE,
 } from '~/core/router'
 import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { IntegrationTypeEnum, useIntegrationsSettingQuery } from '~/generated/graphql'
@@ -56,6 +58,7 @@ import Netsuite from '~/public/images/netsuite.svg'
 import Oso from '~/public/images/oso.svg'
 import Segment from '~/public/images/segment.svg'
 import Stripe from '~/public/images/stripe.svg'
+import Xero from '~/public/images/xero.svg'
 import { theme } from '~/styles'
 import { SettingsHeaderNameWrapper, SettingsPageContentWrapper } from '~/styles/settingsPage'
 
@@ -92,6 +95,9 @@ gql`
         ... on NetsuiteIntegration {
           id
         }
+        ... on XeroIntegration {
+          id
+        }
       }
     }
   }
@@ -107,10 +113,12 @@ const Integrations = () => {
   const addGocardlessnDialogRef = useRef<AddGocardlessDialogRef>(null)
   const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
   const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
+  const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
   const { data, loading } = useIntegrationsSettingQuery({
     variables: { limit: 1000 },
   })
   const hasAnrokIntegrationFeatureFlag = isFeatureFlagActive(FeatureFlags.ANROK_INTEGRATION)
+  const hasXeroIntegrationFeatureFlag = isFeatureFlagActive(FeatureFlags.XERO_INTEGRATION)
 
   const organization = data?.organization
   const hasAdyenIntegration = data?.paymentProviders?.collection?.some(
@@ -129,11 +137,17 @@ const Integrations = () => {
   const hasAccessToAnrokPremiumIntegration = !!organization?.premiumIntegrations?.includes(
     IntegrationTypeEnum.Anrok,
   )
+  const hasAccessToXeroPremiumIntegration = !!organization?.premiumIntegrations?.includes(
+    IntegrationTypeEnum.Xero,
+  )
   const hasNetsuiteIntegration = data?.integrations?.collection?.some(
     (integration) => integration?.__typename === 'NetsuiteIntegration',
   )
   const hasAnrokIntegration = data?.integrations?.collection?.some(
     (integration) => integration?.__typename === 'AnrokIntegration',
+  )
+  const hasXeroIntegration = data?.integrations?.collection?.some(
+    (integration) => integration?.__typename === 'XeroIntegration',
   )
 
   return (
@@ -367,6 +381,40 @@ const Integrations = () => {
               }}
               fullWidth
             />
+
+            {hasXeroIntegrationFeatureFlag && (
+              <StyledSelector
+                fullWidth
+                title={translate('text_6672ebb8b1b50be550eccaf8')}
+                subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
+                endIcon={
+                  !hasAccessToXeroPremiumIntegration ? (
+                    'sparkles'
+                  ) : hasXeroIntegration ? (
+                    <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+                  ) : undefined
+                }
+                icon={
+                  <Avatar size="big" variant="connector">
+                    {<Xero />}
+                  </Avatar>
+                }
+                onClick={() => {
+                  if (!hasAccessToXeroPremiumIntegration) {
+                    premiumWarningDialogRef.current?.openDialog({
+                      title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                      description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                      mailtoSubject: translate('text_6672ebb8b1b50be550ecca09'),
+                      mailtoBody: translate('text_6672ebb8b1b50be550ecca13'),
+                    })
+                  } else if (hasXeroIntegration) {
+                    navigate(XERO_INTEGRATION_ROUTE)
+                  } else {
+                    addXeroDialogRef.current?.openDialog()
+                  }
+                }}
+              />
+            )}
           </>
         )}
       </SettingsPageContentWrapper>
@@ -380,6 +428,7 @@ const Integrations = () => {
         ref={addLagoTaxManagementDialog}
       />
       <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
+      <AddXeroDialog ref={addXeroDialogRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )

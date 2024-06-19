@@ -376,5 +376,8 @@ sources:
       fileName: 👍 [Ready for dev] - Plans - Plans revamp
     - name: 👍 [Ready for dev] - Customers - Regroup invoices for payment
       id: 666c5b0dcf7597c54e2140c6
+      fileName: 👍 [Ready for dev] - Customers - Regroup invoices for payment
+    - name: 👍 [Ready for dev] - Integration - Connect Lago to Xero
+      id: 6672ebb56736d9b18c78917a
 format: flat
 variants: true
