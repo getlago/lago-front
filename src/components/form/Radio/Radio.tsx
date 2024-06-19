@@ -86,7 +86,7 @@ Radio.displayName = 'Radio'
 const Container = styled.div`
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   cursor: pointer;
 
   > * {
@@ -108,6 +108,10 @@ const Container = styled.div`
     .radio-checked-coloured {
       fill: ${theme.palette.grey[400]};
     }
+  }
+
+  .radio-icon {
+    padding-top: 6px;
   }
 
   &.radio--focused .radio-icon {
@@ -137,7 +141,7 @@ const Container = styled.div`
 const RadioContainer = styled.div`
   margin-right: ${theme.spacing(4)};
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 
   input {
     opacity: 0;

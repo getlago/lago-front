@@ -1244,6 +1244,13 @@ const DesignSystem = () => {
                       sublabel="I'm disabled too"
                       disabled
                     />
+                    <RadioField
+                      name="radio"
+                      formikProps={formikProps}
+                      value="painauchocolat"
+                      label="Radio with a very long label - Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+                      sublabel="The right answer"
+                    />
                   </Block>
 
                   <GroupTitle variant="subhead">DatePicker</GroupTitle>
