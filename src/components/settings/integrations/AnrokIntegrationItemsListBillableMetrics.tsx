@@ -144,6 +144,7 @@ const AnrokIntegrationItemsListBillableMetrics = ({
                         itemExternalId: billableMetricMapping?.externalId,
                         itemExternalName: billableMetricMapping?.externalName || undefined,
                         lagoMappableId: billableMetric.id,
+                        lagoMappableName: billableMetric.name,
                       })
                     }}
                     mappingInfos={

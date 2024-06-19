@@ -128,7 +128,7 @@ const NetsuiteIntegrationSettings = () => {
   return (
     <>
       <Settings>
-        {!!netsuiteIntegration && !netsuiteIntegration?.hasMappingsConfigured && (
+        {!loading && !!netsuiteIntegration && !netsuiteIntegration?.hasMappingsConfigured && (
           <Alert
             type="warning"
             ButtonProps={{

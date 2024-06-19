@@ -163,7 +163,7 @@ const AnrokIntegrations = () => {
                           tab: AnrokIntegrationDetailsTabs.Settings,
                         })}
                       >
-                        <Stack direction="row" spacing={3}>
+                        <Stack direction="row" alignItems="center" spacing={3}>
                           <Avatar variant="connector" size="big">
                             <Icon name="plug" color="dark" />
                           </Avatar>
