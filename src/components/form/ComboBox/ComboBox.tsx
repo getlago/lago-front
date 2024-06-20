@@ -9,7 +9,7 @@ import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { theme } from '~/styles'
 
 import { ComboBoxInput } from './ComboBoxInput'
-import { ComboBoxItem, ITEM_HEIGHT } from './ComboBoxItem'
+import { ComboBoxItem } from './ComboBoxItem'
 import { ComboboxList } from './ComboboxList'
 import { ComboBoxPopperFactory } from './ComboBoxPopperFactory'
 import { ComboBoxData, ComboBoxProps } from './types'
@@ -157,6 +157,7 @@ export const ComboBox = ({
             selected={state.selected}
             virtualized={virtualized}
             addValueRedirectionUrl={option.addValueRedirectionUrl}
+            {...props}
           />
         )
       }}
@@ -214,7 +215,6 @@ const LoadingItem = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: ${ITEM_HEIGHT}px;
   box-sizing: border-box;
   margin: 0 ${theme.spacing(2)};
   padding: 0 ${theme.spacing(4)};

@@ -420,7 +420,7 @@ export const theme = createTheme({
           paddingTop: 0,
           paddingBottom: 0,
           borderRadius: '12px',
-          height: '56px',
+          height: 'auto',
           '&.Mui-focused': {
             backgroundColor: `${palette.grey[100]} !important`,
           },
