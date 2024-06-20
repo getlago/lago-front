@@ -74,6 +74,10 @@ export const MultipleComboBoxItem = ({
 }
 
 const ItemWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  min-height: ${ITEM_HEIGHT}px;
+
   a {
     &:focus,
     &:active,
@@ -81,6 +85,11 @@ const ItemWrapper = styled.div`
       outline: none;
       text-decoration: none;
     }
+  }
+
+  .MuiAutocomplete-option {
+    min-height: ${ITEM_HEIGHT}px;
+    width: 100% !important;
   }
 `
 
@@ -90,7 +99,6 @@ const AddCustomValueIcon = styled(Icon)`
 
 export const Item = styled.div<{ $virtualized?: boolean }>`
   && {
-    min-height: ${ITEM_HEIGHT}px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
