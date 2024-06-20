@@ -8,11 +8,6 @@ import IndeterminateIcon from '~/public/icons/forms/checkbox-indeterminate.svg'
 import Icon from '~/public/icons/forms/checkbox.svg'
 import { theme } from '~/styles'
 
-enum LabelAlignmentEnum {
-  top = 'top',
-  center = 'center',
-}
-
 export interface CheckboxProps {
   canBeIndeterminate?: boolean
   className?: string
@@ -20,7 +15,6 @@ export interface CheckboxProps {
   error?: string
   label: string | React.ReactNode
   sublabel?: string | React.ReactNode
-  labelAlignment?: keyof typeof LabelAlignmentEnum
   name?: string
   value?: boolean | undefined
   onChange?: (event: ChangeEvent<HTMLInputElement>, checked: boolean) => void
@@ -32,7 +26,6 @@ export const Checkbox = ({
   disabled,
   error,
   label,
-  labelAlignment = LabelAlignmentEnum.top,
   sublabel,
   name,
   value,
@@ -51,7 +44,6 @@ export const Checkbox = ({
         className={clsns({
           'checkbox--disabled': disabled,
           'checkbox--focused': focused,
-          [`checkbox-align--${labelAlignment}`]: true,
         })}
       >
         <InputContainer>
@@ -141,8 +133,22 @@ const Container = styled.div`
 `
 
 const Main = styled.div`
+  display: flex;
+  align-items: flex-start;
+  vertical-align: middle;
+  margin-left: -11px;
+  margin-right: 16px;
+  margin-left: 0;
+  margin-right: 0;
   cursor: pointer;
-  display: inline-flex;
+
+  > *:first-child {
+    padding-top: 6px;
+  }
+
+  .MuiCheckbox-root {
+    margin-top: 0;
+  }
 
   > * {
     line-height: 28px;
@@ -186,37 +192,6 @@ const Main = styled.div`
     .checkbox-checked-icon {
       box-shadow: 0px 0px 0px 4px ${theme.palette.primary[200]};
       border-radius: 4px;
-    }
-  }
-
-  &.checkbox-align--${LabelAlignmentEnum.center} {
-    align-items: center;
-
-    .MuiCheckbox-root {
-      margin-top: 0;
-    }
-  }
-
-  &.checkbox-align--${LabelAlignmentEnum.top} {
-    align-items: flex-start;
-    display: inline-flex;
-    align-items: center;
-    vertical-align: middle;
-    margin-left: -11px;
-    margin-right: 16px;
-    margin-left: 0;
-    margin-right: 0;
-    -webkit-align-items: flex-start;
-    -webkit-box-align: flex-start;
-    -ms-flex-align: flex-start;
-    align-items: flex-start;
-
-    > *:first-child {
-      padding-top: 6px;
-    }
-
-    .MuiCheckbox-root {
-      margin-top: 0;
     }
   }
 `

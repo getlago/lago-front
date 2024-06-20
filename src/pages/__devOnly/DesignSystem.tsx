@@ -867,29 +867,6 @@ const DesignSystem = () => {
                       }
                     />
 
-                    <Checkbox
-                      name="checkboxCond3"
-                      canBeIndeterminate
-                      value={
-                        formikProps.values.checkboxCond1 && formikProps.values.checkboxCond2
-                          ? true
-                          : !formikProps.values.checkboxCond1 && !formikProps.values.checkboxCond2
-                            ? false
-                            : undefined
-                      }
-                      onChange={(e, value) => {
-                        if (value) {
-                          formikProps.setFieldValue('checkboxCond1', true)
-                          formikProps.setFieldValue('checkboxCond2', true)
-                        } else {
-                          formikProps.setFieldValue('checkboxCond1', false)
-                          formikProps.setFieldValue('checkboxCond2', false)
-                        }
-                      }}
-                      label="Same with center alignment - Accept all conditions or else you won't be able to become the incredibly talented person you want to become (we know, life is unfair)"
-                      labelAlignment="center"
-                    />
-
                     <CheckboxField
                       name="checkboxCond1"
                       formikProps={formikProps}

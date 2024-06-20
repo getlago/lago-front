@@ -36,7 +36,6 @@ export const CreditNoteFormItem = ({
     <FeeLine>
       <CheckboxField
         name={`${formikKey}.checked`}
-        labelAlignment="center"
         formikProps={formikProps}
         label={
           <Typography color="grey700">
