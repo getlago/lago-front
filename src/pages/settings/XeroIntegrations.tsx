@@ -15,24 +15,21 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
+import { AddXeroDialog, AddXeroDialogRef } from '~/components/settings/integrations/AddXeroDialog'
 import {
-  AddNetsuiteDialog,
-  AddNetsuiteDialogRef,
-} from '~/components/settings/integrations/AddNetsuiteDialog'
+  DeleteXeroIntegrationDialog,
+  DeleteXeroIntegrationDialogRef,
+} from '~/components/settings/integrations/DeleteXeroIntegrationDialog'
+import { INTEGRATIONS_ROUTE, XERO_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
-  DeleteNetsuiteIntegrationDialog,
-  DeleteNetsuiteIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteNetsuiteIntegrationDialog'
-import { INTEGRATIONS_ROUTE, NETSUITE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
-import {
-  DeleteNetsuiteIntegrationDialogFragmentDoc,
+  DeleteXeroIntegrationDialogFragmentDoc,
   IntegrationTypeEnum,
-  NetsuiteForCreateDialogDialogFragmentDoc,
-  NetsuiteIntegrationsFragment,
-  useGetNetsuiteIntegrationsListQuery,
+  useGetXeroIntegrationsListQuery,
+  XeroForCreateDialogDialogFragmentDoc,
+  XeroIntegrationsFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import Netsuite from '~/public/images/netsuite.svg'
+import Xero from '~/public/images/xero.svg'
 import {
   ItemContainer,
   ListItemLink,
@@ -43,42 +40,42 @@ import {
   theme,
 } from '~/styles'
 
-import { NetsuiteIntegrationDetailsTabs } from './NetsuiteIntegrationDetails'
+import { XeroIntegrationDetailsTabs } from './XeroIntegrationDetails'
 
 gql`
-  fragment NetsuiteIntegrations on NetsuiteIntegration {
+  fragment XeroIntegrations on XeroIntegration {
     id
     name
     code
-    ...NetsuiteForCreateDialogDialog
+    ...XeroForCreateDialogDialog
   }
 
-  query getNetsuiteIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
+  query getXeroIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
     integrations(limit: $limit, type: $type) {
       collection {
-        ... on NetsuiteIntegration {
+        ... on XeroIntegration {
           id
-          ...NetsuiteIntegrations
-          ...NetsuiteForCreateDialogDialog
-          ...DeleteNetsuiteIntegrationDialog
+          ...XeroIntegrations
+          ...XeroForCreateDialogDialog
+          ...DeleteXeroIntegrationDialog
         }
       }
     }
   }
 
-  ${NetsuiteForCreateDialogDialogFragmentDoc}
-  ${DeleteNetsuiteIntegrationDialogFragmentDoc}
+  ${XeroForCreateDialogDialogFragmentDoc}
+  ${DeleteXeroIntegrationDialogFragmentDoc}
 `
 
-const NetsuiteIntegrations = () => {
+const XeroIntegrations = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
-  const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteNetsuiteIntegrationDialogRef>(null)
-  const { data, loading } = useGetNetsuiteIntegrationsListQuery({
-    variables: { limit: 1000, type: IntegrationTypeEnum.Netsuite },
+  const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
+  const deleteDialogRef = useRef<DeleteXeroIntegrationDialogRef>(null)
+  const { data, loading } = useGetXeroIntegrationsListQuery({
+    variables: { limit: 1000, type: IntegrationTypeEnum.Xero },
   })
-  const connections = data?.integrations?.collection as NetsuiteIntegrationsFragment[] | undefined
+  const connections = data?.integrations?.collection as XeroIntegrationsFragment[] | undefined
   const deleteDialogCallback =
     connections && connections?.length === 1 ? () => navigate(INTEGRATIONS_ROUTE) : undefined
 
@@ -95,14 +92,14 @@ const NetsuiteIntegrations = () => {
             <Skeleton variant="text" height={12} width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
-              {translate('text_661ff6e56ef7e1b7c542b239')}
+              {translate('text_6672ebb8b1b50be550eccaf8')}
             </Typography>
           )}
         </HeaderBlock>
         <Button
           variant="primary"
           onClick={() => {
-            addNetsuiteDialogRef.current?.openDialog()
+            addXeroDialogRef.current?.openDialog()
           }}
         >
           {translate('text_65846763e6140b469140e235')}
@@ -120,16 +117,16 @@ const NetsuiteIntegrations = () => {
         ) : (
           <>
             <StyledAvatar variant="connector" size="large">
-              <Netsuite />
+              <Xero />
             </StyledAvatar>
             <div>
               <Line>
                 <Typography variant="headline">
-                  {translate('text_661ff6e56ef7e1b7c542b239')}
+                  {translate('text_6672ebb8b1b50be550eccaf8')}
                 </Typography>
                 <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
               </Line>
-              <Typography>{translate('text_661ff6e56ef7e1b7c542b1e6')}</Typography>
+              <Typography>{translate('text_6672ebb8b1b50be550ecca7e')}</Typography>
             </div>
           </>
         )}
@@ -155,12 +152,12 @@ const NetsuiteIntegrations = () => {
               <>
                 {connections?.map((connection) => {
                   return (
-                    <ItemContainer key={`netsuite-connection-${connection.id}`}>
+                    <ItemContainer key={`xero-connection-${connection.id}`}>
                       <LocalListItemLink
                         tabIndex={0}
-                        to={generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
+                        to={generatePath(XERO_INTEGRATION_DETAILS_ROUTE, {
                           integrationId: connection.id,
-                          tab: NetsuiteIntegrationDetailsTabs.Settings,
+                          tab: XeroIntegrationDetailsTabs.Settings,
                         })}
                       >
                         <Stack direction="row" alignItems="center" spacing={3}>
@@ -203,7 +200,7 @@ const NetsuiteIntegrations = () => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                addNetsuiteDialogRef.current?.openDialog({
+                                addXeroDialogRef.current?.openDialog({
                                   provider: connection,
                                   deleteModalRef: deleteDialogRef,
                                   deleteDialogCallback,
@@ -239,8 +236,8 @@ const NetsuiteIntegrations = () => {
         </section>
       </ListWrapper>
 
-      <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
-      <DeleteNetsuiteIntegrationDialog ref={deleteDialogRef} />
+      <AddXeroDialog ref={addXeroDialogRef} />
+      <DeleteXeroIntegrationDialog ref={deleteDialogRef} />
     </>
   )
 }
@@ -322,4 +319,4 @@ const LocalPopperOpener = styled(PopperOpener)`
   right: 0;
 `
 
-export default NetsuiteIntegrations
+export default XeroIntegrations

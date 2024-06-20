@@ -5,22 +5,18 @@ import { useNavigate } from 'react-router-dom'
 
 import { InfiniteScroll } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { CREATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
-import {
-  GetBillableMetricsForAnrokItemsListQuery,
-  InputMaybe,
-  MappableTypeEnum,
-} from '~/generated/graphql'
+import { CREATE_ADD_ON_ROUTE } from '~/core/router'
+import { GetAddOnsForXeroItemsListQuery, InputMaybe, MappableTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-import { AnrokIntegrationMapItemDialogRef } from './AnrokIntegrationMapItemDialog'
 import IntegrationItemHeader from './IntegrationItemHeader'
 import IntegrationItemLine from './IntegrationItemLine'
+import { XeroIntegrationMapItemDialogRef } from './XeroIntegrationMapItemDialog'
 
 gql`
-  fragment AnrokIntegrationItemsListBillableMetrics on BillableMetric {
+  fragment XeroIntegrationItemsListAddons on AddOn {
     id
     name
     code
@@ -34,38 +30,38 @@ gql`
   }
 `
 
-type AnrokIntegrationItemsListBillableMetricsProps = {
-  data: GetBillableMetricsForAnrokItemsListQuery | undefined
-  fetchMoreBillableMetrics: Function
+type XeroIntegrationItemsListAddonsProps = {
+  data: GetAddOnsForXeroItemsListQuery | undefined
+  fetchMoreAddons: Function
   hasError: boolean
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  anrokIntegrationMapItemDialogRef: RefObject<AnrokIntegrationMapItemDialogRef>
+  xeroIntegrationMapItemDialogRef: RefObject<XeroIntegrationMapItemDialogRef>
 }
 
-const AnrokIntegrationItemsListBillableMetrics = ({
+const XeroIntegrationItemsListAddons = ({
   data,
-  fetchMoreBillableMetrics,
+  fetchMoreAddons,
   hasError,
   integrationId,
   isLoading,
-  anrokIntegrationMapItemDialogRef,
+  xeroIntegrationMapItemDialogRef,
   searchTerm,
-}: AnrokIntegrationItemsListBillableMetricsProps) => {
+}: XeroIntegrationItemsListAddonsProps) => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
-  const billableMetrics = data?.billableMetrics?.collection || []
+  const addons = data?.addOns?.collection || []
 
   return (
     <Stack>
-      <IntegrationItemHeader columnName={translate('text_6630ea71a6c2ef00bc63006e')} />
-      {!!isLoading && !billableMetrics.length && searchTerm ? (
+      <IntegrationItemHeader columnName={translate('text_6630ea71a6c2ef00bc63006f')} />
+      {!!isLoading && !addons.length && searchTerm ? (
         <>
           {[0, 1, 2].map((i) => (
             <IntegrationItemLine
-              key={`billable-metric-item-skeleton-${i}`}
-              icon="pulse"
+              key={`addon-item-skeleton-${i}`}
+              icon="puzzle"
               label={''}
               description={''}
               loading={true}
@@ -91,21 +87,21 @@ const AnrokIntegrationItemsListBillableMetrics = ({
             />
           )}
         </>
-      ) : !isLoading && (!billableMetrics || !billableMetrics.length) ? (
+      ) : !isLoading && (!addons || !addons.length) ? (
         <>
           {!!searchTerm ? (
             <GenericPlaceholder
-              title={translate('text_63bab307a61c62af497e05a2')}
+              title={translate('text_63bee4e10e2d53912bfe4da5')}
               subtitle={translate('text_63bee4e10e2d53912bfe4da7')}
               image={<EmptyImage width="136" height="104" />}
             />
           ) : (
             <GenericPlaceholder
-              title={translate('text_623b53fea66c76017eaebb70')}
-              subtitle={translate('text_623b53fea66c76017eaebb78')}
-              buttonTitle={translate('text_623b53fea66c76017eaebb7c')}
+              title={translate('text_629728388c4d2300e2d380c9')}
+              subtitle={translate('text_629728388c4d2300e2d380df')}
+              buttonTitle={translate('text_629728388c4d2300e2d3810f')}
               buttonVariant="primary"
-              buttonAction={() => navigate(CREATE_BILLABLE_METRIC_ROUTE)}
+              buttonAction={() => navigate(CREATE_ADD_ON_ROUTE)}
               image={<EmptyImage width="136" height="104" />}
             />
           )}
@@ -113,45 +109,46 @@ const AnrokIntegrationItemsListBillableMetrics = ({
       ) : (
         <InfiniteScroll
           onBottom={() => {
-            const { currentPage = 0, totalPages = 0 } = data?.billableMetrics?.metadata || {}
+            const { currentPage = 0, totalPages = 0 } = data?.addOns?.metadata || {}
 
             currentPage < totalPages &&
               !isLoading &&
-              fetchMoreBillableMetrics({
+              fetchMoreAddons({
                 variables: { page: currentPage + 1 },
               })
           }}
         >
           <>
-            {!!billableMetrics.length &&
-              billableMetrics.map((billableMetric) => {
-                const billableMetricMapping = billableMetric.integrationMappings?.find(
-                  (mapping) => mapping.mappableType === MappableTypeEnum.BillableMetric,
+            {!!addons.length &&
+              addons.map((addOn) => {
+                const addonMapping = addOn?.integrationMappings?.find(
+                  (i) => i.mappableType === MappableTypeEnum.AddOn,
                 )
 
                 return (
                   <IntegrationItemLine
-                    key={`billableMetric-item-${billableMetric.id}`}
-                    icon="pulse"
-                    label={billableMetric.name}
-                    description={billableMetric.code}
+                    key={`addon-item-${addOn.id}`}
+                    icon="puzzle"
+                    label={addOn.name}
+                    description={addOn.code}
                     loading={false}
                     onMappingClick={() => {
-                      anrokIntegrationMapItemDialogRef.current?.openDialog({
+                      xeroIntegrationMapItemDialogRef.current?.openDialog({
                         integrationId,
-                        type: MappableTypeEnum.BillableMetric,
-                        itemId: billableMetricMapping?.id,
-                        itemExternalId: billableMetricMapping?.externalId,
-                        itemExternalName: billableMetricMapping?.externalName || undefined,
-                        lagoMappableId: billableMetric.id,
-                        lagoMappableName: billableMetric.name,
+                        type: MappableTypeEnum.AddOn,
+                        itemId: addonMapping?.id,
+                        itemExternalId: addonMapping?.externalId,
+                        itemExternalCode: addonMapping?.externalAccountCode || undefined,
+                        itemExternalName: addonMapping?.externalName || undefined,
+                        lagoMappableId: addOn.id,
+                        lagoMappableName: addOn.name,
                       })
                     }}
                     mappingInfos={
-                      !!billableMetricMapping?.id
+                      !!addonMapping?.id
                         ? {
-                            id: billableMetricMapping.externalId,
-                            name: billableMetricMapping.externalName || '',
+                            id: addonMapping.externalAccountCode || '',
+                            name: addonMapping.externalName || '',
                           }
                         : undefined
                     }
@@ -161,8 +158,8 @@ const AnrokIntegrationItemsListBillableMetrics = ({
             {isLoading &&
               [0, 1, 2].map((i) => (
                 <IntegrationItemLine
-                  key={`billable-metric-item-skeleton-${i}`}
-                  icon="pulse"
+                  key={`addon-item-skeleton-${i}`}
+                  icon="puzzle"
                   label={''}
                   description={''}
                   loading={true}
@@ -175,4 +172,4 @@ const AnrokIntegrationItemsListBillableMetrics = ({
   )
 }
 
-export default AnrokIntegrationItemsListBillableMetrics
+export default XeroIntegrationItemsListAddons

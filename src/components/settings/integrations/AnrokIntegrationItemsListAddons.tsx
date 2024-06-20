@@ -140,6 +140,7 @@ const AnrokIntegrationItemsListAddons = ({
                         itemExternalId: addonMapping?.externalId,
                         itemExternalName: addonMapping?.externalName || undefined,
                         lagoMappableId: addOn.id,
+                        lagoMappableName: addOn.name,
                       })
                     }}
                     mappingInfos={

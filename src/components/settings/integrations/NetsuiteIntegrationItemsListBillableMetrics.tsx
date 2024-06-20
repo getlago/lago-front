@@ -145,6 +145,7 @@ const NetsuiteIntegrationItemsListBillableMetrics = ({
                         itemExternalCode: billableMetricMapping?.externalAccountCode || undefined,
                         itemExternalName: billableMetricMapping?.externalName || undefined,
                         lagoMappableId: billableMetric.id,
+                        lagoMappableName: billableMetric.name,
                       })
                     }}
                     mappingInfos={

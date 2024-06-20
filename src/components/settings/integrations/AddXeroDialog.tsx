@@ -12,124 +12,111 @@ import { boolean, object, string } from 'yup'
 import { Alert, Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { Checkbox, CheckboxField, TextInputField } from '~/components/form'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
-import { NETSUITE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
+import { XERO_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
-  CreateNetsuiteIntegrationInput,
-  NetsuiteForCreateDialogDialogFragment,
-  useCreateNetsuiteIntegrationMutation,
-  useUpdateNetsuiteIntegrationMutation,
+  CreateXeroIntegrationInput,
+  useCreateXeroIntegrationMutation,
+  useUpdateXeroIntegrationMutation,
+  XeroForCreateDialogDialogFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { NetsuiteIntegrationDetailsTabs } from '~/pages/settings/NetsuiteIntegrationDetails'
+import { XeroIntegrationDetailsTabs } from '~/pages/settings/XeroIntegrationDetails'
 import { theme } from '~/styles'
 
-import { DeleteNetsuiteIntegrationDialogRef } from './DeleteNetsuiteIntegrationDialog'
+import { DeleteXeroIntegrationDialogRef } from './DeleteXeroIntegrationDialog'
 
 gql`
-  fragment NetsuiteForCreateDialogDialog on NetsuiteIntegration {
+  fragment XeroForCreateDialogDialog on XeroIntegration {
     id
-    accountId
-    clientId
-    clientSecret
     code
+    connectionId
+    hasMappingsConfigured
     name
-    scriptEndpointUrl
     syncCreditNotes
     syncInvoices
     syncPayments
-    syncSalesOrders
   }
 
-  mutation createNetsuiteIntegration($input: CreateNetsuiteIntegrationInput!) {
-    createNetsuiteIntegration(input: $input) {
-      ...NetsuiteForCreateDialogDialog
+  mutation createXeroIntegration($input: CreateXeroIntegrationInput!) {
+    createXeroIntegration(input: $input) {
+      ...XeroForCreateDialogDialog
     }
   }
 
-  mutation updateNetsuiteIntegration($input: UpdateNetsuiteIntegrationInput!) {
-    updateNetsuiteIntegration(input: $input) {
-      ...NetsuiteForCreateDialogDialog
+  mutation updateXeroIntegration($input: UpdateXeroIntegrationInput!) {
+    updateXeroIntegration(input: $input) {
+      ...XeroForCreateDialogDialog
     }
   }
 `
 
-type TAddNetsuiteDialogProps = Partial<{
-  deleteModalRef: RefObject<DeleteNetsuiteIntegrationDialogRef>
-  provider: NetsuiteForCreateDialogDialogFragment
+type TAddXeroDialogProps = Partial<{
+  deleteModalRef: RefObject<DeleteXeroIntegrationDialogRef>
+  provider: XeroForCreateDialogDialogFragment
   deleteDialogCallback: Function
 }>
 
-export interface AddNetsuiteDialogRef {
-  openDialog: (props?: TAddNetsuiteDialogProps) => unknown
+export interface AddXeroDialogRef {
+  openDialog: (props?: TAddXeroDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
+export const AddXeroDialog = forwardRef<AddXeroDialogRef>((_, ref) => {
   const componentId = useId()
   const { nangoPublicKey } = envGlobalVar()
 
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const dialogRef = useRef<DialogRef>(null)
-  const [localData, setLocalData] = useState<TAddNetsuiteDialogProps | undefined>(undefined)
+  const [localData, setLocalData] = useState<TAddXeroDialogProps | undefined>(undefined)
   const [showGlobalError, setShowGlobalError] = useState(false)
-  const netsuiteProvider = localData?.provider
-  const isEdition = !!netsuiteProvider
+  const xeroProvider = localData?.provider
+  const isEdition = !!xeroProvider
 
-  const [createIntegration] = useCreateNetsuiteIntegrationMutation({
-    onCompleted({ createNetsuiteIntegration }) {
-      if (createNetsuiteIntegration?.id) {
+  const [createIntegration] = useCreateXeroIntegrationMutation({
+    onCompleted({ createXeroIntegration }) {
+      if (createXeroIntegration?.id) {
         navigate(
-          generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
-            integrationId: createNetsuiteIntegration.id,
-            tab: NetsuiteIntegrationDetailsTabs.Settings,
+          generatePath(XERO_INTEGRATION_DETAILS_ROUTE, {
+            integrationId: createXeroIntegration.id,
+            tab: XeroIntegrationDetailsTabs.Settings,
           }),
         )
 
         addToast({
-          message: translate('text_661ff6e56ef7e1b7c542b2c4'),
+          message: translate('text_6672ebb8b1b50be550eccb00'),
           severity: 'success',
         })
       }
     },
-    refetchQueries: ['getNetsuiteIntegrationsList'],
+    refetchQueries: ['getXeroIntegrationsList'],
   })
 
-  const [updateIntegration] = useUpdateNetsuiteIntegrationMutation({
-    onCompleted({ updateNetsuiteIntegration }) {
-      if (updateNetsuiteIntegration?.id) {
+  const [updateIntegration] = useUpdateXeroIntegrationMutation({
+    onCompleted({ updateXeroIntegration }) {
+      if (updateXeroIntegration?.id) {
         addToast({
-          message: translate('text_661ff6e56ef7e1b7c542b2cc'),
+          message: translate('text_6672ebb8b1b50be550eccb0b'),
           severity: 'success',
         })
       }
     },
   })
 
-  const formikProps = useFormik<Omit<CreateNetsuiteIntegrationInput, 'connectionId'>>({
+  const formikProps = useFormik<Omit<CreateXeroIntegrationInput, 'connectionId'>>({
     initialValues: {
-      name: netsuiteProvider?.name || '',
-      code: netsuiteProvider?.code || '',
-      accountId: netsuiteProvider?.accountId || '',
-      clientId: netsuiteProvider?.clientId || '',
-      clientSecret: netsuiteProvider?.clientSecret || '',
-      scriptEndpointUrl: netsuiteProvider?.scriptEndpointUrl || '',
-      syncCreditNotes: !!netsuiteProvider?.syncCreditNotes,
-      syncInvoices: !!netsuiteProvider?.syncInvoices,
-      syncPayments: !!netsuiteProvider?.syncPayments,
-      syncSalesOrders: !!netsuiteProvider?.syncSalesOrders,
+      code: xeroProvider?.code || '',
+      name: xeroProvider?.name || '',
+      syncCreditNotes: !!xeroProvider?.syncCreditNotes,
+      syncInvoices: !!xeroProvider?.syncInvoices,
+      syncPayments: !!xeroProvider?.syncPayments,
     },
     validationSchema: object().shape({
       name: string().required(''),
       code: string().required(''),
-      accountId: string().required(''),
-      clientId: string().required(''),
-      clientSecret: string().required(''),
-      scriptEndpointUrl: string().url('').required(''),
       syncCreditNotes: boolean(),
       syncInvoices: boolean(),
       syncPayments: boolean(),
-      syncSalesOrders: boolean(),
     }),
     onSubmit: async ({ ...values }, formikBag) => {
       setShowGlobalError(false)
@@ -154,7 +141,7 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
           variables: {
             input: {
               ...values,
-              id: netsuiteProvider?.id || '',
+              id: xeroProvider?.id || '',
             },
           },
         })
@@ -163,17 +150,11 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
           return handleError(res.errors)
         }
       } else {
-        const connectionId = `netsuite-${componentId.replaceAll(':', '')}-${Date.now()}`
+        const connectionId = `xero-${componentId.replaceAll(':', '')}-${Date.now()}`
         const nango = new Nango({ publicKey: nangoPublicKey })
 
         try {
-          const nangoAuthResult = await nango.auth('netsuite', connectionId, {
-            params: { accountId: values.accountId },
-            credentials: {
-              oauth_client_id_override: values.clientId,
-              oauth_client_secret_override: values.clientSecret,
-            },
-          })
+          const nangoAuthResult = await nango.auth('xero', connectionId)
 
           if (!!nangoAuthResult) {
             const res = await createIntegration({
@@ -210,13 +191,13 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
     <Dialog
       ref={dialogRef}
       title={translate(
-        isEdition ? 'text_661ff6e56ef7e1b7c542b1d0' : 'text_661ff6e56ef7e1b7c542b326',
+        isEdition ? 'text_661ff6e56ef7e1b7c542b1d0' : 'text_6672ebb8b1b50be550ecca9e',
         {
-          name: netsuiteProvider?.name,
+          name: xeroProvider?.name,
         },
       )}
       description={translate(
-        isEdition ? 'text_661ff6e56ef7e1b7c542b1da' : 'text_661ff6e56ef7e1b7c542b1d6',
+        isEdition ? 'text_6672ee6c7b6cb300d6cc31f3' : 'text_6672ebb8b1b50be550eccaa6',
       )}
       onClose={formikProps.resetForm}
       actions={({ closeDialog }) => (
@@ -234,7 +215,7 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
               onClick={() => {
                 closeDialog()
                 localData?.deleteModalRef?.current?.openDialog({
-                  provider: netsuiteProvider,
+                  provider: xeroProvider,
                   callback: localData.deleteDialogCallback,
                 })
               }}
@@ -252,7 +233,7 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
               onClick={formikProps.submitForm}
             >
               {translate(
-                isEdition ? 'text_65845f35d7d69c3ab4793dac' : 'text_661ff6e56ef7e1b7c542b326',
+                isEdition ? 'text_65845f35d7d69c3ab4793dac' : 'text_6672ebb8b1b50be550ecca9e',
               )}
             </Button>
           </Stack>
@@ -282,54 +263,12 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
               formikProps={formikProps}
             />
           </InlineInputs>
-
-          <TextInputField
-            name="accountId"
-            beforeChangeFormatter={['lowercase', 'trim', 'dashSeparator']}
-            disabled={isEdition}
-            label={translate('text_661ff6e56ef7e1b7c542b216')}
-            placeholder={translate('text_661ff6e56ef7e1b7c542b224')}
-            formikProps={formikProps}
-          />
-          <TextInputField
-            name="clientId"
-            disabled={isEdition}
-            label={translate('text_661ff6e56ef7e1b7c542b230')}
-            placeholder={translate('text_661ff6e56ef7e1b7c542b23b')}
-            formikProps={formikProps}
-          />
-          <TextInputField
-            name="clientSecret"
-            disabled={isEdition}
-            label={translate('text_661ff6e56ef7e1b7c542b247')}
-            placeholder={translate('text_661ff6e56ef7e1b7c542b251')}
-            formikProps={formikProps}
-          />
         </Stack>
 
         <Stack spacing={6}>
           <div>
             <Typography variant="bodyHl" color="grey700">
-              {translate('text_661ff6e56ef7e1b7c542b25b')}
-            </Typography>
-            <Typography variant="caption" color="grey600">
-              {translate('text_661ff6e56ef7e1b7c542b267')}
-            </Typography>
-          </div>
-
-          <TextInputField
-            name="scriptEndpointUrl"
-            label={translate('text_661ff6e56ef7e1b7c542b271')}
-            placeholder={translate('text_661ff6e56ef7e1b7c542b27d')}
-            formikProps={formikProps}
-            error={undefined} // Make sure to remove yup default error
-          />
-        </Stack>
-
-        <Stack spacing={6}>
-          <div>
-            <Typography variant="bodyHl" color="grey700">
-              {translate('text_661ff6e56ef7e1b7c542b286')}
+              {translate('text_6672ebb8b1b50be550eccad6')}
             </Typography>
             <Typography variant="caption" color="grey600">
               {translate('text_661ff6e56ef7e1b7c542b28e')}
@@ -342,7 +281,7 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
               label={
                 <Stack spacing={1} direction="row" alignItems="center" flexWrap="wrap">
                   <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b296')}
+                    {translate('text_6672ebb8b1b50be550eccaee')}
                   </Typography>
                   <Chip
                     size="small"
@@ -361,7 +300,7 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
               label={
                 <Stack spacing={1} direction="row" alignItems="center" flexWrap="wrap">
                   <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b296')}
+                    {translate('text_6672ebb8b1b50be550eccaee')}
                   </Typography>
                   <Chip
                     size="small"
@@ -380,7 +319,7 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
               label={
                 <Stack spacing={1} direction="row" alignItems="center" flexWrap="wrap">
                   <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b296')}
+                    {translate('text_6672ebb8b1b50be550eccaee')}
                   </Typography>
                   <Chip
                     size="small"
@@ -399,7 +338,7 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
               label={
                 <Stack spacing={1} direction="row" alignItems="center" flexWrap="wrap">
                   <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b296')}
+                    {translate('text_6672ebb8b1b50be550eccaee')}
                   </Typography>
                   <Chip
                     size="small"
@@ -418,7 +357,7 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
               label={
                 <Stack spacing={1} direction="row" alignItems="center" flexWrap="wrap">
                   <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b296')}
+                    {translate('text_6672ebb8b1b50be550eccaee')}
                   </Typography>
                   <Chip
                     size="small"
@@ -437,30 +376,11 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
               label={
                 <Stack spacing={1} direction="row" alignItems="center" flexWrap="wrap">
                   <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b296')}
+                    {translate('text_6672ebb8b1b50be550eccaee')}
                   </Typography>
                   <Chip
                     size="small"
                     label={translate('text_661ff6e56ef7e1b7c542b311')}
-                    color="danger600"
-                  />
-                  <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b29e')}
-                  </Typography>
-                </Stack>
-              }
-              formikProps={formikProps}
-            />
-            <CheckboxField
-              name="syncSalesOrders"
-              label={
-                <Stack spacing={1} direction="row" alignItems="center" flexWrap="wrap">
-                  <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b296')}
-                  </Typography>
-                  <Chip
-                    size="small"
-                    label={translate('text_661ff6e56ef7e1b7c542b31e')}
                     color="danger600"
                   />
                   <Typography variant="body" color="grey700">
@@ -488,4 +408,4 @@ const InlineInputs = styled.div`
   }
 `
 
-AddNetsuiteDialog.displayName = 'AddNetsuiteDialog'
+AddXeroDialog.displayName = 'AddXeroDialog'

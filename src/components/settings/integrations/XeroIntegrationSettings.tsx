@@ -6,76 +6,72 @@ import styled from 'styled-components'
 import { Alert, Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
 import {
   INTEGRATIONS_ROUTE,
-  NETSUITE_INTEGRATION_DETAILS_ROUTE,
-  NETSUITE_INTEGRATION_ROUTE,
+  XERO_INTEGRATION_DETAILS_ROUTE,
+  XERO_INTEGRATION_ROUTE,
 } from '~/core/router'
 import {
-  DeleteNetsuiteIntegrationDialogFragmentDoc,
+  DeleteXeroIntegrationDialogFragmentDoc,
   IntegrationTypeEnum,
-  NetsuiteForCreateDialogDialogFragmentDoc,
-  NetsuiteIntegrationSettingsFragment,
-  useGetNetsuiteIntegrationsSettingsQuery,
+  useGetXeroIntegrationsSettingsQuery,
+  XeroForCreateDialogDialogFragmentDoc,
+  XeroIntegrationSettingsFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { NetsuiteIntegrationDetailsTabs } from '~/pages/settings/NetsuiteIntegrationDetails'
+import { XeroIntegrationDetailsTabs } from '~/pages/settings/XeroIntegrationDetails'
 import { NAV_HEIGHT, theme } from '~/styles'
 
 import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from './AddEditDeleteSuccessRedirectUrlDialog'
-import { AddNetsuiteDialog, AddNetsuiteDialogRef } from './AddNetsuiteDialog'
+import { AddXeroDialog, AddXeroDialogRef } from './AddXeroDialog'
 import {
-  DeleteNetsuiteIntegrationDialog,
-  DeleteNetsuiteIntegrationDialogRef,
-} from './DeleteNetsuiteIntegrationDialog'
+  DeleteXeroIntegrationDialog,
+  DeleteXeroIntegrationDialogRef,
+} from './DeleteXeroIntegrationDialog'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
 gql`
-  fragment NetsuiteIntegrationSettings on NetsuiteIntegration {
+  fragment XeroIntegrationSettings on XeroIntegration {
     id
-    accountId
-    clientId
-    clientSecret
     code
+    connectionId
     hasMappingsConfigured
     name
-    scriptEndpointUrl
     syncCreditNotes
     syncInvoices
     syncPayments
-    syncSalesOrders
   }
 
-  query getNetsuiteIntegrationsSettings(
+  query getXeroIntegrationsSettings(
     $id: ID!
     $limit: Int
     $integrationsType: IntegrationTypeEnum!
   ) {
     integration(id: $id) {
-      ... on NetsuiteIntegration {
+      ... on XeroIntegration {
         id
-        ...NetsuiteIntegrationSettings
-        ...DeleteNetsuiteIntegrationDialog
-        ...NetsuiteForCreateDialogDialog
+        ...XeroIntegrationSettings
+        ...DeleteXeroIntegrationDialog
+        ...XeroForCreateDialogDialog
       }
     }
 
     integrations(limit: $limit, type: $integrationsType) {
       collection {
-        ... on NetsuiteIntegration {
+        ... on XeroIntegration {
           id
         }
       }
     }
   }
 
-  ${DeleteNetsuiteIntegrationDialogFragmentDoc}
-  ${NetsuiteForCreateDialogDialogFragmentDoc}
+  ${DeleteXeroIntegrationDialogFragmentDoc}
+  ${XeroForCreateDialogDialogFragmentDoc}
 `
 
-const buildEnabledSynchronizedLabelKeys = (integration?: NetsuiteIntegrationSettingsFragment) => {
+const buildEnabledSynchronizedLabelKeys = (integration?: XeroIntegrationSettingsFragment) => {
   const labels = [
     'text_661ff6e56ef7e1b7c542b2a6',
     'text_661ff6e56ef7e1b7c542b2c2',
@@ -90,10 +86,6 @@ const buildEnabledSynchronizedLabelKeys = (integration?: NetsuiteIntegrationSett
     labels.push('text_661ff6e56ef7e1b7c542b2e9')
   }
 
-  if (integration?.syncSalesOrders) {
-    labels.push('text_661ff6e56ef7e1b7c542b31e')
-  }
-
   if (integration?.syncPayments) {
     labels.push('text_661ff6e56ef7e1b7c542b311')
   }
@@ -101,25 +93,25 @@ const buildEnabledSynchronizedLabelKeys = (integration?: NetsuiteIntegrationSett
   return labels
 }
 
-const NetsuiteIntegrationSettings = () => {
+const XeroIntegrationSettings = () => {
   const navigate = useNavigate()
   const { integrationId = '' } = useParams()
-  const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteNetsuiteIntegrationDialogRef>(null)
+  const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
+  const deleteDialogRef = useRef<DeleteXeroIntegrationDialogRef>(null)
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
-  const { data, loading } = useGetNetsuiteIntegrationsSettingsQuery({
+  const { data, loading } = useGetXeroIntegrationsSettingsQuery({
     variables: {
       id: integrationId as string,
       limit: PROVIDER_CONNECTION_LIMIT,
-      integrationsType: IntegrationTypeEnum.Netsuite,
+      integrationsType: IntegrationTypeEnum.Xero,
     },
     skip: !integrationId,
   })
-  const netsuiteIntegration = data?.integration as NetsuiteIntegrationSettingsFragment | undefined
+  const xeroIntegration = data?.integration as XeroIntegrationSettingsFragment | undefined
   const deleteDialogCallback = () => {
     if ((data?.integrations?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
-      navigate(NETSUITE_INTEGRATION_ROUTE)
+      navigate(XERO_INTEGRATION_ROUTE)
     } else {
       navigate(INTEGRATIONS_ROUTE)
     }
@@ -128,22 +120,22 @@ const NetsuiteIntegrationSettings = () => {
   return (
     <>
       <Settings>
-        {!loading && !!netsuiteIntegration && !netsuiteIntegration?.hasMappingsConfigured && (
+        {!loading && !!xeroIntegration && !xeroIntegration?.hasMappingsConfigured && (
           <Alert
             type="warning"
             ButtonProps={{
               label: translate('text_661ff6e56ef7e1b7c542b20a'),
               onClick: () => {
                 navigate(
-                  generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
+                  generatePath(XERO_INTEGRATION_DETAILS_ROUTE, {
                     integrationId,
-                    tab: NetsuiteIntegrationDetailsTabs.Items,
+                    tab: XeroIntegrationDetailsTabs.Items,
                   }),
                 )
               },
             }}
           >
-            {translate('text_661ff6e56ef7e1b7c542b218')}
+            {translate('text_6672ebb8b1b50be550eccaa0')}
           </Alert>
         )}
 
@@ -154,8 +146,8 @@ const NetsuiteIntegrationSettings = () => {
               variant="quaternary"
               disabled={loading}
               onClick={() => {
-                addNetsuiteDialogRef.current?.openDialog({
-                  provider: netsuiteIntegration,
+                addXeroDialogRef.current?.openDialog({
+                  provider: xeroIntegration,
                   deleteModalRef: deleteDialogRef,
                   deleteDialogCallback,
                 })
@@ -186,7 +178,7 @@ const NetsuiteIntegrationSettings = () => {
                       {translate('text_626162c62f790600f850b76a')}
                     </Typography>
                     <Typography variant="body" color="grey700">
-                      {netsuiteIntegration?.name}
+                      {xeroIntegration?.name}
                     </Typography>
                   </div>
                 </Item>
@@ -199,76 +191,10 @@ const NetsuiteIntegrationSettings = () => {
                       {translate('text_62876e85e32e0300e1803127')}
                     </Typography>
                     <Typography variant="body" color="grey700">
-                      {netsuiteIntegration?.code}
+                      {xeroIntegration?.code}
                     </Typography>
                   </div>
                 </Item>
-                <Item>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="info-circle" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_661ff6e56ef7e1b7c542b216')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {netsuiteIntegration?.accountId}
-                    </Typography>
-                  </div>
-                </Item>
-                <Item>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="info-circle" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_661ff6e56ef7e1b7c542b230')}
-                    </Typography>
-                    <Typography
-                      variant="body"
-                      color="grey700"
-                      sx={{
-                        lineBreak: 'anywhere',
-                      }}
-                    >
-                      {netsuiteIntegration?.clientId}
-                    </Typography>
-                  </div>
-                </Item>
-                <Item>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="key" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_661ff6e56ef7e1b7c542b247')}
-                    </Typography>
-                    <Typography
-                      variant="body"
-                      color="grey700"
-                      sx={{
-                        lineBreak: 'anywhere',
-                      }}
-                    >
-                      {netsuiteIntegration?.clientSecret}
-                    </Typography>
-                  </div>
-                </Item>
-                {!!netsuiteIntegration?.scriptEndpointUrl && (
-                  <Item>
-                    <Avatar variant="connector" size="big">
-                      <Icon name="link" color="dark" />
-                    </Avatar>
-                    <div>
-                      <Typography variant="caption" color="grey600">
-                        {translate('text_661ff6e56ef7e1b7c542b2a0')}
-                      </Typography>
-                      <Typography variant="body" color="grey700">
-                        {netsuiteIntegration?.scriptEndpointUrl}
-                      </Typography>
-                    </div>
-                  </Item>
-                )}
                 <Item>
                   <Avatar variant="connector" size="big">
                     <Icon name="schema" color="dark" />
@@ -278,7 +204,7 @@ const NetsuiteIntegrationSettings = () => {
                       {translate('text_661ff6e56ef7e1b7c542b2b4')}
                     </Typography>
                     <Typography variant="body" color="grey700">
-                      {buildEnabledSynchronizedLabelKeys(netsuiteIntegration)
+                      {buildEnabledSynchronizedLabelKeys(xeroIntegration)
                         .map((t) => translate(t))
                         .sort((a, b) => a.localeCompare(b))
                         .join(', ')}
@@ -291,14 +217,14 @@ const NetsuiteIntegrationSettings = () => {
         </section>
       </Settings>
 
-      <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
-      <DeleteNetsuiteIntegrationDialog ref={deleteDialogRef} />
+      <AddXeroDialog ref={addXeroDialogRef} />
+      <DeleteXeroIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }
 
-export default NetsuiteIntegrationSettings
+export default XeroIntegrationSettings
 
 const Settings = styled.div`
   display: flex;

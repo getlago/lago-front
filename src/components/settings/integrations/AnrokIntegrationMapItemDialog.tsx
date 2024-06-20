@@ -98,6 +98,7 @@ type TAnrokIntegrationMapItemDialogProps = {
   itemExternalId?: string
   itemExternalName?: string
   lagoMappableId?: string
+  lagoMappableName?: string
 }
 
 export interface AnrokIntegrationMapItemDialogRef {
@@ -323,41 +324,61 @@ export const AnrokIntegrationMapItemDialog = forwardRef<AnrokIntegrationMapItemD
         case MappingTypeEnum.FallbackItem:
           return [
             translate('text_6630e51df0a194013daea61f'),
-            translate('text_6668821d94e4da4dfd8b3890'),
+            translate('text_6668821d94e4da4dfd8b3890', {
+              integrationType: translate('text_6668821d94e4da4dfd8b3834'),
+            }),
           ]
         case MappingTypeEnum.MinimumCommitment:
           return [
-            translate('text_6668821d94e4da4dfd8b3822'),
-            translate('text_6668821d94e4da4dfd8b382e'),
+            translate('text_6668821d94e4da4dfd8b3822', {
+              integrationType: translate('text_6668821d94e4da4dfd8b3834'),
+            }),
+            translate('text_6668821d94e4da4dfd8b382e', {
+              integrationType: translate('text_6668821d94e4da4dfd8b3834'),
+            }),
           ]
         case MappingTypeEnum.PrepaidCredit:
           return [
-            translate('text_6668821d94e4da4dfd8b3884'),
-            translate('text_6668821d94e4da4dfd8b389a'),
+            translate('text_6668821d94e4da4dfd8b3884', {
+              integrationType: translate('text_6668821d94e4da4dfd8b3834'),
+            }),
+            translate('text_6668821d94e4da4dfd8b389a', {
+              integrationType: translate('text_6668821d94e4da4dfd8b3834'),
+            }),
           ]
         case MappingTypeEnum.SubscriptionFee:
           return [
-            translate('text_666886c73a2ea34eb2aa3e33'),
-            translate('text_666886c73a2ea34eb2aa3e34'),
+            translate('text_666886c73a2ea34eb2aa3e33', {
+              integrationType: translate('text_6668821d94e4da4dfd8b3834'),
+            }),
+            translate('text_666886c73a2ea34eb2aa3e34', {
+              integrationType: translate('text_6668821d94e4da4dfd8b3834'),
+            }),
           ]
         case MappableTypeEnum.AddOn:
           return [
             translate('text_6668821d94e4da4dfd8b3820', {
-              addOnName: localData?.itemExternalName,
+              addOnName: localData?.lagoMappableName,
+              integrationType: translate('text_6668821d94e4da4dfd8b3834'),
             }),
-            translate('text_6668821d94e4da4dfd8b382c'),
+            translate('text_6668821d94e4da4dfd8b382c', {
+              integrationType: translate('text_6668821d94e4da4dfd8b3834'),
+            }),
           ]
         case MappableTypeEnum.BillableMetric:
           return [
             translate('text_6668821d94e4da4dfd8b3824', {
-              billableMetricName: localData?.itemExternalName,
+              billableMetricName: localData?.lagoMappableName,
+              integrationType: translate('text_6668821d94e4da4dfd8b3834'),
             }),
-            translate('text_6668821d94e4da4dfd8b3830'),
+            translate('text_6668821d94e4da4dfd8b3830', {
+              integrationType: translate('text_6668821d94e4da4dfd8b3834'),
+            }),
           ]
         default:
           return ['', '']
       }
-    }, [localData?.itemExternalName, localData?.type, translate])
+    }, [localData?.lagoMappableName, localData?.type, translate])
 
     useImperativeHandle(ref, () => ({
       openDialog: (props) => {

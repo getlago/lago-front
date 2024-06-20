@@ -7,7 +7,7 @@ import { InfiniteScroll } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { CREATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import {
-  GetBillableMetricsForAnrokItemsListQuery,
+  GetBillableMetricsForXeroItemsListQuery,
   InputMaybe,
   MappableTypeEnum,
 } from '~/generated/graphql'
@@ -15,12 +15,12 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-import { AnrokIntegrationMapItemDialogRef } from './AnrokIntegrationMapItemDialog'
 import IntegrationItemHeader from './IntegrationItemHeader'
 import IntegrationItemLine from './IntegrationItemLine'
+import { XeroIntegrationMapItemDialogRef } from './XeroIntegrationMapItemDialog'
 
 gql`
-  fragment AnrokIntegrationItemsListBillableMetrics on BillableMetric {
+  fragment XeroIntegrationItemsListBillableMetrics on BillableMetric {
     id
     name
     code
@@ -34,25 +34,25 @@ gql`
   }
 `
 
-type AnrokIntegrationItemsListBillableMetricsProps = {
-  data: GetBillableMetricsForAnrokItemsListQuery | undefined
+type XeroIntegrationItemsListBillableMetricsProps = {
+  data: GetBillableMetricsForXeroItemsListQuery | undefined
   fetchMoreBillableMetrics: Function
   hasError: boolean
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  anrokIntegrationMapItemDialogRef: RefObject<AnrokIntegrationMapItemDialogRef>
+  xeroIntegrationMapItemDialogRef: RefObject<XeroIntegrationMapItemDialogRef>
 }
 
-const AnrokIntegrationItemsListBillableMetrics = ({
+const XeroIntegrationItemsListBillableMetrics = ({
   data,
   fetchMoreBillableMetrics,
   hasError,
   integrationId,
   isLoading,
-  anrokIntegrationMapItemDialogRef,
+  xeroIntegrationMapItemDialogRef,
   searchTerm,
-}: AnrokIntegrationItemsListBillableMetricsProps) => {
+}: XeroIntegrationItemsListBillableMetricsProps) => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const billableMetrics = data?.billableMetrics?.collection || []
@@ -95,15 +95,15 @@ const AnrokIntegrationItemsListBillableMetrics = ({
         <>
           {!!searchTerm ? (
             <GenericPlaceholder
-              title={translate('text_63bab307a61c62af497e05a2')}
+              title={translate('text_63bee4e10e2d53912bfe4da5')}
               subtitle={translate('text_63bee4e10e2d53912bfe4da7')}
               image={<EmptyImage width="136" height="104" />}
             />
           ) : (
             <GenericPlaceholder
-              title={translate('text_623b53fea66c76017eaebb70')}
-              subtitle={translate('text_623b53fea66c76017eaebb78')}
-              buttonTitle={translate('text_623b53fea66c76017eaebb7c')}
+              title={translate('text_629728388c4d2300e2d380c9')}
+              subtitle={translate('text_629728388c4d2300e2d380df')}
+              buttonTitle={translate('text_629728388c4d2300e2d3810f')}
               buttonVariant="primary"
               buttonAction={() => navigate(CREATE_BILLABLE_METRIC_ROUTE)}
               image={<EmptyImage width="136" height="104" />}
@@ -137,11 +137,12 @@ const AnrokIntegrationItemsListBillableMetrics = ({
                     description={billableMetric.code}
                     loading={false}
                     onMappingClick={() => {
-                      anrokIntegrationMapItemDialogRef.current?.openDialog({
+                      xeroIntegrationMapItemDialogRef.current?.openDialog({
                         integrationId,
                         type: MappableTypeEnum.BillableMetric,
                         itemId: billableMetricMapping?.id,
                         itemExternalId: billableMetricMapping?.externalId,
+                        itemExternalCode: billableMetricMapping?.externalAccountCode || undefined,
                         itemExternalName: billableMetricMapping?.externalName || undefined,
                         lagoMappableId: billableMetric.id,
                         lagoMappableName: billableMetric.name,
@@ -150,7 +151,7 @@ const AnrokIntegrationItemsListBillableMetrics = ({
                     mappingInfos={
                       !!billableMetricMapping?.id
                         ? {
-                            id: billableMetricMapping.externalId,
+                            id: billableMetricMapping.externalAccountCode || '',
                             name: billableMetricMapping.externalName || '',
                           }
                         : undefined
@@ -175,4 +176,4 @@ const AnrokIntegrationItemsListBillableMetrics = ({
   )
 }
 
-export default AnrokIntegrationItemsListBillableMetrics
+export default XeroIntegrationItemsListBillableMetrics

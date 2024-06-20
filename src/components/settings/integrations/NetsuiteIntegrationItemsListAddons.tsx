@@ -145,6 +145,7 @@ const NetsuiteIntegrationItemsListAddons = ({
                         itemExternalCode: addonMapping?.externalAccountCode || undefined,
                         itemExternalName: addonMapping?.externalName || undefined,
                         lagoMappableId: addOn.id,
+                        lagoMappableName: addOn.name,
                       })
                     }}
                     mappingInfos={

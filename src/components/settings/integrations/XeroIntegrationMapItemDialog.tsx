@@ -13,15 +13,15 @@ import {
   IntegrationItemTypeEnum,
   MappableTypeEnum,
   MappingTypeEnum,
-  useCreateNetsuiteIntegrationCollectionMappingMutation,
-  useCreateNetsuiteIntegrationMappingMutation,
-  useDeleteNetsuiteIntegrationCollectionMappingMutation,
-  useDeleteNetsuiteIntegrationMappingMutation,
-  useGetNetsuiteIntegrationItemsLazyQuery,
-  useTriggerNetsuiteIntegrationItemsRefetchMutation,
-  useTriggerNetsuiteIntegrationTaxItemsRefetchMutation,
-  useUpdateNetsuiteIntegrationCollectionMappingMutation,
-  useUpdateNetsuiteIntegrationMappingMutation,
+  useCreateXeroIntegrationCollectionMappingMutation,
+  useCreateXeroIntegrationMappingMutation,
+  useDeleteXeroIntegrationCollectionMappingMutation,
+  useDeleteXeroIntegrationMappingMutation,
+  useGetXeroIntegrationItemsLazyQuery,
+  useTriggerXeroIntegrationItemsRefetchMutation,
+  useTriggerXeroIntegrationTaxItemsRefetchMutation,
+  useUpdateXeroIntegrationCollectionMappingMutation,
+  useUpdateXeroIntegrationMappingMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
@@ -47,7 +47,7 @@ const extractOptionValue = (optionValue: string) => {
 }
 
 gql`
-  fragment NetsuiteIntegrationMapItemDialog on IntegrationItem {
+  fragment XeroIntegrationMapItemDialog on IntegrationItem {
     id
     externalId
     externalName
@@ -55,14 +55,14 @@ gql`
     itemType
   }
 
-  fragment NetsuiteIntegrationMapItemDialogCollectionMappingItem on CollectionMapping {
+  fragment XeroIntegrationMapItemDialogCollectionMappingItem on CollectionMapping {
     id
     externalId
     externalName
     externalAccountCode
   }
 
-  fragment NetsuiteIntegrationMapItemDialogCollectionItem on Mapping {
+  fragment XeroIntegrationMapItemDialogCollectionItem on Mapping {
     id
     externalId
     externalName
@@ -70,7 +70,7 @@ gql`
   }
 
   # Item fetch
-  query getNetsuiteIntegrationItems(
+  query getXeroIntegrationItems(
     $integrationId: ID!
     $itemType: IntegrationItemTypeEnum
     $page: Int
@@ -85,7 +85,7 @@ gql`
       searchTerm: $searchTerm
     ) {
       collection {
-        ...NetsuiteIntegrationMapItemDialog
+        ...XeroIntegrationMapItemDialog
       }
       metadata {
         currentPage
@@ -95,41 +95,41 @@ gql`
     }
   }
 
-  mutation triggerNetsuiteIntegrationItemsRefetch($input: FetchIntegrationItemsInput!) {
+  mutation triggerXeroIntegrationItemsRefetch($input: FetchIntegrationItemsInput!) {
     fetchIntegrationItems(input: $input) {
       collection {
-        ...NetsuiteIntegrationMapItemDialog
+        ...XeroIntegrationMapItemDialog
       }
     }
   }
 
-  mutation triggerNetsuiteIntegrationTaxItemsRefetch($input: FetchIntegrationTaxItemsInput!) {
+  mutation triggerXeroIntegrationTaxItemsRefetch($input: FetchIntegrationTaxItemsInput!) {
     fetchIntegrationTaxItems(input: $input) {
       collection {
-        ...NetsuiteIntegrationMapItemDialog
+        ...XeroIntegrationMapItemDialog
       }
     }
   }
 
   # Mapping Creation
-  mutation createNetsuiteIntegrationCollectionMapping(
+  mutation createXeroIntegrationCollectionMapping(
     $input: CreateIntegrationCollectionMappingInput!
   ) {
     createIntegrationCollectionMapping(input: $input) {
       id
-      ...NetsuiteIntegrationMapItemDialogCollectionMappingItem
+      ...XeroIntegrationMapItemDialogCollectionMappingItem
     }
   }
 
-  mutation createNetsuiteIntegrationMapping($input: CreateIntegrationMappingInput!) {
+  mutation createXeroIntegrationMapping($input: CreateIntegrationMappingInput!) {
     createIntegrationMapping(input: $input) {
       id
-      ...NetsuiteIntegrationMapItemDialogCollectionItem
+      ...XeroIntegrationMapItemDialogCollectionItem
     }
   }
 
   # Mapping edition
-  mutation updateNetsuiteIntegrationCollectionMapping(
+  mutation updateXeroIntegrationCollectionMapping(
     $input: UpdateIntegrationCollectionMappingInput!
   ) {
     updateIntegrationCollectionMapping(input: $input) {
@@ -137,14 +137,14 @@ gql`
     }
   }
 
-  mutation updateNetsuiteIntegrationMapping($input: UpdateIntegrationMappingInput!) {
+  mutation updateXeroIntegrationMapping($input: UpdateIntegrationMappingInput!) {
     updateIntegrationMapping(input: $input) {
       id
     }
   }
 
   # Mapping deletion
-  mutation deleteNetsuiteIntegrationCollectionMapping(
+  mutation deleteXeroIntegrationCollectionMapping(
     $input: DestroyIntegrationCollectionMappingInput!
   ) {
     destroyIntegrationCollectionMapping(input: $input) {
@@ -152,14 +152,14 @@ gql`
     }
   }
 
-  mutation deleteNetsuiteIntegrationMapping($input: DestroyIntegrationMappingInput!) {
+  mutation deleteXeroIntegrationMapping($input: DestroyIntegrationMappingInput!) {
     destroyIntegrationMapping(input: $input) {
       id
     }
   }
 `
 
-type TNetsuiteIntegrationMapItemDialogProps = {
+type TXeroIntegrationMapItemDialogProps = {
   type: MappingTypeEnum | MappableTypeEnum
   integrationId: string
   itemId?: string
@@ -170,16 +170,16 @@ type TNetsuiteIntegrationMapItemDialogProps = {
   lagoMappableName?: string
 }
 
-export interface NetsuiteIntegrationMapItemDialogRef {
-  openDialog: (props: TNetsuiteIntegrationMapItemDialogProps) => unknown
+export interface XeroIntegrationMapItemDialogRef {
+  openDialog: (props: TXeroIntegrationMapItemDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMapItemDialogRef>(
+export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDialogRef>(
   (_, ref) => {
     const { translate } = useInternationalization()
     const dialogRef = useRef<WarningDialogRef>(null)
-    const [localData, setLocalData] = useState<TNetsuiteIntegrationMapItemDialogProps | undefined>(
+    const [localData, setLocalData] = useState<TXeroIntegrationMapItemDialogProps | undefined>(
       undefined,
     )
     const isTaxContext = localData?.type === MappingTypeEnum.Tax
@@ -188,16 +188,16 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
     )
     const refetchQueries =
       localData?.type === MappableTypeEnum.AddOn
-        ? ['getAddOnsForNetsuiteItemsList']
+        ? ['getAddOnsForXeroItemsList']
         : localData?.type === MappableTypeEnum.BillableMetric
-          ? ['getBillableMetricsForNetsuiteItemsList']
-          : ['getNetsuiteIntegrationCollectionMappings']
+          ? ['getBillableMetricsForXeroItemsList']
+          : ['getXeroIntegrationCollectionMappings']
 
     // Item fetch
     const [
-      getNetsuiteIntegrationItems,
+      getXeroIntegrationItems,
       { loading: initialItemFetchLoading, data: initialItemFetchData },
-    ] = useGetNetsuiteIntegrationItemsLazyQuery({
+    ] = useGetXeroIntegrationItemsLazyQuery({
       variables: {
         limit: 50,
         integrationId: localData?.integrationId as string,
@@ -208,18 +208,18 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
       },
     })
     const [triggerItemRefetch, { loading: itemsLoading }] =
-      useTriggerNetsuiteIntegrationItemsRefetchMutation({
+      useTriggerXeroIntegrationItemsRefetchMutation({
         variables: { input: { integrationId: localData?.integrationId as string } },
-        refetchQueries: ['getNetsuiteIntegrationItems'],
+        refetchQueries: ['getXeroIntegrationItems'],
       })
     const [triggerTaxItemRefetch, { loading: taxItemsLoading }] =
-      useTriggerNetsuiteIntegrationTaxItemsRefetchMutation({
+      useTriggerXeroIntegrationTaxItemsRefetchMutation({
         variables: { input: { integrationId: localData?.integrationId as string } },
-        refetchQueries: ['getNetsuiteIntegrationItems'],
+        refetchQueries: ['getXeroIntegrationItems'],
       })
 
     // Mapping Creation
-    const [createCollectionMapping] = useCreateNetsuiteIntegrationCollectionMappingMutation({
+    const [createCollectionMapping] = useCreateXeroIntegrationCollectionMappingMutation({
       onCompleted(data) {
         if (data && data.createIntegrationCollectionMapping?.id) {
           addToast({
@@ -230,7 +230,7 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
       },
       refetchQueries,
     })
-    const [createMapping] = useCreateNetsuiteIntegrationMappingMutation({
+    const [createMapping] = useCreateXeroIntegrationMappingMutation({
       onCompleted(data) {
         if (data && data.createIntegrationMapping?.id) {
           addToast({
@@ -243,7 +243,7 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
     })
 
     // Mapping edition
-    const [updateCollectionMapping] = useUpdateNetsuiteIntegrationCollectionMappingMutation({
+    const [updateCollectionMapping] = useUpdateXeroIntegrationCollectionMappingMutation({
       onCompleted(data) {
         if (data && data.updateIntegrationCollectionMapping?.id) {
           addToast({
@@ -254,7 +254,7 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
       },
       refetchQueries,
     })
-    const [updateMapping] = useUpdateNetsuiteIntegrationMappingMutation({
+    const [updateMapping] = useUpdateXeroIntegrationMappingMutation({
       onCompleted(data) {
         if (data && data.updateIntegrationMapping?.id) {
           addToast({
@@ -267,7 +267,7 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
     })
 
     // Mapping deletion
-    const [deleteCollectionMapping] = useDeleteNetsuiteIntegrationCollectionMappingMutation({
+    const [deleteCollectionMapping] = useDeleteXeroIntegrationCollectionMappingMutation({
       onCompleted(data) {
         if (data && data.destroyIntegrationCollectionMapping?.id) {
           addToast({
@@ -278,7 +278,7 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
       },
       refetchQueries,
     })
-    const [deleteMapping] = useDeleteNetsuiteIntegrationMappingMutation({
+    const [deleteMapping] = useDeleteXeroIntegrationMappingMutation({
       onCompleted(data) {
         if (data && data.destroyIntegrationMapping?.id) {
           addToast({
@@ -423,18 +423,22 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
 
     const comboboxData = useMemo(() => {
       return (initialItemFetchData?.integrationItems?.collection || []).map((item) => {
-        const { externalId, externalName, externalAccountCode, itemType } = item
+        const { externalId, externalName, externalAccountCode } = item
 
         return {
-          label: `${externalId} - ${externalName}${
-            itemType === IntegrationItemTypeEnum.Standard ? ` (${externalAccountCode})` : ''
-          }`,
+          label:
+            localData?.type === MappingTypeEnum.Account
+              ? `${externalId} - ${externalName} - ${externalAccountCode}`
+              : `${externalName} (${externalAccountCode})`,
+          description: '', // TODO: would be great to have the description fitting the item option
           labelNode: (
             <Item>
               <Typography variant="body" color="grey700" noWrap>
-                {externalId}&nbsp;-&nbsp;{externalName}
+                {localData?.type === MappingTypeEnum.Account
+                  ? `${externalId} - ${externalName} - ${externalAccountCode}`
+                  : `${externalName}`}
               </Typography>
-              {itemType === IntegrationItemTypeEnum.Standard && (
+              {localData?.type !== MappingTypeEnum.Account && (
                 <>
                   &nbsp;
                   <Typography variant="body" color="grey600" noWrap>
@@ -451,89 +455,98 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
           }),
         }
       })
-    }, [initialItemFetchData?.integrationItems?.collection])
+    }, [initialItemFetchData?.integrationItems?.collection, localData?.type])
 
     const [title, description] = useMemo(() => {
       switch (localData?.type) {
         case MappingTypeEnum.Coupon:
           return [
             translate('text_6630e57386f8a700a3318cc8', {
-              integrationType: translate('text_661ff6e56ef7e1b7c542b239'),
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
             }),
             translate('text_6630e57386f8a700a3318cc9', {
-              integrationType: translate('text_661ff6e56ef7e1b7c542b239'),
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
             }),
           ]
         case MappingTypeEnum.CreditNote:
           return [
             translate('text_66461b36b4b38c006e8b5067', {
-              integrationType: translate('text_661ff6e56ef7e1b7c542b239'),
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
             }),
             translate('text_66461b36b4b38c006e8b5068', {
-              integrationType: translate('text_661ff6e56ef7e1b7c542b239'),
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
             }),
           ]
         case MappingTypeEnum.FallbackItem:
           return [
             translate('text_6630e51df0a194013daea61f'),
-            translate('text_6630e51df0a194013daea620', {
-              integrationType: translate('text_661ff6e56ef7e1b7c542b239'),
+            translate('text_6668821d94e4da4dfd8b3890', {
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
             }),
           ]
         case MappingTypeEnum.MinimumCommitment:
           return [
             translate('text_6668821d94e4da4dfd8b3822', {
-              integrationType: translate('text_661ff6e56ef7e1b7c542b239'),
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
             }),
             translate('text_6668821d94e4da4dfd8b382e', {
-              integrationType: translate('text_661ff6e56ef7e1b7c542b239'),
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
             }),
           ]
         case MappingTypeEnum.PrepaidCredit:
           return [
             translate('text_6668821d94e4da4dfd8b3884', {
-              integrationType: translate('text_661ff6e56ef7e1b7c542b239'),
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
             }),
             translate('text_6668821d94e4da4dfd8b389a', {
-              integrationType: translate('text_661ff6e56ef7e1b7c542b239'),
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
             }),
           ]
         case MappingTypeEnum.Tax:
           return [
             translate('text_6630e560a830417bd3b119fb', {
-              integrationType: translate('text_661ff6e56ef7e1b7c542b239'),
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
             }),
             translate('text_6630e560a830417bd3b119fc', {
-              integrationType: translate('text_661ff6e56ef7e1b7c542b239'),
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
             }),
           ]
         case MappingTypeEnum.SubscriptionFee:
           return [
             translate('text_666886c73a2ea34eb2aa3e33', {
-              integrationType: translate('text_661ff6e56ef7e1b7c542b239'),
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
             }),
             translate('text_666886c73a2ea34eb2aa3e34', {
-              integrationType: translate('text_661ff6e56ef7e1b7c542b239'),
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
+            }),
+          ]
+        case MappingTypeEnum.Account:
+          return [
+            translate('text_6672ebb8b1b50be550ecca50', {
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
+            }),
+            translate('text_6672ebb8b1b50be550ecca58', {
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
             }),
           ]
         case MappableTypeEnum.AddOn:
           return [
             translate('text_6668821d94e4da4dfd8b3820', {
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
               addOnName: localData?.lagoMappableName,
-              integrationType: translate('text_661ff6e56ef7e1b7c542b239'),
             }),
             translate('text_6668821d94e4da4dfd8b382c', {
-              integrationType: translate('text_661ff6e56ef7e1b7c542b239'),
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
             }),
           ]
         case MappableTypeEnum.BillableMetric:
           return [
             translate('text_6668821d94e4da4dfd8b3824', {
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
               billableMetricName: localData?.lagoMappableName,
-              integrationType: translate('text_661ff6e56ef7e1b7c542b239'),
             }),
             translate('text_6668821d94e4da4dfd8b3830', {
-              integrationType: translate('text_661ff6e56ef7e1b7c542b239'),
+              integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
             }),
           ]
         default:
@@ -561,7 +574,7 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
         onOpen={() => {
           // Have to delay the ececution of the query, as the dialog props are not present immediatly after the dialog is opened
           setTimeout(() => {
-            getNetsuiteIntegrationItems()
+            getXeroIntegrationItems()
           }, 1)
         }}
         actions={({ closeDialog }) => (
@@ -584,14 +597,14 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
               value={formikProps.values.selectedElementValue}
               data={comboboxData}
               loading={isLoading}
-              label={translate('text_6630e51df0a194013daea621')}
+              label={translate('text_6672ebb8b1b50be550eccb73')}
               placeholder={translate('text_6630e51df0a194013daea622')}
               helperText={
                 !isLoading && !comboboxData.length
                   ? translate('text_6630ec823adac97d3bf0fb4b')
                   : undefined
               }
-              searchQuery={getNetsuiteIntegrationItems as unknown as ComboBoxProps['searchQuery']}
+              searchQuery={getXeroIntegrationItems as unknown as ComboBoxProps['searchQuery']}
               onChange={(value) => {
                 formikProps.setFieldValue('selectedElementValue', value)
               }}
@@ -618,7 +631,7 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
   },
 )
 
-NetsuiteIntegrationMapItemDialog.displayName = 'NetsuiteIntegrationMapItemDialog'
+XeroIntegrationMapItemDialog.displayName = 'XeroIntegrationMapItemDialog'
 
 const Container = styled.div`
   margin-bottom: ${theme.spacing(8)};
