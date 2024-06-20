@@ -5,9 +5,10 @@ import styled from 'styled-components'
 
 import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
-import { buildNetsuiteCustomerUrl } from '~/core/constants/externalUrls'
+import { buildAnrokCustomerUrl, buildNetsuiteCustomerUrl } from '~/core/constants/externalUrls'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
+  AnrokIntegration,
   CustomerMainInfosFragment,
   NetsuiteIntegration,
   ProviderPaymentMethodsEnum,
@@ -18,6 +19,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
+import Anrok from '~/public/images/anrok.svg'
 import Gocardless from '~/public/images/gocardless.svg'
 import Netsuite from '~/public/images/netsuite.svg'
 import Stripe from '~/public/images/stripe.svg'
@@ -51,6 +53,11 @@ gql`
     zipcode
     paymentProvider
     timezone
+    anrokCustomer {
+      id
+      integrationId
+      externalCustomerId
+    }
     netsuiteCustomer {
       id
       integrationId
@@ -102,6 +109,12 @@ gql`
           name
           accountId
         }
+        ... on AnrokIntegration {
+          __typename
+          id
+          name
+          apiKey
+        }
       }
     }
   }
@@ -133,9 +146,17 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     (i) => i.__typename === 'NetsuiteIntegration',
   ) as NetsuiteIntegration[] | undefined
 
+  const allAnrokIntegrations = integrationsData?.integrations?.collection.filter(
+    (i) => i.__typename === 'AnrokIntegration',
+  ) as AnrokIntegration[] | undefined
+
   const connectedNetsuiteIntegration = allNetsuiteIntegrations?.find(
     (integration) => integration?.id === customer?.netsuiteCustomer?.integrationId,
   ) as NetsuiteIntegration
+
+  const connectedAnrokIntegration = allAnrokIntegrations?.find(
+    (integration) => integration?.id === customer?.anrokCustomer?.integrationId,
+  ) as AnrokIntegration
 
   if (loading || !customer)
     return (
@@ -328,6 +349,40 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
               >
                 <Typography color="info600">
                   {customer?.netsuiteCustomer?.externalCustomerId} <Icon name="outside" />
+                </Typography>
+              </InlineLink>
+            </Stack>
+          ) : null}
+        </div>
+      )}
+
+      {!!connectedAnrokIntegration && (
+        // TODO: needs to be adjusted
+        <div>
+          <Typography variant="caption">{translate('text_6668821d94e4da4dfd8b3840')}</Typography>
+          {integrationsLoading ? (
+            <Stack flex={1} gap={3} marginTop={1}>
+              <Skeleton variant="text" height={12} width={200} />
+              <Skeleton variant="text" height={12} width={200} />
+            </Stack>
+          ) : !!connectedAnrokIntegration && customer?.anrokCustomer?.integrationId ? (
+            <Stack>
+              <Stack direction="row" spacing={2} alignItems="center">
+                <Avatar variant="connector" size="small">
+                  <Anrok />
+                </Avatar>
+                <Typography color="grey700">{connectedAnrokIntegration?.name}</Typography>
+              </Stack>
+              <InlineLink
+                target="_blank"
+                rel="noopener noreferrer"
+                to={buildAnrokCustomerUrl(
+                  connectedAnrokIntegration?.apiKey,
+                  customer?.anrokCustomer?.externalCustomerId,
+                )}
+              >
+                <Typography color="info600">
+                  {customer?.anrokCustomer?.externalCustomerId} <Icon name="outside" />
                 </Typography>
               </InlineLink>
             </Stack>

@@ -30,3 +30,9 @@ export const buildNetsuiteCreditNoteUrl = (
 ) => {
   return `https://${connectionAccountId}.app.netsuite.com/app/accounting/transactions/custcred.nl?id=${netsuiteCreditNoteId}`
 }
+export const buildAnrokCustomerUrl = (
+  connectionAccountId?: string | null,
+  anrokCustomerId?: string | null,
+) => {
+  return `https://app.anrok.com/${connectionAccountId}/customers/${anrokCustomerId}`
+}

@@ -53,6 +53,11 @@ gql`
       id
       integrationId
     }
+    anrokCustomer {
+      __typename
+      id
+      integrationId
+    }
     metadata {
       id
       key
