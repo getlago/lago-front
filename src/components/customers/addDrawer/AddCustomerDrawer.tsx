@@ -25,6 +25,7 @@ import {
 } from '~/formValidation/metadataSchema'
 import {
   AddCustomerDrawerFragment,
+  AnrokCustomer,
   CreateCustomerInput,
   CurrencyEnum,
   CustomerMetadataInput,
@@ -81,7 +82,10 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
       zipcode: customer?.zipcode ?? undefined,
       timezone: customer?.timezone ?? undefined,
       url: customer?.url ?? undefined,
-      integrationCustomers: [...(!!customer?.netsuiteCustomer ? [customer?.netsuiteCustomer] : [])],
+      integrationCustomers: [
+        ...(!!customer?.netsuiteCustomer ? [customer?.netsuiteCustomer] : []),
+        ...(!!customer?.anrokCustomer ? [customer?.anrokCustomer] : []),
+      ],
       paymentProviderCode: customer?.paymentProviderCode ?? undefined,
       providerCustomer: {
         providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? undefined,
@@ -119,23 +123,34 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
         .of(
           object()
             .test({
-              test: function (value: Omit<NetsuiteCustomer, 'id'>) {
+              test: function (value: Omit<NetsuiteCustomer, 'id'> | Omit<AnrokCustomer, 'id'>) {
                 if (!!value) {
-                  // If Netsuite integrationCode is not selected
-                  if (
-                    value.integrationType === IntegrationTypeEnum.Netsuite &&
-                    !value.integrationCode
-                  ) {
-                    return false
-                  }
+                  if (value.integrationType === IntegrationTypeEnum.Netsuite) {
+                    value = value as NetsuiteCustomer
+                    // If Netsuite integrationCode is not selected
+                    if (!value.integrationCode) {
+                      return false
+                    }
 
-                  // If syncWithProvider is true but no subsidiary is selected
-                  if (value?.syncWithProvider && !value?.subsidiaryId) {
-                    return false
-                  }
-                  // if syncWithProvider is false, externalCustomerId is required
-                  if (!value?.syncWithProvider && !value?.externalCustomerId) {
-                    return false
+                    // If syncWithProvider is true but no subsidiary is selected
+                    if (value?.syncWithProvider && !value?.subsidiaryId) {
+                      return false
+                    }
+                    // if syncWithProvider is false, externalCustomerId is required
+                    if (!value?.syncWithProvider && !value?.externalCustomerId) {
+                      return false
+                    }
+                  } else if (value.integrationType === IntegrationTypeEnum.Anrok) {
+                    value = value as AnrokCustomer
+                    // If Anrok integrationCode is not selected
+                    if (!value.integrationCode) {
+                      return false
+                    }
+
+                    // if syncWithProvider is false, externalCustomerId is required
+                    if (!value?.syncWithProvider && !value?.externalCustomerId) {
+                      return false
+                    }
                   }
                 }
 
