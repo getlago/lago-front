@@ -9,6 +9,7 @@ export interface BasicMultipleComboBoxData {
   selected?: boolean
   label?: string
   labelNode?: ReactNode
+  description?: string
   disabled?: boolean
   customValue?: boolean
   group?: never

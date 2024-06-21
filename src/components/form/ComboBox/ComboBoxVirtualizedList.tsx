@@ -25,14 +25,20 @@ type ComboBoxVirtualizedListProps = {
 
 export const ComboBoxVirtualizedList = (props: ComboBoxVirtualizedListProps) => {
   const { elements, value } = props
+
+  const hasDescription = elements.some(
+    (el) => (el.props?.children?.props?.option?.description as string)?.length > 0,
+  )
+
   const itemCount = elements?.length
+  let elementHeight = hasDescription ? ITEM_HEIGHT + 4 : ITEM_HEIGHT
 
   const getHeight = () => {
     // recommended perf best practice
     if (itemCount > 5) {
-      return 5 * (ITEM_HEIGHT + 4) - 4 // Last item does not have 4px margin-bottom
+      return 5 * (elementHeight + 4) - 4 // Last item does not have 4px margin-bottom
     }
-    return itemCount * (ITEM_HEIGHT + 4) - 4 // Last item does not have 4px margin-bottom
+    return itemCount * (elementHeight + 4) - 4 // Last item does not have 4px margin-bottom
   }
 
   // reset the `VariableSizeList` cache if data gets updated
@@ -65,10 +71,10 @@ export const ComboBoxVirtualizedList = (props: ComboBoxVirtualizedListProps) => 
       innerElementType="div"
       itemSize={(index) => {
         return index === itemCount - 1
-          ? ITEM_HEIGHT
+          ? elementHeight
           : ((elements[index].key as string) || '').includes(GROUP_ITEM_KEY)
             ? GROUP_HEADER_HEIGHT + (index === 0 ? 8 : 12)
-            : ITEM_HEIGHT + 4
+            : elementHeight + 4
       }}
       overscanCount={5}
       itemCount={itemCount}
