@@ -4,9 +4,8 @@ import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'reac
 import styled from 'styled-components'
 import { object, string } from 'yup'
 
-import { Button, Dialog, Typography } from '~/components/designSystem'
+import { Button, Dialog } from '~/components/designSystem'
 import { ComboBox, ComboBoxProps } from '~/components/form'
-import { Item } from '~/components/form/ComboBox/ComboBoxItem'
 import { WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import {
@@ -426,28 +425,8 @@ export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDia
         const { externalId, externalName, externalAccountCode } = item
 
         return {
-          label:
-            localData?.type === MappingTypeEnum.Account
-              ? `${externalId} - ${externalName} - ${externalAccountCode}`
-              : `${externalName} (${externalAccountCode})`,
-          description: '', // TODO: would be great to have the description fitting the item option
-          labelNode: (
-            <Item>
-              <Typography variant="body" color="grey700" noWrap>
-                {localData?.type === MappingTypeEnum.Account
-                  ? `${externalId} - ${externalName} - ${externalAccountCode}`
-                  : `${externalName}`}
-              </Typography>
-              {localData?.type !== MappingTypeEnum.Account && (
-                <>
-                  &nbsp;
-                  <Typography variant="body" color="grey600" noWrap>
-                    ({externalAccountCode})
-                  </Typography>
-                </>
-              )}
-            </Item>
-          ),
+          label: `${externalName} (${externalAccountCode})`,
+          description: externalId,
           value: stringifyOptionValue({
             externalId,
             externalName: externalName || '',
@@ -455,7 +434,7 @@ export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDia
           }),
         }
       })
-    }, [initialItemFetchData?.integrationItems?.collection, localData?.type])
+    }, [initialItemFetchData?.integrationItems?.collection])
 
     const [title, description] = useMemo(() => {
       switch (localData?.type) {
