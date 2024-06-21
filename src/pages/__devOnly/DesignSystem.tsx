@@ -981,6 +981,7 @@ const DesignSystem = () => {
                       data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
                         value: `${letter}-${i}`,
                         group: Math.round(i / 5) + '',
+                        description: `I am a description for ${letter}`,
                       }))}
                       label="Grouped by - virtualized"
                       description="You can type anything to see the magic happen"
@@ -1003,6 +1004,17 @@ const DesignSystem = () => {
                         value: `${letter}-${i}`,
                       }))}
                       label="Not grouped - normal"
+                      placeholder="Placeholder"
+                      formikProps={formikProps}
+                    />
+                    <ComboBoxField
+                      name="combobox"
+                      virtualized={false}
+                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
+                        value: `${letter}-${i}`,
+                        description: `I am a description for ${letter}`,
+                      }))}
+                      label="With description"
                       placeholder="Placeholder"
                       formikProps={formikProps}
                     />
@@ -1097,6 +1109,18 @@ const DesignSystem = () => {
                       placeholder="Placeholder"
                       formikProps={formikProps}
                     />
+                    <ComboBoxField
+                      name="combobox"
+                      virtualized={false}
+                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
+                        value: `${letter}-${i}`,
+                        group: Math.round(i / 5) + '',
+                        description: `I am a description for ${letter}`,
+                      }))}
+                      label="Grouped by with description"
+                      placeholder="Placeholder"
+                      formikProps={formikProps}
+                    />
 
                     <ComboBoxField
                       name="combobox"
@@ -1128,9 +1152,9 @@ const DesignSystem = () => {
                       name="multipleCombobox"
                       data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
                         value: `${letter}-${i}`,
-                        group: Math.round(i / 5) + '',
+                        description: `I am a description for ${letter}`,
                       }))}
-                      label="Multiple"
+                      label="Multiple with description"
                       placeholder="Placeholder"
                       formikProps={formikProps}
                     />
@@ -1140,6 +1164,7 @@ const DesignSystem = () => {
                       data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
                         value: `${letter}-${i}`,
                         group: Math.round(i / 5) + '',
+                        description: `I am a description for ${letter}`,
                       }))}
                       label="Multiple disableCloseOnSelect"
                       placeholder="Placeholder"

@@ -23,7 +23,7 @@ interface ComboBoxItemProps {
 
 export const ComboBoxItem = ({
   id,
-  option: { customValue, value, label, disabled, labelNode },
+  option: { customValue, value, label, description, disabled, labelNode },
   selected,
   virtualized,
   comboboxProps,
@@ -66,6 +66,7 @@ export const ComboBoxItem = ({
               value={value}
               checked={!!selected}
               label={labelNode || label || value}
+              sublabel={description}
               labelVariant="body"
             />
           )}
@@ -92,6 +93,7 @@ const ItemWrapper = styled.div`
   .MuiAutocomplete-option {
     min-height: ${ITEM_HEIGHT}px;
     width: 100% !important;
+    margin: 0 ${theme.spacing(2)};
   }
 `
 
@@ -100,16 +102,12 @@ const AddCustomValueIcon = styled(Icon)`
 `
 
 export const Item = styled.div<{ $virtualized?: boolean }>`
-  && {
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    border-radius: 12px;
-    cursor: pointer;
-    margin: 0 ${theme.spacing(2)};
-    width: ${({ $virtualized }) => ($virtualized ? 'initial' : 'inherit')};
-    box-sizing: border-box;
-  }
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  cursor: pointer;
+  width: ${({ $virtualized }) => ($virtualized ? 'initial' : 'inherit')};
+  box-sizing: border-box;
 
   &.combo-box-item--disabled {
     cursor: auto;

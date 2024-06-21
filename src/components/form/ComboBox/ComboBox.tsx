@@ -129,14 +129,14 @@ export const ComboBox = ({
       value={value || null}
       loading={isLoading}
       loadingText={
-        <>
+        <LoadingIemsWrapper>
           {[1, 2, 3].map((i) => (
             <LoadingItem key={`combobox-loading-item-${i}`}>
               <Skeleton variant="circular" width={16} height={16} marginRight="16px" />
               <Skeleton variant="text" width="100%" height={12} />
             </LoadingItem>
           ))}
-        </>
+        </LoadingIemsWrapper>
       }
       noOptionsText={emptyText ?? translate('text_623b3acb8ee4e000ba87d082')}
       selectOnFocus={allowAddValue}
@@ -210,6 +210,13 @@ export const ComboBox = ({
     />
   )
 }
+
+const LoadingIemsWrapper = styled.div`
+  margin: ${theme.spacing(4)} 0;
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing(8)};
+`
 
 const LoadingItem = styled.div`
   display: flex;
