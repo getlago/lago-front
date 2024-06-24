@@ -7,16 +7,19 @@ import {
   TableRow as MUITableRow,
 } from '@mui/material'
 import { ReactNode } from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { Button, ButtonProps, Popper, Skeleton } from '~/components/designSystem'
 import { ListClickableItemCss, MenuPopper, theme } from '~/styles'
+
+type Variant = 'outline' | 'borderless'
 
 type Column<T> = {
   key: keyof T
   title: string | ReactNode
   content: (item: T) => ReactNode
   size?: number
+  textAlign?: 'left' | 'center' | 'right'
 }
 
 interface TableDisplayProps<T> {
@@ -24,7 +27,7 @@ interface TableDisplayProps<T> {
   data: T[]
   columns: Column<T>[]
   isLoading?: boolean
-  variant?: 'outline'
+  variant?: Variant
   onRowAction?: (item: T) => void
   isFullWidth?: boolean
   actionColumn?: Array<{
@@ -40,13 +43,14 @@ export const TableDisplay = <T,>({
   name,
   data,
   columns,
+  variant = 'outline',
   isLoading,
   isFullWidth,
   onRowAction,
   actionColumn,
 }: TableDisplayProps<T>) => {
   return (
-    <TableContainer $isFullWidth={!!isFullWidth}>
+    <TableContainer $isFullWidth={!!isFullWidth} $variant={variant}>
       <MUITable>
         <TableHead>
           <TableRow>
@@ -57,7 +61,11 @@ export const TableDisplay = <T,>({
             ) : (
               <>
                 {columns.map((column, i) => (
-                  <TableCell $size={column.size} key={`table-display-${name}-head-${i}`}>
+                  <TableCell
+                    $size={column.size}
+                    key={`table-display-${name}-head-${i}`}
+                    align={column.textAlign || 'left'}
+                  >
                     {column.title}
                   </TableCell>
                 ))}
@@ -95,7 +103,11 @@ export const TableDisplay = <T,>({
                 }}
               >
                 {columns.map((column, j) => (
-                  <TableCell $size={column.size} key={`table-display-${name}-cell-${i}-${j}`}>
+                  <TableCell
+                    $size={column.size}
+                    key={`table-display-${name}-cell-${i}-${j}`}
+                    align={column.textAlign || 'left'}
+                  >
                     {column.content(item)}
                   </TableCell>
                 ))}
@@ -143,9 +155,29 @@ export const TableDisplay = <T,>({
   )
 }
 
-const TableContainer = styled(MUITableContainer)<{ $isFullWidth: boolean }>`
-  border: 1px solid ${theme.palette.grey[400]};
-  border-radius: ${theme.shape.borderRadius}px;
+const TableContainer = styled(MUITableContainer)<{
+  $isFullWidth: boolean
+  $variant: Variant
+}>`
+  ${({ $variant }) => {
+    if ($variant === 'outline') {
+      return css`
+        border: 1px solid ${theme.palette.grey[400]};
+        border-radius: ${theme.shape.borderRadius}px;
+      `
+    }
+
+    if ($variant === 'borderless') {
+      return css`
+        thead {
+          background-color: ${theme.palette.grey[100]};
+        }
+      `
+    }
+
+    return css``
+  }}
+
   width: ${({ $isFullWidth }) => ($isFullWidth ? '100%' : 'auto')};
 `
 

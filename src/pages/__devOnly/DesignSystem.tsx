@@ -563,6 +563,7 @@ const DesignSystem = () => {
                 <GroupTitle variant="headline">Display Table</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <TableDisplay
+                    variant="borderless"
                     name="display-table"
                     data={tableData}
                     isLoading={false}
@@ -580,13 +581,10 @@ const DesignSystem = () => {
                       },
                       {
                         key: 'job',
-                        title: (
-                          <TableTitle variant="bodyHl" color="grey700">
-                            Job
-                          </TableTitle>
-                        ),
+                        title: 'Job',
                         content: (row) => row.job,
                         size: 124,
+                        textAlign: 'center',
                       },
                       {
                         key: 'icon',
