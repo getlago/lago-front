@@ -5,12 +5,12 @@ import {
   TableContainer as MUITableContainer,
   TableHead as MUITableHead,
   TableRow as MUITableRow,
-  Skeleton,
 } from '@mui/material'
 import { ReactNode } from 'react'
 import styled from 'styled-components'
 
-import { ListClickableItemCss, theme } from '~/styles'
+import { Button, ButtonProps, Popper, Skeleton } from '~/components/designSystem'
+import { ListClickableItemCss, MenuPopper, theme } from '~/styles'
 
 type Column<T> = {
   key: keyof T
@@ -20,23 +20,33 @@ type Column<T> = {
 }
 
 interface TableDisplayProps<T> {
-  key: string
+  name: string
   data: T[]
   columns: Column<T>[]
   isLoading?: boolean
   variant?: 'outline'
   onRowAction?: (item: T) => void
+  isFullWidth?: boolean
+  actionColumn?: Array<{
+    title: string | ReactNode
+    startIcon?: ButtonProps['startIcon']
+    onAction: (item: T) => void
+  }>
 }
 
+const ACTION_COLUMN_ID = 'actionColumn'
+
 export const TableDisplay = <T,>({
-  key,
+  name,
   data,
   columns,
   isLoading,
+  isFullWidth,
   onRowAction,
+  actionColumn,
 }: TableDisplayProps<T>) => {
   return (
-    <TableContainer>
+    <TableContainer $isFullWidth={!!isFullWidth}>
       <MUITable>
         <TableHead>
           <TableRow>
@@ -45,9 +55,14 @@ export const TableDisplay = <T,>({
                 <Skeleton variant="text" width={300} />
               </TableCell>
             ) : (
-              columns.map((column, i) => (
-                <TableCell key={`table-display-${key}-head-${i}`}>{column.title}</TableCell>
-              ))
+              <>
+                {columns.map((column, i) => (
+                  <TableCell $size={column.size} key={`table-display-${name}-head-${i}`}>
+                    {column.title}
+                  </TableCell>
+                ))}
+                <TableCell />
+              </>
             )}
           </TableRow>
         </TableHead>
@@ -62,17 +77,63 @@ export const TableDisplay = <T,>({
             data.map((item, i) => (
               <TableRow
                 $isClickable={!!onRowAction}
-                key={`table-display-${key}-row-${i}`}
+                key={`table-display-${name}-row-${i}`}
                 onClick={(e) => {
-                  e.stopPropagation()
-                  onRowAction?.(item)
+                  const popperElement = document.querySelector(
+                    `[data-id=table-display-${name}-popper]`,
+                  )
+
+                  if (popperElement) return
+
+                  if (e.target instanceof HTMLElement) {
+                    const actionColumnButton = e.target.closest('button')?.dataset.id
+
+                    if (actionColumnButton !== ACTION_COLUMN_ID) {
+                      onRowAction?.(item)
+                    }
+                  }
                 }}
               >
                 {columns.map((column, j) => (
-                  <TableCell key={`table-display-${key}-cell-${i}-${j}`}>
+                  <TableCell $size={column.size} key={`table-display-${name}-cell-${i}-${j}`}>
                     {column.content(item)}
                   </TableCell>
                 ))}
+                {actionColumn && (
+                  <TableCell>
+                    <Popper
+                      popperGroupName={`table-display-${name}-cta`}
+                      PopperProps={{ placement: 'bottom-end' }}
+                      opener={
+                        <Button
+                          data-id={ACTION_COLUMN_ID}
+                          icon="dots-horizontal"
+                          variant="quaternary"
+                        />
+                      }
+                    >
+                      {({ closePopper }) => (
+                        <MenuPopper data-id={`table-display-${name}-popper`}>
+                          {actionColumn.map((action) => (
+                            <Button
+                              fullWidth
+                              key={`table-display-${name}-action-${i}`}
+                              startIcon={action.startIcon}
+                              variant="quaternary"
+                              align="left"
+                              onClick={async () => {
+                                await action.onAction(item)
+                                closePopper()
+                              }}
+                            >
+                              {action.title}
+                            </Button>
+                          ))}
+                        </MenuPopper>
+                      )}
+                    </Popper>
+                  </TableCell>
+                )}
               </TableRow>
             ))
           )}
@@ -82,9 +143,10 @@ export const TableDisplay = <T,>({
   )
 }
 
-const TableContainer = styled(MUITableContainer)`
+const TableContainer = styled(MUITableContainer)<{ $isFullWidth: boolean }>`
   border: 1px solid ${theme.palette.grey[400]};
   border-radius: ${theme.shape.borderRadius}px;
+  width: ${({ $isFullWidth }) => ($isFullWidth ? '100%' : 'auto')};
 `
 
 const TableHead = styled(MUITableHead)`
@@ -103,7 +165,9 @@ const TableHead = styled(MUITableHead)`
   }
 `
 
-const TableCell = styled(MUITableCell)`
+const TableCell = styled(MUITableCell)<{ $size?: number }>`
+  width: ${({ $size }) => $size}px;
+  box-sizing: border-box;
   font-family: ${theme.typography.fontFamily};
   color: ${theme.palette.text.secondary};
   font-size: ${theme.typography.body.fontSize}px;
@@ -120,4 +184,9 @@ const TableRow = styled(MUITableRow)<{ $isClickable?: boolean }>`
   }
 
   ${({ $isClickable }) => $isClickable && ListClickableItemCss}
+
+  // Remove hover effect when action column is hovered
+  &:has([data-id='${ACTION_COLUMN_ID}']:hover) {
+    background-color: initial;
+  }
 `

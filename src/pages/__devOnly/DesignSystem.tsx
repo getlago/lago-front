@@ -563,7 +563,7 @@ const DesignSystem = () => {
                 <GroupTitle variant="headline">Display Table</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <TableDisplay
-                    key="display-table"
+                    name="display-table"
                     data={tableData}
                     isLoading={false}
                     columns={[
@@ -590,21 +590,30 @@ const DesignSystem = () => {
                       },
                       {
                         key: 'icon',
-                        title: (
-                          <TableTitle variant="captionCode" color="grey700">
-                            Icon
-                          </TableTitle>
-                        ),
-                        size: 124,
-                        content: (row) => (
-                          <TableContent>
-                            <Icon color="primary" name={row.icon as IconName} />
-                          </TableContent>
-                        ),
+                        title: <Typography variant="captionCode">Icon</Typography>,
+                        content: (row) => <Icon color="primary" name={row.icon as IconName} />,
                       },
                     ]}
                     // eslint-disable-next-line no-alert
                     onRowAction={(item) => alert(`You clicked on ${item.name}`)}
+                    actionColumn={[
+                      {
+                        title: 'Edit',
+                        startIcon: 'pen',
+                        onAction: (item) => {
+                          // eslint-disable-next-line no-alert
+                          alert(`You edited ${item.name}`)
+                        },
+                      },
+                      {
+                        title: 'Delete',
+                        startIcon: 'trash',
+                        onAction: (item) => {
+                          // eslint-disable-next-line no-alert
+                          alert(`You deleted ${item.name}`)
+                        },
+                      },
+                    ]}
                   />
                 </Block>
               </Container>
