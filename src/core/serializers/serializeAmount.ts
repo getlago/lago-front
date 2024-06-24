@@ -3,7 +3,6 @@ import { CurrencyEnum } from '~/generated/graphql'
 const CURRENCIES_WITH_4_DECIMALS = ['CLF']
 const CURRENCIES_WITH_3_DECIMALS = ['BHD', 'IQD', 'JOD', 'KWD', 'LYD', 'OMR', 'TND']
 const CURRENCIES_WITH_0_DECIMALS = [
-  'CVE',
   'DJF',
   'GNF',
   'ISK',
