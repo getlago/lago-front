@@ -25,6 +25,7 @@ import {
   Status,
   StatusType,
   Table,
+  TableDisplay,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
@@ -78,6 +79,34 @@ const POSSIBLE_TOAST: TToast[] = [
     id: 'toast5',
     severity: 'danger',
     message: '👿 Please stop doing that',
+  },
+]
+
+const tableData = [
+  {
+    name: 'Barney Stinson',
+    job: 'We will never know',
+    icon: 'plug',
+  },
+  {
+    name: 'Lily Aldrin',
+    job: 'Kindergarden teacher',
+    icon: 'book',
+  },
+  {
+    name: 'Marshal Eriksen',
+    job: 'Lawyer',
+    icon: 'bank',
+  },
+  {
+    name: 'Robin Scherbatzki',
+    job: 'News anchor',
+    icon: 'rocket',
+  },
+  {
+    name: 'Ted Mosby',
+    job: 'Architect',
+    icon: 'company',
   },
 ]
 
@@ -486,75 +515,105 @@ const DesignSystem = () => {
             component: (
               <Container>
                 <GroupTitle variant="headline">Table</GroupTitle>
-                <Table
-                  name="graduated-charge-table"
-                  data={[
-                    {
-                      name: 'Barney Stinson',
-                      job: 'We will never know',
-                      icon: 'plug',
-                    },
-                    {
-                      name: 'Lily Aldrin',
-                      job: 'Kindergarden teacher',
-                      icon: 'book',
-                    },
-                    {
-                      name: 'Marshal Eriksen',
-                      job: 'Lawyer',
-                      icon: 'bank',
-                    },
-                    {
-                      name: 'Robin Scherbatzki',
-                      job: 'News anchor',
-                      icon: 'rocket',
-                    },
-                    {
-                      name: 'Ted Mosby',
-                      job: 'Architect',
-                      icon: 'company',
-                    },
-                  ]}
-                  onDeleteRow={() => {}}
-                  columns={[
-                    {
-                      title: (
-                        <TableTitle variant="bodyHl" color="grey700">
-                          Name
-                        </TableTitle>
-                      ),
-                      size: 300,
-                      content: (row) => (
-                        <TableContent>
-                          <Avatar variant="user" identifier={row.name} size="small" />
-                          <Typography>{row.name}</Typography>
-                        </TableContent>
-                      ),
-                    },
-                    {
-                      title: (
-                        <TableTitle variant="bodyHl" color="grey700">
-                          Job
-                        </TableTitle>
-                      ),
-                      size: 124,
-                      mapKey: 'job',
-                    },
-                    {
-                      title: (
-                        <TableTitle variant="bodyHl" color="grey700">
-                          Icon
-                        </TableTitle>
-                      ),
-                      size: 124,
-                      content: (row) => (
-                        <TableContent>
-                          <Icon color="primary" name={row.icon as IconName} />
-                        </TableContent>
-                      ),
-                    },
-                  ]}
-                />
+                <Block $marginBottom={theme.spacing(6)}>
+                  <Table
+                    name="graduated-charge-table"
+                    data={tableData}
+                    onDeleteRow={() => {}}
+                    columns={[
+                      {
+                        title: (
+                          <TableTitle variant="bodyHl" color="grey700">
+                            Name
+                          </TableTitle>
+                        ),
+                        size: 300,
+                        content: (row) => (
+                          <TableContent>
+                            <Avatar variant="user" identifier={row.name} size="small" />
+                            <Typography>{row.name}</Typography>
+                          </TableContent>
+                        ),
+                      },
+                      {
+                        title: (
+                          <TableTitle variant="bodyHl" color="grey700">
+                            Job
+                          </TableTitle>
+                        ),
+                        size: 124,
+                        mapKey: 'job',
+                      },
+                      {
+                        title: (
+                          <TableTitle variant="bodyHl" color="grey700">
+                            Icon
+                          </TableTitle>
+                        ),
+                        size: 124,
+                        content: (row) => (
+                          <TableContent>
+                            <Icon color="primary" name={row.icon as IconName} />
+                          </TableContent>
+                        ),
+                      },
+                    ]}
+                  />
+                </Block>
+                <GroupTitle variant="headline">Display Table</GroupTitle>
+                <Block $marginBottom={theme.spacing(6)}>
+                  <TableDisplay
+                    variant="borderless"
+                    name="display-table"
+                    data={tableData}
+                    isLoading={false}
+                    columns={[
+                      {
+                        key: 'name',
+                        title: 'Name',
+                        size: 300,
+                        content: (row) => (
+                          <TableContent>
+                            <Avatar variant="user" identifier={row.name} size="small" />
+                            <Typography>{row.name}</Typography>
+                          </TableContent>
+                        ),
+                      },
+                      {
+                        key: 'job',
+                        title: 'Job',
+                        content: (row) => row.job,
+                        size: 124,
+                        textAlign: 'center',
+                      },
+                      {
+                        key: 'icon',
+                        title: <Typography variant="captionCode">Icon</Typography>,
+                        content: (row) => <Icon color="primary" name={row.icon as IconName} />,
+                      },
+                    ]}
+                    // eslint-disable-next-line no-alert
+                    onRowAction={(item) => alert(`You clicked on ${item.name}`)}
+                    actionColumn={[
+                      {
+                        title: 'Edit',
+                        startIcon: 'pen',
+                        onAction: (item) => {
+                          // eslint-disable-next-line no-alert
+                          alert(`You edited ${item.name}`)
+                        },
+                      },
+                      {
+                        title: 'Delete',
+                        startIcon: 'trash',
+                        onAction: (item) => {
+                          // eslint-disable-next-line no-alert
+                          alert(`You deleted ${item.name}`)
+                        },
+                      },
+                    ]}
+                  />
+                </Block>
               </Container>
             ),
           },
