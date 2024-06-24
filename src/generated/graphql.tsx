@@ -2372,6 +2372,7 @@ export type GrossRevenue = {
   __typename?: 'GrossRevenue';
   amountCents?: Maybe<Scalars['BigInt']['output']>;
   currency?: Maybe<CurrencyEnum>;
+  invoicesCount: Scalars['BigInt']['output'];
   month: Scalars['ISO8601DateTime']['output'];
 };
 
@@ -3751,10 +3752,14 @@ export type Query = {
   customer?: Maybe<Customer>;
   /** Query invoices of a customer */
   customerInvoices: InvoiceCollection;
+  /** Query invoice collections of a customer portal user */
+  customerPortalInvoiceCollections: FinalizedInvoiceCollectionCollection;
   /** Query invoices of a customer */
   customerPortalInvoices: InvoiceCollection;
   /** Query customer portal organization */
   customerPortalOrganization?: Maybe<Organization>;
+  /** Query overdue balances of a customer portal user */
+  customerPortalOverdueBalances: OverdueBalanceCollection;
   /** Query a customer portal user */
   customerPortalUser?: Maybe<Customer>;
   /** Query the usage of the customer on the current billing period */
@@ -3916,11 +3921,21 @@ export type QueryCustomerInvoicesArgs = {
 };
 
 
+export type QueryCustomerPortalInvoiceCollectionsArgs = {
+  months?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
 export type QueryCustomerPortalInvoicesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Array<InvoiceStatusTypeEnum>>;
+};
+
+
+export type QueryCustomerPortalOverdueBalancesArgs = {
+  months?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -5363,6 +5378,21 @@ export type CustomerPortalInvoicesQueryVariables = Exact<{
 
 export type CustomerPortalInvoicesQuery = { __typename?: 'Query', customerPortalInvoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null }> } };
 
+export type GetCustomerPortalInvoicesCollectionQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCustomerPortalInvoicesCollectionQuery = { __typename?: 'Query', customerPortalInvoiceCollections: { __typename?: 'FinalizedInvoiceCollectionCollection', collection: Array<{ __typename?: 'FinalizedInvoiceCollection', amountCents: any, invoicesCount: any, currency?: CurrencyEnum | null }> } };
+
+export type GetCustomerPortalOverdueBalancesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCustomerPortalOverdueBalancesQuery = { __typename?: 'Query', customerPortalOverdueBalances: { __typename?: 'OverdueBalanceCollection', collection: Array<{ __typename?: 'OverdueBalance', amountCents: any, currency: CurrencyEnum, lagoInvoiceIds: Array<string> }> } };
+
+export type GetCustomerPortalUserCurrencyQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCustomerPortalUserCurrencyQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'Customer', currency?: CurrencyEnum | null } | null };
+
 export type CouponPlansForCustomerFragment = { __typename?: 'Plan', id: string, name: string };
 
 export type CouponBillableMetricsForCustomerFragment = { __typename?: 'BillableMetric', id: string, name: string };
@@ -5577,6 +5607,23 @@ export type VoidCreditNoteMutationVariables = Exact<{
 
 export type VoidCreditNoteMutation = { __typename?: 'Mutation', voidCreditNote?: { __typename?: 'CreditNote', id: string } | null };
 
+export type GetCustomerGrossRevenuesQueryVariables = Exact<{
+  externalCustomerId: Scalars['String']['input'];
+  currency?: InputMaybe<CurrencyEnum>;
+}>;
+
+
+export type GetCustomerGrossRevenuesQuery = { __typename?: 'Query', grossRevenues: { __typename?: 'GrossRevenueCollection', collection: Array<{ __typename?: 'GrossRevenue', amountCents?: any | null, currency?: CurrencyEnum | null, invoicesCount: any, month: any }> } };
+
+export type GetCustomerOverdueBalancesQueryVariables = Exact<{
+  externalCustomerId: Scalars['String']['input'];
+  currency?: InputMaybe<CurrencyEnum>;
+  months: Scalars['Int']['input'];
+}>;
+
+
+export type GetCustomerOverdueBalancesQuery = { __typename?: 'Query', overdueBalances: { __typename?: 'OverdueBalanceCollection', collection: Array<{ __typename?: 'OverdueBalance', amountCents: any, currency: CurrencyEnum, lagoInvoiceIds: Array<string> }> } };
+
 export type GetCustomerSubscriptionForListQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
@@ -5675,6 +5722,15 @@ export type GetMrrQueryVariables = Exact<{
 
 
 export type GetMrrQuery = { __typename?: 'Query', mrrs: { __typename?: 'MrrCollection', collection: Array<{ __typename?: 'Mrr', amountCents?: any | null, currency?: CurrencyEnum | null, month: any }> } };
+
+export type GetOverdueQueryVariables = Exact<{
+  currency: CurrencyEnum;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  months: Scalars['Int']['input'];
+}>;
+
+
+export type GetOverdueQuery = { __typename?: 'Query', overdueBalances: { __typename?: 'OverdueBalanceCollection', collection: Array<{ __typename?: 'OverdueBalance', amountCents: any, currency: CurrencyEnum, month: any, lagoInvoiceIds: Array<string> }> } };
 
 export type GetInvoicedUsagesQueryVariables = Exact<{
   currency: CurrencyEnum;
@@ -10634,6 +10690,131 @@ export type CustomerPortalInvoicesQueryHookResult = ReturnType<typeof useCustome
 export type CustomerPortalInvoicesLazyQueryHookResult = ReturnType<typeof useCustomerPortalInvoicesLazyQuery>;
 export type CustomerPortalInvoicesSuspenseQueryHookResult = ReturnType<typeof useCustomerPortalInvoicesSuspenseQuery>;
 export type CustomerPortalInvoicesQueryResult = Apollo.QueryResult<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>;
+export const GetCustomerPortalInvoicesCollectionDocument = gql`
+    query getCustomerPortalInvoicesCollection {
+  customerPortalInvoiceCollections {
+    collection {
+      amountCents
+      invoicesCount
+      currency
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCustomerPortalInvoicesCollectionQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerPortalInvoicesCollectionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerPortalInvoicesCollectionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerPortalInvoicesCollectionQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetCustomerPortalInvoicesCollectionQuery(baseOptions?: Apollo.QueryHookOptions<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>(GetCustomerPortalInvoicesCollectionDocument, options);
+      }
+export function useGetCustomerPortalInvoicesCollectionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>(GetCustomerPortalInvoicesCollectionDocument, options);
+        }
+export function useGetCustomerPortalInvoicesCollectionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>(GetCustomerPortalInvoicesCollectionDocument, options);
+        }
+export type GetCustomerPortalInvoicesCollectionQueryHookResult = ReturnType<typeof useGetCustomerPortalInvoicesCollectionQuery>;
+export type GetCustomerPortalInvoicesCollectionLazyQueryHookResult = ReturnType<typeof useGetCustomerPortalInvoicesCollectionLazyQuery>;
+export type GetCustomerPortalInvoicesCollectionSuspenseQueryHookResult = ReturnType<typeof useGetCustomerPortalInvoicesCollectionSuspenseQuery>;
+export type GetCustomerPortalInvoicesCollectionQueryResult = Apollo.QueryResult<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>;
+export const GetCustomerPortalOverdueBalancesDocument = gql`
+    query getCustomerPortalOverdueBalances {
+  customerPortalOverdueBalances {
+    collection {
+      amountCents
+      currency
+      lagoInvoiceIds
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCustomerPortalOverdueBalancesQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerPortalOverdueBalancesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerPortalOverdueBalancesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerPortalOverdueBalancesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetCustomerPortalOverdueBalancesQuery(baseOptions?: Apollo.QueryHookOptions<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>(GetCustomerPortalOverdueBalancesDocument, options);
+      }
+export function useGetCustomerPortalOverdueBalancesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>(GetCustomerPortalOverdueBalancesDocument, options);
+        }
+export function useGetCustomerPortalOverdueBalancesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>(GetCustomerPortalOverdueBalancesDocument, options);
+        }
+export type GetCustomerPortalOverdueBalancesQueryHookResult = ReturnType<typeof useGetCustomerPortalOverdueBalancesQuery>;
+export type GetCustomerPortalOverdueBalancesLazyQueryHookResult = ReturnType<typeof useGetCustomerPortalOverdueBalancesLazyQuery>;
+export type GetCustomerPortalOverdueBalancesSuspenseQueryHookResult = ReturnType<typeof useGetCustomerPortalOverdueBalancesSuspenseQuery>;
+export type GetCustomerPortalOverdueBalancesQueryResult = Apollo.QueryResult<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>;
+export const GetCustomerPortalUserCurrencyDocument = gql`
+    query getCustomerPortalUserCurrency {
+  customerPortalUser {
+    currency
+  }
+}
+    `;
+
+/**
+ * __useGetCustomerPortalUserCurrencyQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerPortalUserCurrencyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerPortalUserCurrencyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerPortalUserCurrencyQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetCustomerPortalUserCurrencyQuery(baseOptions?: Apollo.QueryHookOptions<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>(GetCustomerPortalUserCurrencyDocument, options);
+      }
+export function useGetCustomerPortalUserCurrencyLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>(GetCustomerPortalUserCurrencyDocument, options);
+        }
+export function useGetCustomerPortalUserCurrencySuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>(GetCustomerPortalUserCurrencyDocument, options);
+        }
+export type GetCustomerPortalUserCurrencyQueryHookResult = ReturnType<typeof useGetCustomerPortalUserCurrencyQuery>;
+export type GetCustomerPortalUserCurrencyLazyQueryHookResult = ReturnType<typeof useGetCustomerPortalUserCurrencyLazyQuery>;
+export type GetCustomerPortalUserCurrencySuspenseQueryHookResult = ReturnType<typeof useGetCustomerPortalUserCurrencySuspenseQuery>;
+export type GetCustomerPortalUserCurrencyQueryResult = Apollo.QueryResult<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>;
 export const GetCouponForCustomerDocument = gql`
     query getCouponForCustomer($page: Int, $limit: Int, $status: CouponStatusEnum, $searchTerm: String) {
   coupons(page: $page, limit: $limit, status: $status, searchTerm: $searchTerm) {
@@ -11647,6 +11828,102 @@ export function useVoidCreditNoteMutation(baseOptions?: Apollo.MutationHookOptio
 export type VoidCreditNoteMutationHookResult = ReturnType<typeof useVoidCreditNoteMutation>;
 export type VoidCreditNoteMutationResult = Apollo.MutationResult<VoidCreditNoteMutation>;
 export type VoidCreditNoteMutationOptions = Apollo.BaseMutationOptions<VoidCreditNoteMutation, VoidCreditNoteMutationVariables>;
+export const GetCustomerGrossRevenuesDocument = gql`
+    query getCustomerGrossRevenues($externalCustomerId: String!, $currency: CurrencyEnum) {
+  grossRevenues(externalCustomerId: $externalCustomerId, currency: $currency) {
+    collection {
+      amountCents
+      currency
+      invoicesCount
+      month
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCustomerGrossRevenuesQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerGrossRevenuesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerGrossRevenuesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerGrossRevenuesQuery({
+ *   variables: {
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      currency: // value for 'currency'
+ *   },
+ * });
+ */
+export function useGetCustomerGrossRevenuesQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>(GetCustomerGrossRevenuesDocument, options);
+      }
+export function useGetCustomerGrossRevenuesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>(GetCustomerGrossRevenuesDocument, options);
+        }
+export function useGetCustomerGrossRevenuesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>(GetCustomerGrossRevenuesDocument, options);
+        }
+export type GetCustomerGrossRevenuesQueryHookResult = ReturnType<typeof useGetCustomerGrossRevenuesQuery>;
+export type GetCustomerGrossRevenuesLazyQueryHookResult = ReturnType<typeof useGetCustomerGrossRevenuesLazyQuery>;
+export type GetCustomerGrossRevenuesSuspenseQueryHookResult = ReturnType<typeof useGetCustomerGrossRevenuesSuspenseQuery>;
+export type GetCustomerGrossRevenuesQueryResult = Apollo.QueryResult<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>;
+export const GetCustomerOverdueBalancesDocument = gql`
+    query getCustomerOverdueBalances($externalCustomerId: String!, $currency: CurrencyEnum, $months: Int!) {
+  overdueBalances(
+    externalCustomerId: $externalCustomerId
+    currency: $currency
+    months: $months
+  ) {
+    collection {
+      amountCents
+      currency
+      lagoInvoiceIds
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCustomerOverdueBalancesQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerOverdueBalancesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerOverdueBalancesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerOverdueBalancesQuery({
+ *   variables: {
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      currency: // value for 'currency'
+ *      months: // value for 'months'
+ *   },
+ * });
+ */
+export function useGetCustomerOverdueBalancesQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>(GetCustomerOverdueBalancesDocument, options);
+      }
+export function useGetCustomerOverdueBalancesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>(GetCustomerOverdueBalancesDocument, options);
+        }
+export function useGetCustomerOverdueBalancesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>(GetCustomerOverdueBalancesDocument, options);
+        }
+export type GetCustomerOverdueBalancesQueryHookResult = ReturnType<typeof useGetCustomerOverdueBalancesQuery>;
+export type GetCustomerOverdueBalancesLazyQueryHookResult = ReturnType<typeof useGetCustomerOverdueBalancesLazyQuery>;
+export type GetCustomerOverdueBalancesSuspenseQueryHookResult = ReturnType<typeof useGetCustomerOverdueBalancesSuspenseQuery>;
+export type GetCustomerOverdueBalancesQueryResult = Apollo.QueryResult<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>;
 export const GetCustomerSubscriptionForListDocument = gql`
     query getCustomerSubscriptionForList($id: ID!) {
   customer(id: $id) {
@@ -12117,6 +12394,57 @@ export type GetMrrQueryHookResult = ReturnType<typeof useGetMrrQuery>;
 export type GetMrrLazyQueryHookResult = ReturnType<typeof useGetMrrLazyQuery>;
 export type GetMrrSuspenseQueryHookResult = ReturnType<typeof useGetMrrSuspenseQuery>;
 export type GetMrrQueryResult = Apollo.QueryResult<GetMrrQuery, GetMrrQueryVariables>;
+export const GetOverdueDocument = gql`
+    query getOverdue($currency: CurrencyEnum!, $externalCustomerId: String, $months: Int!) {
+  overdueBalances(
+    currency: $currency
+    externalCustomerId: $externalCustomerId
+    months: $months
+  ) {
+    collection {
+      amountCents
+      currency
+      month
+      lagoInvoiceIds
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetOverdueQuery__
+ *
+ * To run a query within a React component, call `useGetOverdueQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOverdueQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOverdueQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      months: // value for 'months'
+ *   },
+ * });
+ */
+export function useGetOverdueQuery(baseOptions: Apollo.QueryHookOptions<GetOverdueQuery, GetOverdueQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOverdueQuery, GetOverdueQueryVariables>(GetOverdueDocument, options);
+      }
+export function useGetOverdueLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOverdueQuery, GetOverdueQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOverdueQuery, GetOverdueQueryVariables>(GetOverdueDocument, options);
+        }
+export function useGetOverdueSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOverdueQuery, GetOverdueQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOverdueQuery, GetOverdueQueryVariables>(GetOverdueDocument, options);
+        }
+export type GetOverdueQueryHookResult = ReturnType<typeof useGetOverdueQuery>;
+export type GetOverdueLazyQueryHookResult = ReturnType<typeof useGetOverdueLazyQuery>;
+export type GetOverdueSuspenseQueryHookResult = ReturnType<typeof useGetOverdueSuspenseQuery>;
+export type GetOverdueQueryResult = Apollo.QueryResult<GetOverdueQuery, GetOverdueQueryVariables>;
 export const GetInvoicedUsagesDocument = gql`
     query getInvoicedUsages($currency: CurrencyEnum!) {
   invoicedUsages(currency: $currency) {

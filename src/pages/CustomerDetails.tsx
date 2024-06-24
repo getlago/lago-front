@@ -361,6 +361,7 @@ const CustomerDetails = () => {
                       <SideBlock>
                         {!loading && <CustomerCoupons />}
                         <CustomerOverview
+                          externalCustomerId={externalId}
                           customerTimezone={safeTimezone}
                           userCurrency={data?.customer?.currency || undefined}
                         />
