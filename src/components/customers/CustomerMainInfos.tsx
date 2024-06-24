@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
+import { useCallback, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -126,8 +127,13 @@ interface CustomerMainInfosProps {
   onEdit?: () => unknown
 }
 
+const SHOW_MORE_THRESHOLD = 6
+
 export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInfosProps) => {
   const { translate } = useInternationalization()
+  const [showMore, setShowMore] = useState(false)
+  const [shouldSeeMoreButton, setShouldSeeMoreButton] = useState(false)
+  const infosRef = useRef<HTMLDivElement | null>(null)
 
   const { data: paymentProvidersData } = usePaymentProvidersListForCustomerMainInfosQuery({
     variables: { limit: 1000 },
@@ -157,6 +163,15 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
   const connectedAnrokIntegration = allAnrokIntegrations?.find(
     (integration) => integration?.id === customer?.anrokCustomer?.integrationId,
   ) as AnrokIntegration
+
+  const updateRef = useCallback(
+    (node: HTMLDivElement) => {
+      if (customer && node) {
+        setShouldSeeMoreButton(node.childNodes.length > SHOW_MORE_THRESHOLD)
+      }
+    },
+    [customer],
+  )
 
   if (loading || !customer)
     return (
@@ -208,196 +223,229 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
         </Button>
       </SectionHeader>
 
-      {name && (
-        <div>
-          <Typography variant="caption">{translate('text_626162c62f790600f850b76a')}</Typography>
-          <Typography color="textSecondary" forceBreak>
-            {name}
-          </Typography>
-        </div>
-      )}
-      <div>
-        <Typography variant="caption">{translate('text_6250304370f0f700a8fdc283')}</Typography>
-        <Typography color="textSecondary">{externalId}</Typography>
-      </div>
-      {timezone && (
-        <div>
-          <Typography variant="caption">{translate('text_6390a767b79591bc70ba39f7')}</Typography>
-          <Typography color="textSecondary">
-            {translate('text_638f743fa9a2a9545ee6409a', {
-              zone: translate(timezone || TimezoneEnum.TzUtc),
-              offset: getTimezoneConfig(timezone).offset,
-            })}
-          </Typography>
-        </div>
-      )}
-      {externalSalesforceId && (
-        <div>
-          <Typography variant="caption">{translate('text_651fd42936a03200c126c683')}</Typography>
-          <Typography color="textSecondary">{externalSalesforceId}</Typography>
-        </div>
-      )}
-      {currency && (
-        <div>
-          <Typography variant="caption">{translate('text_632b4acf0c41206cbcb8c324')}</Typography>
-          <Typography color="textSecondary">{currency}</Typography>
-        </div>
-      )}
-      {legalName && (
-        <div>
-          <Typography variant="caption">{translate('text_626c0c301a16a600ea061471')}</Typography>
-          <Typography color="textSecondary">{legalName}</Typography>
-        </div>
-      )}
-      {legalNumber && (
-        <div>
-          <Typography variant="caption">{translate('text_626c0c301a16a600ea061475')}</Typography>
-          <Typography color="textSecondary">{legalNumber}</Typography>
-        </div>
-      )}
-      {taxIdentificationNumber && (
-        <div>
-          <Typography variant="caption">{translate('text_648053ee819b60364c675d05')}</Typography>
-          <Typography color="textSecondary">{taxIdentificationNumber}</Typography>
-        </div>
-      )}
-      {email && (
-        <div>
-          <Typography variant="caption">{translate('text_626c0c301a16a600ea061479')}</Typography>
-          <Typography color="textSecondary">{email.split(',').join(', ')}</Typography>
-        </div>
-      )}
-      {url && (
-        <div>
-          <Typography variant="caption">{translate('text_641b164cff8497006bcbd2b3')}</Typography>
-          <Typography color="textSecondary">{url}</Typography>
-        </div>
-      )}
-      {phone && (
-        <div>
-          <Typography variant="caption">{translate('text_626c0c301a16a600ea06147d')}</Typography>
-          <Typography color="textSecondary">{phone}</Typography>
-        </div>
-      )}
-      {(addressLine1 || addressLine2 || state || country || city || zipcode) && (
-        <div>
-          <Typography variant="caption">{translate('text_626c0c301a16a600ea06148d')}</Typography>
-          <Typography color="textSecondary">{addressLine1}</Typography>
-          <Typography color="textSecondary">{addressLine2}</Typography>
-          <Typography color="textSecondary">
-            {zipcode} {city} {state}
-          </Typography>
-          {country && <Typography color="textSecondary">{CountryCodes[country]}</Typography>}
-        </div>
-      )}
-      {!!paymentProvider && !!linkedProvider?.name && (
-        <div>
-          <Typography variant="caption">{translate('text_62b1edddbf5f461ab9712795')}</Typography>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Avatar variant="connector" size="small">
-              {paymentProvider === ProviderTypeEnum?.Stripe ? (
-                <Stripe />
-              ) : paymentProvider === ProviderTypeEnum?.Gocardless ? (
-                <Gocardless />
-              ) : paymentProvider === ProviderTypeEnum?.Adyen ? (
-                <Adyen />
-              ) : null}
-            </Avatar>
-            <Typography color="grey700">{linkedProvider?.name}</Typography>
-          </Stack>
-          {!!providerCustomer && !!providerCustomer?.providerCustomerId && (
-            <Typography color="textSecondary">{providerCustomer?.providerCustomerId}</Typography>
-          )}
-          {paymentProvider === ProviderTypeEnum?.Stripe &&
-            !!providerCustomer?.providerPaymentMethods?.length && (
-              <>
-                {providerCustomer?.providerPaymentMethods?.map((method) => (
-                  <Typography key={`customer-payment-method-${method}`} color="textSecondary">
-                    {translate(PaymentProviderMethodTranslationsLookup[method])}
-                  </Typography>
-                ))}
-              </>
-            )}
-        </div>
-      )}
+      <InfosBlock
+        ref={(node) => {
+          infosRef.current = node
 
-      {(!!customer?.netsuiteCustomer ||
-        integrationsLoading ||
-        !!connectedNetsuiteIntegration?.id) && (
-        <div>
-          <Typography variant="caption">{translate('text_66423cad72bbad009f2f568f')}</Typography>
-          {integrationsLoading ? (
-            <Stack flex={1} gap={3} marginTop={1}>
-              <Skeleton variant="text" height={12} width={200} />
-              <Skeleton variant="text" height={12} width={200} />
-            </Stack>
-          ) : !!connectedNetsuiteIntegration && customer?.netsuiteCustomer?.externalCustomerId ? (
-            <Stack>
-              <Stack direction="row" spacing={2} alignItems="center">
-                <Avatar variant="connector" size="small">
-                  <Netsuite />
-                </Avatar>
-                <Typography color="grey700">{connectedNetsuiteIntegration?.name}</Typography>
-              </Stack>
-              <InlineLink
-                target="_blank"
-                rel="noopener noreferrer"
-                to={buildNetsuiteCustomerUrl(
-                  connectedNetsuiteIntegration?.accountId,
-                  customer?.netsuiteCustomer?.externalCustomerId,
-                )}
-              >
-                <Typography color="info600">
-                  {customer?.netsuiteCustomer?.externalCustomerId} <Icon name="outside" />
-                </Typography>
-              </InlineLink>
-            </Stack>
-          ) : null}
-        </div>
-      )}
-
-      {!!connectedAnrokIntegration && (
-        // TODO: needs to be adjusted
-        <div>
-          <Typography variant="caption">{translate('text_6668821d94e4da4dfd8b3840')}</Typography>
-          {integrationsLoading ? (
-            <Stack flex={1} gap={3} marginTop={1}>
-              <Skeleton variant="text" height={12} width={200} />
-              <Skeleton variant="text" height={12} width={200} />
-            </Stack>
-          ) : !!connectedAnrokIntegration && customer?.anrokCustomer?.integrationId ? (
-            <Stack>
-              <Stack direction="row" spacing={2} alignItems="center">
-                <Avatar variant="connector" size="small">
-                  <Anrok />
-                </Avatar>
-                <Typography color="grey700">{connectedAnrokIntegration?.name}</Typography>
-              </Stack>
-              <InlineLink
-                target="_blank"
-                rel="noopener noreferrer"
-                to={buildAnrokCustomerUrl(
-                  connectedAnrokIntegration?.apiKey,
-                  customer?.anrokCustomer?.externalCustomerId,
-                )}
-              >
-                <Typography color="info600">
-                  {customer?.anrokCustomer?.externalCustomerId} <Icon name="outside" />
-                </Typography>
-              </InlineLink>
-            </Stack>
-          ) : null}
-        </div>
-      )}
-      {!!metadata?.length &&
-        metadata.map((meta) => (
-          <div key={`customer-metadata-${meta.id}`}>
-            <Typography variant="caption" noWrap>
-              {meta.key}
+          if (node) {
+            updateRef(node)
+          }
+        }}
+        data-id="customer-info-list"
+        $showMore={showMore}
+      >
+        {name && (
+          <div>
+            <Typography variant="caption">{translate('text_626162c62f790600f850b76a')}</Typography>
+            <Typography color="textSecondary" forceBreak>
+              {name}
             </Typography>
-            <MetadataValue color="textSecondary">{meta.value}</MetadataValue>
           </div>
-        ))}
+        )}
+        <div>
+          <Typography variant="caption">{translate('text_6250304370f0f700a8fdc283')}</Typography>
+          <Typography color="textSecondary">{externalId}</Typography>
+        </div>
+        {timezone && (
+          <div>
+            <Typography variant="caption">{translate('text_6390a767b79591bc70ba39f7')}</Typography>
+            <Typography color="textSecondary">
+              {translate('text_638f743fa9a2a9545ee6409a', {
+                zone: translate(timezone || TimezoneEnum.TzUtc),
+                offset: getTimezoneConfig(timezone).offset,
+              })}
+            </Typography>
+          </div>
+        )}
+        {externalSalesforceId && (
+          <div>
+            <Typography variant="caption">{translate('text_651fd42936a03200c126c683')}</Typography>
+            <Typography color="textSecondary">{externalSalesforceId}</Typography>
+          </div>
+        )}
+        {currency && (
+          <div>
+            <Typography variant="caption">{translate('text_632b4acf0c41206cbcb8c324')}</Typography>
+            <Typography color="textSecondary">{currency}</Typography>
+          </div>
+        )}
+        {legalName && (
+          <div>
+            <Typography variant="caption">{translate('text_626c0c301a16a600ea061471')}</Typography>
+            <Typography color="textSecondary">{legalName}</Typography>
+          </div>
+        )}
+        {legalNumber && (
+          <div>
+            <Typography variant="caption">{translate('text_626c0c301a16a600ea061475')}</Typography>
+            <Typography color="textSecondary">{legalNumber}</Typography>
+          </div>
+        )}
+        {taxIdentificationNumber && (
+          <div>
+            <Typography variant="caption">{translate('text_648053ee819b60364c675d05')}</Typography>
+            <Typography color="textSecondary">{taxIdentificationNumber}</Typography>
+          </div>
+        )}
+        {email && (
+          <div>
+            <Typography variant="caption">{translate('text_626c0c301a16a600ea061479')}</Typography>
+            <Typography color="textSecondary">{email.split(',').join(', ')}</Typography>
+          </div>
+        )}
+        {url && (
+          <div>
+            <Typography variant="caption">{translate('text_641b164cff8497006bcbd2b3')}</Typography>
+            <Typography color="textSecondary">{url}</Typography>
+          </div>
+        )}
+        {phone && (
+          <div>
+            <Typography variant="caption">{translate('text_626c0c301a16a600ea06147d')}</Typography>
+            <Typography color="textSecondary">{phone}</Typography>
+          </div>
+        )}
+        {(addressLine1 || addressLine2 || state || country || city || zipcode) && (
+          <div>
+            <Typography variant="caption">{translate('text_626c0c301a16a600ea06148d')}</Typography>
+            <Typography color="textSecondary">{addressLine1}</Typography>
+            <Typography color="textSecondary">{addressLine2}</Typography>
+            <Typography color="textSecondary">
+              {zipcode} {city} {state}
+            </Typography>
+            {country && <Typography color="textSecondary">{CountryCodes[country]}</Typography>}
+          </div>
+        )}
+        {!!paymentProvider && !!linkedProvider?.name && (
+          <div>
+            <Typography variant="caption">{translate('text_62b1edddbf5f461ab9712795')}</Typography>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Avatar variant="connector" size="small">
+                {paymentProvider === ProviderTypeEnum?.Stripe ? (
+                  <Stripe />
+                ) : paymentProvider === ProviderTypeEnum?.Gocardless ? (
+                  <Gocardless />
+                ) : paymentProvider === ProviderTypeEnum?.Adyen ? (
+                  <Adyen />
+                ) : null}
+              </Avatar>
+              <Typography color="grey700">{linkedProvider?.name}</Typography>
+            </Stack>
+            {!!providerCustomer && !!providerCustomer?.providerCustomerId && (
+              <Typography color="textSecondary">{providerCustomer?.providerCustomerId}</Typography>
+            )}
+            {paymentProvider === ProviderTypeEnum?.Stripe &&
+              !!providerCustomer?.providerPaymentMethods?.length && (
+                <>
+                  {providerCustomer?.providerPaymentMethods?.map((method) => (
+                    <Typography key={`customer-payment-method-${method}`} color="textSecondary">
+                      {translate(PaymentProviderMethodTranslationsLookup[method])}
+                    </Typography>
+                  ))}
+                </>
+              )}
+          </div>
+        )}
+
+        {(!!customer?.netsuiteCustomer ||
+          integrationsLoading ||
+          !!connectedNetsuiteIntegration?.id) && (
+          <div>
+            <Typography variant="caption">{translate('text_66423cad72bbad009f2f568f')}</Typography>
+            {integrationsLoading ? (
+              <Stack flex={1} gap={3} marginTop={1}>
+                <Skeleton variant="text" height={12} width={200} />
+                <Skeleton variant="text" height={12} width={200} />
+              </Stack>
+            ) : !!connectedNetsuiteIntegration && customer?.netsuiteCustomer?.externalCustomerId ? (
+              <Stack>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Avatar variant="connector" size="small">
+                    <Netsuite />
+                  </Avatar>
+                  <Typography color="grey700">{connectedNetsuiteIntegration?.name}</Typography>
+                </Stack>
+                <InlineLink
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  to={buildNetsuiteCustomerUrl(
+                    connectedNetsuiteIntegration?.accountId,
+                    customer?.netsuiteCustomer?.externalCustomerId,
+                  )}
+                >
+                  <Typography color="info600">
+                    {customer?.netsuiteCustomer?.externalCustomerId} <Icon name="outside" />
+                  </Typography>
+                </InlineLink>
+              </Stack>
+            ) : null}
+          </div>
+        )}
+
+        {!!connectedAnrokIntegration && (
+          // TODO: needs to be adjusted
+          <div>
+            <Typography variant="caption">{translate('text_6668821d94e4da4dfd8b3840')}</Typography>
+            {integrationsLoading ? (
+              <Stack flex={1} gap={3} marginTop={1}>
+                <Skeleton variant="text" height={12} width={200} />
+                <Skeleton variant="text" height={12} width={200} />
+              </Stack>
+            ) : !!connectedAnrokIntegration && customer?.anrokCustomer?.integrationId ? (
+              <Stack>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Avatar variant="connector" size="small">
+                    <Anrok />
+                  </Avatar>
+                  <Typography color="grey700">{connectedAnrokIntegration?.name}</Typography>
+                </Stack>
+                <InlineLink
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  to={buildAnrokCustomerUrl(
+                    connectedAnrokIntegration?.apiKey,
+                    customer?.anrokCustomer?.externalCustomerId,
+                  )}
+                >
+                  <Typography color="info600">
+                    {customer?.anrokCustomer?.externalCustomerId} <Icon name="outside" />
+                  </Typography>
+                </InlineLink>
+              </Stack>
+            ) : null}
+          </div>
+        )}
+        {!!metadata?.length &&
+          metadata.map((meta) => (
+            <div key={`customer-metadata-${meta.id}`}>
+              <Typography variant="caption" noWrap>
+                {meta.key}
+              </Typography>
+              <MetadataValue color="textSecondary">{meta.value}</MetadataValue>
+            </div>
+          ))}
+      </InfosBlock>
+
+      {shouldSeeMoreButton && !showMore && (
+        // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
+        <ShowMoreButton
+          onClick={() => {
+            const hiddenItems = Array.from(
+              infosRef.current?.querySelectorAll(
+                `*:nth-of-type(n + ${SHOW_MORE_THRESHOLD})`,
+              ) as NodeListOf<HTMLElement>,
+            )
+
+            hiddenItems?.forEach((item) => {
+              item.style.display = 'block'
+            })
+
+            setShowMore(true)
+          }}
+        >
+          Show more
+        </ShowMoreButton>
+      )}
     </DetailsBlock>
   )
 }
@@ -415,6 +463,17 @@ const LoadingDetails = styled.div`
 const DetailsBlock = styled.div`
   > *:not(:first-child) {
     margin-bottom: ${theme.spacing(3)};
+  }
+`
+
+const InfosBlock = styled.div<{ $showMore: boolean }>`
+  > *:not(:last-child) {
+    margin-bottom: ${theme.spacing(3)};
+  }
+
+  // Hide all items after the threshold
+  > *:nth-child(n + ${SHOW_MORE_THRESHOLD}) {
+    ${({ $showMore }) => ($showMore ? 'display: block;' : 'display: none;')}
   }
 `
 
@@ -436,4 +495,9 @@ const SectionHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-bottom: ${theme.spacing(4)};
+`
+
+const ShowMoreButton = styled.span`
+  color: ${theme.palette.primary[600]};
+  cursor: pointer;
 `
