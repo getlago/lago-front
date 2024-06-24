@@ -16,6 +16,7 @@ gql`
       id
       name
       logoUrl
+      defaultCurrency
     }
   }
 `
@@ -58,7 +59,10 @@ const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
       </PageHeader>
 
       <PortalCustomerInfos translate={translate} />
-      <PortalOverview translate={translate} />
+      <PortalOverview
+        translate={translate}
+        currency={data?.customerPortalOrganization?.defaultCurrency}
+      />
       <PortalInvoicesList translate={translate} documentLocale={documentLocale} />
     </PageWrapper>
   )
