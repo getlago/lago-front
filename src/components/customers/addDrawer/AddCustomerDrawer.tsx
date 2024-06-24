@@ -149,16 +149,6 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: async ({ metadata, ...values }, formikBag) => {
-      const initialNetsuiteCustomer = customer?.netsuiteCustomer
-      const valuesDoesNotIncludeNetsuiteIntegration = !values.integrationCustomers?.some(
-        (integrationCustomer) =>
-          integrationCustomer.integrationType === IntegrationTypeEnum.Netsuite,
-      )
-
-      // On edition, if we remove the netsuite connection we need to return the data without the externalCustomerId
-      if (isEdition && !!initialNetsuiteCustomer && valuesDoesNotIncludeNetsuiteIntegration) {
-        values.integrationCustomers = [{ ...initialNetsuiteCustomer, externalCustomerId: null }]
-      }
       const answer = await onSave({
         ...values,
         metadata: ((metadata as LocalCustomerMetadata[]) || []).map(
