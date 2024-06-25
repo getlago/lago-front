@@ -19,6 +19,13 @@ const CustomerInvoiceDetails = lazyLoad(
     import(/* webpackChunkName: 'customer-invoice-details' */ '~/layouts/CustomerInvoiceDetails'),
 )
 
+const CustomerRequestOverduePayment = lazyLoad(
+  () =>
+    import(
+      /* webpackChunkName: 'customer-request-overdue-payment' */ '~/pages/CustomerRequestOverduePayment/index'
+    ),
+)
+
 // Credit note related
 const CreateCreditNote = lazyLoad(
   () => import(/* webpackChunkName: 'create-credit-note' */ '~/pages/CreateCreditNote'),
@@ -33,6 +40,7 @@ export const CUSTOMER_DETAILS_ROUTE = '/customer/:customerId'
 export const CUSTOMER_DETAILS_TAB_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/:tab`
 export const CUSTOMER_DRAFT_INVOICES_LIST_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/draft-invoices`
 export const CUSTOMER_INVOICE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/:tab`
+export const CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/request-overdue-payment`
 
 // Credit note related
 export const CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/credit-notes/:creditNoteId`
@@ -78,5 +86,10 @@ export const customerObjectCreationRoutes: CustomRouteObject[] = [
     private: true,
     element: <CreateCreditNote />,
     permissions: ['creditNotesCreate'],
+  },
+  {
+    path: CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE,
+    private: true,
+    element: <CustomerRequestOverduePayment />,
   },
 ]
