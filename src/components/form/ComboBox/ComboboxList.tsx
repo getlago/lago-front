@@ -53,30 +53,32 @@ export const ComboboxList = forwardRef(
       )
 
       return Children.toArray(
-        Object.keys(groupedBy).reduce<ReactNode[]>((acc, key, i) => {
-          return [
-            ...acc,
-            isGrouped
-              ? [
-                  // If renderGroupHeader is provided, render the html, otherewise simply render the key
-                  <GroupHeader
-                    key={`${GROUP_ITEM_KEY}-${key}`}
-                    $isFirst={i === 0}
-                    $virtualized={virtualized}
-                  >
-                    {(!!renderGroupHeader && (renderGroupHeader[key] as ReactNode)) || (
-                      <Typography noWrap>{key}</Typography>
-                    )}
-                  </GroupHeader>,
-                ]
-              : [],
-            ...(groupedBy[key] as ReactElement[]).map((item, j) => (
-              <Item key={`combobox-list-item-${randomKey}-${i}-${j}`} {...propsToForward}>
-                {item}
-              </Item>
-            )),
-          ]
-        }, []),
+        Object.keys(groupedBy)
+          .sort((a, b) => a.localeCompare(b))
+          .reduce<ReactNode[]>((acc, key, i) => {
+            return [
+              ...acc,
+              isGrouped
+                ? [
+                    // If renderGroupHeader is provided, render the html, otherewise simply render the key
+                    <GroupHeader
+                      key={`${GROUP_ITEM_KEY}-${key}`}
+                      $isFirst={i === 0}
+                      $virtualized={virtualized}
+                    >
+                      {(!!renderGroupHeader && (renderGroupHeader[key] as ReactNode)) || (
+                        <Typography noWrap>{key}</Typography>
+                      )}
+                    </GroupHeader>,
+                  ]
+                : [],
+              ...(groupedBy[key] as ReactElement[]).map((item, j) => (
+                <Item key={`combobox-list-item-${randomKey}-${i}-${j}`} {...propsToForward}>
+                  {item}
+                </Item>
+              )),
+            ]
+          }, []),
       )
     }, [isGrouped, renderGroupHeader, children, propsToForward, virtualized])
 
