@@ -412,6 +412,11 @@ export const TimeZonesConfig: Record<string, TimezoneConfigObject> = {
     offset: getOffset('Australia/Brisbane'),
     offsetInMinute: getOffsetInMinute('Australia/Brisbane'),
   },
+  TZ_AUSTRALIA_CANBERRA: {
+    name: 'Australia/Canberra',
+    offset: getOffset('Australia/Canberra'),
+    offsetInMinute: getOffsetInMinute('Australia/Canberra'),
+  },
   TZ_AUSTRALIA_DARWIN: {
     name: 'Australia/Darwin',
     offset: getOffset('Australia/Darwin'),
