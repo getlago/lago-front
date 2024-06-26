@@ -3392,6 +3392,20 @@ export type OrganizationBillingConfigurationInput = {
   invoiceGracePeriod?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type OverdueBalance = {
+  __typename?: 'OverdueBalance';
+  amountCents: Scalars['BigInt']['output'];
+  currency: CurrencyEnum;
+  lagoInvoiceIds: Array<Scalars['String']['output']>;
+  month: Scalars['ISO8601DateTime']['output'];
+};
+
+export type OverdueBalanceCollection = {
+  __typename?: 'OverdueBalanceCollection';
+  collection: Array<OverdueBalance>;
+  metadata: CollectionMetadata;
+};
+
 export type PaymentProvider = AdyenProvider | GocardlessProvider | StripeProvider;
 
 export type PaymentProviderCollection = {
@@ -3666,6 +3680,8 @@ export type Query = {
   mrrs: MrrCollection;
   /** Query the current organization */
   organization?: Maybe<CurrentOrganization>;
+  /** Query overdue balances of an organization */
+  overdueBalances: OverdueBalanceCollection;
   /** Query a password reset by token */
   passwordReset: ResetPassword;
   /** Query a single payment provider */
@@ -3919,6 +3935,13 @@ export type QueryMembershipsArgs = {
 
 export type QueryMrrsArgs = {
   currency?: InputMaybe<CurrencyEnum>;
+};
+
+
+export type QueryOverdueBalancesArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  months?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -4456,6 +4479,8 @@ export enum TimezoneEnum {
   TzAustraliaAdelaide = 'TZ_AUSTRALIA_ADELAIDE',
   /** Australia/Brisbane */
   TzAustraliaBrisbane = 'TZ_AUSTRALIA_BRISBANE',
+  /** Australia/Canberra */
+  TzAustraliaCanberra = 'TZ_AUSTRALIA_CANBERRA',
   /** Australia/Darwin */
   TzAustraliaDarwin = 'TZ_AUSTRALIA_DARWIN',
   /** Australia/Hobart */
