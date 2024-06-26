@@ -110,10 +110,6 @@ const Container = styled.div`
     }
   }
 
-  .radio-icon {
-    padding-top: 6px;
-  }
-
   &.radio--focused .radio-icon {
     box-shadow: 0px 0px 0px 4px ${theme.palette.primary[200]};
     border-radius: 50%;
@@ -142,6 +138,7 @@ const RadioContainer = styled.div`
   margin-right: ${theme.spacing(4)};
   display: flex;
   align-items: flex-start;
+  padding-top: 6px;
 
   input {
     opacity: 0;
