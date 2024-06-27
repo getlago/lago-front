@@ -33,6 +33,7 @@ gql`
       id
       amountCents
       amountCurrency
+      percentageRate
       code
       expirationAt
       name
@@ -69,6 +70,11 @@ const CouponDetails = () => {
 
   const coupon = couponResult?.coupon
 
+  const percentageRate = intlFormatNumber(Number(coupon?.percentageRate) / 100 || 0, {
+    minimumFractionDigits: 2,
+    style: 'percent',
+  })
+
   const amountWithCurrency = intlFormatNumber(
     deserializeAmount(coupon?.amountCents, coupon?.amountCurrency || CurrencyEnum.Usd) || 0,
     {
@@ -78,6 +84,9 @@ const CouponDetails = () => {
       maximumFractionDigits: 15,
     },
   )
+
+  const couponValue =
+    coupon?.couponType === CouponTypeEnum.Percentage ? percentageRate : amountWithCurrency
 
   const shouldShowActions = hasPermissions(['couponsCreate', 'couponsUpdate', 'couponsDelete'])
 
@@ -152,7 +161,7 @@ const CouponDetails = () => {
         <DetailsHeader
           icon="coupon"
           title={coupon?.name || ''}
-          description={`${amountWithCurrency} ${coupon?.frequency}`}
+          description={`${couponValue} ${coupon?.frequency}`}
         />
       )}
 
@@ -171,7 +180,7 @@ const CouponDetails = () => {
                 label: translate('text_664cb90097bfa800e6efa3e7'),
                 value: coupon?.code,
               },
-              {
+              coupon?.couponType === CouponTypeEnum.FixedAmount && {
                 label: translate('text_632b4acf0c41206cbcb8c324'),
                 value: coupon?.amountCurrency,
               },
@@ -186,8 +195,14 @@ const CouponDetails = () => {
           <DetailsCard>
             <DetailsSectionWrapperWithBorder>
               <DetailsTableDisplay
-                header={[translate('text_624453d52e945301380e49b6')]}
-                body={[[amountWithCurrency]]}
+                header={[
+                  coupon?.couponType === CouponTypeEnum.Percentage
+                    ? translate('text_64de472463e2da6b31737de0')
+                    : coupon?.couponType === CouponTypeEnum.FixedAmount
+                      ? translate('text_624453d52e945301380e49b6')
+                      : '',
+                ]}
+                body={[[couponValue]]}
               />
             </DetailsSectionWrapperWithBorder>
 
