@@ -36,3 +36,6 @@ export const buildAnrokCustomerUrl = (
 ) => {
   return `https://app.anrok.com/${connectionAccountId}/customers/${anrokCustomerId}`
 }
+export const buildXeroCustomerUrl = (xeroCustomerId?: string | null) => {
+  return `https://go.xero.com/app/contacts/contact/${xeroCustomerId}`
+}

@@ -34,6 +34,7 @@ import {
   ProviderPaymentMethodsEnum,
   TimezoneEnum,
   UpdateCustomerInput,
+  XeroCustomer,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
@@ -85,6 +86,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
       integrationCustomers: [
         ...(!!customer?.netsuiteCustomer ? [customer?.netsuiteCustomer] : []),
         ...(!!customer?.anrokCustomer ? [customer?.anrokCustomer] : []),
+        ...(!!customer?.xeroCustomer ? [customer?.xeroCustomer] : []),
       ],
       paymentProviderCode: customer?.paymentProviderCode ?? undefined,
       providerCustomer: {
@@ -123,7 +125,12 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
         .of(
           object()
             .test({
-              test: function (value: Omit<NetsuiteCustomer, 'id'> | Omit<AnrokCustomer, 'id'>) {
+              test: function (
+                value:
+                  | Omit<NetsuiteCustomer, 'id'>
+                  | Omit<AnrokCustomer, 'id'>
+                  | Omit<XeroCustomer, 'id'>,
+              ) {
                 if (!!value) {
                   if (value.integrationType === IntegrationTypeEnum.Netsuite) {
                     value = value as NetsuiteCustomer
@@ -143,6 +150,17 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                   } else if (value.integrationType === IntegrationTypeEnum.Anrok) {
                     value = value as AnrokCustomer
                     // If Anrok integrationCode is not selected
+                    if (!value.integrationCode) {
+                      return false
+                    }
+
+                    // if syncWithProvider is false, externalCustomerId is required
+                    if (!value?.syncWithProvider && !value?.externalCustomerId) {
+                      return false
+                    }
+                  } else if (value.integrationType === IntegrationTypeEnum.Xero) {
+                    value = value as XeroCustomer
+                    // If Xero integrationCode is not selected
                     if (!value.integrationCode) {
                       return false
                     }
