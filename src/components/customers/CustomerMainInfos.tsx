@@ -6,7 +6,11 @@ import styled from 'styled-components'
 
 import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
-import { buildAnrokCustomerUrl, buildNetsuiteCustomerUrl } from '~/core/constants/externalUrls'
+import {
+  buildAnrokCustomerUrl,
+  buildNetsuiteCustomerUrl,
+  buildXeroCustomerUrl,
+} from '~/core/constants/externalUrls'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   AnrokIntegration,
@@ -17,6 +21,7 @@ import {
   TimezoneEnum,
   useIntegrationsListForCustomerMainInfosQuery,
   usePaymentProvidersListForCustomerMainInfosQuery,
+  XeroIntegration,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
@@ -24,6 +29,7 @@ import Anrok from '~/public/images/anrok.svg'
 import Gocardless from '~/public/images/gocardless.svg'
 import Netsuite from '~/public/images/netsuite.svg'
 import Stripe from '~/public/images/stripe.svg'
+import Xero from '~/public/images/xero.svg'
 import { theme } from '~/styles'
 
 const PaymentProviderMethodTranslationsLookup = {
@@ -69,6 +75,11 @@ gql`
       id
       providerCustomerId
       providerPaymentMethods
+    }
+    xeroCustomer {
+      id
+      integrationId
+      externalCustomerId
     }
     metadata {
       id
@@ -117,6 +128,11 @@ gql`
           apiKey
           externalAccountId
         }
+        ... on XeroIntegration {
+          __typename
+          id
+          name
+        }
       }
     }
   }
@@ -142,7 +158,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
   const { data: integrationsData, loading: integrationsLoading } =
     useIntegrationsListForCustomerMainInfosQuery({
       variables: { limit: 1000 },
-      skip: !customer?.netsuiteCustomer,
+      skip: !customer?.netsuiteCustomer && !customer?.anrokCustomer && !customer?.xeroCustomer,
     })
 
   const linkedProvider = paymentProvidersData?.paymentProviders?.collection?.find(
@@ -157,6 +173,10 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     (i) => i.__typename === 'AnrokIntegration',
   ) as AnrokIntegration[] | undefined
 
+  const allXeroIntegrations = integrationsData?.integrations?.collection.filter(
+    (i) => i.__typename === 'XeroIntegration',
+  ) as XeroIntegration[] | undefined
+
   const connectedNetsuiteIntegration = allNetsuiteIntegrations?.find(
     (integration) => integration?.id === customer?.netsuiteCustomer?.integrationId,
   ) as NetsuiteIntegration
@@ -164,6 +184,10 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
   const connectedAnrokIntegration = allAnrokIntegrations?.find(
     (integration) => integration?.id === customer?.anrokCustomer?.integrationId,
   ) as AnrokIntegration
+
+  const connectedXeroIntegration = allXeroIntegrations?.find(
+    (integration) => integration?.id === customer?.xeroCustomer?.integrationId,
+  ) as XeroIntegration
 
   const updateRef = useCallback(
     (node: HTMLDivElement) => {
@@ -376,6 +400,36 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                 >
                   <Typography color="info600">
                     {customer?.netsuiteCustomer?.externalCustomerId} <Icon name="outside" />
+                  </Typography>
+                </InlineLink>
+              </Stack>
+            ) : null}
+          </div>
+        )}
+
+        {(!!customer?.xeroCustomer || integrationsLoading || !!connectedXeroIntegration?.id) && (
+          <div>
+            <Typography variant="caption">{translate('text_66423cad72bbad009f2f568f')}</Typography>
+            {integrationsLoading ? (
+              <Stack flex={1} gap={3} marginTop={1}>
+                <Skeleton variant="text" height={12} width={200} />
+                <Skeleton variant="text" height={12} width={200} />
+              </Stack>
+            ) : !!connectedXeroIntegration && customer?.xeroCustomer?.externalCustomerId ? (
+              <Stack>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Avatar variant="connector" size="small">
+                    <Xero />
+                  </Avatar>
+                  <Typography color="grey700">{connectedXeroIntegration?.name}</Typography>
+                </Stack>
+                <InlineLink
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  to={buildXeroCustomerUrl(customer?.xeroCustomer?.externalCustomerId)}
+                >
+                  <Typography color="info600">
+                    {customer?.xeroCustomer?.externalCustomerId} <Icon name="outside" />
                   </Typography>
                 </InlineLink>
               </Stack>

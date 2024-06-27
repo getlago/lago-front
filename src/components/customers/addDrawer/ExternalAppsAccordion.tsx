@@ -42,6 +42,7 @@ import {
   useAccountingIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery,
   usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery,
   useSubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery,
+  XeroIntegration,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
@@ -50,6 +51,7 @@ import GoCardless from '~/public/images/gocardless.svg'
 import Netsuite from '~/public/images/netsuite.svg'
 import PSPIcons from '~/public/images/psp-icons.svg'
 import Stripe from '~/public/images/stripe.svg'
+import Xero from '~/public/images/xero.svg'
 import { MenuPopper, theme } from '~/styles'
 
 gql`
@@ -64,6 +66,12 @@ gql`
       syncWithProvider
     }
     anrokCustomer {
+      externalCustomerId
+      integrationCode
+      integrationType
+      syncWithProvider
+    }
+    xeroCustomer {
       externalCustomerId
       integrationCode
       integrationType
@@ -113,6 +121,12 @@ gql`
           code
           name
         }
+        ... on XeroIntegration {
+          __typename
+          id
+          code
+          name
+        }
       }
     }
   }
@@ -140,7 +154,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
       variables: { limit: 1000 },
     })
 
-  const [getAccountingIntegrationsData, { data: allAccountingIntegrationsData }] =
+  const [getAccountingIntegrationsData, { data: allIntegrationsData }] =
     useAccountingIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery({
       variables: { limit: 1000 },
     })
@@ -149,13 +163,17 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     (p) => p.code === formikProps.values.paymentProviderCode,
   )
 
-  const allNetsuiteIntegrations = allAccountingIntegrationsData?.integrations?.collection.filter(
+  const allNetsuiteIntegrations = allIntegrationsData?.integrations?.collection.filter(
     (i) => i.__typename === 'NetsuiteIntegration',
   ) as NetsuiteIntegration[] | undefined
 
-  const allAnrokIntegrations = allAccountingIntegrationsData?.integrations?.collection.filter(
+  const allAnrokIntegrations = allIntegrationsData?.integrations?.collection.filter(
     (i) => i.__typename === 'AnrokIntegration',
   ) as AnrokIntegration[] | undefined
+
+  const allXeroIntegrations = allIntegrationsData?.integrations?.collection.filter(
+    (i) => i.__typename === 'XeroIntegration',
+  ) as XeroIntegration[] | undefined
 
   const selectedNetsuiteIntegrationIndex =
     formikProps.values.integrationCustomers?.findIndex(
@@ -165,14 +183,21 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     formikProps.values.integrationCustomers?.findIndex(
       (i) => i.integrationType === IntegrationTypeEnum.Anrok,
     ) || 0
+  const selectedXeroIntegrationIndex =
+    formikProps.values.integrationCustomers?.findIndex(
+      (i) => i.integrationType === IntegrationTypeEnum.Xero,
+    ) || 0
 
   const netsuiteIntegrationpointerInIntegrationCustomer = `integrationCustomers.${selectedNetsuiteIntegrationIndex}`
   const anrokIntegrationpointerInIntegration = `integrationCustomers.${selectedAnrokIntegrationIndex}`
+  const xeroIntegrationpointerInIntegrationCustomer = `integrationCustomers.${selectedXeroIntegrationIndex}`
 
   const selectedNetsuiteIntegration =
     formikProps.values.integrationCustomers?.[selectedNetsuiteIntegrationIndex]
   const selectedAnrokIntegration =
     formikProps.values.integrationCustomers?.[selectedAnrokIntegrationIndex]
+  const selectedXeroIntegration =
+    formikProps.values.integrationCustomers?.[selectedXeroIntegrationIndex]
 
   const selectedNetsuiteIntegrationSettings = allNetsuiteIntegrations?.find(
     (i) => i.code === selectedNetsuiteIntegration?.integrationCode,
@@ -182,7 +207,19 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     (i) => i.code === selectedAnrokIntegration?.integrationCode,
   ) as AnrokIntegration
 
+  const selectedXeroIntegrationSettings = allXeroIntegrations?.find(
+    (i) => i.code === selectedXeroIntegration?.integrationCode,
+  ) as XeroIntegration
+
   const hasAnrokIntegrationFeatureFlag = isFeatureFlagActive(FeatureFlags.ANROK_INTEGRATION)
+  const hasXeroIntegrationFeatureFlag = isFeatureFlagActive(FeatureFlags.XERO_INTEGRATION)
+
+  const allAccountingIntegrationsData = useMemo(() => {
+    return [
+      ...(allNetsuiteIntegrations || []),
+      ...(hasXeroIntegrationFeatureFlag ? allXeroIntegrations || [] : []),
+    ]
+  }, [allNetsuiteIntegrations, allXeroIntegrations, hasXeroIntegrationFeatureFlag])
 
   const { data: subsidiariesData } =
     useSubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery({
@@ -198,13 +235,16 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
   const hadInitialAnrokIntegrationCustomer = !!formikProps.initialValues.integrationCustomers?.find(
     (i) => i.integrationType === IntegrationTypeEnum.Anrok,
   )
+  const hadInitialXeroIntegrationCustomer = !!formikProps.initialValues.integrationCustomers?.find(
+    (i) => i.integrationType === IntegrationTypeEnum.Xero,
+  )
 
   const [showPaymentProviderSection, setShowPaymentProviderSection] = useState<boolean>(
     !!formikProps.values.paymentProvider,
   )
 
   const [showAccountingProviderSection, setShowAccountingProviderSection] = useState<boolean>(
-    hadInitialNetsuiteIntegrationCustomer,
+    hadInitialNetsuiteIntegrationCustomer || hadInitialXeroIntegrationCustomer,
   )
   const [showTaxIntegrationSection, setShowTaxIntegrationSection] = useState<boolean>(
     hadInitialAnrokIntegrationCustomer,
@@ -231,12 +271,15 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     }))
   }, [paymentProvidersData?.paymentProviders?.collection])
 
-  const connectedNetsuiteIntegrationsData: BasicComboBoxData[] | [] = useMemo(() => {
-    if (!allNetsuiteIntegrations?.length) return []
+  const connectedAccountingIntegrationsData: ComboboxDataGrouped[] | [] = useMemo(() => {
+    if (!allAccountingIntegrationsData?.length) return []
 
-    return allNetsuiteIntegrations?.map((integration) => ({
+    return allAccountingIntegrationsData?.map((integration) => ({
       value: integration.code,
       label: integration.name,
+      group: hasXeroIntegrationFeatureFlag
+        ? integration?.__typename?.replace('Integration', '') || ''
+        : '',
       labelNode: (
         <Item>
           <Typography variant="body" color="grey700" noWrap>
@@ -249,7 +292,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
         </Item>
       ),
     }))
-  }, [allNetsuiteIntegrations])
+  }, [allAccountingIntegrationsData, hasXeroIntegrationFeatureFlag])
 
   const connectedIntegrationSubscidiaries: BasicComboBoxData[] | [] = useMemo(() => {
     if (!subsidiariesData?.integrationSubsidiaries?.collection.length) return []
@@ -296,8 +339,10 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
   }, [formikProps.values.paymentProvider])
 
   useEffect(() => {
-    setShowAccountingProviderSection(hadInitialNetsuiteIntegrationCustomer)
-  }, [hadInitialNetsuiteIntegrationCustomer])
+    setShowAccountingProviderSection(
+      hadInitialNetsuiteIntegrationCustomer || hadInitialXeroIntegrationCustomer,
+    )
+  }, [hadInitialNetsuiteIntegrationCustomer, hadInitialXeroIntegrationCustomer])
 
   useEffect(() => {
     setShowTaxIntegrationSection(hadInitialAnrokIntegrationCustomer)
@@ -650,8 +695,10 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                 <Stack gap={3} flex={1} direction="row" alignItems="center">
                   <Stack gap={3} flex={1} direction="row" alignItems="center">
                     <Avatar size="big" variant="connector">
-                      {showAccountingProviderSection && !!selectedNetsuiteIntegrationSettings ? (
+                      {!!selectedNetsuiteIntegrationSettings ? (
                         <Netsuite />
+                      ) : !!selectedXeroIntegrationSettings ? (
+                        <Xero />
                       ) : (
                         <Icon name="plug" color="dark" />
                       )}
@@ -677,7 +724,9 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                       formikProps.setFieldValue(
                         'integrationCustomers',
                         formikProps.values.integrationCustomers?.filter(
-                          (i) => i.integrationType !== IntegrationTypeEnum.Netsuite,
+                          (i) =>
+                            i.integrationType !== IntegrationTypeEnum.Netsuite &&
+                            i.integrationType !== IntegrationTypeEnum.Xero,
                         ),
                       )
                       setShowAccountingProviderSection(false)
@@ -694,32 +743,47 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                 {/* Select Integration account */}
                 <ComboBox
                   onOpen={getAccountingIntegrationsData}
-                  disabled={hadInitialNetsuiteIntegrationCustomer}
-                  data={connectedNetsuiteIntegrationsData}
+                  disabled={
+                    hadInitialNetsuiteIntegrationCustomer || hadInitialXeroIntegrationCustomer
+                  }
+                  data={connectedAccountingIntegrationsData}
                   label={translate('text_66423cad72bbad009f2f5695')}
                   placeholder={translate('text_66423cad72bbad009f2f5697')}
                   emptyText={translate('text_6645daa0468420011304aded')}
                   PopperProps={{ displayInDialog: true }}
-                  value={selectedNetsuiteIntegration?.integrationCode as string}
+                  value={
+                    (selectedNetsuiteIntegration?.integrationCode ||
+                      selectedXeroIntegration?.integrationCode) as string
+                  }
                   onChange={(value) => {
-                    const newNetsuiteIntegrationObject = {
-                      integrationCode: value,
-                      integrationType: IntegrationTypeEnum.Netsuite,
-                      syncWithProvider: false,
-                    }
+                    const isValueAlreadyPresent = formikProps.values.integrationCustomers?.some(
+                      (i) => i.integrationCode === value,
+                    )
 
-                    // If no existing netsuite integration, add it
-                    if (!selectedNetsuiteIntegration) {
-                      formikProps.setFieldValue('integrationCustomers', [
-                        ...(formikProps.values.integrationCustomers || []),
-                        newNetsuiteIntegrationObject,
-                      ])
-                    } else {
-                      // If existing netsuite integration, update it
-                      formikProps.setFieldValue(
-                        `${netsuiteIntegrationpointerInIntegrationCustomer}`,
-                        newNetsuiteIntegrationObject,
+                    if (!!value && !isValueAlreadyPresent) {
+                      // By default, remove existing accounting integration, will be added back if value is present
+                      const newIntegrationCustomers =
+                        formikProps.values.integrationCustomers?.filter(
+                          (i) =>
+                            i.integrationType !== IntegrationTypeEnum.Netsuite &&
+                            i.integrationType !== IntegrationTypeEnum.Xero,
+                        ) || []
+
+                      const selectedAccountingIntegration = allAccountingIntegrationsData.find(
+                        (i) => i.code === value,
                       )
+
+                      const newAccountingIntegrationObject = {
+                        integrationCode: value,
+                        integrationType: selectedAccountingIntegration?.__typename
+                          ?.toLowerCase()
+                          .replace('integration', '') as IntegrationTypeEnum,
+                        syncWithProvider: false,
+                      }
+
+                      newIntegrationCustomers.push(newAccountingIntegrationObject)
+
+                      formikProps.setFieldValue('integrationCustomers', newIntegrationCustomers)
                     }
                   }}
                 />
@@ -782,6 +846,53 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                     )}
                   </>
                 )}
+
+                {!!selectedXeroIntegration && (
+                  <>
+                    <TextInputField
+                      name={`${xeroIntegrationpointerInIntegrationCustomer}.externalCustomerId`}
+                      disabled={
+                        !!selectedXeroIntegration?.syncWithProvider ||
+                        hadInitialXeroIntegrationCustomer
+                      }
+                      label={translate('text_667d39dc1a765800d28d0604')}
+                      placeholder={translate('text_667d39dc1a765800d28d0605')}
+                      formikProps={formikProps}
+                    />
+
+                    <Checkbox
+                      name={`${xeroIntegrationpointerInIntegrationCustomer}.syncWithProvider`}
+                      disabled={hadInitialXeroIntegrationCustomer}
+                      value={!!selectedXeroIntegration?.syncWithProvider}
+                      label={translate('text_66423cad72bbad009f2f569e', {
+                        connectionName: selectedXeroIntegrationSettings?.name,
+                      })}
+                      onChange={(_, checked) => {
+                        formikProps.setFieldValue(
+                          `${xeroIntegrationpointerInIntegrationCustomer}.syncWithProvider`,
+                          checked,
+                        )
+
+                        if (!isEdition && checked) {
+                          formikProps.setFieldValue(
+                            `${xeroIntegrationpointerInIntegrationCustomer}.externalCustomerId`,
+                            null,
+                          )
+                          formikProps.setFieldValue(
+                            `${xeroIntegrationpointerInIntegrationCustomer}.subsidiaryId`,
+                            null,
+                          )
+                        }
+                      }}
+                    />
+                  </>
+                )}
+
+                {isEdition &&
+                  !!selectedXeroIntegration?.syncWithProvider &&
+                  !hadInitialXeroIntegrationCustomer && (
+                    <Alert type="info">{translate('text_667d39dc1a765800d28d0607')}</Alert>
+                  )}
               </Stack>
             </Accordion>
           </Stack>

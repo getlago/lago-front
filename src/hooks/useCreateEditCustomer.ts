@@ -58,6 +58,11 @@ gql`
       id
       integrationId
     }
+    xeroCustomer {
+      __typename
+      id
+      integrationId
+    }
     metadata {
       id
       key
