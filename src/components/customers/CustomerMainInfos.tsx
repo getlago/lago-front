@@ -115,6 +115,7 @@ gql`
           id
           name
           apiKey
+          externalAccountId
         }
       }
     }
@@ -383,7 +384,6 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
         )}
 
         {!!connectedAnrokIntegration && (
-          // TODO: needs to be adjusted
           <div>
             <Typography variant="caption">{translate('text_6668821d94e4da4dfd8b3840')}</Typography>
             {integrationsLoading ? (
@@ -399,18 +399,21 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                   </Avatar>
                   <Typography color="grey700">{connectedAnrokIntegration?.name}</Typography>
                 </Stack>
-                <InlineLink
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  to={buildAnrokCustomerUrl(
-                    connectedAnrokIntegration?.apiKey,
-                    customer?.anrokCustomer?.externalCustomerId,
+                {!!connectedAnrokIntegration.externalAccountId &&
+                  customer?.anrokCustomer?.externalCustomerId && (
+                    <InlineLink
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      to={buildAnrokCustomerUrl(
+                        connectedAnrokIntegration.externalAccountId,
+                        customer?.anrokCustomer?.externalCustomerId,
+                      )}
+                    >
+                      <Typography color="info600">
+                        {customer?.anrokCustomer?.externalCustomerId} <Icon name="outside" />
+                      </Typography>
+                    </InlineLink>
                   )}
-                >
-                  <Typography color="info600">
-                    {customer?.anrokCustomer?.externalCustomerId} <Icon name="outside" />
-                  </Typography>
-                </InlineLink>
               </Stack>
             ) : null}
           </div>
