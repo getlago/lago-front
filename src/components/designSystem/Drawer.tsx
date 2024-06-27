@@ -99,8 +99,20 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
               icon="close"
               variant="quaternary"
               onClick={() => {
-                onClose && onClose()
-                setIsOpen(false)
+                const closeAction = () => {
+                  onClose && onClose()
+                  setIsOpen(false)
+                }
+
+                if (showCloseWarningDialog) {
+                  preventClosingDrawerDialogRef.current?.openDialog({
+                    onContinue: () => {
+                      closeAction()
+                    },
+                  })
+                } else {
+                  closeAction()
+                }
               }}
             />
           </Header>
