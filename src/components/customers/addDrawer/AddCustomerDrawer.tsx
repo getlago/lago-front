@@ -209,6 +209,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
         formikProps.resetForm()
         formikProps.validateForm()
       }}
+      showCloseWarningDialog={formikProps.dirty}
     >
       <DrawerContent>
         <DrawerTitle>
