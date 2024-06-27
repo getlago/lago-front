@@ -40,6 +40,14 @@ gql`
     state
     timezone
     zipcode
+    shippingAddress {
+      addressLine1
+      addressLine2
+      city
+      country
+      state
+      zipcode
+    }
     url
     paymentProviderCode
     providerCustomer {
