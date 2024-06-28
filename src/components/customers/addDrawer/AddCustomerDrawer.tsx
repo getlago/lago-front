@@ -1,7 +1,14 @@
 import { useFormik } from 'formik'
 import { FieldWithPossiblyUndefined } from 'lodash'
 import _get from 'lodash/get'
-import React, { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
+import React, {
+  forwardRef,
+  RefObject,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react'
 import styled, { css } from 'styled-components'
 import { array, object, string } from 'yup'
 
@@ -13,7 +20,7 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
-import { ComboBoxField, Switch, TextInputField } from '~/components/form'
+import { Checkbox, ComboBoxField, Switch, TextInputField } from '~/components/form'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import { ORGANIZATION_INFORMATIONS_ROUTE } from '~/core/router'
@@ -63,6 +70,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
   const { isEdition, onSave } = useCreateEditCustomer({
     customer,
   })
+  const [isShippingEqualBillingAddress, setIsShippingEqualBillingAddress] = useState(false)
 
   const formikProps = useFormik<CreateCustomerInput | UpdateCustomerInput>({
     initialValues: {
@@ -81,6 +89,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
       country: customer?.country ?? undefined,
       city: customer?.city ?? undefined,
       zipcode: customer?.zipcode ?? undefined,
+      shippingAddress: customer?.shippingAddress ?? undefined,
       timezone: customer?.timezone ?? undefined,
       url: customer?.url ?? undefined,
       integrationCustomers: [
@@ -210,6 +219,27 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
     closeDrawer: () => drawerRef.current?.closeDrawer(),
   }))
 
+  useEffect(() => {
+    if (isShippingEqualBillingAddress) {
+      formikProps.setFieldValue('shippingAddress', {
+        addressLine1: formikProps.values.addressLine1,
+        addressLine2: formikProps.values.addressLine2,
+        city: formikProps.values.city,
+        country: formikProps.values.country,
+        state: formikProps.values.state,
+        zipcode: formikProps.values.zipcode,
+      })
+    }
+  }, [
+    formikProps.values.addressLine1,
+    formikProps.values.addressLine2,
+    formikProps.values.city,
+    formikProps.values.country,
+    formikProps.values.state,
+    formikProps.values.zipcode,
+    isShippingEqualBillingAddress,
+  ])
+
   return (
     <Drawer
       ref={drawerRef}
@@ -306,7 +336,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
             <Typography variant="subhead">{translate('text_632b49e2620ea4c6d96c9662')}</Typography>
           }
         >
-          <AccordionContentWrapper $first>
+          <AccordionContentWrapper $largeSpacing>
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_626c0c09812bbc00e4c59dff')}
             </Typography>
@@ -401,6 +431,55 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
               name="country"
               placeholder={translate('text_626c0c09812bbc00e4c59e27')}
               formikProps={formikProps}
+              PopperProps={{ displayInDialog: true }}
+            />
+          </AccordionContentWrapper>
+          <AccordionContentWrapper>
+            <Typography variant="bodyHl" color="textSecondary">
+              {translate('text_667d708c1359b49f5a5a8230')}
+            </Typography>
+            <Checkbox
+              label={translate('text_667d708c1359b49f5a5a8234')}
+              value={isShippingEqualBillingAddress}
+              onChange={() => setIsShippingEqualBillingAddress((prev) => !prev)}
+            />
+            <TextInputField
+              name="shippingAddress.addressLine1"
+              label={translate('text_626c0c09812bbc00e4c59e1b')}
+              placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
+              formikProps={formikProps}
+              disabled={isShippingEqualBillingAddress}
+            />
+            <TextInputField
+              name="shippingAddress.addressLine2"
+              placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
+              formikProps={formikProps}
+              disabled={isShippingEqualBillingAddress}
+            />
+            <TextInputField
+              name="shippingAddress.zipcode"
+              placeholder={translate('text_626c0c09812bbc00e4c59e21')}
+              formikProps={formikProps}
+              disabled={isShippingEqualBillingAddress}
+            />
+            <TextInputField
+              name="shippingAddress.city"
+              placeholder={translate('text_626c0c09812bbc00e4c59e23')}
+              formikProps={formikProps}
+              disabled={isShippingEqualBillingAddress}
+            />
+            <TextInputField
+              name="shippingAddress.state"
+              placeholder={translate('text_626c0c09812bbc00e4c59e25')}
+              formikProps={formikProps}
+              disabled={isShippingEqualBillingAddress}
+            />
+            <ComboBoxField
+              data={countryDataForCombobox}
+              name="shippingAddress.country"
+              placeholder={translate('text_626c0c09812bbc00e4c59e27')}
+              formikProps={formikProps}
+              disabled={isShippingEqualBillingAddress}
               PopperProps={{ displayInDialog: true }}
             />
           </AccordionContentWrapper>
@@ -563,11 +642,13 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
   )
 })
 
-const AccordionContentWrapper = styled.div<{ $first?: boolean }>`
-  margin-bottom: ${({ $first }) => ($first ? theme.spacing(6) : 0)};
+const AccordionContentWrapper = styled.div<{ $largeSpacing?: boolean }>`
+  &:not(:last-child) {
+    margin-bottom: ${theme.spacing(8)};
+  }
 
   > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
+    margin-bottom: ${({ $largeSpacing }) => ($largeSpacing ? theme.spacing(6) : theme.spacing(4))};
   }
 `
 

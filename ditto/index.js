@@ -45,6 +45,7 @@ const ready_for_dev___credit_note___create_and_apply_credit_note_to_a_customer =
 const ready_for_dev___customer___improve_tax_and_grace_period_on_customer = require('./ready-for-dev---customer---improve-tax-and-grace-period-on-customer__base.json');
 const ready_for_dev___customer_invoice___update_invoice = require('./ready-for-dev---customer-invoice---update-invoice.payment_status__base.json');
 const ready_for_dev___customers___add_subscription_end_date = require('./ready-for-dev---customers---add-subscription-end-date__base.json');
+const ready_for_dev___customers___addedit_shipping_address = require('./ready-for-dev---customers---addedit-shipping-address__base.json');
 const ready_for_dev___customers___invoice_detail_page = require('./ready-for-dev---customers---invoice-detail-page__base.json');
 const ready_for_dev___customers___invoice_grace_period = require('./ready-for-dev---customers---invoice-grace-period__base.json');
 const ready_for_dev___customers___regroup_invoices_for_payment = require('./ready-for-dev---customers---regroup-invoices-for-payment__base.json');
@@ -271,6 +272,9 @@ module.exports = {
   },
   "project_64ef55a23bdcf2d86567cbed": {
     "base": {...ready_for_dev___customers___add_subscription_end_date}
+  },
+  "project_667d70852c410ccf1e7ce34d": {
+    "base": {...ready_for_dev___customers___addedit_shipping_address}
   },
   "project_634687058efb4a10996fdbdc": {
     "base": {...ready_for_dev___customers___invoice_detail_page}

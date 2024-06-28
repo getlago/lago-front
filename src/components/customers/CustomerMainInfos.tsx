@@ -58,6 +58,14 @@ gql`
     city
     url
     zipcode
+    shippingAddress {
+      addressLine1
+      addressLine2
+      city
+      country
+      state
+      zipcode
+    }
     paymentProvider
     timezone
     anrokCustomer {
@@ -192,7 +200,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
   const updateRef = useCallback(
     (node: HTMLDivElement) => {
       if (customer && node) {
-        setShouldSeeMoreButton(node.childNodes.length > SHOW_MORE_THRESHOLD)
+        setShouldSeeMoreButton(node.childNodes.length >= SHOW_MORE_THRESHOLD)
       }
     },
     [customer],
@@ -232,6 +240,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     country,
     city,
     zipcode,
+    shippingAddress,
     paymentProvider,
     providerCustomer,
     timezone,
@@ -339,6 +348,19 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
               {zipcode} {city} {state}
             </Typography>
             {country && <Typography color="textSecondary">{CountryCodes[country]}</Typography>}
+          </div>
+        )}
+        {shippingAddress && (
+          <div>
+            <Typography variant="caption">{translate('text_667d708c1359b49f5a5a822a')}</Typography>
+            <Typography color="textSecondary">{shippingAddress.addressLine1}</Typography>
+            <Typography color="textSecondary">{shippingAddress.addressLine2}</Typography>
+            <Typography color="textSecondary">
+              {shippingAddress.zipcode} {shippingAddress.city} {shippingAddress.state}
+            </Typography>
+            {shippingAddress.country && (
+              <Typography color="textSecondary">{CountryCodes[shippingAddress.country]}</Typography>
+            )}
           </div>
         )}
         {!!paymentProvider && !!linkedProvider?.name && (
