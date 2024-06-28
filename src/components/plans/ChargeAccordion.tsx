@@ -952,7 +952,7 @@ export const ChargeAccordion = memo(
                         variant="quaternary"
                         disabled={disabled}
                         onClick={() => {
-                          formikProps.setFieldValue(`charges.${index}.minAmountCents`, null)
+                          formikProps.setFieldValue(`charges.${index}.minAmountCents`, undefined)
                           setShowSpendingMinimum(false)
                         }}
                       />

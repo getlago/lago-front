@@ -157,7 +157,9 @@ export const serializePlanInput = (values: PlanFormInput) => {
         return {
           chargeModel,
           billableMetricId: billableMetric.id,
-          minAmountCents: Number(serializeAmount(minAmountCents, values.amountCurrency) || 0),
+          minAmountCents: !!minAmountCents
+            ? Number(serializeAmount(minAmountCents, values.amountCurrency) || 0)
+            : undefined,
           taxCodes: chargeTaxes?.map(({ code }) => code) || [],
           filters: serializeFilters(filters, chargeModel),
           properties: properties

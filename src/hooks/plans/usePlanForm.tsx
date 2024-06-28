@@ -164,11 +164,17 @@ export const usePlanForm: ({
               // Used to not enable submit button on invoiceDisplayName reset
               invoiceDisplayName: invoiceDisplayName || '',
               taxes: taxes || [],
-              minAmountCents: isNaN(minAmountCents)
-                ? undefined
-                : String(
-                    deserializeAmount(minAmountCents || 0, plan.amountCurrency || CurrencyEnum.Usd),
-                  ),
+              minAmountCents:
+                // Some plan have been saved with minAmountCents as 0 string but it makes the sub form send an override plan each time
+                // This || minAmountCents === '0' serves to prevent this to happen
+                isNaN(minAmountCents) || minAmountCents === '0'
+                  ? undefined
+                  : String(
+                      deserializeAmount(
+                        minAmountCents || 0,
+                        plan.amountCurrency || CurrencyEnum.Usd,
+                      ),
+                    ),
               payInAdvance: payInAdvance || false,
               properties: properties ? getPropertyShape(properties) : undefined,
               filters: (filters || []).map((filter) => {

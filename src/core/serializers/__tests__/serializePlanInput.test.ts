@@ -296,7 +296,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             chargeModel: 'package',
             filters: [],
-            minAmountCents: 0,
+            minAmountCents: undefined,
             properties: {
               amount: '1',
               fixedAmount: '2',
@@ -363,7 +363,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             chargeModel: 'percentage',
-            minAmountCents: 0,
+            minAmountCents: undefined,
             filters: [],
             properties: {
               amount: undefined,
@@ -431,7 +431,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             chargeModel: 'standard',
-            minAmountCents: 0,
+            minAmountCents: undefined,
             filters: [],
             properties: {
               amount: '1',
@@ -498,7 +498,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             chargeModel: 'standard',
-            minAmountCents: 0,
+            minAmountCents: undefined,
             filters: [],
             properties: {
               amount: undefined,
@@ -588,7 +588,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             chargeModel: 'standard',
-            minAmountCents: 0,
+            minAmountCents: undefined,
             properties: {
               amount: undefined,
               freeUnits: undefined,
@@ -691,7 +691,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             chargeModel: 'volume',
-            minAmountCents: 0,
+            minAmountCents: undefined,
             filters: [],
             properties: {
               amount: '1',
@@ -770,7 +770,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             chargeModel: 'custom',
-            minAmountCents: 0,
+            minAmountCents: undefined,
             filters: [],
             properties: {
               amount: '1',
