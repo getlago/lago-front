@@ -1475,6 +1475,8 @@ export enum CurrencyEnum {
   Inr = 'INR',
   /** Icelandic Króna */
   Isk = 'ISK',
+  /** Iranina Rial */
+  Irr = 'IRR',
   /** Jamaican Dollar */
   Jmd = 'JMD',
   /** Jordanian Dinar */
