@@ -350,19 +350,29 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             {country && <Typography color="textSecondary">{CountryCodes[country]}</Typography>}
           </div>
         )}
-        {shippingAddress && (
-          <div>
-            <Typography variant="caption">{translate('text_667d708c1359b49f5a5a822a')}</Typography>
-            <Typography color="textSecondary">{shippingAddress.addressLine1}</Typography>
-            <Typography color="textSecondary">{shippingAddress.addressLine2}</Typography>
-            <Typography color="textSecondary">
-              {shippingAddress.zipcode} {shippingAddress.city} {shippingAddress.state}
-            </Typography>
-            {shippingAddress.country && (
-              <Typography color="textSecondary">{CountryCodes[shippingAddress.country]}</Typography>
-            )}
-          </div>
-        )}
+        {shippingAddress &&
+          (shippingAddress.addressLine1 ||
+            shippingAddress.addressLine2 ||
+            shippingAddress.state ||
+            shippingAddress.country ||
+            shippingAddress.city ||
+            shippingAddress.zipcode) && (
+            <div>
+              <Typography variant="caption">
+                {translate('text_667d708c1359b49f5a5a822a')}
+              </Typography>
+              <Typography color="textSecondary">{shippingAddress.addressLine1}</Typography>
+              <Typography color="textSecondary">{shippingAddress.addressLine2}</Typography>
+              <Typography color="textSecondary">
+                {shippingAddress.zipcode} {shippingAddress.city} {shippingAddress.state}
+              </Typography>
+              {shippingAddress.country && (
+                <Typography color="textSecondary">
+                  {CountryCodes[shippingAddress.country]}
+                </Typography>
+              )}
+            </div>
+          )}
         {!!paymentProvider && !!linkedProvider?.name && (
           <div>
             <Typography variant="caption">{translate('text_62b1edddbf5f461ab9712795')}</Typography>
@@ -522,7 +532,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             setShowMore(true)
           }}
         >
-          Show more
+          {translate('text_6670a2a7ae3562006c4ee3ce')}
         </ShowMoreButton>
       )}
     </DetailsBlock>
