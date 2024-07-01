@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import _get from 'lodash/get'
+import { DateTime } from 'luxon'
 import { useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
@@ -453,6 +454,13 @@ const CreateCreditNote = () => {
                                   }`}
                                   formikKey={`fees.${subKey}.fees.${groupFeeKey}`}
                                   maxValue={child?.maxAmount || 0}
+                                  feeSucceededAt={
+                                    !!child?.succeededAt
+                                      ? DateTime.fromISO(child?.succeededAt).toFormat(
+                                          'LLL. dd, yyyy',
+                                        )
+                                      : undefined
+                                  }
                                 />
                               )
                             }

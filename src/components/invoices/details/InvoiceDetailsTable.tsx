@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { DateTime } from 'luxon'
 import { memo, RefObject } from 'react'
 import styled, { css } from 'styled-components'
 
@@ -157,9 +158,12 @@ export const InvoiceDetailsTable = memo(
      * One-off invoice
      ******************/
     if (
-      [InvoiceTypeEnum.AddOn, InvoiceTypeEnum.Credit, InvoiceTypeEnum.OneOff].includes(
-        invoice.invoiceType,
-      )
+      [
+        InvoiceTypeEnum.AddOn,
+        InvoiceTypeEnum.Credit,
+        InvoiceTypeEnum.OneOff,
+        InvoiceTypeEnum.AdvanceCharges,
+      ].includes(invoice.invoiceType)
     ) {
       return (
         <InvoiceWrapper $isDraftInvoice={isDraftInvoice} $canHaveUnitPrice={canHaveUnitPrice}>
@@ -178,9 +182,15 @@ export const InvoiceDetailsTable = memo(
                   displayName={
                     invoice.invoiceType === InvoiceTypeEnum.AddOn
                       ? translate('text_6388baa2e514213fed583611', { name: fee.itemName })
-                      : invoice.invoiceType === InvoiceTypeEnum.OneOff
+                      : invoice.invoiceType === InvoiceTypeEnum.OneOff ||
+                          invoice.invoiceType === InvoiceTypeEnum.AdvanceCharges
                         ? fee.invoiceDisplayName || fee.itemName
                         : translate('text_637ccf8133d2c9a7d11ce6e1')
+                  }
+                  succeededDate={
+                    invoice.invoiceType === InvoiceTypeEnum.AdvanceCharges
+                      ? DateTime.fromISO(fee.succeededAt).toFormat('LLL. dd, yyyy')
+                      : undefined
                   }
                   editFeeDrawerRef={editFeeDrawerRef}
                   deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}

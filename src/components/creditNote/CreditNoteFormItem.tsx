@@ -20,6 +20,7 @@ interface CreditNoteFormItemProps {
   feeName: string
   formikKey: string
   maxValue: number
+  feeSucceededAt?: string
 }
 
 export const CreditNoteFormItem = ({
@@ -28,6 +29,7 @@ export const CreditNoteFormItem = ({
   formikKey,
   maxValue,
   feeName,
+  feeSucceededAt,
 }: CreditNoteFormItemProps) => {
   const { translate } = useInternationalization()
   const error = _get(formikProps.errors, `${formikKey}.value`)
@@ -41,6 +43,7 @@ export const CreditNoteFormItem = ({
           <Typography color="grey700">
             {feeName}
             <Typography variant="caption">
+              {feeSucceededAt && `${feeSucceededAt} • `}
               {translate('text_636bedf292786b19d3398efc', {
                 max: intlFormatNumber(deserializeAmount(maxValue || 0, currency), {
                   currencyDisplay: 'symbol',

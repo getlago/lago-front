@@ -7,6 +7,7 @@ export type FromFee = {
   name: string
   value: string | number
   isTrueUpFee?: boolean
+  succeededAt?: string
   appliedTaxes?: {
     id: string
     tax: {

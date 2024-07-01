@@ -34,6 +34,7 @@ gql`
     invoiceName
     invoiceDisplayName
     groupedBy
+    succeededAt
     appliedTaxes {
       id
       tax {
@@ -73,6 +74,7 @@ gql`
       invoiceName
       invoiceDisplayName
       creditableAmountCents
+      succeededAt
       appliedTaxes {
         id
         tax {
@@ -283,6 +285,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
                   trueUpFee: fee?.trueUpFee,
                   maxAmount: fee?.creditableAmountCents,
                   appliedTaxes: fee?.appliedTaxes || [],
+                  succeededAt: fee?.succeededAt,
                 },
                 ...groupApp,
               }
@@ -321,6 +324,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
                 trueUpFee: firstFee?.trueUpFee,
                 maxAmount: firstFee?.creditableAmountCents,
                 appliedTaxes: firstFee?.appliedTaxes || [],
+                succeededAt: firstFee?.succeededAt,
               },
             }
           }
