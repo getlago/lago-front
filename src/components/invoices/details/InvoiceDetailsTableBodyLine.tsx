@@ -40,6 +40,7 @@ gql`
     eventsCount
     adjustedFee
     adjustedFeeType
+    succeededAt
     charge {
       id
       chargeModel
@@ -94,6 +95,7 @@ type InvoiceDetailsTableBodyLineProps = {
   hideVat?: boolean
   editFeeDrawerRef?: RefObject<EditFeeDrawerRef>
   deleteAdjustedFeeDialogRef?: RefObject<DeleteAdjustedFeeDialogRef>
+  succeededDate?: string
 }
 
 export const calculateIfDetailsShouldBeDisplayed = (
@@ -159,6 +161,7 @@ export const InvoiceDetailsTableBodyLine = memo(
     fee,
     hideVat,
     isDraftInvoice,
+    succeededDate,
   }: InvoiceDetailsTableBodyLineProps) => {
     const { translate } = useInternationalization()
     const chargeModel = fee?.charge?.chargeModel
@@ -206,8 +209,10 @@ export const InvoiceDetailsTableBodyLine = memo(
                 </Typography>
               )}
             </Stack>
-            {!!subLabel && (
+            {(succeededDate || !!subLabel) && (
               <Typography variant="caption" color="grey600">
+                {succeededDate}
+                {succeededDate && !!subLabel && ' • '}
                 {subLabel}
               </Typography>
             )}
