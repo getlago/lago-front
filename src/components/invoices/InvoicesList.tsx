@@ -362,8 +362,8 @@ const TabSwitchContainer = styled.div`
 `
 
 const InvoiceTypeSwitch = styled(Button)<{ $isSelected: boolean }>`
-  flex-grow: 1;
   height: 44px;
+  flex-shrink: 0;
 
   ${({ $isSelected }) =>
     $isSelected &&
@@ -374,9 +374,4 @@ const InvoiceTypeSwitch = styled(Button)<{ $isSelected: boolean }>`
         color: ${palette.primary.main};
       }
     `};
-
-  ${theme.breakpoints.down('md')} {
-    width: fit-content;
-    flex-grow: 0;
-  }
 `
