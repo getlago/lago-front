@@ -3,6 +3,7 @@ import styled from 'styled-components'
 
 import { PortalCustomerInfos } from '~/components/customerPortal/PortalCustomerInfos'
 import PortalInvoicesList from '~/components/customerPortal/PortalInvoicesList'
+import { PortalOverview } from '~/components/customerPortal/PortalOverview'
 import { Skeleton, Typography } from '~/components/designSystem'
 import { LocaleEnum } from '~/core/translations'
 import { useGetPortalOrgaInfosQuery } from '~/generated/graphql'
@@ -15,6 +16,7 @@ gql`
       id
       name
       logoUrl
+      defaultCurrency
     }
   }
 `
@@ -57,6 +59,10 @@ const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
       </PageHeader>
 
       <PortalCustomerInfos translate={translate} />
+      <PortalOverview
+        translate={translate}
+        currency={data?.customerPortalOrganization?.defaultCurrency}
+      />
       <PortalInvoicesList translate={translate} documentLocale={documentLocale} />
     </PageWrapper>
   )

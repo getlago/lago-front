@@ -57,8 +57,8 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
   const terminateSubscriptionDialogRef = useRef<TerminateCustomerSubscriptionDialogRef>(null)
 
   return (
-    <SideSection $empty={hasNoSubscription}>
-      <Header variant="subhead" $loading={loading}>
+    <SideSection>
+      <Header variant="subhead" $hideBottomShadow>
         {translate('text_6250304370f0f700a8fdc28d')}
 
         {hasPermissions(['subscriptionsCreate']) && (
