@@ -469,17 +469,17 @@ export const theme = createTheme({
         },
         sizeSmall: {
           height: '32px',
-          padding: '4px',
+          padding: '10px 12px',
           borderRadius: '8px',
           '&.button-icon-only': {
             width: '24px',
             height: '24px',
           },
           '.MuiButton-endIcon': {
-            marginLeft: '4px',
+            marginLeft: '8px',
           },
           '.MuiButton-startIcon': {
-            marginRight: '4px',
+            marginRight: '8px',
           },
         },
         sizeLarge: {
