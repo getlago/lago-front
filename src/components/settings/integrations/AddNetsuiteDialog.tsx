@@ -38,6 +38,8 @@ gql`
     syncInvoices
     syncPayments
     syncSalesOrders
+    tokenId
+    tokenSecret
   }
 
   mutation createNetsuiteIntegration($input: CreateNetsuiteIntegrationInput!) {
@@ -113,6 +115,8 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
       accountId: netsuiteProvider?.accountId || '',
       clientId: netsuiteProvider?.clientId || '',
       clientSecret: netsuiteProvider?.clientSecret || '',
+      tokenId: netsuiteProvider?.tokenId || '',
+      tokenSecret: netsuiteProvider?.tokenSecret || '',
       scriptEndpointUrl: netsuiteProvider?.scriptEndpointUrl || '',
       syncCreditNotes: !!netsuiteProvider?.syncCreditNotes,
       syncInvoices: !!netsuiteProvider?.syncInvoices,
@@ -125,6 +129,8 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
       accountId: string().required(''),
       clientId: string().required(''),
       clientSecret: string().required(''),
+      tokenId: string().required(''),
+      tokenSecret: string().required(''),
       scriptEndpointUrl: string().url('').required(''),
       syncCreditNotes: boolean(),
       syncInvoices: boolean(),
@@ -163,13 +169,16 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
           return handleError(res.errors)
         }
       } else {
-        const connectionId = `netsuite-${componentId.replaceAll(':', '')}-${Date.now()}`
+        const connectionId = `netsuite-tba-${componentId.replaceAll(':', '')}-${Date.now()}`
+
         const nango = new Nango({ publicKey: nangoPublicKey })
 
         try {
-          const nangoAuthResult = await nango.auth('netsuite', connectionId, {
+          const nangoAuthResult = await nango.auth('netsuite-tba', connectionId, {
             params: { accountId: values.accountId },
             credentials: {
+              token_id: values.tokenId,
+              token_secret: values.tokenSecret,
               oauth_client_id_override: values.clientId,
               oauth_client_secret_override: values.clientSecret,
             },
@@ -303,6 +312,20 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
             disabled={isEdition}
             label={translate('text_661ff6e56ef7e1b7c542b247')}
             placeholder={translate('text_661ff6e56ef7e1b7c542b251')}
+            formikProps={formikProps}
+          />
+          <TextInputField
+            name="tokenId"
+            disabled={isEdition}
+            label={translate('text_6683cd0bab4ac0007e913af7')}
+            placeholder={translate('text_6683cd1bb93b060070e9a596')}
+            formikProps={formikProps}
+          />
+          <TextInputField
+            name="tokenSecret"
+            disabled={isEdition}
+            label={translate('text_6683cd29cfb79500e588ee47')}
+            placeholder={translate('text_6683cd3f33ac8f005b67345c')}
             formikProps={formikProps}
           />
         </Stack>
