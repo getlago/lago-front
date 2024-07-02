@@ -160,18 +160,20 @@ export const FixedFeeSection = memo(
 
             <RadioGroupField
               name="payInAdvance"
-              label={translate('text_6669b493fae79a0095e6396b')}
-              description={translate('text_6661fc17337de3591e29e3fb')}
+              label={translate('TODO: Billing timing')}
+              description={translate(
+                'TODO: Indicate when this subscription fee is generated and invoiced',
+              )}
               formikProps={formikProps}
               disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
               optionLabelVariant="body"
               options={[
                 {
-                  label: translate('text_6661fc17337de3591e29e3fd'),
+                  label: translate('TODO: At the end of each billing period (in arrears)'),
                   value: false,
                 },
                 {
-                  label: translate('text_6661fc17337de3591e29e3ff'),
+                  label: translate('TODO: At the beginning of each billing period (in advance)'),
                   value: true,
                 },
               ]}

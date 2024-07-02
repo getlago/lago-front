@@ -842,18 +842,18 @@ export const ChargeAccordion = memo(
           <ChargeOptionsAccordion charge={localCharge} currency={currency}>
             <RadioGroupField
               name={`charges.${index}.payInAdvance`}
-              label={translate('text_6669b493fae79a0095e6396b')}
+              label={translate('TODO: Billing timing')}
               description={chargePayInAdvanceDescription}
               formikProps={formikProps}
               disabled={isInSubscriptionForm || disabled}
               optionLabelVariant="body"
               options={[
                 {
-                  label: translate('text_6661fc17337de3591e29e3fd'),
+                  label: translate('TODO: At the end of each billing period (in arrears).'),
                   value: false,
                 },
                 {
-                  label: translate('text_6669b493fae79a0095e63988'),
+                  label: translate('TODO: Immediately at the event reception (in advance)'),
                   value: true,
                   disabled:
                     localCharge.chargeModel === ChargeModelEnum.Volume ||
@@ -876,23 +876,51 @@ export const ChargeAccordion = memo(
               />
             )}
             {localCharge.payInAdvance && (
-              <InvoiceableSwitchWrapper>
-                <Switch
+              <>
+                <RadioGroupField
+                  formikProps={formikProps}
                   name={`charge-${localCharge.id}-invoiceable`}
-                  label={translate('text_646e2d0cc536351b62ba6f25')}
+                  label={translate('TODO: Invoicing strategy')}
+                  description={translate(
+                    'TODO: Option indicating when this charge fee is invoiced.',
+                  )}
                   disabled={isInSubscriptionForm || disabled}
-                  subLabel={translate('text_646e2d0cc536351b62ba6f35')}
-                  checked={!!localCharge.invoiceable}
-                  onChange={(value) => {
-                    if (isPremium) {
-                      handleUpdate('invoiceable', value)
-                    } else {
-                      premiumWarningDialogRef?.current?.openDialog()
-                    }
-                  }}
+                  optionLabelVariant="body"
+                  options={[
+                    {
+                      label: translate('TODO: Generate an invoice for each fee'),
+                      value: true,
+                    },
+                    {
+                      label: translate(
+                        'TODO: Group all paid fees into one invoice at the end of the billing period',
+                      ),
+                      value: false,
+                    },
+                    {
+                      label: translate('TODO: Never appear on invoices'),
+                      value: 'false',
+                    },
+                  ]}
                 />
-                {!isPremium && <Icon name="sparkles" />}
-              </InvoiceableSwitchWrapper>
+                <InvoiceableSwitchWrapper>
+                  <Switch
+                    name={`charge-${localCharge.id}-invoiceable`}
+                    label={translate('text_646e2d0cc536351b62ba6f25')}
+                    disabled={isInSubscriptionForm || disabled}
+                    subLabel={translate('text_646e2d0cc536351b62ba6f35')}
+                    checked={!!localCharge.invoiceable}
+                    onChange={(value) => {
+                      if (isPremium) {
+                        handleUpdate('invoiceable', value)
+                      } else {
+                        premiumWarningDialogRef?.current?.openDialog()
+                      }
+                    }}
+                  />
+                  {!isPremium && <Icon name="sparkles" />}
+                </InvoiceableSwitchWrapper>
+              </>
             )}
 
             {!localCharge.payInAdvance && (
