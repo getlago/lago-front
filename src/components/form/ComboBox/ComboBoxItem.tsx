@@ -82,6 +82,8 @@ const ItemWrapper = styled.div`
   min-height: ${ITEM_HEIGHT}px;
 
   a {
+    width: 100%;
+
     &:focus,
     &:active,
     &:hover {
@@ -92,7 +94,7 @@ const ItemWrapper = styled.div`
 
   .MuiAutocomplete-option {
     min-height: ${ITEM_HEIGHT}px;
-    width: 100% !important;
+    width: calc(100% - 16px) !important;
     margin: 0 ${theme.spacing(2)};
   }
 `
