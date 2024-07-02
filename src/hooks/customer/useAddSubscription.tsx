@@ -235,7 +235,7 @@ export const useAddSubscription: UseAddSubscription = ({
                       ? DateTime.fromISO(subsDate).toUTC().toISO()
                       : undefined,
                   endingAt: !!subEndDate ? DateTime.fromISO(subEndDate).toUTC().toISO() : null,
-                  name: name || undefined,
+                  name: name ?? undefined,
                   planOverrides: hasPlanBeingChangedFromInitial
                     ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput, formType) }
                     : undefined,
