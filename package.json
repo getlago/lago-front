@@ -100,7 +100,7 @@
     "@mui/styled-engine": "5.14.18",
     "@mui/styled-engine-sc": "5.14.12",
     "@mui/x-date-pickers": "6.20.0",
-    "@nangohq/frontend": "^0.39.18",
+    "@nangohq/frontend": "0.40.8",
     "@sentry/react": "7.108.0",
     "@sentry/tracing": "7.108.0",
     "apollo-link-timeout": "4.0.0",

@@ -895,7 +895,7 @@ const CreditNoteDetails = () => {
                 <div>
                   <InfoLine>
                     <Typography variant="caption" color="grey600" noWrap>
-                      {translate('text_6650b36fc702a4014c87899a')}
+                      {translate('text_6684044e95fa220048a145a7')}
                     </Typography>
                     <InlineLink
                       target="_blank"
