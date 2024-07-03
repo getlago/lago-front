@@ -271,7 +271,7 @@ const CreateSubscription = () => {
     }),
     validateOnMount: true,
     enableReinitialize: true,
-    onSubmit: async (values) => {
+    onSubmit: async (values, formikBag) => {
       const localValues = {
         id: formType === FORM_TYPE_ENUM.edition ? subscription?.id : undefined,
         ...values,
@@ -287,6 +287,11 @@ const CreateSubscription = () => {
       if (errorsString === 'CurrenciesDoesNotMatch') {
         isResponsive && rootElement?.scrollTo({ top: 0, behavior: 'smooth' })
         return setShowCurrencyError(true)
+      } else if (errorsString === 'ValueAlreadyExist') {
+        rootElement?.scrollTo({ top: 0, behavior: 'smooth' })
+        formikBag.setErrors({
+          externalId: translate('text_668513bb1906740145e06abe'),
+        })
       }
     },
   })
