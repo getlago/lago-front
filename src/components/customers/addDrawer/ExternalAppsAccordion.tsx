@@ -419,7 +419,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                     icon="trash"
                     onClick={() => {
                       formikProps.setFieldValue('paymentProvider', null)
-                      formikProps.setFieldValue('providerCustomer.providerCustomerId', null)
+                      formikProps.setFieldValue('providerCustomer.providerCustomerId', '')
                       formikProps.setFieldValue('providerCustomer.syncWithProvider', false)
                       formikProps.setFieldValue(
                         'providerCustomer.providerPaymentMethods',
@@ -492,13 +492,13 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                             : ''
                         }`}
                         onChange={(e, checked) => {
-                          formikProps.setFieldValue('providerCustomer.syncWithProvider', checked)
-                          if (!isEdition && checked) {
-                            formikProps.setFieldValue(
-                              'providerCustomer.providerCustomerId',
-                              undefined,
-                            )
+                          const newproviderCustomer = { ...formikProps.values.providerCustomer }
+
+                          newproviderCustomer.syncWithProvider = checked
+                          if (checked) {
+                            newproviderCustomer.providerCustomerId = ''
                           }
+                          formikProps.setFieldValue('providerCustomer', newproviderCustomer)
                         }}
                       />
                     </>

@@ -38,6 +38,7 @@ import {
   CustomerMetadataInput,
   IntegrationTypeEnum,
   NetsuiteCustomer,
+  ProviderCustomer,
   ProviderPaymentMethodsEnum,
   TimezoneEnum,
   UpdateCustomerInput,
@@ -99,7 +100,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
       ],
       paymentProviderCode: customer?.paymentProviderCode ?? undefined,
       providerCustomer: {
-        providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? undefined,
+        providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? '',
         syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
         providerPaymentMethods: customer?.providerCustomer?.providerPaymentMethods?.length
           ? customer?.providerCustomer?.providerPaymentMethods
@@ -116,7 +117,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
       externalId: string().required(''),
       metadata: metadataSchema(),
       providerCustomer: object().test({
-        test: function (value, { from }) {
+        test: function (value: Omit<ProviderCustomer, 'id'>, { from }) {
           // Value can be undefined if no paymentProvider is selected
           if (value && from && from[1] && !from[1].value.paymentProvider) {
             return true
@@ -124,6 +125,11 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
 
           // if code is not selected, validation fails
           if (value && from && from[1] && !from[1].value.paymentProviderCode) {
+            return false
+          }
+
+          // if syncWithProvider is false, providerCustomerId is required
+          if (!value?.syncWithProvider && !value?.providerCustomerId) {
             return false
           }
 
