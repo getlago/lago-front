@@ -35,6 +35,7 @@ import { theme } from '~/styles'
 const PaymentProviderMethodTranslationsLookup = {
   [ProviderPaymentMethodsEnum.BacsDebit]: 'text_65e1f90471bc198c0c934d92',
   [ProviderPaymentMethodsEnum.Card]: 'text_64aeb7b998c4322918c84208',
+  [ProviderPaymentMethodsEnum.Link]: 'text_6686b316b672a6e75a29eea0',
   [ProviderPaymentMethodsEnum.SepaDebit]: 'text_64aeb7b998c4322918c8420c',
   [ProviderPaymentMethodsEnum.UsBankAccount]: 'text_65e1f90471bc198c0c934d8e',
 }

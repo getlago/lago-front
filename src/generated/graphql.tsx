@@ -2092,6 +2092,7 @@ export type Fee = InvoiceItem & {
   itemType: Scalars['String']['output'];
   preciseUnitAmount: Scalars['Float']['output'];
   subscription?: Maybe<Subscription>;
+  succeededAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   taxesAmountCents: Scalars['BigInt']['output'];
   taxesRate?: Maybe<Scalars['Float']['output']>;
   trueUpFee?: Maybe<Fee>;
@@ -2513,6 +2514,7 @@ export type InvoiceSubscription = {
 
 export enum InvoiceTypeEnum {
   AddOn = 'add_on',
+  AdvanceCharges = 'advance_charges',
   Credit = 'credit',
   OneOff = 'one_off',
   Subscription = 'subscription'
@@ -3617,6 +3619,7 @@ export type ProviderCustomerInput = {
 export enum ProviderPaymentMethodsEnum {
   BacsDebit = 'bacs_debit',
   Card = 'card',
+  Link = 'link',
   SepaDebit = 'sepa_debit',
   UsBankAccount = 'us_bank_account'
 }

@@ -382,5 +382,8 @@ sources:
       fileName: 👍 [Ready for dev] - Integration - Connect Lago to Xero
     - name: 👍 [Ready for dev] - Customers - Add/edit shipping address
       id: 667d70852c410ccf1e7ce34d
+      fileName: 👍 [Ready for dev] - Customers - Add/edit shipping address
+    - name: 👍 [Ready for dev] - Settings / Customers - Lago x Stripe Link
+      id: 6686b31487965d41537c3853
 format: flat
 variants: true
