@@ -8,3 +8,13 @@ export type LocalFeeInput = FeeInput & {
 export interface InvoiceFormInput extends Omit<CreateInvoiceInput, 'clientMutationId'> {
   fees: LocalFeeInput[]
 }
+
+export enum InvoiceListStatusEnum {
+  'all' = 'all',
+  'draft' = 'draft',
+  'outstanding' = 'outstanding',
+  'succeeded' = 'succeeded',
+  'voided' = 'voided',
+  'disputed' = 'disputed',
+  'overdue' = 'overdue',
+}

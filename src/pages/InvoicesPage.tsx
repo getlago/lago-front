@@ -14,6 +14,7 @@ import {
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
 import InvoicesList from '~/components/invoices/InvoicesList'
+import { InvoiceListStatusEnum } from '~/components/invoices/types'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -92,16 +93,6 @@ gql`
   ${CreditNoteForCreditNoteListFragmentDoc}
   ${CreditNoteForCreditNoteListItemFragmentDoc}
 `
-
-export enum InvoiceListStatusEnum {
-  'all' = 'all',
-  'draft' = 'draft',
-  'outstanding' = 'outstanding',
-  'succeeded' = 'succeeded',
-  'voided' = 'voided',
-  'disputed' = 'disputed',
-  'overdue' = 'overdue',
-}
 
 enum InvoiceListTabEnum {
   'invoices' = 'invoices',

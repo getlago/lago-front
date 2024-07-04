@@ -5,6 +5,7 @@ import { palette } from './colorsPalette'
 export const NAV_HEIGHT = 72
 export const HEADER_TABLE_HEIGHT = 48
 export const INNER_CONTENT_WIDTH = 672
+export const BREAKPOINT_MD = 776
 export const BREAKPOINT_LG = 1024
 
 const typographyBody = {
@@ -29,7 +30,7 @@ export const theme = createTheme({
     values: {
       xs: 0,
       sm: 0,
-      md: 776,
+      md: BREAKPOINT_MD,
       lg: BREAKPOINT_LG,
       xl: 1600,
     },
