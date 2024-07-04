@@ -505,7 +505,6 @@ const Content = styled.div`
   padding: ${theme.spacing(8)} ${theme.spacing(4)} ${theme.spacing(20)};
   min-height: calc(100vh - ${NAV_HEIGHT}px);
   grid-auto-rows: min-content;
-  grid-template-rows: auto 1fr auto;
 
   ${theme.breakpoints.up('md')} {
     padding: ${theme.spacing(8)} ${theme.spacing(12)} ${theme.spacing(20)};
