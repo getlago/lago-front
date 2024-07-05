@@ -545,6 +545,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           trueUpFee: null,
           maxAmount: '167',
           appliedTaxes: [],
+          succeededAt: undefined,
         },
         '5ff24500-2c67-4872-9808-746c59e94d38': {
           name: 'Invoice custom name',
@@ -587,6 +588,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           trueUpFee: null,
           maxAmount: '10666',
           appliedTaxes: [],
+          succeededAt: undefined,
         },
         '594fe1d1-69f1-4b47-8cae-9c76fd409f76': {
           name: 'Count BM - One dimension',
@@ -620,6 +622,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           trueUpFee: null,
           maxAmount: '40000',
           appliedTaxes: [],
+          succeededAt: undefined,
         },
       },
     },
