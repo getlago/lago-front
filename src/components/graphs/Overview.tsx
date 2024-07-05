@@ -110,7 +110,7 @@ const Overview: FC<TGraphProps & { externalCustomerId?: string }> = ({
               <Typography variant="captionHl">
                 {translate('text_6670a6577ecbf200898af647')}
               </Typography>
-              <Tooltip title={translate('text_6670a6577ecbf200898af646')}>
+              <Tooltip title={translate('text_6670a6577ecbf200898af646')} placement="top-start">
                 <Icon name="info-circle" />
               </Tooltip>
             </Stack>

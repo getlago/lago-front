@@ -6,6 +6,7 @@ import { Alert, Button, Typography } from '~/components/designSystem'
 import { OverviewCard } from '~/components/OverviewCard'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { LocaleEnum } from '~/core/translations'
 import {
   CurrencyEnum,
   useGetCustomerPortalInvoicesCollectionQuery,
@@ -44,6 +45,7 @@ gql`
 
 interface PortalOverviewProps {
   translate: Function
+  documentLocale: LocaleEnum
 }
 
 interface CalculatedData {
@@ -52,7 +54,7 @@ interface CalculatedData {
   currency?: CurrencyEnum
 }
 
-export const PortalOverview: FC<PortalOverviewProps> = ({ translate }) => {
+export const PortalOverview: FC<PortalOverviewProps> = ({ translate, documentLocale }) => {
   const { data: userCurrencyData } = useGetCustomerPortalUserCurrencyQuery()
   const { data: overdueData, loading: overdueLoading } = useGetCustomerPortalOverdueBalancesQuery()
   const { data: invoicesData, loading: invoicesLoading } =
@@ -105,7 +107,10 @@ export const PortalOverview: FC<PortalOverviewProps> = ({ translate }) => {
                     'text_6670a7222702d70114cc7955',
                     {
                       count: overdue.count,
-                      amount: intlFormatNumber(overdue.amount, { currency: overdue.currency }),
+                      amount: intlFormatNumber(overdue.amount, {
+                        currency: overdue.currency,
+                        locale: documentLocale,
+                      }),
                     },
                     overdue.count,
                   )}
@@ -121,7 +126,10 @@ export const PortalOverview: FC<PortalOverviewProps> = ({ translate }) => {
           <OverviewCard
             isLoading={invoicesLoading}
             title={translate('text_6670a7222702d70114cc7957')}
-            content={intlFormatNumber(invoices.amount, { currency: invoices.currency })}
+            content={intlFormatNumber(invoices.amount, {
+              currency: invoices.currency,
+              locale: documentLocale,
+            })}
             caption={translate(
               'text_6670a7222702d70114cc795c',
               { count: invoices.count },
@@ -132,7 +140,10 @@ export const PortalOverview: FC<PortalOverviewProps> = ({ translate }) => {
             isLoading={overdueLoading}
             title={translate('text_6670a7222702d70114cc795a')}
             tooltipContent={translate('text_6670a757999f8a007789bb5d')}
-            content={intlFormatNumber(overdue.amount, { currency: overdue.currency })}
+            content={intlFormatNumber(overdue.amount, {
+              currency: overdue.currency,
+              locale: documentLocale,
+            })}
             caption={translate(
               'text_6670a7222702d70114cc795c',
               { count: overdue.count },

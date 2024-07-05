@@ -58,7 +58,7 @@ const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
       </PageHeader>
 
       <PortalCustomerInfos translate={translate} />
-      <PortalOverview translate={translate} />
+      <PortalOverview translate={translate} documentLocale={documentLocale} />
       <PortalInvoicesList translate={translate} documentLocale={documentLocale} />
     </PageWrapper>
   )
