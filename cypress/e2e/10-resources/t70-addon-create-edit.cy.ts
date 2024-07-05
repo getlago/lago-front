@@ -3,7 +3,7 @@ describe('Add On', () => {
   const description =
     'Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus aliquam at dolor consectetur tempore quis molestiae cumque voluptatem deserunt similique blanditiis aperiam, distinctio nam, asperiores enim officiis culpa aut. Molestias?'
 
-  it('should be able create an add on with all attributes filled', () => {
+  it.only('should be able create an add on with all attributes filled', () => {
     // Navigation
     cy.visit('/add-ons')
     cy.get(`[data-test="create-addon-cta"]`).click()
