@@ -24,7 +24,7 @@ export type LocalChargeFilterInput = Omit<ChargeFilterInput, 'properties' | 'val
   values: string[] // This value should be defined using transformFilterObjectToString method
 }
 
-export type LocalChargeInput = Omit<ChargeInput, 'billableMetricId' | 'filters'> & {
+export type LocalChargeInput = Omit<ChargeInput, 'billableMetricId' | 'filters' | 'properties'> & {
   billableMetric: BillableMetricForPlanFragment
   id?: string
   properties?: LocalPropertiesInput
