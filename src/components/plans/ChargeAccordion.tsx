@@ -41,6 +41,7 @@ import {
   VolumeRangesFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useChargeForm } from '~/hooks/plans/useChargeForm'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { NAV_HEIGHT, theme } from '~/styles'
 
@@ -186,21 +187,41 @@ export const ChargeAccordion = memo(
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
     const { type: actionType } = useDuplicatePlanVar()
+    const { getChargeModelComboboxData } = useChargeForm()
     const chargeErrors = formikProps?.errors?.charges
 
-    const { localCharge, initialLocalCharge, hasDefaultPropertiesErrors, hasErrorInCharges } =
-      useMemo(() => {
-        return {
-          localCharge: formikProps.values.charges[index],
-          initialLocalCharge: formikProps.initialValues.charges[index],
-          hasDefaultPropertiesErrors:
-            typeof chargeErrors === 'object' &&
-            typeof chargeErrors[index] === 'object' &&
-            // @ts-ignore
-            typeof chargeErrors[index].properties === 'object',
-          hasErrorInCharges: Boolean(chargeErrors && chargeErrors[index]),
-        }
-      }, [chargeErrors, formikProps.initialValues.charges, formikProps.values.charges, index])
+    const {
+      chargeModelComboboxData,
+      hasDefaultPropertiesErrors,
+      hasErrorInCharges,
+      initialLocalCharge,
+      localCharge,
+    } = useMemo(() => {
+      const formikCharge = formikProps.values.charges[index]
+      const localChargeModelComboboxData = getChargeModelComboboxData({
+        isPremium,
+        aggregationType: formikCharge.billableMetric.aggregationType,
+      })
+
+      return {
+        chargeModelComboboxData: localChargeModelComboboxData,
+        localCharge: formikCharge,
+        initialLocalCharge: formikProps.initialValues.charges[index],
+        hasDefaultPropertiesErrors:
+          typeof chargeErrors === 'object' &&
+          typeof chargeErrors[index] === 'object' &&
+          // @ts-ignore
+          typeof chargeErrors[index].properties === 'object',
+        hasErrorInCharges: Boolean(chargeErrors && chargeErrors[index]),
+      }
+    }, [
+      chargeErrors,
+      formikProps.initialValues.charges,
+      formikProps.values.charges,
+      getChargeModelComboboxData,
+      index,
+      isPremium,
+    ])
 
     const [showSpendingMinimum, setShowSpendingMinimum] = useState(
       !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0,
@@ -468,77 +489,10 @@ export const ChargeAccordion = memo(
             )}
             <ComboBox
               disableClearable
-              sortValues={false}
               name="chargeModel"
               disabled={isInSubscriptionForm || disabled}
-              label={
-                <InlineComboboxLabel>
-                  <Typography variant="captionHl" color="textSecondary">
-                    {translate('text_65201b8216455901fe273dd5')}
-                  </Typography>
-                </InlineComboboxLabel>
-              }
-              data={[
-                {
-                  label: translate('text_62793bbb599f1c01522e919f'),
-                  value: ChargeModelEnum.Graduated,
-                },
-                ...(!localCharge.billableMetric.recurring
-                  ? [
-                      ...(localCharge.billableMetric.aggregationType !==
-                      AggregationTypeEnum.LatestAgg
-                        ? [
-                            {
-                              labelNode: (
-                                <InlineComboboxLabelForPremiumWrapper>
-                                  <InlineComboboxLabel>
-                                    <Typography variant="body" color="grey700">
-                                      {translate('text_64de472463e2da6b31737db0')}
-                                    </Typography>
-                                  </InlineComboboxLabel>
-                                  {!isPremium && <Icon name="sparkles" />}
-                                </InlineComboboxLabelForPremiumWrapper>
-                              ),
-                              label: translate('text_64de472463e2da6b31737db0'),
-                              value: ChargeModelEnum.GraduatedPercentage,
-                            },
-                          ]
-                        : []),
-                      {
-                        label: translate('text_6282085b4f283b0102655868'),
-                        value: ChargeModelEnum.Package,
-                      },
-
-                      ...(localCharge.billableMetric.aggregationType !==
-                      AggregationTypeEnum.LatestAgg
-                        ? [
-                            {
-                              label: translate('text_62a0b7107afa2700a65ef6e2'),
-                              value: ChargeModelEnum.Percentage,
-                            },
-                          ]
-                        : []),
-                    ]
-                  : []),
-                {
-                  label: translate('text_624aa732d6af4e0103d40e6f'),
-                  value: ChargeModelEnum.Standard,
-                },
-                {
-                  label: translate('text_6304e74aab6dbc18d615f386'),
-                  value: ChargeModelEnum.Volume,
-                },
-                ...(localCharge.billableMetric.aggregationType === AggregationTypeEnum.CustomAgg
-                  ? [
-                      {
-                        label: translate('text_663dea5702b60301d8d064fa'),
-                        value: ChargeModelEnum.Custom,
-                      },
-                    ]
-                  : []),
-              ]
-                // Sort the combobox values by label
-                .sort((a, b) => translate(a.label).localeCompare(translate(b.label)))}
+              label={translate('text_65201b8216455901fe273dd5')}
+              data={chargeModelComboboxData}
               value={localCharge.chargeModel}
               helperText={translate(
                 localCharge.chargeModel === ChargeModelEnum.Percentage
@@ -1126,18 +1080,6 @@ const InlineTaxesWrapper = styled.div`
   align-items: center;
   gap: ${theme.spacing(3)};
   flex-wrap: wrap;
-`
-
-const InlineComboboxLabelForPremiumWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
-
-const InlineComboboxLabel = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(2)};
 `
 
 const Summary = styled.div`
