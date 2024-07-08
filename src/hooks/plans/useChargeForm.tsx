@@ -12,8 +12,17 @@ export type TGetChargeModelComboboxDataProps = {
   aggregationType: AggregationTypeEnum
 }
 
+export type TGetIsPayInAdvanceOptionDisabledProps = {
+  aggregationType: AggregationTypeEnum
+  chargeModel: ChargeModelEnum
+  isPayInAdvance: boolean
+  isProrated: boolean
+  isRecurring: boolean
+}
+
 type TUseChargeFormReturn = {
   getChargeModelComboboxData: (data: TGetChargeModelComboboxDataProps) => BasicComboBoxData[]
+  getIsPayInAdvanceOptionDisabled: (data: TGetIsPayInAdvanceOptionDisabledProps) => boolean
 }
 
 export const useChargeForm: () => TUseChargeFormReturn = () => {
@@ -77,8 +86,52 @@ export const useChargeForm: () => TUseChargeFormReturn = () => {
     })
   }
 
+  const getIsPayInAdvanceOptionDisabled = ({
+    aggregationType,
+    chargeModel,
+    // NOTE: keeping isPayInAdvance for future use
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    isPayInAdvance,
+    isProrated,
+    isRecurring,
+  }: TGetIsPayInAdvanceOptionDisabledProps): boolean => {
+    if (
+      aggregationType === AggregationTypeEnum.CountAgg &&
+      chargeModel === ChargeModelEnum.Volume
+    ) {
+      return true
+    } else if (aggregationType === AggregationTypeEnum.UniqueCountAgg) {
+      if (
+        chargeModel === ChargeModelEnum.Volume ||
+        (chargeModel === ChargeModelEnum.Graduated && isProrated)
+      ) {
+        return true
+      }
+    } else if (aggregationType === AggregationTypeEnum.LatestAgg) {
+      return true
+    } else if (aggregationType === AggregationTypeEnum.MaxAgg) {
+      return true
+    } else if (aggregationType === AggregationTypeEnum.SumAgg) {
+      if (chargeModel === ChargeModelEnum.Volume) {
+        return true
+      } else if (chargeModel === ChargeModelEnum.Graduated && isRecurring && isProrated) {
+        return true
+      }
+    } else if (aggregationType === AggregationTypeEnum.WeightedSumAgg) {
+      return true
+    } else if (aggregationType === AggregationTypeEnum.CustomAgg) {
+      if (chargeModel !== ChargeModelEnum.Standard && isRecurring && isProrated) {
+        return true
+      }
+    }
+
+    // Enabled by default
+    return false
+  }
+
   return {
     getChargeModelComboboxData,
+    getIsPayInAdvanceOptionDisabled,
   }
 }
 

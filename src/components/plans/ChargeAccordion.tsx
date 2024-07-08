@@ -187,7 +187,7 @@ export const ChargeAccordion = memo(
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
     const { type: actionType } = useDuplicatePlanVar()
-    const { getChargeModelComboboxData } = useChargeForm()
+    const { getChargeModelComboboxData, getIsPayInAdvanceOptionDisabled } = useChargeForm()
     const chargeErrors = formikProps?.errors?.charges
 
     const {
@@ -196,11 +196,19 @@ export const ChargeAccordion = memo(
       hasErrorInCharges,
       initialLocalCharge,
       localCharge,
+      isPayInAdvanceOptionDisabled,
     } = useMemo(() => {
       const formikCharge = formikProps.values.charges[index]
       const localChargeModelComboboxData = getChargeModelComboboxData({
         isPremium,
         aggregationType: formikCharge.billableMetric.aggregationType,
+      })
+      const localIsPayInAdvanceOptionDisabled = getIsPayInAdvanceOptionDisabled({
+        aggregationType: formikCharge.billableMetric.aggregationType,
+        chargeModel: formikCharge.chargeModel,
+        isPayInAdvance: formikCharge.payInAdvance || false,
+        isProrated: formikCharge.prorated || false,
+        isRecurring: formikCharge.billableMetric.recurring,
       })
 
       return {
@@ -213,12 +221,14 @@ export const ChargeAccordion = memo(
           // @ts-ignore
           typeof chargeErrors[index].properties === 'object',
         hasErrorInCharges: Boolean(chargeErrors && chargeErrors[index]),
+        isPayInAdvanceOptionDisabled: localIsPayInAdvanceOptionDisabled,
       }
     }, [
       chargeErrors,
       formikProps.initialValues.charges,
       formikProps.values.charges,
       getChargeModelComboboxData,
+      getIsPayInAdvanceOptionDisabled,
       index,
       isPremium,
     ])
@@ -799,7 +809,7 @@ export const ChargeAccordion = memo(
               label={translate('text_6669b493fae79a0095e6396b')}
               description={chargePayInAdvanceDescription}
               formikProps={formikProps}
-              disabled={isInSubscriptionForm || disabled}
+              disabled={isInSubscriptionForm || disabled || isPayInAdvanceOptionDisabled}
               optionLabelVariant="body"
               options={[
                 {
@@ -809,12 +819,6 @@ export const ChargeAccordion = memo(
                 {
                   label: translate('text_6669b493fae79a0095e63988'),
                   value: true,
-                  disabled:
-                    localCharge.chargeModel === ChargeModelEnum.Volume ||
-                    localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg ||
-                    localCharge.billableMetric.aggregationType === AggregationTypeEnum.LatestAgg ||
-                    localCharge.billableMetric.aggregationType ===
-                      AggregationTypeEnum.WeightedSumAgg,
                 },
               ]}
             />
