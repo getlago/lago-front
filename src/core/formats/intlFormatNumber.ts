@@ -4,6 +4,7 @@ import { CurrencyEnum } from '~/generated/graphql'
 enum CurrencyDisplay {
   code = 'code',
   symbol = 'symbol',
+  narrowSymbol = 'narrowSymbol',
 }
 
 enum AmountStyle {

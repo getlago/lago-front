@@ -119,6 +119,7 @@ export const PortalInvoiceListItem = memo(
             {intlFormatNumber(deserializeAmount(totalAmountCents, currency || CurrencyEnum.Usd), {
               currency: currency || CurrencyEnum.Usd,
               locale: documentLocale,
+              currencyDisplay: 'narrowSymbol',
             })}
           </Typography>
           <Status {...statusConfig} locale={documentLocale} />

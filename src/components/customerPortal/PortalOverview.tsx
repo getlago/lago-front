@@ -110,6 +110,7 @@ export const PortalOverview: FC<PortalOverviewProps> = ({ translate, documentLoc
                       amount: intlFormatNumber(overdue.amount, {
                         currency: overdue.currency,
                         locale: documentLocale,
+                        currencyDisplay: 'narrowSymbol',
                       }),
                     },
                     overdue.count,
@@ -129,6 +130,7 @@ export const PortalOverview: FC<PortalOverviewProps> = ({ translate, documentLoc
             content={intlFormatNumber(invoices.amount, {
               currency: invoices.currency,
               locale: documentLocale,
+              currencyDisplay: 'narrowSymbol',
             })}
             caption={translate(
               'text_6670a7222702d70114cc795c',
@@ -143,6 +145,7 @@ export const PortalOverview: FC<PortalOverviewProps> = ({ translate, documentLoc
             content={intlFormatNumber(overdue.amount, {
               currency: overdue.currency,
               locale: documentLocale,
+              currencyDisplay: 'narrowSymbol',
             })}
             caption={translate(
               'text_6670a7222702d70114cc795c',
