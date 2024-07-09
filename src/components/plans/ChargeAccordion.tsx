@@ -187,7 +187,11 @@ export const ChargeAccordion = memo(
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
     const { type: actionType } = useDuplicatePlanVar()
-    const { getChargeModelComboboxData, getIsPayInAdvanceOptionDisabled } = useChargeForm()
+    const {
+      getChargeModelComboboxData,
+      getIsPayInAdvanceOptionDisabled,
+      getIsProRatedOptionDisabled,
+    } = useChargeForm()
     const chargeErrors = formikProps?.errors?.charges
 
     const {
@@ -195,8 +199,9 @@ export const ChargeAccordion = memo(
       hasDefaultPropertiesErrors,
       hasErrorInCharges,
       initialLocalCharge,
-      localCharge,
       isPayInAdvanceOptionDisabled,
+      isProratedOptionDisabled,
+      localCharge,
     } = useMemo(() => {
       const formikCharge = formikProps.values.charges[index]
       const localChargeModelComboboxData = getChargeModelComboboxData({
@@ -210,18 +215,23 @@ export const ChargeAccordion = memo(
         isProrated: formikCharge.prorated || false,
         isRecurring: formikCharge.billableMetric.recurring,
       })
+      const localIsProratedOptionDisabled = getIsProRatedOptionDisabled({
+        aggregationType: formikCharge.billableMetric.aggregationType,
+        chargeModel: formikCharge.chargeModel,
+      })
 
       return {
         chargeModelComboboxData: localChargeModelComboboxData,
-        localCharge: formikCharge,
-        initialLocalCharge: formikProps.initialValues.charges[index],
         hasDefaultPropertiesErrors:
           typeof chargeErrors === 'object' &&
           typeof chargeErrors[index] === 'object' &&
           // @ts-ignore
           typeof chargeErrors[index].properties === 'object',
         hasErrorInCharges: Boolean(chargeErrors && chargeErrors[index]),
+        initialLocalCharge: formikProps.initialValues.charges[index],
         isPayInAdvanceOptionDisabled: localIsPayInAdvanceOptionDisabled,
+        isProratedOptionDisabled: localIsProratedOptionDisabled,
+        localCharge: formikCharge,
       }
     }, [
       chargeErrors,
@@ -229,6 +239,7 @@ export const ChargeAccordion = memo(
       formikProps.values.charges,
       getChargeModelComboboxData,
       getIsPayInAdvanceOptionDisabled,
+      getIsProRatedOptionDisabled,
       index,
       isPremium,
     ])
@@ -353,27 +364,6 @@ export const ChargeAccordion = memo(
         }
       })
     }, [localCharge.taxes, taxesCollection])
-
-    const isProratedOptionDisabled = useMemo(() => {
-      return (
-        (localCharge.payInAdvance && localCharge.chargeModel === ChargeModelEnum.Graduated) ||
-        localCharge.chargeModel === ChargeModelEnum.GraduatedPercentage ||
-        localCharge.chargeModel === ChargeModelEnum.Package ||
-        localCharge.chargeModel === ChargeModelEnum.Percentage ||
-        localCharge.billableMetric.aggregationType === AggregationTypeEnum.WeightedSumAgg
-      )
-    }, [
-      localCharge.billableMetric.aggregationType,
-      localCharge.chargeModel,
-      localCharge.payInAdvance,
-    ])
-
-    const proratedOptionHelperText = useMemo(() => {
-      if (isProratedOptionDisabled)
-        return translate('text_649c54823c9089006247625a', { chargeModel: localCharge.chargeModel })
-
-      return translate('text_649c54823c90890062476259')
-    }, [isProratedOptionDisabled, translate, localCharge.chargeModel])
 
     const chargePayInAdvanceDescription = useMemo(() => {
       if (localCharge.chargeModel === ChargeModelEnum.Volume) {
@@ -809,7 +799,7 @@ export const ChargeAccordion = memo(
               label={translate('text_6669b493fae79a0095e6396b')}
               description={chargePayInAdvanceDescription}
               formikProps={formikProps}
-              disabled={isInSubscriptionForm || disabled || isPayInAdvanceOptionDisabled}
+              disabled={isInSubscriptionForm || disabled}
               optionLabelVariant="body"
               options={[
                 {
@@ -819,6 +809,7 @@ export const ChargeAccordion = memo(
                 {
                   label: translate('text_6669b493fae79a0095e63988'),
                   value: true,
+                  disabled: isPayInAdvanceOptionDisabled,
                 },
               ]}
             />
@@ -828,7 +819,13 @@ export const ChargeAccordion = memo(
                 name={`charge-${localCharge.id}-prorated`}
                 label={translate('text_649c54823c90890062476255')}
                 disabled={isInSubscriptionForm || disabled || isProratedOptionDisabled}
-                subLabel={proratedOptionHelperText}
+                subLabel={
+                  isProratedOptionDisabled
+                    ? translate('text_649c54823c9089006247625a', {
+                        chargeModel: localCharge.chargeModel,
+                      })
+                    : translate('text_649c54823c90890062476259')
+                }
                 checked={!!localCharge.prorated}
                 onChange={(value) => handleUpdate('prorated', Boolean(value))}
               />

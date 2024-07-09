@@ -1,6 +1,10 @@
 import { renderHook } from '@testing-library/react'
 
-import { ComboboxTestMatrice, PayinAdvanceOptionDisabledTestMatrice } from './fixture'
+import {
+  ComboboxTestMatrice,
+  PayinAdvanceOptionDisabledTestMatrice,
+  ProratedOptionDisabledTestMatrice,
+} from './fixture'
 
 import {
   TGetChargeModelComboboxDataProps,
@@ -81,6 +85,24 @@ describe('useChargeForm()', () => {
         })
 
         expect(getIsPayInAdvanceOptionDisabled).toEqual(expectedDisabledValue)
+      },
+    )
+  })
+
+  describe('getIsProratedOptionDisabled()', () => {
+    test.each(Array.from(ProratedOptionDisabledTestMatrice))(
+      'should return the correct value for aggregationType: $aggregationType, chargeModel: $chargeModel',
+      async (testSetup) => {
+        const { aggregationType, chargeModel, isPayInAdvance, expectedDisabledValue } = testSetup
+
+        const { result } = renderHook(useChargeForm)
+        const getIsProRatedOptionDisabled = result.current.getIsProRatedOptionDisabled({
+          aggregationType,
+          chargeModel,
+          isPayInAdvance,
+        })
+
+        expect(getIsProRatedOptionDisabled).toEqual(expectedDisabledValue)
       },
     )
   })

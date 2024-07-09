@@ -20,9 +20,22 @@ export type TGetIsPayInAdvanceOptionDisabledProps = {
   isRecurring: boolean
 }
 
+export type TGetIsProRatedOptionDisabledProps = {
+  aggregationType: AggregationTypeEnum
+  chargeModel: ChargeModelEnum
+  isPayInAdvance: boolean
+}
+
+export type TGetIsAbleToSwitchToProRatedProps = {
+  aggregationType: AggregationTypeEnum
+  chargeModel: ChargeModelEnum
+  isPayInAdvance: boolean
+}
+
 type TUseChargeFormReturn = {
   getChargeModelComboboxData: (data: TGetChargeModelComboboxDataProps) => BasicComboBoxData[]
   getIsPayInAdvanceOptionDisabled: (data: TGetIsPayInAdvanceOptionDisabledProps) => boolean
+  getIsProRatedOptionDisabled: (data: TGetIsProRatedOptionDisabledProps) => boolean
 }
 
 export const useChargeForm: () => TUseChargeFormReturn = () => {
@@ -129,9 +142,63 @@ export const useChargeForm: () => TUseChargeFormReturn = () => {
     return false
   }
 
+  const getIsProRatedOptionDisabled = ({
+    aggregationType,
+    chargeModel,
+    isPayInAdvance,
+  }: TGetIsProRatedOptionDisabledProps): boolean => {
+    if (aggregationType === AggregationTypeEnum.UniqueCountAgg) {
+      if (
+        chargeModel === ChargeModelEnum.GraduatedPercentage ||
+        chargeModel === ChargeModelEnum.Package ||
+        chargeModel === ChargeModelEnum.Percentage
+      ) {
+        return true
+      }
+
+      if (isPayInAdvance && chargeModel === ChargeModelEnum.Graduated) {
+        return true
+      }
+    } else if (aggregationType === AggregationTypeEnum.SumAgg) {
+      if (
+        chargeModel === ChargeModelEnum.GraduatedPercentage ||
+        chargeModel === ChargeModelEnum.Package ||
+        chargeModel === ChargeModelEnum.Percentage
+      ) {
+        return true
+      }
+
+      if (isPayInAdvance && chargeModel === ChargeModelEnum.Graduated) {
+        return true
+      }
+    } else if (aggregationType === AggregationTypeEnum.WeightedSumAgg) {
+      return true
+    } else if (aggregationType === AggregationTypeEnum.CustomAgg) {
+      if (
+        chargeModel === ChargeModelEnum.GraduatedPercentage ||
+        chargeModel === ChargeModelEnum.Package ||
+        chargeModel === ChargeModelEnum.Percentage ||
+        chargeModel === ChargeModelEnum.Custom
+      ) {
+        return true
+      }
+
+      if (
+        isPayInAdvance &&
+        (chargeModel === ChargeModelEnum.Graduated || chargeModel === ChargeModelEnum.Volume)
+      ) {
+        return true
+      }
+    }
+
+    // Enabled by default
+    return false
+  }
+
   return {
     getChargeModelComboboxData,
     getIsPayInAdvanceOptionDisabled,
+    getIsProRatedOptionDisabled,
   }
 }
 
