@@ -201,6 +201,7 @@ export const ChargeAccordion = memo(
       initialLocalCharge,
       isPayInAdvanceOptionDisabled,
       isProratedOptionDisabled,
+      // isAbleToSwitchToProRated,
       localCharge,
     } = useMemo(() => {
       const formikCharge = formikProps.values.charges[index]
@@ -216,6 +217,7 @@ export const ChargeAccordion = memo(
         isRecurring: formikCharge.billableMetric.recurring,
       })
       const localIsProratedOptionDisabled = getIsProRatedOptionDisabled({
+        isPayInAdvance: formikCharge.payInAdvance || false,
         aggregationType: formikCharge.billableMetric.aggregationType,
         chargeModel: formikCharge.chargeModel,
       })
@@ -259,71 +261,43 @@ export const ChargeAccordion = memo(
       )
     }, [initialLocalCharge?.minAmountCents])
 
-    useEffect(
-      () => {
-        const payInAdvance = localCharge.payInAdvance
-
-        if (payInAdvance === true) {
-          formikProps.setFieldValue(`charges.${index}.minAmountCents`, undefined)
-
-          if (localCharge.chargeModel === ChargeModelEnum.Graduated) {
-            formikProps.setFieldValue(`charges.${index}.prorated`, false)
-          }
-        } else {
-          // Pay in arrears
-          formikProps.setFieldValue(`charges.${index}.invoiceable`, true)
-        }
-      },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [index, localCharge.chargeModel, localCharge.payInAdvance],
-    )
-
     const handleUpdate = useCallback(
       (name: string, value: unknown) => {
+        // IMPORTANT: This check should stay first in this function
+        // If user is not premium and try to switch to graduated percentage pricing
+        // We should show the premium modal and prevent any formik value change
+        if (name === 'chargeModel' && !isPremium && value === ChargeModelEnum.GraduatedPercentage) {
+          premiumWarningDialogRef?.current?.openDialog()
+          return
+        }
+
+        // NOTE: We prevent going further if the change is about the charge model and the value remain the same
+        // It prevents fixing the properties to be wrongly reset to default on 2nd select.
+        if (name === 'chargeModel' && value === localCharge.chargeModel) return
+
+        let currentChargeValues: LocalChargeInput = {
+          ...localCharge,
+          [name]: value,
+        }
+
         if (name === 'chargeModel') {
-          // IMPORTANT: This check should stay first in this function
-          // If user is not premium and try to switch to graduated percentage pricing
-          // We should show the premium modal and prevent any formik value change
-          if (!isPremium && value === ChargeModelEnum.GraduatedPercentage) {
-            premiumWarningDialogRef?.current?.openDialog()
-            return
-          }
-
-          // Reset pay in advance when switching charge model
-          if (
-            (value === ChargeModelEnum.Graduated && localCharge.payInAdvance) ||
-            value === ChargeModelEnum.Volume ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.LatestAgg ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.WeightedSumAgg
-          ) {
-            formikProps.setFieldValue(`charges.${index}.payInAdvance`, false)
-          }
-
-          // Reset prorated when switching charge model
-          if (
-            (localCharge.billableMetric.recurring && value === ChargeModelEnum.Graduated) ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.WeightedSumAgg ||
-            value === ChargeModelEnum.GraduatedPercentage ||
-            value === ChargeModelEnum.Package ||
-            value === ChargeModelEnum.Percentage
-          ) {
-            formikProps.setFieldValue(`charges.${index}.prorated`, false)
+          // Reset charge data to default when switching charge model
+          currentChargeValues = {
+            ...currentChargeValues,
+            payInAdvance: false,
+            prorated: false,
+            invoiceable: true,
+            properties: getPropertyShape({}),
+            filters: [],
+            taxes: [],
           }
         }
 
-        formikProps.setFieldValue(`charges.${index}.${name}`, value)
+        formikProps.setFieldValue(`charges.${index}`, currentChargeValues)
       },
 
-      [
-        formikProps,
-        index,
-        isPremium,
-        localCharge.billableMetric.aggregationType,
-        localCharge.billableMetric.recurring,
-        localCharge.payInAdvance,
-        premiumWarningDialogRef,
-      ],
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [index, isPremium, localCharge, premiumWarningDialogRef],
     )
 
     const taxValueForBadgeDisplay = useMemo((): string | undefined => {
