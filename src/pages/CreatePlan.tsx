@@ -332,6 +332,7 @@ const SectionFooter = styled.div`
   margin-left: -${MAIN_PADDING};
   margin-right: -${MAIN_PADDING};
   padding: 0 ${MAIN_PADDING};
+  z-index: ${theme.zIndex.navBar};
 
   ${theme.breakpoints.down('md')} {
     width: 100%;
