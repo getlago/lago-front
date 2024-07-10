@@ -378,7 +378,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
         {showPaymentProviderSection && (
           <Stack gap={1}>
             <Typography variant="captionHl" color="grey700">
-              {translate('text_66423cad72bbad009f2f568f')}
+              {translate('text_66423dbab233e60111c49464')}
             </Typography>
             <Accordion
               noContentMargin
