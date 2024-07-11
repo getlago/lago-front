@@ -50,6 +50,7 @@ gql`
       currency
       number
       totalAmountCents
+      balanceAmountCents
     }
   }
 
@@ -245,7 +246,7 @@ const CreditNotesList = memo(
                             onClick={async () => {
                               voidCreditNoteDialogRef.current?.openDialog({
                                 id: creditNote.id,
-                                totalAmountCents: creditNote.totalAmountCents,
+                                totalAmountCents: creditNote.balanceAmountCents,
                                 currency: creditNote.currency,
                               })
                               closePopper()
