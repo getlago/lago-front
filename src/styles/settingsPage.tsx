@@ -11,6 +11,7 @@ export const SettingsHeaderNameWrapper = styled.div`
   position: sticky;
   top: 0;
   background-color: ${theme.palette.common.white};
+  z-index: ${theme.zIndex.navBar};
 
   ${theme.breakpoints.down('md')} {
     padding: 0 ${theme.spacing(17)};
