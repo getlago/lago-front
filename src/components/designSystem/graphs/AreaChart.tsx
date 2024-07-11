@@ -99,6 +99,7 @@ const AreaChart = memo(({ blur, currency, data, hasOnlyZeroValues, loading }: Ar
                           fontStyle: 'normal',
                           fontWeight: '400',
                           lineHeight: '16px',
+                          letterSpacing: '-0.16px',
                           textAnchor: index === 0 ? 'start' : 'end',
                         }}
                       >
@@ -153,6 +154,7 @@ const AreaChart = memo(({ blur, currency, data, hasOnlyZeroValues, loading }: Ar
                           fontStyle: 'normal',
                           fontWeight: '400',
                           lineHeight: '16px',
+                          letterSpacing: '-0.16px',
                         }}
                       >
                         {index !== 0 && hasOnlyZeroValues

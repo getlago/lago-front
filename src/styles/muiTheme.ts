@@ -9,13 +9,15 @@ export const BREAKPOINT_LG = 1024
 
 const typographyBody = {
   fontSize: '16px',
-  lineHeight: '28px',
+  lineHeight: '24px',
+  letterSpacing: '-0.16px',
   fontWeight: 400,
 }
 
 const typographyCaption = {
   fontSize: '14px',
-  lineHeight: '20px',
+  lineHeight: '24px',
+  letterSpacing: '-0.16px',
   fontWeight: 400,
 }
 
@@ -75,7 +77,8 @@ export const theme = createTheme({
           '.MuiPickersCalendarHeader-label': {
             color: palette.grey[700],
             'font-size': '16px',
-            'line-height': '28px',
+            'line-height': '24px',
+            'letter-spacing': '-0.16px',
             'font-weight': 400,
           },
           '.custom-date-picker-header': {
@@ -91,7 +94,8 @@ export const theme = createTheme({
             width: '40px',
             margin: '0px',
             'font-size': '16px',
-            'line-height': '28px',
+            'line-height': '24px',
+            'letter-spacing': '-0.16px',
             'font-weight': 400,
 
             '&:focus': {
@@ -132,7 +136,8 @@ export const theme = createTheme({
           minHeight: '32px',
           padding: '0px 8px',
           fontSize: '14px',
-          lineHeight: '20px',
+          lineHeight: '24px',
+          letterSpacing: '-0.16px',
           fontWeight: 500,
           outline: `1px solid ${palette.grey[300]}`,
           outlineOffset: '-1px',
@@ -651,24 +656,27 @@ export const theme = createTheme({
     headline: {
       fontSize: '24px',
       lineHeight: '32px',
-      fontWeight: 700,
+      letterSpacing: '-0.40px',
+      fontWeight: 600,
     },
     h1: undefined,
     subhead: {
-      fontSize: '20px',
-      lineHeight: '28px',
+      fontSize: '18px',
+      lineHeight: '24px',
+      letterSpacing: '-0.40px',
       fontWeight: 600,
     },
     captionCode: {
       fontFamily: 'IBM Plex Mono, monospace',
       fontWeight: 400,
       fontSize: '14px',
-      lineHeight: '20px',
+      lineHeight: '24px',
     },
     h2: undefined,
     bodyHl: {
       fontSize: '16px',
-      lineHeight: '28px',
+      lineHeight: '24px',
+      letterSpacing: '-0.16px',
       fontWeight: 500,
     },
     body2: undefined,
@@ -678,7 +686,8 @@ export const theme = createTheme({
     body1: undefined,
     captionHl: {
       fontSize: '14px',
-      lineHeight: '20px',
+      lineHeight: '24px',
+      letterSpacing: '-0.16px',
       fontWeight: 500,
     },
     subtitle1: undefined,
@@ -689,18 +698,21 @@ export const theme = createTheme({
       fontSize: '12px',
       lineHeight: '16px',
       fontWeight: 400,
+      letterSpacing: '-0.16px',
       textTransform: 'none',
     },
     noteHl: {
       fontSize: '12px',
       lineHeight: '16px',
-      fontWeight: 600,
+      letterSpacing: '-0.16px',
+      fontWeight: 500,
       textTransform: 'none',
     },
     overline: undefined,
     button: {
       fontSize: '16px',
-      lineHeight: '28px',
+      lineHeight: '24px',
+      letterSpacing: '-0.16px',
       fontWeight: 400,
       textTransform: 'none',
     },

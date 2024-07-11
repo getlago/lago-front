@@ -669,7 +669,7 @@ const Footer = styled.div`
   font-size: 12px;
   font-weight: 400;
   line-height: 16px;
-  letter-spacing: 0em;
+  letter-spacing: -0.16px;
   color: ${theme.palette.grey[500]};
   margin-bottom: ${theme.spacing(20)};
   display: flex;
@@ -702,7 +702,7 @@ const FromEmail = styled.span`
   font-size: 12px;
   font-weight: 400;
   line-height: 16px;
-  letter-spacing: 0em;
+  letter-spacing: -0.16px;
   text-align: left;
   color: ${theme.palette.grey[600]};
 `
@@ -711,7 +711,7 @@ const ToEmail = styled.span`
   font-size: 12px;
   font-weight: 400;
   line-height: 16px;
-  letter-spacing: 0em;
+  letter-spacing: -0.16px;
   text-align: left;
   color: ${theme.palette.grey[600]};
 `
