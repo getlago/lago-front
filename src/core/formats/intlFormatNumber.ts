@@ -1,8 +1,10 @@
+import { LocaleEnum } from '~/core/translations'
 import { CurrencyEnum } from '~/generated/graphql'
 
 enum CurrencyDisplay {
   code = 'code',
   symbol = 'symbol',
+  narrowSymbol = 'narrowSymbol',
 }
 
 enum AmountStyle {
@@ -17,6 +19,7 @@ type FormatterOptions = {
   style?: keyof typeof AmountStyle
   minimumFractionDigits?: number
   maximumFractionDigits?: number
+  locale?: LocaleEnum
 }
 
 export const intlFormatNumber: (amount: number, options?: FormatterOptions) => string = (
@@ -32,7 +35,7 @@ export const intlFormatNumber: (amount: number, options?: FormatterOptions) => s
     ...otherOptions
   } = options || {}
 
-  return Number(formattedToUnit).toLocaleString('en-US', {
+  return Number(formattedToUnit).toLocaleString(options?.locale ?? 'en-US', {
     style,
     currencyDisplay,
     currency,

@@ -54,5 +54,13 @@
   "text_6419c64eace749372fc72b54": "Betald",
   "text_6419c64eace749372fc72b62": "Ladda ner PDF",
   "text_641c6acee4bc20004e62c534": "Något gick fel, länken är ogiltig eller har gått ut",
-  "text_666c5b12fea4aa1e1b26bf55": "Försenad"
+  "text_666c5b12fea4aa1e1b26bf55": "Försenad",
+  "text_6670a7222702d70114cc7953": "Uppdatera",
+  "text_6670a7222702d70114cc7954": "Fakturaöversikt",
+  "text_6670a7222702d70114cc7955": "{{count}} faktura med totalt {{amount}} är förfallen.|X fakturor med totalt {{amount}} är förfallna.",
+  "text_6670a7222702d70114cc7956": "Betala totalbeloppet för att reglera det förfallna saldot.",
+  "text_6670a7222702d70114cc7957": "Totalt fakturerat",
+  "text_6670a7222702d70114cc795a": "Totalt förfallet",
+  "text_6670a7222702d70114cc795c": "För {{count}} faktura|För {{count}} fakturor",
+  "text_6670a757999f8a007789bb5d": "Totalbelopp från förfallna fakturor. Detta är beloppet du är skyldig."
 }

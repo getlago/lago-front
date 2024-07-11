@@ -3,6 +3,7 @@ import styled from 'styled-components'
 
 import { PortalCustomerInfos } from '~/components/customerPortal/PortalCustomerInfos'
 import PortalInvoicesList from '~/components/customerPortal/PortalInvoicesList'
+import { PortalOverview } from '~/components/customerPortal/PortalOverview'
 import { Skeleton, Typography } from '~/components/designSystem'
 import { LocaleEnum } from '~/core/translations'
 import { useGetPortalOrgaInfosQuery } from '~/generated/graphql'
@@ -57,6 +58,7 @@ const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
       </PageHeader>
 
       <PortalCustomerInfos translate={translate} />
+      <PortalOverview translate={translate} documentLocale={documentLocale} />
       <PortalInvoicesList translate={translate} documentLocale={documentLocale} />
     </PageWrapper>
   )

@@ -20,7 +20,7 @@ import {
   DeleteCustomerDialog,
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
-import { CustomerSubscriptionsList } from '~/components/customers/subscriptions/CustomerSubscriptionsList'
+import { CustomerOverview } from '~/components/customers/overview/CustomerOverview'
 import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
 import {
   Avatar,
@@ -360,7 +360,11 @@ const CustomerDetails = () => {
                     component: (
                       <SideBlock>
                         {!loading && <CustomerCoupons />}
-                        <CustomerSubscriptionsList customerTimezone={safeTimezone} />
+                        <CustomerOverview
+                          externalCustomerId={externalId}
+                          customerTimezone={safeTimezone}
+                          userCurrency={data?.customer?.currency || undefined}
+                        />
                       </SideBlock>
                     ),
                   },
