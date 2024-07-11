@@ -41,6 +41,7 @@ import {
   VolumeRangesFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useChargeForm } from '~/hooks/plans/useChargeForm'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { NAV_HEIGHT, theme } from '~/styles'
 
@@ -186,21 +187,64 @@ export const ChargeAccordion = memo(
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
     const { type: actionType } = useDuplicatePlanVar()
+    const {
+      getChargeModelComboboxData,
+      getIsPayInAdvanceOptionDisabled,
+      getIsProRatedOptionDisabled,
+    } = useChargeForm()
     const chargeErrors = formikProps?.errors?.charges
 
-    const { localCharge, initialLocalCharge, hasDefaultPropertiesErrors, hasErrorInCharges } =
-      useMemo(() => {
-        return {
-          localCharge: formikProps.values.charges[index],
-          initialLocalCharge: formikProps.initialValues.charges[index],
-          hasDefaultPropertiesErrors:
-            typeof chargeErrors === 'object' &&
-            typeof chargeErrors[index] === 'object' &&
-            // @ts-ignore
-            typeof chargeErrors[index].properties === 'object',
-          hasErrorInCharges: Boolean(chargeErrors && chargeErrors[index]),
-        }
-      }, [chargeErrors, formikProps.initialValues.charges, formikProps.values.charges, index])
+    const {
+      chargeModelComboboxData,
+      hasDefaultPropertiesErrors,
+      hasErrorInCharges,
+      initialLocalCharge,
+      isPayInAdvanceOptionDisabled,
+      isProratedOptionDisabled,
+      // isAbleToSwitchToProRated,
+      localCharge,
+    } = useMemo(() => {
+      const formikCharge = formikProps.values.charges[index]
+      const localChargeModelComboboxData = getChargeModelComboboxData({
+        isPremium,
+        aggregationType: formikCharge.billableMetric.aggregationType,
+      })
+      const localIsPayInAdvanceOptionDisabled = getIsPayInAdvanceOptionDisabled({
+        aggregationType: formikCharge.billableMetric.aggregationType,
+        chargeModel: formikCharge.chargeModel,
+        isPayInAdvance: formikCharge.payInAdvance || false,
+        isProrated: formikCharge.prorated || false,
+        isRecurring: formikCharge.billableMetric.recurring,
+      })
+      const localIsProratedOptionDisabled = getIsProRatedOptionDisabled({
+        isPayInAdvance: formikCharge.payInAdvance || false,
+        aggregationType: formikCharge.billableMetric.aggregationType,
+        chargeModel: formikCharge.chargeModel,
+      })
+
+      return {
+        chargeModelComboboxData: localChargeModelComboboxData,
+        hasDefaultPropertiesErrors:
+          typeof chargeErrors === 'object' &&
+          typeof chargeErrors[index] === 'object' &&
+          // @ts-ignore
+          typeof chargeErrors[index].properties === 'object',
+        hasErrorInCharges: Boolean(chargeErrors && chargeErrors[index]),
+        initialLocalCharge: formikProps.initialValues.charges[index],
+        isPayInAdvanceOptionDisabled: localIsPayInAdvanceOptionDisabled,
+        isProratedOptionDisabled: localIsProratedOptionDisabled,
+        localCharge: formikCharge,
+      }
+    }, [
+      chargeErrors,
+      formikProps.initialValues.charges,
+      formikProps.values.charges,
+      getChargeModelComboboxData,
+      getIsPayInAdvanceOptionDisabled,
+      getIsProRatedOptionDisabled,
+      index,
+      isPremium,
+    ])
 
     const [showSpendingMinimum, setShowSpendingMinimum] = useState(
       !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0,
@@ -217,71 +261,43 @@ export const ChargeAccordion = memo(
       )
     }, [initialLocalCharge?.minAmountCents])
 
-    useEffect(
-      () => {
-        const payInAdvance = localCharge.payInAdvance
-
-        if (payInAdvance === true) {
-          formikProps.setFieldValue(`charges.${index}.minAmountCents`, undefined)
-
-          if (localCharge.chargeModel === ChargeModelEnum.Graduated) {
-            formikProps.setFieldValue(`charges.${index}.prorated`, false)
-          }
-        } else {
-          // Pay in arrears
-          formikProps.setFieldValue(`charges.${index}.invoiceable`, true)
-        }
-      },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [index, localCharge.chargeModel, localCharge.payInAdvance],
-    )
-
     const handleUpdate = useCallback(
       (name: string, value: unknown) => {
+        // IMPORTANT: This check should stay first in this function
+        // If user is not premium and try to switch to graduated percentage pricing
+        // We should show the premium modal and prevent any formik value change
+        if (name === 'chargeModel' && !isPremium && value === ChargeModelEnum.GraduatedPercentage) {
+          premiumWarningDialogRef?.current?.openDialog()
+          return
+        }
+
+        // NOTE: We prevent going further if the change is about the charge model and the value remain the same
+        // It prevents fixing the properties to be wrongly reset to default on 2nd select.
+        if (name === 'chargeModel' && value === localCharge.chargeModel) return
+
+        let currentChargeValues: LocalChargeInput = {
+          ...localCharge,
+          [name]: value,
+        }
+
         if (name === 'chargeModel') {
-          // IMPORTANT: This check should stay first in this function
-          // If user is not premium and try to switch to graduated percentage pricing
-          // We should show the premium modal and prevent any formik value change
-          if (!isPremium && value === ChargeModelEnum.GraduatedPercentage) {
-            premiumWarningDialogRef?.current?.openDialog()
-            return
-          }
-
-          // Reset pay in advance when switching charge model
-          if (
-            (value === ChargeModelEnum.Graduated && localCharge.payInAdvance) ||
-            value === ChargeModelEnum.Volume ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.LatestAgg ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.WeightedSumAgg
-          ) {
-            formikProps.setFieldValue(`charges.${index}.payInAdvance`, false)
-          }
-
-          // Reset prorated when switching charge model
-          if (
-            (localCharge.billableMetric.recurring && value === ChargeModelEnum.Graduated) ||
-            localCharge.billableMetric.aggregationType === AggregationTypeEnum.WeightedSumAgg ||
-            value === ChargeModelEnum.GraduatedPercentage ||
-            value === ChargeModelEnum.Package ||
-            value === ChargeModelEnum.Percentage
-          ) {
-            formikProps.setFieldValue(`charges.${index}.prorated`, false)
+          // Reset charge data to default when switching charge model
+          currentChargeValues = {
+            ...currentChargeValues,
+            payInAdvance: false,
+            prorated: false,
+            invoiceable: true,
+            properties: getPropertyShape({}),
+            filters: [],
+            taxes: [],
           }
         }
 
-        formikProps.setFieldValue(`charges.${index}.${name}`, value)
+        formikProps.setFieldValue(`charges.${index}`, currentChargeValues)
       },
 
-      [
-        formikProps,
-        index,
-        isPremium,
-        localCharge.billableMetric.aggregationType,
-        localCharge.billableMetric.recurring,
-        localCharge.payInAdvance,
-        premiumWarningDialogRef,
-      ],
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [index, isPremium, localCharge, premiumWarningDialogRef],
     )
 
     const taxValueForBadgeDisplay = useMemo((): string | undefined => {
@@ -322,27 +338,6 @@ export const ChargeAccordion = memo(
         }
       })
     }, [localCharge.taxes, taxesCollection])
-
-    const isProratedOptionDisabled = useMemo(() => {
-      return (
-        (localCharge.payInAdvance && localCharge.chargeModel === ChargeModelEnum.Graduated) ||
-        localCharge.chargeModel === ChargeModelEnum.GraduatedPercentage ||
-        localCharge.chargeModel === ChargeModelEnum.Package ||
-        localCharge.chargeModel === ChargeModelEnum.Percentage ||
-        localCharge.billableMetric.aggregationType === AggregationTypeEnum.WeightedSumAgg
-      )
-    }, [
-      localCharge.billableMetric.aggregationType,
-      localCharge.chargeModel,
-      localCharge.payInAdvance,
-    ])
-
-    const proratedOptionHelperText = useMemo(() => {
-      if (isProratedOptionDisabled)
-        return translate('text_649c54823c9089006247625a', { chargeModel: localCharge.chargeModel })
-
-      return translate('text_649c54823c90890062476259')
-    }, [isProratedOptionDisabled, translate, localCharge.chargeModel])
 
     const chargePayInAdvanceDescription = useMemo(() => {
       if (localCharge.chargeModel === ChargeModelEnum.Volume) {
@@ -468,77 +463,10 @@ export const ChargeAccordion = memo(
             )}
             <ComboBox
               disableClearable
-              sortValues={false}
               name="chargeModel"
               disabled={isInSubscriptionForm || disabled}
-              label={
-                <InlineComboboxLabel>
-                  <Typography variant="captionHl" color="textSecondary">
-                    {translate('text_65201b8216455901fe273dd5')}
-                  </Typography>
-                </InlineComboboxLabel>
-              }
-              data={[
-                {
-                  label: translate('text_62793bbb599f1c01522e919f'),
-                  value: ChargeModelEnum.Graduated,
-                },
-                ...(!localCharge.billableMetric.recurring
-                  ? [
-                      ...(localCharge.billableMetric.aggregationType !==
-                      AggregationTypeEnum.LatestAgg
-                        ? [
-                            {
-                              labelNode: (
-                                <InlineComboboxLabelForPremiumWrapper>
-                                  <InlineComboboxLabel>
-                                    <Typography variant="body" color="grey700">
-                                      {translate('text_64de472463e2da6b31737db0')}
-                                    </Typography>
-                                  </InlineComboboxLabel>
-                                  {!isPremium && <Icon name="sparkles" />}
-                                </InlineComboboxLabelForPremiumWrapper>
-                              ),
-                              label: translate('text_64de472463e2da6b31737db0'),
-                              value: ChargeModelEnum.GraduatedPercentage,
-                            },
-                          ]
-                        : []),
-                      {
-                        label: translate('text_6282085b4f283b0102655868'),
-                        value: ChargeModelEnum.Package,
-                      },
-
-                      ...(localCharge.billableMetric.aggregationType !==
-                      AggregationTypeEnum.LatestAgg
-                        ? [
-                            {
-                              label: translate('text_62a0b7107afa2700a65ef6e2'),
-                              value: ChargeModelEnum.Percentage,
-                            },
-                          ]
-                        : []),
-                    ]
-                  : []),
-                {
-                  label: translate('text_624aa732d6af4e0103d40e6f'),
-                  value: ChargeModelEnum.Standard,
-                },
-                {
-                  label: translate('text_6304e74aab6dbc18d615f386'),
-                  value: ChargeModelEnum.Volume,
-                },
-                ...(localCharge.billableMetric.aggregationType === AggregationTypeEnum.CustomAgg
-                  ? [
-                      {
-                        label: translate('text_663dea5702b60301d8d064fa'),
-                        value: ChargeModelEnum.Custom,
-                      },
-                    ]
-                  : []),
-              ]
-                // Sort the combobox values by label
-                .sort((a, b) => translate(a.label).localeCompare(translate(b.label)))}
+              label={translate('text_65201b8216455901fe273dd5')}
+              data={chargeModelComboboxData}
               value={localCharge.chargeModel}
               helperText={translate(
                 localCharge.chargeModel === ChargeModelEnum.Percentage
@@ -855,12 +783,7 @@ export const ChargeAccordion = memo(
                 {
                   label: translate('text_6669b493fae79a0095e63988'),
                   value: true,
-                  disabled:
-                    localCharge.chargeModel === ChargeModelEnum.Volume ||
-                    localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg ||
-                    localCharge.billableMetric.aggregationType === AggregationTypeEnum.LatestAgg ||
-                    localCharge.billableMetric.aggregationType ===
-                      AggregationTypeEnum.WeightedSumAgg,
+                  disabled: isPayInAdvanceOptionDisabled,
                 },
               ]}
             />
@@ -870,7 +793,13 @@ export const ChargeAccordion = memo(
                 name={`charge-${localCharge.id}-prorated`}
                 label={translate('text_649c54823c90890062476255')}
                 disabled={isInSubscriptionForm || disabled || isProratedOptionDisabled}
-                subLabel={proratedOptionHelperText}
+                subLabel={
+                  isProratedOptionDisabled
+                    ? translate('text_649c54823c9089006247625a', {
+                        chargeModel: localCharge.chargeModel,
+                      })
+                    : translate('text_649c54823c90890062476259')
+                }
                 checked={!!localCharge.prorated}
                 onChange={(value) => handleUpdate('prorated', Boolean(value))}
               />
@@ -1126,18 +1055,6 @@ const InlineTaxesWrapper = styled.div`
   align-items: center;
   gap: ${theme.spacing(3)};
   flex-wrap: wrap;
-`
-
-const InlineComboboxLabelForPremiumWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
-
-const InlineComboboxLabel = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(2)};
 `
 
 const Summary = styled.div`
