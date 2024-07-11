@@ -44,7 +44,7 @@ export const OverviewCard: FC<OverviewCardProps> = ({
           </CardHeader>
 
           <Stack gap={1}>
-            <Typography variant="subhead" color={isAccentContent ? 'warning700' : 'grey700'}>
+            <Typography variant="subhead1" color={isAccentContent ? 'warning700' : 'grey700'}>
               {content}
             </Typography>
             <Typography variant="caption">{caption}</Typography>

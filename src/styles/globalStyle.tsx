@@ -46,8 +46,9 @@ export const inputGlobalStyles = (
         },
       },
       b: {
-        fontSize: '16px',
-        lineHeight: '28px',
+        fontSize: '14px',
+        lineHeight: '24px',
+        letterSpacing: '-0.24px',
         fontWeight: 500,
       },
       ul: {

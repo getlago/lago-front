@@ -188,7 +188,7 @@ const CreditNotesList = memo(
                       )
                     }
                   >
-                    <NumberCell variant="captionCode" color="grey700" noWrap>
+                    <NumberCell variant="bodyCode" color="grey700" noWrap>
                       {creditNote.number}
                     </NumberCell>
                     <AmountCell variant="body" color="success600" align="right" noWrap>

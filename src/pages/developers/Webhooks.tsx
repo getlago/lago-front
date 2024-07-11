@@ -67,7 +67,7 @@ const Webhooks = () => {
       <Title variant="headline">{translate('text_6271200984178801ba8bdef2')}</Title>
       <Subtitle>{translate('text_64d23b49d481ab00681c229b')}</Subtitle>
       <Head>
-        <Typography variant="subhead" color="grey700">
+        <Typography variant="subhead1" color="grey700">
           {translate('text_6271200984178801ba8bdf40')}
         </Typography>
         <Button

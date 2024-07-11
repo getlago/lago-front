@@ -55,9 +55,9 @@ const mapTypographyVariant = (size: AvatarSize) => {
   switch (size) {
     case 'small':
     case 'intermediate':
-      return 'noteHl'
+      return 'captionHl'
     case 'large':
-      return 'subhead'
+      return 'subhead1'
     default:
       return 'bodyHl'
   }

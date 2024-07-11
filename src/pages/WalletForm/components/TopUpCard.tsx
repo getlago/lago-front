@@ -115,7 +115,7 @@ export const TopUpCard: FC<TopUpCardProps> = ({
     <Card $disableChildSpacing>
       <Stack gap={12} width="100%">
         <Stack gap={6} width="100%">
-          <Typography variant="subhead">{translate('text_6657be42151661006d2f3b89')}</Typography>
+          <Typography variant="subhead1">{translate('text_6657be42151661006d2f3b89')}</Typography>
 
           {formType === FORM_TYPE_ENUM.creation && (
             <>

@@ -99,7 +99,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
   return (
     <>
       <SideSection $empty={!!hasNoWallet}>
-        <SectionHeader variant="subhead" $hideBottomShadow={!!loading || !hasNoWallet}>
+        <SectionHeader variant="subhead1" $hideBottomShadow={!!loading || !hasNoWallet}>
           {translate('text_62d175066d2dbf1d50bc9384')}
 
           {hasAnyPermissionsToShowActions && (

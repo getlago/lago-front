@@ -113,10 +113,10 @@ export const CreditNoteListItem = ({
     <ItemContainer {...props}>
       <Item to={to} tabIndex={0} {...navigationProps}>
         <GridItem>
-          <Typography variant="captionCode" color="grey700" noWrap>
+          <Typography variant="bodyCode" color="grey700" noWrap>
             {creditNote.number}
           </Typography>
-          <Typography variant="captionCode" color="grey700" noWrap>
+          <Typography variant="bodyCode" color="grey700" noWrap>
             <Link
               to={generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
                 customerId: creditNote.invoice?.customer?.id as string,

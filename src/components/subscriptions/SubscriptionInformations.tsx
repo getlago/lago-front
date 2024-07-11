@@ -53,7 +53,7 @@ const SubscriptionInformations = ({
 
   return (
     <section>
-      <DetailsSectionTitle variant="subhead" noWrap>
+      <DetailsSectionTitle variant="subhead1" noWrap>
         {translate('text_6335e8900c69f8ebdfef5312')}
       </DetailsSectionTitle>
       <ContentWrapper>

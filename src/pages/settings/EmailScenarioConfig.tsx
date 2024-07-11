@@ -163,7 +163,7 @@ const EmailScenarioConfig = () => {
         )}
       </Title>
       <PreviewHeader>
-        <Typography variant="subhead" color="grey700" noWrap>
+        <Typography variant="subhead1" color="grey700" noWrap>
           {translate('text_6407684eaf41130074c4b2f8')}
         </Typography>
         {!loading && (
@@ -376,7 +376,7 @@ const EmailScenarioConfig = () => {
                       />
                     </Tooltip>
                   )}
-                  <Typography variant="subhead">{name}</Typography>
+                  <Typography variant="subhead1">{name}</Typography>
                 </Company>
                 <TemplateContent>
                   <Typography variant="caption">
@@ -438,7 +438,7 @@ const EmailScenarioConfig = () => {
                   </ContactBlock>
                 </TemplateContent>
                 <Footer>
-                  <Typography variant="note" color="grey500">
+                  <Typography variant="caption" color="grey500">
                     {translateWithContextualLocal('text_64188b3d9735d5007d712278')}
                   </Typography>
                   <Logo height="12px" />

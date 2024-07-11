@@ -54,7 +54,7 @@ export const Chip = ({
       icon={icon ? <StyledIcon name={icon} /> : undefined}
       label={
         <Typography
-          variant={!!beta ? 'captionCode' : 'captionHl'}
+          variant={!!beta ? 'bodyCode' : 'captionHl'}
           color={!!beta ? 'info600' : !!error ? 'danger600' : color}
         >
           {label}

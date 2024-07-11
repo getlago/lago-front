@@ -160,7 +160,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   return (
     <SideSection>
       <InlineSectionTitle>
-        <Typography variant="subhead" color="grey700">
+        <Typography variant="subhead1" color="grey700">
           {translate('text_637f819eff19cd55a56d55e6')}
         </Typography>
 
@@ -241,7 +241,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
       </InfoBlock>
 
       <InlineSectionTitle>
-        <Typography variant="subhead" color="grey700">
+        <Typography variant="subhead1" color="grey700">
           {translate('text_64c7a89b6c67eb6c98898109')}
         </Typography>
         {hasPermissions(['customerSettingsUpdatePaymentTerms']) && (
@@ -334,7 +334,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
       </InfoBlock>
 
       <InlineSectionTitle>
-        <Typography variant="subhead" color="grey700">
+        <Typography variant="subhead1" color="grey700">
           {translate('text_638dff9779fb99299bee912e')}
         </Typography>
         {hasPermissions(['customerSettingsUpdateGracePeriod']) && (
@@ -431,7 +431,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
       </InfoBlock>
 
       <InlineSectionTitle>
-        <Typography variant="subhead" color="grey700">
+        <Typography variant="subhead1" color="grey700">
           {translate('text_63ea0f84f400488553caa765')}
         </Typography>
 

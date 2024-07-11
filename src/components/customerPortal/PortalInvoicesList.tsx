@@ -68,7 +68,7 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
   return (
     <section role="grid" tabIndex={-1}>
       <PageHeader $isEmpty={hasNoInvoices}>
-        <Typography variant="subhead" color="grey700">
+        <Typography variant="subhead1" color="grey700">
           {translate('text_6419c64eace749372fc72b37')}
         </Typography>
 

@@ -96,9 +96,9 @@ const AreaChart = memo(({ blur, currency, data, hasOnlyZeroValues, loading }: Ar
                         style={{
                           fontFamily: 'Inter',
                           fontSize: '12px',
-                          fontStyle: 'normal',
                           fontWeight: '400',
                           lineHeight: '16px',
+                          letterSpacing: '-0.24px',
                           textAnchor: index === 0 ? 'start' : 'end',
                         }}
                       >
@@ -150,9 +150,9 @@ const AreaChart = memo(({ blur, currency, data, hasOnlyZeroValues, loading }: Ar
                         style={{
                           fontFamily: 'Inter',
                           fontSize: '12px',
-                          fontStyle: 'normal',
                           fontWeight: '400',
                           lineHeight: '16px',
+                          letterSpacing: '-0.24px',
                         }}
                       >
                         {index !== 0 && hasOnlyZeroValues

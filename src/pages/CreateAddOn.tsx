@@ -222,7 +222,7 @@ const CreateAddOn = () => {
                   </Subtitle>
                 </div>
                 <Card>
-                  <SectionTitle variant="subhead">
+                  <SectionTitle variant="subhead1">
                     {translate('text_629728388c4d2300e2d38079')}
                   </SectionTitle>
 
@@ -281,7 +281,7 @@ const CreateAddOn = () => {
                   )}
                 </Card>
                 <Card>
-                  <SectionTitle variant="subhead">
+                  <SectionTitle variant="subhead1">
                     {translate('text_629728388c4d2300e2d38117')}
                   </SectionTitle>
 

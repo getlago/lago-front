@@ -148,7 +148,7 @@ const LagoTaxManagementIntegration = () => {
 
       <ContentWrapper>
         <section>
-          <Title variant="subhead">{translate('text_657078c28394d6b1ae1b9725')}</Title>
+          <Title variant="subhead1">{translate('text_657078c28394d6b1ae1b9725')}</Title>
           <ConnectionDetailsItem>
             {loading ? (
               <>
@@ -183,7 +183,7 @@ const LagoTaxManagementIntegration = () => {
 
         <section>
           <InlineTitle>
-            <Typography variant="subhead">{translate('text_657078c28394d6b1ae1b9743')}</Typography>
+            <Typography variant="subhead1">{translate('text_657078c28394d6b1ae1b9743')}</Typography>
 
             {hasPermissions(['organizationTaxesView']) && (
               <Button

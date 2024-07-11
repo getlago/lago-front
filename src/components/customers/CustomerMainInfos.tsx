@@ -251,7 +251,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
   return (
     <DetailsBlock>
       <SectionHeader>
-        <Typography variant="subhead">{translate('text_6250304370f0f700a8fdc27d')}</Typography>
+        <Typography variant="subhead1">{translate('text_6250304370f0f700a8fdc27d')}</Typography>
 
         <Button variant="quaternary" onClick={onEdit}>
           {translate('text_626162c62f790600f850b75a')}

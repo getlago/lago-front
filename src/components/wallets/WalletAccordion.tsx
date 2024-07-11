@@ -188,7 +188,7 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                 <DetailSummaryLine $alignBaseLine>
                   <Typography
                     color={isWalletActive ? 'grey700' : 'grey600'}
-                    variant="subhead"
+                    variant="subhead1"
                     noWrap
                   >
                     {creditAmountUnit}
@@ -234,7 +234,7 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                     <Typography
                       blur={!isPremium}
                       color={isWalletActive ? 'grey700' : 'grey600'}
-                      variant="subhead"
+                      variant="subhead1"
                       noWrap
                     >
                       {isPremium ? consumedCreditUnit : '0'}

@@ -42,7 +42,7 @@ const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
   return (
     <Container>
       <section>
-        <DetailsSectionTitle variant="subhead" noWrap>
+        <DetailsSectionTitle variant="subhead1" noWrap>
           {translate('text_642d5eb2783a2ad10d67031a')}
         </DetailsSectionTitle>
         <ContentWrapper>
@@ -76,14 +76,14 @@ const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
         </ContentWrapper>
       </section>
       <section>
-        <DetailsSectionTitle variant="subhead" noWrap>
+        <DetailsSectionTitle variant="subhead1" noWrap>
           {translate('text_642d5eb2783a2ad10d670332')}
         </DetailsSectionTitle>
         <PlanDetailsFixedFeeAccordion plan={plan} />
       </section>
       {!!plan?.charges?.length && (
         <section>
-          <DetailsSectionTitle variant="subhead" noWrap>
+          <DetailsSectionTitle variant="subhead1" noWrap>
             {translate('text_6435888d7cc86500646d8977')}
           </DetailsSectionTitle>
           <PlanDetailsChargesSection
@@ -94,7 +94,7 @@ const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
       )}
       {!isNaN(Number(plan?.minimumCommitment?.amountCents)) && (
         <section>
-          <DetailsSectionTitle variant="subhead" noWrap>
+          <DetailsSectionTitle variant="subhead1" noWrap>
             {translate('text_65d601bffb11e0f9d1d9f567')}
           </DetailsSectionTitle>
           <PlanDetailsCommitmentsSection

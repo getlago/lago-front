@@ -70,7 +70,7 @@ export const CustomerUsage = ({
 
   return (
     <div>
-      <SectionHeader variant="subhead">
+      <SectionHeader variant="subhead1">
         {translate('text_65564e8e4af2340050d431be')}
 
         <MonthSelectorDropdown
@@ -91,7 +91,7 @@ export const CustomerUsage = ({
 
       {(loading || !!subscriptions?.length) && (
         <>
-          <Title variant="subhead">{translate('text_62c3f3fca8a1625624e8337b')}</Title>
+          <Title variant="subhead1">{translate('text_62c3f3fca8a1625624e8337b')}</Title>
           {loading ? (
             <Content>
               {[0, 1, 2].map((i) => (

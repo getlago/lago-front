@@ -46,14 +46,13 @@ declare module '@mui/material/styles' {
 
   interface TypographyVariants {
     headline: React.CSSProperties
-    subhead: React.CSSProperties
+    subhead1: React.CSSProperties
+    subhead2: React.CSSProperties
     bodyHl: React.CSSProperties
     body: React.CSSProperties
+    bodyCode: React.CSSProperties
     captionHl: React.CSSProperties
-    captionCode: React.CSSProperties
     button: React.CSSProperties
-    note: React.CSSProperties
-    noteHl: React.CSSProperties
     button: React.CSSProperties
     caption: React.CSSProperties
   }
@@ -61,14 +60,13 @@ declare module '@mui/material/styles' {
   // allow configuration using `createTheme`
   interface TypographyVariantsOptions {
     headline: React.CSSProperties
-    subhead: React.CSSProperties
+    subhead1: React.CSSProperties
+    subhead2: React.CSSProperties
     bodyHl: React.CSSProperties
     body: React.CSSProperties
+    bodyCode: React.CSSProperties
     captionHl: React.CSSProperties
-    captionCode: React.CSSProperties
     button: React.CSSProperties
-    note: React.CSSProperties
-    noteHl: React.CSSProperties
     button: React.CSSProperties
     caption: React.CSSProperties
   }
@@ -99,14 +97,13 @@ declare module '@mui/material/styles/zIndex' {
 declare module '@mui/material/Typography' {
   interface TypographyPropsVariantOverrides {
     headline: true
-    subhead: true
+    subhead1: true
+    subhead2: true
     bodyHl: true
     body: true
+    bodyCode: true
     captionHl: true
-    captionCode: true
     button: true
-    note: true
-    noteHl: true
     button: true
     h1: false
     h2: false

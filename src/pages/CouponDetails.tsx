@@ -167,7 +167,7 @@ const CouponDetails = () => {
 
       <Container>
         <section>
-          <DetailsSectionTitle variant="subhead" noWrap>
+          <DetailsSectionTitle variant="subhead1" noWrap>
             {translate('text_664cb90097bfa800e6efa3e4')}
           </DetailsSectionTitle>
           <DetailsInfoGrid
@@ -189,7 +189,7 @@ const CouponDetails = () => {
         </section>
 
         <section>
-          <DetailsSectionTitle variant="subhead" noWrap>
+          <DetailsSectionTitle variant="subhead1" noWrap>
             {translate('text_62876e85e32e0300e1803137')}
           </DetailsSectionTitle>
           <DetailsCard>
@@ -232,7 +232,7 @@ const CouponDetails = () => {
           !!coupon?.billableMetrics?.length ||
           !!coupon?.plans?.length) && (
           <section>
-            <DetailsSectionTitle variant="subhead" noWrap>
+            <DetailsSectionTitle variant="subhead1" noWrap>
               {translate('text_63c83d58e697e8e9236da806')}
             </DetailsSectionTitle>
             <DetailsCard>

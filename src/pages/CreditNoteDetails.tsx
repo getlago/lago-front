@@ -457,7 +457,7 @@ const CreditNoteDetails = () => {
             </MainInfos>
           )}
           <>
-            <SectionHeader variant="subhead">
+            <SectionHeader variant="subhead1">
               {translate('text_637655cb50f04bf1c8379cfa')}
               {!hasError && !loading && hasPermissions(['creditNotesView']) && (
                 <Button
@@ -888,7 +888,7 @@ const CreditNoteDetails = () => {
 
             {connectedNetsuiteIntegration && creditNote?.externalIntegrationId && (
               <Stack marginTop={8} gap={6}>
-                <SectionHeader variant="subhead">
+                <SectionHeader variant="subhead1">
                   {translate('text_6650b36fc702a4014c878996')}
                 </SectionHeader>
 

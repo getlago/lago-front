@@ -28,7 +28,7 @@ const EmailSettings = () => {
       <SettingsPageContentWrapper>
         <Title variant="headline">{translate('text_6408b5ae7f629d008bc8af79')}</Title>
         <Subtitle>{translate('text_6408b5ae7f629d008bc8af7b')}</Subtitle>
-        <SectionTitle variant="subhead">{translate('text_6408b5ae7f629d008bc8af7c')}</SectionTitle>
+        <SectionTitle variant="subhead1">{translate('text_6408b5ae7f629d008bc8af7c')}</SectionTitle>
         {loading ? (
           [0, 1, 2].map((key) => (
             <EmailSettingItemSkeleton key={`email-setttings-item-skeleton-${key}`} />

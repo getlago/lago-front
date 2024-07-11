@@ -50,7 +50,7 @@ const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
           </InlineItems>
         )}
         <InlineItems>
-          <InlinePoweredByTypography variant="note" color="grey500">
+          <InlinePoweredByTypography variant="caption" color="grey500">
             {translate('text_6419c64eace749372fc72b03')}
           </InlinePoweredByTypography>
           <StyledLogo />

@@ -208,7 +208,7 @@ export const InvoiceListItem = ({
           ) : (
             <Status {...statusConfig} />
           )}
-          <Typography variant="captionCode" color="grey700" noWrap>
+          <Typography variant="bodyCode" color="grey700" noWrap>
             {number}
           </Typography>
           {context === InvoiceListItemContextEnum.organization && (

@@ -287,7 +287,7 @@ const CreateCoupon = () => {
                   </Subtitle>
                 </div>
                 <Card>
-                  <Typography variant="subhead">
+                  <Typography variant="subhead1">
                     {translate('text_62876e85e32e0300e1803115')}
                   </Typography>
 
@@ -345,7 +345,7 @@ const CreateCoupon = () => {
                   )}
                 </Card>
                 <Card>
-                  <Typography variant="subhead">
+                  <Typography variant="subhead1">
                     {translate('text_62876e85e32e0300e1803137')}
                   </Typography>
 
@@ -457,7 +457,7 @@ const CreateCoupon = () => {
                 </Card>
 
                 <LimitationCard $disableChildSpacing>
-                  <Typography variant="subhead">
+                  <Typography variant="subhead1">
                     {translate('text_63c83d58e697e8e9236da806')}
                   </Typography>
                   <Settings>

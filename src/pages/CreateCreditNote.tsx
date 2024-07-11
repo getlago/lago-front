@@ -299,7 +299,7 @@ const CreateCreditNote = () => {
                 </StyledCard>
 
                 <Card>
-                  <Typography variant="subhead">
+                  <Typography variant="subhead1">
                     {translate('text_636bedf292786b19d3398ece')}
                   </Typography>
                   <ComboBoxField
@@ -348,7 +348,7 @@ const CreateCreditNote = () => {
                 </Card>
 
                 <Card>
-                  <Typography variant="subhead">
+                  <Typography variant="subhead1">
                     {translate('text_636bedf292786b19d3398ed8')}
                   </Typography>
                   <div>

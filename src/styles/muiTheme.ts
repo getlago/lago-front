@@ -8,14 +8,16 @@ export const INNER_CONTENT_WIDTH = 672
 export const BREAKPOINT_LG = 1024
 
 const typographyBody = {
-  fontSize: '16px',
-  lineHeight: '28px',
+  fontSize: '14px',
+  lineHeight: '24px',
+  letterSpacing: '-0.24px',
   fontWeight: 400,
 }
 
 const typographyCaption = {
-  fontSize: '14px',
-  lineHeight: '20px',
+  fontSize: '12px',
+  lineHeight: '16px',
+  letterSpacing: '-0.24px',
   fontWeight: 400,
 }
 
@@ -445,7 +447,6 @@ export const theme = createTheme({
           height: '40px',
           minWidth: '80px',
           padding: '6px 12px',
-          fontSize: '16px',
           '&.button-icon-only': {
             padding: '12px',
             minWidth: 'unset',
@@ -651,58 +652,57 @@ export const theme = createTheme({
     headline: {
       fontSize: '24px',
       lineHeight: '32px',
-      fontWeight: 700,
-    },
-    h1: undefined,
-    subhead: {
-      fontSize: '20px',
-      lineHeight: '28px',
+      letterSpacing: '-0.48px',
       fontWeight: 600,
     },
-    captionCode: {
-      fontFamily: 'IBM Plex Mono, monospace',
-      fontWeight: 400,
-      fontSize: '14px',
-      lineHeight: '20px',
+    h1: undefined,
+    subhead1: {
+      fontSize: '18px',
+      lineHeight: '24px',
+      letterSpacing: '-0.48px',
+      fontWeight: 600,
+    },
+    subhead2: {
+      fontSize: '16px',
+      lineHeight: '24px',
+      letterSpacing: '-0.48px',
+      fontWeight: 600,
     },
     h2: undefined,
     bodyHl: {
-      fontSize: '16px',
-      lineHeight: '28px',
+      fontSize: '14px',
+      lineHeight: '24px',
+      letterSpacing: '-0.24px',
       fontWeight: 500,
     },
     body2: undefined,
     body: {
       ...typographyBody,
     },
+    bodyCode: {
+      fontFamily: 'IBM Plex Mono, monospace',
+      fontSize: '14px',
+      lineHeight: '24px',
+      fontWeight: 400,
+    },
     body1: undefined,
     captionHl: {
-      fontSize: '14px',
-      lineHeight: '20px',
+      fontSize: '12px',
+      lineHeight: '16px',
+      letterSpacing: '-0.24px',
       fontWeight: 500,
     },
     subtitle1: undefined,
     caption: {
       ...typographyCaption,
     },
-    note: {
-      fontSize: '12px',
-      lineHeight: '16px',
-      fontWeight: 400,
-      textTransform: 'none',
-    },
-    noteHl: {
-      fontSize: '12px',
-      lineHeight: '16px',
-      fontWeight: 600,
-      textTransform: 'none',
-    },
     overline: undefined,
     button: {
-      fontSize: '16px',
-      lineHeight: '28px',
-      fontWeight: 400,
+      fontSize: '14px',
+      lineHeight: '24px',
+      letterSpacing: '-0.24px',
       textTransform: 'none',
+      fontWeight: 400,
     },
   },
   zIndex: {

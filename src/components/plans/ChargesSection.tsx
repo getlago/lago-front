@@ -224,7 +224,7 @@ export const ChargesSection = memo(
         <Card $childSpacing={8}>
           <SectionTitle>
             <Stack gap={2}>
-              <Typography variant="subhead">
+              <Typography variant="subhead1">
                 {translate('text_6435888d7cc86500646d8977')}
               </Typography>
               <Typography variant="caption">

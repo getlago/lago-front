@@ -118,7 +118,7 @@ const Members = () => {
               <TitleSkeleton variant="text" height={12} width={160} />
             ) : (
               <>
-                <Typography variant="subhead">
+                <Typography variant="subhead1">
                   {translate('text_63208b630aaf8df6bbfb265d')}
                 </Typography>
                 {!!hasInvites && hasPermissions(['organizationMembersCreate']) && (
@@ -187,7 +187,7 @@ const Members = () => {
         </InvitationsListWrapper>
 
         <Head>
-          <Typography variant="subhead">{translate('text_63208b630aaf8df6bbfb266f')}</Typography>
+          <Typography variant="subhead1">{translate('text_63208b630aaf8df6bbfb266f')}</Typography>
           {!membersLoading && !hasInvites && hasPermissions(['organizationMembersCreate']) && (
             <Button
               variant="secondary"

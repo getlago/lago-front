@@ -39,12 +39,12 @@ const ChartHeader = ({
                 <Icon name="info-circle" />
               </LeftInfoCellTooltip>
             </LeftInfoCellWithTooltip>
-            <Typography variant="subhead" color="grey700">
+            <Typography variant="subhead1" color="grey700">
               {amount}
             </Typography>
           </LeftInfosWrapper>
 
-          <Typography variant="note" color="grey600">
+          <Typography variant="caption" color="grey600">
             {period}
           </Typography>
         </ChartHeaderWrapper>

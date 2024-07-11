@@ -138,7 +138,7 @@ const NetsuiteIntegrations = () => {
       <ListWrapper>
         <section>
           <InlineTitle>
-            <Typography variant="subhead">{translate('text_65846763e6140b469140e239')}</Typography>
+            <Typography variant="subhead1">{translate('text_65846763e6140b469140e239')}</Typography>
           </InlineTitle>
 
           <>

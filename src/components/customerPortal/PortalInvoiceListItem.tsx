@@ -112,7 +112,7 @@ export const PortalInvoiceListItem = memo(
               locale: documentLocale,
             })}
           </Typography>
-          <Typography variant="captionCode" color="grey700">
+          <Typography variant="bodyCode" color="grey700">
             {number}
           </Typography>
           <Typography color="grey700" align="right">

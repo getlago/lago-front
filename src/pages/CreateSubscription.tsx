@@ -498,7 +498,7 @@ const CreateSubscription = () => {
           $isResponsive={isResponsive}
           $hasPlanId={!!subscriptionFormikProps?.values?.planId}
         >
-          <Typography variant="subhead">{pageHeaderTitle}</Typography>
+          <Typography variant="subhead1">{pageHeaderTitle}</Typography>
 
           <Selector
             icon={<Avatar size="big" variant="user" identifier={customer?.name || ''} />}
@@ -713,7 +713,7 @@ const CreateSubscription = () => {
                     <FreemiumCardLeft>
                       <FreemiumCardLeftTitleContainer>
                         <Icon name="sparkles" />
-                        <Typography variant="subhead">
+                        <Typography variant="subhead1">
                           {translate('text_65118a52df984447c18694d0')}
                         </Typography>
                       </FreemiumCardLeftTitleContainer>

@@ -282,7 +282,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
         </DrawerTitle>
 
         <Card>
-          <Typography variant="subhead">{translate('text_626c0c09812bbc00e4c59df1')}</Typography>
+          <Typography variant="subhead1">{translate('text_626c0c09812bbc00e4c59df1')}</Typography>
           <TextInputField
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus={!isEdition}
@@ -341,7 +341,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
         <Accordion
           size="large"
           summary={
-            <Typography variant="subhead">{translate('text_632b49e2620ea4c6d96c9662')}</Typography>
+            <Typography variant="subhead1">{translate('text_632b49e2620ea4c6d96c9662')}</Typography>
           }
         >
           <AccordionContentWrapper $largeSpacing>
@@ -499,7 +499,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
         <Accordion
           size="large"
           summary={
-            <Typography variant="subhead">{translate('text_63fcc3218d35b9377840f59b')}</Typography>
+            <Typography variant="subhead1">{translate('text_63fcc3218d35b9377840f59b')}</Typography>
           }
         >
           <AccordionContentWrapper>

@@ -69,7 +69,7 @@ const TaxesSettings = () => {
         <Subtitle>{translate('text_645bb193927b375079d28b7e')}</Subtitle>
 
         <InlineSectionTitle>
-          <Typography variant="subhead" color="grey700">
+          <Typography variant="subhead1" color="grey700">
             {translate('text_645bb193927b375079d28ae8')}
           </Typography>
 

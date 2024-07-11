@@ -156,7 +156,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
         </DrawerTitle>
 
         <Card>
-          <Typography variant="subhead">{translate('text_65a6b4e2cb38d9b70ec53c35')}</Typography>
+          <Typography variant="subhead1">{translate('text_65a6b4e2cb38d9b70ec53c35')}</Typography>
 
           {!!fee && (
             <LocalInvoiceWrapper>
@@ -202,7 +202,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
         </Card>
 
         <Card>
-          <Typography variant="subhead">{translate('text_65a6b4e2cb38d9b70ec53d31')}</Typography>
+          <Typography variant="subhead1">{translate('text_65a6b4e2cb38d9b70ec53d31')}</Typography>
 
           <TextInputField
             label={translate('text_65a6b4e2cb38d9b70ec53d39')}

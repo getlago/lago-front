@@ -113,7 +113,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
     <>
       {!hasAnyError && (
         <section>
-          <SectionHeader variant="subhead" $hideBottomShadow>
+          <SectionHeader variant="subhead1" $hideBottomShadow>
             {translate('text_6670a7222702d70114cc7954')}
 
             <Button

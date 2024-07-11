@@ -106,7 +106,7 @@ const OrganizationInformations = () => {
         <Subtitle>{translate('text_6380d7e60f081e5b777c4b22')}</Subtitle>
 
         <Head>
-          <Typography variant="subhead">{translate('text_638906e7b4f1a919cb61d0f4')}</Typography>
+          <Typography variant="subhead1">{translate('text_638906e7b4f1a919cb61d0f4')}</Typography>
           {hasPermissions(['organizationUpdate']) && (
             <Button
               variant="quaternary"
@@ -140,7 +140,7 @@ const OrganizationInformations = () => {
         )}
 
         <Head $withTopSeparator>
-          <Typography variant="subhead">{translate('text_62ab2d0396dd6b0361614d44')}</Typography>
+          <Typography variant="subhead1">{translate('text_62ab2d0396dd6b0361614d44')}</Typography>
 
           {hasPermissions(['organizationUpdate']) && (
             <Button

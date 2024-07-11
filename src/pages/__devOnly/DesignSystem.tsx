@@ -588,7 +588,7 @@ const DesignSystem = () => {
                       },
                       {
                         key: 'icon',
-                        title: <Typography variant="captionCode">Icon</Typography>,
+                        title: <Typography variant="bodyCode">Icon</Typography>,
                         content: (row) => <Icon color="primary" name={row.icon as IconName} />,
                       },
                     ]}
@@ -623,7 +623,7 @@ const DesignSystem = () => {
             component: (
               <Container>
                 <GroupTitle variant="headline">Avatar</GroupTitle>
-                <GroupTitle variant="subhead">Variants</GroupTitle>
+                <GroupTitle variant="subhead1">Variants</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Tooltip title="Connector with icon">
                     <Avatar variant="connector">
@@ -647,7 +647,7 @@ const DesignSystem = () => {
                   </Tooltip>
                 </Block>
 
-                <GroupTitle variant="subhead">Size</GroupTitle>
+                <GroupTitle variant="subhead1">Size</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Avatar variant="user" size="small" identifier="Morguy" initials="ML" />
                   <Avatar variant="user" size="intermediate" identifier="Morguy" initials="ML" />
@@ -671,7 +671,7 @@ const DesignSystem = () => {
                   </Avatar>
                 </Block>
 
-                <GroupTitle variant="subhead">Colors</GroupTitle>
+                <GroupTitle variant="subhead1">Colors</GroupTitle>
                 <GroupTitle>
                   Color is defined automatically based on initials or identifier
                 </GroupTitle>
@@ -735,24 +735,23 @@ const DesignSystem = () => {
                 <GroupTitle variant="headline">Typography</GroupTitle>
                 <Block>
                   <VerticalBlock $marginRight={theme.spacing(12)}>
-                    <GroupTitle variant="subhead">Variant</GroupTitle>
+                    <GroupTitle variant="subhead1">Variant</GroupTitle>
                     <Typography variant="headline">Headline</Typography>
-                    <Typography variant="subhead">Subhead</Typography>
+                    <Typography variant="subhead1">Subhead1</Typography>
+                    <Typography variant="subhead2">Subhead2</Typography>
                     <Typography variant="bodyHl">BodyHl</Typography>
                     <Typography variant="body">Body</Typography>
                     <Typography variant="button">Button</Typography>
-                    <Typography variant="caption">Caption</Typography>
+                    <Typography variant="bodyCode">BodyCode</Typography>
                     <Typography variant="captionHl">CaptionHl</Typography>
-                    <Typography variant="captionCode">CaptionCode</Typography>
-                    <Typography variant="note">Note</Typography>
-                    <Typography variant="noteHl">NoteHl</Typography>
+                    <Typography variant="caption">Caption</Typography>
                     <Typography
                       color="textSecondary"
                       html="I'm a bit <b>special</b>, I <i>understand</i> html"
                     />
                   </VerticalBlock>
                   <VerticalBlock>
-                    <GroupTitle variant="subhead">Color</GroupTitle>
+                    <GroupTitle variant="subhead1">Color</GroupTitle>
                     <Typography color="textSecondary">color textSecondary</Typography>
                     <Typography color="textPrimary">color textPrimary</Typography>
                     <Typography color="primary600">color primary600</Typography>
@@ -774,7 +773,7 @@ const DesignSystem = () => {
               <Container>
                 <GroupTitle variant="headline">Button</GroupTitle>
 
-                <GroupTitle variant="subhead">General use</GroupTitle>
+                <GroupTitle variant="subhead1">General use</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Button variant="primary" size="large">
                     Large
@@ -805,7 +804,7 @@ const DesignSystem = () => {
                   </Button>
                 </Block>
 
-                <GroupTitle variant="subhead">Primary</GroupTitle>
+                <GroupTitle variant="subhead1">Primary</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Button variant="primary">Default</Button>
                   <Button variant="primary" disabled>
@@ -816,7 +815,7 @@ const DesignSystem = () => {
                   </Button>
                 </Block>
 
-                <GroupTitle variant="subhead">Secondary</GroupTitle>
+                <GroupTitle variant="subhead1">Secondary</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Button variant="secondary">Default</Button>
                   <Button variant="secondary" size="large">
@@ -836,7 +835,7 @@ const DesignSystem = () => {
                   </Button>
                 </Block>
 
-                <GroupTitle variant="subhead">Tertiary</GroupTitle>
+                <GroupTitle variant="subhead1">Tertiary</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Button variant="tertiary">Default</Button>
                   <Button variant="tertiary" size="large">
@@ -856,7 +855,7 @@ const DesignSystem = () => {
                   </Button>
                 </Block>
 
-                <GroupTitle variant="subhead">Quaternary</GroupTitle>
+                <GroupTitle variant="subhead1">Quaternary</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Button variant="quaternary">Default</Button>
                   <Button variant="quaternary" size="large">
@@ -879,7 +878,7 @@ const DesignSystem = () => {
                   </Button>
                 </Block>
 
-                <GroupTitle variant="subhead">Google connect</GroupTitle>
+                <GroupTitle variant="subhead1">Google connect</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Button fullWidth startIcon="google" size="large" variant="tertiary">
                     Log In with Google
@@ -896,7 +895,7 @@ const DesignSystem = () => {
                 <Form onSubmit={(e) => e.preventDefault()}>
                   <GroupTitle variant="headline">Form</GroupTitle>
 
-                  <GroupTitle variant="subhead">Checkbox</GroupTitle>
+                  <GroupTitle variant="subhead1">Checkbox</GroupTitle>
 
                   <Block $marginBottom={theme.spacing(6)}>
                     <Checkbox
@@ -973,7 +972,7 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <GroupTitle variant="subhead">ButtonSelector</GroupTitle>
+                  <GroupTitle variant="subhead1">ButtonSelector</GroupTitle>
                   <Block $marginBottom={theme.spacing(6)}>
                     <ButtonSelectorField
                       name="buttonSelector"
@@ -1010,7 +1009,7 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <GroupTitle variant="subhead">Switch</GroupTitle>
+                  <GroupTitle variant="subhead1">Switch</GroupTitle>
                   <Block $marginBottom={theme.spacing(6)}>
                     <SwitchField
                       name="switch"
@@ -1033,7 +1032,7 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <GroupTitle variant="subhead">Combobox</GroupTitle>
+                  <GroupTitle variant="subhead1">Combobox</GroupTitle>
                   <Block $marginBottom={theme.spacing(6)}>
                     <ComboBoxField
                       name="combobox"
@@ -1282,7 +1281,7 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <GroupTitle variant="subhead">Radio</GroupTitle>
+                  <GroupTitle variant="subhead1">Radio</GroupTitle>
                   <Block $marginBottom={theme.spacing(6)}>
                     <RadioField
                       name="radio"
@@ -1314,7 +1313,7 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <GroupTitle variant="subhead">DatePicker</GroupTitle>
+                  <GroupTitle variant="subhead1">DatePicker</GroupTitle>
                   <Block $childMinWidth="325px" $marginBottom={theme.spacing(6)}>
                     <DatePickerField
                       name="date"
@@ -1335,7 +1334,7 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <GroupTitle variant="subhead">AmountInput</GroupTitle>
+                  <GroupTitle variant="subhead1">AmountInput</GroupTitle>
                   <Block $marginBottom={theme.spacing(6)}>
                     <AmountInputField
                       beforeChangeFormatter={['positiveNumber']}
@@ -1359,7 +1358,7 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <GroupTitle variant="subhead">TextInput</GroupTitle>
+                  <GroupTitle variant="subhead1">TextInput</GroupTitle>
                   <Block $marginBottom={theme.spacing(6)}>
                     <TextInputField
                       label="Label"
@@ -1424,7 +1423,7 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <GroupTitle variant="subhead">JSON Editor</GroupTitle>
+                  <GroupTitle variant="subhead1">JSON Editor</GroupTitle>
                   <Block $marginBottom={theme.spacing(6)}>
                     <JsonEditorField
                       name="json"
@@ -1457,7 +1456,7 @@ const DesignSystem = () => {
             component: (
               <Container>
                 <GroupTitle variant="headline">Links</GroupTitle>
-                <GroupTitle variant="subhead">
+                <GroupTitle variant="subhead1">
                   Link in navigation tabs with &#60;ButtonLink/&#62;
                 </GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
@@ -1479,7 +1478,7 @@ const DesignSystem = () => {
                     Disabled
                   </ButtonLink>
                 </Block>
-                <GroupTitle variant="subhead">Button Links with &#60;ButtonLink/&#62;</GroupTitle>
+                <GroupTitle variant="subhead1">Button Links with &#60;ButtonLink/&#62;</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <ButtonLink type="button" to={ONLY_DEV_DESIGN_SYSTEM_ROUTE}>
                     Internal
@@ -1500,7 +1499,7 @@ const DesignSystem = () => {
                     With Button Props
                   </ButtonLink>
                 </Block>
-                <GroupTitle variant="subhead">Simple links with &#60;a/&#62;</GroupTitle>
+                <GroupTitle variant="subhead1">Simple links with &#60;a/&#62;</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <a href="https://main-app.staging.getlago.com/coupons"> Normal Link </a>
                 </Block>

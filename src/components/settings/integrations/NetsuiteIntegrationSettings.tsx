@@ -149,7 +149,7 @@ const NetsuiteIntegrationSettings = () => {
 
         <section>
           <InlineTitle>
-            <Typography variant="subhead">{translate('text_661ff6e56ef7e1b7c542b232')}</Typography>
+            <Typography variant="subhead1">{translate('text_661ff6e56ef7e1b7c542b232')}</Typography>
             <Button
               variant="quaternary"
               disabled={loading}

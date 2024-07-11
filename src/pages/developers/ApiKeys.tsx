@@ -30,7 +30,7 @@ const ApiKeys = () => {
       </Subtitle>
 
       <InlineSectionTitle>
-        <Typography variant="subhead" color="grey700">
+        <Typography variant="subhead1" color="grey700">
           {translate('text_637f813d31381b1ed90ab313')}
         </Typography>
         {!loading && (
@@ -68,7 +68,7 @@ const ApiKeys = () => {
       )}
 
       <InlineSectionTitle>
-        <Typography variant="subhead" color="grey700">
+        <Typography variant="subhead1" color="grey700">
           {translate('text_636df520279a9e1b3c68cc75')}
         </Typography>
         {!loading && (

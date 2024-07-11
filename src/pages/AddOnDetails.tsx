@@ -139,7 +139,7 @@ const AddOnDetails = () => {
 
       <Container>
         <section>
-          <DetailsSectionTitle variant="subhead" noWrap>
+          <DetailsSectionTitle variant="subhead1" noWrap>
             {translate('text_6627e7b9732dbfb6c472e027')}
           </DetailsSectionTitle>
           <DetailsInfoGrid
@@ -161,7 +161,7 @@ const AddOnDetails = () => {
         </section>
 
         <section>
-          <DetailsSectionTitle variant="subhead" noWrap>
+          <DetailsSectionTitle variant="subhead1" noWrap>
             {translate('text_629728388c4d2300e2d38117')}
           </DetailsSectionTitle>
           <DetailsCard>

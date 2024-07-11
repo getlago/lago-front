@@ -56,7 +56,7 @@ export const CustomerCreditNotesList = ({
 
   return (
     <SideSection>
-      <SectionHeader variant="subhead" color="grey700" $hideBottomShadow>
+      <SectionHeader variant="subhead1" color="grey700" $hideBottomShadow>
         {translate('text_63725b30957fd5b26b308dd7')}
       </SectionHeader>
       <TotalCreditAmountWrapper>
@@ -90,7 +90,7 @@ export const CustomerCreditNotesList = ({
       </TotalCreditAmountWrapper>
 
       <HeaderWithSearch>
-        <Typography variant="subhead" color="grey700">
+        <Typography variant="subhead1" color="grey700">
           {translate('text_63725b30957fd5b26b308ddf')}
         </Typography>
         <SearchInput

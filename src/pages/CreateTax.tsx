@@ -140,7 +140,7 @@ const CreateTaxRate = () => {
                 </div>
 
                 <Card>
-                  <SectionTitle variant="subhead">
+                  <SectionTitle variant="subhead1">
                     {translate('text_645bb193927b375079d28a91')}
                   </SectionTitle>
 

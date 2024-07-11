@@ -202,7 +202,7 @@ const StripeIntegrationDetails = () => {
       <ContentWrapper>
         <section>
           <InlineTitle>
-            <Title variant="subhead">{translate('text_657078c28394d6b1ae1b9725')}</Title>
+            <Title variant="subhead1">{translate('text_657078c28394d6b1ae1b9725')}</Title>
 
             {canEditIntegration && (
               <Button
@@ -288,7 +288,7 @@ const StripeIntegrationDetails = () => {
 
         <section>
           <InlineTitle>
-            <Typography variant="subhead">{translate('text_65367cb78324b77fcb6af21c')}</Typography>
+            <Typography variant="subhead1">{translate('text_65367cb78324b77fcb6af21c')}</Typography>
 
             {canEditIntegration && (
               <Button

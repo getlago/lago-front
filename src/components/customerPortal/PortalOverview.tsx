@@ -90,7 +90,7 @@ export const PortalOverview: FC<PortalOverviewProps> = ({ translate, documentLoc
 
   return (
     <section>
-      <SectionHeader variant="subhead" $hideBottomShadow>
+      <SectionHeader variant="subhead1" $hideBottomShadow>
         {translate('text_6670a7222702d70114cc7954')}
 
         <Button data-test="add-subscription" variant="quaternary" onClick={() => location.reload()}>

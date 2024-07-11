@@ -358,7 +358,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
       summary={
         <InlineSummaryForExternalApps>
           <LocalPSPIcons />
-          <Typography variant="subhead">{translate('text_66423cad72bbad009f2f5689')}</Typography>
+          <Typography variant="subhead1">{translate('text_66423cad72bbad009f2f5689')}</Typography>
         </InlineSummaryForExternalApps>
       }
     >

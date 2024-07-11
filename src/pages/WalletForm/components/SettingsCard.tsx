@@ -39,7 +39,7 @@ export const SettingsCard: FC<SettingsCardProps> = ({
 
   return (
     <Card>
-      <Typography variant="subhead">{translate('text_6560809c38fb9de88d8a5090')}</Typography>
+      <Typography variant="subhead1">{translate('text_6560809c38fb9de88d8a5090')}</Typography>
 
       <TextInputField
         name="name"

@@ -177,7 +177,7 @@ const InvoiceSettings = () => {
 
         {/* Default currency */}
         <InlineSectionTitle>
-          <Typography variant="subhead" color="grey700">
+          <Typography variant="subhead1" color="grey700">
             {translate('text_6543ca0fdebf76a18e15929c')}
           </Typography>
           <Button
@@ -210,7 +210,7 @@ const InvoiceSettings = () => {
 
         {/* Document language */}
         <InlineSectionTitle>
-          <Typography variant="subhead" color="grey700">
+          <Typography variant="subhead1" color="grey700">
             {translate('text_63e51ef4985f0ebd75c212fd')}
           </Typography>
           <Button
@@ -243,7 +243,7 @@ const InvoiceSettings = () => {
 
         {/* Grace period */}
         <InlineSectionTitle>
-          <Typography variant="subhead" color="grey700">
+          <Typography variant="subhead1" color="grey700">
             {translate('text_638dc196fb209d551f3d8141')}
           </Typography>
           <Button
@@ -283,7 +283,7 @@ const InvoiceSettings = () => {
 
         {/* Invoice default footer */}
         <InlineSectionTitle>
-          <Typography variant="subhead" color="grey700">
+          <Typography variant="subhead1" color="grey700">
             {translate('text_637f819eff19cd55a56d55f6')}
           </Typography>
           <Button
@@ -321,7 +321,7 @@ const InvoiceSettings = () => {
 
         {/* Invoice numbering */}
         <InlineSectionTitle>
-          <Typography variant="subhead" color="grey700">
+          <Typography variant="subhead1" color="grey700">
             {translate('text_6566f920a1d6c35693d6cd16')}
           </Typography>
           <Button
@@ -368,7 +368,7 @@ const InvoiceSettings = () => {
 
         {/* Net payment term */}
         <InlineSectionTitle>
-          <Typography variant="subhead" color="grey700">
+          <Typography variant="subhead1" color="grey700">
             {translate('text_64c7a89b6c67eb6c98898167')}
           </Typography>
           <Button
@@ -409,7 +409,7 @@ const InvoiceSettings = () => {
         {hasPermissions(['organizationTaxesView']) && (
           <>
             <InlineSectionTitle>
-              <Typography variant="subhead" color="grey700">
+              <Typography variant="subhead1" color="grey700">
                 {translate('text_637f819eff19cd55a56d55e6')}
               </Typography>
 

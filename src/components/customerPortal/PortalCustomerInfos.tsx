@@ -36,7 +36,7 @@ export const PortalCustomerInfos = memo(({ translate }: PortalCustomerInfosProps
 
   return (
     <section>
-      <Title variant="subhead">{translate('text_6419c64eace749372fc72b07')}</Title>
+      <Title variant="subhead1">{translate('text_6419c64eace749372fc72b07')}</Title>
       <InfosContainer>
         {loading ? (
           <InfoSkeletonContainer>

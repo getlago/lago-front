@@ -114,14 +114,14 @@ const Overview: FC<TGraphProps & { externalCustomerId?: string }> = ({
                 <Icon name="info-circle" />
               </Tooltip>
             </Stack>
-            <Typography variant="note" color="grey600">
+            <Typography variant="caption" color="grey600">
               {translate('text_633dae57ca9a923dd53c2097', {
                 fromDate: from,
                 toDate: to,
               })}
             </Typography>
           </Stack>
-          <Typography variant="subhead">
+          <Typography variant="subhead1">
             {intlFormatNumber(overdueData?.amountCents || 0, {
               currency,
             })}

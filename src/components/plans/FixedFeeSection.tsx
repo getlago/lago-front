@@ -77,7 +77,7 @@ export const FixedFeeSection = memo(
     return (
       <Card>
         <SectionTitle>
-          <Typography variant="subhead">{translate('text_642d5eb2783a2ad10d670336')}</Typography>
+          <Typography variant="subhead1">{translate('text_642d5eb2783a2ad10d670336')}</Typography>
           <Typography variant="caption">
             {translate('text_6661fc17337de3591e29e3ed', {
               interval: translate(mapIntervalCopy(formikProps.values.interval)),

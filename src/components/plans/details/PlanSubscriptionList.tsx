@@ -62,7 +62,7 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
   return (
     <Container>
       <section>
-        <CustomDetailsSectionTitle variant="subhead" noWrap>
+        <CustomDetailsSectionTitle variant="subhead1" noWrap>
           {translate('text_65281f686a80b400c8e2f6be')}
         </CustomDetailsSectionTitle>
 

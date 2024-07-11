@@ -220,7 +220,7 @@ const GocardlessIntegrationDetails = () => {
       <ContentWrapper>
         <section>
           <InlineTitle>
-            <Title variant="subhead">{translate('text_637f813d31381b1ed90ab315')}</Title>
+            <Title variant="subhead1">{translate('text_637f813d31381b1ed90ab315')}</Title>
 
             {canEditIntegration && (
               <Button
@@ -319,7 +319,7 @@ const GocardlessIntegrationDetails = () => {
 
         <section>
           <InlineTitle>
-            <Typography variant="subhead">{translate('text_65367cb78324b77fcb6af21c')}</Typography>
+            <Typography variant="subhead1">{translate('text_65367cb78324b77fcb6af21c')}</Typography>
 
             {canEditIntegration && (
               <Button

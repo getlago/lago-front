@@ -202,7 +202,7 @@ const AdyenIntegrationDetails = () => {
       <Settings>
         <section>
           <InlineTitle>
-            <Typography variant="subhead">{translate('text_645d071272418a14c1c76a9a')}</Typography>
+            <Typography variant="subhead1">{translate('text_645d071272418a14c1c76a9a')}</Typography>
 
             {canEditIntegration && (
               <Button
@@ -322,7 +322,7 @@ const AdyenIntegrationDetails = () => {
 
         <section>
           <InlineTitle>
-            <Typography variant="subhead">{translate('text_65367cb78324b77fcb6af21c')}</Typography>
+            <Typography variant="subhead1">{translate('text_65367cb78324b77fcb6af21c')}</Typography>
             {canEditIntegration && (
               <Button
                 variant="quaternary"

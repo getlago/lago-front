@@ -71,9 +71,9 @@ const PortalInit = () => {
           <Avatar variant="connector" size="large">
             <Icon name="warning-unfilled" size="large" />
           </Avatar>
-          <Typography variant="subhead">{translate('text_641c6acee4bc20004e62c534')}</Typography>
+          <Typography variant="subhead1">{translate('text_641c6acee4bc20004e62c534')}</Typography>
           <InlineItems>
-            <InlinePoweredByTypography variant="note" color="grey500">
+            <InlinePoweredByTypography variant="caption" color="grey500">
               {translate('text_6419c64eace749372fc72b03')}
             </InlinePoweredByTypography>
             <StyledLogo />

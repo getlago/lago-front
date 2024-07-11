@@ -105,7 +105,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
           {!!invoicesDraft?.length && (
             <DraftWrapper>
               <Header>
-                <Typography variant="subhead" color="grey700">
+                <Typography variant="subhead1" color="grey700">
                   {translate('text_638f4d756d899445f18a49ee')}
                 </Typography>
               </Header>
@@ -138,7 +138,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
             !!variablesFinalized?.searchTerm) && (
             <>
               <Header>
-                <Typography variant="subhead" color="grey700">
+                <Typography variant="subhead1" color="grey700">
                   {translate('text_6250304370f0f700a8fdc291')}
                 </Typography>
                 <SearchInput

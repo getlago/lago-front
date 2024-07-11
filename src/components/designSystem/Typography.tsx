@@ -52,13 +52,12 @@ const mapColor = (variant: TypographyProps['variant'], color?: TypographyColor):
 
   switch (variant) {
     case 'headline':
-    case 'subhead':
+    case 'subhead1':
       return ColorTypeEnum.textSecondary
     case 'bodyHl':
     case 'body':
     case 'captionHl':
-    case 'note':
-    case 'noteHl':
+    case 'captionHl':
     case 'caption':
     default:
       return ColorTypeEnum.textPrimary
@@ -136,13 +135,12 @@ export const Typography = memo(
         color={mapColor(variant, color)}
         data-test={variant}
         variantMapping={{
-          subhead: 'div',
+          subhead1: 'div',
           caption: 'div',
-          note: 'div',
-          noteHl: 'div',
-          captionCode: 'code',
+          captionHl: 'div',
+          bodyCode: 'code',
         }}
-        $code={variant === 'captionCode'}
+        $code={variant === 'bodyCode'}
         $forceBreak={forceBreak}
         $noWrap={noWrap}
         $blur={blur}
