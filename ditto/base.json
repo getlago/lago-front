@@ -1347,7 +1347,7 @@
   "text_6670a2a7ae3562006c4ee3e7": "Total from past due invoices. This is the amount this customer owes you.",
   "text_6670a6577ecbf200898af646": "Total amount associated with overdue invoices, which are pending or failed and past their due dates.",
   "text_6670a6577ecbf200898af647": "Overdue invoices",
-  "text_6670a6577ecbf200898af64a": "totaling on {{count}} invoices",
+  "text_6670a6577ecbf200898af64a": "across {{count}} invoices",
   "text_6670a7222702d70114cc7953": "Refresh",
   "text_6670a7222702d70114cc7954": "Billing overview",
   "text_6670a7222702d70114cc7955": "{{count}} invoice totaling {{amount}} is overdue.|{{count}} invoices totaling {{amount}} are overdue.",
