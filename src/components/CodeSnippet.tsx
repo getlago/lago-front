@@ -109,7 +109,7 @@ const Code = styled.code`
   font-family: 'IBM Plex Mono, Consolas, Monaco, Andale Mono, Ubuntu Mono, monospace';
   font-weight: 400;
   font-size: 14px;
-  line-height: 20px;
+  line-height: 24px;
 `
 
 const CopyButton = styled(Button)`
