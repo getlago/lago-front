@@ -614,7 +614,7 @@ export const theme = createTheme({
             '&:active': {
               backgroundColor: palette.error[300],
             },
-            '&$disabled': {
+            '&.Mui-disabled': {
               color: palette.grey[400],
               backgroundColor: palette.grey[100],
             },

@@ -9,7 +9,6 @@ import {
   AggregationTypeEnum,
   BillableMetricItemFragmentDoc,
   CreateBillableMetricInput,
-  DeleteBillableMetricDialogFragmentDoc,
   EditBillableMetricFragment,
   EditBillableMetricFragmentDoc,
   LagoApiError,
@@ -36,12 +35,10 @@ gql`
   mutation updateBillableMetric($input: UpdateBillableMetricInput!) {
     updateBillableMetric(input: $input) {
       ...BillableMetricItem
-      ...DeleteBillableMetricDialog
     }
   }
 
   ${BillableMetricItemFragmentDoc}
-  ${DeleteBillableMetricDialogFragmentDoc}
   ${EditBillableMetricFragmentDoc}
 `
 

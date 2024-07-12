@@ -13,6 +13,7 @@ interface WarningDialogProps extends Omit<DialogProps, 'actions'> {
   mode?: keyof typeof WarningDialogMode
   continueText: string
   forceOpen?: boolean
+  disableOnContinue?: boolean
 }
 
 export interface WarningDialogRef extends DialogRef {}
@@ -24,6 +25,7 @@ export const WarningDialog = forwardRef<DialogRef, WarningDialogProps>(
       continueText,
       mode = WarningDialogMode.danger,
       forceOpen = false,
+      disableOnContinue = false,
       ...props
     }: WarningDialogProps,
     ref,
@@ -41,6 +43,7 @@ export const WarningDialog = forwardRef<DialogRef, WarningDialogProps>(
               {translate('text_6244277fe0975300fe3fb94a')}
             </Button>
             <Button
+              disabled={disableOnContinue}
               data-test="warning-confirm"
               danger={mode === WarningDialogMode.danger}
               onClick={async () => {
