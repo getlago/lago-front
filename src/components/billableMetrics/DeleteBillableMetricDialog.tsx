@@ -1,12 +1,12 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useImperativeHandle, useRef } from 'react'
 
 import { DialogRef, Skeleton, Typography } from '~/components/designSystem'
 import { WarningDialog } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   useDeleteBillableMetricMutation,
-  useGetBillableMetricToDeleteQuery,
+  useGetBillableMetricToDeleteLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -39,11 +39,7 @@ export interface DeleteBillableMetricDialogRef {
 export const DeleteBillableMetricDialog = forwardRef<DeleteBillableMetricDialogRef>((_, ref) => {
   const dialogRef = useRef<DialogRef>(null)
   const { translate } = useInternationalization()
-  const [billableMetricId, setBillableMetricId] = useState<string | undefined>(undefined)
-  const { data, loading } = useGetBillableMetricToDeleteQuery({
-    variables: { id: billableMetricId || '' },
-    skip: !billableMetricId,
-  })
+  const [getBillableMetricToDelete, { data, loading }] = useGetBillableMetricToDeleteLazyQuery()
 
   const billableMetric = data?.billableMetric
 
@@ -63,20 +59,12 @@ export const DeleteBillableMetricDialog = forwardRef<DeleteBillableMetricDialogR
         })
       }
     },
-    update(cache, { data: updateData }) {
-      if (!updateData?.destroyBillableMetric) return
-      const cacheId = cache.identify({
-        id: updateData?.destroyBillableMetric.id,
-        __typename: 'BillableMetric',
-      })
-
-      cache.evict({ id: cacheId })
-    },
+    refetchQueries: ['billableMetrics'],
   })
 
   useImperativeHandle(ref, () => ({
-    openDialog: (infos) => {
-      setBillableMetricId(infos)
+    openDialog: (billableMetricId) => {
+      getBillableMetricToDelete({ variables: { id: billableMetricId } })
       dialogRef.current?.openDialog()
     },
     closeDialog: () => dialogRef.current?.closeDialog(),
