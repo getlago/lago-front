@@ -42,8 +42,8 @@ import {
 import { AddOnCodeSnippet } from '../components/addOns/AddOnCodeSnippet'
 
 gql`
-  query getTaxesForAddOnForm($limit: Int, $page: Int) {
-    taxes(limit: $limit, page: $page) {
+  query getTaxesForAddOnForm($limit: Int, $page: Int, $searchTerm: String) {
+    taxes(limit: $limit, page: $page, searchTerm: $searchTerm) {
       metadata {
         currentPage
         totalPages
