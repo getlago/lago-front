@@ -22,7 +22,7 @@ import {
 } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { addToast } from '~/core/apolloClient'
-import { buildNetsuiteCreditNoteUrl } from '~/core/constants/externalUrls'
+import { buildNetsuiteCreditNoteUrl, buildXeroCreditNoteUrl } from '~/core/constants/externalUrls'
 import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
 import {
   composeChargeFilterDisplayName,
@@ -86,6 +86,11 @@ gql`
         deletedAt
         applicableTimezone
         netsuiteCustomer {
+          id
+          integrationId
+        }
+        xeroCustomer {
+          id
           integrationId
         }
       }
@@ -266,7 +271,9 @@ const CreditNoteDetails = () => {
   })
   const { data: integrationsData } = useIntegrationsListForCreditNoteDetailsQuery({
     variables: { limit: 1000 },
-    skip: !data?.creditNote?.customer?.netsuiteCustomer?.integrationId,
+    skip:
+      !data?.creditNote?.customer?.netsuiteCustomer?.integrationId &&
+      !data?.creditNote?.customer?.xeroCustomer?.integrationId,
   })
 
   const allNetsuiteIntegrations = integrationsData?.integrations?.collection.filter(
@@ -375,20 +382,26 @@ const CreditNoteDetails = () => {
                   {translate('text_637655cb50f04bf1c8379cee')}
                 </Button>
 
-                {!!data?.creditNote?.integrationSyncable && (
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    disabled={loadingSyncIntegrationCreditNote}
-                    onClick={async () => {
-                      await syncIntegrationCreditNote()
+                {/* Note: check on xeroCustomer?.integrationId should be removed when the CN sync is fixed */}
+                {!!data?.creditNote?.integrationSyncable &&
+                  !data?.creditNote?.customer?.xeroCustomer?.integrationId && (
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      disabled={loadingSyncIntegrationCreditNote}
+                      onClick={async () => {
+                        await syncIntegrationCreditNote()
 
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_665d742ee9853200e3a6be7f')}
-                  </Button>
-                )}
+                        closePopper()
+                      }}
+                    >
+                      {translate(
+                        !!data.creditNote.customer.netsuiteCustomer
+                          ? 'text_665d742ee9853200e3a6be7f'
+                          : 'text_66911d4b4b3c3e005c62ab49',
+                      )}
+                    </Button>
+                  )}
               </MenuPopper>
             )}
           </Popper>
@@ -886,33 +899,56 @@ const CreditNoteDetails = () => {
               )}
             </TableSection>
 
-            {connectedNetsuiteIntegration && creditNote?.externalIntegrationId && (
-              <Stack marginTop={8} gap={6}>
-                <SectionHeader variant="subhead">
-                  {translate('text_6650b36fc702a4014c878996')}
-                </SectionHeader>
+            {(connectedNetsuiteIntegration ||
+              data?.creditNote?.customer?.xeroCustomer?.integrationId) &&
+              creditNote?.externalIntegrationId && (
+                <Stack marginTop={8} gap={6}>
+                  <SectionHeader variant="subhead">
+                    {translate('text_6650b36fc702a4014c878996')}
+                  </SectionHeader>
 
-                <div>
-                  <InfoLine>
-                    <Typography variant="caption" color="grey600" noWrap>
-                      {translate('text_6684044e95fa220048a145a7')}
-                    </Typography>
-                    <InlineLink
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      to={buildNetsuiteCreditNoteUrl(
-                        connectedNetsuiteIntegration?.accountId,
-                        creditNote?.externalIntegrationId,
-                      )}
-                    >
-                      <Typography variant="body" color="info600">
-                        {creditNote?.externalIntegrationId} <Icon name="outside" />
-                      </Typography>
-                    </InlineLink>
-                  </InfoLine>
-                </div>
-              </Stack>
-            )}
+                  {!!connectedNetsuiteIntegration && (
+                    <div>
+                      <InfoLine>
+                        <Typography variant="caption" color="grey600" noWrap>
+                          {translate('text_6684044e95fa220048a145a7')}
+                        </Typography>
+                        <InlineLink
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          to={buildNetsuiteCreditNoteUrl(
+                            connectedNetsuiteIntegration?.accountId,
+                            creditNote?.externalIntegrationId,
+                          )}
+                        >
+                          <Typography variant="body" color="info600">
+                            {creditNote?.externalIntegrationId} <Icon name="outside" />
+                          </Typography>
+                        </InlineLink>
+                      </InfoLine>
+                    </div>
+                  )}
+
+                  {!!data?.creditNote?.customer?.xeroCustomer?.integrationId && (
+                    <div>
+                      <InfoLine>
+                        <Typography variant="caption" color="grey600" noWrap>
+                          {translate('text_66911ce41415f40090d053ce')}
+                        </Typography>
+                        <InlineLink
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          to={buildXeroCreditNoteUrl(creditNote?.externalIntegrationId)}
+                        >
+                          <Typography variant="body" color="info600">
+                            {creditNote?.externalIntegrationId} <Icon name="outside" />
+                          </Typography>
+                        </InlineLink>
+                      </InfoLine>
+                    </div>
+                  )}
+                </Stack>
+              )}
           </>
         </Content>
       )}

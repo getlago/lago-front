@@ -102,6 +102,10 @@ gql`
         integrationId
         externalCustomerId
       }
+      xeroCustomer {
+        id
+        integrationId
+      }
     }
     ...InvoiceDetailsForInvoiceOverview
     ...InvoiceForCreditNotesTable
@@ -249,7 +253,9 @@ const CustomerInvoiceDetails = () => {
 
   const { data: integrationsData } = useIntegrationsListForCustomerInvoiceDetailsQuery({
     variables: { limit: 1000 },
-    skip: !data?.invoice?.customer?.netsuiteCustomer?.integrationId,
+    skip:
+      !data?.invoice?.customer?.netsuiteCustomer?.integrationId &&
+      !data?.invoice?.customer?.xeroCustomer?.integrationId,
   })
 
   const allNetsuiteIntegrations = integrationsData?.integrations?.collection.filter(
@@ -513,7 +519,11 @@ const CustomerInvoiceDetails = () => {
                       closePopper()
                     }}
                   >
-                    {translate('text_6650b36fc702a4014c8788fd')}
+                    {translate(
+                      data.invoice.customer.netsuiteCustomer
+                        ? 'text_6650b36fc702a4014c8788fd'
+                        : 'text_6690ef918777230093114d90',
+                    )}
                   </Button>
                 )}
                 {status === InvoiceStatusTypeEnum.Finalized &&
