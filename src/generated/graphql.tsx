@@ -17440,8 +17440,8 @@ export type CouponsLazyQueryHookResult = ReturnType<typeof useCouponsLazyQuery>;
 export type CouponsSuspenseQueryHookResult = ReturnType<typeof useCouponsSuspenseQuery>;
 export type CouponsQueryResult = Apollo.QueryResult<CouponsQuery, CouponsQueryVariables>;
 export const GetTaxesForAddOnFormDocument = gql`
-    query getTaxesForAddOnForm($limit: Int, $page: Int) {
-  taxes(limit: $limit, page: $page) {
+    query getTaxesForAddOnForm($limit: Int, $page: Int, $searchTerm: String) {
+  taxes(limit: $limit, page: $page, searchTerm: $searchTerm) {
     metadata {
       currentPage
       totalPages
@@ -17470,6 +17470,7 @@ export const GetTaxesForAddOnFormDocument = gql`
  *   variables: {
  *      limit: // value for 'limit'
  *      page: // value for 'page'
+ *      searchTerm: // value for 'searchTerm'
  *   },
  * });
  */
