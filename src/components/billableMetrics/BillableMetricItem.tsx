@@ -39,7 +39,6 @@ gql`
     name
     code
     createdAt
-    ...DeleteBillableMetricDialog
   }
 
   ${DeleteBillableMetricDialogFragmentDoc}
@@ -120,7 +119,7 @@ export const BillableMetricItem = memo(
                     variant="quaternary"
                     align="left"
                     onClick={() => {
-                      deleteDialogRef.current?.openDialog(billableMetric)
+                      deleteDialogRef.current?.openDialog(billableMetric.id)
                       closePopper()
                     }}
                   >

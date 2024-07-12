@@ -5287,9 +5287,16 @@ export type GetGoogleAuthUrlQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetGoogleAuthUrlQuery = { __typename?: 'Query', googleAuthUrl: { __typename?: 'AuthUrl', url: string } };
 
-export type BillableMetricItemFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number };
+export type BillableMetricItemFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any };
 
 export type DeleteBillableMetricDialogFragment = { __typename?: 'BillableMetric', id: string, name: string, draftInvoicesCount: number, activeSubscriptionsCount: number };
+
+export type GetBillableMetricToDeleteQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetBillableMetricToDeleteQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, draftInvoicesCount: number, activeSubscriptionsCount: number } | null };
 
 export type DeleteBillableMetricMutationVariables = Exact<{
   input: DestroyBillableMetricInput;
@@ -6830,7 +6837,7 @@ export type UpdateBillableMetricMutationVariables = Exact<{
 }>;
 
 
-export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number } | null };
+export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any } | null };
 
 export type EditCouponFragment = { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, appliedCouponsCount: number, code?: string | null, couponType: CouponTypeEnum, description?: string | null, expiration: CouponExpiration, expirationAt?: any | null, frequency: CouponFrequency, frequencyDuration?: number | null, limitedBillableMetrics: boolean, limitedPlans: boolean, name: string, percentageRate?: number | null, reusable: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null };
 
@@ -6989,7 +6996,7 @@ export type BillableMetricsQueryVariables = Exact<{
 }>;
 
 
-export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any, draftInvoicesCount: number, activeSubscriptionsCount: number }> } };
+export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any }> } };
 
 export type GetCouponForDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -7010,6 +7017,7 @@ export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'Coup
 export type GetTaxesForAddOnFormQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -7607,6 +7615,14 @@ export const DeleteAddOnFragmentDoc = gql`
   name
 }
     `;
+export const BillableMetricItemFragmentDoc = gql`
+    fragment BillableMetricItem on BillableMetric {
+  id
+  name
+  code
+  createdAt
+}
+    `;
 export const DeleteBillableMetricDialogFragmentDoc = gql`
     fragment DeleteBillableMetricDialog on BillableMetric {
   id
@@ -7615,15 +7631,6 @@ export const DeleteBillableMetricDialogFragmentDoc = gql`
   activeSubscriptionsCount
 }
     `;
-export const BillableMetricItemFragmentDoc = gql`
-    fragment BillableMetricItem on BillableMetric {
-  id
-  name
-  code
-  createdAt
-  ...DeleteBillableMetricDialog
-}
-    ${DeleteBillableMetricDialogFragmentDoc}`;
 export const CouponCaptionFragmentDoc = gql`
     fragment CouponCaption on Coupon {
   id
@@ -10310,6 +10317,46 @@ export type GetGoogleAuthUrlQueryHookResult = ReturnType<typeof useGetGoogleAuth
 export type GetGoogleAuthUrlLazyQueryHookResult = ReturnType<typeof useGetGoogleAuthUrlLazyQuery>;
 export type GetGoogleAuthUrlSuspenseQueryHookResult = ReturnType<typeof useGetGoogleAuthUrlSuspenseQuery>;
 export type GetGoogleAuthUrlQueryResult = Apollo.QueryResult<GetGoogleAuthUrlQuery, GetGoogleAuthUrlQueryVariables>;
+export const GetBillableMetricToDeleteDocument = gql`
+    query getBillableMetricToDelete($id: ID!) {
+  billableMetric(id: $id) {
+    ...DeleteBillableMetricDialog
+  }
+}
+    ${DeleteBillableMetricDialogFragmentDoc}`;
+
+/**
+ * __useGetBillableMetricToDeleteQuery__
+ *
+ * To run a query within a React component, call `useGetBillableMetricToDeleteQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBillableMetricToDeleteQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBillableMetricToDeleteQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetBillableMetricToDeleteQuery(baseOptions: Apollo.QueryHookOptions<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>(GetBillableMetricToDeleteDocument, options);
+      }
+export function useGetBillableMetricToDeleteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>(GetBillableMetricToDeleteDocument, options);
+        }
+export function useGetBillableMetricToDeleteSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>(GetBillableMetricToDeleteDocument, options);
+        }
+export type GetBillableMetricToDeleteQueryHookResult = ReturnType<typeof useGetBillableMetricToDeleteQuery>;
+export type GetBillableMetricToDeleteLazyQueryHookResult = ReturnType<typeof useGetBillableMetricToDeleteLazyQuery>;
+export type GetBillableMetricToDeleteSuspenseQueryHookResult = ReturnType<typeof useGetBillableMetricToDeleteSuspenseQuery>;
+export type GetBillableMetricToDeleteQueryResult = Apollo.QueryResult<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>;
 export const DeleteBillableMetricDocument = gql`
     mutation deleteBillableMetric($input: DestroyBillableMetricInput!) {
   destroyBillableMetric(input: $input) {
@@ -16935,11 +16982,9 @@ export const UpdateBillableMetricDocument = gql`
     mutation updateBillableMetric($input: UpdateBillableMetricInput!) {
   updateBillableMetric(input: $input) {
     ...BillableMetricItem
-    ...DeleteBillableMetricDialog
   }
 }
-    ${BillableMetricItemFragmentDoc}
-${DeleteBillableMetricDialogFragmentDoc}`;
+    ${BillableMetricItemFragmentDoc}`;
 export type UpdateBillableMetricMutationFn = Apollo.MutationFunction<UpdateBillableMetricMutation, UpdateBillableMetricMutationVariables>;
 
 /**
