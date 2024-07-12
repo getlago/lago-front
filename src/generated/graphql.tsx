@@ -6536,6 +6536,8 @@ export type XeroIntegrationItemsListDefaultFragment = { __typename?: 'Collection
 
 export type XeroIntegrationMapItemDialogFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
 
+export type XeroIntegrationMapAccountItemForDialogFragment = { __typename?: 'Account', externalAccountCode: string, externalId: string, externalName?: string | null };
+
 export type XeroIntegrationMapItemDialogCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
 export type XeroIntegrationMapItemDialogCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
@@ -6551,19 +6553,19 @@ export type GetXeroIntegrationItemsQueryVariables = Exact<{
 
 export type GetXeroIntegrationItemsQuery = { __typename?: 'Query', integrationItems: { __typename?: 'IntegrationItemCollection', collection: Array<{ __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
+export type GetXeroIntegrationAccountsQueryVariables = Exact<{
+  integrationId: Scalars['ID']['input'];
+}>;
+
+
+export type GetXeroIntegrationAccountsQuery = { __typename?: 'Query', integrationAccounts?: { __typename?: 'AccountCollection', collection: Array<{ __typename?: 'Account', externalAccountCode: string, externalId: string, externalName?: string | null }> } | null };
+
 export type TriggerXeroIntegrationItemsRefetchMutationVariables = Exact<{
   input: FetchIntegrationItemsInput;
 }>;
 
 
 export type TriggerXeroIntegrationItemsRefetchMutation = { __typename?: 'Mutation', fetchIntegrationItems: { __typename?: 'IntegrationItemCollection', collection: Array<{ __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum }> } };
-
-export type TriggerXeroIntegrationTaxItemsRefetchMutationVariables = Exact<{
-  input: FetchIntegrationTaxItemsInput;
-}>;
-
-
-export type TriggerXeroIntegrationTaxItemsRefetchMutation = { __typename?: 'Mutation', fetchIntegrationTaxItems: { __typename?: 'IntegrationItemCollection', collection: Array<{ __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum }> } };
 
 export type CreateXeroIntegrationCollectionMappingMutationVariables = Exact<{
   input: CreateIntegrationCollectionMappingInput;
@@ -8492,6 +8494,13 @@ export const XeroIntegrationMapItemDialogFragmentDoc = gql`
   externalName
   externalAccountCode
   itemType
+}
+    `;
+export const XeroIntegrationMapAccountItemForDialogFragmentDoc = gql`
+    fragment XeroIntegrationMapAccountItemForDialog on Account {
+  externalAccountCode
+  externalId
+  externalName
 }
     `;
 export const XeroIntegrationMapItemDialogCollectionMappingItemFragmentDoc = gql`
@@ -15733,6 +15742,48 @@ export type GetXeroIntegrationItemsQueryHookResult = ReturnType<typeof useGetXer
 export type GetXeroIntegrationItemsLazyQueryHookResult = ReturnType<typeof useGetXeroIntegrationItemsLazyQuery>;
 export type GetXeroIntegrationItemsSuspenseQueryHookResult = ReturnType<typeof useGetXeroIntegrationItemsSuspenseQuery>;
 export type GetXeroIntegrationItemsQueryResult = Apollo.QueryResult<GetXeroIntegrationItemsQuery, GetXeroIntegrationItemsQueryVariables>;
+export const GetXeroIntegrationAccountsDocument = gql`
+    query getXeroIntegrationAccounts($integrationId: ID!) {
+  integrationAccounts(integrationId: $integrationId) {
+    collection {
+      ...XeroIntegrationMapAccountItemForDialog
+    }
+  }
+}
+    ${XeroIntegrationMapAccountItemForDialogFragmentDoc}`;
+
+/**
+ * __useGetXeroIntegrationAccountsQuery__
+ *
+ * To run a query within a React component, call `useGetXeroIntegrationAccountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetXeroIntegrationAccountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetXeroIntegrationAccountsQuery({
+ *   variables: {
+ *      integrationId: // value for 'integrationId'
+ *   },
+ * });
+ */
+export function useGetXeroIntegrationAccountsQuery(baseOptions: Apollo.QueryHookOptions<GetXeroIntegrationAccountsQuery, GetXeroIntegrationAccountsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetXeroIntegrationAccountsQuery, GetXeroIntegrationAccountsQueryVariables>(GetXeroIntegrationAccountsDocument, options);
+      }
+export function useGetXeroIntegrationAccountsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetXeroIntegrationAccountsQuery, GetXeroIntegrationAccountsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetXeroIntegrationAccountsQuery, GetXeroIntegrationAccountsQueryVariables>(GetXeroIntegrationAccountsDocument, options);
+        }
+export function useGetXeroIntegrationAccountsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetXeroIntegrationAccountsQuery, GetXeroIntegrationAccountsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetXeroIntegrationAccountsQuery, GetXeroIntegrationAccountsQueryVariables>(GetXeroIntegrationAccountsDocument, options);
+        }
+export type GetXeroIntegrationAccountsQueryHookResult = ReturnType<typeof useGetXeroIntegrationAccountsQuery>;
+export type GetXeroIntegrationAccountsLazyQueryHookResult = ReturnType<typeof useGetXeroIntegrationAccountsLazyQuery>;
+export type GetXeroIntegrationAccountsSuspenseQueryHookResult = ReturnType<typeof useGetXeroIntegrationAccountsSuspenseQuery>;
+export type GetXeroIntegrationAccountsQueryResult = Apollo.QueryResult<GetXeroIntegrationAccountsQuery, GetXeroIntegrationAccountsQueryVariables>;
 export const TriggerXeroIntegrationItemsRefetchDocument = gql`
     mutation triggerXeroIntegrationItemsRefetch($input: FetchIntegrationItemsInput!) {
   fetchIntegrationItems(input: $input) {
@@ -15768,41 +15819,6 @@ export function useTriggerXeroIntegrationItemsRefetchMutation(baseOptions?: Apol
 export type TriggerXeroIntegrationItemsRefetchMutationHookResult = ReturnType<typeof useTriggerXeroIntegrationItemsRefetchMutation>;
 export type TriggerXeroIntegrationItemsRefetchMutationResult = Apollo.MutationResult<TriggerXeroIntegrationItemsRefetchMutation>;
 export type TriggerXeroIntegrationItemsRefetchMutationOptions = Apollo.BaseMutationOptions<TriggerXeroIntegrationItemsRefetchMutation, TriggerXeroIntegrationItemsRefetchMutationVariables>;
-export const TriggerXeroIntegrationTaxItemsRefetchDocument = gql`
-    mutation triggerXeroIntegrationTaxItemsRefetch($input: FetchIntegrationTaxItemsInput!) {
-  fetchIntegrationTaxItems(input: $input) {
-    collection {
-      ...XeroIntegrationMapItemDialog
-    }
-  }
-}
-    ${XeroIntegrationMapItemDialogFragmentDoc}`;
-export type TriggerXeroIntegrationTaxItemsRefetchMutationFn = Apollo.MutationFunction<TriggerXeroIntegrationTaxItemsRefetchMutation, TriggerXeroIntegrationTaxItemsRefetchMutationVariables>;
-
-/**
- * __useTriggerXeroIntegrationTaxItemsRefetchMutation__
- *
- * To run a mutation, you first call `useTriggerXeroIntegrationTaxItemsRefetchMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useTriggerXeroIntegrationTaxItemsRefetchMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [triggerXeroIntegrationTaxItemsRefetchMutation, { data, loading, error }] = useTriggerXeroIntegrationTaxItemsRefetchMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useTriggerXeroIntegrationTaxItemsRefetchMutation(baseOptions?: Apollo.MutationHookOptions<TriggerXeroIntegrationTaxItemsRefetchMutation, TriggerXeroIntegrationTaxItemsRefetchMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<TriggerXeroIntegrationTaxItemsRefetchMutation, TriggerXeroIntegrationTaxItemsRefetchMutationVariables>(TriggerXeroIntegrationTaxItemsRefetchDocument, options);
-      }
-export type TriggerXeroIntegrationTaxItemsRefetchMutationHookResult = ReturnType<typeof useTriggerXeroIntegrationTaxItemsRefetchMutation>;
-export type TriggerXeroIntegrationTaxItemsRefetchMutationResult = Apollo.MutationResult<TriggerXeroIntegrationTaxItemsRefetchMutation>;
-export type TriggerXeroIntegrationTaxItemsRefetchMutationOptions = Apollo.BaseMutationOptions<TriggerXeroIntegrationTaxItemsRefetchMutation, TriggerXeroIntegrationTaxItemsRefetchMutationVariables>;
 export const CreateXeroIntegrationCollectionMappingDocument = gql`
     mutation createXeroIntegrationCollectionMapping($input: CreateIntegrationCollectionMappingInput!) {
   createIntegrationCollectionMapping(input: $input) {
