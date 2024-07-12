@@ -160,18 +160,18 @@ export const FixedFeeSection = memo(
 
             <RadioGroupField
               name="payInAdvance"
-              label={translate('text_6669b493fae79a0095e6396b')}
-              description={translate('text_6661fc17337de3591e29e3fb')}
+              label={translate('text_6682c52081acea90520743a8')}
+              description={translate('text_6682c52081acea90520743aa')}
               formikProps={formikProps}
               disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
               optionLabelVariant="body"
               options={[
                 {
-                  label: translate('text_6661fc17337de3591e29e3fd'),
+                  label: translate('text_6682c52081acea90520743ac'),
                   value: false,
                 },
                 {
-                  label: translate('text_6661fc17337de3591e29e3ff'),
+                  label: translate('text_6682c52081acea90520743ae'),
                   value: true,
                 },
               ]}

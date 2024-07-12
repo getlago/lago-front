@@ -385,5 +385,8 @@ sources:
       fileName: 👍 [Ready for dev] - Customers - Add/edit shipping address
     - name: 👍 [Ready for dev] - Settings / Customers - Lago x Stripe Link
       id: 6686b31487965d41537c3853
+      fileName: 👍 [Ready for dev] - Settings / Customers - Lago x Stripe Link
+    - name: ⚙️ [WIP] - Invoices - Regroup fee paid in advance in invoice
+      id: 6682c51e8e5f68a1414fd13d
 format: flat
 variants: true

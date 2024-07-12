@@ -119,6 +119,7 @@ const wip___general___fe_environment_infos = require('./wip---general---fe-envir
 const wip___integration___connect_lago_to_netsuite = require('./wip---integration---connect-lago-to-netsuite__base.json');
 const wip___integration___lago_eu_tax_integration = require('./wip---integration---lago-eu-tax-integration__base.json');
 const wip___invoices___dispute_payment_intent = require('./wip---invoices---dispute-payment-intent__base.json');
+const wip___invoices___regroup_fee_paid_in_advance_in_invoice = require('./wip---invoices---regroup-fee-paid-in-advance-in-invoice__base.json');
 const wip___onboarding___log_in_join_lago_via_okta_sso = require('./wip---onboarding---log-in-join-lago-via-okta-sso__base.json');
 const wip___plan___charges_paid_in_advance = require('./wip---plan---charges-paid-in-advance__base.json');
 const wip___settings___connect_lago_to_anrok = require('./wip---settings---connect-lago-to-anrok__base.json');
@@ -471,6 +472,9 @@ module.exports = {
   },
   "project_66141e2ffa16c75cb553dbc1": {
     "base": {...wip___invoices___dispute_payment_intent}
+  },
+  "project_6682c51e8e5f68a1414fd13d": {
+    "base": {...wip___invoices___regroup_fee_paid_in_advance_in_invoice}
   },
   "project_664c7329c182a2ec5807ffec": {
     "base": {...wip___onboarding___log_in_join_lago_via_okta_sso}
