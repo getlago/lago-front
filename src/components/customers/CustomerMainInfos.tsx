@@ -405,9 +405,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
           </div>
         )}
 
-        {(!!customer?.netsuiteCustomer ||
-          integrationsLoading ||
-          !!connectedNetsuiteIntegration?.id) && (
+        {(!!customer?.netsuiteCustomer || !!connectedNetsuiteIntegration?.id) && (
           <div>
             <Typography variant="caption">{translate('text_66423cad72bbad009f2f568f')}</Typography>
             {integrationsLoading ? (
@@ -440,7 +438,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
           </div>
         )}
 
-        {(!!customer?.xeroCustomer || integrationsLoading || !!connectedXeroIntegration?.id) && (
+        {(!!customer?.xeroCustomer || !!connectedXeroIntegration?.id) && (
           <div>
             <Typography variant="caption">{translate('text_66423cad72bbad009f2f568f')}</Typography>
             {integrationsLoading ? (

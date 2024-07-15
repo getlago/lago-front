@@ -39,3 +39,9 @@ export const buildAnrokCustomerUrl = (
 export const buildXeroCustomerUrl = (xeroCustomerId?: string | null) => {
   return `https://go.xero.com/app/contacts/contact/${xeroCustomerId}`
 }
+export const buildXeroInvoiceUrl = (xeroInvoiceId?: string | null) => {
+  return `https://go.xero.com/app/invoicing/view/${xeroInvoiceId}`
+}
+export const buildXeroCreditNoteUrl = (xeroCreditNoteId?: string | null) => {
+  return `https://go.xero.com/AccountsReceivable/ViewCreditNote.aspx?creditNoteID=${xeroCreditNoteId}`
+}
