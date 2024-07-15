@@ -39,6 +39,7 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   CreditNoteCreditStatusEnum,
   CreditNoteItem,
@@ -226,6 +227,7 @@ const CreditNoteDetails = () => {
   const { hasPermissions } = usePermissions()
   const { customerId, invoiceId, creditNoteId } = useParams()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
+  const hasXeroIntegrationFeatureFlag = isFeatureFlagActive(FeatureFlags.XERO_INTEGRATION)
 
   const [syncIntegrationCreditNote, { loading: loadingSyncIntegrationCreditNote }] =
     useSyncIntegrationCreditNoteMutation({
@@ -382,9 +384,10 @@ const CreditNoteDetails = () => {
                   {translate('text_637655cb50f04bf1c8379cee')}
                 </Button>
 
-                {/* Note: check on xeroCustomer?.integrationId should be removed when the CN sync is fixed */}
                 {!!data?.creditNote?.integrationSyncable &&
-                  !data?.creditNote?.customer?.xeroCustomer?.integrationId && (
+                  (!!data?.creditNote?.customer?.netsuiteCustomer?.integrationId ||
+                    (!!data?.creditNote?.customer?.xeroCustomer?.integrationId &&
+                      hasXeroIntegrationFeatureFlag)) && (
                     <Button
                       variant="quaternary"
                       align="left"
