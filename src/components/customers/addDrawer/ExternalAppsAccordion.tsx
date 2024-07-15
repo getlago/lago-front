@@ -855,21 +855,20 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                         connectionName: selectedNetsuiteIntegrationSettings?.name,
                       })}
                       onChange={(_, checked) => {
-                        formikProps.setFieldValue(
-                          `${netsuiteIntegrationpointerInIntegrationCustomer}.syncWithProvider`,
-                          checked,
-                        )
+                        const newNetsuiteIntegrationObject = {
+                          ...selectedNetsuiteIntegration,
+                          syncWithProvider: checked,
+                        }
 
                         if (!isEdition && checked) {
-                          formikProps.setFieldValue(
-                            `${netsuiteIntegrationpointerInIntegrationCustomer}.externalCustomerId`,
-                            null,
-                          )
-                          formikProps.setFieldValue(
-                            `${netsuiteIntegrationpointerInIntegrationCustomer}.subsidiaryId`,
-                            null,
-                          )
+                          newNetsuiteIntegrationObject.externalCustomerId = ''
+                          newNetsuiteIntegrationObject.subsidiaryId = ''
                         }
+
+                        formikProps.setFieldValue(
+                          `${netsuiteIntegrationpointerInIntegrationCustomer}`,
+                          newNetsuiteIntegrationObject,
+                        )
                       }}
                     />
 
@@ -914,21 +913,19 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                         connectionName: selectedXeroIntegrationSettings?.name,
                       })}
                       onChange={(_, checked) => {
-                        formikProps.setFieldValue(
-                          `${xeroIntegrationpointerInIntegrationCustomer}.syncWithProvider`,
-                          checked,
-                        )
+                        const newXeroIntegrationObject = {
+                          ...selectedXeroIntegration,
+                          syncWithProvider: checked,
+                        }
 
                         if (!isEdition && checked) {
-                          formikProps.setFieldValue(
-                            `${xeroIntegrationpointerInIntegrationCustomer}.externalCustomerId`,
-                            null,
-                          )
-                          formikProps.setFieldValue(
-                            `${xeroIntegrationpointerInIntegrationCustomer}.subsidiaryId`,
-                            null,
-                          )
+                          newXeroIntegrationObject.externalCustomerId = ''
                         }
+
+                        formikProps.setFieldValue(
+                          `${xeroIntegrationpointerInIntegrationCustomer}`,
+                          newXeroIntegrationObject,
+                        )
                       }}
                     />
                   </>
@@ -1050,17 +1047,19 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                         connectionName: selectedAnrokIntegrationSettings?.name,
                       })}
                       onChange={(_, checked) => {
-                        formikProps.setFieldValue(
-                          `${anrokIntegrationpointerInIntegration}.syncWithProvider`,
-                          checked,
-                        )
+                        const newAnrokIntegrationObject = {
+                          ...selectedAnrokIntegration,
+                          syncWithProvider: checked,
+                        }
 
                         if (!isEdition && checked) {
-                          formikProps.setFieldValue(
-                            `${anrokIntegrationpointerInIntegration}.externalCustomerId`,
-                            null,
-                          )
+                          newAnrokIntegrationObject.externalCustomerId = ''
                         }
+
+                        formikProps.setFieldValue(
+                          `${anrokIntegrationpointerInIntegration}`,
+                          newAnrokIntegrationObject,
+                        )
                       }}
                     />
                   </>
