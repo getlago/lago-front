@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client'
 import { AccordionDetails, AccordionSummary, Accordion as MuiAccordion } from '@mui/material'
 import { TransitionProps } from '@mui/material/transitions'
-import { useState } from 'react'
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import styled from 'styled-components'
 
 import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
@@ -19,6 +18,7 @@ gql`
     invoiceable
     minAmountCents
     payInAdvance
+    regroupPaidFees
   }
 `
 
