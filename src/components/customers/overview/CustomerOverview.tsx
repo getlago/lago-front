@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Skeleton, Stack } from '@mui/material'
-import { FC } from 'react'
+import { FC, useEffect } from 'react'
 
 import { CustomerSubscriptionsList } from '~/components/customers/subscriptions/CustomerSubscriptionsList'
 import { Alert, Button, Typography } from '~/components/designSystem'
@@ -10,8 +10,8 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
   TimezoneEnum,
-  useGetCustomerGrossRevenuesQuery,
-  useGetCustomerOverdueBalancesQuery,
+  useGetCustomerGrossRevenuesLazyQuery,
+  useGetCustomerOverdueBalancesLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { SectionHeader } from '~/styles/customer'
@@ -32,8 +32,14 @@ gql`
     $externalCustomerId: String!
     $currency: CurrencyEnum
     $months: Int!
+    $expireCache: Boolean
   ) {
-    overdueBalances(externalCustomerId: $externalCustomerId, currency: $currency, months: $months) {
+    overdueBalances(
+      externalCustomerId: $externalCustomerId
+      currency: $currency
+      months: $months
+      expireCache: $expireCache
+    ) {
       collection {
         amountCents
         currency
@@ -55,29 +61,30 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
   userCurrency = CurrencyEnum.Usd,
 }) => {
   const { translate } = useInternationalization()
-  const {
-    data: grossData,
-    error: grossError,
-    loading: grossLoading,
-  } = useGetCustomerGrossRevenuesQuery({
-    variables: {
-      externalCustomerId: externalCustomerId || '',
-      currency: userCurrency,
-    },
-    skip: !externalCustomerId,
-  })
-  const {
-    data: overdueData,
-    error: overdueError,
-    loading: overdueLoading,
-  } = useGetCustomerOverdueBalancesQuery({
-    variables: {
-      externalCustomerId: externalCustomerId || '',
-      currency: userCurrency,
-      months: 12,
-    },
-    skip: !externalCustomerId,
-  })
+  const [getGrossRevenues, { data: grossData, error: grossError, loading: grossLoading }] =
+    useGetCustomerGrossRevenuesLazyQuery({
+      variables: {
+        externalCustomerId: externalCustomerId || '',
+        currency: userCurrency,
+      },
+    })
+  const [getOverdueBalances, { data: overdueData, error: overdueError, loading: overdueLoading }] =
+    useGetCustomerOverdueBalancesLazyQuery({
+      variables: {
+        externalCustomerId: externalCustomerId || '',
+        currency: userCurrency,
+        months: 12,
+        expireCache: true,
+      },
+    })
+
+  useEffect(() => {
+    if (!externalCustomerId) return
+
+    getGrossRevenues()
+    getOverdueBalances()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalCustomerId])
 
   const hasAnyError = grossError || overdueError
 
@@ -119,7 +126,10 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
             <Button
               data-test="add-subscription"
               variant="quaternary"
-              onClick={() => location.reload()}
+              onClick={() => {
+                getGrossRevenues()
+                getOverdueBalances()
+              }}
             >
               {translate('text_6670a7222702d70114cc7953')}
             </Button>

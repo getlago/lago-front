@@ -4073,6 +4073,7 @@ export type QueryMrrsArgs = {
 
 export type QueryOverdueBalancesArgs = {
   currency?: InputMaybe<CurrencyEnum>;
+  expireCache?: InputMaybe<Scalars['Boolean']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
   months?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -5614,6 +5615,7 @@ export type GetCustomerOverdueBalancesQueryVariables = Exact<{
   externalCustomerId: Scalars['String']['input'];
   currency?: InputMaybe<CurrencyEnum>;
   months: Scalars['Int']['input'];
+  expireCache?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -11928,11 +11930,12 @@ export type GetCustomerGrossRevenuesLazyQueryHookResult = ReturnType<typeof useG
 export type GetCustomerGrossRevenuesSuspenseQueryHookResult = ReturnType<typeof useGetCustomerGrossRevenuesSuspenseQuery>;
 export type GetCustomerGrossRevenuesQueryResult = Apollo.QueryResult<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>;
 export const GetCustomerOverdueBalancesDocument = gql`
-    query getCustomerOverdueBalances($externalCustomerId: String!, $currency: CurrencyEnum, $months: Int!) {
+    query getCustomerOverdueBalances($externalCustomerId: String!, $currency: CurrencyEnum, $months: Int!, $expireCache: Boolean) {
   overdueBalances(
     externalCustomerId: $externalCustomerId
     currency: $currency
     months: $months
+    expireCache: $expireCache
   ) {
     collection {
       amountCents
@@ -11958,6 +11961,7 @@ export const GetCustomerOverdueBalancesDocument = gql`
  *      externalCustomerId: // value for 'externalCustomerId'
  *      currency: // value for 'currency'
  *      months: // value for 'months'
+ *      expireCache: // value for 'expireCache'
  *   },
  * });
  */
