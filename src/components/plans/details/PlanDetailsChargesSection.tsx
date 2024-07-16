@@ -9,6 +9,7 @@ import {
   CurrencyEnum,
   EditPlanFragment,
   PlanInterval,
+  RegroupPaidFeesEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
@@ -132,10 +133,14 @@ const PlanDetailsChargesSection = ({
                           : translate('text_65251f4cd55aeb004e5aa5ef'),
                       },
                       {
-                        label: translate('text_646e2d0cc536351b62ba6f16'),
-                        value: charge.invoiceable
-                          ? translate('text_65251f46339c650084ce0d57')
-                          : translate('text_65251f4cd55aeb004e5aa5ef'),
+                        label: translate('text_6682c52081acea90520744ca'),
+                        value: !charge.payInAdvance
+                          ? translate('text_66968fba80f8f89a8aefdec0')
+                          : charge.invoiceable
+                            ? translate('text_66968fba80f8f89a8aefdebf')
+                            : charge.regroupPaidFees === RegroupPaidFeesEnum.Invoice
+                              ? translate('text_66968fba80f8f89a8aefdec0')
+                              : translate('text_6682c52081acea9052074686'),
                       },
                       {
                         label: translate('text_645bb193927b375079d28a8f'),

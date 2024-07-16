@@ -331,6 +331,8 @@
   "text_6682c52081acea9052074502": "Invoice for all fees",
   "text_6682c52081acea90520745c4": "Option indicating when this charge fee is invoiced.",
   "text_6682c52081acea9052074686": "No invoice",
+  "text_66968fba80f8f89a8aefdebf": "Upon event reception",
+  "text_66968fba80f8f89a8aefdec0": "Regroup fees in end of period invoice",
   "text_66141e30699a0631f0b2ec7f": "There is no invoices with dispute lost",
   "text_66141e30699a0631f0b2ec87": "Disputed lost invoices occur when a customer chooses not to pay, requests a dispute, and demands a chargeback.",
   "text_66141e30699a0631f0b2ec59": "Mark this invoice as disputed",

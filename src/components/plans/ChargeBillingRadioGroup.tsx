@@ -3,31 +3,55 @@ import styled from 'styled-components'
 
 import { Button, Icon, Typography } from '~/components/designSystem'
 import { Radio } from '~/components/form'
+import { LocalChargeInput } from '~/components/plans/types'
 import { RegroupPaidFeesEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { theme } from '~/styles'
 
 interface ChargeBillingRadioGroupProps {
+  localCharge: LocalChargeInput
   openPremiumDialog: VoidFunction
   handleUpdate: ({
     invoiceable,
     regroupPaidFees,
   }: {
     invoiceable: boolean
-    regroupPaidFees: RegroupPaidFeesEnum | undefined
+    regroupPaidFees: RegroupPaidFeesEnum | null
   }) => void
 }
 
 type ChargeBillingRadioValue = 'invoiceable' | 'regroupPaidFees' | 'none'
+
 export const ChargeBillingRadioGroup: FC<ChargeBillingRadioGroupProps> = ({
+  localCharge,
   openPremiumDialog,
   handleUpdate,
 }) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
 
-  const [radioValue, setRadioValue] = useState<ChargeBillingRadioValue>('invoiceable')
+  const getInitialValue = (): ChargeBillingRadioValue | undefined => {
+    if (localCharge.payInAdvance) {
+      if (localCharge.regroupPaidFees === RegroupPaidFeesEnum.Invoice) {
+        return 'regroupPaidFees'
+      }
+
+      if (localCharge.invoiceable) {
+        return 'invoiceable'
+      }
+
+      return 'none'
+    }
+  }
+
+  const [radioValue, setRadioValue] = useState<ChargeBillingRadioValue | undefined>(
+    getInitialValue(),
+  )
+
+  if (!radioValue) {
+    return null
+  }
 
   return (
     <RadioGroup>
@@ -44,7 +68,7 @@ export const ChargeBillingRadioGroup: FC<ChargeBillingRadioGroupProps> = ({
         checked={radioValue === 'invoiceable'}
         onChange={(value) => {
           setRadioValue(value as ChargeBillingRadioValue)
-          handleUpdate({ invoiceable: true, regroupPaidFees: undefined })
+          handleUpdate({ invoiceable: true, regroupPaidFees: null })
         }}
         labelVariant="body"
       />
@@ -80,7 +104,7 @@ export const ChargeBillingRadioGroup: FC<ChargeBillingRadioGroupProps> = ({
         checked={radioValue === 'none'}
         onChange={(value) => {
           setRadioValue(value as ChargeBillingRadioValue)
-          handleUpdate({ invoiceable: false, regroupPaidFees: undefined })
+          handleUpdate({ invoiceable: false, regroupPaidFees: null })
         }}
         labelVariant="body"
         disabled={!isPremium}
