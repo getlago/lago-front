@@ -1,13 +1,12 @@
 import { gql } from '@apollo/client'
 import { AccordionDetails, AccordionSummary, Accordion as MuiAccordion } from '@mui/material'
 import { TransitionProps } from '@mui/material/transitions'
-import { useState } from 'react'
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import styled from 'styled-components'
 
 import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum } from '~/generated/graphql'
+import { CurrencyEnum, RegroupPaidFeesEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NAV_HEIGHT, theme } from '~/styles'
 
@@ -19,6 +18,7 @@ gql`
     invoiceable
     minAmountCents
     payInAdvance
+    regroupPaidFees
   }
 `
 
@@ -42,6 +42,22 @@ export const ChargeOptionsAccordion = ({
   const [isOpen, setIsOpen] = useState(initiallyOpen)
   const { translate } = useInternationalization()
 
+  const getInvoiceableChargeLabel = (localCharge: LocalChargeInput) => {
+    if (localCharge.payInAdvance) {
+      if (localCharge.regroupPaidFees === RegroupPaidFeesEnum.Invoice) {
+        return translate('text_6682c52081acea9052074502')
+      }
+
+      if (localCharge.invoiceable) {
+        return translate('text_6682c52081acea90520744bc')
+      }
+
+      return translate('text_6682c52081acea9052074686')
+    }
+
+    return translate('text_6682c52081acea9052074502')
+  }
+
   return (
     <Container id={id}>
       <StyledChargeOptionsAccordion
@@ -63,6 +79,7 @@ export const ChargeOptionsAccordion = ({
                     : translate('text_646e2d0cc536351b62ba6f0c')
                 }
               />
+              <Chip label={getInvoiceableChargeLabel(charge)} />
               <Chip
                 label={
                   charge.prorated
@@ -70,13 +87,7 @@ export const ChargeOptionsAccordion = ({
                     : translate('text_649c49bcebd91c0082d84446')
                 }
               />
-              <Chip
-                label={
-                  charge.invoiceable
-                    ? translate('text_646e2d0cc536351b62ba6f16')
-                    : translate('text_646e2d0cc536351b62ba6fcb')
-                }
-              />
+
               <Chip
                 label={
                   !!Number(charge.minAmountCents)

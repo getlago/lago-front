@@ -14,6 +14,7 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { AmountInput, ComboBox, RadioGroupField, Switch } from '~/components/form'
+import { ChargeBillingRadioGroup } from '~/components/plans/ChargeBillingRadioGroup'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
 import {
   ALL_FILTER_VALUES,
@@ -75,6 +76,7 @@ gql`
     payInAdvance
     prorated
     invoiceDisplayName
+    regroupPaidFees
     properties {
       ...GraduatedCharge
       ...GraduatedPercentageCharge
@@ -770,23 +772,39 @@ export const ChargeAccordion = memo(
           <ChargeOptionsAccordion charge={localCharge} currency={currency}>
             <RadioGroupField
               name={`charges.${index}.payInAdvance`}
-              label={translate('text_6669b493fae79a0095e6396b')}
+              label={translate('text_6682c52081acea90520743a8')}
               description={chargePayInAdvanceDescription}
               formikProps={formikProps}
               disabled={isInSubscriptionForm || disabled}
               optionLabelVariant="body"
               options={[
                 {
-                  label: translate('text_6661fc17337de3591e29e3fd'),
+                  label: translate('text_6682c52081acea90520743ac'),
                   value: false,
                 },
                 {
-                  label: translate('text_6669b493fae79a0095e63988'),
+                  label: translate('text_6682c52081acea90520744c8'),
                   value: true,
                   disabled: isPayInAdvanceOptionDisabled,
                 },
               ]}
             />
+
+            {localCharge.payInAdvance && (
+              <ChargeBillingRadioGroup
+                localCharge={localCharge}
+                openPremiumDialog={() => premiumWarningDialogRef?.current?.openDialog()}
+                handleUpdate={({ regroupPaidFees, invoiceable }) => {
+                  const currentChargeValues: LocalChargeInput = {
+                    ...localCharge,
+                    regroupPaidFees,
+                    invoiceable,
+                  }
+
+                  formikProps.setFieldValue(`charges.${index}`, currentChargeValues)
+                }}
+              />
+            )}
 
             {!!localCharge.billableMetric.recurring && (
               <Switch
@@ -803,25 +821,6 @@ export const ChargeAccordion = memo(
                 checked={!!localCharge.prorated}
                 onChange={(value) => handleUpdate('prorated', Boolean(value))}
               />
-            )}
-            {localCharge.payInAdvance && (
-              <InvoiceableSwitchWrapper>
-                <Switch
-                  name={`charge-${localCharge.id}-invoiceable`}
-                  label={translate('text_646e2d0cc536351b62ba6f25')}
-                  disabled={isInSubscriptionForm || disabled}
-                  subLabel={translate('text_646e2d0cc536351b62ba6f35')}
-                  checked={!!localCharge.invoiceable}
-                  onChange={(value) => {
-                    if (isPremium) {
-                      handleUpdate('invoiceable', value)
-                    } else {
-                      premiumWarningDialogRef?.current?.openDialog()
-                    }
-                  }}
-                />
-                {!isPremium && <Icon name="sparkles" />}
-              </InvoiceableSwitchWrapper>
             )}
 
             {!localCharge.payInAdvance && (
@@ -1029,15 +1028,6 @@ const SpendingMinimumWrapper = styled.div`
 
 const SpendingMinimumInput = styled(AmountInput)`
   flex: 1;
-`
-
-const InvoiceableSwitchWrapper = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    flex: 1;
-  }
 `
 
 const InlineTaxInputWrapper = styled.div`

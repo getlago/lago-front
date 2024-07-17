@@ -177,6 +177,7 @@ export const usePlanForm: ({
                     ),
               payInAdvance: payInAdvance || false,
               properties: properties ? getPropertyShape(properties) : undefined,
+              regroupPaidFees: charge.regroupPaidFees || null,
               filters: (filters || []).map((filter) => {
                 const values = Object.entries(filter.values || {}).reduce<string[]>(
                   (acc, [key, objectValues]) => {
