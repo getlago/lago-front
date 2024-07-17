@@ -11,6 +11,7 @@ import { theme } from '~/styles'
 
 interface ChargeBillingRadioGroupProps {
   localCharge: LocalChargeInput
+  disabled?: boolean
   openPremiumDialog: VoidFunction
   handleUpdate: ({
     invoiceable,
@@ -25,6 +26,7 @@ type ChargeBillingRadioValue = 'invoiceable' | 'regroupPaidFees' | 'none'
 
 export const ChargeBillingRadioGroup: FC<ChargeBillingRadioGroupProps> = ({
   localCharge,
+  disabled,
   openPremiumDialog,
   handleUpdate,
 }) => {
@@ -71,6 +73,7 @@ export const ChargeBillingRadioGroup: FC<ChargeBillingRadioGroupProps> = ({
           handleUpdate({ invoiceable: true, regroupPaidFees: null })
         }}
         labelVariant="body"
+        disabled={disabled}
       />
       {!isPremium && (
         <PremiumOption>
@@ -96,7 +99,7 @@ export const ChargeBillingRadioGroup: FC<ChargeBillingRadioGroupProps> = ({
           handleUpdate({ invoiceable: false, regroupPaidFees: RegroupPaidFeesEnum.Invoice })
         }}
         labelVariant="body"
-        disabled={!isPremium}
+        disabled={!isPremium || disabled}
       />
       <Radio
         label={translate('text_6687b0081931407697975947')}
@@ -107,7 +110,7 @@ export const ChargeBillingRadioGroup: FC<ChargeBillingRadioGroupProps> = ({
           handleUpdate({ invoiceable: false, regroupPaidFees: null })
         }}
         labelVariant="body"
-        disabled={!isPremium}
+        disabled={!isPremium || disabled}
       />
     </RadioGroup>
   )

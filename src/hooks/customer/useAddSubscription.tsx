@@ -83,6 +83,7 @@ const cleanPlanValues = (planValues: PlanOverridesInput, formType: keyof typeof 
       chargeModel: undefined,
       invoiceable: undefined,
       prorated: undefined,
+      regroupPaidFees: undefined,
     })),
   }
 }
