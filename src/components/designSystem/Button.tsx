@@ -4,7 +4,7 @@
 import { Button as MuiButton, ButtonProps as MuiButtonProps } from '@mui/material'
 import clsns from 'classnames'
 import { forwardRef, MouseEvent, useEffect, useRef, useState } from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { Icon, IconName } from './Icon'
 
@@ -46,6 +46,7 @@ interface SimpleButtonProps
   loading?: boolean // If the `onClick` function returns a promise, the loading state will be handled automatically
   className?: string
   inheritColor?: boolean // This will only work for quaternary buttons
+  fitContent?: boolean
 }
 interface ButtonIconProps
   extends Omit<SimpleButtonProps, 'icon' | 'size' | 'endIcon' | 'startIcon' | 'children'> {
@@ -102,6 +103,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       startIcon,
       className,
       endIcon,
+      fitContent = false,
       loading = false,
       children,
       inheritColor,
@@ -154,6 +156,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           'button-quaternary-dark': variant === 'quaternary-dark',
         })}
         $align={align}
+        $fitContent={fitContent}
         onClick={handleClick}
         size={size}
         data-test="button"
@@ -194,10 +197,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
 Button.displayName = 'Button'
 
-const StyledButton = styled(MuiButton)<{ $align?: ButtonAlign }>`
+const StyledButton = styled(MuiButton)<{ $align?: ButtonAlign; $fitContent?: boolean }>`
   white-space: nowrap;
   justify-content: ${({ $align }) => $align ?? 'inherit'} !important;
   min-width: unset;
+  ${({ $fitContent }) =>
+    $fitContent &&
+    css`
+      width: fit-content;
+    `}
 
   > svg:hover {
     cursor: pointer;
