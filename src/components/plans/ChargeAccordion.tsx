@@ -793,6 +793,7 @@ export const ChargeAccordion = memo(
             {localCharge.payInAdvance && (
               <ChargeBillingRadioGroup
                 localCharge={localCharge}
+                disabled={isUsedInSubscription}
                 openPremiumDialog={() => premiumWarningDialogRef?.current?.openDialog()}
                 handleUpdate={({ regroupPaidFees, invoiceable }) => {
                   const currentChargeValues: LocalChargeInput = {
