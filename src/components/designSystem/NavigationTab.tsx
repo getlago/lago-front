@@ -160,6 +160,7 @@ const LocalTabs = styled(Tabs)<{ $leftPadding: boolean }>`
     !!$leftPadding &&
     css`
       padding-left: ${theme.spacing(12)};
+      width: fit-content;
 
       ${theme.breakpoints.down('md')} {
         padding-left: ${theme.spacing(4)};
