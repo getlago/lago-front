@@ -3952,6 +3952,7 @@ export type QueryEventsArgs = {
 
 export type QueryGrossRevenuesArgs = {
   currency?: InputMaybe<CurrencyEnum>;
+  expireCache?: InputMaybe<Scalars['Boolean']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -5612,6 +5613,7 @@ export type VoidCreditNoteMutation = { __typename?: 'Mutation', voidCreditNote?:
 export type GetCustomerGrossRevenuesQueryVariables = Exact<{
   externalCustomerId: Scalars['String']['input'];
   currency?: InputMaybe<CurrencyEnum>;
+  expireCache?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -11892,8 +11894,12 @@ export type VoidCreditNoteMutationHookResult = ReturnType<typeof useVoidCreditNo
 export type VoidCreditNoteMutationResult = Apollo.MutationResult<VoidCreditNoteMutation>;
 export type VoidCreditNoteMutationOptions = Apollo.BaseMutationOptions<VoidCreditNoteMutation, VoidCreditNoteMutationVariables>;
 export const GetCustomerGrossRevenuesDocument = gql`
-    query getCustomerGrossRevenues($externalCustomerId: String!, $currency: CurrencyEnum) {
-  grossRevenues(externalCustomerId: $externalCustomerId, currency: $currency) {
+    query getCustomerGrossRevenues($externalCustomerId: String!, $currency: CurrencyEnum, $expireCache: Boolean) {
+  grossRevenues(
+    externalCustomerId: $externalCustomerId
+    currency: $currency
+    expireCache: $expireCache
+  ) {
     collection {
       amountCents
       currency
@@ -11918,6 +11924,7 @@ export const GetCustomerGrossRevenuesDocument = gql`
  *   variables: {
  *      externalCustomerId: // value for 'externalCustomerId'
  *      currency: // value for 'currency'
+ *      expireCache: // value for 'expireCache'
  *   },
  * });
  */

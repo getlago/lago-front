@@ -17,8 +17,16 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { SectionHeader } from '~/styles/customer'
 
 gql`
-  query getCustomerGrossRevenues($externalCustomerId: String!, $currency: CurrencyEnum) {
-    grossRevenues(externalCustomerId: $externalCustomerId, currency: $currency) {
+  query getCustomerGrossRevenues(
+    $externalCustomerId: String!
+    $currency: CurrencyEnum
+    $expireCache: Boolean
+  ) {
+    grossRevenues(
+      externalCustomerId: $externalCustomerId
+      currency: $currency
+      expireCache: $expireCache
+    ) {
       collection {
         amountCents
         currency
@@ -66,6 +74,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
       variables: {
         externalCustomerId: externalCustomerId || '',
         currency: userCurrency,
+        expireCache: true,
       },
     })
   const [getOverdueBalances, { data: overdueData, error: overdueError, loading: overdueLoading }] =
