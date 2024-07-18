@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
-import { FC } from 'react'
+import { FC, useEffect } from 'react'
 
 import { Alert, Button, Typography } from '~/components/designSystem'
 import { OverviewCard } from '~/components/OverviewCard'
@@ -9,15 +9,15 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { LocaleEnum } from '~/core/translations'
 import {
   CurrencyEnum,
-  useGetCustomerPortalInvoicesCollectionQuery,
-  useGetCustomerPortalOverdueBalancesQuery,
+  useGetCustomerPortalInvoicesCollectionLazyQuery,
+  useGetCustomerPortalOverdueBalancesLazyQuery,
   useGetCustomerPortalUserCurrencyQuery,
 } from '~/generated/graphql'
 import { SectionHeader } from '~/styles/customer'
 
 gql`
-  query getCustomerPortalInvoicesCollection {
-    customerPortalInvoiceCollections {
+  query getCustomerPortalInvoicesCollection($expireCache: Boolean) {
+    customerPortalInvoiceCollections(expireCache: $expireCache) {
       collection {
         amountCents
         invoicesCount
@@ -26,8 +26,8 @@ gql`
     }
   }
 
-  query getCustomerPortalOverdueBalances {
-    customerPortalOverdueBalances {
+  query getCustomerPortalOverdueBalances($expireCache: Boolean) {
+    customerPortalOverdueBalances(expireCache: $expireCache) {
       collection {
         amountCents
         currency
@@ -56,9 +56,23 @@ interface CalculatedData {
 
 export const PortalOverview: FC<PortalOverviewProps> = ({ translate, documentLocale }) => {
   const { data: userCurrencyData } = useGetCustomerPortalUserCurrencyQuery()
-  const { data: overdueData, loading: overdueLoading } = useGetCustomerPortalOverdueBalancesQuery()
-  const { data: invoicesData, loading: invoicesLoading } =
-    useGetCustomerPortalInvoicesCollectionQuery()
+  const [getOverdueBalance, { data: overdueData, loading: overdueLoading }] =
+    useGetCustomerPortalOverdueBalancesLazyQuery({
+      variables: {
+        expireCache: true,
+      },
+    })
+  const [getInvoicesCollection, { data: invoicesData, loading: invoicesLoading }] =
+    useGetCustomerPortalInvoicesCollectionLazyQuery({
+      variables: {
+        expireCache: true,
+      },
+    })
+
+  useEffect(() => {
+    getOverdueBalance()
+    getInvoicesCollection()
+  }, [])
 
   const customerCurrency = userCurrencyData?.customerPortalUser?.currency ?? CurrencyEnum.Usd
 
@@ -93,7 +107,14 @@ export const PortalOverview: FC<PortalOverviewProps> = ({ translate, documentLoc
       <SectionHeader variant="subhead" $hideBottomShadow>
         {translate('text_6670a7222702d70114cc7954')}
 
-        <Button data-test="add-subscription" variant="quaternary" onClick={() => location.reload()}>
+        <Button
+          data-test="add-subscription"
+          variant="quaternary"
+          onClick={() => {
+            getOverdueBalance()
+            getInvoicesCollection()
+          }}
+        >
           {translate('text_6670a7222702d70114cc7953')}
         </Button>
       </SectionHeader>
