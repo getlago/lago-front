@@ -1369,6 +1369,7 @@
   "text_6670a7222702d70114cc795a": "Total overdue",
   "text_6670a7222702d70114cc795c": "for {{count}} invoice|for {{count}} invoices",
   "text_6670a757999f8a007789bb5d": "Total from past due invoices. This is the amount you owe.",
+  "text_668fe99c939c8800dfeb504e": "Disputed",
   "text_637f813d31381b1ed90ab315": "API Token",
   "text_637f813d31381b1ed90ab30e": "This API secret key is used to connect Stripe to Lago, edit it to make a new connection",
   "text_637f813d31381b1ed90ab2f6": "API keys & ID",

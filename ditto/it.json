@@ -62,5 +62,6 @@
   "text_6670a7222702d70114cc7957": "Totale fatturato",
   "text_6670a7222702d70114cc795a": "Totale scaduto",
   "text_6670a7222702d70114cc795c": "Per {{count}} fattura|Per {{count}} fatture",
-  "text_6670a757999f8a007789bb5d": "Totale delle fatture scadute. Questo è l'importo dovuto."
+  "text_6670a757999f8a007789bb5d": "Totale delle fatture scadute. Questo è l'importo dovuto.",
+  "text_668fe99c939c8800dfeb504e": "Contestato"
 }

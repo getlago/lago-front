@@ -61,5 +61,6 @@
   "text_6670a7222702d70114cc7957": "Totalt fakturert",
   "text_6670a7222702d70114cc795a": "Totalt forfalt",
   "text_6670a7222702d70114cc795c": "For {{count}} faktura|For {{count}} fakturaer",
-  "text_6670a757999f8a007789bb5d": "Total fra forfalte fakturaer. Dette er beløpet du skylder."
+  "text_6670a757999f8a007789bb5d": "Total fra forfalte fakturaer. Dette er beløpet du skylder.",
+  "text_668fe99c939c8800dfeb504e": "Omtvistet"
 }

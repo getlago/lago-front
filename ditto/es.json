@@ -62,5 +62,6 @@
   "text_6670a7222702d70114cc7957": "Total facturado",
   "text_6670a7222702d70114cc795a": "Total vencido",
   "text_6670a7222702d70114cc795c": "Para {{count}} factura|Para {{count}} facturas",
-  "text_6670a757999f8a007789bb5d": "Total de facturas vencidas. Este es el monto que debe."
+  "text_6670a757999f8a007789bb5d": "Total de facturas vencidas. Este es el monto que debe.",
+  "text_668fe99c939c8800dfeb504e": "Disputado"
 }
