@@ -14,6 +14,7 @@ import {
   useGetCustomerOverdueBalancesLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { SectionHeader } from '~/styles/customer'
 
 gql`
@@ -66,21 +67,25 @@ interface CustomerOverviewProps {
 export const CustomerOverview: FC<CustomerOverviewProps> = ({
   externalCustomerId,
   customerTimezone,
-  userCurrency = CurrencyEnum.Usd,
+  userCurrency,
 }) => {
   const { translate } = useInternationalization()
+  const { organization } = useOrganizationInfos()
+
+  const currency = userCurrency ?? organization?.defaultCurrency ?? CurrencyEnum.Usd
+
   const [getGrossRevenues, { data: grossData, error: grossError, loading: grossLoading }] =
     useGetCustomerGrossRevenuesLazyQuery({
       variables: {
         externalCustomerId: externalCustomerId || '',
-        currency: userCurrency,
+        currency,
       },
     })
   const [getOverdueBalances, { data: overdueData, error: overdueError, loading: overdueLoading }] =
     useGetCustomerOverdueBalancesLazyQuery({
       variables: {
         externalCustomerId: externalCustomerId || '',
-        currency: userCurrency,
+        currency,
         months: 12,
       },
     })
@@ -98,7 +103,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
   const grossRevenues = (grossData?.grossRevenues.collection || []).reduce(
     (acc, revenue) => {
       return {
-        amountCents: acc.amountCents + deserializeAmount(revenue.amountCents, userCurrency),
+        amountCents: acc.amountCents + deserializeAmount(revenue.amountCents, currency),
         invoicesCount: acc.invoicesCount + Number(revenue.invoicesCount),
       }
     },
@@ -112,7 +117,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
   }>(
     (acc, { amountCents, lagoInvoiceIds }) => {
       return {
-        amountCents: acc.amountCents + deserializeAmount(amountCents, userCurrency),
+        amountCents: acc.amountCents + deserializeAmount(amountCents, currency),
         invoiceCount: acc.invoiceCount + lagoInvoiceIds.length,
       }
     },
@@ -138,14 +143,14 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
                   variables: {
                     expireCache: true,
                     externalCustomerId: externalCustomerId || '',
-                    currency: userCurrency,
+                    currency,
                   },
                 })
                 getOverdueBalances({
                   variables: {
                     expireCache: true,
                     externalCustomerId: externalCustomerId || '',
-                    currency: userCurrency,
+                    currency,
                     months: 12,
                   },
                 })
@@ -172,7 +177,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
                             count: overdueFormattedData.invoiceCount,
                             amount: intlFormatNumber(overdueFormattedData.amountCents, {
                               currencyDisplay: 'symbol',
-                              currency: userCurrency,
+                              currency,
                             }),
                           },
                           overdueFormattedData.invoiceCount,
@@ -194,7 +199,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
                   tooltipContent={translate('text_65564e8e4af2340050d431bf')}
                   content={intlFormatNumber(grossRevenues.amountCents, {
                     currencyDisplay: 'symbol',
-                    currency: userCurrency,
+                    currency,
                   })}
                   caption={translate(
                     'text_6670a7222702d70114cc795c',
@@ -210,7 +215,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
                   tooltipContent={translate('text_6670a2a7ae3562006c4ee3e7')}
                   content={intlFormatNumber(overdueFormattedData.amountCents, {
                     currencyDisplay: 'symbol',
-                    currency: userCurrency,
+                    currency,
                   })}
                   caption={translate(
                     'text_6670a7222702d70114cc795c',
