@@ -3911,6 +3911,7 @@ export type QueryCustomerInvoicesArgs = {
 
 
 export type QueryCustomerPortalInvoiceCollectionsArgs = {
+  expireCache?: InputMaybe<Scalars['Boolean']['input']>;
   months?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -3924,6 +3925,7 @@ export type QueryCustomerPortalInvoicesArgs = {
 
 
 export type QueryCustomerPortalOverdueBalancesArgs = {
+  expireCache?: InputMaybe<Scalars['Boolean']['input']>;
   months?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -3950,6 +3952,7 @@ export type QueryEventsArgs = {
 
 export type QueryGrossRevenuesArgs = {
   currency?: InputMaybe<CurrencyEnum>;
+  expireCache?: InputMaybe<Scalars['Boolean']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -4073,6 +4076,7 @@ export type QueryMrrsArgs = {
 
 export type QueryOverdueBalancesArgs = {
   currency?: InputMaybe<CurrencyEnum>;
+  expireCache?: InputMaybe<Scalars['Boolean']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
   months?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -5373,12 +5377,16 @@ export type CustomerPortalInvoicesQueryVariables = Exact<{
 
 export type CustomerPortalInvoicesQuery = { __typename?: 'Query', customerPortalInvoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null }> } };
 
-export type GetCustomerPortalInvoicesCollectionQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetCustomerPortalInvoicesCollectionQueryVariables = Exact<{
+  expireCache?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
 
 
 export type GetCustomerPortalInvoicesCollectionQuery = { __typename?: 'Query', customerPortalInvoiceCollections: { __typename?: 'FinalizedInvoiceCollectionCollection', collection: Array<{ __typename?: 'FinalizedInvoiceCollection', amountCents: any, invoicesCount: any, currency?: CurrencyEnum | null }> } };
 
-export type GetCustomerPortalOverdueBalancesQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetCustomerPortalOverdueBalancesQueryVariables = Exact<{
+  expireCache?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
 
 
 export type GetCustomerPortalOverdueBalancesQuery = { __typename?: 'Query', customerPortalOverdueBalances: { __typename?: 'OverdueBalanceCollection', collection: Array<{ __typename?: 'OverdueBalance', amountCents: any, currency: CurrencyEnum, lagoInvoiceIds: Array<string> }> } };
@@ -5605,6 +5613,7 @@ export type VoidCreditNoteMutation = { __typename?: 'Mutation', voidCreditNote?:
 export type GetCustomerGrossRevenuesQueryVariables = Exact<{
   externalCustomerId: Scalars['String']['input'];
   currency?: InputMaybe<CurrencyEnum>;
+  expireCache?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -5614,6 +5623,7 @@ export type GetCustomerOverdueBalancesQueryVariables = Exact<{
   externalCustomerId: Scalars['String']['input'];
   currency?: InputMaybe<CurrencyEnum>;
   months: Scalars['Int']['input'];
+  expireCache?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -10744,8 +10754,8 @@ export type CustomerPortalInvoicesLazyQueryHookResult = ReturnType<typeof useCus
 export type CustomerPortalInvoicesSuspenseQueryHookResult = ReturnType<typeof useCustomerPortalInvoicesSuspenseQuery>;
 export type CustomerPortalInvoicesQueryResult = Apollo.QueryResult<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>;
 export const GetCustomerPortalInvoicesCollectionDocument = gql`
-    query getCustomerPortalInvoicesCollection {
-  customerPortalInvoiceCollections {
+    query getCustomerPortalInvoicesCollection($expireCache: Boolean) {
+  customerPortalInvoiceCollections(expireCache: $expireCache) {
     collection {
       amountCents
       invoicesCount
@@ -10767,6 +10777,7 @@ export const GetCustomerPortalInvoicesCollectionDocument = gql`
  * @example
  * const { data, loading, error } = useGetCustomerPortalInvoicesCollectionQuery({
  *   variables: {
+ *      expireCache: // value for 'expireCache'
  *   },
  * });
  */
@@ -10787,8 +10798,8 @@ export type GetCustomerPortalInvoicesCollectionLazyQueryHookResult = ReturnType<
 export type GetCustomerPortalInvoicesCollectionSuspenseQueryHookResult = ReturnType<typeof useGetCustomerPortalInvoicesCollectionSuspenseQuery>;
 export type GetCustomerPortalInvoicesCollectionQueryResult = Apollo.QueryResult<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>;
 export const GetCustomerPortalOverdueBalancesDocument = gql`
-    query getCustomerPortalOverdueBalances {
-  customerPortalOverdueBalances {
+    query getCustomerPortalOverdueBalances($expireCache: Boolean) {
+  customerPortalOverdueBalances(expireCache: $expireCache) {
     collection {
       amountCents
       currency
@@ -10810,6 +10821,7 @@ export const GetCustomerPortalOverdueBalancesDocument = gql`
  * @example
  * const { data, loading, error } = useGetCustomerPortalOverdueBalancesQuery({
  *   variables: {
+ *      expireCache: // value for 'expireCache'
  *   },
  * });
  */
@@ -11882,8 +11894,12 @@ export type VoidCreditNoteMutationHookResult = ReturnType<typeof useVoidCreditNo
 export type VoidCreditNoteMutationResult = Apollo.MutationResult<VoidCreditNoteMutation>;
 export type VoidCreditNoteMutationOptions = Apollo.BaseMutationOptions<VoidCreditNoteMutation, VoidCreditNoteMutationVariables>;
 export const GetCustomerGrossRevenuesDocument = gql`
-    query getCustomerGrossRevenues($externalCustomerId: String!, $currency: CurrencyEnum) {
-  grossRevenues(externalCustomerId: $externalCustomerId, currency: $currency) {
+    query getCustomerGrossRevenues($externalCustomerId: String!, $currency: CurrencyEnum, $expireCache: Boolean) {
+  grossRevenues(
+    externalCustomerId: $externalCustomerId
+    currency: $currency
+    expireCache: $expireCache
+  ) {
     collection {
       amountCents
       currency
@@ -11908,6 +11924,7 @@ export const GetCustomerGrossRevenuesDocument = gql`
  *   variables: {
  *      externalCustomerId: // value for 'externalCustomerId'
  *      currency: // value for 'currency'
+ *      expireCache: // value for 'expireCache'
  *   },
  * });
  */
@@ -11928,11 +11945,12 @@ export type GetCustomerGrossRevenuesLazyQueryHookResult = ReturnType<typeof useG
 export type GetCustomerGrossRevenuesSuspenseQueryHookResult = ReturnType<typeof useGetCustomerGrossRevenuesSuspenseQuery>;
 export type GetCustomerGrossRevenuesQueryResult = Apollo.QueryResult<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>;
 export const GetCustomerOverdueBalancesDocument = gql`
-    query getCustomerOverdueBalances($externalCustomerId: String!, $currency: CurrencyEnum, $months: Int!) {
+    query getCustomerOverdueBalances($externalCustomerId: String!, $currency: CurrencyEnum, $months: Int!, $expireCache: Boolean) {
   overdueBalances(
     externalCustomerId: $externalCustomerId
     currency: $currency
     months: $months
+    expireCache: $expireCache
   ) {
     collection {
       amountCents
@@ -11958,6 +11976,7 @@ export const GetCustomerOverdueBalancesDocument = gql`
  *      externalCustomerId: // value for 'externalCustomerId'
  *      currency: // value for 'currency'
  *      months: // value for 'months'
+ *      expireCache: // value for 'expireCache'
  *   },
  * });
  */
