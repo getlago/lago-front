@@ -57,17 +57,9 @@ interface CalculatedData {
 export const PortalOverview: FC<PortalOverviewProps> = ({ translate, documentLocale }) => {
   const { data: userCurrencyData } = useGetCustomerPortalUserCurrencyQuery()
   const [getOverdueBalance, { data: overdueData, loading: overdueLoading }] =
-    useGetCustomerPortalOverdueBalancesLazyQuery({
-      variables: {
-        expireCache: true,
-      },
-    })
+    useGetCustomerPortalOverdueBalancesLazyQuery()
   const [getInvoicesCollection, { data: invoicesData, loading: invoicesLoading }] =
-    useGetCustomerPortalInvoicesCollectionLazyQuery({
-      variables: {
-        expireCache: true,
-      },
-    })
+    useGetCustomerPortalInvoicesCollectionLazyQuery()
 
   useEffect(() => {
     getOverdueBalance()
@@ -111,8 +103,16 @@ export const PortalOverview: FC<PortalOverviewProps> = ({ translate, documentLoc
           data-test="add-subscription"
           variant="quaternary"
           onClick={() => {
-            getOverdueBalance()
-            getInvoicesCollection()
+            getOverdueBalance({
+              variables: {
+                expireCache: true,
+              },
+            })
+            getInvoicesCollection({
+              variables: {
+                expireCache: true,
+              },
+            })
           }}
         >
           {translate('text_6670a7222702d70114cc7953')}

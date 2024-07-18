@@ -74,7 +74,6 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
       variables: {
         externalCustomerId: externalCustomerId || '',
         currency: userCurrency,
-        expireCache: true,
       },
     })
   const [getOverdueBalances, { data: overdueData, error: overdueError, loading: overdueLoading }] =
@@ -83,7 +82,6 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
         externalCustomerId: externalCustomerId || '',
         currency: userCurrency,
         months: 12,
-        expireCache: true,
       },
     })
 
@@ -136,8 +134,21 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
               data-test="add-subscription"
               variant="quaternary"
               onClick={() => {
-                getGrossRevenues()
-                getOverdueBalances()
+                getGrossRevenues({
+                  variables: {
+                    expireCache: true,
+                    externalCustomerId: externalCustomerId || '',
+                    currency: userCurrency,
+                  },
+                })
+                getOverdueBalances({
+                  variables: {
+                    expireCache: true,
+                    externalCustomerId: externalCustomerId || '',
+                    currency: userCurrency,
+                    months: 12,
+                  },
+                })
               }}
             >
               {translate('text_6670a7222702d70114cc7953')}
