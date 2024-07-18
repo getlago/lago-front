@@ -51,6 +51,9 @@ export const PackageCharge = memo(
       [chargeIndex],
     )
 
+    const serializedPackageCharge = Number(valuePointer?.packageSize || 0)
+    const serializedFreeUnits = Number(valuePointer?.freeUnits || 0)
+
     return (
       <Container>
         <AmountInput
@@ -72,7 +75,7 @@ export const PackageCharge = memo(
           beforeChangeFormatter={['positiveNumber', 'int']}
           error={_get(formikProps.errors, `charges.${chargeIndex}.properties.packageSize`)}
           disabled={disabled}
-          value={valuePointer?.packageSize as number | undefined}
+          value={serializedPackageCharge}
           onChange={(value) => handleUpdate(`${propertyCursor}.packageSize`, value)}
           InputProps={{
             startAdornment: (
@@ -95,7 +98,7 @@ export const PackageCharge = memo(
           placeholder={translate('text_62824f0e5d93bc008d268d00')}
           beforeChangeFormatter={['positiveNumber', 'int']}
           disabled={disabled}
-          value={valuePointer?.freeUnits as number | undefined}
+          value={serializedFreeUnits}
           onChange={(value) => handleUpdate(`${propertyCursor}.freeUnits`, value)}
           InputProps={{
             endAdornment: (
@@ -114,7 +117,7 @@ export const PackageCharge = memo(
             <>
               <Typography variant="bodyHl" color="textSecondary">
                 {translate('text_6282085b4f283b0102655892', {
-                  units: valuePointer?.packageSize + (valuePointer?.freeUnits || 0) + 1,
+                  units: serializedPackageCharge + serializedFreeUnits + 1,
                   cost: intlFormatNumber(Number(valuePointer?.amount || 0) * 2, {
                     currencyDisplay: 'symbol',
                     maximumFractionDigits: 15,
@@ -126,7 +129,7 @@ export const PackageCharge = memo(
                 <Typography color="textSecondary">
                   {translate('text_6282085b4f283b0102655896', {
                     unit: 1,
-                    unitInPackage: valuePointer?.freeUnits,
+                    unitInPackage: serializedFreeUnits,
                     cost: intlFormatNumber(0, {
                       currencyDisplay: 'symbol',
                       maximumFractionDigits: 15,
@@ -138,8 +141,8 @@ export const PackageCharge = memo(
 
               <Typography color="textSecondary">
                 {translate('text_6282085b4f283b0102655896', {
-                  unit: (valuePointer?.freeUnits || 0) + 1,
-                  unitInPackage: valuePointer?.packageSize + (valuePointer?.freeUnits || 0),
+                  unit: serializedFreeUnits + 1,
+                  unitInPackage: serializedPackageCharge + serializedFreeUnits,
                   cost: intlFormatNumber(Number(valuePointer?.amount || 0), {
                     currencyDisplay: 'symbol',
                     maximumFractionDigits: 15,
@@ -149,8 +152,8 @@ export const PackageCharge = memo(
               </Typography>
               <Typography color="textSecondary">
                 {translate('text_6282085b4f283b0102655896', {
-                  unit: (valuePointer?.freeUnits || 0) + valuePointer?.packageSize + 1,
-                  unitInPackage: valuePointer?.packageSize * 2 + (valuePointer?.freeUnits || 0),
+                  unit: serializedFreeUnits + serializedPackageCharge + 1,
+                  unitInPackage: serializedPackageCharge * 2 + serializedFreeUnits,
                   cost: intlFormatNumber(Number(valuePointer?.amount || 0) * 2, {
                     currencyDisplay: 'symbol',
                     maximumFractionDigits: 15,
