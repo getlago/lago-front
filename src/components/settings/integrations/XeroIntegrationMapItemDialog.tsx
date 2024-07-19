@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { object, string } from 'yup'
 
@@ -16,8 +16,8 @@ import {
   useCreateXeroIntegrationMappingMutation,
   useDeleteXeroIntegrationCollectionMappingMutation,
   useDeleteXeroIntegrationMappingMutation,
-  useGetXeroIntegrationAccountsLazyQuery,
   useGetXeroIntegrationItemsLazyQuery,
+  useTriggerXeroIntegrationAccountsRefetchMutation,
   useTriggerXeroIntegrationItemsRefetchMutation,
   useUpdateXeroIntegrationCollectionMappingMutation,
   useUpdateXeroIntegrationMappingMutation,
@@ -52,12 +52,6 @@ gql`
     externalName
     externalAccountCode
     itemType
-  }
-
-  fragment XeroIntegrationMapAccountItemForDialog on Account {
-    externalAccountCode
-    externalId
-    externalName
   }
 
   fragment XeroIntegrationMapItemDialogCollectionMappingItem on CollectionMapping {
@@ -100,11 +94,10 @@ gql`
     }
   }
 
-  # Accounts fetch
-  query getXeroIntegrationAccounts($integrationId: ID!) {
-    integrationAccounts(integrationId: $integrationId) {
+  mutation triggerXeroIntegrationAccountsRefetch($input: FetchIntegrationAccountsInput!) {
+    fetchIntegrationAccounts(input: $input) {
       collection {
-        ...XeroIntegrationMapAccountItemForDialog
+        ...XeroIntegrationMapItemDialog
       }
     }
   }
@@ -208,14 +201,16 @@ export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDia
       variables: {
         limit: 1000,
         integrationId: localData?.integrationId as string,
-        itemType: IntegrationItemTypeEnum.Standard,
+        itemType: isAccountContext
+          ? IntegrationItemTypeEnum.Account
+          : IntegrationItemTypeEnum.Standard,
       },
     })
 
-    // TODO: Miss limit here
-    const [getXeroAccountItems, { loading: accountItemsLoading, data: accountItemsData }] =
-      useGetXeroIntegrationAccountsLazyQuery({
-        variables: { integrationId: localData?.integrationId as string },
+    const [triggerAccountItemRefetch, { loading: accountItemsLoading }] =
+      useTriggerXeroIntegrationAccountsRefetchMutation({
+        variables: { input: { integrationId: localData?.integrationId as string } },
+        refetchQueries: ['getXeroIntegrationItems'],
       })
 
     const [triggerItemRefetch, { loading: itemsLoading }] =
@@ -428,11 +423,7 @@ export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDia
     const isLoading = initialItemFetchLoading || itemsLoading || accountItemsLoading
 
     const comboboxData = useMemo(() => {
-      return (
-        (isAccountContext
-          ? accountItemsData?.integrationAccounts?.collection
-          : initialItemFetchData?.integrationItems?.collection) || []
-      ).map((item) => {
+      return (initialItemFetchData?.integrationItems?.collection || []).map((item) => {
         const { externalId, externalName, externalAccountCode } = item
 
         return {
@@ -445,11 +436,7 @@ export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDia
           }),
         }
       })
-    }, [
-      accountItemsData?.integrationAccounts?.collection,
-      initialItemFetchData?.integrationItems?.collection,
-      isAccountContext,
-    ])
+    }, [initialItemFetchData?.integrationItems?.collection])
 
     const [title, description] = useMemo(() => {
       switch (localData?.type) {
@@ -547,17 +534,6 @@ export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDia
       closeDialog: () => dialogRef.current?.closeDialog(),
     }))
 
-    useEffect(() => {
-      if (localData) {
-        if (isAccountContext) {
-          getXeroAccountItems()
-        } else {
-          getXeroIntegrationItems()
-        }
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isAccountContext, localData])
-
     return (
       <Dialog
         ref={dialogRef}
@@ -566,6 +542,12 @@ export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDia
         onClose={() => {
           formikProps.resetForm()
           formikProps.validateForm()
+        }}
+        onOpen={() => {
+          // Have to delay the ececution of the query, as the dialog props are not present immediatly after the dialog is opened
+          setTimeout(() => {
+            getXeroIntegrationItems()
+          }, 1)
         }}
         actions={({ closeDialog }) => (
           <>
@@ -612,7 +594,7 @@ export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDia
               loading={isLoading}
               onClick={() => {
                 if (isAccountContext) {
-                  getXeroAccountItems()
+                  triggerAccountItemRefetch()
                 } else {
                   triggerItemRefetch()
                 }
