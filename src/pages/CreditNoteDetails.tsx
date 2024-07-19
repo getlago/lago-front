@@ -382,26 +382,24 @@ const CreditNoteDetails = () => {
                   {translate('text_637655cb50f04bf1c8379cee')}
                 </Button>
 
-                {/* Note: check on xeroCustomer?.integrationId should be removed when the CN sync is fixed */}
-                {!!data?.creditNote?.integrationSyncable &&
-                  !data?.creditNote?.customer?.xeroCustomer?.integrationId && (
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      disabled={loadingSyncIntegrationCreditNote}
-                      onClick={async () => {
-                        await syncIntegrationCreditNote()
+                {!!data?.creditNote?.integrationSyncable && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    disabled={loadingSyncIntegrationCreditNote}
+                    onClick={async () => {
+                      await syncIntegrationCreditNote()
 
-                        closePopper()
-                      }}
-                    >
-                      {translate(
-                        !!data.creditNote.customer.netsuiteCustomer
-                          ? 'text_665d742ee9853200e3a6be7f'
-                          : 'text_66911d4b4b3c3e005c62ab49',
-                      )}
-                    </Button>
-                  )}
+                      closePopper()
+                    }}
+                  >
+                    {translate(
+                      !!data.creditNote.customer.netsuiteCustomer
+                        ? 'text_665d742ee9853200e3a6be7f'
+                        : 'text_66911d4b4b3c3e005c62ab49',
+                    )}
+                  </Button>
+                )}
               </MenuPopper>
             )}
           </Popper>
@@ -1034,7 +1032,6 @@ const InfoLine = styled.div`
 
   > div:first-child {
     min-width: 140px;
-    margin-top: ${theme.spacing(1)};
   }
 
   > div:last-child {
