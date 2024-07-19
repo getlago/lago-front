@@ -62,5 +62,6 @@
   "text_6670a7222702d70114cc7957": "Totalt fakturerat",
   "text_6670a7222702d70114cc795a": "Totalt förfallet",
   "text_6670a7222702d70114cc795c": "För {{count}} faktura|För {{count}} fakturor",
-  "text_6670a757999f8a007789bb5d": "Totalbelopp från förfallna fakturor. Detta är beloppet du är skyldig."
+  "text_6670a757999f8a007789bb5d": "Totalbelopp från förfallna fakturor. Detta är beloppet du är skyldig.",
+  "text_668fe99c939c8800dfeb504e": "Tvistad"
 }

@@ -62,5 +62,6 @@
   "text_6670a7222702d70114cc7957": "Gesamtrechnungsbetrag",
   "text_6670a7222702d70114cc795a": "Gesamtbetrag überfällig",
   "text_6670a7222702d70114cc795c": "Für {{count}} Rechnung|Für {{count}} Rechnungen",
-  "text_6670a757999f8a007789bb5d": "Summe der überfälligen Rechnungen. Dies ist der Betrag, den Sie schulden."
+  "text_6670a757999f8a007789bb5d": "Summe der überfälligen Rechnungen. Dies ist der Betrag, den Sie schulden.",
+  "text_668fe99c939c8800dfeb504e": "Angefochtene"
 }

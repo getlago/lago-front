@@ -62,5 +62,6 @@
   "text_6670a7222702d70114cc7957": "Total facturé",
   "text_6670a7222702d70114cc795a": "Total impayé",
   "text_6670a7222702d70114cc795c": "pour {{count}} facture|pour {{count}} factures",
-  "text_6670a757999f8a007789bb5d": "Total des factures échues. C'est le montant que vous devez."
+  "text_6670a757999f8a007789bb5d": "Total des factures échues. C'est le montant que vous devez.",
+  "text_668fe99c939c8800dfeb504e": "En litige"
 }
