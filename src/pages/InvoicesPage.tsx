@@ -38,7 +38,7 @@ gql`
   query getInvoicesList(
     $limit: Int
     $page: Int
-    $status: InvoiceStatusTypeEnum
+    $status: [InvoiceStatusTypeEnum!]
     $paymentStatus: [InvoicePaymentStatusTypeEnum!]
     $searchTerm: String
     $paymentDisputeLost: Boolean
@@ -141,12 +141,12 @@ const InvoicesPage = () => {
       ...(invoiceType === InvoiceListStatusEnum.draft && { status: InvoiceStatusTypeEnum.Draft }),
       ...(invoiceType === InvoiceListStatusEnum.voided && { status: InvoiceStatusTypeEnum.Voided }),
       ...(invoiceType === InvoiceListStatusEnum.outstanding && {
-        status: InvoiceStatusTypeEnum.Finalized,
+        status: [InvoiceStatusTypeEnum.Finalized],
         paymentStatus: [InvoicePaymentStatusTypeEnum.Failed, InvoicePaymentStatusTypeEnum.Pending],
       }),
       ...(invoiceType === InvoiceListStatusEnum.succeeded && {
         paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
-        status: InvoiceStatusTypeEnum.Finalized,
+        status: [InvoiceStatusTypeEnum.Finalized],
       }),
       ...(invoiceType === InvoiceListStatusEnum.disputed && {
         paymentDisputeLost: true,
