@@ -212,14 +212,10 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
   ) as XeroIntegration
 
   const hasAnrokIntegrationFeatureFlag = isFeatureFlagActive(FeatureFlags.ANROK_INTEGRATION)
-  const hasXeroIntegrationFeatureFlag = isFeatureFlagActive(FeatureFlags.XERO_INTEGRATION)
 
   const allAccountingIntegrationsData = useMemo(() => {
-    return [
-      ...(allNetsuiteIntegrations || []),
-      ...(hasXeroIntegrationFeatureFlag ? allXeroIntegrations || [] : []),
-    ]
-  }, [allNetsuiteIntegrations, allXeroIntegrations, hasXeroIntegrationFeatureFlag])
+    return [...(allNetsuiteIntegrations || []), ...(allXeroIntegrations || [])]
+  }, [allNetsuiteIntegrations, allXeroIntegrations])
 
   const { data: subsidiariesData } =
     useSubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery({
@@ -277,9 +273,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     return allAccountingIntegrationsData?.map((integration) => ({
       value: integration.code,
       label: integration.name,
-      group: hasXeroIntegrationFeatureFlag
-        ? integration?.__typename?.replace('Integration', '') || ''
-        : '',
+      group: integration?.__typename?.replace('Integration', '') || '',
       labelNode: (
         <Item>
           <Typography variant="body" color="grey700" noWrap>
@@ -292,7 +286,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
         </Item>
       ),
     }))
-  }, [allAccountingIntegrationsData, hasXeroIntegrationFeatureFlag])
+  }, [allAccountingIntegrationsData])
 
   const connectedIntegrationSubscidiaries: BasicComboBoxData[] | [] = useMemo(() => {
     if (!subsidiariesData?.integrationSubsidiaries?.collection.length) return []

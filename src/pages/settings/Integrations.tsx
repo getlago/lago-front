@@ -118,7 +118,6 @@ const Integrations = () => {
     variables: { limit: 1000 },
   })
   const hasAnrokIntegrationFeatureFlag = isFeatureFlagActive(FeatureFlags.ANROK_INTEGRATION)
-  const hasXeroIntegrationFeatureFlag = isFeatureFlagActive(FeatureFlags.XERO_INTEGRATION)
 
   const organization = data?.organization
   const hasAdyenIntegration = data?.paymentProviders?.collection?.some(
@@ -382,39 +381,37 @@ const Integrations = () => {
               fullWidth
             />
 
-            {hasXeroIntegrationFeatureFlag && (
-              <StyledSelector
-                fullWidth
-                title={translate('text_6672ebb8b1b50be550eccaf8')}
-                subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
-                endIcon={
-                  !hasAccessToXeroPremiumIntegration ? (
-                    'sparkles'
-                  ) : hasXeroIntegration ? (
-                    <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                  ) : undefined
+            <StyledSelector
+              fullWidth
+              title={translate('text_6672ebb8b1b50be550eccaf8')}
+              subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
+              endIcon={
+                !hasAccessToXeroPremiumIntegration ? (
+                  'sparkles'
+                ) : hasXeroIntegration ? (
+                  <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+                ) : undefined
+              }
+              icon={
+                <Avatar size="big" variant="connector">
+                  {<Xero />}
+                </Avatar>
+              }
+              onClick={() => {
+                if (!hasAccessToXeroPremiumIntegration) {
+                  premiumWarningDialogRef.current?.openDialog({
+                    title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                    description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                    mailtoSubject: translate('text_6672ebb8b1b50be550ecca09'),
+                    mailtoBody: translate('text_6672ebb8b1b50be550ecca13'),
+                  })
+                } else if (hasXeroIntegration) {
+                  navigate(XERO_INTEGRATION_ROUTE)
+                } else {
+                  addXeroDialogRef.current?.openDialog()
                 }
-                icon={
-                  <Avatar size="big" variant="connector">
-                    {<Xero />}
-                  </Avatar>
-                }
-                onClick={() => {
-                  if (!hasAccessToXeroPremiumIntegration) {
-                    premiumWarningDialogRef.current?.openDialog({
-                      title: translate('text_661ff6e56ef7e1b7c542b1ea'),
-                      description: translate('text_661ff6e56ef7e1b7c542b1f6'),
-                      mailtoSubject: translate('text_6672ebb8b1b50be550ecca09'),
-                      mailtoBody: translate('text_6672ebb8b1b50be550ecca13'),
-                    })
-                  } else if (hasXeroIntegration) {
-                    navigate(XERO_INTEGRATION_ROUTE)
-                  } else {
-                    addXeroDialogRef.current?.openDialog()
-                  }
-                }}
-              />
-            )}
+              }}
+            />
           </>
         )}
       </SettingsPageContentWrapper>

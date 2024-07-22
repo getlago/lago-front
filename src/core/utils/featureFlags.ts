@@ -1,7 +1,6 @@
 // You can list your features such as FTR_ENABLED = 'ftr_enabled'
 export enum FeatureFlags {
   ANROK_INTEGRATION = 'anrok_integration',
-  XERO_INTEGRATION = 'xero_integration',
 }
 
 const FF_KEY = 'featureFlags'
