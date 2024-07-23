@@ -1,9 +1,13 @@
 import { gql } from '@apollo/client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Button, NavigationTab, Typography } from '~/components/designSystem'
+import {
+  formatFiltersForInvoiceQuery,
+  isOutstandingUrlParams,
+} from '~/components/designSystem/Filters/utils'
 import CreditNotesList from '~/components/invoices/CreditNotesList'
 import {
   UpdateInvoicePaymentStatusDialog,
@@ -22,8 +26,6 @@ import {
   CreditNoteForCreditNoteListFragmentDoc,
   CreditNoteForCreditNoteListItemFragmentDoc,
   InvoiceListItemFragmentDoc,
-  InvoicePaymentStatusTypeEnum,
-  InvoiceStatusTypeEnum,
   LagoApiError,
   useGetCreditNotesListLazyQuery,
   useGetInvoicesListLazyQuery,
@@ -93,16 +95,6 @@ gql`
   ${CreditNoteForCreditNoteListItemFragmentDoc}
 `
 
-export enum InvoiceListStatusEnum {
-  'all' = 'all',
-  'draft' = 'draft',
-  'outstanding' = 'outstanding',
-  'succeeded' = 'succeeded',
-  'voided' = 'voided',
-  'disputed' = 'disputed',
-  'overdue' = 'overdue',
-}
-
 enum InvoiceListTabEnum {
   'invoices' = 'invoices',
   'creditNotes' = 'creditNotes',
@@ -112,16 +104,14 @@ const InvoicesPage = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { tab = InvoiceListTabEnum.invoices } = useParams<{ tab?: InvoiceListTabEnum }>()
-  let [searchParams, setSearchParams] = useSearchParams({
-    invoiceType: tab === InvoiceListTabEnum.invoices ? InvoiceListStatusEnum.all : '',
-  })
-  const urlInvoiceType = searchParams.get('invoiceType') || ''
-  const [invoiceType, setInvoiceType] = useState<InvoiceListStatusEnum>(
-    (urlInvoiceType as InvoiceListStatusEnum) || InvoiceListStatusEnum.all,
-  )
+  let [searchParams] = useSearchParams()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
+
+  const filtersForInvoiceQuery = useMemo(() => {
+    return formatFiltersForInvoiceQuery(searchParams)
+  }, [searchParams])
 
   const [
     getInvoices,
@@ -138,22 +128,7 @@ const InvoicesPage = () => {
     nextFetchPolicy: 'network-only',
     variables: {
       limit: 20,
-      ...(invoiceType === InvoiceListStatusEnum.draft && { status: InvoiceStatusTypeEnum.Draft }),
-      ...(invoiceType === InvoiceListStatusEnum.voided && { status: InvoiceStatusTypeEnum.Voided }),
-      ...(invoiceType === InvoiceListStatusEnum.outstanding && {
-        status: [InvoiceStatusTypeEnum.Finalized],
-        paymentStatus: [InvoicePaymentStatusTypeEnum.Failed, InvoicePaymentStatusTypeEnum.Pending],
-      }),
-      ...(invoiceType === InvoiceListStatusEnum.succeeded && {
-        paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
-        status: [InvoiceStatusTypeEnum.Finalized],
-      }),
-      ...(invoiceType === InvoiceListStatusEnum.disputed && {
-        paymentDisputeLost: true,
-      }),
-      ...(invoiceType === InvoiceListStatusEnum.overdue && {
-        paymentOverdue: true,
-      }),
+      ...filtersForInvoiceQuery,
     },
   })
 
@@ -198,21 +173,6 @@ const InvoicesPage = () => {
     listContainerElementRef?.current?.scrollTo({ top: 0 })
   }, [tab])
 
-  useEffect(() => {
-    let localUrlInvoiceType = Object.keys(InvoiceListStatusEnum).includes(urlInvoiceType)
-      ? urlInvoiceType
-      : InvoiceListStatusEnum.all
-
-    setInvoiceType(localUrlInvoiceType as InvoiceListStatusEnum)
-  }, [urlInvoiceType])
-
-  useEffect(() => {
-    // If invoice page and no search params, set the default search param
-    if (tab === InvoiceListTabEnum.invoices && !searchParams.get('invoiceType')) {
-      setSearchParams({ invoiceType: InvoiceListStatusEnum.all })
-    }
-  }, [searchParams, setSearchParams, tab])
-
   return (
     <>
       <PageHeader $withSide>
@@ -233,24 +193,23 @@ const InvoicesPage = () => {
             />
           ) : null}
 
-          {invoiceType === InvoiceListStatusEnum.outstanding &&
-            hasPermissions(['invoicesSend']) && (
-              <Button
-                disabled={!dataInvoices?.invoices?.metadata?.totalCount}
-                onClick={async () => {
-                  const { errors } = await retryAll({ variables: { input: {} } })
+          {isOutstandingUrlParams(searchParams) && hasPermissions(['invoicesSend']) && (
+            <Button
+              disabled={!dataInvoices?.invoices?.metadata?.totalCount}
+              onClick={async () => {
+                const { errors } = await retryAll({ variables: { input: {} } })
 
-                  if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
-                    addToast({
-                      severity: 'danger',
-                      translateKey: 'text_63b6d06df1a53b7e2ad973ad',
-                    })
-                  }
-                }}
-              >
-                {translate('text_63ac86d797f728a87b2f9fc4')}
-              </Button>
-            )}
+                if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
+                  addToast({
+                    severity: 'danger',
+                    translateKey: 'text_63b6d06df1a53b7e2ad973ad',
+                  })
+                }
+              }}
+            >
+              {translate('text_63ac86d797f728a87b2f9fc4')}
+            </Button>
+          )}
         </HeaderRigthBlock>
       </PageHeader>
       <NavigationTab
@@ -270,7 +229,6 @@ const InvoicesPage = () => {
                 error={errorInvoices}
                 fetchMore={fetchMoreInvoices}
                 invoices={dataInvoices?.invoices?.collection}
-                invoiceType={invoiceType}
                 isLoading={invoiceIsLoading}
                 metadata={dataInvoices?.invoices?.metadata}
                 variables={variableInvoices}
