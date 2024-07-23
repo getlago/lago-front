@@ -6,6 +6,7 @@ import styled, { css } from 'styled-components'
 import { boolean, number, object, string } from 'yup'
 
 import {
+  Accordion,
   Alert,
   ALL_ICONS,
   Avatar,
@@ -204,6 +205,93 @@ const DesignSystem = () => {
             match: [DISPLAY_TAB_URL, ONLY_DEV_DESIGN_SYSTEM_ROUTE],
             component: (
               <Container>
+                <GroupTitle variant="headline">Accordion</GroupTitle>
+                <Stack gap={6} marginBottom={6}>
+                  <Accordion size="medium" summary="medium accordion">
+                    <Typography variant="body">Content of the accordion</Typography>
+                  </Accordion>
+                  <Accordion size="large" summary="large accordion">
+                    <Typography variant="body">Content of the accordion</Typography>
+                  </Accordion>
+                </Stack>
+
+                <GroupTitle variant="headline">Alert</GroupTitle>
+                <Block $marginBottom={theme.spacing(6)}>
+                  <Alert type="info">I&apos;m an info alert</Alert>
+                  <Alert type="success">I&apos;m a success alert</Alert>
+                  <Alert type="warning">I&apos;m a warning alert</Alert>
+                  <Alert type="danger">I&apos;m a danger alert</Alert>
+                </Block>
+
+                <GroupTitle variant="headline">Chips</GroupTitle>
+                <Block $marginBottom={theme.spacing(6)}>
+                  <Chip label="Small" size="small" />
+                  <Chip label="Default" />
+                  <Chip label="Big" size="big" />
+                  <Chip label="I have an icon" icon="scissor" />
+                  <Chip
+                    label="I have an icon and delete"
+                    icon="percentage"
+                    onDelete={() => {
+                      // eslint-disable-next-line no-console
+                      console.log('Chip clicked')
+                    }}
+                  />
+                  <Chip
+                    label="Tooltip on icon"
+                    icon="scissor"
+                    deleteIconLabel="Delete"
+                    onDelete={() => {
+                      // eslint-disable-next-line no-console
+                      console.log('Chip clicked')
+                    }}
+                  />
+                  <Chip
+                    error
+                    label="I have an error"
+                    icon="scissor"
+                    onDelete={() => {
+                      // eslint-disable-next-line no-console
+                      console.log('Chip clicked')
+                    }}
+                  />
+                  <Chip type="secondary" label="Small" size="small" />
+                  <Chip type="secondary" label="Default" />
+                  <Chip type="secondary" label="Big" size="big" />
+                  <Chip
+                    type="secondary"
+                    label="I have an icon and delete"
+                    icon="percentage"
+                    onDelete={() => {
+                      // eslint-disable-next-line no-console
+                      console.log('Chip clicked')
+                    }}
+                  />
+                  <Chip
+                    type="secondary"
+                    label="Tooltip on icon"
+                    icon="scissor"
+                    deleteIconLabel="Delete"
+                    onDelete={() => {
+                      // eslint-disable-next-line no-console
+                      console.log('Chip clicked')
+                    }}
+                  />
+                  <Chip
+                    error
+                    type="secondary"
+                    label="I have an error"
+                    icon="scissor"
+                    onDelete={() => {
+                      // eslint-disable-next-line no-console
+                      console.log('Chip clicked')
+                    }}
+                  />
+                  <Chip beta label="Small beta" size="small" />
+                  <Chip beta label="Beta" />
+                  <Chip beta label="Beta big" size="big" />
+                </Block>
+
                 <GroupTitle variant="headline">Poppers</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Drawer title="Imma supa drawa" opener={<Button>Drawer</Button>}>
@@ -282,81 +370,48 @@ const DesignSystem = () => {
                   </Tooltip>
                 </Block>
 
-                <GroupTitle variant="headline">New Chips</GroupTitle>
+                <GroupTitle variant="headline">Selector</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
-                  <Chip label="Small" size="small" />
-                  <Chip label="Default" />
-                  <Chip label="Big" size="big" />
-                  <Chip label="I have an icon" icon="scissor" />
-                  <Chip
-                    label="I have an icon and delete"
-                    icon="percentage"
-                    onDelete={() => {
-                      // eslint-disable-next-line no-console
-                      console.log('Chip clicked')
-                    }}
+                  <Selector
+                    title="A simple selector"
+                    subtitle="with more info"
+                    icon={
+                      <Avatar variant="connector">
+                        <Stripe />
+                      </Avatar>
+                    }
+                    endIcon={<Chip label="With chip" />}
+                    onClick={() => {}}
+                    fullWidth
                   />
-                  <Chip
-                    label="Tooltip on icon"
-                    icon="scissor"
-                    deleteIconLabel="Delete"
-                    onDelete={() => {
-                      // eslint-disable-next-line no-console
-                      console.log('Chip clicked')
-                    }}
+                  <Selector
+                    title="A simple selector selected"
+                    subtitle="Subtitle first"
+                    titleFirst={false}
+                    selected
+                    icon="target"
+                    endIcon={<Chip label="With chip" />}
+                    onClick={() => {}}
                   />
-                  <Chip
-                    error
-                    label="I have an error"
-                    icon="scissor"
-                    onDelete={() => {
-                      // eslint-disable-next-line no-console
-                      console.log('Chip clicked')
-                    }}
+                  <Selector
+                    title="Non clickable selector"
+                    subtitle="Alexandre Monjol"
+                    titleFirst={false}
+                    icon="user"
                   />
-                  <Chip type="secondary" label="Small" size="small" />
-                  <Chip type="secondary" label="Default" />
-                  <Chip type="secondary" label="Big" size="big" />
-                  <Chip
-                    type="secondary"
-                    label="I have an icon and delete"
-                    icon="percentage"
-                    onDelete={() => {
-                      // eslint-disable-next-line no-console
-                      console.log('Chip clicked')
-                    }}
+                  <Selector
+                    title="A simple selector disabled"
+                    subtitle="Subtitle first"
+                    titleFirst={false}
+                    disabled
+                    icon={
+                      <Avatar variant="connector">
+                        <Stripe />
+                      </Avatar>
+                    }
+                    endIcon={<Chip label="With chip" />}
+                    onClick={() => {}}
                   />
-                  <Chip
-                    type="secondary"
-                    label="Tooltip on icon"
-                    icon="scissor"
-                    deleteIconLabel="Delete"
-                    onDelete={() => {
-                      // eslint-disable-next-line no-console
-                      console.log('Chip clicked')
-                    }}
-                  />
-                  <Chip
-                    error
-                    type="secondary"
-                    label="I have an error"
-                    icon="scissor"
-                    onDelete={() => {
-                      // eslint-disable-next-line no-console
-                      console.log('Chip clicked')
-                    }}
-                  />
-                  <Chip beta label="Small beta" size="small" />
-                  <Chip beta label="Beta" />
-                  <Chip beta label="Beta big" size="big" />
-                </Block>
-
-                <GroupTitle variant="headline">Alert</GroupTitle>
-                <Block $marginBottom={theme.spacing(6)}>
-                  <Alert type="info">I&apos;m an info alert</Alert>
-                  <Alert type="success">I&apos;m a success alert</Alert>
-                  <Alert type="warning">I&apos;m a warning alert</Alert>
-                  <Alert type="danger">I&apos;m a danger alert</Alert>
                 </Block>
 
                 <GroupTitle variant="headline">Status</GroupTitle>
@@ -418,50 +473,6 @@ const DesignSystem = () => {
                     <Status type={StatusType.disabled} label="voided" />
                   </Block>
                 </VerticalBlock>
-
-                <GroupTitle variant="headline">Selector</GroupTitle>
-                <Block $marginBottom={theme.spacing(6)}>
-                  <Selector
-                    title="A simple selector"
-                    subtitle="with more info"
-                    icon={
-                      <Avatar variant="connector">
-                        <Stripe />
-                      </Avatar>
-                    }
-                    endIcon={<Chip label="With chip" />}
-                    onClick={() => {}}
-                    fullWidth
-                  />
-                  <Selector
-                    title="A simple selector selected"
-                    subtitle="Subtitle first"
-                    titleFirst={false}
-                    selected
-                    icon="target"
-                    endIcon={<Chip label="With chip" />}
-                    onClick={() => {}}
-                  />
-                  <Selector
-                    title="Non clickable selector"
-                    subtitle="Alexandre Monjol"
-                    titleFirst={false}
-                    icon="user"
-                  />
-                  <Selector
-                    title="A simple selector disabled"
-                    subtitle="Subtitle first"
-                    titleFirst={false}
-                    disabled
-                    icon={
-                      <Avatar variant="connector">
-                        <Stripe />
-                      </Avatar>
-                    }
-                    endIcon={<Chip label="With chip" />}
-                    onClick={() => {}}
-                  />
-                </Block>
 
                 <GroupTitle variant="headline">ShowMoreText</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
