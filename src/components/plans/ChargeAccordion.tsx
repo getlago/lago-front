@@ -1025,6 +1025,7 @@ const SummaryRight = styled.div`
 const SpendingMinimumWrapper = styled.div`
   display: flex;
   gap: ${theme.spacing(3)};
+  align-items: center;
 `
 
 const SpendingMinimumInput = styled(AmountInput)`
