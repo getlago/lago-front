@@ -7,18 +7,15 @@ import {
   TableRow as MUITableRow,
 } from '@mui/material'
 import { ReactNode } from 'react'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import { Button, ButtonProps, Popper, Skeleton } from '~/components/designSystem'
 import { ListClickableItemCss, MenuPopper, theme } from '~/styles'
-
-type Variant = 'outline' | 'borderless'
 
 type Column<T> = {
   key: keyof T
   title: string | ReactNode
   content: (item: T) => ReactNode
-  size?: number
   textAlign?: 'left' | 'center' | 'right'
 }
 
@@ -26,10 +23,9 @@ interface TableProps<T> {
   name: string
   data: T[]
   columns: Column<T>[]
-  isLoading?: boolean
-  variant?: Variant
-  onRowAction?: (item: T) => void
   isFullWidth?: boolean
+  isLoading?: boolean
+  onRowAction?: (item: T) => void
   actionColumn?: Array<{
     title: string | ReactNode
     startIcon?: ButtonProps['startIcon']
@@ -43,14 +39,13 @@ export const Table = <T,>({
   name,
   data,
   columns,
-  variant = 'outline',
-  isLoading,
-  isFullWidth,
+  isLoading = false,
+  isFullWidth = true,
   onRowAction,
   actionColumn,
 }: TableProps<T>) => {
   return (
-    <TableContainer $isFullWidth={!!isFullWidth} $variant={variant}>
+    <TableContainer $isFullWidth={!!isFullWidth}>
       <MUITable>
         <TableHead>
           <TableRow>
@@ -62,7 +57,6 @@ export const Table = <T,>({
               <>
                 {columns.map((column, i) => (
                   <TableCell
-                    $size={column.size}
                     key={`table-display-${name}-head-${i}`}
                     align={column.textAlign || 'left'}
                   >
@@ -104,7 +98,6 @@ export const Table = <T,>({
               >
                 {columns.map((column, j) => (
                   <TableCell
-                    $size={column.size}
                     key={`table-display-${name}-cell-${i}-${j}`}
                     align={column.textAlign || 'left'}
                   >
@@ -157,27 +150,7 @@ export const Table = <T,>({
 
 const TableContainer = styled(MUITableContainer)<{
   $isFullWidth: boolean
-  $variant: Variant
 }>`
-  ${({ $variant }) => {
-    if ($variant === 'outline') {
-      return css`
-        border: 1px solid ${theme.palette.grey[400]};
-        border-radius: ${theme.shape.borderRadius}px;
-      `
-    }
-
-    if ($variant === 'borderless') {
-      return css`
-        thead {
-          background-color: ${theme.palette.grey[100]};
-        }
-      `
-    }
-
-    return css``
-  }}
-
   width: ${({ $isFullWidth }) => ($isFullWidth ? '100%' : 'auto')};
 `
 
