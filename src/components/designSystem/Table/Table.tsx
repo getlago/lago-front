@@ -6,13 +6,18 @@ import {
   TableHead as MUITableHead,
   TableRow as MUITableRow,
 } from '@mui/material'
-import { ReactNode } from 'react'
+import { MouseEvent, ReactNode, useRef } from 'react'
 import styled from 'styled-components'
 
 import { Button, ButtonProps, Popper, Skeleton, Typography } from '~/components/designSystem'
+import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { MenuPopper, theme } from '~/styles'
 
 type ContainerSize = 'sm' | 'md' | 'lg'
+
+type DataItem = {
+  id: string
+}
 
 type Column<T> = {
   key: keyof T
@@ -65,7 +70,7 @@ const countMaxSpaceColumns = <T,>(columns: Column<T>[]) =>
     return acc
   }, 0)
 
-export const Table = <T,>({
+export const Table = <T extends DataItem>({
   name,
   data,
   columns,
@@ -75,17 +80,58 @@ export const Table = <T,>({
   onRowAction,
   actionColumn,
 }: TableProps<T>) => {
+  const TABLE_ID = `table-${name}`
   const maxSpaceColumns = countMaxSpaceColumns(columns)
+  const tableRef = useRef<HTMLTableElement>(null)
+
+  const { onKeyDown } = useListKeysNavigation({
+    getElmId: (i) => `${TABLE_ID}-row-${i}`,
+    navigate: (id) => {
+      const item = data.find((dataItem) => dataItem.id === id)
+
+      if (item) {
+        onRowAction?.(item)
+      }
+    },
+  })
+
+  const isClickable = !!onRowAction && !isLoading
+
+  const handleRowClick = (e: MouseEvent<HTMLTableRowElement>, item: T) => {
+    // Prevent row action when clicking on button or link in cell
+    if (e.target instanceof HTMLAnchorElement || e.target instanceof HTMLButtonElement) {
+      return
+    }
+
+    // Prevent row action when clicking on action column button
+    const popper = tableRef.current?.querySelector(`[data-id=${TABLE_ID}-popper]`)
+
+    if (popper) {
+      return
+    }
+
+    if (e.target instanceof HTMLElement) {
+      const actionColumnButton = e.target.closest('button')?.dataset.id
+
+      if (actionColumnButton !== ACTION_COLUMN_ID) {
+        onRowAction?.(item)
+      }
+    }
+  }
 
   return (
     <MUITableContainer>
-      <StyledTable $isFullWidth={!!isFullWidth} $containerSize={getContainerSize(containerSize)}>
+      <StyledTable
+        ref={tableRef}
+        $isFullWidth={!!isFullWidth}
+        $containerSize={getContainerSize(containerSize)}
+      >
         <TableHead>
           <TableRow>
             <>
               {columns.map((column, i) => (
                 <TableCell
-                  key={`table-display-${name}-head-${i}`}
+                  key={`${TABLE_ID}-head-${i}`}
                   align={column.textAlign || 'left'}
                   $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
                 >
@@ -107,27 +153,17 @@ export const Table = <T,>({
           ) : (
             data.map((item, i) => (
               <TableRow
-                $isClickable={!!onRowAction}
-                key={`table-display-${name}-row-${i}`}
-                onClick={(e) => {
-                  const popperElement = document.querySelector(
-                    `[data-id=table-display-${name}-popper]`,
-                  )
-
-                  if (popperElement) return
-
-                  if (e.target instanceof HTMLElement) {
-                    const actionColumnButton = e.target.closest('button')?.dataset.id
-
-                    if (actionColumnButton !== ACTION_COLUMN_ID) {
-                      onRowAction?.(item)
-                    }
-                  }
-                }}
+                key={`${TABLE_ID}-row-${i}`}
+                id={`${TABLE_ID}-row-${i}`}
+                data-id={item.id}
+                $isClickable={isClickable}
+                tabIndex={isClickable ? 0 : undefined}
+                onKeyDown={isClickable ? onKeyDown : undefined}
+                onClick={isClickable ? (e) => handleRowClick(e, item) : undefined}
               >
                 {columns.map((column, j) => (
                   <TableCell
-                    key={`table-display-${name}-cell-${i}-${j}`}
+                    key={`${TABLE_ID}-cell-${i}-${j}`}
                     align={column.textAlign || 'left'}
                     $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
                   >
@@ -142,7 +178,7 @@ export const Table = <T,>({
                   <TableActionCell>
                     <TableInnerCell>
                       <Popper
-                        popperGroupName={`table-display-${name}-cta`}
+                        popperGroupName={`${TABLE_ID}-action-cell`}
                         PopperProps={{ placement: 'bottom-end' }}
                         opener={
                           <Button
@@ -153,11 +189,11 @@ export const Table = <T,>({
                         }
                       >
                         {({ closePopper }) => (
-                          <MenuPopper data-id={`table-display-${name}-popper`}>
-                            {actionColumn.map((action) => (
+                          <MenuPopper data-id={`${TABLE_ID}-popper`}>
+                            {actionColumn.map((action, j) => (
                               <Button
                                 fullWidth
-                                key={`table-display-${name}-action-${i}`}
+                                key={`${TABLE_ID}-action-${i}-${j}`}
                                 startIcon={action.startIcon}
                                 variant="quaternary"
                                 align="left"
