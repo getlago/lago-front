@@ -4,7 +4,7 @@ import { FormikProps } from 'formik'
 import { memo, useState } from 'react'
 import styled from 'styled-components'
 
-import { Alert, Button, Table, Tooltip, Typography } from '~/components/designSystem'
+import { Alert, Button, ChargeTable, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -66,7 +66,7 @@ export const VolumeChargeTable = memo(
           {translate('text_6304e74aab6dbc18d615f38e')}
         </AddButton>
         <TableContainer>
-          <Table
+          <ChargeTable
             name="volume-charge-table"
             data={tableDatas}
             onDeleteRow={(_, i) => deleteRange(i)}

@@ -4,7 +4,7 @@ import { FormikProps } from 'formik'
 import { memo, useState } from 'react'
 import styled from 'styled-components'
 
-import { Alert, Button, Icon, Table, Tooltip, Typography } from '~/components/designSystem'
+import { Alert, Button, ChargeTable, Icon, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -66,7 +66,7 @@ export const GraduatedPercentageChargeTable = memo(
           {translate('text_62793bbb599f1c01522e91a5')}
         </AddButton>
         <TableContainer>
-          <Table
+          <ChargeTable
             name="graduated-percentage-charge-table"
             data={tableDatas}
             onDeleteRow={(_, i) => deleteRange(i)}
