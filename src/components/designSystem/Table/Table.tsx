@@ -22,7 +22,7 @@ type Column<T> = {
   textAlign?: 'left' | 'center' | 'right'
 }
 
-interface TableDisplayProps<T> {
+interface TableProps<T> {
   name: string
   data: T[]
   columns: Column<T>[]
@@ -39,7 +39,7 @@ interface TableDisplayProps<T> {
 
 const ACTION_COLUMN_ID = 'actionColumn'
 
-export const TableDisplay = <T,>({
+export const Table = <T,>({
   name,
   data,
   columns,
@@ -48,7 +48,7 @@ export const TableDisplay = <T,>({
   isFullWidth,
   onRowAction,
   actionColumn,
-}: TableDisplayProps<T>) => {
+}: TableProps<T>) => {
   return (
     <TableContainer $isFullWidth={!!isFullWidth} $variant={variant}>
       <MUITable>

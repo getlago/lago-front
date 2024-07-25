@@ -26,7 +26,7 @@ import {
   Skeleton,
   Status,
   StatusType,
-  TableDisplay,
+  Table,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
@@ -573,7 +573,7 @@ const DesignSystem = () => {
                 </Block>
                 <GroupTitle variant="headline">Display Table</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
-                  <TableDisplay
+                  <Table
                     variant="borderless"
                     name="display-table"
                     data={tableData}

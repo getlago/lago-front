@@ -1,2 +1,2 @@
 export * from './ChargeTable'
-export * from './TableDisplay'
+export * from './Table'
