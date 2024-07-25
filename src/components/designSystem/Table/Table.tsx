@@ -9,14 +9,18 @@ import {
 import { ReactNode } from 'react'
 import styled from 'styled-components'
 
-import { Button, ButtonProps, Popper, Skeleton } from '~/components/designSystem'
-import { ListClickableItemCss, MenuPopper, theme } from '~/styles'
+import { Button, ButtonProps, Popper, Skeleton, Typography } from '~/components/designSystem'
+import { MenuPopper, theme } from '~/styles'
+
+type ContainerSize = 'sm' | 'md' | 'lg'
 
 type Column<T> = {
   key: keyof T
   title: string | ReactNode
   content: (item: T) => ReactNode
   textAlign?: 'left' | 'center' | 'right'
+  maxSpace?: boolean
+  minWidth?: number
 }
 
 interface TableProps<T> {
@@ -31,9 +35,35 @@ interface TableProps<T> {
     startIcon?: ButtonProps['startIcon']
     onAction: (item: T) => void
   }>
+  /**
+   * 'sm' = 4px ; 'md' = 16px ; 'lg' = 48px
+   * @default 'lg'
+   * */
+  containerSize?: ContainerSize
 }
 
 const ACTION_COLUMN_ID = 'actionColumn'
+const ROW_MIN_HEIGHT = 56
+
+const getContainerSize = (containerSize: ContainerSize) => {
+  switch (containerSize) {
+    case 'sm':
+      return 4
+    case 'md':
+      return 16
+    case 'lg':
+      return 48
+  }
+}
+
+const countMaxSpaceColumns = <T,>(columns: Column<T>[]) =>
+  columns.reduce((acc, column) => {
+    if (column.maxSpace) {
+      acc += 1
+    }
+
+    return acc
+  }, 0)
 
 export const Table = <T,>({
   name,
@@ -41,33 +71,32 @@ export const Table = <T,>({
   columns,
   isLoading = false,
   isFullWidth = true,
+  containerSize = 'lg',
   onRowAction,
   actionColumn,
 }: TableProps<T>) => {
+  const maxSpaceColumns = countMaxSpaceColumns(columns)
+
   return (
-    <TableContainer $isFullWidth={!!isFullWidth}>
-      <MUITable>
+    <MUITableContainer>
+      <StyledTable $isFullWidth={!!isFullWidth} $containerSize={getContainerSize(containerSize)}>
         <TableHead>
           <TableRow>
-            {isLoading ? (
-              <TableCell>
-                <Skeleton variant="text" width={300} />
-              </TableCell>
-            ) : (
-              <>
-                {columns.map((column, i) => (
-                  <TableCell
-                    key={`table-display-${name}-head-${i}`}
-                    align={column.textAlign || 'left'}
-                  >
-                    {column.title}
-                  </TableCell>
-                ))}
-                <TableCell />
-              </>
-            )}
+            <>
+              {columns.map((column, i) => (
+                <TableCell
+                  key={`table-display-${name}-head-${i}`}
+                  align={column.textAlign || 'left'}
+                  $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
+                >
+                  <TableInnerCell>{column.title}</TableInnerCell>
+                </TableCell>
+              ))}
+              {actionColumn && <TableActionCell />}
+            </>
           </TableRow>
         </TableHead>
+
         <MUITableBody>
           {isLoading ? (
             <TableRow>
@@ -100,98 +129,173 @@ export const Table = <T,>({
                   <TableCell
                     key={`table-display-${name}-cell-${i}-${j}`}
                     align={column.textAlign || 'left'}
+                    $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
                   >
-                    {column.content(item)}
+                    <TableInnerCell $minWidth={column.minWidth}>
+                      <Typography color="textSecondary" noWrap>
+                        {column.content(item)}
+                      </Typography>
+                    </TableInnerCell>
                   </TableCell>
                 ))}
                 {actionColumn && (
-                  <TableCell>
-                    <Popper
-                      popperGroupName={`table-display-${name}-cta`}
-                      PopperProps={{ placement: 'bottom-end' }}
-                      opener={
-                        <Button
-                          data-id={ACTION_COLUMN_ID}
-                          icon="dots-horizontal"
-                          variant="quaternary"
-                        />
-                      }
-                    >
-                      {({ closePopper }) => (
-                        <MenuPopper data-id={`table-display-${name}-popper`}>
-                          {actionColumn.map((action) => (
-                            <Button
-                              fullWidth
-                              key={`table-display-${name}-action-${i}`}
-                              startIcon={action.startIcon}
-                              variant="quaternary"
-                              align="left"
-                              onClick={async () => {
-                                await action.onAction(item)
-                                closePopper()
-                              }}
-                            >
-                              {action.title}
-                            </Button>
-                          ))}
-                        </MenuPopper>
-                      )}
-                    </Popper>
-                  </TableCell>
+                  <TableActionCell>
+                    <TableInnerCell>
+                      <Popper
+                        popperGroupName={`table-display-${name}-cta`}
+                        PopperProps={{ placement: 'bottom-end' }}
+                        opener={
+                          <Button
+                            data-id={ACTION_COLUMN_ID}
+                            icon="dots-horizontal"
+                            variant="quaternary"
+                          />
+                        }
+                      >
+                        {({ closePopper }) => (
+                          <MenuPopper data-id={`table-display-${name}-popper`}>
+                            {actionColumn.map((action) => (
+                              <Button
+                                fullWidth
+                                key={`table-display-${name}-action-${i}`}
+                                startIcon={action.startIcon}
+                                variant="quaternary"
+                                align="left"
+                                onClick={async () => {
+                                  await action.onAction(item)
+                                  closePopper()
+                                }}
+                              >
+                                {action.title}
+                              </Button>
+                            ))}
+                          </MenuPopper>
+                        )}
+                      </Popper>
+                    </TableInnerCell>
+                  </TableActionCell>
                 )}
               </TableRow>
             ))
           )}
         </MUITableBody>
-      </MUITable>
-    </TableContainer>
+      </StyledTable>
+    </MUITableContainer>
   )
 }
 
-const TableContainer = styled(MUITableContainer)<{
-  $isFullWidth: boolean
+const TableInnerCell = styled.div<{ $minWidth?: number }>`
+  min-height: ${ROW_MIN_HEIGHT}px;
+  min-width: ${({ $minWidth }) => ($minWidth ? `${$minWidth}px` : 'auto')};
+  display: flex;
+  align-items: center;
+`
+
+const TableCell = styled(MUITableCell)<{
+  $isBlurred?: boolean
+  $maxSpace?: number
 }>`
+  width: ${({ $maxSpace }) => ($maxSpace ? `${$maxSpace}%` : 'auto')};
+  padding: 0;
+  box-sizing: border-box;
+  white-space: nowrap;
+  border-bottom: 1px solid ${theme.palette.grey[300]};
+
+  ${TableInnerCell} {
+    padding-left: ${theme.spacing(3)};
+    padding-right: ${theme.spacing(5)};
+  }
+
+  &:first-of-type ${TableInnerCell} {
+    padding-left: 0;
+  }
+
+  &:last-of-type ${TableInnerCell} {
+    padding-right: 0;
+  }
+`
+
+const StyledTable = styled(MUITable)<{
+  $isFullWidth: boolean
+  $containerSize: number
+}>`
+  border-collapse: collapse;
   width: ${({ $isFullWidth }) => ($isFullWidth ? '100%' : 'auto')};
+
+  ${TableCell}:first-of-type ${TableInnerCell} {
+    padding-left: ${({ $containerSize }) => `${$containerSize}px`};
+  }
+
+  ${TableCell}:last-of-type ${TableInnerCell} {
+    padding-right: ${({ $containerSize }) => `${$containerSize}px`};
+  }
 `
 
 const TableHead = styled(MUITableHead)`
-  &:not(:last-child) {
-    > * {
-      box-shadow: ${theme.shadows[7]};
-    }
-  }
-
-  th {
-    padding: 10px ${theme.spacing(4)};
-    font-size: ${theme.typography.bodyHl.fontSize}px;
-    font-weight: ${theme.typography.bodyHl.fontWeight};
-    line-height: ${theme.typography.bodyHl.lineHeight};
-    color: ${theme.palette.text.disabled};
+  ${TableInnerCell} {
+    font-size: ${theme.typography.captionHl.fontSize};
+    font-weight: ${theme.typography.captionHl.fontWeight};
+    line-height: ${theme.typography.captionHl.lineHeight};
+    color: ${theme.palette.grey[600]};
+    min-height: 40px;
   }
 `
 
-const TableCell = styled(MUITableCell)<{ $size?: number }>`
-  width: ${({ $size }) => $size}px;
-  box-sizing: border-box;
-  font-family: ${theme.typography.fontFamily};
-  color: ${theme.palette.text.secondary};
-  font-size: ${theme.typography.body.fontSize}px;
-  font-weight: ${theme.typography.body.fontWeight};
-  line-height: ${theme.typography.body.lineHeight};
-  border: 0;
+const TableActionCell = styled(TableCell)`
+  width: 40px;
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  animation-name: shadow;
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
+  animation-timeline: scroll(inline);
+
+  ${TableInnerCell} {
+    justify-content: center;
+    padding-left: ${theme.spacing(3)};
+  }
+
+  @keyframes shadow {
+    0% {
+      box-shadow: ${theme.shadows[8]};
+      background-color: ${theme.palette.background.paper};
+    }
+
+    90% {
+      box-shadow: ${theme.shadows[8]};
+      background-color: ${theme.palette.background.paper};
+    }
+
+    99% {
+      box-shadow: none;
+      background-color: transparent;
+    }
+  }
 `
 
 const TableRow = styled(MUITableRow)<{ $isClickable?: boolean }>`
-  &:not(:last-child) {
-    > * {
-      box-shadow: ${theme.shadows[7]};
-    }
+  cursor: ${({ $isClickable }) => ($isClickable ? 'pointer' : 'initial')};
+
+  &:hover:not(:active),
+  &:focus:not(:active),
+  &:hover:not(:active) ${TableActionCell}, &:focus:not(:active) ${TableActionCell} {
+    background-color: ${({ $isClickable }) =>
+      $isClickable ? `${theme.palette.grey[100]} !important` : 'unset'};
   }
 
-  ${({ $isClickable }) => $isClickable && ListClickableItemCss}
+  &:active,
+  &:active ${TableActionCell} {
+    background-color: ${({ $isClickable }) =>
+      $isClickable ? `${theme.palette.grey[200]} !important` : 'unset'};
+  }
 
   // Remove hover effect when action column is hovered
   &:has([data-id='${ACTION_COLUMN_ID}']:hover) {
-    background-color: initial;
+    background-color: unset !important;
+
+    ${TableActionCell} {
+      background-color: ${theme.palette.background.paper} !important;
+    }
   }
 `
