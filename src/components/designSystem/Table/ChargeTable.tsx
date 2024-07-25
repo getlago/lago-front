@@ -13,7 +13,7 @@ const CELL_HEIGHT = 48
 
 type DataType<T> = T & { disabledDelete?: boolean }
 
-interface TableColumnMapKey<T> {
+interface ChargeTableColumnMapKey<T> {
   title?: ReactNode
   size?: number
   content: ReactNode | ((row: DataType<T>, index: number) => ReactNode)
@@ -21,7 +21,7 @@ interface TableColumnMapKey<T> {
   onClick?: () => unknown // On column header click
 }
 
-interface TableColumnContent {
+interface ChargeTableColumnContent {
   title: ReactNode
   size?: number
   content?: never
@@ -29,23 +29,23 @@ interface TableColumnContent {
   onClick?: () => unknown // On column header click
 }
 
-type TableColumnProps<T> = TableColumnMapKey<T> | TableColumnContent
+type ChargeTableColumnProps<T> = ChargeTableColumnMapKey<T> | ChargeTableColumnContent
 
-interface TableProps<T> {
+interface ChargeTableProps<T> {
   name: string // this is to allow to have several table on a same page (no duplicated keys)
-  columns: TableColumnProps<T>[]
+  columns: ChargeTableColumnProps<T>[]
   data: DataType<T>[]
   className?: string
   onDeleteRow?: (row: DataType<T>, index: number) => unknown
 }
 
-export const Table = <T extends Record<string, unknown>>({
+export const ChargeTable = <T extends Record<string, unknown>>({
   name,
   className,
   columns,
   data,
   onDeleteRow,
-}: TableProps<T>) => {
+}: ChargeTableProps<T>) => {
   const { translate } = useInternationalization()
 
   return (

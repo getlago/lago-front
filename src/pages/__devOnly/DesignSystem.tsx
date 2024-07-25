@@ -12,6 +12,7 @@ import {
   Avatar,
   Button,
   ButtonLink,
+  ChargeTable,
   Chip,
   Dialog,
   DialogRef,
@@ -25,7 +26,6 @@ import {
   Skeleton,
   Status,
   StatusType,
-  Table,
   TableDisplay,
   Tooltip,
   Typography,
@@ -527,7 +527,7 @@ const DesignSystem = () => {
               <Container>
                 <GroupTitle variant="headline">Table</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
-                  <Table
+                  <ChargeTable
                     name="graduated-charge-table"
                     data={tableData}
                     onDeleteRow={() => {}}
