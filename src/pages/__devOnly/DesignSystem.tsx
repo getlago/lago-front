@@ -563,14 +563,16 @@ const DesignSystem = () => {
                       },
                     ]}
                     onRowAction={(item) => alert(`You clicked on ${item.id}`)}
-                    actionColumn={[
-                      {
-                        title: 'Edit',
-                        startIcon: 'pen',
-                        onAction: (item) => {
-                          alert(`You edited ${item.id}`)
-                        },
-                      },
+                    actionColumn={(currentItem) => [
+                      currentItem.amount > 1000
+                        ? {
+                            title: 'Edit',
+                            startIcon: 'pen',
+                            onAction: (item) => {
+                              alert(`You edited ${item.id}`)
+                            },
+                          }
+                        : null,
                       {
                         title: 'Delete',
                         startIcon: 'trash',

@@ -8,7 +8,7 @@ import {
 import { MouseEvent, ReactNode, useRef } from 'react'
 import styled from 'styled-components'
 
-import { Button, ButtonProps, Popper, Skeleton, Typography } from '~/components/designSystem'
+import { Button, IconName, Popper, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { GenericPlaceholder, GenericPlaceholderProps } from '~/components/GenericPlaceholder'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
@@ -45,6 +45,15 @@ type DataItem = {
   id: string
 }
 
+export type ActionItem<T> = {
+  title: string | ReactNode
+  onAction: (item: T) => void
+  startIcon?: IconName
+  disabled?: boolean
+  tooltip?: string
+  tooltipListener?: boolean
+}
+
 interface TableProps<T> {
   name: string
   data: T[]
@@ -57,11 +66,7 @@ interface TableProps<T> {
     errorState?: Partial<GenericPlaceholderProps>
   }
   onRowAction?: (item: T) => void
-  actionColumn?: Array<{
-    title: string | ReactNode
-    startIcon?: ButtonProps['startIcon']
-    onAction: (item: T) => void
-  }>
+  actionColumn?: (item: T) => Array<ActionItem<T> | null>
   /**
    * 'sm' = 4px ; 'md' = 16px ; 'lg' = 48px
    * @default 'lg'
@@ -254,21 +259,43 @@ export const Table = <T extends DataItem>({
                       >
                         {({ closePopper }) => (
                           <MenuPopper data-id={`${TABLE_ID}-popper`}>
-                            {actionColumn.map((action, j) => (
-                              <Button
-                                fullWidth
-                                key={`${TABLE_ID}-action-${i}-${j}`}
-                                startIcon={action.startIcon}
-                                variant="quaternary"
-                                align="left"
-                                onClick={async () => {
-                                  await action.onAction(item)
-                                  closePopper()
-                                }}
-                              >
-                                {action.title}
-                              </Button>
-                            ))}
+                            {actionColumn(item)
+                              .filter((action) => !!action)
+                              .map((action, j) => {
+                                if (!action) {
+                                  return
+                                }
+
+                                const button = (
+                                  <Button
+                                    fullWidth
+                                    startIcon={action.startIcon}
+                                    variant="quaternary"
+                                    align="left"
+                                    disabled={action.disabled}
+                                    onClick={async () => {
+                                      await action.onAction(item)
+                                      closePopper()
+                                    }}
+                                  >
+                                    {action.title}
+                                  </Button>
+                                )
+
+                                if (action.tooltip) {
+                                  return (
+                                    <Tooltip
+                                      key={`${TABLE_ID}-action-${i}-${j}`}
+                                      title={action.tooltip}
+                                      disableHoverListener={action.tooltipListener}
+                                    >
+                                      {button}
+                                    </Tooltip>
+                                  )
+                                }
+
+                                return button
+                              })}
                           </MenuPopper>
                         )}
                       </Popper>
