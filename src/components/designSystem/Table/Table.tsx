@@ -16,19 +16,33 @@ import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, theme } from '~/styles'
 
-type ContainerSize = 'sm' | 'md' | 'lg'
+type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`
 
-type DataItem = {
-  id: string
-}
+type DotNestedKeys<T> = (
+  T extends object
+    ? { [K in Exclude<keyof T, symbol>]: `${K}${DotPrefix<DotNestedKeys<T[K]>>}` }[Exclude<
+        keyof T,
+        symbol
+      >]
+    : ''
+) extends infer D
+  ? Extract<D, string>
+  : never
 
 type Column<T> = {
-  key: keyof T
+  // Using DotNestedKeys to get nested keys for object with more than one level deepness
+  key: DotNestedKeys<T>
   title: string | ReactNode
   content: (item: T) => ReactNode
   textAlign?: 'left' | 'center' | 'right'
   maxSpace?: boolean
   minWidth?: number
+}
+
+type ContainerSize = 'sm' | 'md' | 'lg'
+
+type DataItem = {
+  id: string
 }
 
 interface TableProps<T> {
@@ -109,8 +123,7 @@ export const Table = <T extends DataItem>({
 
   const isClickable = !!onRowAction && !isLoading
   const shouldDisplayActionColumn = !!actionColumn && actionColumn.length > 0
-  const isEmpty = !isLoading && data.length === 0
-  const colSpan = columns.length + (actionColumn ? 1 : 0)
+  const colSpan = columns.length + (shouldDisplayActionColumn ? 1 : 0)
 
   const handleRowClick = (e: MouseEvent<HTMLTableRowElement>, item: T) => {
     // Prevent row action when clicking on button or link in cell
@@ -155,7 +168,7 @@ export const Table = <T extends DataItem>({
       )
     }
 
-    if (isEmpty) {
+    if (!isLoading && data.length === 0) {
       return (
         <TableRow>
           <TableCell colSpan={colSpan}>
@@ -201,68 +214,69 @@ export const Table = <T extends DataItem>({
 
       <MUITableBody>
         {renderPlaceholder() ??
-          data.map((item, i) => (
-            <TableRow
-              key={`${TABLE_ID}-row-${i}`}
-              id={`${TABLE_ID}-row-${i}`}
-              data-id={item.id}
-              $isClickable={isClickable}
-              tabIndex={isClickable ? 0 : undefined}
-              onKeyDown={isClickable ? onKeyDown : undefined}
-              onClick={isClickable ? (e) => handleRowClick(e, item) : undefined}
-            >
-              {columns.map((column, j) => (
-                <TableCell
-                  key={`${TABLE_ID}-cell-${i}-${j}`}
-                  align={column.textAlign || 'left'}
-                  $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
-                >
-                  <TableInnerCell $minWidth={column.minWidth}>
-                    <Typography color="textSecondary" noWrap>
-                      {column.content(item)}
-                    </Typography>
-                  </TableInnerCell>
-                </TableCell>
-              ))}
-              {shouldDisplayActionColumn && (
-                <TableActionCell>
-                  <TableInnerCell>
-                    <Popper
-                      popperGroupName={`${TABLE_ID}-action-cell`}
-                      PopperProps={{ placement: 'bottom-end' }}
-                      opener={
-                        <Button
-                          data-id={ACTION_COLUMN_ID}
-                          icon="dots-horizontal"
-                          variant="quaternary"
-                        />
-                      }
-                    >
-                      {({ closePopper }) => (
-                        <MenuPopper data-id={`${TABLE_ID}-popper`}>
-                          {actionColumn.map((action, j) => (
-                            <Button
-                              fullWidth
-                              key={`${TABLE_ID}-action-${i}-${j}`}
-                              startIcon={action.startIcon}
-                              variant="quaternary"
-                              align="left"
-                              onClick={async () => {
-                                await action.onAction(item)
-                                closePopper()
-                              }}
-                            >
-                              {action.title}
-                            </Button>
-                          ))}
-                        </MenuPopper>
-                      )}
-                    </Popper>
-                  </TableInnerCell>
-                </TableActionCell>
-              )}
-            </TableRow>
-          ))}
+          (data.length > 0 &&
+            data.map((item, i) => (
+              <TableRow
+                key={`${TABLE_ID}-row-${i}`}
+                id={`${TABLE_ID}-row-${i}`}
+                data-id={item.id}
+                $isClickable={isClickable}
+                tabIndex={isClickable ? 0 : undefined}
+                onKeyDown={isClickable ? onKeyDown : undefined}
+                onClick={isClickable ? (e) => handleRowClick(e, item) : undefined}
+              >
+                {columns.map((column, j) => (
+                  <TableCell
+                    key={`${TABLE_ID}-cell-${i}-${j}`}
+                    align={column.textAlign || 'left'}
+                    $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
+                  >
+                    <TableInnerCell $minWidth={column.minWidth}>
+                      <Typography color="textSecondary" noWrap>
+                        {column.content(item)}
+                      </Typography>
+                    </TableInnerCell>
+                  </TableCell>
+                ))}
+                {shouldDisplayActionColumn && (
+                  <TableActionCell>
+                    <TableInnerCell>
+                      <Popper
+                        popperGroupName={`${TABLE_ID}-action-cell`}
+                        PopperProps={{ placement: 'bottom-end' }}
+                        opener={
+                          <Button
+                            data-id={ACTION_COLUMN_ID}
+                            icon="dots-horizontal"
+                            variant="quaternary"
+                          />
+                        }
+                      >
+                        {({ closePopper }) => (
+                          <MenuPopper data-id={`${TABLE_ID}-popper`}>
+                            {actionColumn.map((action, j) => (
+                              <Button
+                                fullWidth
+                                key={`${TABLE_ID}-action-${i}-${j}`}
+                                startIcon={action.startIcon}
+                                variant="quaternary"
+                                align="left"
+                                onClick={async () => {
+                                  await action.onAction(item)
+                                  closePopper()
+                                }}
+                              >
+                                {action.title}
+                              </Button>
+                            ))}
+                          </MenuPopper>
+                        )}
+                      </Popper>
+                    </TableInnerCell>
+                  </TableActionCell>
+                )}
+              </TableRow>
+            )))}
         {isLoading && LoadingRows({ columns, id: TABLE_ID, shouldDisplayActionColumn })}
       </MUITableBody>
     </StyledTable>
