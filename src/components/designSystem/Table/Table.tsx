@@ -10,7 +10,11 @@ import { MouseEvent, ReactNode, useRef } from 'react'
 import styled from 'styled-components'
 
 import { Button, ButtonProps, Popper, Skeleton, Typography } from '~/components/designSystem'
+import { GenericPlaceholder, GenericPlaceholderProps } from '~/components/GenericPlaceholder'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
+import EmptyImage from '~/public/images/maneki/empty.svg'
+import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, theme } from '~/styles'
 
 type ContainerSize = 'sm' | 'md' | 'lg'
@@ -34,6 +38,11 @@ interface TableProps<T> {
   columns: Column<T>[]
   isFullWidth?: boolean
   isLoading?: boolean
+  hasError?: boolean
+  placeholder?: {
+    emptyState?: Partial<GenericPlaceholderProps>
+    errorState?: Partial<GenericPlaceholderProps>
+  }
   onRowAction?: (item: T) => void
   actionColumn?: Array<{
     title: string | ReactNode
@@ -49,6 +58,7 @@ interface TableProps<T> {
 
 const ACTION_COLUMN_ID = 'actionColumn'
 const ROW_MIN_HEIGHT = 56
+const LOADING_ROW_COUNT = 3
 
 const getContainerSize = (containerSize: ContainerSize) => {
   switch (containerSize) {
@@ -74,15 +84,18 @@ export const Table = <T extends DataItem>({
   name,
   data,
   columns,
-  isLoading = false,
+  isLoading,
+  hasError,
   isFullWidth = true,
   containerSize = 'lg',
+  placeholder,
   onRowAction,
   actionColumn,
 }: TableProps<T>) => {
   const TABLE_ID = `table-${name}`
   const maxSpaceColumns = countMaxSpaceColumns(columns)
   const tableRef = useRef<HTMLTableElement>(null)
+  const { translate } = useInternationalization()
 
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `${TABLE_ID}-row-${i}`,
@@ -96,6 +109,9 @@ export const Table = <T extends DataItem>({
   })
 
   const isClickable = !!onRowAction && !isLoading
+  const shouldDisplayActionColumn = !!actionColumn && actionColumn.length > 0
+  const isEmpty = !isLoading && data.length === 0
+  const colSpan = columns.length + (actionColumn ? 1 : 0)
 
   const handleRowClick = (e: MouseEvent<HTMLTableRowElement>, item: T) => {
     // Prevent row action when clicking on button or link in cell
@@ -119,6 +135,69 @@ export const Table = <T extends DataItem>({
     }
   }
 
+  const renderPlaceholder = () => {
+    if (isLoading) {
+      return Array.from({ length: LOADING_ROW_COUNT }).map((_, i) => (
+        <TableRow key={`${TABLE_ID}-loading-row-${i}`}>
+          {columns.map((col, j) => (
+            <TableCell key={`${TABLE_ID}-loading-cell-${i}-${j}`}>
+              <TableInnerCell $minWidth={col.minWidth}>
+                <Skeleton variant="text" width="100%" />
+              </TableInnerCell>
+            </TableCell>
+          ))}
+          {shouldDisplayActionColumn && (
+            <TableActionCell>
+              <TableInnerCell>
+                <Button disabled icon="dots-horizontal" variant="quaternary" />
+              </TableInnerCell>
+            </TableActionCell>
+          )}
+        </TableRow>
+      ))
+    }
+
+    if (hasError) {
+      return (
+        <TableRow>
+          <TableCell colSpan={colSpan}>
+            <StyledGenericPlaceholder
+              noMargins
+              title={placeholder?.errorState?.title || translate('text_62b31e1f6a5b8b1b745ece48')}
+              subtitle={
+                placeholder?.errorState?.subtitle || translate('text_62bb102b66ff57dbfe7905c2')
+              }
+              image={placeholder?.errorState?.image || <ErrorImage />}
+              buttonAction={placeholder?.errorState?.buttonAction}
+              buttonTitle={placeholder?.errorState?.buttonTitle}
+              buttonVariant={placeholder?.errorState?.buttonVariant}
+            />
+          </TableCell>
+        </TableRow>
+      )
+    }
+
+    if (isEmpty) {
+      return (
+        <TableRow>
+          <TableCell colSpan={colSpan}>
+            <StyledGenericPlaceholder
+              noMargins
+              title={placeholder?.emptyState?.title || translate('text_62b31e1f6a5b8b1b745ece48')}
+              subtitle={
+                placeholder?.emptyState?.subtitle || translate('text_62bb102b66ff57dbfe7905c2')
+              }
+              image={placeholder?.emptyState?.image || <EmptyImage />}
+              buttonAction={placeholder?.emptyState?.buttonAction}
+              buttonTitle={placeholder?.emptyState?.buttonTitle}
+              buttonVariant={placeholder?.emptyState?.buttonVariant}
+            />
+          </TableCell>
+        </TableRow>
+      )
+    }
+  }
+
   return (
     <MUITableContainer>
       <StyledTable
@@ -138,19 +217,13 @@ export const Table = <T extends DataItem>({
                   <TableInnerCell>{column.title}</TableInnerCell>
                 </TableCell>
               ))}
-              {actionColumn && <TableActionCell />}
+              {shouldDisplayActionColumn && <TableActionCell />}
             </>
           </TableRow>
         </TableHead>
 
         <MUITableBody>
-          {isLoading ? (
-            <TableRow>
-              <TableCell>
-                <Skeleton variant="text" width={300} />
-              </TableCell>
-            </TableRow>
-          ) : (
+          {renderPlaceholder() ??
             data.map((item, i) => (
               <TableRow
                 key={`${TABLE_ID}-row-${i}`}
@@ -174,7 +247,7 @@ export const Table = <T extends DataItem>({
                     </TableInnerCell>
                   </TableCell>
                 ))}
-                {actionColumn && (
+                {shouldDisplayActionColumn && (
                   <TableActionCell>
                     <TableInnerCell>
                       <Popper
@@ -212,8 +285,7 @@ export const Table = <T extends DataItem>({
                   </TableActionCell>
                 )}
               </TableRow>
-            ))
-          )}
+            ))}
         </MUITableBody>
       </StyledTable>
     </MUITableContainer>
@@ -225,6 +297,15 @@ const TableInnerCell = styled.div<{ $minWidth?: number }>`
   min-width: ${({ $minWidth }) => ($minWidth ? `${$minWidth}px` : 'auto')};
   display: flex;
   align-items: center;
+`
+
+const StyledGenericPlaceholder = styled(GenericPlaceholder)`
+  margin: 0 auto;
+  padding: ${theme.spacing(12)} 0;
+
+  svg {
+    width: 136px;
+  }
 `
 
 const TableCell = styled(MUITableCell)<{
@@ -248,6 +329,10 @@ const TableCell = styled(MUITableCell)<{
 
   &:last-of-type ${TableInnerCell} {
     padding-right: 0;
+  }
+
+  :has(${StyledGenericPlaceholder}) {
+    border-bottom: none;
   }
 `
 
