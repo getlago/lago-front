@@ -18,6 +18,7 @@ import {
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
 import InvoicesList from '~/components/invoices/InvoicesList'
+import InvoicesListV2 from '~/components/invoices/InvoicesListV2'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -97,6 +98,7 @@ gql`
 
 enum InvoiceListTabEnum {
   'invoices' = 'invoices',
+  'invoicesV2' = 'invoicesV2',
   'creditNotes' = 'creditNotes',
 }
 
@@ -226,6 +228,27 @@ const InvoicesPage = () => {
             ],
             component: (
               <InvoicesList
+                error={errorInvoices}
+                fetchMore={fetchMoreInvoices}
+                invoices={dataInvoices?.invoices?.collection}
+                isLoading={invoiceIsLoading}
+                metadata={dataInvoices?.invoices?.metadata}
+                variables={variableInvoices}
+              />
+            ),
+            hidden: !hasPermissions(['invoicesView']),
+          },
+          {
+            title: 'INVOICES V2',
+            link: generatePath(INVOICES_TAB_ROUTE, {
+              tab: InvoiceListTabEnum.invoicesV2,
+            }),
+            match: [
+              INVOICES_ROUTE,
+              generatePath(INVOICES_TAB_ROUTE, { tab: InvoiceListTabEnum.invoicesV2 }),
+            ],
+            component: (
+              <InvoicesListV2
                 error={errorInvoices}
                 fetchMore={fetchMoreInvoices}
                 invoices={dataInvoices?.invoices?.collection}
