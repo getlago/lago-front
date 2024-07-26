@@ -27,9 +27,10 @@ export const QuickFilters = ({
 const QuickFiltersContainer = styled.div<{ $hideBorderBottom?: boolean; $noPadding?: boolean }>`
   width: 100%;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: ${theme.spacing(3)};
-  overflow-y: scroll;
+  overflow-y: auto;
   box-sizing: border-box;
 
   ${({ $noPadding }) =>
