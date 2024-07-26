@@ -2,7 +2,6 @@ import {
   Table as MUITable,
   TableBody as MUITableBody,
   TableCell as MUITableCell,
-  TableContainer as MUITableContainer,
   TableHead as MUITableHead,
   TableRow as MUITableRow,
 } from '@mui/material'
@@ -136,27 +135,6 @@ export const Table = <T extends DataItem>({
   }
 
   const renderPlaceholder = () => {
-    if (isLoading) {
-      return Array.from({ length: LOADING_ROW_COUNT }).map((_, i) => (
-        <TableRow key={`${TABLE_ID}-loading-row-${i}`}>
-          {columns.map((col, j) => (
-            <TableCell key={`${TABLE_ID}-loading-cell-${i}-${j}`}>
-              <TableInnerCell $minWidth={col.minWidth}>
-                <Skeleton variant="text" width="100%" />
-              </TableInnerCell>
-            </TableCell>
-          ))}
-          {shouldDisplayActionColumn && (
-            <TableActionCell>
-              <TableInnerCell>
-                <Button disabled icon="dots-horizontal" variant="quaternary" />
-              </TableInnerCell>
-            </TableActionCell>
-          )}
-        </TableRow>
-      ))
-    }
-
     if (hasError) {
       return (
         <TableRow>
@@ -199,96 +177,121 @@ export const Table = <T extends DataItem>({
   }
 
   return (
-      <StyledTable
-        ref={tableRef}
-        $isFullWidth={!!isFullWidth}
-        $containerSize={getContainerSize(containerSize)}
-      >
-        <TableHead>
-          <TableRow>
-            <>
-              {columns.map((column, i) => (
+    <StyledTable
+      ref={tableRef}
+      $isFullWidth={!!isFullWidth}
+      $containerSize={getContainerSize(containerSize)}
+    >
+      <TableHead>
+        <TableRow>
+          <>
+            {columns.map((column, i) => (
+              <TableCell
+                key={`${TABLE_ID}-head-${i}`}
+                align={column.textAlign || 'left'}
+                $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
+              >
+                <TableInnerCell>{column.title}</TableInnerCell>
+              </TableCell>
+            ))}
+            {shouldDisplayActionColumn && <TableActionCell />}
+          </>
+        </TableRow>
+      </TableHead>
+
+      <MUITableBody>
+        {renderPlaceholder() ??
+          data.map((item, i) => (
+            <TableRow
+              key={`${TABLE_ID}-row-${i}`}
+              id={`${TABLE_ID}-row-${i}`}
+              data-id={item.id}
+              $isClickable={isClickable}
+              tabIndex={isClickable ? 0 : undefined}
+              onKeyDown={isClickable ? onKeyDown : undefined}
+              onClick={isClickable ? (e) => handleRowClick(e, item) : undefined}
+            >
+              {columns.map((column, j) => (
                 <TableCell
-                  key={`${TABLE_ID}-head-${i}`}
+                  key={`${TABLE_ID}-cell-${i}-${j}`}
                   align={column.textAlign || 'left'}
                   $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
                 >
-                  <TableInnerCell>{column.title}</TableInnerCell>
+                  <TableInnerCell $minWidth={column.minWidth}>
+                    <Typography color="textSecondary" noWrap>
+                      {column.content(item)}
+                    </Typography>
+                  </TableInnerCell>
                 </TableCell>
               ))}
-              {shouldDisplayActionColumn && <TableActionCell />}
-            </>
-          </TableRow>
-        </TableHead>
-
-        <MUITableBody>
-          {renderPlaceholder() ??
-            data.map((item, i) => (
-              <TableRow
-                key={`${TABLE_ID}-row-${i}`}
-                id={`${TABLE_ID}-row-${i}`}
-                data-id={item.id}
-                $isClickable={isClickable}
-                tabIndex={isClickable ? 0 : undefined}
-                onKeyDown={isClickable ? onKeyDown : undefined}
-                onClick={isClickable ? (e) => handleRowClick(e, item) : undefined}
-              >
-                {columns.map((column, j) => (
-                  <TableCell
-                    key={`${TABLE_ID}-cell-${i}-${j}`}
-                    align={column.textAlign || 'left'}
-                    $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
-                  >
-                    <TableInnerCell $minWidth={column.minWidth}>
-                      <Typography color="textSecondary" noWrap>
-                        {column.content(item)}
-                      </Typography>
-                    </TableInnerCell>
-                  </TableCell>
-                ))}
-                {shouldDisplayActionColumn && (
-                  <TableActionCell>
-                    <TableInnerCell>
-                      <Popper
-                        popperGroupName={`${TABLE_ID}-action-cell`}
-                        PopperProps={{ placement: 'bottom-end' }}
-                        opener={
-                          <Button
-                            data-id={ACTION_COLUMN_ID}
-                            icon="dots-horizontal"
-                            variant="quaternary"
-                          />
-                        }
-                      >
-                        {({ closePopper }) => (
-                          <MenuPopper data-id={`${TABLE_ID}-popper`}>
-                            {actionColumn.map((action, j) => (
-                              <Button
-                                fullWidth
-                                key={`${TABLE_ID}-action-${i}-${j}`}
-                                startIcon={action.startIcon}
-                                variant="quaternary"
-                                align="left"
-                                onClick={async () => {
-                                  await action.onAction(item)
-                                  closePopper()
-                                }}
-                              >
-                                {action.title}
-                              </Button>
-                            ))}
-                          </MenuPopper>
-                        )}
-                      </Popper>
-                    </TableInnerCell>
-                  </TableActionCell>
-                )}
-              </TableRow>
-            ))}
+              {shouldDisplayActionColumn && (
+                <TableActionCell>
+                  <TableInnerCell>
+                    <Popper
+                      popperGroupName={`${TABLE_ID}-action-cell`}
+                      PopperProps={{ placement: 'bottom-end' }}
+                      opener={
+                        <Button
+                          data-id={ACTION_COLUMN_ID}
+                          icon="dots-horizontal"
+                          variant="quaternary"
+                        />
+                      }
+                    >
+                      {({ closePopper }) => (
+                        <MenuPopper data-id={`${TABLE_ID}-popper`}>
+                          {actionColumn.map((action, j) => (
+                            <Button
+                              fullWidth
+                              key={`${TABLE_ID}-action-${i}-${j}`}
+                              startIcon={action.startIcon}
+                              variant="quaternary"
+                              align="left"
+                              onClick={async () => {
+                                await action.onAction(item)
+                                closePopper()
+                              }}
+                            >
+                              {action.title}
+                            </Button>
+                          ))}
+                        </MenuPopper>
+                      )}
+                    </Popper>
+                  </TableInnerCell>
+                </TableActionCell>
+              )}
+            </TableRow>
+          ))}
         {isLoading && LoadingRows({ columns, id: TABLE_ID, shouldDisplayActionColumn })}
-        </MUITableBody>
-      </StyledTable>
+      </MUITableBody>
+    </StyledTable>
   )
+}
+
+const LoadingRows = <T,>({
+  columns,
+  id,
+  shouldDisplayActionColumn,
+}: Pick<TableProps<T>, 'columns'> & { id: string; shouldDisplayActionColumn: boolean }) => {
+  return Array.from({ length: LOADING_ROW_COUNT }).map((_, i) => (
+    <TableRow key={`${id}-loading-row-${i}`}>
+      {columns.map((col, j) => (
+        <TableCell key={`${id}-loading-cell-${i}-${j}`}>
+          <TableInnerCell $minWidth={col.minWidth}>
+            <Skeleton variant="text" width="100%" />
+          </TableInnerCell>
+        </TableCell>
+      ))}
+      {shouldDisplayActionColumn && (
+        <TableActionCell>
+          <TableInnerCell>
+            <Button disabled icon="dots-horizontal" variant="quaternary" />
+          </TableInnerCell>
+        </TableActionCell>
+      )}
+    </TableRow>
+  ))
 }
 
 const TableInnerCell = styled.div<{ $minWidth?: number }>`
