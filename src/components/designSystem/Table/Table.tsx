@@ -199,7 +199,6 @@ export const Table = <T extends DataItem>({
   }
 
   return (
-    <MUITableContainer>
       <StyledTable
         ref={tableRef}
         $isFullWidth={!!isFullWidth}
@@ -286,9 +285,9 @@ export const Table = <T extends DataItem>({
                 )}
               </TableRow>
             ))}
+        {isLoading && LoadingRows({ columns, id: TABLE_ID, shouldDisplayActionColumn })}
         </MUITableBody>
       </StyledTable>
-    </MUITableContainer>
   )
 }
 
@@ -352,16 +351,6 @@ const StyledTable = styled(MUITable)<{
   }
 `
 
-const TableHead = styled(MUITableHead)`
-  ${TableInnerCell} {
-    font-size: ${theme.typography.captionHl.fontSize};
-    font-weight: ${theme.typography.captionHl.fontWeight};
-    line-height: ${theme.typography.captionHl.lineHeight};
-    color: ${theme.palette.grey[600]};
-    min-height: 40px;
-  }
-`
-
 const TableActionCell = styled(TableCell)`
   width: 40px;
   position: sticky;
@@ -391,6 +380,39 @@ const TableActionCell = styled(TableCell)`
     99% {
       box-shadow: none;
       background-color: transparent;
+    }
+  }
+`
+
+const TableHead = styled(MUITableHead)`
+  ${TableCell} {
+    background-color: ${theme.palette.background.paper};
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    border-bottom: none;
+    box-shadow: ${theme.shadows[7]};
+  }
+
+  ${TableInnerCell} {
+    font-size: ${theme.typography.captionHl.fontSize};
+    font-weight: ${theme.typography.captionHl.fontWeight};
+    line-height: ${theme.typography.captionHl.lineHeight};
+    color: ${theme.palette.grey[600]};
+    min-height: 40px;
+  }
+
+  ${TableActionCell} {
+    z-index: 10;
+
+    &::after {
+      content: '';
+      display: block;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 1px;
+      box-shadow: ${theme.shadows[7]};
     }
   }
 `
