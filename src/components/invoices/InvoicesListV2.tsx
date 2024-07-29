@@ -1,6 +1,6 @@
 import { ApolloError, LazyQueryHookOptions } from '@apollo/client'
 import { useEffect, useRef } from 'react'
-import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
+import { generatePath, Link, useNavigate, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import {
@@ -23,7 +23,11 @@ import {
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_INVOICE_DETAILS_ROUTE, INVOICE_SETTINGS_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_DETAILS_ROUTE,
+  CUSTOMER_INVOICE_DETAILS_ROUTE,
+  INVOICE_SETTINGS_ROUTE,
+} from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -184,6 +188,10 @@ const InvoicesListV2 = ({
           <Table
             name="invoices-list"
             data={invoices || []}
+            containerSize={{
+              default: 16,
+              md: 48,
+            }}
             isLoading={isLoading}
             hasError={!!error}
             actionColumn={(invoice) => {
@@ -303,8 +311,23 @@ const InvoicesListV2 = ({
                 key: 'number',
                 title: translate('text_63ac86d797f728a87b2f9fad'),
                 content: ({ number }) => (
-                  <Typography variant="captionCode" color="grey700">
+                  <Typography variant="body" noWrap>
                     {number}
+                  </Typography>
+                ),
+              },
+              {
+                key: 'totalAmountCents',
+                title: translate('text_63ac86d797f728a87b2f9fb9'),
+                textAlign: 'right',
+                content: ({ totalAmountCents, currency }) => (
+                  <Typography variant="bodyHl" color="textSecondary" noWrap>
+                    {intlFormatNumber(
+                      deserializeAmount(totalAmountCents, currency || CurrencyEnum.Usd),
+                      {
+                        currency: currency || CurrencyEnum.Usd,
+                      },
+                    )}
                   </Typography>
                 ),
               },
@@ -312,24 +335,29 @@ const InvoicesListV2 = ({
                 key: 'customer.name',
                 title: translate('text_63ac86d797f728a87b2f9fb3'),
                 maxSpace: true,
-                content: ({ customer }) => customer?.name || '-',
-              },
-              {
-                key: 'totalAmountCents',
-                title: translate('text_63ac86d797f728a87b2f9fb9'),
-                content: ({ totalAmountCents, currency }) =>
-                  intlFormatNumber(
-                    deserializeAmount(totalAmountCents, currency || CurrencyEnum.Usd),
-                    {
-                      currency: currency || CurrencyEnum.Usd,
-                    },
+                content: ({ customer }) =>
+                  customer ? (
+                    <StyledLink
+                      to={generatePath(CUSTOMER_DETAILS_ROUTE, {
+                        customerId: customer.id,
+                      })}
+                    >
+                      {customer.name}
+                    </StyledLink>
+                  ) : (
+                    <Typography variant="bodyHl" color="textSecondary" noWrap>
+                      -
+                    </Typography>
                   ),
               },
               {
                 key: 'issuingDate',
                 title: translate('text_63ac86d797f728a87b2f9fbf'),
-                content: ({ issuingDate, customer }) =>
-                  formatDateToTZ(issuingDate, customer.applicableTimezone),
+                content: ({ issuingDate, customer }) => (
+                  <Typography variant="body" noWrap>
+                    {formatDateToTZ(issuingDate, customer.applicableTimezone)}
+                  </Typography>
+                ),
               },
             ]}
             onRowAction={(invoice) => {
@@ -442,5 +470,13 @@ const FiltersWrapper = styled.div`
 
   &:last-child {
     padding-top: 0;
+  }
+`
+
+const StyledLink = styled(Link)`
+  color: ${theme.palette.primary[600]};
+
+  &:visited {
+    color: ${theme.palette.primary[600]};
   }
 `
