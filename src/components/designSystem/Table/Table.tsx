@@ -10,6 +10,7 @@ import styled from 'styled-components'
 
 import { Button, IconName, Popper, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { GenericPlaceholder, GenericPlaceholderProps } from '~/components/GenericPlaceholder'
+import { ResponsiveStyleValue, setResponsiveProperty } from '~/core/utils/responsiveProps'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import EmptyImage from '~/public/images/maneki/empty.svg'
@@ -41,8 +42,6 @@ type Column<T> = {
   minWidth?: number
 }
 
-type ContainerSize = 'sm' | 'md' | 'lg'
-
 type DataItem = {
   id: string
 }
@@ -55,6 +54,8 @@ export type ActionItem<T> = {
   tooltip?: string
   tooltipListener?: boolean
 }
+
+type ContainerSize = 4 | 16 | 48
 
 interface TableProps<T> {
   name: string
@@ -69,27 +70,12 @@ interface TableProps<T> {
   }
   onRowAction?: (item: T) => void
   actionColumn?: (item: T) => Array<ActionItem<T> | null>
-  /**
-   * 'sm' = 4px ; 'md' = 16px ; 'lg' = 48px
-   * @default 'lg'
-   * */
-  containerSize?: ContainerSize
+  containerSize?: ResponsiveStyleValue<ContainerSize>
 }
 
 const ACTION_COLUMN_ID = 'actionColumn'
 const ROW_MIN_HEIGHT = 56
 const LOADING_ROW_COUNT = 3
-
-const getContainerSize = (containerSize: ContainerSize) => {
-  switch (containerSize) {
-    case 'sm':
-      return 4
-    case 'md':
-      return 16
-    case 'lg':
-      return 48
-  }
-}
 
 const countMaxSpaceColumns = <T,>(columns: Column<T>[]) =>
   columns.reduce((acc, column) => {
@@ -107,7 +93,7 @@ export const Table = <T extends DataItem>({
   isLoading,
   hasError,
   isFullWidth = true,
-  containerSize = 'lg',
+  containerSize = 48,
   placeholder,
   onRowAction,
   actionColumn,
@@ -197,11 +183,7 @@ export const Table = <T extends DataItem>({
   }
 
   return (
-    <StyledTable
-      ref={tableRef}
-      $isFullWidth={!!isFullWidth}
-      $containerSize={getContainerSize(containerSize)}
-    >
+    <StyledTable ref={tableRef} $isFullWidth={!!isFullWidth} $containerSize={containerSize}>
       <TableHead>
         <TableRow>
           <>
@@ -387,17 +369,17 @@ const TableCell = styled(MUITableCell)<{
 
 const StyledTable = styled(MUITable)<{
   $isFullWidth: boolean
-  $containerSize: number
+  $containerSize: ResponsiveStyleValue<ContainerSize>
 }>`
   border-collapse: collapse;
   width: ${({ $isFullWidth }) => ($isFullWidth ? '100%' : 'auto')};
 
   ${TableCell}:first-of-type ${TableInnerCell} {
-    padding-left: ${({ $containerSize }) => `${$containerSize}px`};
+    ${({ $containerSize }) => setResponsiveProperty('paddingLeft', $containerSize)}
   }
 
   ${TableCell}:last-of-type ${TableInnerCell} {
-    padding-right: ${({ $containerSize }) => `${$containerSize}px`};
+    ${({ $containerSize }) => setResponsiveProperty('paddingRight', $containerSize)}
   }
 `
 

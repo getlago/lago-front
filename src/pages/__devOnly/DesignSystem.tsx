@@ -517,6 +517,10 @@ const DesignSystem = () => {
                 <Block $marginBottom={theme.spacing(6)}>
                   <Table
                     name="display-table"
+                    containerSize={{
+                      default: 4,
+                      md: 48,
+                    }}
                     data={tableData}
                     isLoading={false}
                     columns={[

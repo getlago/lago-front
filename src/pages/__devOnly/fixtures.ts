@@ -71,34 +71,6 @@ export const tableData: Array<{
     customer: 'Pineapple Corp',
     date: DateTime.utc(2001, 1, 30).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY),
   },
-  {
-    status: 'pay',
-    id: 'AA-BB-CC-DD-000-001',
-    amount: 991003,
-    customer: 'AppCo',
-    date: DateTime.utc(2013, 3, 16).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY),
-  },
-  {
-    status: 'pay',
-    id: 'AA-BB-CC-DD-000-001',
-    amount: 991003,
-    customer: 'AppCo',
-    date: DateTime.utc(2013, 3, 16).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY),
-  },
-  {
-    status: 'pay',
-    id: 'AA-BB-CC-DD-000-001',
-    amount: 991003,
-    customer: 'AppCo',
-    date: DateTime.utc(2013, 3, 16).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY),
-  },
-  {
-    status: 'pay',
-    id: 'AA-BB-CC-DD-000-001',
-    amount: 991003,
-    customer: 'AppCo',
-    date: DateTime.utc(2013, 3, 16).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY),
-  },
 ]
 
 export const chargeTableData: Array<{
