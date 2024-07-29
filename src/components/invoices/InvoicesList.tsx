@@ -43,7 +43,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
-import { NAV_HEIGHT, theme } from '~/styles'
+import { theme } from '~/styles'
 
 import { AvailableQuickFilters } from '../designSystem/Filters/types'
 import {
@@ -453,7 +453,7 @@ export default InvoicesList
 
 const ScrollContainer = styled.div`
   overflow: auto;
-  height: calc(100vh - ${NAV_HEIGHT + 52 + 68}px);
+  height: 100%;
 `
 
 const FiltersWrapper = styled.div`
