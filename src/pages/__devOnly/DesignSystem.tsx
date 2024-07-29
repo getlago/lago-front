@@ -1,7 +1,8 @@
+/* eslint-disable no-alert */
 import { InputAdornment, Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import { useRef } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath, Link } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 import { boolean, number, object, string } from 'yup'
 
@@ -26,7 +27,7 @@ import {
   Skeleton,
   Status,
   StatusType,
-  TableDisplay,
+  Table,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
@@ -44,72 +45,13 @@ import {
   TextInputField,
 } from '~/components/form'
 import { AmountInputField } from '~/components/form/AmountInput'
-import { addToast, TToast } from '~/core/apolloClient'
+import { addToast } from '~/core/apolloClient'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
 import { CurrencyEnum } from '~/generated/graphql'
+import { chargeTableData, POSSIBLE_TOAST, tableData } from '~/pages/__devOnly/fixtures'
 import Stripe from '~/public/images/stripe.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
-
-const POSSIBLE_TOAST: TToast[] = [
-  {
-    id: 'toast0',
-    severity: 'success',
-    message: '🍞 Success',
-  },
-  {
-    id: 'toast1',
-    severity: 'info',
-    message: '🍞 Info',
-  },
-  {
-    id: 'toast2',
-    severity: 'danger',
-    message: '🍞 Danger',
-  },
-  {
-    id: 'toast3',
-    severity: 'success',
-    message: '👍 Congrats you did something',
-  },
-  {
-    id: 'toast4',
-    severity: 'info',
-    message: '👀 I see you',
-  },
-  {
-    id: 'toast5',
-    severity: 'danger',
-    message: '👿 Please stop doing that',
-  },
-]
-
-const tableData = [
-  {
-    name: 'Barney Stinson',
-    job: 'We will never know',
-    icon: 'plug',
-  },
-  {
-    name: 'Lily Aldrin',
-    job: 'Kindergarden teacher',
-    icon: 'book',
-  },
-  {
-    name: 'Marshal Eriksen',
-    job: 'Lawyer',
-    icon: 'bank',
-  },
-  {
-    name: 'Robin Scherbatzki',
-    job: 'News anchor',
-    icon: 'rocket',
-  },
-  {
-    name: 'Ted Mosby',
-    job: 'Architect',
-    icon: 'company',
-  },
-]
 
 const FORM_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'form' })
 const LINK_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'links' })
@@ -529,7 +471,7 @@ const DesignSystem = () => {
                 <Block $marginBottom={theme.spacing(6)}>
                   <ChargeTable
                     name="graduated-charge-table"
-                    data={tableData}
+                    data={chargeTableData}
                     onDeleteRow={() => {}}
                     columns={[
                       {
@@ -573,53 +515,73 @@ const DesignSystem = () => {
                 </Block>
                 <GroupTitle variant="headline">Display Table</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
-                  <TableDisplay
-                    variant="borderless"
+                  <Table
                     name="display-table"
+                    containerSize={{
+                      default: 4,
+                      md: 48,
+                    }}
                     data={tableData}
                     isLoading={false}
                     columns={[
                       {
-                        key: 'name',
-                        title: 'Name',
-                        size: 300,
+                        key: 'status',
+                        title: 'Status',
                         content: (row) => (
-                          <TableContent>
-                            <Avatar variant="user" identifier={row.name} size="small" />
-                            <Typography>{row.name}</Typography>
-                          </TableContent>
+                          // @ts-expect-error
+                          <Status label={row.status} type={StatusType.success} />
                         ),
                       },
                       {
-                        key: 'job',
-                        title: 'Job',
-                        content: (row) => row.job,
-                        size: 124,
-                        textAlign: 'center',
+                        key: 'id',
+                        title: 'Invoice number',
+                        content: (row) => <Typography variant="captionCode">{row.id}</Typography>,
                       },
                       {
-                        key: 'icon',
-                        title: <Typography variant="captionCode">Icon</Typography>,
-                        content: (row) => <Icon color="primary" name={row.icon as IconName} />,
+                        key: 'amount',
+                        title: 'Amount',
+
+                        content: (row) => (
+                          <Button
+                            onClick={() => alert(`You clicked on ${row.amount}`)}
+                            size="small"
+                            variant="quaternary"
+                          >
+                            {intlFormatNumber(row.amount)}
+                          </Button>
+                        ),
+                      },
+                      {
+                        key: 'customer',
+                        title: 'Customer',
+                        content: (row) => (
+                          <Typography variant="captionCode" color="success600">
+                            <Link to={'/'}>{row.customer}</Link>
+                          </Typography>
+                        ),
+                      },
+                      {
+                        key: 'date',
+                        title: 'Issuing date',
+                        content: (row) => row.date,
                       },
                     ]}
-                    // eslint-disable-next-line no-alert
-                    onRowAction={(item) => alert(`You clicked on ${item.name}`)}
-                    actionColumn={[
-                      {
-                        title: 'Edit',
-                        startIcon: 'pen',
-                        onAction: (item) => {
-                          // eslint-disable-next-line no-alert
-                          alert(`You edited ${item.name}`)
-                        },
-                      },
+                    onRowAction={(item) => alert(`You clicked on ${item.id}`)}
+                    actionColumn={(currentItem) => [
+                      currentItem.amount > 1000
+                        ? {
+                            title: 'Edit',
+                            startIcon: 'pen',
+                            onAction: (item) => {
+                              alert(`You edited ${item.id}`)
+                            },
+                          }
+                        : null,
                       {
                         title: 'Delete',
                         startIcon: 'trash',
                         onAction: (item) => {
-                          // eslint-disable-next-line no-alert
-                          alert(`You deleted ${item.name}`)
+                          alert(`You deleted ${item.id}`)
                         },
                       },
                     ]}

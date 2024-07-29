@@ -1,25 +1,20 @@
 import { ReactNode } from 'react'
 import styled from 'styled-components'
 
-import { Button, ButtonVariant, Typography } from '~/components/designSystem'
 import { theme } from '~/styles'
 
-interface GenericPlaceholderProps {
+import { Button, ButtonVariant } from './designSystem/Button'
+import { Typography } from './designSystem/Typography'
+
+export interface GenericPlaceholderProps {
   className?: string
   title?: string
   subtitle: string | ReactNode
   image: ReactNode
-  buttonTitle: string
+  buttonTitle?: string
   buttonVariant?: ButtonVariant
+  buttonAction?: (() => Promise<void>) | (() => void)
   noMargins?: boolean
-  buttonAction: () => Promise<void> | unknown
-}
-
-interface GenericPlaceholderNoButtonProps
-  extends Omit<GenericPlaceholderProps, 'buttonTitle' | 'buttonAction' | 'buttonVariant'> {
-  buttonTitle?: never
-  buttonAction?: never
-  buttonVariant?: never
 }
 
 export const GenericPlaceholder = ({
@@ -32,19 +27,23 @@ export const GenericPlaceholder = ({
   buttonVariant,
   buttonAction,
   ...props
-}: GenericPlaceholderProps | GenericPlaceholderNoButtonProps) => (
-  <Container className={className} $noMargins={noMargins} {...props}>
-    {image}
-    {title && <Title variant="subhead">{title}</Title>}
-    <Body $withButton={!!buttonTitle && !!buttonAction}>{subtitle}</Body>
+}: GenericPlaceholderProps) => {
+  const hasButton = !!buttonTitle && !!buttonAction
 
-    {!!buttonTitle && !!buttonAction && (
-      <Button variant={buttonVariant} onClick={buttonAction}>
-        {buttonTitle}
-      </Button>
-    )}
-  </Container>
-)
+  return (
+    <Container className={className} $noMargins={noMargins} {...props}>
+      {image}
+      {title && <Title variant="subhead">{title}</Title>}
+      <Body $withButton={hasButton}>{subtitle}</Body>
+
+      {hasButton && (
+        <Button variant={buttonVariant} onClick={buttonAction}>
+          {buttonTitle}
+        </Button>
+      )}
+    </Container>
+  )
+}
 
 const Container = styled.div<{ $noMargins?: boolean }>`
   margin: ${({ $noMargins }) => ($noMargins ? 0 : '0 auto')};
