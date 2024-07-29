@@ -16,6 +16,8 @@ import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, theme } from '~/styles'
 
+type Align = 'left' | 'center' | 'right'
+
 type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`
 
 type DotNestedKeys<T> = (
@@ -34,7 +36,7 @@ type Column<T> = {
   key: DotNestedKeys<T>
   title: string | ReactNode
   content: (item: T) => ReactNode
-  textAlign?: 'left' | 'center' | 'right'
+  textAlign?: Align
   maxSpace?: boolean
   minWidth?: number
 }
@@ -209,7 +211,7 @@ export const Table = <T extends DataItem>({
                 align={column.textAlign || 'left'}
                 $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
               >
-                <TableInnerCell>{column.title}</TableInnerCell>
+                <TableInnerCell $align={column.textAlign}>{column.title}</TableInnerCell>
               </TableCell>
             ))}
             {shouldDisplayActionColumn && <TableActionCell />}
@@ -236,7 +238,7 @@ export const Table = <T extends DataItem>({
                     align={column.textAlign || 'left'}
                     $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
                   >
-                    <TableInnerCell $minWidth={column.minWidth}>
+                    <TableInnerCell $minWidth={column.minWidth} $align={column.textAlign}>
                       <Typography color="textSecondary" noWrap>
                         {column.content(item)}
                       </Typography>
@@ -319,7 +321,7 @@ const LoadingRows = <T,>({
     <TableRow key={`${id}-loading-row-${i}`}>
       {columns.map((col, j) => (
         <TableCell key={`${id}-loading-cell-${i}-${j}`}>
-          <TableInnerCell $minWidth={col.minWidth}>
+          <TableInnerCell $minWidth={col.minWidth} $align={col.textAlign}>
             <Skeleton variant="text" width="100%" />
           </TableInnerCell>
         </TableCell>
@@ -335,11 +337,16 @@ const LoadingRows = <T,>({
   ))
 }
 
-const TableInnerCell = styled.div<{ $minWidth?: number }>`
+const TableInnerCell = styled.div<{ $minWidth?: number; $align?: Align }>`
   min-height: ${ROW_MIN_HEIGHT}px;
   min-width: ${({ $minWidth }) => ($minWidth ? `${$minWidth}px` : 'auto')};
   display: flex;
   align-items: center;
+  justify-content: ${({ $align }) => {
+    if ($align === 'left') return 'flex-start'
+    if ($align === 'center') return 'center'
+    if ($align === 'right') return 'flex-end'
+  }};
 `
 
 const StyledGenericPlaceholder = styled(GenericPlaceholder)`
@@ -362,8 +369,7 @@ const TableCell = styled(MUITableCell)<{
   border-bottom: 1px solid ${theme.palette.grey[300]};
 
   ${TableInnerCell} {
-    padding-left: ${theme.spacing(3)};
-    padding-right: ${theme.spacing(5)};
+    padding-right: ${theme.spacing(8)};
   }
 
   &:first-of-type ${TableInnerCell} {
