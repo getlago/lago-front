@@ -2,7 +2,7 @@ import { css } from 'styled-components'
 
 import { theme } from '~/styles'
 
-type Breakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+type Breakpoint = keyof typeof theme.breakpoints.values
 type BreakpointWithDefault = Breakpoint | 'default'
 
 export type ResponsiveStyleValue<T extends string | number> =
