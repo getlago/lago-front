@@ -11,7 +11,6 @@ import {
   AddCustomerDrawer,
   AddCustomerDrawerRef,
 } from '~/components/customers/addDrawer/AddCustomerDrawer'
-import { CustomerCoupons } from '~/components/customers/CustomerCoupons'
 import { CustomerCreditNotesList } from '~/components/customers/CustomerCreditNotesList'
 import { CustomerInvoicesTab } from '~/components/customers/CustomerInvoicesTab'
 import { CustomerMainInfos } from '~/components/customers/CustomerMainInfos'
@@ -359,11 +358,11 @@ const CustomerDetails = () => {
                     ],
                     component: (
                       <SideBlock>
-                        {!loading && <CustomerCoupons />}
                         <CustomerOverview
                           externalCustomerId={externalId}
                           customerTimezone={safeTimezone}
                           userCurrency={data?.customer?.currency || undefined}
+                          isLoading={loading}
                         />
                       </SideBlock>
                     ),
