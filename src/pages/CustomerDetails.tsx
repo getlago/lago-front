@@ -404,12 +404,12 @@ const CustomerDetails = () => {
                       tab: CustomerDetailsTabsOptions.invoices,
                     }),
                     component: (
-                      <InvoicesBlock>
+                      <SideBlock>
                         <CustomerInvoicesTab
                           customerId={customerId as string}
                           customerTimezone={safeTimezone}
                         />
-                      </InvoicesBlock>
+                      </SideBlock>
                     ),
                   },
                   {
@@ -561,14 +561,8 @@ const SideBlock = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(8)};
   }
-`
 
-const InvoicesBlock = styled.div`
-  margin-top: ${theme.spacing(8)};
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(8)};
-  }
+  margin-bottom: ${theme.spacing(20)};
 `
 
 export default CustomerDetails
