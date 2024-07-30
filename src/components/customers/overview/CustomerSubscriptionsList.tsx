@@ -15,11 +15,11 @@ import { usePermissions } from '~/hooks/usePermissions'
 import { HEADER_TABLE_HEIGHT, theme } from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
 
-import { SubscriptionItem, SubscriptionItemSkeleton } from './SubscriptionItem'
+import { SubscriptionItem, SubscriptionItemSkeleton } from '../subscriptions/SubscriptionItem'
 import {
   TerminateCustomerSubscriptionDialog,
   TerminateCustomerSubscriptionDialogRef,
-} from './TerminateCustomerSubscriptionDialog'
+} from '../subscriptions/TerminateCustomerSubscriptionDialog'
 
 gql`
   query getCustomerSubscriptionForList($id: ID!) {

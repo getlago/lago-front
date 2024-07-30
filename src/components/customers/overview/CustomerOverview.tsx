@@ -2,7 +2,8 @@ import { gql } from '@apollo/client'
 import { Skeleton, Stack } from '@mui/material'
 import { FC, useEffect } from 'react'
 
-import { CustomerSubscriptionsList } from '~/components/customers/subscriptions/CustomerSubscriptionsList'
+import { CustomerCoupons } from '~/components/customers/overview/CustomerCoupons'
+import { CustomerSubscriptionsList } from '~/components/customers/overview/CustomerSubscriptionsList'
 import { Alert, Button, Typography } from '~/components/designSystem'
 import { OverviewCard } from '~/components/OverviewCard'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -62,12 +63,14 @@ interface CustomerOverviewProps {
   externalCustomerId?: string
   customerTimezone?: TimezoneEnum
   userCurrency?: CurrencyEnum
+  isLoading?: boolean
 }
 
 export const CustomerOverview: FC<CustomerOverviewProps> = ({
   externalCustomerId,
   customerTimezone,
   userCurrency,
+  isLoading,
 }) => {
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
@@ -229,6 +232,9 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
           </Stack>
         </section>
       )}
+
+      {!isLoading && <CustomerCoupons />}
+
       <CustomerSubscriptionsList customerTimezone={customerTimezone} />
     </>
   )

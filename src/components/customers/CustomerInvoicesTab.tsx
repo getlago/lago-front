@@ -14,7 +14,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
-import { theme } from '~/styles'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 import { CustomerInvoicesList } from './CustomerInvoicesList'
 
@@ -175,10 +175,10 @@ const DraftWrapper = styled.div`
 `
 
 const Header = styled.div`
+  height: ${NAV_HEIGHT}px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: ${theme.spacing(4)};
 `
 
 const EmptyTitle = styled(Typography)`
