@@ -313,6 +313,16 @@ const InvoicesList = ({
                 ),
               },
               {
+                key: 'customer.name',
+                title: translate('text_65201c5a175a4b0238abf29a'),
+                maxSpace: true,
+                content: ({ customer }) => (
+                  <Typography variant="body" noWrap>
+                    {customer.name || '-'}
+                  </Typography>
+                ),
+              },
+              {
                 key: 'totalAmountCents',
                 title: translate('text_63ac86d797f728a87b2f9fb9'),
                 textAlign: 'right',
@@ -324,16 +334,6 @@ const InvoicesList = ({
                         currency: currency || CurrencyEnum.Usd,
                       },
                     )}
-                  </Typography>
-                ),
-              },
-              {
-                key: 'customer.name',
-                title: translate('text_65201c5a175a4b0238abf29a'),
-                maxSpace: true,
-                content: ({ customer }) => (
-                  <Typography variant="body" noWrap>
-                    {customer.name || '-'}
                   </Typography>
                 ),
               },
