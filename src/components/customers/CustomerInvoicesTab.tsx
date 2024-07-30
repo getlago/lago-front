@@ -179,7 +179,6 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* margin-bottom: ${theme.spacing(4)}; */
 `
 
 const EmptyTitle = styled(Typography)`
