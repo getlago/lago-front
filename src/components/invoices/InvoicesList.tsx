@@ -1,6 +1,6 @@
 import { ApolloError, LazyQueryHookOptions } from '@apollo/client'
 import { useEffect, useRef } from 'react'
-import { generatePath, Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import {
@@ -23,11 +23,7 @@ import {
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import {
-  CUSTOMER_DETAILS_ROUTE,
-  CUSTOMER_INVOICE_DETAILS_ROUTE,
-  INVOICE_SETTINGS_ROUTE,
-} from '~/core/router'
+import { CUSTOMER_INVOICE_DETAILS_ROUTE, INVOICE_SETTINGS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -317,6 +313,16 @@ const InvoicesList = ({
                 ),
               },
               {
+                key: 'customer.name',
+                title: translate('text_65201c5a175a4b0238abf29a'),
+                maxSpace: true,
+                content: ({ customer }) => (
+                  <Typography variant="body" noWrap>
+                    {customer.name || '-'}
+                  </Typography>
+                ),
+              },
+              {
                 key: 'totalAmountCents',
                 title: translate('text_63ac86d797f728a87b2f9fb9'),
                 textAlign: 'right',
@@ -330,25 +336,6 @@ const InvoicesList = ({
                     )}
                   </Typography>
                 ),
-              },
-              {
-                key: 'customer.name',
-                title: translate('text_63ac86d797f728a87b2f9fb3'),
-                maxSpace: true,
-                content: ({ customer }) =>
-                  customer ? (
-                    <StyledLink
-                      to={generatePath(CUSTOMER_DETAILS_ROUTE, {
-                        customerId: customer.id,
-                      })}
-                    >
-                      {customer.name}
-                    </StyledLink>
-                  ) : (
-                    <Typography variant="bodyHl" color="textSecondary" noWrap>
-                      -
-                    </Typography>
-                  ),
               },
               {
                 key: 'issuingDate',
@@ -470,13 +457,5 @@ const FiltersWrapper = styled.div`
 
   &:last-child {
     padding-top: 0;
-  }
-`
-
-const StyledLink = styled(Link)`
-  color: ${theme.palette.primary[600]};
-
-  &:visited {
-    color: ${theme.palette.primary[600]};
   }
 `
