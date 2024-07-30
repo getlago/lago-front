@@ -6,7 +6,14 @@ import { FC, RefObject, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
 import { Accordion, Alert, Button, Icon, Typography } from '~/components/designSystem'
-import { AmountInputField, ComboBox, ComboBoxField, DatePickerField } from '~/components/form'
+import {
+  AmountInputField,
+  ComboBox,
+  ComboBoxField,
+  DatePickerField,
+  Switch,
+  SwitchField,
+} from '~/components/form'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -145,6 +152,15 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                 {...inputAdornment(translate('text_62d18855b22699e5cf55f889'))}
               />
 
+              {formikProps.values.paidCredits && (
+                <SwitchField
+                  name="invoiceRequiresSuccessfulPayment"
+                  formikProps={formikProps}
+                  label={translate('text_66a8aed1c3e07b277ec3990d')}
+                  subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+                />
+              )}
+
               <AmountInputField
                 name="grantedCredits"
                 currency={formikProps.values.currency}
@@ -160,6 +176,26 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                   ),
                 })}
                 {...inputAdornment(translate('text_62d18855b22699e5cf55f889'))}
+              />
+            </>
+          )}
+
+          {formType === FORM_TYPE_ENUM.edition && (
+            <>
+              <Box>
+                <Typography variant="bodyHl" color="grey700">
+                  {translate('text_66a8aed1c3e07b277ec39909')}
+                </Typography>
+                <Typography variant="caption">
+                  {translate('text_66a8aed1c3e07b277ec3990b')}
+                </Typography>
+              </Box>
+
+              <SwitchField
+                name="invoiceRequiresSuccessfulPayment"
+                formikProps={formikProps}
+                label={translate('text_66a8aed1c3e07b277ec3990d')}
+                subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
               />
             </>
           )}
@@ -260,6 +296,25 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                       })}
                       {...inputAdornment(translate('text_62d18855b22699e5cf55f889'))}
                     />
+
+                    {formikProps.values.recurringTransactionRules?.[0].paidCredits && (
+                      <Switch
+                        name="recurringTransactionRules.0.invoiceRequiresSuccessfulPayment"
+                        onChange={(value) => {
+                          formikProps.setFieldValue(
+                            'recurringTransactionRules.0.invoiceRequiresSuccessfulPayment',
+                            value,
+                          )
+                        }}
+                        checked={
+                          formikProps.values.recurringTransactionRules?.[0]
+                            .invoiceRequiresSuccessfulPayment ?? true
+                        }
+                        label={translate('text_66a8aed1c3e07b277ec3990d')}
+                        subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+                      />
+                    )}
+
                     <AmountInputField
                       name="recurringTransactionRules.0.grantedCredits"
                       currency={formikProps.values.currency}
@@ -280,22 +335,41 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                 )}
 
                 {recurringTransactionRules?.method === RecurringTransactionMethodEnum.Target && (
-                  <AmountInputField
-                    name="recurringTransactionRules.0.targetOngoingBalance"
-                    currency={formikProps.values.currency}
-                    beforeChangeFormatter={['positiveNumber']}
-                    label={translate('text_6657c34670561c0127132da5')}
-                    formikProps={formikProps}
-                    error={
-                      get(
-                        formikProps.errors,
-                        'recurringTransactionRules.0.targetOngoingBalance',
-                      ) === walletFormErrorCodes.targetOngoingBalanceShouldBeGreaterThanThreshold
-                        ? translate('text_66584178ee91f801012606a6')
-                        : undefined
-                    }
-                    {...inputAdornment(translate('text_62d18855b22699e5cf55f889'))}
-                  />
+                  <>
+                    <AmountInputField
+                      name="recurringTransactionRules.0.targetOngoingBalance"
+                      currency={formikProps.values.currency}
+                      beforeChangeFormatter={['positiveNumber']}
+                      label={translate('text_6657c34670561c0127132da5')}
+                      formikProps={formikProps}
+                      error={
+                        get(
+                          formikProps.errors,
+                          'recurringTransactionRules.0.targetOngoingBalance',
+                        ) === walletFormErrorCodes.targetOngoingBalanceShouldBeGreaterThanThreshold
+                          ? translate('text_66584178ee91f801012606a6')
+                          : undefined
+                      }
+                      {...inputAdornment(translate('text_62d18855b22699e5cf55f889'))}
+                    />
+                    {formikProps.values.recurringTransactionRules?.[0].targetOngoingBalance && (
+                      <Switch
+                        name="recurringTransactionRules.0.invoiceRequiresSuccessfulPayment"
+                        onChange={(value) => {
+                          formikProps.setFieldValue(
+                            'recurringTransactionRules.0.invoiceRequiresSuccessfulPayment',
+                            value,
+                          )
+                        }}
+                        checked={
+                          formikProps.values.recurringTransactionRules?.[0]
+                            .invoiceRequiresSuccessfulPayment ?? true
+                        }
+                        label={translate('text_66a8aed1c3e07b277ec3990d')}
+                        subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+                      />
+                    )}
+                  </>
                 )}
 
                 <InlineTopUpElements>
