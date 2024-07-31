@@ -77,14 +77,14 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
         }),
       }),
       validateOnMount: true,
-      onSubmit: async ({ grantedCredits, paidCredits }) => {
+      onSubmit: async ({ grantedCredits, paidCredits, invoiceRequiresSuccessfulPayment }) => {
         await createWallet({
           variables: {
             input: {
               walletId: wallet.id,
               grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
               paidCredits: paidCredits === '' ? '0' : String(paidCredits),
-              invoiceRequiresSuccessfulPayment: formikProps.values.invoiceRequiresSuccessfulPayment,
+              invoiceRequiresSuccessfulPayment,
             },
           },
           refetchQueries: ['getCustomerWalletList', 'getWalletTransactions'],
