@@ -32,6 +32,7 @@ export const WalletCodeSnippet = ({
     paidCredits,
     grantedCredits,
     recurringTransactionRules,
+    invoiceRequiresSuccessfulPayment,
   } = wallet
 
   const rtRule = recurringTransactionRules?.[0]
@@ -65,6 +66,9 @@ export const WalletCodeSnippet = ({
               paid_credits: paidCredits || '0',
               granted_credits: grantedCredits || '0',
             }),
+            ...(paidCredits && {
+              invoice_requires_successful_payment: invoiceRequiresSuccessfulPayment,
+            }),
             ...(!!rtRule && {
               recurring_transaction_rules: [
                 {
@@ -72,10 +76,16 @@ export const WalletCodeSnippet = ({
                   method: rtRule.method || SnippetVariables.MUST_BE_DEFINED,
                   ...(rtRule.method === RecurringTransactionMethodEnum.Fixed && {
                     paid_credits: rtRule.paidCredits || '0',
+                    ...(!!rtRule.paidCredits && {
+                      invoiceRequiresSuccessfulPayment: `${rtRule.invoiceRequiresSuccessfulPayment ?? true}`,
+                    }),
                     granted_credits: rtRule.grantedCredits || '0',
                   }),
                   ...(rtRule.method === RecurringTransactionMethodEnum.Target && {
                     target_ongoing_balance: rtRule.targetOngoingBalance || '0',
+                    ...(!!rtRule.targetOngoingBalance && {
+                      invoiceRequiresSuccessfulPayment: `${rtRule.invoiceRequiresSuccessfulPayment ?? true}`,
+                    }),
                   }),
                   trigger: rtRule.trigger || SnippetVariables.MUST_BE_DEFINED,
                   ...(rtRule.trigger === RecurringTransactionTriggerEnum.Interval && {
