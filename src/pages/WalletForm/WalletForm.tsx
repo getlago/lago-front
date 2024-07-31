@@ -370,6 +370,7 @@ const WalletForm = () => {
             loading={isLoading}
             wallet={formikProps.values}
             isEdition={formType === FORM_TYPE_ENUM.edition}
+            lagoId={wallet?.id}
           />
         </Side>
       </Content>
