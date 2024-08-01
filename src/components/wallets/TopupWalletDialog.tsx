@@ -30,6 +30,7 @@ gql`
     id
     currency
     rateAmount
+    invoiceRequiresSuccessfulPayment
   }
 `
 
@@ -56,7 +57,7 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
     const formikProps = useFormik<Omit<CreateCustomerWalletTransactionInput, 'walletId'>>({
       initialValues: {
         grantedCredits: '',
-        invoiceRequiresSuccessfulPayment: true,
+        invoiceRequiresSuccessfulPayment: wallet.invoiceRequiresSuccessfulPayment,
         paidCredits: '',
       },
       validationSchema: object().shape({

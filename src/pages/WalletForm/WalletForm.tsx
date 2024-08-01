@@ -191,7 +191,7 @@ const WalletForm = () => {
         ? String(wallet?.rateAmount)
         : `1${currencyPrecision === 3 ? '.000' : currencyPrecision === 4 ? '.0000' : '.00'}`,
       recurringTransactionRules: wallet?.recurringTransactionRules || undefined,
-      invoiceRequiresSuccessfulPayment: wallet?.invoiceRequiresSuccessfulPayment ?? true,
+      invoiceRequiresSuccessfulPayment: wallet?.invoiceRequiresSuccessfulPayment ?? false,
     },
     validationSchema: walletFormSchema(formType),
     validateOnMount: true,
