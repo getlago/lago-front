@@ -82,6 +82,7 @@ const DEFAULT_RULES: UpdateRecurringTransactionRuleInput = {
   thresholdCredits: '',
   targetOngoingBalance: null,
   startedAt: DateTime.now().toISO(),
+  invoiceRequiresSuccessfulPayment: false,
 }
 
 interface TopUpCardProps {
@@ -308,7 +309,8 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                         }}
                         checked={
                           formikProps.values.recurringTransactionRules?.[0]
-                            .invoiceRequiresSuccessfulPayment ?? true
+                            .invoiceRequiresSuccessfulPayment ??
+                          (DEFAULT_RULES.invoiceRequiresSuccessfulPayment as boolean)
                         }
                         label={translate('text_66a8aed1c3e07b277ec3990d')}
                         subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
@@ -363,7 +365,8 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                         }}
                         checked={
                           formikProps.values.recurringTransactionRules?.[0]
-                            .invoiceRequiresSuccessfulPayment ?? true
+                            .invoiceRequiresSuccessfulPayment ??
+                          (DEFAULT_RULES.invoiceRequiresSuccessfulPayment as boolean)
                         }
                         label={translate('text_66a8aed1c3e07b277ec3990d')}
                         subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
