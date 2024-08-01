@@ -1,6 +1,6 @@
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { envGlobalVar } from '~/core/apolloClient'
-import { serializeAmount } from '~/core/serializers/serializeAmount'
+import { snippetBuilder, SnippetVariables } from '~/core/utils/snippetBuilder'
 import {
   RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
@@ -9,121 +9,100 @@ import { TWalletDataForm } from '~/pages/WalletForm'
 
 const { apiUrl } = envGlobalVar()
 
-const getSnippets = ({ wallet, isEdition }: { wallet?: TWalletDataForm; isEdition?: boolean }) => {
-  if (!wallet || !wallet.rateAmount) return '# Fill the form to generate the code snippet'
-  const { name, rateAmount, currency, recurringTransactionRules } = wallet
-
-  return `# ${isEdition ? 'Edit' : 'Create'} a wallet on a customer
-curl --location --request ${isEdition ? 'PUT' : 'POST'} "${apiUrl}/api/v1/wallets${
-    isEdition ? '/:lago_id' : ''
-  }" \\
-  --header "Authorization: Bearer $__YOUR_API_KEY__" \\
-  --header 'Content-Type: application/json' \\
-  --data-raw '{
-    "wallet": {${
-      isEdition
-        ? `
-        "id": "b7ab2926-1de8-4428-9bcd-779314ac129b",`
-        : ''
-    }${
-      name
-        ? `
-        "name": "${name}",`
-        : ''
-    }
-        "rate_amount": "${rateAmount}",
-        "currency": "${currency}",
-        "external_customer_id": "__EXTERNAL_CUSTOMER_ID__",${
-          wallet.expirationAt
-            ? `,
-        "expiration_at": "${wallet.expirationAt}",`
-            : ''
-        }${
-          !isEdition
-            ? `
-        "paid_credits": "${
-          wallet.paidCredits ? serializeAmount(wallet.paidCredits, wallet.currency) : '0'
-        }",
-        "granted_credits": "${
-          wallet.grantedCredits ? serializeAmount(wallet.grantedCredits, wallet.currency) : '0'
-        }"`
-            : ''
-        }${
-          !!recurringTransactionRules?.[0]
-            ? `,
-        "recurring_transaction_rules": [
-          {${
-            isEdition && recurringTransactionRules[0].lagoId
-              ? `
-            "lago_id": "${recurringTransactionRules[0].lagoId}",`
-              : ''
-          }
-            "method": "${wallet.recurringTransactionRules?.[0].method || '__MUST_BE_DEFINED__'}",${
-              wallet.recurringTransactionRules?.[0].method === RecurringTransactionMethodEnum.Fixed
-                ? `
-            "paid_credits": "${
-              wallet.recurringTransactionRules?.[0].paidCredits
-                ? serializeAmount(
-                    wallet.recurringTransactionRules?.[0].paidCredits,
-                    wallet.currency,
-                  )
-                : '0'
-            }",
-            "granted_credits": "${
-              wallet.recurringTransactionRules?.[0].grantedCredits
-                ? serializeAmount(
-                    wallet.recurringTransactionRules?.[0].grantedCredits,
-                    wallet.currency,
-                  )
-                : '0'
-            }",`
-                : ''
-            }${
-              wallet.recurringTransactionRules?.[0].method === RecurringTransactionMethodEnum.Target
-                ? `
-            "target_ongoing_balance": "${
-              wallet.recurringTransactionRules?.[0].targetOngoingBalance || '0'
-            }",`
-                : ''
-            }
-            "trigger": "${wallet.recurringTransactionRules?.[0].trigger || '__MUST_BE_DEFINED__'}"${
-              wallet.recurringTransactionRules?.[0].trigger ===
-              RecurringTransactionTriggerEnum.Interval
-                ? `,
-            "interval": "${
-              wallet.recurringTransactionRules?.[0].interval || '__MUST_BE_DEFINED__'
-            }",`
-                : ''
-            }${
-              wallet.recurringTransactionRules?.[0].trigger ===
-              RecurringTransactionTriggerEnum.Threshold
-                ? `,
-            "threshold_credits": "${wallet.recurringTransactionRules?.[0].thresholdCredits || '0'}"`
-                : ''
-            }${
-              wallet.recurringTransactionRules?.[0].trigger ===
-                RecurringTransactionTriggerEnum.Interval &&
-              wallet.recurringTransactionRules?.[0].startedAt
-                ? `
-            "started_at": "${wallet.recurringTransactionRules?.[0].startedAt}"`
-                : ''
-            }
-          }
-        ]`
-            : ''
-        }
-    }
-  }'
-  
-# To use the snippet, don’t forget to edit your __YOUR_API_KEY__ and  __EXTERNAL_CUSTOMER_ID__`
-}
-
 interface WalletCodeSnippetProps {
   loading?: boolean
   wallet?: TWalletDataForm
   isEdition?: boolean
+  lagoId?: string
 }
 
-export const WalletCodeSnippet = ({ wallet, loading, isEdition }: WalletCodeSnippetProps) => {
-  return <CodeSnippet loading={loading} language="bash" code={getSnippets({ wallet, isEdition })} />
+export const WalletCodeSnippet = ({
+  wallet,
+  loading,
+  isEdition,
+  lagoId,
+}: WalletCodeSnippetProps) => {
+  if (!wallet || !wallet.rateAmount) return '# Fill the form to generate the code snippet'
+
+  const {
+    name,
+    rateAmount,
+    currency,
+    expirationAt,
+    paidCredits,
+    grantedCredits,
+    recurringTransactionRules,
+    invoiceRequiresSuccessfulPayment,
+  } = wallet
+
+  const rtRule = recurringTransactionRules?.[0]
+
+  return (
+    <CodeSnippet
+      loading={loading}
+      language="bash"
+      code={snippetBuilder({
+        title: `${isEdition ? 'Edit' : 'Create'} a wallet on a customer`,
+        url: `${apiUrl}/api/v1/wallets${isEdition ? `/${lagoId ?? ':lago_id'}` : ''}`,
+        method: isEdition ? 'PUT' : 'POST',
+        headers: [
+          {
+            Authorization: `Bearer $${SnippetVariables.API_KEY}`,
+          },
+          {
+            'Content-Type': 'application/json',
+          },
+        ],
+        data: {
+          wallet: {
+            ...(isEdition
+              ? { id: lagoId ? lagoId : SnippetVariables.MUST_BE_DEFINED }
+              : { external_customer_id: SnippetVariables.EXTERNAL_CUSTOMER_ID }),
+            ...(name && { name }),
+            rate_amount: rateAmount,
+            currency: currency,
+            ...(expirationAt && { expiration_at: expirationAt }),
+            ...(!isEdition && {
+              paid_credits: paidCredits || '0',
+              granted_credits: grantedCredits || '0',
+            }),
+            ...(paidCredits && {
+              invoice_requires_successful_payment: invoiceRequiresSuccessfulPayment,
+            }),
+            ...(!!rtRule && {
+              recurring_transaction_rules: [
+                {
+                  ...(isEdition && { lago_id: rtRule.lagoId }),
+                  method: rtRule.method || SnippetVariables.MUST_BE_DEFINED,
+                  ...(rtRule.method === RecurringTransactionMethodEnum.Fixed && {
+                    paid_credits: rtRule.paidCredits || '0',
+                    ...(!!rtRule.paidCredits && {
+                      invoiceRequiresSuccessfulPayment: `${rtRule.invoiceRequiresSuccessfulPayment ?? true}`,
+                    }),
+                    granted_credits: rtRule.grantedCredits || '0',
+                  }),
+                  ...(rtRule.method === RecurringTransactionMethodEnum.Target && {
+                    target_ongoing_balance: rtRule.targetOngoingBalance || '0',
+                    ...(!!rtRule.targetOngoingBalance && {
+                      invoiceRequiresSuccessfulPayment: `${rtRule.invoiceRequiresSuccessfulPayment ?? true}`,
+                    }),
+                  }),
+                  trigger: rtRule.trigger || SnippetVariables.MUST_BE_DEFINED,
+                  ...(rtRule.trigger === RecurringTransactionTriggerEnum.Interval && {
+                    interval: rtRule.interval || SnippetVariables.MUST_BE_DEFINED,
+                  }),
+                  ...(rtRule.trigger === RecurringTransactionTriggerEnum.Threshold && {
+                    threshold_credits: rtRule.thresholdCredits || '0',
+                  }),
+                  ...(rtRule.trigger === RecurringTransactionTriggerEnum.Interval &&
+                    rtRule.startedAt && { started_at: rtRule.startedAt }),
+                },
+              ],
+            }),
+          },
+        },
+        footerComment: `To use the snippet, don’t forget to edit your ${SnippetVariables.API_KEY}${!isEdition ? ` and ${SnippetVariables.EXTERNAL_CUSTOMER_ID}` : ''}`,
+      })}
+    />
+  )
 }
