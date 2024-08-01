@@ -252,6 +252,7 @@ export const Table = <T extends DataItem>({
 
                                 const button = (
                                   <Button
+                                    key={`${TABLE_ID}-popper-action-${i}-${j}`}
                                     fullWidth
                                     startIcon={action.startIcon}
                                     variant="quaternary"
@@ -269,7 +270,7 @@ export const Table = <T extends DataItem>({
                                 if (action.tooltip) {
                                   return (
                                     <Tooltip
-                                      key={`${TABLE_ID}-action-${i}-${j}`}
+                                      key={`${TABLE_ID}-popper-action-${i}-${j}`}
                                       title={action.tooltip}
                                       disableHoverListener={action.tooltipListener}
                                     >
