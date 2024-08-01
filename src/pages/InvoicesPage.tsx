@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useEffect, useMemo, useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -38,22 +38,32 @@ import { PageHeader, theme } from '~/styles'
 
 gql`
   query getInvoicesList(
+    $currency: CurrencyEnum
+    $customerExternalId: String
+    $invoiceType: [InvoiceTypeEnum!]
+    $issuingDateFrom: ISO8601Date
+    $issuingDateTo: ISO8601Date
     $limit: Int
     $page: Int
-    $status: [InvoiceStatusTypeEnum!]
-    $paymentStatus: [InvoicePaymentStatusTypeEnum!]
-    $searchTerm: String
     $paymentDisputeLost: Boolean
     $paymentOverdue: Boolean
+    $paymentStatus: [InvoicePaymentStatusTypeEnum!]
+    $searchTerm: String
+    $status: [InvoiceStatusTypeEnum!]
   ) {
     invoices(
+      currency: $currency
+      customerExternalId: $customerExternalId
+      invoiceType: $invoiceType
+      issuingDateFrom: $issuingDateFrom
+      issuingDateTo: $issuingDateTo
       limit: $limit
       page: $page
-      status: $status
-      paymentStatus: $paymentStatus
-      searchTerm: $searchTerm
       paymentDisputeLost: $paymentDisputeLost
       paymentOverdue: $paymentOverdue
+      paymentStatus: $paymentStatus
+      searchTerm: $searchTerm
+      status: $status
     ) {
       metadata {
         currentPage
@@ -166,12 +176,6 @@ const InvoicesPage = () => {
       }
     },
   })
-  const listContainerElementRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    // Scroll to top of list when switching tabs
-    listContainerElementRef?.current?.scrollTo({ top: 0 })
-  }, [tab])
 
   return (
     <>
