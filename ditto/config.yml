@@ -391,5 +391,7 @@ sources:
       fileName: ⚙️ [WIP] - Invoices - Regroup fee paid in advance in invoice
     - name: 👍 [Ready for dev] - Wallets - Do not generate invoice at top-up
       id: 66a8aecf06001261d60abe9f
+    - name: 👍 [Ready for dev] - Invoices - Export invoices in CSV
+      id: 66ab42d15b1e5416e2d013aa
 format: flat
 variants: true
