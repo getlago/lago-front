@@ -30,14 +30,14 @@ jobs:
       - name: Build API local image
         run: |
           docker build -t getlago/api:ci ./api
-      
+
       - name: Generate API RSA Key
         run: |
           echo "LAGO_RSA_PRIVATE_KEY=\"`openssl genrsa 2048 | base64`\"" >> .env
-      
+
       - name: Launch API
-        run: docker-compose -f ./ci/docker-compose.ci.yml --env-file ./.env up -d api
-      
+        run: docker compose -f ./ci/docker-compose.ci.yml --env-file ./.env up -d api
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
