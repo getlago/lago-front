@@ -203,7 +203,6 @@ export const ChargeAccordion = memo(
       initialLocalCharge,
       isPayInAdvanceOptionDisabled,
       isProratedOptionDisabled,
-      // isAbleToSwitchToProRated,
       localCharge,
     } = useMemo(() => {
       const formikCharge = formikProps.values.charges[index]
@@ -793,7 +792,7 @@ export const ChargeAccordion = memo(
             {localCharge.payInAdvance && (
               <ChargeBillingRadioGroup
                 localCharge={localCharge}
-                disabled={isUsedInSubscription}
+                disabled={isInSubscriptionForm || disabled}
                 openPremiumDialog={() => premiumWarningDialogRef?.current?.openDialog()}
                 handleUpdate={({ regroupPaidFees, invoiceable }) => {
                   const currentChargeValues: LocalChargeInput = {
