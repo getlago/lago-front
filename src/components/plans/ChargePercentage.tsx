@@ -140,7 +140,6 @@ export const ChargePercentage = memo(
             >
               <Button
                 icon="trash"
-                size="small"
                 disabled={disabled}
                 variant="quaternary"
                 onClick={() => {
@@ -181,7 +180,6 @@ export const ChargePercentage = memo(
             >
               <Button
                 icon="trash"
-                size="small"
                 disabled={disabled}
                 variant="quaternary"
                 onClick={() => {
@@ -226,7 +224,6 @@ export const ChargePercentage = memo(
             >
               <Button
                 icon="trash"
-                size="small"
                 disabled={disabled}
                 variant="quaternary"
                 onClick={() => {
@@ -280,7 +277,6 @@ export const ChargePercentage = memo(
             >
               <Button
                 icon="trash"
-                size="small"
                 disabled={disabled}
                 variant="quaternary"
                 onClick={() => {
@@ -321,7 +317,6 @@ export const ChargePercentage = memo(
             >
               <Button
                 icon="trash"
-                size="small"
                 disabled={disabled}
                 variant="quaternary"
                 onClick={() => {

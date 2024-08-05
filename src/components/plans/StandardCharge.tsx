@@ -134,6 +134,10 @@ const Container = styled.div`
 const InlineFields = styled.div`
   display: flex;
   gap: ${theme.spacing(3)};
+
+  > *:last-child {
+    margin-top: ${theme.spacing(1)};
+  }
 `
 
 const StyledTextInput = styled(TextInput)`
