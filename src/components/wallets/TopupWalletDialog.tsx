@@ -3,10 +3,10 @@ import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import { forwardRef } from 'react'
 import styled from 'styled-components'
-import { object, string } from 'yup'
+import { boolean, object, string } from 'yup'
 
 import { Alert, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
-import { AmountInputField, TextInput } from '~/components/form'
+import { AmountInputField, SwitchField, TextInput } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -30,6 +30,7 @@ gql`
     id
     currency
     rateAmount
+    invoiceRequiresSuccessfulPayment
   }
 `
 
@@ -56,6 +57,7 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
     const formikProps = useFormik<Omit<CreateCustomerWalletTransactionInput, 'walletId'>>({
       initialValues: {
         grantedCredits: '',
+        invoiceRequiresSuccessfulPayment: wallet.invoiceRequiresSuccessfulPayment,
         paidCredits: '',
       },
       validationSchema: object().shape({
@@ -66,6 +68,7 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
             return !isNaN(Number(paidCredits)) || !isNaN(Number(grantedCredits))
           },
         }),
+        invoiceRequiresSuccessfulPayment: boolean(),
         grantedCredits: string().test({
           test: function (grantedCredits) {
             const { paidCredits } = this?.parent
@@ -75,13 +78,14 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
         }),
       }),
       validateOnMount: true,
-      onSubmit: async ({ grantedCredits, paidCredits }) => {
+      onSubmit: async ({ grantedCredits, paidCredits, invoiceRequiresSuccessfulPayment }) => {
         await createWallet({
           variables: {
             input: {
               walletId: wallet.id,
               grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
               paidCredits: paidCredits === '' ? '0' : String(paidCredits),
+              invoiceRequiresSuccessfulPayment,
             },
           },
           refetchQueries: ['getCustomerWalletList', 'getWalletTransactions'],
@@ -167,6 +171,15 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
               ),
             }}
           />
+
+          {formikProps.values.paidCredits && (
+            <SwitchField
+              name="invoiceRequiresSuccessfulPayment"
+              formikProps={formikProps}
+              label={translate('text_66a8aed1c3e07b277ec3990d')}
+              subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+            />
+          )}
 
           <AmountInputField
             name="grantedCredits"

@@ -46,6 +46,7 @@ gql`
     expirationAt
     name
     rateAmount
+    invoiceRequiresSuccessfulPayment
     recurringTransactionRules {
       lagoId
       method
@@ -56,6 +57,7 @@ gql`
       grantedCredits
       thresholdCredits
       startedAt
+      invoiceRequiresSuccessfulPayment
     }
   }
 
@@ -189,6 +191,7 @@ const WalletForm = () => {
         ? String(wallet?.rateAmount)
         : `1${currencyPrecision === 3 ? '.000' : currencyPrecision === 4 ? '.0000' : '.00'}`,
       recurringTransactionRules: wallet?.recurringTransactionRules || undefined,
+      invoiceRequiresSuccessfulPayment: wallet?.invoiceRequiresSuccessfulPayment ?? false,
     },
     validationSchema: walletFormSchema(formType),
     validateOnMount: true,
@@ -212,6 +215,7 @@ const WalletForm = () => {
                   method,
                   targetOngoingBalance,
                   startedAt,
+                  invoiceRequiresSuccessfulPayment,
                   paidCredits: rulePaidCredit,
                   grantedCredits: ruleGrantedCredit,
                 } = rule
@@ -238,6 +242,7 @@ const WalletForm = () => {
                         ? '0'
                         : String(targetOngoingBalance)
                       : null,
+                  invoiceRequiresSuccessfulPayment,
                 }
               },
             )
@@ -365,6 +370,7 @@ const WalletForm = () => {
             loading={isLoading}
             wallet={formikProps.values}
             isEdition={formType === FORM_TYPE_ENUM.edition}
+            lagoId={wallet?.id}
           />
         </Side>
       </Content>
