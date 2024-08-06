@@ -55,7 +55,7 @@ export type ActionItem<T> = {
   tooltipListener?: boolean
 }
 
-type ContainerSize = 4 | 16 | 48
+type ContainerSize = 0 | 4 | 16 | 48
 
 interface TableProps<T> {
   name: string
@@ -117,24 +117,26 @@ export const Table = <T extends DataItem>({
   const isClickable = !!onRowAction && !isLoading
   const shouldDisplayActionColumn =
     !!actionColumn &&
-    data.some((item) => {
-      if (Array.isArray(actionColumn?.(item))) {
-        const actionColumnArray = actionColumn?.(item) as Array<ActionItem<T> | null>
-        const filteredArray = actionColumnArray.filter((action) => !!action)
+    (data.length > 0
+      ? data.some((item) => {
+          if (Array.isArray(actionColumn?.(item))) {
+            const actionColumnArray = actionColumn?.(item) as Array<ActionItem<T> | null>
+            const filteredArray = actionColumnArray.filter((action) => !!action)
 
-        if (actionColumnArray && filteredArray.length > 0) {
-          return true
-        }
+            if (actionColumnArray && filteredArray.length > 0) {
+              return true
+            }
 
-        return false
-      }
+            return false
+          }
 
-      if (actionColumn?.(item)) {
-        return true
-      }
+          if (actionColumn?.(item)) {
+            return true
+          }
 
-      return false
-    })
+          return false
+        })
+      : true)
   const colSpan = columns.length + (shouldDisplayActionColumn ? 1 : 0)
 
   const handleRowClick = (e: MouseEvent<HTMLTableRowElement>, item: T) => {
@@ -289,7 +291,8 @@ export const Table = <T extends DataItem>({
                 )}
               </TableRow>
             )))}
-        {isLoading && LoadingRows({ columns, id: TABLE_ID, shouldDisplayActionColumn })}
+        {isLoading &&
+          LoadingRows({ columns, id: TABLE_ID, shouldDisplayActionColumn, actionColumn })}
       </MUITableBody>
     </StyledTable>
   )
@@ -299,20 +302,28 @@ const LoadingRows = <T,>({
   columns,
   id,
   shouldDisplayActionColumn,
-}: Pick<TableProps<T>, 'columns'> & { id: string; shouldDisplayActionColumn: boolean }) => {
+  actionColumn,
+}: Pick<TableProps<T>, 'columns' | 'actionColumn'> & {
+  id: string
+  shouldDisplayActionColumn: boolean
+}) => {
   return Array.from({ length: LOADING_ROW_COUNT }).map((_, i) => (
     <TableRow key={`${id}-loading-row-${i}`}>
       {columns.map((col, j) => (
         <TableCell key={`${id}-loading-cell-${i}-${j}`}>
           <TableInnerCell $minWidth={col.minWidth} $align={col.textAlign}>
-            <Skeleton variant="text" width="100%" />
+            <Skeleton variant="text" width={col.minWidth ?? '100%'} />
           </TableInnerCell>
         </TableCell>
       ))}
       {shouldDisplayActionColumn && (
         <TableActionCell>
           <TableInnerCell>
-            <Button disabled icon="dots-horizontal" variant="quaternary" />
+            {Array.isArray(actionColumn?.({} as T)) ? (
+              <Button disabled icon="dots-horizontal" variant="quaternary" />
+            ) : (
+              (actionColumn?.({} as T) as ReactNode)
+            )}
           </TableInnerCell>
         </TableActionCell>
       )}
