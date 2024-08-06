@@ -295,6 +295,7 @@ const InvoicesList = ({
               {
                 key: 'status',
                 title: translate('text_63ac86d797f728a87b2f9fa7'),
+                minWidth: 80,
                 content: ({ status, paymentStatus, paymentOverdue, paymentDisputeLostAt }) => {
                   if (!!paymentDisputeLostAt) {
                     return <Status type={StatusType.danger} label="disputed" />
@@ -306,6 +307,7 @@ const InvoicesList = ({
               {
                 key: 'number',
                 title: translate('text_63ac86d797f728a87b2f9fad'),
+                minWidth: 160,
                 content: ({ number }) => (
                   <Typography variant="body" noWrap>
                     {number}
@@ -316,6 +318,7 @@ const InvoicesList = ({
                 key: 'customer.name',
                 title: translate('text_65201c5a175a4b0238abf29a'),
                 maxSpace: true,
+                minWidth: 160,
                 content: ({ customer }) => (
                   <Typography variant="body" noWrap>
                     {customer.name || '-'}
@@ -326,6 +329,7 @@ const InvoicesList = ({
                 key: 'totalAmountCents',
                 title: translate('text_63ac86d797f728a87b2f9fb9'),
                 textAlign: 'right',
+                minWidth: 160,
                 content: ({ totalAmountCents, currency }) => (
                   <Typography variant="bodyHl" color="textSecondary" noWrap>
                     {intlFormatNumber(
@@ -340,6 +344,7 @@ const InvoicesList = ({
               {
                 key: 'issuingDate',
                 title: translate('text_63ac86d797f728a87b2f9fbf'),
+                minWidth: 104,
                 content: ({ issuingDate, customer }) => (
                   <Typography variant="body" noWrap>
                     {formatDateToTZ(issuingDate, customer.applicableTimezone)}

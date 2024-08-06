@@ -55,7 +55,7 @@ export type ActionItem<T> = {
   tooltipListener?: boolean
 }
 
-type ContainerSize = 4 | 16 | 48
+type ContainerSize = 0 | 4 | 16 | 48
 
 interface TableProps<T> {
   name: string
@@ -69,7 +69,7 @@ interface TableProps<T> {
     errorState?: Partial<GenericPlaceholderProps>
   }
   onRowAction?: (item: T) => void
-  actionColumn?: (item: T) => Array<ActionItem<T> | null>
+  actionColumn?: (item: T) => Array<ActionItem<T> | null> | ReactNode
   containerSize?: ResponsiveStyleValue<ContainerSize>
 }
 
@@ -115,7 +115,28 @@ export const Table = <T extends DataItem>({
   })
 
   const isClickable = !!onRowAction && !isLoading
-  const shouldDisplayActionColumn = !!actionColumn && actionColumn.length > 0
+  const shouldDisplayActionColumn =
+    !!actionColumn &&
+    (data.length > 0
+      ? data.some((item) => {
+          if (Array.isArray(actionColumn?.(item))) {
+            const actionColumnArray = actionColumn?.(item) as Array<ActionItem<T> | null>
+            const filteredArray = actionColumnArray.filter((action) => !!action)
+
+            if (actionColumnArray && filteredArray.length > 0) {
+              return true
+            }
+
+            return false
+          }
+
+          if (actionColumn?.(item)) {
+            return true
+          }
+
+          return false
+        })
+      : true)
   const colSpan = columns.length + (shouldDisplayActionColumn ? 1 : 0)
 
   const handleRowClick = (e: MouseEvent<HTMLTableRowElement>, item: T) => {
@@ -183,7 +204,12 @@ export const Table = <T extends DataItem>({
   }
 
   return (
-    <StyledTable ref={tableRef} $isFullWidth={!!isFullWidth} $containerSize={containerSize}>
+    <StyledTable
+      data-test={TABLE_ID}
+      ref={tableRef}
+      $isFullWidth={!!isFullWidth}
+      $containerSize={containerSize}
+    >
       <TableHead>
         <TableRow>
           <>
@@ -229,67 +255,44 @@ export const Table = <T extends DataItem>({
                 ))}
                 {shouldDisplayActionColumn && (
                   <TableActionCell>
-                    <TableInnerCell>
-                      <Popper
-                        popperGroupName={`${TABLE_ID}-action-cell`}
-                        PopperProps={{ placement: 'bottom-end' }}
-                        opener={
-                          <Button
-                            data-id={ACTION_COLUMN_ID}
-                            icon="dots-horizontal"
-                            variant="quaternary"
-                          />
-                        }
-                      >
-                        {({ closePopper }) => (
-                          <MenuPopper data-id={`${TABLE_ID}-popper`}>
-                            {actionColumn(item)
-                              .filter((action) => !!action)
-                              .map((action, j) => {
-                                if (!action) {
-                                  return
-                                }
+                    <TableInnerCell data-id={ACTION_COLUMN_ID}>
+                      {Array.isArray(actionColumn(item)) ? (
+                        <Popper
+                          popperGroupName={`${TABLE_ID}-action-cell`}
+                          PopperProps={{ placement: 'bottom-end' }}
+                          opener={<Button icon="dots-horizontal" variant="quaternary" />}
+                        >
+                          {({ closePopper }) => (
+                            <MenuPopper data-id={`${TABLE_ID}-popper`}>
+                              {(actionColumn(item) as Array<ActionItem<T> | null>)
+                                .filter((action) => !!action)
+                                .map((action, j) => {
+                                  if (!action) {
+                                    return
+                                  }
 
-                                const button = (
-                                  <Button
-                                    key={`${TABLE_ID}-popper-action-${i}-${j}`}
-                                    fullWidth
-                                    startIcon={action.startIcon}
-                                    variant="quaternary"
-                                    align="left"
-                                    disabled={action.disabled}
-                                    onClick={async () => {
-                                      await action.onAction(item)
-                                      closePopper()
-                                    }}
-                                  >
-                                    {action.title}
-                                  </Button>
-                                )
-
-                                if (action.tooltip) {
                                   return (
-                                    <Tooltip
+                                    <ActionItemButton
                                       key={`${TABLE_ID}-popper-action-${i}-${j}`}
-                                      title={action.tooltip}
-                                      disableHoverListener={action.tooltipListener}
-                                    >
-                                      {button}
-                                    </Tooltip>
+                                      action={action}
+                                      item={item}
+                                      closePopper={closePopper}
+                                    />
                                   )
-                                }
-
-                                return button
-                              })}
-                          </MenuPopper>
-                        )}
-                      </Popper>
+                                })}
+                            </MenuPopper>
+                          )}
+                        </Popper>
+                      ) : (
+                        (actionColumn(item) as ReactNode)
+                      )}
                     </TableInnerCell>
                   </TableActionCell>
                 )}
               </TableRow>
             )))}
-        {isLoading && LoadingRows({ columns, id: TABLE_ID, shouldDisplayActionColumn })}
+        {isLoading &&
+          LoadingRows({ columns, id: TABLE_ID, shouldDisplayActionColumn, actionColumn })}
       </MUITableBody>
     </StyledTable>
   )
@@ -299,25 +302,71 @@ const LoadingRows = <T,>({
   columns,
   id,
   shouldDisplayActionColumn,
-}: Pick<TableProps<T>, 'columns'> & { id: string; shouldDisplayActionColumn: boolean }) => {
+  actionColumn,
+}: Pick<TableProps<T>, 'columns' | 'actionColumn'> & {
+  id: string
+  shouldDisplayActionColumn: boolean
+}) => {
   return Array.from({ length: LOADING_ROW_COUNT }).map((_, i) => (
     <TableRow key={`${id}-loading-row-${i}`}>
       {columns.map((col, j) => (
         <TableCell key={`${id}-loading-cell-${i}-${j}`}>
           <TableInnerCell $minWidth={col.minWidth} $align={col.textAlign}>
-            <Skeleton variant="text" width="100%" />
+            <Skeleton variant="text" width={col.minWidth ?? '100%'} />
           </TableInnerCell>
         </TableCell>
       ))}
       {shouldDisplayActionColumn && (
         <TableActionCell>
           <TableInnerCell>
-            <Button disabled icon="dots-horizontal" variant="quaternary" />
+            {Array.isArray(actionColumn?.({} as T)) ? (
+              <Button disabled icon="dots-horizontal" variant="quaternary" />
+            ) : (
+              (actionColumn?.({} as T) as ReactNode)
+            )}
           </TableInnerCell>
         </TableActionCell>
       )}
     </TableRow>
   ))
+}
+
+const ActionItemButton = <T,>({
+  action,
+  item,
+  closePopper,
+}: {
+  action: ActionItem<T>
+  item: T
+  closePopper: VoidFunction
+}) => {
+  const button = (
+    <Button
+      fullWidth
+      startIcon={action.startIcon}
+      variant="quaternary"
+      align="left"
+      disabled={action.disabled}
+      onClick={async () => {
+        await action.onAction(item)
+        closePopper()
+      }}
+    >
+      {action.title}
+    </Button>
+  )
+
+  const withTooltip = (
+    <Tooltip title={action.tooltip} disableHoverListener={action.tooltipListener}>
+      {button}
+    </Tooltip>
+  )
+
+  if (action.tooltip) {
+    return withTooltip
+  }
+
+  return button
 }
 
 const TableInnerCell = styled.div<{ $minWidth?: number; $align?: Align }>`
@@ -467,7 +516,7 @@ const TableRow = styled(MUITableRow)<{ $isClickable?: boolean }>`
   }
 
   // Remove hover effect when action column is hovered
-  &:has([data-id='${ACTION_COLUMN_ID}']:hover) {
+  &:has([data-id='${ACTION_COLUMN_ID}'] button:hover) {
     background-color: unset !important;
 
     ${TableActionCell} {
