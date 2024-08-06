@@ -14,6 +14,10 @@ import {
   UpdateInvoicePaymentStatusDialogRef,
 } from '~/components/invoices/EditInvoicePaymentStatusDialog'
 import {
+  ExportInvoicesDialog,
+  ExportInvoicesDialogRef,
+} from '~/components/invoices/ExportInvoicesDialog'
+import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
@@ -118,6 +122,7 @@ const InvoicesPage = () => {
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
+  const exportInvoicesDialogRef = useRef<ExportInvoicesDialogRef>(null)
 
   const filtersForInvoiceQuery = useMemo(() => {
     return formatFiltersForInvoiceQuery(searchParams)
@@ -186,10 +191,19 @@ const InvoicesPage = () => {
 
         <HeaderRigthBlock>
           {tab === InvoiceListTabEnum.invoices ? (
-            <SearchInput
-              onChange={invoiceDebounceSearch}
-              placeholder={translate('text_63c68131568d582a38233e84')}
-            />
+            <>
+              <SearchInput
+                onChange={invoiceDebounceSearch}
+                placeholder={translate('text_63c68131568d582a38233e84')}
+              />
+              <Button
+                variant="secondary"
+                disabled={!dataInvoices?.invoices?.metadata?.totalCount}
+                onClick={exportInvoicesDialogRef.current?.openDialog}
+              >
+                {translate('text_66b21236c939426d07ff98ca')}
+              </Button>
+            </>
           ) : tab === InvoiceListTabEnum.creditNotes ? (
             <SearchInput
               onChange={creditNoteDebounceSearch}
@@ -263,6 +277,11 @@ const InvoicesPage = () => {
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
+      <ExportInvoicesDialog
+        ref={exportInvoicesDialogRef}
+        invoicesVariablesSearchTerm={variableInvoices?.searchTerm}
+        invoicesTotalCount={dataInvoices?.invoices?.metadata?.totalCount}
+      />
     </>
   )
 }
@@ -272,8 +291,5 @@ export default InvoicesPage
 const HeaderRigthBlock = styled.div`
   display: flex;
   align-items: center;
-
-  > :first-child {
-    margin-right: ${theme.spacing(3)};
-  }
+  gap: ${theme.spacing(3)};
 `
