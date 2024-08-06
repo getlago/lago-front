@@ -7531,6 +7531,11 @@ export type GetCustomerInfosForDraftInvoicesListQueryVariables = Exact<{
 
 export type GetCustomerInfosForDraftInvoicesListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, applicableTimezone: TimezoneEnum } | null, customerInvoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number } } };
 
+export type GetDocumentLocaleQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetDocumentLocaleQuery = { __typename?: 'Query', customerPortalOrganization?: { __typename?: 'Organization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, customerPortalUser?: { __typename?: 'Customer', id: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null } | null };
+
 export type CustomersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -19493,6 +19498,56 @@ export type GetCustomerInfosForDraftInvoicesListQueryHookResult = ReturnType<typ
 export type GetCustomerInfosForDraftInvoicesListLazyQueryHookResult = ReturnType<typeof useGetCustomerInfosForDraftInvoicesListLazyQuery>;
 export type GetCustomerInfosForDraftInvoicesListSuspenseQueryHookResult = ReturnType<typeof useGetCustomerInfosForDraftInvoicesListSuspenseQuery>;
 export type GetCustomerInfosForDraftInvoicesListQueryResult = Apollo.QueryResult<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>;
+export const GetDocumentLocaleDocument = gql`
+    query getDocumentLocale {
+  customerPortalOrganization {
+    id
+    billingConfiguration {
+      id
+      documentLocale
+    }
+  }
+  customerPortalUser {
+    id
+    billingConfiguration {
+      id
+      documentLocale
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetDocumentLocaleQuery__
+ *
+ * To run a query within a React component, call `useGetDocumentLocaleQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetDocumentLocaleQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDocumentLocaleQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetDocumentLocaleQuery(baseOptions?: Apollo.QueryHookOptions<GetDocumentLocaleQuery, GetDocumentLocaleQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetDocumentLocaleQuery, GetDocumentLocaleQueryVariables>(GetDocumentLocaleDocument, options);
+      }
+export function useGetDocumentLocaleLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetDocumentLocaleQuery, GetDocumentLocaleQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetDocumentLocaleQuery, GetDocumentLocaleQueryVariables>(GetDocumentLocaleDocument, options);
+        }
+export function useGetDocumentLocaleSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetDocumentLocaleQuery, GetDocumentLocaleQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetDocumentLocaleQuery, GetDocumentLocaleQueryVariables>(GetDocumentLocaleDocument, options);
+        }
+export type GetDocumentLocaleQueryHookResult = ReturnType<typeof useGetDocumentLocaleQuery>;
+export type GetDocumentLocaleLazyQueryHookResult = ReturnType<typeof useGetDocumentLocaleLazyQuery>;
+export type GetDocumentLocaleSuspenseQueryHookResult = ReturnType<typeof useGetDocumentLocaleSuspenseQuery>;
+export type GetDocumentLocaleQueryResult = Apollo.QueryResult<GetDocumentLocaleQuery, GetDocumentLocaleQueryVariables>;
 export const CustomersDocument = gql`
     query customers($page: Int, $limit: Int, $searchTerm: String) {
   customers(page: $page, limit: $limit, searchTerm: $searchTerm) {
