@@ -199,7 +199,7 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
               columns={[
                 {
                   key: 'issuingDate',
-                  title: 'Issuing Date',
+                  title: translate('text_6419c64eace749372fc72b39'),
                   minWidth: 104,
                   content: ({ issuingDate }) => (
                     <Typography variant="body" noWrap>
@@ -211,7 +211,7 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
                 },
                 {
                   key: 'number',
-                  title: 'Invoice Number',
+                  title: translate('text_6419c64eace749372fc72b3c'),
                   maxSpace: true,
                   minWidth: 160,
                   content: ({ number }) => (
@@ -222,7 +222,7 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
                 },
                 {
                   key: 'totalAmountCents',
-                  title: 'Amount',
+                  title: translate('text_6419c64eace749372fc72b3e'),
                   textAlign: 'right',
                   minWidth: 160,
                   content: ({ totalAmountCents, currency }) => (
@@ -240,7 +240,7 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
                 },
                 {
                   key: 'paymentStatus',
-                  title: 'Payment',
+                  title: translate('text_6419c64eace749372fc72b40'),
                   minWidth: 80,
                   content: ({ paymentStatus, paymentOverdue, paymentDisputeLosable }) => {
                     return (
