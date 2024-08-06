@@ -17,6 +17,7 @@ interface RadioGroupFieldProps {
   optionLabelVariant?: RadioProps['labelVariant']
   infoText?: string
   description?: string
+  optionsGapSpacing?: number
   options: Pick<RadioFieldProps, 'value' | 'label' | 'disabled' | 'sublabel'>[]
   disabled?: boolean
 }
@@ -28,6 +29,7 @@ export const RadioGroupField: FC<RadioGroupFieldProps> = ({
   disabled,
   label,
   optionLabelVariant,
+  optionsGapSpacing = 2,
   description,
   infoText,
 }) => {
@@ -55,7 +57,7 @@ export const RadioGroupField: FC<RadioGroupFieldProps> = ({
         </Description>
       )}
 
-      <Stack width="100%" gap={2}>
+      <Stack width="100%" gap={optionsGapSpacing}>
         {options.map(
           ({ value: optionValue, label: optionLabel, disabled: optionDisabled, ...props }) => {
             return (
