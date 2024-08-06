@@ -5404,13 +5404,6 @@ export type GetPortalCustomerInfosQuery = { __typename?: 'Query', customerPortal
 
 export type PortalInvoiceListItemFragment = { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, paymentDisputeLosable: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null };
 
-export type DownloadCustomerPortalInvoiceMutationVariables = Exact<{
-  input: DownloadCustomerPortalInvoiceInput;
-}>;
-
-
-export type DownloadCustomerPortalInvoiceMutation = { __typename?: 'Mutation', downloadCustomerPortalInvoice?: { __typename?: 'Invoice', id: string, fileUrl?: string | null } | null };
-
 export type CustomerPortalInvoicesQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -5420,6 +5413,13 @@ export type CustomerPortalInvoicesQueryVariables = Exact<{
 
 
 export type CustomerPortalInvoicesQuery = { __typename?: 'Query', customerPortalInvoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, paymentDisputeLosable: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null }> } };
+
+export type DownloadCustomerPortalInvoiceMutationVariables = Exact<{
+  input: DownloadCustomerPortalInvoiceInput;
+}>;
+
+
+export type DownloadCustomerPortalInvoiceMutation = { __typename?: 'Mutation', downloadCustomerPortalInvoice?: { __typename?: 'Invoice', id: string, fileUrl?: string | null } | null };
 
 export type GetCustomerPortalInvoicesCollectionQueryVariables = Exact<{
   expireCache?: InputMaybe<Scalars['Boolean']['input']>;
@@ -10702,40 +10702,6 @@ export type GetPortalCustomerInfosQueryHookResult = ReturnType<typeof useGetPort
 export type GetPortalCustomerInfosLazyQueryHookResult = ReturnType<typeof useGetPortalCustomerInfosLazyQuery>;
 export type GetPortalCustomerInfosSuspenseQueryHookResult = ReturnType<typeof useGetPortalCustomerInfosSuspenseQuery>;
 export type GetPortalCustomerInfosQueryResult = Apollo.QueryResult<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>;
-export const DownloadCustomerPortalInvoiceDocument = gql`
-    mutation downloadCustomerPortalInvoice($input: DownloadCustomerPortalInvoiceInput!) {
-  downloadCustomerPortalInvoice(input: $input) {
-    id
-    fileUrl
-  }
-}
-    `;
-export type DownloadCustomerPortalInvoiceMutationFn = Apollo.MutationFunction<DownloadCustomerPortalInvoiceMutation, DownloadCustomerPortalInvoiceMutationVariables>;
-
-/**
- * __useDownloadCustomerPortalInvoiceMutation__
- *
- * To run a mutation, you first call `useDownloadCustomerPortalInvoiceMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDownloadCustomerPortalInvoiceMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [downloadCustomerPortalInvoiceMutation, { data, loading, error }] = useDownloadCustomerPortalInvoiceMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useDownloadCustomerPortalInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<DownloadCustomerPortalInvoiceMutation, DownloadCustomerPortalInvoiceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DownloadCustomerPortalInvoiceMutation, DownloadCustomerPortalInvoiceMutationVariables>(DownloadCustomerPortalInvoiceDocument, options);
-      }
-export type DownloadCustomerPortalInvoiceMutationHookResult = ReturnType<typeof useDownloadCustomerPortalInvoiceMutation>;
-export type DownloadCustomerPortalInvoiceMutationResult = Apollo.MutationResult<DownloadCustomerPortalInvoiceMutation>;
-export type DownloadCustomerPortalInvoiceMutationOptions = Apollo.BaseMutationOptions<DownloadCustomerPortalInvoiceMutation, DownloadCustomerPortalInvoiceMutationVariables>;
 export const CustomerPortalInvoicesDocument = gql`
     query customerPortalInvoices($limit: Int, $page: Int, $searchTerm: String, $status: [InvoiceStatusTypeEnum!]) {
   customerPortalInvoices(
@@ -10792,6 +10758,40 @@ export type CustomerPortalInvoicesQueryHookResult = ReturnType<typeof useCustome
 export type CustomerPortalInvoicesLazyQueryHookResult = ReturnType<typeof useCustomerPortalInvoicesLazyQuery>;
 export type CustomerPortalInvoicesSuspenseQueryHookResult = ReturnType<typeof useCustomerPortalInvoicesSuspenseQuery>;
 export type CustomerPortalInvoicesQueryResult = Apollo.QueryResult<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>;
+export const DownloadCustomerPortalInvoiceDocument = gql`
+    mutation downloadCustomerPortalInvoice($input: DownloadCustomerPortalInvoiceInput!) {
+  downloadCustomerPortalInvoice(input: $input) {
+    id
+    fileUrl
+  }
+}
+    `;
+export type DownloadCustomerPortalInvoiceMutationFn = Apollo.MutationFunction<DownloadCustomerPortalInvoiceMutation, DownloadCustomerPortalInvoiceMutationVariables>;
+
+/**
+ * __useDownloadCustomerPortalInvoiceMutation__
+ *
+ * To run a mutation, you first call `useDownloadCustomerPortalInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDownloadCustomerPortalInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [downloadCustomerPortalInvoiceMutation, { data, loading, error }] = useDownloadCustomerPortalInvoiceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDownloadCustomerPortalInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<DownloadCustomerPortalInvoiceMutation, DownloadCustomerPortalInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DownloadCustomerPortalInvoiceMutation, DownloadCustomerPortalInvoiceMutationVariables>(DownloadCustomerPortalInvoiceDocument, options);
+      }
+export type DownloadCustomerPortalInvoiceMutationHookResult = ReturnType<typeof useDownloadCustomerPortalInvoiceMutation>;
+export type DownloadCustomerPortalInvoiceMutationResult = Apollo.MutationResult<DownloadCustomerPortalInvoiceMutation>;
+export type DownloadCustomerPortalInvoiceMutationOptions = Apollo.BaseMutationOptions<DownloadCustomerPortalInvoiceMutation, DownloadCustomerPortalInvoiceMutationVariables>;
 export const GetCustomerPortalInvoicesCollectionDocument = gql`
     query getCustomerPortalInvoicesCollection($expireCache: Boolean) {
   customerPortalInvoiceCollections(expireCache: $expireCache) {
