@@ -57,7 +57,6 @@ export const theme = createTheme({
     MuiPopper: {
       styleOverrides: {
         root: {
-          zIndex: '1800 !important',
           '.MuiDateCalendar-viewTransitionContainer': {
             'min-height': '304px',
 
