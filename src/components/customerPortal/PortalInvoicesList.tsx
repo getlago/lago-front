@@ -80,8 +80,7 @@ const mapStatusConfig = ({
 }: {
   paymentStatus: InvoicePaymentStatusTypeEnum
   paymentOverdue: boolean
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  paymentDisputeLostAt: any | null
+  paymentDisputeLostAt: string | null
 }): StatusProps => {
   if (paymentOverdue) {
     return { label: 'overdue', type: StatusType.danger }
