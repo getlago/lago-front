@@ -1,27 +1,47 @@
 import { gql } from '@apollo/client'
+import { DateTime } from 'luxon'
 import styled, { css } from 'styled-components'
 
-import { InfiniteScroll, Typography } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import {
+  Button,
+  InfiniteScroll,
+  Status,
+  StatusProps,
+  StatusType,
+  Table,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
+import { addToast } from '~/core/apolloClient'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { LocaleEnum } from '~/core/translations'
 import {
+  CurrencyEnum,
+  InvoiceForFinalizeInvoiceFragmentDoc,
+  InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
+  InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   PortalInvoiceListItemFragmentDoc,
   useCustomerPortalInvoicesLazyQuery,
+  useDownloadCustomerPortalInvoiceMutation,
 } from '~/generated/graphql'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import EmptyImage from '~/public/images/maneki/empty.svg'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
-
-import {
-  PortalInvoiceListItem,
-  PortalInvoiceListItemGridTemplate,
-  PortalInvoiceListItemSkeleton,
-} from './PortalInvoiceListItem'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 gql`
+  fragment PortalInvoiceListItem on Invoice {
+    id
+    paymentStatus
+    paymentOverdue
+    paymentDisputeLosable
+    number
+    issuingDate
+    totalAmountCents
+    currency
+  }
+
   query customerPortalInvoices(
     $limit: Int
     $page: Int
@@ -41,8 +61,41 @@ gql`
     }
   }
 
+  mutation downloadCustomerPortalInvoice($input: DownloadCustomerPortalInvoiceInput!) {
+    downloadCustomerPortalInvoice(input: $input) {
+      id
+      fileUrl
+    }
+  }
+
   ${PortalInvoiceListItemFragmentDoc}
+  ${InvoiceForFinalizeInvoiceFragmentDoc}
+  ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
 `
+
+const mapStatusConfig = ({
+  paymentStatus,
+  paymentOverdue,
+  paymentDisputeLosable,
+}: {
+  paymentStatus: InvoicePaymentStatusTypeEnum
+  paymentOverdue: boolean
+  paymentDisputeLosable: boolean
+}): StatusProps => {
+  if (paymentOverdue) {
+    return { label: 'overdue', type: StatusType.danger }
+  }
+
+  if (paymentStatus === InvoicePaymentStatusTypeEnum.Succeeded) {
+    return { label: 'pay', type: StatusType.success }
+  }
+
+  if (paymentDisputeLosable) {
+    return { label: 'disputed', type: StatusType.danger }
+  }
+
+  return { label: 'toPay', type: StatusType.default }
+}
 
 interface PortalCustomerInvoicesProps {
   translate: Function
@@ -60,13 +113,39 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
         status: [InvoiceStatusTypeEnum.Finalized],
       },
     })
+
+  const [downloadInvoice] = useDownloadCustomerPortalInvoiceMutation({
+    onCompleted(localData) {
+      const fileUrl = localData?.downloadCustomerPortalInvoice?.fileUrl
+
+      if (fileUrl) {
+        // We open a window, add url then focus on different lines, in order to prevent browsers to block page opening
+        // It could be seen as unexpected popup as not immediatly done on user action
+        // https://stackoverflow.com/questions/2587677/avoid-browser-popup-blockers
+        const myWindow = window.open('', '_blank')
+
+        if (myWindow?.location?.href) {
+          myWindow.location.href = fileUrl
+          return myWindow?.focus()
+        }
+
+        myWindow?.close()
+      } else {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+        })
+      }
+    },
+  })
+
   const { debouncedSearch, isLoading } = useDebouncedSearch(getInvoices, loading)
   const { metadata, collection } = data?.customerPortalInvoices || {}
   const hasSearchTerm = !!variables?.searchTerm
   const hasNoInvoices = !loading && !error && !metadata?.totalCount && !hasSearchTerm
 
   return (
-    <section role="grid" tabIndex={-1}>
+    <section>
       <PageHeader $isEmpty={hasNoInvoices}>
         <Typography variant="subhead" color="grey700">
           {translate('text_6419c64eace749372fc72b37')}
@@ -85,86 +164,115 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
         <Typography>{translate('text_6419c64eace749372fc72b3b')}</Typography>
       ) : (
         <ScrollWrapper>
-          <ListWrapper>
-            <HeaderLine>
-              <Typography variant="bodyHl" color="grey500" noWrap>
-                {translate('text_6419c64eace749372fc72b39')}
-              </Typography>
-              <Typography variant="bodyHl" color="grey500" noWrap>
-                {translate('text_6419c64eace749372fc72b3c')}
-              </Typography>
-              <Typography variant="bodyHl" color="grey500" align="right" noWrap>
-                {translate('text_6419c64eace749372fc72b3e')}
-              </Typography>
-              <Typography variant="bodyHl" color="disabled">
-                {translate('text_6419c64eace749372fc72b40')}
-              </Typography>
-            </HeaderLine>
-            {isLoading && hasSearchTerm ? (
-              <>
-                {[0, 1, 2].map((i) => (
-                  <PortalInvoiceListItemSkeleton
-                    key={`invoice-item-skeleton-${i}`}
-                    className={i === 2 ? 'last-invoice-item--no-border' : undefined}
-                  />
-                ))}
-              </>
-            ) : !isLoading && !!error ? (
-              <StyledGenericPlaceholder
-                noMargins
-                title={translate('text_641d6ae1d947c400671e6abb')}
-                subtitle={translate('text_641d6aee014c8d00c1425cdd')}
-                buttonTitle={translate('text_641d6b00ef96c1008754734d')}
-                buttonVariant="primary"
-                buttonAction={() => location.reload()}
-                image={<ErrorImage width="136" height="104" />}
-              />
-            ) : !isLoading && !collection?.length ? (
-              <StyledGenericPlaceholder
-                noMargins
-                title={translate('text_641d6b0c5a725b00af12bd76')}
-                subtitle={translate('text_641d6b1ae9019c00b59fe250')}
-                image={<EmptyImage width="136" height="104" />}
-              />
-            ) : (
-              <InfiniteScroll
-                onBottom={() => {
-                  if (!fetchMore) return
-                  const { currentPage = 0, totalPages = 0 } = metadata || {}
+          <InfiniteScroll
+            onBottom={() => {
+              if (!fetchMore) return
+              const { currentPage = 0, totalPages = 0 } = metadata || {}
 
-                  currentPage < totalPages &&
-                    !isLoading &&
-                    fetchMore({
-                      variables: { page: currentPage + 1 },
-                    })
-                }}
-              >
-                {!!collection &&
-                  collection.map((invoice, i) => {
+              currentPage < totalPages &&
+                !isLoading &&
+                fetchMore({
+                  variables: { page: currentPage + 1 },
+                })
+            }}
+          >
+            <Table
+              name="portal-invoice"
+              containerSize={{
+                default: 0,
+              }}
+              isLoading={isLoading}
+              hasError={!!error}
+              placeholder={{
+                errorState: {
+                  title: translate('text_641d6ae1d947c400671e6abb'),
+                  subtitle: translate('text_641d6aee014c8d00c1425cdd'),
+                  buttonTitle: translate('text_641d6b00ef96c1008754734d'),
+                  buttonAction: () => location.reload(),
+                },
+                emptyState: {
+                  title: translate('text_641d6b0c5a725b00af12bd76'),
+                  subtitle: translate('text_641d6b1ae9019c00b59fe250'),
+                },
+              }}
+              data={collection ?? []}
+              columns={[
+                {
+                  key: 'issuingDate',
+                  title: translate('text_6419c64eace749372fc72b39'),
+                  minWidth: 104,
+                  content: ({ issuingDate }) => (
+                    <Typography variant="body" noWrap>
+                      {DateTime.fromISO(issuingDate).toLocaleString(DateTime.DATE_MED, {
+                        locale: documentLocale,
+                      })}
+                    </Typography>
+                  ),
+                },
+                {
+                  key: 'number',
+                  title: translate('text_6419c64eace749372fc72b3c'),
+                  maxSpace: true,
+                  minWidth: 160,
+                  content: ({ number }) => (
+                    <Typography variant="body" noWrap>
+                      {number}
+                    </Typography>
+                  ),
+                },
+                {
+                  key: 'totalAmountCents',
+                  title: translate('text_6419c64eace749372fc72b3e'),
+                  textAlign: 'right',
+                  minWidth: 160,
+                  content: ({ totalAmountCents, currency }) => (
+                    <Typography variant="bodyHl" color="textSecondary">
+                      {intlFormatNumber(
+                        deserializeAmount(totalAmountCents, currency || CurrencyEnum.Usd),
+                        {
+                          currency: currency || CurrencyEnum.Usd,
+                          locale: documentLocale,
+                          currencyDisplay: 'narrowSymbol',
+                        },
+                      )}
+                    </Typography>
+                  ),
+                },
+                {
+                  key: 'paymentStatus',
+                  title: translate('text_6419c64eace749372fc72b40'),
+                  minWidth: 80,
+                  content: ({ paymentStatus, paymentOverdue, paymentDisputeLosable }) => {
                     return (
-                      <PortalInvoiceListItem
-                        className={
-                          !isLoading && collection.length - 1 === i
-                            ? 'last-invoice-item--no-border'
-                            : undefined
-                        }
-                        key={`portal-invoice-list-item-${invoice.id}`}
-                        invoice={invoice}
-                        translate={translate}
-                        documentLocale={documentLocale}
+                      <Status
+                        {...mapStatusConfig({
+                          paymentStatus,
+                          paymentOverdue,
+                          paymentDisputeLosable,
+                        })}
+                        locale={documentLocale}
                       />
                     )
-                  })}
-                {isLoading &&
-                  [0, 1, 2].map((_, i) => (
-                    <PortalInvoiceListItemSkeleton
-                      key={`invoice-item-skeleton-${i}`}
-                      className={i === 2 ? 'last-invoice-item--no-border' : undefined}
+                  },
+                },
+              ]}
+              actionColumn={({ id }) => {
+                return (
+                  <Tooltip
+                    placement="top-end"
+                    title={!isLoading && translate('text_6419c64eace749372fc72b62')}
+                  >
+                    <Button
+                      icon="download"
+                      variant="quaternary"
+                      onClick={async () => await downloadInvoice({ variables: { input: { id } } })}
+                      disabled={isLoading}
                     />
-                  ))}
-              </InfiniteScroll>
-            )}
-          </ListWrapper>
+                  </Tooltip>
+                )
+              }}
+            />
+          </InfiniteScroll>
         </ScrollWrapper>
       )}
     </section>
@@ -191,32 +299,7 @@ const HeaderRigthBlock = styled.div`
   align-items: center;
 `
 
-const HeaderLine = styled.div`
-  height: ${HEADER_TABLE_HEIGHT}px;
-  display: grid;
-  align-items: center;
-  box-shadow: ${theme.shadows[7]};
-  border-radius: 12px 12px 0 0;
-  ${PortalInvoiceListItemGridTemplate()}
-  padding: 0 ${theme.spacing(4)};
-`
-
-const StyledGenericPlaceholder = styled(GenericPlaceholder)`
-  margin: ${theme.spacing(6)} auto;
-  text-align: center;
-`
-
-const ListWrapper = styled.div`
-  border: 1px solid ${theme.palette.grey[400]};
-  border-radius: 12px;
-  min-width: 510px;
-
-  .last-invoice-item--no-border {
-    box-shadow: none;
-    border-radius: 0 0 12px 12px;
-  }
-`
-
 const ScrollWrapper = styled.div`
   overflow: auto;
+  height: 100%;
 `
