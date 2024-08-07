@@ -5402,7 +5402,7 @@ export type GetPortalCustomerInfosQueryVariables = Exact<{ [key: string]: never;
 
 export type GetPortalCustomerInfosQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'Customer', id: string, name?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null } | null };
 
-export type PortalInvoiceListItemFragment = { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, paymentDisputeLosable: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null };
+export type PortalInvoiceListItemFragment = { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, paymentDisputeLostAt?: any | null, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null };
 
 export type CustomerPortalInvoicesQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -5412,7 +5412,7 @@ export type CustomerPortalInvoicesQueryVariables = Exact<{
 }>;
 
 
-export type CustomerPortalInvoicesQuery = { __typename?: 'Query', customerPortalInvoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, paymentDisputeLosable: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null }> } };
+export type CustomerPortalInvoicesQuery = { __typename?: 'Query', customerPortalInvoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, paymentDisputeLostAt?: any | null, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null }> } };
 
 export type DownloadCustomerPortalInvoiceMutationVariables = Exact<{
   input: DownloadCustomerPortalInvoiceInput;
@@ -7716,7 +7716,7 @@ export const PortalInvoiceListItemFragmentDoc = gql`
   id
   paymentStatus
   paymentOverdue
-  paymentDisputeLosable
+  paymentDisputeLostAt
   number
   issuingDate
   totalAmountCents

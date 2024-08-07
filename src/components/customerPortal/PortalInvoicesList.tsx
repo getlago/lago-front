@@ -35,7 +35,7 @@ gql`
     id
     paymentStatus
     paymentOverdue
-    paymentDisputeLosable
+    paymentDisputeLostAt
     number
     issuingDate
     totalAmountCents
@@ -76,11 +76,12 @@ gql`
 const mapStatusConfig = ({
   paymentStatus,
   paymentOverdue,
-  paymentDisputeLosable,
+  paymentDisputeLostAt,
 }: {
   paymentStatus: InvoicePaymentStatusTypeEnum
   paymentOverdue: boolean
-  paymentDisputeLosable: boolean
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  paymentDisputeLostAt: any | null
 }): StatusProps => {
   if (paymentOverdue) {
     return { label: 'overdue', type: StatusType.danger }
@@ -90,7 +91,7 @@ const mapStatusConfig = ({
     return { label: 'pay', type: StatusType.success }
   }
 
-  if (paymentDisputeLosable) {
+  if (!!paymentDisputeLostAt) {
     return { label: 'disputed', type: StatusType.danger }
   }
 
@@ -242,13 +243,13 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
                   key: 'paymentStatus',
                   title: translate('text_6419c64eace749372fc72b40'),
                   minWidth: 80,
-                  content: ({ paymentStatus, paymentOverdue, paymentDisputeLosable }) => {
+                  content: ({ paymentStatus, paymentOverdue, paymentDisputeLostAt }) => {
                     return (
                       <Status
                         {...mapStatusConfig({
                           paymentStatus,
                           paymentOverdue,
-                          paymentDisputeLosable,
+                          paymentDisputeLostAt,
                         })}
                         locale={documentLocale}
                       />
