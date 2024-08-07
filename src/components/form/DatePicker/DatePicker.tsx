@@ -8,6 +8,7 @@ import { DateTime, Settings } from 'luxon'
 import { ReactNode, useEffect, useState } from 'react'
 import styled from 'styled-components'
 
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Button, Icon, Tooltip, Typography } from '~/components/designSystem'
 import { TextInputProps } from '~/components/form'
 import { getTimezoneConfig } from '~/core/timezone'
@@ -40,6 +41,7 @@ export interface DatePickerProps
   disabled?: boolean
   disableFuture?: boolean
   disablePast?: boolean
+  showErrorInTooltip?: boolean
   placement?: MuiPopperProps['placement']
   onError?: (err: keyof typeof DATE_PICKER_ERROR_ENUM | undefined) => void
   onChange: (value?: string | null) => void
@@ -55,6 +57,7 @@ export const DatePicker = ({
   disablePast,
   placeholder,
   disabled = false,
+  showErrorInTooltip = false,
   placement = 'bottom-end',
   onError,
   onChange,
@@ -102,128 +105,145 @@ export const DatePicker = ({
           </>
         )}
 
-        <MuiDatePicker
-          format="MM/dd/yyyy"
-          disableFuture={disableFuture}
-          disabled={disabled}
-          disablePast={disablePast}
-          value={localDate}
-          onChange={(date) => {
-            setLocalDate(!date ? date : (date as unknown as DateTime).toUTC())
+        <ConditionalWrapper
+          condition={showErrorInTooltip && (!!error || isInvalid)}
+          validWrapper={(children) => (
+            <Tooltip
+              title={error || translate('text_62cd78ea9bff25e3391b2459')}
+              placement="top-end"
+            >
+              {children}
+            </Tooltip>
+          )}
+          invalidWrapper={(children) => <>{children}</>}
+        >
+          <MuiDatePicker
+            format="MM/dd/yyyy"
+            disableFuture={disableFuture}
+            disabled={disabled}
+            disablePast={disablePast}
+            value={localDate}
+            onChange={(date) => {
+              setLocalDate(!date ? date : (date as unknown as DateTime).toUTC())
 
-            // To avoid breaking dates in the parent, we do not pass it unless it's valid
-            const formattedDate = !date ? undefined : (date as unknown as DateTime)?.toUTC().toISO()
+              // To avoid breaking dates in the parent, we do not pass it unless it's valid
+              const formattedDate = !date
+                ? undefined
+                : (date as unknown as DateTime)?.toUTC().toISO()
 
-            if ((date as unknown as DateTime)?.isValid || !date) {
-              onError && onError(undefined)
-              onChange(formattedDate)
-            } else {
-              onError && onError(DATE_PICKER_ERROR_ENUM.invalid)
-            }
-          }}
-          slots={{
-            calendarHeader: (calendarHeaderProps) => (
-              <PickersCalendarHeader
-                {...calendarHeaderProps}
-                className="custom-date-picker-header"
-              />
-            ),
-            day: (dayProps) => (
-              <PickersDay
-                {...dayProps}
-                disableRipple
-                disableTouchRipple
-                className="custom-date-picker-day"
-              />
-            ),
-            switchViewButton: () => (
-              <SwitchViewButton
-                variant="quaternary"
-                disabled={disabled}
-                icon="chevron-down"
-                size="small"
-              />
-            ),
-            leftArrowIcon: () => <Icon name="chevron-left" />,
-            rightArrowIcon: () => <Icon name="chevron-right" />,
-            clearButton: () => (
-              <Button
-                className="button-clear-date"
-                disabled={disabled}
-                icon="close-circle-filled"
-                size="small"
-                variant="quaternary"
-              />
-            ),
-            openPickerButton: (pickerProps) => (
-              <Tooltip
-                className="open-picker-tooltip"
-                disableHoverListener={disabled}
-                placement="top-end"
-                title={translate('text_62cd78ea9bff25e3391b2437')}
-              >
-                <Button
+              if ((date as unknown as DateTime)?.isValid || !date) {
+                onError && onError(undefined)
+                onChange(formattedDate)
+              } else {
+                onError && onError(DATE_PICKER_ERROR_ENUM.invalid)
+              }
+            }}
+            slots={{
+              calendarHeader: (calendarHeaderProps) => (
+                <PickersCalendarHeader
+                  {...calendarHeaderProps}
+                  className="custom-date-picker-header"
+                />
+              ),
+              day: (dayProps) => (
+                <PickersDay
+                  {...dayProps}
+                  disableRipple
+                  disableTouchRipple
+                  className="custom-date-picker-day"
+                />
+              ),
+              switchViewButton: () => (
+                <SwitchViewButton
+                  variant="quaternary"
                   disabled={disabled}
-                  icon="calendar"
-                  onClick={pickerProps.onClick}
+                  icon="chevron-down"
+                  size="small"
+                />
+              ),
+              leftArrowIcon: () => <Icon name="chevron-left" />,
+              rightArrowIcon: () => <Icon name="chevron-right" />,
+              clearButton: () => (
+                <Button
+                  className="button-clear-date"
+                  disabled={disabled}
+                  icon="close-circle-filled"
                   size="small"
                   variant="quaternary"
                 />
-              </Tooltip>
-            ),
-          }}
-          slotProps={{
-            popper: {
-              placement,
-              modifiers: [
-                {
-                  name: 'flip',
-                  enabled: placement === 'auto',
-                },
-                {
-                  name: 'offset',
-                  enabled: true,
-                  options: {
-                    // @ts-ignore
-                    offset: ({ reference }) => {
-                      // Re-calculate picker position if placed on the left.
-                      // Removes the input width and twice the picker icon "box" (24*2)
-                      if (placement.includes('left')) {
-                        return [0, -(reference.width - 48)]
-                      }
+              ),
+              openPickerButton: (pickerProps) => (
+                <Tooltip
+                  className="open-picker-tooltip"
+                  disableHoverListener={disabled}
+                  placement="top-end"
+                  title={translate('text_62cd78ea9bff25e3391b2437')}
+                >
+                  <Button
+                    disabled={disabled}
+                    icon="calendar"
+                    onClick={pickerProps.onClick}
+                    size="small"
+                    variant="quaternary"
+                  />
+                </Tooltip>
+              ),
+            }}
+            slotProps={{
+              popper: {
+                placement,
+                modifiers: [
+                  {
+                    name: 'flip',
+                    enabled: placement === 'auto',
+                  },
+                  {
+                    name: 'offset',
+                    enabled: true,
+                    options: {
+                      // @ts-ignore
+                      offset: ({ reference }) => {
+                        // Re-calculate picker position if placed on the left.
+                        // Removes the input width and twice the picker icon "box" (24*2)
+                        if (placement.includes('left')) {
+                          return [0, -(reference.width - 48)]
+                        }
 
-                      return [0, 8]
+                        return [0, 8]
+                      },
                     },
                   },
+                ],
+              },
+              textField: {
+                placeholder: placeholder || translate('text_62cd78ea9bff25e3391b243d'),
+                error: !!error || isInvalid,
+                helperText:
+                  !!error || isInvalid
+                    ? showErrorInTooltip
+                      ? ''
+                      : error || translate('text_62cd78ea9bff25e3391b2459')
+                    : helperText,
+              },
+              openPickerButton: {
+                style: {
+                  padding: 0,
+                  marginRight: 0,
+                  height: 'fit-content',
                 },
-              ],
-            },
-            textField: {
-              placeholder: placeholder || translate('text_62cd78ea9bff25e3391b243d'),
-              error: !!error || isInvalid,
-              helperText:
-                !!error || isInvalid
-                  ? error || translate('text_62cd78ea9bff25e3391b2459')
-                  : helperText,
-            },
-            openPickerButton: {
-              style: {
-                padding: 0,
-                marginRight: 0,
-                height: 'fit-content',
               },
-            },
-            desktopPaper: {
-              style: {
-                border: `1px solid ${theme.palette.grey[200]}`,
-                boxShadow: '0px 6px 8px 0px #19212E1F',
-                width: '352px',
-                padding: `${theme.spacing(6)} 0`,
-                boxSizing: 'border-box',
+              desktopPaper: {
+                style: {
+                  border: `1px solid ${theme.palette.grey[200]}`,
+                  boxShadow: '0px 6px 8px 0px #19212E1F',
+                  width: '352px',
+                  padding: `${theme.spacing(6)} 0`,
+                  boxSizing: 'border-box',
+                },
               },
-            },
-          }}
-        />
+            }}
+          />
+        </ConditionalWrapper>
       </Container>
     </LocalizationProvider>
   )

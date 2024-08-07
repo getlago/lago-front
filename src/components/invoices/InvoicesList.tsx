@@ -41,7 +41,8 @@ import { usePermissions } from '~/hooks/usePermissions'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 import { theme } from '~/styles'
 
-import { AvailableQuickFilters } from '../designSystem/Filters/types'
+import { Filters } from '../designSystem/Filters/Filters'
+import { AvailableFiltersEnum, AvailableQuickFilters } from '../designSystem/Filters/types'
 import {
   isDraftUrlParams,
   isOutstandingUrlParams,
@@ -166,7 +167,19 @@ const InvoicesList = ({
   return (
     <>
       <FiltersWrapper>
-        <QuickFilters type={AvailableQuickFilters.InvoiceStatus} />
+        <QuickFilters hideBorderBottom type={AvailableQuickFilters.InvoiceStatus} />
+        <Filters
+          filters={[
+            AvailableFiltersEnum.status,
+            AvailableFiltersEnum.invoiceType,
+            AvailableFiltersEnum.paymentStatus,
+            AvailableFiltersEnum.currency,
+            AvailableFiltersEnum.issuingDate,
+            AvailableFiltersEnum.customerExternalId,
+            AvailableFiltersEnum.paymentDisputeLost,
+            AvailableFiltersEnum.paymentOverdue,
+          ]}
+        />
       </FiltersWrapper>
 
       <ScrollContainer ref={listContainerElementRef}>
@@ -387,7 +400,7 @@ const InvoicesList = ({
                               ? 'text_65269cd46e7ec037a6823fd8'
                               : 'text_63c67d2913c20b8d7d05c43e',
                     ),
-                    subtitle: translate('text_63c67d2913c20b8d7d05c446'),
+                    subtitle: translate('text_66ab48ea4ed9cd01084c60b8'),
                   }
                 : {
                     title: translate(
@@ -456,11 +469,11 @@ const FiltersWrapper = styled.div`
   box-sizing: border-box;
   gap: ${theme.spacing(3)};
 
-  &:first-child {
+  > *:first-child {
     padding-bottom: 0;
   }
 
-  &:last-child {
+  > *:last-child {
     padding-top: 0;
   }
 `

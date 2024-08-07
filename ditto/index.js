@@ -59,6 +59,7 @@ const ready_for_dev___dashboards___add_financial_reporting_to_lago = require('./
 const ready_for_dev___integration___connect_lago_to_xero = require('./ready-for-dev---integration---connect-lago-to-xero__base.json');
 const ready_for_dev___invoices___display_unit_price_to_item_in_invoices = require('./ready-for-dev---invoices---display-unit-price-to-item-in-invoices__base.json');
 const ready_for_dev___invoices___edit_a_draft_invoice = require('./ready-for-dev---invoices---edit-a-draft-invoice__base.json');
+const ready_for_dev___invoices___export_invoices_in_csv = require('./ready-for-dev---invoices---export-invoices-in-csv__base.json');
 const ready_for_dev___invoices___void_invoices = require('./ready-for-dev---invoices---void-invoices__base.json');
 const ready_for_dev___invoices__invoice_list = require('./ready-for-dev---invoices--invoice-list__base.json');
 const ready_for_dev___login___reset_password = require('./ready-for-dev---login---reset-password__base.json');
@@ -305,6 +306,9 @@ module.exports = {
   },
   "project_65a6b4dfc20f99078eb6e8fe": {
     "base": {...ready_for_dev___invoices___edit_a_draft_invoice}
+  },
+  "project_66ab42d15b1e5416e2d013aa": {
+    "base": {...ready_for_dev___invoices___export_invoices_in_csv}
   },
   "project_65269b3f720470569cb17228": {
     "base": {...ready_for_dev___invoices___void_invoices}

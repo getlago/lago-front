@@ -1,6 +1,6 @@
 import { InvoicePaymentStatusTypeEnum, InvoiceStatusTypeEnum } from '~/generated/graphql'
 
-import { AvailableFiltersEnum, InvoiceAvailableFilters } from './types'
+import { AvailableFiltersEnum, filterDataInlineSeparator, InvoiceAvailableFilters } from './types'
 
 export const formatFiltersForInvoiceQuery = (searchParams: URLSearchParams) => {
   const filtersSetInUrl = Object.fromEntries(searchParams.entries())
@@ -14,13 +14,25 @@ export const formatFiltersForInvoiceQuery = (searchParams: URLSearchParams) => {
       }
 
       // Format values when needed
-      if (key === AvailableFiltersEnum.paymentStatus) {
+      if (
+        key === AvailableFiltersEnum.paymentStatus ||
+        key === AvailableFiltersEnum.invoiceType ||
+        key === AvailableFiltersEnum.status
+      ) {
         value = (value as string).split(',')
       } else if (
         key === AvailableFiltersEnum.paymentDisputeLost ||
         key === AvailableFiltersEnum.paymentOverdue
       ) {
-        value = Boolean(value)
+        value = value === 'true'
+      } else if (key === AvailableFiltersEnum.customerExternalId) {
+        value = (value as string).split(filterDataInlineSeparator)[0]
+      } else if (key === AvailableFiltersEnum.issuingDate) {
+        return {
+          ...acc,
+          issuingDateFrom: (value as string).split(',')[0],
+          issuingDateTo: (value as string).split(',')[1],
+        }
       }
 
       return {
@@ -30,6 +42,26 @@ export const formatFiltersForInvoiceQuery = (searchParams: URLSearchParams) => {
     },
     {} as Record<string, string | string[] | boolean>,
   )
+}
+
+export const formatActiveFilterValueDisplay = (
+  key: AvailableFiltersEnum,
+  value: string,
+): string => {
+  switch (key) {
+    case AvailableFiltersEnum.customerExternalId:
+      return value.split(filterDataInlineSeparator)[1]
+    case AvailableFiltersEnum.issuingDate:
+      return value
+        .split(',')
+        .map((v) => new Date(v).toLocaleDateString('en'))
+        .join(' - ')
+    default:
+      return value
+        .split(',')
+        .map((v) => `${v.charAt(0).toUpperCase()}${v.slice(1).replace(/_/g, ' ')}`)
+        .join(', ')
+  }
 }
 
 export const isOutstandingUrlParams = (searchParams: URLSearchParams): boolean => {

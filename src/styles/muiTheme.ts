@@ -57,6 +57,7 @@ export const theme = createTheme({
     MuiPopper: {
       styleOverrides: {
         root: {
+          zIndex: '1800 !important',
           '.MuiDateCalendar-viewTransitionContainer': {
             'min-height': '304px',
 
@@ -105,6 +106,9 @@ export const theme = createTheme({
               '&.Mui-selected': {
                 backgroundColor: `${palette.primary[600]} !important`,
               },
+            },
+            '&.Mui-disabled': {
+              color: `${palette.grey[400]} !important`,
             },
           },
           '.MuiDayCalendar-header': {
@@ -242,7 +246,7 @@ export const theme = createTheme({
             borderRadius: '0 12px 12px 0',
           },
           '& .MuiInputBase-inputAdornedEnd': {
-            paddingRight: '0px',
+            paddingRight: '0px !important',
             borderRadius: '12px 0 0 12px !important',
           },
           '.MuiInputAdornment-positionEnd': {
