@@ -60,6 +60,10 @@ const IssuingDateContainer = styled.div`
     gap: ${theme.spacing(3)};
   }
 
+  .MuiTextField-root {
+    width: 100%;
+  }
+
   .show-above-lg {
     display: none;
 
