@@ -1023,13 +1023,13 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                 {!!selectedAnrokIntegration && (
                   <>
                     <TextInputField
+                      label={translate('text_66b4e77677f8c600c8d50ea3')}
+                      placeholder={translate('text_66b4e77677f8c600c8d50ea5')}
                       name={`${anrokIntegrationpointerInIntegration}.externalCustomerId`}
                       disabled={
                         !!selectedAnrokIntegration?.syncWithProvider ||
                         hadInitialAnrokIntegrationCustomer
                       }
-                      label={translate('text_66423cad72bbad009f2f569a')}
-                      placeholder={translate('text_66423cad72bbad009f2f569c')}
                       formikProps={formikProps}
                     />
 
@@ -1037,7 +1037,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                       name={`${anrokIntegrationpointerInIntegration}.syncWithProvider`}
                       disabled={hadInitialAnrokIntegrationCustomer}
                       value={!!selectedAnrokIntegration?.syncWithProvider}
-                      label={translate('text_66423cad72bbad009f2f569e', {
+                      label={translate('text_66b4e77677f8c600c8d50ea7', {
                         connectionName: selectedAnrokIntegrationSettings?.name,
                       })}
                       onChange={(_, checked) => {
