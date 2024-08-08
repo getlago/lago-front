@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { FC } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
@@ -5,7 +6,20 @@ import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Typography } from '~/components/designSystem'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { Locale, LocaleEnum } from '~/core/translations'
+import {
+  CurrencyEnum,
+  CustomerForRequestOverduePaymentEmailFragmentDoc,
+  CustomerForRequestOverduePaymentFormFragmentDoc,
+  InvoicesForRequestOverduePaymentEmailFragmentDoc,
+  InvoicesForRequestOverduePaymentFormFragmentDoc,
+  OrganizationForRequestOverduePaymentEmailFragmentDoc,
+  useGetRequestOverduePaymentBalanceQuery,
+  useGetRequestOverduePaymentInfosQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { EmailPreview } from '~/pages/CustomerRequestOverduePayment/components/EmailPreview'
 import { validateEmails } from '~/pages/CustomerRequestOverduePayment/validateEmails'
@@ -17,6 +31,38 @@ import {
   RequestPaymentForm,
 } from './components/RequestPaymentForm'
 
+gql`
+  query getRequestOverduePaymentInfos($id: ID!) {
+    organization {
+      defaultCurrency
+      ...OrganizationForRequestOverduePaymentEmail
+    }
+
+    customer(id: $id) {
+      externalId
+      currency
+      ...CustomerForRequestOverduePaymentForm
+      ...CustomerForRequestOverduePaymentEmail
+    }
+
+    ${CustomerForRequestOverduePaymentFormFragmentDoc}
+    ${CustomerForRequestOverduePaymentEmailFragmentDoc}
+    ${OrganizationForRequestOverduePaymentEmailFragmentDoc}
+  }
+
+  query getRequestOverduePaymentBalance($externalCustomerId: String) {
+    invoices(paymentOverdue:true, customerExternalId: $externalCustomerId) {
+      collection {
+        ...InvoicesForRequestOverduePaymentEmail
+        ...InvoicesForRequestOverduePaymentForm
+      } 
+    }
+
+    ${InvoicesForRequestOverduePaymentEmailFragmentDoc}
+    ${InvoicesForRequestOverduePaymentFormFragmentDoc}
+  }
+`
+
 const FOOTER_HEIGHT = 80
 
 interface CustomerRequestOverduePaymentProps {}
@@ -26,27 +72,64 @@ const CustomerRequestOverduePayment: FC<CustomerRequestOverduePaymentProps> = ()
   const { customerId } = useParams()
   const navigate = useNavigate()
 
+  const { data: { customer, organization } = {}, loading: infosLoading } =
+    useGetRequestOverduePaymentInfosQuery({
+      variables: { id: customerId ?? '' },
+    })
+
+  const { data: { invoices } = {}, loading: invoicesLoading } =
+    useGetRequestOverduePaymentBalanceQuery({
+      variables: {
+        externalCustomerId: customer?.externalId,
+      },
+      skip: !customer,
+    })
+
+  const documentLocale =
+    (customer?.billingConfiguration?.documentLocale as Locale) ||
+    (organization?.billingConfiguration?.documentLocale as Locale) ||
+    'en'
+
   const formikProps = useFormik<CustomerRequestOverduePaymentForm>({
     initialValues: {
-      emails: '',
+      emails: customer?.email ?? '',
     },
     validationSchema: object({
       emails: string()
         .required('')
-        .test('valid-emails', 'One or more emails are invalid', (value) => validateEmails(value)),
+        .test('valid-emails', 'text_66b258f62100490d0eb5ca8b', (value) => validateEmails(value)),
     }),
     validateOnMount: true,
+    enableReinitialize: true,
     onSubmit: () => {
       console.log('TODO: Request payment')
     },
   })
+
+  const defaultCurrency = customer?.currency || organization?.defaultCurrency || CurrencyEnum.Usd
+  const invoicesCollection = invoices?.collection ?? []
+  const totalAmount = invoicesCollection.reduce(
+    (acc, { totalAmountCents, currency }) =>
+      acc + deserializeAmount(totalAmountCents, currency || defaultCurrency),
+    0,
+  )
+  const totalInvoices = invoicesCollection.length
+  const isLoading = infosLoading || invoicesLoading
 
   return (
     <>
       <PageHeader>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate(
-            'TODO: Request a payment of {{amount}} for {{count}} invoice|Request a payment of {{amount}} for {{count}} invoices',
+            'text_66b258f62100490d0eb5ca73',
+            {
+              amount: intlFormatNumber(totalAmount, {
+                currency: defaultCurrency,
+                currencyDisplay: 'narrowSymbol',
+              }),
+              count: totalInvoices,
+            },
+            totalInvoices,
           )}
         </Typography>
 
@@ -54,7 +137,7 @@ const CustomerRequestOverduePayment: FC<CustomerRequestOverduePaymentProps> = ()
           variant="quaternary"
           icon="close"
           onClick={() =>
-            navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
+            navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId ?? '' }))
           }
         />
       </PageHeader>
@@ -63,12 +146,26 @@ const CustomerRequestOverduePayment: FC<CustomerRequestOverduePaymentProps> = ()
         <LeftSection>
           <FreemiumAlert />
           <Wrapper>
-            <RequestPaymentForm formikProps={formikProps} />
+            <RequestPaymentForm
+              invoicesLoading={isLoading}
+              formikProps={formikProps}
+              overdueAmount={totalAmount}
+              currency={defaultCurrency}
+              invoices={invoicesCollection}
+            />
           </Wrapper>
         </LeftSection>
         <RightSection>
           <Wrapper>
-            <EmailPreview />
+            <EmailPreview
+              isLoading={isLoading}
+              documentLocale={LocaleEnum[documentLocale]}
+              customer={customer ?? undefined}
+              organization={organization ?? undefined}
+              overdueAmount={totalAmount}
+              currency={defaultCurrency}
+              invoices={invoicesCollection}
+            />
           </Wrapper>
         </RightSection>
       </Main>
@@ -79,10 +176,10 @@ const CustomerRequestOverduePayment: FC<CustomerRequestOverduePaymentProps> = ()
             variant="quaternary"
             size="large"
             onClick={() =>
-              navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
+              navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId ?? '' }))
             }
           >
-            {translate('TODO: Cancel')}
+            {translate('text_6411e6b530cb47007488b027')}
           </Button>
           <Button
             variant="primary"
@@ -90,7 +187,7 @@ const CustomerRequestOverduePayment: FC<CustomerRequestOverduePaymentProps> = ()
             onClick={formikProps.submitForm}
             disabled={formikProps.dirty || !formikProps.isValid}
           >
-            {translate('TODO: Request payment')}
+            {translate('text_66b258f62100490d0eb5caa2')}
           </Button>
         </PageFooterWrapper>
       </PageFooter>

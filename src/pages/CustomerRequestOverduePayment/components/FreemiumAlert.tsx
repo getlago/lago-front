@@ -6,9 +6,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { theme } from '~/styles'
 
-interface FreemiumAlertProps {}
-
-export const FreemiumAlert: FC<FreemiumAlertProps> = () => {
+export const FreemiumAlert: FC = () => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
 
@@ -21,18 +19,14 @@ export const FreemiumAlert: FC<FreemiumAlertProps> = () => {
       <div>
         <AlertTitle>
           <Typography variant="bodyHl" color="textSecondary">
-            {translate('TODO: Request overdue payment')}
+            {translate('text_66b25adfd834ed0104345eb7')}
           </Typography>
           <Icon name="sparkles" />
         </AlertTitle>
-        <Typography variant="caption">
-          {translate(
-            'TODO: Send an email to your customer to request the payment of all overdue invoices',
-          )}
-        </Typography>
+        <Typography variant="caption">{translate('text_66b25adfd834ed0104345eb8')}</Typography>
       </div>
       <Button variant="tertiary" size="large" endIcon="sparkles">
-        {translate('TODO: Contact us')}
+        {translate('text_65ae73ebe3a66bec2b91d72d')}
       </Button>
     </Alert>
   )
