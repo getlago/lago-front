@@ -1,13 +1,14 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { FC } from 'react'
+import { FC, useEffect } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Typography } from '~/components/designSystem'
+import { hasDefinedGQLError } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
+import { CUSTOMER_DETAILS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { Locale, LocaleEnum } from '~/core/translations'
 import {
@@ -21,6 +22,7 @@ import {
   useGetRequestOverduePaymentInfosQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { EmailPreview } from '~/pages/CustomerRequestOverduePayment/components/EmailPreview'
 import { validateEmails } from '~/pages/CustomerRequestOverduePayment/validateEmails'
 import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
@@ -70,12 +72,16 @@ interface CustomerRequestOverduePaymentProps {}
 const CustomerRequestOverduePayment: FC<CustomerRequestOverduePaymentProps> = () => {
   const { translate } = useInternationalization()
   const { customerId } = useParams()
+  const { isPremium } = useCurrentUser()
   const navigate = useNavigate()
 
-  const { data: { customer, organization } = {}, loading: infosLoading } =
-    useGetRequestOverduePaymentInfosQuery({
-      variables: { id: customerId ?? '' },
-    })
+  const {
+    data: { customer, organization } = {},
+    loading: infosLoading,
+    error: infosError,
+  } = useGetRequestOverduePaymentInfosQuery({
+    variables: { id: customerId ?? '' },
+  })
 
   const { data: { invoices } = {}, loading: invoicesLoading } =
     useGetRequestOverduePaymentBalanceQuery({
@@ -116,6 +122,12 @@ const CustomerRequestOverduePayment: FC<CustomerRequestOverduePaymentProps> = ()
   const totalInvoices = invoicesCollection.length
   const isLoading = infosLoading || invoicesLoading
 
+  useEffect(() => {
+    if (hasDefinedGQLError('NotFound', infosError, 'customer')) {
+      navigate(ERROR_404_ROUTE)
+    }
+  })
+
   return (
     <>
       <PageHeader>
@@ -152,6 +164,7 @@ const CustomerRequestOverduePayment: FC<CustomerRequestOverduePaymentProps> = ()
               overdueAmount={totalAmount}
               currency={defaultCurrency}
               invoices={invoicesCollection}
+              lastSentUTC={new Date().toISOString()}
             />
           </Wrapper>
         </LeftSection>
@@ -185,7 +198,7 @@ const CustomerRequestOverduePayment: FC<CustomerRequestOverduePaymentProps> = ()
             variant="primary"
             size="large"
             onClick={formikProps.submitForm}
-            disabled={formikProps.dirty || !formikProps.isValid}
+            disabled={!isPremium || totalAmount === 0 || formikProps.dirty || !formikProps.isValid}
           >
             {translate('text_66b258f62100490d0eb5caa2')}
           </Button>

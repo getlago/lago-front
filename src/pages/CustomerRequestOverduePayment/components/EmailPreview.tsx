@@ -152,13 +152,15 @@ export const EmailPreview: FC<EmailPreviewProps> = ({
           ]}
         />
 
-        <Box textAlign="center">
-          <Caption component="span">{translate('text_64188b3d9735d5007d712276')}</Caption>
-          <Caption component="span">{` `}</Caption>
-          <Caption component="span" color="primary600">
-            {organization?.email ?? `[EMAIL]`}
-          </Caption>
-        </Box>
+        {organization?.email && (
+          <Box textAlign="center">
+            <Caption component="span">{translate('text_64188b3d9735d5007d712276')}</Caption>
+            <Caption component="span">{` `}</Caption>
+            <Caption component="span" color="primary600">
+              {organization?.email}
+            </Caption>
+          </Box>
+        )}
       </Card>
       <Stack direction="row" alignItems="center" gap={1} marginX="auto">
         <Note color="grey500">{translate('text_6419c64eace749372fc72b03')}</Note>

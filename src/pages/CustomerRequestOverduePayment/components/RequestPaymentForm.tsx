@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 import { FC } from 'react'
 import styled from 'styled-components'
 
-import { Skeleton, Table, Typography } from '~/components/designSystem'
+import { Alert, Skeleton, Table, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { OverviewCard } from '~/components/OverviewCard'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -39,6 +39,7 @@ interface RequestPaymentFormProps {
   overdueAmount: number
   currency: CurrencyEnum
   invoices: InvoicesForRequestOverduePaymentFormFragment[]
+  lastSentUTC: string | null
 }
 
 export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
@@ -47,6 +48,7 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
   overdueAmount,
   currency,
   invoices,
+  lastSentUTC,
 }) => {
   const { translate } = useInternationalization()
 
@@ -55,6 +57,16 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
 
   return (
     <Stack flexDirection="column" gap={10}>
+      {!!lastSentUTC && (
+        <Alert type="info">
+          <Typography variant="body" color="textSecondary">
+            {translate('text_66b4f00bd67ccc185ea75c70', {
+              hour: DateTime.fromISO(lastSentUTC).toLocaleString(DateTime.TIME_SIMPLE),
+            })}
+          </Typography>
+        </Alert>
+      )}
+
       {invoicesLoading ? (
         <div>
           <Box marginBottom={10}>
