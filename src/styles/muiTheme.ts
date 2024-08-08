@@ -479,6 +479,11 @@ export const theme = createTheme({
           height: '32px',
           padding: '10px 12px',
           borderRadius: '8px',
+          // Caption
+          fontSize: '14px',
+          fontWeight: 400,
+          lineHeight: '24px',
+          letterSpacing: '-0.16px',
           '&.button-icon-only': {
             width: '24px',
             height: '24px',
