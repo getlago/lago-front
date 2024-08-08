@@ -7531,10 +7531,29 @@ export type GetCustomerInfosForDraftInvoicesListQueryVariables = Exact<{
 
 export type GetCustomerInfosForDraftInvoicesListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, applicableTimezone: TimezoneEnum } | null, customerInvoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number } } };
 
-export type GetDocumentLocaleQueryVariables = Exact<{ [key: string]: never; }>;
+export type CustomerForRequestOverduePaymentEmailFragment = { __typename?: 'Customer', name?: string | null, paymentProvider?: ProviderTypeEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null };
+
+export type OrganizationForRequestOverduePaymentEmailFragment = { __typename?: 'CurrentOrganization', name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', documentLocale?: string | null } | null };
+
+export type InvoicesForRequestOverduePaymentEmailFragment = { __typename?: 'Invoice', id: string, number: string, totalAmountCents: any, currency?: CurrencyEnum | null };
+
+export type CustomerForRequestOverduePaymentFormFragment = { __typename?: 'Customer', email?: string | null };
+
+export type InvoicesForRequestOverduePaymentFormFragment = { __typename?: 'Invoice', id: string, number: string, totalAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any };
+
+export type GetRequestOverduePaymentInfosQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
 
 
-export type GetDocumentLocaleQuery = { __typename?: 'Query', customerPortalOrganization?: { __typename?: 'Organization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, customerPortalUser?: { __typename?: 'Customer', id: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null } | null };
+export type GetRequestOverduePaymentInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', defaultCurrency: CurrencyEnum, name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', documentLocale?: string | null } | null } | null, customer?: { __typename?: 'Customer', externalId: string, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null } | null };
+
+export type GetRequestOverduePaymentBalanceQueryVariables = Exact<{
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetRequestOverduePaymentBalanceQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, totalAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any }> } };
 
 export type CustomersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -10351,6 +10370,48 @@ export const CustomerDetailsFragmentDoc = gql`
 }
     ${AddCustomerDrawerFragmentDoc}
 ${CustomerMainInfosFragmentDoc}`;
+export const CustomerForRequestOverduePaymentEmailFragmentDoc = gql`
+    fragment CustomerForRequestOverduePaymentEmail on Customer {
+  name
+  paymentProvider
+  billingConfiguration {
+    documentLocale
+  }
+}
+    `;
+export const OrganizationForRequestOverduePaymentEmailFragmentDoc = gql`
+    fragment OrganizationForRequestOverduePaymentEmail on CurrentOrganization {
+  name
+  logoUrl
+  email
+  netPaymentTerm
+  billingConfiguration {
+    documentLocale
+  }
+}
+    `;
+export const InvoicesForRequestOverduePaymentEmailFragmentDoc = gql`
+    fragment InvoicesForRequestOverduePaymentEmail on Invoice {
+  id
+  number
+  totalAmountCents
+  currency
+}
+    `;
+export const CustomerForRequestOverduePaymentFormFragmentDoc = gql`
+    fragment CustomerForRequestOverduePaymentForm on Customer {
+  email
+}
+    `;
+export const InvoicesForRequestOverduePaymentFormFragmentDoc = gql`
+    fragment InvoicesForRequestOverduePaymentForm on Invoice {
+  id
+  number
+  totalAmountCents
+  currency
+  issuingDate
+}
+    `;
 export const NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc = gql`
     fragment NetsuiteIntegrationInfosForInvoiceOverview on NetsuiteIntegration {
   id
@@ -19498,56 +19559,99 @@ export type GetCustomerInfosForDraftInvoicesListQueryHookResult = ReturnType<typ
 export type GetCustomerInfosForDraftInvoicesListLazyQueryHookResult = ReturnType<typeof useGetCustomerInfosForDraftInvoicesListLazyQuery>;
 export type GetCustomerInfosForDraftInvoicesListSuspenseQueryHookResult = ReturnType<typeof useGetCustomerInfosForDraftInvoicesListSuspenseQuery>;
 export type GetCustomerInfosForDraftInvoicesListQueryResult = Apollo.QueryResult<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>;
-export const GetDocumentLocaleDocument = gql`
-    query getDocumentLocale {
-  customerPortalOrganization {
-    id
-    billingConfiguration {
-      id
-      documentLocale
-    }
+export const GetRequestOverduePaymentInfosDocument = gql`
+    query getRequestOverduePaymentInfos($id: ID!) {
+  organization {
+    defaultCurrency
+    ...OrganizationForRequestOverduePaymentEmail
   }
-  customerPortalUser {
-    id
-    billingConfiguration {
-      id
-      documentLocale
-    }
+  customer(id: $id) {
+    externalId
+    currency
+    ...CustomerForRequestOverduePaymentForm
+    ...CustomerForRequestOverduePaymentEmail
   }
 }
-    `;
+    ${OrganizationForRequestOverduePaymentEmailFragmentDoc}
+${CustomerForRequestOverduePaymentFormFragmentDoc}
+${CustomerForRequestOverduePaymentEmailFragmentDoc}`;
 
 /**
- * __useGetDocumentLocaleQuery__
+ * __useGetRequestOverduePaymentInfosQuery__
  *
- * To run a query within a React component, call `useGetDocumentLocaleQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetDocumentLocaleQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetRequestOverduePaymentInfosQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRequestOverduePaymentInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetDocumentLocaleQuery({
+ * const { data, loading, error } = useGetRequestOverduePaymentInfosQuery({
  *   variables: {
+ *      id: // value for 'id'
  *   },
  * });
  */
-export function useGetDocumentLocaleQuery(baseOptions?: Apollo.QueryHookOptions<GetDocumentLocaleQuery, GetDocumentLocaleQueryVariables>) {
+export function useGetRequestOverduePaymentInfosQuery(baseOptions: Apollo.QueryHookOptions<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetDocumentLocaleQuery, GetDocumentLocaleQueryVariables>(GetDocumentLocaleDocument, options);
+        return Apollo.useQuery<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>(GetRequestOverduePaymentInfosDocument, options);
       }
-export function useGetDocumentLocaleLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetDocumentLocaleQuery, GetDocumentLocaleQueryVariables>) {
+export function useGetRequestOverduePaymentInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetDocumentLocaleQuery, GetDocumentLocaleQueryVariables>(GetDocumentLocaleDocument, options);
+          return Apollo.useLazyQuery<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>(GetRequestOverduePaymentInfosDocument, options);
         }
-export function useGetDocumentLocaleSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetDocumentLocaleQuery, GetDocumentLocaleQueryVariables>) {
+export function useGetRequestOverduePaymentInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetDocumentLocaleQuery, GetDocumentLocaleQueryVariables>(GetDocumentLocaleDocument, options);
+          return Apollo.useSuspenseQuery<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>(GetRequestOverduePaymentInfosDocument, options);
         }
-export type GetDocumentLocaleQueryHookResult = ReturnType<typeof useGetDocumentLocaleQuery>;
-export type GetDocumentLocaleLazyQueryHookResult = ReturnType<typeof useGetDocumentLocaleLazyQuery>;
-export type GetDocumentLocaleSuspenseQueryHookResult = ReturnType<typeof useGetDocumentLocaleSuspenseQuery>;
-export type GetDocumentLocaleQueryResult = Apollo.QueryResult<GetDocumentLocaleQuery, GetDocumentLocaleQueryVariables>;
+export type GetRequestOverduePaymentInfosQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentInfosQuery>;
+export type GetRequestOverduePaymentInfosLazyQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentInfosLazyQuery>;
+export type GetRequestOverduePaymentInfosSuspenseQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentInfosSuspenseQuery>;
+export type GetRequestOverduePaymentInfosQueryResult = Apollo.QueryResult<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>;
+export const GetRequestOverduePaymentBalanceDocument = gql`
+    query getRequestOverduePaymentBalance($externalCustomerId: String) {
+  invoices(paymentOverdue: true, customerExternalId: $externalCustomerId) {
+    collection {
+      ...InvoicesForRequestOverduePaymentEmail
+      ...InvoicesForRequestOverduePaymentForm
+    }
+  }
+}
+    ${InvoicesForRequestOverduePaymentEmailFragmentDoc}
+${InvoicesForRequestOverduePaymentFormFragmentDoc}`;
+
+/**
+ * __useGetRequestOverduePaymentBalanceQuery__
+ *
+ * To run a query within a React component, call `useGetRequestOverduePaymentBalanceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRequestOverduePaymentBalanceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRequestOverduePaymentBalanceQuery({
+ *   variables: {
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *   },
+ * });
+ */
+export function useGetRequestOverduePaymentBalanceQuery(baseOptions?: Apollo.QueryHookOptions<GetRequestOverduePaymentBalanceQuery, GetRequestOverduePaymentBalanceQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRequestOverduePaymentBalanceQuery, GetRequestOverduePaymentBalanceQueryVariables>(GetRequestOverduePaymentBalanceDocument, options);
+      }
+export function useGetRequestOverduePaymentBalanceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRequestOverduePaymentBalanceQuery, GetRequestOverduePaymentBalanceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRequestOverduePaymentBalanceQuery, GetRequestOverduePaymentBalanceQueryVariables>(GetRequestOverduePaymentBalanceDocument, options);
+        }
+export function useGetRequestOverduePaymentBalanceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRequestOverduePaymentBalanceQuery, GetRequestOverduePaymentBalanceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetRequestOverduePaymentBalanceQuery, GetRequestOverduePaymentBalanceQueryVariables>(GetRequestOverduePaymentBalanceDocument, options);
+        }
+export type GetRequestOverduePaymentBalanceQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentBalanceQuery>;
+export type GetRequestOverduePaymentBalanceLazyQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentBalanceLazyQuery>;
+export type GetRequestOverduePaymentBalanceSuspenseQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentBalanceSuspenseQuery>;
+export type GetRequestOverduePaymentBalanceQueryResult = Apollo.QueryResult<GetRequestOverduePaymentBalanceQuery, GetRequestOverduePaymentBalanceQueryVariables>;
 export const CustomersDocument = gql`
     query customers($page: Int, $limit: Int, $searchTerm: String) {
   customers(page: $page, limit: $limit, searchTerm: $searchTerm) {

@@ -61,5 +61,13 @@
   "text_6670a7222702d70114cc795a": "Totalt förfallet",
   "text_6670a7222702d70114cc795c": "För {{count}} faktura|För {{count}} fakturor",
   "text_6670a757999f8a007789bb5d": "Totalbelopp från förfallna fakturor. Detta är beloppet du är skyldig.",
-  "text_668fe99c939c8800dfeb504e": "Tvistad"
+  "text_668fe99c939c8800dfeb504e": "Tvistad",
+  "text_66b378e748cda1004ff00db0": "Hej {{customerName}},",
+  "text_66b378e748cda1004ff00db1": "Detta är en påminnelse från ekonomiavdelningen på {{organizationName}} om att vissa fakturor är förfallna.",
+  "text_66b378e748cda1004ff00db2": "Det totala förfallna beloppet är {{amount}}.",
+  "text_66b378e748cda1004ff00db3": "Våra avtalsenliga betalningsvillkor kräver betalning vid fakturautställning.|Våra avtalsenliga betalningsvillkor är {{netPaymentTerm}} dag.|Våra avtalsenliga betalningsvillkor är {{netPaymentTerm}} dagar.",
+  "text_66b378e748cda1004ff00db4": "Om du redan har gjort betalningen, vänligen bortse från detta mejl.",
+  "text_66b378e748cda1004ff00db5": "Tack.",
+  "text_66b378e748cda1004ff00db6": "Återstående belopp att betala",
+  "text_66b378e748cda1004ff00db8": "Betala saldot"
 }

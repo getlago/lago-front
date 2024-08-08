@@ -1,106 +1,151 @@
-import { Stack } from '@mui/material'
+import { gql } from '@apollo/client'
+import { Box, Stack } from '@mui/material'
 import { FormikProps } from 'formik'
+import { DateTime } from 'luxon'
 import { FC } from 'react'
 import styled from 'styled-components'
 
-import { Table, Typography } from '~/components/designSystem'
+import { Alert, Skeleton, Table, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { OverviewCard } from '~/components/OverviewCard'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { LocaleEnum } from '~/core/translations'
+import { CurrencyEnum, InvoicesForRequestOverduePaymentFormFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
+
+gql`
+  fragment CustomerForRequestOverduePaymentForm on Customer {
+    email
+  }
+
+  fragment InvoicesForRequestOverduePaymentForm on Invoice {
+    id
+    number
+    totalAmountCents
+    currency
+    issuingDate
+  }
+`
 
 export interface CustomerRequestOverduePaymentForm {
   emails: string
 }
 
 interface RequestPaymentFormProps {
+  invoicesLoading: boolean
   formikProps: FormikProps<CustomerRequestOverduePaymentForm>
+  overdueAmount: number
+  currency: CurrencyEnum
+  invoices: InvoicesForRequestOverduePaymentFormFragment[]
+  lastSentUTC: string | null
 }
 
-export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({ formikProps }) => {
+export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
+  invoicesLoading,
+  formikProps,
+  overdueAmount,
+  currency,
+  invoices,
+  lastSentUTC,
+}) => {
   const { translate } = useInternationalization()
 
-  const amount = '$730.00'
+  const amount = intlFormatNumber(overdueAmount, { currency, currencyDisplay: 'narrowSymbol' })
+  const count = invoices.length
 
   return (
     <Stack flexDirection="column" gap={10}>
-      <SectionHeader>
-        <Typography variant="headline" color="textSecondary">
-          {translate('TODO: You’re about to request a payment of {{amount}}', {
-            amount,
-          })}
-        </Typography>
-        <Typography>
-          {translate(
-            'TODO: Once the request is validated, Lago will initiate a payment intent with the connected payment provider service (if applicable). If the payment fails, we will send an email to your customer requesting payment of the overdue balance.',
-          )}
-        </Typography>
-      </SectionHeader>
+      {!!lastSentUTC && (
+        <Alert type="info">
+          <Typography variant="body" color="textSecondary">
+            {translate('text_66b4f00bd67ccc185ea75c70', {
+              hour: DateTime.fromISO(lastSentUTC).toLocaleString(DateTime.TIME_SIMPLE),
+            })}
+          </Typography>
+        </Alert>
+      )}
 
-      <TextInputField
-        name="emails"
-        formikProps={formikProps}
-        placeholder={translate('TODO: Enter email address')}
-        label={translate('TODO: Send this payment request by email')}
-        description={translate(
-          'TODO: To send this email to multiple recipients, define multiple email addresses separated by commas. (e.g. billing@acme.com, accounting@acme.com)',
-        )}
-      />
+      {invoicesLoading ? (
+        <div>
+          <Box marginBottom={10}>
+            <Skeleton variant="text" width={320} />
+          </Box>
+          <Stack gap={6}>
+            <Skeleton variant="text" width={480} />
+            <Skeleton variant="text" width={160} />
+          </Stack>
+        </div>
+      ) : (
+        <>
+          <SectionHeader>
+            <Typography variant="headline" color="textSecondary">
+              {translate('text_66b258f62100490d0eb5ca86', { amount })}
+            </Typography>
+            <Typography>{translate('text_66b258f62100490d0eb5ca87')}</Typography>
+          </SectionHeader>
+
+          <TextInputField
+            formikProps={formikProps}
+            name="emails"
+            placeholder={translate('text_66b25bc7a069220091457628')}
+            label={translate('text_66b258f62100490d0eb5ca88')}
+            description={translate('text_66b258f62100490d0eb5ca89')}
+          />
+        </>
+      )}
+
       <OverviewCard
-        title={translate('TODO: Total overdue')}
+        title={translate('text_6670a7222702d70114cc795a')}
+        caption={translate('text_6670a7222702d70114cc795c', { count }, count)}
+        tooltipContent={translate('text_6670a2a7ae3562006c4ee3e7')}
         content={amount}
-        caption={translate('TODO: for {{count}} invoices', {
-          count: 5,
-        })}
         isAccentContent
+        isLoading={invoicesLoading}
       />
       <Table
         name="overdue-invoices"
         containerSize={{
           default: 0,
         }}
-        data={[
-          {
-            id: '1',
-            invoiceNumber: 'INV-0001',
-            date: 'Jul. 13, 2022',
-            totalAmountCents: '$30.00',
-          },
-          {
-            id: '2',
-            invoiceNumber: 'INV-0002',
-            date: 'Jul. 13, 2022',
-            totalAmountCents: '$200.00',
-          },
-        ]}
-        isLoading={false}
+        data={invoices}
+        isLoading={invoicesLoading}
         columns={[
           {
-            key: 'invoiceNumber',
-            title: translate('TODO: Invoice number'),
+            key: 'number',
+            title: translate('text_634687079be251fdb43833fb'),
             maxSpace: true,
-            content: ({ invoiceNumber }) => (
+            content: ({ number }) => (
               <Typography variant="body" noWrap>
-                {invoiceNumber}
+                {number}
               </Typography>
             ),
           },
           {
             key: 'totalAmountCents',
-            title: translate('TODO: Amount'),
+            title: translate('text_634d631acf4dce7b0127a3a6'),
             textAlign: 'right',
-            content: ({ totalAmountCents }) => (
+            content: (row) => (
               <Typography variant="bodyHl" color="textSecondary" noWrap>
-                {totalAmountCents}
+                {intlFormatNumber(
+                  deserializeAmount(row.totalAmountCents, row.currency || currency),
+                  {
+                    currency: row.currency || currency,
+                    currencyDisplay: 'narrowSymbol',
+                  },
+                )}
               </Typography>
             ),
           },
           {
-            key: 'date',
-            title: translate('TODO: Issuing date'),
-            content: ({ date }) => (
+            key: 'issuingDate',
+            title: translate('text_634687079be251fdb4383407'),
+            content: ({ issuingDate }) => (
               <Typography variant="body" noWrap>
-                {date}
+                {DateTime.fromISO(issuingDate).toLocaleString(DateTime.DATE_MED, {
+                  locale: LocaleEnum.en,
+                })}
               </Typography>
             ),
           },

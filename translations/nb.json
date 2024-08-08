@@ -60,5 +60,13 @@
   "text_6670a7222702d70114cc795a": "Totalt forfalt",
   "text_6670a7222702d70114cc795c": "For {{count}} faktura|For {{count}} fakturaer",
   "text_6670a757999f8a007789bb5d": "Total fra forfalte fakturaer. Dette er beløpet du skylder.",
-  "text_668fe99c939c8800dfeb504e": "Omtvistet"
+  "text_668fe99c939c8800dfeb504e": "Omtvistet",
+  "text_66b378e748cda1004ff00db0": "Hei {{customerName}},",
+  "text_66b378e748cda1004ff00db1": "Dette er en påminnelse fra økonomiavdelingen i {{organizationName}} om at noen fakturaer er forfalt.",
+  "text_66b378e748cda1004ff00db2": "Totalbeløpet som forfaller er {{amount}}.",
+  "text_66b378e748cda1004ff00db3": "Våre avtalte betalingsbetingelser krever betaling ved fakturautstedelse.|Våre avtalte betalingsbetingelser er {{netPaymentTerm}} dag.|Våre avtalte betalingsbetingelser er {{netPaymentTerm}} dager.",
+  "text_66b378e748cda1004ff00db4": "Hvis du allerede har foretatt betalingen, vennligst se bort fra denne e-posten.",
+  "text_66b378e748cda1004ff00db5": "Takk.",
+  "text_66b378e748cda1004ff00db6": "Gjenstående beløp å betale",
+  "text_66b378e748cda1004ff00db8": "Betal saldoen"
 }

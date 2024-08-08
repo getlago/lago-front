@@ -3,61 +3,91 @@ import { Box, Divider, Stack } from '@mui/material'
 import { FC } from 'react'
 import styled from 'styled-components'
 
-import { Avatar, Table, Typography } from '~/components/designSystem'
-import { Locale } from '~/core/translations'
-import { useGetDocumentLocaleQuery } from '~/generated/graphql'
+import { Avatar, Button, Skeleton, Table, Typography } from '~/components/designSystem'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { LocaleEnum } from '~/core/translations'
+import {
+  CurrencyEnum,
+  CustomerForRequestOverduePaymentEmailFragment,
+  InvoicesForRequestOverduePaymentEmailFragment,
+  OrganizationForRequestOverduePaymentEmailFragment,
+} from '~/generated/graphql'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 import { Card, theme } from '~/styles'
 
 gql`
-  query getDocumentLocale {
-    customerPortalOrganization {
-      id
-      billingConfiguration {
-        id
-        documentLocale
-      }
+  fragment CustomerForRequestOverduePaymentEmail on Customer {
+    name
+    paymentProvider
+    billingConfiguration {
+      documentLocale
     }
+  }
 
-    customerPortalUser {
-      id
-      billingConfiguration {
-        id
-        documentLocale
-      }
+  fragment OrganizationForRequestOverduePaymentEmail on CurrentOrganization {
+    name
+    logoUrl
+    email
+    netPaymentTerm
+    billingConfiguration {
+      documentLocale
     }
+  }
+
+  fragment InvoicesForRequestOverduePaymentEmail on Invoice {
+    id
+    number
+    totalAmountCents
+    currency
   }
 `
 
-interface EmailPreviewProps {}
+interface EmailPreviewProps {
+  isLoading: boolean
+  documentLocale: LocaleEnum
+  customer?: CustomerForRequestOverduePaymentEmailFragment
+  organization?: OrganizationForRequestOverduePaymentEmailFragment
+  overdueAmount: number
+  currency: CurrencyEnum
+  invoices: InvoicesForRequestOverduePaymentEmailFragment[]
+}
 
-export const EmailPreview: FC<EmailPreviewProps> = () => {
-  const { data: { customerPortalOrganization, customerPortalUser } = {} } =
-    useGetDocumentLocaleQuery()
-
-  const documentLocale =
-    (customerPortalUser?.billingConfiguration?.documentLocale as Locale) ||
-    (customerPortalOrganization?.billingConfiguration?.documentLocale as Locale) ||
-    'en'
-
+export const EmailPreview: FC<EmailPreviewProps> = ({
+  isLoading,
+  documentLocale,
+  customer,
+  organization,
+  overdueAmount,
+  currency,
+  invoices,
+}) => {
   const { translateWithContextualLocal: translate } = useContextualLocale(documentLocale)
-  const { organization } = useOrganizationInfos()
+
+  const formattedOverdueAmount = intlFormatNumber(overdueAmount, {
+    currency,
+    locale: documentLocale,
+    currencyDisplay: 'narrowSymbol',
+  })
+
+  if (isLoading) {
+    return <EmailPreviewSkeleton />
+  }
 
   return (
     <Stack flexDirection="column" gap={8} maxWidth={600} marginX="auto">
       <Header>
         {organization?.logoUrl ? (
           <Avatar size="medium" variant="connector">
-            <img src={organization?.logoUrl as string} alt={`${organization?.name}'s logo`} />
+            <img src={organization?.logoUrl ?? ''} alt={organization?.name} />
           </Avatar>
         ) : (
           <Avatar
             variant="company"
             identifier={organization?.name || ''}
             size="medium"
-            initials={(organization?.name ?? 'Lago')[0]}
+            initials={(organization?.name ?? '')[0]}
           />
         )}
         <CompanyName color="textSecondary">{organization?.name}</CompanyName>
@@ -65,86 +95,104 @@ export const EmailPreview: FC<EmailPreviewProps> = () => {
       <Card $childSpacing={8}>
         <Stack gap={6}>
           <Text color="textSecondary">
-            {translate('TODO: Hello {{customerName}}', { customerName: 'John Doe' })}
+            {translate('text_66b378e748cda1004ff00db0', { customerName: customer?.name })}
+          </Text>
+          <Text color="textSecondary">
+            {translate('text_66b378e748cda1004ff00db1', { organizationName: organization?.name })}
+          </Text>
+          <Text color="textSecondary">
+            {translate('text_66b378e748cda1004ff00db2', { amount: formattedOverdueAmount })}
           </Text>
           <Text color="textSecondary">
             {translate(
-              'TODO: This is a reminder from the {{organizationName}} finance team that some invoices are overdue.',
-              {
-                organizationName: organization?.name,
-              },
+              'text_66b378e748cda1004ff00db3',
+              { netPaymentTerm: organization?.netPaymentTerm },
+              organization?.netPaymentTerm,
             )}
           </Text>
-          <Text color="textSecondary">
-            {translate('TODO: The total amount due is {{amount}}', { amount: '$730.00' })}
-          </Text>
-          <Text color="textSecondary">
-            {translate(
-              'TODO: Our contractually agreed payment terms are {{netPaymentTerms}} days.',
-              {
-                netPaymentTerms: 30,
-              },
-            )}
-          </Text>
-          <Text color="textSecondary">
-            {translate('TODO: If you have already made the payment, please disregard this email.')}
-          </Text>
-          <Text color="textSecondary">{translate('TODO: Thank you!')}</Text>
+          <Text color="textSecondary">{translate('text_66b378e748cda1004ff00db4')}</Text>
+          <Text color="textSecondary">{translate('text_66b378e748cda1004ff00db5')}</Text>
         </Stack>
         <Divider />
-        <Box>
-          <Caption>{translate('TODO: Amount remaining to pay')}</Caption>
-          <Headline color="textSecondary">$730.00</Headline>
-        </Box>
+        <Stack direction="column" alignItems="flex-start" gap={4}>
+          <Box>
+            <Caption>{translate('text_66b378e748cda1004ff00db6')}</Caption>
+            <Headline color="textSecondary">{formattedOverdueAmount}</Headline>
+          </Box>
+
+          {!!customer?.paymentProvider && (
+            <UnclickableButton variant="primary" size="medium">
+              {translate('text_66b378e748cda1004ff00db8')}
+            </UnclickableButton>
+          )}
+        </Stack>
         <Table
           name="email-preview"
-          containerSize={{
-            default: 0,
-          }}
-          data={[
-            {
-              id: '1',
-              invoiceNumber: 'INV-1234',
-              totalAmount: '$365.00',
-            },
-            {
-              id: '2',
-              invoiceNumber: 'INV-1235',
-              totalAmount: '$365.00',
-            },
-          ]}
+          containerSize={{ default: 0 }}
+          data={invoices}
           columns={[
             {
-              key: 'invoiceNumber',
-              title: <Caption noWrap>{translate('TODO: Invoice number')}</Caption>,
+              key: 'number',
+              title: <Caption noWrap>{translate('text_6419c64eace749372fc72b3c')}</Caption>,
               maxSpace: true,
-              content: (row) => (
+              content: ({ number }) => (
                 <Caption color="primary600" noWrap>
-                  {row.invoiceNumber}
+                  {number}
                 </Caption>
               ),
             },
             {
-              key: 'totalAmount',
+              key: 'totalAmountCents',
               textAlign: 'right',
-              title: <Caption noWrap>{translate('TODO: Amount')}</Caption>,
+              title: <Caption noWrap>{translate('text_6419c64eace749372fc72b3e')}</Caption>,
               content: (row) => (
                 <Caption color="textSecondary" noWrap>
-                  {row.totalAmount}
+                  {intlFormatNumber(
+                    deserializeAmount(row.totalAmountCents, row.currency || currency),
+                    {
+                      currency: row.currency || currency,
+                      locale: documentLocale,
+                      currencyDisplay: 'narrowSymbol',
+                    },
+                  )}
                 </Caption>
               ),
             },
           ]}
         />
-        <Box textAlign="center">
-          <Caption>
-            {translate('TODO: Questions? Contact us at {{email}}', { email: 'contact@banco.com' })}
-          </Caption>
-        </Box>
+
+        {organization?.email && (
+          <Box textAlign="center">
+            <Caption component="span">{translate('text_64188b3d9735d5007d712276')}</Caption>
+            <Caption component="span">{` `}</Caption>
+            <Caption component="span" color="primary600">
+              {organization?.email}
+            </Caption>
+          </Box>
+        )}
       </Card>
-      <Stack direction="row" gap={1} marginX="auto">
+      <Stack direction="row" alignItems="center" gap={1} marginX="auto">
         <Note color="grey500">{translate('text_6419c64eace749372fc72b03')}</Note>
-        <StyledLogo />
+        <Logo height="12px" />
+      </Stack>
+    </Stack>
+  )
+}
+
+export const EmailPreviewSkeleton = () => {
+  return (
+    <Stack flexDirection="column" gap={8} maxWidth={600} marginX="auto">
+      <Header>
+        <Skeleton variant="connectorAvatar" size="medium" color="dark" />
+        <Skeleton variant="text" width={120} height={12} color="dark" />
+      </Header>
+      <Card $childSpacing={4}>
+        <Skeleton variant="text" width={104} height={12} color="dark" />
+        <Skeleton variant="text" width="100%" height={12} color="dark" />
+        <Skeleton variant="text" width={160} height={12} color="dark" />
+      </Card>
+      <Stack direction="row" alignItems="center" width="100%" justifyContent="center">
+        <Skeleton variant="text" width={120} height={12} color="dark" />
       </Stack>
     </Stack>
   )
@@ -153,8 +201,9 @@ export const EmailPreview: FC<EmailPreviewProps> = () => {
 const Header = styled.div`
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: ${theme.spacing(3)};
-  margin: auto;
+  width: 100%;
 `
 
 const Text = styled(Typography)`
@@ -188,6 +237,7 @@ const Note = styled(Text)`
   line-height: 16px;
 `
 
-const StyledLogo = styled(Logo)`
-  width: 40px;
+const UnclickableButton = styled(Button)`
+  cursor: default;
+  pointer-events: none;
 `

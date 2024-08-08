@@ -61,5 +61,13 @@
   "text_6670a7222702d70114cc795a": "Total vencido",
   "text_6670a7222702d70114cc795c": "Para {{count}} factura|Para {{count}} facturas",
   "text_6670a757999f8a007789bb5d": "Total de facturas vencidas. Este es el monto que debe.",
-  "text_668fe99c939c8800dfeb504e": "Disputado"
+  "text_668fe99c939c8800dfeb504e": "Disputado",
+  "text_66b378e748cda1004ff00db0": "Hola {{customerName}},",
+  "text_66b378e748cda1004ff00db1": "Este es un recordatorio del equipo financiero de {{organizationName}} de que algunas facturas están vencidas.",
+  "text_66b378e748cda1004ff00db2": "El monto total adeudado es de {{amount}}.",
+  "text_66b378e748cda1004ff00db3": "Nuestros términos de pago acordados contractualmente requieren el pago al generar la factura.|Nuestros términos de pago acordados contractualmente son {{netPaymentTerm}} día.|Nuestros términos de pago acordados contractualmente son {{netPaymentTerm}} días.",
+  "text_66b378e748cda1004ff00db4": "Si ya ha realizado el pago, por favor ignore este correo electrónico.",
+  "text_66b378e748cda1004ff00db5": "Gracias.",
+  "text_66b378e748cda1004ff00db6": "Saldo a pagar",
+  "text_66b378e748cda1004ff00db8": "Pagar el saldo"
 }
