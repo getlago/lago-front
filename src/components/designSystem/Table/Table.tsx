@@ -56,6 +56,7 @@ export type ActionItem<T> = {
 }
 
 type ContainerSize = 0 | 4 | 16 | 48
+type RowSize = 44 | 56
 
 interface TableProps<T> {
   name: string
@@ -71,10 +72,10 @@ interface TableProps<T> {
   onRowAction?: (item: T) => void
   actionColumn?: (item: T) => Array<ActionItem<T> | null> | ReactNode
   containerSize?: ResponsiveStyleValue<ContainerSize>
+  rowSize?: RowSize
 }
 
 const ACTION_COLUMN_ID = 'actionColumn'
-const ROW_MIN_HEIGHT = 56
 const LOADING_ROW_COUNT = 3
 
 const countMaxSpaceColumns = <T,>(columns: Column<T>[]) =>
@@ -94,6 +95,7 @@ export const Table = <T extends DataItem>({
   hasError,
   isFullWidth = true,
   containerSize = 48,
+  rowSize = 56,
   placeholder,
   onRowAction,
   actionColumn,
@@ -209,6 +211,7 @@ export const Table = <T extends DataItem>({
       ref={tableRef}
       $isFullWidth={!!isFullWidth}
       $containerSize={containerSize}
+      $rowSize={rowSize}
     >
       <TableHead>
         <TableRow>
@@ -370,7 +373,6 @@ const ActionItemButton = <T,>({
 }
 
 const TableInnerCell = styled.div<{ $minWidth?: number; $align?: Align }>`
-  min-height: ${ROW_MIN_HEIGHT}px;
   min-width: ${({ $minWidth }) => ($minWidth ? `${$minWidth}px` : 'auto')};
   display: flex;
   align-items: center;
@@ -420,6 +422,7 @@ const TableCell = styled(MUITableCell)<{
 const StyledTable = styled(MUITable)<{
   $isFullWidth: boolean
   $containerSize: ResponsiveStyleValue<ContainerSize>
+  $rowSize: RowSize
 }>`
   border-collapse: collapse;
   width: ${({ $isFullWidth }) => ($isFullWidth ? '100%' : 'auto')};
@@ -430,6 +433,10 @@ const StyledTable = styled(MUITable)<{
 
   ${TableCell}:last-of-type ${TableInnerCell} {
     ${({ $containerSize }) => setResponsiveProperty('paddingRight', $containerSize)}
+  }
+
+  ${TableInnerCell} {
+    min-height: ${({ $rowSize }) => $rowSize}px;
   }
 `
 
