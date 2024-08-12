@@ -1,13 +1,16 @@
 import { Stack } from '@mui/material'
 import clsns from 'classnames'
 import { ReactNode } from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
+import { ResponsiveStyleValue, setResponsiveProperty } from '~/core/utils/responsiveProps'
 import { theme } from '~/styles'
 
 import { Button, ButtonProps as TButtonProps } from './Button'
 import { Icon, IconColor, IconName } from './Icon'
 import { Typography } from './Typography'
+
+type ContainerSize = 0 | 4 | 16 | 48
 
 enum AlertType {
   info = 'info',
@@ -21,10 +24,12 @@ type AlertButtonProps = Partial<Omit<Omit<TButtonProps, 'variant' | 'icon'>, 'si
 }
 
 interface AlertProps {
+  children: ReactNode
   type: keyof typeof AlertType
   ButtonProps?: AlertButtonProps
-  children: ReactNode
   className?: string
+  containerSize?: ResponsiveStyleValue<ContainerSize>
+  fullWidth?: boolean
 }
 
 const getIcon = (type: keyof typeof AlertType): { name: IconName; color: IconColor } => {
@@ -41,16 +46,20 @@ const getIcon = (type: keyof typeof AlertType): { name: IconName; color: IconCol
 }
 
 export const Alert = ({
-  type,
+  ButtonProps: { label, ...ButtonProps } = {} as AlertButtonProps,
   children,
   className,
-  ButtonProps: { label, ...ButtonProps } = {} as AlertButtonProps,
+  containerSize = 16,
+  fullWidth,
+  type,
   ...props
 }: AlertProps) => {
   const iconConfig = getIcon(type)
 
   return (
     <Container
+      $isFullWidth={fullWidth}
+      $containerSize={containerSize}
       className={clsns(className, [`alert-type--${type}`])}
       data-test={`alert-type-${type}`}
       {...props}
@@ -68,13 +77,17 @@ export const Alert = ({
   )
 }
 
-const Container = styled.div`
+const Container = styled.div<{
+  $isFullWidth?: boolean
+  $containerSize: ResponsiveStyleValue<ContainerSize>
+}>`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: ${theme.spacing(4)};
   border-radius: 12px;
   gap: ${theme.spacing(4)};
+  padding-top: ${theme.spacing(4)};
+  padding-bottom: ${theme.spacing(4)};
 
   &.alert-type--${AlertType.info} {
     background-color: ${theme.palette.info[100]};
@@ -91,6 +104,20 @@ const Container = styled.div`
   &.alert-type--${AlertType.danger} {
     background-color: ${theme.palette.error[100]};
   }
+
+  ${({ $isFullWidth }) =>
+    $isFullWidth &&
+    css`
+      border-radius: 0;
+      width: 100%;
+    `}
+
+  ${({ $containerSize }) => {
+    return css`
+      ${setResponsiveProperty('paddingLeft', $containerSize)}
+      ${setResponsiveProperty('paddingRight', $containerSize)}
+    `
+  }}
 `
 
 const Content = styled(Typography)`
