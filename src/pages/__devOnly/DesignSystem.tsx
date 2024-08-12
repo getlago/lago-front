@@ -159,6 +159,28 @@ const DesignSystem = () => {
 
                 <GroupTitle variant="headline">Alert</GroupTitle>
                 <Block $marginBottom={theme.spacing(6)}>
+                  <Alert
+                    fullWidth
+                    containerSize={{
+                      default: 16,
+                      md: 48,
+                    }}
+                    type="danger"
+                    ButtonProps={{
+                      label: 'Retry',
+                      onClick: () => alert('Retry clicked'),
+                    }}
+                  >
+                    <Stack>
+                      <Typography variant="body" color="grey700">
+                        Invoice could not be fully refreshed.
+                      </Typography>
+                      <Typography variant="caption">
+                        An issue with your tax provider connection occurred. Please contact the Lago
+                        team to solve this issue.
+                      </Typography>
+                    </Stack>
+                  </Alert>
                   <Alert type="info">I&apos;m an info alert</Alert>
                   <Alert type="success">I&apos;m a success alert</Alert>
                   <Alert type="warning">I&apos;m a warning alert</Alert>
