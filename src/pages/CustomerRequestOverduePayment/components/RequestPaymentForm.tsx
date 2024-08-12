@@ -11,7 +11,11 @@ import { OverviewCard } from '~/components/OverviewCard'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { LocaleEnum } from '~/core/translations'
-import { CurrencyEnum, InvoicesForRequestOverduePaymentFormFragment } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  InvoicesForRequestOverduePaymentFormFragment,
+  LastPaymentRequestFragment,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
@@ -27,6 +31,10 @@ gql`
     currency
     issuingDate
   }
+
+  fragment LastPaymentRequest on PaymentRequest {
+    createdAt
+  }
 `
 
 export interface CustomerRequestOverduePaymentForm {
@@ -39,7 +47,7 @@ interface RequestPaymentFormProps {
   overdueAmount: number
   currency: CurrencyEnum
   invoices: InvoicesForRequestOverduePaymentFormFragment[]
-  lastSentUTC: string | null
+  lastSentDate?: LastPaymentRequestFragment
 }
 
 export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
@@ -48,20 +56,23 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
   overdueAmount,
   currency,
   invoices,
-  lastSentUTC,
+  lastSentDate,
 }) => {
   const { translate } = useInternationalization()
 
   const amount = intlFormatNumber(overdueAmount, { currency, currencyDisplay: 'narrowSymbol' })
   const count = invoices.length
 
+  const date = DateTime.fromISO(lastSentDate?.createdAt).toUTC()
+
   return (
     <Stack flexDirection="column" gap={10}>
-      {!!lastSentUTC && (
+      {!!lastSentDate && (
         <Alert type="info">
           <Typography variant="body" color="textSecondary">
             {translate('text_66b4f00bd67ccc185ea75c70', {
-              hour: DateTime.fromISO(lastSentUTC).toLocaleString(DateTime.TIME_SIMPLE),
+              relativeDay: date.toRelativeCalendar({ locale: LocaleEnum.en }),
+              time: date.toLocaleString(DateTime.TIME_24_WITH_SHORT_OFFSET),
             })}
           </Typography>
         </Alert>

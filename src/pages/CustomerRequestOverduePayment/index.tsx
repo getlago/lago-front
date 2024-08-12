@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Typography } from '~/components/designSystem'
-import { hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -17,14 +17,19 @@ import {
   CustomerForRequestOverduePaymentFormFragmentDoc,
   InvoicesForRequestOverduePaymentEmailFragmentDoc,
   InvoicesForRequestOverduePaymentFormFragmentDoc,
+  LastPaymentRequestFragmentDoc,
   OrganizationForRequestOverduePaymentEmailFragmentDoc,
+  useCreatePaymentRequestMutation,
   useGetRequestOverduePaymentBalanceQuery,
   useGetRequestOverduePaymentInfosQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { EmailPreview } from '~/pages/CustomerRequestOverduePayment/components/EmailPreview'
-import { validateEmails } from '~/pages/CustomerRequestOverduePayment/validateEmails'
+import {
+  serializeEmails,
+  validateEmails,
+} from '~/pages/CustomerRequestOverduePayment/validateEmails'
 import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
 
 import { FreemiumAlert } from './components/FreemiumAlert'
@@ -47,9 +52,16 @@ gql`
       ...CustomerForRequestOverduePaymentEmail
     }
 
+    paymentRequests {
+      collection {
+        ...LastPaymentRequest
+      }
+    }
+
     ${CustomerForRequestOverduePaymentFormFragmentDoc}
     ${CustomerForRequestOverduePaymentEmailFragmentDoc}
     ${OrganizationForRequestOverduePaymentEmailFragmentDoc}
+    ${LastPaymentRequestFragmentDoc}
   }
 
   query getRequestOverduePaymentBalance($externalCustomerId: String) {
@@ -63,20 +75,24 @@ gql`
     ${InvoicesForRequestOverduePaymentEmailFragmentDoc}
     ${InvoicesForRequestOverduePaymentFormFragmentDoc}
   }
+
+  mutation createPaymentRequest($input: PaymentRequestCreateInput!) {
+    createPaymentRequest(input: $input) {
+      id
+    }
+  }
 `
 
 const FOOTER_HEIGHT = 80
 
-interface CustomerRequestOverduePaymentProps {}
-
-const CustomerRequestOverduePayment: FC<CustomerRequestOverduePaymentProps> = () => {
+const CustomerRequestOverduePayment: FC = () => {
   const { translate } = useInternationalization()
   const { customerId } = useParams()
   const { isPremium } = useCurrentUser()
   const navigate = useNavigate()
 
   const {
-    data: { customer, organization } = {},
+    data: { customer, organization, paymentRequests } = {},
     loading: infosLoading,
     error: infosError,
   } = useGetRequestOverduePaymentInfosQuery({
@@ -91,6 +107,17 @@ const CustomerRequestOverduePayment: FC<CustomerRequestOverduePaymentProps> = ()
       skip: !customer,
     })
 
+  const [paymentRequest] = useCreatePaymentRequestMutation({
+    onCompleted() {
+      addToast({
+        severity: 'success',
+        translateKey: 'text_66b9e095a7dc6c6d3dabeed4',
+      })
+
+      navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId ?? '' }))
+    },
+  })
+
   const documentLocale =
     (customer?.billingConfiguration?.documentLocale as Locale) ||
     (organization?.billingConfiguration?.documentLocale as Locale) ||
@@ -98,7 +125,7 @@ const CustomerRequestOverduePayment: FC<CustomerRequestOverduePaymentProps> = ()
 
   const formikProps = useFormik<CustomerRequestOverduePaymentForm>({
     initialValues: {
-      emails: customer?.email ?? '',
+      emails: customer?.email || '',
     },
     validationSchema: object({
       emails: string()
@@ -107,8 +134,16 @@ const CustomerRequestOverduePayment: FC<CustomerRequestOverduePaymentProps> = ()
     }),
     validateOnMount: true,
     enableReinitialize: true,
-    onSubmit: () => {
-      console.log('TODO: Request payment')
+    onSubmit: async (values) => {
+      await paymentRequest({
+        variables: {
+          input: {
+            externalCustomerId: customer?.externalId ?? '',
+            email: serializeEmails(values.emails),
+            lagoInvoiceIds: invoices?.collection?.map((invoice) => invoice.id),
+          },
+        },
+      })
     },
   })
 
@@ -164,7 +199,7 @@ const CustomerRequestOverduePayment: FC<CustomerRequestOverduePaymentProps> = ()
               overdueAmount={totalAmount}
               currency={defaultCurrency}
               invoices={invoicesCollection}
-              lastSentUTC={new Date().toISOString()}
+              lastSentDate={paymentRequests?.collection?.[0]}
             />
           </Wrapper>
         </LeftSection>
@@ -198,7 +233,7 @@ const CustomerRequestOverduePayment: FC<CustomerRequestOverduePaymentProps> = ()
             variant="primary"
             size="large"
             onClick={formikProps.submitForm}
-            disabled={!isPremium || totalAmount === 0 || formikProps.dirty || !formikProps.isValid}
+            disabled={!isPremium || totalAmount === 0 || !formikProps.isValid}
           >
             {translate('text_66b258f62100490d0eb5caa2')}
           </Button>

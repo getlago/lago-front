@@ -1,4 +1,7 @@
-import { validateEmails } from '~/pages/CustomerRequestOverduePayment/validateEmails'
+import {
+  serializeEmails,
+  validateEmails,
+} from '~/pages/CustomerRequestOverduePayment/validateEmails'
 
 describe('validateEmails', () => {
   it('should return true for valid emails', () => {
@@ -23,5 +26,13 @@ describe('validateEmails', () => {
     const invalidEmails = 'test@example.com, invalidemail , another@example.com ,'
 
     expect(validateEmails(invalidEmails)).toBe(false)
+  })
+})
+
+describe('serializeEmails', () => {
+  it('should remove whitespace from emails', () => {
+    const emails = 'test@example.com, another@example.com'
+
+    expect(serializeEmails(emails)).toBe('test@example.com,another@example.com')
   })
 })

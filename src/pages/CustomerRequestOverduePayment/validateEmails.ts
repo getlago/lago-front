@@ -3,7 +3,7 @@ import { string } from 'yup'
 // Matches a comma surrounded by optional whitespace
 const SEPARATOR_REGEX = /\s*,\s*/
 
-export const validateEmails = (emails: string) => {
+export const validateEmails = (emails: string): boolean => {
   const emailArray = emails
     .trim()
     .split(SEPARATOR_REGEX)
@@ -15,4 +15,8 @@ export const validateEmails = (emails: string) => {
     }
   }
   return true
+}
+
+export const serializeEmails = (emails: string): string => {
+  return emails.replace(' ', '')
 }

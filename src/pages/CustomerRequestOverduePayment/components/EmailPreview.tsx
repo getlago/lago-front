@@ -12,6 +12,7 @@ import {
   CustomerForRequestOverduePaymentEmailFragment,
   InvoicesForRequestOverduePaymentEmailFragment,
   OrganizationForRequestOverduePaymentEmailFragment,
+  ProviderTypeEnum,
 } from '~/generated/graphql'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
@@ -120,15 +121,17 @@ export const EmailPreview: FC<EmailPreviewProps> = ({
             <Headline color="textSecondary">{formattedOverdueAmount}</Headline>
           </Box>
 
-          {!!customer?.paymentProvider && (
-            <UnclickableButton variant="primary" size="medium">
-              {translate('text_66b378e748cda1004ff00db8')}
-            </UnclickableButton>
-          )}
+          {!!customer?.paymentProvider &&
+            customer.paymentProvider !== ProviderTypeEnum.Gocardless && (
+              <UnclickableButton variant="primary" size="medium">
+                {translate('text_66b378e748cda1004ff00db8')}
+              </UnclickableButton>
+            )}
         </Stack>
         <Table
           name="email-preview"
           containerSize={{ default: 0 }}
+          rowSize={44}
           data={invoices}
           columns={[
             {

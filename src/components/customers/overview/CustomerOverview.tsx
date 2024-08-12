@@ -1,12 +1,14 @@
 import { gql } from '@apollo/client'
 import { Skeleton, Stack } from '@mui/material'
 import { FC, useEffect } from 'react'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { CustomerCoupons } from '~/components/customers/overview/CustomerCoupons'
 import { CustomerSubscriptionsList } from '~/components/customers/overview/CustomerSubscriptionsList'
 import { Alert, Button, Typography } from '~/components/designSystem'
 import { OverviewCard } from '~/components/OverviewCard'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
@@ -74,6 +76,8 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
 }) => {
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
+  const { customerId } = useParams()
+  const navigate = useNavigate()
 
   const currency = userCurrency ?? organization?.defaultCurrency ?? CurrencyEnum.Usd
 
@@ -164,34 +168,47 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
           </SectionHeader>
           <Stack gap={4}>
             {hasOverdueInvoices && !overdueError && (
-              <Alert type="warning">
-                <Stack flexDirection="row" gap={4} alignItems="center">
-                  {overdueLoading ? (
-                    <Stack flexDirection="column" gap={1}>
-                      <Skeleton variant="text" width={150} />
-                      <Skeleton variant="text" width={80} />
-                    </Stack>
-                  ) : (
-                    <Stack flexDirection="column" gap={1}>
-                      <Typography variant="bodyHl" color="textSecondary">
-                        {translate(
-                          'text_6670a7222702d70114cc7955',
-                          {
-                            count: overdueFormattedData.invoiceCount,
-                            amount: intlFormatNumber(overdueFormattedData.amountCents, {
-                              currencyDisplay: 'symbol',
-                              currency,
+              <Alert
+                type="warning"
+                ButtonProps={
+                  !overdueLoading
+                    ? {
+                        label: translate('text_66b258f62100490d0eb5caa2'),
+                        onClick: () =>
+                          navigate(
+                            generatePath(CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE, {
+                              customerId: customerId ?? '',
                             }),
-                          },
-                          overdueFormattedData.invoiceCount,
-                        )}
-                      </Typography>
-                      <Typography variant="caption">
-                        {translate('text_6670a2a7ae3562006c4ee3db')}
-                      </Typography>
-                    </Stack>
-                  )}
-                </Stack>
+                          ),
+                      }
+                    : undefined
+                }
+              >
+                {overdueLoading ? (
+                  <Stack flexDirection="column" gap={1}>
+                    <Skeleton variant="text" width={150} />
+                    <Skeleton variant="text" width={80} />
+                  </Stack>
+                ) : (
+                  <Stack flexDirection="column" gap={1}>
+                    <Typography variant="bodyHl" color="textSecondary">
+                      {translate(
+                        'text_6670a7222702d70114cc7955',
+                        {
+                          count: overdueFormattedData.invoiceCount,
+                          amount: intlFormatNumber(overdueFormattedData.amountCents, {
+                            currencyDisplay: 'symbol',
+                            currency,
+                          }),
+                        },
+                        overdueFormattedData.invoiceCount,
+                      )}
+                    </Typography>
+                    <Typography variant="caption">
+                      {translate('text_6670a2a7ae3562006c4ee3db')}
+                    </Typography>
+                  </Stack>
+                )}
               </Alert>
             )}
             <Stack flexDirection="row" gap={4}>

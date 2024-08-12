@@ -208,7 +208,7 @@ export type AppliedTax = {
   amountCurrency: CurrencyEnum;
   createdAt: Scalars['ISO8601DateTime']['output'];
   id: Scalars['ID']['output'];
-  tax?: Maybe<Tax>;
+  tax: Tax;
   taxCode: Scalars['String']['output'];
   taxDescription?: Maybe<Scalars['String']['output']>;
   taxName: Scalars['String']['output'];
@@ -356,7 +356,7 @@ export enum ChargeModelEnum {
 export type ChargeOverridesInput = {
   billableMetricId: Scalars['ID']['input'];
   filters?: InputMaybe<Array<ChargeFilterInput>>;
-  id?: InputMaybe<Scalars['ID']['input']>;
+  id: Scalars['ID']['input'];
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   minAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   properties?: InputMaybe<PropertiesInput>;
@@ -1340,7 +1340,7 @@ export type CreditNoteAppliedTax = AppliedTax & {
   createdAt: Scalars['ISO8601DateTime']['output'];
   creditNote: CreditNote;
   id: Scalars['ID']['output'];
-  tax?: Maybe<Tax>;
+  tax: Tax;
   taxCode: Scalars['String']['output'];
   taxDescription?: Maybe<Scalars['String']['output']>;
   taxName: Scalars['String']['output'];
@@ -2270,7 +2270,7 @@ export type FeeAppliedTax = AppliedTax & {
   createdAt: Scalars['ISO8601DateTime']['output'];
   fee: Fee;
   id: Scalars['ID']['output'];
-  tax?: Maybe<Tax>;
+  tax: Tax;
   taxCode: Scalars['String']['output'];
   taxDescription?: Maybe<Scalars['String']['output']>;
   taxName: Scalars['String']['output'];
@@ -2607,7 +2607,7 @@ export type InvoiceAppliedTax = AppliedTax & {
   feesAmountCents: Scalars['BigInt']['output'];
   id: Scalars['ID']['output'];
   invoice: Invoice;
-  tax?: Maybe<Tax>;
+  tax: Tax;
   taxCode: Scalars['String']['output'];
   taxDescription?: Maybe<Scalars['String']['output']>;
   taxName: Scalars['String']['output'];
@@ -5349,7 +5349,6 @@ export type UsageThresholdInput = {
 
 export type UsageThresholdOverridesInput = {
   amountCents: Scalars['BigInt']['input'];
-  id?: InputMaybe<Scalars['ID']['input']>;
   recurring?: InputMaybe<Scalars['Boolean']['input']>;
   thresholdDisplayName?: InputMaybe<Scalars['String']['input']>;
 };
@@ -7541,12 +7540,14 @@ export type CustomerForRequestOverduePaymentFormFragment = { __typename?: 'Custo
 
 export type InvoicesForRequestOverduePaymentFormFragment = { __typename?: 'Invoice', id: string, number: string, totalAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any };
 
+export type LastPaymentRequestFragment = { __typename?: 'PaymentRequest', createdAt: any };
+
 export type GetRequestOverduePaymentInfosQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetRequestOverduePaymentInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', defaultCurrency: CurrencyEnum, name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', documentLocale?: string | null } | null } | null, customer?: { __typename?: 'Customer', externalId: string, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null } | null };
+export type GetRequestOverduePaymentInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', defaultCurrency: CurrencyEnum, name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', documentLocale?: string | null } | null } | null, customer?: { __typename?: 'Customer', externalId: string, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null } | null, paymentRequests: { __typename?: 'PaymentRequestCollection', collection: Array<{ __typename?: 'PaymentRequest', createdAt: any }> } };
 
 export type GetRequestOverduePaymentBalanceQueryVariables = Exact<{
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
@@ -7554,6 +7555,13 @@ export type GetRequestOverduePaymentBalanceQueryVariables = Exact<{
 
 
 export type GetRequestOverduePaymentBalanceQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, totalAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any }> } };
+
+export type CreatePaymentRequestMutationVariables = Exact<{
+  input: PaymentRequestCreateInput;
+}>;
+
+
+export type CreatePaymentRequestMutation = { __typename?: 'Mutation', createPaymentRequest?: { __typename?: 'PaymentRequest', id: string } | null };
 
 export type CustomersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -10410,6 +10418,11 @@ export const InvoicesForRequestOverduePaymentFormFragmentDoc = gql`
   totalAmountCents
   currency
   issuingDate
+}
+    `;
+export const LastPaymentRequestFragmentDoc = gql`
+    fragment LastPaymentRequest on PaymentRequest {
+  createdAt
 }
     `;
 export const NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc = gql`
@@ -19571,10 +19584,16 @@ export const GetRequestOverduePaymentInfosDocument = gql`
     ...CustomerForRequestOverduePaymentForm
     ...CustomerForRequestOverduePaymentEmail
   }
+  paymentRequests {
+    collection {
+      ...LastPaymentRequest
+    }
+  }
 }
     ${OrganizationForRequestOverduePaymentEmailFragmentDoc}
 ${CustomerForRequestOverduePaymentFormFragmentDoc}
-${CustomerForRequestOverduePaymentEmailFragmentDoc}`;
+${CustomerForRequestOverduePaymentEmailFragmentDoc}
+${LastPaymentRequestFragmentDoc}`;
 
 /**
  * __useGetRequestOverduePaymentInfosQuery__
@@ -19592,7 +19611,7 @@ ${CustomerForRequestOverduePaymentEmailFragmentDoc}`;
  *   },
  * });
  */
-export function useGetRequestOverduePaymentInfosQuery(baseOptions: Apollo.QueryHookOptions<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>) {
+export function useGetRequestOverduePaymentInfosQuery(baseOptions: Apollo.QueryHookOptions<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables> & ({ variables: GetRequestOverduePaymentInfosQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>(GetRequestOverduePaymentInfosDocument, options);
       }
@@ -19652,6 +19671,39 @@ export type GetRequestOverduePaymentBalanceQueryHookResult = ReturnType<typeof u
 export type GetRequestOverduePaymentBalanceLazyQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentBalanceLazyQuery>;
 export type GetRequestOverduePaymentBalanceSuspenseQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentBalanceSuspenseQuery>;
 export type GetRequestOverduePaymentBalanceQueryResult = Apollo.QueryResult<GetRequestOverduePaymentBalanceQuery, GetRequestOverduePaymentBalanceQueryVariables>;
+export const CreatePaymentRequestDocument = gql`
+    mutation createPaymentRequest($input: PaymentRequestCreateInput!) {
+  createPaymentRequest(input: $input) {
+    id
+  }
+}
+    `;
+export type CreatePaymentRequestMutationFn = Apollo.MutationFunction<CreatePaymentRequestMutation, CreatePaymentRequestMutationVariables>;
+
+/**
+ * __useCreatePaymentRequestMutation__
+ *
+ * To run a mutation, you first call `useCreatePaymentRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePaymentRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPaymentRequestMutation, { data, loading, error }] = useCreatePaymentRequestMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreatePaymentRequestMutation(baseOptions?: Apollo.MutationHookOptions<CreatePaymentRequestMutation, CreatePaymentRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePaymentRequestMutation, CreatePaymentRequestMutationVariables>(CreatePaymentRequestDocument, options);
+      }
+export type CreatePaymentRequestMutationHookResult = ReturnType<typeof useCreatePaymentRequestMutation>;
+export type CreatePaymentRequestMutationResult = Apollo.MutationResult<CreatePaymentRequestMutation>;
+export type CreatePaymentRequestMutationOptions = Apollo.BaseMutationOptions<CreatePaymentRequestMutation, CreatePaymentRequestMutationVariables>;
 export const CustomersDocument = gql`
     query customers($page: Int, $limit: Int, $searchTerm: String) {
   customers(page: $page, limit: $limit, searchTerm: $searchTerm) {
