@@ -143,7 +143,7 @@ const Main = styled.div`
   cursor: pointer;
 
   > *:first-child {
-    padding-top: 6px;
+    padding-top: 4px;
   }
 
   .MuiCheckbox-root {
