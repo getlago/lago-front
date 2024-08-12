@@ -23,7 +23,10 @@ export const FiltersItemInvoiceType = ({ value, setFilterValue }: FiltersItemInv
       onChange={(invoiceType) => {
         setFilterValue(String(invoiceType.map((v) => v.value).join(',')))
       }}
-      value={value?.split(',').map((v) => ({ value: v }))}
+      value={value
+        ?.split(',')
+        .filter((v) => !!v)
+        .map((v) => ({ value: v }))}
     />
   )
 }
