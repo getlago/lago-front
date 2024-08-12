@@ -476,6 +476,20 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                 <Skeleton variant="text" height={12} width={200} />
                 <Skeleton variant="text" height={12} width={200} />
               </Stack>
+            ) : !!connectedAnrokIntegration.externalAccountId &&
+              customer?.anrokCustomer?.externalCustomerId ? (
+              <InlineLink
+                target="_blank"
+                rel="noopener noreferrer"
+                to={buildAnrokCustomerUrl(
+                  connectedAnrokIntegration.externalAccountId,
+                  customer?.anrokCustomer?.externalCustomerId,
+                )}
+              >
+                <Typography color="info600">
+                  {customer?.anrokCustomer?.externalCustomerId} <Icon name="outside" />
+                </Typography>
+              </InlineLink>
             ) : !!connectedAnrokIntegration && customer?.anrokCustomer?.integrationId ? (
               <Stack>
                 <Stack direction="row" spacing={2} alignItems="center">
@@ -484,21 +498,6 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                   </Avatar>
                   <Typography color="grey700">{connectedAnrokIntegration?.name}</Typography>
                 </Stack>
-                {!!connectedAnrokIntegration.externalAccountId &&
-                  customer?.anrokCustomer?.externalCustomerId && (
-                    <InlineLink
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      to={buildAnrokCustomerUrl(
-                        connectedAnrokIntegration.externalAccountId,
-                        customer?.anrokCustomer?.externalCustomerId,
-                      )}
-                    >
-                      <Typography color="info600">
-                        {customer?.anrokCustomer?.externalCustomerId} <Icon name="outside" />
-                      </Typography>
-                    </InlineLink>
-                  )}
               </Stack>
             ) : null}
           </div>
