@@ -47,6 +47,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { Card, HEADER_TABLE_HEIGHT, MenuPopper, PageHeader, theme } from '~/styles'
+import { StickySubmitBar } from '~/styles/mainObjectsForm'
 
 const CELL_HEIGHT = 68
 
@@ -898,10 +899,12 @@ const CreateInvoice = () => {
               </>
             )}
           </BorderedCard>
-          {!loading && (
+        </CenteredWrapper>
+
+        {!loading && (
+          <CustomStickySubmitBar>
             <SubmitButtonWrapper>
               <Button
-                fullWidth
                 size="large"
                 disabled={!formikProps.isValid || !formikProps.dirty}
                 onClick={formikProps.submitForm}
@@ -910,8 +913,8 @@ const CreateInvoice = () => {
                 {translate('text_6453819268763979024ad134')}
               </Button>
             </SubmitButtonWrapper>
-          )}
-        </CenteredWrapper>
+          </CustomStickySubmitBar>
+        )}
       </PageWrapper>
 
       <WarningDialog
@@ -1097,8 +1100,18 @@ const InvoiceFooterLine = styled.div`
   }
 `
 
+const CustomStickySubmitBar = styled(StickySubmitBar)`
+  margin-top: ${theme.spacing(19)};
+`
+
 const SubmitButtonWrapper = styled.div`
-  margin: 0 32px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  max-width: 1024px;
+  padding: 0 ${theme.spacing(4)};
+  margin: 0 auto;
 `
 
 const TaxCell = styled(Typography)`
