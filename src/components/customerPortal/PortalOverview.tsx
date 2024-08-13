@@ -64,6 +64,8 @@ export const PortalOverview: FC<PortalOverviewProps> = ({ translate, documentLoc
   useEffect(() => {
     getOverdueBalance()
     getInvoicesCollection()
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const customerCurrency = userCurrencyData?.customerPortalUser?.currency ?? CurrencyEnum.Usd
