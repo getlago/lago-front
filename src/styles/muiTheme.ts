@@ -57,6 +57,10 @@ export const theme = createTheme({
     MuiPopper: {
       styleOverrides: {
         root: {
+          // Make sure if a date picker is displayed in a popper that it is above all content
+          '&.MuiPickersPopper-root': {
+            zIndex: 2000,
+          },
           '.MuiDateCalendar-viewTransitionContainer': {
             'min-height': '304px',
 
