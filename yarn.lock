@@ -1186,10 +1186,10 @@
   resolved "https://registry.npmjs.org/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@dittowords/cli@4.4.1":
-  version "4.4.1"
-  resolved "https://registry.yarnpkg.com/@dittowords/cli/-/cli-4.4.1.tgz#844dad98945b8df2a886aabb97aeba62df6e0812"
-  integrity sha512-iLepWk3l5mZG8bRufbcy1p2Y56qCZDkMBxfD0DCqVmEatv9Dl/OzMdMlvy4r3Fo1Pz+WMwqiZ6lLGBUsk4gOVg==
+"@dittowords/cli@4.5.2":
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/@dittowords/cli/-/cli-4.5.2.tgz#5055867a9bfaf15877baada6999d76732478fc53"
+  integrity sha512-bco7UokChxNhRdq0yuW10ywLP1km3gJHZRwQHusuAO1UifYGHYiS823yF0Rhb4akDpuVGHcpyFzLkUuBb2GroQ==
   dependencies:
     "@babel/core" "^7.11.4"
     "@babel/parser" "^7.21.4"
