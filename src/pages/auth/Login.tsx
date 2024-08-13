@@ -13,6 +13,7 @@ import { FORGOT_PASSWORD_ROUTE, LOGIN_OKTA, SIGN_UP_ROUTE } from '~/core/router'
 import { CurrentUserFragmentDoc, LagoApiError, useLoginUserMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
+import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import { theme } from '~/styles'
 import { Card, Page, StyledLogo } from '~/styles/auth'
 
@@ -34,6 +35,7 @@ gql`
 
 const Login = () => {
   const { translate } = useInternationalization()
+  const { isRunningInSalesForceIframe } = useSalesForceConfig()
   const navigate = useNavigate()
 
   const [loginUser, { error: loginError }] = useLoginUserMutation({
@@ -95,28 +97,32 @@ const Login = () => {
             </Alert>
           )}
 
-          <Stack spacing={4}>
-            <GoogleAuthButton
-              mode="login"
-              label={translate('text_660bf95c75dd928ced0ecb31')}
-              hideAlert={!!loginError}
-            />
-            <Button
-              fullWidth
-              startIcon="okta"
-              size="large"
-              variant="tertiary"
-              onClick={() => navigate(LOGIN_OKTA)}
-            >
-              {translate('text_664c90c9b2b6c2012aa50bce')}
-            </Button>
-          </Stack>
+          {!isRunningInSalesForceIframe && (
+            <>
+              <Stack spacing={4}>
+                <GoogleAuthButton
+                  mode="login"
+                  label={translate('text_660bf95c75dd928ced0ecb31')}
+                  hideAlert={!!loginError}
+                />
+                <Button
+                  fullWidth
+                  startIcon="okta"
+                  size="large"
+                  variant="tertiary"
+                  onClick={() => navigate(LOGIN_OKTA)}
+                >
+                  {translate('text_664c90c9b2b6c2012aa50bce')}
+                </Button>
+              </Stack>
 
-          <OrSeparator>
-            <Typography variant="captionHl" color="grey500">
-              {translate('text_6303351deffd2a0d70498675').toUpperCase()}
-            </Typography>
-          </OrSeparator>
+              <OrSeparator>
+                <Typography variant="captionHl" color="grey500">
+                  {translate('text_6303351deffd2a0d70498675').toUpperCase()}
+                </Typography>
+              </OrSeparator>
+            </>
+          )}
 
           <InputWrapper>
             <TextInputField
@@ -149,7 +155,7 @@ const Login = () => {
             {translate('text_620bc4d4269a55014d493f6d')}
           </Button>
 
-          {!disableSignUp && (
+          {!disableSignUp && !isRunningInSalesForceIframe && (
             <UsefullLink
               variant="caption"
               html={translate('text_62c84d0029355c83db4dd186', {

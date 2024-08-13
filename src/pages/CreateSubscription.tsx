@@ -57,6 +57,7 @@ import { useAddSubscription } from '~/hooks/customer/useAddSubscription'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ThinkingManeki from '~/public/images/maneki/thinking.svg'
 import { BREAKPOINT_LG, Card, NAV_HEIGHT, PageHeader, theme } from '~/styles'
 
@@ -193,6 +194,7 @@ const CreateSubscription = () => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const { customerId, subscriptionId } = useParams()
+  const { isRunningInSalesForceIframe } = useSalesForceConfig()
 
   const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
   const warningDialogRef = useRef<WarningDialogRef>(null)
@@ -482,16 +484,20 @@ const CreateSubscription = () => {
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {pageHeaderTitle}
         </Typography>
-        <Button
-          variant="quaternary"
-          icon="close"
-          onClick={() =>
-            subscriptionFormikProps.dirty || planFormikProps.dirty
-              ? warningDialogRef.current?.openDialog()
-              : navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
-          }
-          data-test="close-create-subscription-button"
-        />
+        {!isRunningInSalesForceIframe && (
+          <Button
+            variant="quaternary"
+            icon="close"
+            onClick={() =>
+              subscriptionFormikProps.dirty || planFormikProps.dirty
+                ? warningDialogRef.current?.openDialog()
+                : navigate(
+                    generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }),
+                  )
+            }
+            data-test="close-create-subscription-button"
+          />
+        )}
       </PageHeader>
       <Container>
         <SubscriptionAside

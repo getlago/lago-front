@@ -6,7 +6,7 @@
 import { makeVar } from '@apollo/client'
 import { Location } from 'react-router-dom'
 
-const MAX_HISTORY_KEPT = 5
+const MAX_HISTORY_KEPT = 10
 
 export const locationHistoryVar = makeVar<Location[]>([])
 

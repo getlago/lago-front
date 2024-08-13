@@ -14,7 +14,7 @@ const InvitationInit = () => {
 
   useEffect(() => {
     const triggerLogout = async () => {
-      await logOut(client)
+      await logOut(client, true)
     }
 
     triggerLogout()
