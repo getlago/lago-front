@@ -197,10 +197,7 @@ const Header = styled(PageHeader)`
 const HeaderRigthBlock = styled.div`
   display: flex;
   align-items: center;
-
-  > :first-child {
-    margin-right: ${theme.spacing(3)};
-  }
+  gap: ${theme.spacing(3)};
 `
 
 const ListHead = styled(ListHeader)`
