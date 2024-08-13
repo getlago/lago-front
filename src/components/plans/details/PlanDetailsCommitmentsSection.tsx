@@ -21,7 +21,7 @@ const PlanDetailsCommitmentsSection = ({
   const { translate } = useInternationalization()
 
   return (
-    <Stack direction="column" spacing={6}>
+    <Stack direction="column" gap={4}>
       <div>
         <Typography variant="bodyHl" color="grey700">
           {translate('text_65d601bffb11e0f9d1d9f569')}
