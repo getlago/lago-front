@@ -268,6 +268,7 @@
   "text_66b4e77677f8c600c8d50ea3": "Anrok customer ID",
   "text_66b4e77677f8c600c8d50ea5": "Type an Anrok customer ID",
   "text_66b4e77677f8c600c8d50ea7": "Create automatically this customer in {{connectionName}} at invoice creation",
+  "text_66ba65e562cbc500f04c7dbb": "Since you’ve connected tax providers to your Lago account, the tax created here won’t affect any customers or invoices linked to those providers.",
   "text_646e2d0cc536351b62ba6f8c": "Arrears",
   "text_646e2d0cc536351b62ba6faa": "Advance",
   "text_646e2d0cc536351b62ba6f01": "More option",

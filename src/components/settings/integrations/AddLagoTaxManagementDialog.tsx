@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router'
 import styled from 'styled-components'
 import { object, string } from 'yup'
 
-import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import { Alert, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { ComboBoxField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { LAGO_TAX_DOCUMENTATION_URL } from '~/core/constants/externalUrls'
@@ -17,6 +17,7 @@ import {
   useUpdateOrgaForLagoTaxManagementMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useIntegrations } from '~/hooks/useIntegrations'
 import { theme } from '~/styles'
 
 gql`
@@ -36,6 +37,7 @@ interface AddStripDialog {
 export const AddLagoTaxManagementDialog = forwardRef<AddLagoTaxManagementDialogRef, AddStripDialog>(
   ({ country }: AddStripDialog, ref) => {
     const { translate } = useInternationalization()
+    const { hasTaxProvider } = useIntegrations()
     const navigate = useNavigate()
     const formikProps = useFormik<UpdateOrganizationInput>({
       initialValues: {
@@ -112,6 +114,14 @@ export const AddLagoTaxManagementDialog = forwardRef<AddLagoTaxManagementDialogR
             formikProps={formikProps}
             PopperProps={{ displayInDialog: true }}
           />
+
+          {hasTaxProvider && (
+            <Alert type="info">
+              <Typography variant="body" color="grey700">
+                {translate('text_66ba65e562cbc500f04c7dbb')}
+              </Typography>
+            </Alert>
+          )}
         </Content>
       </Dialog>
     )
@@ -122,7 +132,7 @@ const Content = styled.div`
   margin-bottom: ${theme.spacing(8)};
 
   > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
+    margin-bottom: ${theme.spacing(8)};
   }
 `
 
