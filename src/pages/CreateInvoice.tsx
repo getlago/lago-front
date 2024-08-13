@@ -44,6 +44,7 @@ import {
   useGetInfosForCreateInvoiceQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { Card, HEADER_TABLE_HEIGHT, MenuPopper, PageHeader, theme } from '~/styles'
 
@@ -146,6 +147,7 @@ type TaxMapType = Map<
 const CreateInvoice = () => {
   const navigate = useNavigate()
   const { customerId } = useParams()
+  const { emitSalesForceEvent, isRunningInSalesForceIframe } = useSalesForceConfig()
   const [showAddItem, setShowAddItem] = useState(false)
   const { translate } = useInternationalization()
   const warningDialogRef = useRef<WarningDialogRef>(null)
@@ -181,7 +183,15 @@ const CreateInvoice = () => {
           severity: 'success',
           translateKey: 'text_6453819268763979024ad144',
         })
-        navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
+        if (isRunningInSalesForceIframe) {
+          emitSalesForceEvent({
+            action: 'close',
+            rel: 'create-invoice',
+            invoiceId: createInvoiceResult.id,
+          })
+        } else {
+          navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
+        }
       }
     },
   })
@@ -326,13 +336,16 @@ const CreateInvoice = () => {
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_6453819268763979024acfe9')}
         </Typography>
-        <Button
-          variant="quaternary"
-          icon="close"
-          onClick={() =>
-            formikProps.dirty ? warningDialogRef.current?.openDialog() : handleClosePage()
-          }
-        />
+
+        {!isRunningInSalesForceIframe && (
+          <Button
+            variant="quaternary"
+            icon="close"
+            onClick={() =>
+              formikProps.dirty ? warningDialogRef.current?.openDialog() : handleClosePage()
+            }
+          />
+        )}
       </PageHeader>
 
       <PageWrapper>
