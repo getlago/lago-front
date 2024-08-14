@@ -207,7 +207,15 @@ export const Table = <T extends DataItem>({
   return (
     // Width is set to 0 and minWidth to 100% to prevent table from overflowing its container
     // cf. https://stackoverflow.com/a/73091777
-    <Box width={0} minWidth="100%" overflow="auto" height="100%">
+    <Box
+      width={0}
+      minWidth="100%"
+      overflow="auto"
+      height="100%"
+      sx={{
+        transform: 'translateZ(0)',
+      }}
+    >
       <StyledTable
         data-test={TABLE_ID}
         ref={tableRef}
@@ -478,7 +486,7 @@ const TableHead = styled(MUITableHead)`
     background-color: ${theme.palette.background.paper};
     position: sticky;
     top: 0;
-    transform: translateZ(1px);
+    z-index: 1;
     border-bottom: none;
     box-shadow: ${theme.shadows[7]};
   }
