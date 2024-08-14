@@ -5,6 +5,7 @@ import { Locale, TranslateData } from '~/core/translations'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { theme } from '~/styles'
 
+import { Icon, IconColor, IconName } from './Icon'
 import { Typography, TypographyColor } from './Typography'
 
 export enum StatusType {
@@ -65,6 +66,7 @@ const statusLabelMapping: Record<StatusLabel, string> = {
 export type StatusProps = {
   labelVariables?: TranslateData
   locale?: Locale
+  endIcon?: IconName
 } & (
   | {
       type: StatusType.success
@@ -96,6 +98,7 @@ type StatusConfig = Record<
   StatusType,
   {
     color: TypographyColor
+    iconColor: IconColor
     backgroundColor: string
     borderColor: string
   }
@@ -104,37 +107,49 @@ type StatusConfig = Record<
 const STATUS_CONFIG: StatusConfig = {
   success: {
     color: 'success600',
+    iconColor: 'success',
     backgroundColor: theme.palette.success[100],
     borderColor: theme.palette.success[200],
   },
   default: {
     color: 'grey700',
+    iconColor: 'dark',
     backgroundColor: theme.palette.grey[100],
     borderColor: theme.palette.grey[400],
   },
   outline: {
     color: 'grey600',
+    iconColor: 'dark',
     backgroundColor: theme.palette.background.default,
     borderColor: theme.palette.grey[400],
   },
   warning: {
     color: 'warning700',
+    iconColor: 'warning',
     backgroundColor: theme.palette.secondary[100],
     borderColor: theme.palette.secondary[300],
   },
   danger: {
     color: 'danger600',
+    iconColor: 'error',
     backgroundColor: theme.palette.error[100],
     borderColor: theme.palette.error[200],
   },
   disabled: {
     color: 'grey500',
+    iconColor: 'disabled',
     backgroundColor: theme.palette.grey[100],
     borderColor: theme.palette.grey[400],
   },
 }
 
-export const Status: FC<StatusProps> = ({ type, label, labelVariables, locale = 'en' }) => {
+export const Status: FC<StatusProps> = ({
+  type,
+  label,
+  labelVariables,
+  locale = 'en',
+  endIcon,
+}) => {
   const { translateWithContextualLocal: translate } = useContextualLocale(locale)
 
   const config = STATUS_CONFIG[type ?? 'default']
@@ -145,6 +160,7 @@ export const Status: FC<StatusProps> = ({ type, label, labelVariables, locale = 
       <Typography variant="captionHl" color={config.color} noWrap>
         {translate(statusLabel, labelVariables ?? {})}
       </Typography>
+      {endIcon && <Icon name={endIcon} size="medium" color={config.iconColor} />}
     </Container>
   )
 }

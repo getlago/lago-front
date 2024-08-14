@@ -384,7 +384,11 @@ const DesignSystem = () => {
                     <GroupTitle variant="bodyHl" color="textSecondary">
                       Success
                     </GroupTitle>
-                    <Status type={StatusType.success} label="succeeded" />
+                    <Status
+                      type={StatusType.success}
+                      label="succeeded"
+                      endIcon="warning-unfilled"
+                    />
                     <Status type={StatusType.success} label="finalized" />
                     <Status type={StatusType.success} label="active" />
                     <Status type={StatusType.success} label="pay" />
@@ -399,19 +403,19 @@ const DesignSystem = () => {
                     <GroupTitle variant="bodyHl" color="textSecondary">
                       Warning
                     </GroupTitle>
-                    <Status type={StatusType.warning} label="failed" />
+                    <Status type={StatusType.warning} label="failed" endIcon="warning-unfilled" />
                   </Block>
                   <Block>
                     <GroupTitle variant="bodyHl" color="textSecondary">
                       Outline
                     </GroupTitle>
-                    <Status type={StatusType.outline} label="draft" />
+                    <Status type={StatusType.outline} label="draft" endIcon="warning-unfilled" />
                   </Block>
                   <Block>
                     <GroupTitle variant="bodyHl" color="textSecondary">
                       Default
                     </GroupTitle>
-                    <Status type={StatusType.default} label="pending" />
+                    <Status type={StatusType.default} label="pending" endIcon="warning-unfilled" />
                     <Status type={StatusType.default} label="toPay" />
                     <Status type={StatusType.default} label="n/a" />
                   </Block>
@@ -419,7 +423,7 @@ const DesignSystem = () => {
                     <GroupTitle variant="bodyHl" color="textSecondary">
                       Danger
                     </GroupTitle>
-                    <Status type={StatusType.danger} label="disputed" />
+                    <Status type={StatusType.danger} label="disputed" endIcon="warning-unfilled" />
                     <Status type={StatusType.danger} label="disputeLost" />
                     <Status
                       type={StatusType.danger}
@@ -434,7 +438,7 @@ const DesignSystem = () => {
                     <GroupTitle variant="bodyHl" color="textSecondary">
                       Disabled
                     </GroupTitle>
-                    <Status type={StatusType.disabled} label="voided" />
+                    <Status type={StatusType.disabled} label="voided" endIcon="warning-unfilled" />
                   </Block>
                 </VerticalBlock>
 
