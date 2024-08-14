@@ -250,9 +250,7 @@ export const Table = <T extends DataItem>({
                     $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
                   >
                     <TableInnerCell $minWidth={column.minWidth} $align={column.textAlign}>
-                      <Typography color="textSecondary" noWrap>
-                        {column.content(item)}
-                      </Typography>
+                        <Typography noWrap>{column.content(item)}</Typography>
                     </TableInnerCell>
                   </TableCell>
                 ))}
