@@ -1,4 +1,5 @@
 import {
+  Box,
   Table as MUITable,
   TableBody as MUITableBody,
   TableCell as MUITableCell,
@@ -62,7 +63,6 @@ interface TableProps<T> {
   name: string
   data: T[]
   columns: Column<T>[]
-  isFullWidth?: boolean
   isLoading?: boolean
   hasError?: boolean
   placeholder?: {
@@ -93,7 +93,6 @@ export const Table = <T extends DataItem>({
   columns,
   isLoading,
   hasError,
-  isFullWidth = true,
   containerSize = 48,
   rowSize = 56,
   placeholder,
@@ -206,96 +205,99 @@ export const Table = <T extends DataItem>({
   }
 
   return (
-    <StyledTable
-      data-test={TABLE_ID}
-      ref={tableRef}
-      $isFullWidth={!!isFullWidth}
-      $containerSize={containerSize}
-      $rowSize={rowSize}
-    >
-      <TableHead>
+    // Width is set to 0 and minWidth to 100% to prevent table from overflowing its container
+    // cf. https://stackoverflow.com/a/73091777
+    <Box width={0} minWidth="100%" overflow="auto">
+      <StyledTable
+        data-test={TABLE_ID}
+        ref={tableRef}
+        $containerSize={containerSize}
+        $rowSize={rowSize}
+      >
+        <TableHead>
           <tr>
-          <>
-            {columns.map((column, i) => (
-              <TableCell
-                key={`${TABLE_ID}-head-${i}`}
-                align={column.textAlign || 'left'}
-                $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
-              >
-                <TableInnerCell $align={column.textAlign}>{column.title}</TableInnerCell>
-              </TableCell>
-            ))}
-            {shouldDisplayActionColumn && <TableActionCell />}
-          </>
+            <>
+              {columns.map((column, i) => (
+                <TableCell
+                  key={`${TABLE_ID}-head-${i}`}
+                  align={column.textAlign || 'left'}
+                  $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
+                >
+                  <TableInnerCell $align={column.textAlign}>{column.title}</TableInnerCell>
+                </TableCell>
+              ))}
+              {shouldDisplayActionColumn && <TableActionCell />}
+            </>
           </tr>
-      </TableHead>
+        </TableHead>
 
-      <MUITableBody>
-        {renderPlaceholder() ??
-          (data.length > 0 &&
-            data.map((item, i) => (
-              <TableRow
-                key={`${TABLE_ID}-row-${i}`}
-                id={`${TABLE_ID}-row-${i}`}
-                data-id={item.id}
-                $isClickable={isClickable}
-                tabIndex={isClickable ? 0 : undefined}
-                onKeyDown={isClickable ? onKeyDown : undefined}
-                onClick={isClickable ? (e) => handleRowClick(e, item) : undefined}
-              >
-                {columns.map((column, j) => (
-                  <TableCell
-                    key={`${TABLE_ID}-cell-${i}-${j}`}
-                    align={column.textAlign || 'left'}
-                    $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
-                  >
-                    <TableInnerCell $minWidth={column.minWidth} $align={column.textAlign}>
+        <MUITableBody>
+          {renderPlaceholder() ??
+            (data.length > 0 &&
+              data.map((item, i) => (
+                <TableRow
+                  key={`${TABLE_ID}-row-${i}`}
+                  id={`${TABLE_ID}-row-${i}`}
+                  data-id={item.id}
+                  $isClickable={isClickable}
+                  tabIndex={isClickable ? 0 : undefined}
+                  onKeyDown={isClickable ? onKeyDown : undefined}
+                  onClick={isClickable ? (e) => handleRowClick(e, item) : undefined}
+                >
+                  {columns.map((column, j) => (
+                    <TableCell
+                      key={`${TABLE_ID}-cell-${i}-${j}`}
+                      align={column.textAlign || 'left'}
+                      $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
+                    >
+                      <TableInnerCell $minWidth={column.minWidth} $align={column.textAlign}>
                         <Typography noWrap>{column.content(item)}</Typography>
-                    </TableInnerCell>
-                  </TableCell>
-                ))}
-                {shouldDisplayActionColumn && (
-                  <TableActionCell>
-                    <TableInnerCell data-id={ACTION_COLUMN_ID}>
-                      {Array.isArray(actionColumn(item)) ? (
-                        <Popper
-                          popperGroupName={`${TABLE_ID}-action-cell`}
-                          PopperProps={{ placement: 'bottom-end' }}
-                          opener={<Button icon="dots-horizontal" variant="quaternary" />}
-                        >
-                          {({ closePopper }) => (
-                            <MenuPopper data-id={`${TABLE_ID}-popper`}>
-                              {(actionColumn(item) as Array<ActionItem<T> | null>)
-                                .filter((action) => !!action)
-                                .map((action, j) => {
-                                  if (!action) {
-                                    return
-                                  }
+                      </TableInnerCell>
+                    </TableCell>
+                  ))}
+                  {shouldDisplayActionColumn && (
+                    <TableActionCell>
+                      <TableInnerCell data-id={ACTION_COLUMN_ID}>
+                        {Array.isArray(actionColumn(item)) ? (
+                          <Popper
+                            popperGroupName={`${TABLE_ID}-action-cell`}
+                            PopperProps={{ placement: 'bottom-end' }}
+                            opener={<Button icon="dots-horizontal" variant="quaternary" />}
+                          >
+                            {({ closePopper }) => (
+                              <MenuPopper data-id={`${TABLE_ID}-popper`}>
+                                {(actionColumn(item) as Array<ActionItem<T> | null>)
+                                  .filter((action) => !!action)
+                                  .map((action, j) => {
+                                    if (!action) {
+                                      return
+                                    }
 
-                                  return (
-                                    <ActionItemButton
-                                      key={`${TABLE_ID}-popper-action-${i}-${j}`}
-                                      action={action}
-                                      item={item}
-                                      closePopper={closePopper}
-                                    />
-                                  )
-                                })}
-                            </MenuPopper>
-                          )}
-                        </Popper>
-                      ) : (
-                        (actionColumn(item) as ReactNode)
-                      )}
-                    </TableInnerCell>
-                  </TableActionCell>
-                )}
-              </TableRow>
-            )))}
-        {isLoading &&
-          LoadingRows({ columns, id: TABLE_ID, shouldDisplayActionColumn, actionColumn })}
-      </MUITableBody>
-    </StyledTable>
+                                    return (
+                                      <ActionItemButton
+                                        key={`${TABLE_ID}-popper-action-${i}-${j}`}
+                                        action={action}
+                                        item={item}
+                                        closePopper={closePopper}
+                                      />
+                                    )
+                                  })}
+                              </MenuPopper>
+                            )}
+                          </Popper>
+                        ) : (
+                          (actionColumn(item) as ReactNode)
+                        )}
+                      </TableInnerCell>
+                    </TableActionCell>
+                  )}
+                </TableRow>
+              )))}
+          {isLoading &&
+            LoadingRows({ columns, id: TABLE_ID, shouldDisplayActionColumn, actionColumn })}
+        </MUITableBody>
+      </StyledTable>
+    </Box>
   )
 }
 
@@ -418,12 +420,10 @@ const TableCell = styled(MUITableCell)<{
 `
 
 const StyledTable = styled(MUITable)<{
-  $isFullWidth: boolean
   $containerSize: ResponsiveStyleValue<ContainerSize>
   $rowSize: RowSize
 }>`
   border-collapse: collapse;
-  width: ${({ $isFullWidth }) => ($isFullWidth ? '100%' : 'auto')};
 
   ${TableCell}:first-of-type ${TableInnerCell} {
     ${({ $containerSize }) => setResponsiveProperty('paddingLeft', $containerSize)}
