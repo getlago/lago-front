@@ -1,9 +1,11 @@
 import { gql } from '@apollo/client'
+import { Stack } from '@mui/material'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Alert, Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
+import { addToast } from '~/core/apolloClient'
 import {
   ANROK_INTEGRATION_DETAILS_ROUTE,
   ANROK_INTEGRATION_ROUTE,
@@ -14,6 +16,7 @@ import {
   AnrokIntegrationSettingsFragment,
   DeleteAnrokIntegrationDialogFragmentDoc,
   useGetAnrokIntegrationsSettingsQuery,
+  useRetryAllInvoicesMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { AnrokIntegrationDetailsTabs } from '~/pages/settings/AnrokIntegrationDetails'
@@ -38,6 +41,7 @@ gql`
     code
     apiKey
     hasMappingsConfigured
+    failedInvoicesCount
   }
 
   query getAnrokIntegrationsSettings($id: ID!, $limit: Int) {
@@ -59,6 +63,14 @@ gql`
     }
   }
 
+  mutation retryAllInvoices($input: RetryAllInvoicesInput!) {
+    retryAllInvoices(input: $input) {
+      metadata {
+        totalCount
+      }
+    }
+  }
+
   ${DeleteAnrokIntegrationDialogFragmentDoc}
   ${AddAnrokIntegrationDialogFragmentDoc}
 `
@@ -70,6 +82,17 @@ const AnrokIntegrationSettings = () => {
   const deleteDialogRef = useRef<DeleteAnrokIntegrationDialogRef>(null)
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
+  const [retryAllInvoices] = useRetryAllInvoicesMutation({
+    onCompleted(result) {
+      if (!!result?.retryAllInvoices?.metadata?.totalCount) {
+        addToast({
+          severity: 'info',
+          message: translate('text_66ba5a76e614f000a738c97f'),
+        })
+      }
+    },
+    refetchQueries: ['getAnrokIntegrationsSettings'],
+  })
   const { data, loading } = useGetAnrokIntegrationsSettingsQuery({
     variables: {
       id: integrationId as string,
@@ -187,6 +210,54 @@ const AnrokIntegrationSettings = () => {
             )}
           </>
         </section>
+
+        <Stack
+          direction="row"
+          gap={4}
+          justifyContent="space-between"
+          alignItems="center"
+          paddingBottom={6}
+          sx={{ boxShadow: theme.shadows[7] }}
+        >
+          <Stack flex={1}>
+            <Typography variant="bodyHl" color="grey700">
+              {translate('text_66ba5a76e614f000a738c97a')}
+            </Typography>
+            {loading ? (
+              <CustomSkeleton variant="text" width="100%" height={12} />
+            ) : !!anrokIntegration?.failedInvoicesCount ? (
+              <Stack display="inline" divider={<>{/* Space here is important */} </>}>
+                <Typography component="span" variant="caption" color="grey600">
+                  {translate('text_66ba5a76e614f000a738c97b')}
+                </Typography>
+                <Typography component="span" variant="caption" color="grey700">
+                  {translate(
+                    'text_66ba5a76e614f000a738c97c',
+                    {
+                      failedInvoicesCount: anrokIntegration?.failedInvoicesCount,
+                    },
+                    anrokIntegration?.failedInvoicesCount || 1,
+                  )}
+                </Typography>
+                <Typography component="span" variant="caption" color="grey600">
+                  {translate('text_66ba5a76e614f000a738c97d')}
+                </Typography>
+              </Stack>
+            ) : (
+              <Typography variant="caption" color="grey600">
+                {translate('text_66ba5ca33713b600c4e8fcf0')}
+              </Typography>
+            )}
+          </Stack>
+
+          <Button
+            variant="quaternary"
+            disabled={!anrokIntegration?.failedInvoicesCount}
+            onClick={async () => await retryAllInvoices({ variables: { input: {} } })}
+          >
+            {translate('text_66ba5a76e614f000a738c97e')}
+          </Button>
+        </Stack>
       </Settings>
 
       <AddAnrokDialog ref={addAnrokDialogRef} />
@@ -231,4 +302,9 @@ const Item = styled.div`
   > *:first-child {
     margin-right: ${theme.spacing(3)};
   }
+`
+
+const CustomSkeleton = styled(Skeleton)`
+  margin-top: 8px;
+  margin-bottom: 4px;
 `

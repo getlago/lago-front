@@ -6399,7 +6399,7 @@ export type DeleteAnrokIntegrationMappingMutationVariables = Exact<{
 
 export type DeleteAnrokIntegrationMappingMutation = { __typename?: 'Mutation', destroyIntegrationMapping?: { __typename?: 'DestroyIntegrationMappingPayload', id?: string | null } | null };
 
-export type AnrokIntegrationSettingsFragment = { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: string, hasMappingsConfigured?: boolean | null };
+export type AnrokIntegrationSettingsFragment = { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: string, hasMappingsConfigured?: boolean | null, failedInvoicesCount?: number | null };
 
 export type GetAnrokIntegrationsSettingsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -6407,7 +6407,14 @@ export type GetAnrokIntegrationsSettingsQueryVariables = Exact<{
 }>;
 
 
-export type GetAnrokIntegrationsSettingsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: string, hasMappingsConfigured?: boolean | null } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'XeroIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetAnrokIntegrationsSettingsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: string, hasMappingsConfigured?: boolean | null, failedInvoicesCount?: number | null } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'XeroIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+
+export type RetryAllInvoicesMutationVariables = Exact<{
+  input: RetryAllInvoicesInput;
+}>;
+
+
+export type RetryAllInvoicesMutation = { __typename?: 'Mutation', retryAllInvoices?: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number } } | null };
 
 export type DeleteAdyenIntegrationDialogFragment = { __typename?: 'AdyenProvider', id: string, name: string };
 
@@ -8433,6 +8440,7 @@ export const AnrokIntegrationSettingsFragmentDoc = gql`
   code
   apiKey
   hasMappingsConfigured
+  failedInvoicesCount
 }
     `;
 export const DeleteAdyenIntegrationDialogFragmentDoc = gql`
@@ -15102,6 +15110,41 @@ export type GetAnrokIntegrationsSettingsQueryHookResult = ReturnType<typeof useG
 export type GetAnrokIntegrationsSettingsLazyQueryHookResult = ReturnType<typeof useGetAnrokIntegrationsSettingsLazyQuery>;
 export type GetAnrokIntegrationsSettingsSuspenseQueryHookResult = ReturnType<typeof useGetAnrokIntegrationsSettingsSuspenseQuery>;
 export type GetAnrokIntegrationsSettingsQueryResult = Apollo.QueryResult<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>;
+export const RetryAllInvoicesDocument = gql`
+    mutation retryAllInvoices($input: RetryAllInvoicesInput!) {
+  retryAllInvoices(input: $input) {
+    metadata {
+      totalCount
+    }
+  }
+}
+    `;
+export type RetryAllInvoicesMutationFn = Apollo.MutationFunction<RetryAllInvoicesMutation, RetryAllInvoicesMutationVariables>;
+
+/**
+ * __useRetryAllInvoicesMutation__
+ *
+ * To run a mutation, you first call `useRetryAllInvoicesMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRetryAllInvoicesMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [retryAllInvoicesMutation, { data, loading, error }] = useRetryAllInvoicesMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useRetryAllInvoicesMutation(baseOptions?: Apollo.MutationHookOptions<RetryAllInvoicesMutation, RetryAllInvoicesMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RetryAllInvoicesMutation, RetryAllInvoicesMutationVariables>(RetryAllInvoicesDocument, options);
+      }
+export type RetryAllInvoicesMutationHookResult = ReturnType<typeof useRetryAllInvoicesMutation>;
+export type RetryAllInvoicesMutationResult = Apollo.MutationResult<RetryAllInvoicesMutation>;
+export type RetryAllInvoicesMutationOptions = Apollo.BaseMutationOptions<RetryAllInvoicesMutation, RetryAllInvoicesMutationVariables>;
 export const DeleteAdyenIntegrationDocument = gql`
     mutation deleteAdyenIntegration($input: DestroyPaymentProviderInput!) {
   destroyPaymentProvider(input: $input) {
