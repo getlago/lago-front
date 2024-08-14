@@ -40,6 +40,18 @@ export const typeDefs = gql`
     google_auth_missing_setup
     domain_not_configured
     okta_userinfo_error
+
+    # Anrok errors
+    currencyCodeNotSupported
+    customerAddressCountryNotSupported
+    customerAddressCouldNotResolve
+    productExternalIdUnknown
+    accountingTimeZoneNotSetForSeller
+    accountingTimeZoneNotSupported
+    customerIdNotFound
+    externalServiceError
+    taxDateTooFarInFuture
+    taxDateTooFarInPast
   }
 `
 
