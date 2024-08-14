@@ -207,7 +207,7 @@ export const Table = <T extends DataItem>({
   return (
     // Width is set to 0 and minWidth to 100% to prevent table from overflowing its container
     // cf. https://stackoverflow.com/a/73091777
-    <Box width={0} minWidth="100%" overflow="auto">
+    <Box width={0} minWidth="100%" overflow="auto" height="100%">
       <StyledTable
         data-test={TABLE_ID}
         ref={tableRef}
@@ -478,7 +478,7 @@ const TableHead = styled(MUITableHead)`
     background-color: ${theme.palette.background.paper};
     position: sticky;
     top: 0;
-    z-index: 1;
+    transform: translateZ(1px);
     border-bottom: none;
     box-shadow: ${theme.shadows[7]};
   }
@@ -513,13 +513,13 @@ const TableRow = styled(MUITableRow)<{ $isClickable?: boolean }>`
   &:focus:not(:active),
   &:hover:not(:active) ${TableActionCell}, &:focus:not(:active) ${TableActionCell} {
     background-color: ${({ $isClickable }) =>
-      $isClickable ? `${theme.palette.grey[100]} !important` : 'unset'};
+      $isClickable ? `${theme.palette.grey[100]}` : undefined};
   }
 
   &:active,
   &:active ${TableActionCell} {
     background-color: ${({ $isClickable }) =>
-      $isClickable ? `${theme.palette.grey[200]} !important` : 'unset'};
+      $isClickable ? `${theme.palette.grey[200]}` : undefined};
   }
 
   // Remove hover effect when action column is hovered
@@ -527,7 +527,7 @@ const TableRow = styled(MUITableRow)<{ $isClickable?: boolean }>`
     background-color: unset !important;
 
     ${TableActionCell} {
-      background-color: ${theme.palette.background.paper} !important;
+      background-color: ${theme.palette.background.paper};
     }
   }
 `
