@@ -214,7 +214,7 @@ export const Table = <T extends DataItem>({
       $rowSize={rowSize}
     >
       <TableHead>
-        <TableRow>
+          <tr>
           <>
             {columns.map((column, i) => (
               <TableCell
@@ -227,7 +227,7 @@ export const Table = <T extends DataItem>({
             ))}
             {shouldDisplayActionColumn && <TableActionCell />}
           </>
-        </TableRow>
+          </tr>
       </TableHead>
 
       <MUITableBody>
@@ -445,30 +445,32 @@ const TableActionCell = styled(TableCell)`
   position: sticky;
   right: 0;
   z-index: 1;
-  animation-name: shadow;
-  animation-duration: 1s;
-  animation-timing-function: ease-in-out;
-  animation-timeline: scroll(inline);
+  box-shadow: none;
+  background-color: ${theme.palette.background.paper};
 
   ${TableInnerCell} {
     justify-content: center;
     padding-left: ${theme.spacing(3)};
   }
 
+  @supports (animation-timeline: scroll(inline)) {
+    animation-name: shadow;
+    animation-duration: 1s;
+    animation-timing-function: ease-in-out;
+    animation-timeline: scroll(inline);
+  }
+
   @keyframes shadow {
     0% {
       box-shadow: ${theme.shadows[8]};
-      background-color: ${theme.palette.background.paper};
     }
 
     90% {
       box-shadow: ${theme.shadows[8]};
-      background-color: ${theme.palette.background.paper};
     }
 
     99% {
       box-shadow: none;
-      background-color: transparent;
     }
   }
 `
