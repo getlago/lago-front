@@ -1,26 +1,40 @@
 import { FetchMoreQueryOptions, gql } from '@apollo/client'
-import { useRef } from 'react'
+import { FC, useRef } from 'react'
+import { generatePath, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Button, InfiniteScroll, Tooltip, Typography } from '~/components/designSystem'
 import {
-  InvoiceListItem,
-  InvoiceListItemContextEnum,
-  InvoiceListItemGridTemplate,
-  InvoiceListItemSkeleton,
-} from '~/components/invoices/InvoiceListItem'
-import { getTimezoneConfig } from '~/core/timezone'
+  InfiniteScroll,
+  Status,
+  StatusProps,
+  StatusType,
+  Table,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { formatDateToTZ, getTimezoneConfig } from '~/core/timezone'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
+  CurrencyEnum,
+  InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForInvoiceListFragment,
-  InvoiceListItemFragmentDoc,
+  InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
+  InvoicePaymentStatusTypeEnum,
+  InvoiceStatusTypeEnum,
+  LagoApiError,
   TimezoneEnum,
+  useDownloadInvoiceItemMutation,
+  useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import EmptyImage from '~/public/images/maneki/empty.svg'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import { HEADER_TABLE_HEIGHT, theme } from '~/styles'
+import { usePermissions } from '~/hooks/usePermissions'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
+import { theme } from '~/styles'
 
-import { GenericPlaceholder } from '../GenericPlaceholder'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
@@ -29,6 +43,26 @@ import { FinalizeInvoiceDialog, FinalizeInvoiceDialogRef } from '../invoices/Fin
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '../invoices/VoidInvoiceDialog'
 
 gql`
+  fragment InvoiceListItem on Invoice {
+    id
+    status
+    paymentStatus
+    paymentOverdue
+    number
+    issuingDate
+    totalAmountCents
+    currency
+    voidable
+    paymentDisputeLostAt
+    customer {
+      id
+      name
+      applicableTimezone
+    }
+    ...InvoiceForFinalizeInvoice
+    ...InvoiceForUpdateInvoicePaymentStatus
+  }
+
   fragment InvoiceForInvoiceList on InvoiceCollection {
     collection {
       id
@@ -45,201 +79,351 @@ gql`
     }
   }
 
-  ${InvoiceListItemFragmentDoc}
+  mutation downloadInvoiceItem($input: DownloadInvoiceInput!) {
+    downloadInvoice(input: $input) {
+      id
+      fileUrl
+    }
+  }
+
+  mutation retryInvoicePayment($input: RetryInvoicePaymentInput!) {
+    retryInvoicePayment(input: $input) {
+      id
+      ...InvoiceListItem
+    }
+  }
+
+  ${InvoiceForFinalizeInvoiceFragmentDoc}
+  ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
 `
 
-enum CustomerInvoiceListContextEnum {
-  draft = 'draft',
-  finalized = 'finalized',
+const mapStatusConfig = ({
+  status,
+  paymentStatus,
+  paymentOverdue,
+  paymentDisputeLostAt,
+}: {
+  status: InvoiceStatusTypeEnum
+  paymentStatus: InvoicePaymentStatusTypeEnum
+  paymentOverdue: boolean
+  paymentDisputeLostAt?: string
+}): StatusProps => {
+  if (paymentDisputeLostAt) {
+    return { label: 'disputed', type: StatusType.danger }
+  }
+
+  if (status === InvoiceStatusTypeEnum.Draft) {
+    return { label: 'draft', type: StatusType.outline }
+  }
+
+  if (status === InvoiceStatusTypeEnum.Voided) {
+    return { label: 'voided', type: StatusType.disabled }
+  }
+
+  if (paymentStatus === InvoicePaymentStatusTypeEnum.Succeeded) {
+    return { label: 'succeeded', type: StatusType.success }
+  }
+
+  if (paymentOverdue) {
+    return { label: 'overdue', type: StatusType.danger }
+  }
+
+  if (
+    status === InvoiceStatusTypeEnum.Finalized &&
+    paymentStatus === InvoicePaymentStatusTypeEnum.Failed
+  ) {
+    return { label: 'failed', type: StatusType.warning }
+  }
+
+  if (
+    status === InvoiceStatusTypeEnum.Finalized &&
+    paymentStatus === InvoicePaymentStatusTypeEnum.Pending
+  ) {
+    return { label: 'pending', type: StatusType.default }
+  }
+
+  return { label: 'n/a', type: StatusType.default }
 }
 
-interface InvoiceListProps {
+interface CustomerInvoicesListProps {
   isLoading: boolean
   hasError?: boolean
-  hasSearchTerm?: boolean
-  customerTimezone?: TimezoneEnum
   invoiceData?: InvoiceForInvoiceListFragment
-  context?: keyof typeof CustomerInvoiceListContextEnum
-  getOnClickLink: (id: string) => string
-  onSeeAll?: () => void
+  customerTimezone?: TimezoneEnum
+  customerId: string
+  context?: 'finalized' | 'draft'
   fetchMore?: (options: FetchMoreQueryOptions<{ page: number }>) => Promise<unknown>
 }
 
-export const CustomerInvoicesList = ({
+export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   isLoading,
   hasError = false,
-  hasSearchTerm = false,
   invoiceData,
   customerTimezone = TimezoneEnum.TzUtc,
-  context = CustomerInvoiceListContextEnum.draft,
-  getOnClickLink,
-  onSeeAll,
+  customerId,
+  context = 'draft',
   fetchMore,
-}: InvoiceListProps) => {
+}) => {
+  const navigate = useNavigate()
+  const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
+
+  const [retryCollect] = useRetryInvoicePaymentMutation({
+    context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
+    onCompleted({ retryInvoicePayment }) {
+      if (!!retryInvoicePayment?.id) {
+        addToast({
+          severity: 'success',
+          translateKey: 'text_63ac86d897f728a87b2fa0b3',
+        })
+      }
+    },
+  })
+  const [downloadInvoice] = useDownloadInvoiceItemMutation({
+    onCompleted({ downloadInvoice: data }) {
+      const fileUrl = data?.fileUrl
+
+      if (fileUrl) {
+        // We open a window, add url then focus on different lines, in order to prevent browsers to block page opening
+        // It could be seen as unexpected popup as not immediatly done on user action
+        // https://stackoverflow.com/questions/2587677/avoid-browser-popup-blockers
+        const myWindow = window.open('', '_blank')
+
+        if (myWindow?.location?.href) {
+          myWindow.location.href = fileUrl
+          return myWindow?.focus()
+        }
+
+        myWindow?.close()
+      } else {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+        })
+      }
+    },
+  })
+
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
-  const { metadata, collection } = invoiceData || {}
-  const { translate } = useInternationalization()
 
   return (
-    <ScrollWrapper>
-      <ListWrapper>
-        <HeaderLine>
-          <Typography variant="bodyHl" color="grey500" noWrap>
-            {translate(
-              context === CustomerInvoiceListContextEnum.draft
-                ? 'text_63ac86d797f728a87b2f9fa7'
-                : 'text_63b5d225b075850e0fe489f4',
-            )}
-          </Typography>
-          <Typography variant="bodyHl" color="grey500" noWrap>
-            {translate('text_63ac86d797f728a87b2f9fad')}
-          </Typography>
+    <>
+      <InfiniteScroll
+        onBottom={() => {
+          if (!fetchMore) return
 
-          <Typography variant="bodyHl" color="grey500" align="right" noWrap>
-            {translate('text_63ac86d797f728a87b2f9fb9')}
-          </Typography>
-          <Tooltip
-            placement="top-start"
-            title={translate('text_6390ea10cf97ec5780001c9d', {
-              offset: getTimezoneConfig(customerTimezone).offset,
-            })}
-          >
-            <WithTooltip variant="bodyHl" color="disabled">
-              {translate('text_62544c1db13ca10187214d7f')}
-            </WithTooltip>
-          </Tooltip>
-        </HeaderLine>
-        {isLoading && hasSearchTerm ? (
-          <>
-            {[0, 1, 2].map((i) => (
-              <InvoiceListItemSkeleton
-                key={`invoice-item-skeleton-${i}`}
-                className={i === 2 ? 'last-invoice-item--no-border' : undefined}
-                context="customer"
-              />
-            ))}
-          </>
-        ) : !isLoading && hasError ? (
-          <StyledGenericPlaceholder
-            noMargins
-            title={translate('text_634812d6f16b31ce5cbf4111')}
-            subtitle={translate('text_634812d6f16b31ce5cbf411f')}
-            buttonTitle={translate('text_634812d6f16b31ce5cbf4123')}
-            buttonVariant="primary"
-            buttonAction={() => location.reload()}
-            image={<ErrorImage width="136" height="104" />}
-          />
-        ) : !isLoading && !collection?.length ? (
-          <StyledGenericPlaceholder
-            noMargins
-            title={translate('text_63c6cac5c1fc58028d0235eb')}
-            subtitle={translate('text_63c6cac5c1fc58028d0235ef')}
-            image={<EmptyImage width="136" height="104" />}
-          />
-        ) : (
-          <InfiniteScroll
-            onBottom={() => {
-              if (!fetchMore) return
-              const { currentPage = 0, totalPages = 0 } = metadata || {}
+          const { currentPage = 0, totalPages = 0 } = invoiceData?.metadata || {}
 
-              currentPage < totalPages &&
-                !isLoading &&
-                fetchMore({
-                  variables: { page: currentPage + 1 },
-                })
-            }}
-          >
-            {!!collection &&
-              collection.map((invoice, i) => {
-                const link = getOnClickLink(invoice?.id)
-
+          currentPage < totalPages &&
+            !isLoading &&
+            fetchMore({ variables: { page: currentPage + 1 } })
+        }}
+      >
+        <Table
+          name="customer-invoices"
+          containerSize={{ default: 4 }}
+          isLoading={isLoading}
+          hasError={hasError}
+          data={invoiceData?.collection ?? []}
+          onRowAction={({ id }) =>
+            navigate(
+              generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+                customerId,
+                invoiceId: id,
+                tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+              }),
+            )
+          }
+          placeholder={{
+            errorState: {
+              title: translate('text_634812d6f16b31ce5cbf4111'),
+              subtitle: translate('text_634812d6f16b31ce5cbf411f'),
+              buttonTitle: translate('text_634812d6f16b31ce5cbf4123'),
+              buttonAction: () => location.reload(),
+            },
+            emptyState: {
+              title: translate('text_63c6cac5c1fc58028d0235eb'),
+              subtitle: translate('text_63c6cac5c1fc58028d0235ef'),
+            },
+          }}
+          columns={[
+            {
+              key: 'status',
+              minWidth: 80,
+              title: translate(
+                context === 'draft'
+                  ? 'text_63ac86d797f728a87b2f9fa7'
+                  : 'text_63b5d225b075850e0fe489f4',
+              ),
+              content: ({ status, paymentStatus, paymentOverdue, paymentDisputeLostAt }) => {
                 return (
-                  <InvoiceListItem
-                    className={
-                      !isLoading && !onSeeAll && collection.length - 1 === i
-                        ? 'last-invoice-item--no-border'
-                        : undefined
-                    }
-                    key={invoice?.id}
-                    to={link}
-                    invoice={invoice}
-                    context="customer"
-                    finalizeInvoiceRef={finalizeInvoiceRef}
-                    updateInvoicePaymentStatusDialog={updateInvoicePaymentStatusDialog}
-                    voidInvoiceDialogRef={voidInvoiceDialogRef}
-                    data-test={`invoice-list-item-${i}`}
+                  <Status
+                    {...mapStatusConfig({
+                      status,
+                      paymentStatus,
+                      paymentOverdue,
+                      paymentDisputeLostAt,
+                    })}
                   />
                 )
-              })}
-            {isLoading &&
-              [0, 1, 2].map((_, i) => (
-                <InvoiceListItemSkeleton
-                  key={`invoice-item-skeleton-${i}`}
-                  className={i === 2 ? 'last-invoice-item--no-border' : undefined}
-                  context="customer"
-                />
-              ))}
-          </InfiniteScroll>
-        )}
-        {!!onSeeAll && (
-          <PlusButtonWrapper>
-            <Button variant="quaternary" endIcon="arrow-right" onClick={onSeeAll}>
-              {translate('text_638f4d756d899445f18a4a0e')}
-            </Button>
-          </PlusButtonWrapper>
-        )}
-      </ListWrapper>
+              },
+            },
+            {
+              key: 'number',
+              minWidth: 160,
+              title: translate('text_63ac86d797f728a87b2f9fad'),
+              content: (invoice) => invoice.number,
+            },
+            {
+              key: 'totalAmountCents',
+              maxSpace: true,
+              textAlign: 'right',
+              minWidth: 160,
+              title: translate('text_63ac86d797f728a87b2f9fb9'),
+              content: (invoice) => {
+                const currency = invoice.currency || CurrencyEnum.Usd
+                const amount = deserializeAmount(invoice.totalAmountCents, currency)
+
+                return (
+                  <Typography variant="bodyHl" color="textSecondary" noWrap>
+                    {intlFormatNumber(amount, { currency })}
+                  </Typography>
+                )
+              },
+            },
+            {
+              key: 'issuingDate',
+              minWidth: 104,
+              title: (
+                <Tooltip
+                  placement="top-start"
+                  title={translate('text_6390ea10cf97ec5780001c9d', {
+                    offset: getTimezoneConfig(customerTimezone).offset,
+                  })}
+                >
+                  <WithTooltip variant="captionHl" color="grey600" noWrap>
+                    {translate('text_62544c1db13ca10187214d7f')}
+                  </WithTooltip>
+                </Tooltip>
+              ),
+              content: ({ issuingDate, customer }) =>
+                formatDateToTZ(issuingDate, customer.applicableTimezone),
+            },
+          ]}
+          actionColumn={(invoice) => {
+            const { status, paymentStatus, voidable } = invoice
+
+            const canDownload =
+              status !== InvoiceStatusTypeEnum.Draft && hasPermissions(['invoicesView'])
+            const canFinalize = hasPermissions(['invoicesUpdate'])
+            const canRetryCollect =
+              status === InvoiceStatusTypeEnum.Finalized &&
+              [InvoicePaymentStatusTypeEnum.Failed, InvoicePaymentStatusTypeEnum.Pending].includes(
+                paymentStatus,
+              ) &&
+              hasPermissions(['invoicesSend'])
+            const canUpdatePaymentStatus =
+              status !== InvoiceStatusTypeEnum.Draft &&
+              status !== InvoiceStatusTypeEnum.Voided &&
+              hasPermissions(['invoicesUpdate'])
+            const canVoid =
+              status === InvoiceStatusTypeEnum.Finalized &&
+              [InvoicePaymentStatusTypeEnum.Pending, InvoicePaymentStatusTypeEnum.Failed].includes(
+                paymentStatus,
+              ) &&
+              hasPermissions(['invoicesVoid'])
+
+            return [
+              canDownload
+                ? {
+                    startIcon: 'download',
+                    title: translate('text_62b31e1f6a5b8b1b745ece42'),
+                    onAction: async ({ id }) => {
+                      await downloadInvoice({
+                        variables: { input: { id } },
+                      })
+                    },
+                  }
+                : canFinalize
+                  ? {
+                      startIcon: 'checkmark',
+                      title: translate('text_63a41a8eabb9ae67047c1c08'),
+                      onAction: (item) => finalizeInvoiceRef.current?.openDialog(item),
+                    }
+                  : null,
+              canRetryCollect
+                ? {
+                    startIcon: 'push',
+                    title: translate('text_63ac86d897f728a87b2fa039'),
+                    onAction: async ({ id }) => {
+                      const { errors } = await retryCollect({
+                        variables: {
+                          input: {
+                            id,
+                          },
+                        },
+                      })
+
+                      if (
+                        hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)
+                      ) {
+                        addToast({
+                          severity: 'danger',
+                          translateKey: 'text_63b6d06df1a53b7e2ad973ad',
+                        })
+                      }
+                    },
+                  }
+                : null,
+              {
+                startIcon: 'duplicate',
+                title: translate('text_63ac86d897f728a87b2fa031'),
+                onAction: ({ id }) => {
+                  copyToClipboard(id)
+                  addToast({
+                    severity: 'info',
+                    translateKey: 'text_63ac86d897f728a87b2fa0b0',
+                  })
+                },
+              },
+              canUpdatePaymentStatus
+                ? {
+                    startIcon: 'coin-dollar',
+                    title: translate('text_63eba8c65a6c8043feee2a01'),
+                    onAction: () => {
+                      updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
+                    },
+                  }
+                : null,
+              canVoid
+                ? {
+                    startIcon: 'stop',
+                    title: translate('text_65269b43d4d2b15dd929a259'),
+                    disabled: !voidable,
+                    onAction: (item) =>
+                      voidInvoiceDialogRef?.current?.openDialog({ invoice: item }),
+                    ...(!voidable && {
+                      tooltip: translate('text_65269c2e471133226211fdd0'),
+                    }),
+                  }
+                : null,
+            ]
+          }}
+        />
+      </InfiniteScroll>
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
-    </ScrollWrapper>
+    </>
   )
 }
-
-const HeaderLine = styled.div`
-  height: ${HEADER_TABLE_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  box-shadow: ${theme.shadows[7]};
-  background-color: ${theme.palette.common.white};
-  border-radius: 12px 12px 0 0;
-  padding: 0 ${theme.spacing(4)};
-  ${InvoiceListItemGridTemplate(InvoiceListItemContextEnum.customer)}
-`
 
 const WithTooltip = styled(Typography)`
   border-bottom: 2px dotted ${theme.palette.grey[400]};
   width: fit-content;
   margin-top: 2px;
   float: right;
-`
-
-const StyledGenericPlaceholder = styled(GenericPlaceholder)`
-  margin: ${theme.spacing(6)} auto;
-  text-align: center;
-`
-
-const ListWrapper = styled.div`
-  border: 1px solid ${theme.palette.grey[400]};
-  border-radius: 12px;
-  min-width: 510px;
-
-  .last-invoice-item--no-border {
-    box-shadow: none;
-    border-radius: 0 0 12px 12px;
-  }
-`
-
-const ScrollWrapper = styled.div`
-  overflow: auto;
-`
-
-const PlusButtonWrapper = styled.div`
-  height: ${HEADER_TABLE_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `
