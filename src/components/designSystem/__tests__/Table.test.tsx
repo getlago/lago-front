@@ -188,7 +188,7 @@ describe('Table', () => {
     expect(screen.getByText('empty.svg')).toBeInTheDocument()
   })
 
-  it('renders with empty state', async () => {
+  it('renders with error state', async () => {
     await prepare({
       props: {
         hasError: true,

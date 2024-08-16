@@ -182,7 +182,7 @@ const InvoicesList = ({
         />
       </FiltersWrapper>
 
-      <ScrollContainer ref={listContainerElementRef}>
+      <div ref={listContainerElementRef}>
         <InfiniteScroll
           onBottom={() => {
             const { currentPage = 0, totalPages = 0 } = metadata || {}
@@ -445,7 +445,7 @@ const InvoicesList = ({
             }}
           />
         </InfiniteScroll>
-      </ScrollContainer>
+      </div>
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
@@ -455,11 +455,6 @@ const InvoicesList = ({
 }
 
 export default InvoicesList
-
-const ScrollContainer = styled.div`
-  overflow: auto;
-  height: 100%;
-`
 
 const FiltersWrapper = styled.div`
   width: 100%;
