@@ -25,6 +25,7 @@
     "test": "jest --config jest.config.js",
     "test:e2e": "cypress open --config-file cypress/cypress.config.js",
     "inspectTranslations": "node scripts/InspectTranslationKeys",
+    "translations:add": "node scripts/translations/add",
     "changelog:update": "auto-changelog --template=.changelog/regular.hbs",
     "postinstall": "npx yarn-deduplicate"
   },
